@@ -1,0 +1,44 @@
+VLLasku: web-pohjainen laskutusohjelma.
+Copyright (C) 2010 Ere Maijala
+
+Perustuu osittain sovellukseen:
+PkLasku laskutusohjelma : web-pohjainen laskutusohjelma.
+Copyright (C) 2004-2008 Samu Reinikainen
+
+Tämä ohjelma on vapaa; tätä ohjelmaa on sallittu levittää edelleen ja muuttaa GNU yleisen lisenssin (GPL lisenssin) ehtojen mukaan sellaisina kuin Free Software Foundation on ne julkaissut; joko Lisenssin version 2, tai (valinnan mukaan) minkä tahansa myöhemmän version mukaisesti.
+
+Tätä ohjelmaa levitetään siinä toivossa, että se olisi hyödyllinen, mutta ilman mitään takuuta; ilman edes hiljaista takuuta kaupallisesti hyväksyttävästä laadusta tai soveltuvuudesta tiettyyn tarkoitukseen. Katso GPL lisenssistä lisää yksityiskohtia. (ohjelman mukana tullut gpl.txt)
+
+Tämän ohjelman mukana pitäisi tulla kopio GPL lisenssistä; jos näin ei ole, kirjoita osoitteeseen: 
+Free Software Foundation Inc., 
+59 Temple Place Suite 330, Boston, MA 02111-1307, USA.
+
+Yhteystiedot:
+Ere Maijala
+emaijala@gmail.com
+
+VLLasku: web-based invoicing application.
+Copyright (C) 2010 Ere Maijala
+
+Portions based on:
+PkLasku-invoicing : web-based invoicing software.
+Copyright (C) 2004-2008 Samu Reinikainen
+
+This program is free software; you can redistribute it and/or
+modify it under the terms of the GNU General Public License
+as published by the Free Software Foundation; either version 2
+of the License, or (at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details. (gpl.txt included)
+
+You should have received a copy of the GNU General Public License
+along with this program; if not, write to the 
+Free Software Foundation, Inc., 
+59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+
+Contact Information:
+Ere Maijala
+emaijala@gmail.com

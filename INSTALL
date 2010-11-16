@@ -1,0 +1,14 @@
+Asennus:
+
+1. luo mysql-tietokanta 'vllasku'
+2. aja oheinen create_database.sql kantaan ja luo uusi k‰ytt‰j‰tunnus, jolla on oikeudet ko. tietokantaan
+3. kopioi paketin muut tiedostot web-palvelimelle
+4. muokkaa settings.php tiedostoon oikeat asetukset tietokantayhteyteen
+    (luo erillinen k‰ytt‰j‰ - ‰l‰ k‰yt‰ root-tunnusta)
+5. kirjaudu sis‰‰n oletustunnuksilla admin admin
+6. mene J‰rjestelm‰->K‰ytt‰j‰t ja vaihda Administrator-k‰ytt‰j‰n tunnus ja salasana haluamiksesi (huom. tarvineeko edes mainita, ett‰ t‰m‰ on ehdottoman t‰rke‰‰!)
+7. jos (kun olisi suositeltavampi) k‰yt‰t ohjelmistoa ssl-salatun https-yhteyden yli niin vaihda settings.php-tiedostosta asetus 
+define ("_PROTOCOL_", "http://");
+muotoon 
+define ("_PROTOCOL_", "https://");
+8. settings.php sis‰lt‰‰ muutamia muitakin j‰rjestelm‰n laajuisia asetuksia, joita voi muokata tarpeen mukaan
