@@ -43,16 +43,14 @@ require "miscfuncs.php";
 $intInvoiceId = (int)$_REQUEST['id'] ? (int)$_REQUEST['id'] : FALSE;
 $strType = $_REQUEST['type'] ? $_REQUEST['type'] : 'comp';
 
-$strJoinTable = _DB_PREFIX_. "_company";
-$strJoinfield = "company_id";
-$strSelect = "invoice_no, invoice_date, due_date, ref_number,". _DB_PREFIX_. "_invoice.name AS invoice_name, reference, company_name AS name, '' AS contact_person, billing_address, CONCAT(company_name, '\n', street_address, '\n', zip_code, ' ', city) AS billing_address2, base_id, ". _DB_PREFIX_. "_company.id as company_id";
+$prefix = _DB_PREFIX_;
 
 if( $intInvoiceId ) {
     $strQuery = 
-        "SELECT ". $strSelect ." ".
-        "FROM ". _DB_PREFIX_. "_invoice ".
-        "INNER JOIN ". $strJoinTable ." ON ". $strJoinTable .".id = ". _DB_PREFIX_. "_invoice.". $strJoinfield ." ".
-        "WHERE ". _DB_PREFIX_. "_invoice.id = " . $intInvoiceId . ";";
+        "SELECT invoice_no, invoice_date, due_date, ref_number,inv.name AS invoice_name, reference, company_name AS name, '' AS contact_person, billing_address, CONCAT(company_name, '\n', street_address, '\n', zip_code, ' ', city) AS billing_address2, base_id, comp.id as company_id " .
+        "FROM ${prefix}_invoice inv " .
+        "INNER JOIN ${prefix}_company comp ON comp.id = inv.company_id ".
+        "WHERE inv.id = $intInvoiceId";
     $intRes = mysql_query($strQuery);
     $intNRows = mysql_numrows($intRes);
     if( $intNRows ) {
@@ -113,15 +111,21 @@ if( $intInvoiceId ) {
         $GLOBALS['locCOMPVATID']. " : ". $strCompanyID. " ". ($boolVATReg ? $GLOBALS['locVATREG'] . ' ' : '') . $GLOBALS['locPHONE']. " : ". $strPhone. " ". $GLOBALS['locEMAIL']. " : ".  $strEmail;
     
     $strQuery = 
-        "SELECT description, pcs, price, row_date, vat, ". _DB_PREFIX_. "_row_type.name AS type ".
-        "FROM ". _DB_PREFIX_. "_invoice_row ".
-        "INNER JOIN ". _DB_PREFIX_. "_row_type ON ". _DB_PREFIX_. "_row_type.id = ".  _DB_PREFIX_. "_invoice_row.type_id ".
-        "WHERE ".  _DB_PREFIX_. "_invoice_row.invoice_id = ". $intInvoiceId. " ORDER BY ". _DB_PREFIX_. "_invoice_row.order_no, row_date, description DESC";
+        "SELECT pr.product_name, ir.description, pcs, price, row_date, vat, rt.name type ".
+        "FROM ${prefix}_invoice_row ir ".
+        "INNER JOIN ${prefix}_row_type rt ON rt.id = ir.type_id ".
+        "LEFT OUTER JOIN ${prefix}_product pr ON ir.product_id = pr.id ".
+        "WHERE ir.invoice_id = ". $intInvoiceId. " ORDER BY ir.order_no, row_date, pr.product_name DESC, ir.description DESC";
     $intRes = mysql_query($strQuery);
+    if ($intRes === FALSE)
+      error_log('Query failed: ' . mysql_error());
     if( $intRes ) {
         $intNRes = mysql_num_rows($intRes);
         for( $i = 0; $i < $intNRes; $i++ ) {
+            $strProduct = trim(mysql_result($intRes, $i, "product_name"));
             $astrDescription[$i] = trim(mysql_result($intRes, $i, "description"));
+            if ($strProduct)
+              $astrDescription[$i] = $strProduct .  ' (' . $astrDescription[$i] . ')';
             $astrRowDate[$i] = dateConvIntDate2Date(mysql_result($intRes, $i, "row_date"));
             $astrRowPrice[$i] = mysql_result($intRes, $i, "price");
             $astrPieces[$i] = mysql_result($intRes, $i, "pcs");
