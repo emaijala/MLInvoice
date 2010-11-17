@@ -247,6 +247,7 @@ default :
     $GLOBALS['locTOTALVAT'] = 'Arvonlisävero';
     $GLOBALS['locTOTALINCLUDINGVAT'] = 'Verollinen kokonaishinta';
     $GLOBALS['locSEESEPARATESTATEMENT'] = 'ks. erillinen laskuerittely';
+    $GLOBALS['locVATREG'] = 'ALV-rek.';
     
     //??
     $GLOBALS['locPAYMENTS'] = 'Maksut';
