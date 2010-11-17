@@ -62,7 +62,7 @@ default :
     $GLOBALS['locINVNAME'] = 'Laskun nimi';
     $GLOBALS['locINVNO'] = 'Laskunro';
     $GLOBALS['locPAYER'] = 'Maksaja';
-    $GLOBALS['locREFERENCE'] = 'Viite';
+    $GLOBALS['locCLIENTSREFERENCE'] = 'Asiakkaan viite';
     $GLOBALS['locYOURREFERENCE'] = 'Viitteenne';
     $GLOBALS['locINVDATE'] = 'Laskupvm';
     $GLOBALS['locDUEDATE'] = 'Eräpvm';
@@ -231,16 +231,22 @@ default :
     $GLOBALS['locGET'] = 'Hae';
     
     //INVOICE-PDF        
+    $GLOBALS['locINVOICEHEADER'] = 'LASKU';
     $GLOBALS['locSENDER'] = 'Lähettäjä';
-    $GLOBALS['locNOTICETIME'] = 'Huomautusaika';
-    $GLOBALS['locDUEINTEREST'] = 'Viivästyskorko';
-    $GLOBALS['loc7DAYS'] = '7 pv';
-    $GLOBALS['locSUM'] = 'Hinta';
-    $GLOBALS['locVATPERCENT'] = 'Alv %';
-    $GLOBALS['locTAX'] = 'Alv';
-    $GLOBALS['locTOTAL'] = 'Yhteensä';
+    $GLOBALS['locPERIODFORCOMPLAINTS'] = 'Huomautusaika';
+    $GLOBALS['locPENALTYINTEREST'] = 'Viivästyskorko';
+    $GLOBALS['locTERMSOFPAYMENT'] = 'Maksuehdot';
+    $GLOBALS['locSUM'] = 'Hinta €';
+    $GLOBALS['locVATPERCENT'] = 'ALV %';
+    $GLOBALS['locTAX'] = 'ALV';
+    $GLOBALS['locROWTOTAL'] = 'Yhteensä';
     $GLOBALS['locROWNAME'] = 'Nimike';
     $GLOBALS['locROWDESC'] = 'Tarkenne';
+    $GLOBALS['locROWPRICE'] = 'Hinta';
+    $GLOBALS['locTOTALEXCLUDINGVAT'] = 'Veroton kokonaishinta';
+    $GLOBALS['locTOTALVAT'] = 'Arvonlisävero';
+    $GLOBALS['locTOTALINCLUDINGVAT'] = 'Verollinen kokonaishinta';
+    $GLOBALS['locSEESEPARATESTATEMENT'] = 'ks. erillinen laskuerittely';
     
     //??
     $GLOBALS['locPAYMENTS'] = 'Maksut';

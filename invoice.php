@@ -40,6 +40,25 @@ require_once "fpdf.php";
 require "datefuncs.php";
 require "miscfuncs.php";
 
+class PDF extends FPDF
+{
+  public $footerLeft = '', $footerCenter = '', $footerRight = '';
+
+  function Footer()
+  {
+    if ($this->PageNo() == 1)
+      return;
+    $this->SetY(-15);
+    $this->SetFont('Helvetica','',7);
+    $this->SetX(7);
+    $this->Cell(75, 5, $this->footerLeft, 0, 0, "L");
+    $this->SetX(75);
+    $this->Cell(75, 5, $this->footerCenter, 0, 0, "C");
+    $this->SetX(150);
+    $this->Cell(50, 5, $this->footerRight, 0, 0, "R");
+  }
+} 
+
 $intInvoiceId = (int)$_REQUEST['id'] ? (int)$_REQUEST['id'] : FALSE;
 $strType = $_REQUEST['type'] ? $_REQUEST['type'] : 'comp';
 
@@ -47,7 +66,7 @@ $prefix = _DB_PREFIX_;
 
 if( $intInvoiceId ) {
     $strQuery = 
-        "SELECT invoice_no, invoice_date, due_date, ref_number,inv.name AS invoice_name, reference, company_name AS name, '' AS contact_person, billing_address, CONCAT(company_name, '\n', street_address, '\n', zip_code, ' ', city) AS billing_address2, base_id, comp.id as company_id " .
+        "SELECT invoice_no, invoice_date, due_date, ref_number,inv.name AS invoice_name, reference, company_name AS name, '' AS contact_person, email, billing_address, CONCAT(company_name, '\n', street_address, '\n', zip_code, ' ', city) AS billing_address2, base_id, comp.id as company_id " .
         "FROM ${prefix}_invoice inv " .
         "INNER JOIN ${prefix}_company comp ON comp.id = inv.company_id ".
         "WHERE inv.id = $intInvoiceId";
@@ -70,11 +89,11 @@ if( $intInvoiceId ) {
        $strCompanyAddress = substr($strBillingAddress, strpos($strBillingAddress, "\n")+1);
        $strName = mysql_result($intRes, 0, "name");
        $strContactPerson = mysql_result($intRes, 0, "contact_person");
-       
+       $strCompanyEmail = mysql_result($intRes, 0, "email");
        
        $strReference = $strReference ? $strReference : $strContactPerson;
     }
-    $strRefNumber = strrev(chunk_split(strrev($strRefNumber),5,' '));
+    $strRefNumber = trim(strrev(chunk_split(strrev($strRefNumber),5,' ')));
     
     $strSelect = "SELECT * FROM ". _DB_PREFIX_. "_base WHERE id = $intBaseId";
     $intRes = mysql_query($strSelect);
@@ -104,14 +123,20 @@ if( $intInvoiceId ) {
     $boolVATReg = mysql_result($intRes, 0, "vat_registered");
         
     $strAssocAddressLine = 
-        $strAssociation. " ". $strStreetAddress. " ". $strZipCode. " ". $strCity;
+        $strAssociation. "   ". $strStreetAddress. " ". $strZipCode. " ". $strCity;
     $strAssocAddress = 
         $strAssociation. "\n". $strStreetAddress. "\n". $strZipCode. " ". $strCity;
     $strContactInfo = 
-        $GLOBALS['locCOMPVATID']. " : ". $strCompanyID. " ". ($boolVATReg ? $GLOBALS['locVATREG'] . ' ' : '') . $GLOBALS['locPHONE']. " : ". $strPhone. " ". $GLOBALS['locEMAIL']. " : ".  $strEmail;
+        $GLOBALS['locCOMPVATID']. ": $strCompanyID";
+    if ($boolVATReg)
+      $strContactInfo .= ' ' . $GLOBALS['locVATREG'];
+    if ($strPhone)
+      $strContactInfo .= ' ' . $GLOBALS['locPHONE']. ": $strPhone";
+    if ($strEmail)
+      $strContactInfo .= ' ' . $GLOBALS['locEMAIL']. ": $strEmail";
     
     $strQuery = 
-        "SELECT pr.product_name, ir.description, pcs, price, row_date, vat, rt.name type ".
+        "SELECT pr.product_name, ir.description, ir.pcs, ir.price, ir.row_date, ir.vat, ir.vat_included, rt.name type ".
         "FROM ${prefix}_invoice_row ir ".
         "INNER JOIN ${prefix}_row_type rt ON rt.id = ir.type_id ".
         "LEFT OUTER JOIN ${prefix}_product pr ON ir.product_id = pr.id ".
@@ -130,9 +155,12 @@ if( $intInvoiceId ) {
             $astrRowPrice[$i] = mysql_result($intRes, $i, "price");
             $astrPieces[$i] = mysql_result($intRes, $i, "pcs");
             $astrVAT[$i] = mysql_result($intRes, $i, "vat");
+            $aboolVATIncluded[$i] = mysql_result($intRes, $i, "vat_included");
             $astrRowType[$i] = mysql_result($intRes, $i, "type");
             $intRowSum[$i] = $astrPieces[$i] * $astrRowPrice[$i];
             $intRowVAT[$i] = $intRowSum[$i] * ($astrVAT[$i] / 100);
+            if ($aboolVATIncluded[$i])
+              $intRowSum[$i] -= $intRowVAT[$i];
             $intRowSumVAT[$i] = $intRowSum[$i] + $intRowVAT[$i];
             $intTotSum += $intRowSum[$i];
             $intTotVAT += $intRowVAT[$i];
@@ -143,9 +171,12 @@ if( $intInvoiceId ) {
 else {
     die("Sorry, no can do!");
 }
-$pdf=new FPDF('P','mm','A4');
+$pdf=new PDF('P','mm','A4');
 $pdf->AddPage();
 $pdf->SetAutoPageBreak(FALSE);
+$pdf->footerLeft = $strAssocAddressLine;
+$pdf->footerCenter = $strContactInfo;
+$pdf->footerRight = $strWww;
 
 //TOP
 //$pdf->Image($GLOBALS['sesLANG']."_images/banner.jpg", 10, 5, 40);
@@ -156,7 +187,7 @@ $pdf->SetAutoPageBreak(FALSE);
 //sender
 $pdf->SetTextColor(125);
 $pdf->SetFont('Helvetica','B',10);
-$pdf->SetY($pdf->GetY()+5);//
+$pdf->SetY($pdf->GetY()+5);
 //$pdf->SetX(50);
 $pdf->Cell(120, 5, $strAssociation, 0, 1);
 $pdf->SetFont('Helvetica','',10);
@@ -170,35 +201,47 @@ $pdf->Cell(120, 6, $strCompanyName,0,1);
 $pdf->SetFont('Helvetica','',14);
 $pdf->MultiCell(120, 6, $strCompanyAddress,0,1);
 //$pdf->MultiCell(60, 5, $strBillingAddress,0,1);
+$pdf->SetFont('Helvetica','',12);
+$pdf->SetY($pdf->GetY() + 4);
+$pdf->Cell(120, 6, $strCompanyEmail,0,1);
 
 //invoiceinfo headers
 $pdf->SetXY(115,10);
-$pdf->SetFont('Helvetica','B',16);
-$pdf->Cell(40, 3, "LASKU $strInvoiceNo", 0, 1, 'R');
+$pdf->SetFont('Helvetica','B',12);
+$pdf->Cell(40, 5, $GLOBALS['locINVOICEHEADER'], 0, 1, 'R');
 $pdf->SetFont('Helvetica','',10);
 $pdf->SetXY(115, $pdf->GetY()+5);
 /*
-$pdf->Cell(40, 5, $GLOBALS['locSENDER'] ." : ", 0, 0, 'R');
+$pdf->Cell(40, 5, $GLOBALS['locSENDER'] .": ", 0, 0, 'R');
 $pdf->Cell(60, 5, $strAssociation, 0, 1);
 $pdf->SetX(115);
 */
 $pdf->SetX(115);
-$pdf->Cell(40, 5, $GLOBALS['locCLIENTNO'] ." : ", 0, 0, 'R');
+$pdf->Cell(40, 5, $GLOBALS['locCLIENTNO'] .": ", 0, 0, 'R');
 $pdf->Cell(60, 5, $strClientId, 0, 1);
 $pdf->SetX(115);
-$pdf->Cell(40, 5, $GLOBALS['locINVNO'] ." : ", 0, 0, 'R');
+$pdf->Cell(40, 5, $GLOBALS['locINVNO'] .": ", 0, 0, 'R');
 $pdf->Cell(60, 5, $strInvoiceNo, 0, 1);
 $pdf->SetX(115);
-$pdf->Cell(40, 5, $GLOBALS['locINVDATE'] ." : ", 0, 0, 'R');
+$pdf->Cell(40, 5, $GLOBALS['locINVDATE'] .": ", 0, 0, 'R');
 $pdf->Cell(60, 5, $strInvoiceDate, 0, 1);
 $pdf->SetX(115);
-$pdf->Cell(40, 5, $GLOBALS['locDUEDATE'] ." : ", 0, 0, 'R');
+$pdf->Cell(40, 5, $GLOBALS['locDUEDATE'] .": ", 0, 0, 'R');
 $pdf->Cell(60, 5, $strDueDate, 0, 1);
 $pdf->SetX(115);
-$pdf->Cell(40, 5, $GLOBALS['locREFNO'] ." : ", 0, 0, 'R');
+$pdf->Cell(40, 5, $GLOBALS['locTERMSOFPAYMENT'] .": ", 0, 0, 'R');
+$pdf->Cell(60, 5, $termsOfPayment, 0, 1);
+$pdf->SetX(115);
+$pdf->Cell(40, 5, $GLOBALS['locPERIODFORCOMPLAINTS'] .": ", 0, 0, 'R');
+$pdf->Cell(60, 5, $periodForComplaints, 0, 1);
+$pdf->SetX(115);
+$pdf->Cell(40, 5, $GLOBALS['locPENALTYINTEREST'] .": ", 0, 0, 'R');
+$pdf->Cell(60, 5, $penaltyInterest, 0, 1);
+$pdf->SetX(115);
+$pdf->Cell(40, 5, $GLOBALS['locREFNO'] .": ", 0, 0, 'R');
 $pdf->Cell(60, 5, $strRefNumber, 0, 1);
 $pdf->SetX(115);
-$pdf->Cell(40, 5, $GLOBALS['locYOURREFERENCE'] ." : ", 0, 0, 'R');
+$pdf->Cell(40, 5, $GLOBALS['locYOURREFERENCE'] .": ", 0, 0, 'R');
 $pdf->Cell(60, 5, $strReference, 0, 1);
 
 $pdf->SetY($pdf->GetY()+5);
@@ -207,70 +250,81 @@ $pdf->SetY($pdf->GetY()+5);
 
 if( $intNRes <= $invoicePdfRows ) {
 
-//middle - invoicerows
-//invoiceinfo headers
-$pdf->SetXY(7,$pdf->GetY());
-if( $showInvoiceRowDate ) {
-    $pdf->Cell(60, 5, $GLOBALS['locROWNAME'], 0, 0, "L");
-    $pdf->Cell(20, 5, $GLOBALS['locDATE'], 0, 0, "L");
-}
-else {
-    $pdf->Cell(80, 5, $GLOBALS['locROWNAME'], 0, 0, "L");
-}
-$pdf->Cell(15, 5, $GLOBALS['locPRICE'], 0, 0, "R");
-$pdf->Cell(15, 5, $GLOBALS['locPCS'], 0, 0, "R");
-$pdf->Cell(15, 5, $GLOBALS['locUNIT'], 0, 0, "R");
-$pdf->Cell(20, 5, $GLOBALS['locTOTAL'], 0, 0, "R");
-$pdf->Cell(15, 5, $GLOBALS['locVATPERCENT'], 0, 0, "R");
-$pdf->Cell(15, 5, $GLOBALS['locTAX'], 0, 0, "R");
-$pdf->Cell(20, 5, $GLOBALS['locTOTAL'], 0, 1, "R");
-
-//rows
-$pdf->SetY($pdf->GetY()+5);
-for( $i = 0; $i < $intNRes; $i++ ) {
-    if( $astrRowPrice[$i] == 0 && $astrPieces[$i] == 0 ) {
-        $pdf->SetX(7);
-        $pdf->MultiCell(0, 5, $astrDescription[$i], 0, 'L');
-    }
-    else {
-        //$pdf->SetY($pdf->GetY()+5);
-        if( $showInvoiceRowDate ) {
-            $pdf->SetX(67);
-            $pdf->Cell(20, 5, $astrRowDate[$i], 0, 0, "L");
-        }
-        else {
-            $pdf->SetX(87);
-        }
-        $pdf->Cell(15, 5, miscRound2Decim($astrRowPrice[$i]), 0, 0, "R");
-        $pdf->Cell(15, 5, miscRound2Decim($astrPieces[$i]), 0, 0, "R");
-        $pdf->Cell(15, 5, $astrRowType[$i], 0, 0, "R");
-        $pdf->Cell(20, 5, miscRound2Decim($intRowSum[$i]), 0, 0, "R");
-        $pdf->Cell(15, 5, $astrVAT[$i], 0, 0, "R");
-        $pdf->Cell(15, 5, miscRound2Decim($intRowVAT[$i]), 0, 0, "R");
-        $pdf->Cell(20, 5, miscRound2Decim($intRowSumVAT[$i]), 0, 0, "R");
-        $pdf->SetX(7);
-        if( $showInvoiceRowDate ) {
-            $pdf->MultiCell(60, 5, $astrDescription[$i], 0, 'L');
-        }
-        else {
-            $pdf->MultiCell(80, 5, $astrDescription[$i], 0, 'L');
-        }
-        
-        
-    }
-}
-$pdf->SetFont('Helvetica','B',10);
-$pdf->SetY($pdf->GetY()+10);
-$pdf->Cell(132, 5, $GLOBALS['locTOTAL'] ." : ", 0, 0, "R");
-$pdf->Cell(20, 5, miscRound2Decim($intTotSum), 0, 0, "R");
-$pdf->Cell(20, 5, miscRound2Decim($intTotVAT), 0, 0, "R");
-$pdf->Cell(20, 5, miscRound2Decim($intTotSumVAT), 0, 1, "R");
+  //middle - invoicerows
+  //invoiceinfo headers
+  $pdf->SetXY(7,$pdf->GetY());
+  if( $showInvoiceRowDate ) {
+      $pdf->Cell(60, 5, $GLOBALS['locROWNAME'], 0, 0, "L");
+      $pdf->Cell(20, 5, $GLOBALS['locDATE'], 0, 0, "L");
+  }
+  else {
+      $pdf->Cell(80, 5, $GLOBALS['locROWNAME'], 0, 0, "L");
+  }
+  $pdf->Cell(15, 5, $GLOBALS['locROWPRICE'], 0, 0, "R");
+  $pdf->Cell(15, 5, $GLOBALS['locPCS'], 0, 0, "R");
+  $pdf->Cell(15, 5, $GLOBALS['locUNIT'], 0, 0, "R");
+  $pdf->Cell(20, 5, $GLOBALS['locROWTOTAL'], 0, 0, "R");
+  $pdf->Cell(15, 5, $GLOBALS['locVATPERCENT'], 0, 0, "R");
+  $pdf->Cell(15, 5, $GLOBALS['locTAX'], 0, 0, "R");
+  $pdf->Cell(20, 5, $GLOBALS['locROWTOTAL'], 0, 1, "R");
+  
+  //rows
+  $pdf->SetY($pdf->GetY()+5);
+  for( $i = 0; $i < $intNRes; $i++ ) {
+      if( $astrRowPrice[$i] == 0 && $astrPieces[$i] == 0 ) {
+          $pdf->SetX(7);
+          $pdf->MultiCell(0, 5, $astrDescription[$i], 0, 'L');
+      }
+      else {
+          //$pdf->SetY($pdf->GetY()+5);
+          if( $showInvoiceRowDate ) {
+              $pdf->SetX(67);
+              $pdf->Cell(20, 5, $astrRowDate[$i], 0, 0, "L");
+          }
+          else {
+              $pdf->SetX(87);
+          }
+          $pdf->Cell(15, 5, miscRound2Decim($astrRowPrice[$i]), 0, 0, "R");
+          $pdf->Cell(15, 5, miscRound2Decim($astrPieces[$i]), 0, 0, "R");
+          $pdf->Cell(15, 5, $astrRowType[$i], 0, 0, "R");
+          $pdf->Cell(20, 5, miscRound2Decim($intRowSum[$i]), 0, 0, "R");
+          $pdf->Cell(15, 5, $astrVAT[$i], 0, 0, "R");
+          $pdf->Cell(15, 5, miscRound2Decim($intRowVAT[$i]), 0, 0, "R");
+          $pdf->Cell(20, 5, miscRound2Decim($intRowSumVAT[$i]), 0, 0, "R");
+          $pdf->SetX(7);
+          if( $showInvoiceRowDate ) {
+              $pdf->MultiCell(60, 5, $astrDescription[$i], 0, 'L');
+          }
+          else {
+              $pdf->MultiCell(80, 5, $astrDescription[$i], 0, 'L');
+          }
+          
+          
+      }
+  }
+  $pdf->SetFont('Helvetica','',10);
+  $pdf->SetY($pdf->GetY()+10);
+  $pdf->Cell(162, 5, $GLOBALS['locTOTALEXCLUDINGVAT'] .": ", 0, 0, "R");
+  $pdf->SetX(182);
+  $pdf->Cell(20, 5, miscRound2Decim($intTotSum), 0, 0, "R");
+  
+  $pdf->SetFont('Helvetica','',10);
+  $pdf->SetY($pdf->GetY()+5);
+  $pdf->Cell(162, 5, $GLOBALS['locTOTALVAT'] .": ", 0, 0, "R");
+  $pdf->SetX(182);
+  $pdf->Cell(20, 5, miscRound2Decim($intTotVAT), 0, 0, "R");
+  
+  $pdf->SetFont('Helvetica','B',10);
+  $pdf->SetY($pdf->GetY()+5);
+  $pdf->Cell(162, 5, $GLOBALS['locTOTALINCLUDINGVAT'] .": ", 0, 0, "R");
+  $pdf->SetX(182);
+  $pdf->Cell(20, 5, miscRound2Decim($intTotSumVAT), 0, 1, "R");
 
 }
 else {
     $pdf->SetFont('Helvetica','B',20);
     $pdf->SetXY(20, $pdf->GetY()+40);
-    $pdf->MultiCell(180, 5, "ks. erillinen laskuerittely", 0, 1, "L");
+    $pdf->MultiCell(180, 5, $GLOBALS['locSEESEPARATESTATEMENT'], 0, "L", 0);
 }
 
 if( $showBarcode ) {
@@ -285,9 +339,9 @@ else {
 //bottom - paymentinfo
 $pdf->SetFont('Helvetica','',7);
 $pdf->SetXY(7, $intStartY);
-$pdf->Cell(75, 5, $strAssocAddressLine, 0, 1, "L");
-$pdf->SetXY(80, $intStartY);
-$pdf->Cell(80, 5, $strContactInfo, 0, 1, "L");
+$pdf->Cell(66, 5, $strAssocAddressLine, 0, 1, "L");
+$pdf->SetXY(75, $intStartY);
+$pdf->Cell(75, 5, $strContactInfo, 0, 1, "C");
 $pdf->SetXY(150, $intStartY);
 $pdf->Cell(50, 5, $strWww, 0, 1, "R");
 
@@ -479,72 +533,83 @@ if( $showBarcode ) {
 
 if( $intNRes > $invoicePdfRows ) {
     $pdf->AddPage();
-    $pdf->SetAutoPageBreak(TRUE);
-//middle - invoicerows
-//invoiceinfo headers
-$pdf->SetXY(7,20);
-
-$pdf->SetFont('Helvetica','B',20);
-$pdf->SetXY(20, $pdf->GetY());
-$pdf->Cell(80, 5, "Laskuerittely", 0, 0, "L");
-$pdf->SetFont('Helvetica','',10);
-$pdf->Cell(80, 5, "Laskunro: $strInvoiceNo", 0, 1, "L");
-$pdf->SetXY(7, $pdf->GetY()+10);
-if( $showInvoiceRowDate ) {
-    $pdf->Cell(60, 5, $GLOBALS['locROWNAME'], 0, 0, "L");
-    $pdf->Cell(20, 5, $GLOBALS['locDATE'], 0, 0, "L");
-}
-else {
-    $pdf->Cell(80, 5, $GLOBALS['locROWNAME'], 0, 0, "L");
-}
-$pdf->Cell(15, 5, $GLOBALS['locPRICE'], 0, 0, "R");
-$pdf->Cell(15, 5, $GLOBALS['locPCS'], 0, 0, "R");
-$pdf->Cell(15, 5, $GLOBALS['locUNIT'], 0, 0, "R");
-$pdf->Cell(20, 5, $GLOBALS['locTOTAL'], 0, 0, "R");
-$pdf->Cell(15, 5, $GLOBALS['locVATPERCENT'], 0, 0, "R");
-$pdf->Cell(15, 5, $GLOBALS['locTAX'], 0, 0, "R");
-$pdf->Cell(20, 5, $GLOBALS['locTOTAL'], 0, 1, "R");
-
-//rows
-$pdf->SetY($pdf->GetY()+5);
-for( $i = 0; $i < $intNRes; $i++ ) {
-    if( $astrRowPrice[$i] == 0 && $astrPieces[$i] == 0 ) {
-        $pdf->SetX(7);
-        $pdf->MultiCell(0, 5, $astrDescription[$i], 0, 'L');
-    }
-    else {
-        //$pdf->SetY($pdf->GetY()+5);
-        if( $showInvoiceRowDate ) {
-            $pdf->SetX(67);
-            $pdf->Cell(20, 5, $astrRowDate[$i], 0, 0, "L");
-        }
-        else {
-            $pdf->SetX(87);
-        }
-        $pdf->Cell(15, 5, miscRound2Decim($astrRowPrice[$i]), 0, 0, "R");
-        $pdf->Cell(15, 5, miscRound2Decim($astrPieces[$i]), 0, 0, "R");
-        $pdf->Cell(15, 5, $astrRowType[$i], 0, 0, "R");
-        $pdf->Cell(20, 5, miscRound2Decim($intRowSum[$i]), 0, 0, "R");
-        $pdf->Cell(15, 5, $astrVAT[$i], 0, 0, "R");
-        $pdf->Cell(15, 5, miscRound2Decim($intRowVAT[$i]), 0, 0, "R");
-        $pdf->Cell(20, 5, miscRound2Decim($intRowSumVAT[$i]), 0, 0, "R");
-        $pdf->SetX(7);
-        if( $showInvoiceRowDate ) {
-            $pdf->MultiCell(60, 5, $astrDescription[$i], 0, 'L');
-        }
-        else {
-            $pdf->MultiCell(80, 5, $astrDescription[$i], 0, 'L');
-        }
-        
-        
-    }
-}
-$pdf->SetFont('Helvetica','B',10);
-$pdf->SetY($pdf->GetY()+10);
-$pdf->Cell(132, 5, $GLOBALS['locTOTAL'] ." : ", 0, 0, "R");
-$pdf->Cell(20, 5, miscRound2Decim($intTotSum), 0, 0, "R");
-$pdf->Cell(20, 5, miscRound2Decim($intTotVAT), 0, 0, "R");
-$pdf->Cell(20, 5, miscRound2Decim($intTotSumVAT), 0, 1, "R");
+    $pdf->SetAutoPageBreak(TRUE, 20);
+  //middle - invoicerows
+  //invoiceinfo headers
+  $pdf->SetXY(7,20);
+  
+  $pdf->SetFont('Helvetica','B',20);
+  $pdf->SetXY(20, $pdf->GetY());
+  $pdf->Cell(80, 5, "Laskuerittely", 0, 0, "L");
+  $pdf->SetFont('Helvetica','',10);
+  $pdf->Cell(80, 5, "Laskunro: $strInvoiceNo", 0, 1, "L");
+  $pdf->SetXY(7, $pdf->GetY()+10);
+  if( $showInvoiceRowDate ) {
+      $pdf->Cell(60, 5, $GLOBALS['locROWNAME'], 0, 0, "L");
+      $pdf->Cell(20, 5, $GLOBALS['locDATE'], 0, 0, "L");
+  }
+  else {
+      $pdf->Cell(80, 5, $GLOBALS['locROWNAME'], 0, 0, "L");
+  }
+  $pdf->Cell(15, 5, $GLOBALS['locPRICE'], 0, 0, "R");
+  $pdf->Cell(15, 5, $GLOBALS['locPCS'], 0, 0, "R");
+  $pdf->Cell(15, 5, $GLOBALS['locUNIT'], 0, 0, "R");
+  $pdf->Cell(20, 5, $GLOBALS['locTOTAL'], 0, 0, "R");
+  $pdf->Cell(15, 5, $GLOBALS['locVATPERCENT'], 0, 0, "R");
+  $pdf->Cell(15, 5, $GLOBALS['locTAX'], 0, 0, "R");
+  $pdf->Cell(20, 5, $GLOBALS['locTOTAL'], 0, 1, "R");
+  
+  //rows
+  $pdf->SetY($pdf->GetY()+5);
+  for( $i = 0; $i < $intNRes; $i++ ) {
+      if( $astrRowPrice[$i] == 0 && $astrPieces[$i] == 0 ) {
+          $pdf->SetX(7);
+          $pdf->MultiCell(0, 5, $astrDescription[$i], 0, 'L');
+      }
+      else {
+          //$pdf->SetY($pdf->GetY()+5);
+          if( $showInvoiceRowDate ) {
+              $pdf->SetX(67);
+              $pdf->Cell(20, 5, $astrRowDate[$i], 0, 0, "L");
+          }
+          else {
+              $pdf->SetX(87);
+          }
+          $pdf->Cell(15, 5, miscRound2Decim($astrRowPrice[$i]), 0, 0, "R");
+          $pdf->Cell(15, 5, miscRound2Decim($astrPieces[$i]), 0, 0, "R");
+          $pdf->Cell(15, 5, $astrRowType[$i], 0, 0, "R");
+          $pdf->Cell(20, 5, miscRound2Decim($intRowSum[$i]), 0, 0, "R");
+          $pdf->Cell(15, 5, $astrVAT[$i], 0, 0, "R");
+          $pdf->Cell(15, 5, miscRound2Decim($intRowVAT[$i]), 0, 0, "R");
+          $pdf->Cell(20, 5, miscRound2Decim($intRowSumVAT[$i]), 0, 0, "R");
+          $pdf->SetX(7);
+          if( $showInvoiceRowDate ) {
+              $pdf->MultiCell(60, 5, $astrDescription[$i], 0, 'L');
+          }
+          else {
+              $pdf->MultiCell(80, 5, $astrDescription[$i], 0, 'L');
+          }
+          
+          
+      }
+  }
+  $pdf->SetFont('Helvetica','',10);
+  $pdf->SetY($pdf->GetY()+10);
+  $pdf->Cell(162, 5, $GLOBALS['locTOTALEXCLUDINGVAT'] .": ", 0, 0, "R");
+  $pdf->SetX(182);
+  $pdf->Cell(20, 5, miscRound2Decim($intTotSum), 0, 0, "R");
+  
+  $pdf->SetFont('Helvetica','',10);
+  $pdf->SetY($pdf->GetY()+5);
+  $pdf->Cell(162, 5, $GLOBALS['locTOTALVAT'] .": ", 0, 0, "R");
+  $pdf->SetX(182);
+  $pdf->Cell(20, 5, miscRound2Decim($intTotVAT), 0, 0, "R");
+  
+  $pdf->SetFont('Helvetica','B',10);
+  $pdf->SetY($pdf->GetY()+5);
+  $pdf->Cell(162, 5, $GLOBALS['locTOTALINCLUDINGVAT'] .": ", 0, 0, "R");
+  $pdf->SetX(182);
+  $pdf->Cell(20, 5, miscRound2Decim($intTotSumVAT), 0, 1, "R");
 
 }
 

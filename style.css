@@ -303,7 +303,7 @@ td.date_label {
  font-size: 10px;
  font-weight: bold;
  height: 14px;
- width: 140px;
+ width: 120px;
 }
 td.small_label {
  font-size: 10px;
@@ -317,7 +317,7 @@ td.small {
 }
 td.date {
  height: 14px;
- width: 140px;
+ width: 120px;
 }
 td.medium {
  height: 14px;
