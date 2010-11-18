@@ -186,7 +186,7 @@ case 'invoice':
      array(
         "name" => "invoice_date", "label" => $GLOBALS['locINVDATE'], "type" => "INTDATE", "style" => "date", "listquery" => "", "position" => 1, "default" => "DATE_NOW", "allow_null" => FALSE ),
      array(
-     "name" => "due_date", "label" => $GLOBALS['locDUEDATE'], "type" => "INTDATE", "style" => "date", "listquery" => "", "position" => 2, "default" => "DATE_NOW+{$paymentDueDate}", "allow_null" => FALSE ),
+        "name" => "due_date", "label" => $GLOBALS['locDUEDATE'], "type" => "INTDATE", "style" => "date", "listquery" => "", "position" => 2, "default" => "DATE_NOW+{$paymentDueDate}", "allow_null" => FALSE ),
      array(
         "name" => "invoice_no", "label" => $GLOBALS['locINVNO'], "type" => "INT", "style" => "medium", "listquery" => "", "position" => 1, "default" => $defaultInvNo, "allow_null" => TRUE ),
      array(
@@ -335,13 +335,28 @@ case 'invoice_state':
     $strTable = _DB_PREFIX_. "_invoice_state";
     $strPrimaryKey = "id";
     $strMainForm = "form.php?selectform=invoice_state";
-    $astrFormElements =
+    
+    $intId = $_GET['id'];
+    if ($intId && $intId <= 6)
+    {
+      $elem_attributes = 'readonly';
+      $strPrimaryKey = '';
+      $astrFormElements =
         array(
          array(
-            "name" => "name", "label" => $GLOBALS['locSTATUS'], "type" => "TEXT", "style" => "medium", "listquery" => "", "position" => 1, "default" => FALSE, "allow_null" => FALSE ),
+            "name" => "label", "label" => $GLOBALS['locSYSTEMONLY'], "type" => "LABEL")
+        );
+    }
+    else
+    {
+      $astrFormElements =
+        array(
          array(
-            "name" => "order_no", "label" => $GLOBALS['locORDERNO'], "type" => "INT", "style" => "short", "listquery" => "", "position" => 2, "default" => FALSE, "allow_null" => FALSE )
-    );
+            "name" => "name", "label" => $GLOBALS['locSTATUS'], "type" => "TEXT", "style" => "medium", "listquery" => "", "position" => 1, "default" => FALSE, "allow_null" => FALSE, "elem_attributes" => $elem_attributes ),
+         array(
+            "name" => "order_no", "label" => $GLOBALS['locORDERNO'], "type" => "INT", "style" => "short", "listquery" => "", "position" => 2, "default" => FALSE, "allow_null" => FALSE, "elem_attributes" => $elem_attributes )
+       );
+     }
 break;
 
 case 'row_type':

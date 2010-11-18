@@ -158,6 +158,7 @@ default :
     $GLOBALS['locMAKEINVFORYEAR'] = 'Tee laskut vuodelle';
     $GLOBALS['locMAKEINVTO'] = 'Laskutettavat jäsentyypit';
     $GLOBALS['locGENERAL'] = 'Yleistä';
+    $GLOBALS['locSYSTEMONLY'] = 'Järjestelmän sisäinen - ei muokattavissa';
     
     
     //FORM BUTTON HELPERS
