@@ -85,7 +85,7 @@ case "settings" :
     $astrNaviLinks = 
     array( 
         array("href" => "list.php?ses=".$GLOBALS['sesID']."&selectform=base_info", "text" => $GLOBALS['locBASEINFO'], "target" => "f_list", "levels_allowed" => array(1)),
-        array("href" => "list.php?ses=".$GLOBALS['sesID']."&selectform=company_type", "text" => $GLOBALS['locCOMPANYTYPES'], "target" => "f_list", "levels_allowed" => array(1)),
+//        array("href" => "list.php?ses=".$GLOBALS['sesID']."&selectform=company_type", "text" => $GLOBALS['locCOMPANYTYPES'], "target" => "f_list", "levels_allowed" => array(1)),
         array("href" => "list.php?ses=".$GLOBALS['sesID']."&selectform=invoice_state", "text" => $GLOBALS['locINVOICESTATES'], "target" => "f_list", "levels_allowed" => array(1)),
         array("href" => "list.php?ses=".$GLOBALS['sesID']."&selectform=product", "text" => $GLOBALS['locPRODUCTS'], "target" => "f_list", "levels_allowed" => array(1)),
         array("href" => "list.php?ses=".$GLOBALS['sesID']."&selectform=row_type", "text" => $GLOBALS['locROWTYPES'], "target" => "f_list", "levels_allowed" => array(1)),
@@ -106,7 +106,7 @@ case "company":
     $strOpenForm = "list.php?ses={$GLOBALS['sesID']}&selectform=company";
     $strFormName = "company";
     $strFormSwitch = "company";
-    $strLabel = $GLOBALS['locSEARCH'];
+    //$strLabel = $GLOBALS['locSEARCH'];
     $astrNaviLinks = 
     array( 
         /*array("href" => "select_invoice.php?ses=".$GLOBALS['sesID']. "&type=payment", "text" => $GLOBALS['locADDPAYMENT'], "target" => "f_list", "levels_allowed" => array(1))*/
@@ -119,7 +119,7 @@ case "product":
     $strOpenForm = "list.php?ses={$GLOBALS['sesID']}&selectform=product";
     $strFormName = "product";
     $strFormSwitch = "product";
-    $strLabel = $GLOBALS['locSEARCH'];
+    //$strLabel = $GLOBALS['locSEARCH'];
     $astrNaviLinks = 
     array( 
         /*array("href" => "select_invoice.php?ses=".$GLOBALS['sesID']. "&type=payment", "text" => $GLOBALS['locADDPAYMENT'], "target" => "f_list", "levels_allowed" => array(1))*/
@@ -132,7 +132,7 @@ default :
     $strOpenForm = "open_invoices.php?ses={$GLOBALS['sesID']}";
     $strFormName = "invoice";
     $strFormSwitch = "invoice";
-    $strLabel = $GLOBALS['locSEARCH'];
+    //$strLabel = $GLOBALS['locSEARCH'];
     $astrNaviLinks = 
     array( 
         /*array("href" => "select_invoice.php?ses=".$GLOBALS['sesID']. "&type=payment", "text" => $GLOBALS['locADDPAYMENT'], "target" => "f_list", "levels_allowed" => array(1))*/
