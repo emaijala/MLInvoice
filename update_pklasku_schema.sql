@@ -13,6 +13,8 @@ alter table pklasku_base add column (
 );
 
 INSERT INTO pklasku_invoice_state (id, name, order_no) VALUES (4, 'MITÄTÖITY', 20);
+INSERT INTO pklasku_invoice_state (id, name, order_no) VALUES (5, '1. HUOMAUTUS', 25);
+INSERT INTO pklasku_invoice_state (id, name, order_no) VALUES (6, '2. HUOMAUTUS', 30);
 
 CREATE TABLE pklasku_product (
   id int(11) NOT NULL auto_increment,
