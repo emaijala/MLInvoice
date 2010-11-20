@@ -270,7 +270,7 @@ if( $blnSave ) {
         //if there's no resource identifier something went wrong
         else {
             //let the user know that query didn't work out
-            $strOnLoad = "alert('" . $GLOBALS['locDBERROR'] . addslashes(mysql_error()) . "');";
+            $strOnLoad = "alert('" . $GLOBALS['locDBERRORDESC'] . addslashes(mysql_error()) . "');";
             error_log($strOnLoad);
         }
     }
@@ -365,6 +365,9 @@ if( $intKeyValue ) {
 }
 
 //print_r($astrFormElements[16]);
+
+if ($_GET['refresh_list'])
+  $strOnLoad .= "top.frset_bottom.f_list.document.forms[0].key_values.value=''; top.frset_bottom.f_list.document.forms[0].submit();";
 
 if( $blnCopy ) {
     //echo "copytaan";

@@ -36,3 +36,7 @@ alter table pklasku_invoice_row add column (
 );
 
 alter table pklasku_invoice_row change column vat vat decimal(9,1) default 0;
+
+alter table pklasku_invoice add column (
+  refunded_invoice_id int(11) NULL
+);

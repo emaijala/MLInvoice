@@ -66,17 +66,19 @@ $prefix = _DB_PREFIX_;
 
 if( $intInvoiceId ) {
     $strQuery = 
-        "SELECT invoice_no, invoice_date, due_date, ref_number,inv.name AS invoice_name, reference, company_name AS name, '' AS contact_person, email, billing_address, CONCAT(company_name, '\n', street_address, '\n', zip_code, ' ', city) AS billing_address2, base_id, comp.id as company_id " .
+        "SELECT inv.invoice_no, inv.invoice_date, inv.due_date, inv.ref_number, inv.name AS invoice_name, inv.reference, comp.company_name AS name, '' AS contact_person, comp.email, comp.billing_address, CONCAT(comp.company_name, '\n', comp.street_address, '\n', comp.zip_code, ' ', comp.city) AS billing_address2, inv.base_id, comp.id as company_id, ref.invoice_no as refunded_invoice_no " .
         "FROM ${prefix}_invoice inv " .
         "INNER JOIN ${prefix}_company comp ON comp.id = inv.company_id ".
+        "LEFT OUTER JOIN ${prefix}_invoice ref ON ref.id = inv.refunded_invoice_id ".
         "WHERE inv.id = $intInvoiceId";
-    $intRes = mysql_query($strQuery);
+    $intRes = mysql_query_check($strQuery);
     $intNRows = mysql_numrows($intRes);
     if( $intNRows ) {
        $strInvoiceName = mysql_result($intRes, 0, "invoice_name");
        $intBaseId = mysql_result($intRes, 0, "base_id");
        $strClientId = mysql_result($intRes, 0, "company_id");
        $strInvoiceNo = mysql_result($intRes, 0, "invoice_no");
+       $strRefundedInvoiceNo = mysql_result($intRes, 0, "refunded_invoice_no");
        $strRefNumber = mysql_result($intRes, 0, "ref_number");
        $strInvoiceDate = dateConvIntDate2Date(mysql_result($intRes, 0, "invoice_date"));
        $strDueDate = dateConvIntDate2Date(mysql_result($intRes, 0, "due_date"));
@@ -131,9 +133,9 @@ if( $intInvoiceId ) {
     if ($boolVATReg)
       $strContactInfo .= ' ' . $GLOBALS['locVATREG'];
     if ($strPhone)
-      $strContactInfo .= ' ' . $GLOBALS['locPHONE']. ": $strPhone";
+      $strContactInfo .= '  ' . $GLOBALS['locPHONE']. ": $strPhone";
     if ($strEmail)
-      $strContactInfo .= ' ' . $GLOBALS['locEMAIL']. ": $strEmail";
+      $strContactInfo .= '  ' . $GLOBALS['locEMAIL']. ": $strEmail";
     
     $strQuery = 
         "SELECT pr.product_name, ir.description, ir.pcs, ir.price, ir.row_date, ir.vat, ir.vat_included, rt.name type ".
@@ -141,16 +143,19 @@ if( $intInvoiceId ) {
         "INNER JOIN ${prefix}_row_type rt ON rt.id = ir.type_id ".
         "LEFT OUTER JOIN ${prefix}_product pr ON ir.product_id = pr.id ".
         "WHERE ir.invoice_id = ". $intInvoiceId. " ORDER BY ir.order_no, row_date, pr.product_name DESC, ir.description DESC";
-    $intRes = mysql_query($strQuery);
-    if ($intRes === FALSE)
-      error_log('Query failed: ' . mysql_error());
+    $intRes = mysql_query_check($strQuery);
     if( $intRes ) {
         $intNRes = mysql_num_rows($intRes);
         for( $i = 0; $i < $intNRes; $i++ ) {
             $strProduct = trim(mysql_result($intRes, $i, "product_name"));
             $astrDescription[$i] = trim(mysql_result($intRes, $i, "description"));
             if ($strProduct)
-              $astrDescription[$i] = $strProduct .  ' (' . $astrDescription[$i] . ')';
+            {
+              if ($astrDescription[$i]) 
+                $astrDescription[$i] = $strProduct .  ' (' . $astrDescription[$i] . ')';
+              else
+                $astrDescription[$i] = $strProduct;
+            }
             $astrRowDate[$i] = dateConvIntDate2Date(mysql_result($intRes, $i, "row_date"));
             $astrRowPrice[$i] = mysql_result($intRes, $i, "price");
             $astrPieces[$i] = mysql_result($intRes, $i, "pcs");
@@ -220,13 +225,13 @@ $pdf->SetX(115);
 $pdf->Cell(40, 5, $GLOBALS['locCLIENTNO'] .": ", 0, 0, 'R');
 $pdf->Cell(60, 5, $strClientId, 0, 1);
 $pdf->SetX(115);
-$pdf->Cell(40, 5, $GLOBALS['locINVNO'] .": ", 0, 0, 'R');
+$pdf->Cell(40, 5, $GLOBALS['locINVNUMBER'] .": ", 0, 0, 'R');
 $pdf->Cell(60, 5, $strInvoiceNo, 0, 1);
 $pdf->SetX(115);
-$pdf->Cell(40, 5, $GLOBALS['locINVDATE'] .": ", 0, 0, 'R');
+$pdf->Cell(40, 5, $GLOBALS['locPDFINVDATE'] .": ", 0, 0, 'R');
 $pdf->Cell(60, 5, $strInvoiceDate, 0, 1);
 $pdf->SetX(115);
-$pdf->Cell(40, 5, $GLOBALS['locDUEDATE'] .": ", 0, 0, 'R');
+$pdf->Cell(40, 5, $GLOBALS['locPDFDUEDATE'] .": ", 0, 0, 'R');
 $pdf->Cell(60, 5, $strDueDate, 0, 1);
 $pdf->SetX(115);
 $pdf->Cell(40, 5, $GLOBALS['locTERMSOFPAYMENT'] .": ", 0, 0, 'R');
@@ -238,11 +243,17 @@ $pdf->SetX(115);
 $pdf->Cell(40, 5, $GLOBALS['locPENALTYINTEREST'] .": ", 0, 0, 'R');
 $pdf->Cell(60, 5, $penaltyInterest, 0, 1);
 $pdf->SetX(115);
-$pdf->Cell(40, 5, $GLOBALS['locREFNO'] .": ", 0, 0, 'R');
+$pdf->Cell(40, 5, $GLOBALS['locPDFINVREFNO'] .": ", 0, 0, 'R');
 $pdf->Cell(60, 5, $strRefNumber, 0, 1);
 $pdf->SetX(115);
 $pdf->Cell(40, 5, $GLOBALS['locYOURREFERENCE'] .": ", 0, 0, 'R');
 $pdf->Cell(60, 5, $strReference, 0, 1);
+
+if ($strRefundedInvoiceNo)
+{
+  $pdf->SetX(115);
+  $pdf->Cell(40, 5, sprintf($GLOBALS['locREFUNDSINVOICE'], $strRefundedInvoiceNo), 0, 0, 'R');
+}
 
 $pdf->SetY($pdf->GetY()+5);
 $pdf->Line(5, $pdf->GetY(), 200, $pdf->GetY());

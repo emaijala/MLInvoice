@@ -509,7 +509,6 @@ function htmlFormElement( $strName, $strType, $strValue, $strStyle, $strListQuer
         break;
         case 'LIST' :
             if( $strMode == "MODIFY" ) {
-            error_log("LIST: $astrAdditionalAttributes");
                 $strFormElement = htmlSQLListBox( $strName, $strListQuery, $strValue, $strStyle, 0, $astrAdditionalAttributes );
             }
             elseif( $strMode == "PDF" ) {

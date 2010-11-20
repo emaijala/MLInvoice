@@ -171,12 +171,47 @@ case 'invoice':
        $defaultRefNo = $intInvNo . miscCalcCheckNo($intInvNo);
    }
    
+   $arrRefundedInvoice = array("allow_null" => TRUE);
+   $arrRefundingInvoice = array("allow_null" => TRUE);
+   $intInvoiceId = $_GET['id'];
+   if ($intInvoiceId)
+   {
+     $strQuery = 
+        "SELECT refunded_invoice_id ".
+        "FROM ". _DB_PREFIX_. "_invoice ".
+        "WHERE id = ?";
+     $intRes = mysql_param_query($strQuery, array($intInvoiceId));
+     if( $intRes ) 
+     {
+       $intRefundedInvoiceId = mysql_result($intRes, 0, "refunded_invoice_id");
+       if ($intRefundedInvoiceId)
+         $arrRefundedInvoice = array(
+           "name" => "get", "label" => sprintf($GLOBALS['locSHOWREFUNDEDINV']), "type" => "BUTTON", "style" => "medium", "listquery" => "'form.php?ses=$strSesID&selectform=invoice&id=$intRefundedInvoiceId', '_self'", "position" => 2, "default" => FALSE, "allow_null" => TRUE 
+         );
+     }
+     $strQuery = 
+        "SELECT id ".
+        "FROM ". _DB_PREFIX_. "_invoice ".
+        "WHERE refunded_invoice_id = ?";
+     $intRes = mysql_param_query($strQuery, array($intInvoiceId));
+     if( $intRes > 0 ) 
+     {
+       $intRefundingInvoiceId = mysql_result($intRes, 0, "id");
+       if ($intRefundingInvoiceId)
+         $arrRefundingInvoice = array(
+           "name" => "get", "label" => sprintf($GLOBALS['locSHOWREFUNDINGINV']), "type" => "BUTTON", "style" => "medium", "listquery" => "'form.php?ses=$strSesID&selectform=invoice&id=$intRefundingInvoiceId', '_self'", "position" => 2, "default" => FALSE, "allow_null" => TRUE 
+         );
+     }
+   }
+   
    $astrFormElements =
     array(
      array(
-        "name" => "base_id", "label" => $GLOBALS['locBILLER'], "type" => "LIST", "style" => "medium", "listquery" => "SELECT id, name FROM ". _DB_PREFIX_. "_base ORDER BY name;", "position" => 0, "default" => 2, "allow_null" => FALSE ),
+        "name" => "base_id", "label" => $GLOBALS['locBILLER'], "type" => "LIST", "style" => "medium", "listquery" => "SELECT id, name FROM ". _DB_PREFIX_. "_base ORDER BY name;", "position" => 1, "default" => 2, "allow_null" => FALSE ),
+     $arrRefundedInvoice,
      array(
-        "name" => "name", "label" => $GLOBALS['locINVNAME'], "type" => "TEXT", "style" => "medium", "listquery" => "", "position" => 0, "default" => FALSE, "allow_null" => TRUE ),
+        "name" => "name", "label" => $GLOBALS['locINVNAME'], "type" => "TEXT", "style" => "medium", "listquery" => "", "position" => 1, "default" => FALSE, "allow_null" => TRUE ),
+     $arrRefundingInvoice,
      /*array(
         "name" => "real_invoice_no", "label" => $GLOBALS['locREALINVNO'], "type" => "INT", "style" => "medium", "listquery" => "", "position" => 2, "default" => FALSE, "allow_null" => TRUE ),*/
      array(
@@ -200,7 +235,9 @@ case 'invoice':
      array(
         "name" => "get", "label" => $GLOBALS['locPRINTINV'], "type" => "BUTTON", "style" => "medium", "listquery" => "'invoice.php?ses=".$strSesID."&type=comp&id=_ID_', '_self'", "position" => 2, "default" => FALSE, "allow_null" => TRUE ),
      array(
-        "name" => "get", "label" => $GLOBALS['locCOPYINV'], "type" => "BUTTON", "style" => "medium", "listquery" => "'copy_invoice.php?ses=".$strSesID."&type=comp&id=_ID_', '_new'", "position" => 0, "default" => FALSE, "allow_null" => TRUE ),
+        "name" => "get", "label" => $GLOBALS['locCOPYINV'], "type" => "BUTTON", "style" => "medium", "listquery" => "'copy_invoice.php?ses=".$strSesID."&type=comp&id=_ID_', '_new'", "position" => 1, "default" => FALSE, "allow_null" => TRUE ),
+     array(
+        "name" => "get", "label" => $GLOBALS['locREFUNDINV'], "type" => "BUTTON", "style" => "medium", "listquery" => "'copy_invoice.php?ses=".$strSesID."&type=comp&id=_ID_&refund=1', '_self'", "position" => 2, "default" => FALSE, "allow_null" => TRUE ),
      array(
         "name" => "invoice_rows", "label" => $GLOBALS['locINVROWS'], "type" => "IFORM", "style" => "xfull", "listquery" => "", "position" => 0, "default" => FALSE, "allow_null" => TRUE, "parent_key" => "invoice_id" )
     );
@@ -248,7 +285,7 @@ EOS;
      array(
         "name" => "product_id", "label" => $GLOBALS['locPRODUCTNAME'], "type" => "LIST", "style" => "small", "listquery" => "SELECT id, product_name FROM ". _DB_PREFIX_. "_product ORDER BY product_name;", "position" => 0, "default" => $intProductId, "allow_null" => TRUE, 'elem_attributes' => $productOnChange ),
      array(
-        "name" => "description", "label" => $GLOBALS['locROWDESC'], "type" => "TEXT", "style" => "medium", "listquery" => "", "position" => 0, "default" => $strDescription, "allow_null" => FALSE ),
+        "name" => "description", "label" => $GLOBALS['locROWDESC'], "type" => "TEXT", "style" => "medium", "listquery" => "", "position" => 0, "default" => $strDescription, "allow_null" => TRUE ),
      array(
         "name" => "row_date", "label" => $GLOBALS['locDATE'], "type" => "INTDATE", "style" => "date", "listquery" => "", "position" => 0, "default" => 'DATE_NOW', "allow_null" => FALSE ),
      array(

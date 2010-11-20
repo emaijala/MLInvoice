@@ -233,7 +233,7 @@ if( $blnSave ) {
             $strOnLoad = "opener.document.forms[0].submit(); self.close();";
         }
         else {
-            $strOnLoad = "alert('".$GLOBALS['locERRINSERTFAILED']."');";
+            $strOnLoad = "alert('".$GLOBALS['locDBERROR']."');";
         }
     }
 }

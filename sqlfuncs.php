@@ -46,6 +46,17 @@ $link = mysql_connect(_DB_SERVER_, _DB_USERNAME_, _DB_PASSWORD_)
 
 mysql_select_db(_DB_NAME_) or die("Could not select database: " . mysql_error());
 
+function mysql_query_check($query)
+{
+  $intRes = mysql_query($query);
+  if ($intRes === FALSE)
+  {
+    error_log("Query '$query' failed: " . mysql_error());
+    die($GLOBALS['locDBERROR']);
+  }
+  return $intRes;
+}
+
 function mysql_param_query($query, $params=false) 
 {
   if ($params) 
@@ -55,8 +66,9 @@ function mysql_param_query($query, $params=false)
       $v = mysql_real_escape_string($v); 
     }
     $sql_query = vsprintf(str_replace("?","'%s'",$query), $params);   
-    return mysql_query($sql_query);
+    return mysql_query_check($sql_query);
   }    
-  return mysql_query($query);
+  return mysql_query_check($query);
 } 
+
 ?>

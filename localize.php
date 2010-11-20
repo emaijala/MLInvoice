@@ -136,6 +136,9 @@ default :
     $GLOBALS['locBILLER'] = 'Laskuttaja';
     $GLOBALS['locROWNO'] = 'Rivinro';
     $GLOBALS['locCOPYINV'] = 'Kopioi lasku ja laskurivit';
+    $GLOBALS['locREFUNDINV'] = 'Mitätöi ja luo hyvityslasku';
+    $GLOBALS['locSHOWREFUNDEDINV'] = 'Näytä hyvitetty lasku';
+    $GLOBALS['locSHOWREFUNDINGINV'] = 'Näytä hyvittävä lasku';
     $GLOBALS['locPRODUCTNAME'] = 'Tuotteen nimi';
     $GLOBALS['locPRODUCTDESCRIPTION'] = 'Tuotekuvaus';
     $GLOBALS['locPRODUCTCODE'] = 'Tuotekoodi';
@@ -152,8 +155,8 @@ default :
     $GLOBALS['locERRDUPLUNIQUE'] = 'Virhe! Arvo on jo tietokannassa...';
     $GLOBALS['locERRDELREFERENCE'] = 'Tietuetta ei voi poistaa! Viittaukset poistettava ensin...';
     $GLOBALS['locSAVEFIRST'] = 'Tallenna muut tiedot ensin';
-    $GLOBALS['locERRINSERTFAILED'] = 'Virhe! Tietojen tallennus epäonnistui.';
-    $GLOBALS['locDBERROR'] = 'Tietokantavirhe: ';
+    $GLOBALS['locDBERROR'] = 'Tietokantavirhe';
+    $GLOBALS['locDBERRORDESC'] = 'Tietokantavirhe: ';
     $GLOBALS['locFEE'] = 'Maksu';
     $GLOBALS['locMAKEINVFORYEAR'] = 'Tee laskut vuodelle';
     $GLOBALS['locMAKEINVTO'] = 'Laskutettavat jäsentyypit';
@@ -249,6 +252,11 @@ default :
     $GLOBALS['locTOTALINCLUDINGVAT'] = 'Verollinen kokonaishinta';
     $GLOBALS['locSEESEPARATESTATEMENT'] = 'ks. erillinen laskuerittely';
     $GLOBALS['locVATREG'] = 'ALV-rek.';
+    $GLOBALS['locINVNUMBER'] = 'Laskun numero';
+    $GLOBALS['locPDFINVDATE'] = 'Laskun päivämäärä';
+    $GLOBALS['locPDFDUEDATE'] = 'Eräpäivä';
+    $GLOBALS['locPDFINVREFNO'] = 'Viitenumero';
+    $GLOBALS['locREFUNDSINVOICE'] = 'Tämä lasku hyvittää laskun %d';
     
     //??
     $GLOBALS['locPAYMENTS'] = 'Maksut';

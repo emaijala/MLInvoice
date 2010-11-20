@@ -53,13 +53,12 @@ if( $blnSubmit ) {
         }
         else {
             $strMessage = 
-                "<p>Valitettavasti emme voi laskea sinua sis&auml;&auml;n systeemiin.<p>\n";
+                "<p>K‰ytt‰j‰tunnus tai salasana v‰‰r‰.<p>\n";
         }
         }
     else {
         $strMessage = 
-            "<p>Ole hyv&auml; ja sy&ouml;t&auml; kaikki tiedot.<p>\n".
-            "<p>Please enter all fields.<p>\n";
+            "<p>Ole hyv&auml; ja sy&ouml;t&auml; kaikki tiedot.<p>\n";
     }
 }
 echo htmlPageStart( _PAGE_TITLE_ );

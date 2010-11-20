@@ -226,7 +226,7 @@ if( $blnAdd ) {
             $blnInsertDone = TRUE;
         }
         else {
-            $strOnLoad = "alert('".$GLOBALS['locERRINSERTFAILED']."');";
+            $strOnLoad = "alert('".$GLOBALS['locDBERROR']."');";
         }
     }
 }
@@ -415,9 +415,8 @@ for($i = 0; $i < count($astrOldValues); $i++ ) {
 
     for( $j = 0; $j < count($astrFormElements); $j++ ) {
         if( $astrFormElements[$j]['type'] != "HID_INT" && $astrFormElements[$j]['type'] != "SECHID_INT" && $astrFormElements[$j]['type'] != 'NEWLINE' ) {
-error_log("ELEM: ". $astrFormElements[$j]['name'] . ' - ' .$astrFormElements[$j]['elem_attributes']);
 ?>
-    <td class="<?php echo $astrFormElements[$j]['style']?>" <?php echo $strColspan?>>
+    <td class="<?php echo $astrFormElements[$j]['style']?>" >
         <?php echo htmlFormElement( $astrFormElements[$j]['name'],$astrFormElements[$j]['type'], gpcStripSlashes($astrOldValues[$i][$astrFormElements[$j]['name']]), $astrFormElements[$j]['style'],$astrFormElements[$j]['listquery'], "NO_MOD", 0, $astrFormElements[$j]['label'], array(), $astrFormElements[$j]['elem_attributes'])?>
     </td>
 <?php

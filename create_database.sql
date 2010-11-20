@@ -90,6 +90,7 @@ CREATE TABLE vllasku_invoice (
   state_id int(11) default NULL,
   reference varchar(50) default NULL,
   base_id int(11) default NULL,
+  refunded_invoice_id int(11) default NULL,
   PRIMARY KEY  (id)
 ) TYPE=MyISAM AUTO_INCREMENT=1;
 
