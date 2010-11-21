@@ -71,12 +71,7 @@ Todo : This could be more generic...
         "<head>\n".
         "<meta http-equiv=\"Content-Type\" content=\"text/html; charset=ISO-8859-15\">\n\t".
         "<title>".$strTitle."</title>\n\t".
-        "<meta name=\"Generator\" content=\"jEdit\">\n\t".
-        "<meta name=\"Copyright\" content=\"Ere Maijala 2010\">\n\t".
-        "<meta name=\"Copyright\" content=\"Samu Reinikainen 2004-2008\">\n\t".
-        //"<meta http-equiv=\"Default-Style\" content=\"GreenForest\">\n\t".
         "<link rel=\"stylesheet\" type=\"text/css\" href=\"style.css\" title=\"DullGrey\">\n\t".
-        //"<link rel=\"stylesheet\" type=\"text/css\" href=\"htmlarea.css\" title=\"HTMLArea\">\n\t".
         "<link rel=\"shortcut icon\" href=\"favicon.ico\" type=\"image/x-icon\">\n".
         "</head>\n";
 
@@ -102,10 +97,6 @@ Todo : This could be more generic...
         "<head>\n".
         "<title>".$strTitle."</title>\n\t".
         "<meta http-equiv=\"Content-Type\" content=\"text/html; charset=ISO-8859-15\">\n\t".
-        "<meta name=\"Generator\" content=\"jEdit\">\n\t".
-        "<meta name=\"Copyright\" content=\"Ere Maijala 2010\">\n\t".
-        "<meta name=\"Copyright\" content=\"Samu Reinikainen 2004-2008\">\n\t".
-        //"<meta http-equiv=\"Default-Style\" content=\"GreenForest\">\n\t".
         "<link rel=\"stylesheet\" type=\"text/css\" href=\"style.css\" title=\"DullGrey\">\n\t".
         "<link rel=\"shortcut icon\" href=\"favicon.ico\" type=\"image/x-icon\">\n".
         "</head>\n";
