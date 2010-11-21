@@ -33,8 +33,9 @@ $strForm = getPostRequest('selectform', '');
 
 $strWhereClause = getPostRequest('where', '');
 $intCategoryID = getPostRequest('category_id', '');
-$strSearchTerms = trim(getPost('searchterms', FALSE));
-$astrKeyValues = explode(";", getPost('key_values', '');
+$strSearchTerms = trim(getPost('searchterms', ''));
+$strKeyValues = getPost('key_values', '');
+$astrKeyValues = $strKeyValues ? explode(";", $strKeyValues) : NULL;
 $intPage = getPost('page', 1);
 $blnPrevious = getPost('prev', FALSE) ? TRUE : FALSE;
 $blnNext = getPost('forw', FALSE) ? TRUE : FALSE;
