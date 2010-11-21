@@ -34,18 +34,18 @@ $strSesID = sesVerifySession();
 
 require "localize.php";
 
-$strForm = $_POST['selectform'] ? $_POST['selectform'] : $_REQUEST['selectform'];
+$strForm = getPostRequest('selectform', ''); 
 
 require "form_switch.php";
 
 echo htmlPageStart( _PAGE_TITLE_ );
 
-$blnAdd = (int)$_POST['add_x'] ? TRUE : FALSE;
-$blnDelete = (int)$_POST['delete_x'] ? TRUE : FALSE;
+$blnAdd = getPost('add_x', FALSE) ? TRUE : FALSE;
+$blnDelete = getPost('delete_x', FALSE) ? TRUE : FALSE;
 
-$strValue = (int)$_POST[$astrFormElements['name']] ? (int)$_POST[$astrFormElements['name']] : FALSE;
-$intKeyValue = (int)$_POST[$strPrimaryKey] ? (int)$_POST[$strPrimaryKey] : (int)$_REQUEST[$strPrimaryKey];
-$intParentKey = (int)$_POST[$strParentKey] ? (int)$_POST[$strParentKey] : (int)$_REQUEST[$strParentKey];
+$strValue = getPost($astrFormElements['name'], FALSE);
+$intKeyValue = getPostRequest($strPrimaryKey, FALSE);
+$intParentKey = getPostRequest($strParentKey, FALSE);
 
 if( $blnAdd ) {    
     if( $strValue ) {
@@ -68,7 +68,7 @@ if( $intParentKey ) {
         for( $j = 0; $j < $intNRes; $j++ ) {
             $strId = mysql_result($intRes, $j, 0);
             $strName = mysql_result($intRes, $j, 1);
-            $blnDelete = (int)$_POST["delete_". $strId. "_x"] ? TRUE : FALSE;
+            $blnDelete = getPost("delete_". $strId. "_x", FALSE) ? TRUE : FALSE;
             if( $blnDelete && $intParentKey ) {
                 $strQuery =
                     "DELETE FROM " . $strTable . " ".

@@ -35,8 +35,8 @@ require "localize.php";
 require "datefuncs.php";
 require "miscfuncs.php";
 
-$intInvoiceId = (int)$_REQUEST['id'] ? (int)$_REQUEST['id'] : FALSE;
-$boolRefund = $_REQUEST['refund'];
+$intInvoiceId = getRequest('id', FALSE);
+$boolRefund = getRequest('refund', FALSE);
 
 echo htmlPageStart( _PAGE_TITLE_ );
 
@@ -44,9 +44,9 @@ if( $intInvoiceId ) {
 
     if ($boolRefund)
     {
-      $strQuery = "UPDATE " . _DB_PREFIX_. "_invoice " .
+      $strQuery = "UPDATE {prefix}invoice " .
         "SET state_id = 4 " .
-        "WHERE ". _DB_PREFIX_. "_invoice.id = ?";
+        "WHERE {prefix}invoice.id = ?";
       mysql_param_query($strQuery, array($intInvoiceId));
     }
 

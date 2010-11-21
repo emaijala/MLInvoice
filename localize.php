@@ -149,6 +149,7 @@ default :
     $GLOBALS['locVATPERCENT'] = 'ALV %';
     $GLOBALS['locVATINCLUDED'] = 'Hinta sisältää ALV:n';
     $GLOBALS['locVATINC'] = 'Sis.&nbsp;ALV';
+    $GLOBALS['locACCESSLEVEL'] = 'Oikeustaso';
     
     
     //FORM ERRORS & MESSAGES
@@ -278,8 +279,10 @@ default :
     $GLOBALS['locPERCENT'] = 'Prosentti';
     $GLOBALS['locEDIT'] = 'Muokkaa';
     
-    //ERRORS
+    
+    //REPORTS
     $GLOBALS['locSELECTYEAR'] = 'Virhe! Valitse vuosi...';
+    $GLOBALS['locENTERVALUES'] = 'Virhe! Syötä kaikki tiedot.';
     $GLOBALS['locPRINTREPORTFORYEAR'] = 'Tulosta raportit vuodelle';
     $GLOBALS['locPRINTREPORTTO'] = 'Valitse tulostettavat raportit';
     $GLOBALS['locOPEN'] = 'Avoimet';
@@ -288,12 +291,12 @@ default :
     $GLOBALS['locVATLESS'] = 'Alviton';
     $GLOBALS['locVATPART'] = 'Alv osuus';
     $GLOBALS['locWITHVAT'] = 'Alvillinen';
+    $GLOBALS['locTOTAL'] = 'Yhteensä';
     $GLOBALS['locALL'] = 'Kaikki       ';
     $GLOBALS['locENTERPAYMENT'] = 'Ilmoita lasku maksetuksi';
     $GLOBALS['locENTERREFNODATE'] = 'Syötä viitenro ja maksupvm';
     $GLOBALS['locCONFIRMPAYMENT'] = 'Tarkista että tiedot ovat oikein ja<br>merkitse lasku maksetuksi "VAHVISTA"-painikkeella.';
-    $GLOBALS['locENTERVALUES'] = 'Virhe! Syötä kaikki tiedot.';
-    $GLOBALS['locPAYMENTDONE'] = 'Lasku on merkattu maksetuksi.<br>Voit ilmoittaa lisää laskuja maksetuksi.';
+    $GLOBALS['locPAYMENTDONE'] = 'Lasku on merkitty maksetuksi.<br>Voit ilmoittaa lisää laskuja maksetuksi.';
     $GLOBALS['locDATED'] = 'Päiväys';
     $GLOBALS['locINVOICES'] = 'Laskut';
     $GLOBALS['locREMEMBER'] = 'Muista tallentaa tiedot "Tallenna"-painikkeella!';

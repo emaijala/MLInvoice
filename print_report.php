@@ -36,11 +36,11 @@ require "localize.php";
 
 echo htmlPageStart( _PAGE_TITLE_ );
 
-$strForm = $_POST['form'] ? $_POST['form'] : $_REQUEST['form'];
-$intYear = $_POST['year'] ? $_POST['year'] : FALSE;
-$intMonth = $_POST['month'] ? $_POST['month'] : "0";
-$intStateID = $_POST['stateid'] ? $_POST['stateid'] : FALSE;
-$intBaseId = $_POST['base'] ? $_POST['base'] : FALSE;
+$strForm = getPostRequest('form', '');
+$intYear = getPost('year', FALSE);
+$intMonth = getPost('month', 0);
+$intStateID = getPost('stateid', FALSE);
+$intBaseId = getPost('base', FALSE); 
 
 if( $intMonth == 0 ) {
     $intStartDate = "00";
@@ -60,6 +60,8 @@ if( strlen($intEndMonth) == 1 ) {
 }
 $intStart = $intYear. $intMonth. $intStartDate;
 $intEnd = $intYear. $intEndMonth. $intEndDate;
+
+$strLabel = '';
 
 $strQuery = 
     "SELECT ". _DB_PREFIX_. "_invoice.id, invoice_no, invoice_date, due_date, ref_number, ". _DB_PREFIX_. "_invoice.name AS invoice_name, reference, company_name AS name, billing_address ".
@@ -81,7 +83,7 @@ for( $i = 0; $i < $intNumRows; $i++ ) {
     //echo $strMemberType ."<br>\n";
     //$strChecked = $intStateId == $intSelectedStateId ? 'checked' : '';
     $strTemp = "stateid_". $intStateId;
-    $tmpSelected = $_POST[$strTemp] ? TRUE : FALSE;
+    $tmpSelected = getPost($strTemp, FALSE) ? TRUE : FALSE;
     if( $tmpSelected ) {
         $strLabel = "";
         $strQuery2 .= 
@@ -140,6 +142,9 @@ $intNumRows = mysql_numrows($intRes);
 </tr>
 <?php
 if( $intNumRows ) {
+    $intTotSum = 0;
+    $intTotVAT = 0;
+    $intTotSumVAT = 0;
     for( $j = 0; $j < $intNumRows; $j++ ) {
 
         $intInvoiceID = mysql_result($intRes, $j, "id");

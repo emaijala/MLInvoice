@@ -51,6 +51,10 @@ if( $blnNext ) {
 require "list_switch.php";
 
 $strHiddenTerm = '';
+$strInnerJoin = '';
+$strWhereClause = '';
+$strHiddenWhere = '';
+$strAddWhere = ''; 
 if( $intCategoryID ) {
     $strHiddenTerm = "<input type=\"hidden\" name=\"category_id\" value=\"". $intCategoryID."\">";
     $strHiddenWhere = 
@@ -138,6 +142,7 @@ if( count($astrKeyValues) > 0 ) {
         $intStart = 0;
     }
     //echo $intStart . " - " . $intEnd . " / " . $intTotal;
+    $strKeysIn = '';
     for( $i = $intStart; $i < $intEnd; $i++ ) {
         $strKeysIn .= $astrKeyValues[$i].",";
     }
@@ -145,7 +150,7 @@ if( count($astrKeyValues) > 0 ) {
     $strSelectClause = $strPrimaryKey .",";
     $strOrderClause = "";
     for( $j = 0; $j < count($astrShowFields); $j++ ) {
-        $strOrder = $astrShowFields[$j]['order'] ? $astrShowFields[$j]['order'] : "ASC";
+        $strOrder = isset($astrShowFields[$j]['order']) ? $astrShowFields[$j]['order'] : "ASC";
         $strSelectClause .= $astrShowFields[$j]['name'] . ",";
         $strOrderClause .= $astrShowFields[$j]['name'] . " $strOrder, ";
     }

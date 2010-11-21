@@ -53,6 +53,7 @@ $strHiddenTerm = '';
 $strLabel = '';
 $strClientButton = '';
 $strInvButton = '';
+$strFormName = '';
 if( $strFormSwitch ) {
     $strQuery = 
         "SELECT id, name FROM ". _DB_PREFIX_. "_location ".

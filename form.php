@@ -40,11 +40,11 @@ require "form_switch.php";
 
 echo htmlPageStart( _PAGE_TITLE_ );
 
-$blnNew = getPost('newact', getRequest('newact', FALSE))  ? TRUE : FALSE;
-$blnCopy = getPost('copyact', getRequest('copyact', FALSE)) ? TRUE : FALSE;
+$blnNew = getPostRequest('newact', FALSE)  ? TRUE : FALSE;
+$blnCopy = getPostRequest('copyact', FALSE) ? TRUE : FALSE;
 $blnSave = getPost('saveact', FALSE) ? TRUE : FALSE;
 $blnDelete = getPost('deleteact', FALSE) ? TRUE : FALSE;
-$intKeyValue = getPost($strPrimaryKey, getRequest($strPrimaryKey, FALSE));
+$intKeyValue = getPostRequest($strPrimaryKey, FALSE);
 
 $strOnLoad = '';
 

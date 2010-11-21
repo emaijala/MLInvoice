@@ -34,14 +34,11 @@ $strSesID = sesVerifySession();
 
 require "localize.php";
 
-$strType = $_POST['type'] ? $_POST['type'] : $_REQUEST['type'];
-$intBaseId = $_POST['base'] ? $_POST['base'] : $_REQUEST['base'];
-$intYear = $_POST['year'] ? $_POST['year'] : date("Y");
-$intMonth = isset($_POST['month']) ? $_POST['month'] : date("n");
-//echo $_POST['stateid'];
-$intSelectedStateId = $_POST['stateid'] ? $_POST['stateid'] : 1;
-
-//print_r($_POST);
+$strType = getPostRequest('type', FALSE);
+$intBaseId = getPostRequest('base', FALSE);
+$intYear = getPost('year', date("Y"));
+$intMonth = getPost('month', date("n"));
+$intSelectedStateId = getPost('stateid', 1);
 
 $intCurrentYear = date("Y");
 for( $i = 0; $i <= 20; $i++) {
@@ -50,6 +47,7 @@ for( $i = 0; $i <= 20; $i++) {
 }
 $strYearListBox = htmlListBox( "year", $astrYearListValues, $astrYearListOptions, $intYear, "", TRUE, FALSE );
 
+$astrShowElements = array();
 switch ( $strType ) {
 
 case 'report':
@@ -89,7 +87,7 @@ case 'report':
         //echo $strMemberType ."<br>\n";
         //$strChecked = $intStateId == $intSelectedStateId ? 'checked' : '';
         $strTemp = "stateid_". $intStateId;
-        $tmpSelected = $_POST[$strTemp] ? TRUE : FALSE;
+        $tmpSelected = getPost($strTemp, FALSE) ? TRUE : FALSE;
         $strChecked = $tmpSelected ? 'checked' : '';
         $astrHtmlElements[$i] = 
         array("label" => $strStateName, "html" => "<input type=\"checkbox\" name=\"stateid_{$intStateId}\" value=\"1\" $strChecked>\n");
@@ -130,7 +128,7 @@ for( $j = 0; $j < count($astrSearchElements); $j++ ) {
         <td class="label">
             <?php echo $astrSearchElements[$j]['label']?> :
         </td>
-        <td class="field" <?php echo $strColspan?>>
+        <td class="field">
             <?php echo $astrSearchElements[$j]['element']?>
         </td>
     </tr>
@@ -146,8 +144,8 @@ for( $j = 0; $j < count($astrSearchElements); $j++ ) {
     <tr>
     </tr>
 */ ?>
-        <td class="field" <?php echo $strColspan?>>
-            <?php echo htmlFormElement($astrSearchElements[$j]['name'], $astrSearchElements[$j]['type'], $astrSearchElements[$j]['value'], $astrSearchElements[$j]['style'], $astrSearchElements[$j]['listquery'], "MODIFY", $astrSearchElements[$j]['parent_key'])?>
+        <td class="field">
+            <?php echo htmlFormElement($astrSearchElements[$j]['name'], $astrSearchElements[$j]['type'], $astrSearchElements[$j]['value'], $astrSearchElements[$j]['style'], $astrSearchElements[$j]['listquery'], "MODIFY", isset($astrSearchElements[$j]['parent_key']) ? $astrSearchElements[$j]['parent_key'] : FALSE)?>
         </td>
     </tr>
 <?php
@@ -170,7 +168,7 @@ for( $j = 0; $j < count($astrShowElements); $j++ ) {
         <td class="label">
             <?php echo $astrShowElements[$j]['label']?> :
         </td>
-        <td class="field" <?php echo $strColspan?>>
+        <td class="field">
             <?php echo htmlFormElement($astrShowElements[$j]['name'], $astrShowElements[$j]['type'], $astrShowElements[$j]['value'], $astrShowElements[$j]['style'], $astrShowElements[$j]['listquery'], "MODIFY", $astrShowElements[$j]['parent_key'])?>
         </td>
     </tr>
@@ -182,7 +180,7 @@ for( $j = 0; $j < count($astrHtmlElements); $j++ ) {
         <td class="label">
             <?php echo $astrHtmlElements[$j]['label']?> :
         </td>
-        <td class="field" <?php echo $strColspan?>>
+        <td class="field">
             <?php echo $astrHtmlElements[$j]['html']?>
         </td>
     </tr>

@@ -34,23 +34,18 @@ $strSesID = sesVerifySession();
 
 require "localize.php";
 
-$strForm = $_POST['selectform'] ? $_POST['selectform'] : $_REQUEST['selectform'];
-$strMode = $_GET['actmode'] ? $_GET['actmode'] : 'MODIFY';
-$strMode = $_POST['actmode'] ? $_POST['actmode'] : $strMode;
+$strForm = getPostRequest('selectform', '');
+$strMode = getPostRequest('actmode', 'MODIFY');
 
 require "form_switch.php";
 
 echo htmlPageStart( _PAGE_TITLE_ );
 
-
-//print_r($_POST);
-$blnNew = (int)$_POST['newact'] || (int)$_REQUEST['new'] ? TRUE : FALSE;
-$blnCopy = (int)$_POST['copyact'] ? TRUE : FALSE;
-$blnSave = (int)$_POST['saveact'] ? TRUE : FALSE;
-$blnDelete = (int)$_POST['deleteact'] ? TRUE : FALSE;
-$intKeyValue = (int)$_POST[$strPrimaryKey] ? (int)$_POST[$strPrimaryKey] : (int)$_REQUEST[$strPrimaryKey];
-
-
+$blnNew = getPostRequest('newact', FALSE)  ? TRUE : FALSE;
+$blnCopy = getPostRequest('copyact', FALSE) ? TRUE : FALSE;
+$blnSave = getPost('saveact', FALSE) ? TRUE : FALSE;
+$blnDelete = getPost('deleteact', FALSE) ? TRUE : FALSE;
+$intKeyValue = getPostRequest($strPrimaryKey, FALSE);
 
 //if NEW is clicked clear existing form data
 if( $blnNew && !$blnSave ) {
@@ -67,8 +62,7 @@ for( $i = 0; $i < count($astrFormElements); $i++ ) {
     }
     else {
          if( !$astrFormElements[$i]['default'] ) {
-            $astrValues[$astrFormElements[$i]['name']] =             $_POST[$astrFormElements[$i]['name']] ? $_POST[$astrFormElements[$i]['name']] : FALSE;
-            $astrValues[$astrFormElements[$i]['name']] =             $astrValues[$astrFormElements[$i]['name']] ? $astrValues[$astrFormElements[$i]['name']] : $_GET[$astrFormElements[$i]['name']];
+            $astrValues[$astrFormElements[$i]['name']] = getPostRequest($astrFormElements[$i]['name'], FALSE);
             
             if( $astrFormElements[$i]['default'] == "DATE_NOW" ) {
                $strDefaultValue = date("d.m.Y");
@@ -86,8 +80,7 @@ for( $i = 0; $i < count($astrFormElements); $i++ ) {
             else {
                 $strDefaultValue = $astrFormElements[$i]['default'];
             }
-            $astrValues[$astrFormElements[$i]['name']] =             $_POST[$astrFormElements[$i]['name']] ? $_POST[$astrFormElements[$i]['name']] : $_GET[$astrFormElements[$i]['name']];
-            $astrValues[$astrFormElements[$i]['name']] =             $astrValues[$astrFormElements[$i]['name']] ? $astrValues[$astrFormElements[$i]['name']] : $strDefaultValue;
+            $astrValues[$astrFormElements[$i]['name']] = getPostRequest($astrFormElements[$i]['name'], $strDefaultValue);
         
     }
 }

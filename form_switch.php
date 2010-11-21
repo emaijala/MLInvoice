@@ -377,7 +377,7 @@ case 'invoice_state':
     $strPrimaryKey = "id";
     $strMainForm = "form.php?selectform=invoice_state";
     
-    $intId = $_GET['id'];
+    $intId = getRequest('id', FALSE);
     if ($intId && $intId <= 6)
     {
       $elem_attributes = 'readonly';

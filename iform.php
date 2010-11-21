@@ -59,13 +59,11 @@ require "form_switch.php";
 
 echo htmlPageStart( _PAGE_TITLE_ );
 
-//print_r($_POST);
-
 $blnCopy = getPost('copy_x', FALSE) ? TRUE : FALSE;
 $blnAdd = getPost('add_x', FALSE) ? TRUE : FALSE;
 $blnDelete = getPost('del_x', FALSE) ? TRUE : FALSE;
-$intKeyValue = getPost($strPrimaryKey, getRequest($strPrimaryKey, FALSE));
-$intParentKey = getPost($strParentKey, getRequest($strParentKey, FALSE));
+$intKeyValue = getPostRequest($strPrimaryKey, FALSE);
+$intParentKey = getPostRequest($strParentKey, FALSE);
 
 $blnInsertDone = FALSE;
 $strOnLoad = '';
@@ -74,7 +72,7 @@ for( $i = 0; $i < count($astrFormElements); $i++ ) {
         $astrValues[$astrFormElements[$i]['name']] = $intKeyValue ? $intKeyValue : FALSE;
     }
     else {
-        if(array_key_exists($astrFormElements[$i]['name'],$astrDefaults)) {
+        if($astrFormElements[$i]['name'] != '' && array_key_exists($astrFormElements[$i]['name'],$astrDefaults)) {
             $astrValues[$astrFormElements[$i]['name']] = $astrDefaults[$astrFormElements[$i]['name']];
         }
         elseif( !$astrFormElements[$i]['default'] ) {
@@ -268,7 +266,7 @@ if( $blnDelete && $intKeyValue ) {
 if( $intParentKey ) {
     $strQuery =
         "SELECT * FROM $strTable ".
-        "WHERE $strParentKey = $intParentKey $strOrder";
+        "WHERE $strParentKey = $intParentKey";
     $intRes = mysql_query($strQuery);
     $intNumRows = mysql_num_rows($intRes);
     if( $intRes ) {

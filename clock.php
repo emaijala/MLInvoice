@@ -36,7 +36,7 @@ require "localize.php";
 
 setlocale(LC_TIME, "fi_FI");
 
-$strField = $_REQUEST['timefield'] ? $_REQUEST['timefield'] : $_POST['timefield'];
+$strField = getPostRequest('timefield', '');
 
 $intCurrentHour = date("H");
 $intCurrentMinute = date("i");
@@ -85,7 +85,7 @@ function SetTime() {
 }
 -->
 </script>
-<body class="form" onload="<?php echo $strOnLoad?>">
+<body class="form">
 <form method="post" action="calendar.php?ses=<?php echo $GLOBALS['sesID']?>" target="_self" name="clock_form">
 <input type="hidden" name="datefield" value="<?php echo $strField?>">
 <center>

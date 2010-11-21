@@ -43,7 +43,7 @@ $intNumRows = mysql_num_rows($intRes);
 
 for( $i = 0; $i < $intNumRows; $i++ ) {
     $intId = mysql_result($intRes, $i, "id");
-    $blnDelete = (int)$_POST["delete_". $intId. "_x"] ? TRUE : FALSE;
+    $blnDelete = getPost("delete_". $intId. "_x", FALSE) ? TRUE : FALSE;
     if( $blnDelete && $intId ) {
         $strDelQuery =
             "DELETE FROM " . _DB_PREFIX_. "_quicksearch ".

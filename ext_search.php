@@ -30,19 +30,18 @@ require "miscfuncs.php";
 require "datefuncs.php";
 
 $strSesID = sesVerifySession();
-$intCategory_id = $_REQUEST['catid'] ? (int)$_REQUEST['catid'] : FALSE;
+$intCategory_id = getRequest('catid', FALSE);
 
 
 require "localize.php";
-//print_r($_POST);
-$strForm = $_POST['selectform'] ? $_POST['selectform'] : $_REQUEST['selectform'];
+$strForm = getPostRequest('selectform', '');
 
 
-$blnSearch = (int)$_POST['search_x'] ? TRUE : FALSE;
-$blnSave = (int)$_POST['save_x'] ? TRUE : FALSE;
-$strFields = $_POST['fields'] ? $_POST['fields'] : FALSE;
-$strSearchField = $_POST['searchfield'] ? $_POST['searchfield'] : FALSE;
-$strSearchName = $_POST['searchname'] ? $_POST['searchname'] : "";
+$blnSearch = getPost('search_x', FALSE) ? TRUE : FALSE;
+$blnSave = getPost('save_x', FALSE) ? TRUE : FALSE;
+$strFields = getPost('fields', FALSE);
+$strSearchField = getPost('searchfield', FALSE);
+$strSearchName = getPost('searchname', '');
 if( $strSearchField !== FALSE ) {
     if( $strFields === FALSE ) {
         $strFields = $strSearchField;
@@ -67,7 +66,7 @@ else {
 require "form_switch.php";
 
 for( $j = 0; $j < count($astrSelectedFields); $j++ ) {
-    $tmpDelete = $_POST["delete_".$astrSelectedFields[$j]. "_x"];
+    $tmpDelete = getPost('delete_' . $astrSelectedFields[$j] . '_x', FALSE);
     if( $tmpDelete ) {
         $astrSelectedFields[$j] = '';
     }
@@ -83,8 +82,8 @@ for( $j = 0; $j < count($astrFormElements); $j++ ) {
 
 $x = 0;
 for( $j = 0; $j < count($astrFormElements); $j++ ) {
-    $strSelectedOperator = $_POST['operator_'.$astrFormElements[$j]['name']] ? $_POST['operator_'.$astrFormElements[$j]['name']] : "OR";
-    if($astrFormElements[$j]['type'] != "LABEL" && $astrFormElements[$j]['type'] != "HIDINT" && $astrFormElements[$j]['type'] != 'IFRAME' && $astrFormElements[$j]['type'] != 'IFORM' && $astrFormElements[$j]['type'] != 'BUTTON' && !in_array($astrFormElements[$j]['name'], $astrSelectedFields, true)) {
+    $strSelectedOperator = getPost('operator_'.$astrFormElements[$j]['name'], 'OR');
+    if($astrFormElements[$j]['type'] != '' && $astrFormElements[$j]['type'] != "LABEL" && $astrFormElements[$j]['type'] != "HIDINT" && $astrFormElements[$j]['type'] != 'IFRAME' && $astrFormElements[$j]['type'] != 'IFORM' && $astrFormElements[$j]['type'] != 'BUTTON' && !in_array($astrFormElements[$j]['name'], $astrSelectedFields, true)) {
         $astrListValues[$x] = $astrFormElements[$j]['name'];
         $astrListOptions[$x] = str_replace("<br>", " ", $astrFormElements[$j]['label']); 
         $x++;
@@ -93,31 +92,30 @@ for( $j = 0; $j < count($astrFormElements); $j++ ) {
     $strControlName = $astrFormElements[$j]['name'];
     
     if( $strControlType == 'IFRAME' || $strControlType == 'IFORM' || $strControlType == 'BUTTON' ) {
-       $astrValues[$strControlName] = $intKeyValue;
+       $astrValues[$strControlName] = '';
     }
     elseif( $strControlType != 'LABEL' ) {
         if( $strControlType == 'INTDATE' ) {
-            $astrValues[$strControlName] = $_POST[$astrFormElements[$j]['name']];
+            $astrValues[$strControlName] = getPost($astrFormElements[$j]['name'], '');
         }
         else { 
-            $astrValues[$strControlName] = $_POST[$astrFormElements[$j]['name']];
+            $astrValues[$strControlName] = getPost($astrFormElements[$j]['name'], '');
         }
     }
-    /*$astrValues[$astrFormElements[$j]['name']] =             $_POST[$astrFormElements[$j]['name']] ||  $_POST[$astrFormElements[$j]['name']] === "0" ? $_POST[$astrFormElements[$j]['name']] : FALSE;*/
 }
 $strListBox = htmlListBox( "searchfield", $astrListValues, $astrListOptions, FALSE, "", 1 );
 
 $astrListValues = array('=','!=','<','>');
 $astrListOptions = array('on yhtä kuin','on eri kuin','on pienempi kuin','on suurempi kuin');
 
+$strOnLoad = '';
 if( $blnSearch || $blnSave ) {
     for( $j = 0; $j < count($astrFormElements); $j++ ) {
         if(in_array($astrFormElements[$j]['name'], $astrSelectedFields, true)) {
             $strSearchMatch =
-                $_POST['searchmatch_'.$astrFormElements[$j]['name']] ? $_POST['searchmatch_'.$astrFormElements[$j]['name']] : "=";
+                getPost('searchmatch_' . $astrFormElements[$j]['name'], '=');
             $strSearchValue = $astrValues[$astrFormElements[$j]['name']];
             //do LIKE || NOT LIKE search to elements with text or varchar datatype
-            //echo $astrFormElements[$j]['type'];
             if( $astrFormElements[$j]['type'] == 'TEXT' || $astrFormElements[$j]['type'] == 'AREA' ) {
                 if( $strSearchMatch == "=" ) {
                     $strSearchMatch = "LIKE";
@@ -241,7 +239,7 @@ function OpenClock(timefield, event) {
 
 for( $j = 0; $j < count($astrFormElements); $j++ ) {
     if(in_array($astrFormElements[$j]['name'], $astrSelectedFields, true)) {
-        $strSearchMatch = $_POST['searchmatch_'.$astrFormElements[$j]['name']] ? $_POST['searchmatch_'.$astrFormElements[$j]['name']] : "=";
+        $strSearchMatch = getPost('searchmatch_'.$astrFormElements[$j]['name'], '=');
         if( $astrFormElements[$j]['style'] == "xxlong" ){
             $astrFormElements[$j]['style'] = "long";
         }

@@ -34,9 +34,9 @@ $strSesID = sesVerifySession();
 
 require "localize.php";
 
-$strForm = $_POST['selectform'] ? $_POST['selectform'] : $_REQUEST['selectform'];
+$strForm = getPostRequest('selectform', '');
 
-$strDefaults = $_POST['defaults'] ? $_POST['defaults'] : $_REQUEST['defaults'];
+$strDefaults = getPostRequest('defaults', '');
 
 if( $strDefaults ) {
     $tmpDefaults = explode(" ", urldecode($strDefaults));
@@ -58,19 +58,11 @@ require "form_switch.php";
 
 echo htmlPageStart( _PAGE_TITLE_ );
 
-/*
-var_dump($_POST);
-echo "<br />";
-var_dump($_GET);
-echo "<br />";
-var_dump($_REQUEST);
-*/
-
-$blnSave = (int)$_POST['saveact'] ? TRUE : FALSE;
-$blnCopy = (int)$_POST['copyact'] || (int)$_GET['copyact'] ? TRUE : FALSE;
-$blnDelete = (int)$_POST['deleteact'] ? TRUE : FALSE;
-$intKeyValue = (int)$_POST[$strPrimaryKey] ? (int)$_POST[$strPrimaryKey] : (int)$_REQUEST[$strPrimaryKey];
-$intParentKey = (int)$_POST[$strParentKey] ? (int)$_POST[$strParentKey] : (int)$_REQUEST[$strParentKey];
+$blnSave = getPost('saveact', FALSE) ? TRUE : FALSE;
+$blnCopy = getPost('copyact', FALSE) ? TRUE : FALSE;
+$blnDelete = getPost('deleteact', FALSE) ? TRUE : FALSE;
+$intKeyValue = getPostRequest($strPrimaryKey, FALSE);
+$intParentKey = getPostRequest($strParentKey, FALSE);
 
 for( $i = 0; $i < count($astrFormElements); $i++ ) {
     if( $astrFormElements[$i]['type'] == 'IFRAME' ) {
@@ -82,11 +74,11 @@ for( $i = 0; $i < count($astrFormElements); $i++ ) {
         }
         elseif( !$astrFormElements[$i]['default'] ) {
             if( $astrFormElements[$i]['type'] == "INT" ) {
-                $tmpValue = str_replace(",", ".", $_POST[$astrFormElements[$i]['name']]);
-                $astrValues[$astrFormElements[$i]['name']] =             $tmpValue ? (float)$tmpValue : FALSE;
+                $tmpValue = str_replace(",", ".", getPost($astrFormElements[$i]['name'], '');
+                $astrValues[$astrFormElements[$i]['name']] = $tmpValue ? (float)$tmpValue : FALSE;
             }
             else {
-                $astrValues[$astrFormElements[$i]['name']] =             $_POST[$astrFormElements[$i]['name']] ? $_POST[$astrFormElements[$i]['name']] : FALSE;
+                $astrValues[$astrFormElements[$i]['name']] = getPost($astrFormElements[$i]['name'], FALSE);
             }
         }
         else {
@@ -106,7 +98,7 @@ for( $i = 0; $i < count($astrFormElements); $i++ ) {
                $strDefaultValue = date("d.m.Y H:i");
             }
             elseif( $astrFormElements[$i]['default'] == "POST" ) {
-               $strDefaultValue = $_POST[$astrFormElements[$i]['name']];
+               $strDefaultValue = getPost($astrFormElements[$i]['name'], FALSE);
             }
             elseif( strstr($astrFormElements[$i]['default'], "ADD") ) {
                $strQuery = str_replace("_PARENTID_", $intParentKey, $astrFormElements[$i]['listquery']);
@@ -119,11 +111,11 @@ for( $i = 0; $i < count($astrFormElements); $i++ ) {
             }
             
             if( $astrFormElements[$i]['type'] == "INT" ) {
-                $tmpValue = str_replace(",", ".", $_POST[$astrFormElements[$i]['name']]);
-                $astrValues[$astrFormElements[$i]['name']] =             $tmpValue !== '' ? (float)$tmpValue : $strDefaultValue;
+                $tmpValue = str_replace(",", ".", getPost($astrFormElements[$i]['name'], ''));
+                $astrValues[$astrFormElements[$i]['name']] = $tmpValue !== '' ? (float)$tmpValue : $strDefaultValue;
             }
             else {
-                $astrValues[$astrFormElements[$i]['name']] =             $_POST[$astrFormElements[$i]['name']] ? $_POST[$astrFormElements[$i]['name']] : $strDefaultValue;
+                $astrValues[$astrFormElements[$i]['name']] = getPost($astrFormElements[$i]['name'], $strDefaultValue);
             }
         }
     }

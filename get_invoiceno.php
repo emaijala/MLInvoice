@@ -35,7 +35,7 @@ require "localize.php";
 require "datefuncs.php";
 require "miscfuncs.php";
 
-$intInvoiceId = (int)$_REQUEST['id'] ? (int)$_REQUEST['id'] : FALSE;
+$intInvoiceId = getRequest('id', FALSE);
 
 echo htmlPageStart( _PAGE_TITLE_ );
 
