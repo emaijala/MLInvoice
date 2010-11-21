@@ -142,8 +142,8 @@ td {
 }
 
 td.button {
- vertical-align: middle;
- padding: 4px 0px;
+ vertical-align: top;
+ padding: 2px 0px;
 }
 
 td.calweekday {
@@ -517,7 +517,7 @@ color: #333333;
 border-radius: 4px;
 -moz-border-radius: 4px;
 -webkit-border-radius: 4px;
-background-color: #DDDDDD;
+background-color: #E9E9E9;
 border: 1px solid gray;
 text-decoration: none;
 padding: 1px 2px 1px 2px;
@@ -533,7 +533,7 @@ background-color: white;
 
 a.actionlink {
 color: #333333; 
-background-color: #CCDDEE;
+background-color: #D3E3F3;
 border-radius: 4px;
 -moz-border-radius: 4px;
 -webkit-border-radius: 4px;
@@ -553,17 +553,18 @@ background-color: white;
 
 a.tinyactionlink {
 color: #333333; 
-background-color: #CCDDEE;
+background-color: #D3E3F3;
 border-radius: 4px;
 -moz-border-radius: 4px;
 -webkit-border-radius: 4px;
 border: 1px solid gray;
 text-decoration : none;
 padding : 1px 2px 1px 2px;
-margin-left: 4px;
-margin-right: 4px;
+margin-left: 0px;
+margin-right: 0px;
 font-weight: normal; 
 font-size:9px; 
+vertical-align: middle;
 }
 a.tinyactionlink:hover {
 color: black; 
@@ -590,7 +591,7 @@ border-color : #000066 #00FFFF #00FFFF #000066;
 
 a.formbuttonlink {
 color: #333333; 
-background-color: #CCDDEE;
+background-color: #D3E3F3;
 border-radius: 4px;
 -moz-border-radius: 4px;
 -webkit-border-radius: 4px;
