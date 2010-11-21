@@ -231,13 +231,15 @@ case 'invoice':
      array(
         "name" => "payment_date", "label" => $GLOBALS['locPAYDATE'], "type" => "INTDATE", "style" => "date", "listquery" => "", "position" => 2, "default" => NULL, "allow_null" => TRUE ),
      array(
-        "name" => "get", "label" => $GLOBALS['locGETINVNO'], "type" => "BUTTON", "style" => "medium", "listquery" => "'get_invoiceno.php?ses=".$strSesID."&type=comp&id=_ID_', '_new'", "position" => 1, "default" => FALSE, "allow_null" => TRUE ),
+        "name" => "get", "label" => $GLOBALS['locGETINVNO'], "type" => "BUTTON", "style" => "medium", "listquery" => "'get_invoiceno.php?ses=$strSesID&type=comp&id=_ID_', '_new'", "position" => 1, "default" => FALSE, "allow_null" => TRUE ),
      array(
-        "name" => "get", "label" => $GLOBALS['locPRINTINV'], "type" => "BUTTON", "style" => "medium", "listquery" => "'invoice.php?ses=".$strSesID."&type=comp&id=_ID_', '_self'", "position" => 2, "default" => FALSE, "allow_null" => TRUE ),
+        "name" => "get", "label" => $GLOBALS['locPRINTINV'], "type" => "BUTTON", "style" => "medium", "listquery" => "'invoice.php?ses=$strSesID&type=comp&id=_ID_', '_self'", "position" => 2, "default" => FALSE, "allow_null" => TRUE ),
      array(
-        "name" => "get", "label" => $GLOBALS['locCOPYINV'], "type" => "BUTTON", "style" => "medium", "listquery" => "'copy_invoice.php?ses=".$strSesID."&type=comp&id=_ID_', '_new'", "position" => 1, "default" => FALSE, "allow_null" => TRUE ),
+        "name" => "get", "label" => $GLOBALS['locCOPYINV'], "type" => "BUTTON", "style" => "medium", "listquery" => "'copy_invoice.php?ses=$strSesID&type=comp&id=_ID_', '_new'", "position" => 1, "default" => FALSE, "allow_null" => TRUE ),
      array(
-        "name" => "get", "label" => $GLOBALS['locREFUNDINV'], "type" => "BUTTON", "style" => "medium", "listquery" => "'copy_invoice.php?ses=".$strSesID."&type=comp&id=_ID_&refund=1', '_self'", "position" => 2, "default" => FALSE, "allow_null" => TRUE ),
+        "name" => "get", "label" => $GLOBALS['locADDREMINDERFEES'], "type" => "BUTTON", "style" => "medium", "listquery" => "'add_reminder_fees.php?ses=$strSesID&id=_ID_', '_self'", "position" => 2, "default" => FALSE, "allow_null" => TRUE ),
+     array(
+        "name" => "get", "label" => $GLOBALS['locREFUNDINV'], "type" => "BUTTON", "style" => "medium", "listquery" => "'copy_invoice.php?ses=$strSesID&type=comp&id=_ID_&refund=1', '_self'", "position" => 2, "default" => FALSE, "allow_null" => TRUE ),
      array(
         "name" => "invoice_rows", "label" => $GLOBALS['locINVROWS'], "type" => "IFORM", "style" => "xfull", "listquery" => "", "position" => 0, "default" => FALSE, "allow_null" => TRUE, "parent_key" => "invoice_id" )
     );

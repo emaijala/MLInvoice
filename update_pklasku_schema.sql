@@ -33,7 +33,7 @@ CREATE TABLE pklasku_product (
 alter table pklasku_invoice_row add column (
   product_id int(11) default NULL,
   vat_included tinyint NOT NULL default 0,  
-  penalty_interest_row tinyint NOT NULL default 0
+  reminder_row tinyint NOT NULL default 0
 );
 
 alter table pklasku_invoice_row change column vat vat decimal(9,1) default 0;

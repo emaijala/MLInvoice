@@ -85,3 +85,7 @@ $periodForComplaints = '7 p‰iv‰‰';
 
 //viiv‰styskorko
 $penaltyInterest = '8 %';
+$penaltyInterestPercent = 8;
+
+//huomautusmaksu
+$notificationFee = 5;

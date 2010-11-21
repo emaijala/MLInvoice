@@ -60,11 +60,10 @@ class PDF extends FPDF
 } 
 
 $intInvoiceId = (int)$_REQUEST['id'] ? (int)$_REQUEST['id'] : FALSE;
-$strType = $_REQUEST['type'] ? $_REQUEST['type'] : 'comp';
 
 if( $intInvoiceId ) {
     $strQuery = 
-        "SELECT inv.invoice_no, inv.invoice_date, inv.due_date, inv.ref_number, inv.name AS invoice_name, inv.reference, comp.company_name AS name, '' AS contact_person, comp.email, comp.billing_address, CONCAT(comp.company_name, '\n', comp.street_address, '\n', comp.zip_code, ' ', comp.city) AS billing_address2, inv.base_id, comp.id as company_id, ref.invoice_no as refunded_invoice_no " .
+        "SELECT inv.invoice_no, inv.invoice_date, inv.due_date, inv.ref_number, inv.name AS invoice_name, inv.reference, comp.company_name AS name, '' AS contact_person, comp.email, comp.billing_address, CONCAT(comp.company_name, '\n', comp.street_address, '\n', comp.zip_code, ' ', comp.city) AS billing_address2, inv.base_id, inv.state_id, inv.print_date, comp.id as company_id, ref.invoice_no as refunded_invoice_no " .
         "FROM {prefix}invoice inv " .
         "INNER JOIN {prefix}company comp ON comp.id = inv.company_id ".
         "LEFT OUTER JOIN {prefix}invoice ref ON ref.id = inv.refunded_invoice_id ".
@@ -74,12 +73,15 @@ if( $intInvoiceId ) {
     if( $intNRows ) {
        $strInvoiceName = mysql_result($intRes, 0, "invoice_name");
        $intBaseId = mysql_result($intRes, 0, "base_id");
+       $intStateId = mysql_result($intRes, 0, "state_id");
        $strClientId = mysql_result($intRes, 0, "company_id");
        $strInvoiceNo = mysql_result($intRes, 0, "invoice_no");
        $strRefundedInvoiceNo = mysql_result($intRes, 0, "refunded_invoice_no");
        $strRefNumber = mysql_result($intRes, 0, "ref_number");
-       $strInvoiceDate = dateConvIntDate2Date(mysql_result($intRes, 0, "invoice_date"));
+       $strInvoiceDate = (mysql_result($intRes, 0, "invoice_date"));
        $strDueDate = dateConvIntDate2Date(mysql_result($intRes, 0, "due_date"));
+       $strFormDueDate = ($intStateId == 5 || $intStateId == 6) ? $GLOBALS['locDUEDATENOW'] : $strDueDate;
+       $strPrintDate = (mysql_result($intRes, 0, "print_date"));
        $strReference = mysql_result($intRes, 0, "reference");
        $strBillingAddress = mysql_result($intRes, 0, "billing_address");
        if( !$strBillingAddress ) {
@@ -94,6 +96,8 @@ if( $intInvoiceId ) {
        $strReference = $strReference ? $strReference : $strContactPerson;
     }
     $strRefNumber = trim(strrev(chunk_split(strrev($strRefNumber),5,' ')));
+    
+    mysql_param_query('UPDATE {prefix}invoice SET print_date = ? where id = ?', array(date('YYMMDD'), $intInvoiceId));
     
     $strSelect = 'SELECT * FROM {prefix}base WHERE id = ?';
     $intRes = mysql_param_query($strSelect, array($intBaseId));
@@ -138,7 +142,7 @@ if( $intInvoiceId ) {
     $strQuery = 
         "SELECT pr.product_name, ir.description, ir.pcs, ir.price, ir.row_date, ir.vat, ir.vat_included, rt.name type ".
         "FROM {prefix}invoice_row ir ".
-        "INNER JOIN {prefix}row_type rt ON rt.id = ir.type_id ".
+        "LEFT OUTER JOIN {prefix}row_type rt ON rt.id = ir.type_id ".
         "LEFT OUTER JOIN {prefix}product pr ON ir.product_id = pr.id ".
         "WHERE ir.invoice_id = ? ORDER BY ir.order_no, row_date, pr.product_name DESC, ir.description DESC";
     $intRes = mysql_param_query($strQuery, array($intInvoiceId));
@@ -211,7 +215,12 @@ $pdf->Cell(120, 6, $strCompanyEmail,0,1);
 //invoiceinfo headers
 $pdf->SetXY(115,10);
 $pdf->SetFont('Helvetica','B',12);
-$pdf->Cell(40, 5, $GLOBALS['locINVOICEHEADER'], 0, 1, 'R');
+if ($intStateId == 5)
+  $pdf->Cell(40, 5, $GLOBALS['locFIRSTREMINDERHEADER'], 0, 1, 'R');
+elseif ($intStateId == 6)
+  $pdf->Cell(40, 5, $GLOBALS['locSECONDREMINDERHEADER'], 0, 1, 'R');
+else
+  $pdf->Cell(40, 5, $GLOBALS['locINVOICEHEADER'], 0, 1, 'R');
 $pdf->SetFont('Helvetica','',10);
 $pdf->SetXY(115, $pdf->GetY()+5);
 /*
@@ -251,6 +260,21 @@ if ($strRefundedInvoiceNo)
 {
   $pdf->SetX(115);
   $pdf->Cell(40, 5, sprintf($GLOBALS['locREFUNDSINVOICE'], $strRefundedInvoiceNo), 0, 0, 'R');
+}
+
+if ($intStateId == 5)
+{
+  $pdf->SetX(60);
+  $pdf->SetFont('Helvetica','B',10);
+  $pdf->MultiCell(150, 5, sprintf($GLOBALS['locFIRSTREMINDERNOTE'], $strRefundedInvoiceNo), 0, 'L', 0);
+  $pdf->SetFont('Helvetica','',10);
+}
+else
+{
+  $pdf->SetX(60);
+  $pdf->SetFont('Helvetica','B',10);
+  $pdf->MultiCell(150, 5, sprintf($GLOBALS['locSECONDREMINDERNOTE'], $strRefundedInvoiceNo), 0, 'L', 0);
+  $pdf->SetFont('Helvetica','',10);
 }
 
 $pdf->SetY($pdf->GetY()+5);
@@ -499,7 +523,7 @@ $pdf->SetXY($intStartX + 112.4, $intStartY + 68);
 $pdf->Cell(15, 5, "Eräpäivä", 0, 1, "L");
 $pdf->SetFont('Helvetica','',10);
 $pdf->SetXY($intStartX + 131.4, $intStartY + 68);
-$pdf->Cell(25, 5, $strDueDate, 0, 1, "L");
+$pdf->Cell(25, 5, $strFormDueDate, 0, 1, "L");
 
 //eur
 $pdf->SetFont('Helvetica','',7);

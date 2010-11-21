@@ -137,6 +137,7 @@ default :
     $GLOBALS['locROWNO'] = 'Rivinro';
     $GLOBALS['locCOPYINV'] = 'Kopioi lasku ja laskurivit';
     $GLOBALS['locREFUNDINV'] = 'Mitätöi ja luo hyvityslasku';
+    $GLOBALS['locADDREMINDERFEES'] = 'Lisää huomautus- ja viivästysmaksu';
     $GLOBALS['locSHOWREFUNDEDINV'] = 'Näytä hyvitetty lasku';
     $GLOBALS['locSHOWREFUNDINGINV'] = 'Näytä hyvittävä lasku';
     $GLOBALS['locPRODUCTNAME'] = 'Tuotteen nimi';
@@ -162,7 +163,7 @@ default :
     $GLOBALS['locMAKEINVTO'] = 'Laskutettavat jäsentyypit';
     $GLOBALS['locGENERAL'] = 'Yleistä';
     $GLOBALS['locSYSTEMONLY'] = 'Järjestelmän sisäinen - ei muokattavissa';
-    
+    $GLOBALS['locWRONGSTATEFORREMINDERFEED'] = 'Maksuja ei voida lisätä laskun nykyisessä tilassa.';
     
     //FORM BUTTON HELPERS
     $GLOBALS['locSAVE'] = 'Tallenna';
@@ -257,6 +258,13 @@ default :
     $GLOBALS['locPDFDUEDATE'] = 'Eräpäivä';
     $GLOBALS['locPDFINVREFNO'] = 'Viitenumero';
     $GLOBALS['locREFUNDSINVOICE'] = 'Tämä lasku hyvittää laskun %d';
+    $GLOBALS['locDUEDATENOW'] = 'HETI';
+    $GLOBALS['locFIRSTREMINDERHEADER'] = 'MAKSUKEHOTUS';
+    $GLOBALS['locSECONDREMINDERHEADER'] = 'MAKSUKEHOTUS';
+    $GLOBALS['locFIRSTREMINDERNOTE'] = "Kirjanpitomme mukaan laskunne on vielä maksamatta. Pyydämme teitä maksamaan laskun pikaisesti samaa viitenumeroa käyttäen. Jos lasku on jo maksettu, on tämä kehotus aiheeton.";
+    $GLOBALS['locSECONDREMINDERNOTE'] = "Kirjanpitomme mukaan laskunne on edelleen maksamatta. Olkaa hyvä ja maksakaa lasku välittömästi samaa viitenumeroa käyttäen.";
+    $GLOBALS['locREMINDERFEEDESC'] = 'Maksukehotus';
+    $GLOBALS['locPENALTYINTERESTDESC'] = 'Viivästyskorko';
     
     //??
     $GLOBALS['locPAYMENTS'] = 'Maksut';
