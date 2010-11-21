@@ -32,11 +32,13 @@ CREATE TABLE pklasku_product (
 
 alter table pklasku_invoice_row add column (
   product_id int(11) default NULL,
-  vat_included tinyint NOT NULL default 0  
+  vat_included tinyint NOT NULL default 0,  
+  penalty_interest_row tinyint NOT NULL default 0
 );
 
 alter table pklasku_invoice_row change column vat vat decimal(9,1) default 0;
 
 alter table pklasku_invoice add column (
-  refunded_invoice_id int(11) NULL
+  refunded_invoice_id int(11) NULL,
+  print_date int(11) default NULL
 );

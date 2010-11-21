@@ -91,6 +91,7 @@ CREATE TABLE vllasku_invoice (
   reference varchar(50) default NULL,
   base_id int(11) default NULL,
   refunded_invoice_id int(11) default NULL,
+  print_date int(11) default NULL,
   PRIMARY KEY  (id)
 ) TYPE=MyISAM AUTO_INCREMENT=1;
 
@@ -106,6 +107,7 @@ CREATE TABLE vllasku_invoice_row (
   vat decimal(9,1) NOT NULL default '0',
   vat_included tinyint NOT NULL default 0,
   order_no int(11) default NULL,
+  penalty_interest_row tinyint NOT NULL default 0,
   PRIMARY KEY  (id)
 ) TYPE=MyISAM AUTO_INCREMENT=1;
 
