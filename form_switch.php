@@ -40,6 +40,7 @@ Tämä ohjelma on vapaa. Lue oheinen LICENSE.
  
 ***********************************************************************/
 
+$strMonthListQuery = '';
 for( $i = 1; $i <= 12; $i++ ) {
     $strMonth = strlen($i) == 1 ? "0". $i : $i;
     $strMonthListQuery .= 
@@ -47,6 +48,7 @@ for( $i = 1; $i <= 12; $i++ ) {
 }
 $strMonthListQuery = substr($strMonthListQuery, 0, -6);
 
+$strDateListQuery = '';
 for( $i = 1; $i <= 31; $i++ ) {
     $strDate = strlen($i) == 1 ? "0". $i : $i;
     $strDateListQuery .= 
@@ -171,9 +173,9 @@ case 'invoice':
        $defaultRefNo = $intInvNo . miscCalcCheckNo($intInvNo);
    }
    
-   $arrRefundedInvoice = array("allow_null" => TRUE);
-   $arrRefundingInvoice = array("allow_null" => TRUE);
-   $intInvoiceId = $_GET['id'];
+   $arrRefundedInvoice = array('allow_null' => TRUE);
+   $arrRefundingInvoice = array('allow_null' => TRUE);
+   $intInvoiceId = getRequest('id', 0);
    if ($intInvoiceId)
    {
      $strQuery = 
@@ -194,9 +196,9 @@ case 'invoice':
         "FROM ". _DB_PREFIX_. "_invoice ".
         "WHERE refunded_invoice_id = ?";
      $intRes = mysql_param_query($strQuery, array($intInvoiceId));
-     if( $intRes > 0 ) 
+     if( $intRes && ($row = mysql_fetch_array($intRes))) 
      {
-       $intRefundingInvoiceId = mysql_result($intRes, 0, "id");
+       $intRefundingInvoiceId = $row['id'];
        if ($intRefundingInvoiceId)
          $arrRefundingInvoice = array(
            "name" => "get", "label" => sprintf($GLOBALS['locSHOWREFUNDINGINV']), "type" => "BUTTON", "style" => "medium", "listquery" => "'form.php?ses=$strSesID&selectform=invoice&id=$intRefundingInvoiceId', '_self'", "position" => 2, "default" => FALSE, "allow_null" => TRUE 
@@ -251,7 +253,7 @@ case 'invoice_rows':
    $strMainForm = "iform.php?selectform=invoice_rows";
    $strOrder = "ORDER BY ". _DB_PREFIX_. "_invoice_row.order_no";
    
-   $intProductId = $_GET['new_product'];
+   $intProductId = getRequest('new_product', 0);
    $strDescription = '';
    $intTypeId = 'POST';
    $intPrice = 'POST';
@@ -464,5 +466,15 @@ break;
         echo "What would you like me to do?"; die;
     break;
 }
+
+// Clean up the array
+$akeys = array('name', 'type', 'position', 'style', 'label', 'default', 'defaults', 'parent_key', 'listquery', 'allow_null', 'elem_attributes');
+for( $j = 0; $j < count($astrFormElements); $j++ ) {
+  for( $i = 0; $i < count($akeys); $i++ ) {
+    if (!isset($astrFormElements[$j][$akeys[$i]]))
+      $astrFormElements[$j][$akeys[$i]] = FALSE;
+  }
+}
+
 
 ?>

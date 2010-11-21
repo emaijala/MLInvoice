@@ -29,7 +29,7 @@ require "sessionfuncs.php";
 require "miscfuncs.php";
 require "datefuncs.php";
 
-$strSesID = $_REQUEST['ses'] ? $_REQUEST['ses'] : FALSE;
+$strSesID = sesVerifySession();
 
 if( $strSesID ) {
     if( !sesCheckSession( $strSesID ) ) {
@@ -37,28 +37,25 @@ if( $strSesID ) {
     }
 }
 
-$GLOBALS['sesLANG'] = $GLOBALS['sesLANG'] ? $GLOBALS['sesLANG'] : 'fi';
-
 require "localize.php";
 
 setlocale(LC_TIME, "fi_FI");
-$strField = $_REQUEST['datefield'] ? $_REQUEST['datefield'] : $_POST['datefield'];
-$blnDoSubmit = $_REQUEST['dosubmit'] ? $_REQUEST['dosubmit'] : $_POST['dosubmit'];
-$blnPrevious = (int)$_POST['prev'] ? TRUE : FALSE;
-$blnNext = (int)$_POST['forw'] ? TRUE : FALSE;
-$strDate = $_REQUEST['date'] ? $_REQUEST['date'] : date("d.m.Y");
-$tmpValues = explode(".", $strDate);
-//$intDate =  $tmpValues[2]. $tmpValues[1]. $tmpValues[0];
+$strField = getRequest('datefield', '');
+$blnDoSubmit = getRequest('dosubmit', FALSE);
+$blnPrevious = getRequest('prev', FALSE) ? TRUE : FALSE;
+$blnNext = getRequest('forw', FALSE) ? TRUE : FALSE;
+$strDate = getRequest('date', date('d.m.Y'));
+$tmpValues = explode('.', $strDate);
 
-$intDate = $_REQUEST['dd'] ? (int)$_REQUEST['dd'] : (int)$tmpValues[0];
-$intMonth = $_REQUEST['mm'] ? (int)$_REQUEST['mm'] : (int)$tmpValues[1];
-$intMonth = $_POST['mm'] ? (int)$_POST['mm'] : $intMonth;
-$intYear =  $_REQUEST['yy'] ? (int)$_REQUEST['yy'] : (int)$tmpValues[2];
-$intYear = $_POST['yy'] ? (int)$_POST['yy'] : $intYear;
+$intDate = getRequest('dd', $tmpValues[0]);
+$intMonth = getRequest('mm', $tmpValues[1]);
+$intYear =  getRequest('yy', $tmpValues[2]);
 
 $intCurrentYear = date("Y");
 $intCurrentMonth = date("m");
 $intCurrentDate = date("d");
+
+$blnShowWeekNo = FALSE;
 
 if( $blnPrevious ) {
     if( $intMonth == 1 ) {
@@ -120,7 +117,7 @@ function SetDate(strdate) {
 }
 -->
 </script>
-<body class="form" onload="<?php echo $strOnLoad?>">
+<body class="form">
 <form method="post" action="calendar.php?ses=<?php echo $GLOBALS['sesID']?>" target="_self" name="cal_form">
 <input type="hidden" name="datefield" value="<?php echo $strField?>">
 <input type="hidden" name="dosubmit" value="<?php echo $blnDoSubmit?>">

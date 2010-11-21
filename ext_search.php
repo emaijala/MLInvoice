@@ -29,12 +29,10 @@ require "sessionfuncs.php";
 require "miscfuncs.php";
 require "datefuncs.php";
 
-$strSesID = $_REQUEST['ses'] ? $_REQUEST['ses'] : FALSE;
+$strSesID = sesVerifySession();
 $intCategory_id = $_REQUEST['catid'] ? (int)$_REQUEST['catid'] : FALSE;
 
-if( !sesCheckSession( $strSesID ) ) {
-    die;
-}
+
 require "localize.php";
 //print_r($_POST);
 $strForm = $_POST['selectform'] ? $_POST['selectform'] : $_REQUEST['selectform'];

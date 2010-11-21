@@ -66,6 +66,7 @@ function miscCalcCheckNo( $intValue ) {
         '1','3','7','1','3','7');
     $astrTmp = array_reverse(explode(".",substr(chunk_split($intValue, 1, '.'), 0, -1)));
 
+    $intSum = 0;
     foreach ($astrTmp as $value) {
         $intSum += $value * array_pop($astrWeight);
     }
@@ -75,4 +76,25 @@ function miscCalcCheckNo( $intValue ) {
     
     return $intCheckNo;
 }
+
+function getPost($strKey, $varDefault)
+{
+  return isset($_POST[$strKey]) ? $_POST[$strKey] : $varDefault;
+}
+
+function getRequest($strKey, $varDefault)
+{
+  return isset($_REQUEST[$strKey]) ? $_REQUEST[$strKey] : $varDefault;
+}
+
+function getGet($strKey, $varDefault)
+{
+  return isset($_GET[$strKey]) ? $_GET[$strKey] : $varDefault;
+}
+
+function getPostRequest($strKey, $varDefault)
+{
+  return getPost($strKey, getRequest($strKey, $varDefault));
+}
+
 ?>

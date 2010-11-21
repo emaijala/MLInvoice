@@ -30,11 +30,9 @@ require "miscfuncs.php";
 require "datefuncs.php";
 require "sessionfuncs.php";
 
-$strSesID = $_REQUEST['ses'] ? $_REQUEST['ses'] : FALSE;
+$strSesID = sesVerifySession();
 
-if( !sesCheckSession( $strSesID ) ) {
-    die;
-}
+
 
 echo htmlFrameSetStart( _PAGE_TITLE_ );
 

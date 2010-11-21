@@ -29,20 +29,18 @@ require "sessionfuncs.php";
 require "miscfuncs.php";
 require "datefuncs.php";
 
-$strSesID = $_REQUEST['ses'] ? $_REQUEST['ses'] : FALSE;
+$strSesID = sesVerifySession();
 
-if( !sesCheckSession( $strSesID ) ) {
-    die;
-}
+
 require "localize.php";
 
-$blnNew = (int)$_POST['new'] || (int)$_REQUEST['new'] ? TRUE : FALSE;
+$blnNew = getPost('new', getRequest('new', FALSE)) ? TRUE : FALSE;
 
 echo htmlPageStart( _PAGE_TITLE_ );
 
 ?>
 
-<body class="form" onload="<?php echo $strOnLoad?>">
+<body class="form">
 <script type="text/javascript">
 <!--
 function OpenCalendar(datefield, event) {

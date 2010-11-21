@@ -27,16 +27,14 @@ require "htmlfuncs.php";
 require "sqlfuncs.php";
 require "sessionfuncs.php";
 
-$strSesID = $_REQUEST['ses'] ? $_REQUEST['ses'] : FALSE;
+$strSesID = sesVerifySession();
 
-if( !sesCheckSession( $strSesID ) ) {
-    die;
-}
+
 require "localize.php";
 require "datefuncs.php";
 require "miscfuncs.php";
 
-$intInvoiceId = (int)$_REQUEST['id'] ? (int)$_REQUEST['id'] : FALSE;
+$intInvoiceId = getRequest('id', FALSE);
 
 $strAlert = '';
 if( $intInvoiceId ) {
@@ -110,7 +108,7 @@ if( $intInvoiceId ) {
     }
     else
     {
-      $strAlert = $GLOBALS['locWRONGSTATEFORREMINDERFEED'];
+      $strAlert = addslashes($GLOBALS['locWRONGSTATEFORREMINDERFEED']);
     }
 }
 

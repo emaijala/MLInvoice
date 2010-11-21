@@ -23,7 +23,7 @@ Tämä ohjelma on vapaa. Lue oheinen LICENSE.
 
 *******************************************************************************/
 
-switch ($GLOBALS['sesLANG']) {
+switch (isset($_POST['sesLANG']) ? $_POST['sesLANG'] : 'fi') {
 
 case 'en' :
     

@@ -29,19 +29,15 @@ require "sessionfuncs.php";
 require "miscfuncs.php";
 require "datefuncs.php";
 
-$strSesID = $_REQUEST['ses'] ? $_REQUEST['ses'] : FALSE;
+$strSesID = sesVerifySession();
 
-if( !sesCheckSession( $strSesID ) ) {
-    die;
-}
 require "localize.php";
 
-$strForm = $_POST['selectform'] ? $_POST['selectform'] : $_REQUEST['selectform'];
+$strForm = getPost('selectform', getRequest('selectform', ''));
 
-$strMode = $_GET['mode'] ? $_GET['mode'] : 'MODIFY';
-$strMode = $_POST['mode'] ? $_POST['mode'] : $strMode;
+$strMode = getPost('mode', getGet('mode', 'MODIFY'));
 
-$strDefaults = $_POST['defaults'] ? $_POST['defaults'] : $_REQUEST['defaults'];
+$strDefaults = getPost('defaults', getRequest('defaults', '')); 
 
 if( $strDefaults ) {
     $tmpDefaults = explode(" ", urldecode($strDefaults));
@@ -65,12 +61,14 @@ echo htmlPageStart( _PAGE_TITLE_ );
 
 //print_r($_POST);
 
-$blnCopy = (int)$_POST['copy_x'] ? TRUE : FALSE;
-$blnAdd = (int)$_POST['add_x'] ? TRUE : FALSE;
-$blnDelete = (int)$_POST['del_x'] ? TRUE : FALSE;
-$intKeyValue = (int)$_POST[$strPrimaryKey] ? (int)$_POST[$strPrimaryKey] : (int)$_REQUEST[$strPrimaryKey];
-$intParentKey = (int)$_POST[$strParentKey] ? (int)$_POST[$strParentKey] : (int)$_REQUEST[$strParentKey];
+$blnCopy = getPost('copy_x', FALSE) ? TRUE : FALSE;
+$blnAdd = getPost('add_x', FALSE) ? TRUE : FALSE;
+$blnDelete = getPost('del_x', FALSE) ? TRUE : FALSE;
+$intKeyValue = getPost($strPrimaryKey, getRequest($strPrimaryKey, FALSE));
+$intParentKey = getPost($strParentKey, getRequest($strParentKey, FALSE));
 
+$blnInsertDone = FALSE;
+$strOnLoad = '';
 for( $i = 0; $i < count($astrFormElements); $i++ ) {
     if( $astrFormElements[$i]['type'] == 'IFRAME' ) {
         $astrValues[$astrFormElements[$i]['name']] = $intKeyValue ? $intKeyValue : FALSE;
@@ -81,11 +79,11 @@ for( $i = 0; $i < count($astrFormElements); $i++ ) {
         }
         elseif( !$astrFormElements[$i]['default'] ) {
             if( $astrFormElements[$i]['type'] == "INT" ) {
-                $tmpValue = str_replace(",", ".", $_POST[$astrFormElements[$i]['name']]);
-                $astrValues[$astrFormElements[$i]['name']] =             $tmpValue ? (float)$tmpValue : FALSE;
+                $tmpValue = str_replace(",", ".", getPost($astrFormElements[$i]['name'], ''));
+                $astrValues[$astrFormElements[$i]['name']] = $tmpValue ? (float)$tmpValue : FALSE;
             }
             else {
-                $astrValues[$astrFormElements[$i]['name']] =             $_POST[$astrFormElements[$i]['name']] ? $_POST[$astrFormElements[$i]['name']] : FALSE;
+                $astrValues[$astrFormElements[$i]['name']] = getPost($astrFormElements[$i]['name'], FALSE);
             }
         }
         else {
@@ -105,7 +103,7 @@ for( $i = 0; $i < count($astrFormElements); $i++ ) {
                $strDefaultValue = date("d.m.Y H:i");
             }
             elseif( $astrFormElements[$i]['default'] == "POST" ) {
-               $strDefaultValue = $_POST[$astrFormElements[$i]['name']];
+               $strDefaultValue = getPost($astrFormElements[$i]['name'], '');
             }
             elseif( strstr($astrFormElements[$i]['default'], "ADD") ) {
                $strQuery = str_replace("_PARENTID_", $intParentKey, $astrFormElements[$i]['listquery']);
@@ -117,11 +115,11 @@ for( $i = 0; $i < count($astrFormElements); $i++ ) {
                 $strDefaultValue = $astrFormElements[$i]['default'];
             }
             if( $astrFormElements[$i]['type'] == "INT" ) {
-                $tmpValue = str_replace(",", ".", $_POST[$astrFormElements[$i]['name']]);
-                $astrValues[$astrFormElements[$i]['name']] =             $tmpValue !== '' ? (float)$tmpValue : $strDefaultValue;
+                $tmpValue = str_replace(",", ".", getPost($astrFormElements[$i]['name'], ''));
+                $astrValues[$astrFormElements[$i]['name']] = $tmpValue !== '' ? (float)$tmpValue : $strDefaultValue;
             }
             else {
-                $astrValues[$astrFormElements[$i]['name']] =             $_POST[$astrFormElements[$i]['name']] ? $_POST[$astrFormElements[$i]['name']] : $strDefaultValue;
+                $astrValues[$astrFormElements[$i]['name']] = getPost($astrFormElements[$i]['name'], $strDefaultValue);
             }
         }
     }
@@ -231,28 +229,27 @@ if( $blnAdd ) {
     }
 }
 if( $blnInsertDone ) {
-//    unset($astrValues);
-for( $i = 0; $i < count($astrFormElements); $i++ ) {
-    if( !$astrFormElements[$i]['default'] ) {
-        unset($astrValues[$astrFormElements[$i]['name']]);
-    }
-    
-    else {
-        if( $astrFormElements[$i]['default'] == "DATE_NOW" ) {
-           $strDefaultValue = date("Ymd");
+    //    unset($astrValues);
+    for( $i = 0; $i < count($astrFormElements); $i++ ) {
+        if( !$astrFormElements[$i]['default'] ) {
+            unset($astrValues[$astrFormElements[$i]['name']]);
         }
-        elseif( strstr($astrFormElements[$i]['default'], "ADD") ) {
-           $intAdd = substr($astrFormElements[$i]['default'], 4);
-           $_POST[$astrFormElements[$i]['name']] += $intAdd;
-           
-        }
+        
         else {
-            $strDefaultValue = $astrFormElements[$i]['default'];
+            if( $astrFormElements[$i]['default'] == "DATE_NOW" ) {
+               $strDefaultValue = date("Ymd");
+            }
+            elseif( strstr($astrFormElements[$i]['default'], "ADD") ) {
+               $intAdd = substr($astrFormElements[$i]['default'], 4);
+               $_POST[$astrFormElements[$i]['name']] += $intAdd;
+               
+            }
+            else {
+                $strDefaultValue = $astrFormElements[$i]['default'];
+            }
+            $astrValues[$astrFormElements[$i]['name']] = getPost($astrFormElements[$i]['name'], $strDefaultValue);
         }
-        $astrValues[$astrFormElements[$i]['name']] = $_POST[$astrFormElements[$i]['name']] ? $_POST[$astrFormElements[$i]['name']] : $strDefaultValue;
     }
-}
-
 }
 if( $blnDelete && $intKeyValue ) {
     $strQuery =
@@ -280,17 +277,17 @@ if( $intParentKey ) {
             for( $j = 0; $j < count($astrFormElements); $j++ ) {
                 if( $astrFormElements[$j]['type'] != 'IFRAME' && $astrFormElements[$j]['type'] != 'NEWLINE' ) {
                     if( $astrFormElements[$j]['type'] == 'INTDATE' ) {
-                        $astrOldValues[$i][$astrFormElements[$j]['name']] =                         dateConvIntDate2Date( mysql_result( $intRes, $i, $astrFormElements[$j]['name'] ));
+                        $astrOldValues[$i][$astrFormElements[$j]['name']] = dateConvIntDate2Date( mysql_result( $intRes, $i, $astrFormElements[$j]['name'] ));
                     }
                     elseif( $astrFormElements[$j]['type'] == 'TIMESTAMP' ) {
-                        $astrOldValues[$i][$astrFormElements[$j]['name']] =                         date("d.m.Y H:i", mysql_result( $intRes, $i, $astrFormElements[$j]['name'] ));
+                        $astrOldValues[$i][$astrFormElements[$j]['name']] = date("d.m.Y H:i", mysql_result( $intRes, $i, $astrFormElements[$j]['name'] ));
                     }
                     elseif( $astrFormElements[$j]['type'] == 'BUTTON' ) {
                        $astrOldValues[$i][$astrFormElements[$j]['name']] = $tmpID;
                     }
                     
                     else {
-                        $astrOldValues[$i][$astrFormElements[$j]['name']] =                         mysql_result( $intRes, $i, $astrFormElements[$j]['name'] );
+                        $astrOldValues[$i][$astrFormElements[$j]['name']] = mysql_result( $intRes, $i, $astrFormElements[$j]['name'] );
                     }
                 }
                 else {
@@ -341,6 +338,7 @@ function OpenPop(strLink, event) {
     <tr>
 <?php
 if( $strMode == "MODIFY" ) {
+$strRowSpan = '';
 for( $j = 0; $j < count($astrFormElements); $j++ ) {
     if( $astrFormElements[$j]['type'] != "HID_INT" && $astrFormElements[$j]['type'] != "SECHID_INT" && $astrFormElements[$j]['type'] != "BUTTON" && $astrFormElements[$j]['type'] != 'NEWLINE' ) {
 ?>
@@ -417,7 +415,7 @@ for($i = 0; $i < count($astrOldValues); $i++ ) {
         if( $astrFormElements[$j]['type'] != "HID_INT" && $astrFormElements[$j]['type'] != "SECHID_INT" && $astrFormElements[$j]['type'] != 'NEWLINE' ) {
 ?>
     <td class="<?php echo $astrFormElements[$j]['style']?>" >
-        <?php echo htmlFormElement( $astrFormElements[$j]['name'],$astrFormElements[$j]['type'], gpcStripSlashes($astrOldValues[$i][$astrFormElements[$j]['name']]), $astrFormElements[$j]['style'],$astrFormElements[$j]['listquery'], "NO_MOD", 0, $astrFormElements[$j]['label'], array(), $astrFormElements[$j]['elem_attributes'])?>
+        <?php echo htmlFormElement( $astrFormElements[$j]['name'],$astrFormElements[$j]['type'], gpcStripSlashes($astrOldValues[$i][$astrFormElements[$j]['name']]), $astrFormElements[$j]['style'],$astrFormElements[$j]['listquery'], "NO_MOD", 0, $astrFormElements[$j]['label'], array(), isset($astrFormElements[$j]['elem_attributes']) ? $astrFormElements[$j]['elem_attributes'] : '')?>
     </td>
 <?php
 
@@ -465,9 +463,6 @@ if( $strMode == "MODIFY" ) {
 }
 
 ?>
-
 </table>
-
-
 </body>
 </html>

@@ -27,12 +27,10 @@ require "htmlfuncs.php";
 require "sqlfuncs.php";
 require "sessionfuncs.php";
 
-$strSesID = $_REQUEST['ses'] ? $_REQUEST['ses'] : FALSE;
+$strSesID = sesVerifySession();
 $strTopic = $_REQUEST['topic'] ? $_REQUEST['topic'] : FALSE;
 
-if( !sesCheckSession( $strSesID ) ) {
-    die;
-}
+
 
 switch ( $strTopic ) {
     case 'main':

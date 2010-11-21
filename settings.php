@@ -48,7 +48,7 @@ define ("_DB_PREFIX_", "vllasku");
 define ("_PAGE_TITLE_", "VLLasku 1.0");
 
 // http vai https - vaihda vain jos automaattinen valinta alla ei toimi
-define ('_PROTOCOL_', $_SERVER['HTTPS'] ? 'https://' : 'http://');
+define ('_PROTOCOL_', isset($_SERVER['HTTPS']) ? 'https://' : 'http://');
 //define ("_PROTOCOL_", "http://");
 
 //sekalaisia muuttujia:

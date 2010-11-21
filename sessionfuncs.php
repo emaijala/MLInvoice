@@ -181,4 +181,12 @@ Todo :
     return FALSE;
 }
 
+function sesVerifySession()
+{
+  $strSes = isset($_REQUEST['ses']) ? $_REQUEST['ses'] : FALSE;
+  if (!sesCheckSession($strSes))
+    die;
+  return $strSes;
+}
+
 ?>

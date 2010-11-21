@@ -32,10 +32,10 @@ require "localize.php";
 
 //phpinfo();
 
-$strLogin = $_POST['flogin'] ? $_POST['flogin'] : FALSE;
-$strPasswd = $_POST['fpasswd'] ? $_POST['fpasswd'] : FALSE;
-$strMode = $_POST['mode'] ? $_POST['mode'] : "normal";
-$blnSubmit = (int)$_POST['logon_alt'] ? TRUE : FALSE;
+$strLogin = getPost('flogin', FALSE);
+$strPasswd = getPost('fpasswd', FALSE); 
+$strMode = getPost('mode', 'normal');
+$blnSubmit = getPost('logon_alt', FALSE) ? TRUE : FALSE;
 
 if( $blnSubmit ) {
     if( $strLogin && $strPasswd ) {
@@ -73,7 +73,7 @@ if( !$strMessage ) {
 
 <h1>Tervetuloa</h1>
 <p>
-Ole hyv&auml; ja sy&ouml;t&auml; tunnuksesi ja salasanasi ja kirjaudu klikkaamalla "KIRJAUDU"-painiketta.
+Ole hyv&auml; ja sy&ouml;t&auml; tunnuksesi ja salasanasi ja kirjaudu klikkaamalla "Kirjaudu"-painiketta.
 </p>
 
 <form action="login.php" method="post" name="login_form">
@@ -81,7 +81,7 @@ Tunnus <input class="medium" name="flogin" type="text" value=""><br><br>
 Salasana <input class="medium" name="fpasswd" type="password" value=""><br><br>
 
 <input type="hidden" name="logon_alt" value="1">
-<input type="submit" name="logon" value="KIRJAUDU">
+<input type="submit" name="logon" value="Kirjaudu">
 </form>
 <?php
 }

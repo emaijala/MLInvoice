@@ -120,6 +120,7 @@ Return : $strListBox (string) : listbox element
 
 Todo : 
 ********************************************************************/
+    $strOnChange = '';
     if( $blnOnChange ) {
         $strOnChange = "onchange='this.form.submit();'";
     }
@@ -302,6 +303,7 @@ Todo : style, Sorting? Errors. Allow only select query?
     
     $intRes = mysql_query( $strQuery );
     if( $intRes ) {
+        $strSelectedValue = '';
         $intNRes = mysql_num_rows($intRes);
         for( $i = 0; $i < $intNRes; $i++ ) {
             $astrValues[$i] = mysql_result($intRes, $i, 0);
@@ -333,6 +335,7 @@ Todo :
     Check values. Errors. Style?
 ********************************************************************/
 function htmlFormElement( $strName, $strType, $strValue, $strStyle, $strListQuery, $strMode = "MODIFY", $strParentKey = NULL, $strTitle = "", $astrDefaults = array(), $astrAdditionalAttributes = '' ) {
+    $strFormElement = '';
     switch( $strType ) {
         case 'TEXT' :
             if( $strMode == "MODIFY" ) {
@@ -548,6 +551,7 @@ function htmlFormElement( $strName, $strType, $strValue, $strStyle, $strListQuer
         case 'IFORM' :
             if( $strValue ) {
                 if( $strMode == "MODIFY" ) {
+                    $strDefaults = '';
                     if( is_array($astrDefaults) ) {
                         $strDefaults = "defaults=";
                         while (list($key, $val) = each($astrDefaults)) {

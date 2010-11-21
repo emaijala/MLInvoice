@@ -29,17 +29,15 @@ require "sessionfuncs.php";
 require "miscfuncs.php";
 require "datefuncs.php";
 
-$strSesID = $_REQUEST['ses'] ? $_REQUEST['ses'] : FALSE;
+$strSesID = sesVerifySession();
 
-if( !sesCheckSession( $strSesID ) ) {
-    die;
-}
+
 require "localize.php";
 
 echo htmlPageStart( _PAGE_TITLE_ );
 
 ?>
-<body class="list" onload="<?php echo $strOnLoad?>">
+<body class="list">
 
 <h2><?php echo $GLOBALS['locLABELOPENINVOICES']?></h2>
 
@@ -117,7 +115,7 @@ else {
 //invoices todo...
 $strQuery = 
     "SELECT * FROM ". _DB_PREFIX_. "_invoice ".
-    "WHERE state_id = 2 ".
+    "WHERE state_id = 2 or state_id = 5 or state_id = 6 ".
     "ORDER BY invoice_date, name";
 $intRes = mysql_query($strQuery);
 $intNumRows = mysql_num_rows($intRes);

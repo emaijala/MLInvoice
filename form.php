@@ -29,28 +29,24 @@ require "sessionfuncs.php";
 require "miscfuncs.php";
 require "datefuncs.php";
 
-$strSesID = $_REQUEST['ses'] ? $_REQUEST['ses'] : FALSE;
+$strSesID = sesVerifySession();
 
-if( !sesCheckSession( $strSesID ) ) {
-    die;
-}
+
 require "localize.php";
 
-$strForm = $_POST['selectform'] ? $_POST['selectform'] : $_REQUEST['selectform'];
+$strForm = getPost('selectform', getRequest('selectform', ''));
 
 require "form_switch.php";
 
 echo htmlPageStart( _PAGE_TITLE_ );
 
+$blnNew = getPost('newact', getRequest('newact', FALSE))  ? TRUE : FALSE;
+$blnCopy = getPost('copyact', getRequest('copyact', FALSE)) ? TRUE : FALSE;
+$blnSave = getPost('saveact', FALSE) ? TRUE : FALSE;
+$blnDelete = getPost('deleteact', FALSE) ? TRUE : FALSE;
+$intKeyValue = getPost($strPrimaryKey, getRequest($strPrimaryKey, FALSE));
 
-//print_r($_POST);
-$blnNew = (int)$_POST['newact'] || (int)$_REQUEST['new'] ? TRUE : FALSE;
-$blnCopy = (int)$_POST['copyact'] ? TRUE : FALSE;
-$blnSave = (int)$_POST['saveact'] ? TRUE : FALSE;
-$blnDelete = (int)$_POST['deleteact'] ? TRUE : FALSE;
-$intKeyValue = (int)$_POST[$strPrimaryKey] ? (int)$_POST[$strPrimaryKey] : (int)$_REQUEST[$strPrimaryKey];
-
-
+$strOnLoad = '';
 
 //if NEW is clicked clear existing form data
 if( $blnNew && !$blnSave ) {
@@ -66,7 +62,7 @@ for( $i = 0; $i < count($astrFormElements); $i++ ) {
     }
     else {
          if( !$astrFormElements[$i]['default'] ) {
-            $astrValues[$astrFormElements[$i]['name']] =             $_POST[$astrFormElements[$i]['name']] ? $_POST[$astrFormElements[$i]['name']] : FALSE;
+            $astrValues[$astrFormElements[$i]['name']] = getPost($astrFormElements[$i]['name'], FALSE);
          }
          else {
             if( $astrFormElements[$i]['default'] == "DATE_NOW" ) {
@@ -85,13 +81,14 @@ for( $i = 0; $i < count($astrFormElements); $i++ ) {
             else {
                 $strDefaultValue = $astrFormElements[$i]['default'];
             }
-            $astrValues[$astrFormElements[$i]['name']] =             $_POST[$astrFormElements[$i]['name']] ? $_POST[$astrFormElements[$i]['name']] : $strDefaultValue;
+            $astrValues[$astrFormElements[$i]['name']] = getPost($astrFormElements[$i]['name'], $strDefaultValue);
         }
     }
 }
 //save the form values when user hits SAVE
 if( $blnSave ) { 
     //check all form elements which save values
+    $blnMissingValues = FALSE;
     for( $i = 0; $i < count($astrFormElements); $i++ ) {
         //lets shorten our if's and get array variables to tmp vars
         $strControlType = $astrFormElements[$i]['type'];
@@ -117,6 +114,9 @@ if( $blnSave ) {
     }
     //if no required values missing -> create the sql-query fields 
     if( !$blnMissingValues ) {
+        $strFields = '';
+        $strInsert = '';
+        $strUpdateFields = '';
         for( $i = 0; $i < count($astrFormElements); $i++ ) {
             $strControlType = $astrFormElements[$i]['type'];
             $strControlName = $astrFormElements[$i]['name'];
@@ -270,6 +270,7 @@ if( $blnSave ) {
         //if there's no resource identifier something went wrong
         else {
             //let the user know that query didn't work out
+            error_log("Query '$strQuery' failed: " . mysql_error());
             $strOnLoad = "alert('" . $GLOBALS['locDBERRORDESC'] . addslashes(mysql_error()) . "');";
             error_log($strOnLoad);
         }
@@ -311,7 +312,7 @@ if( $intKeyValue ) {
         "SELECT * FROM " . $strTable . " ".
         "WHERE " . $strPrimaryKey . "=" . $intKeyValue . ";";
     $intRes = mysql_query($strQuery);
-    $intNRows = mysql_numrows($intRes);
+    $intNRows = mysql_num_rows($intRes);
     if( $intNRows ) {
         for( $j = 0; $j < count($astrFormElements); $j++ ) {
             $strControlType = $astrFormElements[$j]['type'];
@@ -319,11 +320,10 @@ if( $intKeyValue ) {
             
             if( $strControlType == 'IFRAME' || $strControlType == 'IFORM' || $strControlType == 'RESULT' ) {
                $astrValues[$strControlName] = $intKeyValue;
-               if( is_array($astrFormElements[$j]['defaults']) ) {
+               if( isset($astrFormElements[$j]['defaults']) && is_array($astrFormElements[$j]['defaults']) ) {
                    $strDefaults = "defaults=";
                     while (list($key, $val) = each($astrFormElements[$j]['defaults'])) {
                         if($astrFormElements[$j]['types'][$key] == 'INT' ) {
-                            //echo "jep";
                             $astrFormElements[$j]['defaults'][$key] = $astrValues[$astrFormElements[$j]['mapping'][$key]];
                         }
                         elseif( $astrFormElements[$j]['types'][$key] == 'INTDATE' ) {
@@ -340,21 +340,20 @@ if( $intKeyValue ) {
                     $tmpListQuery = $astrFormElements[$j]['listquery'];
                     $strReplName = substr($tmpListQuery, strpos($tmpListQuery, "_"));
                     $strReplName = strtolower(substr($strReplName, 1, strrpos($strReplName, "_")-1));
-                    $astrValues[$strControlName] = $astrValues[$strReplName];
-                    //echo "$strControlName $strReplName". $astrValues[$strReplName];
+                    $astrValues[$strControlName] = isset($astrValues[$strReplName]) ? $astrValues[$strReplName] : '';
                     $astrFormElements[$j]['listquery'] = str_replace(strtoupper($strReplName), "ID", $astrFormElements[$j]['listquery']);
                 }
             }
             elseif( $strControlType != 'LABEL' ) {
                 if( $strControlType == 'INTDATE' ) {
-                    $astrValues[$strControlName] =                         dateConvIntDate2Date( mysql_result( $intRes, 0, $strControlName ));
+                    $astrValues[$strControlName] = dateConvIntDate2Date( mysql_result( $intRes, 0, $strControlName ));
                 }
                 elseif( $strControlType == 'TIMESTAMP' ) {
-                        $astrValues[$strControlName] =                         date("d.m.Y H:i", mysql_result( $intRes, $i, $strControlName ));
+                        $astrValues[$strControlName] = date("d.m.Y H:i", mysql_result( $intRes, $i, $strControlName ));
                 }
                 else { 
-                    $astrValues[$strControlName] = 
-                    mysql_result($intRes, 0, $strControlName);
+                    if ($strControlName)
+                        $astrValues[$strControlName] = mysql_result($intRes, 0, $strControlName);
                 }
             }
         }
@@ -366,13 +365,11 @@ if( $intKeyValue ) {
 
 //print_r($astrFormElements[16]);
 
-if ($_GET['refresh_list'])
+if (getRequest('refresh_list', FALSE))
   $strOnLoad .= "top.frset_bottom.f_list.document.forms[0].key_values.value=''; top.frset_bottom.f_list.document.forms[0].submit();";
 
 if( $blnCopy ) {
-    //echo "copytaan";
     unset($intKeyValue);
-    //unset($astrValues);
     unset($_POST);
     $blnNew = TRUE;
 }
@@ -471,7 +468,7 @@ for( $j = 0; $j < count($astrFormElements); $j++ ) {
         elseif( $astrFormElements[$j]['type'] == "BUTTON" ) {
  ?>
         <td class="button" colspan="<?php echo $intColspan?>">
-            <?php echo htmlFormElement($astrFormElements[$j]['name'], $astrFormElements[$j]['type'], gpcStripSlashes($astrValues[$astrFormElements[$j]['name']]), $astrFormElements[$j]['style'],$astrFormElements[$j]['listquery'], "MODIFY", $astrFormElements[$j]['parent_key'],$astrFormElements[$j]['label'], array(), $astrFormElements[$j]['elem_attributes'])?>
+            <?php echo htmlFormElement($astrFormElements[$j]['name'], $astrFormElements[$j]['type'], gpcStripSlashes($astrValues[$astrFormElements[$j]['name']]), $astrFormElements[$j]['style'],$astrFormElements[$j]['listquery'], "MODIFY", $astrFormElements[$j]['parent_key'],$astrFormElements[$j]['label'], array(), isset($astrFormElements[$j]['elem_attributes']) ? $astrFormElements[$j]['elem_attributes'] : '')?>
         </td>
 <?php          
         }
@@ -481,7 +478,7 @@ for( $j = 0; $j < count($astrFormElements); $j++ ) {
             <?php echo $astrFormElements[$j]['label']?>
         </td>
         <td class="field" <?php echo $strColspan?>>
-            <?php echo htmlFormElement($astrFormElements[$j]['name'], $astrFormElements[$j]['type'], gpcStripSlashes($astrValues[$astrFormElements[$j]['name']]), $astrFormElements[$j]['style'],$astrFormElements[$j]['listquery'], "MODIFY", $astrFormElements[$j]['parent_key'], '', array(), $astrFormElements[$j]['elem_attributes'])?>
+            <?php echo htmlFormElement($astrFormElements[$j]['name'], $astrFormElements[$j]['type'], gpcStripSlashes($astrValues[$astrFormElements[$j]['name']]), $astrFormElements[$j]['style'],$astrFormElements[$j]['listquery'], "MODIFY", isset($astrFormElements[$j]['parent_key']) ? $astrFormElements[$j]['parent_key'] : '', '', array(), isset($astrFormElements[$j]['elem_attributes']) ? $astrFormElements[$j]['elem_attributes'] : '')?>
         </td>
 <?php
         }

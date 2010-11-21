@@ -22,27 +22,23 @@ require "miscfuncs.php";
 require "datefuncs.php";
 
 
-$strSesID = $_REQUEST['ses'] ? $_REQUEST['ses'] : FALSE;
+$strSesID = sesVerifySession();
 
-if( !sesCheckSession( $strSesID ) ) {
-    die;
-}
+
 require "localize.php";
 
 echo htmlPageStart( _PAGE_TITLE_ );
 
-$strForm = $_POST['selectform'] ? $_POST['selectform'] : $_REQUEST['selectform'];
+$strForm = getPostRequest('selectform', '');
 
-$strWhereClause = $_POST['where'] ? $_POST['where'] : $_REQUEST['where'];
-$intCategoryID = $_POST['category_id'] ? $_POST['category_id'] : $_REQUEST['category_id'];
-$strSearchTerms = trim($_POST['searchterms']) ? trim($_POST['searchterms']) : FALSE;
-$astrKeyValues = $_POST['key_values'] ? explode(";",$_POST['key_values']) : NULL;
-$intPage = (int)$_POST['page'] ? (int)$_POST['page'] : 1;
-$blnPrevious = (int)$_POST['prev'] ? TRUE : FALSE;
-$blnNext = (int)$_POST['forw'] ? TRUE : FALSE;
-$intID = $_REQUEST['id'] ? $_REQUEST['id'] : FALSE;
-
-
+$strWhereClause = getPostRequest('where', '');
+$intCategoryID = getPostRequest('category_id', '');
+$strSearchTerms = trim(getPost('searchterms', FALSE));
+$astrKeyValues = explode(";", getPost('key_values', '');
+$intPage = getPost('page', 1);
+$blnPrevious = getPost('prev', FALSE) ? TRUE : FALSE;
+$blnNext = getPost('forw', FALSE) ? TRUE : FALSE;
+$intID = getRequest('id', FALSE);
 
 if( $blnPrevious ) {
     $intPage -= 1;
@@ -53,6 +49,7 @@ if( $blnNext ) {
 
 require "list_switch.php";
 
+$strHiddenTerm = '';
 if( $intCategoryID ) {
     $strHiddenTerm = "<input type=\"hidden\" name=\"category_id\" value=\"". $intCategoryID."\">";
     $strHiddenWhere = 
@@ -107,9 +104,9 @@ if( !$astrKeyValues ) {
         $strOrderClause = substr( $strOrderClause, 0, -2);
     }
     $strQuery = 
-        "SELECT $strTable." . $strPrimaryKey . " FROM " . $strTable . " " .
+        "SELECT $strTable.$strPrimaryKey FROM $strTable " .
         $strInnerJoin. $strWhereClause. $strHiddenWhere. $strAddWhere. 
-        " ORDER BY " . $strOrderClause . ";";
+        " ORDER BY $strOrderClause";
 
     $intRes = mysql_query($strQuery);
     if( $intRes ) {

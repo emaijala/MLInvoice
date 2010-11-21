@@ -28,13 +28,11 @@ require "sqlfuncs.php";
 require "sessionfuncs.php";
 require_once "pdfbarcode128.php";
 
-$strSesID = $_REQUEST['ses'] ? $_REQUEST['ses'] : FALSE;
+$strSesID = sesVerifySession();
 
-if( !sesCheckSession( $strSesID ) ) {
-    die;
-}
 require "localize.php";
-define('FPDF_FONTPATH','./font/');
+if (!defined('FPDF_FONTPATH'))
+  define('FPDF_FONTPATH','./font/');
 require_once "fpdf.php";
 
 require "datefuncs.php";
@@ -59,7 +57,7 @@ class PDF extends FPDF
   }
 } 
 
-$intInvoiceId = (int)$_REQUEST['id'] ? (int)$_REQUEST['id'] : FALSE;
+$intInvoiceId = getRequest('id', FALSE);
 
 if( $intInvoiceId ) {
     $strQuery = 
@@ -145,6 +143,9 @@ if( $intInvoiceId ) {
         "LEFT OUTER JOIN {prefix}row_type rt ON rt.id = ir.type_id ".
         "LEFT OUTER JOIN {prefix}product pr ON ir.product_id = pr.id ".
         "WHERE ir.invoice_id = ? ORDER BY ir.order_no, row_date, pr.product_name DESC, ir.description DESC";
+    $intTotSum = 0;
+    $intTotVAT = 0;
+    $intTotSumVAT = 0;
     $intRes = mysql_param_query($strQuery, array($intInvoiceId));
     if( $intRes ) {
         $intNRes = mysql_num_rows($intRes);
@@ -259,7 +260,7 @@ $pdf->Cell(60, 5, $strReference, 0, 1);
 if ($strRefundedInvoiceNo)
 {
   $pdf->SetX(115);
-  $pdf->Cell(40, 5, sprintf($GLOBALS['locREFUNDSINVOICE'], $strRefundedInvoiceNo), 0, 0, 'R');
+  $pdf->Cell(40, 5, sprintf($GLOBALS['locREFUNDSINVOICE'], $strRefundedInvoiceNo), 0, 1, 'R');
 }
 
 if ($intStateId == 5)
@@ -269,7 +270,7 @@ if ($intStateId == 5)
   $pdf->MultiCell(150, 5, sprintf($GLOBALS['locFIRSTREMINDERNOTE'], $strRefundedInvoiceNo), 0, 'L', 0);
   $pdf->SetFont('Helvetica','',10);
 }
-else
+elseif ($intStateId == 6)
 {
   $pdf->SetX(60);
   $pdf->SetFont('Helvetica','B',10);
@@ -543,7 +544,7 @@ $pdf->Cell(40, 5, miscRound2Decim($intTotSumVAT), 0, 1, "R");
 4 	Zero padding
 1 	Check code 1
 */
-if( $showBarcode ) {
+if( $showBarcode && $intTotSumVAT > 0) {
     $tmpAccount = str_replace("-", str_repeat('0', 14 -(strlen($strBankAccount1)-1)),$strBankAccount1);
     $tmpSum = str_replace(",", "", miscRound2Decim($intTotSumVAT));
     $tmpSum = str_repeat('0', 8 - strlen($tmpSum)). $tmpSum;

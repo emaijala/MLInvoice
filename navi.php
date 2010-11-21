@@ -26,31 +26,33 @@ Tämä ohjelma on vapaa. Lue oheinen LICENSE.
 require "htmlfuncs.php";
 require "sqlfuncs.php";
 require "sessionfuncs.php";
+require "miscfuncs.php";
 
-$strSesID = $_REQUEST['ses'] ? $_REQUEST['ses'] : FALSE;
+$strSesID = sesVerifySession();
 
-if( !sesCheckSession( $strSesID ) ) {
-    die;
-}
 require "localize.php";
 
 echo htmlPageStart( _PAGE_TITLE_ );
 
-$blnShowSearch = $_REQUEST['search'] ? TRUE : FALSE;
-$strFormSwitch = $_REQUEST['selectform'] ? $_REQUEST['selectform'] : FALSE;
-$blnShowAdmin = $_REQUEST['admin'] ? TRUE : FALSE;
-$blnShowSettings = $_REQUEST['settings'] ? TRUE : FALSE;
-$blnShowSettings2 = $_REQUEST['settings2'] ? TRUE : FALSE;
-$blnShowSettings3 = $_REQUEST['settings3'] ? TRUE : FALSE;
-$blnShowSystem = $_REQUEST['system'] ? TRUE : FALSE;
-$blnShowInv = $_REQUEST['invoice'] ? TRUE : FALSE;
-$blnShowReport = $_REQUEST['reports'] ? TRUE : FALSE;
-$blnShowPrintForm = $_REQUEST['print_form'] ? TRUE : FALSE;
+$blnShowSearch = getRequest('search', FALSE) ? TRUE : FALSE;
+$strFormSwitch = getRequest('selectform', FALSE);
+$blnShowAdmin = getRequest('admin', FALSE) ? TRUE : FALSE;
+$blnShowSettings = getRequest('settings', FALSE) ? TRUE : FALSE;
+$blnShowSettings2 = getRequest('settings2', FALSE) ? TRUE : FALSE;
+$blnShowSettings3 = getRequest('settings3', FALSE) ? TRUE : FALSE;
+$blnShowSystem = getRequest('system', FALSE) ? TRUE : FALSE;
+$blnShowInv = getRequest('invoice', FALSE) ? TRUE : FALSE;
+$blnShowReport = getRequest('reports', FALSE) ? TRUE : FALSE;
+$blnShowPrintForm = getRequest('print_form', FALSE) ? TRUE : FALSE;
 
-$strShow = $_REQUEST['show'] ? $_REQUEST['show'] : "invoice";
+$strShow = getRequest('show', 'invoice');
 
 $strOpenForm = "blank.html";
 
+$strHiddenTerm = '';
+$strLabel = '';
+$strClientButton = '';
+$strInvButton = '';
 if( $strFormSwitch ) {
     $strQuery = 
         "SELECT id, name FROM ". _DB_PREFIX_. "_location ".
@@ -66,7 +68,7 @@ if( $strFormSwitch ) {
 }
 else {
     $intcategoryID = FALSE;
-    $strLabel = $GLOBALS['locALLLOCATIONS'];
+    //$strLabel = $GLOBALS['locALLOCATIONS'];
     $strExtSearchTerm = "";
 }
 
@@ -203,9 +205,7 @@ if( $blnShowSearch ) {
 
     <td>
         <input type="hidden" name="changed" value="0">
-        <input type="hidden" name="formswitch" value="<?php echo $strSubSelection?>">
         <?php echo $strHiddenTerm?>
-        <?php echo $strListBox?>
         <input type="hidden" name="selectform" value="<?php echo $strFormName?>">
     </td>
     <td>

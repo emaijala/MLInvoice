@@ -50,6 +50,7 @@ Return : $strDate (string) : date in readable-format (dd.mm.yyyy)
 
 Todo : might want to check the dateformat before substracting
 ********************************************************************/
+    $strDate = '';
     if( $intDate ) {
         $strDate = 
             substr($intDate, -2).".".
@@ -72,6 +73,8 @@ Return : $intDate (int): date in intdate-format
 Todo : might want to check the dateformat before substracting
 ********************************************************************/
     $astrTmp = explode ( ".", $strDate );
+    if (count($astrTmp) < 3)
+      return $astrTmp[0];
     if( $astrTmp[0] < 10 && strlen($astrTmp[0]) == 1 ) {
         $astrTmp[0] = "0". $astrTmp[0];
     }
@@ -81,7 +84,7 @@ Todo : might want to check the dateformat before substracting
     $intDate = $astrTmp[2];
     $intDate .= $astrTmp[1];
     $intDate .= $astrTmp[0];
-    
+ 
     return $intDate;
 }
 
