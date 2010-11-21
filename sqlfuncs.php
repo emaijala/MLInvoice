@@ -48,6 +48,7 @@ mysql_select_db(_DB_NAME_) or die("Could not select database: " . mysql_error())
 
 function mysql_query_check($query)
 {
+  $query = str_replace('{prefix}', _DB_PREFIX_ . '_', $query);
   $intRes = mysql_query($query);
   if ($intRes === FALSE)
   {
@@ -63,9 +64,16 @@ function mysql_param_query($query, $params=false)
   {
     foreach ($params as &$v) 
     { 
-      $v = mysql_real_escape_string($v); 
+      if (is_null($v))
+        $v = 'NULL';
+      else
+      {
+        $v = mysql_real_escape_string($v); 
+        if (!is_numeric($v))
+          $v = "'$v'";
+      }
     }
-    $sql_query = vsprintf(str_replace("?","'%s'",$query), $params);   
+    $sql_query = vsprintf(str_replace("?","%s",$query), $params);
     return mysql_query_check($sql_query);
   }    
   return mysql_query_check($query);

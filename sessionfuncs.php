@@ -57,14 +57,12 @@ Return :
 Todo : 
 ********************************************************************/
     if( $strLogin && $strPasswd ) {
-        $strLogin = mysql_real_escape_string($strLogin);
-        $strPasswd = mysql_real_escape_string($strPasswd);
         $strQuery = 
-            "SELECT ". _DB_PREFIX_. "_users.id AS user_id, type_id, time_out, access_level ".
-            "FROM ". _DB_PREFIX_. "_users ".
-            "INNER JOIN ". _DB_PREFIX_. "_session_type ON ". _DB_PREFIX_. "_session_type.id = ". _DB_PREFIX_. "_users.type_id ".
-            "WHERE login='".$strLogin."' AND passwd=md5('".$strPasswd."')";
-        $intRes = mysql_query($strQuery);
+            'SELECT {prefix}users.id AS user_id, type_id, time_out, access_level '.
+            'FROM {prefix}users '.
+            'INNER JOIN {prefix}session_type ON {prefix}session_type.id = {prefix}users.type_id '.
+            "WHERE login=? AND passwd=md5(?)";
+        $intRes = mysql_param_query($strQuery, array($strLogin, $strPasswd));
         $intNumRows = mysql_num_rows($intRes);
         if( $intNumRows ) {
             $GLOBALS['sesTYPEID'] = mysql_result($intRes, 0, "type_id");
@@ -100,16 +98,10 @@ Todo :
     $strSesID = sha1($intTimeStamp.$strIP.$intRandVal);
 
     $strQuery = 
-        "DELETE FROM ". _DB_PREFIX_. "_session where ip='". $strIP ."';";
-//    $intRes = mysql_query($strQuery);
-
-
-    $strQuery = 
-        "INSERT INTO ". _DB_PREFIX_. "_session(id, ip, timestamp, timeout, type_id, user_id, access_level) ".
-        "VALUES('". $strSesID ."', '". $strIP ."', ". $intTimeStamp .", ".
-        $GLOBALS['sesTIMEOUT'] .", ".
-        $GLOBALS['sesTYPEID']. ", ". $GLOBALS['sesUSERID'] .", ". $GLOBALS['sesACCESSLEVEL']. ");";
-    $intRes = mysql_query($strQuery);
+        'INSERT INTO {prefix}session(id, ip, timestamp, timeout, type_id, user_id, access_level) '.
+        "VALUES(?, ?, ?, ?, ?, ?, ?)";
+    $intRes = mysql_param_query($strQuery, array($strSesID, $strIP, $intTimeStamp, $GLOBALS['sesTIMEOUT'], $GLOBALS['sesTYPEID'], 
+        $GLOBALS['sesUSERID'], $GLOBALS['sesACCESSLEVEL']));
     if( $intRes ) {        
         return $strSesID;
     }
@@ -129,10 +121,9 @@ Return : TRUE
 Todo : 
 ********************************************************************/
 
-    $strSesID = mysql_real_escape_string($strSesID);
     $strQuery = 
-        "DELETE FROM ". _DB_PREFIX_. "_session where id='". $strSesID ."';";
-    $intRes = mysql_query($strQuery);
+        "DELETE FROM {prefix}session where id=?";
+    $intRes = mysql_param_query($strQuery, array($strSesID));
 
     return TRUE;
 }
@@ -156,15 +147,13 @@ Return :
 
 Todo : 
 ********************************************************************/
-    $strSesID = mysql_real_escape_string($strSesID);
-
     $strIP = $_SERVER['REMOTE_ADDR'];
     $intTimeStamp = time();
     
     $strQuery = 
-        "SELECT * FROM ". _DB_PREFIX_. "_session ".
-        "WHERE id='". $strSesID ."' AND ip='". $strIP ."';";
-    $intRes = mysql_query($strQuery);
+        "SELECT * FROM {prefix}session ".
+        "WHERE id=? AND ip=?";
+    $intRes = mysql_param_query($strQuery, array($strSesID,  $strIP));
     $intNumRows = mysql_num_rows($intRes);
     if( $intNumRows ) {
         $intOldTimeStamp = mysql_result($intRes, 0, "timestamp");

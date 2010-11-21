@@ -62,16 +62,14 @@ class PDF extends FPDF
 $intInvoiceId = (int)$_REQUEST['id'] ? (int)$_REQUEST['id'] : FALSE;
 $strType = $_REQUEST['type'] ? $_REQUEST['type'] : 'comp';
 
-$prefix = _DB_PREFIX_;
-
 if( $intInvoiceId ) {
     $strQuery = 
         "SELECT inv.invoice_no, inv.invoice_date, inv.due_date, inv.ref_number, inv.name AS invoice_name, inv.reference, comp.company_name AS name, '' AS contact_person, comp.email, comp.billing_address, CONCAT(comp.company_name, '\n', comp.street_address, '\n', comp.zip_code, ' ', comp.city) AS billing_address2, inv.base_id, comp.id as company_id, ref.invoice_no as refunded_invoice_no " .
-        "FROM ${prefix}_invoice inv " .
-        "INNER JOIN ${prefix}_company comp ON comp.id = inv.company_id ".
-        "LEFT OUTER JOIN ${prefix}_invoice ref ON ref.id = inv.refunded_invoice_id ".
-        "WHERE inv.id = $intInvoiceId";
-    $intRes = mysql_query_check($strQuery);
+        "FROM {prefix}invoice inv " .
+        "INNER JOIN {prefix}company comp ON comp.id = inv.company_id ".
+        "LEFT OUTER JOIN {prefix}invoice ref ON ref.id = inv.refunded_invoice_id ".
+        "WHERE inv.id = ?";
+    $intRes = mysql_param_query($strQuery, array($intInvoiceId));
     $intNRows = mysql_numrows($intRes);
     if( $intNRows ) {
        $strInvoiceName = mysql_result($intRes, 0, "invoice_name");
@@ -97,8 +95,8 @@ if( $intInvoiceId ) {
     }
     $strRefNumber = trim(strrev(chunk_split(strrev($strRefNumber),5,' ')));
     
-    $strSelect = "SELECT * FROM ". _DB_PREFIX_. "_base WHERE id = $intBaseId";
-    $intRes = mysql_query($strSelect);
+    $strSelect = 'SELECT * FROM {prefix}base WHERE id = ?';
+    $intRes = mysql_param_query($strSelect, array($intBaseId));
     
     $strAssociation = mysql_result($intRes, 0, "name");
     $strCompanyID = mysql_result($intRes, 0, "company_id");
@@ -139,11 +137,11 @@ if( $intInvoiceId ) {
     
     $strQuery = 
         "SELECT pr.product_name, ir.description, ir.pcs, ir.price, ir.row_date, ir.vat, ir.vat_included, rt.name type ".
-        "FROM ${prefix}_invoice_row ir ".
-        "INNER JOIN ${prefix}_row_type rt ON rt.id = ir.type_id ".
-        "LEFT OUTER JOIN ${prefix}_product pr ON ir.product_id = pr.id ".
-        "WHERE ir.invoice_id = ". $intInvoiceId. " ORDER BY ir.order_no, row_date, pr.product_name DESC, ir.description DESC";
-    $intRes = mysql_query_check($strQuery);
+        "FROM {prefix}invoice_row ir ".
+        "INNER JOIN {prefix}row_type rt ON rt.id = ir.type_id ".
+        "LEFT OUTER JOIN {prefix}product pr ON ir.product_id = pr.id ".
+        "WHERE ir.invoice_id = ? ORDER BY ir.order_no, row_date, pr.product_name DESC, ir.description DESC";
+    $intRes = mysql_param_query($strQuery, array($intInvoiceId));
     if( $intRes ) {
         $intNRes = mysql_num_rows($intRes);
         for( $i = 0; $i < $intNRes; $i++ ) {
