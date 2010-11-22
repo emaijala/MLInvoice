@@ -196,7 +196,7 @@ case 'invoice':
         "FROM ". _DB_PREFIX_. "_invoice ".
         "WHERE refunded_invoice_id = ?";
      $intRes = mysql_param_query($strQuery, array($intInvoiceId));
-     if( $intRes && ($row = mysql_fetch_array($intRes))) 
+     if( $intRes && ($row = mysql_fetch_assoc($intRes))) 
      {
        $intRefundingInvoiceId = $row['id'];
        if ($intRefundingInvoiceId)
