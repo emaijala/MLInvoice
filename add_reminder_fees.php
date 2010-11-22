@@ -43,13 +43,12 @@ if( $intInvoiceId ) {
         'FROM {prefix}invoice inv ' .
         'WHERE inv.id = ?';
     $intRes = mysql_param_query($strQuery, array($intInvoiceId));
-    $intNRows = mysql_numrows($intRes);
-    if( $intNRows ) {
-       $intStateId = mysql_result($intRes, 0, "state_id");
-       $strDueDate = dateConvIntDate2Date(mysql_result($intRes, 0, "due_date"));
-       $strPrintDate = (mysql_result($intRes, 0, "print_date"));
-     }
-    $strRefNumber = trim(strrev(chunk_split(strrev($strRefNumber),5,' ')));
+    if ($row = mysql_fetch_assoc($intRes)) 
+    {
+       $intStateId = $row['state_id'];
+       $strDueDate = dateConvIntDate2Date($row['due_date']);
+       $strPrintDate = $row['print_date'];
+    }
     
     $intDaysOverdue = floor((time() - strtotime($strDueDate)) / 60 / 60 / 24);
     if ($intDaysOverdue > 0 && ($intStateId == 1 || $intStateId == 2 || $intStateId == 5 || $intStateId == 6))
@@ -84,20 +83,18 @@ if( $intInvoiceId ) {
             'FROM {prefix}invoice_row ir '.
             'WHERE ir.invoice_id = ?';
         $intRes = mysql_param_query($strQuery, array($intInvoiceId));
-        if( $intRes ) {
-            $intNRes = mysql_num_rows($intRes);
-            for( $i = 0; $i < $intNRes; $i++ ) {
-                $strRowPrice = mysql_result($intRes, $i, "price");
-                $strPieces = mysql_result($intRes, $i, "pcs");
-                $strVAT = mysql_result($intRes, $i, "vat");
-                $boolVATIncluded = mysql_result($intRes, $i, "vat_included");
-                $intRowSum = $strPieces * $strRowPrice;
-                $intRowVAT = $intRowSum * ($strVAT / 100);
-                if ($boolVATIncluded)
-                  $intRowSum -= $intRowVAT;
-                $intRowSumVAT = $intRowSum + $intRowVAT;
-                $intTotSumVAT += $intRowSumVAT;
-            }
+        while ($row = mysql_fetch_assoc($intRes))
+        {
+          $strRowPrice = $row['price'];
+          $strPieces = $row['pcs'];
+          $strVAT = $row['vat'];
+          $boolVATIncluded = $row['vat_included'];
+          $intRowSum = $strPieces * $strRowPrice;
+          $intRowVAT = $intRowSum * ($strVAT / 100);
+          if ($boolVATIncluded)
+            $intRowSum -= $intRowVAT;
+          $intRowSumVAT = $intRowSum + $intRowVAT;
+          $intTotSumVAT += $intRowSumVAT;
         }
         $intPenalty = $intTotSumVAT * $penaltyInterest / 100 * $intDaysOverdue / 360;
         
