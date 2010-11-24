@@ -40,7 +40,7 @@ require "form_switch.php";
 
 echo htmlPageStart( _PAGE_TITLE_ );
 
-$blnNew = getPostRequest('newact', FALSE)  ? TRUE : FALSE;
+$blnNew = getPostRequest('newact', FALSE) || getPostRequest('new', FALSE) ? TRUE : FALSE;
 $blnCopy = getPostRequest('copyact', FALSE) ? TRUE : FALSE;
 $blnSave = getPost('saveact', FALSE) ? TRUE : FALSE;
 $blnDelete = getPost('deleteact', FALSE) ? TRUE : FALSE;
