@@ -158,11 +158,9 @@ if( $blnSearch || $blnSave ) {
     
     if( $blnSave && $strSearchName ) {
         $strQuery = 
-            "INSERT INTO ". _DB_PREFIX_. "_quicksearch(".
-            "user_id, name, form, whereclause)".
-            "VALUES(". $GLOBALS['sesUSERID']. ",'".$strSearchName. "','".
-            $strForm. "','". $strWhereClause. "')";
-        $intRes = mysql_query($strQuery);
+            'INSERT INTO {prefix}quicksearch(user_id, name, form, whereclause) '.
+            'VALUES (?, ?, ?, ?)';
+        $intRes = mysql_param_query($strQuery, array($GLOBALS['sesUSERID'], $strSearchName, $strForm, $strWhereClause));
     }
     elseif( $blnSave && !$strSearchName) {
         $strOnLoad = "alert('".$GLOBALS['locERRORNOSEARCHNAME']."')";
