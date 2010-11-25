@@ -44,17 +44,17 @@ if ($intInvoiceId)
 {
     if ($boolRefund)
     {
-      $strQuery = "UPDATE {prefix}invoice " .
-        "SET state_id = 4 " .
-        "WHERE {prefix}invoice.id = ?";
+      $strQuery = 'UPDATE {prefix}invoice ' .
+        'SET state_id = 4 ' .
+        'WHERE {prefix}invoice.id = ?';
       mysql_param_query($strQuery, array($intInvoiceId));
     }
 
     $strQuery = 
-        "SELECT * ".
-        "FROM ". _DB_PREFIX_. "_invoice ".
-        "WHERE ". _DB_PREFIX_. "_invoice.id = $intInvoiceId";
-    $intRes = mysql_query($strQuery);
+        'SELECT * '.
+        'FROM {prefix}invoice '.
+        'WHERE {prefix}invoice.id = ?';
+    $intRes = mysql_param_query($strQuery, array($intInvoiceId));
     if ($row = mysql_fetch_assoc($intRes)) {
         $strname = $row['name'];
         $intCompanyId = $row['company_id'];
@@ -87,16 +87,16 @@ if ($intInvoiceId)
     
     $intRefundedId = $boolRefund ? $intInvoiceId : 'NULL';
     $strQuery = 
-        "INSERT INTO {prefix}invoice(name, company_id, invoice_no, real_invoice_no, invoice_date, due_date, payment_date, ref_number, state_id, reference, base_id, refunded_invoice_id) ".
-        "VALUES(?, ?, ?, 0, ?, ?, NULL, ?, 1, ?, ?, ?)";
+        'INSERT INTO {prefix}invoice(name, company_id, invoice_no, real_invoice_no, invoice_date, due_date, payment_date, ref_number, state_id, reference, base_id, refunded_invoice_id) '.
+        'VALUES (?, ?, ?, 0, ?, ?, NULL, ?, 1, ?, ?, ?)';
         
     mysql_param_query($strQuery, array($strname, $intCompanyId, $intNewInvNo, $intDate, $intDueDate, $intNewRefNo, $strReference, $intBaseId, $intRefundedId));
     $intNewId = mysql_insert_id();
     if( $intNewId ) {    
         $strQuery = 
-            "SELECT * ".
-            "FROM {prefix}invoice_row ".
-            "WHERE invoice_id = ?";
+            'SELECT * '.
+            'FROM {prefix}invoice_row '.
+            'WHERE invoice_id = ?';
         $intRes = mysql_param_query($strQuery, array($intInvoiceId));
         while ($row = mysql_fetch_assoc($intRes)) {
             $intProductId = $row['product_id'];
@@ -116,9 +116,9 @@ if ($intInvoiceId)
               continue;
             
             $strQuery = 
-                "INSERT INTO {prefix}invoice_row(invoice_id, product_id, description, type_id, pcs, price, row_date, vat, order_no, vat_included, reminder_row) ".
-                "VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
-            $intRes = mysql_param_query($strQuery, array($intNewId, $intProductId, $strDescription, $intTypeId, $intPcs, $intPrice, $intRowDate, $intVat, $intOrderNo, $boolVatIncluded, $intReminderRow));
+                'INSERT INTO {prefix}invoice_row(invoice_id, product_id, description, type_id, pcs, price, row_date, vat, order_no, vat_included, reminder_row) '.
+                'VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)';
+            mysql_param_query($strQuery, array($intNewId, $intProductId, $strDescription, $intTypeId, $intPcs, $intPrice, $intRowDate, $intVat, $intOrderNo, $boolVatIncluded, $intReminderRow));
         }
     }
 }
