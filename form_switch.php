@@ -277,8 +277,9 @@ case 'invoice_rows':
      }
    }
    
+   $intInvoiceId = getRequest('invoice_id', 0);
    $productOnChange = <<<EOS
-onChange = "var loc = new String(window.location); loc = loc.replace(/&new_product=\d+/, ''); loc += '&new_product=' + document.forms[0].product_id.value; window.location = loc;"
+onChange = "var loc = new String(window.location); loc = loc.replace(/&new_product=\d+/, '').replace(/&invoice_id=\d+/, ''); loc += '&invoice_id=$intInvoiceId&new_product=' + document.forms[0].product_id.value; window.location = loc;"
 EOS;
 
    $astrFormElements =

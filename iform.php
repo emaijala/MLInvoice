@@ -105,7 +105,7 @@ for( $i = 0; $i < count($astrFormElements); $i++ ) {
             }
             elseif( strstr($astrFormElements[$i]['default'], "ADD") ) {
                $strQuery = str_replace("_PARENTID_", $intParentKey, $astrFormElements[$i]['listquery']);
-               $intRes = @mysql_query($strQuery);
+               $intRes = @mysql_query_check($strQuery);
                $intAdd = mysql_result($intRes, 0, 0);
                $strDefaultValue = $intAdd;
             }
