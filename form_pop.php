@@ -57,7 +57,7 @@ if( $blnNew && !$blnSave ) {
 
 //initialize elements
 for( $i = 0; $i < count($astrFormElements); $i++ ) {
-    if( $astrFormElements[$i]['type'] == 'IFRAME' || $astrFormElements[$i]['type'] == 'IFORM' || $astrFormElements[$i]['type'] == 'BUTTON' || $astrFormElements[$i]['type'] == 'RESULT' ) {
+    if( $astrFormElements[$i]['type'] == 'IFORM' || $astrFormElements[$i]['type'] == 'BUTTON' || $astrFormElements[$i]['type'] == 'RESULT' ) {
         $astrValues[$astrFormElements[$i]['name']] = $intKeyValue ? $intKeyValue : FALSE;
     }
     else {
@@ -94,8 +94,8 @@ if( $blnSave ) {
         $strControlName = $astrFormElements[$i]['name'];
         $mixControlValue = $astrValues[$strControlName];
                 
-        //don't handle IFRAME, IFORM, BUTTON, LABEL elements
-        if( $strControlType != 'IFRAME' && $strControlType != 'IFORM' && $strControlType != 'BUTTON' && $strControlType != 'LABEL' ) {
+        //don't handle IFORM, BUTTON, LABEL elements
+        if( $strControlType != 'IFORM' && $strControlType != 'BUTTON' && $strControlType != 'LABEL' ) {
             //if element hasn't value and null's aren't allowed raise error
             if( $strControlType == "INT" ) {
                 if ( !isset($mixControlValue) && !$astrFormElements[$i]['allow_null'] ) {
@@ -226,42 +226,29 @@ if( $blnSave ) {
 if( $blnDelete && $intKeyValue ) {
     //create the delete query
     $strQuery =
-        "DELETE FROM " . $strTable . " ".
-        "WHERE " . $strPrimaryKey . "=" . $intKeyValue . ";";
+        "DELETE FROM $strTable ".
+        "WHERE $strPrimaryKey=?";
     //send query to database
-    $intRes = @mysql_query($strQuery);
-    //if delete was succesfull we have res-id
-    if( $intRes ) {
-        //dispose the primarykey value
-        unset($intKeyValue);
-        //clear form elements
-        unset($astrValues);
-        $blnNew = TRUE;
-        //$strOnLoad = "top.frset_bottom.f_list.document.forms[0].key_values.value=''; top.frset_bottom.f_list.document.forms[0].submit();";
-        //$strOnLoad = "window.open('list.php?ses=". $GLOBALS['sesID']."&form=" . $strForm . "','f_list');";
-    }
-    //if delete-query didn't workout
-    else {
-        //tell user what happened
-        //only possible reason for delete to fail is
-        //when table has references to other tables
-        //with mysql - I don't know why I even bother...
-        $strOnLoad = "alert('".$GLOBALS['locERRDELREFERENCE']."');";
-    }
+    $intRes = @mysql_param_query($strQuery, array($intKeyValue));
+    //dispose the primarykey value
+    unset($intKeyValue);
+    //clear form elements
+    unset($astrValues);
+    $blnNew = TRUE;
 }
 
 if( $intKeyValue ) {
     $strQuery =
-        "SELECT * FROM " . $strTable . " ".
-        "WHERE " . $strPrimaryKey . "=" . $intKeyValue . ";";
-    $intRes = mysql_query($strQuery);
+        "SELECT * FROM $strTable " .
+        "WHERE $strPrimaryKey=?";
+    $intRes = mysql_query($strQuery, array($intKeyValue));
     $intNRows = mysql_numrows($intRes);
     if( $intNRows ) {
         for( $j = 0; $j < count($astrFormElements); $j++ ) {
             $strControlType = $astrFormElements[$j]['type'];
             $strControlName = $astrFormElements[$j]['name'];
             
-            if( $strControlType == 'IFRAME' || $strControlType == 'IFORM' || $strControlType == 'RESULT' ) {
+            if( $strControlType == 'IFORM' || $strControlType == 'RESULT' ) {
                $astrValues[$strControlName] = $intKeyValue;
             }
             elseif( $strControlType == 'BUTTON' ) {
@@ -367,10 +354,10 @@ for( $j = 0; $j < count($astrFormElements); $j++ ) {
             $intColspan = 2;
         }
         
-        if( $blnNew && ( $astrFormElements[$j]['type'] == "BUTTON" || $astrFormElements[$j]['type'] == "IFORM" || $astrFormElements[$j]['type'] == "IFRAME" ) ) {
+        if( $blnNew && ( $astrFormElements[$j]['type'] == "BUTTON" || $astrFormElements[$j]['type'] == "IFORM" ) ) {
             echo "<td class=\"label\" colspan=\"2\">&nbsp;</td>";
         }
-        elseif( $astrFormElements[$j]['type'] == "IFORM" || $astrFormElements[$j]['type'] == "IFRAME" ) {
+        elseif( $astrFormElements[$j]['type'] == "IFORM" ) {
  ?>
         <td class="label" colspan="<?php echo $intColspan?>">
             <?php echo $astrFormElements[$j]['label']?> :

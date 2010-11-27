@@ -68,57 +68,52 @@ $intParentKey = getPostRequest($strParentKey, FALSE);
 $blnInsertDone = FALSE;
 $strOnLoad = '';
 for( $i = 0; $i < count($astrFormElements); $i++ ) {
-    if( $astrFormElements[$i]['type'] == 'IFRAME' ) {
-        $astrValues[$astrFormElements[$i]['name']] = $intKeyValue ? $intKeyValue : FALSE;
+    if($astrFormElements[$i]['name'] != '' && array_key_exists($astrFormElements[$i]['name'],$astrDefaults)) {
+        $astrValues[$astrFormElements[$i]['name']] = $astrDefaults[$astrFormElements[$i]['name']];
     }
-    else {
-        if($astrFormElements[$i]['name'] != '' && array_key_exists($astrFormElements[$i]['name'],$astrDefaults)) {
-            $astrValues[$astrFormElements[$i]['name']] = $astrDefaults[$astrFormElements[$i]['name']];
-        }
-        elseif( !$astrFormElements[$i]['default'] ) {
-            if( $astrFormElements[$i]['type'] == "INT" ) {
-                $tmpValue = str_replace(",", ".", getPost($astrFormElements[$i]['name'], ''));
-                $astrValues[$astrFormElements[$i]['name']] = $tmpValue ? (float)$tmpValue : FALSE;
-            }
-            else {
-                $astrValues[$astrFormElements[$i]['name']] = getPost($astrFormElements[$i]['name'], FALSE);
-            }
+    elseif( !$astrFormElements[$i]['default'] ) {
+        if( $astrFormElements[$i]['type'] == "INT" ) {
+            $tmpValue = str_replace(",", ".", getPost($astrFormElements[$i]['name'], ''));
+            $astrValues[$astrFormElements[$i]['name']] = $tmpValue ? (float)$tmpValue : FALSE;
         }
         else {
-            if( $astrFormElements[$i]['default'] == "DATE_NOW" ) {
-               $strDefaultValue = date("d.m.Y");
-            }
-            elseif( $astrFormElements[$i]['default'] == "DATE_NOW+14" ) {
-               $strDefaultValue = date("d.m.Y",mktime(0, 0, 0, date("m"), date("d")+14, date("Y")));
-            }
-            elseif( $astrFormElements[$i]['default'] == "DATE_NOW+31" ) {
-               $strDefaultValue = date("d.m.Y",mktime(0, 0, 0, date("m"), date("d")+31, date("Y")));
-            }
-            elseif( $astrFormElements[$i]['default'] == "TIME_NOW" ) {
-               $strDefaultValue = date("H:i");
-            }
-            elseif( $astrFormElements[$i]['default'] == "TIMESTAMP_NOW" ) {
-               $strDefaultValue = date("d.m.Y H:i");
-            }
-            elseif( $astrFormElements[$i]['default'] == "POST" ) {
-               $strDefaultValue = getPost($astrFormElements[$i]['name'], '');
-            }
-            elseif( strstr($astrFormElements[$i]['default'], "ADD") ) {
-               $strQuery = str_replace("_PARENTID_", $intParentKey, $astrFormElements[$i]['listquery']);
-               $intRes = @mysql_query_check($strQuery);
-               $intAdd = mysql_result($intRes, 0, 0);
-               $strDefaultValue = $intAdd;
-            }
-            else {
-                $strDefaultValue = $astrFormElements[$i]['default'];
-            }
-            if( $astrFormElements[$i]['type'] == "INT" ) {
-                $tmpValue = str_replace(",", ".", getPost($astrFormElements[$i]['name'], ''));
-                $astrValues[$astrFormElements[$i]['name']] = $tmpValue !== '' ? (float)$tmpValue : $strDefaultValue;
-            }
-            else {
-                $astrValues[$astrFormElements[$i]['name']] = getPost($astrFormElements[$i]['name'], $strDefaultValue);
-            }
+            $astrValues[$astrFormElements[$i]['name']] = getPost($astrFormElements[$i]['name'], FALSE);
+        }
+    }
+    else {
+        if( $astrFormElements[$i]['default'] == "DATE_NOW" ) {
+           $strDefaultValue = date("d.m.Y");
+        }
+        elseif( $astrFormElements[$i]['default'] == "DATE_NOW+14" ) {
+           $strDefaultValue = date("d.m.Y",mktime(0, 0, 0, date("m"), date("d")+14, date("Y")));
+        }
+        elseif( $astrFormElements[$i]['default'] == "DATE_NOW+31" ) {
+           $strDefaultValue = date("d.m.Y",mktime(0, 0, 0, date("m"), date("d")+31, date("Y")));
+        }
+        elseif( $astrFormElements[$i]['default'] == "TIME_NOW" ) {
+           $strDefaultValue = date("H:i");
+        }
+        elseif( $astrFormElements[$i]['default'] == "TIMESTAMP_NOW" ) {
+           $strDefaultValue = date("d.m.Y H:i");
+        }
+        elseif( $astrFormElements[$i]['default'] == "POST" ) {
+           $strDefaultValue = getPost($astrFormElements[$i]['name'], '');
+        }
+        elseif( strstr($astrFormElements[$i]['default'], "ADD") ) {
+           $strQuery = str_replace("_PARENTID_", $intParentKey, $astrFormElements[$i]['listquery']);
+           $intRes = mysql_query_check($strQuery);
+           $intAdd = mysql_result($intRes, 0, 0);
+           $strDefaultValue = $intAdd;
+        }
+        else {
+            $strDefaultValue = $astrFormElements[$i]['default'];
+        }
+        if( $astrFormElements[$i]['type'] == "INT" ) {
+            $tmpValue = str_replace(",", ".", getPost($astrFormElements[$i]['name'], ''));
+            $astrValues[$astrFormElements[$i]['name']] = $tmpValue !== '' ? (float)$tmpValue : $strDefaultValue;
+        }
+        else {
+            $astrValues[$astrFormElements[$i]['name']] = getPost($astrFormElements[$i]['name'], $strDefaultValue);
         }
     }
 }
@@ -132,7 +127,7 @@ if( $blnAdd ) {
         $strControlName = $astrFormElements[$i]['name'];
         $mixControlValue = isset($astrValues[$strControlName]) ? $astrValues[$strControlName] : NULL;
         if(isset($mixControlValue)) {
-            if( $strControlType != 'IFRAME' && $strControlType != 'NEWLINE' ) {
+            if( $strControlType != 'NEWLINE' ) {
                 if( $strControlType == 'TEXT' || $strControlType == 'AREA' ) {
                   $strFields .= "$strControlName, ";
                   $strInsert .= '?, ';
@@ -178,7 +173,7 @@ if( $blnAdd ) {
                 }
             }
         }
-        elseif( $strControlType != 'IFRAME' && $strControlType != 'IFORM' && $strControlType != 'HID_INT' && $strControlType != 'NEWLINE' && $strControlType != 'BUTTON' ) {
+        elseif( $strControlType != 'IFORM' && $strControlType != 'HID_INT' && $strControlType != 'NEWLINE' && $strControlType != 'BUTTON' ) {
             if ( !$astrFormElements[$i]['allow_null'] ) {
                 $blnMissingValues = TRUE;
                 $strOnLoad .= "alert('".$GLOBALS['locERRVALUEMISSING']." : ".$astrFormElements[$i]['label']."');";
@@ -249,7 +244,7 @@ if( $intParentKey ) {
         for($i = 0; $i < $intNumRows; $i++ ) {
             $tmpID = mysql_result( $intRes, $i, "id");
             for( $j = 0; $j < count($astrFormElements); $j++ ) {
-                if( $astrFormElements[$j]['type'] != 'IFRAME' && $astrFormElements[$j]['type'] != 'NEWLINE' ) {
+                if( $astrFormElements[$j]['type'] != 'NEWLINE' ) {
                     if( $astrFormElements[$j]['type'] == 'INTDATE' ) {
                         $astrOldValues[$i][$astrFormElements[$j]['name']] = dateConvIntDate2Date( mysql_result( $intRes, $i, $astrFormElements[$j]['name'] ));
                     }

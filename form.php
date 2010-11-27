@@ -57,7 +57,7 @@ if( $blnNew && !$blnSave ) {
 
 //initialize elements
 for( $i = 0; $i < count($astrFormElements); $i++ ) {
-    if( $astrFormElements[$i]['type'] == 'IFRAME' || $astrFormElements[$i]['type'] == 'IFORM' || $astrFormElements[$i]['type'] == 'RESULT' || $astrFormElements[$i]['type'] == 'BUTTON' ) {
+    if( $astrFormElements[$i]['type'] == 'IFORM' || $astrFormElements[$i]['type'] == 'RESULT' || $astrFormElements[$i]['type'] == 'BUTTON' ) {
         $astrValues[$astrFormElements[$i]['name']] = isset($intKeyValue) ? $intKeyValue : FALSE;
     }
     else {
@@ -95,8 +95,8 @@ if( $blnSave ) {
         $strControlName = $astrFormElements[$i]['name'];
         $mixControlValue = $astrValues[$strControlName];
                 
-        //don't handle IFRAME, IFORM, BUTTON, LABEL elements
-        if( $strControlType != 'IFRAME' && $strControlType != 'IFORM' && $strControlType != 'BUTTON' && $strControlType != 'LABEL' ) {
+        //don't handle IFORM, BUTTON, LABEL elements
+        if( $strControlType != 'IFORM' && $strControlType != 'BUTTON' && $strControlType != 'LABEL' ) {
             //if element hasn't value and null's aren't allowed raise error
             if( $strControlType == "INT" ) {
                 if ( !isset($mixControlValue) && !$astrFormElements[$i]['allow_null'] ) {
@@ -241,7 +241,7 @@ if( isset($intKeyValue) && $intKeyValue ) {
             $strControlType = $astrFormElements[$j]['type'];
             $strControlName = $astrFormElements[$j]['name'];
             
-            if( $strControlType == 'IFRAME' || $strControlType == 'IFORM' || $strControlType == 'RESULT' ) {
+            if( $strControlType == 'IFORM' || $strControlType == 'RESULT' ) {
                $astrValues[$strControlName] = $intKeyValue;
                if( isset($astrFormElements[$j]['defaults']) && is_array($astrFormElements[$j]['defaults']) ) {
                    $strDefaults = "defaults=";
@@ -375,10 +375,10 @@ for( $j = 0; $j < count($astrFormElements); $j++ ) {
             $intColspan = 2;
         }
     
-        if( $blnNew && ( $astrFormElements[$j]['type'] == "BUTTON" || $astrFormElements[$j]['type'] == "IFORM" || $astrFormElements[$j]['type'] == "IFRAME" || $astrFormElements[$j]['type'] == "PIC" ) ) {
+        if( $blnNew && ( $astrFormElements[$j]['type'] == "BUTTON" || $astrFormElements[$j]['type'] == "IFORM" || $astrFormElements[$j]['type'] == "PIC" ) ) {
             echo "<td class=\"label\" colspan=\"2\">&nbsp;</td>";
         }
-        elseif( $astrFormElements[$j]['type'] == "IFORM" || $astrFormElements[$j]['type'] == "IFRAME" ) {
+        elseif( $astrFormElements[$j]['type'] == "IFORM" ) {
  ?>
         <td class="label" colspan="<?php echo $intColspan?>">
             <?php echo $astrFormElements[$j]['label']?>

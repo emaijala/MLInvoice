@@ -34,8 +34,7 @@ Tämä ohjelma on vapaa. Lue oheinen LICENSE.
  INTDATE : date textarea with calendar button
  CHECK : checkbox
  LIST : listbox
- IFRAME : simple form in iframe
- IFORM : bit more complex form in iframe
+ IFORM : form in iframe
  BUTTON : button for various events
  
 ***********************************************************************/

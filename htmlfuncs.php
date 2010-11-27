@@ -509,30 +509,6 @@ function htmlFormElement( $strName, $strType, $strValue, $strStyle, $strListQuer
             }
         break;
         
-        case 'IFRAME' :
-            if( $strValue ) {
-                if( $strMode == "MODIFY" ) {
-                    $strFormElement = 
-                    "<iframe src=\"iframe.php?ses=".$GLOBALS['sesID']."&selectform=" . $strName . "&" . $strParentKey . "=" . $strValue . "\" ".
-                    "class=\"" . $strStyle . "\" id=\"" . $strName . "\" name=\"" . $strName . "\" $astrAdditionalAttributes>\n".
-                    "<h3>Please, Use a browser!</h3>\n".
-                    "</iframe>\n";
-                }
-                elseif( $strMode == "PDF" ) {
-                    $strFormElement = $strValue;
-                }
-                else {
-                    $strFormElement = 
-                    "<iframe src=\"iframe_print.php?ses=".$GLOBALS['sesID']."&selectform=" . $strName . "&" . $strParentKey . "=" . $strValue . "\" ".
-                    "class=\"" . $strStyle . "\" id=\"" . $strName . "\" name=\"" . $strName . "\" $astrAdditionalAttributes>\n".
-                    "<h3>Please, Use a browser!</h3>\n".
-                    "</iframe>\n";
-                }
-            }
-            else {
-                $strFormElement = $GLOBALS['locSAVEFIRST'];
-            }
-        break;
         case 'IFORM' :
             if( $strValue ) {
                 if( $strMode == "MODIFY" ) {

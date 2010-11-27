@@ -83,7 +83,7 @@ for( $j = 0; $j < count($astrFormElements); $j++ ) {
 $x = 0;
 for( $j = 0; $j < count($astrFormElements); $j++ ) {
     $strSelectedOperator = getPost('operator_'.$astrFormElements[$j]['name'], 'OR');
-    if($astrFormElements[$j]['type'] != '' && $astrFormElements[$j]['type'] != "LABEL" && $astrFormElements[$j]['type'] != "HIDINT" && $astrFormElements[$j]['type'] != 'IFRAME' && $astrFormElements[$j]['type'] != 'IFORM' && $astrFormElements[$j]['type'] != 'BUTTON' && !in_array($astrFormElements[$j]['name'], $astrSelectedFields, true)) {
+    if($astrFormElements[$j]['type'] != '' && $astrFormElements[$j]['type'] != "LABEL" && $astrFormElements[$j]['type'] != "HIDINT" && $astrFormElements[$j]['type'] != 'IFORM' && $astrFormElements[$j]['type'] != 'BUTTON' && !in_array($astrFormElements[$j]['name'], $astrSelectedFields, true)) {
         $astrListValues[$x] = $astrFormElements[$j]['name'];
         $astrListOptions[$x] = str_replace("<br>", " ", $astrFormElements[$j]['label']); 
         $x++;
@@ -91,7 +91,7 @@ for( $j = 0; $j < count($astrFormElements); $j++ ) {
     $strControlType = $astrFormElements[$j]['type'];
     $strControlName = $astrFormElements[$j]['name'];
     
-    if( $strControlType == 'IFRAME' || $strControlType == 'IFORM' || $strControlType == 'BUTTON' ) {
+    if( $strControlType == 'IFORM' || $strControlType == 'BUTTON' ) {
        $astrValues[$strControlName] = '';
     }
     elseif( $strControlType != 'LABEL' ) {
