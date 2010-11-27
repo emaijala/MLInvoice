@@ -123,71 +123,62 @@ for( $i = 0; $i < count($astrFormElements); $i++ ) {
     }
 }
 if( $blnAdd ) {
+    $strFields = '';
+    $strInsert = '';
+    $arrValues = array();
+    $blnMissingValues = FALSE;
     for( $i = 0; $i < count($astrFormElements); $i++ ) {
-        if( $astrValues[$astrFormElements[$i]['name']] || ($astrFormElements[$i]['type'] == "INT" && $astrValues[$astrFormElements[$i]['name']] == 0) ) {
-            if( $astrFormElements[$i]['type'] != 'IFRAME' && $astrFormElements[$i]['type'] != 'NEWLINE' ) {
-                if( $astrFormElements[$i]['type'] == 'TEXT' || $astrFormElements[$i]['type'] == 'AREA' ) {
-                    $strFields .= $astrFormElements[$i]['name'].", ";
-                    $strUpdateFields .= $astrFormElements[$i]['name'];
-                
-                    $strInsert .= "'" . gpcAddSlashes($astrValues[$astrFormElements[$i]['name']]) . "', ";
-                    $strUpdateFields .= "='" . gpcAddSlashes($astrValues[$astrFormElements[$i]['name']]) .  "', ";
+        $strControlType = $astrFormElements[$i]['type'];
+        $strControlName = $astrFormElements[$i]['name'];
+        $mixControlValue = isset($astrValues[$strControlName]) ? $astrValues[$strControlName] : NULL;
+        if(isset($mixControlValue)) {
+            if( $strControlType != 'IFRAME' && $strControlType != 'NEWLINE' ) {
+                if( $strControlType == 'TEXT' || $strControlType == 'AREA' ) {
+                  $strFields .= "$strControlName, ";
+                  $strInsert .= '?, ';
+                  $arrValues[] = $mixControlValue;
                 }
-                elseif( $astrFormElements[$i]['type'] == 'INT' || $astrFormElements[$i]['type'] == 'HID_INT' || $astrFormElements[$i]['type'] == 'SECHID_INT' ) {
-                    $strFields .= $astrFormElements[$i]['name'].", ";
-                    $strUpdateFields .= $astrFormElements[$i]['name'];
-                    $tmpValue = str_replace(",", ".", $astrValues[$astrFormElements[$i]['name']]);
-                    $strInsert .= (float)$tmpValue.", ";
-                    $strUpdateFields .= "=". (float)$tmpValue.", ";
-                    //echo $astrFormElements[$i]['name']." = ". $astrValues[$astrFormElements[$i]['name']]. " -> ". $tmpValue. " --> ". (float)$tmpValue." <br>";
+                elseif( $strControlType == 'INT' || $strControlType == 'HID_INT' || $strControlType == 'SECHID_INT' ) {
+                  //build the insert into fields
+                  $strFields .= "$strControlName, ";
+                  //format the numbers to right format - finnish use ,-separator
+                  $flttmpValue = 
+                      $mixControlValue ? str_replace(",", ".", $mixControlValue) : 0;
+                  $strInsert .= '?, ';
+                  $arrValues[] = $flttmpValue;
                 }
-                elseif( $astrFormElements[$i]['type'] == 'LIST' || $astrFormElements[$i]['type'] == 'CHECK' ) {
-                    $strFields .= $astrFormElements[$i]['name'].", ";
-                    $strUpdateFields .= $astrFormElements[$i]['name'];
-                    $tmpValue = str_replace(",", ".", $astrValues[$astrFormElements[$i]['name']]);
-                    if( !is_numeric($tmpValue) ) {
-                        $strInsert .= "'". $tmpValue."', ";
-                        $strUpdateFields .= "='".$tmpValue."', ";
+                elseif( $strControlType == 'LIST' || $strControlType == 'CHECK' ) {
+                    $strFields .= "$strControlName, ";
+                    $tmpValue = str_replace(",", ".", $mixControlValue);
+                    $strInsert .= '?, ';
+                    $arrValues[] = $tmpValue;
+                }
+                elseif( $strControlType == 'INTDATE' ) {
+                    if( !$mixControlValue ) {
+                        $mixControlValue = 'NULL';
                     }
-                    else {
-                        $strInsert .= $tmpValue.", ";
-                        $strUpdateFields .= "=".$tmpValue.", ";
-                    }
-                }
-                elseif( $astrFormElements[$i]['type'] == 'INTDATE' ) {
-                    $strFields .= $astrFormElements[$i]['name'].", ";
-                    $strUpdateFields .= $astrFormElements[$i]['name'];
-                    $strInsert .= dateConvDate2IntDate( $astrValues[$astrFormElements[$i]['name']] ).", ";
-                    $strUpdateFields .= "=". dateConvDate2IntDate( $astrValues[$astrFormElements[$i]['name']] ).", ";
-                }
-                elseif( $astrFormElements[$i]['type'] == 'TIMESTAMP' ) {
-                    $strFields .= $astrFormElements[$i]['name'].", ";
-                    //    $strUpdateFields .= $astrFormElements[$i]['name'];
-                    $strInsert .= time(). ", ";
-                    //build the update fields & values
+                    $strFields .= "$strControlName, ";
+                    $strInsert .= '?, ';
                     //convert user input to right format
-                    /*$strUpdateFields .= 
-                        $strControlName. "=". dateConvDate2IntDate($mixControlValue). ", ";*/
+                    $arrValues[] = dateConvDate2IntDate($mixControlValue);
                 }
-                elseif( $astrFormElements[$i]['type'] == 'TIME' ) {
-                    $strFields .= $astrFormElements[$i]['name'].", ";
-                    $strUpdateFields .= $astrFormElements[$i]['name'];
+                elseif( $strControlType == 'TIMESTAMP' ) {
+                    $strFields .= $strControlName.", ";
+                    //    $strUpdateFields .= $strControlName;
+                    $strInsert .= '?, ';
+                    $arrValues[] = time();
+                }
+                elseif( $strControlType == 'TIME' ) {
+                    $strFields .= $strControlName.", ";
+                    //convert user input to right format
+                    $strInsert .= '?, ';
+                    //convert user input to right format
                     $astrSearch = array('.', ',', ' ');
-                    //build the insert into fields
-                    //$strFields .= $strControlName. ", ";
-                    //build the insert into fieldvalues
-                    //convert user input to right format
-                    
-                    $strInsert .= "'". str_replace($astrSearch, ":", $astrValues[$astrFormElements[$i]['name']]). "', ";
-                    //build the update fields & values
-                    //convert user input to right format
-                    $strUpdateFields .= 
-                        $strControlName. "='". str_replace($astrSearch, ":", $astrValues[$astrFormElements[$i]['name']]). "', ";
+                    $arrValues[] = str_replace($astrSearch, ":", $mixControlValue);
                 }
-                
             }
         }
-        elseif( $astrFormElements[$i]['type'] != 'IFRAME' && $astrFormElements[$i]['type'] != 'IFORM' && $astrFormElements[$i]['type'] != 'HID_INT' && $astrFormElements[$i]['type'] != 'NEWLINE' && $astrFormElements[$i]['type'] != 'BUTTON' ) {
+        elseif( $strControlType != 'IFRAME' && $strControlType != 'IFORM' && $strControlType != 'HID_INT' && $strControlType != 'NEWLINE' && $strControlType != 'BUTTON' ) {
             if ( !$astrFormElements[$i]['allow_null'] ) {
                 $blnMissingValues = TRUE;
                 $strOnLoad .= "alert('".$GLOBALS['locERRVALUEMISSING']." : ".$astrFormElements[$i]['label']."');";
@@ -197,28 +188,14 @@ if( $blnAdd ) {
     if( !$blnMissingValues ) {
         $strInsert = substr($strInsert, 0, -2);
         $strFields = substr($strFields, 0, -2);
-        $strUpdateFields = substr($strUpdateFields, 0, -2);
 
-        $strQuery =
-            "INSERT INTO " . $strTable . " ( ".
-            $strFields . ", ". $strParentKey ." ) ".
-            "VALUES ( ".
-            $strInsert . ", " . $intParentKey . " );";
+        $strQuery = "INSERT INTO $strTable ($strFields, $strParentKey) VALUES ($strInsert, ?)";
+        $arrValues[] = $intParentKey;
 
         //echo $strQuery."<br>\n";
-        $intRes = @mysql_query($strQuery);
+        $intRes = mysql_param_query($strQuery, $arrValues, TRUE);
         if( $intRes ) {
-            if( $blnNew ) {
-                /*$oid = mysql_insert_id();
-                $strQuery = 
-                    "SELECT " . $strPrimaryKey . 
-                    " FROM ". $strTable .
-                    " WHERE " . $strPrimaryKey ."=" . $oid . ";";
-                $intRes = mysql_query($strQuery);*/
-                $intKeyValue = mysql_insert_id();
-                //$intKeyValue = mysql_result( $intRes, 0, $strPrimaryKey );
-            }
-//            $strOnLoad = "window.open('list.php?form=" . $strForm . "','f_list');";
+            $intKeyValue = mysql_insert_id();
             $blnInsertDone = TRUE;
         }
         else {
@@ -250,25 +227,24 @@ if( $blnInsertDone ) {
     }
 }
 if( $blnDelete && $intKeyValue ) {
-    $strQuery =
-        "DELETE FROM " . $strTable . " ".
-        "WHERE " . $strPrimaryKey . "=" . $intKeyValue . ";";
-    $intRes = @mysql_query($strQuery);
-    if( $intRes ) {
-        //unset($intKeyValue);
-        //unset($astrValues);
-        //$strOnLoad = "window.open('list.php?form=" . $strForm . "','f_list');";
-    }
-    else {
-        $strOnLoad = "alert('".$GLOBALS['locERRDELREFERENCE']."');";
-    }
+    //create the delete query
+    $strQuery = "DELETE FROM $strTable WHERE $strPrimaryKey=?";
+    //send query to database
+    mysql_param_query($strQuery, array($intKeyValue));
+    //dispose the primarykey value
+    unset($intKeyValue);
+    //clear form elements
+    unset($astrValues);
+    $blnNew = TRUE;
+    $strOnLoad = "top.frset_bottom.f_list.document.forms[0].key_values.value=''; top.frset_bottom.f_list.document.forms[0].submit();";
 }
 if( $intParentKey ) {
     $strQuery =
         "SELECT * FROM $strTable ".
-        "WHERE $strParentKey = $intParentKey";
-    $intRes = mysql_query($strQuery);
+        "WHERE $strParentKey = ?";
+    $intRes = mysql_param_query($strQuery, array($intParentKey));
     $intNumRows = mysql_num_rows($intRes);
+    $astrOldValues = array();
     if( $intRes ) {
         for($i = 0; $i < $intNumRows; $i++ ) {
             $tmpID = mysql_result( $intRes, $i, "id");
@@ -342,7 +318,7 @@ for( $j = 0; $j < count($astrFormElements); $j++ ) {
 ?>
     <td class="label <?php echo strtolower($astrFormElements[$j]['style'])?>_label">
         <?php echo $astrFormElements[$j]['label']?><br>
-        <?php echo htmlFormElement( $astrFormElements[$j]['name'],$astrFormElements[$j]['type'], gpcStripSlashes($astrValues[$astrFormElements[$j]['name']]), $astrFormElements[$j]['style'],$astrFormElements[$j]['listquery'], "MODIFY", 0, '', array(), $astrFormElements[$j]['elem_attributes'])?>
+        <?php echo htmlFormElement( $astrFormElements[$j]['name'],$astrFormElements[$j]['type'], gpcStripSlashes(isset($astrValues[$astrFormElements[$j]['name']]) ? $astrValues[$astrFormElements[$j]['name']] : ''), $astrFormElements[$j]['style'],$astrFormElements[$j]['listquery'], "MODIFY", 0, '', array(), $astrFormElements[$j]['elem_attributes'])?>
     </td>
 <?php
     }

@@ -47,7 +47,7 @@ if( $intInvoiceId ) {
         "FROM ". _DB_PREFIX_. "_invoice ".
         "INNER JOIN ". _DB_PREFIX_. "_company ON ". _DB_PREFIX_. "_company.id = ". _DB_PREFIX_. "_invoice.company_id ".
         "WHERE ". _DB_PREFIX_. "_invoice.id = $intInvoiceId";
-    $intRes = mysql_query($strQuery);
+    $intRes = mysql_query_check($strQuery);
     $intNRows = mysql_numrows($intRes);
     if( $intNRows ) {
         $strCompanyId = mysql_result($intRes, 0, "company_id");
@@ -59,7 +59,7 @@ if( $intInvoiceId ) {
     }
 }
 $strQuery = "SELECT max(real_invoice_no) FROM ". _DB_PREFIX_. "_invoice";
-$intRes = mysql_query($strQuery);
+$intRes = mysql_query_check($strQuery);
 $intRealInvNo = mysql_result($intRes, 0, 0) + 1;
 
 $intInvNo = $intCompanyId. $intRealInvNo;
@@ -68,9 +68,9 @@ $strRefNo = $strCompanyId. "-". $intRealInvNo . "-" . miscCalcCheckNo($intInvNo)
 
 */
 
-$strQuery = "SELECT max(invoice_no) FROM ". _DB_PREFIX_. "_invoice";
+$strQuery = "SELECT max(invoice_no) FROM {prefix}invoice";
 
-$intRes = mysql_query($strQuery);
+$intRes = mysql_query_check($strQuery);
 $intInvNo = mysql_result($intRes, 0, 0) + 1;
 
 $intRefNo = $intInvNo . miscCalcCheckNo($intInvNo);
@@ -86,8 +86,6 @@ $strDueDate = date("d.m.Y",mktime(0, 0, 0, date("m"), date("d")+14, date("Y")));
 function updateOpener() {
     window.opener.document.admin_form.invoice_date.value="<?php echo $strDate?>";
     window.opener.document.admin_form.due_date.value="<?php echo $strDueDate?>";    
-    //window.opener.document.admin_form.real_invoice_no.value="<?php echo $intRealInvNo?>";
-    //window.opener.document.admin_form.invoice_no.value="<?php echo $strRefNo?>";
     window.opener.document.admin_form.invoice_no.value="<?php echo $intInvNo?>";
     window.opener.document.admin_form.ref_number.value="<?php echo $intRefNo?>";
     window.opener.document.admin_form.saveact.value=1; window.opener.document.admin_form.submit();

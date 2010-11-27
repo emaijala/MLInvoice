@@ -34,7 +34,7 @@ $strSesID = sesVerifySession();
 
 require "localize.php";
 
-$strForm = getPost('selectform', getRequest('selectform', ''));
+$strForm = getPostRequest('selectform', '');
 
 require "form_switch.php";
 
@@ -42,8 +42,8 @@ echo htmlPageStart( _PAGE_TITLE_ );
 
 $blnNew = getPostRequest('newact', FALSE) || getPostRequest('new', FALSE) ? TRUE : FALSE;
 $blnCopy = getPostRequest('copyact', FALSE) ? TRUE : FALSE;
-$blnSave = getPost('saveact', FALSE) ? TRUE : FALSE;
-$blnDelete = getPost('deleteact', FALSE) ? TRUE : FALSE;
+$blnSave = getPostRequest('saveact', FALSE) ? TRUE : FALSE;
+$blnDelete = getPostRequest('deleteact', FALSE) ? TRUE : FALSE;
 $intKeyValue = getPostRequest($strPrimaryKey, FALSE);
 
 $strOnLoad = '';
@@ -58,11 +58,11 @@ if( $blnNew && !$blnSave ) {
 //initialize elements
 for( $i = 0; $i < count($astrFormElements); $i++ ) {
     if( $astrFormElements[$i]['type'] == 'IFRAME' || $astrFormElements[$i]['type'] == 'IFORM' || $astrFormElements[$i]['type'] == 'RESULT' || $astrFormElements[$i]['type'] == 'BUTTON' ) {
-        $astrValues[$astrFormElements[$i]['name']] = $intKeyValue ? $intKeyValue : FALSE;
+        $astrValues[$astrFormElements[$i]['name']] = isset($intKeyValue) ? $intKeyValue : FALSE;
     }
     else {
          if( !$astrFormElements[$i]['default'] ) {
-            $astrValues[$astrFormElements[$i]['name']] = getPost($astrFormElements[$i]['name'], FALSE);
+            $astrValues[$astrFormElements[$i]['name']] = getPostRequest($astrFormElements[$i]['name'], FALSE);
          }
          else {
             if( $astrFormElements[$i]['default'] == "DATE_NOW" ) {
@@ -81,7 +81,7 @@ for( $i = 0; $i < count($astrFormElements); $i++ ) {
             else {
                 $strDefaultValue = $astrFormElements[$i]['default'];
             }
-            $astrValues[$astrFormElements[$i]['name']] = getPost($astrFormElements[$i]['name'], $strDefaultValue);
+            $astrValues[$astrFormElements[$i]['name']] = getPostRequest($astrFormElements[$i]['name'], $strDefaultValue);
         }
     }
 }
@@ -117,145 +117,89 @@ if( $blnSave ) {
         $strFields = '';
         $strInsert = '';
         $strUpdateFields = '';
+        $arrValues = array();
         for( $i = 0; $i < count($astrFormElements); $i++ ) {
             $strControlType = $astrFormElements[$i]['type'];
             $strControlName = $astrFormElements[$i]['name'];
             $mixControlValue = $astrValues[$strControlName];
-            //elements with text or varchar datatype need ' '
             if( $strControlType == 'TEXT' || $strControlType == 'AREA' ) {
-                //build the insert into fieldnames
-                $strFields .= $strControlName. ", ";
-                //build the insert into fieldvalues
-                $strInsert .= "'". gpcAddSlashes($mixControlValue). "', ";
-                //build the update fields & values
-                $strUpdateFields .= 
-                  $strControlName. "='". gpcAddSlashes($mixControlValue). "', ";
+                $strFields .= "$strControlName, ";
+                $strInsert .= '?, ';
+                $strUpdateFields .= "$strControlName=?, ";
+                $arrValues[] = $mixControlValue;
             }
             elseif( $strControlType == 'PASSWD' && $mixControlValue ) {
-                //build the insert into fieldnames
-                $strFields .= $strControlName. ", ";
-                //build the insert into fieldvalues
-                $strInsert .= "md5('". gpcAddSlashes($mixControlValue). "'), ";
-                //build the update fields & values
-                $strUpdateFields .= 
-                  $strControlName. "=md5('". gpcAddSlashes($mixControlValue). "'), ";
+                $strFields .= "$strControlName, ";
+                $strInsert .= '?, ';
+                $strUpdateFields .= "$strControlName=md5(?), ";
+                $arrValues[] = $mixControlValue;
             }
             //elements that are numeric TODO: do we need to save 0(zero)
             elseif( $strControlType == 'INT' || $strControlType == 'LIST' ) {
                 //build the insert into fields
-                $strFields .= $strControlName. ", ";
+                $strFields .= "$strControlName, ";
                 //format the numbers to right format - finnish use ,-separator
                 $flttmpValue = 
                     $mixControlValue ? str_replace(",", ".", $mixControlValue) : 0;
-                if( !is_numeric($mixControlValue) ) {
-                        //build the insert into fieldvalues
-                        $strInsert .= "'". $flttmpValue. "', ";
-                        //build the update fields & values
-                        $strUpdateFields .= 
-                            $strControlName. "='". $flttmpValue. "', ";
-                    }
-                    else {
-                        //build the insert into fieldvalues
-                        $strInsert .= (float)$flttmpValue. ", ";
-                        //build the update fields & values
-                        $strUpdateFields .= 
-                            $strControlName. "=". (float)$flttmpValue. ", ";
-                    }
-                
+                $strInsert .= '?, ';
+                $strUpdateFields .= "$strControlName=?, ";
+                $arrValues[] = $flttmpValue;
             }
             //checkboxelements handled bit differently than other int's
             elseif( $strControlType == 'CHECK' ) {
-                //build the insert into fields
-                $strFields .= $strControlName. ", ";
+                $strFields .= "$strControlName, ";
                 //if checkbox checked save 1 else 0 TODO: consider TRUE/FALSE
                 $tmpValue = $mixControlValue ? 1 : 0;
-                //build the insert into fieldvalues
-                $strInsert .= $tmpValue.", ";
-                //build the update fields & values
-                $strUpdateFields .= $strControlName. "=". $tmpValue. ", ";
+                $strInsert .= '?, ';
+                $strUpdateFields .= "$strControlName=?, ";
+                $arrValues[] = $tmpValue;
             }
             //date-elements need own formatting too
             elseif( $strControlType == 'INTDATE' ) {
                 if( !$mixControlValue ) {
                     $mixControlValue = 'NULL';
                 }
-                //build the insert into fields
-                $strFields .= $strControlName. ", ";
-                //build the insert into fieldvalues
+                $strFields .= "$strControlName, ";
+                $strInsert .= '?, ';
                 //convert user input to right format
-                $strInsert .= 
-                    dateConvDate2IntDate($mixControlValue). ", ";
-                //build the update fields & values
-                //convert user input to right format
-                $strUpdateFields .= 
-                    $strControlName. "=". dateConvDate2IntDate($mixControlValue). ", ";
+                $strUpdateFields .= "$strControlName=?, ";
+                $arrValues[] = dateConvDate2IntDate($mixControlValue);
             }
             elseif( $strControlType == 'TIMESTAMP' ) {
-                /*if( !$mixControlValue ) {
-                    $mixControlValue = 'NULL';
-                }*/
-                //build the insert into fields
-                $strFields .= $strControlName. ", ";
-                //build the insert into fieldvalues
-                //convert user input to right format
-                $strInsert .= time(). ", ";
-                //build the update fields & values
-                //convert user input to right format
-                /*$strUpdateFields .= 
-                    $strControlName. "=". dateConvDate2IntDate($mixControlValue). ", ";*/
+                $strFields .= "$strControlName, ";
+                $strInsert .= '?, ';
+                if ($blnNew)
+                  $arrValues[] = dateConvDate2IntDate($mixControlValue);
             }
             //time-elements need own formatting too
             elseif( $strControlType == 'TIME' ) {
                 $astrSearch = array('.', ',', ' ');
-                //build the insert into fields
-                $strFields .= $strControlName. ", ";
-                //build the insert into fieldvalues
+                $strFields .= "$strControlName, ";
+                $strInsert .= '?, ';
                 //convert user input to right format
-                
-                $strInsert .= "'". str_replace($astrSearch, ":", $mixControlValue). "', ";
-                //build the update fields & values
-                //convert user input to right format
-                $strUpdateFields .= 
-                    $strControlName. "='". str_replace($astrSearch, ":", $mixControlValue). "', ";
+                $strUpdateFields .= "$strControlName=?, ";
+                $arrValues[] = str_replace($astrSearch, ":", $mixControlValue);
             }
         }
-    }
-    //if no required values missing -> create the final sql-query 
-    if( !$blnMissingValues ) {
-        //substract last loops unnecessary ', '-parts 
+        
+        //subtract last loops unnecessary ', '-parts 
         $strInsert = substr($strInsert, 0, -2);
         $strFields = substr($strFields, 0, -2);
         $strUpdateFields = substr($strUpdateFields, 0, -2);
-        //if we are inserting brandnew entry into database
         if( $blnNew ) {
-            //create "insert into"-query with fields created abowe
-            $strQuery =
-                "INSERT INTO " . $strTable . " ( ".
-                $strFields . " ) ".
-                "VALUES ( ".
-                $strInsert . " );";
+            $strQuery = "INSERT INTO $strTable ($strFields) VALUES ($strInsert)";
         }
-        //if we are updating existing data in database
         else {
-            //create "update"-query with fields created abowe
-            $strQuery =
-                "UPDATE " . $strTable . " SET ".
-                $strUpdateFields . " ".
-                "WHERE ". $strPrimaryKey . "=" . $intKeyValue . "";
-        
+            $strQuery = "UPDATE $strTable SET $strUpdateFields WHERE $strPrimaryKey = ?";
+            $arrValues[] = $intKeyValue;
         }
-        //echo $strQuery."<br>\n";
         
-        
-        $intRes = @mysql_query($strQuery);
+        $intRes = mysql_param_query($strQuery, $arrValues, TRUE);
         
         if( $intRes ) {
-            //if we added new entry to database we have to get it's ID
             if( $blnNew ) {
                 //get the latest insert ID from mysql
-                $intKeyValue = mysql_insert_id();
-                //$intKeyValue = mysql_result( $intRes, 0, $strPrimaryKey );
-                
+                $intKeyValue = mysql_insert_id();   
             }
             //TODO : think this list update system...
             //$strOnLoad = "window.open('list.php?ses=". $GLOBALS['sesID']. "&form=" . $strForm . "','f_list');";
@@ -269,49 +213,28 @@ if( $blnSave ) {
         }
         //if there's no resource identifier something went wrong
         else {
-            //let the user know that query didn't work out
-            error_log("Query '$strQuery' failed: " . mysql_error());
             $strOnLoad = "alert('" . $GLOBALS['locDBERRORDESC'] . addslashes(mysql_error()) . "');";
-            error_log($strOnLoad);
         }
     }
 }
 
-//did the user press delete-button
-//if we have primarykey we can fulfill his commands
 if( $blnDelete && $intKeyValue ) {
     //create the delete query
-    $strQuery =
-        "DELETE FROM " . $strTable . " ".
-        "WHERE " . $strPrimaryKey . "=" . $intKeyValue . ";";
+    $strQuery = "DELETE FROM $strTable WHERE $strPrimaryKey=?";
     //send query to database
-    $intRes = @mysql_query($strQuery);
-    //if delete was succesfull we have res-id
-    if( $intRes ) {
-        //dispose the primarykey value
-        unset($intKeyValue);
-        //clear form elements
-        unset($astrValues);
-        $blnNew = TRUE;
-        //$strOnLoad = "top.frset_bottom.f_list.document.forms[0].key_values.value=''; top.frset_bottom.f_list.document.forms[0].submit();";
-        //$strOnLoad = "window.open('list.php?ses=". $GLOBALS['sesID']."&form=" . $strForm . "','f_list');";
-        $strOnLoad = "top.frset_bottom.f_list.document.forms[0].key_values.value=''; top.frset_bottom.f_list.document.forms[0].submit();";
-    }
-    //if delete-query didn't workout
-    else {
-        //tell user what happened
-        //only possible reason ;) for delete to fail is
-        //when table has references to other tables
-        //with mysql - I don't know why I even bother...
-        $strOnLoad = "alert('".$GLOBALS['locERRDELREFERENCE']."');";
-    }
+    mysql_param_query($strQuery, array($intKeyValue));
+    //dispose the primarykey value
+    unset($intKeyValue);
+    //clear form elements
+    unset($astrValues);
+    $blnNew = TRUE;
+    $strOnLoad = "top.frset_bottom.f_list.document.forms[0].key_values.value=''; top.frset_bottom.f_list.document.forms[0].submit();";
 }
 
-if( $intKeyValue ) {
+if( isset($intKeyValue) && $intKeyValue ) {
     $strQuery =
-        "SELECT * FROM " . $strTable . " ".
-        "WHERE " . $strPrimaryKey . "=" . $intKeyValue . ";";
-    $intRes = mysql_query($strQuery);
+        "SELECT * FROM $strTable WHERE $strPrimaryKey=?";
+    $intRes = mysql_param_query($strQuery, array($intKeyValue));
     $intNRows = mysql_num_rows($intRes);
     if( $intNRows ) {
         for( $j = 0; $j < count($astrFormElements); $j++ ) {
@@ -383,7 +306,6 @@ else {
         "top.frset_bottom.frset_main.f_funcs.location.href = 'form_controls.php?ses=". $strSesID. 
         "'; top.frset_bottom.frset_main.f_funcs2.location.href = 'form_controls.php?ses=". $strSesID. "';";
 }
-
 ?>
 <body class="form" onload="<?php echo $strOnLoad?>">
 
@@ -425,7 +347,7 @@ function OpenUploader(valuefield, imagepath, check, event) {
 <?php
 
 ?> 
-<input type="hidden" name="<?php echo $strPrimaryKey?>" value="<?php echo $intKeyValue?>">
+<input type="hidden" name="<?php echo $strPrimaryKey?>" value="<?php echo isset($intKeyValue) ? $intKeyValue : '' ?>">
 <table>
 <?php
 for( $j = 0; $j < count($astrFormElements); $j++ ) {
@@ -439,12 +361,12 @@ for( $j = 0; $j < count($astrFormElements); $j++ ) {
 <?php
     }
     else {
-        if( $astrFormElements[$j]['position'] == 0 ) {
+        if( $astrFormElements[$j]['position'] == 0 && !strstr($astrFormElements[$j]['type'], "HID_")) {
             echo "\t<tr>\n";
             $strColspan = "colspan=\"3\"";
             $intColspan = 4;
         }
-        elseif( $astrFormElements[$j]['position'] == 1 ) {
+        elseif( $astrFormElements[$j]['position'] == 1 && !strstr($astrFormElements[$j]['type'], "HID_")) {
             echo "\t<tr>\n";
             $strColspan = "colspan=\"0\"";
             $intColspan = 2;
@@ -470,6 +392,12 @@ for( $j = 0; $j < count($astrFormElements); $j++ ) {
         <td class="button" colspan="<?php echo $intColspan?>">
             <?php echo htmlFormElement($astrFormElements[$j]['name'], $astrFormElements[$j]['type'], gpcStripSlashes($astrValues[$astrFormElements[$j]['name']]), $astrFormElements[$j]['style'],$astrFormElements[$j]['listquery'], "MODIFY", $astrFormElements[$j]['parent_key'],$astrFormElements[$j]['label'], array(), isset($astrFormElements[$j]['elem_attributes']) ? $astrFormElements[$j]['elem_attributes'] : '')?>
         </td>
+<?php          
+        }
+        
+        elseif( $astrFormElements[$j]['type'] == "HID_INT" || $astrFormElements[$j]['type'] == "HID_TEXT" || strstr($astrFormElements[$j]['type'], "HID_") ) {
+ ?>
+        <?php echo htmlFormElement($astrFormElements[$j]['name'], $astrFormElements[$j]['type'], gpcStripSlashes($astrValues[$astrFormElements[$j]['name']]), $astrFormElements[$j]['style'],$astrFormElements[$j]['listquery'], "MODIFY", $astrFormElements[$j]['parent_key'],$astrFormElements[$j]['label'])?>
 <?php          
         }
         else {

@@ -59,9 +59,9 @@ $strDateListQuery = substr($strDateListQuery, 0, -6);
 switch ( $strForm ) {
 
 case 'company':
-   $strTable = _DB_PREFIX_. "_company";
-   $strPrimaryKey = "id";
-   $strMainForm = "form.php?selectform=company";
+   $strTable = '{prefix}company';
+   $strPrimaryKey = 'id';
+   $strMainForm = 'form.php?selectform=company';
    $astrSearchFields = 
     array( 
         //array("name" => "first_name", "type" => "TEXT"),
@@ -100,7 +100,7 @@ case 'company':
 break;
 
 case 'company_contact':
-       $strTable = _DB_PREFIX_. "_company_contact";
+       $strTable = '{prefix}company_contact';
        $strPrimaryKey = "id";
        $strParentKey = "company_id";
        $strMainForm = "iform.php?selectform=company_contact";
@@ -124,7 +124,7 @@ case 'company_contact':
 break;
 
 case 'product':
-   $strTable = _DB_PREFIX_. "_product";
+   $strTable = '{prefix}product';
    $strPrimaryKey = "id";
    $strMainForm = "form.php?selectform=product";
    $astrSearchFields = 
@@ -156,7 +156,7 @@ case 'product':
 break;
 
 case 'invoice':
-   $strTable = _DB_PREFIX_. "_invoice";
+   $strTable = '{prefix}invoice';
    $strPrimaryKey = "id";
    $strMainForm = "form.php?selectform=invoice";
    
@@ -164,8 +164,8 @@ case 'invoice':
    $defaultRefNo = FALSE;
    if ($addInvoiceNumber || $addReferenceNumber)
    {
-     $strQuery = "SELECT max(invoice_no) FROM ". _DB_PREFIX_. "_invoice";
-     $intRes = mysql_query($strQuery);
+     $strQuery = "SELECT max(invoice_no) FROM {prefix}invoice";
+     $intRes = mysql_query_check($strQuery);
      $intInvNo = mysql_result($intRes, 0, 0) + 1;
      if ($addInvoiceNumber)
        $defaultInvNo = $intInvNo;
@@ -247,11 +247,11 @@ case 'invoice':
     );
 break;
 case 'invoice_rows':
-   $strTable = _DB_PREFIX_. "_invoice_row";
+   $strTable = '{prefix}invoice_row';
    $strPrimaryKey = "id";
    $strParentKey = "invoice_id";
    $strMainForm = "iform.php?selectform=invoice_rows";
-   $strOrder = "ORDER BY ". _DB_PREFIX_. "_invoice_row.order_no";
+   $strOrder = 'ORDER BY {prefix}invoice_row.order_no';
    
    $intProductId = getRequest('new_product', 0);
    $strDescription = '';
@@ -264,16 +264,16 @@ case 'invoice_rows':
      // Retrieve default values from the specified product
      $strQuery = 
         "SELECT * ".
-        "FROM ". _DB_PREFIX_. "_product ".
-        "WHERE id = ". mysql_escape_string($intProductId);
-     $intRes = mysql_query($strQuery);
-     if( $intRes ) 
+        "FROM {prefix}product ".
+        "WHERE id = ?";
+     $intRes = mysql_param_query($strQuery, array($intProductId));
+     if ($row = mysql_fetch_assoc($intRes)) 
      {
-       $strDescription = trim(mysql_result($intRes, 0, "description"));
-       $intTypeId = mysql_result($intRes, 0, "type_id");
-       $intPrice = mysql_result($intRes, 0, "unit_price");
-       $intVAT = mysql_result($intRes, 0, "vat_percent");
-       $intVATIncluded = mysql_result($intRes, 0, "vat_included");
+       $strDescription = trim($row['description']);
+       $intTypeId = $row['type_id'];
+       $intPrice = $row['unit_price'];
+       $intVAT = $row['vat_percent'];
+       $intVATIncluded = $row['vat_included'];
      }
    }
    
@@ -315,7 +315,7 @@ break;
     SYSTEM FORMS - SYSTEEMILOMAKKEET
 ******************************************************************************/
 case 'base_info':
-   $strTable = _DB_PREFIX_. "_base";
+   $strTable = '{prefix}base';
    $strPrimaryKey = "id";
    $strMainForm = "form.php?selectform=base_info";
    $astrFormElements =
@@ -374,7 +374,7 @@ case 'base_info':
 break;
 
 case 'invoice_state':
-    $strTable = _DB_PREFIX_. "_invoice_state";
+    $strTable = '{prefix}invoice_state';
     $strPrimaryKey = "id";
     $strMainForm = "form.php?selectform=invoice_state";
     
@@ -402,7 +402,7 @@ case 'invoice_state':
 break;
 
 case 'row_type':
-    $strTable = _DB_PREFIX_. "_row_type";
+    $strTable = '{prefix}row_type';
     $strPrimaryKey = "id";
     $strMainForm = "form.php?selectform=row_type";
     $astrFormElements =
@@ -415,7 +415,7 @@ case 'row_type':
 break;
 
 case 'session_type':
-    $strTable = _DB_PREFIX_. "_session_type";
+    $strTable = '{prefix}session_type';
     $strPrimaryKey = "id";
     $strMainForm = "form.php?selectform=session_type";
     $astrFormElements =
@@ -432,7 +432,7 @@ case 'session_type':
 break;
 
 case 'users':
-    $strTable = _DB_PREFIX_. "_users";
+    $strTable = '{prefix}users';
     $strPrimaryKey = "id";
     $strMainForm = "form.php?selectform=users";
     $astrFormElements =
@@ -451,7 +451,7 @@ case 'users':
 break;
 
 case 'company_type':
-    $strTable = _DB_PREFIX_. "_company_type";
+    $strTable = '{prefix}company_type';
     $strPrimaryKey = "id";
     $strMainForm = "form.php?selectform=company_type";
     $astrFormElements =

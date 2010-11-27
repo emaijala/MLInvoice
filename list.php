@@ -123,6 +123,7 @@ if( !$astrKeyValues ) {
 }
 //echo $strQuery;
 
+$astrListValues = array(array());
 if( count($astrKeyValues) > 0 ) {
     $intTotal = count($astrKeyValues);
     $intLimit = $leftNaviListRows; //how many results to show on page
@@ -172,15 +173,12 @@ if( count($astrKeyValues) > 0 ) {
         for( $i = 0; $i < $intNRes; $i++ ) {
             $astrPrimaryKeys[$i] = mysql_result($intRes, $i, $strPrimaryKey);
             for( $j = 0; $j < count($astrShowFields); $j++ ) {
-                //$astrListValues[$i] .= mysql_result($intRes, $i, $astrShowFields[$j]) . "&nbsp;";
-                if( $astrShowFields[$j]['type'] == "TEXT" ) {
+                if( $astrShowFields[$j]['type'] == "TEXT" || $astrShowFields[$j]['type'] == "INT" ) {
                         $astrListValues[$i][$j] = mysql_result($intRes, $i, $astrShowFields[$j]['name']);
                 }
-                elseif( $astrShowFields[$j]['type'] == "INT" ) {
-                        $astrListValues[$i][$j] .= mysql_result($intRes, $i, $astrShowFields[$j]['name']);
-                }
                 elseif( $astrShowFields[$j]['type'] == "INTDATE" ) {
-                        $astrListValues[$i][$j] .= dateConvIntDate2Date( mysql_result($intRes, $i, $astrShowFields[$j]['name']) );
+                        $astrListValues[$i][$j] = 
+                          dateConvIntDate2Date( mysql_result($intRes, $i, $astrShowFields[$j]['name']) );
                 }
                 
             }

@@ -239,16 +239,11 @@ Return : $strResult (string) :
             result string on success
             FALSE on error
 
-Todo : style, Sorting? Errors. Allow only select query?
+Todo : style, Sorting? Allow only select query?
 ********************************************************************/
-    $intRes = mysql_query( $strQuery );
-    if( $intRes ) {
-        $strValue = mysql_result($intRes, 0, 0);
-        return $strValue;
-    }
-    else {
-        return FALSE;
-    }
+    $intRes = mysql_query_check( $strQuery );
+    $strValue = mysql_result($intRes, 0, 0);
+    return $strValue;
 }
 function htmlSQLListBox( $strName, $strQuery, $strSelected, $strStyle = "", $intOnChange = 0, $astrAdditionalAttributes ) {
 /********************************************************************
@@ -264,24 +259,19 @@ Return : $strListBox (string) :
             listbox element on success
             FALSE on error
 
-Todo : style, Sorting? Errors. Allow only select query?
+Todo : style, Sorting? 
 ********************************************************************/
     $astrResults = array();
     //echo $strQuery;
-    $intRes = mysql_query( $strQuery );
-    if( $intRes ) {
-        $intNRes = mysql_num_rows($intRes);
-        for( $i = 0; $i < $intNRes; $i++ ) {
-            $astrValues[$i] = mysql_result($intRes, $i, 0);
-            $astrOptions[$i] = mysql_result($intRes, $i, 1);
-        }
-        $strListBox = htmlListBox($strName, $astrValues, $astrOptions, $strSelected, $strStyle, $intOnChange, TRUE, $astrAdditionalAttributes );
+    $intRes = mysql_query_check( $strQuery );
+    $intNRes = mysql_num_rows($intRes);
+    for( $i = 0; $i < $intNRes; $i++ ) {
+        $astrValues[$i] = mysql_result($intRes, $i, 0);
+        $astrOptions[$i] = mysql_result($intRes, $i, 1);
+    }
+    $strListBox = htmlListBox($strName, $astrValues, $astrOptions, $strSelected, $strStyle, $intOnChange, TRUE, $astrAdditionalAttributes );
 
-        return $strListBox;
-    }
-    else {
-        return FALSE;
-    }
+    return $strListBox;
 }
 function getSQLListBoxSelectedValue( $strQuery, $strSelected ) {
 /********************************************************************
@@ -301,23 +291,18 @@ Todo : style, Sorting? Errors. Allow only select query?
 ********************************************************************/
     $astrResults = array();
     
-    $intRes = mysql_query( $strQuery );
-    if( $intRes ) {
-        $strSelectedValue = '';
-        $intNRes = mysql_num_rows($intRes);
-        for( $i = 0; $i < $intNRes; $i++ ) {
-            $astrValues[$i] = mysql_result($intRes, $i, 0);
-            $astrOptions[$i] = mysql_result($intRes, $i, 1);
-            if( $astrValues[$i] == $strSelected ) {
-                $strSelectedValue = $astrOptions[$i];
-            }
+    $intRes = mysql_query_check( $strQuery );
+    $strSelectedValue = '';
+    $intNRes = mysql_num_rows($intRes);
+    for( $i = 0; $i < $intNRes; $i++ ) {
+        $astrValues[$i] = mysql_result($intRes, $i, 0);
+        $astrOptions[$i] = mysql_result($intRes, $i, 1);
+        if( $astrValues[$i] == $strSelected ) {
+            $strSelectedValue = $astrOptions[$i];
         }
- 
-        return $strSelectedValue;
     }
-    else {
-        return FALSE;
-    }
+
+    return $strSelectedValue;
 }
 
 /********************************************************************
