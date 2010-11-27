@@ -57,11 +57,13 @@ require "form_switch.php";
 
 echo htmlPageStart( _PAGE_TITLE_ );
 
-$blnSave = getPost('saveact', FALSE) ? TRUE : FALSE;
-$blnCopy = getPost('copyact', FALSE) ? TRUE : FALSE;
-$blnDelete = getPost('deleteact', FALSE) ? TRUE : FALSE;
+$blnSave = getPostRequest('saveact', FALSE) ? TRUE : FALSE;
+$blnCopy = getPostRequest('copyact', FALSE) ? TRUE : FALSE;
+$blnDelete = getPostRequest('deleteact', FALSE) ? TRUE : FALSE;
 $intKeyValue = getPostRequest($strPrimaryKey, FALSE);
 $intParentKey = getPostRequest($strParentKey, FALSE);
+
+$strOnLoad = '';
 
 for( $i = 0; $i < count($astrFormElements); $i++ ) {
     if(array_key_exists($astrFormElements[$i]['name'],$astrDefaults)) {
@@ -124,19 +126,21 @@ if( $blnSave ) {
         $strControlName = $astrFormElements[$i]['name'];
         $mixControlValue = $astrValues[$strControlName];
                 
-        //don't handle IFORM, BUTTON, LABEL elements
-        if( $strControlType != 'IFORM' && $strControlType != 'BUTTON' && $strControlType != 'LABEL' ) {
+        //don't handle IFORM, BUTTON, LABEL, HID_INT elements
+        if( $strControlType != 'IFORM' && $strControlType != 'BUTTON' && $strControlType != 'LABEL' && $strControlType != 'HID_INT' ) {
             //if element hasn't value and null's aren't allowed raise error
             if( $strControlType == "INT" ) {
                 if ( !isset($mixControlValue) && !$astrFormElements[$i]['allow_null'] ) {
                     $blnMissingValues = TRUE;
                     $strOnLoad .= "alert('".$GLOBALS['locERRVALUEMISSING']." : ".$astrFormElements[$i]['label']."');";
+                    error_log('Value missing for field ' . $astrFormElements[$i]['name']);
                 }
             }
             else {
                 if ( !$mixControlValue && !$astrFormElements[$i]['allow_null'] ) {
                     $blnMissingValues = TRUE;
                     $strOnLoad .= "alert('".$GLOBALS['locERRVALUEMISSING']." : ".$astrFormElements[$i]['label']."');";
+                    error_log('Value missing for field ' . $astrFormElements[$i]['name']);
                 }
             }
         }
@@ -211,12 +215,13 @@ if( $blnSave ) {
             }
         }
         
-        //subtract last loops unnecessary ', '-parts 
+        //subtract last loops' unnecessary ', '-parts 
         $strInsert = substr($strInsert, 0, -2);
         $strFields = substr($strFields, 0, -2);
         $strUpdateFields = substr($strUpdateFields, 0, -2);
         if( $blnCopy ) {
-            $strQuery = "INSERT INTO $strTable ($strFields) VALUES ($strInsert)";
+            $strQuery = "INSERT INTO $strTable ($strFields, $strParentKey) VALUES ($strInsert, ?)";
+            $arrValues[] = $intParentKey;
         }
         else {
             $strQuery = "UPDATE $strTable SET $strUpdateFields WHERE $strPrimaryKey = ?";

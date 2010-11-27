@@ -250,7 +250,7 @@ case 'invoice_rows':
    $strPrimaryKey = "id";
    $strParentKey = "invoice_id";
    $strMainForm = "iform.php?selectform=invoice_rows";
-   $strOrder = 'ORDER BY {prefix}invoice_row.order_no';
+   $strOrder = 'ORDER BY {prefix}invoice_row.order_no, {prefix}invoice_row.row_date';
    
    $intProductId = getRequest('new_product', 0);
    $strDescription = '';

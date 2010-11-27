@@ -236,7 +236,7 @@ if( $blnDelete && $intKeyValue ) {
 if( $intParentKey ) {
     $strQuery =
         "SELECT * FROM $strTable ".
-        "WHERE $strParentKey = ?";
+        "WHERE $strParentKey = ? $strOrder";
     $intRes = mysql_param_query($strQuery, array($intParentKey));
     $intNumRows = mysql_num_rows($intRes);
     $astrOldValues = array();

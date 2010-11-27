@@ -182,7 +182,7 @@ if( $blnSave ) {
             }
         }
         
-        //subtract last loops unnecessary ', '-parts 
+        //subtract last loops' unnecessary ', '-parts 
         $strInsert = substr($strInsert, 0, -2);
         $strFields = substr($strFields, 0, -2);
         $strUpdateFields = substr($strUpdateFields, 0, -2);
