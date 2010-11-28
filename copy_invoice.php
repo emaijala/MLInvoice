@@ -59,7 +59,6 @@ if ($intInvoiceId)
         $strname = $row['name'];
         $intCompanyId = $row['company_id'];
         $intInvoiceNo = $row['invoice_no'];
-        $intRealInvoiceNo = $row['real_invoice_no'];
         $intInvoiceDate = $row['invoice_date'];
         $intDueDate = $row['due_date'];
         $intPaymentDate = $row['payment_date'];
@@ -87,8 +86,8 @@ if ($intInvoiceId)
     
     $intRefundedId = $boolRefund ? $intInvoiceId : 'NULL';
     $strQuery = 
-        'INSERT INTO {prefix}invoice(name, company_id, invoice_no, real_invoice_no, invoice_date, due_date, payment_date, ref_number, state_id, reference, base_id, refunded_invoice_id) '.
-        'VALUES (?, ?, ?, 0, ?, ?, NULL, ?, 1, ?, ?, ?)';
+        'INSERT INTO {prefix}invoice(name, company_id, invoice_no, invoice_date, due_date, payment_date, ref_number, state_id, reference, base_id, refunded_invoice_id) '.
+        'VALUES (?, ?, ?, ?, ?, NULL, ?, 1, ?, ?, ?)';
         
     mysql_param_query($strQuery, array($strname, $intCompanyId, $intNewInvNo, $intDate, $intDueDate, $intNewRefNo, $strReference, $intBaseId, $intRefundedId));
     $intNewId = mysql_insert_id();

@@ -53,9 +53,16 @@ function mysql_query_check($query, $noFail=false)
   $intRes = mysql_query($query);
   if ($intRes === FALSE)
   {
-    error_log("Query '$query' failed: " . mysql_error());
+    $intError = mysql_errno();
+    error_log("Query '$query' failed: ($intError) " . mysql_error());
     if (!$noFail)
-      die($GLOBALS['locDBERROR']);
+    {
+      switch ($intError)
+      {
+      case 1451: die($GLOBALS['locDBERRORFOREIGNKEY']);
+      default: die($GLOBALS['locDBERROR']);
+      }
+    }
   }
   return $intRes;
 }

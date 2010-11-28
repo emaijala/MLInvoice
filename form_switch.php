@@ -213,8 +213,6 @@ case 'invoice':
      array(
         "name" => "name", "label" => $GLOBALS['locINVNAME'], "type" => "TEXT", "style" => "medium", "listquery" => "", "position" => 1, "default" => FALSE, "allow_null" => TRUE ),
      $arrRefundingInvoice,
-     /*array(
-        "name" => "real_invoice_no", "label" => $GLOBALS['locREALINVNO'], "type" => "INT", "style" => "medium", "listquery" => "", "position" => 2, "default" => FALSE, "allow_null" => TRUE ),*/
      array(
         "name" => "company_id", "label" => $GLOBALS['locPAYER'], "type" => "LIST", "style" => "medium", "listquery" => "SELECT id, company_name FROM ". _DB_PREFIX_. "_company ORDER BY company_name;", "position" => 1, "default" => FALSE, "allow_null" => FALSE ),
      array(

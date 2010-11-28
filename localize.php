@@ -159,6 +159,7 @@ default :
     $GLOBALS['locSAVEFIRST'] = 'Tallenna muut tiedot ensin';
     $GLOBALS['locDBERROR'] = 'Tietokantavirhe';
     $GLOBALS['locDBERRORDESC'] = 'Tietokantavirhe: ';
+    $GLOBALS['locDBERRORFOREIGNKEY'] = 'Toiminto ei onnistunut, koska tietueeseen on viittauksia muualta.';
     $GLOBALS['locFEE'] = 'Maksu';
     $GLOBALS['locMAKEINVFORYEAR'] = 'Tee laskut vuodelle';
     $GLOBALS['locMAKEINVTO'] = 'Laskutettavat jäsentyypit';

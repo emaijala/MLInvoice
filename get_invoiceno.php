@@ -39,35 +39,6 @@ $intInvoiceId = getRequest('id', FALSE);
 
 echo htmlPageStart( _PAGE_TITLE_ );
 
-//n‰it‰ k‰ytet‰‰n jos halutaan laskun viitenumero muuten kuin juoksevasta laskunumeroinnista - esim. y-tunnus + juoksevanro = viitenro
-/*
-if( $intInvoiceId ) {
-    $strQuery = 
-        "SELECT ". _DB_PREFIX_. "_company.company_id ".
-        "FROM ". _DB_PREFIX_. "_invoice ".
-        "INNER JOIN ". _DB_PREFIX_. "_company ON ". _DB_PREFIX_. "_company.id = ". _DB_PREFIX_. "_invoice.company_id ".
-        "WHERE ". _DB_PREFIX_. "_invoice.id = $intInvoiceId";
-    $intRes = mysql_query_check($strQuery);
-    $intNRows = mysql_numrows($intRes);
-    if( $intNRows ) {
-        $strCompanyId = mysql_result($intRes, 0, "company_id");
-        $strPattern = "/[^0-9]/";
-        $strCompanyId = preg_replace($strPattern, "", $strCompanyId);
-        $intCompanyId = $strCompanyId;
-        //$intCompanyId = str_replace(array("-","."," "), "", $strCompanyId);
-        //$strCompanyId = str_replace(array("-","."," "), "", $strCompanyId);
-    }
-}
-$strQuery = "SELECT max(real_invoice_no) FROM ". _DB_PREFIX_. "_invoice";
-$intRes = mysql_query_check($strQuery);
-$intRealInvNo = mysql_result($intRes, 0, 0) + 1;
-
-$intInvNo = $intCompanyId. $intRealInvNo;
-$intRefNo = $intInvNo . miscCalcCheckNo($intInvNo);
-$strRefNo = $strCompanyId. "-". $intRealInvNo . "-" . miscCalcCheckNo($intInvNo);
-
-*/
-
 $strQuery = "SELECT max(invoice_no) FROM {prefix}invoice";
 
 $intRes = mysql_query_check($strQuery);
