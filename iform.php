@@ -108,6 +108,7 @@ for( $i = 0; $i < count($astrFormElements); $i++ ) {
         else {
             $strDefaultValue = $astrFormElements[$i]['default'];
         }
+        
         if( $astrFormElements[$i]['type'] == "INT" ) {
             $tmpValue = str_replace(",", ".", getPost($astrFormElements[$i]['name'], ''));
             $astrValues[$astrFormElements[$i]['name']] = $tmpValue !== '' ? (float)$tmpValue : $strDefaultValue;

@@ -166,10 +166,10 @@ Todo :
             $GLOBALS['sesUSERID'] = mysql_result($intRes, 0, "user_id");
             $GLOBALS['sesACCESSLEVEL'] = mysql_result($intRes, 0, "access_level");
             $strQuery =
-                "UPDATE ". _DB_PREFIX_. "_session SET timestamp=". $intTimeStamp ." ".
+                "UPDATE {prefix}session SET timestamp=". $intTimeStamp ." ".
                 "WHERE id='". $strSesID ."';";
                 
-            $intRes = mysql_query($strQuery);
+            $intRes = mysql_query_check($strQuery);
             return TRUE;
         }
     }

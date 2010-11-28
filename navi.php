@@ -56,9 +56,9 @@ $strInvButton = '';
 $strFormName = '';
 if( $strFormSwitch ) {
     $strQuery = 
-        "SELECT id, name FROM ". _DB_PREFIX_. "_location ".
-        "WHERE name = '". $strFormSwitch. "'";
-    $intRes = mysql_query($strQuery);
+        "SELECT id, name FROM {prefix}location ".
+        "WHERE name = ?";
+    $intRes = mysql_param_query($strQuery, array($strFormSwitch));
     $intNRes = mysql_numrows($intRes);
     if( $intNRes ) {
         $intcategoryID = mysql_result($intRes, 0, "id");

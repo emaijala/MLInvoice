@@ -38,7 +38,7 @@ $strQuery =
     "SELECT * FROM ". _DB_PREFIX_. "_quicksearch ".
     "WHERE user_id = ". $GLOBALS['sesUSERID']. 
     " ORDER BY name";
-$intRes = mysql_query($strQuery);
+$intRes = mysql_query_check($strQuery);
 $intNumRows = mysql_num_rows($intRes);
 
 for( $i = 0; $i < $intNumRows; $i++ ) {
@@ -46,13 +46,13 @@ for( $i = 0; $i < $intNumRows; $i++ ) {
     $blnDelete = getPost("delete_". $intId. "_x", FALSE) ? TRUE : FALSE;
     if( $blnDelete && $intId ) {
         $strDelQuery =
-            "DELETE FROM " . _DB_PREFIX_. "_quicksearch ".
-            "WHERE id=". $intId ;
-        $intDelRes = @mysql_query($strDelQuery);
+            "DELETE FROM {prefix}quicksearch ".
+            "WHERE id=?";
+        $intDelRes = @mysql_param_query($strDelQuery, array($intId));
     }
 }
 
-$intRes = mysql_query($strQuery);
+$intRes = mysql_query_check($strQuery);
 $intNumRows = mysql_num_rows($intRes);
 
 echo htmlPageStart( _PAGE_TITLE_ );

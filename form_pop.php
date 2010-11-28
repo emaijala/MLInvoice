@@ -266,10 +266,10 @@ if( $intKeyValue ) {
             }
             elseif( $strControlType != 'LABEL' ) {
                 if( $strControlType == 'INTDATE' ) {
-                    $astrValues[$strControlName] =                         dateConvIntDate2Date( mysql_result( $intRes, 0, $strControlName ));
+                    $astrValues[$strControlName] = dateConvIntDate2Date( mysql_result( $intRes, 0, $strControlName ));
                 }
                 elseif( $strControlType == 'TIMESTAMP' ) {
-                        $astrValues[$strControlName] =                         date("d.m.Y H:i", mysql_result( $intRes, $i, $strControlName ));
+                        $astrValues[$strControlName] = date("d.m.Y H:i", mysql_result( $intRes, $i, $strControlName ));
                 }
                 
                 else { 

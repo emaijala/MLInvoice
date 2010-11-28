@@ -45,10 +45,10 @@ echo htmlPageStart( _PAGE_TITLE_ );
 <?php
 //invoices todo...
 $strQuery = 
-    "SELECT * FROM ". _DB_PREFIX_. "_invoice ".
+    "SELECT * FROM {prefix}invoice ".
     "WHERE state_id = 1 ".
     "ORDER BY invoice_date, name";
-$intRes = mysql_query($strQuery);
+$intRes = mysql_query_check($strQuery);
 $intNumRows = mysql_num_rows($intRes);
 if( $intNumRows ) {
 ?>
@@ -114,10 +114,10 @@ else {
 <?php
 //invoices todo...
 $strQuery = 
-    "SELECT * FROM ". _DB_PREFIX_. "_invoice ".
+    "SELECT * FROM {prefix}invoice ".
     "WHERE state_id = 2 or state_id = 5 or state_id = 6 ".
     "ORDER BY invoice_date, name";
-$intRes = mysql_query($strQuery);
+$intRes = mysql_query_check($strQuery);
 $intNumRows = mysql_num_rows($intRes);
 if( $intNumRows ) {
 ?>

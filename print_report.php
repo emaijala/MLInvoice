@@ -73,9 +73,9 @@ $strQuery =
 $strQuery2 = "";
 $strQuery3 = 
     "SELECT id, name ".
-    "FROM ". _DB_PREFIX_. "_invoice_state ".
+    "FROM {prefix}invoice_state ".
     "ORDER BY order_no";
-$intRes = mysql_query($strQuery3);
+$intRes = mysql_query_check($strQuery3);
 $intNumRows = mysql_numrows($intRes);
 for( $i = 0; $i < $intNumRows; $i++ ) {
     $intStateId = mysql_result($intRes, $i, "id");
@@ -109,7 +109,7 @@ if( $intStateID ) {
 */
 $strQuery .= "$strQuery2 ORDER BY invoice_no";
 
-$intRes = mysql_query($strQuery);
+$intRes = mysql_query_check($strQuery);
 $intNumRows = mysql_numrows($intRes);
 //echo $strQuery;
 ?>
@@ -163,7 +163,7 @@ if( $intNumRows ) {
             "FROM ". _DB_PREFIX_. "_invoice_row ".
             "INNER JOIN ". _DB_PREFIX_. "_row_type ON ". _DB_PREFIX_. "_row_type.id = ". _DB_PREFIX_. "_invoice_row.type_id ".
             "WHERE ". _DB_PREFIX_. "_invoice_row.invoice_id = ". $intInvoiceID;
-        $intRes2 = mysql_query($strQuery);
+        $intRes2 = mysql_query_check($strQuery);
         if( $intRes2 ) {
             $intRowSum = 0;
             $intRowVAT = 0;

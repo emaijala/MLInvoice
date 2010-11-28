@@ -52,7 +52,6 @@ require "list_switch.php";
 
 $strHiddenTerm = '';
 $strInnerJoin = '';
-$strWhereClause = '';
 $strHiddenWhere = '';
 $strAddWhere = ''; 
 if( $intCategoryID ) {
@@ -113,7 +112,7 @@ if( !$astrKeyValues ) {
         $strInnerJoin. $strWhereClause. $strHiddenWhere. $strAddWhere. 
         " ORDER BY $strOrderClause";
 
-    $intRes = mysql_query($strQuery);
+    $intRes = mysql_query_check($strQuery);
     if( $intRes ) {
         $intTotal = mysql_num_rows($intRes);
         for( $i = 0; $i < $intTotal; $i++ ) {
@@ -167,7 +166,7 @@ if( count($astrKeyValues) > 0 ) {
         "WHERE " . $strPrimaryKey . " IN (" . $strKeysIn . ") ".
         "ORDER BY " . $strOrderClause . ";";
     //echo $strQuery;
-    $intRes = mysql_query($strQuery);
+    $intRes = mysql_query_check($strQuery);
     if( $intRes ) {
         $intNRes = mysql_num_rows($intRes);
         for( $i = 0; $i < $intNRes; $i++ ) {

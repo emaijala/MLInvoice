@@ -77,9 +77,9 @@ case 'report':
     
     $strQuery = 
         "SELECT id, name ".
-        "FROM ". _DB_PREFIX_. "_invoice_state ".
+        "FROM {prefix}invoice_state ".
         "ORDER BY order_no";
-    $intRes = mysql_query($strQuery);
+    $intRes = mysql_query_check($strQuery);
     $intNumRows = mysql_numrows($intRes);
     for( $i = 0; $i < $intNumRows; $i++ ) {
         $intStateId = mysql_result($intRes, $i, "id");

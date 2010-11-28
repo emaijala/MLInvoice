@@ -48,25 +48,15 @@ echo htmlPageStart( _PAGE_TITLE_ );
 <script type="text/javascript">
 <!--
 function changeNavi( strLink ) {
-//    if( this.document.form_search.changed.value == 0 || confirm('All changes will be lost!\n\rOK to continue?') ) {
-        parent.f_navi.location.href = strLink;
-        //parent.frset_bottom.f_list.location.href = 'todo.php?ses=<?php echo $GLOBALS['sesID']?>';
-        //parent.frset_bottom.frset_main.f_main.location.href = 'blank.html';
-        //parent.frset_bottom.frset_main.f_funcs.location.href = 'blank.html';
-        //parent.frset_bottom.frset_main.f_funcs2.location.href = 'blank.html';
-//    }
-    
+    parent.f_navi.location.href = strLink;
     return true;
 }
-//changeNavi('<?php echo $strLink?>')
-//parent.frset_bottom.f_list.location.href = 'todo.php?ses=<?php echo $GLOBALS['sesID']?>';
 -->
 </script>
 <body class="navi">
 <form method="post" action="<?php echo $_SERVER["PHP_SELF"]?>?ses=<?php echo $GLOBALS['sesID']?>" target="_self" name="form_topnavi">
 <table>
 <?php
-//onLoad="parent.f_navi.location.href = '<=$strLink>';"
 for( $i = 0; $i < count($astrButtons); $i++ ) {
     $strButton = 
         "<a class=\"buttonlink\" href=\"#\" onClick=\"". $astrButtons[$i]["action"]. "(". $astrButtons[$i]["link"]. "); return false;\">". $GLOBALS[$astrButtons[$i]["title"]]. "</a>";

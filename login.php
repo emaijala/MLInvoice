@@ -37,6 +37,8 @@ $strPasswd = getPost('fpasswd', FALSE);
 $strMode = getPost('mode', 'normal');
 $blnSubmit = getPost('logon_alt', FALSE) ? TRUE : FALSE;
 
+$strMessage = 'Ole hyv&auml; ja sy&ouml;t&auml; tunnuksesi ja salasanasi ja kirjaudu klikkaamalla "Kirjaudu"-painiketta.';
+
 if( $blnSubmit ) {
     if( $strLogin && $strPasswd ) {
         if ( sesValidateUser( $strLogin, $strPasswd ) ) {
@@ -61,19 +63,15 @@ if( $blnSubmit ) {
             "<p>Ole hyv&auml; ja sy&ouml;t&auml; kaikki tiedot.<p>\n";
     }
 }
+
+
 echo htmlPageStart( _PAGE_TITLE_ );
-
 ?>
 
-<body class="form" onload="<?php echo $strOnLoad?>" style="margin: 30px;">
-
-<?php
-if( !$strMessage ) {
-?>
+<body class="form" style="margin: 30px;">
 
 <h1>Tervetuloa</h1>
-<p>
-Ole hyv&auml; ja sy&ouml;t&auml; tunnuksesi ja salasanasi ja kirjaudu klikkaamalla "Kirjaudu"-painiketta.
+<p><?php echo $strMessage?>
 </p>
 
 <form action="login.php" method="post" name="login_form">
@@ -83,13 +81,6 @@ Salasana <input class="medium" name="fpasswd" type="password" value=""><br><br>
 <input type="hidden" name="logon_alt" value="1">
 <input type="submit" name="logon" value="Kirjaudu">
 </form>
-<?php
-}
-
-else {
-    echo $strMessage;
-}
-?>
 
 <br/><br/>
 <?php echo $GLOBALS['locLICENSENOTIFY']?>
