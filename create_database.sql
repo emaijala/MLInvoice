@@ -225,7 +225,7 @@ INSERT INTO vllasku_invoice
   VALUES (1, 'Testi', 1, '100', 20101230, 20110113, NULL, '', 1, '', 1);
 
 INSERT INTO vllasku_invoice_row (id, invoice_id, description, type_id, pcs, price, row_date, vat, order_no) 
-  VALUES (1, 1, 'Testirivi 1', 3, 12.00, 150.00, 20060515, 22, 5);
+  VALUES (1, 1, 'Testirivi 1', 3, 12.00, 150.00, 20060515, 23, 5);
 
 INSERT INTO vllasku_session_type (id, name, order_no, time_out, access_level) VALUES (1, 'Käyttäjä', 1, 3600, 1);
 INSERT INTO vllasku_session_type (id, name, order_no, time_out, access_level) VALUES (2, 'Admin', 2, 3600, 99);
