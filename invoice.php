@@ -466,7 +466,6 @@ $pdf->SetXY($intStartX + 22, $intStartY + 35);
 $pdf->MultiCell(100, 4, $strBillingAddress,0,1);
 
 //underscript
-$intStartY = $intStartY + 5;
 $pdf->SetFont('Helvetica','',7);
 $pdf->SetXY($intStartX, $intStartY + 60);
 $pdf->Cell(19, 5, "Allekirjoitus", 0, 1, "R");
