@@ -35,17 +35,17 @@ $strWhereClause = getPostRequest('where', '');
 $intCategoryID = getPostRequest('category_id', '');
 $strSearchTerms = trim(getPost('searchterms', ''));
 $strKeyValues = getPost('key_values', '');
-$astrKeyValues = $strKeyValues ? explode(";", $strKeyValues) : NULL;
+$astrKeyValues = $strKeyValues ? explode("\t", $strKeyValues) : NULL;
 $intPage = getPost('page', 1);
 $blnPrevious = getPost('prev', FALSE) ? TRUE : FALSE;
 $blnNext = getPost('forw', FALSE) ? TRUE : FALSE;
 $intID = getRequest('id', FALSE);
 
 if( $blnPrevious ) {
-    $intPage -= 1;
+    --$intPage;
 }
 if( $blnNext ) {
-    $intPage += 1;
+    ++$intPage;
 }
 
 require "list_switch.php";
@@ -162,11 +162,11 @@ if( count($astrKeyValues) > 0 ) {
         $strOrderClause = substr($strOrderClause, 0, -2);
     }
     $strQuery =
-        "SELECT " . $strSelectClause . " FROM " . $strTable . " ".
-        "WHERE " . $strPrimaryKey . " IN (" . $strKeysIn . ") ".
-        "ORDER BY " . $strOrderClause . ";";
+        "SELECT $strSelectClause FROM $strTable ".
+        "WHERE $strPrimaryKey IN (?) ".
+        "ORDER BY $strOrderClause";
     //echo $strQuery;
-    $intRes = mysql_query_check($strQuery);
+    $intRes = mysql_param_query($strQuery, array($strKeysIn));
     if( $intRes ) {
         $intNRes = mysql_num_rows($intRes);
         for( $i = 0; $i < $intNRes; $i++ ) {
@@ -183,13 +183,13 @@ if( count($astrKeyValues) > 0 ) {
             }
         }
     }
-    $strKeyValues = implode( ";", $astrKeyValues );
+    $strKeyValues = implode("\t", $astrKeyValues);
 }
 if( $intTotal == 1 ) {
     $strCounter = "1 / 1";
 }
 else {
-    $strCounter = ($intStart + 1) . " - " . $intEnd . " / " . $intTotal;
+    $strCounter = ($intStart + 1) . " - $intEnd / $intTotal";
 }
 if( count($astrListValues) > 0 ) {
     //<input type="hidden" name="where" value="?=urlencode($strWhereClause)>">
