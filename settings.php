@@ -45,47 +45,49 @@ define('_DB_NAME_', 'vllasku');
 define ("_DB_PREFIX_", "vllasku");
 
 // Sivujen otsikko
-define ("_PAGE_TITLE_", "VLLasku 1.0");
+define ("_PAGE_TITLE_", "VLLasku");
 
 // http vai https - vaihda vain jos automaattinen valinta alla ei toimi
 define ('_PROTOCOL_', isset($_SERVER['HTTPS']) ? 'https://' : 'http://');
 //define ("_PROTOCOL_", "http://");
 
-//sekalaisia muuttujia:
+// Sekalaisia muuttujia:
 
-//n‰ytet‰‰nkˆ viivakoodi
+// N‰ytet‰‰nkˆ viivakoodi
 $showBarcode = TRUE; // TRUE = n‰ytet‰‰n tai FALSE = ei n‰ytet‰
 
-//n‰ytet‰‰nkˆ laskurivill‰ p‰iv‰m‰‰r‰ (pdf)
+// N‰ytet‰‰nkˆ laskurivill‰ p‰iv‰m‰‰r‰ (pdf)
 $showInvoiceRowDate = TRUE; // TRUE = n‰ytet‰‰n tai FALSE = ei n‰ytet‰
 
-//vasemman valikon rivim‰‰r‰
+// Vasemman valikon rivim‰‰r‰
 $leftNaviListRows = 40;
 
-//pdf laskupohjan rivim‰‰r‰ - kun ylittyy niin laskurivit tulostuvat erilliseen laskuerittelyy
-$invoicePdfRows = 15;
+// PDF-laskupohjan rivim‰‰r‰ - kun ylittyy niin laskurivit tulostuvat erilliseen laskuerittelyyn.
+// Normaalisti ei tarvitse muuttaa - erittely tehd‰‰n, jos rivit eiv‰t mahdu niille varattuun tilaan.
+$invoicePdfRows = 99;
 
-//maksupvm lasketaan n‰in monta p‰iv‰‰ tulevaisuuteen
+// Maksupvm lasketaan n‰in monta p‰iv‰‰ tulevaisuuteen
 $paymentDueDate = 14;
 
-//asetetaanko laskun numero automaattisesti uutta laskua teht‰ess‰
+// Asetetaanko laskun numero automaattisesti uutta laskua teht‰ess‰
 $addInvoiceNumber = TRUE; // TRUE = kyll‰ tai FALSE = ei
 
-//luodaanko viitenumero automaattisesti laskun numerosta uutta laskua teht‰ess‰
+// Luodaanko viitenumero automaattisesti laskun numerosta uutta laskua teht‰ess‰
 $addReferenceNumber = TRUE; // TRUE = kyll‰ tai FALSE = ei
 
-//oletus-alv
+// Oletus-alv
 $defaultVAT = 23;
 
-//maksuehdot
+// Maksuehdot
 $termsOfPayment = '14 pv netto';
 
-//huomautusaika
+// Huomautusaika
 $periodForComplaints = '7 p‰iv‰‰';
 
-//viiv‰styskorko
+// Viiv‰styskorko
 $penaltyInterest = '8 %';
+// Viiv‰styskorko numerona
 $penaltyInterestPercent = 8;
 
-//huomautusmaksu
+// Huomautusmaksu
 $notificationFee = 5;

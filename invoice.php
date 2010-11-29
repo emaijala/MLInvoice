@@ -23,39 +23,20 @@ Tämä ohjelma on vapaa. Lue oheinen LICENSE.
 
 *******************************************************************************/
 
-require "htmlfuncs.php";
-require "sqlfuncs.php";
-require "sessionfuncs.php";
+require_once "htmlfuncs.php";
+require_once "sqlfuncs.php";
+require_once "sessionfuncs.php";
 require_once "pdfbarcode128.php";
 
 $strSesID = sesVerifySession();
 
-require "localize.php";
+require_once "localize.php";
 if (!defined('FPDF_FONTPATH'))
   define('FPDF_FONTPATH','./font/');
-require_once "fpdf.php";
+require_once "pdf.php";
 
-require "datefuncs.php";
-require "miscfuncs.php";
-
-class PDF extends FPDF
-{
-  public $footerLeft = '', $footerCenter = '', $footerRight = '';
-
-  function Footer()
-  {
-    if ($this->PageNo() == 1)
-      return;
-    $this->SetY(-15);
-    $this->SetFont('Helvetica','',7);
-    $this->SetX(7);
-    $this->Cell(75, 5, $this->footerLeft, 0, 0, "L");
-    $this->SetX(75);
-    $this->Cell(75, 5, $this->footerCenter, 0, 0, "C");
-    $this->SetX(150);
-    $this->Cell(50, 5, $this->footerRight, 0, 0, "R");
-  }
-} 
+require_once "datefuncs.php";
+require_once "miscfuncs.php";
 
 $intInvoiceId = getRequest('id', FALSE);
 
@@ -281,7 +262,15 @@ $pdf->SetY($pdf->GetY()+5);
 $pdf->Line(5, $pdf->GetY(), 200, $pdf->GetY());
 $pdf->SetY($pdf->GetY()+5);
 
-if( $intNRes <= $invoicePdfRows ) {
+if( $showBarcode ) {
+    $intStartY = 190;
+}
+else {
+    $intStartY = 205;
+}
+$intMaxRowsY = $intStartY - 35;
+
+if( $intNRes <= $invoicePdfRows && !isset($boolSeparateStatement)) {
 
   //middle - invoicerows
   //invoiceinfo headers
@@ -304,6 +293,13 @@ if( $intNRes <= $invoicePdfRows ) {
   //rows
   $pdf->SetY($pdf->GetY()+5);
   for( $i = 0; $i < $intNRes; $i++ ) {
+      if ($pdf->GetY() > $intMaxRowsY)
+      {
+        $boolSeparateStatement = 1;
+        require 'invoice.php';
+        exit;
+      }
+  
       if( $astrRowPrice[$i] == 0 && $astrPieces[$i] == 0 ) {
           $pdf->SetX(7);
           $pdf->MultiCell(0, 5, $astrDescription[$i], 0, 'L');
@@ -331,8 +327,6 @@ if( $intNRes <= $invoicePdfRows ) {
           else {
               $pdf->MultiCell(80, 5, $astrDescription[$i], 0, 'L');
           }
-          
-          
       }
   }
   $pdf->SetFont('Helvetica','',10);
@@ -360,15 +354,6 @@ else {
     $pdf->MultiCell(180, 5, $GLOBALS['locSEESEPARATESTATEMENT'], 0, "L", 0);
 }
 
-if( $showBarcode ) {
-    $intStartY = 190;
-    $intStartYBorders = 195;
-}
-else {
-    $intStartY = 205;
-    $intStartYBorders = 210;
-}
-
 //bottom - paymentinfo
 $pdf->SetFont('Helvetica','',7);
 $pdf->SetXY(7, $intStartY);
@@ -380,7 +365,7 @@ $pdf->Cell(50, 5, $strWww, 0, 1, "R");
 
 
 //borders...
-$intStartY = $intStartYBorders;
+$intStartY = $intStartY + 5;
 $intStartX = 7;
 
 $intMaxX = 200;
@@ -481,7 +466,7 @@ $pdf->SetXY($intStartX + 22, $intStartY + 35);
 $pdf->MultiCell(100, 4, $strBillingAddress,0,1);
 
 //underscript
-$intStartY = $intStartYBorders;
+$intStartY = $intStartY + 5;
 $pdf->SetFont('Helvetica','',7);
 $pdf->SetXY($intStartX, $intStartY + 60);
 $pdf->Cell(19, 5, "Allekirjoitus", 0, 1, "R");
@@ -564,7 +549,7 @@ if( $showBarcode && $intTotSumVAT > 0) {
     //echo "<br><br>". $code_string;
 }
 
-if( $intNRes > $invoicePdfRows ) {
+if( $intNRes > $invoicePdfRows || isset($boolSeparateStatement)) {
     $pdf->AddPage();
     $pdf->SetAutoPageBreak(TRUE, 20);
   //middle - invoicerows
