@@ -43,9 +43,7 @@ if( $blnSubmit ) {
     if( $strLogin && $strPasswd ) {
         if ( sesValidateUser( $strLogin, $strPasswd ) ) {
             if( $strSesID = sesCreateSession() ) {
-                $strFrset = "frset.php";
-                
-                header("Location: ". _PROTOCOL_ . $_SERVER['HTTP_HOST'] . dirname($_SERVER['PHP_SELF']) . "/". $strFrset. "?ses=".$strSesID);
+                header("Location: ". _PROTOCOL_ . $_SERVER['HTTP_HOST'] . dirname($_SERVER['PHP_SELF']) . "/index.php?ses=$strSesID");
                 exit;
             }
             else {
@@ -68,7 +66,7 @@ if( $blnSubmit ) {
 echo htmlPageStart( _PAGE_TITLE_ );
 ?>
 
-<body class="form" style="margin: 30px;">
+<body style="margin: 30px;">
 
 <h1>Tervetuloa</h1>
 <p><?php echo $strMessage?>

@@ -30,8 +30,6 @@ require "miscfuncs.php";
 require "datefuncs.php";
 
 $strSesID = sesVerifySession();
-$intCategory_id = getRequest('catid', FALSE);
-
 
 require "localize.php";
 $strForm = getPostRequest('selectform', '');
@@ -49,11 +47,6 @@ if( $strSearchField !== FALSE ) {
     else {
         $strFields .= ",". $strSearchField;
     }
-}
-
-if($intCategory_id && $strFields === FALSE ) {
-    $strFields = "type_id";
-    $_POST[$strFields] = $intCategory_id;
 }
 
 if( $strFields !== FALSE ) {

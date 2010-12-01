@@ -38,8 +38,6 @@ require "miscfuncs.php";
 $intInvoiceId = getRequest('id', FALSE);
 $boolRefund = getRequest('refund', FALSE);
 
-echo htmlPageStart( _PAGE_TITLE_ );
-
 if ($intInvoiceId) 
 {
     if ($boolRefund)
@@ -69,18 +67,18 @@ if ($intInvoiceId)
     }
     
     $intDate = date("Ymd");
-    $intDueDate = date("Ymd",mktime(0, 0, 0, date("m"), date("d") + $paymentDueDate, date("Y")));
+    $intDueDate = date("Ymd",mktime(0, 0, 0, date("m"), date("d") + _PAYMENT_DAYS_, date("Y")));
     
     $intNewInvNo = 0;
     $intNewRefNo = 'NULL';
-    if ($addInvoiceNumber || $addReferenceNumber)     
+    if (_ADD_INVOICE_NUMBER_ || _ADD_REFERENCE_NUMBER_)     
     {
       $strQuery = "SELECT max(invoice_no) FROM {prefix}invoice";
       $intRes = mysql_query_check($strQuery);
       $intInvNo = mysql_result($intRes, 0, 0) + 1;
-      if ($addInvoiceNumber)
+      if (_ADD_INVOICE_NUMBER_)
         $intNewInvNo = $intInvNo;
-      if ($addReferenceNumber)
+      if (_ADD_REFERENCE_NUMBER_)
         $intNewRefNo = $intInvNo . miscCalcCheckNo($intInvNo);
     }
     
@@ -122,23 +120,6 @@ if ($intInvoiceId)
     }
 }
 
-$strLink = "form.php?ses=". $strSesID. "&selectform=invoice&id=". $intNewId. "&key_name=id&refresh_list=1";
+header("Location: ". _PROTOCOL_ . $_SERVER['HTTP_HOST'] . dirname($_SERVER['PHP_SELF']) . "/index.php?ses=$strSesID&func=invoices&form=invoice&id=$intNewId");
 
 ?>
-<script language="javascript">
-<!--
-function updateOpener() {
-    //alert('<?php echo $GLOBALS['locREMEMBER']?>');
-    window.opener.location.href='<?php echo $strLink?>';
-    self.close();
-    return 1;
-}
--->
-</script>
-
-<body class="navi" onload="updateOpener();">
-
-<?php echo $GLOBALS['locMAYCLOSE']?>
-
-</body>
-</html>

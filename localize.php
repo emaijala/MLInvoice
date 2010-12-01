@@ -166,6 +166,7 @@ default :
     $GLOBALS['locGENERAL'] = 'Yleistä';
     $GLOBALS['locSYSTEMONLY'] = 'Järjestelmän sisäinen - ei muokattavissa';
     $GLOBALS['locWRONGSTATEFORREMINDERFEED'] = 'Maksuja ei voida lisätä laskun nykyisessä tilassa.';
+    $GLOBALS['locRECORDDELETED'] = 'Tiedot on poistettu.';
     
     //FORM BUTTON HELPERS
     $GLOBALS['locSAVE'] = 'Tallenna';
@@ -203,12 +204,21 @@ default :
     $GLOBALS['locSHOWHELP'] = 'OHJE';
     
     //NAVIGATION & LIST
-    $GLOBALS['locINVOICESTATES'] = 'Laskustatukset';
+    $GLOBALS['locINVOICESTATES'] = 'Laskun tilat';
+    $GLOBALS['locINVOICESTATE'] = 'Laskun tila';
     $GLOBALS['locROWTYPES'] = 'Laskurivityypit';
+    $GLOBALS['locROWTYPE'] = 'Laskurivityyppi';
     $GLOBALS['locCOMPANYTYPES'] = 'Yritystyypit';
+    $GLOBALS['locCOMPANYTYPE'] = 'Yritystyyppi';
     $GLOBALS['locCOMPANIES'] = 'Asiakkaat';
+    $GLOBALS['locCOMPANY'] = 'Asiakas';
     $GLOBALS['locPRODUCTS'] = 'Tuotteet';
+    $GLOBALS['locPRODUCT'] = 'Tuote';
+    $GLOBALS['locOPENANDUNPAIDINVOICES'] = 'Avoimet ja maksamattomat laskut';
     $GLOBALS['locINVOICES'] = 'Laskut';
+    $GLOBALS['locINVOICE'] = 'Laskun tiedot';
+    $GLOBALS['locSETTINGS'] = 'Asetukset';
+    $GLOBALS['locSYSTEM'] = 'Järjestelmä';
     $GLOBALS['locSHOWPREVRES'] = 'Näytä edellinen tulosjoukko';
     $GLOBALS['locSHOWNEXTRES'] = 'Näytä seuraava tulosjoukko';
     $GLOBALS['locNOENTRIES'] = 'Hakuehdoilla ei löytynyt tietoja';
@@ -219,19 +229,35 @@ default :
     $GLOBALS['locSESSIONTYPES'] = 'Sessiotyypit';
     $GLOBALS['locUSERS'] = 'Käyttäjät';
     $GLOBALS['locLOGOUT'] = 'KIRJAUDU ULOS';
+    $GLOBALS['locBASES'] = 'Yritykset';
     $GLOBALS['locBASEINFO'] = 'Yrityksen perustiedot';
     $GLOBALS['locREPORTS'] = 'Raportit';
+    $GLOBALS['locREPORT'] = 'Raportti';
     $GLOBALS['locADDPAYMENT'] = 'Syötä maksetut';
     $GLOBALS['locCONFIRM'] = 'Vahvista';
     $GLOBALS['locPRINTINVOICE'] = 'Tulosta laskut';
     $GLOBALS['locEXTSEARCH'] = 'Laaja haku';
     $GLOBALS['locQUICKSEARCH'] = 'Pikahaku';
     $GLOBALS['locINVOICEREPORTS'] = 'Laskutusraportti'; 
+    
+    // LIST HEADERS
     $GLOBALS['locHEADERINVOICEDATE'] = 'Pvm';       
     $GLOBALS['locHEADERINVOICENO'] = 'Nro';       
     $GLOBALS['locHEADERINVOICENAME'] = 'Laskun nimi';       
     $GLOBALS['locHEADERINVOICEREFERENCE'] = 'Viitenro';       
-    
+    $GLOBALS['locHEADERINVOICESTATE'] = 'Tila';
+    $GLOBALS['locHEADERINVOICEBASE'] = 'Laskuttaja';
+    $GLOBALS['locHEADERINVOICECOMPANY'] = 'Maksaja';
+
+    // TABLE TEXTS
+    $GLOBALS['locTABLETEXTS'] = 
+			'"sLengthMenu": "_MENU_ per sivu",' .
+			'"sZeroRecords": "Ei löytyneitä",' .
+			'"sInfo": "_START_ - _END_ / _TOTAL_",' .
+			'"sInfoEmpty": "Ei näytettäviä tietueita",' .
+			'"sInfoFiltered": "(suodatettu _MAX_ tietueesta)",' .
+			'"sSearch": "Haku"';
+
     //GETINVOICE
     $GLOBALS['locREEMPLOYEE'] = 'Muista tallentaa!';
     $GLOBALS['locMAYCLOSE'] = 'Voit sulkea tämän ikkunan!';

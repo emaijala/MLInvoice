@@ -75,6 +75,20 @@ function mysql_param_query($query, $params=false, $noFail=false)
     { 
       if (is_null($v))
         $v = 'NULL';
+      elseif (is_array($v))
+      {
+        $t = '';
+        foreach ($v as $v2)
+        {
+          if ($t)
+            $t .= ',';
+          $v2 = mysql_real_escape_string($v2); 
+          if (!is_numeric($v2))
+            $v2 = "'$v2'";
+          $t .= $v2;
+        }
+        $v = $t;
+      }
       else
       {
         $v = mysql_real_escape_string($v); 

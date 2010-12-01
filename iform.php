@@ -76,6 +76,10 @@ for( $i = 0; $i < count($astrFormElements); $i++ ) {
             $tmpValue = str_replace(",", ".", getPost($astrFormElements[$i]['name'], ''));
             $astrValues[$astrFormElements[$i]['name']] = $tmpValue ? (float)$tmpValue : FALSE;
         }
+        elseif( $astrFormElements[$i]['type'] == "LIST" ) {
+            $tmpValue = getPost($astrFormElements[$i]['name'], '');
+            $astrValues[$astrFormElements[$i]['name']] = $tmpValue !== '' ? $tmpValue : NULL;
+        }
         else {
             $astrValues[$astrFormElements[$i]['name']] = getPost($astrFormElements[$i]['name'], FALSE);
         }

@@ -39,6 +39,8 @@ Tämä ohjelma on vapaa. Lue oheinen LICENSE.
  
 ***********************************************************************/
 
+$strSesID = $GLOBALS['sesID'];
+
 $strMonthListQuery = '';
 for( $i = 1; $i <= 12; $i++ ) {
     $strMonth = strlen($i) == 1 ? "0". $i : $i;
@@ -161,14 +163,14 @@ case 'invoice':
    
    $defaultInvNo = FALSE;
    $defaultRefNo = FALSE;
-   if ($addInvoiceNumber || $addReferenceNumber)
+   if (_ADD_INVOICE_NUMBER_ || _ADD_REFERENCE_NUMBER_)
    {
      $strQuery = "SELECT max(invoice_no) FROM {prefix}invoice";
      $intRes = mysql_query_check($strQuery);
      $intInvNo = mysql_result($intRes, 0, 0) + 1;
-     if ($addInvoiceNumber)
+     if (_ADD_INVOICE_NUMBER_)
        $defaultInvNo = $intInvNo;
-     if ($addReferenceNumber)
+     if (_ADD_REFERENCE_NUMBER_)
        $defaultRefNo = $intInvNo . miscCalcCheckNo($intInvNo);
    }
    
@@ -187,7 +189,7 @@ case 'invoice':
        $intRefundedInvoiceId = mysql_result($intRes, 0, "refunded_invoice_id");
        if ($intRefundedInvoiceId)
          $arrRefundedInvoice = array(
-           "name" => "get", "label" => sprintf($GLOBALS['locSHOWREFUNDEDINV']), "type" => "BUTTON", "style" => "medium", "listquery" => "'form.php?ses=$strSesID&selectform=invoice&id=$intRefundedInvoiceId', '_self'", "position" => 2, "default" => FALSE, "allow_null" => TRUE 
+           "name" => "get", "label" => sprintf($GLOBALS['locSHOWREFUNDEDINV']), "type" => "BUTTON", "style" => "medium", "listquery" => "'form.php?ses=$strSesID&amp;selectform=invoice&amp;id=$intRefundedInvoiceId', '_self'", "position" => 2, "default" => FALSE, "allow_null" => TRUE 
          );
      }
      $strQuery = 
@@ -200,7 +202,7 @@ case 'invoice':
        $intRefundingInvoiceId = $row['id'];
        if ($intRefundingInvoiceId)
          $arrRefundingInvoice = array(
-           "name" => "get", "label" => sprintf($GLOBALS['locSHOWREFUNDINGINV']), "type" => "BUTTON", "style" => "medium", "listquery" => "'form.php?ses=$strSesID&selectform=invoice&id=$intRefundingInvoiceId', '_self'", "position" => 2, "default" => FALSE, "allow_null" => TRUE 
+           "name" => "get", "label" => sprintf($GLOBALS['locSHOWREFUNDINGINV']), "type" => "BUTTON", "style" => "medium", "listquery" => "'form.php?ses=$strSesID&amp;selectform=invoice&amp;id=$intRefundingInvoiceId', '_self'", "position" => 2, "default" => FALSE, "allow_null" => TRUE 
          );
      }
    }
@@ -220,7 +222,7 @@ case 'invoice':
      array(
         "name" => "invoice_date", "label" => $GLOBALS['locINVDATE'], "type" => "INTDATE", "style" => "date", "listquery" => "", "position" => 1, "default" => "DATE_NOW", "allow_null" => FALSE ),
      array(
-        "name" => "due_date", "label" => $GLOBALS['locDUEDATE'], "type" => "INTDATE", "style" => "date", "listquery" => "", "position" => 2, "default" => "DATE_NOW+{$paymentDueDate}", "allow_null" => FALSE ),
+        "name" => "due_date", "label" => $GLOBALS['locDUEDATE'], "type" => "INTDATE", "style" => "date", "listquery" => "", "position" => 2, "default" => "DATE_NOW+{_PAYMENT_DAYS_}", "allow_null" => FALSE ),
      array(
         "name" => "invoice_no", "label" => $GLOBALS['locINVNO'], "type" => "INT", "style" => "medium", "listquery" => "", "position" => 1, "default" => $defaultInvNo, "allow_null" => TRUE ),
      array(
@@ -230,15 +232,15 @@ case 'invoice':
      array(
         "name" => "payment_date", "label" => $GLOBALS['locPAYDATE'], "type" => "INTDATE", "style" => "date", "listquery" => "", "position" => 2, "default" => NULL, "allow_null" => TRUE ),
      array(
-        "name" => "get", "label" => $GLOBALS['locGETINVNO'], "type" => "BUTTON", "style" => "medium", "listquery" => "'get_invoiceno.php?ses=$strSesID&type=comp&id=_ID_', '_new'", "position" => 1, "default" => FALSE, "allow_null" => TRUE ),
+        "name" => "get", "label" => $GLOBALS['locGETINVNO'], "type" => "BUTTON", "style" => "medium", "listquery" => "'get_invoiceno.php?ses=$strSesID&amp;id=_ID_', '_new'", "position" => 1, "default" => FALSE, "allow_null" => TRUE ),
      array(
-        "name" => "get", "label" => $GLOBALS['locPRINTINV'], "type" => "BUTTON", "style" => "medium", "listquery" => "'invoice.php?ses=$strSesID&type=comp&id=_ID_', '_self'", "position" => 2, "default" => FALSE, "allow_null" => TRUE ),
+        "name" => "get", "label" => $GLOBALS['locPRINTINV'], "type" => "BUTTON", "style" => "medium", "listquery" => "'invoice.php?ses=$strSesID&amp;id=_ID_', '_self'", "position" => 2, "default" => FALSE, "allow_null" => TRUE ),
      array(
-        "name" => "get", "label" => $GLOBALS['locCOPYINV'], "type" => "BUTTON", "style" => "medium", "listquery" => "'copy_invoice.php?ses=$strSesID&type=comp&id=_ID_', '_new'", "position" => 1, "default" => FALSE, "allow_null" => TRUE ),
+        "name" => "get", "label" => $GLOBALS['locCOPYINV'], "type" => "BUTTON", "style" => "medium", "listquery" => "'copy_invoice.php?ses=$strSesID&amp;id=_ID_', '_self'", "position" => 1, "default" => FALSE, "allow_null" => TRUE ),
      array(
-        "name" => "get", "label" => $GLOBALS['locADDREMINDERFEES'], "type" => "BUTTON", "style" => "medium", "listquery" => "'add_reminder_fees.php?ses=$strSesID&id=_ID_', '_self'", "position" => 2, "default" => FALSE, "allow_null" => TRUE ),
+        "name" => "get", "label" => $GLOBALS['locADDREMINDERFEES'], "type" => "BUTTON", "style" => "medium", "listquery" => "'add_reminder_fees.php?ses=$strSesID&amp;id=_ID_', '_self'", "position" => 2, "default" => FALSE, "allow_null" => TRUE ),
      array(
-        "name" => "get", "label" => $GLOBALS['locREFUNDINV'], "type" => "BUTTON", "style" => "medium", "listquery" => "'copy_invoice.php?ses=$strSesID&type=comp&id=_ID_&refund=1', '_self'", "position" => 2, "default" => FALSE, "allow_null" => TRUE ),
+        "name" => "get", "label" => $GLOBALS['locREFUNDINV'], "type" => "BUTTON", "style" => "medium", "listquery" => "'copy_invoice.php?ses=$strSesID&amp;id=_ID_&amp;refund=1', '_self'", "position" => 2, "default" => FALSE, "allow_null" => TRUE ),
      array(
         "name" => "invoice_rows", "label" => $GLOBALS['locINVROWS'], "type" => "IFORM", "style" => "xfull", "listquery" => "", "position" => 0, "default" => FALSE, "allow_null" => TRUE, "parent_key" => "invoice_id" )
     );
@@ -254,7 +256,7 @@ case 'invoice_rows':
    $strDescription = '';
    $intTypeId = 'POST';
    $intPrice = 'POST';
-   $intVAT = $defaultVAT;
+   $intVAT = _DEFAULT_VAT_;
    $intVATIncluded = 0;
    if ($intProductId)
    {
@@ -440,8 +442,6 @@ case 'users':
             "name" => "login", "label" => $GLOBALS['locLOGONNAME'], "type" => "TEXT", "style" => "medium", "listquery" => "", "position" => 1, "default" => FALSE, "allow_null" => FALSE ),
             array(
             "name" => "passwd", "label" => $GLOBALS['locPASSWD'], "type" => "PASSWD", "style" => "medium", "listquery" => "", "position" => 2, "default" => FALSE, "allow_null" => TRUE ),
-            /*array(
-            "name" => "get", "label" => $GLOBALS['locGENPASSWD'], "type" => "BUTTON", "style" => "full", "listquery" => "'passwd.php?ses=".$strSesID."&type=pers&id=_ID_', target='_blank'", "position" => 2, "default" => FALSE, "allow_null" => TRUE ),*/
             array(
             "name" => "type_id", "label" => $GLOBALS['locTYPE'], "type" => "LIST", "style" => "medium", "listquery" => "SELECT id, name FROM ". _DB_PREFIX_. "_session_type ORDER BY order_no", "position" => 0, "default" => FALSE, "allow_null" => FALSE )
     );

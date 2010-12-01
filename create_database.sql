@@ -166,6 +166,17 @@ CREATE TABLE vllasku_session (
   FOREIGN KEY (user_id) REFERENCES vllasku_users(id)
 ) ENGINE=INNODB;
 
+CREATE TABLE vllasku_session_history (
+  id int(11) NOT NULL auto_increment,
+  session_id varchar(100) NOT NULL,
+  timestamp int(11) default NULL,
+  title varchar(100) default NULL,
+  url varchar(4096) default NULL,
+  level int(11) default NULL,
+  PRIMARY KEY (id),
+  FOREIGN KEY (session_id) REFERENCES vllasku_session(id) ON DELETE CASCADE
+) ENGINE=INNODB;
+
 CREATE TABLE vllasku_quicksearch (
   id int(11) NOT NULL auto_increment,
   user_id int(11) NOT NULL,

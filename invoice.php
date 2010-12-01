@@ -223,13 +223,13 @@ $pdf->Cell(40, 5, $GLOBALS['locPDFDUEDATE'] .": ", 0, 0, 'R');
 $pdf->Cell(60, 5, $strDueDate, 0, 1);
 $pdf->SetX(115);
 $pdf->Cell(40, 5, $GLOBALS['locTERMSOFPAYMENT'] .": ", 0, 0, 'R');
-$pdf->Cell(60, 5, $termsOfPayment, 0, 1);
+$pdf->Cell(60, 5, _TERMS_OF_PAYMENT_, 0, 1);
 $pdf->SetX(115);
 $pdf->Cell(40, 5, $GLOBALS['locPERIODFORCOMPLAINTS'] .": ", 0, 0, 'R');
-$pdf->Cell(60, 5, $periodForComplaints, 0, 1);
+$pdf->Cell(60, 5, _PERIOD_FOR_COMPLAINTS_, 0, 1);
 $pdf->SetX(115);
 $pdf->Cell(40, 5, $GLOBALS['locPENALTYINTEREST'] .": ", 0, 0, 'R');
-$pdf->Cell(60, 5, $penaltyInterest, 0, 1);
+$pdf->Cell(60, 5, _PENALTY_INTEREST_, 0, 1);
 $pdf->SetX(115);
 $pdf->Cell(40, 5, $GLOBALS['locPDFINVREFNO'] .": ", 0, 0, 'R');
 $pdf->Cell(60, 5, $strRefNumber, 0, 1);
@@ -262,7 +262,7 @@ $pdf->SetY($pdf->GetY()+5);
 $pdf->Line(5, $pdf->GetY(), 200, $pdf->GetY());
 $pdf->SetY($pdf->GetY()+5);
 
-if( $showBarcode ) {
+if( _SHOW_BARCODE_ ) {
     $intStartY = 190;
 }
 else {
@@ -270,12 +270,12 @@ else {
 }
 $intMaxRowsY = $intStartY - 35;
 
-if( $intNRes <= $invoicePdfRows && !isset($boolSeparateStatement)) {
+if( $intNRes <= _INVOICE_PDF_ROWS_ && !isset($boolSeparateStatement)) {
 
   //middle - invoicerows
   //invoiceinfo headers
   $pdf->SetXY(7,$pdf->GetY());
-  if( $showInvoiceRowDate ) {
+  if( _SHOW_INVOICE_ROW_DATE_ ) {
       $pdf->Cell(60, 5, $GLOBALS['locROWNAME'], 0, 0, "L");
       $pdf->Cell(20, 5, $GLOBALS['locDATE'], 0, 0, "L");
   }
@@ -306,7 +306,7 @@ if( $intNRes <= $invoicePdfRows && !isset($boolSeparateStatement)) {
       }
       else {
           //$pdf->SetY($pdf->GetY()+5);
-          if( $showInvoiceRowDate ) {
+          if( _SHOW_INVOICE_ROW_DATE_ ) {
               $pdf->SetX(67);
               $pdf->Cell(20, 5, $astrRowDate[$i], 0, 0, "L");
           }
@@ -321,7 +321,7 @@ if( $intNRes <= $invoicePdfRows && !isset($boolSeparateStatement)) {
           $pdf->Cell(15, 5, miscRound2Decim($intRowVAT[$i]), 0, 0, "R");
           $pdf->Cell(20, 5, miscRound2Decim($intRowSumVAT[$i]), 0, 0, "R");
           $pdf->SetX(7);
-          if( $showInvoiceRowDate ) {
+          if( _SHOW_INVOICE_ROW_DATE_ ) {
               $pdf->MultiCell(60, 5, $astrDescription[$i], 0, 'L');
           }
           else {
@@ -371,7 +371,7 @@ $intStartX = 7;
 $intMaxX = 200;
 //1. hor.line - full width
 $pdf->SetLineWidth(0.13);
-$pdf->Line($intStartX, $intStartY - 1, $intMaxX, $intStartY - 1);
+$pdf->Line($intStartX, $intStartY - 0.5, $intMaxX, $intStartY - 0.5);
 $pdf->SetLineWidth(0.50);
 //2. hor.line - full width
 $pdf->Line($intStartX, $intStartY+16, $intMaxX, $intStartY+16);
@@ -527,7 +527,7 @@ $pdf->Cell(40, 5, miscRound2Decim($intTotSumVAT), 0, 1, "R");
 4 	Zero padding
 1 	Check code 1
 */
-if( $showBarcode && $intTotSumVAT > 0) {
+if( _SHOW_BARCODE_ && $intTotSumVAT > 0) {
     $tmpAccount = str_replace("-", str_repeat('0', 14 -(strlen($strBankAccount1)-1)),$strBankAccount1);
     $tmpSum = str_replace(",", "", miscRound2Decim($intTotSumVAT));
     $tmpSum = str_repeat('0', 8 - strlen($tmpSum)). $tmpSum;
@@ -548,7 +548,7 @@ if( $showBarcode && $intTotSumVAT > 0) {
     //echo "<br><br>". $code_string;
 }
 
-if( $intNRes > $invoicePdfRows || isset($boolSeparateStatement)) {
+if( $intNRes > _INVOICE_PDF_ROWS_ || isset($boolSeparateStatement)) {
     $pdf->AddPage();
     $pdf->SetAutoPageBreak(TRUE, 20);
   //middle - invoicerows
@@ -561,7 +561,7 @@ if( $intNRes > $invoicePdfRows || isset($boolSeparateStatement)) {
   $pdf->SetFont('Helvetica','',10);
   $pdf->Cell(80, 5, "Laskunro: $strInvoiceNo", 0, 1, "L");
   $pdf->SetXY(7, $pdf->GetY()+10);
-  if( $showInvoiceRowDate ) {
+  if( _SHOW_INVOICE_ROW_DATE_ ) {
       $pdf->Cell(60, 5, $GLOBALS['locROWNAME'], 0, 0, "L");
       $pdf->Cell(20, 5, $GLOBALS['locDATE'], 0, 0, "L");
   }
@@ -585,7 +585,7 @@ if( $intNRes > $invoicePdfRows || isset($boolSeparateStatement)) {
       }
       else {
           //$pdf->SetY($pdf->GetY()+5);
-          if( $showInvoiceRowDate ) {
+          if( _SHOW_INVOICE_ROW_DATE_ ) {
               $pdf->SetX(67);
               $pdf->Cell(20, 5, $astrRowDate[$i], 0, 0, "L");
           }
@@ -600,7 +600,7 @@ if( $intNRes > $invoicePdfRows || isset($boolSeparateStatement)) {
           $pdf->Cell(15, 5, miscRound2Decim($intRowVAT[$i]), 0, 0, "R");
           $pdf->Cell(20, 5, miscRound2Decim($intRowSumVAT[$i]), 0, 0, "R");
           $pdf->SetX(7);
-          if( $showInvoiceRowDate ) {
+          if( _SHOW_INVOICE_ROW_DATE_ ) {
               $pdf->MultiCell(60, 5, $astrDescription[$i], 0, 'L');
           }
           else {

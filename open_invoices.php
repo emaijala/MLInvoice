@@ -23,159 +23,48 @@ Tämä ohjelma on vapaa. Lue oheinen LICENSE.
 
 *******************************************************************************/
 
-require "htmlfuncs.php";
-require "sqlfuncs.php";
-require "sessionfuncs.php";
-require "miscfuncs.php";
-require "datefuncs.php";
+require_once "htmlfuncs.php";
+require_once "sqlfuncs.php";
+require_once "miscfuncs.php";
+require_once "datefuncs.php";
+require_once "localize.php";
 
-$strSesID = sesVerifySession();
-
-
-require "localize.php";
-
-echo htmlPageStart( _PAGE_TITLE_ );
-
-?>
-<body class="list">
-
-<h2><?php echo $GLOBALS['locLABELOPENINVOICES']?></h2>
-
-<table class="list">
-<?php
-//invoices todo...
-$strQuery = 
-    "SELECT * FROM {prefix}invoice ".
-    "WHERE state_id = 1 ".
-    "ORDER BY invoice_date, name";
-$intRes = mysql_query_check($strQuery);
-$intNumRows = mysql_num_rows($intRes);
-if( $intNumRows ) {
-?>
-<tr>
-    <th class="label">
-        <?php echo $GLOBALS['locHEADERINVOICEDATE']?>&nbsp;
-    </th>
-    <th class="label">
-        <?php echo $GLOBALS['locHEADERINVOICENO']?>&nbsp;
-    </th>
-    <th class="label">
-        <?php echo $GLOBALS['locHEADERINVOICENAME']?>&nbsp;
-    </th>
-    <th class="label">
-        <?php echo $GLOBALS['locHEADERINVOICEREFERENCE']?>&nbsp;
-    </th>
-</tr>
-<?php
+function createOpenInvoiceList()
+{
+  $strQuery = 
+      "SELECT id FROM {prefix}invoice ".
+      "WHERE state_id = 1 ".
+      "ORDER BY invoice_date, name";
+  $intRes = mysql_query_check($strQuery);
+  $intNumRows = mysql_num_rows($intRes);
+  if( $intNumRows ) {
+    $astrKeyValues = array();
     for( $i = 0; $i < $intNumRows; $i++ ) {
-        $intID = mysql_result($intRes, $i, "id");
-        $strDate = dateConvIntDate2Date(mysql_result($intRes, $i, "invoice_date"));
-        $strLabel = mysql_result($intRes, $i, "name");
-        $strInvNo = mysql_result($intRes, $i, "invoice_no");
-        $strReference = mysql_result($intRes, $i, "ref_number");
-        $strLink = 
-            "form.php?ses=". $GLOBALS['sesID']. "&selectform=invoice&key_name=id&id=". $intID;
-?>
-
-<tr class="listrow">
-    <td class="label">
-        <a class="navilink" href="<?php echo $strLink?>" target="f_main"><?php echo $strDate?>&nbsp;&nbsp;</a> 
-    </td>
-    <td class="label">
-        <a class="navilink" href="<?php echo $strLink?>" target="f_main"><?php echo $strInvNo?>&nbsp;&nbsp;</a> 
-    </td>
-    <td class="label">
-        <a class="navilink" href="<?php echo $strLink?>" target="f_main"><?php echo $strLabel?>&nbsp;&nbsp;</a> 
-    </td>
-    <td class="label">
-        <a class="navilink" href="<?php echo $strLink?>" target="f_main"><?php echo $strReference?></a> 
-    </td>
-</tr>
-
-<?php
+        $astrKeyValues[$i] = mysql_result($intRes, $i, 0);
     }
-}
-else {
-?>
-<tr>
-    <td class="label">
-        <?php echo $GLOBALS['locNOOPENINVOICES']?> 
-    </td>
-</tr>
-<?php
-}
+    require_once 'list.php';
+    createHtmlList('invoices', 'invoices', $astrKeyValues, $intNumRows, $GLOBALS['locLABELOPENINVOICES']);
+  }
+  else {
+    echo '<b>' . $GLOBALS['locNOOPENINVOICES'] . "</b>\n";
+  }
 
-?>
-</table>
-
-<h2><?php echo $GLOBALS['locLABELUNPAIDINVOICES']?></h2>
-
-<table class="list">
-<?php
-//invoices todo...
-$strQuery = 
-    "SELECT * FROM {prefix}invoice ".
-    "WHERE state_id = 2 or state_id = 5 or state_id = 6 ".
-    "ORDER BY invoice_date, name";
-$intRes = mysql_query_check($strQuery);
-$intNumRows = mysql_num_rows($intRes);
-if( $intNumRows ) {
-?>
-<tr>
-    <th class="label">
-        <?php echo $GLOBALS['locHEADERINVOICEDATE']?>&nbsp;
-    </th>
-    <th class="label">
-        <?php echo $GLOBALS['locHEADERINVOICENO']?>&nbsp;
-    </th>
-    <th class="label">
-        <?php echo $GLOBALS['locHEADERINVOICENAME']?>&nbsp;
-    </th>
-    <th class="label">
-        <?php echo $GLOBALS['locHEADERINVOICEREFERENCE']?>&nbsp;
-    </th>
-</tr>
-<?php
+  $strQuery = 
+      "SELECT id FROM {prefix}invoice ".
+      "WHERE state_id = 2 or state_id = 5 or state_id = 6 ".
+      "ORDER BY invoice_date, name";
+  $intRes = mysql_query_check($strQuery);
+  $intNumRows = mysql_num_rows($intRes);
+  if( $intNumRows ) {
+    $astrKeyValues = array();
     for( $i = 0; $i < $intNumRows; $i++ ) {
-        $intID = mysql_result($intRes, $i, "id");
-        $strDate = dateConvIntDate2Date(mysql_result($intRes, $i, "invoice_date"));
-        $strLabel = mysql_result($intRes, $i, "name");
-        $strInvNo = mysql_result($intRes, $i, "invoice_no");
-        $strReference = mysql_result($intRes, $i, "ref_number");
-        $strLink = 
-            "form.php?ses=". $GLOBALS['sesID']. "&selectform=invoice&key_name=id&id=". $intID;
-?>
-
-<tr class="listrow">
-    <td class="label">
-        <a class="navilink" href="<?php echo $strLink?>" target="f_main"><?php echo $strDate?>&nbsp;&nbsp;</a> 
-    </td>
-    <td class="label">
-        <a class="navilink" href="<?php echo $strLink?>" target="f_main"><?php echo $strInvNo?>&nbsp;&nbsp;</a> 
-    </td>
-    <td class="label">
-        <a class="navilink" href="<?php echo $strLink?>" target="f_main"><?php echo $strLabel?>&nbsp;&nbsp;</a> 
-    </td>
-    <td class="label">
-        <a class="navilink" href="<?php echo $strLink?>" target="f_main"><?php echo $strReference?></a> 
-    </td>
-</tr>
-
-<?php
+        $astrKeyValues[$i] = mysql_result($intRes, $i, 0);
     }
+    require_once 'list.php';
+    createHtmlList('invoices', 'invoices', $astrKeyValues, $intNumRows, $GLOBALS['locLABELUNPAIDINVOICES']);
+  }
+  else {
+    echo '<b>' . $GLOBALS['locLABELUNPAIDINVOICES'] . ":</b><br><br>\n";
+    echo '<b>' . $GLOBALS['locNOUNPAIDINVOICES'] . "</b>\n";
+  }
 }
-else {
-?>
-<tr>
-    <td class="label">
-        <?php echo $GLOBALS['locNOUNPAIDINVOICES']?> 
-    </td>
-</tr>
-<?php
-}
-
-?>
-</table>
-
-</body>
-</html>

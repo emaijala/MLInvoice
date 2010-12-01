@@ -65,45 +65,23 @@ Return : $strHtmlStart (string): page startpart
 Todo : This could be more generic...
 ********************************************************************/
 
-    $strHtmlStart = 
-        "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.01 Transitional//EN\">\n".
-        "<html>\n".
-        "<head>\n".
-        "<meta http-equiv=\"Content-Type\" content=\"text/html; charset=ISO-8859-15\">\n\t".
-        "<title>".$strTitle."</title>\n\t".
-        "<link rel=\"stylesheet\" type=\"text/css\" href=\"style.css\" title=\"DullGrey\">\n\t".
-        "<link rel=\"shortcut icon\" href=\"favicon.ico\" type=\"image/x-icon\">\n".
-        "</head>\n";
+    $strHtmlStart = <<<EOT
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-15">
+  <title>$strTitle</title>
+  <link rel="shortcut icon" href="favicon.ico" type="image/x-icon">
+  <link rel="stylesheet" type="text/css" href="css/style.css">
+  <script type="text/javascript" src="jquery/js/jquery-1.4.2.min.js"></script>
+  <script type="text/javascript" src="jquery/js/jquery-ui-1.8.1.custom.min.js"></script>
+  <script type="text/javascript" src="datatables/media/js/jquery.dataTables.js"></script>
+</head>
+
+EOT;
 
     return $strHtmlStart;
 }
-
-function htmlFrameSetStart( $strTitle ) {
-/********************************************************************
-Function : htmlFrameSetStart
-    create Html-framesetstart
-
-Args : 
-    $strTitle (string): pages title
-    
-Return : $strHtmlStart (string): page startpart
-
-Todo : This could be more generic...
-********************************************************************/
-
-    $strHtmlStart = 
-        "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.01 Frameset//EN\">\n".
-        "<html>\n".
-        "<head>\n".
-        "<title>".$strTitle."</title>\n\t".
-        "<meta http-equiv=\"Content-Type\" content=\"text/html; charset=ISO-8859-15\">\n\t".
-        "<link rel=\"stylesheet\" type=\"text/css\" href=\"style.css\" title=\"DullGrey\">\n\t".
-        "<link rel=\"shortcut icon\" href=\"favicon.ico\" type=\"image/x-icon\">\n".
-        "</head>\n";
-
-    return $strHtmlStart;
-}
-
 
 function htmlListBox( $strName, $astrValues, $astrOptions, $strSelected, $strStyle = "", $blnOnChange = FALSE, $blnShowEmpty = TRUE, $astrAdditionalAttributes = '') {
 /********************************************************************

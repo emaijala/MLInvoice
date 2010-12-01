@@ -54,40 +54,40 @@ define ('_PROTOCOL_', isset($_SERVER['HTTPS']) ? 'https://' : 'http://');
 // Sekalaisia muuttujia:
 
 // N‰ytet‰‰nkˆ viivakoodi
-$showBarcode = TRUE; // TRUE = n‰ytet‰‰n tai FALSE = ei n‰ytet‰
+define ('_SHOW_BARCODE_', TRUE); // TRUE = n‰ytet‰‰n tai FALSE = ei n‰ytet‰
 
 // N‰ytet‰‰nkˆ laskurivill‰ p‰iv‰m‰‰r‰ (pdf)
-$showInvoiceRowDate = TRUE; // TRUE = n‰ytet‰‰n tai FALSE = ei n‰ytet‰
+define ('_SHOW_INVOICE_ROW_DATE_', TRUE); // TRUE = n‰ytet‰‰n tai FALSE = ei n‰ytet‰
 
-// Vasemman valikon rivim‰‰r‰
-$leftNaviListRows = 40;
+// listojen rivim‰‰r‰
+define ('_NAVI_LIST_ROWS_', 0); 
 
 // PDF-laskupohjan rivim‰‰r‰ - kun ylittyy niin laskurivit tulostuvat erilliseen laskuerittelyyn.
 // Normaalisti ei tarvitse muuttaa - erittely tehd‰‰n, jos rivit eiv‰t mahdu niille varattuun tilaan.
-$invoicePdfRows = 99;
+define ('_INVOICE_PDF_ROWS_', 99); 
 
 // Maksupvm lasketaan n‰in monta p‰iv‰‰ tulevaisuuteen
-$paymentDueDate = 14;
+define ('_PAYMENT_DAYS_', 14); 
 
 // Asetetaanko laskun numero automaattisesti uutta laskua teht‰ess‰
-$addInvoiceNumber = TRUE; // TRUE = kyll‰ tai FALSE = ei
+define ('_ADD_INVOICE_NUMBER_', TRUE); // TRUE = kyll‰ tai FALSE = ei
 
 // Luodaanko viitenumero automaattisesti laskun numerosta uutta laskua teht‰ess‰
-$addReferenceNumber = TRUE; // TRUE = kyll‰ tai FALSE = ei
+define ('_ADD_REFERENCE_NUMBER_', TRUE); // TRUE = kyll‰ tai FALSE = ei
 
 // Oletus-alv
-$defaultVAT = 23;
+define ('_DEFAULT_VAT_', 23);
 
 // Maksuehdot
-$termsOfPayment = '14 pv netto';
+define ('_TERMS_OF_PAYMENT_', '14 pv netto'); 
 
 // Huomautusaika
-$periodForComplaints = '7 p‰iv‰‰';
+define ('_PERIOD_FOR_COMPLAINTS_', '7 p‰iv‰‰'); 
 
 // Viiv‰styskorko
-$penaltyInterest = '8 %';
+define ('_PENALTY_INTEREST_', '8 %');
 // Viiv‰styskorko numerona
-$penaltyInterestPercent = 8;
+define ('_PENALTY_INTEREST_PERCENT_', 8);
 
 // Huomautusmaksu
-$notificationFee = 5;
+define ('_NOTIFICATION_FEE_', 5); 

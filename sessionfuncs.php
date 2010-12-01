@@ -100,13 +100,21 @@ Todo :
     $strQuery = 
         'INSERT INTO {prefix}session(id, ip, timestamp, timeout, type_id, user_id, access_level) '.
         "VALUES(?, ?, ?, ?, ?, ?, ?)";
-    $intRes = mysql_param_query($strQuery, array($strSesID, $strIP, $intTimeStamp, $GLOBALS['sesTIMEOUT'], $GLOBALS['sesTYPEID'], 
+    mysql_param_query($strQuery, array($strSesID, $strIP, $intTimeStamp, $GLOBALS['sesTIMEOUT'], $GLOBALS['sesTYPEID'], 
         $GLOBALS['sesUSERID'], $GLOBALS['sesACCESSLEVEL']));
-    if( $intRes ) {        
-        return $strSesID;
-    }
-    
-    return FALSE;
+
+    // cleanup old sessions
+    $intTimeStamp = time();
+    $strQuery = 
+        "DELETE FROM {prefix}session_history ".
+        "WHERE session_id in (select s.id from {prefix}session s where ?-s.timestamp > s.timeout)";
+    mysql_param_query($strQuery, array($intTimeStamp));
+    $strQuery = 
+        "DELETE FROM {prefix}session ".
+        "WHERE ?-timestamp > timeout";
+    mysql_param_query($strQuery, array($intTimeStamp));
+        
+    return $strSesID;
 }
 function sesEndSession($strSesID) {
 /********************************************************************
@@ -121,9 +129,11 @@ Return : TRUE
 Todo : 
 ********************************************************************/
 
-    $strQuery = 
-        "DELETE FROM {prefix}session where id=?";
-    $intRes = mysql_param_query($strQuery, array($strSesID));
+    $strQuery = "DELETE FROM {prefix}session_history where session_id=?";
+    mysql_param_query($strQuery, array($strSesID));
+
+    $strQuery = "DELETE FROM {prefix}session where id=?";
+    mysql_param_query($strQuery, array($strSesID));
 
     return TRUE;
 }
@@ -173,11 +183,7 @@ Todo :
             return TRUE;
         }
     }
-    /*kun https
-    header("Location: https://" . $_SERVER['HTTP_HOST'] . dirname($_SERVER['PHP_SELF']) . "/redirect.html");
-    */
-    
-    header("Location: ". _PROTOCOL_ . $_SERVER['HTTP_HOST'] . dirname($_SERVER['PHP_SELF']) . "/redirect.html");
+    header("Location: ". _PROTOCOL_ . $_SERVER['HTTP_HOST'] . dirname($_SERVER['PHP_SELF']) . "/denied.html");
     return FALSE;
 }
 
@@ -187,6 +193,44 @@ function sesVerifySession()
   if (!sesCheckSession($strSes))
     die;
   return $strSes;
+}
+
+function sesUpdateHistory($strSesID, $title, $url, $level)
+{
+ /* $boolReset = TRUE;
+  foreach ($_GET as $key=>$value)
+  {
+    if ($key != 'ses' && $key != 'func')
+    {
+      $boolReset = FALSE;
+      break;
+    }
+  }
+  if ($boolReset)
+  {
+    $strQuery = 'DELETE FROM {prefix}session_history where session_id=?';
+    mysql_param_query($strQuery, array($strSesID));    
+  }
+  else*/
+  {
+    $strQuery = 'DELETE FROM {prefix}session_history where session_id=? AND level>=?';
+    mysql_param_query($strQuery, array($strSesID, $level));    
+  }
+  $strQuery = 'INSERT INTO {prefix}session_history (session_id, timestamp, title, url, level) value (?, ?, ?, ?, ?)';
+  mysql_param_query($strQuery, array($strSesID, time(), $title, $url, $level));    
+  
+/*  if ($boolReset)
+  {
+    return array(array('title' => $title, 'url' => $url));
+  }*/
+  $arrHistory = array();
+  $strQuery = 'SELECT title, url FROM {prefix}session_history WHERE session_id=? ORDER BY timestamp';
+  $intRes = mysql_param_query($strQuery, array($strSesID));
+  while ($row = mysql_fetch_assoc($intRes))
+  {
+    $arrHistory[] = $row;
+  }
+  return $arrHistory;
 }
 
 ?>

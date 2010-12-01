@@ -23,9 +23,9 @@ Tämä ohjelma on vapaa. Lue oheinen LICENSE.
 
 *******************************************************************************/
 
-switch ( $strForm ) {
+switch ( $strList ) {
 
-case 'company':
+case 'companies':
    $strTable = _DB_PREFIX_. "_company";
    $astrSearchFields = 
     array( 
@@ -36,14 +36,14 @@ case 'company':
    $strPrimaryKey = "id";
    $astrShowFields = 
     array( 
-        array("name" => "company_name", "type" => "TEXT", "header" => $GLOBALS['locCOMPNAME']),
-        array("name" => "company_id", "type" => "TEXT", "header" => $GLOBALS['locCOMPVATID'])
+        array("name" => "company_name", 'width' => 150, "type" => "TEXT", "header" => $GLOBALS['locCOMPNAME']),
+        array("name" => "company_id", 'width' => 100, "type" => "TEXT", "header" => $GLOBALS['locCOMPVATID'])
     );
-   $strMainForm = "form.php?ses=".$GLOBALS['sesID']."&selectform=company";
+   $strMainForm = "company";
    $strTitle = $GLOBALS['locCOMPANIES'];
 break;
 
-case 'product':
+case 'products':
    $strTable = _DB_PREFIX_. "_product";
    $astrSearchFields = 
     array( 
@@ -54,30 +54,36 @@ case 'product':
    $strPrimaryKey = "id";
    $astrShowFields = 
     array( 
-        array("name" => "product_name", "type" => "TEXT", "header" => $GLOBALS['locPRODUCTNAME']),
-        array("name" => "unit_price", "type" => "TEXT", "header" => $GLOBALS['locUNITPRICE'])
+        array("name" => "product_name", 'width' => 150, "type" => "TEXT", "header" => $GLOBALS['locPRODUCTNAME']),
+        array("name" => "unit_price", 'width' => 100, "type" => "TEXT", "header" => $GLOBALS['locUNITPRICE'])
     );
-   $strMainForm = "form.php?ses=".$GLOBALS['sesID']."&selectform=product";
+   $strMainForm = "product";
    $strTitle = $GLOBALS['locPRODUCTS'];
 break;
 
-case 'invoice':
-   $strTable = _DB_PREFIX_. "_invoice";
+case 'invoices':
+   $strTable = '{prefix}invoice i ' .
+     'LEFT OUTER JOIN {prefix}base b on i.base_id=b.id ' .
+     'LEFT OUTER JOIN {prefix}company c on i.company_id=c.id ' .
+     'LEFT OUTER JOIN {prefix}invoice_state s on i.state_id=s.id';
    $astrSearchFields = 
     array(
-        array("name" => "invoice_no", "type" => "TEXT"),
-        array("name" => "ref_number", "type" => "TEXT"),
-        array("name" => "name", "type" => "TEXT")
+        array("name" => "i.invoice_no", "type" => "TEXT"),
+        array("name" => "i.ref_number", "type" => "TEXT"),
+        array("name" => "i.name", "type" => "TEXT")
     );
-   $strPrimaryKey = "id";
+   $strPrimaryKey = "i.id";
    $astrShowFields = 
     array( 
-        array("name" => "invoice_date", "type" => "INTDATE", "order" => "DESC", "header" => $GLOBALS['locHEADERINVOICEDATE']),
-        array("name" => "invoice_no", "type" => "TEXT", "header" => $GLOBALS['locHEADERINVOICENO']),
-        array("name" => "name", "type" => "TEXT", "header" => $GLOBALS['locHEADERINVOICENAME']),
-        array("name" => "ref_number", "type" => "TEXT", "header" => $GLOBALS['locHEADERINVOICEREFERENCE'])
+        array("name" => "i.invoice_date", 'width' => 100, "type" => "INTDATE", "order" => "DESC", "header" => $GLOBALS['locHEADERINVOICEDATE']),
+        array("name" => "i.invoice_no", 'width' => 80, "type" => "TEXT", "header" => $GLOBALS['locHEADERINVOICENO']),
+        array("name" => "i.name", 'width' => 100, "type" => "TEXT", "header" => $GLOBALS['locHEADERINVOICENAME']),
+        array("name" => "s.name", 'width' => 80, "type" => "TEXT", "header" => $GLOBALS['locHEADERINVOICESTATE']),
+        array("name" => "i.ref_number", 'width' => 100, "type" => "TEXT", "header" => $GLOBALS['locHEADERINVOICEREFERENCE']),
+        array("name" => "b.name", 'width' => 100, "type" => "TEXT", "header" => $GLOBALS['locHEADERINVOICEBASE']),
+        array("name" => "c.company_name", 'width' => 100, "type" => "TEXT", "header" => $GLOBALS['locHEADERINVOICECOMPANY'])
     );
-   $strMainForm = "form.php?ses=".$GLOBALS['sesID']."&selectform=invoice";
+   $strMainForm = "invoice";
    $strTitle = $GLOBALS['locINVOICES'];
    
 break;
@@ -97,10 +103,13 @@ case 'base_info':
    $strPrimaryKey = "id";
    $astrShowFields = 
     array( 
-        array("name" => "name", "type" => "TEXT", "header" => $GLOBALS['locCOMPNAME'])
+        array("name" => "name", 'width' => 150, "type" => "TEXT", "header" => $GLOBALS['locCOMPNAME']),
+        array("name" => "company_id", 'width' => 100, "type" => "TEXT", "header" => $GLOBALS['locCOMPVATID']),
+        array("name" => "contact_person", 'width' => 100, "type" => "TEXT", "header" => $GLOBALS['locCONTACTPERS']),
+        array("name" => "email", 'width' => 100, "type" => "TEXT", "header" => $GLOBALS['locEMAIL'])
     );
     //array('name');
-   $strMainForm = "form.php?ses=".$GLOBALS['sesID']."&selectform=base_info";
+   $strMainForm = "base_info";
    $strTitle = $GLOBALS['locBASEINFO'];
 break;
 
@@ -113,11 +122,11 @@ case 'invoice_state':
    $strPrimaryKey = "id";
    $astrShowFields = 
     array( 
-        array("name" => "order_no", "type" => "TEXT", "header" => $GLOBALS['locORDERNO']),
-        array("name" => "name", "type" => "TEXT", "header" => $GLOBALS['locSTATUS'])
+        array("name" => "order_no", 'width' => 100, "type" => "TEXT", "header" => $GLOBALS['locORDERNO']),
+        array("name" => "name", 'width' => 150, "type" => "TEXT", "header" => $GLOBALS['locSTATUS'])
     );
     //array('order_no','name');
-   $strMainForm = "form.php?ses=".$GLOBALS['sesID']."&selectform=invoice_state";
+   $strMainForm = "invoice_state";
    $strTitle = $GLOBALS['locINVOICESTATES'];
 break;
    
@@ -130,11 +139,11 @@ case 'row_type':
    $strPrimaryKey = "id";
    $astrShowFields = 
     array( 
-        array("name" => "order_no", "type" => "TEXT", "header" => $GLOBALS['locORDERNO']),
-        array("name" => "name", "type" => "TEXT", "header" => $GLOBALS['locROWTYPE'])
+        array("name" => "order_no", 'width' => 100, "type" => "TEXT", "header" => $GLOBALS['locORDERNO']),
+        array("name" => "name", 'width' => 100, "type" => "TEXT", "header" => $GLOBALS['locROWTYPE'])
     );
     //array('order_no','name');
-   $strMainForm = "form.php?ses=".$GLOBALS['sesID']."&selectform=row_type";
+   $strMainForm = "row_type";
    $strTitle = $GLOBALS['locROWTYPES'];
 break;
 
@@ -151,11 +160,11 @@ case 'company_type':
         array("name" => "name", "type" => "TEXT", "header" => $GLOBALS['locCOMPTYPE'])
     );
     //array('order_no','name');
-   $strMainForm = "form.php?ses=".$GLOBALS['sesID']."&selectform=company_type";
+   $strMainForm = "company_type";
    $strTitle = $GLOBALS['locCOMPANYTYPES'];
 break;
    
-case 'session_type':
+case 'session_types':
    $strTable = "". _DB_PREFIX_. "_session_type";
    $astrSearchFields = 
     array( 
@@ -164,11 +173,11 @@ case 'session_type':
    $strPrimaryKey = "id";
    $astrShowFields = 
     array( 
-        array("name" => "order_no", "type" => "TEXT", "header" => $GLOBALS['locORDERNO']),
-        array("name" => "name", "type" => "TEXT", "header" => $GLOBALS['locSESSIONTYPE'])
+        array("name" => "order_no", 'width' => 100, "type" => "TEXT", "header" => $GLOBALS['locORDERNO']),
+        array("name" => "name", 'width' => 150, "type" => "TEXT", "header" => $GLOBALS['locSESSIONTYPE'])
     );
     //array('order_no','name');
-   $strMainForm = "form.php?ses=".$GLOBALS['sesID']."&selectform=session_type";
+   $strMainForm = "session_type";
    $strTitle = $GLOBALS['locSESSIONTYPES'];
 break;
    
@@ -181,10 +190,10 @@ case 'users':
    $strPrimaryKey = "id";
    $astrShowFields = 
     array( 
-        array("name" => "name", "type" => "TEXT", "header" => $GLOBALS['locUSERNAME'])
+        array("name" => "name", 'width' => 250, "type" => "TEXT", "header" => $GLOBALS['locUSERNAME'])
     );
     //array('name');
-   $strMainForm = "form.php?ses=".$GLOBALS['sesID']."&selectform=users";
+   $strMainForm = "users";
    $strTitle = $GLOBALS['locUSERS'];
 break;
 
@@ -193,7 +202,6 @@ break;
 ***********************************************************************/
 
 default :
-    echo "What would you like me to do?"; die;
     break;
 }
 

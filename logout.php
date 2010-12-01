@@ -29,7 +29,6 @@ require "sessionfuncs.php";
 
 $strSesID = sesVerifySession();
 
-
 require "localize.php";
 
 sesEndSession( $strSesID );
