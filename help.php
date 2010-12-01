@@ -25,6 +25,7 @@ Tämä ohjelma on vapaa. Lue oheinen LICENSE.
 
 require "htmlfuncs.php";
 require "sqlfuncs.php";
+require "miscfuncs.php";
 require "sessionfuncs.php";
 
 $strSesID = sesVerifySession();
@@ -76,6 +77,7 @@ switch ( $strTopic ) {
 
 echo htmlPageStart( _PAGE_TITLE_ );
 
+echo '<div class="form_container">';
 echo "<center><h1>".$strHeadTitle."</h1></center>";
 
 echo "<p>".$strTopicText."</p>";
@@ -84,5 +86,6 @@ echo "<p>".$strTopicText."</p>";
 <center>
 <a class="actionlink" href="#" onclick="self.close(); return false;">SULJE</a>
 </center>
+</div>
 </body>
 </html>

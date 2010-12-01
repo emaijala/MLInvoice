@@ -1,6 +1,21 @@
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
  * dataTables display
  */
+  
+.dataTables_length {
+  float: left;
+  margin-right: 20px; 
+}
+
+.dataTables_filter {
+  float: left;
+  margin-bottom: 2px;
+}
+
+.dataTables_paginate {
+  float: left;
+}
+
 table.display {
 	margin: 0 auto;
 	width: 100%;
@@ -153,7 +168,7 @@ td.details {
 }
 
 .paging_full_numbers {
-	width: 400px;
+	width: 450px;
 	height: 22px;
 	line-height: 22px;
 }
@@ -161,9 +176,10 @@ td.details {
 .paging_full_numbers span.paginate_button,
  	.paging_full_numbers span.paginate_active {
 	border: 1px solid #aaa;
-	-webkit-border-radius: 5px;
-	-moz-border-radius: 5px;
-	padding: 2px 5px;
+	-webkit-border-radius: 4px;
+	-moz-border-radius: 4px;
+	border-radius: 4px;
+	padding: 1px 5px;
 	margin: 0 3px;
 	cursor: pointer;
 	*cursor: hand;
@@ -174,7 +190,7 @@ td.details {
 }
 
 .paging_full_numbers span.paginate_button:hover {
-	background-color: #ccc;
+	background-color: white;
 }
 
 .paging_full_numbers span.paginate_active {
@@ -195,7 +211,7 @@ table.display tr.odd.row_selected td {
  */
 /* For the standard odd/even */
 tr.odd td.sorting_1 {
-	background-color: #D3D6FF;
+	background-color: #D3E3F3;
 }
 
 tr.odd td.sorting_2 {
@@ -207,7 +223,7 @@ tr.odd td.sorting_3 {
 }
 
 tr.even td.sorting_1 {
-	background-color: #EAEBFF;
+	background-color: #DFEFFF;
 }
 
 tr.even td.sorting_2 {

@@ -115,7 +115,7 @@ function createInvoiceReport($strType)
   }
   ?>
   
-  <div class="list">
+  <div class="list_container">
   <form method="post" action="" name="selectinv">
   
   <br>
@@ -127,7 +127,7 @@ function createInvoiceReport($strType)
   ?>
       <tr>
           <td class="label">
-              <?php echo $astrSearchElements[$j]['label']?> :
+              <?php echo $astrSearchElements[$j]['label']?>:
           </td>
           <td class="field">
               <?php echo $astrSearchElements[$j]['element']?>
@@ -139,7 +139,7 @@ function createInvoiceReport($strType)
   ?>
       <tr>
           <td class="label">
-              <?php echo $astrSearchElements[$j]['label']?> :
+              <?php echo $astrSearchElements[$j]['label']?>:
           </td>
   <?php /*
       <tr>
@@ -168,7 +168,7 @@ function createInvoiceReport($strType)
   ?>
       <tr>
           <td class="label">
-              <?php echo $astrShowElements[$j]['label']?> :
+              <?php echo $astrShowElements[$j]['label']?>:
           </td>
           <td class="field">
               <?php echo htmlFormElement($astrShowElements[$j]['name'], $astrShowElements[$j]['type'], $astrShowElements[$j]['value'], $astrShowElements[$j]['style'], $astrShowElements[$j]['listquery'], "MODIFY", $astrShowElements[$j]['parent_key'])?>
@@ -180,7 +180,7 @@ function createInvoiceReport($strType)
   ?>
       <tr>
           <td class="label">
-              <?php echo $astrHtmlElements[$j]['label']?> :
+              <?php echo $astrHtmlElements[$j]['label']?>:
           </td>
           <td class="field">
               <?php echo $astrHtmlElements[$j]['html']?>

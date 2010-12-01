@@ -325,6 +325,7 @@ function createForm($strFunc, $strForm)
   <form method="post" action="" name="admin_form" id="admin_form">
   <?php createFormButtons($blnNew) ?>
   <input type="hidden" name="<?php echo $strPrimaryKey?>" value="<?php echo isset($intKeyValue) ? $intKeyValue : '' ?>">
+  <div class="form_container">
   <table>
   <?php
   for( $j = 0; $j < count($astrFormElements); $j++ ) {
@@ -401,14 +402,12 @@ function createForm($strFunc, $strForm)
   }
   ?>
   </table>
+  </div>
   <input type="hidden" name="saveact" value="0">
   <input type="hidden" name="copyact" value="0">
   <input type="hidden" name="newact" value="<?php echo $intNew?>">
   <input type="hidden" name="deleteact" value="0">
   <?php createFormButtons($blnNew) ?>
-  </form>
-  </body>
-  </html>
 <?php
 }
 

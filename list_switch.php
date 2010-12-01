@@ -37,7 +37,10 @@ case 'companies':
    $astrShowFields = 
     array( 
         array("name" => "company_name", 'width' => 150, "type" => "TEXT", "header" => $GLOBALS['locCOMPNAME']),
-        array("name" => "company_id", 'width' => 100, "type" => "TEXT", "header" => $GLOBALS['locCOMPVATID'])
+        array("name" => "company_id", 'width' => 100, "type" => "TEXT", "header" => $GLOBALS['locCOMPVATID']),
+        array("name" => "email", 'width' => 150, "type" => "TEXT", "header" => $GLOBALS['locEMAIL']),
+        array("name" => "phone", 'width' => 100, "type" => "TEXT", "header" => $GLOBALS['locPHONE']),
+        array("name" => "gsm", 'width' => 100, "type" => "TEXT", "header" => $GLOBALS['locGSM'])
     );
    $strMainForm = "company";
    $strTitle = $GLOBALS['locCOMPANIES'];
@@ -54,9 +57,12 @@ case 'products':
    $strPrimaryKey = "id";
    $astrShowFields = 
     array( 
-        array("name" => "product_name", 'width' => 150, "type" => "TEXT", "header" => $GLOBALS['locPRODUCTNAME']),
+        array("name" => "product_name", 'width' => 200, "type" => "TEXT", "header" => $GLOBALS['locPRODUCTNAME']),
+        array("name" => "product_code", 'width' => 150, "type" => "TEXT", "header" => $GLOBALS['locPRODUCTCODE']),
+        array("name" => "product_group", 'width' => 150, "type" => "TEXT", "header" => $GLOBALS['locPRODUCTGROUP']),
         array("name" => "unit_price", 'width' => 100, "type" => "TEXT", "header" => $GLOBALS['locUNITPRICE'])
     );
+   
    $strMainForm = "product";
    $strTitle = $GLOBALS['locPRODUCTS'];
 break;
@@ -103,10 +109,10 @@ case 'base_info':
    $strPrimaryKey = "id";
    $astrShowFields = 
     array( 
-        array("name" => "name", 'width' => 150, "type" => "TEXT", "header" => $GLOBALS['locCOMPNAME']),
+        array("name" => "name", 'width' => 200, "type" => "TEXT", "header" => $GLOBALS['locCOMPNAME']),
         array("name" => "company_id", 'width' => 100, "type" => "TEXT", "header" => $GLOBALS['locCOMPVATID']),
-        array("name" => "contact_person", 'width' => 100, "type" => "TEXT", "header" => $GLOBALS['locCONTACTPERS']),
-        array("name" => "email", 'width' => 100, "type" => "TEXT", "header" => $GLOBALS['locEMAIL'])
+        array("name" => "contact_person", 'width' => 150, "type" => "TEXT", "header" => $GLOBALS['locCONTACTPERS']),
+        array("name" => "email", 'width' => 150, "type" => "TEXT", "header" => $GLOBALS['locEMAIL'])
     );
     //array('name');
    $strMainForm = "base_info";
@@ -122,8 +128,8 @@ case 'invoice_state':
    $strPrimaryKey = "id";
    $astrShowFields = 
     array( 
-        array("name" => "order_no", 'width' => 100, "type" => "TEXT", "header" => $GLOBALS['locORDERNO']),
-        array("name" => "name", 'width' => 150, "type" => "TEXT", "header" => $GLOBALS['locSTATUS'])
+        array("name" => "order_no", 'width' => 150, "type" => "TEXT", "header" => $GLOBALS['locORDERNO']),
+        array("name" => "name", 'width' => 450, "type" => "TEXT", "header" => $GLOBALS['locSTATUS'])
     );
     //array('order_no','name');
    $strMainForm = "invoice_state";
@@ -139,8 +145,8 @@ case 'row_type':
    $strPrimaryKey = "id";
    $astrShowFields = 
     array( 
-        array("name" => "order_no", 'width' => 100, "type" => "TEXT", "header" => $GLOBALS['locORDERNO']),
-        array("name" => "name", 'width' => 100, "type" => "TEXT", "header" => $GLOBALS['locROWTYPE'])
+        array("name" => "order_no", 'width' => 150, "type" => "TEXT", "header" => $GLOBALS['locORDERNO']),
+        array("name" => "name", 'width' => 450, "type" => "TEXT", "header" => $GLOBALS['locROWTYPE'])
     );
     //array('order_no','name');
    $strMainForm = "row_type";
@@ -173,8 +179,8 @@ case 'session_types':
    $strPrimaryKey = "id";
    $astrShowFields = 
     array( 
-        array("name" => "order_no", 'width' => 100, "type" => "TEXT", "header" => $GLOBALS['locORDERNO']),
-        array("name" => "name", 'width' => 150, "type" => "TEXT", "header" => $GLOBALS['locSESSIONTYPE'])
+        array("name" => "order_no", 'width' => 150, "type" => "TEXT", "header" => $GLOBALS['locORDERNO']),
+        array("name" => "name", 'width' => 450, "type" => "TEXT", "header" => $GLOBALS['locSESSIONTYPE'])
     );
     //array('order_no','name');
    $strMainForm = "session_type";
@@ -190,7 +196,8 @@ case 'users':
    $strPrimaryKey = "id";
    $astrShowFields = 
     array( 
-        array("name" => "name", 'width' => 250, "type" => "TEXT", "header" => $GLOBALS['locUSERNAME'])
+        array("name" => "name", 'width' => 350, "type" => "TEXT", "header" => $GLOBALS['locUSERNAME']),
+        array("name" => "login", 'width' => 250, "type" => "TEXT", "header" => $GLOBALS['locLOGONNAME'])
     );
     //array('name');
    $strMainForm = "users";

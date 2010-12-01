@@ -225,6 +225,7 @@ $(document).ready(function() {
     "oLanguage": {
       <?php echo $GLOBALS['locTABLETEXTS']?> 
 		},
+		"sPaginationType": "full_numbers",
     "aoColumns": [
 <?php
 			for ($i = 0; $i < count($astrShowFields); $i++ ) {
@@ -238,6 +239,7 @@ $(document).ready(function() {
   <?php
     }
 ?>
+  <div class="list_container">
   <b><?php echo $strTitle?>: </b>
   <?php 
   if (_NAVI_LIST_ROWS_ > 0)
@@ -288,7 +290,6 @@ $(document).ready(function() {
   else
     echo "<br><br>";
   ?>
-  <div class="list_container">
   <table id="resultlist<?php echo $GLOBALS['TABLENO']?>" class="list">
     <thead>
       <tr>
@@ -327,13 +328,12 @@ $(document).ready(function() {
   ?>
     </tbody>
   </table>
-  </div>
-  <br>
-  <p>
+  <div style="float: left; margin-left: 60px; margin-top: 3px">
     <a class="actionlink" href="<?php echo $strLink?>"><?php echo $GLOBALS['locNEW']?></a>
     <a class="actionlink" href="#" onclick="window.open('help.php?ses=<?php echo $GLOBALS['sesID']?>&amp;topic=list', '_blank', 'height=400,width=400,menubar=no,scrollbars=yes,status=no,toolbar=no'); return false;"><?php echo $GLOBALS['locHELP']?></a>
-  </p>
-  
+  </div>
+  <br>
+  <br>
   <?php
   }
   else {
@@ -345,5 +345,8 @@ $(document).ready(function() {
   <a class="actionlink" href="#" onclick="window.open('help.php?ses=<?php echo $GLOBALS['sesID']?>&amp;topic=list', '_blank', 'height=400,width=400,menubar=no,scrollbars=yes,status=no,toolbar=no'); return false;"><?php echo $GLOBALS['locHELP']?></a>
   <?php
   }
+  ?>
+  </div>
+  <?php
 }
 ?>

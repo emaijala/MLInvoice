@@ -181,20 +181,21 @@ case 'invoice':
    {
      $strQuery = 
         "SELECT refunded_invoice_id ".
-        "FROM ". _DB_PREFIX_. "_invoice ".
+        "FROM {prefix}invoice ".
         "WHERE id = ?";
      $intRes = mysql_param_query($strQuery, array($intInvoiceId));
+     $strBaseLink = '?' . preg_replace('/&id=\d*/', '', $_SERVER['QUERY_STRING']);
      if( $intRes ) 
      {
        $intRefundedInvoiceId = mysql_result($intRes, 0, "refunded_invoice_id");
        if ($intRefundedInvoiceId)
          $arrRefundedInvoice = array(
-           "name" => "get", "label" => sprintf($GLOBALS['locSHOWREFUNDEDINV']), "type" => "BUTTON", "style" => "medium", "listquery" => "'form.php?ses=$strSesID&amp;selectform=invoice&amp;id=$intRefundedInvoiceId', '_self'", "position" => 2, "default" => FALSE, "allow_null" => TRUE 
+           "name" => "get", "label" => $GLOBALS['locSHOWREFUNDEDINV'], "type" => "BUTTON", "style" => "medium", "listquery" => "'$strBaseLink&amp;id=$intRefundedInvoiceId', '_self'", "position" => 2, "default" => FALSE, "allow_null" => TRUE 
          );
      }
      $strQuery = 
         "SELECT id ".
-        "FROM ". _DB_PREFIX_. "_invoice ".
+        "FROM {prefix}invoice ".
         "WHERE refunded_invoice_id = ?";
      $intRes = mysql_param_query($strQuery, array($intInvoiceId));
      if( $intRes && ($row = mysql_fetch_assoc($intRes))) 
@@ -202,7 +203,7 @@ case 'invoice':
        $intRefundingInvoiceId = $row['id'];
        if ($intRefundingInvoiceId)
          $arrRefundingInvoice = array(
-           "name" => "get", "label" => sprintf($GLOBALS['locSHOWREFUNDINGINV']), "type" => "BUTTON", "style" => "medium", "listquery" => "'form.php?ses=$strSesID&amp;selectform=invoice&amp;id=$intRefundingInvoiceId', '_self'", "position" => 2, "default" => FALSE, "allow_null" => TRUE 
+           "name" => "get", "label" => $GLOBALS['locSHOWREFUNDINGINV'], "type" => "BUTTON", "style" => "medium", "listquery" => "'$strBaseLink&amp;id=$intRefundingInvoiceId', '_self'", "position" => 2, "default" => FALSE, "allow_null" => TRUE 
          );
      }
    }

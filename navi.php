@@ -102,7 +102,6 @@ function createFuncMenu($strFunc)
   //$strOpenForm = "blank.html";
   
   ?>
-  <div>
   <script type="text/javascript">
   <!--
   function openHelpWindow(event) {
@@ -138,56 +137,31 @@ function createFuncMenu($strFunc)
   <form method="get" action="" name="form_search">
   <input type="hidden" name="ses" value="<?php echo $GLOBALS['sesID']?>">
   <input type="hidden" name="func" value="<?php echo $strFunc?>">
-  <table>
-      <tr>
-      
-      <td>
-          <b><?php echo $strLabel?> </b>
-      </td>
+  <div class="function_navi">
+  <b><?php echo $strLabel?></b>
   <?php
   if( $blnShowSearch ) {
-          
   ?>
-  
-      <td>
-          <input type="hidden" name="changed" value="0">
-          <?php echo $strHiddenTerm?>
-      </td>
-      <td>
-          <input type="text" class="small" name="searchterms" value="<?php echo gpcAddSlashes($strSearchTerms)?>" title="<?php echo $GLOBALS['locENTERTERMS']?>">
-      </td>
-      <td>
-          <a class="actionlink" href="#" onClick="self.document.forms[0].submit();"><?php echo $GLOBALS['locSEARCH']?></a>
-      </td>
-      <td>
-          <?php echo $strNewButton?>
-      </td>
-      <td>
-          <a class="buttonlink" href="#" onClick="openSearchWindow('ext',event); return false;"><?php echo $GLOBALS['locEXTSEARCH']?></a>
-      </td>
-      <td>
-          <a class="buttonlink" href="#" onClick="openSearchWindow('quick',event); return false;"><?php echo $GLOBALS['locQUICKSEARCH']?></a>
-      </td>
-      <td>
-          <a class="buttonlink" href="#" onClick="openHelpWindow(event); return false;"><?php echo $GLOBALS['locHELP']?></a>
-      </td>
+  <input type="hidden" name="changed" value="0">
+  <?php echo $strHiddenTerm?>
+  <input type="text" class="small" name="searchterms" value="<?php echo gpcAddSlashes($strSearchTerms)?>" title="<?php echo $GLOBALS['locENTERTERMS']?>">
+  <a class="actionlink" href="#" onClick="self.document.forms[0].submit();"><?php echo $GLOBALS['locSEARCH']?></a>
+  <?php echo $strNewButton?>
+  <a class="buttonlink" href="#" onClick="openSearchWindow('ext',event); return false;"><?php echo $GLOBALS['locEXTSEARCH']?></a>
+  <a class="buttonlink" href="#" onClick="openSearchWindow('quick',event); return false;"><?php echo $GLOBALS['locQUICKSEARCH']?></a>
+  <a class="buttonlink" href="#" onClick="openHelpWindow(event); return false;"><?php echo $GLOBALS['locHELP']?></a>
   <?php
   }
   
-      for( $i = 0; $i < count($astrNaviLinks); $i++ ) {
-          if( in_array($GLOBALS['sesACCESSLEVEL'], $astrNaviLinks[$i]["levels_allowed"]) || $GLOBALS['sesACCESSLEVEL'] == 99 ) {
+  for( $i = 0; $i < count($astrNaviLinks); $i++ ) {
+      if( in_array($GLOBALS['sesACCESSLEVEL'], $astrNaviLinks[$i]["levels_allowed"]) || $GLOBALS['sesACCESSLEVEL'] == 99 ) {
   ?>    
-       <td>
-          <a class="buttonlink" href="?ses=<?php echo $GLOBALS['sesID']?>&amp;func=<?php echo $strFunc?>&<?php echo $astrNaviLinks[$i]['href']?>"><?php echo $astrNaviLinks[$i]['text']?></a>
-       </td>
+  <a class="buttonlink" href="?ses=<?php echo $GLOBALS['sesID']?>&amp;func=<?php echo $strFunc?>&<?php echo $astrNaviLinks[$i]['href']?>"><?php echo $astrNaviLinks[$i]['text']?></a>
   <?php            
-          }
       }
+  }
   ?>
   
-  </tr>
-  </table>
-  </form>
   </div>
   <?php
 }

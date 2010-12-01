@@ -41,6 +41,9 @@ if ($strFunc == 'logout')
   exit;
 }
 
+if (!$strFunc && $strForm)
+  $strFunc = 'invoices';
+
 $title = '';
 switch($strFunc)
 {
@@ -122,7 +125,7 @@ $astrMainButtons = array (
     array("name" => "reports", "title" => "locSHOWREPORTNAVI", 'action' => 'reports', "levels_allowed" => array(1) ),
     array("name" => "settings", "title" => "locSHOWSETTINGSNAVI", 'action' => 'settings', "action" => "settings", "levels_allowed" => array(1) ),
     array("name" => "system", "title" => "locSHOWSYSTEMNAVI", 'action' => 'system', "levels_allowed" => array(99) ),
-    array("name" => "help", "title" => "locSHOWHELP", 'action' => 'help', 'popup' => 1, "levels_allowed" => array(1) ),
+    array("name" => "help", "title" => "locSHOWHELP", 'action' => 'help.php?ses=' . $GLOBALS['sesID'] . '&amp;topic=' . ($strForm ? 'form' : 'main'), 'popup' => 1, "levels_allowed" => array(1) ),
     array("name" => "logout", "title" => "locLOGOUT", 'action' => 'logout', "levels_allowed" => array(1) )
 );
 
@@ -132,10 +135,14 @@ $astrMainButtons = array (
 <div class="navi">
 <?php
 for( $i = 0; $i < count($astrMainButtons); $i++ ) {
-    $strButton = '<a class="buttonlink'; 
+    $strButton = '<a class="functionlink'; 
     if ($astrMainButtons[$i]['action'] == $strFunc || ($astrMainButtons[$i]['action'] == '' && $strFunc == 'invoices'))
       $strButton .= ' selected';
-    $strButton .= '" href="?ses=' . $GLOBALS['sesID'] . '&amp;func=' . $astrMainButtons[$i]['action'] . '">' . $GLOBALS[$astrMainButtons[$i]['title']] . '</a>';
+    if ($astrMainButtons[$i]['popup'])
+      $strButton .= '" href="#" onClick="window.open(\'' . $astrMainButtons[$i]['action'] . '\', \'vllasku_help\', \'height=400,width=400,menubar=no,scrollbars=yes,status=no,toolbar=no\'); return false;">';
+    else
+      $strButton .= '" href="?ses=' . $GLOBALS['sesID'] . '&amp;func=' . $astrMainButtons[$i]['action'] . '">';
+    $strButton .= $GLOBALS[$astrMainButtons[$i]['title']] . '</a>';
         
     if( in_array($GLOBALS['sesACCESSLEVEL'], $astrMainButtons[$i]['levels_allowed']) || $GLOBALS['sesACCESSLEVEL'] == 99 ) {
       echo "  $strButton\n";

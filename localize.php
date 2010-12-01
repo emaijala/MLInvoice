@@ -256,7 +256,13 @@ default :
 			'"sInfo": "_START_ - _END_ / _TOTAL_",' .
 			'"sInfoEmpty": "Ei näytettäviä tietueita",' .
 			'"sInfoFiltered": "(suodatettu _MAX_ tietueesta)",' .
-			'"sSearch": "Haku"';
+			'"sSearch": "Haku",' .
+			'"oPaginate": {' .
+      '  "sFirst":    "Ensimmäinen",' .
+      '  "sPrevious": "Edellinen",' .
+      '  "sNext":     "Seuraava",' .
+      '  "sLast":     "Viimeinen"' .
+      '}';
 
     //GETINVOICE
     $GLOBALS['locREEMPLOYEE'] = 'Muista tallentaa!';
