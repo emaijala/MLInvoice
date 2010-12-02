@@ -145,11 +145,22 @@ if( $intInvoiceId ) {
         $astrVAT[$i] = $row['vat'];
         $aboolVATIncluded[$i] = $row['vat_included'];
         $astrRowType[$i] = $row['type'];
-        $intRowSum[$i] = $astrPieces[$i] * $astrRowPrice[$i];
-        $intRowVAT[$i] = $intRowSum[$i] * ($astrVAT[$i] / 100);
+
         if ($aboolVATIncluded[$i])
-          $intRowSum[$i] -= $intRowVAT[$i];
-        $intRowSumVAT[$i] = $intRowSum[$i] + $intRowVAT[$i];
+        {
+          $intRowSumVAT[$i] = $astrPieces[$i] * $astrRowPrice[$i];
+          
+          $intRowSum[$i] = $intRowSumVAT[$i] / (1 + $astrVAT[$i] / 100);
+          $intRowVAT[$i] = $intRowSumVAT[$i] - $intRowSum[$i];
+          
+          $astrRowPrice[$i] /= (1 + $astrVAT[$i] / 100);
+        }
+        else
+        {
+          $intRowSum[$i] = $astrPieces[$i] * $astrRowPrice[$i];
+          $intRowVAT[$i] = $intRowSum[$i] * ($astrVAT[$i] / 100);
+          $intRowSumVAT[$i] = $intRowSum[$i] + $intRowVAT[$i];
+        }
         $intTotSum += $intRowSum[$i];
         $intTotVAT += $intRowVAT[$i];
         $intTotSumVAT += $intRowSumVAT[$i];

@@ -39,6 +39,11 @@ div.form_container
   margin: 10px;
 }
 
+div.report
+{
+  margin: 10px;
+}
+
 body.iform {
 margin: 0px;
 padding: 2px;

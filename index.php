@@ -138,7 +138,7 @@ for( $i = 0; $i < count($astrMainButtons); $i++ ) {
     $strButton = '<a class="functionlink'; 
     if ($astrMainButtons[$i]['action'] == $strFunc || ($astrMainButtons[$i]['action'] == '' && $strFunc == 'invoices'))
       $strButton .= ' selected';
-    if ($astrMainButtons[$i]['popup'])
+    if (isset($astrMainButtons[$i]['popup']) && $astrMainButtons[$i]['popup'])
       $strButton .= '" href="#" onClick="window.open(\'' . $astrMainButtons[$i]['action'] . '\', \'vllasku_help\', \'height=400,width=400,menubar=no,scrollbars=yes,status=no,toolbar=no\'); return false;">';
     else
       $strButton .= '" href="?ses=' . $GLOBALS['sesID'] . '&amp;func=' . $astrMainButtons[$i]['action'] . '">';
@@ -179,7 +179,7 @@ case '':
   break;
 case 'reports':
   createFuncMenu($strFunc);
-  require_once 'select_invoice.php';
+  require_once 'invoice_report.php';
   if ($strForm == 'invoice')
     createInvoiceReport('report');
   break;

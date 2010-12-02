@@ -161,7 +161,7 @@ function createFuncMenu($strFunc)
       }
   }
   ?>
-  
+  </form>
   </div>
   <?php
 }
