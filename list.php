@@ -77,6 +77,15 @@ function createList($strList, $strFunc)
           }
           $strWhereClause = substr( $strWhereClause, 0, -4);
       }
+      
+      if ($strFilter)
+      {
+        if ($strWhereClause)
+          $strWhereClause .= " AND $strFilter";
+        else
+          $strWhereClause = " WHERE $strFilter";
+      }
+      
       if( $strOrderClause2 ) {
           $strOrderClause = $strOrderClause2;
       }
@@ -240,7 +249,7 @@ $(document).ready(function() {
     }
 ?>
   <div class="list_container">
-  <b><?php echo $strTitle?>: </b>
+  <b><?php echo $strTitle?></b>
   <?php 
   if (_NAVI_LIST_ROWS_ > 0)
   {

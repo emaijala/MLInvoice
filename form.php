@@ -122,7 +122,7 @@ function createForm($strFunc, $strForm)
               }
               elseif( $strControlType == 'PASSWD' && $mixControlValue ) {
                   $strFields .= "$strControlName, ";
-                  $strInsert .= '?, ';
+                  $strInsert .= 'md5(?), ';
                   $strUpdateFields .= "$strControlName=md5(?), ";
                   $arrValues[] = $mixControlValue;
               }

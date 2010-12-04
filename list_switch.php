@@ -23,6 +23,7 @@ Tämä ohjelma on vapaa. Lue oheinen LICENSE.
 
 *******************************************************************************/
 
+$strFilter = '';
 switch ( $strList ) {
 
 case 'companies':
@@ -67,7 +68,9 @@ case 'products':
    $strTitle = $GLOBALS['locPRODUCTS'];
 break;
 
+case 'archived_invoices':
 case 'invoices':
+   $strFilter = ($strFunc == 'invoices') ? 'i.archived = 0' : 'i.archived = 1';
    $strTable = '{prefix}invoice i ' .
      'LEFT OUTER JOIN {prefix}base b on i.base_id=b.id ' .
      'LEFT OUTER JOIN {prefix}company c on i.company_id=c.id ' .
@@ -200,7 +203,7 @@ case 'users':
         array("name" => "login", 'width' => 250, "type" => "TEXT", "header" => $GLOBALS['locLOGONNAME'])
     );
     //array('name');
-   $strMainForm = "users";
+   $strMainForm = "user";
    $strTitle = $GLOBALS['locUSERS'];
 break;
 

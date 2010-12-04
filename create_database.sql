@@ -109,6 +109,7 @@ CREATE TABLE vllasku_invoice (
   base_id int(11) default NULL,
   refunded_invoice_id int(11) default NULL,
   print_date int(11) default NULL,
+  archived tinyint NOT NULL default 0,
   PRIMARY KEY (id),
   FOREIGN KEY (company_id) REFERENCES vllasku_company(id),
   FOREIGN KEY (state_id) REFERENCES vllasku_invoice_state(id)
@@ -222,6 +223,7 @@ INSERT INTO vllasku_invoice_state (id, name, order_no) VALUES (3, 'MAKSETTU', 15
 INSERT INTO vllasku_invoice_state (id, name, order_no) VALUES (4, 'MITÄTÖITY', 20);
 INSERT INTO vllasku_invoice_state (id, name, order_no) VALUES (5, '1. HUOMAUTUS', 25);
 INSERT INTO vllasku_invoice_state (id, name, order_no) VALUES (6, '2. HUOMAUTUS', 30);
+INSERT INTO vllasku_invoice_state (id, name, order_no) VALUES (7, 'PERINTÄ', 35);
 
 INSERT INTO vllasku_row_type (id, name, order_no) VALUES (1, 'h', 5);
 INSERT INTO vllasku_row_type (id, name, order_no) VALUES (2, 'pv', 10);

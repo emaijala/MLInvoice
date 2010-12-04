@@ -69,6 +69,7 @@ default :
     $GLOBALS['locREFNO'] = 'Viitenro';
     $GLOBALS['locPAYDATE'] = 'Maksupvm';
     $GLOBALS['locSTATUS'] = 'Tila';
+    $GLOBALS['locARCHIVED'] = 'Arkistoitu';
     $GLOBALS['locGETINVNO'] = 'Hae laskunro ja laskupvm';
     $GLOBALS['locINVROWS'] = 'Laskurivit';
     $GLOBALS['locORDERNO'] = 'Järj.nro';
@@ -197,6 +198,7 @@ default :
     $GLOBALS['locSHOWSETTINGSNAVI'] = 'ASETUKSET';
     $GLOBALS['locSHOWSYSTEMNAVI'] = 'JÄRJESTELMÄ';
     $GLOBALS['locSHOWINVOICENAVI'] = 'LASKUTUS';
+    $GLOBALS['locSHOWARCHIVENAVI'] = 'ARKISTO';
     $GLOBALS['locSHOWCOMPANYNAVI'] = 'ASIAKKAAT';
     $GLOBALS['locSHOWPRODUCTSNAVI'] = 'TUOTTEET';
     $GLOBALS['locSHOWHELP'] = 'OHJE';
@@ -214,6 +216,10 @@ default :
     $GLOBALS['locPRODUCT'] = 'Tuote';
     $GLOBALS['locOPENANDUNPAIDINVOICES'] = 'Avoimet ja maksamattomat laskut';
     $GLOBALS['locINVOICES'] = 'Laskut';
+    $GLOBALS['locARCHIVEDINVOICES'] = 'Arkistoidut laskut';
+    $GLOBALS['locDISPLAYOPENINVOICES'] = 'Avoimet laskut';
+    $GLOBALS['locDISPLAYALLINVOICES'] = 'Kaikki laskut';
+    $GLOBALS['locDISPLAYARCHIVEDINVOICES'] = 'Arkistoidut laskut';
     $GLOBALS['locINVOICE'] = 'Laskun tiedot';
     $GLOBALS['locSETTINGS'] = 'Asetukset';
     $GLOBALS['locSYSTEM'] = 'Järjestelmä';
@@ -225,6 +231,7 @@ default :
     $GLOBALS['locSHOWADMINNAVI'] = 'Näytä hallintavalikko';
     $GLOBALS['locMAINNAVI'] = 'Takaisin päävalikkoon';
     $GLOBALS['locSESSIONTYPES'] = 'Sessiotyypit';
+    $GLOBALS['locUSER'] = 'Käyttäjä';
     $GLOBALS['locUSERS'] = 'Käyttäjät';
     $GLOBALS['locLOGOUT'] = 'KIRJAUDU ULOS';
     $GLOBALS['locBASES'] = 'Yritykset';

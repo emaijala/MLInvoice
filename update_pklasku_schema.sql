@@ -15,6 +15,7 @@ alter table pklasku_base add column (
 INSERT INTO pklasku_invoice_state (id, name, order_no) VALUES (4, 'MITÄTÖITY', 20);
 INSERT INTO pklasku_invoice_state (id, name, order_no) VALUES (5, '1. HUOMAUTUS', 25);
 INSERT INTO pklasku_invoice_state (id, name, order_no) VALUES (6, '2. HUOMAUTUS', 30);
+INSERT INTO pklasku_invoice_state (id, name, order_no) VALUES (7, 'PERINTÄ', 35);
 
 CREATE TABLE pklasku_product (
   id int(11) NOT NULL auto_increment,
@@ -52,4 +53,8 @@ CREATE TABLE pklasku_session_history (
   level int(11) default NULL,
   PRIMARY KEY (id),
   FOREIGN KEY (session_id) REFERENCES vllasku_session(id)
+);
+
+alter table pklasku_invoice add column (
+  archived tinyint NOT NULL default 0
 );

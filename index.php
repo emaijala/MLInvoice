@@ -31,9 +31,12 @@ if (!getRequest('ses', ''))
 
 $strSesID = sesVerifySession();
 
-$strFunc = getRequest('func', '');
+$strFunc = getRequest('func', 'open_invoices');
 $strList = getRequest('list', '');
 $strForm = getRequest('form', '');
+
+if (!$strFunc)
+  $strFunc = 'open_invoices';
 
 if ($strFunc == 'logout')
 {
@@ -47,7 +50,7 @@ if (!$strFunc && $strForm)
 $title = '';
 switch($strFunc)
 {
-case '':
+case 'open_invoices':
   if ($strForm)
     $title = $GLOBALS['locINVOICE'];
   else
@@ -58,6 +61,12 @@ case 'invoices':
     $title = $GLOBALS['locINVOICE'];
   else
     $title = $GLOBALS['locINVOICES'];
+  break;
+case 'archived_invoices':
+  if ($strForm)
+    $title = $GLOBALS['locINVOICE'];
+  else
+    $title = $GLOBALS['locARCHIVEDINVOICES'];
   break;
 case 'companies':
   if ($strForm)
@@ -122,7 +131,8 @@ case 'system':
 echo htmlPageStart(_PAGE_TITLE_ . " - $title");
 
 $astrMainButtons = array (
-    array("name" => "invoice", "title" => "locSHOWINVOICENAVI", 'action' => '', "levels_allowed" => array(1) ),
+    array("name" => "invoice", "title" => "locSHOWINVOICENAVI", 'action' => 'open_invoices', "levels_allowed" => array(1) ),
+    array("name" => "archive", "title" => "locSHOWARCHIVENAVI", 'action' => 'archived_invoices', "levels_allowed" => array(1) ),
     array("name" => "company", "title" => "locSHOWCOMPANYNAVI", 'action' => 'companies', "levels_allowed" => array(1) ),
     array("name" => "reports", "title" => "locSHOWREPORTNAVI", 'action' => 'reports', "levels_allowed" => array(1) ),
     array("name" => "settings", "title" => "locSHOWSETTINGSNAVI", 'action' => 'settings', "action" => "settings", "levels_allowed" => array(1) ),
@@ -138,7 +148,7 @@ $astrMainButtons = array (
 <?php
 for( $i = 0; $i < count($astrMainButtons); $i++ ) {
     $strButton = '<a class="functionlink'; 
-    if ($astrMainButtons[$i]['action'] == $strFunc || ($astrMainButtons[$i]['action'] == '' && $strFunc == 'invoices'))
+    if ($astrMainButtons[$i]['action'] == $strFunc || ($astrMainButtons[$i]['action'] == 'open_invoices' && $strFunc == 'invoices'))
       $strButton .= ' selected';
     if (isset($astrMainButtons[$i]['popup']) && $astrMainButtons[$i]['popup'])
       $strButton .= '" href="#" onClick="var win=window.open(\'' . $astrMainButtons[$i]['action'] . '\', \'vllasku_help\', \'height=400,width=400,menubar=no,scrollbars=yes,status=no,toolbar=no\'); win.focus(); return false;">';
@@ -175,8 +185,8 @@ foreach ($arrHistory as $arrHE)
 <?php
 switch ($strFunc)
 {
-case '':
-  createFuncMenu('invoices');
+case 'open_invoices':
+  createFuncMenu('open_invoices');
   createOpenInvoiceList();
   break;
 case 'reports':
@@ -201,7 +211,5 @@ default:
   }
 }
 ?>
-
-
 </body>
 </html>

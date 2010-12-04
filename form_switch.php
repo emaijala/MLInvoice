@@ -63,7 +63,6 @@ switch ( $strForm ) {
 case 'company':
    $strTable = '{prefix}company';
    $strPrimaryKey = 'id';
-   $strMainForm = 'form.php?selectform=company';
    $astrSearchFields = 
     array( 
         //array("name" => "first_name", "type" => "TEXT"),
@@ -128,7 +127,6 @@ break;
 case 'product':
    $strTable = '{prefix}product';
    $strPrimaryKey = "id";
-   $strMainForm = "form.php?selectform=product";
    $astrSearchFields = 
     array( 
         //array("name" => "first_name", "type" => "TEXT"),
@@ -161,7 +159,6 @@ case 'invoice':
    $strTable = '{prefix}invoice';
    $strListTableAlias = 'i.'; // this is for the search function
    $strPrimaryKey = "id";
-   $strMainForm = "form.php?selectform=invoice";
    
    $defaultInvNo = FALSE;
    $defaultRefNo = FALSE;
@@ -234,6 +231,8 @@ case 'invoice':
         "name" => "state_id", "label" => $GLOBALS['locSTATUS'], "type" => "LIST", "style" => "medium", "listquery" => "SELECT id, name FROM ". _DB_PREFIX_. "_invoice_state ORDER BY order_no;", "position" => 1, "default" => 1, "allow_null" => FALSE ),
      array(
         "name" => "payment_date", "label" => $GLOBALS['locPAYDATE'], "type" => "INTDATE", "style" => "date", "listquery" => "", "position" => 2, "default" => NULL, "allow_null" => TRUE ),
+     array(
+        "name" => "archived", "label" => $GLOBALS['locARCHIVED'], "type" => "CHECK", "style" => "medium", "listquery" => "", "position" => 1, "default" => 0, "allow_null" => TRUE ),
      array(
         "name" => "get", "label" => $GLOBALS['locGETINVNO'], "type" => "BUTTON", "style" => "medium", "listquery" => "'get_invoiceno.php?ses=$strSesID&amp;id=_ID_', '_new'", "position" => 1, "default" => FALSE, "allow_null" => TRUE ),
      array(
@@ -319,7 +318,6 @@ break;
 case 'base_info':
    $strTable = '{prefix}base';
    $strPrimaryKey = "id";
-   $strMainForm = "form.php?selectform=base_info";
    $astrFormElements =
     array(
      array(
@@ -378,10 +376,9 @@ break;
 case 'invoice_state':
     $strTable = '{prefix}invoice_state';
     $strPrimaryKey = "id";
-    $strMainForm = "form.php?selectform=invoice_state";
     
     $intId = getRequest('id', FALSE);
-    if ($intId && $intId <= 6)
+    if ($intId && $intId <= 7)
     {
       $elem_attributes = 'readonly';
       $strPrimaryKey = '';
@@ -406,7 +403,6 @@ break;
 case 'row_type':
     $strTable = '{prefix}row_type';
     $strPrimaryKey = "id";
-    $strMainForm = "form.php?selectform=row_type";
     $astrFormElements =
         array(
          array(
@@ -419,7 +415,6 @@ break;
 case 'session_type':
     $strTable = '{prefix}session_type';
     $strPrimaryKey = "id";
-    $strMainForm = "form.php?selectform=session_type";
     $astrFormElements =
         array(
             array(
@@ -433,10 +428,9 @@ case 'session_type':
     );
 break;
 
-case 'users':
+case 'user':
     $strTable = '{prefix}users';
     $strPrimaryKey = "id";
-    $strMainForm = "form.php?selectform=users";
     $astrFormElements =
         array(
             array(
@@ -453,7 +447,6 @@ break;
 case 'company_type':
     $strTable = '{prefix}company_type';
     $strPrimaryKey = "id";
-    $strMainForm = "form.php?selectform=company_type";
     $astrFormElements =
         array(
             array(

@@ -72,10 +72,7 @@ function createFuncMenu($strFunc)
       $strOpenForm = "company";
       $strFormName = "company";
       $strFormSwitch = "company";
-      $astrNaviLinks = 
-      array( 
-          /*array("href" => "select_invoice.php?ses=".$GLOBALS['sesID']. "&type=payment", "text" => $GLOBALS['locADDPAYMENT'], "target" => "f_list", "levels_allowed" => array(1))*/
-      );
+      $astrNaviLinks = array();
       
       $strNewButton = '<a class="actionlink" href="?ses=' . $GLOBALS['sesID'] . '&amp;func=companies&amp;form=company&amp;new=1">Uusi asiakas</a>';
   break;
@@ -84,21 +81,20 @@ function createFuncMenu($strFunc)
       $strOpenForm = "product";
       $strFormName = "product";
       $strFormSwitch = "product";
-      $astrNaviLinks = 
-      array( 
-      );
+      $astrNaviLinks = array();
       
       $strNewButton = '<a class="actionlink" href="?ses=' . $GLOBALS['sesID'] . '&amp;func=settings&amp;list=products&amp;form=product&amp;new=1">Uusi tuote</a>';
   break;
   default :
       $blnShowSearch = TRUE;
       $strFormName = "invoice";
-      $astrNaviLinks = 
-      array( 
-          /*array("href" => "select_invoice.php?ses=".$GLOBALS['sesID']. "&type=payment", "text" => $GLOBALS['locADDPAYMENT'], "target" => "f_list", "levels_allowed" => array(1))*/
-      );
+      $astrNaviLinks = array();
+      if ($strFunc == 'invoices')
+        $astrNaviLinks[] = array("href" => "index.php?ses=".$GLOBALS['sesID']. "&amp;func=", "text" => $GLOBALS['locDISPLAYOPENINVOICES'], "levels_allowed" => array(1));
+      else
+        $astrNaviLinks[] = array("href" => "index.php?ses=".$GLOBALS['sesID']. "&amp;func=invoices", "text" => $GLOBALS['locDISPLAYALLINVOICES'], "levels_allowed" => array(1));
       $strNewButton = '<a class="actionlink" href="?ses=' . $GLOBALS['sesID'] . '&amp;func=invoices&amp;form=invoice&amp;new=1">Uusi lasku</a>';
-      
+      $strFunc = 'invoices';
   break;
   }
   
@@ -108,7 +104,7 @@ function createFuncMenu($strFunc)
   function openHelpWindow(event) {
       x = event.screenX;
       y = event.screenY;
-      strLink = 'help.php?ses=<?php echo $GLOBALS['sesID']?>&amp;topic=search'; 
+      strLink = 'help.php?ses=<?php echo $GLOBALS['sesID']?>&topic=search'; 
       var win = window.open(strLink, '_blank', 'height=400,width=400,screenX=' + x + ',screenY=' + y + ',left=' + x + ',top=' + y + ',menubar=no,scrollbars=yes,status=no,toolbar=no');
       win.focus();
       
@@ -150,19 +146,25 @@ function createFuncMenu($strFunc)
   <?php echo $strHiddenTerm?>
   <input type="text" class="small" name="searchterms" value="<?php echo gpcAddSlashes($strSearchTerms)?>" title="<?php echo $GLOBALS['locENTERTERMS']?>">
   <a class="actionlink" href="#" onClick="self.document.forms[0].submit();"><?php echo $GLOBALS['locSEARCH']?></a>
-  <?php echo $strNewButton?>
-  <a class="buttonlink" href="#" onClick="openSearchWindow('ext',event); return false;"><?php echo $GLOBALS['locEXTSEARCH']?></a>
-  <a class="buttonlink" href="#" onClick="openSearchWindow('quick',event); return false;"><?php echo $GLOBALS['locQUICKSEARCH']?></a>
-  <a class="buttonlink" href="#" onClick="openHelpWindow(event); return false;"><?php echo $GLOBALS['locHELP']?></a>
   <?php
+  for( $i = 0; $i < count($astrNaviLinks); $i++ ) {
+    if( in_array($GLOBALS['sesACCESSLEVEL'], $astrNaviLinks[$i]["levels_allowed"]) || $GLOBALS['sesACCESSLEVEL'] == 99 ) {
+      if (strchr($astrNaviLinks[$i]['href'], '?') === FALSE)
+        $strHref = '?ses=' . $GLOBALS['sesID'] . "&amp;func=$strFunc&amp;" . $astrNaviLinks[$i]['href'];
+      else
+        $strHref = $astrNaviLinks[$i]['href'];
+  ?>    
+  <a class="buttonlink" href="<?php echo $strHref?>"><?php echo $astrNaviLinks[$i]['text']?></a>
+  <?php            
+    }
   }
   
-  for( $i = 0; $i < count($astrNaviLinks); $i++ ) {
-      if( in_array($GLOBALS['sesACCESSLEVEL'], $astrNaviLinks[$i]["levels_allowed"]) || $GLOBALS['sesACCESSLEVEL'] == 99 ) {
-  ?>    
-  <a class="buttonlink" href="?ses=<?php echo $GLOBALS['sesID']?>&amp;func=<?php echo $strFunc?>&<?php echo $astrNaviLinks[$i]['href']?>"><?php echo $astrNaviLinks[$i]['text']?></a>
-  <?php            
-      }
+  ?>
+  <a class="buttonlink" href="#" onClick="openSearchWindow('ext',event); return false;"><?php echo $GLOBALS['locEXTSEARCH']?></a>
+  <a class="buttonlink" href="#" onClick="openSearchWindow('quick',event); return false;"><?php echo $GLOBALS['locQUICKSEARCH']?></a>
+  <?php echo $strNewButton?>
+  <a class="buttonlink" href="#" onClick="openHelpWindow(event); return false;"><?php echo $GLOBALS['locHELP']?></a>
+  <?php
   }
   ?>
   </form>

@@ -33,7 +33,7 @@ function createOpenInvoiceList()
 {
   $strQuery = 
       "SELECT id FROM {prefix}invoice ".
-      "WHERE state_id = 1 ".
+      "WHERE state_id = 1 and archived = 0 ".
       "ORDER BY invoice_date, name";
   $intRes = mysql_query_check($strQuery);
   $intNumRows = mysql_num_rows($intRes);
@@ -46,12 +46,21 @@ function createOpenInvoiceList()
     createHtmlList('invoices', 'invoices', $astrKeyValues, $intNumRows, $GLOBALS['locLABELOPENINVOICES']);
   }
   else {
-    echo '<b>' . $GLOBALS['locNOOPENINVOICES'] . "</b>\n";
+?>
+  <div class="list_container">
+    <br>
+    <b><?php echo $GLOBALS['locLABELOPENINVOICES']?></b>
+    <br>
+    <br>
+    <?php echo $GLOBALS['locNOOPENINVOICES']?>
+    <br>
+  </div>
+<?php
   }
 
   $strQuery = 
       "SELECT id FROM {prefix}invoice ".
-      "WHERE state_id = 2 or state_id = 5 or state_id = 6 ".
+      "WHERE (state_id = 2 or state_id = 5 or state_id = 6 or state_id = 7) and archived = 0 ".
       "ORDER BY invoice_date, name";
   $intRes = mysql_query_check($strQuery);
   $intNumRows = mysql_num_rows($intRes);
@@ -64,7 +73,15 @@ function createOpenInvoiceList()
     createHtmlList('invoices', 'invoices', $astrKeyValues, $intNumRows, $GLOBALS['locLABELUNPAIDINVOICES']);
   }
   else {
-    echo '<b>' . $GLOBALS['locLABELUNPAIDINVOICES'] . ":</b><br><br>\n";
-    echo '<b>' . $GLOBALS['locNOUNPAIDINVOICES'] . "</b>\n";
+?>
+  <div class="list_container">
+    <br>
+    <b><?php echo $GLOBALS['locLABELUNPAIDINVOICES']?></b>
+    <br>
+    <br>
+    <?php echo $GLOBALS['locNOUNPAIDINVOICES']?>
+    <br>
+  </div>
+<?php
   }
 }
