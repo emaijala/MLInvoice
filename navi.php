@@ -147,6 +147,7 @@ function createFuncMenu($strFunc)
   <input type="text" class="small" name="searchterms" value="<?php echo gpcAddSlashes($strSearchTerms)?>" title="<?php echo $GLOBALS['locENTERTERMS']?>">
   <a class="actionlink" href="#" onClick="self.document.forms[0].submit();"><?php echo $GLOBALS['locSEARCH']?></a>
   <?php
+  }
   for( $i = 0; $i < count($astrNaviLinks); $i++ ) {
     if( in_array($GLOBALS['sesACCESSLEVEL'], $astrNaviLinks[$i]["levels_allowed"]) || $GLOBALS['sesACCESSLEVEL'] == 99 ) {
       if (strchr($astrNaviLinks[$i]['href'], '?') === FALSE)
@@ -158,7 +159,7 @@ function createFuncMenu($strFunc)
   <?php            
     }
   }
-  
+  if( $blnShowSearch ) {
   ?>
   <a class="buttonlink" href="#" onClick="openSearchWindow('ext',event); return false;"><?php echo $GLOBALS['locEXTSEARCH']?></a>
   <a class="buttonlink" href="#" onClick="openSearchWindow('quick',event); return false;"><?php echo $GLOBALS['locQUICKSEARCH']?></a>
