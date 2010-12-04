@@ -37,7 +37,7 @@ echo htmlPageStart( _PAGE_TITLE_ );
 
 ?>
 
-<body class="form">
+<body style="margin: 30px">
 
 <h1>Kiitos</h1>
 <p>

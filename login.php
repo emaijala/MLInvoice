@@ -66,14 +66,14 @@ if( $blnSubmit ) {
 echo htmlPageStart( _PAGE_TITLE_ );
 ?>
 
-<body style="margin: 30px;">
+<body style="margin: 30px;" onload="document.getElementById('flogin').focus();">
 
 <h1>Tervetuloa</h1>
 <p><?php echo $strMessage?>
 </p>
 
 <form action="login.php" method="post" name="login_form">
-Tunnus <input class="medium" name="flogin" type="text" value=""><br><br>
+Tunnus <input class="medium" name="flogin" id="flogin" type="text" value=""><br><br>
 Salasana <input class="medium" name="fpasswd" type="password" value=""><br><br>
 
 <input type="hidden" name="logon_alt" value="1">

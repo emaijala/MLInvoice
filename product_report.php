@@ -29,7 +29,7 @@ require_once "miscfuncs.php";
 require_once "datefuncs.php";
 require_once "localize.php";
 
-function createInvoiceReport($strType)
+function createProductReport($strType)
 {
   $strReport = getRequest('report', '');
   
@@ -41,6 +41,7 @@ function createInvoiceReport($strType)
   
   $intBaseId = getRequest('base', FALSE);
   $intCompanyId = getRequest('company', FALSE);
+  $intProductId = getRequest('product', FALSE);
   $intYear = getRequest('year', date("Y"));
   $intMonth = getRequest('month', date("n"));
   $intSelectedStateId = getRequest('stateid', 1);
@@ -77,7 +78,8 @@ function createInvoiceReport($strType)
        array("type" => "ELEMENT", "element" => $strYearListBox, "label" => $GLOBALS['locYEAR']),
        array("name" => "month", "label" => $GLOBALS['locMONTH'], "type" => "SUBMITLIST", "style" => "medium", "listquery" => $strListQuery, "value" => $intMonth),
        array("name" => "base", "label" => $GLOBALS['locBILLER'], "type" => "SUBMITLIST", "style" => "medium", "listquery" => "SELECT id, name FROM {prefix}base ORDER BY name", "value" => $intBaseId),
-       array("name" => "company", "label" => $GLOBALS['locCOMPANY'], "type" => "SUBMITLIST", "style" => "medium", "listquery" => "SELECT id, company_name FROM {prefix}company ORDER BY company_name", "value" => $intCompanyId)
+       array("name" => "company", "label" => $GLOBALS['locCOMPANY'], "type" => "SUBMITLIST", "style" => "medium", "listquery" => "SELECT id, company_name FROM {prefix}company ORDER BY company_name", "value" => $intCompanyId),
+       array("name" => "product", "label" => $GLOBALS['locPRODUCT'], "type" => "SUBMITLIST", "style" => "medium", "listquery" => "SELECT id, product_name FROM {prefix}product ORDER BY product_name", "value" => $intProductId)
       );
       
       $strQuery = 
@@ -105,7 +107,7 @@ function createInvoiceReport($strType)
   <form method="get" action="" name="selectinv">
   <input name="ses" type="hidden" value="<?php echo $GLOBALS['sesID']?>">
   <input name="func" type="hidden" value="reports">
-  <input name="form" type="hidden" value="invoice">
+  <input name="form" type="hidden" value="product">
   
   <br>
   <b><?php echo $strTopLabel?></b>
@@ -148,12 +150,13 @@ function createInvoiceReport($strType)
   <form method="get" action="" name="invoice">
   <input name="ses" type="hidden" value="<?php echo $GLOBALS['sesID']?>">
   <input name="func" type="hidden" value="reports">
-  <input name="form" type="hidden" value="invoice">
-
+  <input name="form" type="hidden" value="product">
+  
   <input name="year" type="hidden" value="<?php echo $intYear?>">
   <input name="month" type="hidden" value="<?php echo $intMonth?>">
   <input name="base" type="hidden" value="<?php echo $intBaseId?>">
   <input name="company" type="hidden" value="<?php echo $intCompanyId?>">
+  <input name="product" type="hidden" value="<?php echo $intProductId?>">
   <input name="report" type="hidden" value="<?php echo $strType?>">
   <b><?php echo $strMidLabel?></b>
   <table>
@@ -200,11 +203,11 @@ function createInvoiceReport($strType)
 
 function printReport()
 {
-  $intBaseId = getRequest('base', FALSE);
-  $intCompanyId = getRequest('company', FALSE);
-  $intYear = getRequest('year', date("Y"));
-  $intMonth = getRequest('month', date("n"));
-  $intSelectedStateId = getRequest('stateid', 1);
+  $intYear = getRequest('year', FALSE);
+  $intMonth = getRequest('month', 0);
+  $intStateID = getRequest('stateid', FALSE);
+  $intBaseId = getRequest('base', FALSE); 
+  $intProductId = getRequest('product', FALSE);
   
   if( $intMonth == 0 ) {
       $intStartDate = "00";
@@ -228,10 +231,8 @@ function printReport()
   $arrParams = array($strStart, $strEnd);
   
   $strQuery = 
-      "SELECT i.id, i.invoice_no, i.invoice_date, i.due_date, i.ref_number, i.name AS invoice_name, i.reference, c.company_name AS name, c.billing_address, ist.name as state ".
+      "SELECT i.id ".
       "FROM {prefix}invoice i ".
-      "LEFT OUTER JOIN {prefix}company c ON c.id = i.company_id ".
-      "LEFT OUTER JOIN {prefix}invoice_state ist ON i.state_id = ist.id ".
       "WHERE i.invoice_date > ? AND i.invoice_date <= ?";
   
   $strQuery2 = "";
@@ -263,137 +264,117 @@ function printReport()
           " AND i.base_id = ?";
       $arrParams[] = $intBaseId;
   }
-
-  if( $intCompanyId ) {
-      $strQuery .= 
-          " AND i.company_id = ?";
-      $arrParams[] = $intCompanyId;
-  }
   
   $strQuery .= "$strQuery2 ORDER BY invoice_no";
   
-  $intRes = mysql_param_query($strQuery, $arrParams);
+  if ($intProductId)
+  {
+    $strProductWhere = 'AND ir.product_id = ? ';
+    $arrParams[] = $intProductId;
+  }
+  
+  $strProductQuery = 'SELECT p.product_name, ir.description, ' . 
+    'CASE WHEN ir.vat_included = 0 THEN sum(ir.price * ir.pcs) ELSE sum(ir.price * ir.pcs / (1 + ir.vat / 100)) END as total_price, ' .
+    'ir.vat, ir.pcs ' .
+    'FROM {prefix}invoice_row ir ' .
+    'LEFT OUTER JOIN {prefix}product p ON p.id = ir.product_id ' .
+    "WHERE ir.invoice_id IN ($strQuery) $strProductWhere" .
+    'GROUP BY p.product_name, ir.description, ir.vat ' .
+    'ORDER BY p.product_name, ir.description';
+    
+  $intRes = mysql_param_query($strProductQuery, $arrParams);
   $intNumRows = mysql_numrows($intRes);
   ?>
   <div class="report">
   <table>
   <tr>
-      <td class="input" colspan="3">
-          <h1><?php echo $strLabel?></h1>
+      <td class="label">
+          <?php echo $GLOBALS['locPRODUCT']?>
       </td>
-  </tr>
-  <tr>
-      <td class="label" align="center">
-          <?php echo $GLOBALS['locINVNO']?>
+      <td class="label" align="right">
+          <?php echo $GLOBALS['locPCS']?>
       </td>
-      <td class="label" align="center">
-          <?php echo $GLOBALS['locINVDATE']?>
-      </td>
-      <td class="label" align="center">
-          <?php echo $GLOBALS['locPAYER']?>
-      </td>
-      <td class="label" align="center">
-          <?php echo $GLOBALS['locINVOICESTATE']?>
-      </td>
-      <td class="label" align="center">
+      <td class="label" align="right">
           <?php echo $GLOBALS['locVATLESS']?>
       </td>
-      <td class="label" align="center">
+      <td class="label" align="right">
+          <?php echo $GLOBALS['locVATPERCENT']?>
+      </td>
+      <td class="label" align="rght">
           <?php echo $GLOBALS['locVATPART']?>
       </td>
-      <td class="label" align="center">
+      <td class="label" align="right">
           <?php echo $GLOBALS['locWITHVAT']?>
       </td>
   </tr>
   <?php
   if( $intNumRows ) {
+      $intTotCount = 0;
       $intTotSum = 0;
       $intTotVAT = 0;
       $intTotSumVAT = 0;
       while($row = mysql_fetch_assoc($intRes))
       {
-          $intInvoiceID = $row['id'];
-          $strInvoiceName = $row['invoice_name'];
-          $strInvoiceNo = $row['invoice_no'];
-          $strInvoiceState = $row['state'];
-          $strRefNumber = $row['ref_number'];
-          $strInvoiceDate = dateConvIntDate2Date($row['invoice_date']);
-          $strDueDate = dateConvIntDate2Date($row['due_date']);
-          $strName = $row['name'];
-          if( !$strName ) {
-              $strName = $row['client_name'];
+          $strProduct = $row['product_name'];
+          $strDescription = $row['description'];
+          $intCount = $row['pcs'];
+          $intSum = $row['total_price'];
+          $intVATPercent = $row['vat'];
+          
+          if ($strDescription)
+          {
+            if (strlen($strDescription) > 20)
+              $strDescription = substr($strDescription, 0, 17) . '...';
+            if ($strProduct)
+              $strProduct .= " ($strDescription)";
+            else
+              $strProduct = $strDescription;
           }
-          $strRefNumber = chunk_split($strRefNumber, 5, ' ');
-          $strQuery = 
-              "SELECT ir.description, ir.pcs, ir.price, ir.row_date, ir.vat, ir.vat_included ".
-              "FROM {prefix}invoice_row ir ".
-              "WHERE ir.invoice_id = ?";
-          $intRes2 = mysql_param_query($strQuery, array($intInvoiceID));
-          if( $intRes2 ) {
-              $intRowSum = 0;
-              $intRowVAT = 0;
-              $intRowSumVAT = 0;
-              while ($row2 = mysql_fetch_assoc($intRes2))
-              {
-                  $intItemPrice = $row2['price'];
-                  $intItems = $row2['pcs'];
-                  $intVAT = $row2['vat'];
-                  $boolVATIncluded = $row2['vat_included'];
-                  
-                  if ($boolVATIncluded)
-                  {
-                    $intSumVAT = $intItems * $intItemPrice;
-                    $intSum = $intSum / (1 + $intVAT / 100);
-                    $intVATTotal = $intSumVAT - $intSum;
-                  }
-                  else
-                  {
-                    $intSum = $intItems * $intItemPrice;
-                    $intVATTotal = $intSum * ($intVAT / 100);
-                    $intSumVAT = $intSum + $intVAT;
-                  }
-
-                  $intRowSum += $intSum;
-                  $intRowVAT += $intVAT;
-                  $intRowSumVAT += $intSumVAT;
-                  $intTotSum += $intSum;
-                  $intTotVAT += $intVAT;
-                  $intTotSumVAT += $intSumVAT;
-              }
-          }
+          elseif (!$strProduct)
+            $strProduct = '&ndash;';
+          $intVAT = $intSum * $intVATPercent / 100;
+          $intSumVAT = $intSum + $intVAT;
+          
+          $intTotCount += $intCount;
+          $intTotSum += $intSum;
+          $intTotVAT += $intVAT;
+          $intTotSumVAT += $intSumVAT;
   ?>
   <tr>
       <td class="input">
-          <?php echo $strInvoiceNo?>
-      </td>
-      <td class="input">
-          <?php echo $strInvoiceDate?>
-      </td>
-      <td class="input">
-          <?php echo $strName?>
-      </td>
-      <td class="input">
-          <?php echo $strInvoiceState?>
+          <?php echo $strProduct?>
       </td>
       <td class="input" align="right">
-          <?php echo miscRound2Decim($intRowSum)?>
+          <?php echo miscRound2Decim($intCount)?>
       </td>
       <td class="input" align="right">
-          <?php echo miscRound2Decim($intRowVAT)?>
+          <?php echo miscRound2Decim($intSum)?>
       </td>
       <td class="input" align="right">
-          <?php echo miscRound2Decim($intRowSumVAT)?>
+          <?php echo $intVATPercent?>
+      </td>
+      <td class="input" align="right">
+          <?php echo miscRound2Decim($intVAT)?>
+      </td>
+      <td class="input" align="right">
+          <?php echo miscRound2Decim($intSumVAT)?>
       </td>
   </tr>
   <?php
       }
   ?>
   <tr>
-      <td class="input" colspan="4" align="right">
+      <td class="input">
           <b><?php echo $GLOBALS['locTOTAL']?></b>
       </td>
       <td class="input" align="right">
+          <b>&nbsp;<?php echo miscRound2Decim($intTotCount)?></b>
+      </td>
+      <td class="input" align="right">
           <b>&nbsp;<?php echo miscRound2Decim($intTotSum)?></b>
+      </td>
+      <td class="input" align="right">
+          &nbsp;
       </td>
       <td class="input" align="right">
           <b>&nbsp;<?php echo miscRound2Decim($intTotVAT)?></b>

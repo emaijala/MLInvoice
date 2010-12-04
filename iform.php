@@ -276,29 +276,16 @@ if( $intParentKey ) {
 <body class="iform" onload="<?php echo $strOnLoad?>">
 <script type="text/javascript">
 <!--
-function OpenCalendar(datefield, event) {
-    x = event.screenX;
-    y = event.screenY;
-    strLink = 'calendar.php?ses=<?php echo $GLOBALS['sesID']?>&datefield=' + datefield;
-    
-    window.open(strLink, 'calendar', 'height=260,width=280,screenX=' + x + ',screenY=' + y + ',left=' + x + ',top=' + y + ',menubar=no,scrollbars=yes,status=no,toolbar=no');
-    
-    return true;
-}
-function OpenClock(timefield, event) {
-    x = event.screenX;
-    y = event.screenY;
-    strLink = 'clock.php?ses=<?php echo $GLOBALS['sesID']?>&timefield=' + timefield;
-    
-    window.open(strLink, 'clock', 'height=150,width=200,screenX=' + x + ',screenY=' + y + ',left=' + x + ',top=' + y + ',menubar=no,scrollbars=yes,status=no,toolbar=no');
-    
-    return true;
-}
+$(function() {
+  $('input[class~="hasCalendar"]').datepicker();
+});
+
 function OpenPop(strLink, event) {
     x = event.screenX;
     y = event.screenY;
     
-    window.open(strLink, 'pop_iform', 'height=200,width=800,screenX=' + x + ',screenY=' + y + ',left=' + x + ',top=' + y + ',menubar=no,scrollbars=yes,status=no,toolbar=no');
+    var win = window.open(strLink, 'pop_iform', 'height=200,width=800,screenX=' + x + ',screenY=' + y + ',left=' + x + ',top=' + y + ',menubar=no,scrollbars=yes,status=no,toolbar=no');
+    win.focus();
     
     return true;
 }

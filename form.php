@@ -291,34 +291,9 @@ function createForm($strFunc, $strForm)
   
   <script type="text/javascript">
   <!--
-  function OpenCalendar(datefield, event) {
-      x = event.screenX;
-      y = event.screenY;
-      strLink = 'calendar.php?ses=<?php echo $GLOBALS['sesID']?>&amp;datefield=' + datefield;
-      
-      window.open(strLink, 'calendar', 'height=260,width=280,screenX=' + x + ',screenY=' + y + ',left=' + x + ',top=' + y + ',menubar=no,scrollbars=yes,status=no,toolbar=no');
-      
-      return true;
-  }
-  function OpenClock(timefield, event) {
-      x = event.screenX;
-      y = event.screenY;
-      strLink = 'clock.php?ses=<?php echo $GLOBALS['sesID']?>&amp;timefield=' + timefield;
-      
-      window.open(strLink, 'clock', 'height=150,width=200,screenX=' + x + ',screenY=' + y + ',left=' + x + ',top=' + y + ',menubar=no,scrollbars=yes,status=no,toolbar=no');
-      
-      return true;
-  }
-  function OpenUploader(valuefield, imagepath, check, event) {
-      x = event.screenX;
-      y = event.screenY;
-      strLink = 'uploadpicture.ph?ses=<?php echo $GLOBALS['sesID']?>&amp;valuefield=' + valuefield + '&amp;imgpath=' + imagepath + '&amp;check=' + check; 
-      
-      window.open(strLink, 'uploader', 'height=400,width=400,screenX=' + x + ',screenY=' + y + ',left=' + x + ',top=' + y + ',menubar=no,scrollbars=yes,status=no,toolbar=no');
-      
-      return true;
-  }
-  
+	$(function() {
+		$('input[class~="hasCalendar"]').datepicker();
+	});
   -->
   </script>
   
@@ -436,7 +411,7 @@ function createFormButtons($boolNew)
   }
   ?>
   <td>
-      <a class="actionlink" href="#" onclick="window.open('help.php?ses=<?php echo $GLOBALS['sesID']?>&amp;topic=form', '_blank', 'height=400,width=400,menubar=no,scrollbars=yes,status=no,toolbar=no'); return false;"><?php echo $GLOBALS['locHELP']?></a>
+      <a class="actionlink" href="#" onclick="var win = window.open('help.php?ses=<?php echo $GLOBALS['sesID']?>&amp;topic=form', '_blank', 'height=400,width=400,menubar=no,scrollbars=yes,status=no,toolbar=no'); win.focus(); return false;"><?php echo $GLOBALS['locHELP']?></a>
   </td>
   </tr>        
   </table>

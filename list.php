@@ -34,6 +34,7 @@ function createList($strList, $strFunc)
   if (!$strTable)
     return;
   
+  $strOrderClause2 = '';
   $arrQueryParams = array();
   if( !$astrKeyValues ) {
       if( $strWhereClause ) {
@@ -81,7 +82,7 @@ function createList($strList, $strFunc)
       }
       else {
           for( $j = 0; $j < count($astrShowFields); $j++ ) {
-              $strOrderClause .= $strTable. ".". $astrShowFields[$j]['name'] . " ASC, ";
+              $strOrderClause .= $astrShowFields[$j]['name'] . " ASC, ";
           }
           $strOrderClause = substr( $strOrderClause, 0, -2);
       }
@@ -98,7 +99,6 @@ function createList($strList, $strFunc)
           }
       }
   }
-  //echo $strQuery;
   
   createHtmlList($strFunc, $strList, $astrKeyValues, $intTotal);
 }
@@ -330,7 +330,7 @@ $(document).ready(function() {
   </table>
   <div style="float: left; margin-left: 60px; margin-top: 3px">
     <a class="actionlink" href="<?php echo $strLink?>"><?php echo $GLOBALS['locNEW']?></a>
-    <a class="actionlink" href="#" onclick="window.open('help.php?ses=<?php echo $GLOBALS['sesID']?>&amp;topic=list', '_blank', 'height=400,width=400,menubar=no,scrollbars=yes,status=no,toolbar=no'); return false;"><?php echo $GLOBALS['locHELP']?></a>
+    <a class="actionlink" href="#" onclick="var win = window.open('help.php?ses=<?php echo $GLOBALS['sesID']?>&amp;topic=list', '_blank', 'height=400,width=400,menubar=no,scrollbars=yes,status=no,toolbar=no'); win.focus(); return false;"><?php echo $GLOBALS['locHELP']?></a>
   </div>
   <br>
   <br>
@@ -342,7 +342,7 @@ $(document).ready(function() {
   <b><?php echo $strTitle?> :</b>
   <b><?php echo $GLOBALS['locNOENTRIES']?></b><br><br>
   <a class="actionlink" href="<?php echo $strLink?>"><?php echo $GLOBALS['locNEW']?></a>
-  <a class="actionlink" href="#" onclick="window.open('help.php?ses=<?php echo $GLOBALS['sesID']?>&amp;topic=list', '_blank', 'height=400,width=400,menubar=no,scrollbars=yes,status=no,toolbar=no'); return false;"><?php echo $GLOBALS['locHELP']?></a>
+  <a class="actionlink" href="#" onclick="var win = window.open('help.php?ses=<?php echo $GLOBALS['sesID']?>&amp;topic=list', '_blank', 'height=400,width=400,menubar=no,scrollbars=yes,status=no,toolbar=no'); win.focus(); return false;"><?php echo $GLOBALS['locHELP']?></a>
   <?php
   }
   ?>

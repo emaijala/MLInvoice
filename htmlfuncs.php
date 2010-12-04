@@ -73,8 +73,10 @@ Todo : This could be more generic...
   <title>$strTitle</title>
   <link rel="shortcut icon" href="favicon.ico" type="image/x-icon">
   <link rel="stylesheet" type="text/css" href="css/style.css">
+  <link rel="stylesheet" type="text/css" href="jquery/css/smoothness/jquery-ui-1.8.6.custom.css">
   <script type="text/javascript" src="jquery/js/jquery-1.4.2.min.js"></script>
-  <script type="text/javascript" src="jquery/js/jquery-ui-1.8.1.custom.min.js"></script>
+  <script type="text/javascript" src="jquery/js/jquery-ui-1.8.6.custom.min.js"></script>
+  <script type="text/javascript" src="jquery/js/jquery.ui.datepicker-fi.js"></script>
   <script type="text/javascript" src="datatables/media/js/jquery.dataTables.js"></script>
 </head>
 
@@ -372,17 +374,14 @@ function htmlFormElement( $strName, $strType, $strValue, $strStyle, $strListQuer
         case 'INTDATE' :
             if( $strMode == "MODIFY" ) {
                 $strFormElement = 
-                "<input type=\"text\" class=\"" . $strStyle . "\" ".
-                "id=\"" . $strName . "\" name=\"" . $strName . "\" value=\"" . $strValue . "\" $astrAdditionalAttributes>\n";
+                "<input type=\"text\" class=\"$strStyle hasCalendar\" ".
+                "id=\"$strName\" name=\"$strName\" value=\"$strValue\" $astrAdditionalAttributes>\n";
                 if( $strListQuery == "gif" ) {
                     $strExtension = "gif";
                 }
                 else {
                     $strExtension = "png";
                 }
-                $strFormElement .=
-                    "<a class=\"tinyactionlink\" href=\"#\" onclick=\"OpenCalendar('". $strName. "', event); return false;\">". $GLOBALS['locCALENDAR']. "</a>";
-                    
             }
             elseif( $strMode == "PDF" ) {
                 $strFormElement = $strValue;
@@ -393,22 +392,6 @@ function htmlFormElement( $strName, $strType, $strValue, $strStyle, $strListQuer
         break;
         case 'TIMESTAMP' :
             $strFormElement = $strValue . "\n";
-        break;
-        case 'TIME' :
-            if( $strMode == "MODIFY" ) {
-                $strFormElement = 
-                "<input type=\"text\" class=\"" . $strStyle . "\" ".
-                "id=\"" . $strName . "\" name=\"" . $strName . "\" value=\"" . $strValue . "\" $astrAdditionalAttributes>\n";
-                $strFormElement .=
-                    "<a class=\"tinyactionlink\" href=\"#\" onclick=\"OpenClock('". $strName. "', event); return false;\">". $GLOBALS['locCLOCK']. "</a>";
-                    
-            }
-            elseif( $strMode == "PDF" ) {
-                $strFormElement = $strValue;
-            }
-            else {
-                $strFormElement = $strValue . "\n";
-            }
         break;
         case 'HID_TEXT' :
             $strFormElement = 

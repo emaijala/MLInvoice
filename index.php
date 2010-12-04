@@ -66,10 +66,12 @@ case 'companies':
     $title = $GLOBALS['locCOMPANIES'];
   break;
 case 'reports':
-  if ($strForm)
-    $title = $GLOBALS['locREPORT'];
-  else
-    $title = $GLOBALS['locREPORTS'];
+  switch ($strForm)
+  {
+  case 'invoice': $title = $GLOBALS['locINVOICEREPORT']; break;
+  case 'product': $title = $GLOBALS['locPRODUCTREPORT']; break;
+  default: $title = $GLOBALS['locREPORTS']; break;
+  }
   break;
 case 'settings':
   if ($strForm)
@@ -139,7 +141,7 @@ for( $i = 0; $i < count($astrMainButtons); $i++ ) {
     if ($astrMainButtons[$i]['action'] == $strFunc || ($astrMainButtons[$i]['action'] == '' && $strFunc == 'invoices'))
       $strButton .= ' selected';
     if (isset($astrMainButtons[$i]['popup']) && $astrMainButtons[$i]['popup'])
-      $strButton .= '" href="#" onClick="window.open(\'' . $astrMainButtons[$i]['action'] . '\', \'vllasku_help\', \'height=400,width=400,menubar=no,scrollbars=yes,status=no,toolbar=no\'); return false;">';
+      $strButton .= '" href="#" onClick="var win=window.open(\'' . $astrMainButtons[$i]['action'] . '\', \'vllasku_help\', \'height=400,width=400,menubar=no,scrollbars=yes,status=no,toolbar=no\'); win.focus(); return false;">';
     else
       $strButton .= '" href="?ses=' . $GLOBALS['sesID'] . '&amp;func=' . $astrMainButtons[$i]['action'] . '">';
     $strButton .= $GLOBALS[$astrMainButtons[$i]['title']] . '</a>';
@@ -179,9 +181,11 @@ case '':
   break;
 case 'reports':
   createFuncMenu($strFunc);
-  require_once 'invoice_report.php';
-  if ($strForm == 'invoice')
-    createInvoiceReport('report');
+  switch ($strForm)
+  {
+  case 'invoice': require_once 'invoice_report.php'; createInvoiceReport('report'); break;
+  case 'product': require_once 'product_report.php'; createProductReport('report'); break;
+  }
   break;
 default:
   if ($strForm)

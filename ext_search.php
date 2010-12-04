@@ -32,7 +32,9 @@ require "datefuncs.php";
 $strSesID = sesVerifySession();
 
 require "localize.php";
-$strForm = getPostRequest('selectform', '');
+
+$strFunc = getRequest('func', '');
+$strForm = getRequest('form', '');
 
 
 $blnSearch = getPost('search_x', FALSE) ? TRUE : FALSE;
@@ -89,10 +91,10 @@ for( $j = 0; $j < count($astrFormElements); $j++ ) {
     }
     elseif( $strControlType != 'LABEL' ) {
         if( $strControlType == 'INTDATE' ) {
-            $astrValues[$strControlName] = getPost($astrFormElements[$j]['name'], '');
+            $astrValues[$strControlName] = getPost($strControlName, '');
         }
         else { 
-            $astrValues[$strControlName] = getPost($astrFormElements[$j]['name'], '');
+            $astrValues[$strControlName] = getPost($strControlName, '');
         }
     }
 }
@@ -117,24 +119,24 @@ if( $blnSearch || $blnSave ) {
                     $strSearchMatch = "NOT LIKE";
                 }
                 //add to the where clause
-                $strWhereClause .= $astrFormElements[$j]['name']. " ". $strSearchMatch. " '%-". $strSearchValue. "%-' $strSelectedOperator ";
+                $strWhereClause .= $strListTableAlias . $astrFormElements[$j]['name']. " ". $strSearchMatch. " '%-". $strSearchValue. "%-' $strSelectedOperator ";
             }
             //do =, !=, < or > search to elements that are numeric
             elseif( $astrFormElements[$j]['type'] == 'INT' || $astrFormElements[$j]['type'] == 'LIST' ) {
                 //add to the where clause
-                $strWhereClause .= $astrFormElements[$j]['name']. " ". $strSearchMatch. " ". $strSearchValue. " $strSelectedOperator ";
+                $strWhereClause .= $strListTableAlias . $astrFormElements[$j]['name']. " ". $strSearchMatch. " ". $strSearchValue. " $strSelectedOperator ";
             }
             //checkboxelements handled bit differently than other int's
             elseif( $astrFormElements[$j]['type'] == 'CHECK' ) {
                 $tmpValue = $astrValues[$astrFormElements[$j]['name']] ? 1 : 0;
                 //add to the where clause
-                $strWhereClause .= $astrFormElements[$j]['name']. " ". $strSearchMatch. " ". $tmpValue. " $strSelectedOperator ";
+                $strWhereClause .= $strListTableAlias . $astrFormElements[$j]['name']. " ". $strSearchMatch. " ". $tmpValue. " $strSelectedOperator ";
             }
             //date-elements need own formatting too
             elseif( $astrFormElements[$j]['type'] == 'INTDATE' ) {
                 $tmpValue = dateConvDate2IntDate($astrValues[$astrFormElements[$j]['name']]);
                 //add to the where clause
-                $strWhereClause .= $astrFormElements[$j]['name']. " ". $strSearchMatch. " ". $tmpValue. " $strSelectedOperator ";
+                $strWhereClause .= $strListTableAlias . $astrFormElements[$j]['name']. " ". $strSearchMatch. " ". $tmpValue. " $strSelectedOperator ";
             }
         }
     }
@@ -142,11 +144,8 @@ if( $blnSearch || $blnSave ) {
     $strWhereClause = substr( $strWhereClause, 0, -4);
     $strWhereClause = urlencode($strWhereClause);
     if( $blnSearch ) {
-        $strLink = 
-            "list.php?ses=". $GLOBALS['sesID']."&selectform=". 
-            $strForm. "&where=". $strWhereClause;
-        $strOnLoad = "opener.top.frset_bottom.f_list.location.href='".$strLink. "'";
-        //$strOnLoad = "alert(opener.top.f_list.location.href);";
+        $strLink = "index.php?ses=". $GLOBALS['sesID']."&func=$strFunc&selectform=$strForm&where=$strWhereClause";
+        $strOnLoad = "opener.location.href='$strLink'";
     }
     
     if( $blnSave && $strSearchName ) {
@@ -163,35 +162,22 @@ echo htmlPageStart( _PAGE_TITLE_ );
 ?>
 <script type="text/javascript">
 <!--
+$(function() {
+  $('input[class~="hasCalendar"]').datepicker();
+});
+
 function openHelpWindow(event) {
     x = event.screenX;
     y = event.screenY;
-    strLink = 'help.php?ses=<?php echo $GLOBALS['sesID']?>&topic=extsearch'; window.open(strLink, '_blank', 'height=400,width=400,screenX=' + x + ',screenY=' + y + ',left=' + x + ',top=' + y + ',menubar=no,scrollbars=yes,status=no,toolbar=no');
+    strLink = 'help.php?ses=<?php echo $GLOBALS['sesID']?>&topic=extsearch'; var win = window.open(strLink, '_blank', 'height=400,width=400,screenX=' + x + ',screenY=' + y + ',left=' + x + ',top=' + y + ',menubar=no,scrollbars=yes,status=no,toolbar=no'); win.focus();
     
     return true;
 }
-function OpenCalendar(datefield, event) {
-    x = event.screenX;
-    y = event.screenY;
-    strLink = 'calendar.php?ses=<?php echo $GLOBALS['sesID']?>&datefield=' + datefield;
-    
-    window.open(strLink, 'calendar', 'height=260,width=280,screenX=' + x + ',screenY=' + y + ',left=' + x + ',top=' + y + ',menubar=no,scrollbars=yes,status=no,toolbar=no');
-    
-    return true;
-}
-function OpenClock(timefield, event) {
-    x = event.screenX;
-    y = event.screenY;
-    strLink = 'clock.php?ses=<?php echo $GLOBALS['sesID']?>&timefield=' + timefield;
-    
-    window.open(strLink, 'clock', 'height=150,width=200,screenX=' + x + ',screenY=' + y + ',left=' + x + ',top=' + y + ',menubar=no,scrollbars=yes,status=no,toolbar=no');
-}
-
 -->
 </script>
 
 <body class="form" onload="<?php echo $strOnLoad?>">
-<form method="post" action="ext_search.php?ses=<?php echo $GLOBALS['sesID']?>&selectform=<?php echo $strForm?>" target="_self" name="search_form">
+<form method="post" action="ext_search.php?ses=<?php echo $GLOBALS['sesID']?>&amp;func=<?php echo $strFunc?>&amp;form=<?php echo $strForm?>" target="_self" name="search_form">
 <input type="hidden" name="fields" value="<?php echo $strFields?>">
 <table>
 <tr>

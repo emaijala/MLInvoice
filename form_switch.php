@@ -57,6 +57,7 @@ for( $i = 1; $i <= 31; $i++ ) {
 }
 $strDateListQuery = substr($strDateListQuery, 0, -6);
 
+$strListTableAlias = '';
 switch ( $strForm ) {
 
 case 'company':
@@ -158,6 +159,7 @@ break;
 
 case 'invoice':
    $strTable = '{prefix}invoice';
+   $strListTableAlias = 'i.'; // this is for the search function
    $strPrimaryKey = "id";
    $strMainForm = "form.php?selectform=invoice";
    

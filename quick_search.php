@@ -62,7 +62,9 @@ echo htmlPageStart( _PAGE_TITLE_ );
 function openHelpWindow(event) {
     x = event.screenX;
     y = event.screenY;
-    strLink = 'help.php?ses=<?php echo $GLOBALS['sesID']?>&topic=quicksearch'; window.open(strLink, '_blank', 'height=400,width=400,screenX=' + x + ',screenY=' + y + ',left=' + x + ',top=' + y + ',menubar=no,scrollbars=yes,status=no,toolbar=no');
+    strLink = 'help.php?ses=<?php echo $GLOBALS['sesID']?>&topic=quicksearch'; 
+    var win = window.open(strLink, '_blank', 'height=400,width=400,screenX=' + x + ',screenY=' + y + ',left=' + x + ',top=' + y + ',menubar=no,scrollbars=yes,status=no,toolbar=no');
+    win.focus();
     
     return true;
 }

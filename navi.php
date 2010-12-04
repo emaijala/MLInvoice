@@ -62,7 +62,8 @@ function createFuncMenu($strFunc)
       $strLabel = $GLOBALS['locSHOWREPORTNAVI'];
       $astrNaviLinks = 
       array( 
-          array("href" => "form=invoice", "text" => $GLOBALS['locINVOICEREPORTS'], "levels_allowed" => array(1))
+          array("href" => "form=invoice", "text" => $GLOBALS['locINVOICEREPORT'], "levels_allowed" => array(1)),
+          array("href" => "form=product", "text" => $GLOBALS['locPRODUCTREPORT'], "levels_allowed" => array(1))
       );
   break;
   
@@ -91,6 +92,7 @@ function createFuncMenu($strFunc)
   break;
   default :
       $blnShowSearch = TRUE;
+      $strFormName = "invoice";
       $astrNaviLinks = 
       array( 
           /*array("href" => "select_invoice.php?ses=".$GLOBALS['sesID']. "&type=payment", "text" => $GLOBALS['locADDPAYMENT'], "target" => "f_list", "levels_allowed" => array(1))*/
@@ -99,7 +101,6 @@ function createFuncMenu($strFunc)
       
   break;
   }
-  //$strOpenForm = "blank.html";
   
   ?>
   <script type="text/javascript">
@@ -107,7 +108,9 @@ function createFuncMenu($strFunc)
   function openHelpWindow(event) {
       x = event.screenX;
       y = event.screenY;
-      strLink = 'help.php?ses=<?php echo $GLOBALS['sesID']?>&amp;topic=search'; window.open(strLink, '_blank', 'height=400,width=400,screenX=' + x + ',screenY=' + y + ',left=' + x + ',top=' + y + ',menubar=no,scrollbars=yes,status=no,toolbar=no');
+      strLink = 'help.php?ses=<?php echo $GLOBALS['sesID']?>&amp;topic=search'; 
+      var win = window.open(strLink, '_blank', 'height=400,width=400,screenX=' + x + ',screenY=' + y + ',left=' + x + ',top=' + y + ',menubar=no,scrollbars=yes,status=no,toolbar=no');
+      win.focus();
       
       return true;
   }
@@ -115,7 +118,7 @@ function createFuncMenu($strFunc)
       x = event.screenX;
       y = event.screenY;
       if( mode == 'ext' ) {
-          strLink = 'ext_search.php?ses=<?php echo $GLOBALS['sesID']?>' + '&amp;selectform=<?php echo $strFormName?>';
+          strLink = 'ext_search.php?ses=<?php echo $GLOBALS['sesID']?>&func=<?php echo $strFunc?>&form=<?php echo $strFormName?>';
           strLink = strLink + '<?php echo $strExtSearchTerm?>';
           height = '400';
           width = '500';
@@ -128,7 +131,8 @@ function createFuncMenu($strFunc)
           windowname = 'quicksearch';
       }
   
-      window.open(strLink, windowname, 'height='+height+',width='+width+',screenX=' + x + ',screenY=' + y + ',left=' + x + ',top=' + y + ',menubar=no,scrollbars=yes,status=no,toolbar=no');
+      var win = window.open(strLink, windowname, 'height='+height+',width='+width+',screenX=' + x + ',screenY=' + y + ',left=' + x + ',top=' + y + ',menubar=no,scrollbars=yes,status=no,toolbar=no');
+      win.focus();
       
       return true;
   }

@@ -200,15 +200,11 @@ if( $blnSave ) {
                 //get the latest insert ID from mysql
                 $intKeyValue = mysql_insert_id();                
             }
-            //TODO : think this list update system...
-            //$strOnLoad = "window.open('list.php?ses=". $GLOBALS['sesID']. "&form=" . $strForm . "','f_list');";
-            
             //insert is now done - set the new flag to FALSE
             //then the next query will be update
             $blnNew = FALSE;
             //insert went fine - let the user know it
             $blnInsertDone = TRUE;
-            //$strOnLoad = "top.frset_bottom.f_list.document.forms[0].key_values.value=''; top.frset_bottom.f_list.document.forms[0].submit();";
         }
         //if there's no resource identifier something went wrong
         else {
@@ -290,34 +286,9 @@ if( $intKeyValue ) {
 
 <script type="text/javascript">
 <!--
-function OpenCalendar(datefield, event) {
-    x = event.screenX;
-    y = event.screenY;
-    strLink = 'calendar.php?ses=<?php echo $GLOBALS['sesID']?>&datefield=' + datefield;
-    
-    window.open(strLink, 'calendar', 'height=260,width=280,screenX=' + x + ',screenY=' + y + ',left=' + x + ',top=' + y + ',menubar=no,scrollbars=yes,status=no,toolbar=no');
-    
-    return true;
-}
-function OpenClock(timefield, event) {
-    x = event.screenX;
-    y = event.screenY;
-    strLink = 'clock.php?ses=<?php echo $GLOBALS['sesID']?>&timefield=' + timefield;
-    
-    window.open(strLink, 'clock', 'height=150,width=200,screenX=' + x + ',screenY=' + y + ',left=' + x + ',top=' + y + ',menubar=no,scrollbars=yes,status=no,toolbar=no');
-    
-    return true;
-}
-function OpenUploader(valuefield, imagepath, check, event) {
-    x = event.screenX;
-    y = event.screenY;
-    strLink = 'uploadpicture.ph?ses=<?php echo $GLOBALS['sesID']?>&valuefield=' + valuefield + '&imgpath=' + imagepath + '&check=' + check; 
-    
-    window.open(strLink, 'uploader', 'height=400,width=400,screenX=' + x + ',screenY=' + y + ',left=' + x + ',top=' + y + ',menubar=no,scrollbars=yes,status=no,toolbar=no');
-    
-    return true;
-}
-
+$(function() {
+  $('input[class~="hasCalendar"]').datepicker();
+});
 -->
 </script>
 

@@ -182,8 +182,6 @@ default :
     $GLOBALS['locHELP'] = 'Ohje';
     $GLOBALS['locCONFIRMDELETE'] = 'Haluatko varmasti poistaa nämä tiedot?\n\rTiedot poistetaan lopullisesti!';
     $GLOBALS['locENTRYDELETED'] = 'Tiedot on poistettu!';
-    $GLOBALS['locCALENDAR'] = 'pvm';
-    $GLOBALS['locCLOCK'] = 'klo';
     $GLOBALS['locSAVESEARCH'] = 'Tallenna haku';
     $GLOBALS['locCLOSE'] = 'Sulje';
    
@@ -193,7 +191,7 @@ default :
     $GLOBALS['locMAKEINVOICE'] = 'Tee lasku';
     
     
-    //TOPNAVI
+    //MAIN FUNCTIONS
     $GLOBALS['locSHOWSEARCH'] = 'HAKU';
     $GLOBALS['locSHOWREPORTNAVI'] = 'RAPORTIT';
     $GLOBALS['locSHOWSETTINGSNAVI'] = 'ASETUKSET';
@@ -238,7 +236,8 @@ default :
     $GLOBALS['locPRINTINVOICE'] = 'Tulosta laskut';
     $GLOBALS['locEXTSEARCH'] = 'Laaja haku';
     $GLOBALS['locQUICKSEARCH'] = 'Pikahaku';
-    $GLOBALS['locINVOICEREPORTS'] = 'Laskutusraportti'; 
+    $GLOBALS['locINVOICEREPORT'] = 'Laskutusraportti'; 
+    $GLOBALS['locPRODUCTREPORT'] = 'Tuoteraportti'; 
     
     // LIST HEADERS
     $GLOBALS['locHEADERINVOICEDATE'] = 'Pvm';       
