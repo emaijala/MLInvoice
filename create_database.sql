@@ -128,7 +128,7 @@ CREATE TABLE vllasku_invoice_row (
   order_no int(11) default NULL,
   reminder_row tinyint NOT NULL default 0,
   PRIMARY KEY (id),
-  FOREIGN KEY (invoice_id) REFERENCES vllasku_invoice(id) ON CASCADE DELETE,
+  FOREIGN KEY (invoice_id) REFERENCES vllasku_invoice(id) ON DELETE CASCADE,
   FOREIGN KEY (product_id) REFERENCES vllasku_product(id),
   FOREIGN KEY (type_id) REFERENCES vllasku_row_type(id)
 ) ENGINE=INNODB AUTO_INCREMENT=1;
