@@ -288,7 +288,6 @@ function createForm($strFunc, $strForm)
   <div class="form">
   <?php echo $strMessage ?>
   
-  
   <script type="text/javascript">
   <!--
 	$(function() {
