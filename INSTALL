@@ -1,10 +1,9 @@
 Asennus:
 
-1. luo mysql-tietokanta 'vllasku'
-2. aja oheinen create_database.sql kantaan ja luo uusi käyttäjätunnus, jolla on oikeudet ko. tietokantaan
-3. kopioi paketin muut tiedostot web-palvelimelle
-4. muokkaa settings.php tiedostoon oikeat asetukset tietokantayhteyteen
-    (luo erillinen käyttäjä - älä käytä root-tunnusta)
-5. kirjaudu sisään oletustunnuksilla admin admin
-6. mene Järjestelmä->Käyttäjät ja vaihda Administrator-käyttäjän tunnus ja salasana haluamiksesi (huom. tarvineeko edes mainita, että tämä on ehdottoman tärkeää!)
-7. settings.php sisältää muutamia muitakin järjestelmän laajuisia asetuksia, joita voi muokata tarpeen mukaan
+   1. Luo MySQL-tietokanta vllasku.
+   2. Luo MySQL-käyttäjä, jolla on riittävät oikeudet (ainakin CREATE, INSERT, UPDATE ja DELETE) vllasku-tietokannan käyttöön.
+   3. Pura vllaskun asennuspaketti www-palvelimelle sopivaan paikkaan (tyypillisesti esim. htdocs-hakemistoon). Varmista, että tiedostojen käyttöoikeudet riittävät.
+   4. Luo tietokantarakenne suorittamalla vllasku-tietokannassa create_database.sql -tiedoston (löytyy asennuspaketista) sisältämät komennot.
+   5. Muokkaa settings.php -tiedoston asetukset sopiviksi. Toimivuuden kannalta olennaiset asetukset ovat tietokantayhteyteen liittyvät asetukset, jotka löytyvät tiedoston alkupuolelta.
+   6. Avaa VLLasku selaimeen ja kirjaudu sisään oletustunnuksilla admin admin
+   7. TÄRKEÄÄ: Vaihda admin-käyttäjän salasana kohdasta Järjestelmä -> Käyttäjät
