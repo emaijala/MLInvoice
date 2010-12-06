@@ -34,7 +34,7 @@ function createFuncMenu($strFunc)
   $strNewButton = '';
   $strFormName = '';
   $strExtSearchTerm = "";
-  $blnShowSearch = FALSE;
+  $blnShowSearch = FALSE;   
   $strSearchTerms = getRequest('searchterms', '');
   
   switch ( $strFunc ) {
@@ -43,19 +43,39 @@ function createFuncMenu($strFunc)
       $strLabel = $GLOBALS['locSHOWSYSTEMNAVI'];
       $astrNaviLinks = 
       array( 
-          array("href" => "list=users", "text" => $GLOBALS['locUSERS'], "levels_allowed" => array(99)),
-          array("href" => "list=session_types", "text" => $GLOBALS['locSESSIONTYPES'], "levels_allowed" => array(99))
+          array("href" => "list=user", "text" => $GLOBALS['locUSERS'], "levels_allowed" => array(99)),
+          array("href" => "list=session_type", "text" => $GLOBALS['locSESSIONTYPES'], "levels_allowed" => array(99))
       );
+      $strNewText = '';
+      $strList = getRequest('list', '');
+      switch ($strList)
+      {
+      case 'user': $strNewText = $GLOBALS['locNEWUSER']; break;
+      case 'session_type': $strNewText = $GLOBALS['locNEWSESSIONTYPE']; break;
+      }
+      if ($strNewText)
+        $strNewButton = '<a class="actionlink" href="?ses=' . $GLOBALS['sesID'] . "&amp;func=system&amp;list=$strList&amp;form=$strList\">$strNewText</a>";
   break;
   case "settings" :
       $strLabel = $GLOBALS['locSHOWSETTINGSNAVI'];
       $astrNaviLinks = 
       array( 
-          array("href" => "list=base_info", "text" => $GLOBALS['locBASEINFO'], "levels_allowed" => array(1)),
+          array("href" => "list=base_info", "text" => $GLOBALS['locBASES'], "levels_allowed" => array(1)),
           array("href" => "list=invoice_state", "text" => $GLOBALS['locINVOICESTATES'], "levels_allowed" => array(1)),
-          array("href" => "list=products", "text" => $GLOBALS['locPRODUCTS'], "levels_allowed" => array(1)),
+          array("href" => "list=product", "text" => $GLOBALS['locPRODUCTS'], "levels_allowed" => array(1)),
           array("href" => "list=row_type", "text" => $GLOBALS['locROWTYPES'], "levels_allowed" => array(1)),
       );
+      $strNewText = '';
+      $strList = getRequest('list', '');
+      switch ($strList)
+      {
+      case 'base_info': $strNewText = $GLOBALS['locNEWBASE']; break;
+      case 'invoice_state': $strNewText = $GLOBALS['locNEWINVOICESTATE']; break;
+      case 'product': $strNewText = $GLOBALS['locNEWPRODUCT']; break;
+      case 'row_type': $strNewText = $GLOBALS['locNEWROWTYPE']; break;
+      }
+      if ($strNewText)
+        $strNewButton = '<a class="actionlink" href="?ses=' . $GLOBALS['sesID'] . "&amp;func=settings&amp;list=$strList&amp;form=$strList\">$strNewText</a>";
   break;
   
   case "reports" :
@@ -74,16 +94,7 @@ function createFuncMenu($strFunc)
       $strFormSwitch = "company";
       $astrNaviLinks = array();
       
-      $strNewButton = '<a class="actionlink" href="?ses=' . $GLOBALS['sesID'] . '&amp;func=companies&amp;form=company&amp;new=1">Uusi asiakas</a>';
-  break;
-  case "products":
-      $blnShowSearch = TRUE;
-      $strOpenForm = "product";
-      $strFormName = "product";
-      $strFormSwitch = "product";
-      $astrNaviLinks = array();
-      
-      $strNewButton = '<a class="actionlink" href="?ses=' . $GLOBALS['sesID'] . '&amp;func=settings&amp;list=products&amp;form=product&amp;new=1">Uusi tuote</a>';
+      $strNewButton = '<a class="actionlink" href="?ses=' . $GLOBALS['sesID'] . '&amp;func=companies&amp;form=company">' . $GLOBALS['locNEWCOMPANY'] . '</a>';
   break;
   default :
       $blnShowSearch = TRUE;
@@ -93,23 +104,17 @@ function createFuncMenu($strFunc)
         $astrNaviLinks[] = array("href" => "index.php?ses=".$GLOBALS['sesID']. "&amp;func=", "text" => $GLOBALS['locDISPLAYOPENINVOICES'], "levels_allowed" => array(1));
       else
         $astrNaviLinks[] = array("href" => "index.php?ses=".$GLOBALS['sesID']. "&amp;func=invoices", "text" => $GLOBALS['locDISPLAYALLINVOICES'], "levels_allowed" => array(1));
-      $strNewButton = '<a class="actionlink" href="?ses=' . $GLOBALS['sesID'] . '&amp;func=invoices&amp;form=invoice&amp;new=1">Uusi lasku</a>';
+      if ($strFunc != 'archived_invoices')  
+        $strNewButton = '<a class="actionlink" href="?ses=' . $GLOBALS['sesID'] . '&amp;func=invoices&amp;form=invoice">' . $GLOBALS['locNEWINVOICE'] . '</a>';
       $strFunc = 'invoices';
   break;
   }
+  if ($strNewButton)
+    $strNewButton = "    $strNewButton\n";
   
   ?>
   <script type="text/javascript">
   <!--
-  function openHelpWindow(event) {
-      x = event.screenX;
-      y = event.screenY;
-      strLink = 'help.php?ses=<?php echo $GLOBALS['sesID']?>&topic=search'; 
-      var win = window.open(strLink, '_blank', 'height=400,width=400,screenX=' + x + ',screenY=' + y + ',left=' + x + ',top=' + y + ',menubar=no,scrollbars=yes,status=no,toolbar=no');
-      win.focus();
-      
-      return true;
-  }
   function openSearchWindow(mode, event) {
       x = event.screenX;
       y = event.screenY;
@@ -138,15 +143,15 @@ function createFuncMenu($strFunc)
   <input type="hidden" name="ses" value="<?php echo $GLOBALS['sesID']?>">
   <input type="hidden" name="func" value="<?php echo $strFunc?>">
   <div class="function_navi">
-  <b><?php echo $strLabel?></b>
-  <?php
+    <b><?php echo $strLabel?></b>
+<?php
   if( $blnShowSearch ) {
-  ?>
-  <input type="hidden" name="changed" value="0">
-  <?php echo $strHiddenTerm?>
-  <input type="text" class="small" name="searchterms" value="<?php echo gpcAddSlashes($strSearchTerms)?>" title="<?php echo $GLOBALS['locENTERTERMS']?>">
-  <a class="actionlink" href="#" onClick="self.document.forms[0].submit();"><?php echo $GLOBALS['locSEARCH']?></a>
-  <?php
+?>
+    <input type="hidden" name="changed" value="0">
+    <?php echo $strHiddenTerm?>
+    <input type="text" class="small" name="searchterms" value="<?php echo gpcAddSlashes($strSearchTerms)?>" title="<?php echo $GLOBALS['locENTERTERMS']?>">
+    <a class="actionlink" href="#" onClick="self.document.forms[0].submit();"><?php echo $GLOBALS['locSEARCH']?></a>
+<?php
   }
   for( $i = 0; $i < count($astrNaviLinks); $i++ ) {
     if( in_array($GLOBALS['sesACCESSLEVEL'], $astrNaviLinks[$i]["levels_allowed"]) || $GLOBALS['sesACCESSLEVEL'] == 99 ) {
@@ -154,21 +159,20 @@ function createFuncMenu($strFunc)
         $strHref = '?ses=' . $GLOBALS['sesID'] . "&amp;func=$strFunc&amp;" . $astrNaviLinks[$i]['href'];
       else
         $strHref = $astrNaviLinks[$i]['href'];
-  ?>    
-  <a class="buttonlink" href="<?php echo $strHref?>"><?php echo $astrNaviLinks[$i]['text']?></a>
-  <?php            
+?>    
+    <a class="buttonlink" href="<?php echo $strHref?>"><?php echo $astrNaviLinks[$i]['text']?></a>
+<?php            
     }
   }
   if( $blnShowSearch ) {
-  ?>
-  <a class="buttonlink" href="#" onClick="openSearchWindow('ext',event); return false;"><?php echo $GLOBALS['locEXTSEARCH']?></a>
-  <a class="buttonlink" href="#" onClick="openSearchWindow('quick',event); return false;"><?php echo $GLOBALS['locQUICKSEARCH']?></a>
-  <?php echo $strNewButton?>
-  <a class="buttonlink" href="#" onClick="openHelpWindow(event); return false;"><?php echo $GLOBALS['locHELP']?></a>
-  <?php
+?>
+    <a class="buttonlink" href="#" onClick="openSearchWindow('ext',event); return false;"><?php echo $GLOBALS['locEXTSEARCH']?></a>
+    <a class="buttonlink" href="#" onClick="openSearchWindow('quick',event); return false;"><?php echo $GLOBALS['locQUICKSEARCH']?></a>
+<?php
   }
-  ?>
-  </form>
+  echo $strNewButton;
+?>
   </div>
-  <?php
+  </form>
+<?php
 }

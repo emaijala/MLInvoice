@@ -113,7 +113,7 @@ case 'company_contact':
          array(
             "name" => "contact_person", "label" => $GLOBALS['locCONTACTPERSON'], "type" => "TEXT", "style" => "medium", "listquery" => "", "position" => 0, "default" => FALSE, "allow_null" => FALSE ),
          array(
-            "name" => "person_title", "label" => $GLOBALS['locPERSONTITLE'], "type" => "TEXT", "style" => "medium", "listquery" => "SELECT id, name FROM ". _DB_PREFIX_. "_person_title ORDER BY order_no;", "position" => 0, "default" => FALSE, "allow_null" => TRUE ),
+            "name" => "person_title", "label" => $GLOBALS['locPERSONTITLE'], "type" => "TEXT", "style" => "medium", "listquery" => "SELECT id, name FROM {prefix}person_title ORDER BY order_no;", "position" => 0, "default" => FALSE, "allow_null" => TRUE ),
          array(
             "name" => "phone", "label" => $GLOBALS['locPHONE'], "type" => "TEXT", "style" => "medium", "listquery" => "", "position" => 0, "default" => FALSE, "allow_null" => TRUE ),
          array("type" => "NEWLINE"),
@@ -147,7 +147,7 @@ case 'product':
      array(
         "name" => "unit_price", "label" => $GLOBALS['locUNITPRICE'], "type" => "INT", "style" => "medium", "listquery" => "", "position" => 2, "default" => FALSE, "allow_null" => TRUE ),
      array(
-        "name" => "type_id", "label" => $GLOBALS['locUNIT'], "type" => "LIST", "style" => "short", "listquery" => "SELECT id, name FROM ". _DB_PREFIX_. "_row_type ORDER BY order_no;", "position" => 0, "default" => "POST", "allow_null" => FALSE ),
+        "name" => "type_id", "label" => $GLOBALS['locUNIT'], "type" => "LIST", "style" => "short", "listquery" => "SELECT id, name FROM {prefix}row_type ORDER BY order_no;", "position" => 0, "default" => "POST", "allow_null" => FALSE ),
      array(
         "name" => "vat_percent", "label" => $GLOBALS['locVATPERCENT'], "type" => "INT", "style" => "short", "listquery" => "", "position" => 1, "default" => FALSE, "allow_null" => TRUE ),
      array(
@@ -210,13 +210,13 @@ case 'invoice':
    $astrFormElements =
     array(
      array(
-        "name" => "base_id", "label" => $GLOBALS['locBILLER'], "type" => "LIST", "style" => "medium", "listquery" => "SELECT id, name FROM ". _DB_PREFIX_. "_base ORDER BY name;", "position" => 1, "default" => 2, "allow_null" => FALSE ),
+        "name" => "base_id", "label" => $GLOBALS['locBILLER'], "type" => "LIST", "style" => "medium", "listquery" => "SELECT id, name FROM {prefix}base ORDER BY name;", "position" => 1, "default" => 2, "allow_null" => FALSE ),
      $arrRefundedInvoice,
      array(
         "name" => "name", "label" => $GLOBALS['locINVNAME'], "type" => "TEXT", "style" => "medium", "listquery" => "", "position" => 1, "default" => FALSE, "allow_null" => TRUE ),
      $arrRefundingInvoice,
      array(
-        "name" => "company_id", "label" => $GLOBALS['locPAYER'], "type" => "LIST", "style" => "medium", "listquery" => "SELECT id, company_name FROM ". _DB_PREFIX_. "_company ORDER BY company_name;", "position" => 1, "default" => FALSE, "allow_null" => FALSE ),
+        "name" => "company_id", "label" => $GLOBALS['locPAYER'], "type" => "LIST", "style" => "medium", "listquery" => "SELECT id, company_name FROM {prefix}company ORDER BY company_name;", "position" => 1, "default" => FALSE, "allow_null" => FALSE ),
      array(
         "name" => "reference", "label" => $GLOBALS['locCLIENTSREFERENCE'], "type" => "TEXT", "style" => "medium", "listquery" => "", "position" => 2, "default" => FALSE, "allow_null" => TRUE ),
      array(
@@ -228,7 +228,7 @@ case 'invoice':
      array(
         "name" => "ref_number", "label" => $GLOBALS['locREFNO'], "type" => "INT", "style" => "medium", "listquery" => "", "position" => 2, "default" => $defaultRefNo, "allow_null" => TRUE ),
      array(
-        "name" => "state_id", "label" => $GLOBALS['locSTATUS'], "type" => "LIST", "style" => "medium", "listquery" => "SELECT id, name FROM ". _DB_PREFIX_. "_invoice_state ORDER BY order_no;", "position" => 1, "default" => 1, "allow_null" => FALSE ),
+        "name" => "state_id", "label" => $GLOBALS['locSTATUS'], "type" => "LIST", "style" => "medium", "listquery" => "SELECT id, name FROM {prefix}invoice_state ORDER BY order_no;", "position" => 1, "default" => 1, "allow_null" => FALSE ),
      array(
         "name" => "payment_date", "label" => $GLOBALS['locPAYDATE'], "type" => "INTDATE", "style" => "date", "listquery" => "", "position" => 2, "default" => NULL, "allow_null" => TRUE ),
      array(
@@ -289,7 +289,7 @@ EOS;
         "name" => "id", "label" => "", "type" => "HID_INT",
         "style" => "medium", "listquery" => "", "position" => 0, "default" => FALSE, "allow_null" => FALSE ),
      array(
-        "name" => "product_id", "label" => $GLOBALS['locPRODUCTNAME'], "type" => "LIST", "style" => "small", "listquery" => "SELECT id, product_name FROM ". _DB_PREFIX_. "_product ORDER BY product_name;", "position" => 0, "default" => $intProductId, "allow_null" => TRUE, 'elem_attributes' => $productOnChange ),
+        "name" => "product_id", "label" => $GLOBALS['locPRODUCTNAME'], "type" => "LIST", "style" => "small", "listquery" => "SELECT id, product_name FROM {prefix}product ORDER BY product_name;", "position" => 0, "default" => $intProductId, "allow_null" => TRUE, 'elem_attributes' => $productOnChange ),
      array(
         "name" => "description", "label" => $GLOBALS['locROWDESC'], "type" => "TEXT", "style" => "medium", "listquery" => "", "position" => 0, "default" => $strDescription, "allow_null" => TRUE ),
      array(
@@ -297,7 +297,7 @@ EOS;
      array(
         "name" => "pcs", "label" => $GLOBALS['locPCS'], "type" => "INT", "style" => "short", "listquery" => "", "position" => 0, "default" => FALSE, "allow_null" => FALSE ),
      array(
-        "name" => "type_id", "label" => $GLOBALS['locUNIT'], "type" => "LIST", "style" => "short", "listquery" => "SELECT id, name FROM ". _DB_PREFIX_. "_row_type ORDER BY order_no;", "position" => 0, "default" => $intTypeId, "allow_null" => FALSE ),
+        "name" => "type_id", "label" => $GLOBALS['locUNIT'], "type" => "LIST", "style" => "short", "listquery" => "SELECT id, name FROM {prefix}row_type ORDER BY order_no;", "position" => 0, "default" => $intTypeId, "allow_null" => FALSE ),
      array(
         "name" => "price", "label" => $GLOBALS['locPRICE'], "type" => "INT", "style" => "short", "listquery" => "", "position" => 0, "default" => $intPrice, "allow_null" => FALSE ),
      array(
@@ -305,7 +305,7 @@ EOS;
      array(
         "name" => "vat_included", "label" => $GLOBALS['locVATINC'], "type" => "CHECK", "style" => "short", "listquery" => "", "position" => 0, "default" => $intVATIncluded, "allow_null" => TRUE ),
      array(
-        "name" => "order_no", "label" => $GLOBALS['locROWNO'], "type" => "INT", "style" => "tiny", "listquery" => "SELECT max(order_no)+5 FROM ". _DB_PREFIX_. "_invoice_row WHERE invoice_id = _PARENTID_", "position" => 0, "default" => "ADD+5", "allow_null" => TRUE )
+        "name" => "order_no", "label" => $GLOBALS['locROWNO'], "type" => "INT", "style" => "tiny", "listquery" => "SELECT max(order_no)+5 FROM {prefix}invoice_row WHERE invoice_id = _PARENTID_", "position" => 0, "default" => "ADD+5", "allow_null" => TRUE )
    );
 break;
 /******************************************************************************
@@ -440,7 +440,7 @@ case 'user':
             array(
             "name" => "passwd", "label" => $GLOBALS['locPASSWD'], "type" => "PASSWD", "style" => "medium", "listquery" => "", "position" => 2, "default" => FALSE, "allow_null" => TRUE ),
             array(
-            "name" => "type_id", "label" => $GLOBALS['locTYPE'], "type" => "LIST", "style" => "medium", "listquery" => "SELECT id, name FROM ". _DB_PREFIX_. "_session_type ORDER BY order_no", "position" => 0, "default" => FALSE, "allow_null" => FALSE )
+            "name" => "type_id", "label" => $GLOBALS['locTYPE'], "type" => "LIST", "style" => "medium", "listquery" => "SELECT id, name FROM {prefix}session_type ORDER BY order_no", "position" => 0, "default" => FALSE, "allow_null" => FALSE )
     );
 break;
 

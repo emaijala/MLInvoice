@@ -32,11 +32,13 @@ function createForm($strFunc, $strForm)
 {
   require "form_switch.php";
   
-  $blnNew = getPostRequest('newact', FALSE) || getPostRequest('new', FALSE) ? TRUE : FALSE;
+  $blnNew = getPostRequest('newact', FALSE);
   $blnCopy = getPostRequest('copyact', FALSE) ? TRUE : FALSE;
   $blnSave = getPostRequest('saveact', FALSE) ? TRUE : FALSE;
   $blnDelete = getPostRequest('deleteact', FALSE) ? TRUE : FALSE;
   $intKeyValue = getPostRequest($strPrimaryKey, FALSE);
+  if (!$intKeyValue)
+    $blnNew = TRUE;
   
   $strMessage = '';
   
@@ -298,7 +300,7 @@ function createForm($strFunc, $strForm)
   
   <form method="post" action="" name="admin_form" id="admin_form">
   <?php createFormButtons($blnNew) ?>
-  <input type="hidden" name="<?php echo $strPrimaryKey?>" value="<?php echo isset($intKeyValue) ? $intKeyValue : '' ?>">
+  <input type="hidden" name="<?php echo $strPrimaryKey?>" value="<?php echo $intKeyValue ? $intKeyValue : '' ?>">
   <div class="form_container">
   <table>
   <?php

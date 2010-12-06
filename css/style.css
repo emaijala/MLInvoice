@@ -468,9 +468,10 @@ background-color: white;
 }
 
 div.breadcrumbs {
-  margin: 2px 0 16px 10px;
+  margin: 6px 0 16px 10px;
 }
 
 div.breadcrumbs a {
-  font-size: 9pt;
+  font-size: 10pt;
+  font-weight: bold;
 }

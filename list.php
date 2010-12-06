@@ -193,169 +193,127 @@ function createHtmlList($strFunc, $strList, $astrKeyValues, $intTotal, $strTitle
   }
   if( count($astrListValues) > 0 ) {
     if (_NAVI_LIST_ROWS_ == 0) {
-  ?>
-<script type="text/javascript">
-
-function sort_multi(a,b) 
-{
-  a = a.replace( /<.*?>/g, "" );
-  b = b.replace( /<.*?>/g, "" );
-  var float_re = /^\d+\.?\d*$/;
-  var date_re = /^(\d{1,2})\.(\d{1,2})\.(\d{4})$/;
-  if (a.match(float_re) && b.match(float_re))
-  {
-    a = parseFloat(a);
-    b = parseFloat(b);
-    return ((a < b) ? -1 : ((a > b) ?  1 : 0));
-  }
-  var am = a.match(date_re);
-  var bm = b.match(date_re);
-  if (am && bm)
-  {
-    ad = am[2] + '.' + am[1] + '.' + am[0];
-    bd = bm[2] + '.' + bm[1] + '.' + bm[0];
-    return ((ad < bd) ? -1 : ((ad > bd) ?  1 : 0));
-  }
-  a = a.toLowerCase();
-  b = b.toLowerCase();
-  return ((a < b) ? -1 : ((a > b) ?  1 : 0));
-};
- 
-jQuery.fn.dataTableExt.oSort['html-multi-asc']  = function(a,b) {
-	return sort_multi(a, b);
-};
-
-jQuery.fn.dataTableExt.oSort['html-multi-desc'] = function(a,b) {
-	return -sort_multi(a, b);
-};
-
-$(document).ready(function() {
-  $('#resultlist<?php echo $GLOBALS['TABLENO']?>').dataTable( {
-    "oLanguage": {
-      <?php echo $GLOBALS['locTABLETEXTS']?> 
-		},
-		"sPaginationType": "full_numbers",
-    "aoColumns": [
-<?php
-			for ($i = 0; $i < count($astrShowFields); $i++ ) {
-        echo '      { "sType": "html-multi" },' . "\n";
-      }?>
-    ]
-  }
-);
-});
-  </script>
+?>
+  <script type="text/javascript">
+  
+  $(document).ready(function() {
+    $('#resultlist<?php echo $GLOBALS['TABLENO']?>').dataTable( {
+      "oLanguage": {
+        <?php echo $GLOBALS['locTABLETEXTS']?> 
+      },
+      "sPaginationType": "full_numbers",
+      "aoColumns": [
   <?php
+        for ($i = 0; $i < count($astrShowFields); $i++ ) {
+          echo '      { "sType": "html-multi" },' . "\n";
+        }?>
+      ]
+    }
+  );
+  });
+  </script>
+<?php
     }
 ?>
   <div class="list_container">
-  <b><?php echo $strTitle?></b>
-  <?php 
+    <b><?php echo $strTitle?></b>
+<?php 
   if (_NAVI_LIST_ROWS_ > 0)
   {
-  ?>
-  <table>
+?>
+    <table>
     
       <tr>
-          <td align="left">
-  <?php
+        <td align="left">
+<?php
   $strPage = '?' . preg_replace('/&page=\d*/', '', $_SERVER['QUERY_STRING']);
   $strPrevPage = "$strPage&amp;page=" . ($intPage - 1); 
   $strNextPage = "$strPage&amp;page=" . ($intPage + 1); 
   if( $intPage > 1 ) {
-  ?>
-              <a class="tinyactionlink" href="<?php echo $strPrevPage?>"> < </a>
-  <?php
+?>
+          <a class="tinyactionlink" href="<?php echo $strPrevPage?>"> &lt; </a>
+<?php
   }
   else {
-  ?>
+?>
       &nbsp;
-  <?php
+<?php
   }
-  ?>
-          </td>
-          <td align="center">
-              <?php echo $strCounter?>
-          </td>
-          <td align="right">
-  <?php
+?>
+        </td>
+        <td align="center">
+          <?php echo $strCounter?>
+        </td>
+        <td align="right">
+<?php
   if( $intEnd != $intTotal ) {
-  ?>        
-              <a class="tinyactionlink" href="<?php echo $strNextPage?>"> > </a>
-  <?php
+?>        
+          <a class="tinyactionlink" href="<?php echo $strNextPage?>"> &gt; </a>
+<?php
   }
   else {
-  ?>
+?>
       &nbsp;
-  <?php
+<?php
   }
-  ?>
-          </td>
+?>
+        </td>
       </tr>
-  </form>
-  </table>
-  <?php
+    </table>
+<?php
   }
   else
-    echo "<br><br>";
-  ?>
-  <table id="resultlist<?php echo $GLOBALS['TABLENO']?>" class="list">
-    <thead>
-      <tr>
-  <?php
+    echo "    <br><br>\n";
+?>
+    <table id="resultlist<?php echo $GLOBALS['TABLENO']?>" class="list">
+      <thead>
+        <tr>
+<?php
   for( $j = 0; $j < count($astrShowFields); $j++ ) {
     $strWidth = isset($astrShowFields[$j]['width']) ? (' width="' . $astrShowFields[$j]['width'] . '"') : '';
-  ?>
-          <th class="label"<?php echo $strWidth?>>
-              <?php echo $astrShowFields[$j]['header']?>
-          </th>
-  <?php
+?>
+          <th class="label"<?php echo $strWidth?>><?php echo $astrShowFields[$j]['header']?></th>
+<?php
   }
-  ?>
-      </tr>
-    </thead>
-    <tbody>
-  <?php
+?>
+        </tr>
+      </thead>
+      <tbody>
+<?php
       for( $i = 0; $i < count($astrListValues); $i++ ) {
           $strLink = '?ses=' . $GLOBALS['sesID'] . "&amp;func=$strFunc&amp;list=$strList&amp;form=$strMainForm&amp;";
           $strLink .= 'id=' . $astrPrimaryKeys[$i];
-  ?>
+?>
   
-      <tr class="listrow">
-  <?php
+        <tr class="listrow">
+<?php
       for( $j = 0; $j < count($astrListValues[$i]); $j++ ) {
-  ?>
-          <td class="label"><a class="navilink" href="<?php echo $strLink?>"><?php echo $astrListValues[$i][$j]?></a></td>
-  <?php
+?>
+          <td class="label"><a class="navilink" href="<?php echo $strLink?>"><?php echo $astrListValues[$i][$j] ? $astrListValues[$i][$j] : '&nbsp;'?></a></td>
+<?php
       }
-  ?>
-      </tr>
+?>
+        </tr>
   
-  <?php
+<?php
       }
-      $strLink = '?' . str_replace('&', '&amp;', $_SERVER['QUERY_STRING']) . "&amp;form=$strMainForm&amp;new=1";
-  ?>
-    </tbody>
-  </table>
-  <div style="float: left; margin-left: 60px; margin-top: 3px">
-    <a class="actionlink" href="<?php echo $strLink?>"><?php echo $GLOBALS['locNEW']?></a>
-    <a class="actionlink" href="#" onclick="var win = window.open('help.php?ses=<?php echo $GLOBALS['sesID']?>&amp;topic=list', '_blank', 'height=400,width=400,menubar=no,scrollbars=yes,status=no,toolbar=no'); win.focus(); return false;"><?php echo $GLOBALS['locHELP']?></a>
-  </div>
-  <br>
-  <br>
-  <?php
+      $strLink = '?' . str_replace('&', '&amp;', $_SERVER['QUERY_STRING']) . "&amp;form=$strMainForm";
+?>
+      </tbody>
+    </table>
+    <br>
+    <br>
+<?php
   }
   else {
-      $strLink = '?' . str_replace('&', '&amp;', $_SERVER['QUERY_STRING']) . "&amp;form=$strMainForm&amp;new=1";
-  ?>
-  <b><?php echo $strTitle?> :</b>
-  <b><?php echo $GLOBALS['locNOENTRIES']?></b><br><br>
-  <a class="actionlink" href="<?php echo $strLink?>"><?php echo $GLOBALS['locNEW']?></a>
-  <a class="actionlink" href="#" onclick="var win = window.open('help.php?ses=<?php echo $GLOBALS['sesID']?>&amp;topic=list', '_blank', 'height=400,width=400,menubar=no,scrollbars=yes,status=no,toolbar=no'); win.focus(); return false;"><?php echo $GLOBALS['locHELP']?></a>
-  <?php
+      $strLink = '?' . str_replace('&', '&amp;', $_SERVER['QUERY_STRING']) . "&amp;form=$strMainForm";
+?>
+    <b><?php echo $strTitle?> :</b>
+    <b><?php echo $GLOBALS['locNOENTRIES']?></b><br><br>
+<?php
   }
-  ?>
+?>
   </div>
-  <?php
+<?php
 }
 ?>

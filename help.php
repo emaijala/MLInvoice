@@ -37,12 +37,12 @@ switch ( $strTopic ) {
     case 'main':
         $strHeadTitle = "Ohjeet";
         $strTopicText =
-            "Ohjelma koostuu yl‰valikosta, jossa on ohjelman p‰‰osien painikkeet, toimintovalikosta, jossa n‰ytet‰‰n valitun osion toiminnot ja toimintoikkunoista, joissa suoritetaan valitun toiminnon k‰sittely.<br>(Esim. 'HAKU'-painikkeesta avataan hakun‰kym‰ toimintovalikkoon, josta 'ETSI'-painikkeella avataan tulokset toimintoikkunaan.)<br><br>Kysymysmerkkipainikkeella avautuu tarkemmat ohjeet kyseiseen n‰kym‰‰n tai toimintoon.";
+            "Ohjelma koostuu yl‰valikosta, jossa on ohjelman p‰‰osien painikkeet, toimintovalikosta, jossa n‰ytet‰‰n valitun osion toiminnot ja toimintoikkunoista, joissa suoritetaan valitun toiminnon k‰sittely.<br>(Esim. 'Laaja haku'-painikkeesta avataan hakun‰kym‰, josta 'Etsi'-painikkeella avataan tulokset toimintoikkunaan.)<br><br>Ohje-painikkeella avautuvat tarkemmat ohjeet kyseiseen n‰kym‰‰n tai toimintoon.";
     break;
     case 'search':
         $strHeadTitle = "Haku";
         $strTopicText =
-            "Valitse tietue, josta haluat haun suorittaa.(esim 'Asiakkaat')<br><br>Syˆt‰ tyhj‰‰n kentt‰‰n hakusana(t), joilla tietoa haetaan.(esim sukunimi tms.)<br>Voit j‰tt‰‰ kent‰n tyhj‰ksi tai k‰ytt‰‰ '*'-merkki‰, jolloin kaikki valitun tietueen tiedot haetaan.<br><br>Haku suoritetaan 'ETSI'-painikkeesta.<br><br>'TARKKA HAKU'-painikkeella avautuu ikkuna, jolla voi tehd‰ tarkkoja hakuja laajoilla hakuehdoilla.(valitse ensin tietue, josta haluat haun tehd‰)<br><br>'PIKAHAKU'-painikkeella avataan ikkuna, jossa on tallenetut pikahaut.(pikahaut tallenetaan tarkan haun kautta)";
+            "Valitse toiminto, jossa haluat suorittaa haun (esim. 'ASIAKKAAT').<br><br>Syˆt‰ tyhj‰‰n kentt‰‰n hakusana(t), joilla tietoa haetaan (esim. sukunimi).<br>Voit j‰tt‰‰ kent‰n tyhj‰ksi tai k‰ytt‰‰ '*'-merkki‰, jolloin kaikki valitun toiminnon tiedot haetaan.<br><br>Haku suoritetaan 'Etsi'-painikkeesta.<br><br>'Laaja haku'-painikkeella avautuu ikkuna, jolla voi tehd‰ tarkkoja hakuja laajoilla hakuehdoilla (valitse ensin toiminto, jossa haluat tehd‰ haun).<br><br>'Pikahaku'-painikkeella avataan ikkuna, josta voi valita tallennetun pikahaun (pikahaut tallennetaan tarkan haun kautta).";
     break;
     case 'navi':
         $strHeadTitle = "Toimintovalikko";

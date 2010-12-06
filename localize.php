@@ -78,10 +78,10 @@ default :
     $GLOBALS['locDESCRIPTION'] = 'Kuvaus';
     $GLOBALS['locDATE'] = 'Pvm';
     $GLOBALS['locPRICE'] = 'Hinta';
-    $GLOBALS['locPCS'] = 'Kpl';
+    $GLOBALS['locPCS'] = 'Lkm';
     $GLOBALS['locUNIT'] = 'Yksikkö';
     $GLOBALS['locVAT'] = 'Alv';
-    $GLOBALS['locSESSIONTYPE'] = 'Sessiotyyppi';
+    $GLOBALS['locSESSIONTYPE'] = 'Istunnon tyyppi';
     $GLOBALS['locTIMEOUT'] = 'Aikaraja';
     $GLOBALS['locLANGS'] = 'Kielet';
     $GLOBALS['locUSERNAME'] = 'Käyttäjä';
@@ -173,6 +173,14 @@ default :
     $GLOBALS['locSAVE'] = 'Tallenna';
     $GLOBALS['locCOPY'] = 'Kopioi';
     $GLOBALS['locNEW'] = 'Uusi';
+    $GLOBALS['locNEWINVOICE'] = 'Uusi lasku';
+    $GLOBALS['locNEWCOMPANY'] = 'Uusi asiakas';
+    $GLOBALS['locNEWPRODUCT'] = 'Uusi tuote';
+    $GLOBALS['locNEWBASE'] = 'Uusi yritys';
+    $GLOBALS['locNEWINVOICESTATE'] = 'Uusi laskun tila';
+    $GLOBALS['locNEWROWTYPE'] = 'Uusi laskurivityyppi';
+    $GLOBALS['locNEWUSER'] = 'Uusi käyttäjä';
+    $GLOBALS['locNEWSESSIONTYPE'] = 'Uusi istunnon tyyppi';
     $GLOBALS['locDELETE'] = 'Poista';
     $GLOBALS['locPRINTADDR'] = 'Tulosta osoite';
     $GLOBALS['locPRINTINV'] = 'Tulosta lasku';
@@ -230,12 +238,12 @@ default :
     $GLOBALS['locSEARCH'] = 'Etsi';
     $GLOBALS['locSHOWADMINNAVI'] = 'Näytä hallintavalikko';
     $GLOBALS['locMAINNAVI'] = 'Takaisin päävalikkoon';
-    $GLOBALS['locSESSIONTYPES'] = 'Sessiotyypit';
+    $GLOBALS['locSESSIONTYPES'] = 'Istunnon tyypit';
     $GLOBALS['locUSER'] = 'Käyttäjä';
     $GLOBALS['locUSERS'] = 'Käyttäjät';
     $GLOBALS['locLOGOUT'] = 'KIRJAUDU ULOS';
+    $GLOBALS['locBASE'] = 'Yritys';
     $GLOBALS['locBASES'] = 'Yritykset';
-    $GLOBALS['locBASEINFO'] = 'Yrityksen perustiedot';
     $GLOBALS['locREPORTS'] = 'Raportit';
     $GLOBALS['locREPORT'] = 'Raportti';
     $GLOBALS['locADDPAYMENT'] = 'Syötä maksetut';
@@ -352,9 +360,9 @@ default :
     $GLOBALS['locSEARCHMATCH'] = ' - ';
     $GLOBALS['locSEARCHTERM'] = 'Hakuehto';
     $GLOBALS['locSEARCHNAME'] = 'Haun nimi';
-    $GLOBALS['locERRORNOSEARCHNAME'] = 'VIRHE!\n\rAnna nimi tallennettavalle haulle!';
-    $GLOBALS['locLABELQUICKSEARCH'] = 'Tallennetut pikahaut : ';
-    $GLOBALS['locNOQUICKSEARCHES'] = 'Tallennettuja pikahakuja ei löytynyt!';
+    $GLOBALS['locERRORNOSEARCHNAME'] = 'VIRHE:\n\rAnna nimi tallennettavalle haulle.';
+    $GLOBALS['locLABELQUICKSEARCH'] = 'Tallennetut pikahaut: ';
+    $GLOBALS['locNOQUICKSEARCHES'] = 'Tallennettuja pikahakuja ei löytynyt. Voit tallentaa uusia pikahakuja laajan haun kautta.';
     
    
     //MONTHS

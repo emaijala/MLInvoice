@@ -275,11 +275,12 @@ function printReport()
   
   $strProductQuery = 'SELECT p.product_name, ir.description, ' . 
     'CASE WHEN ir.vat_included = 0 THEN sum(ir.price * ir.pcs) ELSE sum(ir.price * ir.pcs / (1 + ir.vat / 100)) END as total_price, ' .
-    'ir.vat, ir.pcs ' .
+    'ir.vat, sum(ir.pcs) as pcs, t.name as unit ' .
     'FROM {prefix}invoice_row ir ' .
     'LEFT OUTER JOIN {prefix}product p ON p.id = ir.product_id ' .
+    'LEFT OUTER JOIN {prefix}row_type t ON t.id = ir.type_id ' .
     "WHERE ir.invoice_id IN ($strQuery) $strProductWhere" .
-    'GROUP BY p.product_name, ir.description, ir.vat ' .
+    'GROUP BY p.product_name, ir.description, ir.vat, t.name ' .
     'ORDER BY p.product_name, ir.description';
     
   $intRes = mysql_param_query($strProductQuery, $arrParams);
@@ -293,6 +294,9 @@ function printReport()
       </td>
       <td class="label" align="right">
           <?php echo $GLOBALS['locPCS']?>
+      </td>
+      <td class="label" align="right">
+          <?php echo $GLOBALS['locUNIT']?>
       </td>
       <td class="label" align="right">
           <?php echo $GLOBALS['locVATLESS']?>
@@ -309,7 +313,6 @@ function printReport()
   </tr>
   <?php
   if( $intNumRows ) {
-      $intTotCount = 0;
       $intTotSum = 0;
       $intTotVAT = 0;
       $intTotSumVAT = 0;
@@ -318,6 +321,7 @@ function printReport()
           $strProduct = $row['product_name'];
           $strDescription = $row['description'];
           $intCount = $row['pcs'];
+          $strUnit = $row['unit'];
           $intSum = $row['total_price'];
           $intVATPercent = $row['vat'];
           
@@ -335,7 +339,6 @@ function printReport()
           $intVAT = $intSum * $intVATPercent / 100;
           $intSumVAT = $intSum + $intVAT;
           
-          $intTotCount += $intCount;
           $intTotSum += $intSum;
           $intTotVAT += $intVAT;
           $intTotSumVAT += $intSumVAT;
@@ -346,6 +349,9 @@ function printReport()
       </td>
       <td class="input" align="right">
           <?php echo miscRound2Decim($intCount)?>
+      </td>
+      <td class="input" align="left">
+          <?php echo $strUnit?>
       </td>
       <td class="input" align="right">
           <?php echo miscRound2Decim($intSum)?>
@@ -368,19 +374,22 @@ function printReport()
           <b><?php echo $GLOBALS['locTOTAL']?></b>
       </td>
       <td class="input" align="right">
-          <b>&nbsp;<?php echo miscRound2Decim($intTotCount)?></b>
-      </td>
-      <td class="input" align="right">
-          <b>&nbsp;<?php echo miscRound2Decim($intTotSum)?></b>
+          &nbsp;
       </td>
       <td class="input" align="right">
           &nbsp;
       </td>
       <td class="input" align="right">
-          <b>&nbsp;<?php echo miscRound2Decim($intTotVAT)?></b>
+          <b><?php echo miscRound2Decim($intTotSum)?></b>
       </td>
       <td class="input" align="right">
-          <b>&nbsp;<?php echo miscRound2Decim($intTotSumVAT)?></b>
+          &nbsp;
+      </td>
+      <td class="input" align="right">
+          <b><?php echo miscRound2Decim($intTotVAT)?></b>
+      </td>
+      <td class="input" align="right">
+          <b><?php echo miscRound2Decim($intTotSumVAT)?></b>
       </td>
   </tr>
   </table>

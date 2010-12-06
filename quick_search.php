@@ -35,7 +35,7 @@ $strSesID = sesVerifySession();
 require "localize.php";
 
 $strQuery = 
-    "SELECT * FROM ". _DB_PREFIX_. "_quicksearch ".
+    "SELECT * FROM {prefix}quicksearch ".
     "WHERE user_id = ". $GLOBALS['sesUSERID']. 
     " ORDER BY name";
 $intRes = mysql_query_check($strQuery);
@@ -57,19 +57,6 @@ $intNumRows = mysql_num_rows($intRes);
 
 echo htmlPageStart( _PAGE_TITLE_ );
 ?>
-<script type="text/javascript">
-<!--
-function openHelpWindow(event) {
-    x = event.screenX;
-    y = event.screenY;
-    strLink = 'help.php?ses=<?php echo $GLOBALS['sesID']?>&topic=quicksearch'; 
-    var win = window.open(strLink, '_blank', 'height=400,width=400,screenX=' + x + ',screenY=' + y + ',left=' + x + ',top=' + y + ',menubar=no,scrollbars=yes,status=no,toolbar=no');
-    win.focus();
-    
-    return true;
-}
--->
-</script>
 
 <body class="form" onload="<?php echo $strOnLoad?>">
 <form method="post" action="quick_search.php?ses=<?php echo $GLOBALS['sesID']?>&form=<?php echo $strForm?>" target="_self" name="search_form">
@@ -125,11 +112,6 @@ else {
         <a class="actionlink" href="#" onclick="self.close(); return false;"><?php echo $GLOBALS['locCLOSE']?></a>
         <!--
         <img name="close_button"  src="./<?php echo $GLOBALS['sesLANG']?>_images/close.gif"  alt="<?php echo $GLOBALS['locCLOSE']?>" title="<?php echo $GLOBALS['locCLOSE']?>" onClick="self.close();" style="cursor:pointer;cursor:hand;">-->
-    </td>
-    <td>
-        <a class="actionlink" href="#" onclick="openHelpWindow(event); return false;"><?php echo $GLOBALS['locHELP']?></a>
-        <!--
-        <img name="help" src="./<?php echo $GLOBALS['sesLANG']?>_images/detail_help.gif" alt="<?php echo $GLOBALS['locHELP']?>" title="<?php echo $GLOBALS['locHELP']?>" onClick="openHelpWindow(event);" style="cursor:pointer;cursor:hand;">-->
     </td>
 </tr>
 </table>

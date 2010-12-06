@@ -165,14 +165,6 @@ echo htmlPageStart( _PAGE_TITLE_ );
 $(function() {
   $('input[class~="hasCalendar"]').datepicker();
 });
-
-function openHelpWindow(event) {
-    x = event.screenX;
-    y = event.screenY;
-    strLink = 'help.php?ses=<?php echo $GLOBALS['sesID']?>&topic=extsearch'; var win = window.open(strLink, '_blank', 'height=400,width=400,screenX=' + x + ',screenY=' + y + ',left=' + x + ',top=' + y + ',menubar=no,scrollbars=yes,status=no,toolbar=no'); win.focus();
-    
-    return true;
-}
 -->
 </script>
 
@@ -275,11 +267,6 @@ for( $j = 0; $j < count($astrFormElements); $j++ ) {
         <a class="actionlink" href="#" onclick="self.close(); return false;"><?php echo $GLOBALS['locCLOSE']?></a>
         <!--
         <img name="close_button"  src="./<?php echo $GLOBALS['sesLANG']?>_images/close.gif"  alt="<?php echo $GLOBALS['locCLOSE']?>" title="<?php echo $GLOBALS['locCLOSE']?>" onClick="self.close();" style="cursor:pointer;cursor:hand;">-->
-    </td>
-    <td>
-        <a class="actionlink" href="#" onclick="openHelpWindow(event); return false;"><?php echo $GLOBALS['locHELP']?></a>
-        <!--
-        <img name="help" src="./<?php echo $GLOBALS['sesLANG']?>_images/detail_help.gif" alt="<?php echo $GLOBALS['locHELP']?>" title="<?php echo $GLOBALS['locHELP']?>" onClick="openHelpWindow(event);" style="cursor:pointer;cursor:hand;">-->
     </td>
 </tr>
 </table>

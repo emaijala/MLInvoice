@@ -97,4 +97,88 @@ function getPostRequest($strKey, $varDefault)
   return getPost($strKey, getRequest($strKey, $varDefault));
 }
 
+function getPageTitle($strFunc, $strList, $strForm)
+{
+  switch($strFunc)
+  {
+  case 'open_invoices':
+    if ($strForm)
+      return $GLOBALS['locINVOICE'];
+    else
+      return $GLOBALS['locOPENANDUNPAIDINVOICES'];
+    break;
+  case 'invoices':
+    if ($strForm)
+      return $GLOBALS['locINVOICE'];
+    else
+      return $GLOBALS['locINVOICES'];
+    break;
+  case 'archived_invoices':
+    if ($strForm)
+      return $GLOBALS['locINVOICE'];
+    else
+      return $GLOBALS['locARCHIVEDINVOICES'];
+    break;
+  case 'companies':
+    if ($strForm)
+      return $GLOBALS['locCOMPANY'];
+    else
+      return $GLOBALS['locCOMPANIES'];
+    break;
+  case 'reports':
+    switch ($strForm)
+    {
+    case 'invoice': return $GLOBALS['locINVOICEREPORT']; 
+    case 'product': return $GLOBALS['locPRODUCTREPORT']; 
+    default: return $GLOBALS['locREPORTS']; 
+    }
+    break;
+  case 'settings':
+    if ($strForm)
+    {
+      switch ($strForm)
+      {
+      case 'base_info': return $GLOBALS['locBASE']; 
+      case 'invoice_state': return $GLOBALS['locINVOICESTATE']; 
+      case 'product': return $GLOBALS['locPRODUCT'];
+      case 'row_type': return $GLOBALS['locROWTYPE']; 
+      default: return $GLOBALS['locSETTINGS'];
+      }
+    }
+    else
+    {
+      switch ($strList)
+      {
+      case 'base_info': return $GLOBALS['locBASES']; 
+      case 'invoice_state': return $GLOBALS['locINVOICESTATES']; 
+      case 'product': return $GLOBALS['locPRODUCTS']; 
+      case 'row_type': return $GLOBALS['locROWTYPES']; 
+      default: return $GLOBALS['locSETTINGS'];
+      }
+    }
+    break;
+  case 'system':
+    if ($strForm)
+    {
+      switch ($strForm)
+      {
+      case 'user': return $GLOBALS['locUSER'];
+      case 'session_type': return $GLOBALS['locSESSIONTYPE']; 
+      default: return $GLOBALS['locSYSTEM'];
+      }
+    }
+    else
+    {
+      switch ($strList)
+      {
+      case 'user': return $GLOBALS['locUSERS'];
+      case 'session_type': return $GLOBALS['locSESSIONTYPES'];
+      default: return $GLOBALS['locSYSTEM'];
+      }
+    }
+    break;
+  }
+  return '';
+}
+
 ?>

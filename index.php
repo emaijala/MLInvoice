@@ -1,15 +1,15 @@
 <?php
 /*******************************************************************************
-PkLasku : web-based invoicing software.
-Copyright (C) 2004-2008 Samu Reinikainen
+VLLasku: web-based invoicing application.
+Copyright (C) 2010 Ere Maijala
 
 This program is free software. See attached LICENSE.
 
 *******************************************************************************/
 
 /*******************************************************************************
-PkLasku : web-pohjainen laskutusohjelmisto.
-Copyright (C) 2004-2008 Samu Reinikainen
+VLLasku: web-pohjainen laskutusohjelma.
+Copyright (C) 2010 Ere Maijala
 
 Tämä ohjelma on vapaa. Lue oheinen LICENSE.
 
@@ -47,86 +47,7 @@ if ($strFunc == 'logout')
 if (!$strFunc && $strForm)
   $strFunc = 'invoices';
 
-$title = '';
-switch($strFunc)
-{
-case 'open_invoices':
-  if ($strForm)
-    $title = $GLOBALS['locINVOICE'];
-  else
-    $title = $GLOBALS['locOPENANDUNPAIDINVOICES'];
-  break;
-case 'invoices':
-  if ($strForm)
-    $title = $GLOBALS['locINVOICE'];
-  else
-    $title = $GLOBALS['locINVOICES'];
-  break;
-case 'archived_invoices':
-  if ($strForm)
-    $title = $GLOBALS['locINVOICE'];
-  else
-    $title = $GLOBALS['locARCHIVEDINVOICES'];
-  break;
-case 'companies':
-  if ($strForm)
-    $title = $GLOBALS['locCOMPANY'];
-  else
-    $title = $GLOBALS['locCOMPANIES'];
-  break;
-case 'reports':
-  switch ($strForm)
-  {
-  case 'invoice': $title = $GLOBALS['locINVOICEREPORT']; break;
-  case 'product': $title = $GLOBALS['locPRODUCTREPORT']; break;
-  default: $title = $GLOBALS['locREPORTS']; break;
-  }
-  break;
-case 'settings':
-  if ($strForm)
-  {
-    switch ($strForm)
-    {
-    case 'base_info': $title = $GLOBALS['locBASEINFO']; break;
-    case 'invoice_state': $title = $GLOBALS['locINVOICESTATE']; break;
-    case 'product': $title = $GLOBALS['locPRODUCT']; break;
-    case 'row_type': $title = $GLOBALS['locROWTYPE']; break;
-    default: $title = $GLOBALS['locSETTINGS'];
-    }
-  }
-  else
-  {
-    switch ($strList)
-    {
-    case 'base_info': $title = $GLOBALS['locBASES']; break;
-    case 'invoice_state': $title = $GLOBALS['locINVOICESTATES']; break;
-    case 'products': $title = $GLOBALS['locPRODUCTS']; break;
-    case 'row_type': $title = $GLOBALS['locROWTYPES']; break;
-    default: $title = $GLOBALS['locSETTINGS'];
-    }
-  }
-  break;
-case 'system':
-  if ($strForm)
-  {
-    switch ($strForm)
-    {
-    case 'user': $title = $GLOBALS['locUSER']; break;
-    case 'session_type': $title = $GLOBALS['locSESSIONTYPE']; break;
-    default: $title = $GLOBALS['locSYSTEM'];
-    }
-  }
-  else
-  {
-    switch ($strList)
-    {
-    case 'users': $title = $GLOBALS['locUSERS']; break;
-    case 'session_types': $title = $GLOBALS['locSESSIONTYPES']; break;
-    default: $title = $GLOBALS['locSYSTEM'];
-    }
-  }
-  break;
-}
+$title = getPageTitle($strFunc, $strList, $strForm);
 
 echo htmlPageStart(_PAGE_TITLE_ . " - $title");
 
@@ -137,27 +58,23 @@ $astrMainButtons = array (
     array("name" => "reports", "title" => "locSHOWREPORTNAVI", 'action' => 'reports', "levels_allowed" => array(1) ),
     array("name" => "settings", "title" => "locSHOWSETTINGSNAVI", 'action' => 'settings', "action" => "settings", "levels_allowed" => array(1) ),
     array("name" => "system", "title" => "locSHOWSYSTEMNAVI", 'action' => 'system', "levels_allowed" => array(99) ),
-    array("name" => "help", "title" => "locSHOWHELP", 'action' => 'help.php?ses=' . $GLOBALS['sesID'] . '&amp;topic=' . ($strForm ? 'form' : 'main'), 'popup' => 1, "levels_allowed" => array(1) ),
     array("name" => "logout", "title" => "locLOGOUT", 'action' => 'logout', "levels_allowed" => array(1) )
 );
 
 ?>
 
 <body>
-<div class="navi">
+  <div class="navi">
 <?php
 for( $i = 0; $i < count($astrMainButtons); $i++ ) {
     $strButton = '<a class="functionlink'; 
     if ($astrMainButtons[$i]['action'] == $strFunc || ($astrMainButtons[$i]['action'] == 'open_invoices' && $strFunc == 'invoices'))
       $strButton .= ' selected';
-    if (isset($astrMainButtons[$i]['popup']) && $astrMainButtons[$i]['popup'])
-      $strButton .= '" href="#" onClick="var win=window.open(\'' . $astrMainButtons[$i]['action'] . '\', \'vllasku_help\', \'height=400,width=400,menubar=no,scrollbars=yes,status=no,toolbar=no\'); win.focus(); return false;">';
-    else
-      $strButton .= '" href="?ses=' . $GLOBALS['sesID'] . '&amp;func=' . $astrMainButtons[$i]['action'] . '">';
+    $strButton .= '" href="?ses=' . $GLOBALS['sesID'] . '&amp;func=' . $astrMainButtons[$i]['action'] . '">';
     $strButton .= $GLOBALS[$astrMainButtons[$i]['title']] . '</a>';
         
     if( in_array($GLOBALS['sesACCESSLEVEL'], $astrMainButtons[$i]['levels_allowed']) || $GLOBALS['sesACCESSLEVEL'] == 99 ) {
-      echo "  $strButton\n";
+      echo "    $strButton\n";
     }
 }
 
@@ -176,11 +93,10 @@ foreach ($arrHistory as $arrHE)
 }
 
 ?>
-</div>
-<div class="breadcrumbs">
-  <?php echo $strBreadcrumbs?>
-  
-</div>
+  </div>
+  <div class="breadcrumbs">
+    <?php echo $strBreadcrumbs?>
+  </div>
 
 <?php
 switch ($strFunc)

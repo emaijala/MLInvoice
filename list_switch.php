@@ -27,7 +27,7 @@ $strFilter = '';
 switch ( $strList ) {
 
 case 'companies':
-   $strTable = _DB_PREFIX_. "_company";
+   $strTable = '{prefix}company';
    $astrSearchFields = 
     array( 
         array("name" => "company_name", "type" => "TEXT"),
@@ -47,14 +47,13 @@ case 'companies':
    $strTitle = $GLOBALS['locCOMPANIES'];
 break;
 
-case 'products':
-   $strTable = _DB_PREFIX_. "_product";
+case 'product':
+   $strTable = '{prefix}product';
    $astrSearchFields = 
     array( 
         array("name" => "product_name", "type" => "TEXT"),
         array("name" => "product_id", "type" => "TEXT")
     );
-   //$astrHiddenSearchField = array("name" => "type_id", "type" => "INT");
    $strPrimaryKey = "id";
    $astrShowFields = 
     array( 
@@ -94,7 +93,6 @@ case 'invoices':
     );
    $strMainForm = "invoice";
    $strTitle = $GLOBALS['locINVOICES'];
-   
 break;
 /***********************************************************************
     END SEARCH LISTS - HAKU
@@ -104,7 +102,7 @@ break;
     SYSTEM LISTS - JÄRJESTELMÄ
 ***********************************************************************/
 case 'base_info':
-   $strTable = "". _DB_PREFIX_. "_base";
+   $strTable = "{prefix}base";
    $astrSearchFields = 
     array( 
         array("name" => "name", "type" => "TEXT")
@@ -119,11 +117,11 @@ case 'base_info':
     );
     //array('name');
    $strMainForm = "base_info";
-   $strTitle = $GLOBALS['locBASEINFO'];
+   $strTitle = $GLOBALS['locBASES'];
 break;
 
 case 'invoice_state':
-   $strTable = "". _DB_PREFIX_. "_invoice_state";
+   $strTable = "{prefix}invoice_state";
    $astrSearchFields = 
     array( 
         array("name" => "name'", "type" => "TEXT")
@@ -140,7 +138,7 @@ case 'invoice_state':
 break;
    
 case 'row_type':
-   $strTable = "". _DB_PREFIX_. "_row_type";
+   $strTable = "{prefix}row_type";
    $astrSearchFields = 
     array( 
         array("name" => "name", "type" => "TEXT")
@@ -157,7 +155,7 @@ case 'row_type':
 break;
 
 case 'company_type':
-   $strTable = "". _DB_PREFIX_. "_company_type";
+   $strTable = "{prefix}company_type";
    $astrSearchFields = 
     array( 
         array("name" => "name", "type" => "TEXT")
@@ -173,8 +171,8 @@ case 'company_type':
    $strTitle = $GLOBALS['locCOMPANYTYPES'];
 break;
    
-case 'session_types':
-   $strTable = "". _DB_PREFIX_. "_session_type";
+case 'session_type':
+   $strTable = "{prefix}session_type";
    $astrSearchFields = 
     array( 
         array("name" => "name", "type" => "TEXT")
@@ -190,8 +188,8 @@ case 'session_types':
    $strTitle = $GLOBALS['locSESSIONTYPES'];
 break;
    
-case 'users':
-   $strTable = "". _DB_PREFIX_. "_users";
+case 'user':
+   $strTable = "{prefix}users";
    $astrSearchFields = 
     array( 
         array("name" => "name", "type" => "TEXT")
@@ -202,7 +200,6 @@ case 'users':
         array("name" => "name", 'width' => 350, "type" => "TEXT", "header" => $GLOBALS['locUSERNAME']),
         array("name" => "login", 'width' => 250, "type" => "TEXT", "header" => $GLOBALS['locLOGONNAME'])
     );
-    //array('name');
    $strMainForm = "user";
    $strTitle = $GLOBALS['locUSERS'];
 break;
