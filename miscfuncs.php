@@ -47,11 +47,13 @@ function gpcStripSlashes($strString) {
 }
 
 function miscRound2Decim( $intValue, $intDecim = 2 ) {
-    //$tmpValue = MyRound( $intValue, strlen($intValue) ,2);
-    //$tmpValue = !strstr($tmpValue, ".") ? $tmpValue . ".00" : $tmpValue;
-    //$tmpValue = str_replace(".", ",", $tmpValue);
-    $tmpValue = number_format($intValue, $intDecim, ',', '');
-    return $tmpValue;
+    return number_format($intValue, $intDecim, ',', '');
+}
+
+function miscRound2OptDecim( $intValue, $intDecim = 2 ) {
+    if ($intValue == floor($intValue))
+      $intDecim = 0;
+    return number_format($intValue, $intDecim, ',', '');
 }
 
 function miscCalcCheckNo( $intValue ) {

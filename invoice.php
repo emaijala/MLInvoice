@@ -328,7 +328,7 @@ if( $intNRes <= _INVOICE_PDF_ROWS_ && !isset($boolSeparateStatement)) {
           $pdf->Cell(15, 5, miscRound2Decim($astrPieces[$i]), 0, 0, "R");
           $pdf->Cell(15, 5, $astrRowType[$i], 0, 0, "R");
           $pdf->Cell(20, 5, miscRound2Decim($intRowSum[$i]), 0, 0, "R");
-          $pdf->Cell(15, 5, $astrVAT[$i], 0, 0, "R");
+          $pdf->Cell(15, 5, miscRound2OptDecim($astrVAT[$i], 1), 0, 0, "R");
           $pdf->Cell(15, 5, miscRound2Decim($intRowVAT[$i]), 0, 0, "R");
           $pdf->Cell(20, 5, miscRound2Decim($intRowSumVAT[$i]), 0, 0, "R");
           $pdf->SetX(7);
@@ -607,7 +607,7 @@ if( $intNRes > _INVOICE_PDF_ROWS_ || isset($boolSeparateStatement)) {
           $pdf->Cell(15, 5, miscRound2Decim($astrPieces[$i]), 0, 0, "R");
           $pdf->Cell(15, 5, $astrRowType[$i], 0, 0, "R");
           $pdf->Cell(20, 5, miscRound2Decim($intRowSum[$i]), 0, 0, "R");
-          $pdf->Cell(15, 5, $astrVAT[$i], 0, 0, "R");
+          $pdf->Cell(15, 5, miscRound2OptDecim($astrVAT[$i], 1), 0, 0, "R");
           $pdf->Cell(15, 5, miscRound2Decim($intRowVAT[$i]), 0, 0, "R");
           $pdf->Cell(20, 5, miscRound2Decim($intRowSumVAT[$i]), 0, 0, "R");
           $pdf->SetX(7);
