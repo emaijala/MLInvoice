@@ -99,7 +99,7 @@ function createInvoiceReport($strType)
       }
   break;
   }
-  ?>
+?>
   
   <div class="list_container">
   <form method="get" action="" name="selectinv">
@@ -110,10 +110,10 @@ function createInvoiceReport($strType)
   <br>
   <b><?php echo $strTopLabel?></b>
   <table>
-  <?php
+<?php
   for( $j = 0; $j < count($astrSearchElements); $j++ ) {
       if( $astrSearchElements[$j]['type'] == "ELEMENT" ) {
-  ?>
+?>
       <tr>
           <td class="label">
               <?php echo $astrSearchElements[$j]['label']?>:
@@ -122,27 +122,23 @@ function createInvoiceReport($strType)
               <?php echo $astrSearchElements[$j]['element']?>
           </td>
       </tr>
-  <?php
+<?php
       }
       else {
-  ?>
+?>
       <tr>
           <td class="label">
               <?php echo $astrSearchElements[$j]['label']?>:
           </td>
-  <?php /*
-      <tr>
-      </tr>
-  */ ?>
           <td class="field">
               <?php echo htmlFormElement($astrSearchElements[$j]['name'], $astrSearchElements[$j]['type'], $astrSearchElements[$j]['value'], $astrSearchElements[$j]['style'], $astrSearchElements[$j]['listquery'], "MODIFY", isset($astrSearchElements[$j]['parent_key']) ? $astrSearchElements[$j]['parent_key'] : FALSE)?>
           </td>
       </tr>
-  <?php
+<?php
       }
   }
   
-  ?>
+?>
   </table>
   </form>
   <form method="get" action="" name="invoice">
@@ -157,9 +153,9 @@ function createInvoiceReport($strType)
   <input name="report" type="hidden" value="<?php echo $strType?>">
   <b><?php echo $strMidLabel?></b>
   <table>
-  <?php
+<?php
   for( $j = 0; $j < count($astrShowElements); $j++ ) {
-  ?>
+?>
       <tr>
           <td class="label">
               <?php echo $astrShowElements[$j]['label']?>:
@@ -168,7 +164,7 @@ function createInvoiceReport($strType)
               <?php echo htmlFormElement($astrShowElements[$j]['name'], $astrShowElements[$j]['type'], $astrShowElements[$j]['value'], $astrShowElements[$j]['style'], $astrShowElements[$j]['listquery'], "MODIFY", $astrShowElements[$j]['parent_key'])?>
           </td>
       </tr>
-  <?php
+<?php
   }
   for( $j = 0; $j < count($astrHtmlElements); $j++ ) {
   ?>
@@ -180,9 +176,9 @@ function createInvoiceReport($strType)
               <?php echo $astrHtmlElements[$j]['html']?>
           </td>
       </tr>
-  <?php
+<?php
   }
-  ?>
+?>
       <tr>
           <td>
               <input type="hidden" name="get_x" value="0">
@@ -274,7 +270,7 @@ function printReport()
   
   $intRes = mysql_param_query($strQuery, $arrParams);
   $intNumRows = mysql_numrows($intRes);
-  ?>
+?>
   <div class="report">
   <table>
   <tr>
@@ -305,7 +301,7 @@ function printReport()
           <?php echo $GLOBALS['locWITHVAT']?>
       </td>
   </tr>
-  <?php
+<?php
   if( $intNumRows ) {
       $intTotSum = 0;
       $intTotVAT = 0;
@@ -337,19 +333,19 @@ function printReport()
               {
                   $intItemPrice = $row2['price'];
                   $intItems = $row2['pcs'];
-                  $intVAT = $row2['vat'];
+                  $intVATPercent = $row2['vat'];
                   $boolVATIncluded = $row2['vat_included'];
                   
                   if ($boolVATIncluded)
                   {
                     $intSumVAT = $intItems * $intItemPrice;
-                    $intSum = $intSum / (1 + $intVAT / 100);
-                    $intVATTotal = $intSumVAT - $intSum;
+                    $intSum = $intSumVAT / (1 + $intVATPercent / 100);
+                    $intVAT = $intSumVAT - $intSum;
                   }
                   else
                   {
-                    $intSum = $intItems * $intItemPrice;
-                    $intVATTotal = $intSum * ($intVAT / 100);
+                      $intSum = $intItems * $intItemPrice;
+                    $intVAT = $intSum * ($intVATPercent / 100);
                     $intSumVAT = $intSum + $intVAT;
                   }
 
@@ -361,7 +357,7 @@ function printReport()
                   $intTotSumVAT += $intSumVAT;
               }
           }
-  ?>
+?>
   <tr>
       <td class="input">
           <?php echo $strInvoiceNo?>
@@ -385,9 +381,9 @@ function printReport()
           <?php echo miscRound2Decim($intRowSumVAT)?>
       </td>
   </tr>
-  <?php
+<?php
       }
-  ?>
+?>
   <tr>
       <td class="input" colspan="4" align="right">
           <b><?php echo $GLOBALS['locTOTAL']?></b>
@@ -404,6 +400,6 @@ function printReport()
   </tr>
   </table>
   </div>
-  <?php
+<?php
   }
 }
