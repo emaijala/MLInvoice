@@ -34,9 +34,7 @@ $strSesID = sesVerifySession();
 require "localize.php";
 
 $strForm = getPost('selectform', getRequest('selectform', ''));
-
 $strMode = getPost('mode', getGet('mode', 'MODIFY'));
-
 $strDefaults = getPost('defaults', getRequest('defaults', '')); 
 
 if( $strDefaults ) {
@@ -50,7 +48,6 @@ if( $strDefaults ) {
             $x++;
         }
     }
-    //print_r($astrDefaults);
 }
 else {
     $astrDefaults = array();
@@ -192,7 +189,6 @@ if( $blnAdd ) {
         $strQuery = "INSERT INTO $strTable ($strFields, $strParentKey) VALUES ($strInsert, ?)";
         $arrValues[] = $intParentKey;
 
-        //echo $strQuery."<br>\n";
         $intRes = mysql_param_query($strQuery, $arrValues, TRUE);
         if( $intRes ) {
             $intKeyValue = mysql_insert_id();
@@ -204,7 +200,6 @@ if( $blnAdd ) {
     }
 }
 if( $blnInsertDone ) {
-    //    unset($astrValues);
     for( $i = 0; $i < count($astrFormElements); $i++ ) {
         if( !$astrFormElements[$i]['default'] ) {
             unset($astrValues[$astrFormElements[$i]['name']]);
@@ -236,7 +231,6 @@ if( $blnDelete && $intKeyValue ) {
     //clear form elements
     unset($astrValues);
     $blnNew = TRUE;
-    $strOnLoad = "top.frset_bottom.f_list.document.forms[0].key_values.value=''; top.frset_bottom.f_list.document.forms[0].submit();";
 }
 if( $intParentKey ) {
     $strQuery =
@@ -340,33 +334,9 @@ for( $j = 0; $j < count($astrFormElements); $j++ ) {
 
 <?php
 }
-/*
-for( $j = 0; $j < count($astrFormElements); $j++ ) {
-    if( $astrFormElements[$j]['type'] != "HID_INT" ) {
-?>
-    <td class="<?php echo $astrFormElements[$j]['style']?>" <?php echo $strColspan?>>
-        <?php echo htmlFormElement( $astrFormElements[$j]['name'],$astrFormElements[$j]['type'],                               gpcStripSlashes($astrValues[$astrFormElements[$j]['name']]),                               $astrFormElements[$j]['style'],$astrFormElements[$j]['listquery'])?>
-    </td>
-<?php
-
-    }
-}
-
-?>
-    <td <?php echo $strRowSpan?>>
-        <button name="add" type="submit" value="1" title="<?php echo $GLOBALS['locADD']?>"  onMouseOver="document.iform.add_button.src='./<?php echo $GLOBALS['sesLANG']?>_images/add_act.gif'" onMouseOut="document.iform.add_button.src='./<?php echo $GLOBALS['sesLANG']?>_images/add.gif'" ><img name="add_button" src="./<?php echo $GLOBALS['sesLANG']?>_images/add.gif"  title="<?php echo $GLOBALS['locADD']?>" alt="<?php echo $GLOBALS['locADD']?>" ></button><img src="./<?php echo $GLOBALS['sesLANG']?>_images/add_act.gif" alt="" width="1" height="1">
-    </td>
-<?php
-
-*/
 ?>
 
-</table>
-</form>
-<table class="iform">
 <?php
-
-//print_r($astrOldValues);
 for($i = 0; $i < count($astrOldValues); $i++ ) {
 ?>
 <tr>
@@ -425,5 +395,6 @@ if( $strMode == "MODIFY" ) {
 
 ?>
 </table>
+</form>
 </body>
 </html>
