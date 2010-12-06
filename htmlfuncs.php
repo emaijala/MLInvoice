@@ -77,7 +77,7 @@ Todo : This could be more generic...
   <script type="text/javascript" src="jquery/js/jquery-1.4.2.min.js"></script>
   <script type="text/javascript" src="jquery/js/jquery-ui-1.8.6.custom.min.js"></script>
   <script type="text/javascript" src="jquery/js/jquery.ui.datepicker-fi.js"></script>
-  <script type="text/javascript" src="datatables/media/js/jquery.dataTables.js"></script>
+  <script type="text/javascript" src="datatables/media/js/jquery.dataTables.min.js"></script>
   <script type="text/javascript" src="js/functions.js"></script>
 </head>
 
