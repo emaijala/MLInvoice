@@ -113,11 +113,9 @@ for( $i = 0; $i < count($astrFormElements); $i++ ) {
         
         if( $astrFormElements[$i]['type'] == "INT" ) {
             $tmpValue = str_replace(",", ".", getPost($astrFormElements[$i]['name'], ''));
-            error_log("Elem: " . $astrFormElements[$i]['name'] . " tmp: $tmpValue, def: $strDefaultValue, null: " . (is_null($strDefaultValue) ? 'yes' : 'no'));
             $astrValues[$astrFormElements[$i]['name']] = $tmpValue !== '' ? (float)$tmpValue : $strDefaultValue;
         }
         else {
-            error_log("Elem: " . $astrFormElements[$i]['name'] . " def: $strDefaultValue, null: " . (is_null($strDefaultValue) ? 'yes' : 'no'));
             $astrValues[$astrFormElements[$i]['name']] = getPost($astrFormElements[$i]['name'], $strDefaultValue);
         }
     }
@@ -178,7 +176,6 @@ if( $blnSave ) {
                 //build the insert into fields
                 $strFields .= "$strControlName, ";
                 //format the numbers to right format - finnish use ,-separator
-                error_log("Name: $strControlName, value: $mixControlValue, null: " . (is_null($mixControlValue) ? 'yes' : 'no'));
                 $tmpValue = is_null($mixControlValue) ? NULL : str_replace(",", ".", $mixControlValue);
                 $strInsert .= '?, ';
                 $strUpdateFields .= "$strControlName=?, ";
