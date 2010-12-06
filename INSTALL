@@ -1,6 +1,6 @@
 Asennus:
 
-   1. Luo MySQL-tietokanta vllasku.
+   1. Luo MySQL-tietokanta vllasku. Aseta collationiksi utf8_swedish_ci.
    2. Luo MySQL-käyttäjä, jolla on riittävät oikeudet (ainakin CREATE, INSERT, UPDATE ja DELETE) vllasku-tietokannan käyttöön.
    3. Pura vllaskun asennuspaketti www-palvelimelle sopivaan paikkaan (tyypillisesti esim. htdocs-hakemistoon). Varmista, että tiedostojen käyttöoikeudet riittävät.
    4. Luo tietokantarakenne suorittamalla vllasku-tietokannassa create_database.sql -tiedoston (löytyy asennuspaketista) sisältämät komennot.
