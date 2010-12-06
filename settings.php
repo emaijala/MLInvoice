@@ -59,9 +59,6 @@ define ('_SHOW_BARCODE_', TRUE); // TRUE = n‰ytet‰‰n tai FALSE = ei n‰ytet‰
 // N‰ytet‰‰nkˆ laskurivill‰ p‰iv‰m‰‰r‰ (pdf)
 define ('_SHOW_INVOICE_ROW_DATE_', TRUE); // TRUE = n‰ytet‰‰n tai FALSE = ei n‰ytet‰
 
-// listojen rivim‰‰r‰
-define ('_NAVI_LIST_ROWS_', 0); 
-
 // PDF-laskupohjan rivim‰‰r‰ - kun ylittyy niin laskurivit tulostuvat erilliseen laskuerittelyyn.
 // Normaalisti ei tarvitse muuttaa - erittely tehd‰‰n, jos rivit eiv‰t mahdu niille varattuun tilaan.
 define ('_INVOICE_PDF_ROWS_', 99); 

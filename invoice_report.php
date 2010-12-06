@@ -274,11 +274,6 @@ function printReport()
   <div class="report">
   <table>
   <tr>
-      <td class="input" colspan="3">
-          <h1><?php echo $strLabel?></h1>
-      </td>
-  </tr>
-  <tr>
       <td class="label" align="center">
           <?php echo $GLOBALS['locINVNO']?>
       </td>
@@ -344,7 +339,7 @@ function printReport()
                   }
                   else
                   {
-                      $intSum = $intItems * $intItemPrice;
+                    $intSum = $intItems * $intItemPrice;
                     $intVAT = $intSum * ($intVATPercent / 100);
                     $intSumVAT = $intSum + $intVAT;
                   }

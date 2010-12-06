@@ -28,60 +28,21 @@ require_once "sqlfuncs.php";
 require_once "miscfuncs.php";
 require_once "datefuncs.php";
 require_once "localize.php";
+require_once 'list.php';
 
 function createOpenInvoiceList()
 {
-  $strQuery = 
-      "SELECT id FROM {prefix}invoice ".
-      "WHERE state_id = 1 and archived = 0 ".
-      "ORDER BY invoice_date, name";
-  $intRes = mysql_query_check($strQuery);
-  $intNumRows = mysql_num_rows($intRes);
-  if( $intNumRows ) {
-    $astrKeyValues = array();
-    for( $i = 0; $i < $intNumRows; $i++ ) {
-        $astrKeyValues[$i] = mysql_result($intRes, $i, 0);
-    }
-    require_once 'list.php';
-    createHtmlList('invoices', 'invoices', $astrKeyValues, $intNumRows, $GLOBALS['locLABELOPENINVOICES']);
-  }
-  else {
-?>
-  <div class="list_container">
-    <br>
-    <b><?php echo $GLOBALS['locLABELOPENINVOICES']?></b>
-    <br>
-    <br>
-    <?php echo $GLOBALS['locNOOPENINVOICES']?>
-    <br>
-  </div>
-<?php
-  }
+  $arrParams = array();
 
   $strQuery = 
-      "SELECT id FROM {prefix}invoice ".
-      "WHERE (state_id = 2 or state_id = 5 or state_id = 6 or state_id = 7) and archived = 0 ".
-      "ORDER BY invoice_date, name";
-  $intRes = mysql_query_check($strQuery);
-  $intNumRows = mysql_num_rows($intRes);
-  if( $intNumRows ) {
-    $astrKeyValues = array();
-    for( $i = 0; $i < $intNumRows; $i++ ) {
-        $astrKeyValues[$i] = mysql_result($intRes, $i, 0);
-    }
-    require_once 'list.php';
-    createHtmlList('invoices', 'invoices', $astrKeyValues, $intNumRows, $GLOBALS['locLABELUNPAIDINVOICES']);
-  }
-  else {
-?>
-  <div class="list_container">
-    <br>
-    <b><?php echo $GLOBALS['locLABELUNPAIDINVOICES']?></b>
-    <br>
-    <br>
-    <?php echo $GLOBALS['locNOUNPAIDINVOICES']?>
-    <br>
-  </div>
-<?php
-  }
+    "SELECT id FROM {prefix}invoice ".
+    "WHERE state_id = 1 and archived = 0 ".
+    "ORDER BY invoice_date, name";
+  createHtmlList('invoices', 'invoices', $strQuery, $arrParams, $GLOBALS['locLABELOPENINVOICES'], $GLOBALS['locNOOPENINVOICES'], 'resultlist_open_invoices');
+
+  $strQuery = 
+    "SELECT id FROM {prefix}invoice ".
+    "WHERE (state_id = 2 or state_id = 5 or state_id = 6 or state_id = 7) and archived = 0 ".
+    "ORDER BY invoice_date, name";
+  createHtmlList('invoices', 'invoices', $strQuery, $arrParams, $GLOBALS['locLABELUNPAIDINVOICES'], $GLOBALS['locNOUNPAIDINVOICES'], 'resultlist_unpaid_invoices');
 }

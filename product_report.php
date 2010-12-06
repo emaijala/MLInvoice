@@ -266,12 +266,14 @@ function printReport()
   }
   
   $strQuery .= "$strQuery2 ORDER BY invoice_no";
-  
+ 
   if ($intProductId)
   {
     $strProductWhere = 'AND ir.product_id = ? ';
     $arrParams[] = $intProductId;
   }
+  else
+    $strProductWhere = '';
   
   $strProductQuery = 'SELECT p.product_name, ir.description, ' . 
     'CASE WHEN ir.vat_included = 0 THEN sum(ir.price * ir.pcs) ELSE sum(ir.price * ir.pcs / (1 + ir.vat / 100)) END as total_price, ' .
