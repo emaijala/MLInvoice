@@ -250,20 +250,13 @@ if( $blnDelete && $intKeyValue ) {
     //create the delete query
     $strQuery = "DELETE FROM $strTable WHERE $strPrimaryKey=?";
     //send query to database
-    $intRes = @mysql_param_query($strQuery, array($intKeyValue));
-    //if delete was succesfull we have res-id
-    if( $intRes ) {
-        //dispose the primarykey value
-        unset($intKeyValue);
-        //clear form elements
-        unset($astrValues);
-        $blnNew = TRUE;
-        $strOnLoad = "top.frset_bottom.f_list.document.forms[0].key_values.value=''; top.frset_bottom.f_list.document.forms[0].submit();";
-    }
-    //if delete-query didn't workout
-    else {
-        $strOnLoad = "alert('" . $GLOBALS['locDBERRORDESC'] . addslashes(mysql_error()) . "');";
-    }
+    mysql_param_query($strQuery, array($intKeyValue));
+    //dispose the primarykey value
+    unset($intKeyValue);
+    //clear form elements
+    unset($astrValues);
+    $blnNew = TRUE;
+    $strOnLoad = "opener.document.forms[0].submit(); self.close();";
 }
 
 if( $intKeyValue ) {
@@ -347,13 +340,13 @@ for( $j = 0; $j < count($astrFormElements); $j++ ) {
 ?>
     <td class="label">
         <?php echo $astrFormElements[$j]['label']?><br>
-        <?php echo htmlFormElement( $astrFormElements[$j]['name'],$astrFormElements[$j]['type'],                               gpcStripSlashes($astrValues[$astrFormElements[$j]['name']]),                               $astrFormElements[$j]['style'],$astrFormElements[$j]['listquery'])?>
+        <?php echo htmlFormElement( $astrFormElements[$j]['name'],$astrFormElements[$j]['type'], gpcStripSlashes($astrValues[$astrFormElements[$j]['name']]), $astrFormElements[$j]['style'],$astrFormElements[$j]['listquery'])?>
     </td>
 <?php
     }
     elseif( $astrFormElements[$j]['type'] == 'SECHID_INT' ) {
 ?>
-    <?php echo htmlFormElement( $astrFormElements[$j]['name'],"HID_INT",                               gpcStripSlashes($astrValues[$astrFormElements[$j]['name']]),                               $astrFormElements[$j]['style'],$astrFormElements[$j]['listquery'])?>
+    <?php echo htmlFormElement( $astrFormElements[$j]['name'],"HID_INT", gpcStripSlashes($astrValues[$astrFormElements[$j]['name']]), $astrFormElements[$j]['style'],$astrFormElements[$j]['listquery'])?>
 <?php
     }
     elseif( $astrFormElements[$j]['type'] == 'BUTTON' ) {
