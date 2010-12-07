@@ -46,6 +46,9 @@ $link = mysql_connect(_DB_SERVER_, _DB_USERNAME_, _DB_PASSWORD_)
 
 mysql_select_db(_DB_NAME_) or die("Could not select database: " . mysql_error());
 
+if (_CHARSET_ == 'UTF-8')
+  mysql_query_check('SET NAMES \'utf8\'');
+
 function mysql_query_check($query, $noFail=false)
 {
   $query = str_replace('{prefix}', _DB_PREFIX_ . '_', $query);

@@ -1,16 +1,16 @@
-CREATE TABLE vllasku_invoice_state (
+ï»¿CREATE TABLE vllasku_invoice_state (
   id int(11) NOT NULL auto_increment,
   name varchar(15) default NULL,
   order_no int(11) default NULL,
   PRIMARY KEY (id)
-) ENGINE=INNODB AUTO_INCREMENT=4;
+) ENGINE=INNODB AUTO_INCREMENT=4 CHARACTER SET utf8 COLLATE utf8_swedish_ci;
 
 CREATE TABLE vllasku_row_type (
   id int(11) NOT NULL auto_increment,
   name varchar(15) default NULL,
   order_no int(11) default NULL,
   PRIMARY KEY (id)
-) ENGINE=INNODB AUTO_INCREMENT=9;
+) ENGINE=INNODB AUTO_INCREMENT=9 CHARACTER SET utf8 COLLATE utf8_swedish_ci;
 
 
 CREATE TABLE vllasku_company_type (
@@ -18,7 +18,7 @@ CREATE TABLE vllasku_company_type (
   name varchar(255) default NULL,
   order_no int(11) default NULL,
   PRIMARY KEY (id)
-) ENGINE=INNODB AUTO_INCREMENT=23;
+) ENGINE=INNODB AUTO_INCREMENT=23 CHARACTER SET utf8 COLLATE utf8_swedish_ci;
 
 CREATE TABLE vllasku_base (
   id int(11) NOT NULL auto_increment,
@@ -45,7 +45,7 @@ CREATE TABLE vllasku_base (
   bank_swiftbic3 varchar(30) NOT NULL,
   vat_registered tinyint default 0 NOT NULL,
   PRIMARY KEY (id)
-) ENGINE=INNODB AUTO_INCREMENT=1;
+) ENGINE=INNODB AUTO_INCREMENT=1 CHARACTER SET utf8 COLLATE utf8_swedish_ci;
 
 CREATE TABLE vllasku_company (
   id int(11) NOT NULL auto_increment,
@@ -66,7 +66,7 @@ CREATE TABLE vllasku_company (
   company_id varchar(15) default NULL,
   PRIMARY KEY (id),
   FOREIGN KEY (type_id) REFERENCES vllasku_company_type(id)
-) ENGINE=INNODB;
+) ENGINE=INNODB CHARACTER SET utf8 COLLATE utf8_swedish_ci;
 
 CREATE TABLE vllasku_product (
   id int(11) NOT NULL auto_increment,
@@ -81,7 +81,7 @@ CREATE TABLE vllasku_product (
   vat_included tinyint NOT NULL default 0,
   PRIMARY KEY (id),
   FOREIGN KEY (type_id) REFERENCES vllasku_row_type(id)
-) ENGINE=INNODB;
+) ENGINE=INNODB CHARACTER SET utf8 COLLATE utf8_swedish_ci;
 
 CREATE TABLE vllasku_company_contact (
   id int(11) NOT NULL auto_increment,
@@ -93,7 +93,7 @@ CREATE TABLE vllasku_company_contact (
   gsm varchar(30) default NULL,
   PRIMARY KEY (id),
   FOREIGN KEY (company_id) REFERENCES vllasku_company(id)
-) ENGINE=INNODB AUTO_INCREMENT=1;
+) ENGINE=INNODB AUTO_INCREMENT=1 CHARACTER SET utf8 COLLATE utf8_swedish_ci;
 
 CREATE TABLE vllasku_invoice (
   id int(11) NOT NULL auto_increment,
@@ -113,7 +113,7 @@ CREATE TABLE vllasku_invoice (
   PRIMARY KEY (id),
   FOREIGN KEY (company_id) REFERENCES vllasku_company(id),
   FOREIGN KEY (state_id) REFERENCES vllasku_invoice_state(id)
-) ENGINE=INNODB AUTO_INCREMENT=1;
+) ENGINE=INNODB AUTO_INCREMENT=1 CHARACTER SET utf8 COLLATE utf8_swedish_ci;
 
 CREATE TABLE vllasku_invoice_row (
   id int(11) NOT NULL auto_increment,
@@ -132,7 +132,7 @@ CREATE TABLE vllasku_invoice_row (
   FOREIGN KEY (invoice_id) REFERENCES vllasku_invoice(id) ON DELETE CASCADE,
   FOREIGN KEY (product_id) REFERENCES vllasku_product(id),
   FOREIGN KEY (type_id) REFERENCES vllasku_row_type(id)
-) ENGINE=INNODB AUTO_INCREMENT=1;
+) ENGINE=INNODB AUTO_INCREMENT=1 CHARACTER SET utf8 COLLATE utf8_swedish_ci;
 
 CREATE TABLE vllasku_session_type (
   id int(11) NOT NULL auto_increment,
@@ -141,7 +141,7 @@ CREATE TABLE vllasku_session_type (
   time_out int(11) default NULL,
   access_level int(11) default NULL,
   PRIMARY KEY (id)
-) ENGINE=INNODB AUTO_INCREMENT=3;
+) ENGINE=INNODB AUTO_INCREMENT=3 CHARACTER SET utf8 COLLATE utf8_swedish_ci;
 
 CREATE TABLE vllasku_users (
   id int(11) NOT NULL auto_increment,
@@ -152,7 +152,7 @@ CREATE TABLE vllasku_users (
   type_id int(11) default NULL,
   PRIMARY KEY (id),
   FOREIGN KEY (type_id) REFERENCES vllasku_session_type(id)
-) ENGINE=INNODB AUTO_INCREMENT=2;
+) ENGINE=INNODB AUTO_INCREMENT=2 CHARACTER SET utf8 COLLATE utf8_swedish_ci;
 
 CREATE TABLE vllasku_quicksearch (
   id int(11) NOT NULL auto_increment,
@@ -162,24 +162,26 @@ CREATE TABLE vllasku_quicksearch (
   whereclause text,
   PRIMARY KEY (id),
   FOREIGN KEY (user_id) REFERENCES vllasku_users(id)
-) ENGINE=INNODB;
+) ENGINE=INNODB CHARACTER SET utf8 COLLATE utf8_swedish_ci;
+
+SET NAMES 'utf8';
 
 INSERT INTO vllasku_base (id, name, contact_person, street_address, zip_code, city, phone, bank_name, bank_account, bank_iban, bank_swiftbic, www, email, company_id) VALUES (1, 'Testifirma', 'Taavi Testaaja', 'Testitie', '00730', 'HELSINKI', '+358 50 123456', 'Pankki', '123456-654321', 'FI12 3456 7890 1234 56', 'FIHHPANK', 'http://sourceforge.net/', 'emaijala@gmail.com', '123456-7');
 
 INSERT INTO vllasku_company (id, inside_info, type_id, company_name, contact_person, street_address, zip_code, city, phone, fax, email, gsm, billing_address, www, info, company_id) VALUES (1, NULL, NULL, 'Testifirma', NULL, 'Testitie', '00730', 'HELSINKI', '050-123 4567', '-', 'emaijala@gmail.com', '050-123 4567', 'Testifirma\r\nTestitie\r\n00730 HELSINKI', 'www.sourceforge.net', '', 'FI-123456-x');
 
-INSERT INTO vllasku_company_contact (id, company_id, contact_person, person_title, email, phone, gsm) VALUES (1, 1, 'Ere Maijala', 'Päällikkö', 'emaijala@gmail.com', '-', '050-123 4567');
+INSERT INTO vllasku_company_contact (id, company_id, contact_person, person_title, email, phone, gsm) VALUES (1, 1, 'Ere Maijala', 'PÃ¤Ã¤llikkÃ¶', 'emaijala@gmail.com', '-', '050-123 4567');
 
 INSERT INTO vllasku_company_type (id, name, order_no) VALUES (1, 'Autoilu', 5);
 INSERT INTO vllasku_company_type (id, name, order_no) VALUES (2, 'Elintarviketeollisuus', 10);
 INSERT INTO vllasku_company_type (id, name, order_no) VALUES (3, 'Graafinen ala', 15);
-INSERT INTO vllasku_company_type (id, name, order_no) VALUES (4, 'Henkilöstöhallinto', 20);
+INSERT INTO vllasku_company_type (id, name, order_no) VALUES (4, 'HenkilÃ¶stÃ¶hallinto', 20);
 INSERT INTO vllasku_company_type (id, name, order_no) VALUES (5, 'Julkinen sektori', 25);
 INSERT INTO vllasku_company_type (id, name, order_no) VALUES (6, 'Kemian teollisuus', 30);
-INSERT INTO vllasku_company_type (id, name, order_no) VALUES (7, 'Kiinteistö', 35);
+INSERT INTO vllasku_company_type (id, name, order_no) VALUES (7, 'KiinteistÃ¶', 35);
 INSERT INTO vllasku_company_type (id, name, order_no) VALUES (8, 'Kuljetus ja logistiikka', 40);
 INSERT INTO vllasku_company_type (id, name, order_no) VALUES (9, 'Kumi- ja muoviteollisuus', 45);
-INSERT INTO vllasku_company_type (id, name, order_no) VALUES (10, 'Maa- ja metsätalous', 50);
+INSERT INTO vllasku_company_type (id, name, order_no) VALUES (10, 'Maa- ja metsÃ¤talous', 50);
 INSERT INTO vllasku_company_type (id, name, order_no) VALUES (11, 'Markkinointi ja mainonta', 55);
 INSERT INTO vllasku_company_type (id, name, order_no) VALUES (12, 'Matkailu, majoitus ja virkistystoiminta', 60);
 INSERT INTO vllasku_company_type (id, name, order_no) VALUES (13, 'Metalli', 65);
@@ -190,23 +192,23 @@ INSERT INTO vllasku_company_type (id, name, order_no) VALUES (17, 'Tekstiili- ja
 INSERT INTO vllasku_company_type (id, name, order_no) VALUES (18, 'Terveydenhuolto ja hyvinvointi', 90);
 INSERT INTO vllasku_company_type (id, name, order_no) VALUES (19, 'Tietotekniikka', 95);
 INSERT INTO vllasku_company_type (id, name, order_no) VALUES (20, 'Vapaa-aika ja harrastustoiminta', 100);
-INSERT INTO vllasku_company_type (id, name, order_no) VALUES (21, 'Ympäristö', 105);
+INSERT INTO vllasku_company_type (id, name, order_no) VALUES (21, 'YmpÃ¤ristÃ¶', 105);
 INSERT INTO vllasku_company_type (id, name, order_no) VALUES (22, 'Elektroniikka', 110);
 
 INSERT INTO vllasku_invoice_state (id, name, order_no) VALUES (1, 'AVOIN', 5);
-INSERT INTO vllasku_invoice_state (id, name, order_no) VALUES (2, 'LÄHETETTY', 10);
+INSERT INTO vllasku_invoice_state (id, name, order_no) VALUES (2, 'LÃ„HETETTY', 10);
 INSERT INTO vllasku_invoice_state (id, name, order_no) VALUES (3, 'MAKSETTU', 15);
-INSERT INTO vllasku_invoice_state (id, name, order_no) VALUES (4, 'MITÄTÖITY', 20);
+INSERT INTO vllasku_invoice_state (id, name, order_no) VALUES (4, 'MITÃ„TÃ–ITY', 20);
 INSERT INTO vllasku_invoice_state (id, name, order_no) VALUES (5, '1. HUOMAUTUS', 25);
 INSERT INTO vllasku_invoice_state (id, name, order_no) VALUES (6, '2. HUOMAUTUS', 30);
-INSERT INTO vllasku_invoice_state (id, name, order_no) VALUES (7, 'PERINTÄ', 35);
+INSERT INTO vllasku_invoice_state (id, name, order_no) VALUES (7, 'PERINTÃ„', 35);
 
 INSERT INTO vllasku_row_type (id, name, order_no) VALUES (1, 'h', 5);
 INSERT INTO vllasku_row_type (id, name, order_no) VALUES (2, 'pv', 10);
 INSERT INTO vllasku_row_type (id, name, order_no) VALUES (3, 'kk', 15);
 INSERT INTO vllasku_row_type (id, name, order_no) VALUES (4, 'kpl', 20);
 INSERT INTO vllasku_row_type (id, name, order_no) VALUES (5, 'vuosi', 25);
-INSERT INTO vllasku_row_type (id, name, order_no) VALUES (6, 'erä', 30);
+INSERT INTO vllasku_row_type (id, name, order_no) VALUES (6, 'erÃ¤', 30);
 INSERT INTO vllasku_row_type (id, name, order_no) VALUES (8, 'km', 35);
 
 INSERT INTO vllasku_invoice 
@@ -216,7 +218,7 @@ INSERT INTO vllasku_invoice
 INSERT INTO vllasku_invoice_row (id, invoice_id, description, type_id, pcs, price, row_date, vat, order_no) 
   VALUES (1, 1, 'Testirivi 1', 3, 12.00, 150.00, 20060515, 23, 5);
 
-INSERT INTO vllasku_session_type (id, name, order_no, time_out, access_level) VALUES (1, 'Käyttäjä', 1, 3600, 1);
+INSERT INTO vllasku_session_type (id, name, order_no, time_out, access_level) VALUES (1, 'KÃ¤yttÃ¤jÃ¤', 1, 3600, 1);
 INSERT INTO vllasku_session_type (id, name, order_no, time_out, access_level) VALUES (2, 'Admin', 2, 3600, 99);
 
 INSERT INTO vllasku_users (id, name, email, login, passwd, type_id) VALUES (1, 'Administrator', 'foo@bar.fi.not', 'admin', md5('admin'), 2);

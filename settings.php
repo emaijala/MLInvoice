@@ -42,7 +42,10 @@ define('_DB_PASSWORD_', 'vllasku');
 define('_DB_NAME_', 'vllasku');
 
 // Tietokantataulujen prefix
-define ("_DB_PREFIX_", "vllasku");
+define ('_DB_PREFIX_', 'vllasku');
+
+// Merkistö: UTF-8 tai ISO-8859-15
+define ('_CHARSET_', 'UTF-8');
 
 // Sivujen otsikko
 define ("_PAGE_TITLE_", "VLLasku");

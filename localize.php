@@ -409,31 +409,17 @@ default :
     $GLOBALS['locLABELUNPAIDINVOICES'] = 'Maksamattomat laskut';
     $GLOBALS['locNOUNPAIDINVOICES'] = 'Ei maksamattomia laskuja';
     
-    //organizer
-    $GLOBALS['locPREVMONTH'] = 'Edellinen kuukausi';
-    $GLOBALS['locNEXTMONTH'] = 'Seuraava kuukausi';
-    $GLOBALS['locSHOWTODAY'] = 'Siirry tähän päivään';
-    $GLOBALS['locNOEVENTS'] = 'Ei tapahtumia';
-    $GLOBALS['locSHOWEVENTS'] = 'Näytä tapahtumat';
-    $GLOBALS['locADDEVENT'] = 'Lisää tapahtuma';
-    $GLOBALS['locDELEVENT'] = 'Poista tapahtuma';
-    $GLOBALS['locSHOWEVENT'] = 'Näytä tapahtuman tiedot';
-    
-    //create_invoice.php
-    $GLOBALS['locWEEKS'] = 'Viikot';
-    
-    //pic uploader
-    $GLOBALS['locROTATE'] = 'Käännä';
-    $GLOBALS['locROTATECWISE'] = 'Käännä myötäpäivään';
-    $GLOBALS['locROTATEACWISE'] = 'Käännä vastapäivään';
-    $GLOBALS['locRESIZE'] = 'Muuta koko';
-    $GLOBALS['locADDTEN'] = '+10%';
-    $GLOBALS['locMINTEN'] = '-10%';
-    $GLOBALS['locRESIZEWIDTH'] = 'Muuta pituutta';
-    $GLOBALS['locRESIZEHEIGHT'] = 'Muuta korkeutta';
-    $GLOBALS['locRESIZEWITHGIVENVALUES'] = 'Muuta annettuihin arvoihin';
 break;
 
+}
+
+if (_CHARSET_ == 'UTF-8')
+{
+  foreach ($GLOBALS as $key => &$tr)
+  {
+    if (substr($key, 0, 3) == 'loc')
+      $tr = utf8_encode($tr);
+  }
 }
 
 ?>
