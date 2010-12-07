@@ -29,7 +29,7 @@ require "sessionfuncs.php";
 require "miscfuncs.php";
 require "datefuncs.php";
 
-$strSesID = sesVerifySession();
+sesVerifySession();
 
 require "localize.php";
 
@@ -144,7 +144,7 @@ if( $blnSearch || $blnSave ) {
     $strWhereClause = substr( $strWhereClause, 0, -4);
     $strWhereClause = urlencode($strWhereClause);
     if( $blnSearch ) {
-        $strLink = "index.php?ses=". $GLOBALS['sesID']."&func=$strFunc&selectform=$strForm&where=$strWhereClause";
+        $strLink = "index.php?func=$strFunc&selectform=$strForm&where=$strWhereClause";
         $strOnLoad = "opener.location.href='$strLink'";
     }
     
@@ -152,7 +152,7 @@ if( $blnSearch || $blnSave ) {
         $strQuery = 
             'INSERT INTO {prefix}quicksearch(user_id, name, form, whereclause) '.
             'VALUES (?, ?, ?, ?)';
-        $intRes = mysql_param_query($strQuery, array($GLOBALS['sesUSERID'], $strSearchName, $strForm, $strWhereClause));
+        $intRes = mysql_param_query($strQuery, array($_SESSION['sesUSERID'], $strSearchName, $strForm, $strWhereClause));
     }
     elseif( $blnSave && !$strSearchName) {
         $strOnLoad = "alert('".$GLOBALS['locERRORNOSEARCHNAME']."')";
@@ -169,7 +169,7 @@ $(function() {
 </script>
 
 <body class="form" onload="<?php echo $strOnLoad?>">
-<form method="post" action="ext_search.php?ses=<?php echo $GLOBALS['sesID']?>&amp;func=<?php echo $strFunc?>&amp;form=<?php echo $strForm?>" target="_self" name="search_form">
+<form method="post" action="ext_search.php?func=<?php echo $strFunc?>&amp;form=<?php echo $strForm?>" target="_self" name="search_form">
 <input type="hidden" name="fields" value="<?php echo $strFields?>">
 <table>
 <tr>
@@ -226,8 +226,6 @@ for( $j = 0; $j < count($astrFormElements); $j++ ) {
     <td>
         <input type="hidden" name="delete_<?php echo $astrFormElements[$j]['name']?>_x" value="0">
         <a class="tinyactionlink" href="#" title="<?php echo $GLOBALS['locDELROW']?>" onclick="self.document.forms[0].delete_<?php echo $astrFormElements[$j]['name']?>_x.value=1; self.document.forms[0].submit(); return false;"> X </a>
-        <!--
-        <input type="image" name="delete_<?php echo $astrFormElements[$j]['name']?>" src="./<?php echo $GLOBALS['sesLANG']?>_images/x.gif"  title="<?php echo $GLOBALS['locDELROW']?>" alt="<?php echo $GLOBALS['locDELROW']?>" style="cursor:pointer;cursor:hand;">-->
     </td>
 </tr>        
 <?php
@@ -254,19 +252,13 @@ for( $j = 0; $j < count($astrFormElements); $j++ ) {
     <td>
         <input type="hidden" name="search_x" value="0">
         <a class="actionlink" href="#" onclick="self.document.forms[0].search_x.value=1; self.document.forms[0].submit(); return false;"><?php echo $GLOBALS['locSEARCH']?></a>
-        <!--
-        <input type="image" name="search"  src="./<?php echo $GLOBALS['sesLANG']?>_images/seek.gif"  alt="<?php echo $GLOBALS['locSEARCH']?>" style="cursor:pointer;cursor:hand;">-->
     </td>
     <td>
         <input type="hidden" name="save_x" value="0">
         <a class="actionlink" href="#" onclick="self.document.forms[0].save_x.value=1; self.document.forms[0].submit(); return false;"><?php echo $GLOBALS['locSAVESEARCH']?></a>
-        <!--
-        <input type="image"  name="save"  src="./<?php echo $GLOBALS['sesLANG']?>_images/save.gif"  alt="<?php echo $GLOBALS['locSAVESEARCH']?>" style="cursor:pointer;cursor:hand;">-->
     </td>
     <td>
         <a class="actionlink" href="#" onclick="self.close(); return false;"><?php echo $GLOBALS['locCLOSE']?></a>
-        <!--
-        <img name="close_button"  src="./<?php echo $GLOBALS['sesLANG']?>_images/close.gif"  alt="<?php echo $GLOBALS['locCLOSE']?>" title="<?php echo $GLOBALS['locCLOSE']?>" onClick="self.close();" style="cursor:pointer;cursor:hand;">-->
     </td>
 </tr>
 </table>

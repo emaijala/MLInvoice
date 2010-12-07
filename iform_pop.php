@@ -29,8 +29,7 @@ require "sessionfuncs.php";
 require "miscfuncs.php";
 require "datefuncs.php";
 
-$strSesID = sesVerifySession();
-
+sesVerifySession();
 
 require "localize.php";
 
@@ -323,7 +322,7 @@ $(function() {
 });
 -->
 </script>
-<form method="post" action="iform_pop.php?selectform=<?php echo $strForm?>&ses=<?php echo $GLOBALS['sesID']?>" target="_self" name="pop_iform">
+<form method="post" action="iform_pop.php?selectform=<?php echo $strForm?>" target="_self" name="pop_iform">
 <?php
 if (!$blnCopy) {
     echo "<input type=\"hidden\" name=\"{$strPrimaryKey}\" value=\"{$intKeyValue}\">\n";

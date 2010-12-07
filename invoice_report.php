@@ -103,7 +103,6 @@ function createInvoiceReport($strType)
   
   <div class="list_container">
   <form method="get" action="" name="selectinv">
-  <input name="ses" type="hidden" value="<?php echo $GLOBALS['sesID']?>">
   <input name="func" type="hidden" value="reports">
   <input name="form" type="hidden" value="invoice">
   
@@ -142,7 +141,6 @@ function createInvoiceReport($strType)
   </table>
   </form>
   <form method="get" action="" name="invoice">
-  <input name="ses" type="hidden" value="<?php echo $GLOBALS['sesID']?>">
   <input name="func" type="hidden" value="reports">
   <input name="form" type="hidden" value="invoice">
 
@@ -183,8 +181,6 @@ function createInvoiceReport($strType)
           <td>
               <input type="hidden" name="get_x" value="0">
               <a class="actionlink" href="#" onclick="self.document.invoice.get_x.value=1; self.document.invoice.submit(); return false;"><?php echo $GLOBALS['locGET']?></a>
-          <!--
-              <input type="image" name="get" src="./<?php echo $GLOBALS['sesLANG']?>_images/get.png" title="<?php echo $GLOBALS['locGET']?>" alt="<?php echo $GLOBALS['locGET']?>">-->
           </td>
       </tr>
   
@@ -240,8 +236,6 @@ function printReport()
   for( $i = 0; $i < $intNumRows; $i++ ) {
       $intStateId = mysql_result($intRes, $i, "id");
       $strStateName = mysql_result($intRes, $i, "name");
-      //echo $strMemberType ."<br>\n";
-      //$strChecked = $intStateId == $intSelectedStateId ? 'checked' : '';
       $strTemp = "stateid_". $intStateId;
       $tmpSelected = getPost($strTemp, FALSE) ? TRUE : FALSE;
       if( $tmpSelected ) {

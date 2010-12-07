@@ -23,16 +23,27 @@ Tämä ohjelma on vapaa. Lue oheinen LICENSE.
 
 *******************************************************************************/
 
-switch (isset($_POST['sesLANG']) ? $_POST['sesLANG'] : 'fi') {
+switch (isset($_SESSION['sesLANG']) ? $_SESSION['sesLANG'] : 'fi') {
 
 case 'en' :
     
 break;
 
 default :
+
+    //LOGIN
+    $GLOBALS['locWELCOMEMESSAGE'] = 'Ole hyvä ja syötä tunnuksesi ja salasanasi ja kirjaudu klikkaamalla "Kirjaudu"-painiketta.';
+    $GLOBALS['locINVALIDCREDENTIALS'] = 'Käyttäjätunnus tai salasana väärä.';
+    $GLOBALS['locLOGINTIMEOUT'] = 'Kirjautumislomakkeen täyttöaika ylittynyt. Ole hyvä ja kirjaudu uudelleen.';
+    $GLOBALS['locMISSINGFIELDS'] = 'Ole hyvä ja syötä kaikki tiedot.';
+    $GLOBALS['locWELCOME'] = 'Tervetuloa';
+    $GLOBALS['locLICENSENOTIFY'] = '';
+    $GLOBALS['locCREDITS'] = '';
     
-    $GLOBALS['locLICENSENOTIFY'] = 'Tämä ohjelma on vapaa - Katso LICENSE ja gpl.txt asennushakemistosta.<br/>Copyright 2010 Ere Maijala<br/>Portions  Copyright 2004-2008 Samu Reinikainen';
-    $GLOBALS['locCREDITS'] = 'Kiitos avusta:<br/> Olivier Plathey - FPDF - http://www.fpdf.org/<br/> GuinuX - Barcode128 + PDF Barcode128 - http://phpclasses.org/browse.html/package/592/';
+    //LOGOUT
+    $GLOBALS['locTHANKYOU'] = 'Kiitos';
+    $GLOBALS['locSESSIONCLOSED'] = 'Istunto on päätetty.';
+    $GLOBALS['locBACKTOLOGIN'] = 'Takaisin kirjautumaan';
     
     //FORM LABELS
     $GLOBALS['locCOMPNAME'] = 'Yrityksen nimi';
@@ -172,6 +183,7 @@ default :
     //FORM BUTTON HELPERS
     $GLOBALS['locSAVE'] = 'Tallenna';
     $GLOBALS['locCOPY'] = 'Kopioi';
+    $GLOBALS['locEDIT'] = 'Muokkaa';
     $GLOBALS['locNEW'] = 'Uusi';
     $GLOBALS['locNEWINVOICE'] = 'Uusi lasku';
     $GLOBALS['locNEWCOMPANY'] = 'Uusi asiakas';
@@ -233,7 +245,7 @@ default :
     $GLOBALS['locSYSTEM'] = 'Järjestelmä';
     $GLOBALS['locSHOWPREVRES'] = 'Näytä edellinen tulosjoukko';
     $GLOBALS['locSHOWNEXTRES'] = 'Näytä seuraava tulosjoukko';
-    $GLOBALS['locNOENTRIES'] = 'Hakuehdoilla ei löytynyt tietoja';
+    $GLOBALS['locNOENTRIES'] = 'Ei löytyneitä';
     $GLOBALS['locENTERTERMS'] = 'Syötä hakusanat välilyönnillä eroteltuina. Tyhjä kenttä tai * näyttää kaikki tietueet.';
     $GLOBALS['locSEARCH'] = 'Etsi';
     $GLOBALS['locSHOWADMINNAVI'] = 'Näytä hallintavalikko';
@@ -324,7 +336,6 @@ default :
     $GLOBALS['locPRINTINVTO'] = 'Tulostettavat laskut';
     $GLOBALS['locSETTIME'] = 'Aseta';
     $GLOBALS['locPERCENT'] = 'Prosentti';
-    $GLOBALS['locEDIT'] = 'Muokkaa';
     
     
     //REPORTS

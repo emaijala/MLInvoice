@@ -54,7 +54,7 @@ function createFuncMenu($strFunc)
       case 'session_type': $strNewText = $GLOBALS['locNEWSESSIONTYPE']; break;
       }
       if ($strNewText)
-        $strNewButton = '<a class="actionlink" href="?ses=' . $GLOBALS['sesID'] . "&amp;func=system&amp;list=$strList&amp;form=$strList\">$strNewText</a>";
+        $strNewButton = "<a class=\"actionlink\" href=\"?func=system&amp;list=$strList&amp;form=$strList\">$strNewText</a>";
   break;
   case "settings" :
       $strLabel = $GLOBALS['locSHOWSETTINGSNAVI'];
@@ -75,7 +75,7 @@ function createFuncMenu($strFunc)
       case 'row_type': $strNewText = $GLOBALS['locNEWROWTYPE']; break;
       }
       if ($strNewText)
-        $strNewButton = '<a class="actionlink" href="?ses=' . $GLOBALS['sesID'] . "&amp;func=settings&amp;list=$strList&amp;form=$strList\">$strNewText</a>";
+        $strNewButton = "<a class=\"actionlink\" href=\"?func=settings&amp;list=$strList&amp;form=$strList\">$strNewText</a>";
   break;
   
   case "reports" :
@@ -94,18 +94,18 @@ function createFuncMenu($strFunc)
       $strFormSwitch = "company";
       $astrNaviLinks = array();
       
-      $strNewButton = '<a class="actionlink" href="?ses=' . $GLOBALS['sesID'] . '&amp;func=companies&amp;form=company">' . $GLOBALS['locNEWCOMPANY'] . '</a>';
+      $strNewButton = '<a class="actionlink" href="?func=companies&amp;form=company">' . $GLOBALS['locNEWCOMPANY'] . '</a>';
   break;
   default :
       $blnShowSearch = TRUE;
       $strFormName = "invoice";
       $astrNaviLinks = array();
       if ($strFunc == 'invoices')
-        $astrNaviLinks[] = array("href" => "index.php?ses=".$GLOBALS['sesID']. "&amp;func=", "text" => $GLOBALS['locDISPLAYOPENINVOICES'], "levels_allowed" => array(1));
+        $astrNaviLinks[] = array("href" => "index.php", "text" => $GLOBALS['locDISPLAYOPENINVOICES'], "levels_allowed" => array(1));
       else
-        $astrNaviLinks[] = array("href" => "index.php?ses=".$GLOBALS['sesID']. "&amp;func=invoices", "text" => $GLOBALS['locDISPLAYALLINVOICES'], "levels_allowed" => array(1));
+        $astrNaviLinks[] = array("href" => "index.php?func=invoices", "text" => $GLOBALS['locDISPLAYALLINVOICES'], "levels_allowed" => array(1));
       if ($strFunc != 'archived_invoices')  
-        $strNewButton = '<a class="actionlink" href="?ses=' . $GLOBALS['sesID'] . '&amp;func=invoices&amp;form=invoice">' . $GLOBALS['locNEWINVOICE'] . '</a>';
+        $strNewButton = '<a class="actionlink" href="?func=invoices&amp;form=invoice">' . $GLOBALS['locNEWINVOICE'] . '</a>';
       $strFunc = 'invoices';
   break;
   }
@@ -119,14 +119,14 @@ function createFuncMenu($strFunc)
       x = event.screenX;
       y = event.screenY;
       if( mode == 'ext' ) {
-          strLink = 'ext_search.php?ses=<?php echo $GLOBALS['sesID']?>&func=<?php echo $strFunc?>&form=<?php echo $strFormName?>';
+          strLink = 'ext_search.php?func=<?php echo $strFunc?>&form=<?php echo $strFormName?>';
           strLink = strLink + '<?php echo $strExtSearchTerm?>';
           height = '400';
           width = '500';
           windowname = 'ext';
       }
       if( mode == 'quick' ) {
-          strLink = 'quick_search.php?ses=<?php echo $GLOBALS['sesID']?>';
+          strLink = 'quick_search.php';
           height = '400';
           width = '250';
           windowname = 'quicksearch';
@@ -140,7 +140,6 @@ function createFuncMenu($strFunc)
   -->
   </script>
   <form method="get" action="" name="form_search">
-  <input type="hidden" name="ses" value="<?php echo $GLOBALS['sesID']?>">
   <input type="hidden" name="func" value="<?php echo $strFunc?>">
   <div class="function_navi">
     <b><?php echo $strLabel?></b>
@@ -154,9 +153,9 @@ function createFuncMenu($strFunc)
 <?php
   }
   for( $i = 0; $i < count($astrNaviLinks); $i++ ) {
-    if( in_array($GLOBALS['sesACCESSLEVEL'], $astrNaviLinks[$i]["levels_allowed"]) || $GLOBALS['sesACCESSLEVEL'] == 99 ) {
+    if( in_array($_SESSION['sesACCESSLEVEL'], $astrNaviLinks[$i]["levels_allowed"]) || $_SESSION['sesACCESSLEVEL'] == 99 ) {
       if (strchr($astrNaviLinks[$i]['href'], '?') === FALSE)
-        $strHref = '?ses=' . $GLOBALS['sesID'] . "&amp;func=$strFunc&amp;" . $astrNaviLinks[$i]['href'];
+        $strHref = "?func=$strFunc&amp;" . $astrNaviLinks[$i]['href'];
       else
         $strHref = $astrNaviLinks[$i]['href'];
 ?>    

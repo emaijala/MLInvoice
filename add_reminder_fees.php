@@ -27,8 +27,7 @@ require "htmlfuncs.php";
 require "sqlfuncs.php";
 require "sessionfuncs.php";
 
-$strSesID = sesVerifySession();
-
+sesVerifySession();
 
 require "localize.php";
 require "datefuncs.php";
@@ -109,7 +108,7 @@ if( $intInvoiceId ) {
     }
 }
 
-$strOnLoad = "window.location='index.php?ses=$strSesID&func=invoices&form=invoice&id=$intInvoiceId';";
+$strOnLoad = "window.location='index.php?func=invoices&form=invoice&id=$intInvoiceId';";
 if ($strAlert)
   $strOnLoad = "alert('$strAlert'); $strOnLoad";
 

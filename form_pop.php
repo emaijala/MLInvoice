@@ -29,8 +29,7 @@ require "sessionfuncs.php";
 require "miscfuncs.php";
 require "datefuncs.php";
 
-$strSesID = sesVerifySession();
-
+sesVerifySession();
 
 require "localize.php";
 
@@ -292,7 +291,7 @@ $(function() {
 -->
 </script>
 
-<form method="post" action="form_pop.php?selectform=<?php echo $strForm?>&ses=<?php echo $GLOBALS['sesID']?>" target="_self" name="admin_form">
+<form method="post" action="form_pop.php?selectform=<?php echo $strForm?>" target="_self" name="admin_form">
 <?php
 
 ?> 
@@ -387,19 +386,6 @@ if( $strMode == "MODIFY" ) {
         <a class="actionlink" href="#" onclick="self.document.forms[0].saveact.value=1; self.document.forms[0].submit(); return false;"><?php echo $GLOBALS['locSAVE']?></a>
     </td>
 <?php
-/*if( !$blnNew ) {
-?>    
-    <!--<td>
-        <input type="image" name="copy" src="./<?php echo $GLOBALS['sesLANG']?>_images/copy.gif" title="Copy current values">
-    </td> wait for next version-->
-    <td>
-        <a class="actionlink" href="#" onclick="self.document.forms[0].newact.value=1; self.document.forms[0].submit(); return false;"><?php echo $GLOBALS['locNEW']?></a>
-    </td>
-    <td>
-        <a class="actionlink" href="#" onclick="if(confirm('<?php echo $GLOBALS['locCONFIRMDELETE']?>')==true) {  self.document.forms[0].deleteact.value=1; self.document.forms[0].submit(); return false;} else{ return false; }"><?php echo $GLOBALS['locDELETE']?></a>        
-    </td>
-<?php
-}*/
 }
 ?>
 <td>

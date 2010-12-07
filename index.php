@@ -23,13 +23,7 @@ require_once 'open_invoices.php';
 require_once 'settings.php';
 require_once 'localize.php';
 
-if (!getRequest('ses', ''))
-{
-  header("Location: ". _PROTOCOL_ . $_SERVER['HTTP_HOST'] . dirname($_SERVER['PHP_SELF']) . "/login.php");
-  exit;
-}
-
-$strSesID = sesVerifySession();
+sesVerifySession();
 
 $strFunc = getRequest('func', 'open_invoices');
 $strList = getRequest('list', '');
@@ -40,7 +34,7 @@ if (!$strFunc)
 
 if ($strFunc == 'logout')
 {
-  header("Location: ". _PROTOCOL_ . $_SERVER['HTTP_HOST'] . dirname($_SERVER['PHP_SELF']) . "/logout.php?ses=$strSesID");
+  header("Location: ". _PROTOCOL_ . $_SERVER['HTTP_HOST'] . dirname($_SERVER['PHP_SELF']) . "/logout.php");
   exit;
 }
 
@@ -70,10 +64,10 @@ for( $i = 0; $i < count($astrMainButtons); $i++ ) {
     $strButton = '<a class="functionlink'; 
     if ($astrMainButtons[$i]['action'] == $strFunc || ($astrMainButtons[$i]['action'] == 'open_invoices' && $strFunc == 'invoices'))
       $strButton .= ' selected';
-    $strButton .= '" href="?ses=' . $GLOBALS['sesID'] . '&amp;func=' . $astrMainButtons[$i]['action'] . '">';
+    $strButton .= '" href="?func=' . $astrMainButtons[$i]['action'] . '">';
     $strButton .= $GLOBALS[$astrMainButtons[$i]['title']] . '</a>';
         
-    if( in_array($GLOBALS['sesACCESSLEVEL'], $astrMainButtons[$i]['levels_allowed']) || $GLOBALS['sesACCESSLEVEL'] == 99 ) {
+    if( in_array($_SESSION['sesACCESSLEVEL'], $astrMainButtons[$i]['levels_allowed']) || $_SESSION['sesACCESSLEVEL'] == 99 ) {
       echo "    $strButton\n";
     }
 }
@@ -83,7 +77,8 @@ if ($strList)
   ++$level;
 if ($strForm) 
   ++$level;
-$arrHistory = sesUpdateHistory($strSesID, $title, $_SERVER['QUERY_STRING'], $level);
+$arrHistory = sesUpdateHistory($title, $_SERVER['QUERY_STRING'], $level);
+
 $strBreadcrumbs = '';
 foreach ($arrHistory as $arrHE)
 {

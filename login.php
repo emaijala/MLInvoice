@@ -27,64 +27,83 @@ require "sqlfuncs.php";
 require "miscfuncs.php";
 require "htmlfuncs.php";
 require "sessionfuncs.php";
-
 require "localize.php";
 
-//phpinfo();
+session_start();
 
 $strLogin = getPost('flogin', FALSE);
 $strPasswd = getPost('fpasswd', FALSE); 
-$strMode = getPost('mode', 'normal');
-$blnSubmit = getPost('logon_alt', FALSE) ? TRUE : FALSE;
+$strLogon = getPost('logon', '');
 
-$strMessage = 'Ole hyv&auml; ja sy&ouml;t&auml; tunnuksesi ja salasanasi ja kirjaudu klikkaamalla "Kirjaudu"-painiketta.';
+$strMessage = $GLOBALS['locWELCOMEMESSAGE'];
 
-if( $blnSubmit ) {
-    if( $strLogin && $strPasswd ) {
-        if ( sesValidateUser( $strLogin, $strPasswd ) ) {
-            if( $strSesID = sesCreateSession() ) {
-                header("Location: ". _PROTOCOL_ . $_SERVER['HTTP_HOST'] . dirname($_SERVER['PHP_SELF']) . "/index.php?ses=$strSesID");
-                exit;
-            }
-            else {
-                $strMessage = 
-                    "<p>Hmmm, t&auml;m&auml;p&auml; mielenkiintoista. Kertoisitko meillekin mit&auml; teit...<p>\n";
-            }
+if ($strLogon) 
+{
+    if ($strLogin && $strPasswd)
+    {
+        switch (sesCreateSession($strLogin, $strPasswd))
+        {
+        case 'OK':
+            header("Location: ". _PROTOCOL_ . $_SERVER['HTTP_HOST'] . dirname($_SERVER['PHP_SELF']) . "/index.php");
+            exit;
+        case 'FAIL': 
+            $strMessage = $GLOBALS['locINVALIDCREDENTIALS'];
+            break;
+        case 'TIMEOUT':
+            $strMessage = $GLOBALS['locLOGINTIMEOUT'];
+            break;
         }
-        else {
-            $strMessage = 
-                "<p>K‰ytt‰j‰tunnus tai salasana v‰‰r‰.<p>\n";
-        }
-        }
-    else {
-        $strMessage = 
-            "<p>Ole hyv&auml; ja sy&ouml;t&auml; kaikki tiedot.<p>\n";
+    }
+    else 
+    {
+        $strMessage = $GLOBALS['locMISSINGFIELDS'];
     }
 }
 
+$key = sesCreateKey();
 
-echo htmlPageStart( _PAGE_TITLE_ );
+echo htmlPageStart(_PAGE_TITLE_, array('jquery/js/jquery.md5.js'));
 ?>
 
 <body style="margin: 30px;" onload="document.getElementById('flogin').focus();">
 
-<h1>Tervetuloa</h1>
-<p><?php echo $strMessage?>
+<h1><?php echo $GLOBALS['locWELCOME']?></h1>
+<p>
+  <?php echo $strMessage?>
+  
 </p>
 
-<form action="login.php" method="post" name="login_form">
-Tunnus <input class="medium" name="flogin" id="flogin" type="text" value=""><br><br>
-Salasana <input class="medium" name="fpasswd" type="password" value=""><br><br>
+<script type="text/javascript">  
+function createHash() 
+{  
+  var pass_md5 = $.md5(document.getElementById('passwd').value);  
+  var key = document.getElementById('key').value;  
+  document.getElementById('fpasswd').value = $.md5(key + pass_md5);
+  document.getElementById('passwd').value = '';
+  document.getElementById('key').value = '';
+}  
+</script>  
 
-<input type="hidden" name="logon_alt" value="1">
-<input type="submit" name="logon" value="Kirjaudu">
+<form action="login.php" method="post" name="login_form" onsubmit="createHash();">
+  <input type="hidden" name="fpasswd" id="fpasswd" value="">
+  <input type="hidden" name="key" id="key" value="<?php echo $key?>">
+  <p>
+    <span style="width: 90px; display: inline-block;">Tunnus</span> <input class="medium" name="flogin" id="flogin" type="text" value="">
+  </p>
+  <p>
+    <span style="width: 90px; display: inline-block;">Salasana</span> <input class="medium" name="passwd" id="passwd" type="password" value="">
+  </p>
+  <input type="submit" name="logon" value="Kirjaudu">
 </form>
 
-<br/><br/>
+<br>
+<br>
 <?php echo $GLOBALS['locLICENSENOTIFY']?>
-<br/><br/>
+<br>
+<br>
 <?php echo $GLOBALS['locCREDITS']?>
-<br/><br/>
+<br>
+<br>
 
 </body>
 </html>

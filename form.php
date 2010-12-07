@@ -128,7 +128,7 @@ function createForm($strFunc, $strForm)
                   $strUpdateFields .= "$strControlName=md5(?), ";
                   $arrValues[] = $mixControlValue;
               }
-              //elements that are numeric TODO: do we need to save 0(zero)
+              //elements that are numeric 
               elseif( $strControlType == 'INT' || $strControlType == 'LIST' ) {
                   //build the insert into fields
                   $strFields .= "$strControlName, ";
@@ -411,9 +411,6 @@ function createFormButtons($boolNew)
   <?php
   }
   ?>
-  <td>
-      <a class="actionlink" href="#" onclick="var win = window.open('help.php?ses=<?php echo $GLOBALS['sesID']?>&amp;topic=form', '_blank', 'height=400,width=400,menubar=no,scrollbars=yes,status=no,toolbar=no'); win.focus(); return false;"><?php echo $GLOBALS['locHELP']?></a>
-  </td>
   </tr>        
   </table>
   </div>

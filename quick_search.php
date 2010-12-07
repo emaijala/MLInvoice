@@ -29,14 +29,13 @@ require "sessionfuncs.php";
 require "miscfuncs.php";
 require "datefuncs.php";
 
-$strSesID = sesVerifySession();
-
+sesVerifySession();
 
 require "localize.php";
 
 $strQuery = 
     "SELECT * FROM {prefix}quicksearch ".
-    "WHERE user_id = ". $GLOBALS['sesUSERID']. 
+    "WHERE user_id = ". $_SESSION['sesUSERID']. 
     " ORDER BY name";
 $intRes = mysql_query_check($strQuery);
 $intNumRows = mysql_num_rows($intRes);
@@ -59,7 +58,7 @@ echo htmlPageStart( _PAGE_TITLE_ );
 ?>
 
 <body class="form" onload="<?php echo $strOnLoad?>">
-<form method="post" action="quick_search.php?ses=<?php echo $GLOBALS['sesID']?>&form=<?php echo $strForm?>" target="_self" name="search_form">
+<form method="post" action="quick_search.php?form=<?php echo $strForm?>" target="_self" name="search_form">
 <input type="hidden" name="fields" value="<?php echo $strFields?>">
 <table>
 <tr>
@@ -75,8 +74,7 @@ if( $intNumRows ) {
         $strForm = mysql_result($intRes, $i, "form");
         $strWhereClause = mysql_result($intRes, $i, "whereclause");
         $strLink = 
-            "list.php?ses=". $GLOBALS['sesID']."&selectform=". 
-            $strForm. "&where=". $strWhereClause;
+            "list.php?selectform=$strForm&where=$strWhereClause";
         $strOnClick = "opener.top.frset_bottom.f_list.location.href='".$strLink. "'";
 ?>
 <tr>
@@ -86,8 +84,6 @@ if( $intNumRows ) {
     <td>
         <input type="hidden" name="delete_<?php echo $intID?>_x" value="0">
         <a class="tinyactionlink" href="#" title="<?php echo $GLOBALS['locDELROW']?>" onclick="self.document.forms[0].delete_<?php echo $intID?>_x.value=1; self.document.forms[0].submit(); return false;"> X </a>
-        <!--
-        <input type="image" name="delete_<?php echo $intID?>" src="./<?php echo $GLOBALS['sesLANG']?>_images/x.gif"  title="<?php echo $GLOBALS['locDELROW']?>" alt="<?php echo $GLOBALS['locDELROW']?>" style="cursor:pointer;cursor:hand;">-->
     </td>
 </tr>
 <?php
@@ -110,8 +106,6 @@ else {
 <tr>
     <td>
         <a class="actionlink" href="#" onclick="self.close(); return false;"><?php echo $GLOBALS['locCLOSE']?></a>
-        <!--
-        <img name="close_button"  src="./<?php echo $GLOBALS['sesLANG']?>_images/close.gif"  alt="<?php echo $GLOBALS['locCLOSE']?>" title="<?php echo $GLOBALS['locCLOSE']?>" onClick="self.close();" style="cursor:pointer;cursor:hand;">-->
     </td>
 </tr>
 </table>

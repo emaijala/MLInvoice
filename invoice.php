@@ -28,7 +28,7 @@ require_once "sqlfuncs.php";
 require_once "sessionfuncs.php";
 require_once "pdfbarcode128.php";
 
-$strSesID = sesVerifySession();
+sesVerifySession();
 
 require_once "localize.php";
 if (!defined('FPDF_FONTPATH'))
@@ -178,10 +178,6 @@ $pdf->footerCenter = $strContactInfo;
 $pdf->footerRight = $strWww;
 
 //TOP
-//$pdf->Image($GLOBALS['sesLANG']."_images/banner.jpg", 10, 5, 40);
-
-//$pdf->SetFont('Helvetica','B',14);
-
 
 //sender
 $pdf->SetTextColor(125);

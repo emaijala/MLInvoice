@@ -44,17 +44,6 @@ alter table pklasku_invoice add column (
   print_date int(11) default NULL
 );
 
-CREATE TABLE pklasku_session_history (
-  id int(11) NOT NULL auto_increment,
-  session_id varchar(100) NOT NULL,
-  timestamp int(11) default NULL,
-  title varchar(100) default NULL,
-  url varchar(4096) default NULL,
-  level int(11) default NULL,
-  PRIMARY KEY (id),
-  FOREIGN KEY (session_id) REFERENCES vllasku_session(id)
-);
-
 alter table pklasku_invoice add column (
   archived tinyint NOT NULL default 0
 );

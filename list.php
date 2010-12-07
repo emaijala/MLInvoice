@@ -187,7 +187,7 @@ function createHtmlList($strFunc, $strList, $strIDQuery, &$arrQueryParams, $strT
 <?php
   for( $i = 0; $i < count($astrListValues); $i++ ) 
   {
-    $strLink = '?ses=' . $GLOBALS['sesID'] . "&amp;func=$strFunc&amp;list=$strList&amp;form=$strMainForm&amp;";
+    $strLink = "?func=$strFunc&amp;list=$strList&amp;form=$strMainForm&amp;";
     $strLink .= 'id=' . $astrPrimaryKeys[$i];
 ?>
   

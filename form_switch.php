@@ -39,8 +39,6 @@ Tämä ohjelma on vapaa. Lue oheinen LICENSE.
  
 ***********************************************************************/
 
-$strSesID = $GLOBALS['sesID'];
-
 $strMonthListQuery = '';
 for( $i = 1; $i <= 12; $i++ ) {
     $strMonth = strlen($i) == 1 ? "0". $i : $i;
@@ -234,15 +232,15 @@ case 'invoice':
      array(
         "name" => "archived", "label" => $GLOBALS['locARCHIVED'], "type" => "CHECK", "style" => "medium", "listquery" => "", "position" => 1, "default" => 0, "allow_null" => TRUE ),
      array(
-        "name" => "get", "label" => $GLOBALS['locGETINVNO'], "type" => "BUTTON", "style" => "medium", "listquery" => "'get_invoiceno.php?ses=$strSesID&amp;id=_ID_', '_new'", "position" => 1, "default" => FALSE, "allow_null" => TRUE ),
+        "name" => "get", "label" => $GLOBALS['locGETINVNO'], "type" => "BUTTON", "style" => "medium", "listquery" => "'get_invoiceno.php?id=_ID_', '_new'", "position" => 1, "default" => FALSE, "allow_null" => TRUE ),
      array(
-        "name" => "get", "label" => $GLOBALS['locPRINTINV'], "type" => "BUTTON", "style" => "medium", "listquery" => "'invoice.php?ses=$strSesID&amp;id=_ID_', '_self'", "position" => 2, "default" => FALSE, "allow_null" => TRUE ),
+        "name" => "get", "label" => $GLOBALS['locPRINTINV'], "type" => "BUTTON", "style" => "medium", "listquery" => "'invoice.php?id=_ID_', '_self'", "position" => 2, "default" => FALSE, "allow_null" => TRUE ),
      array(
-        "name" => "get", "label" => $GLOBALS['locCOPYINV'], "type" => "BUTTON", "style" => "medium", "listquery" => "'copy_invoice.php?ses=$strSesID&amp;id=_ID_', '_self'", "position" => 1, "default" => FALSE, "allow_null" => TRUE ),
+        "name" => "get", "label" => $GLOBALS['locCOPYINV'], "type" => "BUTTON", "style" => "medium", "listquery" => "'copy_invoice.php?id=_ID_', '_self'", "position" => 1, "default" => FALSE, "allow_null" => TRUE ),
      array(
-        "name" => "get", "label" => $GLOBALS['locADDREMINDERFEES'], "type" => "BUTTON", "style" => "medium", "listquery" => "'add_reminder_fees.php?ses=$strSesID&amp;id=_ID_', '_self'", "position" => 2, "default" => FALSE, "allow_null" => TRUE ),
+        "name" => "get", "label" => $GLOBALS['locADDREMINDERFEES'], "type" => "BUTTON", "style" => "medium", "listquery" => "'add_reminder_fees.php?id=_ID_', '_self'", "position" => 2, "default" => FALSE, "allow_null" => TRUE ),
      array(
-        "name" => "get", "label" => $GLOBALS['locREFUNDINV'], "type" => "BUTTON", "style" => "medium", "listquery" => "'copy_invoice.php?ses=$strSesID&amp;id=_ID_&amp;refund=1', '_self'", "position" => 2, "default" => FALSE, "allow_null" => TRUE ),
+        "name" => "get", "label" => $GLOBALS['locREFUNDINV'], "type" => "BUTTON", "style" => "medium", "listquery" => "'copy_invoice.php?id=_ID_&amp;refund=1', '_self'", "position" => 2, "default" => FALSE, "allow_null" => TRUE ),
      array(
         "name" => "invoice_rows", "label" => $GLOBALS['locINVROWS'], "type" => "IFORM", "style" => "xfull", "listquery" => "", "position" => 0, "default" => FALSE, "allow_null" => TRUE, "parent_key" => "invoice_id" )
     );

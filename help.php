@@ -28,7 +28,7 @@ require "sqlfuncs.php";
 require "miscfuncs.php";
 require "sessionfuncs.php";
 
-$strSesID = sesVerifySession();
+sesVerifySession();
 $strTopic = getRequest('topic', FALSE);
 
 

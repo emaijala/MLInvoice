@@ -52,7 +52,7 @@ Includes files : -none-
 Todo : add new functions...
 ********************************************************************/    
 
-function htmlPageStart( $strTitle ) {
+function htmlPageStart($strTitle, $arrExtraScripts = null) {
 /********************************************************************
 Function : htmlPageStart
     create Html-pagestart
@@ -79,9 +79,17 @@ Todo : This could be more generic...
   <script type="text/javascript" src="jquery/js/jquery.ui.datepicker-fi.js"></script>
   <script type="text/javascript" src="datatables/media/js/jquery.dataTables.min.js"></script>
   <script type="text/javascript" src="js/functions.js"></script>
-</head>
-
+  
 EOT;
+
+    if (isset($arrExtraScripts))
+    {
+      foreach ($arrExtraScripts as $script)
+      {
+        $strHtmlStart .= "<script type=\"text/javascript\" src=\"$script\"></script>\n";
+      }
+    }
+    $strHtmlStart .= "</head>\n";
 
     return $strHtmlStart;
 }
@@ -482,9 +490,9 @@ function htmlFormElement( $strName, $strType, $strValue, $strStyle, $strListQuer
                         }
                     }
                     $strFormElement = 
-                    "<iframe src=\"iform.php?ses=".$GLOBALS['sesID']."&selectform=" . $strName . "&" . $strParentKey . "=" . $strValue . "&". $strDefaults. "\" ".
-                    "class=\"" . $strStyle . "\" id=\"" . $strName . "\" name=\"" . $strName . "\" $astrAdditionalAttributes>\n".
-                    "<h3>Please, Use a browser!</h3>\n".
+                    "<iframe src=\"iform.php?selectform=$strName&amp;$strParentKey=$strValue&amp;$strDefaults\" ".
+                    "class=\"$strStyle\" id=\"$strName\" name=\"$strName\" $astrAdditionalAttributes>\n".
+                    "<h3>A browser with iframe support required</h3>\n".
                     "</iframe>\n";
                 }
                 elseif( $strMode == "PDF" ) {
@@ -499,9 +507,9 @@ function htmlFormElement( $strName, $strType, $strValue, $strStyle, $strListQuer
                         }
                     }
                     $strFormElement = 
-                    "<iframe src=\"iform.php?ses=".$GLOBALS['sesID']."&selectform=" . $strName . "&" . $strParentKey . "=" . $strValue . "&". $strDefaults. "&mode=VIEW\" ".
-                    "class=\"" . $strStyle . "\" id=\"" . $strName . "\" name=\"" . $strName . "\" $astrAdditionalAttributes>\n".
-                    "<h3>Please, Use a browser!</h3>\n".
+                    "<iframe src=\"iform.php?selectform=$strName&amp;$strParentKey=$strValue&amp;$strDefaults&amp;mode=VIEW\" ".
+                    "class=\"$strStyle\" id=\"$strName\" name=\"$strName\" $astrAdditionalAttributes>\n".
+                    "<h3>A browser with iframe support required</h3>\n".
                     "</iframe>\n";
                 }
             }
@@ -570,7 +578,7 @@ function htmlFormElement( $strName, $strType, $strValue, $strStyle, $strListQuer
             if( $strValue ) {
                 
                 $strFormElement = 
-                    "<a class=\"formbuttonlink\" href=\"$strHref\" $strOnClick $astrAdditionalAttributes>". $strTitle. "</a>";
+                    "<a class=\"formbuttonlink\" href=\"$strHref\" $strOnClick $astrAdditionalAttributes>$strTitle</a>";
                     
             }
             else {

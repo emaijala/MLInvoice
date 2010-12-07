@@ -27,11 +27,9 @@ require "htmlfuncs.php";
 require "sqlfuncs.php";
 require "sessionfuncs.php";
 
-$strSesID = sesVerifySession();
-
+sesVerifySession();
 
 require "localize.php";
-
 require "datefuncs.php";
 require "miscfuncs.php";
 

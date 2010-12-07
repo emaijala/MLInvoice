@@ -29,7 +29,7 @@ require "sessionfuncs.php";
 require "miscfuncs.php";
 require "datefuncs.php";
 
-$strSesID = sesVerifySession();
+sesVerifySession();
 
 require "localize.php";
 
@@ -286,7 +286,7 @@ function OpenPop(strLink, event) {
 
 -->
 </script>
-<form method="post" action="<?php echo $strMainForm?>&ses=<?php echo $GLOBALS['sesID']?>" target="_self" name="iform">
+<form method="post" action="<?php echo $strMainForm?>" target="_self" name="iform">
 <input type="hidden" name="<?php echo $strParentKey?>" value="<?php echo $intParentKey?>">
 <input type="hidden" name="defaults" value="<?php echo $strDefaults?>">
 <table class="iform">
@@ -367,18 +367,18 @@ for($i = 0; $i < count($astrOldValues); $i++ ) {
 
         }
     }
-    $strPopLink = "iform_pop.php?ses=". $GLOBALS['sesID']. "&selectform=". $strForm. "&". $strParentKey ."=" .$intParentKey. "&". $strPrimaryName. "=". $intPrimaryId. "&defaults=". $strDefaults;
-    $strPopLink2 = "iform_pop.php?ses=". $GLOBALS['sesID']. "&selectform=". $strForm. "&". $strParentKey ."=" .$intParentKey. "&". $strPrimaryName. "=". $intPrimaryId. "&defaults=". $strDefaults. "&copyact=1";
+    $strPopLinkEdit = "iform_pop.php?selectform=$strForm&amp;$strParentKey=$intParentKey&amp;$strPrimaryName=$intPrimaryId&amp;defaults=$strDefaults";
+    $strPopLinkCopy = "iform_pop.php?selectform=$strForm&amp;$strParentKey=$intParentKey&amp;$strPrimaryName=$intPrimaryId&amp;defaults=$strDefaults&amp;copyact=1";
 ?>
     
 <?php
 if( $strMode == "MODIFY" ) {
 ?>
     <td>
-        <a class="tinyactionlink" href="#" onclick="OpenPop('<?php echo $strPopLink?>', event); return false;">Muokkaa</a>
+        <a class="tinyactionlink" href="#" onclick="OpenPop('<?php echo $strPopLinkEdit?>', event); return false;"><?php echo $GLOBALS['locEDIT']?></a>
     </td>
     <td>
-        <a class="tinyactionlink" href="#" onclick="OpenPop('<?php echo $strPopLink2?>', event); return false;">Kopioi</a>
+        <a class="tinyactionlink" href="#" onclick="OpenPop('<?php echo $strPopLinkCopy?>', event); return false;"><?php echo $GLOBALS['locCOPY']?></a>
     </td>
 <?php
 }

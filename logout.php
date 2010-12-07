@@ -27,11 +27,11 @@ require "htmlfuncs.php";
 require "sqlfuncs.php";
 require "sessionfuncs.php";
 
-$strSesID = sesVerifySession();
+sesVerifySession();
 
 require "localize.php";
 
-sesEndSession( $strSesID );
+sesEndSession();
 
 echo htmlPageStart( _PAGE_TITLE_ );
 
@@ -39,15 +39,17 @@ echo htmlPageStart( _PAGE_TITLE_ );
 
 <body style="margin: 30px">
 
-<h1>Kiitos</h1>
+<h1><?php echo $GLOBALS['locTHANKYOU']?></h1>
 <p>
-Istunto on p‰‰tetty.
+<?php echo $GLOBALS['locSESSIONCLOSED']?>
 </p>
 
 <p>
-<a href="login.php">Takaisin kirjautumaan</a>
+<a href="login.php"><?php echo $GLOBALS['locBACKTOLOGIN']?></a>
 </p>
 
 </form>
 </body>
 </html>
+<?php
+
