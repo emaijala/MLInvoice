@@ -74,8 +74,7 @@ for( $i = 0; $i < count($astrFormElements); $i++ ) {
             $astrValues[$astrFormElements[$i]['name']] = $tmpValue ? (float)$tmpValue : FALSE;
         }
         elseif( $astrFormElements[$i]['type'] == "LIST" ) {
-            $tmpValue = getPost($astrFormElements[$i]['name'], '');
-            $astrValues[$astrFormElements[$i]['name']] = $tmpValue !== '' ? $tmpValue : NULL;
+            $astrValues[$astrFormElements[$i]['name']] = getPost($astrFormElements[$i]['name'], '');
         }
         else {
             $astrValues[$astrFormElements[$i]['name']] = getPost($astrFormElements[$i]['name'], FALSE);
@@ -146,7 +145,7 @@ if( $blnAdd ) {
                 }
                 elseif( $strControlType == 'LIST' || $strControlType == 'CHECK' ) {
                     $strFields .= "$strControlName, ";
-                    $tmpValue = str_replace(",", ".", $mixControlValue);
+                    $tmpValue = (isset($mixControlValue) && $mixControlValue !== '') ? str_replace(",", ".", $mixControlValue) : NULL;
                     $strInsert .= '?, ';
                     $arrValues[] = $tmpValue;
                 }
