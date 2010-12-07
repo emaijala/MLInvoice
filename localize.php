@@ -413,11 +413,12 @@ break;
 
 }
 
-if (_CHARSET_ == 'UTF-8')
+foreach ($GLOBALS as $key => &$tr)
 {
-  foreach ($GLOBALS as $key => &$tr)
+  if (substr($key, 0, 3) == 'loc')
   {
-    if (substr($key, 0, 3) == 'loc')
+    $GLOBALS["a$key"] = $tr;
+    if (_CHARSET_ == 'UTF-8')
       $tr = utf8_encode($tr);
   }
 }
