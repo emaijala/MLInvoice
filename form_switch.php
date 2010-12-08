@@ -39,22 +39,6 @@ Tämä ohjelma on vapaa. Lue oheinen LICENSE.
  
 ***********************************************************************/
 
-$strMonthListQuery = '';
-for( $i = 1; $i <= 12; $i++ ) {
-    $strMonth = strlen($i) == 1 ? "0". $i : $i;
-    $strMonthListQuery .= 
-        "SELECT '$strMonth' AS id, '".$GLOBALS['locMONTHS2'][$i]."' AS name UNION ";
-}
-$strMonthListQuery = substr($strMonthListQuery, 0, -6);
-
-$strDateListQuery = '';
-for( $i = 1; $i <= 31; $i++ ) {
-    $strDate = strlen($i) == 1 ? "0". $i : $i;
-    $strDateListQuery .= 
-        "SELECT '$strDate' AS id, '$strDate' AS name UNION ";
-}
-$strDateListQuery = substr($strDateListQuery, 0, -6);
-
 $strListTableAlias = '';
 switch ( $strForm ) {
 

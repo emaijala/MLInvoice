@@ -252,7 +252,8 @@ Return : $strListBox (string) :
 Todo : style, Sorting? 
 ********************************************************************/
     $astrResults = array();
-    //echo $strQuery;
+    $astrValues = array();
+    $astrOptions = array();
     $intRes = mysql_query_check( $strQuery );
     $intNRes = mysql_num_rows($intRes);
     for( $i = 0; $i < $intNRes; $i++ ) {

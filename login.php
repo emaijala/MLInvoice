@@ -88,12 +88,12 @@ function createHash()
   <input type="hidden" name="fpasswd" id="fpasswd" value="">
   <input type="hidden" name="key" id="key" value="<?php echo $key?>">
   <p>
-    <span style="width: 90px; display: inline-block;">Tunnus</span> <input class="medium" name="flogin" id="flogin" type="text" value="">
+    <span style="width: 90px; display: inline-block;"><?php echo $GLOBALS['locUSERID']?></span> <input class="medium" name="flogin" id="flogin" type="text" value="">
   </p>
   <p>
-    <span style="width: 90px; display: inline-block;">Salasana</span> <input class="medium" name="passwd" id="passwd" type="password" value="">
+    <span style="width: 90px; display: inline-block;"><?php echo $GLOBALS['locPASSWORD']?></span> <input class="medium" name="passwd" id="passwd" type="password" value="">
   </p>
-  <input type="submit" name="logon" value="Kirjaudu">
+  <input type="submit" name="logon" value="<?php echo $GLOBALS['locLOGIN']?>">
 </form>
 
 <br>

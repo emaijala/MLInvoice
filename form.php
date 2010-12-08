@@ -300,7 +300,7 @@ function createForm($strFunc, $strForm)
   
   <form method="post" action="" name="admin_form" id="admin_form">
   <?php createFormButtons($blnNew) ?>
-  <input type="hidden" name="<?php echo $strPrimaryKey?>" value="<?php echo $intKeyValue ? $intKeyValue : '' ?>">
+  <input type="hidden" name="<?php echo $strPrimaryKey?>" value="<?php echo (isset($intKeyValue) && $intKeyValue) ? $intKeyValue : '' ?>">
   <div class="form_container">
   <table>
   <?php

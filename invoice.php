@@ -26,13 +26,10 @@ Tämä ohjelma on vapaa. Lue oheinen LICENSE.
 require_once "htmlfuncs.php";
 require_once "sqlfuncs.php";
 require_once "sessionfuncs.php";
-require_once "pdfbarcode128.php";
 
 sesVerifySession();
 
 require_once "localize.php";
-if (!defined('FPDF_FONTPATH'))
-  define('FPDF_FONTPATH','./font/');
 require_once "pdf.php";
 
 require_once "datefuncs.php";
@@ -40,12 +37,11 @@ require_once "miscfuncs.php";
 
 $intInvoiceId = getRequest('id', FALSE);
 
-function cond_utf8_decode($str)
+function cond_utf8_encode($str)
 {
   if (_CHARSET_ == 'UTF-8')
-    return utf8_decode($str);
-  else
-    return $str;
+    return utf8_encode($str);
+  return $str;
 }
 
 if( $intInvoiceId ) {
@@ -57,27 +53,27 @@ if( $intInvoiceId ) {
         "WHERE inv.id = ?";
     $intRes = mysql_param_query($strQuery, array($intInvoiceId));
     if ($row = mysql_fetch_assoc($intRes)) {
-       $strInvoiceName = cond_utf8_decode($row['invoice_name']);
+       $strInvoiceName = $row['invoice_name'];
        $intBaseId = $row['base_id'];
        $intStateId = $row['state_id'];
        $strClientId = $row['company_id'];
-       $strInvoiceNo = cond_utf8_decode($row['invoice_no']);
+       $strInvoiceNo = $row['invoice_no'];
        $strRefundedInvoiceNo = $row['refunded_invoice_no'];
-       $strRefNumber = cond_utf8_decode($row['ref_number']);
+       $strRefNumber = $row['ref_number'];
        $strInvoiceDate = $row['invoice_date'];
        $strDueDate = dateConvIntDate2Date($row['due_date']);
-       $strFormDueDate = ($intStateId == 5 || $intStateId == 6) ? $GLOBALS['alocDUEDATENOW'] : $strDueDate;
+       $strFormDueDate = ($intStateId == 5 || $intStateId == 6) ? $GLOBALS['locDUEDATENOW'] : $strDueDate;
        $strPrintDate = $row['print_date'];
-       $strReference = cond_utf8_decode($row['reference']);
-       $strBillingAddress = cond_utf8_decode($row['billing_address']);
+       $strReference = $row['reference'];
+       $strBillingAddress = $row['billing_address'];
        if( !$strBillingAddress ) {
-           $strBillingAddress = cond_utf8_decode($row['billing_address2']);
+           $strBillingAddress = $row['billing_address2'];
        }
        $strCompanyName = substr($strBillingAddress, 0, strpos($strBillingAddress, "\n"));
        $strCompanyAddress = substr($strBillingAddress, strpos($strBillingAddress, "\n")+1);
-       $strName = cond_utf8_decode($row['name']);
-       $strContactPerson = cond_utf8_decode($row['contact_person']);
-       $strCompanyEmail = cond_utf8_decode($row['email']);
+       $strName = $row['name'];
+       $strContactPerson = $row['contact_person'];
+       $strCompanyEmail = $row['email'];
        
        $strReference = $strReference ? $strReference : $strContactPerson;
     }
@@ -88,42 +84,42 @@ if( $intInvoiceId ) {
     $strSelect = 'SELECT * FROM {prefix}base WHERE id = ?';
     $intRes = mysql_param_query($strSelect, array($intBaseId));
     $row = mysql_fetch_assoc($intRes);
-    $strAssociation = cond_utf8_decode($row['name']);
-    $strCompanyID = cond_utf8_decode($row['company_id']);
-    $strAssociation = cond_utf8_decode($row['name']);
-    $strContactPerson = cond_utf8_decode($row['contact_person']);
-    $strStreetAddress = cond_utf8_decode($row['street_address']);
-    $strZipCode = cond_utf8_decode($row['zip_code']);
-    $strCity = cond_utf8_decode($row['city']);
-    $strPhone = cond_utf8_decode($row['phone']);
-    $strBankName1 = cond_utf8_decode($row['bank_name']);
-    $strBankAccount1 = cond_utf8_decode($row['bank_account']);
-    $strBankIBAN1 = cond_utf8_decode($row['bank_iban']);
-    $strBankSWIFTBIC1 = cond_utf8_decode($row['bank_swiftbic']);
-    $strBankName2 = cond_utf8_decode($row['bank_name2']);
-    $strBankAccount2 = cond_utf8_decode($row['bank_account2']);
-    $strBankIBAN2 = cond_utf8_decode($row['bank_iban2']);
-    $strBankSWIFTBIC2 = cond_utf8_decode($row['bank_swiftbic2']);
-    $strBankName3 = cond_utf8_decode($row['bank_name3']);
-    $strBankAccount3 = cond_utf8_decode($row['bank_account3']);
-    $strBankIBAN3 = cond_utf8_decode($row['bank_iban3']);
-    $strBankSWIFTBIC3 = cond_utf8_decode($row['bank_swiftbic3']);
-    $strWww = cond_utf8_decode($row['www']);
-    $strEmail = cond_utf8_decode($row['email']);
-    $boolVATReg = cond_utf8_decode($row['vat_registered']);
+    $strAssociation = $row['name'];
+    $strCompanyID = $row['company_id'];
+    $strAssociation = $row['name'];
+    $strContactPerson = $row['contact_person'];
+    $strStreetAddress = $row['street_address'];
+    $strZipCode = $row['zip_code'];
+    $strCity = $row['city'];
+    $strPhone = $row['phone'];
+    $strBankName1 = $row['bank_name'];
+    $strBankAccount1 = $row['bank_account'];
+    $strBankIBAN1 = $row['bank_iban'];
+    $strBankSWIFTBIC1 = $row['bank_swiftbic'];
+    $strBankName2 = $row['bank_name2'];
+    $strBankAccount2 = $row['bank_account2'];
+    $strBankIBAN2 = $row['bank_iban2'];
+    $strBankSWIFTBIC2 = $row['bank_swiftbic2'];
+    $strBankName3 = $row['bank_name3'];
+    $strBankAccount3 = $row['bank_account3'];
+    $strBankIBAN3 = $row['bank_iban3'];
+    $strBankSWIFTBIC3 = $row['bank_swiftbic3'];
+    $strWww = $row['www'];
+    $strEmail = $row['email'];
+    $boolVATReg = $row['vat_registered'];
         
     $strAssocAddressLine = 
         $strAssociation. "   ". $strStreetAddress. " ". $strZipCode. " ". $strCity;
     $strAssocAddress = 
         $strAssociation. "\n". $strStreetAddress. "\n". $strZipCode. " ". $strCity;
     $strContactInfo = 
-        $GLOBALS['alocCOMPVATID']. ": $strCompanyID";
+        $GLOBALS['locCOMPVATID']. ": $strCompanyID";
     if ($boolVATReg)
-      $strContactInfo .= ' ' . $GLOBALS['alocVATREG'];
+      $strContactInfo .= ' ' . $GLOBALS['locVATREG'];
     if ($strPhone)
-      $strContactInfo .= '  ' . $GLOBALS['alocPHONE']. ": $strPhone";
+      $strContactInfo .= '  ' . $GLOBALS['locPHONE']. ": $strPhone";
     if ($strEmail)
-      $strContactInfo .= '  ' . $GLOBALS['alocEMAIL']. ": $strEmail";
+      $strContactInfo .= '  ' . $GLOBALS['locEMAIL']. ": $strEmail";
     
     $strQuery = 
         "SELECT pr.product_name, ir.description, ir.pcs, ir.price, ir.row_date, ir.vat, ir.vat_included, rt.name type ".
@@ -138,8 +134,8 @@ if( $intInvoiceId ) {
     $intNRes = mysql_num_rows($intRes);
     $i = 0;
     while($row = mysql_fetch_assoc($intRes)) {
-        $strProduct = cond_utf8_decode(trim($row['product_name']));
-        $astrDescription[$i] = cond_utf8_decode(trim($row['description']));
+        $strProduct = trim($row['product_name']);
+        $astrDescription[$i] = trim($row['description']);
         if ($strProduct)
         {
           if ($astrDescription[$i]) 
@@ -152,7 +148,7 @@ if( $intInvoiceId ) {
         $astrPieces[$i] = $row['pcs'];
         $astrVAT[$i] = $row['vat'];
         $aboolVATIncluded[$i] = $row['vat_included'];
-        $astrRowType[$i] = cond_utf8_decode($row['type']);
+        $astrRowType[$i] = $row['type'];
 
         if ($aboolVATIncluded[$i])
         {
@@ -178,7 +174,7 @@ if( $intInvoiceId ) {
 else {
     die("Invoice id missing");
 }
-$pdf=new PDF('P','mm','A4');
+$pdf=new PDF('P','mm','A4', _CHARSET_ == 'UTF-8', _CHARSET_, false);
 $pdf->AddPage();
 $pdf->SetAutoPageBreak(FALSE);
 $pdf->footerLeft = $strAssocAddressLine;
@@ -191,7 +187,6 @@ $pdf->footerRight = $strWww;
 $pdf->SetTextColor(125);
 $pdf->SetFont('Helvetica','B',10);
 $pdf->SetY($pdf->GetY()+5);
-//$pdf->SetX(50);
 $pdf->Cell(120, 5, $strAssociation, 0, 1);
 $pdf->SetFont('Helvetica','',10);
 $pdf->MultiCell(120, 5, $strStreetAddress. "\n". $strZipCode. " ". $strCity,0,1);
@@ -203,7 +198,6 @@ $pdf->SetY($pdf->GetY()+5);
 $pdf->Cell(120, 6, $strCompanyName,0,1);
 $pdf->SetFont('Helvetica','',14);
 $pdf->MultiCell(120, 6, $strCompanyAddress,0,1);
-//$pdf->MultiCell(60, 5, $strBillingAddress,0,1);
 $pdf->SetFont('Helvetica','',12);
 $pdf->SetY($pdf->GetY() + 4);
 $pdf->Cell(120, 6, $strCompanyEmail,0,1);
@@ -212,64 +206,58 @@ $pdf->Cell(120, 6, $strCompanyEmail,0,1);
 $pdf->SetXY(115,10);
 $pdf->SetFont('Helvetica','B',12);
 if ($intStateId == 5)
-  $pdf->Cell(40, 5, $GLOBALS['alocFIRSTREMINDERHEADER'], 0, 1, 'R');
+  $pdf->Cell(40, 5, $GLOBALS['locFIRSTREMINDERHEADER'], 0, 1, 'R');
 elseif ($intStateId == 6)
-  $pdf->Cell(40, 5, $GLOBALS['alocSECONDREMINDERHEADER'], 0, 1, 'R');
+  $pdf->Cell(40, 5, $GLOBALS['locSECONDREMINDERHEADER'], 0, 1, 'R');
 else
-  $pdf->Cell(40, 5, $GLOBALS['alocINVOICEHEADER'], 0, 1, 'R');
+  $pdf->Cell(40, 5, $GLOBALS['locINVOICEHEADER'], 0, 1, 'R');
 $pdf->SetFont('Helvetica','',10);
 $pdf->SetXY(115, $pdf->GetY()+5);
-/*
-$pdf->Cell(40, 5, $GLOBALS['alocSENDER'] .": ", 0, 0, 'R');
-$pdf->Cell(60, 5, $strAssociation, 0, 1);
-$pdf->SetX(115);
-*/
-$pdf->SetX(115);
-$pdf->Cell(40, 5, $GLOBALS['alocCLIENTNO'] .": ", 0, 0, 'R');
+$pdf->Cell(40, 5, $GLOBALS['locCLIENTNO'] .": ", 0, 0, 'R');
 $pdf->Cell(60, 5, $strClientId, 0, 1);
 $pdf->SetX(115);
-$pdf->Cell(40, 5, $GLOBALS['alocINVNUMBER'] .": ", 0, 0, 'R');
+$pdf->Cell(40, 5, $GLOBALS['locINVNUMBER'] .": ", 0, 0, 'R');
 $pdf->Cell(60, 5, $strInvoiceNo, 0, 1);
 $pdf->SetX(115);
-$pdf->Cell(40, 5, $GLOBALS['alocPDFINVDATE'] .": ", 0, 0, 'R');
+$pdf->Cell(40, 5, $GLOBALS['locPDFINVDATE'] .": ", 0, 0, 'R');
 $pdf->Cell(60, 5, $strInvoiceDate, 0, 1);
 $pdf->SetX(115);
-$pdf->Cell(40, 5, $GLOBALS['alocPDFDUEDATE'] .": ", 0, 0, 'R');
+$pdf->Cell(40, 5, $GLOBALS['locPDFDUEDATE'] .": ", 0, 0, 'R');
 $pdf->Cell(60, 5, $strDueDate, 0, 1);
 $pdf->SetX(115);
-$pdf->Cell(40, 5, $GLOBALS['alocTERMSOFPAYMENT'] .": ", 0, 0, 'R');
+$pdf->Cell(40, 5, $GLOBALS['locTERMSOFPAYMENT'] .": ", 0, 0, 'R');
 $pdf->Cell(60, 5, _TERMS_OF_PAYMENT_, 0, 1);
 $pdf->SetX(115);
-$pdf->Cell(40, 5, $GLOBALS['alocPERIODFORCOMPLAINTS'] .": ", 0, 0, 'R');
+$pdf->Cell(40, 5, $GLOBALS['locPERIODFORCOMPLAINTS'] .": ", 0, 0, 'R');
 $pdf->Cell(60, 5, _PERIOD_FOR_COMPLAINTS_, 0, 1);
 $pdf->SetX(115);
-$pdf->Cell(40, 5, $GLOBALS['alocPENALTYINTEREST'] .": ", 0, 0, 'R');
+$pdf->Cell(40, 5, $GLOBALS['locPENALTYINTEREST'] .": ", 0, 0, 'R');
 $pdf->Cell(60, 5, _PENALTY_INTEREST_, 0, 1);
 $pdf->SetX(115);
-$pdf->Cell(40, 5, $GLOBALS['alocPDFINVREFNO'] .": ", 0, 0, 'R');
+$pdf->Cell(40, 5, $GLOBALS['locPDFINVREFNO'] .": ", 0, 0, 'R');
 $pdf->Cell(60, 5, $strRefNumber, 0, 1);
 $pdf->SetX(115);
-$pdf->Cell(40, 5, $GLOBALS['alocYOURREFERENCE'] .": ", 0, 0, 'R');
+$pdf->Cell(40, 5, $GLOBALS['locYOURREFERENCE'] .": ", 0, 0, 'R');
 $pdf->Cell(60, 5, $strReference, 0, 1);
 
 if ($strRefundedInvoiceNo)
 {
   $pdf->SetX(115);
-  $pdf->Cell(40, 5, sprintf($GLOBALS['alocREFUNDSINVOICE'], $strRefundedInvoiceNo), 0, 1, 'R');
+  $pdf->Cell(40, 5, sprintf($GLOBALS['locREFUNDSINVOICE'], $strRefundedInvoiceNo), 0, 1, 'R');
 }
 
 if ($intStateId == 5)
 {
   $pdf->SetX(60);
   $pdf->SetFont('Helvetica','B',10);
-  $pdf->MultiCell(150, 5, sprintf($GLOBALS['alocFIRSTREMINDERNOTE'], $strRefundedInvoiceNo), 0, 'L', 0);
+  $pdf->MultiCell(150, 5, sprintf($GLOBALS['locFIRSTREMINDERNOTE'], $strRefundedInvoiceNo), 0, 'L', 0);
   $pdf->SetFont('Helvetica','',10);
 }
 elseif ($intStateId == 6)
 {
   $pdf->SetX(60);
   $pdf->SetFont('Helvetica','B',10);
-  $pdf->MultiCell(150, 5, sprintf($GLOBALS['alocSECONDREMINDERNOTE'], $strRefundedInvoiceNo), 0, 'L', 0);
+  $pdf->MultiCell(150, 5, sprintf($GLOBALS['locSECONDREMINDERNOTE'], $strRefundedInvoiceNo), 0, 'L', 0);
   $pdf->SetFont('Helvetica','',10);
 }
 
@@ -291,19 +279,19 @@ if( $intNRes <= _INVOICE_PDF_ROWS_ && !isset($boolSeparateStatement)) {
   //invoiceinfo headers
   $pdf->SetXY(7,$pdf->GetY());
   if( _SHOW_INVOICE_ROW_DATE_ ) {
-      $pdf->Cell(60, 5, $GLOBALS['alocROWNAME'], 0, 0, "L");
-      $pdf->Cell(20, 5, $GLOBALS['alocDATE'], 0, 0, "L");
+      $pdf->Cell(60, 5, $GLOBALS['locROWNAME'], 0, 0, "L");
+      $pdf->Cell(20, 5, $GLOBALS['locDATE'], 0, 0, "L");
   }
   else {
-      $pdf->Cell(80, 5, $GLOBALS['alocROWNAME'], 0, 0, "L");
+      $pdf->Cell(80, 5, $GLOBALS['locROWNAME'], 0, 0, "L");
   }
-  $pdf->Cell(15, 5, $GLOBALS['alocROWPRICE'], 0, 0, "R");
-  $pdf->Cell(15, 5, $GLOBALS['alocPCS'], 0, 0, "R");
-  $pdf->Cell(15, 5, $GLOBALS['alocUNIT'], 0, 0, "R");
-  $pdf->Cell(20, 5, $GLOBALS['alocROWTOTAL'], 0, 0, "R");
-  $pdf->Cell(15, 5, $GLOBALS['alocVATPERCENT'], 0, 0, "R");
-  $pdf->Cell(15, 5, $GLOBALS['alocTAX'], 0, 0, "R");
-  $pdf->Cell(20, 5, $GLOBALS['alocROWTOTAL'], 0, 1, "R");
+  $pdf->Cell(15, 5, $GLOBALS['locROWPRICE'], 0, 0, "R");
+  $pdf->Cell(15, 5, $GLOBALS['locPCS'], 0, 0, "R");
+  $pdf->Cell(15, 5, $GLOBALS['locUNIT'], 0, 0, "R");
+  $pdf->Cell(20, 5, $GLOBALS['locROWTOTAL'], 0, 0, "R");
+  $pdf->Cell(15, 5, $GLOBALS['locVATPERCENT'], 0, 0, "R");
+  $pdf->Cell(15, 5, $GLOBALS['locTAX'], 0, 0, "R");
+  $pdf->Cell(20, 5, $GLOBALS['locROWTOTAL'], 0, 1, "R");
   
   //rows
   $pdf->SetY($pdf->GetY()+5);
@@ -320,7 +308,6 @@ if( $intNRes <= _INVOICE_PDF_ROWS_ && !isset($boolSeparateStatement)) {
           $pdf->MultiCell(0, 5, $astrDescription[$i], 0, 'L');
       }
       else {
-          //$pdf->SetY($pdf->GetY()+5);
           if( _SHOW_INVOICE_ROW_DATE_ ) {
               $pdf->SetX(67);
               $pdf->Cell(20, 5, $astrRowDate[$i], 0, 0, "L");
@@ -346,19 +333,19 @@ if( $intNRes <= _INVOICE_PDF_ROWS_ && !isset($boolSeparateStatement)) {
   }
   $pdf->SetFont('Helvetica','',10);
   $pdf->SetY($pdf->GetY()+10);
-  $pdf->Cell(162, 5, $GLOBALS['alocTOTALEXCLUDINGVAT'] .": ", 0, 0, "R");
+  $pdf->Cell(162, 5, $GLOBALS['locTOTALEXCLUDINGVAT'] .": ", 0, 0, "R");
   $pdf->SetX(182);
   $pdf->Cell(20, 5, miscRound2Decim($intTotSum), 0, 0, "R");
   
   $pdf->SetFont('Helvetica','',10);
   $pdf->SetY($pdf->GetY()+5);
-  $pdf->Cell(162, 5, $GLOBALS['alocTOTALVAT'] .": ", 0, 0, "R");
+  $pdf->Cell(162, 5, $GLOBALS['locTOTALVAT'] .": ", 0, 0, "R");
   $pdf->SetX(182);
   $pdf->Cell(20, 5, miscRound2Decim($intTotVAT), 0, 0, "R");
   
   $pdf->SetFont('Helvetica','B',10);
   $pdf->SetY($pdf->GetY()+5);
-  $pdf->Cell(162, 5, $GLOBALS['alocTOTALINCLUDINGVAT'] .": ", 0, 0, "R");
+  $pdf->Cell(162, 5, $GLOBALS['locTOTALINCLUDINGVAT'] .": ", 0, 0, "R");
   $pdf->SetX(182);
   $pdf->Cell(20, 5, miscRound2Decim($intTotSumVAT), 0, 1, "R");
 
@@ -366,7 +353,7 @@ if( $intNRes <= _INVOICE_PDF_ROWS_ && !isset($boolSeparateStatement)) {
 else {
     $pdf->SetFont('Helvetica','B',20);
     $pdf->SetXY(20, $pdf->GetY()+40);
-    $pdf->MultiCell(180, 5, $GLOBALS['alocSEESEPARATESTATEMENT'], 0, "L", 0);
+    $pdf->MultiCell(180, 5, $GLOBALS['locSEESEPARATESTATEMENT'], 0, "L", 0);
 }
 
 //bottom - paymentinfo
@@ -486,7 +473,7 @@ $pdf->SetXY($intStartX, $intStartY + 60);
 $pdf->Cell(19, 5, "Allekirjoitus", 0, 1, "R");
 //from account
 $pdf->SetXY($intStartX, $intStartY + 68);
-$pdf->Cell(19, 5, "Tililtä", 0, 1, "R");
+$pdf->Cell(19, 5, cond_utf8_encode('Tililtä'), 0, 1, "R");
 
 //info
 $pdf->SetFont('Helvetica','',10);
@@ -495,13 +482,13 @@ $pdf->Cell(70, 5, "Laskunumero ".$strInvoiceNo, 0, 1, "L");
 $pdf->SetXY($intStartX + 112.4, $intStartY + 30);
 $pdf->Cell(70, 5, "Viitenumero on aina mainittava maksettaessa.", 0, 1, "L");
 $pdf->SetXY($intStartX + 112.4, $intStartY + 35);
-$pdf->Cell(70, 5, "Referensnumret bör alltid anges vid betalning.", 0, 1, "L");
+$pdf->Cell(70, 5, cond_utf8_encode('Referensnumret bör alltid anges vid betalning.'), 0, 1, "L");
 //terms
 $pdf->SetFont('Helvetica','',5);
 $pdf->SetXY($intStartX + 133, $intStartY + 85);
-$pdf->MultiCell(70, 2, "Maksu välitetään saajalle maksujenvälityksen ehtojen mukaisesti ja vain\nmaksajan ilmoittaman tilinumeron perusteella",0,1);
+$pdf->MultiCell(70, 2, cond_utf8_encode('Maksu välitetään saajalle maksujenvälityksen ehtojen mukaisesti ja vain\nmaksajan ilmoittaman tilinumeron perusteella'),0,1);
 $pdf->SetXY($intStartX + 133, $intStartY + 90);
-$pdf->MultiCell(70, 2, "Betalningen förmedlas till mottagaren enligt villkoren för betalnings-\nförmedling och endast till det kontonummer som betalaren angivit",0,1);
+$pdf->MultiCell(70, 2, cond_utf8_encode('Betalningen förmedlas till mottagaren enligt villkoren för betalnings-\nförmedling och endast till det kontonummer som betalaren angivit'),0,1);
 $pdf->SetFont('Helvetica','',6);
 $pdf->SetXY($intStartX + 133, $intStartY + 95);
 $pdf->Cell($intMaxX + 1 - 133 - $intStartX, 5, "PANKKI BANKEN", 0, 1, "R");
@@ -519,7 +506,7 @@ $pdf->Cell(15, 5, $strRefNumber, 0, 1, "L");
 //duedate
 $pdf->SetFont('Helvetica','',7);
 $pdf->SetXY($intStartX + 112.4, $intStartY + 68);
-$pdf->Cell(15, 5, "Eräpäivä", 0, 1, "L");
+$pdf->Cell(15, 5, cond_utf8_encode('Eräpäivä'), 0, 1, "L");
 $pdf->SetFont('Helvetica','',10);
 $pdf->SetXY($intStartX + 131.4, $intStartY + 68);
 $pdf->Cell(25, 5, $strFormDueDate, 0, 1, "L");
@@ -553,14 +540,25 @@ if( _SHOW_BARCODE_ && $intTotSumVAT > 0) {
     
     $code_string = "2". $tmpAccount. $tmpSum. $tmpRefNumber. $tmpDueDate. "0000";
     $code_string = $code_string. miscCalcCheckNo($code_string);
-    
-    $code = new pdfbarcode128($code_string, 3 );
-    
-    $code->set_pdf_document($pdf);
-    $width = $code->get_width();
-    $code->draw_barcode(24, 280, 11, FALSE );
-    //$code->_dump_pattern();
-    //echo "<br><br>". $code_string;
+
+    $style = array(
+      'position' => '',
+      'align' => 'C',
+      'stretch' => true,
+      'fitwidth' => true,
+      'cellfitalign' => '',
+      'border' => false,
+      'hpadding' => 'auto',
+      'vpadding' => 'auto',
+      'fgcolor' => array(0,0,0),
+      'bgcolor' => false, //array(255,255,255),
+      'text' => false,
+      'font' => 'helvetica',
+      'fontsize' => 8,
+      'stretchtext' => 4
+    );
+    $pdf->SetXY(24, 280);
+    $pdf->write1DBarcode($code_string, 'C128C', 20, 280, 105, 11, 0.34, $style, 'N');
 }
 
 if( $intNRes > _INVOICE_PDF_ROWS_ || isset($boolSeparateStatement)) {
@@ -577,19 +575,19 @@ if( $intNRes > _INVOICE_PDF_ROWS_ || isset($boolSeparateStatement)) {
   $pdf->Cell(80, 5, "Laskunro: $strInvoiceNo", 0, 1, "L");
   $pdf->SetXY(7, $pdf->GetY()+10);
   if( _SHOW_INVOICE_ROW_DATE_ ) {
-      $pdf->Cell(60, 5, $GLOBALS['alocROWNAME'], 0, 0, "L");
-      $pdf->Cell(20, 5, $GLOBALS['alocDATE'], 0, 0, "L");
+      $pdf->Cell(60, 5, $GLOBALS['locROWNAME'], 0, 0, "L");
+      $pdf->Cell(20, 5, $GLOBALS['locDATE'], 0, 0, "L");
   }
   else {
-      $pdf->Cell(80, 5, $GLOBALS['alocROWNAME'], 0, 0, "L");
+      $pdf->Cell(80, 5, $GLOBALS['locROWNAME'], 0, 0, "L");
   }
-  $pdf->Cell(15, 5, $GLOBALS['alocPRICE'], 0, 0, "R");
-  $pdf->Cell(15, 5, $GLOBALS['alocPCS'], 0, 0, "R");
-  $pdf->Cell(15, 5, $GLOBALS['alocUNIT'], 0, 0, "R");
-  $pdf->Cell(20, 5, $GLOBALS['alocTOTAL'], 0, 0, "R");
-  $pdf->Cell(15, 5, $GLOBALS['alocVATPERCENT'], 0, 0, "R");
-  $pdf->Cell(15, 5, $GLOBALS['alocTAX'], 0, 0, "R");
-  $pdf->Cell(20, 5, $GLOBALS['alocTOTAL'], 0, 1, "R");
+  $pdf->Cell(15, 5, $GLOBALS['locPRICE'], 0, 0, "R");
+  $pdf->Cell(15, 5, $GLOBALS['locPCS'], 0, 0, "R");
+  $pdf->Cell(15, 5, $GLOBALS['locUNIT'], 0, 0, "R");
+  $pdf->Cell(20, 5, $GLOBALS['locTOTAL'], 0, 0, "R");
+  $pdf->Cell(15, 5, $GLOBALS['locVATPERCENT'], 0, 0, "R");
+  $pdf->Cell(15, 5, $GLOBALS['locTAX'], 0, 0, "R");
+  $pdf->Cell(20, 5, $GLOBALS['locTOTAL'], 0, 1, "R");
   
   //rows
   $pdf->SetY($pdf->GetY()+5);
@@ -599,7 +597,6 @@ if( $intNRes > _INVOICE_PDF_ROWS_ || isset($boolSeparateStatement)) {
           $pdf->MultiCell(0, 5, $astrDescription[$i], 0, 'L');
       }
       else {
-          //$pdf->SetY($pdf->GetY()+5);
           if( _SHOW_INVOICE_ROW_DATE_ ) {
               $pdf->SetX(67);
               $pdf->Cell(20, 5, $astrRowDate[$i], 0, 0, "L");
@@ -627,19 +624,19 @@ if( $intNRes > _INVOICE_PDF_ROWS_ || isset($boolSeparateStatement)) {
   }
   $pdf->SetFont('Helvetica','',10);
   $pdf->SetY($pdf->GetY()+10);
-  $pdf->Cell(162, 5, $GLOBALS['alocTOTALEXCLUDINGVAT'] .": ", 0, 0, "R");
+  $pdf->Cell(162, 5, $GLOBALS['locTOTALEXCLUDINGVAT'] .": ", 0, 0, "R");
   $pdf->SetX(182);
   $pdf->Cell(20, 5, miscRound2Decim($intTotSum), 0, 0, "R");
   
   $pdf->SetFont('Helvetica','',10);
   $pdf->SetY($pdf->GetY()+5);
-  $pdf->Cell(162, 5, $GLOBALS['alocTOTALVAT'] .": ", 0, 0, "R");
+  $pdf->Cell(162, 5, $GLOBALS['locTOTALVAT'] .": ", 0, 0, "R");
   $pdf->SetX(182);
   $pdf->Cell(20, 5, miscRound2Decim($intTotVAT), 0, 0, "R");
   
   $pdf->SetFont('Helvetica','B',10);
   $pdf->SetY($pdf->GetY()+5);
-  $pdf->Cell(162, 5, $GLOBALS['alocTOTALINCLUDINGVAT'] .": ", 0, 0, "R");
+  $pdf->Cell(162, 5, $GLOBALS['locTOTALINCLUDINGVAT'] .": ", 0, 0, "R");
   $pdf->SetX(182);
   $pdf->Cell(20, 5, miscRound2Decim($intTotSumVAT), 0, 1, "R");
 
