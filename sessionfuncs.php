@@ -55,14 +55,15 @@ function sesCreateSession($strLogin, $strPasswd)
             $_SESSION['sesACCESSLEVEL'] = $row['access_level'];
             $_SESSION['REMOTE_ADDR'] = $_SERVER['REMOTE_ADDR'];
             $_SESSION['HISTORY'] = array();
-            
+            $_SESSION['ACCESSTIME'] = time();
+             
             return 'OK';
         }
     }
     return 'FAIL';
 }
 
-function sesEndSession($strSesID) 
+function sesEndSession() 
 {
   session_destroy();
   return TRUE;
@@ -71,8 +72,11 @@ function sesEndSession($strSesID)
 function sesVerifySession() 
 {
     session_start();
-    if ($_SESSION['REMOTE_ADDR'] == $_SERVER['REMOTE_ADDR'])
+    if ($_SESSION['REMOTE_ADDR'] == $_SERVER['REMOTE_ADDR'] && time() <= $_SESSION['ACCESSTIME'] + $_SESSION['sesTIMEOUT'])
+    {
+      $_SESSION['ACCESSTIME'] = time();
       return TRUE;
+    }
     header('Location: ' . _PROTOCOL_ . $_SERVER['HTTP_HOST'] . dirname($_SERVER['PHP_SELF']) . '/login.php');
     exit;
 }

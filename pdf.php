@@ -1,9 +1,13 @@
 <?php
-require_once 'fpdf.php';
+require_once 'tcpdf/tcpdf.php';
 
-class PDF extends FPDF
+class PDF extends TCPDF
 {
   public $footerLeft = '', $footerCenter = '', $footerRight = '';
+
+  function Header()
+  {
+  }
 
   function Footer()
   {
