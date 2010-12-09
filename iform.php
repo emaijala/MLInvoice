@@ -103,7 +103,7 @@ for( $i = 0; $i < count($astrFormElements); $i++ ) {
            $strQuery = str_replace("_PARENTID_", $intParentKey, $astrFormElements[$i]['listquery']);
            $intRes = mysql_query_check($strQuery);
            $intAdd = mysql_result($intRes, 0, 0);
-           $strDefaultValue = $intAdd;
+           $strDefaultValue = isset($intAdd) ? $intAdd : 0;
         }
         else {
             $strDefaultValue = $astrFormElements[$i]['default'];

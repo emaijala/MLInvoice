@@ -56,6 +56,9 @@ define ('_PROTOCOL_', isset($_SERVER['HTTPS']) ? 'https://' : 'http://');
 
 // Sekalaisia muuttujia:
 
+// Suljetaanko lomake kun muokkaus tai poisto on tehty
+define ('_AUTO_CLOSE_FORM_', TRUE);
+
 // Asetetaanko asiakasnumero automaattisesti uutta asiakasta lisättäessä
 define ('_ADD_CUSTOMER_NUMBER_', TRUE); // TRUE = kyllä tai FALSE = ei
 

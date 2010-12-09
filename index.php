@@ -25,6 +25,8 @@ require_once 'localize.php';
 
 sesVerifySession();
 
+ob_start(); // buffered so we can redirect later if necessary
+
 $strFunc = getRequest('func', 'open_invoices');
 $strList = getRequest('list', '');
 $strForm = getRequest('form', '');
@@ -42,6 +44,7 @@ if (!$strFunc && $strForm)
   $strFunc = 'invoices';
 
 $title = getPageTitle($strFunc, $strList, $strForm);
+
 
 echo htmlPageStart(_PAGE_TITLE_ . " - $title");
 

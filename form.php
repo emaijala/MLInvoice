@@ -195,6 +195,15 @@ function createForm($strFunc, $strList, $strForm)
                   //get the latest insert ID from mysql
                   $intKeyValue = mysql_insert_id();   
               }
+              else
+              {
+                if (_AUTO_CLOSE_FORM_)
+                {
+                  $qs = preg_replace('/&form=\w*/', '', $_SERVER['QUERY_STRING']);
+                  header("Location: ". _PROTOCOL_ . $_SERVER['HTTP_HOST'] . dirname($_SERVER['PHP_SELF']) . "/index.php?$qs");
+                  return;
+                }
+              }
               
               //insert is now done - set the new flag to FALSE
               //then the next query will be update
@@ -219,6 +228,12 @@ function createForm($strFunc, $strList, $strForm)
       //clear form elements
       unset($astrValues);
       $blnNew = TRUE;
+      if (_AUTO_CLOSE_FORM_)
+      {
+        $qs = preg_replace('/&form=\w*/', '', $_SERVER['QUERY_STRING']);
+        header("Location: ". _PROTOCOL_ . $_SERVER['HTTP_HOST'] . dirname($_SERVER['PHP_SELF']) . "/index.php?$qs");
+        return;
+      }
 ?>
   <div class="form_container">
     <?php echo $GLOBALS['locRECORDDELETED'] . "\n"?>

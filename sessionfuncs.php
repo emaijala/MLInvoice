@@ -47,7 +47,6 @@ function sesCreateSession($strLogin, $strPasswd)
             if ($md5 != $strPasswd)
               return 'FAIL';
               
-            ini_set(’session.gc_maxlifetime’, $row['time_out']);
             $_SESSION['sesTYPEID'] = $row['type_id'];
             $_SESSION['sesLANG'] = 'fi';
             $_SESSION['sesTIMEOUT'] = $row['time_out'];
