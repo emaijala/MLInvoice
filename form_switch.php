@@ -40,6 +40,7 @@ Tämä ohjelma on vapaa. Lue oheinen LICENSE.
 ***********************************************************************/
 
 $strListTableAlias = '';
+$strOrder = '';
 switch ( $strForm ) {
 
 case 'company':
@@ -47,9 +48,18 @@ case 'company':
    $strPrimaryKey = 'id';
    $astrSearchFields = 
     array( 
-        //array("name" => "first_name", "type" => "TEXT"),
         array("name" => "company_name", "type" => "TEXT")
     );
+    
+   $defaultCustomerNo = FALSE;
+   if (_ADD_CUSTOMER_NUMBER_)
+   {
+     $strQuery = "SELECT max(customer_no) FROM {prefix}company";
+     $intRes = mysql_query_check($strQuery);
+     $intInvNo = mysql_result($intRes, 0, 0) + 1;
+     $defaultCustomerNo = $intInvNo;
+   }
+    
    $astrFormElements =
     array(
      array("label" => $GLOBALS['locLABELCONTACTINFO'], "type" => "LABEL"),
@@ -60,7 +70,7 @@ case 'company':
      array(
         "name" => "email", "label" => $GLOBALS['locEMAIL'], "type" => "TEXT", "style" => "medium", "listquery" => "", "position" => 1, "default" => FALSE, "allow_null" => TRUE ),
      array(
-        "name" => "www", "label" => $GLOBALS['locWWW'], "type" => "TEXT", "style" => "medium", "listquery" => "", "position" => 2, "default" => FALSE, "allow_null" => TRUE ),
+        "name" => "customer_no", "label" => $GLOBALS['locCUSTOMERNO'], "type" => "INT", "style" => "medium", "listquery" => "", "position" => 2, "default" => $defaultCustomerNo, "allow_null" => TRUE ),
      array(
         "name" => "street_address", "label" => $GLOBALS['locSTREETADDR'], "type" => "TEXT", "style" => "medium", "listquery" => "", "position" => 0, "default" => FALSE, "allow_null" => TRUE ),
      array(
@@ -72,7 +82,9 @@ case 'company':
      array(
         "name" => "fax", "label" => $GLOBALS['locFAX'], "type" => "TEXT", "style" => "medium", "listquery" => "", "position" => 2, "default" => FALSE, "allow_null" => TRUE ),
      array(
-        "name" => "gsm", "label" => $GLOBALS['locGSM'], "type" => "TEXT", "style" => "medium", "listquery" => "", "position" => 0, "default" => FALSE, "allow_null" => TRUE ),
+        "name" => "gsm", "label" => $GLOBALS['locGSM'], "type" => "TEXT", "style" => "medium", "listquery" => "", "position" => 1, "default" => FALSE, "allow_null" => TRUE ),
+     array(
+        "name" => "www", "label" => $GLOBALS['locWWW'], "type" => "TEXT", "style" => "medium", "listquery" => "", "position" => 2, "default" => FALSE, "allow_null" => TRUE ),
      array(
         "name" => "billing_address", "label" => $GLOBALS['locBILLADDR'], "type" => "AREA", "style" => "medium", "listquery" => "", "position" => 1, "default" => FALSE, "allow_null" => TRUE ),
      array(
@@ -220,11 +232,11 @@ case 'invoice':
      array(
         "name" => "get", "label" => $GLOBALS['locPRINTINV'], "type" => "BUTTON", "style" => "medium", "listquery" => "'invoice.php?id=_ID_', '_self'", "position" => 2, "default" => FALSE, "allow_null" => TRUE ),
      array(
-        "name" => "get", "label" => $GLOBALS['locCOPYINV'], "type" => "BUTTON", "style" => "medium", "listquery" => "'copy_invoice.php?id=_ID_', '_self'", "position" => 1, "default" => FALSE, "allow_null" => TRUE ),
+        "name" => "get", "label" => $GLOBALS['locCOPYINV'], "type" => "BUTTON", "style" => "medium", "listquery" => "'copy_invoice.php?func=$strFunc&amp;list=$strList&amp;id=_ID_', '_self'", "position" => 1, "default" => FALSE, "allow_null" => TRUE ),
      array(
         "name" => "get", "label" => $GLOBALS['locADDREMINDERFEES'], "type" => "BUTTON", "style" => "medium", "listquery" => "'add_reminder_fees.php?id=_ID_', '_self'", "position" => 2, "default" => FALSE, "allow_null" => TRUE ),
      array(
-        "name" => "get", "label" => $GLOBALS['locREFUNDINV'], "type" => "BUTTON", "style" => "medium", "listquery" => "'copy_invoice.php?id=_ID_&amp;refund=1', '_self'", "position" => 2, "default" => FALSE, "allow_null" => TRUE ),
+        "name" => "get", "label" => $GLOBALS['locREFUNDINV'], "type" => "BUTTON", "style" => "medium", "listquery" => "'copy_invoice.php?func=$strFunc&amp;list=$strList&amp;id=_ID_&amp;refund=1', '_self'", "position" => 2, "default" => FALSE, "allow_null" => TRUE ),
      array(
         "name" => "invoice_rows", "label" => $GLOBALS['locINVROWS'], "type" => "IFORM", "style" => "xfull", "listquery" => "", "position" => 0, "default" => FALSE, "allow_null" => TRUE, "parent_key" => "invoice_id" )
     );

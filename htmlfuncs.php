@@ -80,14 +80,14 @@ Todo : This could be more generic...
   <script type="text/javascript" src="jquery/js/jquery.ui.datepicker-fi.js"></script>
   <script type="text/javascript" src="datatables/media/js/jquery.dataTables.min.js"></script>
   <script type="text/javascript" src="js/functions.js"></script>
-  
+
 EOT;
 
     if (isset($arrExtraScripts))
     {
       foreach ($arrExtraScripts as $script)
       {
-        $strHtmlStart .= "<script type=\"text/javascript\" src=\"$script\"></script>\n";
+        $strHtmlStart .= "  <script type=\"text/javascript\" src=\"$script\"></script>\n";
       }
     }
     $strHtmlStart .= "</head>\n";

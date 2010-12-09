@@ -46,7 +46,7 @@ function cond_utf8_encode($str)
 
 if( $intInvoiceId ) {
     $strQuery = 
-        "SELECT inv.invoice_no, inv.invoice_date, inv.due_date, inv.ref_number, inv.name AS invoice_name, inv.reference, comp.company_name AS name, '' AS contact_person, comp.email, comp.billing_address, CONCAT(comp.company_name, '\n', comp.street_address, '\n', comp.zip_code, ' ', comp.city) AS billing_address2, inv.base_id, inv.state_id, inv.print_date, comp.id as company_id, ref.invoice_no as refunded_invoice_no " .
+        "SELECT inv.invoice_no, inv.invoice_date, inv.due_date, inv.ref_number, inv.name AS invoice_name, inv.reference, comp.company_name AS name, '' AS contact_person, comp.email, comp.billing_address, CONCAT(comp.company_name, '\n', comp.street_address, '\n', comp.zip_code, ' ', comp.city) AS billing_address2, inv.base_id, inv.state_id, inv.print_date, comp.customer_no, ref.invoice_no as refunded_invoice_no " .
         "FROM {prefix}invoice inv " .
         "INNER JOIN {prefix}company comp ON comp.id = inv.company_id ".
         "LEFT OUTER JOIN {prefix}invoice ref ON ref.id = inv.refunded_invoice_id ".
@@ -56,7 +56,7 @@ if( $intInvoiceId ) {
        $strInvoiceName = $row['invoice_name'];
        $intBaseId = $row['base_id'];
        $intStateId = $row['state_id'];
-       $strClientId = $row['company_id'];
+       $intCustomerNo = $row['customer_no'];
        $strInvoiceNo = $row['invoice_no'];
        $strRefundedInvoiceNo = $row['refunded_invoice_no'];
        $strRefNumber = $row['ref_number'];
@@ -213,8 +213,8 @@ else
   $pdf->Cell(40, 5, $GLOBALS['locINVOICEHEADER'], 0, 1, 'R');
 $pdf->SetFont('Helvetica','',10);
 $pdf->SetXY(115, $pdf->GetY()+5);
-$pdf->Cell(40, 5, $GLOBALS['locCLIENTNO'] .": ", 0, 0, 'R');
-$pdf->Cell(60, 5, $strClientId, 0, 1);
+$pdf->Cell(40, 5, $GLOBALS['locCUSTOMERNUMBER'] .": ", 0, 0, 'R');
+$pdf->Cell(60, 5, $intCustomerNo, 0, 1);
 $pdf->SetX(115);
 $pdf->Cell(40, 5, $GLOBALS['locINVNUMBER'] .": ", 0, 0, 'R');
 $pdf->Cell(60, 5, $strInvoiceNo, 0, 1);

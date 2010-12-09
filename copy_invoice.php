@@ -35,6 +35,8 @@ require "miscfuncs.php";
 
 $intInvoiceId = getRequest('id', FALSE);
 $boolRefund = getRequest('refund', FALSE);
+$strFunc = getRequest('func', '');
+$strList = getRequest('list', '');
 
 if ($intInvoiceId) 
 {
@@ -118,6 +120,6 @@ if ($intInvoiceId)
     }
 }
 
-header("Location: ". _PROTOCOL_ . $_SERVER['HTTP_HOST'] . dirname($_SERVER['PHP_SELF']) . "/index.php?ses=$strSesID&func=invoices&form=invoice&id=$intNewId");
+header("Location: ". _PROTOCOL_ . $_SERVER['HTTP_HOST'] . dirname($_SERVER['PHP_SELF']) . "/index.php?func=$strFunc&list=$strList&form=invoice&id=$intNewId");
 
 ?>

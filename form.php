@@ -28,7 +28,7 @@ require_once "miscfuncs.php";
 require_once "datefuncs.php";
 require_once "localize.php";
 
-function createForm($strFunc, $strForm)
+function createForm($strFunc, $strList, $strForm)
 {
   require "form_switch.php";
   
@@ -219,7 +219,11 @@ function createForm($strFunc, $strForm)
       //clear form elements
       unset($astrValues);
       $blnNew = TRUE;
-      echo $GLOBALS['locRECORDDELETED'];
+?>
+  <div class="form_container">
+    <?php echo $GLOBALS['locRECORDDELETED'] . "\n"?>
+  </div>
+<?php
       return;
   }
   

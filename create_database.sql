@@ -64,9 +64,22 @@ CREATE TABLE vllasku_company (
   www varchar(100) default NULL,
   info text,
   company_id varchar(15) default NULL,
+  customer_no int(11) default NULL,
   PRIMARY KEY (id),
   FOREIGN KEY (type_id) REFERENCES vllasku_company_type(id)
 ) ENGINE=INNODB CHARACTER SET utf8 COLLATE utf8_swedish_ci;
+
+CREATE TABLE vllasku_company_contact (
+  id int(11) NOT NULL auto_increment,
+  company_id int(11) NOT NULL default '0',
+  contact_person varchar(100) default NULL,
+  person_title varchar(100) default NULL,
+  email varchar(50) default NULL,
+  phone varchar(30) default NULL,
+  gsm varchar(30) default NULL,
+  PRIMARY KEY (id),
+  FOREIGN KEY (company_id) REFERENCES vllasku_company(id)
+) ENGINE=INNODB AUTO_INCREMENT=1 CHARACTER SET utf8 COLLATE utf8_swedish_ci;
 
 CREATE TABLE vllasku_product (
   id int(11) NOT NULL auto_increment,
@@ -82,18 +95,6 @@ CREATE TABLE vllasku_product (
   PRIMARY KEY (id),
   FOREIGN KEY (type_id) REFERENCES vllasku_row_type(id)
 ) ENGINE=INNODB CHARACTER SET utf8 COLLATE utf8_swedish_ci;
-
-CREATE TABLE vllasku_company_contact (
-  id int(11) NOT NULL auto_increment,
-  company_id int(11) NOT NULL default '0',
-  contact_person varchar(100) default NULL,
-  person_title varchar(100) default NULL,
-  email varchar(50) default NULL,
-  phone varchar(30) default NULL,
-  gsm varchar(30) default NULL,
-  PRIMARY KEY (id),
-  FOREIGN KEY (company_id) REFERENCES vllasku_company(id)
-) ENGINE=INNODB AUTO_INCREMENT=1 CHARACTER SET utf8 COLLATE utf8_swedish_ci;
 
 CREATE TABLE vllasku_invoice (
   id int(11) NOT NULL auto_increment,

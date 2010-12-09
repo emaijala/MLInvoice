@@ -101,7 +101,7 @@ function createFuncMenu($strFunc)
       $strFormName = "invoice";
       $astrNaviLinks = array();
       if ($strFunc == 'invoices')
-        $astrNaviLinks[] = array("href" => "index.php", "text" => $GLOBALS['locDISPLAYOPENINVOICES'], "levels_allowed" => array(1));
+        $astrNaviLinks[] = array("href" => "index.php?func=open_invoices", "text" => $GLOBALS['locDISPLAYOPENINVOICES'], "levels_allowed" => array(1));
       else
         $astrNaviLinks[] = array("href" => "index.php?func=invoices", "text" => $GLOBALS['locDISPLAYALLINVOICES'], "levels_allowed" => array(1));
       if ($strFunc != 'archived_invoices')  

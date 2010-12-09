@@ -56,6 +56,9 @@ define ('_PROTOCOL_', isset($_SERVER['HTTPS']) ? 'https://' : 'http://');
 
 // Sekalaisia muuttujia:
 
+// Asetetaanko asiakasnumero automaattisesti uutta asiakasta lisättäessä
+define ('_ADD_CUSTOMER_NUMBER_', TRUE); // TRUE = kyllä tai FALSE = ei
+
 // Näytetäänkö viivakoodi
 define ('_SHOW_BARCODE_', TRUE); // TRUE = näytetään tai FALSE = ei näytetä
 

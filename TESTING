@@ -1,0 +1,24 @@
+A set of quick tests in Finnish.
+
+Tämä ei ole kattava testaussuunnitelma, vaan toimii vain apuvälineenä testauksessa.
+
+Tarkista seuraavissa aina tallennuksen jälkeen, että tiedot ovat oikein.
+
+1. Lisää uusi yritys. Käytä nimessä ääkkösiä. Täytä myös muut kentät oikean muotoisilla arvoilla. Jätä ALV-rekisteröity valitsematta.
+2. Lisää uusi tuote. Käytä nimessä ääkkösiä. Täytä myös muut kentät oikean muotoisilla arvoilla. Jätä "Hinta sisältää ALV:n" valitsematta.
+3. Lisää toinen tuote. Täytä kaikki kentät oikean muotoisilla arvoilla. Valitse "Hinta sisältää ALV:n".
+4. Lisää uusi asiakas. Käytä nimessä ääkkösiä. Täytä osoitekentät oikean muotoisilla arvoilla ja muut kentät numeroilla. Lisää kaksi kontaktia.
+5. Lisää uusi lasku. Tarkista, että oletuksena annettavat Laskupvm, Eräpvm, Laskunro ja viitenro ovat oikein. Käytä äskettäin luotua yritystä ja asiakasta, ja lisää molemmista tuotteista ainakin yksi rivi.
+6. Tulosta laskusta PDF. Tarkista, että ALV-prosentit ja -laskelmat pitävät paikkansa, ja että kaikki kentät tulostuvat muutenkin oikein.
+7. Käy muokkaamassa yritystä ja valitse ALV-rekisteröity.
+8. Tulosta lasku uudelleen. Tarkista, että Y-tunnuksen perässä näkyy ALV-rek.
+9. Tarkista, että lasku näkyy avointen listassa, kun sen tila on AVOIN.
+10. Vaihda laskun tilaksi LÄHETETTY. Tarkista, että se siirtyy lähetettyjen listaan.
+11. Vaihda laskun tilaksi MAKSETTU. Tarkista, että se poistuu lähetettyjen listalta ja näkyy kaikkien laskujen listassa.
+12. Valitse laskusta arkistoitu ja tarkista, että se poistuu kaikkien laskujen listalta, mutta näkyy arkistossa.
+13. Poista rasti arkistoitu-kentästä. Tallenna ja paina "Mitätöi ja luo hyvityslasku" -painiketta. Tarkista, että hyvityslasku vastaa alkuperäistä, ja että linkit laskujen välillä toimivat.
+14. Muuta alkuperäistä laskua niin, että sen tila on AVOIN ja eräpäivä menneisyydessä. Paina "Lisää huomautus- ja viivästysmaksu" -painiketta ja tarkista, että maksut tulevat oikein laskuriveihin ja tulosteeseen.
+15. Paina "Kopioi lasku ja laskurivit" -painiketta ja tarkista, että kopio vastaa alkuperäistä. 
+16. Muokkaa kopion jotain laskuriviä ja tarkista, että muutokset tallentuvat oikein.
+17. Poista kopioitu lasku. 
+18. Paina alkuperäisessä laskussa Hae laskunro ja laskupvm -painiketta. Tarkista, että laskunro, laskupvm ja viitenro päivittyvät.

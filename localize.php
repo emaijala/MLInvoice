@@ -51,10 +51,11 @@ default :
     //FORM LABELS
     $GLOBALS['locCOMPNAME'] = 'Yrityksen nimi';
     $GLOBALS['locCOMPVATID'] = 'Y-tunnus';
-    $GLOBALS['locCLIENTNO'] = 'Asiakasnumero';
     $GLOBALS['locCONTACTPERS'] = 'Kontakti';
     $GLOBALS['locCOMPTYPE'] = 'Yritystyyppi';
     $GLOBALS['locEMAIL'] = 'Email';
+    $GLOBALS['locCUSTOMERNO'] = 'Asiakasnro';
+    $GLOBALS['locCUSTOMERNUMBER'] = 'Asiakasnumero';
     $GLOBALS['locVATREGISTERED'] = 'ALV-rekisteröity';
     $GLOBALS['locWWW'] = 'WWW';
     $GLOBALS['locADDRESS'] = 'Osoite';

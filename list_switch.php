@@ -23,6 +23,7 @@ Tämä ohjelma on vapaa. Lue oheinen LICENSE.
 
 *******************************************************************************/
 
+$strTable = '';
 $strFilter = '';
 switch ( $strList ) {
 
@@ -39,6 +40,7 @@ case 'companies':
     array( 
         array("name" => "company_name", 'width' => 150, "type" => "TEXT", "header" => $GLOBALS['locCOMPNAME']),
         array("name" => "company_id", 'width' => 100, "type" => "TEXT", "header" => $GLOBALS['locCOMPVATID']),
+        array("name" => "customer_no", 'width' => 100, "type" => "TEXT", "header" => $GLOBALS['locCUSTOMERNO']),
         array("name" => "email", 'width' => 150, "type" => "TEXT", "header" => $GLOBALS['locEMAIL']),
         array("name" => "phone", 'width' => 100, "type" => "TEXT", "header" => $GLOBALS['locPHONE']),
         array("name" => "gsm", 'width' => 100, "type" => "TEXT", "header" => $GLOBALS['locGSM'])
@@ -86,7 +88,7 @@ case 'invoices':
         array("name" => "i.invoice_date", 'width' => 100, "type" => "INTDATE", "order" => "DESC", "header" => $GLOBALS['locHEADERINVOICEDATE']),
         array("name" => "i.invoice_no", 'width' => 80, "type" => "TEXT", "header" => $GLOBALS['locHEADERINVOICENO']),
         array("name" => "i.name", 'width' => 100, "type" => "TEXT", "header" => $GLOBALS['locHEADERINVOICENAME']),
-        array("name" => "s.name", 'width' => 80, "type" => "TEXT", "header" => $GLOBALS['locHEADERINVOICESTATE']),
+        array("name" => "s.name", 'width' => 120, "type" => "TEXT", "header" => $GLOBALS['locHEADERINVOICESTATE']),
         array("name" => "i.ref_number", 'width' => 100, "type" => "TEXT", "header" => $GLOBALS['locHEADERINVOICEREFERENCE']),
         array("name" => "b.name", 'width' => 100, "type" => "TEXT", "header" => $GLOBALS['locHEADERINVOICEBASE']),
         array("name" => "c.company_name", 'width' => 100, "type" => "TEXT", "header" => $GLOBALS['locHEADERINVOICECOMPANY'])

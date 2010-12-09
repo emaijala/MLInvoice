@@ -90,7 +90,7 @@ foreach ($arrHistory as $arrHE)
 ?>
   </div>
   <div class="breadcrumbs">
-    <?php echo $strBreadcrumbs?>
+    <?php echo $strBreadcrumbs . "\n"?>
   </div>
 
 <?php
@@ -113,7 +113,7 @@ default:
   {
     if ($strFunc == 'settings')
       createFuncMenu($strFunc);
-    createForm($strFunc, $strForm);
+    createForm($strFunc, $strList, $strForm);
   }
   else
   {

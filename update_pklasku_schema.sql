@@ -47,3 +47,8 @@ alter table pklasku_invoice add column (
 alter table pklasku_invoice add column (
   archived tinyint NOT NULL default 0
 );
+
+alter table pklasku_company add column (
+  customer_no int(11) default NULL
+);
+update pklasku_company set customer_no = id;
