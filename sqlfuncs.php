@@ -86,7 +86,7 @@ function mysql_param_query($query, $params=false, $noFail=false)
           if ($t)
             $t .= ',';
           $v2 = mysql_real_escape_string($v2); 
-          if (!is_numeric($v2))
+          if (!is_numeric($v2) || (strlen(trim($v2)) > 0 && substr(trim($v2), 0, 1) == '0'))
             $v2 = "'$v2'";
           $t .= $v2;
         }
@@ -95,7 +95,7 @@ function mysql_param_query($query, $params=false, $noFail=false)
       else
       {
         $v = mysql_real_escape_string($v); 
-        if (!is_numeric($v))
+        if (!is_numeric($v) || (strlen(trim($v)) > 0 && substr(trim($v), 0, 1) == '0'))
           $v = "'$v'";
       }
     }
