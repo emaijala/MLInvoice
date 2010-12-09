@@ -70,7 +70,9 @@ case 'company':
      array(
         "name" => "email", "label" => $GLOBALS['locEMAIL'], "type" => "TEXT", "style" => "medium", "listquery" => "", "position" => 1, "default" => FALSE, "allow_null" => TRUE ),
      array(
-        "name" => "customer_no", "label" => $GLOBALS['locCUSTOMERNO'], "type" => "INT", "style" => "medium", "listquery" => "", "position" => 2, "default" => $defaultCustomerNo, "allow_null" => TRUE ),
+        "name" => "customer_no", "label" => $GLOBALS['locCUSTOMERNO'], "type" => "INT", "style" => "medium", "listquery" => "", "position" => 1, "default" => $defaultCustomerNo, "allow_null" => TRUE ),
+     array(
+        "name" => "default_ref_number", "label" => $GLOBALS['locCUSTOMERDEFAULTREFNO'], "type" => "TEXT", "style" => "medium", "listquery" => "", "position" => 2, "default" => FALSE, "allow_null" => TRUE ),
      array(
         "name" => "street_address", "label" => $GLOBALS['locSTREETADDR'], "type" => "TEXT", "style" => "medium", "listquery" => "", "position" => 0, "default" => FALSE, "allow_null" => TRUE ),
      array(
@@ -201,6 +203,14 @@ case 'invoice':
      }
    }
    
+   $companyOnChange = <<<EOS
+onchange = "$.getJSON('json.php?func=get_company&id=' + document.forms[0].company_id.value, function(json) { if (json.default_ref_number) document.forms[0].ref_number.value = json.default_ref_number;});"
+EOS;
+
+   $getInvoiceNo = <<<EOS
+onclick = "$.getJSON('json.php?func=get_invoice_defaults', function(json) { var frm = document.forms[0]; frm.invoice_date.value = json.date; frm.due_date.value = json.due_date; frm.invoice_no.value = json.invoice_no; frm.ref_number.value = json.ref_no;}); return false;"
+EOS;
+
    $astrFormElements =
     array(
      array(
@@ -210,7 +220,7 @@ case 'invoice':
         "name" => "name", "label" => $GLOBALS['locINVNAME'], "type" => "TEXT", "style" => "medium", "listquery" => "", "position" => 1, "default" => FALSE, "allow_null" => TRUE ),
      $arrRefundingInvoice,
      array(
-        "name" => "company_id", "label" => $GLOBALS['locPAYER'], "type" => "LIST", "style" => "medium", "listquery" => "SELECT id, company_name FROM {prefix}company ORDER BY company_name;", "position" => 1, "default" => FALSE, "allow_null" => FALSE ),
+        "name" => "company_id", "label" => $GLOBALS['locPAYER'], "type" => "LIST", "style" => "medium", "listquery" => "SELECT id, company_name FROM {prefix}company ORDER BY company_name;", "position" => 1, "default" => FALSE, "allow_null" => FALSE, 'elem_attributes' => $companyOnChange ),
      array(
         "name" => "reference", "label" => $GLOBALS['locCLIENTSREFERENCE'], "type" => "TEXT", "style" => "medium", "listquery" => "", "position" => 2, "default" => FALSE, "allow_null" => TRUE ),
      array(
@@ -228,7 +238,7 @@ case 'invoice':
      array(
         "name" => "archived", "label" => $GLOBALS['locARCHIVED'], "type" => "CHECK", "style" => "medium", "listquery" => "", "position" => 1, "default" => 0, "allow_null" => TRUE ),
      array(
-        "name" => "get", "label" => $GLOBALS['locGETINVNO'], "type" => "BUTTON", "style" => "medium", "listquery" => "'get_invoiceno.php?id=_ID_', '_new'", "position" => 1, "default" => FALSE, "allow_null" => TRUE ),
+        "name" => "get", "label" => $GLOBALS['locGETINVNO'], "type" => "BUTTON", "style" => "custom", "listquery" => "", "position" => 1, "default" => FALSE, "allow_null" => TRUE, elem_attributes => $getInvoiceNo ),
      array(
         "name" => "get", "label" => $GLOBALS['locPRINTINV'], "type" => "BUTTON", "style" => "medium", "listquery" => "'invoice.php?id=_ID_', '_self'", "position" => 2, "default" => FALSE, "allow_null" => TRUE ),
      array(

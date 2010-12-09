@@ -69,7 +69,7 @@ function sesEndSession()
   return TRUE;
 }
 
-function sesVerifySession() 
+function sesVerifySession($redirect = TRUE) 
 {
     session_start();
     if ($_SESSION['REMOTE_ADDR'] == $_SERVER['REMOTE_ADDR'] && time() <= $_SESSION['ACCESSTIME'] + $_SESSION['sesTIMEOUT'])
@@ -77,7 +77,14 @@ function sesVerifySession()
       $_SESSION['ACCESSTIME'] = time();
       return TRUE;
     }
-    header('Location: ' . _PROTOCOL_ . $_SERVER['HTTP_HOST'] . dirname($_SERVER['PHP_SELF']) . '/login.php');
+    if ($redirect)
+    {
+      header('Location: ' . _PROTOCOL_ . $_SERVER['HTTP_HOST'] . dirname($_SERVER['PHP_SELF']) . '/login.php');
+    }
+    else
+    {
+      header('HTTP/1.1 403 Forbidden');
+    }
     exit;
 }
 

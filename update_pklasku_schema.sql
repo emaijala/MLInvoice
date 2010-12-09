@@ -52,3 +52,7 @@ alter table pklasku_company add column (
   customer_no int(11) default NULL
 );
 update pklasku_company set customer_no = id;
+
+alter table pklasku_company add column (
+  default_ref_number varchar(100) default NULL
+);

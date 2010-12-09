@@ -56,6 +56,7 @@ default :
     $GLOBALS['locEMAIL'] = 'Email';
     $GLOBALS['locCUSTOMERNO'] = 'Asiakasnro';
     $GLOBALS['locCUSTOMERNUMBER'] = 'Asiakasnumero';
+    $GLOBALS['locCUSTOMERDEFAULTREFNO'] = 'Asiakaskoht. viitenro';
     $GLOBALS['locVATREGISTERED'] = 'ALV-rekisteröity';
     $GLOBALS['locWWW'] = 'WWW';
     $GLOBALS['locADDRESS'] = 'Osoite';
@@ -84,7 +85,7 @@ default :
     $GLOBALS['locPAYDATE'] = 'Maksupvm';
     $GLOBALS['locSTATUS'] = 'Tila';
     $GLOBALS['locARCHIVED'] = 'Arkistoitu';
-    $GLOBALS['locGETINVNO'] = 'Hae laskunro ja laskupvm';
+    $GLOBALS['locGETINVNO'] = 'Hae päivämäärät, laskunro ja viitenro';
     $GLOBALS['locINVROWS'] = 'Laskurivit';
     $GLOBALS['locORDERNO'] = 'Järj.nro';
     $GLOBALS['locROWTYPE'] = 'Rivityyppi';

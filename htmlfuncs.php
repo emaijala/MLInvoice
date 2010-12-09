@@ -564,6 +564,7 @@ function htmlFormElement( $strName, $strType, $strValue, $strStyle, $strListQuer
                     $strListQuery .",'". $strHW. "menubar=no,scrollbars=no,".
                     "status=no,toolbar=no'); return false;\"";
                 break;
+                case 'custom' :
                 case 'pdf' :
                     $strListQuery = str_replace("'","",$strListQuery);
                     $strHref = $strListQuery;
