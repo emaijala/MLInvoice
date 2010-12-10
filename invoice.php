@@ -23,7 +23,6 @@ Tämä ohjelma on vapaa. Lue oheinen LICENSE.
 
 *******************************************************************************/
 
-require_once "htmlfuncs.php";
 require_once "sqlfuncs.php";
 require_once "sessionfuncs.php";
 
@@ -31,7 +30,6 @@ sesVerifySession();
 
 require_once "localize.php";
 require_once "pdf.php";
-
 require_once "datefuncs.php";
 require_once "miscfuncs.php";
 
