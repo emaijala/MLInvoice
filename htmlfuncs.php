@@ -23,18 +23,6 @@ Tämä ohjelma on vapaa. Lue oheinen LICENSE.
 
 *******************************************************************************/
 
-//These are to prevent browser & proxy caching
- // HTTP/1.1
-header("Cache-Control: no-store, no-cache, must-revalidate");
-header("Cache-Control: post-check=0, pre-check=0", false);
-// HTTP/1.0
-//header("Pragma: no-cache"); //when this commented mozilla doesn't cache images
-// Date in the past
-header("Expires: Mon, 26 Jul 1997 05:00:00 GMT");
-// always modified
-header("Last-Modified: " . gmdate("D, d M Y H:i:s") . " GMT");
- 
- 
 /********************************************************************
 Includefile : htmlfuncs.php
     Functions to create various html-elements
@@ -64,6 +52,15 @@ Return : $strHtmlStart (string): page startpart
 
 Todo : This could be more generic...
 ********************************************************************/
+
+    //These are to prevent browser & proxy caching
+    // HTTP/1.1
+    header("Cache-Control: no-store, no-cache, must-revalidate");
+    header("Cache-Control: post-check=0, pre-check=0", false);
+    // Date in the past
+    header("Expires: Mon, 26 Jul 1997 05:00:00 GMT");
+    // always modified
+    header("Last-Modified: " . gmdate("D, d M Y H:i:s") . " GMT");
 
     $charset = (_CHARSET_ == 'UTF-8') ? 'UTF-8' : 'ISO-8859-15';
     $strHtmlStart = <<<EOT
