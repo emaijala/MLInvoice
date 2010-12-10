@@ -60,7 +60,7 @@ if( $intInvoiceId ) {
        $strInvoiceNo = $row['invoice_no'];
        $strRefundedInvoiceNo = $row['refunded_invoice_no'];
        $strRefNumber = $row['ref_number'];
-       $strInvoiceDate = $row['invoice_date'];
+       $strInvoiceDate = dateConvIntDate2Date($row['invoice_date']);
        $strDueDate = dateConvIntDate2Date($row['due_date']);
        $strFormDueDate = ($intStateId == 5 || $intStateId == 6) ? $GLOBALS['locDUEDATENOW'] : $strDueDate;
        $strPrintDate = $row['print_date'];
