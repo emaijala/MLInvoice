@@ -20,7 +20,7 @@ require_once "miscfuncs.php";
 require_once "datefuncs.php";
 require_once "localize.php";
 
-function createList($strList, $strFunc)
+function createList($strFunc, $strList)
 {
   $strWhereClause = getPostRequest('where', '');
   $strSearchTerms = trim(getPostRequest('searchterms', ''));

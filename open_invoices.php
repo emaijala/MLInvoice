@@ -38,11 +38,11 @@ function createOpenInvoiceList()
     "SELECT id FROM {prefix}invoice ".
     "WHERE state_id = 1 and archived = 0 ".
     "ORDER BY invoice_date, name";
-  createHtmlList('invoices', 'invoices', $strQuery, $arrParams, $GLOBALS['locLABELOPENINVOICES'], $GLOBALS['locNOOPENINVOICES'], 'resultlist_open_invoices');
+  createHtmlList('open_invoices', 'invoices', $strQuery, $arrParams, $GLOBALS['locLABELOPENINVOICES'], $GLOBALS['locNOOPENINVOICES'], 'resultlist_open_invoices');
 
   $strQuery = 
     "SELECT id FROM {prefix}invoice ".
     "WHERE (state_id = 2 or state_id = 5 or state_id = 6 or state_id = 7) and archived = 0 ".
     "ORDER BY invoice_date, name";
-  createHtmlList('invoices', 'invoices', $strQuery, $arrParams, $GLOBALS['locLABELUNPAIDINVOICES'], $GLOBALS['locNOUNPAIDINVOICES'], 'resultlist_unpaid_invoices');
+  createHtmlList('open_invoices', 'invoices', $strQuery, $arrParams, $GLOBALS['locLABELUNPAIDINVOICES'], $GLOBALS['locNOUNPAIDINVOICES'], 'resultlist_unpaid_invoices');
 }

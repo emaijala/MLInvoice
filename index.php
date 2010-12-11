@@ -76,7 +76,7 @@ for( $i = 0; $i < count($astrMainButtons); $i++ ) {
 }
 
 $level = 1;
-if ($strList)
+if ($strList && ($strFunc == 'settings' || $strFunc == 'system'))
   ++$level;
 if ($strForm) 
   ++$level;
@@ -99,10 +99,6 @@ foreach ($arrHistory as $arrHE)
 <?php
 switch ($strFunc)
 {
-case 'open_invoices':
-  createFuncMenu('open_invoices');
-  createOpenInvoiceList();
-  break;
 case 'reports':
   createFuncMenu($strFunc);
   switch ($strForm)
@@ -121,7 +117,10 @@ default:
   else
   {
     createFuncMenu($strFunc);
-    createList($strList ? $strList : $strFunc, $strFunc);
+    if ($strFunc == 'open_invoices')
+      createOpenInvoiceList();
+    else
+      createList($strFunc, $strList);
   }
 }
 ?>

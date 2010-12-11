@@ -200,6 +200,7 @@ function createForm($strFunc, $strList, $strForm)
                 if (_AUTO_CLOSE_FORM_)
                 {
                   $qs = preg_replace('/&form=\w*/', '', $_SERVER['QUERY_STRING']);
+                  $qs = preg_replace('/&id=\w*/', '', $qs);
                   header("Location: ". _PROTOCOL_ . $_SERVER['HTTP_HOST'] . dirname($_SERVER['PHP_SELF']) . "/index.php?$qs");
                   return;
                 }
@@ -231,6 +232,7 @@ function createForm($strFunc, $strList, $strForm)
       if (_AUTO_CLOSE_FORM_)
       {
         $qs = preg_replace('/&form=\w*/', '', $_SERVER['QUERY_STRING']);
+        $qs = preg_replace('/&id=\w*/', '', $qs);
         header("Location: ". _PROTOCOL_ . $_SERVER['HTTP_HOST'] . dirname($_SERVER['PHP_SELF']) . "/index.php?$qs");
         return;
       }

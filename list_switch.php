@@ -25,8 +25,11 @@ Tämä ohjelma on vapaa. Lue oheinen LICENSE.
 
 $strTable = '';
 $strFilter = '';
-switch ( $strList ) {
+switch ( $strList ? $strList : $strFunc ) {
 
+/***********************************************************************
+    LISTS
+***********************************************************************/
 case 'companies':
    $strTable = '{prefix}company';
    $astrSearchFields = 
@@ -47,26 +50,6 @@ case 'companies':
     );
    $strMainForm = "company";
    $strTitle = $GLOBALS['locCOMPANIES'];
-break;
-
-case 'product':
-   $strTable = '{prefix}product';
-   $astrSearchFields = 
-    array( 
-        array("name" => "product_name", "type" => "TEXT"),
-        array("name" => "product_id", "type" => "TEXT")
-    );
-   $strPrimaryKey = "id";
-   $astrShowFields = 
-    array( 
-        array("name" => "product_name", 'width' => 200, "type" => "TEXT", "header" => $GLOBALS['locPRODUCTNAME']),
-        array("name" => "product_code", 'width' => 150, "type" => "TEXT", "header" => $GLOBALS['locPRODUCTCODE']),
-        array("name" => "product_group", 'width' => 150, "type" => "TEXT", "header" => $GLOBALS['locPRODUCTGROUP']),
-        array("name" => "unit_price", 'width' => 100, "type" => "TEXT", "header" => $GLOBALS['locUNITPRICE'])
-    );
-   
-   $strMainForm = "product";
-   $strTitle = $GLOBALS['locPRODUCTS'];
 break;
 
 case 'archived_invoices':
@@ -96,12 +79,9 @@ case 'invoices':
    $strMainForm = "invoice";
    $strTitle = $GLOBALS['locINVOICES'];
 break;
-/***********************************************************************
-    END SEARCH LISTS - HAKU
-***********************************************************************/
 
 /***********************************************************************
-    SYSTEM LISTS - JÄRJESTELMÄ
+    SETTINGS
 ***********************************************************************/
 case 'base_info':
    $strTable = "{prefix}base";
@@ -138,7 +118,27 @@ case 'invoice_state':
    $strMainForm = "invoice_state";
    $strTitle = $GLOBALS['locINVOICESTATES'];
 break;
+
+case 'product':
+   $strTable = '{prefix}product';
+   $astrSearchFields = 
+    array( 
+        array("name" => "product_name", "type" => "TEXT"),
+        array("name" => "product_code", "type" => "TEXT")
+    );
+   $strPrimaryKey = "id";
+   $astrShowFields = 
+    array( 
+        array("name" => "product_name", 'width' => 200, "type" => "TEXT", "header" => $GLOBALS['locPRODUCTNAME']),
+        array("name" => "product_code", 'width' => 150, "type" => "TEXT", "header" => $GLOBALS['locPRODUCTCODE']),
+        array("name" => "product_group", 'width' => 150, "type" => "TEXT", "header" => $GLOBALS['locPRODUCTGROUP']),
+        array("name" => "unit_price", 'width' => 100, "type" => "TEXT", "header" => $GLOBALS['locUNITPRICE'])
+    );
    
+   $strMainForm = "product";
+   $strTitle = $GLOBALS['locPRODUCTS'];
+break;
+
 case 'row_type':
    $strTable = "{prefix}row_type";
    $astrSearchFields = 
@@ -156,23 +156,9 @@ case 'row_type':
    $strTitle = $GLOBALS['locROWTYPES'];
 break;
 
-case 'company_type':
-   $strTable = "{prefix}company_type";
-   $astrSearchFields = 
-    array( 
-        array("name" => "name", "type" => "TEXT")
-    );
-   $strPrimaryKey = "id";
-   $astrShowFields = 
-    array( 
-        array("name" => "order_no", "type" => "TEXT", "header" => $GLOBALS['locORDERNO']),
-        array("name" => "name", "type" => "TEXT", "header" => $GLOBALS['locCOMPTYPE'])
-    );
-    //array('order_no','name');
-   $strMainForm = "company_type";
-   $strTitle = $GLOBALS['locCOMPANYTYPES'];
-break;
-   
+/***********************************************************************
+    SYSTEM
+***********************************************************************/
 case 'session_type':
    $strTable = "{prefix}session_type";
    $astrSearchFields = 
@@ -205,10 +191,6 @@ case 'user':
    $strMainForm = "user";
    $strTitle = $GLOBALS['locUSERS'];
 break;
-
-/***********************************************************************
-    END SYSTEM LISTS - JÄRJESTELMÄ
-***********************************************************************/
 
 default :
     break;
