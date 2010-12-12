@@ -327,7 +327,7 @@ for( $j = 0; $j < count($astrFormElements); $j++ ) {
     <td class="button" <?php echo $strRowSpan?>>
         <br/>
         <input type="hidden" name="add_x" value="0">
-        <a class="tinyactionlink" href="#" title="<?php echo $GLOBALS['locADD']?>" onclick="self.document.forms[0].add_x.value=1; self.document.forms[0].submit(); return false;"> + </a>
+        <a class="tinyactionlink" href="#" onclick="self.document.forms[0].add_x.value=1; self.document.forms[0].submit(); return false;"><?php echo $GLOBALS['locADDROW']?></a>
     </td>
 </tr>
 
@@ -373,10 +373,10 @@ for($i = 0; $i < count($astrOldValues); $i++ ) {
 <?php
 if( $strMode == "MODIFY" ) {
 ?>
-    <td>
+    <td class="button">
         <a class="tinyactionlink" href="#" onclick="OpenPop('<?php echo $strPopLinkEdit?>', event); return false;"><?php echo $GLOBALS['locEDIT']?></a>
     </td>
-    <td>
+    <td class="button">
         <a class="tinyactionlink" href="#" onclick="OpenPop('<?php echo $strPopLinkCopy?>', event); return false;"><?php echo $GLOBALS['locCOPY']?></a>
     </td>
 <?php

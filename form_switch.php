@@ -41,6 +41,7 @@ Tämä ohjelma on vapaa. Lue oheinen LICENSE.
 
 $strListTableAlias = '';
 $strOrder = '';
+$levelsAllowed = array(1);
 switch ( $strForm ) {
 
 case 'company':
@@ -92,7 +93,7 @@ case 'company':
      array(
         "name" => "info", "label" => $GLOBALS['locINFO'], "type" => "AREA", "style" => "medium", "listquery" => "", "position" => 2, "default" => FALSE, "allow_null" => TRUE ),
      array(
-        "name" => "company_contact", "label" => $GLOBALS['locCONTACTS'], "type" => "IFORM", "style" => "full", "listquery" => "", "position" => 0, "default" => FALSE, "allow_null" => TRUE, "parent_key" => "company_id" )
+        "name" => "company_contact", "label" => $GLOBALS['locCONTACTS'], "type" => "IFORM", "style" => "xfull", "listquery" => "", "position" => 0, "default" => FALSE, "allow_null" => TRUE, "parent_key" => "company_id" )
     );
 break;
 
@@ -109,10 +110,9 @@ case 'company_contact':
          array(
             "name" => "contact_person", "label" => $GLOBALS['locCONTACTPERSON'], "type" => "TEXT", "style" => "medium", "listquery" => "", "position" => 0, "default" => FALSE, "allow_null" => FALSE ),
          array(
-            "name" => "person_title", "label" => $GLOBALS['locPERSONTITLE'], "type" => "TEXT", "style" => "medium", "listquery" => "SELECT id, name FROM {prefix}person_title ORDER BY order_no;", "position" => 0, "default" => FALSE, "allow_null" => TRUE ),
+            "name" => "person_title", "label" => $GLOBALS['locPERSONTITLE'], "type" => "TEXT", "style" => "small", "listquery" => "SELECT id, name FROM {prefix}person_title ORDER BY order_no;", "position" => 0, "default" => FALSE, "allow_null" => TRUE ),
          array(
             "name" => "phone", "label" => $GLOBALS['locPHONE'], "type" => "TEXT", "style" => "medium", "listquery" => "", "position" => 0, "default" => FALSE, "allow_null" => TRUE ),
-         array("type" => "NEWLINE"),
          array(
             "name" => "gsm", "label" => $GLOBALS['locGSM'], "type" => "TEXT", "style" => "medium", "listquery" => "", "position" => 0, "default" => FALSE, "allow_null" => TRUE ),
          array(
@@ -381,6 +381,7 @@ case 'invoice_state':
     $strTable = '{prefix}invoice_state';
     $strPrimaryKey = "id";
     
+    $elem_attributes = '';
     $intId = getRequest('id', FALSE);
     if ($intId && $intId <= 7)
     {
@@ -417,6 +418,7 @@ case 'row_type':
 break;
 
 case 'session_type':
+    $levelsAllowed = array(99);
     $strTable = '{prefix}session_type';
     $strPrimaryKey = "id";
     $astrFormElements =
@@ -433,6 +435,7 @@ case 'session_type':
 break;
 
 case 'user':
+    $levelsAllowed = array(99);
     $strTable = '{prefix}users';
     $strPrimaryKey = "id";
     $astrFormElements =
@@ -459,10 +462,6 @@ case 'company_type':
             "name" => "order_no", "label" => $GLOBALS['locORDERNO'], "type" => "INT", "style" => "short", "listquery" => "", "position" => 2, "default" => FALSE, "allow_null" => FALSE )
         );
 break;
-
-    default :
-        echo "What would you like me to do?"; die;
-    break;
 }
 
 // Clean up the array

@@ -25,6 +25,7 @@ Tämä ohjelma on vapaa. Lue oheinen LICENSE.
 
 $strTable = '';
 $strFilter = '';
+$levelsAllowed = array(1);
 switch ( $strList ? $strList : $strFunc ) {
 
 /***********************************************************************
@@ -160,6 +161,7 @@ break;
     SYSTEM
 ***********************************************************************/
 case 'session_type':
+   $levelsAllowed = array(99);
    $strTable = "{prefix}session_type";
    $astrSearchFields = 
     array( 
@@ -177,6 +179,7 @@ case 'session_type':
 break;
    
 case 'user':
+   $levelsAllowed = array(99);
    $strTable = "{prefix}users";
    $astrSearchFields = 
     array( 

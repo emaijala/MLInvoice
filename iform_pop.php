@@ -251,7 +251,7 @@ if( $blnDelete && $intKeyValue ) {
     //send query to database
     mysql_param_query($strQuery, array($intKeyValue));
     //dispose the primarykey value
-    unset($intKeyValue);
+    $intKeyValue = '';
     //clear form elements
     unset($astrValues);
     $blnNew = TRUE;
@@ -312,7 +312,7 @@ if( $intKeyValue ) {
         echo $GLOBALS['locENTRYDELETED']; die;
     }
 }
-//print_r($astrValues);
+
 ?>
 <body class="iform" onload="<?php echo $strOnLoad?>">
 <script type="text/javascript">
@@ -339,7 +339,7 @@ for( $j = 0; $j < count($astrFormElements); $j++ ) {
 ?>
     <td class="label">
         <?php echo $astrFormElements[$j]['label']?><br>
-        <?php echo htmlFormElement( $astrFormElements[$j]['name'],$astrFormElements[$j]['type'], gpcStripSlashes($astrValues[$astrFormElements[$j]['name']]), $astrFormElements[$j]['style'],$astrFormElements[$j]['listquery'])?>
+        <?php echo htmlFormElement( $astrFormElements[$j]['name'],$astrFormElements[$j]['type'], gpcStripSlashes(isset($astrValues[$astrFormElements[$j]['name']]) ? $astrValues[$astrFormElements[$j]['name']] : ''), $astrFormElements[$j]['style'],$astrFormElements[$j]['listquery'])?>
     </td>
 <?php
     }

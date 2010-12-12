@@ -32,6 +32,16 @@ function createForm($strFunc, $strList, $strForm)
 {
   require "form_switch.php";
   
+  if (!in_array($_SESSION['sesACCESSLEVEL'], $levelsAllowed) && $_SESSION['sesACCESSLEVEL'] != 99 )
+  {
+?>
+  <div class="form_container">
+    <?php echo $GLOBALS['locNOACCESS'] . "\n"?>
+  </div>
+<?php
+    return;
+  }
+  
   $blnNew = getPostRequest('newact', FALSE);
   $blnCopy = getPostRequest('copyact', FALSE) ? TRUE : FALSE;
   $blnSave = getPostRequest('saveact', FALSE) ? TRUE : FALSE;

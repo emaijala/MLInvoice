@@ -27,7 +27,6 @@ function sesCreateSession($strLogin, $strPasswd)
 {
     if ($strLogin && $strPasswd) 
     {
-        session_start();
         $key = $_SESSION['key'];
         $keytime = $_SESSION['keytime'];
         if (!$key || time() - $keytime > 300)

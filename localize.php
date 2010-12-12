@@ -155,6 +155,7 @@ default :
     $GLOBALS['locSYSTEMONLY'] = 'Järjestelmän sisäinen - ei muokattavissa';
     $GLOBALS['locWRONGSTATEFORREMINDERFEED'] = 'Maksuja ei voida lisätä laskun nykyisessä tilassa.';
     $GLOBALS['locRECORDDELETED'] = 'Tiedot on poistettu.';
+    $GLOBALS['locNOACCESS'] = 'Käyttöoikeudet eivät riitä.';
     
     //FORM BUTTON HELPERS
     $GLOBALS['locSAVE'] = 'Tallenna';
@@ -172,7 +173,7 @@ default :
     $GLOBALS['locDELETE'] = 'Poista';
     $GLOBALS['locPRINTADDR'] = 'Tulosta osoite';
     $GLOBALS['locPRINTINV'] = 'Tulosta lasku';
-    $GLOBALS['locADD'] = 'Lisää rivi';
+    $GLOBALS['locADDROW'] = 'Lisää rivi';
     $GLOBALS['locDELROW'] = 'Poista rivi';
     $GLOBALS['locYES'] = 'Kyllä';
     $GLOBALS['locNO'] = 'Ei';

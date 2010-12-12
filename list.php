@@ -28,6 +28,16 @@ function createList($strFunc, $strList)
   
   require "list_switch.php";
   
+  if (!in_array($_SESSION['sesACCESSLEVEL'], $levelsAllowed) && $_SESSION['sesACCESSLEVEL'] != 99 )
+  {
+?>
+  <div class="form_container">
+    <?php echo $GLOBALS['locNOACCESS'] . "\n"?>
+  </div>
+<?php
+    return;
+  }
+
   if (!$strTable)
     return;
   
