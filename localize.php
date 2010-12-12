@@ -173,7 +173,7 @@ default :
     $GLOBALS['locDELETE'] = 'Poista';
     $GLOBALS['locPRINTADDR'] = 'Tulosta osoite';
     $GLOBALS['locPRINTINV'] = 'Tulosta lasku';
-    $GLOBALS['locADDROW'] = 'Lis‰‰ rivi';
+    $GLOBALS['locADDROW'] = 'Lis‰‰&nbsp;rivi';
     $GLOBALS['locDELROW'] = 'Poista rivi';
     $GLOBALS['locYES'] = 'Kyll‰';
     $GLOBALS['locNO'] = 'Ei';
