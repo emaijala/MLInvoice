@@ -236,8 +236,8 @@ function printReport()
   for( $i = 0; $i < $intNumRows; $i++ ) {
       $intStateId = mysql_result($intRes, $i, "id");
       $strStateName = mysql_result($intRes, $i, "name");
-      $strTemp = "stateid_". $intStateId;
-      $tmpSelected = getPost($strTemp, FALSE) ? TRUE : FALSE;
+      $strTemp = "stateid_$intStateId";
+      $tmpSelected = getRequest($strTemp, FALSE) ? TRUE : FALSE;
       if( $tmpSelected ) {
           $strQuery2 .= 
               ' i.state_id = ? OR ';
