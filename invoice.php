@@ -263,12 +263,7 @@ $pdf->SetY($pdf->GetY()+5);
 $pdf->Line(5, $pdf->GetY(), 200, $pdf->GetY());
 $pdf->SetY($pdf->GetY()+5);
 
-if( _SHOW_BARCODE_ ) {
-    $intStartY = 190;
-}
-else {
-    $intStartY = 205;
-}
+$intStartY = 190;
 $intMaxRowsY = $intStartY - 35;
 
 if( $intNRes <= _INVOICE_PDF_ROWS_ && !isset($boolSeparateStatement)) {
@@ -418,7 +413,7 @@ $pdf->Cell(10, 2.8, "BIC", 0, 1, "L");
 $pdf->SetFont('Helvetica','',10);
 $pdf->SetXY($intStartX + 22, $intStartY + 1);
 $pdf->Cell(15, 4, $strBankName1, 0, 0, "L");
-$pdf->SetX($intStartX + 52);
+$pdf->SetX($intStartX + 65);
 $pdf->Cell(40, 4, $strBankAccount1, 0, 0, "L");
 $pdf->SetX($intStartX + 120.4);
 $pdf->Cell(50, 4, $strBankIBAN1, 0, 0, "L");
@@ -428,7 +423,7 @@ $pdf->Cell(15, 4, $strBankSWIFTBIC1, 0, 0, "L");
 // account 2
 $pdf->SetXY($intStartX + 22, $intStartY + 5);
 $pdf->Cell(15, 4, $strBankName2, 0, 0, "L");
-$pdf->SetX($intStartX + 52);
+$pdf->SetX($intStartX + 65);
 $pdf->Cell(40, 4, $strBankAccount2, 0, 0, "L");
 $pdf->SetX($intStartX + 120.4);
 $pdf->Cell(50, 4, $strBankIBAN2, 0, 0, "L");
@@ -438,7 +433,7 @@ $pdf->Cell(15, 4, $strBankSWIFTBIC2, 0, 0, "L");
 // account 3
 $pdf->SetXY($intStartX + 22, $intStartY + 9);
 $pdf->Cell(15, 4, $strBankName3, 0, 0, "L");
-$pdf->SetX($intStartX + 52);
+$pdf->SetX($intStartX + 65);
 $pdf->Cell(40, 4, $strBankAccount3, 0, 0, "L");
 $pdf->SetX($intStartX + 120.4);
 $pdf->Cell(50, 4, $strBankIBAN3, 0, 0, "L");
@@ -484,9 +479,9 @@ $pdf->Cell(70, 5, cond_utf8_encode('Referensnumret bör alltid anges vid betalnin
 //terms
 $pdf->SetFont('Helvetica','',5);
 $pdf->SetXY($intStartX + 133, $intStartY + 85);
-$pdf->MultiCell(70, 2, cond_utf8_encode('Maksu välitetään saajalle maksujenvälityksen ehtojen mukaisesti ja vain\nmaksajan ilmoittaman tilinumeron perusteella'),0,1);
+$pdf->MultiCell(70, 2, cond_utf8_encode("Maksu välitetään saajalle maksujenvälityksen ehtojen mukaisesti ja vain\nmaksajan ilmoittaman tilinumeron perusteella"),0,1);
 $pdf->SetXY($intStartX + 133, $intStartY + 90);
-$pdf->MultiCell(70, 2, cond_utf8_encode('Betalningen förmedlas till mottagaren enligt villkoren för betalnings-\nförmedling och endast till det kontonummer som betalaren angivit'),0,1);
+$pdf->MultiCell(70, 2, cond_utf8_encode("Betalningen förmedlas till mottagaren enligt villkoren för betalnings-\nförmedling och endast till det kontonummer som betalaren angivit"),0,1);
 $pdf->SetFont('Helvetica','',6);
 $pdf->SetXY($intStartX + 133, $intStartY + 95);
 $pdf->Cell($intMaxX + 1 - 133 - $intStartX, 5, "PANKKI BANKEN", 0, 1, "R");

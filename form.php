@@ -57,6 +57,7 @@ function createForm($strFunc, $strList, $strForm)
       unset($intKeyValue);
       unset($astrValues);
       unset($_POST);
+      unset($_REQUEST);
   }
   
   //initialize elements
@@ -308,8 +309,6 @@ function createForm($strFunc, $strList, $strForm)
           echo $GLOBALS['locENTRYDELETED']; die;
       }
   }
-  
-  //print_r($astrFormElements[16]);
   
   if( $blnCopy ) {
       unset($intKeyValue);

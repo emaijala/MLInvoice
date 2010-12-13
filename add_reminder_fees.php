@@ -50,12 +50,20 @@ if( $intInvoiceId ) {
     }
     
     $intDaysOverdue = floor((time() - strtotime($strDueDate)) / 60 / 60 / 24);
-    if ($intDaysOverdue > 0 && ($intStateId == 1 || $intStateId == 2 || $intStateId == 5 || $intStateId == 6))
+    if ($intDaysOverdue <= 0)
+    {
+      $strAlert = addslashes($GLOBALS['locINVOICENOTOVERDUE']);
+    }
+    elseif ($intStateId == 3 || $intStateId == 4)
+    {
+      $strAlert = addslashes($GLOBALS['locWRONGSTATEFORREMINDERFEED']);
+    }
+    else
     {
       // Update invoice state
       if ($intStateId == 1 || $intStateId == 2)
         $intStateId = 5;
-      else
+      elseif ($intStateId == 5)
         $intStateId = 6;
       mysql_param_query('UPDATE {prefix}invoice SET state_id = ? where id = ?', array($intStateId, $intInvoiceId));
       
@@ -101,10 +109,6 @@ if( $intInvoiceId ) {
           'VALUES (?, ?, 1, ?, ?, 0, 0, 1)';
         mysql_param_query($strQuery, array($intInvoiceId, $GLOBALS['locPENALTYINTERESTDESC'], $intPenalty, date('Ymd')));
       }
-    }
-    else
-    {
-      $strAlert = addslashes($GLOBALS['locWRONGSTATEFORREMINDERFEED']);
     }
 }
 

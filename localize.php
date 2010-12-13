@@ -153,7 +153,8 @@ default :
     $GLOBALS['locDBERRORDESC'] = 'Tietokantavirhe: ';
     $GLOBALS['locDBERRORFOREIGNKEY'] = 'Toiminto ei onnistunut, koska tietueeseen on viittauksia muualta.';
     $GLOBALS['locSYSTEMONLY'] = 'Järjestelmän sisäinen - ei muokattavissa';
-    $GLOBALS['locWRONGSTATEFORREMINDERFEED'] = 'Maksuja ei voida lisätä laskun nykyisessä tilassa.';
+    $GLOBALS['locINVOICENOTOVERDUE'] = 'Maksuja ei voida lisätä laskulle, jonka eräpäivä ei ole vielä mennyt.';
+    $GLOBALS['locWRONGSTATEFORREMINDERFEED'] = 'Maksuja ei voida lisätä maksetulle tai mitätöidylle laskulle.';
     $GLOBALS['locRECORDDELETED'] = 'Tiedot on poistettu.';
     $GLOBALS['locNOACCESS'] = 'Käyttöoikeudet eivät riitä.';
     

@@ -234,6 +234,12 @@ select.normal {
  font-weight: normal;
  padding: 0px 0px 0px 0px;
 }
+select.small {
+ width: 100px;
+}
+select.medium {
+ width: 160px;
+}
 
 textarea {
  font-size: 12px;
