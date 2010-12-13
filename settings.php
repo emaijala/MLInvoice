@@ -84,8 +84,8 @@ define ('_ADD_REFERENCE_NUMBER_', TRUE); // TRUE = kyll‰ tai FALSE = ei
 // Oletus-alv
 define ('_DEFAULT_VAT_', 23);
 
-// Maksuehdot
-define ('_TERMS_OF_PAYMENT_', '14 pv netto'); 
+// Maksuehdot (%d korvataan p‰ivien m‰‰r‰ll‰ laskun p‰iv‰st‰ er‰p‰iv‰‰n)
+define ('_TERMS_OF_PAYMENT_', '%d pv netto'); 
 
 // Huomautusaika
 define ('_PERIOD_FOR_COMPLAINTS_', '7 p‰iv‰‰'); 

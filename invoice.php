@@ -224,7 +224,10 @@ $pdf->Cell(40, 5, $GLOBALS['locPDFDUEDATE'] .": ", 0, 0, 'R');
 $pdf->Cell(60, 5, $strDueDate, 0, 1);
 $pdf->SetX(115);
 $pdf->Cell(40, 5, $GLOBALS['locTERMSOFPAYMENT'] .": ", 0, 0, 'R');
-$pdf->Cell(60, 5, _TERMS_OF_PAYMENT_, 0, 1);
+$paymentDays = strDate2UnixTime($strDueDate)/3600/24 - strDate2UnixTime($strInvoiceDate)/3600/24;
+if ($paymentDays < 0) //weird
+  $paymentDays = _PAYMENT_DAYS_;
+$pdf->Cell(60, 5, sprintf(_TERMS_OF_PAYMENT_, $paymentDays), 0, 1);
 $pdf->SetX(115);
 $pdf->Cell(40, 5, $GLOBALS['locPERIODFORCOMPLAINTS'] .": ", 0, 0, 'R');
 $pdf->Cell(60, 5, _PERIOD_FOR_COMPLAINTS_, 0, 1);
