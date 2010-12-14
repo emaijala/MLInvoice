@@ -264,7 +264,7 @@ default :
     $GLOBALS['locMAYCLOSE'] = 'Voit sulkea t‰m‰n ikkunan!';
     $GLOBALS['locGET'] = 'Hae';
     
-    //INVOICE-PDF        
+    //INVOICE PDF        
     $GLOBALS['locINVOICEHEADER'] = 'LASKU';
     $GLOBALS['locPERIODFORCOMPLAINTS'] = 'Huomautusaika';
     $GLOBALS['locPENALTYINTEREST'] = 'Viiv‰styskorko';
@@ -280,6 +280,7 @@ default :
     $GLOBALS['locTOTALVAT'] = 'Arvonlis‰vero yhteens‰';
     $GLOBALS['locTOTALINCLUDINGVAT'] = 'Arvonlis‰verollinen hinta yhteens‰';
     $GLOBALS['locSEESEPARATESTATEMENT'] = 'ks. erillinen laskuerittely';
+    $GLOBALS['locINVOICESTATEMENT'] = 'Laskuerittely';
     $GLOBALS['locVATREG'] = 'ALV-rek.';
     $GLOBALS['locINVNUMBER'] = 'Laskun numero';
     $GLOBALS['locPDFINVDATE'] = 'Laskun p‰iv‰m‰‰r‰';

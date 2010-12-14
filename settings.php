@@ -97,3 +97,7 @@ define ('_PENALTY_INTEREST_PERCENT_', 8);
 
 // Huomautusmaksu
 define ('_NOTIFICATION_FEE_', 5); 
+
+// Lasku-PDF:n tiedostonimi (%s korvataan laskun numerolla)
+define ('_INVOICE_PDF_FILENAME_', 'lasku_%s.pdf');
+

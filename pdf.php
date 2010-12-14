@@ -13,14 +13,14 @@ class PDF extends TCPDF
   {
     if ($this->PageNo() == 1)
       return;
-    $this->SetY(-15);
+    $this->SetY(-17);
     $this->SetFont('Helvetica','',7);
     $this->SetX(7);
-    $this->Cell(75, 5, $this->footerLeft, 0, 0, "L");
+    $this->MultiCell(75, 5, $this->footerLeft, 0, "L", 0, 0);
     $this->SetX(75);
-    $this->Cell(75, 5, $this->footerCenter, 0, 0, "C");
+    $this->MultiCell(75, 5, $this->footerCenter, 0, "C", 0, 0);
     $this->SetX(150);
-    $this->Cell(50, 5, $this->footerRight, 0, 0, "R");
+    $this->MultiCell(50, 5, $this->footerRight, 0, "R", 0, 0);
   }
 
   // Disable openssl_random_pseudo_bytes call as it's very slow on Windows  

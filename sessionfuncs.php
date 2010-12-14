@@ -69,7 +69,8 @@ function sesEndSession()
 
 function sesVerifySession($redirect = TRUE) 
 {
-    session_start();
+    if (!session_id())
+      session_start();
     if (isset($_SESSION['REMOTE_ADDR']) && $_SESSION['REMOTE_ADDR'] == $_SERVER['REMOTE_ADDR'] && time() <= $_SESSION['ACCESSTIME'] + $_SESSION['sesTIMEOUT'])
     {
       $_SESSION['ACCESSTIME'] = time();

@@ -94,7 +94,6 @@ function strDate2UnixTime($strDate)
     $astrTmp = explode(".", $strDate);
     if (count($astrTmp) < 3)
       return 0;
-    error_log("Mon: $astrTmp[1], day: $astrTmp[0], year: $astrTmp[2]");
     return mktime(0, 0, 0, $astrTmp[1], $astrTmp[0], $astrTmp[2]); 
 }
 

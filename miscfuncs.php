@@ -46,6 +46,14 @@ function gpcStripSlashes($strString) {
    return $strString;
 }
 
+
+function cond_utf8_encode($str)
+{
+  if (_CHARSET_ == 'UTF-8')
+    return utf8_encode($str);
+  return $str;
+}
+
 function miscRound2Decim( $intValue, $intDecim = 2 ) {
     return number_format($intValue, $intDecim, ',', '');
 }

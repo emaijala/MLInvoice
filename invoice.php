@@ -23,11 +23,11 @@ Tämä ohjelma on vapaa. Lue oheinen LICENSE.
 
 *******************************************************************************/
 
-require_once "sqlfuncs.php";
 require_once "sessionfuncs.php";
 
 sesVerifySession();
 
+require_once "sqlfuncs.php";
 require_once "localize.php";
 require_once "pdf.php";
 require_once "datefuncs.php";
@@ -35,149 +35,150 @@ require_once "miscfuncs.php";
 
 $intInvoiceId = getRequest('id', FALSE);
 
-function cond_utf8_encode($str)
-{
-  if (_CHARSET_ == 'UTF-8')
-    return utf8_encode($str);
-  return $str;
+if (!$intInvoiceId) 
+  return;
+  
+$strQuery = 
+    "SELECT inv.invoice_no, inv.invoice_date, inv.due_date, inv.ref_number, inv.name AS invoice_name, inv.reference, comp.company_name AS name, '' AS contact_person, comp.email, comp.billing_address, CONCAT(comp.company_name, '\n', comp.street_address, '\n', comp.zip_code, ' ', comp.city) AS billing_address2, inv.base_id, inv.state_id, inv.print_date, comp.customer_no, ref.invoice_no as refunded_invoice_no " .
+    "FROM {prefix}invoice inv " .
+    "INNER JOIN {prefix}company comp ON comp.id = inv.company_id ".
+    "LEFT OUTER JOIN {prefix}invoice ref ON ref.id = inv.refunded_invoice_id ".
+    "WHERE inv.id = ?";
+$intRes = mysql_param_query($strQuery, array($intInvoiceId));
+if ($row = mysql_fetch_assoc($intRes)) {
+   $strInvoiceName = $row['invoice_name'];
+   $intBaseId = $row['base_id'];
+   $intStateId = $row['state_id'];
+   $intCustomerNo = $row['customer_no'];
+   $strInvoiceNo = $row['invoice_no'];
+   $strRefundedInvoiceNo = $row['refunded_invoice_no'];
+   $strRefNumber = $row['ref_number'];
+   $strInvoiceDate = dateConvIntDate2Date($row['invoice_date']);
+   $strDueDate = dateConvIntDate2Date($row['due_date']);
+   $strFormDueDate = ($intStateId == 5 || $intStateId == 6) ? $GLOBALS['locDUEDATENOW'] : $strDueDate;
+   $strPrintDate = $row['print_date'];
+   $strReference = $row['reference'];
+   $strBillingAddress = $row['billing_address'];
+   if( !$strBillingAddress ) {
+       $strBillingAddress = $row['billing_address2'];
+   }
+   $strCompanyName = substr($strBillingAddress, 0, strpos($strBillingAddress, "\n"));
+   $strCompanyAddress = substr($strBillingAddress, strpos($strBillingAddress, "\n")+1);
+   $strName = $row['name'];
+   $strContactPerson = $row['contact_person'];
+   $strCompanyEmail = $row['email'];
+   
+   $strReference = $strReference ? $strReference : $strContactPerson;
 }
+$strRefNumber = trim(strrev(chunk_split(strrev($strRefNumber),5,' ')));
 
-if( $intInvoiceId ) {
-    $strQuery = 
-        "SELECT inv.invoice_no, inv.invoice_date, inv.due_date, inv.ref_number, inv.name AS invoice_name, inv.reference, comp.company_name AS name, '' AS contact_person, comp.email, comp.billing_address, CONCAT(comp.company_name, '\n', comp.street_address, '\n', comp.zip_code, ' ', comp.city) AS billing_address2, inv.base_id, inv.state_id, inv.print_date, comp.customer_no, ref.invoice_no as refunded_invoice_no " .
-        "FROM {prefix}invoice inv " .
-        "INNER JOIN {prefix}company comp ON comp.id = inv.company_id ".
-        "LEFT OUTER JOIN {prefix}invoice ref ON ref.id = inv.refunded_invoice_id ".
-        "WHERE inv.id = ?";
-    $intRes = mysql_param_query($strQuery, array($intInvoiceId));
-    if ($row = mysql_fetch_assoc($intRes)) {
-       $strInvoiceName = $row['invoice_name'];
-       $intBaseId = $row['base_id'];
-       $intStateId = $row['state_id'];
-       $intCustomerNo = $row['customer_no'];
-       $strInvoiceNo = $row['invoice_no'];
-       $strRefundedInvoiceNo = $row['refunded_invoice_no'];
-       $strRefNumber = $row['ref_number'];
-       $strInvoiceDate = dateConvIntDate2Date($row['invoice_date']);
-       $strDueDate = dateConvIntDate2Date($row['due_date']);
-       $strFormDueDate = ($intStateId == 5 || $intStateId == 6) ? $GLOBALS['locDUEDATENOW'] : $strDueDate;
-       $strPrintDate = $row['print_date'];
-       $strReference = $row['reference'];
-       $strBillingAddress = $row['billing_address'];
-       if( !$strBillingAddress ) {
-           $strBillingAddress = $row['billing_address2'];
-       }
-       $strCompanyName = substr($strBillingAddress, 0, strpos($strBillingAddress, "\n"));
-       $strCompanyAddress = substr($strBillingAddress, strpos($strBillingAddress, "\n")+1);
-       $strName = $row['name'];
-       $strContactPerson = $row['contact_person'];
-       $strCompanyEmail = $row['email'];
-       
-       $strReference = $strReference ? $strReference : $strContactPerson;
-    }
-    $strRefNumber = trim(strrev(chunk_split(strrev($strRefNumber),5,' ')));
-    
-    mysql_param_query('UPDATE {prefix}invoice SET print_date = ? where id = ?', array(date('Ymd'), $intInvoiceId));
-    
-    $strSelect = 'SELECT * FROM {prefix}base WHERE id = ?';
-    $intRes = mysql_param_query($strSelect, array($intBaseId));
-    $row = mysql_fetch_assoc($intRes);
-    $strAssociation = $row['name'];
-    $strCompanyID = $row['company_id'];
-    $strAssociation = $row['name'];
-    $strContactPerson = $row['contact_person'];
-    $strStreetAddress = $row['street_address'];
-    $strZipCode = $row['zip_code'];
-    $strCity = $row['city'];
-    $strPhone = $row['phone'];
-    $strBankName1 = $row['bank_name'];
-    $strBankAccount1 = $row['bank_account'];
-    $strBankIBAN1 = $row['bank_iban'];
-    $strBankSWIFTBIC1 = $row['bank_swiftbic'];
-    $strBankName2 = $row['bank_name2'];
-    $strBankAccount2 = $row['bank_account2'];
-    $strBankIBAN2 = $row['bank_iban2'];
-    $strBankSWIFTBIC2 = $row['bank_swiftbic2'];
-    $strBankName3 = $row['bank_name3'];
-    $strBankAccount3 = $row['bank_account3'];
-    $strBankIBAN3 = $row['bank_iban3'];
-    $strBankSWIFTBIC3 = $row['bank_swiftbic3'];
-    $strWww = $row['www'];
-    $strEmail = $row['email'];
-    $boolVATReg = $row['vat_registered'];
-        
-    $strAssocAddressLine = 
-        $strAssociation. "   ". $strStreetAddress. " ". $strZipCode. " ". $strCity;
-    $strAssocAddress = 
-        $strAssociation. "\n". $strStreetAddress. "\n". $strZipCode. " ". $strCity;
-    $strContactInfo = 
-        $GLOBALS['locCOMPVATID']. ": $strCompanyID";
-    if ($boolVATReg)
-      $strContactInfo .= ' ' . $GLOBALS['locVATREG'];
-    if ($strPhone)
-      $strContactInfo .= '  ' . $GLOBALS['locPHONE']. ": $strPhone";
-    if ($strEmail)
-      $strContactInfo .= '  ' . $GLOBALS['locEMAIL']. ": $strEmail";
-    
-    $strQuery = 
-        "SELECT pr.product_name, ir.description, ir.pcs, ir.price, ir.row_date, ir.vat, ir.vat_included, rt.name type ".
-        "FROM {prefix}invoice_row ir ".
-        "LEFT OUTER JOIN {prefix}row_type rt ON rt.id = ir.type_id ".
-        "LEFT OUTER JOIN {prefix}product pr ON ir.product_id = pr.id ".
-        "WHERE ir.invoice_id = ? ORDER BY ir.order_no, row_date, pr.product_name DESC, ir.description DESC";
-    $intTotSum = 0;
-    $intTotVAT = 0;
-    $intTotSumVAT = 0;
-    $intRes = mysql_param_query($strQuery, array($intInvoiceId));
-    $intNRes = mysql_num_rows($intRes);
-    $i = 0;
-    while($row = mysql_fetch_assoc($intRes)) {
-        $strProduct = trim($row['product_name']);
-        $astrDescription[$i] = trim($row['description']);
-        if ($strProduct)
-        {
-          if ($astrDescription[$i]) 
-            $astrDescription[$i] = $strProduct .  ' (' . $astrDescription[$i] . ')';
-          else
-            $astrDescription[$i] = $strProduct;
-        }
-        $astrRowDate[$i] = dateConvIntDate2Date($row['row_date']);
-        $astrRowPrice[$i] = $row['price'];
-        $astrPieces[$i] = $row['pcs'];
-        $astrVAT[$i] = $row['vat'];
-        $aboolVATIncluded[$i] = $row['vat_included'];
-        $astrRowType[$i] = $row['type'];
+mysql_param_query('UPDATE {prefix}invoice SET print_date = ? where id = ?', array(date('Ymd'), $intInvoiceId));
 
-        if ($aboolVATIncluded[$i])
-        {
-          $intRowSumVAT[$i] = $astrPieces[$i] * $astrRowPrice[$i];
-          
-          $intRowSum[$i] = $intRowSumVAT[$i] / (1 + $astrVAT[$i] / 100);
-          $intRowVAT[$i] = $intRowSumVAT[$i] - $intRowSum[$i];
-          
-          $astrRowPrice[$i] /= (1 + $astrVAT[$i] / 100);
-        }
-        else
-        {
-          $intRowSum[$i] = $astrPieces[$i] * $astrRowPrice[$i];
-          $intRowVAT[$i] = $intRowSum[$i] * ($astrVAT[$i] / 100);
-          $intRowSumVAT[$i] = $intRowSum[$i] + $intRowVAT[$i];
-        }
-        $intTotSum += $intRowSum[$i];
-        $intTotVAT += $intRowVAT[$i];
-        $intTotSumVAT += $intRowSumVAT[$i];
-        ++$i;
+$strSelect = 'SELECT * FROM {prefix}base WHERE id = ?';
+$intRes = mysql_param_query($strSelect, array($intBaseId));
+$row = mysql_fetch_assoc($intRes);
+$strAssociation = $row['name'];
+$strCompanyID = trim($row['company_id']);
+$strAssociation = $row['name'];
+$strContactPerson = $row['contact_person'];
+$strStreetAddress = $row['street_address'];
+$strZipCode = $row['zip_code'];
+$strCity = $row['city'];
+$strPhone = $row['phone'];
+$strBankName1 = $row['bank_name'];
+$strBankAccount1 = $row['bank_account'];
+$strBankIBAN1 = $row['bank_iban'];
+$strBankSWIFTBIC1 = $row['bank_swiftbic'];
+$strBankName2 = $row['bank_name2'];
+$strBankAccount2 = $row['bank_account2'];
+$strBankIBAN2 = $row['bank_iban2'];
+$strBankSWIFTBIC2 = $row['bank_swiftbic2'];
+$strBankName3 = $row['bank_name3'];
+$strBankAccount3 = $row['bank_account3'];
+$strBankIBAN3 = $row['bank_iban3'];
+$strBankSWIFTBIC3 = $row['bank_swiftbic3'];
+$strWww = $row['www'];
+$strEmail = $row['email'];
+$boolVATReg = $row['vat_registered'];
+    
+$strAssocAddressLine = "$strAssociation";
+if ($strCompanyID)
+  $strCompanyID = $GLOBALS['locCOMPVATID'] . ": $strCompanyID";
+if ($strCompanyID && $boolVATReg)
+  $strCompanyID .= ', ';
+if ($boolVATReg)
+  $strCompanyID .= $GLOBALS['locVATREG'];
+if ($strCompanyID)
+  $strAssocAddressLine .= " ($strCompanyID)";
+$strAssocAddressLine .= "\n$strStreetAddress";
+if ($strStreetAddress && ($strZipCode || $strCity))
+  $strAssocAddressLine .= ', ';
+if ($strZipCode)
+  $strAssocAddressLine .= "$strZipCode ";
+$strAssocAddressLine .= $strCity;
+
+$strAssocAddress = 
+    $strAssociation. "\n$strStreetAddress\n$strZipCode $strCity";
+if ($strPhone)
+  $strContactInfo = "\n" . $GLOBALS['locPHONE'] . ": $strPhone";
+else
+  $strContactInfo = '';
+
+$strQuery = 
+    "SELECT pr.product_name, ir.description, ir.pcs, ir.price, ir.row_date, ir.vat, ir.vat_included, rt.name type ".
+    "FROM {prefix}invoice_row ir ".
+    "LEFT OUTER JOIN {prefix}row_type rt ON rt.id = ir.type_id ".
+    "LEFT OUTER JOIN {prefix}product pr ON ir.product_id = pr.id ".
+    "WHERE ir.invoice_id = ? ORDER BY ir.order_no, row_date, pr.product_name DESC, ir.description DESC";
+$intTotSum = 0;
+$intTotVAT = 0;
+$intTotSumVAT = 0;
+$intRes = mysql_param_query($strQuery, array($intInvoiceId));
+$intNRes = mysql_num_rows($intRes);
+$i = 0;
+while($row = mysql_fetch_assoc($intRes)) {
+    $strProduct = trim($row['product_name']);
+    $astrDescription[$i] = trim($row['description']);
+    if ($strProduct)
+    {
+      if ($astrDescription[$i]) 
+        $astrDescription[$i] = $strProduct .  ' (' . $astrDescription[$i] . ')';
+      else
+        $astrDescription[$i] = $strProduct;
     }
-}
-else {
-    die("Invoice id missing");
+    $astrRowDate[$i] = dateConvIntDate2Date($row['row_date']);
+    $astrRowPrice[$i] = $row['price'];
+    $astrPieces[$i] = $row['pcs'];
+    $astrVAT[$i] = $row['vat'];
+    $aboolVATIncluded[$i] = $row['vat_included'];
+    $astrRowType[$i] = $row['type'];
+
+    if ($aboolVATIncluded[$i])
+    {
+      $intRowSumVAT[$i] = $astrPieces[$i] * $astrRowPrice[$i];
+      
+      $intRowSum[$i] = $intRowSumVAT[$i] / (1 + $astrVAT[$i] / 100);
+      $intRowVAT[$i] = $intRowSumVAT[$i] - $intRowSum[$i];
+      
+      $astrRowPrice[$i] /= (1 + $astrVAT[$i] / 100);
+    }
+    else
+    {
+      $intRowSum[$i] = $astrPieces[$i] * $astrRowPrice[$i];
+      $intRowVAT[$i] = $intRowSum[$i] * ($astrVAT[$i] / 100);
+      $intRowSumVAT[$i] = $intRowSum[$i] + $intRowVAT[$i];
+    }
+    $intTotSum += $intRowSum[$i];
+    $intTotVAT += $intRowVAT[$i];
+    $intTotSumVAT += $intRowSumVAT[$i];
+    ++$i;
 }
 $pdf=new PDF('P','mm','A4', _CHARSET_ == 'UTF-8', _CHARSET_, false);
 $pdf->AddPage();
 $pdf->SetAutoPageBreak(FALSE);
 $pdf->footerLeft = $strAssocAddressLine;
 $pdf->footerCenter = $strContactInfo;
-$pdf->footerRight = $strWww;
+$pdf->footerRight = "$strWww\n$strEmail";
 
 //TOP
 
@@ -263,14 +264,14 @@ elseif ($intStateId == 6)
 }
 
 $pdf->SetY($pdf->GetY()+5);
-$pdf->Line(5, $pdf->GetY(), 200, $pdf->GetY());
+$pdf->Line(5, $pdf->GetY(), 202, $pdf->GetY());
 $pdf->SetY($pdf->GetY()+5);
 
-$intStartY = 190;
+$intStartY = 187;
 $intMaxRowsY = $intStartY - 35;
 
-if( $intNRes <= _INVOICE_PDF_ROWS_ && !isset($boolSeparateStatement)) {
-
+if ($intNRes <= _INVOICE_PDF_ROWS_ && !isset($boolSeparateStatement))
+{
   //middle - invoicerows
   //invoiceinfo headers
   $pdf->SetXY(7,$pdf->GetY());
@@ -344,7 +345,6 @@ if( $intNRes <= _INVOICE_PDF_ROWS_ && !isset($boolSeparateStatement)) {
   $pdf->Cell(162, 5, $GLOBALS['locTOTALINCLUDINGVAT'] .": ", 0, 0, "R");
   $pdf->SetX(182);
   $pdf->Cell(20, 5, miscRound2Decim($intTotSumVAT), 0, 1, "R");
-
 }
 else {
     $pdf->SetFont('Helvetica','B',20);
@@ -355,15 +355,15 @@ else {
 //bottom - paymentinfo
 $pdf->SetFont('Helvetica','',7);
 $pdf->SetXY(7, $intStartY);
-$pdf->Cell(66, 5, $strAssocAddressLine, 0, 1, "L");
+$pdf->MultiCell(66, 5, $strAssocAddressLine, 0, "L", 0);
 $pdf->SetXY(75, $intStartY);
-$pdf->Cell(75, 5, $strContactInfo, 0, 1, "C");
+$pdf->MultiCell(75, 5, $strContactInfo, 0, "C", 0);
 $pdf->SetXY(150, $intStartY);
-$pdf->Cell(50, 5, $strWww, 0, 1, "R");
+$pdf->MultiCell(50, 5, "$strEmail\n$strWww", 0, "R", 0);
 
 
 //borders...
-$intStartY = $intStartY + 5;
+$intStartY = $intStartY + 8;
 $intStartX = 7;
 
 $intMaxX = 200;
@@ -558,17 +558,18 @@ if( _SHOW_BARCODE_ && $intTotSumVAT > 0) {
 }
 
 if( $intNRes > _INVOICE_PDF_ROWS_ || isset($boolSeparateStatement)) {
-    $pdf->AddPage();
-    $pdf->SetAutoPageBreak(TRUE, 20);
+  $pdf->AddPage();
+  $pdf->SetAutoPageBreak(TRUE, 20);
   //middle - invoicerows
   //invoiceinfo headers
-  $pdf->SetXY(7,20);
   
   $pdf->SetFont('Helvetica','B',20);
-  $pdf->SetXY(20, $pdf->GetY());
-  $pdf->Cell(80, 5, "Laskuerittely", 0, 0, "L");
+  $pdf->SetXY(7, $pdf->GetY());
+  $pdf->Cell(80, 5, $GLOBALS['locINVOICESTATEMENT'], 0, 0, "L");
   $pdf->SetFont('Helvetica','',10);
-  $pdf->Cell(80, 5, "Laskunro: $strInvoiceNo", 0, 1, "L");
+  $pdf->SetX(115);
+  $pdf->Cell(40, 5, $GLOBALS['locINVNUMBER'] .": ", 0, 0, 'R');
+  $pdf->Cell(60, 5, $strInvoiceNo, 0, 1);
   $pdf->SetXY(7, $pdf->GetY()+10);
   if( _SHOW_INVOICE_ROW_DATE_ ) {
       $pdf->Cell(60, 5, $GLOBALS['locROWNAME'], 0, 0, "L");
@@ -638,5 +639,5 @@ if( $intNRes > _INVOICE_PDF_ROWS_ || isset($boolSeparateStatement)) {
 
 }
 
-$pdf->Output("invoice_". $strInvoiceNo .".pdf","I");
+$pdf->Output(sprintf(_INVOICE_PDF_FILENAME_, $strInvoiceNo), 'I');
 ?>
