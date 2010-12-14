@@ -7,3 +7,5 @@ Asennus:
    5. Muokkaa settings.php -tiedoston asetukset sopiviksi. Toimivuuden kannalta olennaiset asetukset ovat tietokantayhteyteen liittyvät asetukset, jotka löytyvät tiedoston alkupuolelta.
    6. Avaa VLLasku selaimeen ja kirjaudu sisään oletustunnuksilla admin admin
    7. TÄRKEÄÄ: Vaihda admin-käyttäjän salasana kohdasta Järjestelmä -> Käyttäjät
+
+Muista huolehtia VLLaskun tietokannan varmuuskopioinnista!
