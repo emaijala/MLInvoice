@@ -75,6 +75,11 @@ define ('_INVOICE_PDF_ROWS_', 99);
 // Maksupvm lasketaan n‰in monta p‰iv‰‰ tulevaisuuteen
 define ('_PAYMENT_DAYS_', 14); 
 
+// Numeroidaanko laskut laskuttajakohtaisesti (laskuttajakohtaista k‰ytett‰ess‰ kannattanee
+// laittaa allaolevat _ADD_INVOICE_NUMBER_ ja _ADD_REFERENCE_NUMBER_ FALSE:ksi, jolloin 
+// laskuttajakohtainen numero saadaan "Hae p‰iv‰m‰‰r‰t, laskunro ja viitenro" -painikkeella)
+define ('_INVOICE_NUMBERING_PER_BASE_', FALSE); // TRUE = kyll‰ tai FALSE = ei
+
 // Asetetaanko laskun numero automaattisesti uutta laskua teht‰ess‰
 define ('_ADD_INVOICE_NUMBER_', TRUE); // TRUE = kyll‰ tai FALSE = ei
 

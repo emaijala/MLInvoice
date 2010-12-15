@@ -208,7 +208,7 @@ onchange = "$.getJSON('json.php?func=get_company&id=' + document.forms[0].compan
 EOS;
 
    $getInvoiceNo = <<<EOS
-onclick = "$.getJSON('json.php?func=get_invoice_defaults', function(json) { var frm = document.forms[0]; frm.invoice_date.value = json.date; frm.due_date.value = json.due_date; frm.invoice_no.value = json.invoice_no; frm.ref_number.value = json.ref_no;}); return false;"
+onclick = "$.getJSON('json.php?func=get_invoice_defaults&id=' + document.forms[0].id.value + '&base_id=' + document.forms[0].base_id.value, function(json) { var frm = document.forms[0]; frm.invoice_date.value = json.date; frm.due_date.value = json.due_date; frm.invoice_no.value = json.invoice_no; frm.ref_number.value = json.ref_no;}); return false;"
 EOS;
 
    $astrFormElements =
