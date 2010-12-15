@@ -105,4 +105,69 @@ function mysql_param_query($query, $params=false, $noFail=false)
   return mysql_query_check($query);
 } 
 
+function create_db_dump()
+{
+  $in_tables = array('invoice_state', 'row_type', 'company_type', 'base', 'company', 'company_contact',
+    'product', 'invoice', 'invoice_row', 'session_type', 'users', 'quicksearch');
+
+  $filename = 'vllasku_backup_' . date('Ymd') . '.sql';
+  header('Content-type: text/x-sql');
+  header("Content-Disposition: attachment; filename=\"$filename\"");
+
+  if (_CHARSET_ == 'UTF-8')
+    echo("SET NAMES 'utf8';\n\n");
+
+  $tables = array();
+  foreach ($in_tables as $table)
+  { 
+    $tables[] = _DB_PREFIX_ . "_$table";
+  }
+
+  $res = mysql_query_check('SHOW TABLES');
+  while ($row = mysql_fetch_row($res))
+  {
+    if (!in_array($row[0], $tables))
+    {
+      error_log("Adding unlisted table $row[0] to export");
+      $tables[] = $row[0];
+    }
+  }
+  foreach ($tables as $table)
+  {
+    $res = mysql_query_check("show create table `$table`");
+    $row = mysql_fetch_assoc($res);
+    if (!$row)
+      die("Could not read table definition for table $table");
+    echo $row['Create Table'] . ";\n\n";
+    
+    $res = mysql_query_check("select * from `$table`");
+    $field_count = mysql_num_fields($res);
+    $field_defs = array();
+    for ($i = 0; $i < $field_count; $i++)
+    {
+      $field_def = mysql_fetch_field($res, $i);
+      $field_defs[] = $field_def->type;
+    }
+    while ($row = mysql_fetch_row($res))
+    {
+      echo "INSERT INTO `$table` VALUES (";
+      for ($i = 0; $i < $field_count; $i++)
+      {
+        if ($i > 0)
+          echo ', ';
+        $value = $row[$i];
+        $type = $field_defs[$i];
+        if (is_null($value))
+          echo 'null';
+        elseif ($type == 'int' || $type == 'real')
+          echo $value;
+        else
+          echo '\'' . addslashes($value) . '\'';
+      }
+      echo ");\n";
+    }
+    echo "\n";
+  }
+}
+
 ?>

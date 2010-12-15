@@ -44,7 +44,8 @@ function createFuncMenu($strFunc)
       $astrNaviLinks = 
       array( 
           array("href" => "list=user", "text" => $GLOBALS['locUSERS'], "levels_allowed" => array(99)),
-          array("href" => "list=session_type", "text" => $GLOBALS['locSESSIONTYPES'], "levels_allowed" => array(99))
+          array("href" => "list=session_type", "text" => $GLOBALS['locSESSIONTYPES'], "levels_allowed" => array(99)),
+          array("href" => "operation=dbdump", "text" => $GLOBALS['locBACKUPDATABASE'], "levels_allowed" => array(99))
       );
       $strNewText = '';
       $strList = getRequest('list', '');

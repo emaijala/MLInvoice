@@ -233,7 +233,8 @@ default :
     $GLOBALS['locEXTSEARCH'] = 'Laaja haku';
     $GLOBALS['locQUICKSEARCH'] = 'Pikahaku';
     $GLOBALS['locINVOICEREPORT'] = 'Laskutusraportti'; 
-    $GLOBALS['locPRODUCTREPORT'] = 'Tuoteraportti'; 
+    $GLOBALS['locPRODUCTREPORT'] = 'Tuoteraportti';
+    $GLOBALS['locBACKUPDATABASE'] = 'Luo varmuuskopio tietokannasta';
     
     // LIST HEADERS
     $GLOBALS['locHEADERINVOICEDATE'] = 'Pvm';       

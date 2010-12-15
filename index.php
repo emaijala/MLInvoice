@@ -45,6 +45,11 @@ if (!$strFunc && $strForm)
 
 $title = getPageTitle($strFunc, $strList, $strForm);
 
+if ($strFunc == 'system' && getRequest('operation', '') == 'dbdump' && $_SESSION['sesACCESSLEVEL'] == 99)
+{
+  create_db_dump();
+  exit;
+}
 
 echo htmlPageStart(_PAGE_TITLE_ . " - $title");
 
