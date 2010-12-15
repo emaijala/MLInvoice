@@ -105,7 +105,7 @@ function createHtmlList($strFunc, $strList, $strIDQuery, &$arrQueryParams, $strT
     $strTableName = "resultlist_$strMainForm";
   
   if ($strTitleOverride)
-    $strTitle = "<b>$strTitleOverride</b><br><br>";
+    $strTitle = "<strong>$strTitleOverride</strong><br><br>";
   else
     $strTitle = '';
   if (!$strNoEntries)
@@ -129,7 +129,7 @@ function createHtmlList($strFunc, $strList, $strIDQuery, &$arrQueryParams, $strT
 ?>
   <div class="list_container">
     <?php echo $strTitle?>
-    <b><?php echo $strNoEntries?></b>
+    <?php echo $strNoEntries?>
     <br>
     <br>
   </div>
