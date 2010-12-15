@@ -71,11 +71,11 @@ case 'invoices':
     array( 
         array("name" => "i.invoice_date", 'width' => 100, "type" => "INTDATE", "order" => "DESC", "header" => $GLOBALS['locHEADERINVOICEDATE']),
         array("name" => "i.invoice_no", 'width' => 80, "type" => "TEXT", "header" => $GLOBALS['locHEADERINVOICENO']),
+        array("name" => "b.name", 'width' => 150, "type" => "TEXT", "header" => $GLOBALS['locHEADERINVOICEBASE']),
+        array("name" => "c.company_name", 'width' => 150, "type" => "TEXT", "header" => $GLOBALS['locHEADERINVOICECOMPANY']),
         array("name" => "i.name", 'width' => 100, "type" => "TEXT", "header" => $GLOBALS['locHEADERINVOICENAME']),
         array("name" => "s.name", 'width' => 120, "type" => "TEXT", "header" => $GLOBALS['locHEADERINVOICESTATE']),
-        array("name" => "i.ref_number", 'width' => 100, "type" => "TEXT", "header" => $GLOBALS['locHEADERINVOICEREFERENCE']),
-        array("name" => "b.name", 'width' => 100, "type" => "TEXT", "header" => $GLOBALS['locHEADERINVOICEBASE']),
-        array("name" => "c.company_name", 'width' => 100, "type" => "TEXT", "header" => $GLOBALS['locHEADERINVOICECOMPANY'])
+        array("name" => "i.ref_number", 'width' => 100, "type" => "TEXT", "header" => $GLOBALS['locHEADERINVOICEREFERENCE'])
     );
    $strMainForm = "invoice";
    $strTitle = $GLOBALS['locINVOICES'];
