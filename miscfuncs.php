@@ -36,13 +36,13 @@ Todo :
 
 function gpcAddSlashes( $strString ) {
    if ( !get_magic_quotes_gpc() )
-       $strString = addslashes($strString);
+       return addslashes($strString);
    return $strString;
 }
 
 function gpcStripSlashes($strString) {
    if ( get_magic_quotes_gpc() )
-       $strString = stripslashes($strString);
+       return stripslashes($strString);
    return $strString;
 }
 
@@ -89,17 +89,17 @@ function miscCalcCheckNo( $intValue ) {
 
 function getPost($strKey, $varDefault)
 {
-  return isset($_POST[$strKey]) ? $_POST[$strKey] : $varDefault;
+  return isset($_POST[$strKey]) ? gpcStripSlashes($_POST[$strKey]) : $varDefault;
 }
 
 function getRequest($strKey, $varDefault)
 {
-  return isset($_REQUEST[$strKey]) ? $_REQUEST[$strKey] : $varDefault;
+  return isset($_REQUEST[$strKey]) ? gpcStripSlashes($_REQUEST[$strKey]) : $varDefault;
 }
 
 function getGet($strKey, $varDefault)
 {
-  return isset($_GET[$strKey]) ? $_GET[$strKey] : $varDefault;
+  return isset($_GET[$strKey]) ? gpcStripSlashes($_GET[$strKey]) : $varDefault;
 }
 
 function getPostRequest($strKey, $varDefault)

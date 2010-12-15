@@ -206,7 +206,7 @@ function createHtmlList($strFunc, $strList, $strIDQuery, &$arrQueryParams, $strT
     for( $j = 0; $j < count($astrListValues[$i]); $j++ ) 
     {
 ?>
-          <td class="label"><a class="navilink" href="<?php echo $strLink?>"><?php echo $astrListValues[$i][$j] ? $astrListValues[$i][$j] : '&nbsp;'?></a></td>
+          <td class="label"><a class="navilink" href="<?php echo $strLink?>"><?php echo $astrListValues[$i][$j] ? htmlspecialchars($astrListValues[$i][$j]) : '&nbsp;'?></a></td>
 <?php
     }
 ?>

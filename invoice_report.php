@@ -349,16 +349,16 @@ function printReport()
 ?>
   <tr>
       <td class="input">
-          <?php echo $strInvoiceNo?>
+          <?php echo htmlspecialchars($strInvoiceNo)?>
       </td>
       <td class="input">
-          <?php echo $strInvoiceDate?>
+          <?php echo htmlspecialchars($strInvoiceDate)?>
       </td>
       <td class="input">
-          <?php echo $strName?>
+          <?php echo htmlspecialchars($strName)?>
       </td>
       <td class="input">
-          <?php echo $strInvoiceState?>
+          <?php echo htmlspecialchars($strInvoiceState)?>
       </td>
       <td class="input" align="right">
           <?php echo miscRound2Decim($intRowSum)?>

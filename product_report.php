@@ -330,8 +330,10 @@ function printReport()
             else
               $strProduct = $strDescription;
           }
-          elseif (!$strProduct)
+          if (!$strProduct)
             $strProduct = '&ndash;';
+          else
+            $strProduct = htmlspecialchars($strProduct);
           $intVAT = $intSum * $intVATPercent / 100;
           $intSumVAT = $intSum + $intVAT;
           
@@ -347,13 +349,13 @@ function printReport()
           <?php echo miscRound2Decim($intCount)?>
       </td>
       <td class="input" align="left">
-          <?php echo $strUnit?>
+          <?php echo htmlspecialchars($strUnit)?>
       </td>
       <td class="input" align="right">
           <?php echo miscRound2Decim($intSum)?>
       </td>
       <td class="input" align="right">
-          <?php echo $intVATPercent?>
+          <?php echo htmlspecialchars($intVATPercent)?>
       </td>
       <td class="input" align="right">
           <?php echo miscRound2Decim($intVAT)?>

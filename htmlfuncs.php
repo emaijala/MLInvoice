@@ -25,19 +25,8 @@ Tämä ohjelma on vapaa. Lue oheinen LICENSE.
 
 /********************************************************************
 Includefile : htmlfuncs.php
-    Functions to create various html-elements
+    Functions to create various html elements
 
-Provides functions : 
-    htmlPageStart( $strTitle )
-    htmlListBox( $strName, $astrValues, $astrOptions, $strSelected )
-    htmlFileListBox( $strName, $strDirName, 
-                    $strSelected, $strExtension = "html" )
-    
-    htmlFormElement( $strName, $strType, $strValue, $strStyle, $strListQuery )
-    
-Includes files : -none-
-
-Todo : add new functions...
 ********************************************************************/    
 
 function htmlPageStart($strTitle, $arrExtraScripts = null) {
@@ -112,7 +101,7 @@ Todo :
         $strOnChange = "onchange='this.form.submit();'";
     }
     $strListBox = 
-        "<select class=\"".$strStyle."\" id=\"".$strName."\" name=\"".$strName."\" ". $strOnChange. " $astrAdditionalAttributes>\n";
+        "<select class=\"$strStyle\" id=\"$strName\" name=\"$strName\" $strOnChange $astrAdditionalAttributes>\n";
     if( $blnShowEmpty ) {
         $strListBox .= "<option value=\"\" selected> - </option>\n";
     }
@@ -120,98 +109,17 @@ Todo :
     for( $i = 0; $i < count($astrValues); $i++ ) {
         if( $strSelected == $astrValues[$i] ) {
             $strSelect = "selected";
-            //echo "$strSelected == ". $astrValues[$i]. " <br>";
         }
         else {
             $strSelect = "";
         }
         $strListBox .= 
-            "<option value=\"".$astrValues[$i]."\" $strSelect>".
-            $astrOptions[$i]."</option>\n";
+            "<option value=\"" . htmlspecialchars($astrValues[$i]) . "\" $strSelect>" .
+            htmlspecialchars($astrOptions[$i]) . "</option>\n";
     }        
     $strListBox .= "</select>\n";
 
     return $strListBox;
-}
-
-function htmlLinkListBox( $strName, $astrLinks, $astrOptions, $strSelected, $strStyle = "", $blnShowEmpty = TRUE ) {
-/********************************************************************
-Function : htmlListBox
-    Create Html-listbox
-
-Args : 
-    $strName (string): listbox name
-    $astrValues (stringarray): listbox values
-    $astrOptions (stringarray): listbox options
-    $strSelected (string): selected value
-    
-Return : $strListBox (string) : listbox element
-
-Todo : 
-********************************************************************/
-    $strOnChange = "onchange='newwin(this.options[this.selectedIndex].value);'";
-    $strListBox = 
-        "<select class=\"".$strStyle."\" id=\"".$strName."\" name=\"".$strName."\" ". $strOnChange. ">\n";
-    if( $blnShowEmpty ) {
-        $strListBox .= "<option value=\"\" selected> - </option>\n";
-    }
-    
-    for( $i = 0; $i < count($astrLinks); $i++ ) {
-        if( $strSelected == $astrLinks[$i] ) {
-            $strSelect = "selected";
-            //echo "$strSelected == ". $astrValues[$i]. " <br>";
-        }
-        else {
-            $strSelect = "";
-        }
-        $strListBox .= 
-            "<option value=\"".$astrLinks[$i]."\" $strSelect>".
-            $astrOptions[$i]."</option>\n";
-    }        
-    $strListBox .= "</select>\n";
-
-    return $strListBox;
-}
-
-function htmlFileListBox( $strName, $strDirName, $strSelected, $strExtension, $strStyle = "" ) {
-/********************************************************************
-Function : htmlFileListBox
-    Create Html-listbox from files 
-    with given extension from given directory
-
-Args : 
-    $strName (string): listbox name
-    $strDirName (string): folder to traverse
-    $strSelected (string): selected value
-    $strExtension (string): file extension to search
-    
-Return : $strListBox (string) : 
-            listbox element on success
-            FALSE on error
-
-Todo : could be array of extensions to search. Sorting? Errors.
-********************************************************************/
-    $astrFiles = array();
-    if( substr($strDirName, -1) == "/" ) {
-        $strDirName = substr($strDirName,0, -1);
-    }
-    if( is_dir( $strDirName ) ) {
-        $dh = opendir($strDirName);
-
-        while( ($file = readdir($dh)) !== FALSE ) {       
-            if (eregi("\.". $strExtension ."$", $file)) {
-                $astrFiles[] = $file;
-            }
-        }
-        closedir($dh);
-        sort($astrFiles);
-        $strListBox = htmlListBox($strName, $astrFiles, $astrFiles, $strSelected, $strStyle);
-
-        return $strListBox;
-    }
-    else {
-        return FALSE;
-    }
 }
 
 function getSQLResult( $strQuery ) {
@@ -229,8 +137,7 @@ Return : $strResult (string) :
 Todo : style, Sorting? Allow only select query?
 ********************************************************************/
     $intRes = mysql_query_check( $strQuery );
-    $strValue = mysql_result($intRes, 0, 0);
-    return $strValue;
+    return mysql_result($intRes, 0, 0);
 }
 function htmlSQLListBox( $strName, $strQuery, $strSelected, $strStyle = "", $intOnChange = 0, $astrAdditionalAttributes ) {
 /********************************************************************
@@ -248,49 +155,29 @@ Return : $strListBox (string) :
 
 Todo : style, Sorting? 
 ********************************************************************/
-    $astrResults = array();
     $astrValues = array();
     $astrOptions = array();
     $intRes = mysql_query_check( $strQuery );
-    $intNRes = mysql_num_rows($intRes);
-    for( $i = 0; $i < $intNRes; $i++ ) {
-        $astrValues[$i] = mysql_result($intRes, $i, 0);
-        $astrOptions[$i] = mysql_result($intRes, $i, 1);
+    while ($row = mysql_fetch_row($intRes)) 
+    {
+        $astrValues[] = $row[0];
+        $astrOptions[] = $row[1];
     }
-    $strListBox = htmlListBox($strName, $astrValues, $astrOptions, $strSelected, $strStyle, $intOnChange, TRUE, $astrAdditionalAttributes );
+    $strListBox = htmlListBox($strName, $astrValues, $astrOptions, $strSelected, $strStyle, $intOnChange, TRUE, $astrAdditionalAttributes);
 
     return $strListBox;
 }
-function getSQLListBoxSelectedValue( $strQuery, $strSelected ) {
-/********************************************************************
-Function : htmlSQLListBox
-    Create Html-listbox from results of given query
 
-Args : 
-    $strName (string): listbox name
-    $strQuery (string): query to execute
-    $strSelected (string): selected value
-    
-Return : $strListBox (string) : 
-            listbox element on success
-            FALSE on error
-
-Todo : style, Sorting? Errors. Allow only select query?
-********************************************************************/
-    $astrResults = array();
-    
+// Get the value for the specified option
+function getSQLListBoxSelectedValue( $strQuery, $strSelected ) 
+{
     $intRes = mysql_query_check( $strQuery );
-    $strSelectedValue = '';
-    $intNRes = mysql_num_rows($intRes);
-    for( $i = 0; $i < $intNRes; $i++ ) {
-        $astrValues[$i] = mysql_result($intRes, $i, 0);
-        $astrOptions[$i] = mysql_result($intRes, $i, 1);
-        if( $astrValues[$i] == $strSelected ) {
-            $strSelectedValue = $astrOptions[$i];
-        }
+    while ($row = mysql_fetch_row($intRes)) 
+    {
+        if ($row[0] == $strSelected)
+          return $row[1];
     }
-
-    return $strSelectedValue;
+    return '';
 }
 
 /********************************************************************
@@ -313,21 +200,21 @@ function htmlFormElement( $strName, $strType, $strValue, $strStyle, $strListQuer
         case 'TEXT' :
             if( $strMode == "MODIFY" ) {
                 $strFormElement = 
-                "<input type=\"text\" class=\"" . $strStyle . "\" ".
-                "id=\"" . $strName . "\" name=\"" . $strName . "\" value=\"" . $strValue . "\" $astrAdditionalAttributes>\n";
+                  "<input type=\"text\" class=\"$strStyle\" " .
+                  "id=\"$strName\" name=\"$strName\" value=\"" . htmlspecialchars($strValue) . "\" $astrAdditionalAttributes>\n";
             }
             elseif( $strMode == "PDF" ) {
                 $strFormElement = $strValue;
             }
             else {
-                $strFormElement = $strValue . "\n";
+                $strFormElement = htmlspecialchars($strValue) . "\n";
             }
         break;
         case 'PASSWD' :
             if( $strMode == "MODIFY" ) {
                 $strFormElement = 
-                "<input type=\"password\" class=\"" . $strStyle . "\" ".
-                "id=\"" . $strName . "\" name=\"" . $strName . "\" value=\"\" $astrAdditionalAttributes>\n";
+                  "<input type=\"password\" class=\"$strStyle\" " .
+                  "id=\"$strName\" name=\"$strName\" value=\"\" $astrAdditionalAttributes>\n";
             }
             elseif( $strMode == "PDF" ) {
                 $strFormElement = "********\n";
@@ -340,7 +227,7 @@ function htmlFormElement( $strName, $strType, $strValue, $strStyle, $strListQuer
             if( $strMode == "MODIFY" ) {
                 $strValue = $strValue ? 'checked' : '';
                 $strFormElement = 
-                "<input type=\"checkbox\" id=\"" . $strName . "\" name=\"". $strName. "\" value=\"1\" ". $strValue. " $astrAdditionalAttributes>\n";
+                  "<input type=\"checkbox\" id=\"$strName\" name=\"$strName\" value=\"1\" " . htmlspecialchars($strValue) . " $astrAdditionalAttributes>\n";
             }
             elseif( $strMode == "PDF" ) {
                 $strValue = $strValue ? "X" : "";
@@ -355,7 +242,7 @@ function htmlFormElement( $strName, $strType, $strValue, $strStyle, $strListQuer
             if( $strMode == "MODIFY" ) {
                 $strChecked = $strValue ? 'checked' : '';
                 $strFormElement = 
-                "<input type=\"radio\" id=\"" . $strName . "\" name=\"". $strName. "\" value=\"".$strValue."\" $astrAdditionalAttributes>\n";
+                  "<input type=\"radio\" id=\"$strName\" name=\"$strName\" value=\"" . htmlspecialchars($strValue) . "\" $astrAdditionalAttributes>\n";
             }
             elseif( $strMode == "PDF" ) {
                 $strValue = $strValue ? "X" : "";
@@ -369,21 +256,21 @@ function htmlFormElement( $strName, $strType, $strValue, $strStyle, $strListQuer
         case 'INT' :
             if( $strMode == "MODIFY" ) {
                 $strFormElement = 
-                "<input type=\"text\" class=\"" . $strStyle . "\" ".
-                "id=\"" . $strName . "\" name=\"" . $strName . "\" value=\"" . $strValue . "\" $astrAdditionalAttributes>\n";
+                  "<input type=\"text\" class=\"$strStyle\" " .
+                  "id=\"$strName\" name=\"$strName\" value=\"" . htmlspecialchars($strValue) . "\" $astrAdditionalAttributes>\n";
             }
             elseif( $strMode == "PDF" ) {
                 $strFormElement = $strValue;
             }
             else {
-                $strFormElement = $strValue . "\n";
+                $strFormElement = htmlspecialchars($strValue) . "\n";
             }
         break;
         case 'INTDATE' :
             if( $strMode == "MODIFY" ) {
                 $strFormElement = 
                 "<input type=\"text\" class=\"$strStyle hasCalendar\" ".
-                "id=\"$strName\" name=\"$strName\" value=\"$strValue\" $astrAdditionalAttributes>\n";
+                "id=\"$strName\" name=\"$strName\" value=\"" . htmlspecialchars($strValue) . "\" $astrAdditionalAttributes>\n";
                 if( $strListQuery == "gif" ) {
                     $strExtension = "gif";
                 }
@@ -395,60 +282,60 @@ function htmlFormElement( $strName, $strType, $strValue, $strStyle, $strListQuer
                 $strFormElement = $strValue;
             }
             else {
-                $strFormElement = $strValue . "\n";
+                $strFormElement = htmlspecialchars($strValue) . "\n";
             }
         break;
         case 'TIMESTAMP' :
-            $strFormElement = $strValue . "\n";
+            $strFormElement = htmlspecialchars($strValue) . "\n";
         break;
         case 'HID_TEXT' :
             $strFormElement = 
                 "<input type=\"hidden\" ".
-                "id=\"" . $strName . "\" name=\"" . $strName . "\" value=\"" . $strValue . "\">\n";
+                "id=\"$strName\" name=\"$strName\" value=\"" . htmlspecialchars($strValue) . "\">\n";
         break;
         case 'HID_INT' :
             $strFormElement = 
                 "<input type=\"hidden\" ".
-                "id=\"" . $strName . "\" name=\"" . $strName . "\" value=\"" . $strValue . "\">\n";
+                "id=\"$strName\" name=\"$strName\" value=\"" . htmlspecialchars($strValue) . "\">\n";
         break;
         case 'HID_INTDATE' :
             $strFormElement = 
-                "<input type=\"hidden\" class=\"" . $strStyle . "\" ".
-                "id=\"" . $strName . "\" name=\"" . $strName . "\" value=\"" . $strValue . "\">\n";
+                "<input type=\"hidden\" class=\"$strStyle\" ".
+                "id=\"$strName\" name=\"$strName\" value=\"" . htmlspecialchars($strValue) . "\">\n";
         break;
         case 'HID_TIME' :
             $strFormElement = 
                 "<input type=\"hidden\" ".
-                "id=\"" . $strName . "\" name=\"" . $strName . "\" value=\"" . $strValue . "\">\n";
+                "id=\"$strName\" name=\"$strName\" value=\"" . htmlspecialchars($strValue) . "\">\n";
         break;
         case 'HID_AREA' :
             $strFormElement = 
                 "<input type=\"hidden\" ".
-                "id=\"" . $strName . "\" name=\"" . $strName . "\" value=\"" . $strValue . "\">\n";
+                "id=\"$strName\" name=\"$strName\" value=\"" . htmlspecialchars($strValue) . "\">\n";
         break;
         case 'HID_LIST' :
             $strFormElement = 
                 "<input type=\"hidden\" ".
-                "id=\"" . $strName . "\" name=\"" . $strName . "\" value=\"" . $strValue . "\">\n";
+                "id=\"$strName\" name=\"$strName\" value=\"" . htmlspecialchars($strValue) . "\">\n";
         break;
         case 'AREA' :
             if( $strMode == "MODIFY" ) {
                 $strFormElement = 
-                "<textarea rows=\"24\" cols=\"80\" class=\"" . $strStyle . "\" ".
-                "id=\"" . $strName . "\" name=\"" . $strName . "\" $astrAdditionalAttributes>" . $strValue . "</textarea>\n";
+                  "<textarea rows=\"24\" cols=\"80\" class=\"" . $strStyle . "\" ".
+                  "id=\"" . $strName . "\" name=\"" . $strName . "\" $astrAdditionalAttributes>" . $strValue . "</textarea>\n";
             }
             elseif( $strMode == "PDF" ) {
                 $strFormElement = $strValue;
             }
             else {
-                $strFormElement = nl2br($strValue) . "\n";
+                $strFormElement = nl2br(htmlspecialchars($strValue)) . "\n";
             }
             break;
         
         case 'RESULT' :
             $strListQuery = str_replace("_ID_", $strValue, $strListQuery);
             if( $strMode != "PDF" ) {
-                $strFormElement = getSQLResult( $strListQuery ) . "\n";
+                $strFormElement = htmlspecialchars(getSQLResult( $strListQuery )) . "\n";
             }
             else {
                 $strFormElement = getSQLResult( $strListQuery );
@@ -463,7 +350,7 @@ function htmlFormElement( $strName, $strType, $strValue, $strStyle, $strListQuer
                 $strFormElement = getSQLListBoxSelectedValue( $strListQuery, $strValue );
             }
             else {
-                $strFormElement = getSQLListBoxSelectedValue( $strListQuery, $strValue ) . "\n";
+                $strFormElement = htmlspecialchars(getSQLListBoxSelectedValue( $strListQuery, $strValue )) . "\n";
             }
         break;
         case 'SUBMITLIST' :
@@ -474,7 +361,7 @@ function htmlFormElement( $strName, $strType, $strValue, $strStyle, $strListQuer
                 $strFormElement = getSQLListBoxSelectedValue( $strListQuery, $strValue );
             }
             else {
-                $strFormElement = getSQLListBoxSelectedValue( $strListQuery, $strValue ) . "\n";                 
+                $strFormElement = htmlspecialchars(getSQLListBoxSelectedValue( $strListQuery, $strValue )) . "\n";                 
             }
         break;
         
@@ -578,7 +465,7 @@ function htmlFormElement( $strName, $strType, $strValue, $strStyle, $strListQuer
             if( $strValue ) {
                 
                 $strFormElement = 
-                    "<a class=\"formbuttonlink\" href=\"$strHref\" $strOnClick $astrAdditionalAttributes>$strTitle</a>";
+                    "<a class=\"formbuttonlink\" href=\"$strHref\" $strOnClick $astrAdditionalAttributes>" . htmlspecialchars($strTitle) . "</a>";
                     
             }
             else {

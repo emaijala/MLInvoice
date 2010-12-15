@@ -367,21 +367,21 @@ function createForm($strFunc, $strList, $strForm)
           <td class="label" colspan="<?php echo $intColspan?>">
               <?php echo $astrFormElements[$j]['label']?>
               <br>
-              <?php echo htmlFormElement($astrFormElements[$j]['name'], $astrFormElements[$j]['type'], gpcStripSlashes($astrValues[$astrFormElements[$j]['name']]), $astrFormElements[$j]['style'],$astrFormElements[$j]['listquery'], "MODIFY", $astrFormElements[$j]['parent_key'],'',$astrFormElements[$j]['defaults'], $astrFormElements[$j]['elem_attributes'])?>
+              <?php echo htmlFormElement($astrFormElements[$j]['name'], $astrFormElements[$j]['type'], $astrValues[$astrFormElements[$j]['name']], $astrFormElements[$j]['style'],$astrFormElements[$j]['listquery'], "MODIFY", $astrFormElements[$j]['parent_key'],'',$astrFormElements[$j]['defaults'], $astrFormElements[$j]['elem_attributes'])?>
           </td>
   <?php          
           }
           elseif( $astrFormElements[$j]['type'] == "BUTTON" ) {
    ?>
           <td class="button" colspan="<?php echo $intColspan?>">
-              <?php echo htmlFormElement($astrFormElements[$j]['name'], $astrFormElements[$j]['type'], gpcStripSlashes($astrValues[$astrFormElements[$j]['name']]), $astrFormElements[$j]['style'],$astrFormElements[$j]['listquery'], "MODIFY", $astrFormElements[$j]['parent_key'],$astrFormElements[$j]['label'], array(), isset($astrFormElements[$j]['elem_attributes']) ? $astrFormElements[$j]['elem_attributes'] : '')?>
+              <?php echo htmlFormElement($astrFormElements[$j]['name'], $astrFormElements[$j]['type'], $astrValues[$astrFormElements[$j]['name']], $astrFormElements[$j]['style'],$astrFormElements[$j]['listquery'], "MODIFY", $astrFormElements[$j]['parent_key'],$astrFormElements[$j]['label'], array(), isset($astrFormElements[$j]['elem_attributes']) ? $astrFormElements[$j]['elem_attributes'] : '')?>
           </td>
   <?php          
           }
           
           elseif( $astrFormElements[$j]['type'] == "HID_INT" || $astrFormElements[$j]['type'] == "HID_TEXT" || strstr($astrFormElements[$j]['type'], "HID_") ) {
    ?>
-          <?php echo htmlFormElement($astrFormElements[$j]['name'], $astrFormElements[$j]['type'], gpcStripSlashes($astrValues[$astrFormElements[$j]['name']]), $astrFormElements[$j]['style'],$astrFormElements[$j]['listquery'], "MODIFY", $astrFormElements[$j]['parent_key'],$astrFormElements[$j]['label'])?>
+          <?php echo htmlFormElement($astrFormElements[$j]['name'], $astrFormElements[$j]['type'], $astrValues[$astrFormElements[$j]['name']], $astrFormElements[$j]['style'],$astrFormElements[$j]['listquery'], "MODIFY", $astrFormElements[$j]['parent_key'],$astrFormElements[$j]['label'])?>
   <?php          
           }
           else {
@@ -390,7 +390,7 @@ function createForm($strFunc, $strList, $strForm)
               <?php echo $astrFormElements[$j]['label']?>
           </td>
           <td class="field" <?php echo $strColspan?>>
-              <?php echo htmlFormElement($astrFormElements[$j]['name'], $astrFormElements[$j]['type'], gpcStripSlashes($astrValues[$astrFormElements[$j]['name']]), $astrFormElements[$j]['style'],$astrFormElements[$j]['listquery'], "MODIFY", isset($astrFormElements[$j]['parent_key']) ? $astrFormElements[$j]['parent_key'] : '', '', array(), isset($astrFormElements[$j]['elem_attributes']) ? $astrFormElements[$j]['elem_attributes'] : '')?>
+              <?php echo htmlFormElement($astrFormElements[$j]['name'], $astrFormElements[$j]['type'], $astrValues[$astrFormElements[$j]['name']], $astrFormElements[$j]['style'],$astrFormElements[$j]['listquery'], "MODIFY", isset($astrFormElements[$j]['parent_key']) ? $astrFormElements[$j]['parent_key'] : '', '', array(), isset($astrFormElements[$j]['elem_attributes']) ? $astrFormElements[$j]['elem_attributes'] : '')?>
           </td>
   <?php
           }

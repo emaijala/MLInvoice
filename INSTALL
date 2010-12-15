@@ -8,4 +8,7 @@ Asennus:
    6. Avaa VLLasku selaimeen ja kirjaudu sis‰‰n oletustunnuksilla admin admin
    7. TƒRKEƒƒ: Vaihda admin-k‰ytt‰j‰n salasana kohdasta J‰rjestelm‰ -> K‰ytt‰j‰t
 
+Huom! VLLasku ei v‰ltt‰m‰tt‰ toimi oikein, jos PHP:n magic quotes -toiminto on p‰‰ll‰. 
+Katso http://www.php.net/manual/en/security.magicquotes.disabling.php toiminnon poistamiseksi.
+
 Muista huolehtia VLLaskun tietokannan varmuuskopioinnista!

@@ -559,7 +559,7 @@ if( _SHOW_BARCODE_ && $intTotSumVAT > 0) {
 
 if( $intNRes > _INVOICE_PDF_ROWS_ || isset($boolSeparateStatement)) {
   $pdf->AddPage();
-  $pdf->SetAutoPageBreak(TRUE, 20);
+  $pdf->SetAutoPageBreak(TRUE, 22);
   //middle - invoicerows
   //invoiceinfo headers
   
