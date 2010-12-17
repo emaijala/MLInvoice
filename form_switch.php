@@ -160,7 +160,7 @@ case 'invoice':
    $defaultRefNo = FALSE;
    if (_ADD_INVOICE_NUMBER_ || _ADD_REFERENCE_NUMBER_)
    {
-     $strQuery = "SELECT max(invoice_no) FROM {prefix}invoice";
+     $strQuery = "SELECT max(cast(invoice_no as unsigned integer)) FROM {prefix}invoice";
      $intRes = mysql_query_check($strQuery);
      $intInvNo = mysql_result($intRes, 0, 0) + 1;
      if (_ADD_INVOICE_NUMBER_)

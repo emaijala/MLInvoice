@@ -39,9 +39,9 @@ case 'get_invoice_defaults':
   $baseId = getRequest('base_id', 0);
   $invoiceId = getRequest('id', 0);
   if (_INVOICE_NUMBERING_PER_BASE_ && $baseId)
-    $res = mysql_param_query('SELECT max(invoice_no) FROM {prefix}invoice where id != ? AND base_id = ?', array($invoiceId, $baseId));
+    $res = mysql_param_query('SELECT max(cast(invoice_no as unsigned integer)) FROM {prefix}invoice where id != ? AND base_id = ?', array($invoiceId, $baseId));
   else
-    $res = mysql_param_query('SELECT max(invoice_no) FROM {prefix}invoice where id != ?', array($invoiceId));
+    $res = mysql_param_query('SELECT max(cast(invoice_no as unsigned integer)) FROM {prefix}invoice where id != ?', array($invoiceId));
   $invNo = mysql_result($res, 0, 0) + 1;
   $refNo = $invNo . miscCalcCheckNo($invNo);
   $strDate = date("d.m.Y");
