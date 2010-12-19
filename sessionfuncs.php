@@ -27,7 +27,12 @@ function sesCreateSession($strLogin, $strPasswd)
 {
     if ($strLogin && $strPasswd) 
     {
+        $key_ip = $_SESSION['keyip'];
+        if ($_SERVER['REMOTE_ADDR'] != $key_ip)
+          return 'FAIL';
+
         $key = $_SESSION['key'];
+        unset($_SESSION['key']);
         $keytime = $_SESSION['keytime'];
         if (!$key || time() - $keytime > 300)
           return 'TIMEOUT';
@@ -41,7 +46,6 @@ function sesCreateSession($strLogin, $strPasswd)
         if ($row = mysql_fetch_assoc($intRes)) 
         {
             $passwd_md5 = $row['passwd'];
-            $key = $_SESSION['key'];
             $md5 = md5($key . $passwd_md5);
             if ($md5 != $strPasswd)
               return 'FAIL';
@@ -91,6 +95,7 @@ function sesCreateKey()
 {
   $_SESSION['key'] = createRandomString(20);  
   $_SESSION['keytime'] = time();
+  $_SESSION['keyip'] = $_SERVER['REMOTE_ADDR'];
   return $_SESSION['key'];
 }
 
