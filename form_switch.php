@@ -93,7 +93,7 @@ case 'company':
      array(
         "name" => "info", "label" => $GLOBALS['locINFO'], "type" => "AREA", "style" => "medium", "listquery" => "", "position" => 2, "default" => FALSE, "allow_null" => TRUE ),
      array(
-        "name" => "company_contact", "label" => $GLOBALS['locCONTACTS'], "type" => "IFORM", "style" => "xfull", "listquery" => "", "position" => 0, "default" => FALSE, "allow_null" => TRUE, "parent_key" => "company_id" )
+        "name" => "company_contact", "label" => $GLOBALS['locCONTACTS'], "type" => "IFORM", "style" => "full", "listquery" => "", "position" => 0, "default" => FALSE, "allow_null" => TRUE, "parent_key" => "company_id" )
     );
 break;
 
@@ -248,7 +248,7 @@ EOS;
      array(
         "name" => "get", "label" => $GLOBALS['locREFUNDINV'], "type" => "BUTTON", "style" => "medium", "listquery" => "'copy_invoice.php?func=$strFunc&amp;list=$strList&amp;id=_ID_&amp;refund=1', '_self'", "position" => 2, "default" => FALSE, "allow_null" => TRUE ),
      array(
-        "name" => "invoice_rows", "label" => $GLOBALS['locINVROWS'], "type" => "IFORM", "style" => "xfull", "listquery" => "", "position" => 0, "default" => FALSE, "allow_null" => TRUE, "parent_key" => "invoice_id" )
+        "name" => "invoice_rows", "label" => $GLOBALS['locINVROWS'], "type" => "IFORM", "style" => "xfull resizable", "listquery" => "", "position" => 0, "default" => FALSE, "allow_null" => TRUE, "parent_key" => "invoice_id" )
     );
 break;
 case 'invoice_rows':
@@ -287,11 +287,16 @@ case 'invoice_rows':
 onChange = "var loc = new String(window.location); loc = loc.replace(/&new_product=\d+/, '').replace(/&invoice_id=\d+/, ''); loc += '&invoice_id=$intInvoiceId&new_product=' + document.forms[0].product_id.value; window.location = loc;"
 EOS;
 
+   $multiplierColumn = 'pcs';
+   $priceColumn = 'price';
+   $VATColumn = 'vat';
+   $VATIncludedColumn = 'vat_included';
+   $showPriceSummary = TRUE;
+
    $astrFormElements =
     array(
      array(
-        "name" => "id", "label" => "", "type" => "HID_INT",
-        "style" => "medium", "listquery" => "", "position" => 0, "default" => FALSE, "allow_null" => FALSE ),
+        "name" => "id", "label" => "", "type" => "HID_INT", "style" => "medium", "listquery" => "", "position" => 0, "default" => FALSE, "allow_null" => FALSE ),
      array(
         "name" => "product_id", "label" => $GLOBALS['locPRODUCTNAME'], "type" => "LIST", "style" => "medium", "listquery" => "SELECT id, product_name FROM {prefix}product ORDER BY product_name;", "position" => 0, "default" => $intProductId, "allow_null" => TRUE, 'elem_attributes' => $productOnChange ),
      array(
@@ -299,17 +304,19 @@ EOS;
      array(
         "name" => "row_date", "label" => $GLOBALS['locDATE'], "type" => "INTDATE", "style" => "date", "listquery" => "", "position" => 0, "default" => 'DATE_NOW', "allow_null" => FALSE ),
      array(
-        "name" => "pcs", "label" => $GLOBALS['locPCS'], "type" => "INT", "style" => "short", "listquery" => "", "position" => 0, "default" => FALSE, "allow_null" => FALSE ),
+        "name" => "pcs", "label" => $GLOBALS['locPCS'], "type" => "INT", "style" => "count", "listquery" => "", "position" => 0, "default" => FALSE, "allow_null" => FALSE ),
      array(
         "name" => "type_id", "label" => $GLOBALS['locUNIT'], "type" => "LIST", "style" => "short", "listquery" => "SELECT id, name FROM {prefix}row_type ORDER BY order_no;", "position" => 0, "default" => $intTypeId, "allow_null" => FALSE ),
      array(
-        "name" => "price", "label" => $GLOBALS['locPRICE'], "type" => "INT", "style" => "short", "listquery" => "", "position" => 0, "default" => $intPrice, "allow_null" => FALSE ),
+        "name" => "price", "label" => $GLOBALS['locPRICE'], "type" => "INT", "style" => "currency", "listquery" => "", "position" => 0, "default" => $intPrice, "allow_null" => FALSE ),
      array(
-        "name" => "vat", "label" => $GLOBALS['locVAT'], "type" => "INT", "style" => "tiny", "listquery" => "", "position" => 0, "default" => $intVAT, "allow_null" => TRUE ),
+        "name" => "vat", "label" => $GLOBALS['locVAT'], "type" => "INT", "style" => "percent", "listquery" => "", "position" => 0, "default" => $intVAT, "allow_null" => TRUE ),
      array(
-        "name" => "vat_included", "label" => $GLOBALS['locVATINC'], "type" => "CHECK", "style" => "short", "listquery" => "", "position" => 0, "default" => $intVATIncluded, "allow_null" => TRUE ),
+        "name" => "vat_included", "label" => $GLOBALS['locVATINC'], "type" => "CHECK", "style" => "xshort", "listquery" => "", "position" => 0, "default" => $intVATIncluded, "allow_null" => TRUE ),
      array(
-        "name" => "order_no", "label" => $GLOBALS['locROWNO'], "type" => "INT", "style" => "tiny", "listquery" => "SELECT max(order_no)+5 FROM {prefix}invoice_row WHERE invoice_id = _PARENTID_", "position" => 0, "default" => "ADD+5", "allow_null" => TRUE )
+        "name" => "order_no", "label" => $GLOBALS['locROWNO'], "type" => "INT", "style" => "tiny", "listquery" => "SELECT max(order_no)+5 FROM {prefix}invoice_row WHERE invoice_id = _PARENTID_", "position" => 0, "default" => "ADD+5", "allow_null" => TRUE ),
+     array(
+        "name" => "row_sum", "label" => $GLOBALS['locROWTOTAL'], "type" => "ROWSUM", "style" => "currency", "listquery" => "", "position" => 0, "default" => "", "allow_null" => TRUE )
    );
 break;
 /******************************************************************************

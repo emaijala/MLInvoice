@@ -130,7 +130,7 @@ if( $blnSave ) {
         $mixControlValue = $astrValues[$strControlName];
                 
         //don't handle IFORM, BUTTON, LABEL, HID_INT elements
-        if( $strControlType != 'IFORM' && $strControlType != 'BUTTON' && $strControlType != 'LABEL' && $strControlType != 'HID_INT' ) {
+        if( $strControlType != 'IFORM' && $strControlType != 'BUTTON' && $strControlType != 'LABEL' && $strControlType != 'HID_INT' && $strControlType != 'ROWSUM' ) {
             //if element hasn't value and null's aren't allowed raise error
             if( $strControlType == "INT" ) {
                 if ( !isset($mixControlValue) && !$astrFormElements[$i]['allow_null'] ) {
@@ -294,7 +294,7 @@ if( $intKeyValue ) {
                     $astrFormElements[$j]['listquery'] = str_replace(strtoupper($strReplName), "ID", $astrFormElements[$j]['listquery']);
                 }
             }
-            elseif( $strControlType != 'LABEL' ) {
+            elseif( $strControlType != 'LABEL' && $strControlType != 'ROWSUM' ) {
                 if( $strControlType == 'INTDATE' ) {
                     $astrValues[$strControlName] = dateConvIntDate2Date( mysql_result( $intRes, 0, $strControlName ));
                 }

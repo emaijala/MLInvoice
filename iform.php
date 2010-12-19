@@ -174,7 +174,7 @@ if( $blnAdd ) {
                 }
             }
         }
-        elseif( $strControlType != 'IFORM' && $strControlType != 'HID_INT' && $strControlType != 'NEWLINE' && $strControlType != 'BUTTON' ) {
+        elseif( $strControlType != 'IFORM' && $strControlType != 'HID_INT' && $strControlType != 'NEWLINE' && $strControlType != 'BUTTON' && $strControlType != 'ROWSUM' ) {
             if ( !$astrFormElements[$i]['allow_null'] ) {
                 $blnMissingValues = TRUE;
                 $strOnLoad .= "alert('".$GLOBALS['locERRVALUEMISSING']." : ".$astrFormElements[$i]['label']."');";
@@ -242,7 +242,7 @@ if( $intParentKey ) {
         for($i = 0; $i < $intNumRows; $i++ ) {
             $tmpID = mysql_result( $intRes, $i, "id");
             for( $j = 0; $j < count($astrFormElements); $j++ ) {
-                if( $astrFormElements[$j]['type'] != 'NEWLINE' ) {
+                if( $astrFormElements[$j]['type'] != 'NEWLINE' && $astrFormElements[$j]['type'] != 'ROWSUM' ) {
                     if( $astrFormElements[$j]['type'] == 'INTDATE' ) {
                         $astrOldValues[$i][$astrFormElements[$j]['name']] = dateConvIntDate2Date( mysql_result( $intRes, $i, $astrFormElements[$j]['name'] ));
                     }
@@ -294,7 +294,14 @@ function OpenPop(strLink, event) {
 if( $strMode == "MODIFY" ) {
 $strRowSpan = '';
 for( $j = 0; $j < count($astrFormElements); $j++ ) {
-    if( $astrFormElements[$j]['type'] != "HID_INT" && $astrFormElements[$j]['type'] != "SECHID_INT" && $astrFormElements[$j]['type'] != "BUTTON" && $astrFormElements[$j]['type'] != 'NEWLINE' ) {
+    if( $astrFormElements[$j]['type'] == "ROWSUM") {
+?>
+    <td class="label <?php echo strtolower($astrFormElements[$j]['style'])?>_label">
+        <?php echo $astrFormElements[$j]['label']?><br>
+    </td>
+<?php
+    }
+    elseif( $astrFormElements[$j]['type'] != "HID_INT" && $astrFormElements[$j]['type'] != "SECHID_INT" && $astrFormElements[$j]['type'] != "BUTTON" && $astrFormElements[$j]['type'] != 'NEWLINE' && $astrFormElements[$j]['type'] != 'ROWSUM' ) {
 ?>
     <td class="label <?php echo strtolower($astrFormElements[$j]['style'])?>_label">
         <?php echo $astrFormElements[$j]['label']?><br>
@@ -342,13 +349,27 @@ for($i = 0; $i < count($astrOldValues); $i++ ) {
 <?php
 
     for( $j = 0; $j < count($astrFormElements); $j++ ) {
-        if( $astrFormElements[$j]['type'] != "HID_INT" && $astrFormElements[$j]['type'] != "SECHID_INT" && $astrFormElements[$j]['type'] != 'NEWLINE' ) {
+        if ($astrFormElements[$j]['type'] == "ROWSUM") {
+          $rowSum = $astrOldValues[$i][$multiplierColumn] * $astrOldValues[$i][$priceColumn];
+          if (!$astrOldValues[$i][$VATIncludedColumn])
+            $rowSum += $astrOldValues[$i][$VATColumn] / 100 * $rowSum;
 ?>
     <td class="<?php echo $astrFormElements[$j]['style']?>" >
-        <?php echo htmlFormElement( $astrFormElements[$j]['name'],$astrFormElements[$j]['type'], gpcStripSlashes($astrOldValues[$i][$astrFormElements[$j]['name']]), $astrFormElements[$j]['style'],$astrFormElements[$j]['listquery'], "NO_MOD", 0, $astrFormElements[$j]['label'], array(), isset($astrFormElements[$j]['elem_attributes']) ? $astrFormElements[$j]['elem_attributes'] : '')?>
+        <?php echo htmlFormElement($astrFormElements[$j]['name'], 'TEXT', miscRound2Decim($rowSum), $astrFormElements[$j]['style'], '', "NO_MOD", 0, $astrFormElements[$j]['label'], array(), isset($astrFormElements[$j]['elem_attributes']) ? $astrFormElements[$j]['elem_attributes'] : '')?>
     </td>
 <?php
-
+        }
+        elseif ($astrFormElements[$j]['type'] != "HID_INT" && $astrFormElements[$j]['type'] != "SECHID_INT" && $astrFormElements[$j]['type'] != 'NEWLINE' ) {
+          $value = gpcStripSlashes($astrOldValues[$i][$astrFormElements[$j]['name']]);
+          if ($astrFormElements[$j]['style'] == 'percent')
+            $value = miscRound2Decim($value, 1);
+          elseif ($astrFormElements[$j]['style'] == 'count' || $astrFormElements[$j]['style'] == 'currency')
+            $value = miscRound2Decim($value, 2);
+?>
+    <td class="<?php echo $astrFormElements[$j]['style']?>" >
+        <?php echo htmlFormElement( $astrFormElements[$j]['name'],$astrFormElements[$j]['type'], $value, $astrFormElements[$j]['style'],$astrFormElements[$j]['listquery'], "NO_MOD", 0, $astrFormElements[$j]['label'], array(), isset($astrFormElements[$j]['elem_attributes']) ? $astrFormElements[$j]['elem_attributes'] : '')?>
+    </td>
+<?php
         }
         elseif( $astrFormElements[$j]['type'] == "HID_INT" ||  $astrFormElements[$j]['type'] == "SECHID_INT" ) {
             $strHidField = htmlFormElement( $astrFormElements[$j]['name'],"HID_INT", gpcStripSlashes($astrOldValues[$i][$astrFormElements[$j]['name']]), $astrFormElements[$j]['style'],$astrFormElements[$j]['listquery'], "NO_MOD", 0, $astrFormElements[$j]['label']);
@@ -383,13 +404,53 @@ if( $strMode == "MODIFY" ) {
 }
 ?>
 </tr>
-<tr>
-    <td colspan="3">
-        <hr />
-    </td>
-</tr>
 <?php
 
+}
+
+if (isset($showPriceSummary) && $showPriceSummary)
+{
+  $intTotSum = 0;
+  $intTotVAT = 0;
+  $intTotSumVAT = 0;
+  for($i = 0; $i < count($astrOldValues); $i++ ) 
+  {
+    $intItemPrice = $astrOldValues[$i][$priceColumn];
+    $intItems = $astrOldValues[$i][$multiplierColumn]; 
+    $intVATPercent = $astrOldValues[$i][$VATColumn];
+    $boolVATIncluded = $astrOldValues[$i][$VATIncludedColumn];
+    
+    if ($boolVATIncluded)
+    {
+      $intSumVAT = $intItems * $intItemPrice;
+      $intSum = $intSumVAT / (1 + $intVATPercent / 100);
+      $intVAT = $intSumVAT - $intSum;
+    }
+    else
+    {
+      $intSum = $intItems * $intItemPrice;
+      $intVAT = $intSum * ($intVATPercent / 100);
+      $intSumVAT = $intSum + $intVAT;
+    }
+
+    $intTotSum += $intSum;
+    $intTotVAT += $intVAT;
+    $intTotSumVAT += $intSumVAT;
+  }
+?>
+  <tr class="odd">
+      <td class="input" colspan="9" align="right">
+          <b><?php echo $GLOBALS['locTOTALEXCLUDINGVAT']?><br>
+          <?php echo $GLOBALS['locTOTALVAT']?><br>
+          <?php echo $GLOBALS['locTOTALINCLUDINGVAT']?></b>
+      </td>
+      <td class="input" colspan="2">
+          <b>&nbsp;<?php echo miscRound2Decim($intTotSum)?><br>
+          &nbsp;<?php echo miscRound2Decim($intTotVAT)?><br>
+          &nbsp;<?php echo miscRound2Decim($intTotSumVAT)?></b>
+      </td>
+  </tr>
+<?php
 }
 
 ?>
