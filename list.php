@@ -165,12 +165,8 @@ function createHtmlList($strFunc, $strList, $strIDQuery, &$arrQueryParams, $strT
       },
       "bStateSave": true,
       "sPaginationType": "full_numbers",
-      "aoColumns": [
-<?php
-        for ($i = 0; $i < count($astrShowFields); $i++ ) 
-        {
-          echo '        { "sType": "html-multi" },' . "\n";
-        }?>
+      "aoColumnDefs": [
+        { "aTargets": "_all", "sType": "html-multi", }
       ]
     }
   );

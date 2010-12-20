@@ -350,12 +350,27 @@ for($i = 0; $i < count($astrOldValues); $i++ ) {
 
     for( $j = 0; $j < count($astrFormElements); $j++ ) {
         if ($astrFormElements[$j]['type'] == "ROWSUM") {
-          $rowSum = $astrOldValues[$i][$multiplierColumn] * $astrOldValues[$i][$priceColumn];
-          if (!$astrOldValues[$i][$VATIncludedColumn])
-            $rowSum += $astrOldValues[$i][$VATColumn] / 100 * $rowSum;
+          $items = $astrOldValues[$i][$multiplierColumn];
+          $price = $astrOldValues[$i][$priceColumn];
+          $VATPercent = $astrOldValues[$i][$VATColumn];
+          $VATIncluded = $astrOldValues[$i][$VATIncludedColumn];
+          
+          if ($VATIncluded)
+          {
+            $sumVAT = $tems * $price;
+            $sum = $sumVAT / (1 + $VATPercent / 100);
+            $VAT = $sumVAT - $sum;
+          }
+          else
+          {
+            $sum = $items * $price;
+            $VAT = $sum * ($VATPercent / 100);
+            $sumVAT = $sum + $VAT;
+          }
+          $title = $GLOBALS['locVATLESS'] . ': ' . miscRound2Decim($sum) . ' &ndash; ' . $GLOBALS['locVATPART'] . ': ' . miscRound2Decim($VAT);         
 ?>
     <td class="<?php echo $astrFormElements[$j]['style']?>" >
-        <?php echo htmlFormElement($astrFormElements[$j]['name'], 'TEXT', miscRound2Decim($rowSum), $astrFormElements[$j]['style'], '', "NO_MOD", 0, $astrFormElements[$j]['label'], array(), isset($astrFormElements[$j]['elem_attributes']) ? $astrFormElements[$j]['elem_attributes'] : '')?>
+        <?php echo htmlFormElement($astrFormElements[$j]['name'], 'TITLEDTEXT', miscRound2Decim($sumVAT), $astrFormElements[$j]['style'], '', "NO_MOD", 0, $title, array(), isset($astrFormElements[$j]['elem_attributes']) ? $astrFormElements[$j]['elem_attributes'] : '')?>
     </td>
 <?php
         }
@@ -438,7 +453,7 @@ if (isset($showPriceSummary) && $showPriceSummary)
     $intTotSumVAT += $intSumVAT;
   }
 ?>
-  <tr class="odd">
+  <tr class="summary">
       <td class="input" colspan="9" align="right">
           <b><?php echo $GLOBALS['locTOTALEXCLUDINGVAT']?><br>
           <?php echo $GLOBALS['locTOTALVAT']?><br>

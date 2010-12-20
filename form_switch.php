@@ -93,7 +93,7 @@ case 'company':
      array(
         "name" => "info", "label" => $GLOBALS['locINFO'], "type" => "AREA", "style" => "medium", "listquery" => "", "position" => 2, "default" => FALSE, "allow_null" => TRUE ),
      array(
-        "name" => "company_contact", "label" => $GLOBALS['locCONTACTS'], "type" => "IFORM", "style" => "full", "listquery" => "", "position" => 0, "default" => FALSE, "allow_null" => TRUE, "parent_key" => "company_id" )
+        "name" => "company_contact", "label" => $GLOBALS['locCONTACTS'], "type" => "IFORM", "style" => "full resizable", "listquery" => "", "position" => 0, "default" => FALSE, "allow_null" => TRUE, "parent_key" => "company_id" )
     );
 break;
 

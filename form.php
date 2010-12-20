@@ -322,9 +322,19 @@ function createForm($strFunc, $strList, $strForm)
   
   <script type="text/javascript">
   <!--
-	$(function() {
+  $(document).ready(function() {
 		$('input[class~="hasCalendar"]').datepicker();
-	});
+		$('iframe[class~="resizable"]').load(function() {
+		  var iframe = $(this);
+		  var body = iframe.contents().find("body");
+		  iframe.css("height", body.outerHeight(true) + 10 + 'px');
+		  body.css("overflow", "hidden");
+		});   
+  });
+
+	//$(function() {
+//		$('input[class~="hasCalendar"]').datepicker();
+//	});
   -->
   </script>
   

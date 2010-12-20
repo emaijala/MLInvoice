@@ -61,7 +61,7 @@ Todo : This could be more generic...
   <link rel="shortcut icon" href="favicon.ico" type="image/x-icon">
   <link rel="stylesheet" type="text/css" href="css/style.css">
   <link rel="stylesheet" type="text/css" href="jquery/css/smoothness/jquery-ui-1.8.6.custom.css">
-  <script type="text/javascript" src="jquery/js/jquery-1.4.2.min.js"></script>
+  <script type="text/javascript" src="jquery/js/jquery-1.4.4.min.js"></script>
   <script type="text/javascript" src="jquery/js/jquery-ui-1.8.6.custom.min.js"></script>
   <script type="text/javascript" src="jquery/js/jquery.ui.datepicker-fi.js"></script>
   <script type="text/javascript" src="datatables/media/js/jquery.dataTables.min.js"></script>
@@ -195,26 +195,42 @@ Todo :
     Check values. Errors. Style?
 ********************************************************************/
 function htmlFormElement( $strName, $strType, $strValue, $strStyle, $strListQuery, $strMode = "MODIFY", $strParentKey = NULL, $strTitle = "", $astrDefaults = array(), $astrAdditionalAttributes = '' ) {
+    if ($astrAdditionalAttributes)
+      $astrAdditionalAttributes = " $astrAdditionalAttributes";
     $strFormElement = '';
     switch( $strType ) {
         case 'TEXT' :
             if( $strMode == "MODIFY" ) {
                 $strFormElement = 
                   "<input type=\"text\" class=\"$strStyle\" " .
-                  "id=\"$strName\" name=\"$strName\" value=\"" . htmlspecialchars($strValue) . "\" $astrAdditionalAttributes>\n";
+                  "id=\"$strName\" name=\"$strName\" value=\"" . htmlspecialchars($strValue) . "\"$astrAdditionalAttributes>\n";
             }
             elseif( $strMode == "PDF" ) {
                 $strFormElement = $strValue;
             }
             else {
-                $strFormElement = htmlspecialchars($strValue) . "\n";
+                $strFormElement = htmlspecialchars($strValue);
+            }
+        break;
+        case 'TITLEDTEXT' :
+            if( $strMode == "MODIFY" ) {
+                $strFormElement = 
+                  "<input type=\"text\" class=\"$strStyle\" " .
+                  "id=\"$strName\" name=\"$strName\" value=\"" . htmlspecialchars($strValue) . "\"$astrAdditionalAttributes>\n";
+            }
+            elseif( $strMode == "PDF" ) {
+                $strFormElement = $strValue;
+            }
+            else {
+                $strFormElement = '<span title="' . $strTitle . '">' . 
+                  htmlspecialchars($strValue) . "</span>\n";
             }
         break;
         case 'PASSWD' :
             if( $strMode == "MODIFY" ) {
                 $strFormElement = 
                   "<input type=\"password\" class=\"$strStyle\" " .
-                  "id=\"$strName\" name=\"$strName\" value=\"\" $astrAdditionalAttributes>\n";
+                  "id=\"$strName\" name=\"$strName\" value=\"\"$astrAdditionalAttributes>\n";
             }
             elseif( $strMode == "PDF" ) {
                 $strFormElement = "********\n";
@@ -227,7 +243,7 @@ function htmlFormElement( $strName, $strType, $strValue, $strStyle, $strListQuer
             if( $strMode == "MODIFY" ) {
                 $strValue = $strValue ? 'checked' : '';
                 $strFormElement = 
-                  "<input type=\"checkbox\" id=\"$strName\" name=\"$strName\" value=\"1\" " . htmlspecialchars($strValue) . " $astrAdditionalAttributes>\n";
+                  "<input type=\"checkbox\" id=\"$strName\" name=\"$strName\" value=\"1\" " . htmlspecialchars($strValue) . "$astrAdditionalAttributes>\n";
             }
             elseif( $strMode == "PDF" ) {
                 $strValue = $strValue ? "X" : "";
@@ -242,7 +258,7 @@ function htmlFormElement( $strName, $strType, $strValue, $strStyle, $strListQuer
             if( $strMode == "MODIFY" ) {
                 $strChecked = $strValue ? 'checked' : '';
                 $strFormElement = 
-                  "<input type=\"radio\" id=\"$strName\" name=\"$strName\" value=\"" . htmlspecialchars($strValue) . "\" $astrAdditionalAttributes>\n";
+                  "<input type=\"radio\" id=\"$strName\" name=\"$strName\" value=\"" . htmlspecialchars($strValue) . "\"$astrAdditionalAttributes>\n";
             }
             elseif( $strMode == "PDF" ) {
                 $strValue = $strValue ? "X" : "";
@@ -257,7 +273,7 @@ function htmlFormElement( $strName, $strType, $strValue, $strStyle, $strListQuer
             if( $strMode == "MODIFY" ) {
                 $strFormElement = 
                   "<input type=\"text\" class=\"$strStyle\" " .
-                  "id=\"$strName\" name=\"$strName\" value=\"" . htmlspecialchars($strValue) . "\" $astrAdditionalAttributes>\n";
+                  "id=\"$strName\" name=\"$strName\" value=\"" . htmlspecialchars($strValue) . "\"$astrAdditionalAttributes>\n";
             }
             elseif( $strMode == "PDF" ) {
                 $strFormElement = $strValue;
@@ -270,7 +286,7 @@ function htmlFormElement( $strName, $strType, $strValue, $strStyle, $strListQuer
             if( $strMode == "MODIFY" ) {
                 $strFormElement = 
                 "<input type=\"text\" class=\"$strStyle hasCalendar\" ".
-                "id=\"$strName\" name=\"$strName\" value=\"" . htmlspecialchars($strValue) . "\" $astrAdditionalAttributes>\n";
+                "id=\"$strName\" name=\"$strName\" value=\"" . htmlspecialchars($strValue) . "\"$astrAdditionalAttributes>\n";
                 if( $strListQuery == "gif" ) {
                     $strExtension = "gif";
                 }
@@ -322,7 +338,7 @@ function htmlFormElement( $strName, $strType, $strValue, $strStyle, $strListQuer
             if( $strMode == "MODIFY" ) {
                 $strFormElement = 
                   "<textarea rows=\"24\" cols=\"80\" class=\"" . $strStyle . "\" ".
-                  "id=\"" . $strName . "\" name=\"" . $strName . "\" $astrAdditionalAttributes>" . $strValue . "</textarea>\n";
+                  "id=\"" . $strName . "\" name=\"" . $strName . "\"$astrAdditionalAttributes>" . $strValue . "</textarea>\n";
             }
             elseif( $strMode == "PDF" ) {
                 $strFormElement = $strValue;
@@ -376,8 +392,8 @@ function htmlFormElement( $strName, $strType, $strValue, $strStyle, $strListQuer
                         }
                     }
                     $strFormElement = 
-                    "<iframe src=\"iform.php?selectform=$strName&amp;$strParentKey=$strValue&amp;$strDefaults\" ".
-                    "class=\"$strStyle\" id=\"$strName\" name=\"$strName\" $astrAdditionalAttributes>\n".
+                    "<iframe marginheight=\"0\" marginwidth=\"0\" frameborder=\"0\" src=\"iform.php?selectform=$strName&amp;$strParentKey=$strValue&amp;$strDefaults\" ".
+                    "class=\"$strStyle\" id=\"$strName\" name=\"$strName\"$astrAdditionalAttributes>\n".
                     "<h3>A browser with iframe support required</h3>\n".
                     "</iframe>\n";
                 }
@@ -394,7 +410,7 @@ function htmlFormElement( $strName, $strType, $strValue, $strStyle, $strListQuer
                     }
                     $strFormElement = 
                     "<iframe src=\"iform.php?selectform=$strName&amp;$strParentKey=$strValue&amp;$strDefaults&amp;mode=VIEW\" ".
-                    "class=\"$strStyle\" id=\"$strName\" name=\"$strName\" $astrAdditionalAttributes>\n".
+                    "class=\"$strStyle\" id=\"$strName\" name=\"$strName\"$astrAdditionalAttributes>\n".
                     "<h3>A browser with iframe support required</h3>\n".
                     "</iframe>\n";
                 }
@@ -465,7 +481,7 @@ function htmlFormElement( $strName, $strType, $strValue, $strStyle, $strListQuer
             if( $strValue ) {
                 
                 $strFormElement = 
-                    "<a class=\"formbuttonlink\" href=\"$strHref\" $strOnClick $astrAdditionalAttributes>" . htmlspecialchars($strTitle) . "</a>";
+                    "<a class=\"formbuttonlink\" href=\"$strHref\" $strOnClick$astrAdditionalAttributes>" . htmlspecialchars($strTitle) . "</a>";
                     
             }
             else {
