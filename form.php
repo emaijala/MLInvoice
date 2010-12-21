@@ -327,7 +327,11 @@ function createForm($strFunc, $strList, $strForm)
 		$('iframe[class~="resizable"]').load(function() {
 		  var iframe = $(this);
 		  var body = iframe.contents().find("body");
-		  iframe.css("height", body.outerHeight(true) + 10 + 'px');
+		  var newHeight = body.outerHeight(true) + 10;
+		  // Leave room for calendar popup
+		  if (newHeight < 250)
+		    newHeight = 250;
+		  iframe.css("height", newHeight + 'px');
 		  body.css("overflow", "hidden");
 		});   
   });
