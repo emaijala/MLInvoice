@@ -274,17 +274,25 @@ $(function() {
 });
 
 function OpenPop(strLink, event) {
-    x = event.screenX;
-    y = event.screenY;
-    
-    var win = window.open(strLink, 'pop_iform', 'height=200,width=800,screenX=' + x + ',screenY=' + y + ',left=' + x + ',top=' + y + ',menubar=no,scrollbars=yes,status=no,toolbar=no');
-    win.focus();
+    $("#popup_edit").dialog({ modal: true, width: 810, height: 160, resizable: false, 
+      position: [50, event.clientY], buttons: {
+          "<?php echo $GLOBALS['locSAVE']?>": function() { var form = $("#popup_edit_iframe").contents().find("#pop_iform").get(0); form.saveact.value=1; form.submit(); return false; },
+          "<?php echo $GLOBALS['locDELETE']?>": function() { if(confirm('<?php echo $GLOBALS['locCONFIRMDELETE']?>')==true) { var form = $("#popup_edit_iframe").contents().find("#pop_iform").get(0); form.deleteact.value=1; form.submit(); } return false; },
+          "<?php echo $GLOBALS['locCLOSE']?>": function() { $("#popup_edit").dialog('close'); }
+        }
+      }).find("#popup_edit_iframe").attr("src", strLink);
     
     return true;
 }
 
+
 -->
 </script>
+
+<div id="popup_edit" style="display: none; width: 900px; overflow: hidden">
+<iframe marginheight="0" marginwidth="0" frameborder="0" id="popup_edit_iframe" src="about:blank" style="width: 800px; height: 60px; overflow: hidden; border: 0"></iframe>
+</div>
+
 <form method="post" action="<?php echo $strMainForm?>" target="_self" name="iform">
 <input type="hidden" name="<?php echo $strParentKey?>" value="<?php echo $intParentKey?>">
 <input type="hidden" name="defaults" value="<?php echo $strDefaults?>">

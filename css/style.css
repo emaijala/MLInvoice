@@ -68,6 +68,12 @@ table.iform {
   padding: 0px;
 }
 
+table.iform_pop {
+  border: 0;
+  margin: 0px;
+  padding: 0px;
+}
+
 .iform tr:nth-child(even) {
   background-color: white;
 }

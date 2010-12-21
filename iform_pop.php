@@ -234,7 +234,7 @@ if( $blnSave ) {
         
         if( $intRes ) {
             $blnUpdateDone = TRUE;
-            $strOnLoad = "opener.document.forms[0].submit(); self.close();";
+            $strOnLoad = "parent.document.forms[0].submit();";
         }
         //if there's no resource identifier something went wrong
         else {
@@ -255,7 +255,7 @@ if( $blnDelete && $intKeyValue ) {
     //clear form elements
     unset($astrValues);
     $blnNew = TRUE;
-    $strOnLoad = "opener.document.forms[0].submit(); self.close();";
+    $strOnLoad = "parent.document.forms[0].submit();";
 }
 
 if( $intKeyValue ) {
@@ -314,7 +314,7 @@ if( $intKeyValue ) {
 }
 
 ?>
-<body class="iform" onload="<?php echo $strOnLoad?>">
+<body class="iform_pop" onload="<?php echo $strOnLoad?>">
 <script type="text/javascript">
 <!--
 $(function() {
@@ -322,7 +322,7 @@ $(function() {
 });
 -->
 </script>
-<form method="post" action="iform_pop.php?selectform=<?php echo $strForm?>" target="_self" name="pop_iform">
+<form method="post" action="iform_pop.php?selectform=<?php echo $strForm?>" target="_self" name="pop_iform" id="pop_iform">
 <?php
 if (!$blnCopy) {
     echo "<input type=\"hidden\" name=\"{$strPrimaryKey}\" value=\"{$intKeyValue}\">\n";
@@ -335,7 +335,7 @@ if (!$blnCopy) {
 <?php
 
 for( $j = 0; $j < count($astrFormElements); $j++ ) {
-    if( $astrFormElements[$j]['type'] != "HID_INT" && $astrFormElements[$j]['type'] != "SECHID_INT" && $astrFormElements[$j]['type'] != "BUTTON" && $astrFormElements[$j]['type'] != 'NEWLINE' ) {
+    if( $astrFormElements[$j]['type'] != "HID_INT" && $astrFormElements[$j]['type'] != "SECHID_INT" && $astrFormElements[$j]['type'] != "BUTTON" && $astrFormElements[$j]['type'] != 'NEWLINE' && $astrFormElements[$j]['type'] != 'ROWSUM' ) {
 ?>
     <td class="label">
         <?php echo $astrFormElements[$j]['label']?><br>
@@ -369,20 +369,6 @@ for( $j = 0; $j < count($astrFormElements); $j++ ) {
 <input type="hidden" name="saveact" value="0">
 <input type="hidden" name="copyact" value="<?php echo $blnCopy?>">
 <input type="hidden" name="deleteact" value="0">
-<table>
-<tr>
-    <td>
-        <a href="#" onclick="self.document.forms[0].saveact.value=1; self.document.forms[0].submit(); return false;" class="actionlink"><?php echo $GLOBALS['locSAVE']?></a>
-    </td>
-    <td>
-        <a href="#" onClick="if(confirm('<?php echo $GLOBALS['locCONFIRMDELETE']?>')==true) {  self.document.forms[0].deleteact.value=1; self.document.forms[0].submit(); return false; } else{ return false; }" class="actionlink"><?php echo $GLOBALS['locDELETE']?></a>
-    </td>
-    <td>
-        <a href="#" onClick="self.close(); return false;" class="actionlink"><?php echo $GLOBALS['locCLOSE']?></a>
-    </td>
-</tr>
-</table>
-
 
 </form>
 </body>
