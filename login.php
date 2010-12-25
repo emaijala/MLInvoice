@@ -3,10 +3,6 @@
 VLLasku: web-based invoicing application.
 Copyright (C) 2010 Ere Maijala
 
-Portions based on:
-PkLasku : web-based invoicing software.
-Copyright (C) 2004-2008 Samu Reinikainen
-
 This program is free software. See attached LICENSE.
 
 *******************************************************************************/
@@ -14,10 +10,6 @@ This program is free software. See attached LICENSE.
 /*******************************************************************************
 VLLasku: web-pohjainen laskutusohjelma.
 Copyright (C) 2010 Ere Maijala
-
-Perustuu osittain sovellukseen:
-PkLasku : web-pohjainen laskutusohjelmisto.
-Copyright (C) 2004-2008 Samu Reinikainen
 
 Tämä ohjelma on vapaa. Lue oheinen LICENSE.
 
@@ -27,7 +19,7 @@ require "sqlfuncs.php";
 require "miscfuncs.php";
 require "htmlfuncs.php";
 require "sessionfuncs.php";
-require "localize.php";
+require_once "localize.php";
 
 session_start();
 
@@ -69,8 +61,7 @@ echo htmlPageStart(_PAGE_TITLE_, array('jquery/js/jquery.md5.js'));
 
 <h1><?php echo $GLOBALS['locWELCOME']?></h1>
 <p>
-  <?php echo $strMessage?>
-  
+  <span id="loginmsg"><?php echo $strMessage?></span>
 </p>
 
 <script type="text/javascript">  
@@ -81,6 +72,8 @@ function createHash()
   document.getElementById('fpasswd').value = $.md5(key + pass_md5);
   document.getElementById('passwd').value = '';
   document.getElementById('key').value = '';
+  var loginmsg = document.getElementById('loginmsg');
+  loginmsg.childNodes.item(0).nodeValue = '<?php echo $GLOBALS['locLoggingIn']?>';
 }  
 </script>  
 

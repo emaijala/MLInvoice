@@ -29,7 +29,7 @@ require "sessionfuncs.php";
 
 sesVerifySession();
 
-require "localize.php";
+require_once "localize.php";
 
 sesEndSession();
 

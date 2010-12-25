@@ -23,6 +23,8 @@ Tämä ohjelma on vapaa. Lue oheinen LICENSE.
 
 *******************************************************************************/
 
+require_once "settings.php";
+
 switch (isset($_SESSION['sesLANG']) ? $_SESSION['sesLANG'] : 'fi') {
 
 case 'en' :
@@ -36,6 +38,7 @@ default :
     $GLOBALS['locINVALIDCREDENTIALS'] = 'Käyttäjätunnus tai salasana väärä.';
     $GLOBALS['locLOGINTIMEOUT'] = 'Kirjautumislomakkeen täyttöaika ylittynyt. Ole hyvä ja kirjaudu uudelleen.';
     $GLOBALS['locMISSINGFIELDS'] = 'Ole hyvä ja syötä kaikki tiedot.';
+    $GLOBALS['locLoggingIn'] = 'Kirjaudutaan...';
     $GLOBALS['locWELCOME'] = 'Tervetuloa';
     $GLOBALS['locLICENSENOTIFY'] = '';
     $GLOBALS['locCREDITS'] = '';

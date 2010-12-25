@@ -31,7 +31,7 @@ require "datefuncs.php";
 
 sesVerifySession();
 
-require "localize.php";
+require_once "localize.php";
 
 $strForm = getPostRequest('selectform', '');
 $strMode = getPostRequest('actmode', 'MODIFY');

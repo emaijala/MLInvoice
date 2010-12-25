@@ -29,7 +29,11 @@ function sesCreateSession($strLogin, $strPasswd)
     {
         $key_ip = $_SESSION['keyip'];
         if ($_SERVER['REMOTE_ADDR'] != $key_ip)
+        {
+          // Delay so that brute-force attacks become unpractical
+          sleep(2);
           return 'FAIL';
+        }
 
         $key = $_SESSION['key'];
         unset($_SESSION['key']);
@@ -48,7 +52,11 @@ function sesCreateSession($strLogin, $strPasswd)
             $passwd_md5 = $row['passwd'];
             $md5 = md5($key . $passwd_md5);
             if ($md5 != $strPasswd)
+            {
+              // Delay so that brute-force attacks become unpractical
+              sleep(2);
               return 'FAIL';
+            }
               
             $_SESSION['sesTYPEID'] = $row['type_id'];
             $_SESSION['sesLANG'] = 'fi';
@@ -62,6 +70,8 @@ function sesCreateSession($strLogin, $strPasswd)
             return 'OK';
         }
     }
+    // Delay so that brute-force attacks become unpractical
+    sleep(2);
     return 'FAIL';
 }
 

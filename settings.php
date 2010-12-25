@@ -44,6 +44,7 @@ define ('_PROTOCOL_', isset($_SERVER['HTTPS']) ? 'https://' : 'http://');
 
 function getSetting($name)
 {
+  require_once 'localize.php';
   require 'settings_def.php';
   
   $res = mysql_param_query('SELECT value from {prefix}settings WHERE name=?', array($name));

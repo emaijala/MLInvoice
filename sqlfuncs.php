@@ -37,7 +37,7 @@ Todo :
     
 ********************************************************************/
 
-require 'settings.php';
+require_once 'settings.php';
 
 // Connect to database server
 $link = mysql_connect(_DB_SERVER_, _DB_USERNAME_, _DB_PASSWORD_)
