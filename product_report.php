@@ -285,27 +285,27 @@ function printReport()
   <div class="report">
   <table>
   <tr>
-      <td class="label">
+      <th class="label">
           <?php echo $GLOBALS['locPRODUCT']?>
-      </td>
-      <td class="label" align="right">
+      </th>
+      <th class="label" align="right">
           <?php echo $GLOBALS['locPCS']?>
-      </td>
-      <td class="label" align="right">
+      </th>
+      <th class="label" align="right">
           <?php echo $GLOBALS['locUNIT']?>
-      </td>
-      <td class="label" align="right">
+      </th>
+      <th class="label" align="right">
           <?php echo $GLOBALS['locVATLESS']?>
-      </td>
-      <td class="label" align="right">
+      </th>
+      <th class="label" align="right">
           <?php echo $GLOBALS['locVATPERCENT']?>
-      </td>
-      <td class="label" align="rght">
+      </th>
+      <th class="label" align="rght">
           <?php echo $GLOBALS['locVATPART']?>
-      </td>
-      <td class="label" align="right">
+      </th>
+      <th class="label" align="right">
           <?php echo $GLOBALS['locWITHVAT']?>
-      </td>
+      </th>
   </tr>
   <?php
   if( $intNumRows ) {

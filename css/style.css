@@ -110,6 +110,8 @@ th {
  text-align: left;
 }
 
+.label {
+}
 
 td {
  vertical-align: top;
@@ -124,15 +126,12 @@ td.button {
   vertical-align: top;
   padding: 2px 0px;
 }
-td.label {
-  font-weight: bold;
-}
 
 td.error {
   font-weight: bold;
   background-color: #8d5153;
 }
-td.sublabel {
+.sublabel {
   font-size: 14px;
   font-weight: bold;
   padding: 2px 2px 2px 10px;

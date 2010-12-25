@@ -268,27 +268,27 @@ function printReport()
   <div class="report">
   <table>
   <tr>
-      <td class="label" align="center">
+      <th class="label" align="center">
           <?php echo $GLOBALS['locINVNO']?>
-      </td>
-      <td class="label" align="center">
+      </th>
+      <th class="label" align="center">
           <?php echo $GLOBALS['locINVDATE']?>
-      </td>
-      <td class="label" align="center">
+      </th>
+      <th class="label" align="center">
           <?php echo $GLOBALS['locPAYER']?>
-      </td>
-      <td class="label" align="center">
+      </th>
+      <th class="label" align="center">
           <?php echo $GLOBALS['locINVOICESTATE']?>
-      </td>
-      <td class="label" align="center">
+      </th>
+      <th class="label" align="center">
           <?php echo $GLOBALS['locVATLESS']?>
-      </td>
-      <td class="label" align="center">
+      </th>
+      <th class="label" align="center">
           <?php echo $GLOBALS['locVATPART']?>
-      </td>
-      <td class="label" align="center">
+      </th>
+      <th class="label" align="center">
           <?php echo $GLOBALS['locWITHVAT']?>
-      </td>
+      </th>
   </tr>
 <?php
   if( $intNumRows ) {
