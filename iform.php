@@ -365,7 +365,7 @@ for($i = 0; $i < count($astrOldValues); $i++ ) {
           
           if ($VATIncluded)
           {
-            $sumVAT = $tems * $price;
+            $sumVAT = $items * $price;
             $sum = $sumVAT / (1 + $VATPercent / 100);
             $VAT = $sumVAT - $sum;
           }
