@@ -159,6 +159,7 @@ function getPageTitle($strFunc, $strList, $strForm)
     {
       switch ($strList)
       {
+      case 'settings': return $GLOBALS['locGeneralSettings']; 
       case 'base_info': return $GLOBALS['locBASES']; 
       case 'invoice_state': return $GLOBALS['locINVOICESTATES']; 
       case 'product': return $GLOBALS['locPRODUCTS']; 

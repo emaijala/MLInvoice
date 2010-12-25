@@ -67,18 +67,18 @@ if ($intInvoiceId)
     }
     
     $intDate = date("Ymd");
-    $intDueDate = date("Ymd",mktime(0, 0, 0, date("m"), date("d") + _PAYMENT_DAYS_, date("Y")));
+    $intDueDate = date("Ymd",mktime(0, 0, 0, date("m"), date("d") + getSetting('invoice_payment_days'), date("Y")));
     
     $intNewInvNo = 0;
     $intNewRefNo = 'NULL';
-    if (_ADD_INVOICE_NUMBER_ || _ADD_REFERENCE_NUMBER_)     
+    if (getSetting('invoice_add_number') || getSetting('invoice_add_reference_number'))     
     {
       $strQuery = "SELECT max(invoice_no) FROM {prefix}invoice";
       $intRes = mysql_query_check($strQuery);
       $intInvNo = mysql_result($intRes, 0, 0) + 1;
-      if (_ADD_INVOICE_NUMBER_)
+      if (getSetting('invoice_add_number'))
         $intNewInvNo = $intInvNo;
-      if (_ADD_REFERENCE_NUMBER_)
+      if (getSetting('invoice_add_reference_number'))
         $intNewRefNo = $intInvNo . miscCalcCheckNo($intInvNo);
     }
     

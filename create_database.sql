@@ -166,6 +166,13 @@ CREATE TABLE vllasku_quicksearch (
   FOREIGN KEY (user_id) REFERENCES vllasku_users(id)
 ) ENGINE=INNODB CHARACTER SET utf8 COLLATE utf8_swedish_ci;
 
+CREATE TABLE vllasku_settings (
+  id int(11) NOT NULL auto_increment,
+  name varchar(100) NOT NULL,
+  value text NULL,
+  PRIMARY KEY  (id)
+) ENGINE=INNODB CHARACTER SET utf8 COLLATE utf8_swedish_ci;
+
 SET NAMES 'utf8';
 
 INSERT INTO vllasku_base (id, name, contact_person, street_address, zip_code, city, phone, bank_name, bank_account, bank_iban, bank_swiftbic, www, email, company_id) VALUES (1, 'Testifirma', 'Taavi Testaaja', 'Testitie', '00730', 'HELSINKI', '+358 50 123456', 'Pankki', '123456-654321', 'FI12 3456 7890 1234 56', 'FIHHPANK', 'http://sourceforge.net/', 'emaijala@gmail.com', '123456-7');

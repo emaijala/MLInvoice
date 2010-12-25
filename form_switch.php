@@ -53,7 +53,7 @@ case 'company':
     );
     
    $defaultCustomerNo = FALSE;
-   if (_ADD_CUSTOMER_NUMBER_)
+   if (getSetting('add_customer_number'))
    {
      $strQuery = "SELECT max(customer_no) FROM {prefix}company";
      $intRes = mysql_query_check($strQuery);
@@ -158,14 +158,14 @@ case 'invoice':
    
    $defaultInvNo = FALSE;
    $defaultRefNo = FALSE;
-   if (_ADD_INVOICE_NUMBER_ || _ADD_REFERENCE_NUMBER_)
+   if (getSetting('invoice_add_number') || getSetting('invoice_add_reference_number'))
    {
      $strQuery = "SELECT max(cast(invoice_no as unsigned integer)) FROM {prefix}invoice";
      $intRes = mysql_query_check($strQuery);
      $intInvNo = mysql_result($intRes, 0, 0) + 1;
-     if (_ADD_INVOICE_NUMBER_)
+     if (getSetting('invoice_add_number'))
        $defaultInvNo = $intInvNo;
-     if (_ADD_REFERENCE_NUMBER_)
+     if (getSetting('invoice_add_reference_number'))
        $defaultRefNo = $intInvNo . miscCalcCheckNo($intInvNo);
    }
    
@@ -226,7 +226,7 @@ EOS;
      array(
         "name" => "invoice_date", "label" => $GLOBALS['locINVDATE'], "type" => "INTDATE", "style" => "date", "listquery" => "", "position" => 1, "default" => "DATE_NOW", "allow_null" => FALSE ),
      array(
-        "name" => "due_date", "label" => $GLOBALS['locDUEDATE'], "type" => "INTDATE", "style" => "date", "listquery" => "", "position" => 2, "default" => 'DATE_NOW+' . _PAYMENT_DAYS_, "allow_null" => FALSE ),
+        "name" => "due_date", "label" => $GLOBALS['locDUEDATE'], "type" => "INTDATE", "style" => "date", "listquery" => "", "position" => 2, "default" => 'DATE_NOW+' . getSetting('invoice_payment_days'), "allow_null" => FALSE ),
      array(
         "name" => "invoice_no", "label" => $GLOBALS['locINVNO'], "type" => "INT", "style" => "medium", "listquery" => "", "position" => 1, "default" => $defaultInvNo, "allow_null" => TRUE ),
      array(
@@ -262,7 +262,7 @@ case 'invoice_rows':
    $strDescription = '';
    $intTypeId = 'POST';
    $intPrice = 'POST';
-   $intVAT = _DEFAULT_VAT_;
+   $intVAT = getSetting('invoice_default_vat_percent');
    $intVATIncluded = 0;
    if ($intProductId)
    {

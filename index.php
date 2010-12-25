@@ -22,6 +22,7 @@ require_once 'form.php';
 require_once 'open_invoices.php';
 require_once 'settings.php';
 require_once 'localize.php';
+require_once 'settings_list.php';
 
 sesVerifySession();
 
@@ -125,7 +126,12 @@ default:
     if ($strFunc == 'open_invoices')
       createOpenInvoiceList();
     else
-      createList($strFunc, $strList);
+    {
+      if ($strList == 'settings')
+        createSettingsList();
+      else
+        createList($strFunc, $strList);
+    }
   }
 }
 ?>

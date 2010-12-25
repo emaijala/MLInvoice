@@ -61,6 +61,7 @@ function createFuncMenu($strFunc)
       $strLabel = $GLOBALS['locSHOWSETTINGSNAVI'];
       $astrNaviLinks = 
       array( 
+          array("href" => "list=settings", "text" => $GLOBALS['locGeneralSettings'], "levels_allowed" => array(1)),
           array("href" => "list=base_info", "text" => $GLOBALS['locBASES'], "levels_allowed" => array(1)),
           array("href" => "list=invoice_state", "text" => $GLOBALS['locINVOICESTATES'], "levels_allowed" => array(1)),
           array("href" => "list=product", "text" => $GLOBALS['locPRODUCTS'], "levels_allowed" => array(1)),

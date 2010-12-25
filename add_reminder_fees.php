@@ -68,17 +68,18 @@ if( $intInvoiceId ) {
       mysql_param_query('UPDATE {prefix}invoice SET state_id = ? where id = ?', array($intStateId, $intInvoiceId));
       
       // Add reminder fee
-      if (_NOTIFICATION_FEE_)
+      if (getSetting('invoice_notification_fee'))
       {
         // Remove old fee from same day
         mysql_param_query('DELETE FROM {prefix}invoice_row WHERE invoice_id = ? AND reminder_row = 2 AND row_date = ?', array($intInvoiceId, date('Ymd')));
         
         $strQuery = 'INSERT INTO {prefix}invoice_row (invoice_id, description, pcs, price, row_date, vat, vat_included, reminder_row) ' .
           'VALUES (?, ?, 1, ?, ?, 0, 0, 2)';
-        mysql_param_query($strQuery, array($intInvoiceId, $GLOBALS['locREMINDERFEEDESC'], _NOTIFICATION_FEE_, date('Ymd')));
+        mysql_param_query($strQuery, array($intInvoiceId, $GLOBALS['locREMINDERFEEDESC'], getSetting('invoice_notification_fee'), date('Ymd')));
       }
       // Add penalty interest
-      if (_PENALTY_INTEREST_PERCENT_)
+      $penaltyInterest = getSetting('invoice_penalty_interest');
+      if ($penaltyInterest)
       {
         // Remove old penalty interest
         mysql_param_query('DELETE FROM {prefix}invoice_row WHERE invoice_id = ? AND reminder_row = 1', array($intInvoiceId));
@@ -103,7 +104,7 @@ if( $intInvoiceId ) {
           $intRowSumVAT = $intRowSum + $intRowVAT;
           $intTotSumVAT += $intRowSumVAT;
         }
-        $intPenalty = $intTotSumVAT * _PENALTY_INTEREST_PERCENT_ / 100 * $intDaysOverdue / 360;
+        $intPenalty = $intTotSumVAT * $penaltyInterest / 100 * $intDaysOverdue / 360;
         
         $strQuery = 'INSERT INTO {prefix}invoice_row (invoice_id, description, pcs, price, row_date, vat, vat_included, reminder_row) ' .
           'VALUES (?, ?, 1, ?, ?, 0, 0, 1)';

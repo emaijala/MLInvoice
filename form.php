@@ -208,7 +208,7 @@ function createForm($strFunc, $strList, $strForm)
               }
               else
               {
-                if (_AUTO_CLOSE_FORM_)
+                if (getSetting('auto_close_form'))
                 {
                   $qs = preg_replace('/&form=\w*/', '', $_SERVER['QUERY_STRING']);
                   $qs = preg_replace('/&id=\w*/', '', $qs);
@@ -240,7 +240,7 @@ function createForm($strFunc, $strList, $strForm)
       //clear form elements
       unset($astrValues);
       $blnNew = TRUE;
-      if (_AUTO_CLOSE_FORM_)
+      if (getSetting('auto_close_form'))
       {
         $qs = preg_replace('/&form=\w*/', '', $_SERVER['QUERY_STRING']);
         $qs = preg_replace('/&id=\w*/', '', $qs);

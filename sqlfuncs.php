@@ -39,11 +39,11 @@ Todo :
 
 require 'settings.php';
 
-/* Connecting, selecting database */
-
+// Connect to database server
 $link = mysql_connect(_DB_SERVER_, _DB_USERNAME_, _DB_PASSWORD_)
    or die("Could not connect : " . mysql_error());
 
+// Select database
 mysql_select_db(_DB_NAME_) or die("Could not select database: " . mysql_error());
 
 if (_CHARSET_ == 'UTF-8')

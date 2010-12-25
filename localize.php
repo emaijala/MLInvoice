@@ -215,6 +215,7 @@ default :
     $GLOBALS['locDISPLAYARCHIVEDINVOICES'] = 'Arkistoidut laskut';
     $GLOBALS['locINVOICE'] = 'Laskun tiedot';
     $GLOBALS['locSETTINGS'] = 'Asetukset';
+    $GLOBALS['locGeneralSettings'] = 'Yleiset asetukset';
     $GLOBALS['locSYSTEM'] = 'Järjestelmä';
     $GLOBALS['locNOENTRIES'] = 'Ei löytyneitä';
     $GLOBALS['locENTERTERMS'] = 'Syötä hakusanat välilyönnillä eroteltuina. Tyhjä kenttä tai * näyttää kaikki tietueet.';
@@ -340,6 +341,24 @@ default :
     $GLOBALS['locLABELUNPAIDINVOICES'] = 'Maksamattomat laskut';
     $GLOBALS['locNOUNPAIDINVOICES'] = 'Ei maksamattomia laskuja';
     
+    // General Settings
+    $GLOBALS['locSettingAutoCloseForm'] = 'Sulje lomake automaattisesti tallennuksen tai poiston jälkeen';
+    $GLOBALS['locSettingAddCustomerNumber'] = 'Lisää uudelle asiakkaalle juokseva asiakasnumero automaattisesti';
+    $GLOBALS['locSettingInvoices'] = 'Laskutusasetukset';
+    $GLOBALS['locSettingInvoiceAddNumber'] = 'Lisää uudelle laskulle juokseva laskunumero automaattisesti';
+    $GLOBALS['locSettingInvoiceNumberingPerBase'] = 'Numeroi laskut laskuttajakohtaisesti';
+    $GLOBALS['locSettingInvoiceAddReferenceNumber'] = 'Lisää uudelle laskulle viitenumero automaattisesti';
+    $GLOBALS['locSettingInvoiceShowBarcode'] = 'Näytä viivakoodi laskun tilisiirtolomakkeessa';
+    $GLOBALS['locSettingInvoiceShowRowDate'] = 'Näytä laskurivin päiväys laskussa';
+    $GLOBALS['locSettingInvoiceSeparateStatement'] = 'Tulosta laskurivit aina erilliseen laskuerittelyyn';
+    $GLOBALS['locSettingInvoiceDefaultVATPercent'] = 'Oletus-ALV-prosentti';
+    $GLOBALS['locSettingInvoicePaymentDays'] = 'Oletusmaksuaika päivinä';
+    $GLOBALS['locSettingInvoiceTermsOfPayment'] = 'Maksuehdot (%d = maksuaika päivinä)';
+    $GLOBALS['locSettingInvoicePeriodForComplaints'] = 'Huomautusaika';
+    $GLOBALS['locSettingInvoicePenaltyInterestPercent'] = 'Viivästyskorkoprosentti';
+    $GLOBALS['locSettingInvoiceNotificationFee'] = 'Huomautusmaksu';
+    $GLOBALS['locSettingInvoicePDFFilename'] = 'Laskun tiedostonimi (%s = laskun numero)';
+
 break;
 
 }

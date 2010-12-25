@@ -56,3 +56,10 @@ update pklasku_company set customer_no = id;
 alter table pklasku_company add column (
   default_ref_number varchar(100) default NULL
 );
+
+CREATE TABLE pklasku_settings (
+  id int(11) NOT NULL auto_increment,
+  name varchar(100) NOT NULL,
+  value text NULL,
+  PRIMARY KEY  (id)
+) ENGINE=INNODB CHARACTER SET utf8 COLLATE utf8_swedish_ci;
