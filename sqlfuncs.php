@@ -57,6 +57,8 @@ function mysql_query_check($query, $noFail=false)
   if ($intRes === FALSE)
   {
     $intError = mysql_errno();
+    if (strlen($query) > 500)
+      $query = substr($query, 0, 500) . '[' . (strlen($query) - 500) . ' more characters]';
     error_log("Query '$query' failed: ($intError) " . mysql_error());
     if (!$noFail)
     {
@@ -143,14 +145,18 @@ function create_db_dump()
     $res = mysql_query_check("select * from `$table`");
     $field_count = mysql_num_fields($res);
     $field_defs = array();
+    $columns = '';
     for ($i = 0; $i < $field_count; $i++)
     {
       $field_def = mysql_fetch_field($res, $i);
       $field_defs[] = $field_def->type;
+      if ($columns)
+        $columns .= ', ';
+      $columns .= $field_def->name;
     }
     while ($row = mysql_fetch_row($res))
     {
-      echo "INSERT INTO `$table` VALUES (";
+      echo "INSERT INTO `$table` ($columns) VALUES (";
       for ($i = 0; $i < $field_count; $i++)
       {
         if ($i > 0)
@@ -161,6 +167,8 @@ function create_db_dump()
           echo 'null';
         elseif ($type == 'int' || $type == 'real')
           echo $value;
+        elseif ($type == 'blob' && $value)
+          echo '0x' . bin2hex($value);
         else
           echo '\'' . addslashes($value) . '\'';
       }
