@@ -4,14 +4,15 @@ require_once 'tcpdf/tcpdf.php';
 class PDF extends TCPDF
 {
   public $footerLeft = '', $footerCenter = '', $footerRight = '';
-
+  public $printFooterOnFirstPage = false;
+  
   function Header()
   {
   }
 
   function Footer()
   {
-    if ($this->PageNo() == 1)
+    if ($this->PageNo() == 1 && !$this->printFooterOnFirstPage)
       return;
     $this->SetY(-17);
     $this->SetFont('Helvetica','',7);
