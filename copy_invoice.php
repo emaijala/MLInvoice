@@ -73,9 +73,11 @@ if ($intInvoiceId)
     $intNewRefNo = 'NULL';
     if (getSetting('invoice_add_number') || getSetting('invoice_add_reference_number'))     
     {
-      $strQuery = "SELECT max(invoice_no) FROM {prefix}invoice";
-      $intRes = mysql_query_check($strQuery);
-      $intInvNo = mysql_result($intRes, 0, 0) + 1;
+      if (getSetting('invoice_numbering_per_base') && $intBaseId)
+        $res = mysql_param_query('SELECT max(cast(invoice_no as unsigned integer)) FROM {prefix}invoice where base_id = ?', array($intBaseId));
+      else
+        $res = mysql_query_check('SELECT max(cast(invoice_no as unsigned integer)) FROM {prefix}invoice');
+      $intInvNo = mysql_result($res, 0, 0) + 1;
       if (getSetting('invoice_add_number'))
         $intNewInvNo = $intInvNo;
       if (getSetting('invoice_add_reference_number'))
