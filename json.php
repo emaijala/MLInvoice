@@ -35,6 +35,7 @@ case 'get_company':
     echo json_encode($row);
   }
 break;
+
 case 'get_invoice_defaults':
   $baseId = getRequest('base_id', 0);
   $invoiceId = getRequest('id', 0);
@@ -54,6 +55,7 @@ case 'get_invoice_defaults':
   );
   header('Content-Type: application/json');
   echo json_encode($arrData);
+
 break;
 default:
   header('HTTP/1.1 404 Not Found');
