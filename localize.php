@@ -156,7 +156,7 @@ default :
     $GLOBALS['locDBERRORDESC'] = 'Tietokantavirhe: ';
     $GLOBALS['locDBERRORFOREIGNKEY'] = 'Toiminto ei onnistunut, koska tietueeseen on viittauksia muualta.';
     $GLOBALS['locSYSTEMONLY'] = 'Järjestelmän sisäinen - ei muokattavissa';
-    $GLOBALS['locINVOICENOTOVERDUE'] = 'Maksuja ei voida lisätä laskulle, jonka eräpäivä ei ole vielä mennyt.';
+    $GLOBALS['locINVOICENOTOVERDUE'] = 'Maksuja ei voida lisätä laskulle, jonka eräpäivä on tänään ta myöhemmin.';
     $GLOBALS['locWRONGSTATEFORREMINDERFEED'] = 'Maksuja ei voida lisätä maksetulle tai mitätöidylle laskulle.';
     $GLOBALS['locRECORDDELETED'] = 'Tiedot on poistettu.';
     $GLOBALS['locNOACCESS'] = 'Käyttöoikeudet eivät riitä.';
@@ -179,6 +179,8 @@ default :
     $GLOBALS['locDELETE'] = 'Poista';
     $GLOBALS['locPRINTADDR'] = 'Tulosta osoite';
     $GLOBALS['locPRINTINV'] = 'Tulosta lasku';
+    $GLOBALS['locPRINTDISPATCHNOTE'] = 'Tulosta lähetysluettelo';
+    $GLOBALS['locPRINTRECEIPT'] = 'Tulosta kuitti';
     $GLOBALS['locADDROW'] = 'Lisää&nbsp;rivi';
     $GLOBALS['locDELROW'] = 'Poista rivi';
     $GLOBALS['locYES'] = 'Kyllä';
@@ -275,6 +277,8 @@ default :
     
     //INVOICE PDF        
     $GLOBALS['locINVOICEHEADER'] = 'LASKU';
+    $GLOBALS['locDispatchNoteHeader'] = 'LÄHETYSLUETTELO';
+    $GLOBALS['locReceiptHeader'] = 'KUITTI';
     $GLOBALS['locPERIODFORCOMPLAINTS'] = 'Huomautusaika';
     $GLOBALS['locPENALTYINTEREST'] = 'Viivästyskorko';
     $GLOBALS['locTERMSOFPAYMENT'] = 'Maksuehdot';
@@ -291,8 +295,12 @@ default :
     $GLOBALS['locSEESEPARATESTATEMENT'] = 'ks. erillinen laskuerittely';
     $GLOBALS['locINVOICESTATEMENT'] = 'Laskuerittely';
     $GLOBALS['locVATREG'] = 'ALV-rek.';
-    $GLOBALS['locINVNUMBER'] = 'Laskun numero';
-    $GLOBALS['locPDFINVDATE'] = 'Laskun päivämäärä';
+    $GLOBALS['locInvoiceNumber'] = 'Laskun numero';
+    $GLOBALS['locDispatchNoteNumber'] = 'Lähetysluettelon numero';
+    $GLOBALS['locReceiptNumber'] = 'Kuitin numero';
+    $GLOBALS['locPDFInvoiceDate'] = 'Laskun päivämäärä';
+    $GLOBALS['locPDFDispatchNoteDate'] = 'Päivämäärä';
+    $GLOBALS['locPDFReceiptDate'] = 'Päivämäärä';
     $GLOBALS['locPDFDUEDATE'] = 'Eräpäivä';
     $GLOBALS['locPDFINVREFNO'] = 'Viitenumero';
     $GLOBALS['locREFUNDSINVOICE'] = 'Tämä lasku hyvittää laskun %d';

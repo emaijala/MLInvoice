@@ -211,6 +211,8 @@ EOS;
 onclick = "$.getJSON('json.php?func=get_invoice_defaults&id=' + document.forms[0].id.value + '&base_id=' + document.forms[0].base_id.value, function(json) { var frm = document.forms[0]; frm.invoice_date.value = json.date; frm.due_date.value = json.due_date; frm.invoice_no.value = json.invoice_no; frm.ref_number.value = json.ref_no;}); return false;"
 EOS;
 
+   $copyLinkOverride = "copy_invoice.php?func=$strFunc&amp;list=$strList&amp;id=$intInvoiceId";
+
    $astrFormElements =
     array(
      array(
@@ -238,15 +240,17 @@ EOS;
      array(
         "name" => "archived", "label" => $GLOBALS['locARCHIVED'], "type" => "CHECK", "style" => "medium", "listquery" => "", "position" => 1, "default" => 0, "allow_null" => TRUE ),
      array(
-        "name" => "get", "label" => $GLOBALS['locGETINVNO'], "type" => "BUTTON", "style" => "custom", "listquery" => "", "position" => 1, "default" => FALSE, "allow_null" => TRUE, 'elem_attributes' => $getInvoiceNo ),
+        "name" => "getinvoiceno", "label" => $GLOBALS['locGETINVNO'], "type" => "BUTTON", "style" => "custom", "listquery" => "", "position" => 1, "default" => FALSE, "allow_null" => TRUE, 'elem_attributes' => $getInvoiceNo ),
      array(
-        "name" => "get", "label" => $GLOBALS['locPRINTINV'], "type" => "BUTTON", "style" => "medium", "listquery" => "'invoice.php?id=_ID_', '_self'", "position" => 2, "default" => FALSE, "allow_null" => TRUE ),
+        "name" => "printinvoice", "label" => $GLOBALS['locPRINTINV'], "type" => "BUTTON", "style" => "redirect", "listquery" => "invoice.php?id=_ID_", "position" => 2, "default" => FALSE, "allow_null" => TRUE ),
      array(
-        "name" => "get", "label" => $GLOBALS['locCOPYINV'], "type" => "BUTTON", "style" => "medium", "listquery" => "'copy_invoice.php?func=$strFunc&amp;list=$strList&amp;id=_ID_', '_self'", "position" => 1, "default" => FALSE, "allow_null" => TRUE ),
+        "name" => "addreminderfees", "label" => $GLOBALS['locADDREMINDERFEES'], "type" => "BUTTON", "style" => "redirect", "listquery" => "add_reminder_fees.php?func=$strFunc&list=$strList&id=_ID_", "position" => 1, "default" => FALSE, "allow_null" => TRUE ),
      array(
-        "name" => "get", "label" => $GLOBALS['locADDREMINDERFEES'], "type" => "BUTTON", "style" => "medium", "listquery" => "'add_reminder_fees.php?id=_ID_', '_self'", "position" => 2, "default" => FALSE, "allow_null" => TRUE ),
+        "name" => "printdispatch", "label" => $GLOBALS['locPRINTDISPATCHNOTE'], "type" => "BUTTON", "style" => "redirect", "listquery" => "invoice.php?id=_ID_&style=dispatch", "position" => 2, "default" => FALSE, "allow_null" => TRUE ),
      array(
-        "name" => "get", "label" => $GLOBALS['locREFUNDINV'], "type" => "BUTTON", "style" => "medium", "listquery" => "'copy_invoice.php?func=$strFunc&amp;list=$strList&amp;id=_ID_&amp;refund=1', '_self'", "position" => 2, "default" => FALSE, "allow_null" => TRUE ),
+        "name" => "refundinvoice", "label" => $GLOBALS['locREFUNDINV'], "type" => "BUTTON", "style" => "redirect", "listquery" => "copy_invoice.php?func=$strFunc&list=$strList&id=_ID_&refund=1", "position" => 1, "default" => FALSE, "allow_null" => TRUE ),
+     array(
+        "name" => "printreceipt", "label" => $GLOBALS['locPRINTRECEIPT'], "type" => "BUTTON", "style" => "redirect", "listquery" => "invoice.php?id=_ID_&style=receipt", "position" => 2, "default" => FALSE, "allow_null" => TRUE ),
      array(
         "name" => "invoice_rows", "label" => $GLOBALS['locINVROWS'], "type" => "IFORM", "style" => "xfull resizable", "listquery" => "", "position" => 0, "default" => FALSE, "allow_null" => TRUE, "parent_key" => "invoice_id" )
     );

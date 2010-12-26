@@ -90,6 +90,20 @@ function createForm($strFunc, $strList, $strForm)
           }
       }
   }
+  
+  $redirect = getRequest('redirect', null);
+  if (isset($redirect))
+  {
+    // Redirect after save
+    foreach ($astrFormElements as $elem)
+    {
+      if ($elem['name'] == $redirect && $elem['style'] == 'redirect')
+      {
+        $newLocation = str_replace("_ID_", $intKeyValue, $elem['listquery']);
+      }
+    }
+  }
+  
   //save the form values when user hits SAVE
   if( $blnSave ) { 
       //check all form elements which save values
@@ -208,7 +222,7 @@ function createForm($strFunc, $strList, $strForm)
               }
               else
               {
-                if (getSetting('auto_close_form'))
+                if (getSetting('auto_close_form') && !isset($newLocation))
                 {
                   $qs = preg_replace('/&form=\w*/', '', $_SERVER['QUERY_STRING']);
                   $qs = preg_replace('/&id=\w*/', '', $qs);
@@ -229,6 +243,8 @@ function createForm($strFunc, $strList, $strForm)
           }
       }
   }
+  if ($strMessage)
+    unset($newLocation);
   
   if( $blnDelete && $intKeyValue ) {
       //create the delete query
@@ -335,6 +351,9 @@ function createForm($strFunc, $strList, $strForm)
 		  body.css("overflow", "hidden");
 		});   
   });
+  $(window).load(function() {
+    <?php if (isset($newLocation)) echo "setTimeout(\"window.location='$newLocation'\", 0);"?>		
+  });
   function OpenPop(strLink, strOnClose, strTitle, event) {
       $("#popup_edit").dialog({ modal: true, width: 810, height: 520, resizable: true, 
         position: [50, 50], 
@@ -355,7 +374,8 @@ function createForm($strFunc, $strList, $strForm)
   </div>
 
   <form method="post" action="" name="admin_form" id="admin_form">
-  <?php createFormButtons($blnNew) ?>
+  <?php createFormButtons($blnNew, $copyLinkOverride) ?>
+  <input type="hidden" name="redirect" id="redirect" value="">
   <input type="hidden" name="<?php echo $strPrimaryKey?>" value="<?php echo (isset($intKeyValue) && $intKeyValue) ? $intKeyValue : '' ?>">
   <div class="form_container">
   <table>
@@ -378,7 +398,7 @@ function createForm($strFunc, $strList, $strForm)
           }
           elseif( $astrFormElements[$j]['position'] == 1 && !strstr($astrFormElements[$j]['type'], "HID_")) {
               echo "\t<tr>\n";
-              $strColspan = "colspan=\"0\"";
+              $strColspan = '';
               $intColspan = 2;
           }
           else {
@@ -449,11 +469,11 @@ function createForm($strFunc, $strList, $strForm)
   <input type="hidden" name="copyact" value="0">
   <input type="hidden" name="newact" value="<?php echo $intNew?>">
   <input type="hidden" name="deleteact" value="0">
-  <?php createFormButtons($blnNew) ?>
+  <?php createFormButtons($blnNew, $copyLinkOverride) ?>
 <?php
 }
 
-function createFormButtons($boolNew)
+function createFormButtons($boolNew, $copyLinkOverride)
 {
 ?>
   <div class="form_buttons">
@@ -464,9 +484,10 @@ function createFormButtons($boolNew)
       </td>
   <?php
   if( !$boolNew ) {
+      $copyCmd = isset($copyLinkOverride) ? "window.location='$copyLinkOverride'; return false;" : "document.getElementById('admin_form').copyact.value=1; document.getElementById('admin_form').submit(); return false;";
   ?>    
       <td>
-          <a class="actionlink" href="#" onclick="document.getElementById('admin_form').copyact.value=1; document.getElementById('admin_form').submit(); return false;"><?php echo $GLOBALS['locCOPY']?></a>
+          <a class="actionlink" href="#" onclick="<?php echo $copyCmd?>"><?php echo $GLOBALS['locCOPY']?></a>
       </td>
       <td>
           <a class="actionlink" href="#" onclick="document.getElementById('admin_form').newact.value=1; document.getElementById('admin_form').submit(); return false;"><?php echo $GLOBALS['locNEW']?></a>

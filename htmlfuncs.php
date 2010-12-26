@@ -470,6 +470,10 @@ function htmlFormElement( $strName, $strType, $strValue, $strStyle, $strListQuer
                     $strHref = $strListQuery;
                     $strOnClick = "";
                 break;
+                case 'redirect':
+                    $strHref = "#";
+                    $strOnClick = "onclick=\"var form = document.getElementById('admin_form'); form.saveact.value=1; form.redirect.value='$strName'; form.submit(); return false;\"";
+                break;
                 default :
                     $strHW = "";
                     $strHref = "#";
@@ -478,15 +482,8 @@ function htmlFormElement( $strName, $strType, $strValue, $strStyle, $strListQuer
                     "status=no,toolbar=no'); return false;\"";
                 break;
             }
-            if( $strValue ) {
-                
-                $strFormElement = 
-                    "<a class=\"formbuttonlink\" href=\"$strHref\" $strOnClick$astrAdditionalAttributes>" . htmlspecialchars($strTitle) . "</a>";
-                    
-            }
-            else {
-                $strFormElement = $GLOBALS['locSAVEFIRST'];
-            }
+            $strFormElement = 
+                "<a class=\"formbuttonlink\" href=\"$strHref\" $strOnClick$astrAdditionalAttributes>" . htmlspecialchars($strTitle) . "</a>";
         break;
         case 'JSBUTTON' :
             if( $strValue ) 
