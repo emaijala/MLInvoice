@@ -192,4 +192,39 @@ function getPageTitle($strFunc, $strList, $strForm)
   return '';
 }
 
+function phpIniValueToInteger($value)
+{
+  $unit = strtoupper(substr($value, -1));
+  if (!in_array($unit, array('P', 'T', 'G', 'M', 'K')))
+    return $value;
+  $value = substr($value, 0, -1);
+  switch ($unit)
+  {
+  case 'P': $value *= 1024;
+  case 'T': $value *= 1024;
+  case 'G': $value *= 1024;
+  case 'M': $value *= 1024;
+  case 'K': $value *= 1024;
+  }
+  return $value;
+}
+
+function getMaxUploadSize()
+{
+  return min(phpIniValueToInteger(ini_get('post_max_size')), phpIniValueToInteger(ini_get('upload_max_filesize')));
+}
+
+function fileSizeToHumanReadable($value)
+{
+  $suffixes = array('B','KB','MB','GB','TB','PB');
+  
+  $idx = 0;
+  while ($idx < count($suffixes) - 1 && $value / 1024 > 0.9)
+  {
+    $value /= 1024;
+    ++$idx;
+  }
+  return round($value, 2) . ' ' . $suffixes[$idx];
+}
+
 ?>

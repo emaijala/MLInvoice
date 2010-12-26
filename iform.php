@@ -273,19 +273,19 @@ $(function() {
   $('input[class~="hasCalendar"]').datepicker();
 });
 
-function OpenPop(strLink, event) {
+function OpenPop(strLink, strTitle, event) {
     $("#popup_edit").dialog({ modal: true, width: 810, height: 160, resizable: false, 
-      position: [50, event.clientY], buttons: {
+      position: [50, event.clientY], 
+      buttons: {
           "<?php echo $GLOBALS['locSAVE']?>": function() { var form = $("#popup_edit_iframe").contents().find("#pop_iform").get(0); form.saveact.value=1; form.submit(); return false; },
           "<?php echo $GLOBALS['locDELETE']?>": function() { if(confirm('<?php echo $GLOBALS['locCONFIRMDELETE']?>')==true) { var form = $("#popup_edit_iframe").contents().find("#pop_iform").get(0); form.deleteact.value=1; form.submit(); } return false; },
           "<?php echo $GLOBALS['locCLOSE']?>": function() { $("#popup_edit").dialog('close'); }
-        }
-      }).find("#popup_edit_iframe").attr("src", strLink);
+      },
+      title: strTitle,
+    }).find("#popup_edit_iframe").attr("src", strLink);
     
     return true;
 }
-
-
 -->
 </script>
 
@@ -418,10 +418,10 @@ for($i = 0; $i < count($astrOldValues); $i++ ) {
 if( $strMode == "MODIFY" ) {
 ?>
     <td class="button">
-        <a class="tinyactionlink" href="#" onclick="OpenPop('<?php echo $strPopLinkEdit?>', event); return false;"><?php echo $GLOBALS['locEDIT']?></a>
+        <a class="tinyactionlink" href="#" onclick="OpenPop('<?php echo $strPopLinkEdit?>', '<?php echo $GLOBALS['locRowModification']?>', event); return false;"><?php echo $GLOBALS['locEDIT']?></a>
     </td>
     <td class="button">
-        <a class="tinyactionlink" href="#" onclick="OpenPop('<?php echo $strPopLinkCopy?>', event); return false;"><?php echo $GLOBALS['locCOPY']?></a>
+        <a class="tinyactionlink" href="#" onclick="OpenPop('<?php echo $strPopLinkCopy?>', '<?php echo $GLOBALS['locRowCopy']?>', event); return false;"><?php echo $GLOBALS['locCOPY']?></a>
     </td>
 <?php
 }

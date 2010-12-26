@@ -51,6 +51,6 @@ function getSetting($name)
   if ($row = mysql_fetch_assoc($res))
     $value = $row['value'];
   else
-    $value = isset($arrSettings[$name]['default']) ? cond_utf8_encode($arrSettings[$name]['default']) : '';
+    $value = isset($arrSettings[$name]) && isset($arrSettings[$name]['default']) ? cond_utf8_encode($arrSettings[$name]['default']) : '';
   return $value;
 }

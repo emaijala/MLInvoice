@@ -33,9 +33,9 @@ function createSettingsList()
   
   require 'settings_def.php';
 
-  $blnSave = getPostRequest('saveact', FALSE) ? TRUE : FALSE;
+  $messages = '';
 
-  $errors = '';
+  $blnSave = getPostRequest('saveact', FALSE) ? TRUE : FALSE;
   if ($blnSave)
   {
     foreach ($arrSettings as $elem)
@@ -47,7 +47,7 @@ function createSettingsList()
       {
         if (!$elem['allow_null'])
         {
-          $errors .= $GLOBALS['locERRVALUEMISSING'] . ': ' . $elem['name'] . "<br>\n";
+          $messages .= $GLOBALS['locERRVALUEMISSING'] . ': ' . $elem['name'] . "<br>\n";
           continue;
         }
         else
@@ -63,7 +63,7 @@ function createSettingsList()
   }
 ?>
   <div class="form">
-    <span class="error"><?php echo $errors?>
+    <div class="message"><?php echo $messages?></div>
   
     <script type="text/javascript">
     <!--

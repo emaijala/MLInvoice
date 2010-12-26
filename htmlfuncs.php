@@ -488,6 +488,23 @@ function htmlFormElement( $strName, $strType, $strValue, $strStyle, $strListQuer
                 $strFormElement = $GLOBALS['locSAVEFIRST'];
             }
         break;
+        case 'JSBUTTON' :
+            if( $strValue ) 
+            {
+              $strListQuery = str_replace("_ID_", $strValue, $strListQuery);
+              $strOnClick = "onClick=\"$strListQuery\"";
+              $strFormElement = 
+                "<a class=\"formbuttonlink\" href=\"#\" $strOnClick$astrAdditionalAttributes>" . htmlspecialchars($strTitle) . "</a>";
+            }
+            else 
+            {
+              $strFormElement = $GLOBALS['locSAVEFIRST'];
+            }
+        break;
+        case 'IMAGE' :
+            $strListQuery = str_replace("_ID_", $strValue, $strListQuery);
+            $strFormElement = "<img class=\"$strStyle\" src=\"$strListQuery\" title=\"" . htmlspecialchars($strTitle) . "\"></div>\n";
+        break;
         
     }
 

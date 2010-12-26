@@ -2,11 +2,13 @@ Asennus:
 
    1. Luo MySQL-tietokanta vllasku. Aseta collationiksi utf8_swedish_ci.
    2. Luo MySQL-k‰ytt‰j‰, jolla on riitt‰v‰t oikeudet (ainakin CREATE, INSERT, UPDATE ja DELETE) vllasku-tietokannan k‰yttˆˆn.
-   3. Pura vllaskun asennuspaketti www-palvelimelle sopivaan paikkaan (tyypillisesti esim. htdocs-hakemistoon). Varmista, ett‰ tiedostojen k‰yttˆoikeudet riitt‰v‰t.
+   3. Pura vllaskun asennuspaketti www-palvelimelle sopivaan paikkaan (tyypillisesti esim. htdocs-hakemistoon). Varmista, ett‰ tiedostojen k‰yttˆoikeudet riitt‰v‰t. Varmista myˆs, ett‰ PHP:st‰ pystyy kirjoittamaan hakemistoon tcpdf/cache.
    4. Luo tietokantarakenne suorittamalla vllasku-tietokannassa create_database.sql -tiedoston (lˆytyy asennuspaketista) sis‰lt‰m‰t komennot.
-   5. Muokkaa settings.php -tiedoston asetukset sopiviksi. Toimivuuden kannalta olennaiset asetukset ovat tietokantayhteyteen liittyv‰t asetukset, jotka lˆytyv‰t tiedoston alkupuolelta.
+   5. Muokkaa settings.php -tiedoston asetukset toimiviksi. Suurin osa asetuksista lˆytyy k‰yttˆliittym‰st‰ (Asetukset -> Yleiset asetukset), mutta settings.php:sta lˆytyv‰t tietokantayhteyden luomiseksi olennaiset asetukset.
    6. Avaa VLLasku selaimeen ja kirjaudu sis‰‰n oletustunnuksilla admin admin
-   7. TƒRKEƒƒ: Vaihda admin-k‰ytt‰j‰n salasana kohdasta J‰rjestelm‰ -> K‰ytt‰j‰t
+   7. TƒRKEƒƒ: Vaihda admin-k‰ytt‰j‰n salasana kohdasta J‰rjestelm‰ -> K‰ytt‰j‰t.
+   8. Muokkaa asetukset sopiviksi kohdasta Asetukset -> Yleiset asetukset.
+
 
 Huom! VLLasku ei v‰ltt‰m‰tt‰ toimi oikein, jos PHP:n magic quotes -toiminto on p‰‰ll‰. 
 Katso http://www.php.net/manual/en/security.magicquotes.disabling.php toiminnon poistamiseksi.

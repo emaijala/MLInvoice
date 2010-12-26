@@ -62,4 +62,4 @@ CREATE TABLE pklasku_settings (
   name varchar(100) NOT NULL,
   value text NULL,
   PRIMARY KEY  (id)
-) ENGINE=INNODB CHARACTER SET utf8 COLLATE utf8_swedish_ci;
+) ENGINE=MyISAM;

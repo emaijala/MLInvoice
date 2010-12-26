@@ -34,6 +34,11 @@ div.list_container
   margin: 10px;
 }
 
+div.message {
+  margin: 10px;
+  font-weight: bold; 
+}
+
 div.form_container
 {
   margin: 10px;
@@ -81,6 +86,10 @@ table.iform_pop {
   background-color: #eeeeee;
 }
 .iform tr:nth-child(odd) {
+  background-color: #eeeeee;
+}
+
+.iform td[class=button] {
   background-color: #eeeeee;
 }
 
@@ -541,4 +550,10 @@ div.breadcrumbs {
 div.breadcrumbs a {
   font-size: 10pt;
   font-weight: bold;
+}
+
+img.image {
+  border: 1px solid #dddddd;
+  max-width: 400px;
+  max-height: 250px;
 }

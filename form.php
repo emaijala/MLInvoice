@@ -62,7 +62,7 @@ function createForm($strFunc, $strList, $strForm)
   
   //initialize elements
   for( $i = 0; $i < count($astrFormElements); $i++ ) {
-      if( $astrFormElements[$i]['type'] == 'IFORM' || $astrFormElements[$i]['type'] == 'RESULT' || $astrFormElements[$i]['type'] == 'BUTTON' ) {
+      if( $astrFormElements[$i]['type'] == 'IFORM' || $astrFormElements[$i]['type'] == 'RESULT' || $astrFormElements[$i]['type'] == 'BUTTON' || $astrFormElements[$i]['type'] == 'JSBUTTON' || $astrFormElements[$i]['type'] == 'IMAGE' ) {
           $astrValues[$astrFormElements[$i]['name']] = isset($intKeyValue) ? $intKeyValue : FALSE;
       }
       else {
@@ -100,8 +100,8 @@ function createForm($strFunc, $strList, $strForm)
           $strControlName = $astrFormElements[$i]['name'];
           $mixControlValue = $astrValues[$strControlName];
                   
-          //don't handle IFORM, BUTTON, LABEL elements
-          if( $strControlType != 'IFORM' && $strControlType != 'BUTTON' && $strControlType != 'LABEL' ) {
+          //don't handle IFORM, BUTTON, LABEL, IMAGE elements
+          if( $strControlType != 'IFORM' && $strControlType != 'BUTTON' && $strControlType != 'JSBUTTON' && $strControlType != 'LABEL' && $strControlType != 'IMAGE' ) {
               //if element hasn't value and null's aren't allowed raise error
               if( $strControlType == "INT" ) {
                   if ( !isset($mixControlValue) && !$astrFormElements[$i]['allow_null'] ) {
@@ -264,7 +264,7 @@ function createForm($strFunc, $strList, $strForm)
           for( $j = 0; $j < count($astrFormElements); $j++ ) {
               $strControlType = $astrFormElements[$j]['type'];
               $strControlName = $astrFormElements[$j]['name'];
-              
+
               if( $strControlType == 'IFORM' || $strControlType == 'RESULT' ) {
                  $astrValues[$strControlName] = $intKeyValue;
                  if( isset($astrFormElements[$j]['defaults']) && is_array($astrFormElements[$j]['defaults']) ) {
@@ -279,7 +279,7 @@ function createForm($strFunc, $strList, $strForm)
                       }
                  }
               }
-              elseif( $strControlType == 'BUTTON' ) {
+              elseif( $strControlType == 'BUTTON' || $strControlType == 'JSBUTTON' || $strControlType == 'IMAGE' ) {
                   if( strstr($astrFormElements[$j]['listquery'], "=_ID_") ) {
                       $astrValues[$strControlName] = $intKeyValue ? $intKeyValue : FALSE;
                   }
@@ -335,13 +335,25 @@ function createForm($strFunc, $strList, $strForm)
 		  body.css("overflow", "hidden");
 		});   
   });
-
-	//$(function() {
-//		$('input[class~="hasCalendar"]').datepicker();
-//	});
+  function OpenPop(strLink, strOnClose, strTitle, event) {
+      $("#popup_edit").dialog({ modal: true, width: 810, height: 520, resizable: true, 
+        position: [50, 50], 
+        buttons: {
+          "<?php echo $GLOBALS['locCLOSE']?>": function() { $("#popup_edit").dialog('close'); }
+        },
+        title: strTitle,
+        close: function(event, ui) { eval(strOnClose); }
+      }).find("#popup_edit_iframe").attr("src", strLink);
+      
+      return true;
+  }
   -->
   </script>
   
+  <div id="popup_edit" style="display: none; width: 900px; overflow: hidden">
+  <iframe marginheight="0" marginwidth="0" frameborder="0" id="popup_edit_iframe" src="about:blank" style="width: 100%; height: 100%; overflow: hidden; border: 0"></iframe>
+  </div>
+
   <form method="post" action="" name="admin_form" id="admin_form">
   <?php createFormButtons($blnNew) ?>
   <input type="hidden" name="<?php echo $strPrimaryKey?>" value="<?php echo (isset($intKeyValue) && $intKeyValue) ? $intKeyValue : '' ?>">
@@ -373,7 +385,10 @@ function createForm($strFunc, $strList, $strForm)
               $intColspan = 2;
           }
       
-          if( $blnNew && ( $astrFormElements[$j]['type'] == "BUTTON" || $astrFormElements[$j]['type'] == "IFORM" || $astrFormElements[$j]['type'] == "PIC" ) ) {
+          if( $blnNew && ( $astrFormElements[$j]['type'] == 'BUTTON'
+            || $astrFormElements[$j]['type'] == 'JSBUTTON'
+            || $astrFormElements[$j]['type'] == 'IFORM'
+            || $astrFormElements[$j]['type'] == 'IMAGE' ) ) {
               echo "<td class=\"label\" colspan=\"2\">&nbsp;</td>";
           }
           elseif( $astrFormElements[$j]['type'] == "IFORM" ) {
@@ -385,7 +400,7 @@ function createForm($strFunc, $strList, $strForm)
           </td>
   <?php          
           }
-          elseif( $astrFormElements[$j]['type'] == "BUTTON" ) {
+          elseif( $astrFormElements[$j]['type'] == "BUTTON" || $astrFormElements[$j]['type'] == "JSBUTTON" ) {
    ?>
           <td class="button" colspan="<?php echo $intColspan?>">
               <?php echo htmlFormElement($astrFormElements[$j]['name'], $astrFormElements[$j]['type'], $astrValues[$astrFormElements[$j]['name']], $astrFormElements[$j]['style'],$astrFormElements[$j]['listquery'], "MODIFY", $astrFormElements[$j]['parent_key'],$astrFormElements[$j]['label'], array(), isset($astrFormElements[$j]['elem_attributes']) ? $astrFormElements[$j]['elem_attributes'] : '')?>
@@ -396,6 +411,13 @@ function createForm($strFunc, $strList, $strForm)
           elseif( $astrFormElements[$j]['type'] == "HID_INT" || $astrFormElements[$j]['type'] == "HID_TEXT" || strstr($astrFormElements[$j]['type'], "HID_") ) {
    ?>
           <?php echo htmlFormElement($astrFormElements[$j]['name'], $astrFormElements[$j]['type'], $astrValues[$astrFormElements[$j]['name']], $astrFormElements[$j]['style'],$astrFormElements[$j]['listquery'], "MODIFY", $astrFormElements[$j]['parent_key'],$astrFormElements[$j]['label'])?>
+  <?php          
+          }
+          elseif( $astrFormElements[$j]['type'] == "IMAGE" ) {
+   ?>
+          <td class="image" colspan="<?php echo $intColspan?>">
+              <?php echo htmlFormElement($astrFormElements[$j]['name'], $astrFormElements[$j]['type'], $astrValues[$astrFormElements[$j]['name']], $astrFormElements[$j]['style'],$astrFormElements[$j]['listquery'], "MODIFY", $astrFormElements[$j]['parent_key'],$astrFormElements[$j]['label'], array(), isset($astrFormElements[$j]['elem_attributes']) ? $astrFormElements[$j]['elem_attributes'] : '')?>
+          </td>
   <?php          
           }
           else {

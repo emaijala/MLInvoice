@@ -160,6 +160,8 @@ default :
     $GLOBALS['locWRONGSTATEFORREMINDERFEED'] = 'Maksuja ei voida lisätä maksetulle tai mitätöidylle laskulle.';
     $GLOBALS['locRECORDDELETED'] = 'Tiedot on poistettu.';
     $GLOBALS['locNOACCESS'] = 'Käyttöoikeudet eivät riitä.';
+    $GLOBALS['locErrFileUploadFailed'] = 'Tiedoston lataus epäonnistui';
+    $GLOBALS['locErrFileTypeInvalid'] = 'Tiedoston tyyppi ei kelpaa';
     
     //FORM BUTTON HELPERS
     $GLOBALS['locSAVE'] = 'Tallenna';
@@ -186,6 +188,8 @@ default :
     $GLOBALS['locENTRYDELETED'] = 'Tiedot on poistettu!';
     $GLOBALS['locSAVESEARCH'] = 'Tallenna haku';
     $GLOBALS['locCLOSE'] = 'Sulje';
+    $GLOBALS['locRowModification'] = 'Rivin muokkaus';
+    $GLOBALS['locRowCopy'] = 'Rivin kopiointi';
    
     
     //MAIN FUNCTIONS
@@ -361,6 +365,16 @@ default :
     $GLOBALS['locSettingInvoicePenaltyInterestPercent'] = 'Viivästyskorkoprosentti';
     $GLOBALS['locSettingInvoiceNotificationFee'] = 'Huomautusmaksu';
     $GLOBALS['locSettingInvoicePDFFilename'] = 'Laskun tiedostonimi (%s = laskun numero)';
+
+    // Base logo
+    $GLOBALS['locBaseLogoTitle'] = 'Logo';
+    $GLOBALS['locBaseEditLogo'] = 'Muokkaa logoa...';
+    $GLOBALS['locBaseLogo'] = 'Yrityksen logo (suositeltu leveys-korkeussuhde n. 4:1, png tai jpg, tiedoston maksimikoko %s)';
+    $GLOBALS['locBaseLogoSizeDBLimited'] = '(tietokantayhteyden rajoitus)';
+    $GLOBALS['locBaseSaveLogo'] = 'Tallenna logo';
+    $GLOBALS['locBaseEraseLogo'] = 'Poista logo';
+    $GLOBALS['locBaseLogoSaved'] = 'Logo tallennettu';
+    $GLOBALS['locBaseLogoErased'] = 'Logo poistettu';
 
 break;
 

@@ -329,6 +329,12 @@ break;
 case 'base_info':
    $strTable = '{prefix}base';
    $strPrimaryKey = "id";
+
+   $title = $GLOBALS['locBaseLogoTitle'];   
+   $openPopJS = <<<EOF
+OpenPop('base_logo.php?func=edit&amp;id=_ID_', '$(\\'img\\').attr(\\'src\\', \\'base_logo.php?func=view&id=_ID_\\')', '$title', event); return false;
+EOF;
+   
    $astrFormElements =
     array(
      array(
@@ -381,6 +387,12 @@ case 'base_info':
         "name" => "bank_iban3", "label" => $GLOBALS['locACCOUNTIBAN'], "type" => "TEXT", "style" => "medium", "listquery" => "", "position" => 3, "default" => FALSE, "allow_null" => TRUE ),
      array(
         "name" => "bank_swiftbic3", "label" => $GLOBALS['locSWIFTBIC'], "type" => "TEXT", "style" => "medium", "listquery" => "", "position" => 4, "default" => FALSE, "allow_null" => TRUE ),
+     array(
+        "name" => "logosep", "label" => $GLOBALS['locBaseLogoTitle'], "type" => "LABEL"),
+     array(
+        "name" => "logo", "label" => '', "type" => "IMAGE", "style" => "image", "listquery" => 'base_logo.php?func=view&amp;id=_ID_', "position" => 0, "default" => FALSE, "allow_null" => TRUE ),
+     array(
+        "name" => "edit_logo", "label" => $GLOBALS['locBaseEditLogo'], "type" => "JSBUTTON", "style" => "medium", "listquery" => $openPopJS, "position" => 1, "default" => FALSE, "allow_null" => TRUE ),
     );
 break;
 

@@ -44,6 +44,10 @@ CREATE TABLE vllasku_base (
   bank_iban3 varchar(50) NOT NULL,
   bank_swiftbic3 varchar(30) NOT NULL,
   vat_registered tinyint default 0 NOT NULL,
+  logo_filename varchar(255) NULL,
+  logo_filesize integer(11) NULL,
+  logo_filetype varchar(255) NULL,
+  logo_filedata longblob NULL,
   PRIMARY KEY (id)
 ) ENGINE=INNODB AUTO_INCREMENT=1 CHARACTER SET utf8 COLLATE utf8_swedish_ci;
 

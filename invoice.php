@@ -100,6 +100,7 @@ $strBankSWIFTBIC3 = $row['bank_swiftbic3'];
 $strWww = $row['www'];
 $strEmail = $row['email'];
 $boolVATReg = $row['vat_registered'];
+$logo_filedata = $row['logo_filedata'];
     
 $strAssocAddressLine = "$strAssociation";
 if ($strCompanyID)
@@ -183,12 +184,19 @@ $pdf->footerRight = "$strWww\n$strEmail";
 //TOP
 
 //sender
-$pdf->SetTextColor(125);
-$pdf->SetFont('Helvetica','B',10);
-$pdf->SetY($pdf->GetY()+5);
-$pdf->Cell(120, 5, $strAssociation, 0, 1);
-$pdf->SetFont('Helvetica','',10);
-$pdf->MultiCell(120, 5, $strStreetAddress. "\n". $strZipCode. " ". $strCity,0,1);
+if (isset($logo_filedata))
+{
+  $pdf->Image('@' . $logo_filedata, $pdf->GetX(), $pdf->GetY()+5, 100, 0, '', '', 'N', false, 300, '', false, false, 0, true);
+}
+else
+{
+  $pdf->SetTextColor(125);
+  $pdf->SetFont('Helvetica','B',10);
+  $pdf->SetY($pdf->GetY()+5);
+  $pdf->Cell(120, 5, $strAssociation, 0, 1);
+  $pdf->SetFont('Helvetica','',10);
+  $pdf->MultiCell(120, 5, $strStreetAddress. "\n". $strZipCode. " ". $strCity,0,1);
+}
 
 //receiver
 $pdf->SetTextColor(0);
@@ -200,6 +208,8 @@ $pdf->MultiCell(120, 6, $strCompanyAddress,0,1);
 $pdf->SetFont('Helvetica','',12);
 $pdf->SetY($pdf->GetY() + 4);
 $pdf->Cell(120, 6, $strCompanyEmail,0,1);
+
+$receiverMaxY = $pdf->GetY();
 
 //invoiceinfo headers
 $pdf->SetXY(115,10);
@@ -263,7 +273,7 @@ elseif ($intStateId == 6)
   $pdf->SetFont('Helvetica','',10);
 }
 
-$pdf->SetY($pdf->GetY()+5);
+$pdf->SetY(max($pdf->GetY(), $receiverMaxY) + 5);
 $pdf->Line(5, $pdf->GetY(), 202, $pdf->GetY());
 $pdf->SetY($pdf->GetY()+5);
 
@@ -274,7 +284,7 @@ if (!getSetting('invoice_separate_statement') && !isset($boolSeparateStatement))
 {
   //middle - invoicerows
   //invoiceinfo headers
-  $pdf->SetXY(7,$pdf->GetY());
+  $pdf->SetX(7);
   if( getSetting('invoice_show_row_date') ) {
       $pdf->Cell(60, 5, $GLOBALS['locROWNAME'], 0, 0, "L");
       $pdf->Cell(20, 5, $GLOBALS['locDATE'], 0, 0, "L");
