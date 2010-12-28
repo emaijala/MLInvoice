@@ -93,16 +93,13 @@ for( $i = 0; $i < count($astrFormElements); $i++ ) {
         elseif( $astrFormElements[$i]['default'] == "TIME_NOW" ) {
            $strDefaultValue = date("H:i");
         }
-        elseif( $astrFormElements[$i]['default'] == "TIMESTAMP_NOW" ) {
-           $strDefaultValue = date("d.m.Y H:i");
-        }
         elseif( $astrFormElements[$i]['default'] == "POST" ) {
            $strDefaultValue = getPost($astrFormElements[$i]['name'], '');
         }
         elseif( strstr($astrFormElements[$i]['default'], "ADD") ) {
            $strQuery = str_replace("_PARENTID_", $intParentKey, $astrFormElements[$i]['listquery']);
            $intRes = mysql_query_check($strQuery);
-           $intAdd = mysql_result($intRes, 0, 0);
+           $intAdd = reset(mysql_fetch_row($intRes));
            $strDefaultValue = isset($intAdd) ? $intAdd : 0;
         }
         else {
@@ -157,12 +154,6 @@ if( $blnAdd ) {
                     $strInsert .= '?, ';
                     //convert user input to right format
                     $arrValues[] = dateConvDate2IntDate($mixControlValue);
-                }
-                elseif( $strControlType == 'TIMESTAMP' ) {
-                    $strFields .= $strControlName.", ";
-                    //    $strUpdateFields .= $strControlName;
-                    $strInsert .= '?, ';
-                    $arrValues[] = time();
                 }
                 elseif( $strControlType == 'TIME' ) {
                     $strFields .= $strControlName.", ";
@@ -251,10 +242,6 @@ if ($intParentKey)
                 {
                     $astrOldValues[$i][$elem['name']] = dateConvIntDate2Date($row[$elem['name']]);
                 }
-                elseif ($elem['type'] == 'TIMESTAMP') 
-                {
-                    $astrOldValues[$i][$elem['name']] = date("d.m.Y H:i", $row[$elem['name']]);
-                }
                 elseif ($elem['type'] == 'BUTTON') 
                 {
                     $astrOldValues[$i][$elem['name']] = $tmpID;
@@ -281,7 +268,7 @@ $(function() {
 });
 
 function OpenPop(strLink, strTitle, event) {
-    $("#popup_edit").dialog({ modal: true, width: 810, height: 160, resizable: false, 
+    $("#popup_edit").dialog({ modal: true, width: 810, height: 340, resizable: false, 
       position: [50, event.clientY], 
       buttons: {
           "<?php echo $GLOBALS['locSAVE']?>": function() { var form = $("#popup_edit_iframe").contents().find("#pop_iform").get(0); form.saveact.value=1; form.submit(); return false; },
@@ -297,7 +284,7 @@ function OpenPop(strLink, strTitle, event) {
 </script>
 
 <div id="popup_edit" style="display: none; width: 900px; overflow: hidden">
-<iframe marginheight="0" marginwidth="0" frameborder="0" id="popup_edit_iframe" src="about:blank" style="width: 800px; height: 60px; overflow: hidden; border: 0"></iframe>
+<iframe marginheight="0" marginwidth="0" frameborder="0" id="popup_edit_iframe" src="about:blank" style="width: 800px; height: 290px; overflow: hidden; border: 0"></iframe>
 </div>
 
 <form method="post" action="<?php echo $strMainForm?>" target="_self" name="iform">

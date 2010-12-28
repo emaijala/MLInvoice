@@ -137,7 +137,7 @@ Return : $strResult (string) :
 Todo : style, Sorting? Allow only select query?
 ********************************************************************/
     $intRes = mysql_query_check( $strQuery );
-    return mysql_result($intRes, 0, 0);
+    return reset(mysql_fetch_row($intRes));
 }
 function htmlSQLListBox( $strName, $strQuery, $strSelected, $strStyle = "", $intOnChange = 0, $astrAdditionalAttributes ) {
 /********************************************************************
@@ -301,35 +301,7 @@ function htmlFormElement( $strName, $strType, $strValue, $strStyle, $strListQuer
                 $strFormElement = htmlspecialchars($strValue) . "\n";
             }
         break;
-        case 'TIMESTAMP' :
-            $strFormElement = htmlspecialchars($strValue) . "\n";
-        break;
-        case 'HID_TEXT' :
-            $strFormElement = 
-                "<input type=\"hidden\" ".
-                "id=\"$strName\" name=\"$strName\" value=\"" . htmlspecialchars($strValue) . "\">\n";
-        break;
         case 'HID_INT' :
-            $strFormElement = 
-                "<input type=\"hidden\" ".
-                "id=\"$strName\" name=\"$strName\" value=\"" . htmlspecialchars($strValue) . "\">\n";
-        break;
-        case 'HID_INTDATE' :
-            $strFormElement = 
-                "<input type=\"hidden\" class=\"$strStyle\" ".
-                "id=\"$strName\" name=\"$strName\" value=\"" . htmlspecialchars($strValue) . "\">\n";
-        break;
-        case 'HID_TIME' :
-            $strFormElement = 
-                "<input type=\"hidden\" ".
-                "id=\"$strName\" name=\"$strName\" value=\"" . htmlspecialchars($strValue) . "\">\n";
-        break;
-        case 'HID_AREA' :
-            $strFormElement = 
-                "<input type=\"hidden\" ".
-                "id=\"$strName\" name=\"$strName\" value=\"" . htmlspecialchars($strValue) . "\">\n";
-        break;
-        case 'HID_LIST' :
             $strFormElement = 
                 "<input type=\"hidden\" ".
                 "id=\"$strName\" name=\"$strName\" value=\"" . htmlspecialchars($strValue) . "\">\n";

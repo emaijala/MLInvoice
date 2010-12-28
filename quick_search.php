@@ -42,10 +42,10 @@ $strQuery =
     'WHERE func=? AND user_id=? ' .  
     'ORDER BY name';
 $intRes = mysql_param_query($strQuery, array($strFunc, $_SESSION['sesUSERID']));
-$intNumRows = mysql_num_rows($intRes);
 
-for( $i = 0; $i < $intNumRows; $i++ ) {
-    $intId = mysql_result($intRes, $i, "id");
+while ($row = mysql_fetch_assoc($intRes))
+{
+    $intId = $row['id'];
     $blnDelete = getPost("delete_". $intId. "_x", FALSE) ? TRUE : FALSE;
     if( $blnDelete && $intId ) {
         $strDelQuery =
@@ -54,9 +54,6 @@ for( $i = 0; $i < $intNumRows; $i++ ) {
         $intDelRes = mysql_param_query($strDelQuery, array($intId));
     }
 }
-
-$intRes = mysql_param_query($strQuery, array($strFunc, $_SESSION['sesUSERID']));
-$intNumRows = mysql_num_rows($intRes);
 
 echo htmlPageStart( _PAGE_TITLE_ );
 ?>
@@ -70,14 +67,15 @@ echo htmlPageStart( _PAGE_TITLE_ );
     </td>
 </tr>
 <?php
-if( $intNumRows ) {
-    for( $i = 0; $i < $intNumRows; $i++ ) {
-        $intID = mysql_result($intRes, $i, "id");
-        $strName = mysql_result($intRes, $i, "name");
-        $strFunc = mysql_result($intRes, $i, "func");
-        $strWhereClause = mysql_result($intRes, $i, "whereclause");
-        $strLink = "index.php?func=$strFunc&where=$strWhereClause";
-        $strOnClick = "opener.location.href='$strLink'";
+$intRes = mysql_param_query($strQuery, array($strFunc, $_SESSION['sesUSERID']));
+while ($row = mysql_fetch_row($intRes)) 
+{
+  $intID = $row['id'];
+  $strName = $row['name'];
+  $strFunc = $row['func'];
+  $strWhereClause = $row['whereclause'];
+  $strLink = "index.php?func=$strFunc&where=$strWhereClause";
+  $strOnClick = "opener.location.href='$strLink'";
 ?>
 <tr>
     <td class="label">
@@ -89,9 +87,9 @@ if( $intNumRows ) {
     </td>
 </tr>
 <?php
-    }
 }
-else {
+else 
+{
 ?>
 <tr>
     <td class="label">

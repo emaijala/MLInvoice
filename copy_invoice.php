@@ -77,7 +77,7 @@ if ($intInvoiceId)
         $res = mysql_param_query('SELECT max(cast(invoice_no as unsigned integer)) FROM {prefix}invoice WHERE deleted=0 AND base_id=?', array($intBaseId));
       else
         $res = mysql_query_check('SELECT max(cast(invoice_no as unsigned integer)) FROM {prefix}invoice WHERE deleted=0');
-      $intInvNo = mysql_result($res, 0, 0) + 1;
+      $intInvNo = reset(mysql_fetch_row($res)) + 1;
       if (getSetting('invoice_add_number'))
         $intNewInvNo = $intInvNo;
       if (getSetting('invoice_add_reference_number'))

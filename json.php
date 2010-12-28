@@ -43,7 +43,7 @@ case 'get_invoice_defaults':
     $res = mysql_param_query('SELECT max(cast(invoice_no as unsigned integer)) FROM {prefix}invoice WHERE deleted=0 AND id!=? AND base_id=?', array($invoiceId, $baseId));
   else
     $res = mysql_param_query('SELECT max(cast(invoice_no as unsigned integer)) FROM {prefix}invoice WHERE deleted=0 AND id!=?', array($invoiceId));
-  $invNo = mysql_result($res, 0, 0) + 1;
+  $invNo = reset(mysql_fetch_row($res)) + 1;
   $refNo = $invNo . miscCalcCheckNo($invNo);
   $strDate = date("d.m.Y");
   $strDueDate = date("d.m.Y", mktime(0, 0, 0, date("m"), date("d")+getSetting('invoice_payment_days'), date("Y")));

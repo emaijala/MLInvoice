@@ -94,16 +94,13 @@ for( $i = 0; $i < count($astrFormElements); $i++ ) {
         elseif( $astrFormElements[$i]['default'] == "TIME_NOW" ) {
            $strDefaultValue = date("H:i");
         }
-        elseif( $astrFormElements[$i]['default'] == "TIMESTAMP_NOW" ) {
-           $strDefaultValue = date("d.m.Y H:i");
-        }
         elseif( $astrFormElements[$i]['default'] == "POST" ) {
            $strDefaultValue = getPost($astrFormElements[$i]['name'], FALSE);
         }
         elseif( strstr($astrFormElements[$i]['default'], "ADD") ) {
            $strQuery = str_replace("_PARENTID_", $intParentKey, $astrFormElements[$i]['listquery']);
            $intRes = mysql_query_check($strQuery);
-           $intAdd = mysql_result($intRes, 0, 0);
+           $intAdd = reset(mysql_fetch_row($intRes));
            $strDefaultValue = $intAdd;
         }
         else {
@@ -200,12 +197,6 @@ if( $blnSave ) {
                 $strUpdateFields .= "$strControlName=?, ";
                 $arrValues[] = dateConvDate2IntDate($mixControlValue);
             }
-            elseif( $strControlType == 'TIMESTAMP' ) {
-                $strFields .= "$strControlName, ";
-                $strInsert .= '?, ';
-                if ($blnNew)
-                  $arrValues[] = dateConvDate2IntDate($mixControlValue);
-            }
             //time-elements need own formatting too
             elseif( $strControlType == 'TIME' ) {
                 $astrSearch = array('.', ',', ' ');
@@ -259,34 +250,43 @@ if( $blnDelete && $intKeyValue ) {
 }
 
 if( $intKeyValue ) {
-    $strQuery =
-        "SELECT * FROM $strTable WHERE $strPrimaryKey=?";
+    $strQuery = "SELECT * FROM $strTable WHERE $strPrimaryKey=?";
     $intRes = mysql_param_query($strQuery, array($intKeyValue));
-    $intNRows = mysql_num_rows($intRes);
-    if( $intNRows ) {
-        for( $j = 0; $j < count($astrFormElements); $j++ ) {
+    $row = mysql_fetch_assoc($intRes);
+    if ($row) 
+    {
+        for( $j = 0; $j < count($astrFormElements); $j++ ) 
+        {
             $strControlType = $astrFormElements[$j]['type'];
             $strControlName = $astrFormElements[$j]['name'];
             
-            if( $strControlType == 'IFORM' || $strControlType == 'RESULT' ) {
+            if( $strControlType == 'IFORM' || $strControlType == 'RESULT' ) 
+            {
                $astrValues[$strControlName] = $intKeyValue;
-               if( isset($astrFormElements[$j]['defaults']) && is_array($astrFormElements[$j]['defaults']) ) {
+               if( isset($astrFormElements[$j]['defaults']) && is_array($astrFormElements[$j]['defaults']) ) 
+               {
                    $strDefaults = "defaults=";
-                    while (list($key, $val) = each($astrFormElements[$j]['defaults'])) {
-                        if($astrFormElements[$j]['types'][$key] == 'INT' ) {
+                    while (list($key, $val) = each($astrFormElements[$j]['defaults'])) 
+                    {
+                        if($astrFormElements[$j]['types'][$key] == 'INT' ) 
+                        {
                             $astrFormElements[$j]['defaults'][$key] = $astrValues[$astrFormElements[$j]['mapping'][$key]];
                         }
-                        elseif( $astrFormElements[$j]['types'][$key] == 'INTDATE' ) {
+                        elseif( $astrFormElements[$j]['types'][$key] == 'INTDATE' ) 
+                        {
                             $astrFormElements[$j]['defaults'][$key] = dateConvDate2IntDate( $astrValues[$astrFormElements[$j]['mapping'][$key]]);
                         }
                     }
                }
             }
-            elseif( $strControlType == 'BUTTON' ) {
-                if( strstr($astrFormElements[$j]['listquery'], "=_ID_") ) {
+            elseif( $strControlType == 'BUTTON' ) 
+            {
+                if( strstr($astrFormElements[$j]['listquery'], "=_ID_") ) 
+                {
                     $astrValues[$strControlName] = $intKeyValue ? $intKeyValue : FALSE;
                 }
-                else {
+                else 
+                {
                     $tmpListQuery = $astrFormElements[$j]['listquery'];
                     $strReplName = substr($tmpListQuery, strpos($tmpListQuery, "_"));
                     $strReplName = strtolower(substr($strReplName, 1, strrpos($strReplName, "_")-1));
@@ -294,21 +294,22 @@ if( $intKeyValue ) {
                     $astrFormElements[$j]['listquery'] = str_replace(strtoupper($strReplName), "ID", $astrFormElements[$j]['listquery']);
                 }
             }
-            elseif( $strControlType != 'LABEL' && $strControlType != 'ROWSUM' ) {
-                if( $strControlType == 'INTDATE' ) {
-                    $astrValues[$strControlName] = dateConvIntDate2Date( mysql_result( $intRes, 0, $strControlName ));
+            elseif( $strControlType != 'LABEL' && $strControlType != 'ROWSUM' ) 
+            {
+                if( $strControlType == 'INTDATE' ) 
+                {
+                    $astrValues[$strControlName] = dateConvIntDate2Date($row[$strControlName]);
                 }
-                elseif( $strControlType == 'TIMESTAMP' ) {
-                        $astrValues[$strControlName] = date("d.m.Y H:i", mysql_result( $intRes, 0, $strControlName ));
-                }
-                else { 
+                else 
+                { 
                     if ($strControlName)
-                        $astrValues[$strControlName] = mysql_result($intRes, 0, $strControlName);
+                        $astrValues[$strControlName] = $row[$strControlName];
                 }
             }
         }
     }
-    else {
+    else 
+    {
         echo $GLOBALS['locENTRYDELETED']; die;
     }
 }

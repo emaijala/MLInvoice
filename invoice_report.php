@@ -85,15 +85,15 @@ function createInvoiceReport($strType)
           "FROM {prefix}invoice_state WHERE deleted=0 ".
           "ORDER BY order_no";
       $intRes = mysql_query_check($strQuery);
-      $intNumRows = mysql_numrows($intRes);
-      for( $i = 0; $i < $intNumRows; $i++ ) {
-          $intStateId = mysql_result($intRes, $i, "id");
-          $strStateName = mysql_result($intRes, $i, "name");
-          $strTemp = "stateid_". $intStateId;
+      for ($i = 0, $row = mysql_fetch_assoc($intRes); $row; $i++, $row = mysql_fetch_assoc($intRes))
+      {
+          $intStateId = $row['id'];
+          $strStateName = $row['name'];
+          $strTemp = "stateid_$intStateId";
           $tmpSelected = getPost($strTemp, FALSE) ? TRUE : FALSE;
           $strChecked = $tmpSelected ? 'checked' : '';
           $astrHtmlElements[$i] = 
-          array("label" => $strStateName, "html" => "<input type=\"checkbox\" name=\"stateid_{$intStateId}\" value=\"1\" $strChecked>\n");
+            array("label" => $strStateName, "html" => "<input type=\"checkbox\" name=\"stateid_{$intStateId}\" value=\"1\" $strChecked>\n");
       }
   break;
   }
@@ -230,10 +230,10 @@ function printReport()
       "FROM {prefix}invoice_state WHERE deleted=0 ".
       "ORDER BY order_no";
   $intRes = mysql_query_check($strQuery3);
-  $intNumRows = mysql_numrows($intRes);
-  for( $i = 0; $i < $intNumRows; $i++ ) {
-      $intStateId = mysql_result($intRes, $i, "id");
-      $strStateName = mysql_result($intRes, $i, "name");
+  while ($row = mysql_fetch_assoc($intRes)) 
+  {
+      $intStateId = $row['id'];
+      $strStateName = $row['name'];
       $strTemp = "stateid_$intStateId";
       $tmpSelected = getRequest($strTemp, FALSE) ? TRUE : FALSE;
       if( $tmpSelected ) {

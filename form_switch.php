@@ -58,7 +58,7 @@ case 'company':
    {
      $strQuery = 'SELECT max(customer_no) FROM {prefix}company WHERE deleted=0';
      $intRes = mysql_query_check($strQuery);
-     $intInvNo = mysql_result($intRes, 0, 0) + 1;
+     $intInvNo = reset(mysql_fetch_row($intRes)) + 1;
      $defaultCustomerNo = $intInvNo;
    }
     
@@ -163,7 +163,7 @@ case 'invoice':
    {
      $strQuery = "SELECT max(cast(invoice_no as unsigned integer)) FROM {prefix}invoice WHERE deleted=0";
      $intRes = mysql_query_check($strQuery);
-     $intInvNo = mysql_result($intRes, 0, 0) + 1;
+     $intInvNo = reset(mysql_fetch_row($intRes)) + 1;
      if (getSetting('invoice_add_number'))
        $defaultInvNo = $intInvNo;
      if (getSetting('invoice_add_reference_number'))
@@ -183,7 +183,7 @@ case 'invoice':
      $strBaseLink = '?' . preg_replace('/&id=\d*/', '', $_SERVER['QUERY_STRING']);
      if( $intRes ) 
      {
-       $intRefundedInvoiceId = mysql_result($intRes, 0, "refunded_invoice_id");
+       $intRefundedInvoiceId = reset(mysql_fetch_row($intRes));
        if ($intRefundedInvoiceId)
          $arrRefundedInvoice = array(
            "name" => "get", "label" => $GLOBALS['locSHOWREFUNDEDINV'], "type" => "BUTTON", "style" => "medium", "listquery" => "'$strBaseLink&amp;id=$intRefundedInvoiceId', '_self'", "position" => 2, "default" => FALSE, "allow_null" => TRUE 

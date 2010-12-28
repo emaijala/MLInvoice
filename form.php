@@ -80,9 +80,6 @@ function createForm($strFunc, $strList, $strForm)
               elseif( $astrFormElements[$i]['default'] == "TIME_NOW" ) {
                  $strDefaultValue = date("H:i");
               }
-              elseif( $astrFormElements[$i]['default'] == "TIMESTAMP_NOW" ) {
-                 $strDefaultValue = date("d.m.Y H:i");
-              }
               else {
                   $strDefaultValue = $astrFormElements[$i]['default'];
               }
@@ -183,21 +180,6 @@ function createForm($strFunc, $strList, $strForm)
                   //convert user input to right format
                   $strUpdateFields .= "$strControlName=?, ";
                   $arrValues[] = dateConvDate2IntDate($mixControlValue);
-              }
-              elseif( $strControlType == 'TIMESTAMP' ) {
-                  $strFields .= "$strControlName, ";
-                  $strInsert .= '?, ';
-                  if ($blnNew)
-                    $arrValues[] = dateConvDate2IntDate($mixControlValue);
-              }
-              //time-elements need own formatting too
-              elseif( $strControlType == 'TIME' ) {
-                  $astrSearch = array('.', ',', ' ');
-                  $strFields .= "$strControlName, ";
-                  $strInsert .= '?, ';
-                  //convert user input to right format
-                  $strUpdateFields .= "$strControlName=?, ";
-                  $arrValues[] = str_replace($astrSearch, ":", $mixControlValue);
               }
           }
           
@@ -315,9 +297,6 @@ function createForm($strFunc, $strList, $strForm)
                   if( $strControlType == 'INTDATE' ) {
                       $astrValues[$strControlName] = dateConvIntDate2Date($row[$strControlName]);
                   }
-                  elseif( $strControlType == 'TIMESTAMP' ) {
-                          $astrValues[$strControlName] = date("d.m.Y H:i", mysql_result( $intRes, $i, $strControlName ));
-                  }
                   else { 
                       if ($strControlName)
                           $astrValues[$strControlName] = $row[$strControlName];
@@ -349,8 +328,8 @@ function createForm($strFunc, $strList, $strForm)
 		  var body = iframe.contents().find("body");
 		  var newHeight = body.outerHeight(true) + 10;
 		  // Leave room for calendar popup
-		  if (newHeight < 250)
-		    newHeight = 250;
+		  if (newHeight < 350)
+		    newHeight = 350;
 		  iframe.css("height", newHeight + 'px');
 		  body.css("overflow", "hidden");
 		});   
@@ -432,7 +411,7 @@ function createForm($strFunc, $strList, $strForm)
   <?php          
           }
           
-          elseif( $astrFormElements[$j]['type'] == "HID_INT" || $astrFormElements[$j]['type'] == "HID_TEXT" || strstr($astrFormElements[$j]['type'], "HID_") ) {
+          elseif( $astrFormElements[$j]['type'] == "HID_INT" || strstr($astrFormElements[$j]['type'], "HID_") ) {
    ?>
           <?php echo htmlFormElement($astrFormElements[$j]['name'], $astrFormElements[$j]['type'], $astrValues[$astrFormElements[$j]['name']], $astrFormElements[$j]['style'],$astrFormElements[$j]['listquery'], "MODIFY", $astrFormElements[$j]['parent_key'],$astrFormElements[$j]['label'])?>
   <?php          
