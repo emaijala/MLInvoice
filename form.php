@@ -209,7 +209,7 @@ function createForm($strFunc, $strList, $strForm)
               $strQuery = "INSERT INTO $strTable ($strFields) VALUES ($strInsert)";
           }
           else {
-              $strQuery = "UPDATE $strTable SET $strUpdateFields WHERE $strPrimaryKey = ?";
+              $strQuery = "UPDATE $strTable SET $strUpdateFields, deleted=0 WHERE $strPrimaryKey=?";
               $arrValues[] = $intKeyValue;
           }
           
@@ -248,7 +248,7 @@ function createForm($strFunc, $strList, $strForm)
   
   if( $blnDelete && $intKeyValue ) {
       //create the delete query
-      $strQuery = "DELETE FROM $strTable WHERE $strPrimaryKey=?";
+      $strQuery = "UPDATE $strTable SET deleted=1 WHERE $strPrimaryKey=?";
       //send query to database
       mysql_param_query($strQuery, array($intKeyValue));
       //dispose the primarykey value
@@ -275,8 +275,12 @@ function createForm($strFunc, $strList, $strForm)
       $strQuery =
           "SELECT * FROM $strTable WHERE $strPrimaryKey=?";
       $intRes = mysql_param_query($strQuery, array($intKeyValue));
-      $intNRows = mysql_num_rows($intRes);
-      if( $intNRows ) {
+      $row = mysql_fetch_assoc($intRes);
+      if ($row) 
+      {
+          if ($row['deleted'])
+             $strMessage .= $GLOBALS['locDeletedRecord'] . '<br>';
+      
           for( $j = 0; $j < count($astrFormElements); $j++ ) {
               $strControlType = $astrFormElements[$j]['type'];
               $strControlName = $astrFormElements[$j]['name'];
@@ -309,14 +313,14 @@ function createForm($strFunc, $strList, $strForm)
               }
               elseif( $strControlType != 'LABEL' ) {
                   if( $strControlType == 'INTDATE' ) {
-                      $astrValues[$strControlName] = dateConvIntDate2Date( mysql_result( $intRes, 0, $strControlName ));
+                      $astrValues[$strControlName] = dateConvIntDate2Date($row[$strControlName]);
                   }
                   elseif( $strControlType == 'TIMESTAMP' ) {
                           $astrValues[$strControlName] = date("d.m.Y H:i", mysql_result( $intRes, $i, $strControlName ));
                   }
                   else { 
                       if ($strControlName)
-                          $astrValues[$strControlName] = mysql_result($intRes, 0, $strControlName);
+                          $astrValues[$strControlName] = $row[$strControlName];
                   }
               }
           }
@@ -334,7 +338,7 @@ function createForm($strFunc, $strList, $strForm)
   
   ?>
   <div class="form">
-  <?php echo $strMessage ?>
+    <div class="message"><?php echo $strMessage ?></div>
   
   <script type="text/javascript">
   <!--
@@ -484,7 +488,7 @@ function createFormButtons($boolNew, $copyLinkOverride)
       </td>
   <?php
   if( !$boolNew ) {
-      $copyCmd = isset($copyLinkOverride) ? "window.location='$copyLinkOverride'; return false;" : "document.getElementById('admin_form').copyact.value=1; document.getElementById('admin_form').submit(); return false;";
+      $copyCmd = $copyLinkOverride ? "window.location='$copyLinkOverride'; return false;" : "document.getElementById('admin_form').copyact.value=1; document.getElementById('admin_form').submit(); return false;";
   ?>    
       <td>
           <a class="actionlink" href="#" onclick="<?php echo $copyCmd?>"><?php echo $GLOBALS['locCOPY']?></a>

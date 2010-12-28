@@ -76,21 +76,19 @@ function createInvoiceReport($strType)
       array(
        array("type" => "ELEMENT", "element" => $strYearListBox, "label" => $GLOBALS['locYEAR']),
        array("name" => "month", "label" => $GLOBALS['locMONTH'], "type" => "SUBMITLIST", "style" => "medium", "listquery" => $strListQuery, "value" => $intMonth),
-       array("name" => "base", "label" => $GLOBALS['locBILLER'], "type" => "SUBMITLIST", "style" => "medium", "listquery" => "SELECT id, name FROM {prefix}base ORDER BY name", "value" => $intBaseId),
-       array("name" => "company", "label" => $GLOBALS['locCOMPANY'], "type" => "SUBMITLIST", "style" => "medium", "listquery" => "SELECT id, company_name FROM {prefix}company ORDER BY company_name", "value" => $intCompanyId)
+       array("name" => "base", "label" => $GLOBALS['locBILLER'], "type" => "SUBMITLIST", "style" => "medium", "listquery" => "SELECT id, name FROM {prefix}base WHERE deleted=0 ORDER BY name", "value" => $intBaseId),
+       array("name" => "company", "label" => $GLOBALS['locCOMPANY'], "type" => "SUBMITLIST", "style" => "medium", "listquery" => "SELECT id, company_name FROM {prefix}company WHERE deleted=0 ORDER BY company_name", "value" => $intCompanyId)
       );
       
       $strQuery = 
           "SELECT id, name ".
-          "FROM {prefix}invoice_state ".
+          "FROM {prefix}invoice_state WHERE deleted=0 ".
           "ORDER BY order_no";
       $intRes = mysql_query_check($strQuery);
       $intNumRows = mysql_numrows($intRes);
       for( $i = 0; $i < $intNumRows; $i++ ) {
           $intStateId = mysql_result($intRes, $i, "id");
           $strStateName = mysql_result($intRes, $i, "name");
-          //echo $strMemberType ."<br>\n";
-          //$strChecked = $intStateId == $intSelectedStateId ? 'checked' : '';
           $strTemp = "stateid_". $intStateId;
           $tmpSelected = getPost($strTemp, FALSE) ? TRUE : FALSE;
           $strChecked = $tmpSelected ? 'checked' : '';
@@ -224,12 +222,12 @@ function printReport()
       "FROM {prefix}invoice i ".
       "LEFT OUTER JOIN {prefix}company c ON c.id = i.company_id ".
       "LEFT OUTER JOIN {prefix}invoice_state ist ON i.state_id = ist.id ".
-      "WHERE i.invoice_date > ? AND i.invoice_date <= ?";
+      "WHERE i.deleted=0 AND i.invoice_date > ? AND i.invoice_date <= ?";
   
   $strQuery2 = "";
   $strQuery3 = 
       "SELECT id, name ".
-      "FROM {prefix}invoice_state ".
+      "FROM {prefix}invoice_state WHERE deleted=0 ".
       "ORDER BY order_no";
   $intRes = mysql_query_check($strQuery3);
   $intNumRows = mysql_numrows($intRes);
@@ -312,7 +310,7 @@ function printReport()
           $strQuery = 
               "SELECT ir.description, ir.pcs, ir.price, ir.row_date, ir.vat, ir.vat_included ".
               "FROM {prefix}invoice_row ir ".
-              "WHERE ir.invoice_id = ?";
+              "WHERE ir.invoice_id=? AND ir.deleted=0";
           $intRes2 = mysql_param_query($strQuery, array($intInvoiceID));
           if( $intRes2 ) {
               $intRowSum = 0;

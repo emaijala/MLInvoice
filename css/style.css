@@ -114,21 +114,24 @@ th {
  vertical-align: top;
  font-size: 12px;
  font-weight: bold;
- -margin: 0px 0px 0px 0px;
- -padding: 0;
  text-align: left;
 }
 
 .label {
 }
 
+td.deleted a.navilink {
+  color: #bbbbbb;
+}
+
+.iform td.deleted {
+  color: #bbbbbb;
+}
+
 td {
  vertical-align: top;
  font-size: 12px;
  font-weight: normal;
- -margin: 0;
- -padding: 0; 
- -sd: 1px 8px 1px 0px; 
 }
 
 td.button {
@@ -399,28 +402,6 @@ a.navilink:hover {
   font-weight: normal;
 }
 
-a.listlink {
-  color: black; 
-  text-decoration: none;  
-  font-weight: bold; 
-  font-size:12px; 
-}
-a.listlink:hover {
-  color: silver; 
-  text-decoration: underline;
-}
-
-a.callink {
-  color: black; 
-  text-decoration: none;  
-  font-weight: bold; 
-  font-size:13px; 
-}
-a.callink:hover {
-  color: white; 
-  text-decoration: underline;
-}
-
 a.buttonlink {
   color: #333333;
   border-radius: 4px;
@@ -504,24 +485,6 @@ a.tinyactionlink {
 a.tinyactionlink:hover {
   color: black; 
   background-color: white;
-}
-
-a.xtinyactionlink {
-  color: #FFFFFF; 
-  background-color: #003399;
-  border-style: solid;
-  border-width : 1px 2px 2px 1px;
-  text-decoration : none;
-  padding : 0px 1px 0px 1px;
-  border-color : #00FFFF #000066 #000066 #00FFFF;
-  font-weight: normal; 
-  font-size:8px; 
-}
-a.xtinyactionlink:hover {
-  color: silver; 
-  background-color: #006699;
-  border-width : 2px 1px 1px 2px;
-  border-color : #000066 #00FFFF #00FFFF #000066;
 }
 
 a.formbuttonlink {

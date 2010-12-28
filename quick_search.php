@@ -33,11 +33,15 @@ sesVerifySession();
 
 require_once "localize.php";
 
+$strFunc = getRequest('func', '');
+if ($strFunc == 'open_invoices')
+  $strFunc = 'invoices';
+
 $strQuery = 
-    "SELECT * FROM {prefix}quicksearch ".
-    "WHERE user_id = ". $_SESSION['sesUSERID']. 
-    " ORDER BY name";
-$intRes = mysql_query_check($strQuery);
+    'SELECT * FROM {prefix}quicksearch ' .
+    'WHERE func=? AND user_id=? ' .  
+    'ORDER BY name';
+$intRes = mysql_param_query($strQuery, array($strFunc, $_SESSION['sesUSERID']));
 $intNumRows = mysql_num_rows($intRes);
 
 for( $i = 0; $i < $intNumRows; $i++ ) {
@@ -45,22 +49,21 @@ for( $i = 0; $i < $intNumRows; $i++ ) {
     $blnDelete = getPost("delete_". $intId. "_x", FALSE) ? TRUE : FALSE;
     if( $blnDelete && $intId ) {
         $strDelQuery =
-            "DELETE FROM {prefix}quicksearch ".
-            "WHERE id=?";
-        $intDelRes = @mysql_param_query($strDelQuery, array($intId));
+            'DELETE FROM {prefix}quicksearch ' .
+            'WHERE id=?';
+        $intDelRes = mysql_param_query($strDelQuery, array($intId));
     }
 }
 
-$intRes = mysql_query_check($strQuery);
+$intRes = mysql_param_query($strQuery, array($strFunc, $_SESSION['sesUSERID']));
 $intNumRows = mysql_num_rows($intRes);
 
 echo htmlPageStart( _PAGE_TITLE_ );
 ?>
 
-<body class="form" onload="<?php echo $strOnLoad?>">
-<form method="post" action="quick_search.php?form=<?php echo $strForm?>" target="_self" name="search_form">
-<input type="hidden" name="fields" value="<?php echo $strFields?>">
-<table>
+<body class="form">
+<form method="post" action="quick_search.php?func=<?php echo $strFunc?>" target="_self" name="search_form">
+<table style="width: 100%">
 <tr>
     <td class="sublabel" colspan="4">
     <?php echo $GLOBALS['locLABELQUICKSEARCH']?><br><br>
@@ -71,11 +74,10 @@ if( $intNumRows ) {
     for( $i = 0; $i < $intNumRows; $i++ ) {
         $intID = mysql_result($intRes, $i, "id");
         $strName = mysql_result($intRes, $i, "name");
-        $strForm = mysql_result($intRes, $i, "form");
+        $strFunc = mysql_result($intRes, $i, "func");
         $strWhereClause = mysql_result($intRes, $i, "whereclause");
-        $strLink = 
-            "list.php?selectform=$strForm&where=$strWhereClause";
-        $strOnClick = "opener.top.frset_bottom.f_list.location.href='".$strLink. "'";
+        $strLink = "index.php?func=$strFunc&where=$strWhereClause";
+        $strOnClick = "opener.location.href='$strLink'";
 ?>
 <tr>
     <td class="label">

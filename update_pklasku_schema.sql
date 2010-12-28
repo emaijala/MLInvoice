@@ -63,3 +63,52 @@ CREATE TABLE pklasku_settings (
   value text NULL,
   PRIMARY KEY  (id)
 ) ENGINE=MyISAM;
+
+alter table pklasku_invoice_state add column (
+  deleted tinyint NOT NULL default 0
+);
+
+alter table pklasku_row_type add column (
+  deleted tinyint NOT NULL default 0
+);
+
+alter table pklasku_company_type add column (
+  deleted tinyint NOT NULL default 0
+);
+
+alter table pklasku_base add column (
+  deleted tinyint NOT NULL default 0
+);
+
+alter table pklasku_company add column (
+  deleted tinyint NOT NULL default 0
+);
+
+alter table pklasku_company_contact add column (
+  deleted tinyint NOT NULL default 0
+);
+
+alter table pklasku_product add column (
+  deleted tinyint NOT NULL default 0
+);
+
+alter table pklasku_invoice add column (
+  deleted tinyint NOT NULL default 0
+);
+
+alter table pklasku_invoice_row add column (
+  deleted tinyint NOT NULL default 0
+);
+
+alter table pklasku_session_type add column (
+  deleted tinyint NOT NULL default 0
+);
+
+alter table pklasku_users add column (
+  deleted tinyint NOT NULL default 0
+);
+
+alter table pklasku_quicksearch change column name name varchar(255) NULL;
+alter table pklasku_quicksearch change column form func varchar(100) NULL;
+update pklasku_quicksearch set func='invoices' where func='invoice';
+update pklasku_quicksearch set func='companies' where func='company';

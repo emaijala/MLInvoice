@@ -44,7 +44,7 @@ $strQuery =
     "FROM {prefix}invoice inv " .
     "INNER JOIN {prefix}company comp ON comp.id = inv.company_id ".
     "LEFT OUTER JOIN {prefix}invoice ref ON ref.id = inv.refunded_invoice_id ".
-    "WHERE inv.id = ?";
+    "WHERE inv.id=?";
 $intRes = mysql_param_query($strQuery, array($intInvoiceId));
 if ($row = mysql_fetch_assoc($intRes)) {
    $strInvoiceName = $row['invoice_name'];
@@ -73,9 +73,9 @@ if ($row = mysql_fetch_assoc($intRes)) {
 }
 $strRefNumber = trim(strrev(chunk_split(strrev($strRefNumber),5,' ')));
 
-mysql_param_query('UPDATE {prefix}invoice SET print_date = ? where id = ?', array(date('Ymd'), $intInvoiceId));
+mysql_param_query('UPDATE {prefix}invoice SET print_date=? where id=?', array(date('Ymd'), $intInvoiceId));
 
-$strSelect = 'SELECT * FROM {prefix}base WHERE id = ?';
+$strSelect = 'SELECT * FROM {prefix}base WHERE id=?';
 $intRes = mysql_param_query($strSelect, array($intBaseId));
 $row = mysql_fetch_assoc($intRes);
 $strAssociation = $row['name'];
@@ -131,7 +131,7 @@ $strQuery =
     "FROM {prefix}invoice_row ir ".
     "LEFT OUTER JOIN {prefix}row_type rt ON rt.id = ir.type_id ".
     "LEFT OUTER JOIN {prefix}product pr ON ir.product_id = pr.id ".
-    "WHERE ir.invoice_id = ? ORDER BY ir.order_no, row_date, pr.product_name DESC, ir.description DESC";
+    "WHERE ir.invoice_id=? AND ir.deleted=0 ORDER BY ir.order_no, row_date, pr.product_name DESC, ir.description DESC";
 $intTotSum = 0;
 $intTotVAT = 0;
 $intTotSumVAT = 0;

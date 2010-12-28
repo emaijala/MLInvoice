@@ -1,4 +1,4 @@
-CREATE TABLE vllasku_settings (
+create table vllasku_settings (
   id int(11) NOT NULL auto_increment,
   name varchar(100) NOT NULL,
   value text NULL,
@@ -12,3 +12,51 @@ alter table vllasku_base add column (
   logo_filedata longblob NULL
 );
 
+alter table vllasku_invoice_state add column (
+  deleted tinyint NOT NULL default 0
+);
+
+alter table vllasku_row_type add column (
+  deleted tinyint NOT NULL default 0
+);
+
+alter table vllasku_company_type add column (
+  deleted tinyint NOT NULL default 0
+);
+
+alter table vllasku_base add column (
+  deleted tinyint NOT NULL default 0
+);
+
+alter table vllasku_company add column (
+  deleted tinyint NOT NULL default 0
+);
+
+alter table vllasku_company_contact add column (
+  deleted tinyint NOT NULL default 0
+);
+
+alter table vllasku_product add column (
+  deleted tinyint NOT NULL default 0
+);
+
+alter table vllasku_invoice add column (
+  deleted tinyint NOT NULL default 0
+);
+
+alter table vllasku_invoice_row add column (
+  deleted tinyint NOT NULL default 0
+);
+
+alter table vllasku_session_type add column (
+  deleted tinyint NOT NULL default 0
+);
+
+alter table vllasku_users add column (
+  deleted tinyint NOT NULL default 0
+);
+
+alter table vllasku_quicksearch change column name name varchar(255) NULL;
+alter table vllasku_quicksearch change column form func varchar(100) NULL;
+update vllasku_quicksearch set func='invoices' where func='invoice';
+update vllasku_quicksearch set func='companies' where func='company';

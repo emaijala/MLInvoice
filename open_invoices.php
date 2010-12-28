@@ -29,20 +29,21 @@ require_once "miscfuncs.php";
 require_once "datefuncs.php";
 require_once "localize.php";
 require_once 'list.php';
+require_once 'settings.php';
 
 function createOpenInvoiceList()
 {
   $arrParams = array();
 
   $strQuery = 
-    "SELECT id FROM {prefix}invoice ".
-    "WHERE state_id = 1 and archived = 0 ".
+    "SELECT id FROM {prefix}invoice " .
+    "WHERE state_id=1 AND archived=0 " . (getSetting('show_deleted_records') ? '' : 'AND deleted=0 ');
     "ORDER BY invoice_date, name";
   createHtmlList('open_invoices', 'invoices', $strQuery, $arrParams, $GLOBALS['locLABELOPENINVOICES'], $GLOBALS['locNOOPENINVOICES'], 'resultlist_open_invoices');
 
   $strQuery = 
-    "SELECT id FROM {prefix}invoice ".
-    "WHERE (state_id = 2 or state_id = 5 or state_id = 6 or state_id = 7) and archived = 0 ".
+    "SELECT id FROM {prefix}invoice " .
+    "WHERE state_id IN (2, 5, 6, 7) AND archived=0 " . (getSetting('show_deleted_records') ? '' : 'AND deleted=0 ');
     "ORDER BY invoice_date, name";
   createHtmlList('open_invoices', 'invoices', $strQuery, $arrParams, $GLOBALS['locLABELUNPAIDINVOICES'], $GLOBALS['locNOUNPAIDINVOICES'], 'resultlist_unpaid_invoices');
 }

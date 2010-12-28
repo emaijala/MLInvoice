@@ -226,7 +226,7 @@ if( $blnSave ) {
             $arrValues[] = $intParentKey;
         }
         else {
-            $strQuery = "UPDATE $strTable SET $strUpdateFields WHERE $strPrimaryKey = ?";
+            $strQuery = "UPDATE $strTable SET $strUpdateFields, deleted=0 WHERE $strPrimaryKey=?";
             $arrValues[] = $intKeyValue;
         }
         
@@ -247,7 +247,7 @@ if( $blnSave ) {
 //if we have primarykey we can fulfill his commands
 if( $blnDelete && $intKeyValue ) {
     //create the delete query
-    $strQuery = "DELETE FROM $strTable WHERE $strPrimaryKey=?";
+    $strQuery = "UPDATE $strTable SET deleted=1 WHERE $strPrimaryKey=?";
     //send query to database
     mysql_param_query($strQuery, array($intKeyValue));
     //dispose the primarykey value

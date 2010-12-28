@@ -222,7 +222,7 @@ if( $blnInsertDone ) {
 }
 if( $blnDelete && $intKeyValue ) {
     //create the delete query
-    $strQuery = "DELETE FROM $strTable WHERE $strPrimaryKey=?";
+    $strQuery = "UPDATE $strTable SET deleted=1 WHERE $strPrimaryKey=?";
     //send query to database
     mysql_param_query($strQuery, array($intKeyValue));
     //dispose the primarykey value
@@ -231,35 +231,42 @@ if( $blnDelete && $intKeyValue ) {
     unset($astrValues);
     $blnNew = TRUE;
 }
-if( $intParentKey ) {
+if ($intParentKey) 
+{
     $strQuery =
-        "SELECT * FROM $strTable ".
-        "WHERE $strParentKey = ? $strOrder";
+        "SELECT * FROM $strTable " .
+        'WHERE ' . (getSetting('show_deleted_records') ? '' : 'deleted=0 AND ') . "$strParentKey=? $strOrder";
+
     $intRes = mysql_param_query($strQuery, array($intParentKey));
-    $intNumRows = mysql_num_rows($intRes);
     $astrOldValues = array();
-    if( $intRes ) {
-        for($i = 0; $i < $intNumRows; $i++ ) {
-            $tmpID = mysql_result( $intRes, $i, "id");
-            for( $j = 0; $j < count($astrFormElements); $j++ ) {
-                if( $astrFormElements[$j]['type'] != 'NEWLINE' && $astrFormElements[$j]['type'] != 'ROWSUM' ) {
-                    if( $astrFormElements[$j]['type'] == 'INTDATE' ) {
-                        $astrOldValues[$i][$astrFormElements[$j]['name']] = dateConvIntDate2Date( mysql_result( $intRes, $i, $astrFormElements[$j]['name'] ));
-                    }
-                    elseif( $astrFormElements[$j]['type'] == 'TIMESTAMP' ) {
-                        $astrOldValues[$i][$astrFormElements[$j]['name']] = date("d.m.Y H:i", mysql_result( $intRes, $i, $astrFormElements[$j]['name'] ));
-                    }
-                    elseif( $astrFormElements[$j]['type'] == 'BUTTON' ) {
-                       $astrOldValues[$i][$astrFormElements[$j]['name']] = $tmpID;
-                    }
-                    
-                    else {
-                        $astrOldValues[$i][$astrFormElements[$j]['name']] = mysql_result( $intRes, $i, $astrFormElements[$j]['name'] );
-                    }
+    for ($i = 0, $row = mysql_fetch_assoc($intRes); $row; $i++, $row = mysql_fetch_assoc($intRes)) 
+    {
+        $tmpID = $row['id'];
+        $astrOldValues[$i]['deleted'] = $row['deleted'];
+        foreach ($astrFormElements as $elem)
+        {
+            if ($elem['type'] != 'NEWLINE' && $elem['type'] != 'ROWSUM' ) 
+            {
+                if ($elem['type'] == 'INTDATE') 
+                {
+                    $astrOldValues[$i][$elem['name']] = dateConvIntDate2Date($row[$elem['name']]);
                 }
-                else {
-                    $astrOldValues[$i][$astrFormElements[$j]['name']] = $intKeyValue;
+                elseif ($elem['type'] == 'TIMESTAMP') 
+                {
+                    $astrOldValues[$i][$elem['name']] = date("d.m.Y H:i", $row[$elem['name']]);
                 }
+                elseif ($elem['type'] == 'BUTTON') 
+                {
+                    $astrOldValues[$i][$elem['name']] = $tmpID;
+                }
+                else 
+                {
+                    $astrOldValues[$i][$elem['name']] = $row[$elem['name']];
+                }
+            }
+            else 
+            {
+                $astrOldValues[$i][$elem['name']] = $intKeyValue;
             }
         }
     }
@@ -297,40 +304,45 @@ function OpenPop(strLink, strTitle, event) {
 <input type="hidden" name="<?php echo $strParentKey?>" value="<?php echo $intParentKey?>">
 <input type="hidden" name="defaults" value="<?php echo $strDefaults?>">
 <table class="iform">
-    <tr>
+  <tr>
 <?php
-if( $strMode == "MODIFY" ) {
-$strRowSpan = '';
-for( $j = 0; $j < count($astrFormElements); $j++ ) {
-    if( $astrFormElements[$j]['type'] == "ROWSUM") {
+if ($strMode == 'MODIFY') 
+{
+  $strRowSpan = '';
+  foreach ($astrFormElements as $elem)
+  {
+    if ($elem['type'] == 'ROWSUM') 
+    {
 ?>
-    <td class="label <?php echo strtolower($astrFormElements[$j]['style'])?>_label">
-        <?php echo $astrFormElements[$j]['label']?><br>
+    <td class="label <?php echo strtolower($elem['style'])?>_label">
+        <?php echo $elem['label']?><br>
     </td>
 <?php
     }
-    elseif( $astrFormElements[$j]['type'] != "HID_INT" && $astrFormElements[$j]['type'] != "SECHID_INT" && $astrFormElements[$j]['type'] != "BUTTON" && $astrFormElements[$j]['type'] != 'NEWLINE' && $astrFormElements[$j]['type'] != 'ROWSUM' ) {
+    elseif( $elem['type'] != 'HID_INT' && $elem['type'] != 'SECHID_INT' && $elem['type'] != 'BUTTON' && $elem['type'] != 'NEWLINE' && $elem['type'] != 'ROWSUM' ) 
+    {
 ?>
-    <td class="label <?php echo strtolower($astrFormElements[$j]['style'])?>_label">
-        <?php echo $astrFormElements[$j]['label']?><br>
-        <?php echo htmlFormElement( $astrFormElements[$j]['name'],$astrFormElements[$j]['type'], gpcStripSlashes(isset($astrValues[$astrFormElements[$j]['name']]) ? $astrValues[$astrFormElements[$j]['name']] : ''), $astrFormElements[$j]['style'],$astrFormElements[$j]['listquery'], "MODIFY", 0, '', array(), $astrFormElements[$j]['elem_attributes'])?>
+    <td class="label <?php echo strtolower($elem['style'])?>_label">
+        <?php echo $elem['label']?><br>
+        <?php echo htmlFormElement( $elem['name'],$elem['type'], gpcStripSlashes(isset($astrValues[$elem['name']]) ? $astrValues[$elem['name']] : ''), $elem['style'],$elem['listquery'], "MODIFY", 0, '', array(), $elem['elem_attributes'])?>
     </td>
 <?php
     }
-    elseif( $astrFormElements[$j]['type'] == 'SECHID_INT' ) {
+    elseif( $elem['type'] == 'SECHID_INT' ) 
+    {
 ?>
-    <input type="hidden" name="<?php echo $astrFormElements[$j]['name']?>" value="<?php echo gpcStripSlashes($astrValues[$astrFormElements[$j]['name']])?>">
+    <input type="hidden" name="<?php echo $elem['name']?>" value="<?php echo gpcStripSlashes($astrValues[$elem['name']])?>">
 <?php
     }
-    elseif( $astrFormElements[$j]['type'] == 'BUTTON' ) {
+    elseif( $elem['type'] == 'BUTTON' ) {
 ?>
     <td class="label">
         &nbsp;
     </td>
 <?php
     }
-    elseif( $astrFormElements[$j]['type'] == 'NEWLINE' ) {
-        $strRowSpan = "rowspan=\"2\"";
+    elseif( $elem['type'] == 'NEWLINE' ) {
+        $strRowSpan = 'rowspan="2"';
 ?>
 </tr>
 <tr>
@@ -344,78 +356,88 @@ for( $j = 0; $j < count($astrFormElements); $j++ ) {
         <input type="hidden" name="add_x" value="0">
         <a class="tinyactionlink" href="#" onclick="self.document.forms[0].add_x.value=1; self.document.forms[0].submit(); return false;"><?php echo $GLOBALS['locADDROW']?></a>
     </td>
-</tr>
+  </tr>
 
 <?php
 }
 ?>
 
 <?php
-for($i = 0; $i < count($astrOldValues); $i++ ) {
+foreach ($astrOldValues as $row) 
+{
 ?>
-<tr>
+  <tr>
 <?php
-
-    for( $j = 0; $j < count($astrFormElements); $j++ ) {
-        if ($astrFormElements[$j]['type'] == "ROWSUM") {
-          $items = $astrOldValues[$i][$multiplierColumn];
-          $price = $astrOldValues[$i][$priceColumn];
-          $VATPercent = $astrOldValues[$i][$VATColumn];
-          $VATIncluded = $astrOldValues[$i][$VATIncludedColumn];
-          
-          if ($VATIncluded)
-          {
-            $sumVAT = $items * $price;
-            $sum = $sumVAT / (1 + $VATPercent / 100);
-            $VAT = $sumVAT - $sum;
-          }
-          else
-          {
-            $sum = $items * $price;
-            $VAT = $sum * ($VATPercent / 100);
-            $sumVAT = $sum + $VAT;
-          }
-          $title = $GLOBALS['locVATLESS'] . ': ' . miscRound2Decim($sum) . ' &ndash; ' . $GLOBALS['locVATPART'] . ': ' . miscRound2Decim($VAT);         
+ foreach ($astrFormElements as $elem) 
+  {
+    $elemStyle = $elem['style'];
+    if ($row['deleted'])
+      $elemStyle .= ' deleted';
+      
+    if ($elem['type'] == 'ROWSUM') 
+    {
+      $items = $row[$multiplierColumn];
+      $price = $row[$priceColumn];
+      $VATPercent = $row[$VATColumn];
+      $VATIncluded = $row[$VATIncludedColumn];
+      
+      if ($VATIncluded)
+      {
+        $sumVAT = $items * $price;
+        $sum = $sumVAT / (1 + $VATPercent / 100);
+        $VAT = $sumVAT - $sum;
+      }
+      else
+      {
+        $sum = $items * $price;
+        $VAT = $sum * ($VATPercent / 100);
+        $sumVAT = $sum + $VAT;
+      }
+      $title = $GLOBALS['locVATLESS'] . ': ' . miscRound2Decim($sum) . ' &ndash; ' . $GLOBALS['locVATPART'] . ': ' . miscRound2Decim($VAT);         
 ?>
-    <td class="<?php echo $astrFormElements[$j]['style']?>" >
-        <?php echo htmlFormElement($astrFormElements[$j]['name'], 'TITLEDTEXT', miscRound2Decim($sumVAT), $astrFormElements[$j]['style'], '', "NO_MOD", 0, $title, array(), isset($astrFormElements[$j]['elem_attributes']) ? $astrFormElements[$j]['elem_attributes'] : '')?>
+    <td class="<?php echo $elemStyle?>" >
+        <?php echo htmlFormElement($elem['name'], 'TITLEDTEXT', miscRound2Decim($sumVAT), $elem['style'], '', 'NO_MOD', 0, $title, array(), isset($elem['elem_attributes']) ? $elem['elem_attributes'] : '')?>
     </td>
 <?php
-        }
-        elseif ($astrFormElements[$j]['type'] != "HID_INT" && $astrFormElements[$j]['type'] != "SECHID_INT" && $astrFormElements[$j]['type'] != 'NEWLINE' ) {
-          $value = gpcStripSlashes($astrOldValues[$i][$astrFormElements[$j]['name']]);
-          if ($astrFormElements[$j]['style'] == 'percent')
-            $value = miscRound2Decim($value, 1);
-          elseif ($astrFormElements[$j]['style'] == 'count' || $astrFormElements[$j]['style'] == 'currency')
-            $value = miscRound2Decim($value, 2);
-?>
-    <td class="<?php echo $astrFormElements[$j]['style']?>" >
-        <?php echo htmlFormElement( $astrFormElements[$j]['name'],$astrFormElements[$j]['type'], $value, $astrFormElements[$j]['style'],$astrFormElements[$j]['listquery'], "NO_MOD", 0, $astrFormElements[$j]['label'], array(), isset($astrFormElements[$j]['elem_attributes']) ? $astrFormElements[$j]['elem_attributes'] : '')?>
-    </td>
-<?php
-        }
-        elseif( $astrFormElements[$j]['type'] == "HID_INT" ||  $astrFormElements[$j]['type'] == "SECHID_INT" ) {
-            $strHidField = htmlFormElement( $astrFormElements[$j]['name'],"HID_INT", gpcStripSlashes($astrOldValues[$i][$astrFormElements[$j]['name']]), $astrFormElements[$j]['style'],$astrFormElements[$j]['listquery'], "NO_MOD", 0, $astrFormElements[$j]['label']);
-            if( $astrFormElements[$j]['type'] == "HID_INT" ) {
-                $strPrimaryName = $astrFormElements[$j]['name'];
-                $intPrimaryId = gpcStripSlashes($astrOldValues[$i][$astrFormElements[$j]['name']]);
-            }
-        }
-        elseif( $astrFormElements[$j]['type'] == 'NEWLINE' ) {
-            $strRowSpan = "rowspan=\"2\"";
-?>
-</tr>
-<tr>
-<?php
-
-        }
     }
-    $strPopLinkEdit = "iform_pop.php?selectform=$strForm&amp;$strParentKey=$intParentKey&amp;$strPrimaryName=$intPrimaryId&amp;defaults=$strDefaults";
-    $strPopLinkCopy = "iform_pop.php?selectform=$strForm&amp;$strParentKey=$intParentKey&amp;$strPrimaryName=$intPrimaryId&amp;defaults=$strDefaults&amp;copyact=1";
+    elseif ($elem['type'] != 'HID_INT' && $elem['type'] != 'SECHID_INT' && $elem['type'] != 'NEWLINE') 
+    {
+      $value = gpcStripSlashes($row[$elem['name']]);
+      if ($elem['style'] == 'percent')
+        $value = miscRound2Decim($value, 1);
+      elseif ($elem['style'] == 'count' || $elem['style'] == 'currency')
+        $value = miscRound2Decim($value, 2);
+?>
+    <td class="<?php echo $elemStyle?>" >
+        <?php echo htmlFormElement($elem['name'], $elem['type'], $value, $elem['style'], $elem['listquery'], 'NO_MOD', 0, $elem['label'], array(), isset($elem['elem_attributes']) ? $elem['elem_attributes'] : '')?>
+    </td>
+<?php
+    }
+    elseif ($elem['type'] == 'HID_INT' || $elem['type'] == 'SECHID_INT') 
+    {
+      $strHidField = htmlFormElement( $elem['name'],"HID_INT", gpcStripSlashes($row[$elem['name']]), $elem['style'], $elem['listquery'], 'NO_MOD', 0, $elem['label']);
+      if( $elem['type'] == "HID_INT" ) 
+      {
+        $strPrimaryName = $elem['name'];
+        $intPrimaryId = gpcStripSlashes($row[$elem['name']]);
+      }
+    }
+    elseif ($elem['type'] == 'NEWLINE') 
+    {
+      $strRowSpan = 'rowspan="2"';
+?>
+  </tr>
+  <tr>
+<?php
+    }
+  }
+  $strPopLinkEdit = "iform_pop.php?selectform=$strForm&amp;$strParentKey=$intParentKey&amp;$strPrimaryName=$intPrimaryId&amp;defaults=$strDefaults";
+  $strPopLinkCopy = "iform_pop.php?selectform=$strForm&amp;$strParentKey=$intParentKey&amp;$strPrimaryName=$intPrimaryId&amp;defaults=$strDefaults&amp;copyact=1";
 ?>
     
 <?php
-if( $strMode == "MODIFY" ) {
+  if ($strMode == 'MODIFY') 
+  {
 ?>
     <td class="button">
         <a class="tinyactionlink" href="#" onclick="OpenPop('<?php echo $strPopLinkEdit?>', '<?php echo $GLOBALS['locRowModification']?>', event); return false;"><?php echo $GLOBALS['locEDIT']?></a>
@@ -424,11 +446,10 @@ if( $strMode == "MODIFY" ) {
         <a class="tinyactionlink" href="#" onclick="OpenPop('<?php echo $strPopLinkCopy?>', '<?php echo $GLOBALS['locRowCopy']?>', event); return false;"><?php echo $GLOBALS['locCOPY']?></a>
     </td>
 <?php
-}
+  }
 ?>
-</tr>
+  </tr>
 <?php
-
 }
 
 if (isset($showPriceSummary) && $showPriceSummary)
@@ -436,12 +457,12 @@ if (isset($showPriceSummary) && $showPriceSummary)
   $intTotSum = 0;
   $intTotVAT = 0;
   $intTotSumVAT = 0;
-  for($i = 0; $i < count($astrOldValues); $i++ ) 
+  foreach ($astrOldValues as $row) 
   {
-    $intItemPrice = $astrOldValues[$i][$priceColumn];
-    $intItems = $astrOldValues[$i][$multiplierColumn]; 
-    $intVATPercent = $astrOldValues[$i][$VATColumn];
-    $boolVATIncluded = $astrOldValues[$i][$VATIncludedColumn];
+    $intItemPrice = $row[$priceColumn];
+    $intItems = $row[$multiplierColumn]; 
+    $intVATPercent = $row[$VATColumn];
+    $boolVATIncluded = $row[$VATIncludedColumn];
     
     if ($boolVATIncluded)
     {
@@ -480,4 +501,5 @@ if (isset($showPriceSummary) && $showPriceSummary)
 </table>
 </form>
 </body>
+
 </html>

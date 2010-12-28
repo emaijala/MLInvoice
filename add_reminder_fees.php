@@ -30,12 +30,12 @@ $strFunc = getRequest('func', 'invoices');
 $strList = getRequest('list', 'invoices');
 
 $strAlert = '';
-if( $intInvoiceId ) 
+if ($intInvoiceId) 
 {
   $strQuery = 
-      'SELECT inv.due_date, inv.state_id, inv.print_date ' .
-      'FROM {prefix}invoice inv ' .
-      'WHERE inv.id = ?';
+    'SELECT inv.due_date, inv.state_id, inv.print_date ' .
+    'FROM {prefix}invoice inv ' .
+    'WHERE inv.id = ?';
   $intRes = mysql_param_query($strQuery, array($intInvoiceId));
   if ($row = mysql_fetch_assoc($intRes)) 
   {
@@ -60,13 +60,13 @@ if( $intInvoiceId )
       $intStateId = 5;
     elseif ($intStateId == 5)
       $intStateId = 6;
-    mysql_param_query('UPDATE {prefix}invoice SET state_id = ? where id = ?', array($intStateId, $intInvoiceId));
+    mysql_param_query('UPDATE {prefix}invoice SET state_id=? where id=?', array($intStateId, $intInvoiceId));
     
     // Add reminder fee
     if (getSetting('invoice_notification_fee'))
     {
       // Remove old fee from same day
-      mysql_param_query('DELETE FROM {prefix}invoice_row WHERE invoice_id = ? AND reminder_row = 2 AND row_date = ?', array($intInvoiceId, date('Ymd')));
+      mysql_param_query('UPDATE {prefix}invoice_row SET deleted=1 WHERE invoice_id=? AND reminder_row=2 AND row_date = ?', array($intInvoiceId, date('Ymd')));
       
       $strQuery = 'INSERT INTO {prefix}invoice_row (invoice_id, description, pcs, price, row_date, vat, vat_included, reminder_row) ' .
         'VALUES (?, ?, 1, ?, ?, 0, 0, 2)';
@@ -77,14 +77,14 @@ if( $intInvoiceId )
     if ($penaltyInterest)
     {
       // Remove old penalty interest
-      mysql_param_query('DELETE FROM {prefix}invoice_row WHERE invoice_id = ? AND reminder_row = 1', array($intInvoiceId));
+      mysql_param_query('UPDATE {prefix}invoice_row SET deleted=1 WHERE invoice_id=? AND reminder_row=1', array($intInvoiceId));
       
       // Add new interest
       $intTotSumVAT = 0;
       $strQuery = 
           'SELECT ir.pcs, ir.price, ir.vat, ir.vat_included '.
           'FROM {prefix}invoice_row ir '.
-          'WHERE ir.invoice_id = ?';
+          'WHERE ir.deleted=0 AND ir.invoice_id=?';
       $intRes = mysql_param_query($strQuery, array($intInvoiceId));
       while ($row = mysql_fetch_assoc($intRes))
       {

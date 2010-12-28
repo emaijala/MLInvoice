@@ -91,6 +91,14 @@ function createList($strFunc, $strList)
       $strWhereClause = " WHERE $strFilter";
   }
   
+  if (!getSetting('show_deleted_records'))
+  {
+    if ($strWhereClause)
+      $strWhereClause .= " AND $strDeletedField=0";
+    else
+      $strWhereClause = " WHERE $strDeletedField=0";
+  }
+  
   $strQuery = 
     "SELECT $strPrimaryKey FROM $strTable $strWhereClause"; 
 
@@ -113,7 +121,7 @@ function createHtmlList($strFunc, $strList, $strIDQuery, &$arrQueryParams, $strT
 
   $astrListValues = array(array());
   
-  $strSelectClause = "$strPrimaryKey,";
+  $strSelectClause = "$strPrimaryKey,$strDeletedField,";
   for( $j = 0; $j < count($astrShowFields); $j++ ) 
   {
     $strSelectClause .= $astrShowFields[$j]['name'] . ",";
@@ -123,8 +131,8 @@ function createHtmlList($strFunc, $strList, $strIDQuery, &$arrQueryParams, $strT
     "SELECT $strSelectClause FROM $strTable ".
     "WHERE $strPrimaryKey IN ($strIDQuery) ";
   $intRes = mysql_param_query($strQuery, $arrQueryParams);
-  $intNRes = mysql_num_rows($intRes);
-  if ($intNRes == 0)
+  $row = mysql_fetch_row($intRes);
+  if (!$row)
   {
 ?>
   <div class="list_container">
@@ -137,20 +145,20 @@ function createHtmlList($strFunc, $strList, $strIDQuery, &$arrQueryParams, $strT
     return;
   }
   
-  $i = 0;
-  for( $i = 0; $i < $intNRes; $i++ ) 
+  for ($i = 0; $row; $i++, $row = mysql_fetch_row($intRes)) 
   {
-    $astrPrimaryKeys[$i] = mysql_result($intRes, $i, $strPrimaryKey);
-    for( $j = 0; $j < count($astrShowFields); $j++ ) 
+    $astrPrimaryKeys[$i] = $row[0];
+    $aboolDeleted[$i] = $row[1];
+    for ($j = 0; $j < count($astrShowFields); $j++) 
     {
       if( $astrShowFields[$j]['type'] == "TEXT" || $astrShowFields[$j]['type'] == "INT" ) 
       {
-        $astrListValues[$i][$j] = mysql_result($intRes, $i, $astrShowFields[$j]['name']);
+        $astrListValues[$i][$j] = $row[$j + 2];
       }
       elseif( $astrShowFields[$j]['type'] == "INTDATE" ) 
       {
         $astrListValues[$i][$j] = 
-          dateConvIntDate2Date( mysql_result($intRes, $i, $astrShowFields[$j]['name']) );
+          dateConvIntDate2Date($row[$j + 2]);
       }
     }
   }
@@ -193,8 +201,8 @@ function createHtmlList($strFunc, $strList, $strIDQuery, &$arrQueryParams, $strT
 <?php
   for( $i = 0; $i < count($astrListValues); $i++ ) 
   {
-    $strLink = "?func=$strFunc&amp;list=$strList&amp;form=$strMainForm&amp;";
-    $strLink .= 'id=' . $astrPrimaryKeys[$i];
+    $strLink = "?func=$strFunc&amp;list=$strList&amp;form=$strMainForm&amp;id=" . $astrPrimaryKeys[$i];
+    $deleted = $aboolDeleted[$i] ? ' deleted' : '';
 ?>
   
         <tr class="listrow">
@@ -202,7 +210,7 @@ function createHtmlList($strFunc, $strList, $strIDQuery, &$arrQueryParams, $strT
     for( $j = 0; $j < count($astrListValues[$i]); $j++ ) 
     {
 ?>
-          <td class="label"><a class="navilink" href="<?php echo $strLink?>"><?php echo $astrListValues[$i][$j] ? htmlspecialchars($astrListValues[$i][$j]) : '&nbsp;'?></a></td>
+          <td class="label<?php echo $deleted?>"><a class="navilink" href="<?php echo $strLink?>"><?php echo $astrListValues[$i][$j] ? htmlspecialchars($astrListValues[$i][$j]) : '&nbsp;'?></a></td>
 <?php
     }
 ?>

@@ -35,7 +35,9 @@ require_once "localize.php";
 
 $strFunc = getRequest('func', '');
 $strForm = getRequest('form', '');
-
+if ($strFunc == 'open_invoices')
+  $strFunc = 'invoices';
+$strList = $strFunc;
 
 $blnSearch = getPost('search_x', FALSE) ? TRUE : FALSE;
 $blnSave = getPost('save_x', FALSE) ? TRUE : FALSE;
@@ -101,10 +103,11 @@ for( $j = 0; $j < count($astrFormElements); $j++ ) {
 $strListBox = htmlListBox( "searchfield", $astrListValues, $astrListOptions, FALSE, "", 1 );
 
 $astrListValues = array('=','!=','<','>');
-$astrListOptions = array('on yhtä kuin','on eri kuin','on pienempi kuin','on suurempi kuin');
+$astrListOptions = array($GLOBALS['locSearchEqual'], $GLOBALS['locSearchNotEqual'], $GLOBALS['locSearchLessThan'], $GLOBALS['locSearchGreaterThan']);
 
 $strOnLoad = '';
 if( $blnSearch || $blnSave ) {
+    $strWhereClause = '';
     for( $j = 0; $j < count($astrFormElements); $j++ ) {
         if(in_array($astrFormElements[$j]['name'], $astrSelectedFields, true)) {
             $strSearchMatch =
@@ -144,15 +147,15 @@ if( $blnSearch || $blnSave ) {
     $strWhereClause = substr( $strWhereClause, 0, -4);
     $strWhereClause = urlencode($strWhereClause);
     if( $blnSearch ) {
-        $strLink = "index.php?func=$strFunc&selectform=$strForm&where=$strWhereClause";
+        $strLink = "index.php?func=$strFunc&where=$strWhereClause";
         $strOnLoad = "opener.location.href='$strLink'";
     }
     
     if( $blnSave && $strSearchName ) {
         $strQuery = 
-            'INSERT INTO {prefix}quicksearch(user_id, name, form, whereclause) '.
+            'INSERT INTO {prefix}quicksearch(user_id, name, func, whereclause) '.
             'VALUES (?, ?, ?, ?)';
-        $intRes = mysql_param_query($strQuery, array($_SESSION['sesUSERID'], $strSearchName, $strForm, $strWhereClause));
+        $intRes = mysql_param_query($strQuery, array($_SESSION['sesUSERID'], $strSearchName, $strFunc, $strWhereClause));
     }
     elseif( $blnSave && !$strSearchName) {
         $strOnLoad = "alert('".$GLOBALS['locERRORNOSEARCHNAME']."')";
@@ -259,6 +262,11 @@ for( $j = 0; $j < count($astrFormElements); $j++ ) {
     </td>
     <td>
         <a class="actionlink" href="#" onclick="self.close(); return false;"><?php echo $GLOBALS['locCLOSE']?></a>
+    </td>
+</tr>
+<tr>
+    <td colspan="3">
+        <?php if ($blnSave && $strSearchName) echo $GLOBALS['locSearchSaved']?>
     </td>
 </tr>
 </table>

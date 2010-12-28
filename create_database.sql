@@ -1,5 +1,6 @@
 ﻿CREATE TABLE vllasku_invoice_state (
   id int(11) NOT NULL auto_increment,
+  deleted tinyint NOT NULL default 0,
   name varchar(15) default NULL,
   order_no int(11) default NULL,
   PRIMARY KEY (id)
@@ -7,6 +8,7 @@
 
 CREATE TABLE vllasku_row_type (
   id int(11) NOT NULL auto_increment,
+  deleted tinyint NOT NULL default 0,
   name varchar(15) default NULL,
   order_no int(11) default NULL,
   PRIMARY KEY (id)
@@ -15,6 +17,7 @@ CREATE TABLE vllasku_row_type (
 
 CREATE TABLE vllasku_company_type (
   id int(11) NOT NULL auto_increment,
+  deleted tinyint NOT NULL default 0,
   name varchar(255) default NULL,
   order_no int(11) default NULL,
   PRIMARY KEY (id)
@@ -22,6 +25,7 @@ CREATE TABLE vllasku_company_type (
 
 CREATE TABLE vllasku_base (
   id int(11) NOT NULL auto_increment,
+  deleted tinyint NOT NULL default 0,
   name varchar(100) NOT NULL,
   contact_person varchar(50) NOT NULL,
   street_address varchar(100) NOT NULL,
@@ -53,6 +57,7 @@ CREATE TABLE vllasku_base (
 
 CREATE TABLE vllasku_company (
   id int(11) NOT NULL auto_increment,
+  deleted tinyint NOT NULL default 0,
   inside_info text,
   type_id int(11) default NULL,
   company_name varchar(100) NOT NULL,
@@ -76,6 +81,7 @@ CREATE TABLE vllasku_company (
 
 CREATE TABLE vllasku_company_contact (
   id int(11) NOT NULL auto_increment,
+  deleted tinyint NOT NULL default 0,
   company_id int(11) NOT NULL default '0',
   contact_person varchar(100) default NULL,
   person_title varchar(100) default NULL,
@@ -88,6 +94,7 @@ CREATE TABLE vllasku_company_contact (
 
 CREATE TABLE vllasku_product (
   id int(11) NOT NULL auto_increment,
+  deleted tinyint NOT NULL default 0,
   product_name varchar(100) NOT NULL,
   description varchar(100) NULL,
   product_code varchar(100) NULL,
@@ -103,6 +110,7 @@ CREATE TABLE vllasku_product (
 
 CREATE TABLE vllasku_invoice (
   id int(11) NOT NULL auto_increment,
+  deleted tinyint NOT NULL default 0,
   name varchar(50) default NULL,
   company_id int(11) default NULL,
   invoice_no varchar(100) default NULL,
@@ -123,6 +131,7 @@ CREATE TABLE vllasku_invoice (
 
 CREATE TABLE vllasku_invoice_row (
   id int(11) NOT NULL auto_increment,
+  deleted tinyint NOT NULL default 0,
   invoice_id int(11) default NULL,
   product_id int(11) default NULL,
   description varchar(255) default NULL,
@@ -142,6 +151,7 @@ CREATE TABLE vllasku_invoice_row (
 
 CREATE TABLE vllasku_session_type (
   id int(11) NOT NULL auto_increment,
+  deleted tinyint NOT NULL default 0,
   name varchar(15) default NULL,
   order_no int(11) default NULL,
   time_out int(11) default NULL,
@@ -151,6 +161,7 @@ CREATE TABLE vllasku_session_type (
 
 CREATE TABLE vllasku_users (
   id int(11) NOT NULL auto_increment,
+  deleted tinyint NOT NULL default 0,
   name varchar(50) default NULL,
   email varchar(255) default NULL,
   login varchar(15) default NULL,
@@ -163,7 +174,8 @@ CREATE TABLE vllasku_users (
 CREATE TABLE vllasku_quicksearch (
   id int(11) NOT NULL auto_increment,
   user_id int(11) NOT NULL,
-  name varchar(15) default NULL,
+  name varchar(255) default NULL,
+  func varchar(100) default NULL,
   form varchar(100) default NULL,
   whereclause text,
   PRIMARY KEY (id),
@@ -178,12 +190,6 @@ CREATE TABLE vllasku_settings (
 ) ENGINE=INNODB CHARACTER SET utf8 COLLATE utf8_swedish_ci;
 
 SET NAMES 'utf8';
-
-INSERT INTO vllasku_base (id, name, contact_person, street_address, zip_code, city, phone, bank_name, bank_account, bank_iban, bank_swiftbic, www, email, company_id) VALUES (1, 'Testifirma', 'Taavi Testaaja', 'Testitie', '00730', 'HELSINKI', '+358 50 123456', 'Pankki', '123456-654321', 'FI12 3456 7890 1234 56', 'FIHHPANK', 'http://sourceforge.net/', 'emaijala@gmail.com', '123456-7');
-
-INSERT INTO vllasku_company (id, inside_info, type_id, company_name, contact_person, street_address, zip_code, city, phone, fax, email, gsm, billing_address, www, info, company_id) VALUES (1, NULL, NULL, 'Testifirma', NULL, 'Testitie', '00730', 'HELSINKI', '050-123 4567', '-', 'emaijala@gmail.com', '050-123 4567', 'Testifirma\r\nTestitie\r\n00730 HELSINKI', 'www.sourceforge.net', '', 'FI-123456-x');
-
-INSERT INTO vllasku_company_contact (id, company_id, contact_person, person_title, email, phone, gsm) VALUES (1, 1, 'Ere Maijala', 'Päällikkö', 'emaijala@gmail.com', '-', '050-123 4567');
 
 INSERT INTO vllasku_company_type (id, name, order_no) VALUES (1, 'Autoilu', 5);
 INSERT INTO vllasku_company_type (id, name, order_no) VALUES (2, 'Elintarviketeollisuus', 10);
@@ -224,6 +230,15 @@ INSERT INTO vllasku_row_type (id, name, order_no) VALUES (5, 'vuosi', 25);
 INSERT INTO vllasku_row_type (id, name, order_no) VALUES (6, 'erä', 30);
 INSERT INTO vllasku_row_type (id, name, order_no) VALUES (8, 'km', 35);
 
+INSERT INTO vllasku_users (id, name, email, login, passwd, type_id) VALUES (1, 'Administrator', 'foo@bar.fi.not', 'admin', md5('admin'), 2);
+
+-- ***** The following rows just add some sample data *****
+INSERT INTO vllasku_base (id, name, contact_person, street_address, zip_code, city, phone, bank_name, bank_account, bank_iban, bank_swiftbic, www, email, company_id) VALUES (1, 'Testifirma', 'Taavi Testaaja', 'Testitie', '00730', 'HELSINKI', '+358 50 123456', 'Pankki', '123456-654321', 'FI12 3456 7890 1234 56', 'FIHHPANK', 'http://sourceforge.net/', 'emaijala@gmail.com', '123456-7');
+
+INSERT INTO vllasku_company (id, inside_info, type_id, company_name, contact_person, street_address, zip_code, city, phone, fax, email, gsm, billing_address, www, info, company_id) VALUES (1, NULL, NULL, 'Testifirma', NULL, 'Testitie', '00730', 'HELSINKI', '050-123 4567', '-', 'emaijala@gmail.com', '050-123 4567', 'Testifirma\r\nTestitie\r\n00730 HELSINKI', 'www.sourceforge.net', '', 'FI-123456-x');
+
+INSERT INTO vllasku_company_contact (id, company_id, contact_person, person_title, email, phone, gsm) VALUES (1, 1, 'Ere Maijala', 'Päällikkö', 'emaijala@gmail.com', '-', '050-123 4567');
+
 INSERT INTO vllasku_invoice 
   (id, name, company_id, invoice_no, invoice_date, due_date, payment_date, ref_number, state_id, reference, base_id) 
   VALUES (1, 'Testi', 1, '100', 20101230, 20110113, NULL, '', 1, '', 1);
@@ -234,4 +249,3 @@ INSERT INTO vllasku_invoice_row (id, invoice_id, description, type_id, pcs, pric
 INSERT INTO vllasku_session_type (id, name, order_no, time_out, access_level) VALUES (1, 'Käyttäjä', 1, 3600, 1);
 INSERT INTO vllasku_session_type (id, name, order_no, time_out, access_level) VALUES (2, 'Admin', 2, 3600, 99);
 
-INSERT INTO vllasku_users (id, name, email, login, passwd, type_id) VALUES (1, 'Administrator', 'foo@bar.fi.not', 'admin', md5('admin'), 2);

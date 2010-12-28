@@ -77,14 +77,14 @@ function createProductReport($strType)
       array(
        array("type" => "ELEMENT", "element" => $strYearListBox, "label" => $GLOBALS['locYEAR']),
        array("name" => "month", "label" => $GLOBALS['locMONTH'], "type" => "SUBMITLIST", "style" => "medium", "listquery" => $strListQuery, "value" => $intMonth),
-       array("name" => "base", "label" => $GLOBALS['locBILLER'], "type" => "SUBMITLIST", "style" => "medium", "listquery" => "SELECT id, name FROM {prefix}base ORDER BY name", "value" => $intBaseId),
-       array("name" => "company", "label" => $GLOBALS['locCOMPANY'], "type" => "SUBMITLIST", "style" => "medium", "listquery" => "SELECT id, company_name FROM {prefix}company ORDER BY company_name", "value" => $intCompanyId),
-       array("name" => "product", "label" => $GLOBALS['locPRODUCT'], "type" => "SUBMITLIST", "style" => "medium", "listquery" => "SELECT id, product_name FROM {prefix}product ORDER BY product_name", "value" => $intProductId)
+       array("name" => "base", "label" => $GLOBALS['locBILLER'], "type" => "SUBMITLIST", "style" => "medium", "listquery" => "SELECT id, name FROM {prefix}base WHERE deleted=0 ORDER BY name", "value" => $intBaseId),
+       array("name" => "company", "label" => $GLOBALS['locCOMPANY'], "type" => "SUBMITLIST", "style" => "medium", "listquery" => "SELECT id, company_name FROM {prefix}company WHERE deleted=0 ORDER BY company_name", "value" => $intCompanyId),
+       array("name" => "product", "label" => $GLOBALS['locPRODUCT'], "type" => "SUBMITLIST", "style" => "medium", "listquery" => "SELECT id, product_name FROM {prefix}product WHERE deleted=0 ORDER BY product_name", "value" => $intProductId)
       );
       
       $strQuery = 
           "SELECT id, name ".
-          "FROM {prefix}invoice_state ".
+          "FROM {prefix}invoice_state WHERE deleted=0 ".
           "ORDER BY order_no";
       $intRes = mysql_query_check($strQuery);
       $intNumRows = mysql_numrows($intRes);
@@ -229,12 +229,12 @@ function printReport()
   $strQuery = 
       "SELECT i.id ".
       "FROM {prefix}invoice i ".
-      "WHERE i.invoice_date > ? AND i.invoice_date <= ?";
+      "WHERE deleted=0 AND i.invoice_date > ? AND i.invoice_date <= ?";
   
   $strQuery2 = "";
   $strQuery3 = 
       "SELECT id, name ".
-      "FROM {prefix}invoice_state ".
+      "FROM {prefix}invoice_state WHERE deleted=0 ".
       "ORDER BY order_no";
   $intRes = mysql_query_check($strQuery3);
   $intNumRows = mysql_numrows($intRes);
@@ -275,7 +275,7 @@ function printReport()
     'FROM {prefix}invoice_row ir ' .
     'LEFT OUTER JOIN {prefix}product p ON p.id = ir.product_id ' .
     'LEFT OUTER JOIN {prefix}row_type t ON t.id = ir.type_id ' .
-    "WHERE ir.invoice_id IN ($strQuery) $strProductWhere" .
+    "WHERE deleted=0 AND ir.invoice_id IN ($strQuery) $strProductWhere" .
     'GROUP BY p.product_name, ir.description, ir.vat, t.name ' .
     'ORDER BY p.product_name, ir.description';
     

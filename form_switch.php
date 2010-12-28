@@ -42,6 +42,7 @@ Tämä ohjelma on vapaa. Lue oheinen LICENSE.
 $strListTableAlias = '';
 $strOrder = '';
 $levelsAllowed = array(1);
+$copyLinkOverride = '';
 switch ( $strForm ) {
 
 case 'company':
@@ -55,7 +56,7 @@ case 'company':
    $defaultCustomerNo = FALSE;
    if (getSetting('add_customer_number'))
    {
-     $strQuery = "SELECT max(customer_no) FROM {prefix}company";
+     $strQuery = 'SELECT max(customer_no) FROM {prefix}company WHERE deleted=0';
      $intRes = mysql_query_check($strQuery);
      $intInvNo = mysql_result($intRes, 0, 0) + 1;
      $defaultCustomerNo = $intInvNo;
@@ -110,7 +111,7 @@ case 'company_contact':
          array(
             "name" => "contact_person", "label" => $GLOBALS['locCONTACTPERSON'], "type" => "TEXT", "style" => "medium", "listquery" => "", "position" => 0, "default" => FALSE, "allow_null" => FALSE ),
          array(
-            "name" => "person_title", "label" => $GLOBALS['locPERSONTITLE'], "type" => "TEXT", "style" => "small", "listquery" => "SELECT id, name FROM {prefix}person_title ORDER BY order_no;", "position" => 0, "default" => FALSE, "allow_null" => TRUE ),
+            "name" => "person_title", "label" => $GLOBALS['locPERSONTITLE'], "type" => "TEXT", "style" => "small", "listquery" => '', "position" => 0, "default" => FALSE, "allow_null" => TRUE ),
          array(
             "name" => "phone", "label" => $GLOBALS['locPHONE'], "type" => "TEXT", "style" => "medium", "listquery" => "", "position" => 0, "default" => FALSE, "allow_null" => TRUE ),
          array(
@@ -143,7 +144,7 @@ case 'product':
      array(
         "name" => "unit_price", "label" => $GLOBALS['locUNITPRICE'], "type" => "INT", "style" => "medium", "listquery" => "", "position" => 2, "default" => FALSE, "allow_null" => TRUE ),
      array(
-        "name" => "type_id", "label" => $GLOBALS['locUNIT'], "type" => "LIST", "style" => "short", "listquery" => "SELECT id, name FROM {prefix}row_type ORDER BY order_no;", "position" => 0, "default" => "POST", "allow_null" => FALSE ),
+        "name" => "type_id", "label" => $GLOBALS['locUNIT'], "type" => "LIST", "style" => "short", "listquery" => "SELECT id, name FROM {prefix}row_type WHERE deleted=0 ORDER BY order_no;", "position" => 0, "default" => "POST", "allow_null" => FALSE ),
      array(
         "name" => "vat_percent", "label" => $GLOBALS['locVATPERCENT'], "type" => "INT", "style" => "short", "listquery" => "", "position" => 1, "default" => FALSE, "allow_null" => TRUE ),
      array(
@@ -160,7 +161,7 @@ case 'invoice':
    $defaultRefNo = FALSE;
    if (getSetting('invoice_add_number') || getSetting('invoice_add_reference_number'))
    {
-     $strQuery = "SELECT max(cast(invoice_no as unsigned integer)) FROM {prefix}invoice";
+     $strQuery = "SELECT max(cast(invoice_no as unsigned integer)) FROM {prefix}invoice WHERE deleted=0";
      $intRes = mysql_query_check($strQuery);
      $intInvNo = mysql_result($intRes, 0, 0) + 1;
      if (getSetting('invoice_add_number'))
@@ -177,7 +178,7 @@ case 'invoice':
      $strQuery = 
         "SELECT refunded_invoice_id ".
         "FROM {prefix}invoice ".
-        "WHERE id = ?";
+        "WHERE id=?"; // ok to maintain links to deleted invoices too
      $intRes = mysql_param_query($strQuery, array($intInvoiceId));
      $strBaseLink = '?' . preg_replace('/&id=\d*/', '', $_SERVER['QUERY_STRING']);
      if( $intRes ) 
@@ -191,7 +192,7 @@ case 'invoice':
      $strQuery = 
         "SELECT id ".
         "FROM {prefix}invoice ".
-        "WHERE refunded_invoice_id = ?";
+        "WHERE deleted=0 AND refunded_invoice_id=?";
      $intRes = mysql_param_query($strQuery, array($intInvoiceId));
      if( $intRes && ($row = mysql_fetch_assoc($intRes))) 
      {
@@ -216,13 +217,13 @@ EOS;
    $astrFormElements =
     array(
      array(
-        "name" => "base_id", "label" => $GLOBALS['locBILLER'], "type" => "LIST", "style" => "medium", "listquery" => "SELECT id, name FROM {prefix}base ORDER BY name;", "position" => 1, "default" => 2, "allow_null" => FALSE ),
+        "name" => "base_id", "label" => $GLOBALS['locBILLER'], "type" => "LIST", "style" => "medium", "listquery" => "SELECT id, name FROM {prefix}base WHERE deleted=0 ORDER BY name", "position" => 1, "default" => 2, "allow_null" => FALSE ),
      $arrRefundedInvoice,
      array(
         "name" => "name", "label" => $GLOBALS['locINVNAME'], "type" => "TEXT", "style" => "medium", "listquery" => "", "position" => 1, "default" => FALSE, "allow_null" => TRUE ),
      $arrRefundingInvoice,
      array(
-        "name" => "company_id", "label" => $GLOBALS['locPAYER'], "type" => "LIST", "style" => "medium", "listquery" => "SELECT id, company_name FROM {prefix}company ORDER BY company_name;", "position" => 1, "default" => FALSE, "allow_null" => FALSE, 'elem_attributes' => $companyOnChange ),
+        "name" => "company_id", "label" => $GLOBALS['locPAYER'], "type" => "LIST", "style" => "medium", "listquery" => "SELECT id, company_name FROM {prefix}company WHERE deleted=0 ORDER BY company_name", "position" => 1, "default" => FALSE, "allow_null" => FALSE, 'elem_attributes' => $companyOnChange ),
      array(
         "name" => "reference", "label" => $GLOBALS['locCLIENTSREFERENCE'], "type" => "TEXT", "style" => "medium", "listquery" => "", "position" => 2, "default" => FALSE, "allow_null" => TRUE ),
      array(
@@ -234,7 +235,7 @@ EOS;
      array(
         "name" => "ref_number", "label" => $GLOBALS['locREFNO'], "type" => "INT", "style" => "medium", "listquery" => "", "position" => 2, "default" => $defaultRefNo, "allow_null" => TRUE ),
      array(
-        "name" => "state_id", "label" => $GLOBALS['locSTATUS'], "type" => "LIST", "style" => "medium", "listquery" => "SELECT id, name FROM {prefix}invoice_state ORDER BY order_no;", "position" => 1, "default" => 1, "allow_null" => FALSE ),
+        "name" => "state_id", "label" => $GLOBALS['locSTATUS'], "type" => "LIST", "style" => "medium", "listquery" => "SELECT id, name FROM {prefix}invoice_state WHERE deleted=0 ORDER BY order_no", "position" => 1, "default" => 1, "allow_null" => FALSE ),
      array(
         "name" => "payment_date", "label" => $GLOBALS['locPAYDATE'], "type" => "INTDATE", "style" => "date", "listquery" => "", "position" => 2, "default" => NULL, "allow_null" => TRUE ),
      array(
@@ -274,7 +275,7 @@ case 'invoice_rows':
      $strQuery = 
         "SELECT * ".
         "FROM {prefix}product ".
-        "WHERE id = ?";
+        "WHERE id=?";
      $intRes = mysql_param_query($strQuery, array($intProductId));
      if ($row = mysql_fetch_assoc($intRes)) 
      {
@@ -302,7 +303,7 @@ EOS;
      array(
         "name" => "id", "label" => "", "type" => "HID_INT", "style" => "medium", "listquery" => "", "position" => 0, "default" => FALSE, "allow_null" => FALSE ),
      array(
-        "name" => "product_id", "label" => $GLOBALS['locPRODUCTNAME'], "type" => "LIST", "style" => "medium", "listquery" => "SELECT id, product_name FROM {prefix}product ORDER BY product_name;", "position" => 0, "default" => $intProductId, "allow_null" => TRUE, 'elem_attributes' => $productOnChange ),
+        "name" => "product_id", "label" => $GLOBALS['locPRODUCTNAME'], "type" => "LIST", "style" => "medium", "listquery" => "SELECT id, product_name FROM {prefix}product WHERE deleted=0 ORDER BY product_name", "position" => 0, "default" => $intProductId, "allow_null" => TRUE, 'elem_attributes' => $productOnChange ),
      array(
         "name" => "description", "label" => $GLOBALS['locROWDESC'], "type" => "TEXT", "style" => "medium", "listquery" => "", "position" => 0, "default" => $strDescription, "allow_null" => TRUE ),
      array(
@@ -310,7 +311,7 @@ EOS;
      array(
         "name" => "pcs", "label" => $GLOBALS['locPCS'], "type" => "INT", "style" => "count", "listquery" => "", "position" => 0, "default" => FALSE, "allow_null" => FALSE ),
      array(
-        "name" => "type_id", "label" => $GLOBALS['locUNIT'], "type" => "LIST", "style" => "short", "listquery" => "SELECT id, name FROM {prefix}row_type ORDER BY order_no;", "position" => 0, "default" => $intTypeId, "allow_null" => FALSE ),
+        "name" => "type_id", "label" => $GLOBALS['locUNIT'], "type" => "LIST", "style" => "short", "listquery" => "SELECT id, name FROM {prefix}row_type WHERE deleted=0 ORDER BY order_no", "position" => 0, "default" => $intTypeId, "allow_null" => FALSE ),
      array(
         "name" => "price", "label" => $GLOBALS['locPRICE'], "type" => "INT", "style" => "currency", "listquery" => "", "position" => 0, "default" => $intPrice, "allow_null" => FALSE ),
      array(
@@ -318,7 +319,7 @@ EOS;
      array(
         "name" => "vat_included", "label" => $GLOBALS['locVATINC'], "type" => "CHECK", "style" => "xshort", "listquery" => "", "position" => 0, "default" => $intVATIncluded, "allow_null" => TRUE ),
      array(
-        "name" => "order_no", "label" => $GLOBALS['locROWNO'], "type" => "INT", "style" => "tiny", "listquery" => "SELECT max(order_no)+5 FROM {prefix}invoice_row WHERE invoice_id = _PARENTID_", "position" => 0, "default" => "ADD+5", "allow_null" => TRUE ),
+        "name" => "order_no", "label" => $GLOBALS['locROWNO'], "type" => "INT", "style" => "tiny", "listquery" => "SELECT max(order_no)+5 FROM {prefix}invoice_row WHERE deleted=0 AND invoice_id=_PARENTID_", "position" => 0, "default" => "ADD+5", "allow_null" => TRUE ),
      array(
         "name" => "row_sum", "label" => $GLOBALS['locROWTOTAL'], "type" => "ROWSUM", "style" => "currency", "listquery" => "", "position" => 0, "default" => "", "allow_null" => TRUE )
    );
@@ -470,7 +471,7 @@ case 'user':
             array(
             "name" => "passwd", "label" => $GLOBALS['locPASSWD'], "type" => "PASSWD", "style" => "medium", "listquery" => "", "position" => 2, "default" => FALSE, "allow_null" => TRUE ),
             array(
-            "name" => "type_id", "label" => $GLOBALS['locTYPE'], "type" => "LIST", "style" => "medium", "listquery" => "SELECT id, name FROM {prefix}session_type ORDER BY order_no", "position" => 0, "default" => FALSE, "allow_null" => FALSE )
+            "name" => "type_id", "label" => $GLOBALS['locTYPE'], "type" => "LIST", "style" => "medium", "listquery" => "SELECT id, name FROM {prefix}session_type WHERE deleted=0 ORDER BY order_no", "position" => 0, "default" => FALSE, "allow_null" => FALSE )
     );
 break;
 

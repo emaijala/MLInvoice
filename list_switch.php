@@ -40,6 +40,7 @@ case 'companies':
     );
    $astrHiddenSearchField = array("name" => "type_id", "type" => "INT");
    $strPrimaryKey = "id";
+   $strDeletedField = 'deleted';
    $astrShowFields = 
     array( 
         array("name" => "company_name", 'width' => 150, "type" => "TEXT", "header" => $GLOBALS['locCOMPNAME']),
@@ -67,6 +68,7 @@ case 'invoices':
         array("name" => "i.name", "type" => "TEXT")
     );
    $strPrimaryKey = "i.id";
+   $strDeletedField = 'i.deleted';
    $astrShowFields = 
     array( 
         array("name" => "i.invoice_date", 'width' => 100, "type" => "INTDATE", "order" => "DESC", "header" => $GLOBALS['locHEADERINVOICEDATE']),
@@ -91,6 +93,7 @@ case 'base_info':
         array("name" => "name", "type" => "TEXT")
     );
    $strPrimaryKey = "id";
+   $strDeletedField = 'deleted';
    $astrShowFields = 
     array( 
         array("name" => "name", 'width' => 200, "type" => "TEXT", "header" => $GLOBALS['locCOMPNAME']),
@@ -110,6 +113,7 @@ case 'invoice_state':
         array("name" => "name'", "type" => "TEXT")
     );
    $strPrimaryKey = "id";
+   $strDeletedField = 'deleted';
    $astrShowFields = 
     array( 
         array("name" => "order_no", 'width' => 150, "type" => "TEXT", "header" => $GLOBALS['locORDERNO']),
@@ -128,6 +132,7 @@ case 'product':
         array("name" => "product_code", "type" => "TEXT")
     );
    $strPrimaryKey = "id";
+   $strDeletedField = 'deleted';
    $astrShowFields = 
     array( 
         array("name" => "product_name", 'width' => 200, "type" => "TEXT", "header" => $GLOBALS['locPRODUCTNAME']),
@@ -147,6 +152,7 @@ case 'row_type':
         array("name" => "name", "type" => "TEXT")
     );
    $strPrimaryKey = "id";
+   $strDeletedField = 'deleted';
    $astrShowFields = 
     array( 
         array("name" => "order_no", 'width' => 150, "type" => "TEXT", "header" => $GLOBALS['locORDERNO']),
@@ -168,6 +174,7 @@ case 'session_type':
         array("name" => "name", "type" => "TEXT")
     );
    $strPrimaryKey = "id";
+   $strDeletedField = 'deleted';
    $astrShowFields = 
     array( 
         array("name" => "order_no", 'width' => 150, "type" => "TEXT", "header" => $GLOBALS['locORDERNO']),
@@ -186,6 +193,7 @@ case 'user':
         array("name" => "name", "type" => "TEXT")
     );
    $strPrimaryKey = "id";
+   $strDeletedField = 'deleted';
    $astrShowFields = 
     array( 
         array("name" => "name", 'width' => 350, "type" => "TEXT", "header" => $GLOBALS['locUSERNAME']),

@@ -128,7 +128,7 @@ function createFuncMenu($strFunc)
           windowname = 'ext';
       }
       if( mode == 'quick' ) {
-          strLink = 'quick_search.php';
+          strLink = 'quick_search.php?func=<?php echo $strFunc?>';
           height = '400';
           width = '250';
           windowname = 'quicksearch';

@@ -47,10 +47,16 @@ function getSetting($name)
   require_once 'localize.php';
   require 'settings_def.php';
   
-  $res = mysql_param_query('SELECT value from {prefix}settings WHERE name=?', array($name));
-  if ($row = mysql_fetch_assoc($res))
-    $value = $row['value'];
+  if (isset($arrSettings[$name]) && isset($arrSettings[$name]['session']) && $arrSettings[$name]['session'])
+  {
+    if (isset($_SESSION[$name]))
+      return $_SESSION[$name];
+  }
   else
-    $value = isset($arrSettings[$name]) && isset($arrSettings[$name]['default']) ? cond_utf8_encode($arrSettings[$name]['default']) : '';
-  return $value;
+  {
+    $res = mysql_param_query('SELECT value from {prefix}settings WHERE name=?', array($name));
+    if ($row = mysql_fetch_assoc($res))
+      return $row['value'];
+  }
+  return isset($arrSettings[$name]) && isset($arrSettings[$name]['default']) ? cond_utf8_encode($arrSettings[$name]['default']) : '';
 }

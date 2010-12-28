@@ -186,8 +186,9 @@ default :
     $GLOBALS['locYES'] = 'Kyll‰';
     $GLOBALS['locNO'] = 'Ei';
     $GLOBALS['locHELP'] = 'Ohje';
-    $GLOBALS['locCONFIRMDELETE'] = 'Haluatko varmasti poistaa n‰m‰ tiedot?\n\rTiedot poistetaan lopullisesti!';
-    $GLOBALS['locENTRYDELETED'] = 'Tiedot on poistettu!';
+    $GLOBALS['locCONFIRMDELETE'] = 'Haluatko varmasti poistaa n‰m‰ tiedot?';
+    $GLOBALS['locENTRYDELETED'] = 'Tiedot on poistettu';
+    $GLOBALS['locDeletedRecord'] = 'Poistettu tietue';
     $GLOBALS['locSAVESEARCH'] = 'Tallenna haku';
     $GLOBALS['locCLOSE'] = 'Sulje';
     $GLOBALS['locRowModification'] = 'Rivin muokkaus';
@@ -325,7 +326,12 @@ default :
     $GLOBALS['locALL'] = 'Kaikki       ';
     
     //extended search
-    $GLOBALS['locLABELEXTSEARCH'] = 'Valitse listasta kent‰t, joista haluat haun tehd‰.';
+    $GLOBALS['locSearchEqual'] = 'on yht‰ kuin';
+    $GLOBALS['locSearchNotEqual'] = 'on eri kuin';
+    $GLOBALS['locSearchLessThan'] = 'on pienempi kuin';
+    $GLOBALS['locSearchGreaterThan'] = 'on suurempi kuin';
+    $GLOBALS['locSearchSaved'] = 'Haku tallennettu';
+    $GLOBALS['locLABELEXTSEARCH'] = 'Valitse listasta kent‰t, joista haluat tehd‰ haun.';
     $GLOBALS['locSELECTSEARCHFIELD'] = 'Hakukentt‰';
     $GLOBALS['locSEARCHFIELD'] = 'Hakukentt‰';
     $GLOBALS['locSEARCHMATCH'] = ' - ';
@@ -359,6 +365,7 @@ default :
     // General Settings
     $GLOBALS['locSettingAutoCloseForm'] = 'Sulje lomake automaattisesti tallennuksen tai poiston j‰lkeen';
     $GLOBALS['locSettingAddCustomerNumber'] = 'Lis‰‰ uudelle asiakkaalle juokseva asiakasnumero automaattisesti';
+    $GLOBALS['locSettingShowDeletedRecords'] = 'N‰yt‰ poistetut tietueet (istuntokohtainen asetus)';
     $GLOBALS['locSettingInvoices'] = 'Laskutusasetukset';
     $GLOBALS['locSettingInvoiceAddNumber'] = 'Lis‰‰ uudelle laskulle juokseva laskunumero automaattisesti';
     $GLOBALS['locSettingInvoiceNumberingPerBase'] = 'Numeroi laskut laskuttajakohtaisesti';

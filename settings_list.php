@@ -38,16 +38,16 @@ function createSettingsList()
   $blnSave = getPostRequest('saveact', FALSE) ? TRUE : FALSE;
   if ($blnSave)
   {
-    foreach ($arrSettings as $elem)
+    foreach ($arrSettings as $name => $elem)
     {
       if ($elem['type'] == 'LABEL')
         continue;
-      $newValue = getPost($elem['name'], NULL);
+      $newValue = getPost($name, NULL);
       if (!isset($newValue))
       {
         if (!$elem['allow_null'])
         {
-          $messages .= $GLOBALS['locERRVALUEMISSING'] . ': ' . $elem['name'] . "<br>\n";
+          $messages .= $GLOBALS['locERRVALUEMISSING'] . ": $name<br>\n";
           continue;
         }
         else
@@ -57,8 +57,11 @@ function createSettingsList()
       }
       if ($elem['type'] == 'CURRENCY' || $elem['type'] == 'PERCENT')
         $newValue = str_replace(",", ".", $newValue);
-      mysql_param_query('DELETE from {prefix}settings WHERE name=?', array($elem['name']));
-      mysql_param_query('INSERT INTO {prefix}settings (name, value) VALUES (?, ?)', array($elem['name'], $newValue));
+        
+      if (isset($elem['session']) && $elem['session'])
+        $_SESSION[$name] = $newValue;
+      mysql_param_query('DELETE from {prefix}settings WHERE name=?', array($name));
+      mysql_param_query('INSERT INTO {prefix}settings (name, value) VALUES (?, ?)', array($name, $newValue));
     }
   }
 ?>
@@ -87,7 +90,7 @@ function createSettingsList()
     <?php createSettingsListButtons()?>
     <div class="form_container">
 <?php
-    foreach ($arrSettings as $elem)
+    foreach ($arrSettings as $name => $elem)
     {
       $elemType = $elem['type'];
       if ($elemType == 'LABEL')
@@ -97,14 +100,21 @@ function createSettingsList()
 <?php        
         continue;
       }
-      $value = getPost($elem['name'], NULL);
+      $value = getPost($name, NULL);
       if (!isset($value))
       {
-        $res = mysql_param_query('SELECT value from {prefix}settings WHERE name=?', array($elem['name']));
-        if ($row = mysql_fetch_assoc($res))
-          $value = $row['value'];
+        if (isset($elem['session']) && $elem['session'])
+        {
+          $value = isset($_SESSION[$name]) ? $_SESSION[$name] : (isset($elem['default']) ? cond_utf8_encode($elem['default']) : '');
+        }
         else
-          $value = isset($elem['default']) ? cond_utf8_encode($elem['default']) : '';
+        {
+          $res = mysql_param_query('SELECT value from {prefix}settings WHERE name=?', array($name));
+          if ($row = mysql_fetch_assoc($res))
+            $value = $row['value'];
+          else
+            $value = isset($elem['default']) ? cond_utf8_encode($elem['default']) : '';
+        }
           
         if ($elemType == 'CURRENCY')
           $value = miscRound2Decim($value);
@@ -114,9 +124,9 @@ function createSettingsList()
       if ($elemType == 'CURRENCY' || $elemType == 'PERCENT')
         $elemType = 'INT';
 ?>
-      <div class="label" style="clear: both"><?php echo $elem['label']?></div>
+      <div class="label" style="clear: both"><label for="<?php echo $name?>"><?php echo $elem['label']?></label></div>
       <div class="field" style="clear: both">
-        <?php echo htmlFormElement($elem['name'], $elemType, $value, $elem['style'], '', "MODIFY", '', '', array(), isset($elem['elem_attributes']) ? $elem['elem_attributes'] : '')?>
+        <?php echo htmlFormElement($name, $elemType, $value, $elem['style'], '', "MODIFY", '', '', array(), isset($elem['elem_attributes']) ? $elem['elem_attributes'] : '')?>
       </div>
 <?php        
     }
