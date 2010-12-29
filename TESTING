@@ -20,7 +20,7 @@ Tarkista seuraavissa aina tallennuksen jälkeen, että tiedot ovat oikein.
 14. Valitse laskusta arkistoitu ja tarkista, että se poistuu kaikkien laskujen listalta, mutta näkyy arkistossa.
 15. Poista rasti arkistoitu-kentästä. Tallenna ja paina "Mitätöi ja luo hyvityslasku" -painiketta. Tarkista, että hyvityslasku vastaa alkuperäistä, ja että linkit laskujen välillä toimivat.
 16. Muuta alkuperäistä laskua niin, että sen tila on AVOIN ja eräpäivä menneisyydessä. Paina "Lisää huomautus- ja viivästysmaksu" -painiketta ja tarkista, että maksut tulevat oikein laskuriveihin ja tulosteeseen.
-17. Paina "Kopioi lasku ja laskurivit" -painiketta ja tarkista, että kopio vastaa alkuperäistä. 
+17. Paina Kopioi-painiketta ja tarkista, että kopio vastaa alkuperäistä. 
 18. Muokkaa kopion jotain laskuriviä ja tarkista, että muutokset tallentuvat oikein.
 19. Poista kopioitu lasku. 
 20. Paina alkuperäisessä laskussa Hae laskunro ja laskupvm -painiketta. Tarkista, että laskunro, laskupvm ja viitenro päivittyvät.
