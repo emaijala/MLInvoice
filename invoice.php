@@ -584,7 +584,7 @@ if ($printStyle == 'invoice')
     }
     else
     {
-      if ($tmpSum >= 1000000)
+      if ($intTotSumVAT >= 1000000)
       {
         error_log('Sum too large, barcode not created');
       }

@@ -1,4 +1,4 @@
-Muutokset versiossa 1.1:
+Olennaiset muutokset versiossa 1.1:
 
 Toiminnallisuus:
 - Laskun muokkauksessa riveihin lisätty rivien summat ja koko laskun summat.
@@ -8,9 +8,14 @@ Toiminnallisuus:
 - Korjattu laskun numerointi laskua kopioitaessa.
 - Lisätty mahdollisuus tulostaa laskun sijaan lähetysluettelo tai kuitti.
 - Toteutettu tietueille pehmeä poisto. Tietoja ei enää poisteta tietokannasta kokonaan, vaan ne merkitään poistetuiksi. Admin-käyttäjillä on mahdollisuus katsoa myös poistettuja tietoja ja tallentaa ne tarvittaessa uudelleen, jolloin ne palaavat käyttöön.
+- Laskurivien laatikko säätyy nyt tarvittaessa automaattisesti suuremmaksi rivien määrän lisääntyessä.
+- Muutettu laskun Kopioi-nappula toimimaan oikein ja poistettu erillinen laskun ja laskurivien kopiointinappula.
+- Laskulomakkeen muita toimintoja aloittavat nappulat tallentavat nyt laskun ensin, jotta esim. laskun tulostuksessa käytetään viimeisimpiä tietoja.
+- Korjattu Laaja haku ja Pikahaku.
 
 Muut:
 - Parannettu toimivuutta Internet Explorer -selaimella.
 - Vaihdettu ponnahdusikkunoita jQuery-dialogeiksi.
 - Muutettu kenttien otsikoita ei-tummennetuiksi.
 - Parannettu kirjautumisen turvallisuutta rajaamalla kirjautumisavain käyttäjän IP-osoitteeseen ja lisäämällä viive epäonnistuneen kirjautumisen palautukseen.
+- Laskulomakkeelle ei enää yritetä tulostaa viivakoodia, jos laskun summa on liian suuri tai tilinumero virheellinen.
