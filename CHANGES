@@ -1,0 +1,16 @@
+Muutokset versiossa 1.1:
+
+Toiminnallisuus:
+- Laskun muokkauksessa riveihin lisätty rivien summat ja koko laskun summat.
+- Vain kriittiset tietokanta-asetukset tehdään enää settings.php -tiedostoon. Muut asetukset löytyvät käyttöliittymästä.
+- Parannettu varmuuskopioinnin toimintavarmuutta.
+- Lisätty yrityksille logon käyttömahdollisuus. Logo tulee laskulomakkeelle lähettäjän tietojen kohdalle.
+- Korjattu laskun numerointi laskua kopioitaessa.
+- Lisätty mahdollisuus tulostaa laskun sijaan lähetysluettelo tai kuitti.
+- Toteutettu tietueille pehmeä poisto. Tietoja ei enää poisteta tietokannasta kokonaan, vaan ne merkitään poistetuiksi. Admin-käyttäjillä on mahdollisuus katsoa myös poistettuja tietoja ja tallentaa ne tarvittaessa uudelleen, jolloin ne palaavat käyttöön.
+
+Muut:
+- Parannettu toimivuutta Internet Explorer -selaimella.
+- Vaihdettu ponnahdusikkunoita jQuery-dialogeiksi.
+- Muutettu kenttien otsikoita ei-tummennetuiksi.
+- Parannettu kirjautumisen turvallisuutta rajaamalla kirjautumisavain käyttäjän IP-osoitteeseen ja lisäämällä viive epäonnistuneen kirjautumisen palautukseen.
