@@ -389,7 +389,7 @@ foreach ($astrOldValues as $row)
     }
     elseif ($elem['type'] != 'HID_INT' && $elem['type'] != 'SECHID_INT' && $elem['type'] != 'NEWLINE') 
     {
-      $value = gpcStripSlashes($row[$elem['name']]);
+      $value = $row[$elem['name']];
       if ($elem['style'] == 'percent')
         $value = miscRound2Decim($value, 1);
       elseif ($elem['style'] == 'count' || $elem['style'] == 'currency')
@@ -475,7 +475,7 @@ if (isset($showPriceSummary) && $showPriceSummary)
           <?php echo $GLOBALS['locTOTALVAT']?><br>
           <?php echo $GLOBALS['locTOTALINCLUDINGVAT']?></b>
       </td>
-      <td class="input" colspan="2">
+      <td class="input" align="right">
           <b>&nbsp;<?php echo miscRound2Decim($intTotSum)?><br>
           &nbsp;<?php echo miscRound2Decim($intTotVAT)?><br>
           &nbsp;<?php echo miscRound2Decim($intTotSumVAT)?></b>
