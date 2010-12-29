@@ -617,7 +617,6 @@ if ($printStyle == 'invoice')
           'fontsize' => 8,
           'stretchtext' => 4
         );
-        echo "$code_string<br>";
         $pdf->write1DBarcode($code_string, 'C128C', 20, 284, 105, 11, 0.34, $style, 'N');
       }
     }
