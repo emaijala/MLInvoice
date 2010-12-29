@@ -19,6 +19,15 @@ div.navi {
   background-color: #EEEEEE;
   border-bottom: 1px solid #DDDDDD;
 }
+o
+div.breadcrumbs {
+  margin: 6px 0 16px 10px;
+}
+
+div.breadcrumbs a {
+  font-size: 10pt;
+  font-weight: bold;
+}
 
 div.function_navi {
   padding: 0px 0px 10px 10px;
@@ -504,15 +513,6 @@ a.formbuttonlink {
 a.formbuttonlink:hover {
   color: black; 
   background-color: white;
-}
-
-div.breadcrumbs {
-  margin: 6px 0 16px 10px;
-}
-
-div.breadcrumbs a {
-  font-size: 10pt;
-  font-weight: bold;
 }
 
 img.image {

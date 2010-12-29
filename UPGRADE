@@ -1,0 +1,8 @@
+Päivitys versiosta 1.0 versioon 1.1:
+
+   1. Aja tietokantaan päivitysskripti update_database_1.0_to_1.1.sql
+   2. Kopioi vanhasta versiosta settings.php:sta tietokanta-asetukset talteen.
+   3. Korvaa kaikki vanhan version tiedostot. Vanhat tiedostot kannattaa ensin poistaa tai siirtää talteen.
+   4. Muuta uudesta settings.php:sta tietokanta-asetukset talteen otettujen mukaisiksi.
+   5. Kirjaudu sisään ja käy säätämässä muut asetukset kohdalleen kohdasta Asetukset -> Yleiset asetukset.
+   
