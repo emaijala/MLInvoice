@@ -1,7 +1,7 @@
 Olennaiset muutokset versiossa 1.1:
 
 Toiminnallisuus:
-- Laskun muokkauksessa riveihin lisätty rivien summat ja koko laskun summat.
+- Laskun muokkaukseen lisätty rivien summat ja koko laskun summat.
 - Vain kriittiset tietokanta-asetukset tehdään enää settings.php -tiedostoon. Muut asetukset löytyvät käyttöliittymästä.
 - Parannettu varmuuskopioinnin toimintavarmuutta.
 - Lisätty yrityksille logon käyttömahdollisuus. Logo tulee laskulomakkeelle lähettäjän tietojen kohdalle.
