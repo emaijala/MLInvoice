@@ -248,7 +248,8 @@ default :
     $GLOBALS['locBACKUPDATABASE'] = 'Luo varmuuskopio tietokannasta';
     
     // LIST HEADERS
-    $GLOBALS['locHEADERINVOICEDATE'] = 'Pvm';       
+    $GLOBALS['locHEADERINVOICEDATE'] = 'P‰iv‰m‰‰r‰';       
+    $GLOBALS['locHEADERINVOICEDUEDATE'] = 'Er‰p‰iv‰';       
     $GLOBALS['locHEADERINVOICENO'] = 'Nro';       
     $GLOBALS['locHEADERINVOICENAME'] = 'Laskun nimi';       
     $GLOBALS['locHEADERINVOICEREFERENCE'] = 'Viitenro';       

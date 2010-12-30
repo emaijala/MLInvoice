@@ -72,6 +72,7 @@ case 'invoices':
    $astrShowFields = 
     array( 
         array("name" => "i.invoice_date", 'width' => 100, "type" => "INTDATE", "order" => "DESC", "header" => $GLOBALS['locHEADERINVOICEDATE']),
+        array("name" => "i.due_date", 'width' => 100, "type" => "INTDATE", "order" => "DESC", "header" => $GLOBALS['locHEADERINVOICEDUEDATE']),
         array("name" => "i.invoice_no", 'width' => 80, "type" => "TEXT", "header" => $GLOBALS['locHEADERINVOICENO']),
         array("name" => "b.name", 'width' => 150, "type" => "TEXT", "header" => $GLOBALS['locHEADERINVOICEBASE']),
         array("name" => "c.company_name", 'width' => 150, "type" => "TEXT", "header" => $GLOBALS['locHEADERINVOICECOMPANY']),

@@ -12,6 +12,7 @@ Toiminnallisuus:
 - Muutettu laskun Kopioi-nappula toimimaan oikein ja poistettu erillinen laskun ja laskurivien kopiointinappula.
 - Laskulomakkeen muita toimintoja aloittavat nappulat tallentavat nyt laskun ensin, jotta esim. laskun tulostuksessa käytetään viimeisimpiä tietoja.
 - Korjattu Laaja haku ja Pikahaku.
+- Lisätty eräpäivä laskulistalle.
 
 Muut:
 - Parannettu toimivuutta Internet Explorer -selaimella.
