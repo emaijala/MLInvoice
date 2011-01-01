@@ -397,7 +397,15 @@ EOF;
      array(
         "name" => "logo", "label" => '', "type" => "IMAGE", "style" => "image", "listquery" => 'base_logo.php?func=view&amp;id=_ID_', "position" => 0, "default" => FALSE, "allow_null" => TRUE ),
      array(
-        "name" => "edit_logo", "label" => $GLOBALS['locBaseEditLogo'], "type" => "JSBUTTON", "style" => "medium", "listquery" => $openPopJS, "position" => 1, "default" => FALSE, "allow_null" => TRUE ),
+        "name" => "edit_logo", "label" => $GLOBALS['locBaseChangeImage'], "type" => "JSBUTTON", "style" => "medium", "listquery" => $openPopJS, "position" => 1, "default" => FALSE, "allow_null" => TRUE ),
+     array(
+        "name" => "logo_left", "label" => $GLOBALS['locBaseLogoLeft'], "type" => "INT", "style" => "measurement", "listquery" => "", "position" => 1, "default" => NULL, "allow_null" => TRUE ),
+     array(
+        "name" => "logo_top", "label" => $GLOBALS['locBaseLogoTop'], "type" => "INT", "style" => "measurement", "listquery" => "", "position" => 2, "default" => NULL, "allow_null" => TRUE ),
+     array(
+        "name" => "logo_width", "label" => $GLOBALS['locBaseLogoWidth'], "type" => "INT", "style" => "measurement", "listquery" => "", "position" => 1, "default" => NULL, "allow_null" => TRUE ),
+     array(
+        "name" => "logo_bottom_margin", "label" => $GLOBALS['locBaseLogoBottomMargin'], "type" => "INT", "style" => "measurement", "listquery" => "", "position" => 2, "default" => NULL, "allow_null" => TRUE ),
     );
 break;
 

@@ -112,3 +112,10 @@ alter table pklasku_quicksearch change column name name varchar(255) NULL;
 alter table pklasku_quicksearch change column form func varchar(100) NULL;
 update pklasku_quicksearch set func='invoices' where func='invoice';
 update pklasku_quicksearch set func='companies' where func='company';
+
+alter table pklasku_base add column (
+  logo_top decimal(9,2) NULL,
+  logo_left decimal(9,2) NULL,
+  logo_width decimal(9,2) NULL,
+  logo_bottom_margin decimal(9,2) NULL
+);

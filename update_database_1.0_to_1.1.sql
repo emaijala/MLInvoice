@@ -60,3 +60,10 @@ alter table vllasku_quicksearch change column name name varchar(255) NULL;
 alter table vllasku_quicksearch change column form func varchar(100) NULL;
 update vllasku_quicksearch set func='invoices' where func='invoice';
 update vllasku_quicksearch set func='companies' where func='company';
+
+alter table vllasku_base add column (
+  logo_top decimal(9,2) NULL,
+  logo_left decimal(9,2) NULL,
+  logo_width decimal(9,2) NULL,
+  logo_bottom_margin decimal(9,2) NULL
+);

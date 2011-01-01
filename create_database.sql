@@ -52,6 +52,10 @@ CREATE TABLE vllasku_base (
   logo_filesize integer(11) NULL,
   logo_filetype varchar(255) NULL,
   logo_filedata longblob NULL,
+  logo_top decimal(9,2) NULL,
+  logo_left decimal(9,2) NULL,
+  logo_width decimal(9,2) NULL,
+  logo_bottom_margin decimal(9,2) NULL,
   PRIMARY KEY (id)
 ) ENGINE=INNODB AUTO_INCREMENT=1 CHARACTER SET utf8 COLLATE utf8_swedish_ci;
 
@@ -230,6 +234,9 @@ INSERT INTO vllasku_row_type (id, name, order_no) VALUES (5, 'vuosi', 25);
 INSERT INTO vllasku_row_type (id, name, order_no) VALUES (6, 'erä', 30);
 INSERT INTO vllasku_row_type (id, name, order_no) VALUES (8, 'km', 35);
 
+INSERT INTO vllasku_session_type (id, name, order_no, time_out, access_level) VALUES (1, 'Käyttäjä', 1, 3600, 1);
+INSERT INTO vllasku_session_type (id, name, order_no, time_out, access_level) VALUES (2, 'Admin', 2, 3600, 99);
+
 INSERT INTO vllasku_users (id, name, email, login, passwd, type_id) VALUES (1, 'Administrator', 'foo@bar.fi.not', 'admin', md5('admin'), 2);
 
 -- ***** The following rows just add some sample data *****
@@ -246,6 +253,4 @@ INSERT INTO vllasku_invoice
 INSERT INTO vllasku_invoice_row (id, invoice_id, description, type_id, pcs, price, row_date, vat, order_no) 
   VALUES (1, 1, 'Testirivi 1', 3, 12.00, 150.00, 20060515, 23, 5);
 
-INSERT INTO vllasku_session_type (id, name, order_no, time_out, access_level) VALUES (1, 'Käyttäjä', 1, 3600, 1);
-INSERT INTO vllasku_session_type (id, name, order_no, time_out, access_level) VALUES (2, 'Admin', 2, 3600, 99);
 

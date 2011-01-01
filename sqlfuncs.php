@@ -52,7 +52,7 @@ if (_CHARSET_ == 'UTF-8')
 function mysql_query_check($query, $noFail=false)
 {
   $query = str_replace('{prefix}', _DB_PREFIX_ . '_', $query);
-//  error_log("QUERY: $query");
+  error_log("QUERY: $query");
   $intRes = mysql_query($query);
   if ($intRes === FALSE)
   {

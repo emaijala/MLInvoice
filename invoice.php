@@ -102,6 +102,10 @@ $strWww = $row['www'];
 $strEmail = $row['email'];
 $boolVATReg = $row['vat_registered'];
 $logo_filedata = $row['logo_filedata'];
+$logo_top = $row['logo_top'];
+$logo_left = $row['logo_left'];
+$logo_width = $row['logo_width'];
+$logo_bottom_margin = $row['logo_bottom_margin'];
     
 $strAssocAddressLine = "$strAssociation";
 if ($strCompanyID)
@@ -187,7 +191,17 @@ $pdf->footerRight = "$strWww\n$strEmail";
 //sender
 if (isset($logo_filedata))
 {
-  $pdf->Image('@' . $logo_filedata, $pdf->GetX(), $pdf->GetY()+5, 100, 0, '', '', 'N', false, 300, '', false, false, 0, true);
+  if (!isset($logo_top))
+    $logo_top = $pdf->GetY()+5;
+  if (!isset($logo_left))
+    $logo_left = $pdf->GetX();
+  if (!isset($logo_width))
+    $logo_width = 80;
+  if (!isset($logo_bottom_margin))
+    $logo_bottom_margin = 5;
+ 
+  $pdf->Image('@' . $logo_filedata, $logo_left, $logo_top, $logo_width, 0, '', '', 'N', false, 300, '', false, false, 0, true);
+  $pdf->SetY($pdf->GetY() + $logo_bottom_margin);
 }
 else
 {
@@ -197,12 +211,12 @@ else
   $pdf->Cell(120, 5, $strAssociation, 0, 1);
   $pdf->SetFont('Helvetica','',10);
   $pdf->MultiCell(120, 5, $strStreetAddress. "\n". $strZipCode. " ". $strCity,0,1);
+  $pdf->SetY($pdf->GetY()+5);
 }
 
 //receiver
 $pdf->SetTextColor(0);
 $pdf->SetFont('Helvetica','B',14);
-$pdf->SetY($pdf->GetY()+5);
 $pdf->Cell(120, 6, $strCompanyName,0,1);
 $pdf->SetFont('Helvetica','',14);
 $pdf->MultiCell(120, 6, $strCompanyAddress,0,1);

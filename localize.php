@@ -384,13 +384,17 @@ default :
 
     // Base logo
     $GLOBALS['locBaseLogoTitle'] = 'Logo';
-    $GLOBALS['locBaseEditLogo'] = 'Muokkaa logoa...';
+    $GLOBALS['locBaseChangeImage'] = 'Vaihda kuva...';
     $GLOBALS['locBaseLogo'] = 'Yrityksen logo (suositeltu leveys-korkeussuhde n. 4:1, png tai jpg, tiedoston maksimikoko %s)';
     $GLOBALS['locBaseLogoSizeDBLimited'] = '(tietokantayhteyden rajoitus)';
     $GLOBALS['locBaseSaveLogo'] = 'Tallenna logo';
     $GLOBALS['locBaseEraseLogo'] = 'Poista logo';
     $GLOBALS['locBaseLogoSaved'] = 'Logo tallennettu';
     $GLOBALS['locBaseLogoErased'] = 'Logo poistettu';
+    $GLOBALS['locBaseLogoTop'] = 'Yläreunasta (mm, oletus 15)';
+    $GLOBALS['locBaseLogoLeft'] = 'Vasemmalta (mm, oletus 10)';
+    $GLOBALS['locBaseLogoWidth'] = 'Logon leveys (mm, oletus 80)';
+    $GLOBALS['locBaseLogoBottomMargin'] = 'Logon alamarginaali (mm, oletus 5)';
 
 break;
 
