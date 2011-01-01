@@ -306,38 +306,39 @@ function printReport()
       </th>
   </tr>
   <?php
-  if( $intNumRows ) {
-      $intTotSum = 0;
-      $intTotVAT = 0;
-      $intTotSumVAT = 0;
-      while($row = mysql_fetch_assoc($intRes))
+  if ($intNumRows) 
+  {
+    $intTotSum = 0;
+    $intTotVAT = 0;
+    $intTotSumVAT = 0;
+    while ($row = mysql_fetch_assoc($intRes))
+    {
+      $strProduct = $row['product_name'];
+      $strDescription = $row['description'];
+      $intCount = $row['pcs'];
+      $strUnit = $row['unit'];
+      $intSum = $row['total_price'];
+      $intVATPercent = $row['vat'];
+      
+      if ($strDescription)
       {
-          $strProduct = $row['product_name'];
-          $strDescription = $row['description'];
-          $intCount = $row['pcs'];
-          $strUnit = $row['unit'];
-          $intSum = $row['total_price'];
-          $intVATPercent = $row['vat'];
-          
-          if ($strDescription)
-          {
-            if (strlen($strDescription) > 20)
-              $strDescription = substr($strDescription, 0, 17) . '...';
-            if ($strProduct)
-              $strProduct .= " ($strDescription)";
-            else
-              $strProduct = $strDescription;
-          }
-          if (!$strProduct)
-            $strProduct = '&ndash;';
-          else
-            $strProduct = htmlspecialchars($strProduct);
-          $intVAT = $intSum * $intVATPercent / 100;
-          $intSumVAT = $intSum + $intVAT;
-          
-          $intTotSum += $intSum;
-          $intTotVAT += $intVAT;
-          $intTotSumVAT += $intSumVAT;
+        if (mb_strlen($strDescription) > 20)
+          $strDescription = mb_substr($strDescription, 0, 17) . '...';
+        if ($strProduct)
+          $strProduct .= " ($strDescription)";
+        else
+          $strProduct = $strDescription;
+      }
+      if (!$strProduct)
+        $strProduct = '&ndash;';
+      else
+        $strProduct = htmlspecialchars($strProduct);
+      $intVAT = $intSum * $intVATPercent / 100;
+      $intSumVAT = $intSum + $intVAT;
+      
+      $intTotSum += $intSum;
+      $intTotVAT += $intVAT;
+      $intTotSumVAT += $intSumVAT;
   ?>
   <tr>
       <td class="input">
@@ -363,7 +364,7 @@ function printReport()
       </td>
   </tr>
   <?php
-      }
+    }
   ?>
   <tr>
       <td class="input">

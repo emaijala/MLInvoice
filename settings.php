@@ -42,6 +42,8 @@ define ('_PROTOCOL_', isset($_SERVER['HTTPS']) ? 'https://' : 'http://');
 
 // HUOM! Asetukset löytyvät nyt käyttöliittymästä kohdasta Asetukset - Yleiset asetukset
 
+mb_internal_encoding(_CHARSET_);
+
 function getSetting($name)
 {
   require_once 'localize.php';
