@@ -209,7 +209,7 @@ function htmlFormElement( $strName, $strType, $strValue, $strStyle, $strListQuer
                 $strFormElement = $strValue;
             }
             else {
-                $strFormElement = htmlspecialchars($strValue);
+                $strFormElement = htmlspecialchars($strValue) . "\n";
             }
         break;
         case 'TITLEDTEXT' :
@@ -455,7 +455,7 @@ function htmlFormElement( $strName, $strType, $strValue, $strStyle, $strListQuer
                 break;
             }
             $strFormElement = 
-                "<a class=\"formbuttonlink\" href=\"$strHref\" $strOnClick$astrAdditionalAttributes>" . htmlspecialchars($strTitle) . "</a>";
+                "<a class=\"formbuttonlink\" href=\"$strHref\" $strOnClick$astrAdditionalAttributes>" . htmlspecialchars($strTitle) . "</a>\n";
         break;
         case 'JSBUTTON' :
             if( $strValue ) 
@@ -463,7 +463,7 @@ function htmlFormElement( $strName, $strType, $strValue, $strStyle, $strListQuer
               $strListQuery = str_replace("_ID_", $strValue, $strListQuery);
               $strOnClick = "onClick=\"$strListQuery\"";
               $strFormElement = 
-                "<a class=\"formbuttonlink\" href=\"#\" $strOnClick$astrAdditionalAttributes>" . htmlspecialchars($strTitle) . "</a>";
+                "<a class=\"formbuttonlink\" href=\"#\" $strOnClick$astrAdditionalAttributes>" . htmlspecialchars($strTitle) . "</a>\n";
             }
             else 
             {

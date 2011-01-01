@@ -103,10 +103,13 @@ table.iform_pop {
 }
 
 tr.odd {
-    background-color: #eeeeee;
+  background-color: #eeeeee;
 }
 tr.even {
-    background-color: white;
+  background-color: white;
+}
+tr.summary td {
+  font-weight: bold;
 }
 
 .iform td {

@@ -315,8 +315,9 @@ default :
     $GLOBALS['locPENALTYINTERESTDESC'] = 'Viivästyskorko';
         
     //REPORTS
-    $GLOBALS['locPRINTREPORTFORYEAR'] = 'Tulosta raportit vuodelle';
-    $GLOBALS['locPRINTREPORTTO'] = 'Valitse tulostettavat raportit';
+    $GLOBALS['locPRINTINVOICEREPORT'] = 'Tulosta laskutusraportti';
+    $GLOBALS['locPRINTPRODUCTREPORT'] = 'Tulosta tuoteraportti';
+    $GLOBALS['locPRINTREPORTSTATES'] = 'Raportoitavat tilat';
     $GLOBALS['locOPEN'] = 'Avoimet';
     $GLOBALS['locSENT'] = 'Laskutetut';
     $GLOBALS['locPAID'] = 'Maksetut';

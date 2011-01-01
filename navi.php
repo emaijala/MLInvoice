@@ -30,87 +30,82 @@ require_once "miscfuncs.php";
 function createFuncMenu($strFunc)
 {
   $strHiddenTerm = '';
-  $strLabel = '';
   $strNewButton = '';
   $strFormName = '';
   $strExtSearchTerm = "";
   $blnShowSearch = FALSE;   
   $strSearchTerms = getRequest('searchterms', '');
   
-  switch ( $strFunc ) {
-      
+  switch ($strFunc) 
+  {
   case "system" :
-      $strLabel = $GLOBALS['locSHOWSYSTEMNAVI'];
-      $astrNaviLinks = 
-      array( 
-          array("href" => "list=user", "text" => $GLOBALS['locUSERS'], "levels_allowed" => array(99)),
-          array("href" => "list=session_type", "text" => $GLOBALS['locSESSIONTYPES'], "levels_allowed" => array(99)),
-          array("href" => "operation=dbdump", "text" => $GLOBALS['locBACKUPDATABASE'], "levels_allowed" => array(99))
-      );
-      $strNewText = '';
-      $strList = getRequest('list', '');
-      switch ($strList)
-      {
-      case 'user': $strNewText = $GLOBALS['locNEWUSER']; break;
-      case 'session_type': $strNewText = $GLOBALS['locNEWSESSIONTYPE']; break;
-      }
-      if ($strNewText)
-        $strNewButton = "<a class=\"actionlink\" href=\"?func=system&amp;list=$strList&amp;form=$strList\">$strNewText</a>";
-  break;
+    $astrNaviLinks =  array( 
+      array("href" => "list=user", "text" => $GLOBALS['locUSERS'], "levels_allowed" => array(99)),
+      array("href" => "list=session_type", "text" => $GLOBALS['locSESSIONTYPES'], "levels_allowed" => array(99)),
+      array("href" => "operation=dbdump", "text" => $GLOBALS['locBACKUPDATABASE'], "levels_allowed" => array(99))
+    );
+    $strNewText = '';
+    $strList = getRequest('list', '');
+    switch ($strList)
+    {
+    case 'user': $strNewText = $GLOBALS['locNEWUSER']; break;
+    case 'session_type': $strNewText = $GLOBALS['locNEWSESSIONTYPE']; break;
+    }
+    if ($strNewText)
+      $strNewButton = "<a class=\"actionlink\" href=\"?func=system&amp;list=$strList&amp;form=$strList\">$strNewText</a>";
+    break;
+    
   case "settings" :
-      $strLabel = $GLOBALS['locSHOWSETTINGSNAVI'];
-      $astrNaviLinks = 
-      array( 
-          array("href" => "list=settings", "text" => $GLOBALS['locGeneralSettings'], "levels_allowed" => array(1)),
-          array("href" => "list=base_info", "text" => $GLOBALS['locBASES'], "levels_allowed" => array(1)),
-          array("href" => "list=invoice_state", "text" => $GLOBALS['locINVOICESTATES'], "levels_allowed" => array(1)),
-          array("href" => "list=product", "text" => $GLOBALS['locPRODUCTS'], "levels_allowed" => array(1)),
-          array("href" => "list=row_type", "text" => $GLOBALS['locROWTYPES'], "levels_allowed" => array(1)),
-      );
-      $strNewText = '';
-      $strList = getRequest('list', '');
-      switch ($strList)
-      {
-      case 'base_info': $strNewText = $GLOBALS['locNEWBASE']; break;
-      case 'invoice_state': $strNewText = $GLOBALS['locNEWINVOICESTATE']; break;
-      case 'product': $strNewText = $GLOBALS['locNEWPRODUCT']; break;
-      case 'row_type': $strNewText = $GLOBALS['locNEWROWTYPE']; break;
-      }
-      if ($strNewText)
-        $strNewButton = "<a class=\"actionlink\" href=\"?func=settings&amp;list=$strList&amp;form=$strList\">$strNewText</a>";
-  break;
+    $astrNaviLinks = array( 
+      array("href" => "list=settings", "text" => $GLOBALS['locGeneralSettings'], "levels_allowed" => array(1)),
+      array("href" => "list=base_info", "text" => $GLOBALS['locBASES'], "levels_allowed" => array(1)),
+      array("href" => "list=invoice_state", "text" => $GLOBALS['locINVOICESTATES'], "levels_allowed" => array(1)),
+      array("href" => "list=product", "text" => $GLOBALS['locPRODUCTS'], "levels_allowed" => array(1)),
+      array("href" => "list=row_type", "text" => $GLOBALS['locROWTYPES'], "levels_allowed" => array(1)),
+    );
+    $strNewText = '';
+    $strList = getRequest('list', '');
+    switch ($strList)
+    {
+    case 'base_info': $strNewText = $GLOBALS['locNEWBASE']; break;
+    case 'invoice_state': $strNewText = $GLOBALS['locNEWINVOICESTATE']; break;
+    case 'product': $strNewText = $GLOBALS['locNEWPRODUCT']; break;
+    case 'row_type': $strNewText = $GLOBALS['locNEWROWTYPE']; break;
+    }
+    if ($strNewText)
+      $strNewButton = "<a class=\"actionlink\" href=\"?func=settings&amp;list=$strList&amp;form=$strList\">$strNewText</a>";
+    break;
   
   case "reports" :
-      $strLabel = $GLOBALS['locSHOWREPORTNAVI'];
-      $astrNaviLinks = 
-      array( 
-          array("href" => "form=invoice", "text" => $GLOBALS['locINVOICEREPORT'], "levels_allowed" => array(1)),
-          array("href" => "form=product", "text" => $GLOBALS['locPRODUCTREPORT'], "levels_allowed" => array(1))
-      );
-  break;
+    $astrNaviLinks = array( 
+      array("href" => "form=invoice", "text" => $GLOBALS['locINVOICEREPORT'], "levels_allowed" => array(1)),
+      array("href" => "form=product", "text" => $GLOBALS['locPRODUCTREPORT'], "levels_allowed" => array(1))
+    );
+    break;
   
   case "companies":
-      $blnShowSearch = TRUE;
-      $strOpenForm = "company";
-      $strFormName = "company";
-      $strFormSwitch = "company";
-      $astrNaviLinks = array();
-      
-      $strNewButton = '<a class="actionlink" href="?func=companies&amp;form=company">' . $GLOBALS['locNEWCOMPANY'] . '</a>';
-  break;
+    $blnShowSearch = TRUE;
+    $strOpenForm = "company";
+    $strFormName = "company";
+    $strFormSwitch = "company";
+    $astrNaviLinks = array();      
+    $strNewButton = '<a class="actionlink" href="?func=companies&amp;form=company">' . $GLOBALS['locNEWCOMPANY'] . '</a>';
+    break;
+
   default :
-      $blnShowSearch = TRUE;
-      $strFormName = "invoice";
-      $astrNaviLinks = array();
-      if ($strFunc == 'invoices')
-        $astrNaviLinks[] = array("href" => "index.php?func=open_invoices", "text" => $GLOBALS['locDISPLAYOPENINVOICES'], "levels_allowed" => array(1));
-      else
-        $astrNaviLinks[] = array("href" => "index.php?func=invoices", "text" => $GLOBALS['locDISPLAYALLINVOICES'], "levels_allowed" => array(1));
-      if ($strFunc != 'archived_invoices')  
-        $strNewButton = '<a class="actionlink" href="?func=invoices&amp;form=invoice">' . $GLOBALS['locNEWINVOICE'] . '</a>';
-      $strFunc = 'invoices';
-  break;
+    $blnShowSearch = TRUE;
+    $strFormName = "invoice";
+    $astrNaviLinks = array();
+    if ($strFunc == 'invoices')
+      $astrNaviLinks[] = array("href" => "index.php?func=open_invoices", "text" => $GLOBALS['locDISPLAYOPENINVOICES'], "levels_allowed" => array(1));
+    else
+      $astrNaviLinks[] = array("href" => "index.php?func=invoices", "text" => $GLOBALS['locDISPLAYALLINVOICES'], "levels_allowed" => array(1));
+    if ($strFunc != 'archived_invoices')  
+      $strNewButton = '<a class="actionlink" href="?func=invoices&amp;form=invoice">' . $GLOBALS['locNEWINVOICE'] . '</a>';
+    $strFunc = 'invoices';
+    break;
   }
+  
   if ($strNewButton)
     $strNewButton = "    $strNewButton\n";
   
@@ -144,7 +139,6 @@ function createFuncMenu($strFunc)
   <form method="get" action="" name="form_search">
   <input type="hidden" name="func" value="<?php echo $strFunc?>">
   <div class="function_navi">
-    <b><?php echo $strLabel?></b>
 <?php
   if( $blnShowSearch ) {
 ?>

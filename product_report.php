@@ -57,8 +57,8 @@ function createProductReport($strType)
   switch ( $strType ) {
   
   case 'report':
-     $strTopLabel = $GLOBALS['locPRINTREPORTFORYEAR'];
-     $strMidLabel = $GLOBALS['locPRINTREPORTTO'];
+     $strTopLabel = $GLOBALS['locPRINTPRODUCTREPORT'];
+     $strMidLabel = $GLOBALS['locPRINTREPORTSTATES'];
      $strListQuery = 
           "SELECT '0' AS id, '".$GLOBALS['locALL']."' AS name UNION ".
           "SELECT '01' AS id, '".$GLOBALS['locJAN']."' AS name UNION ".
@@ -115,7 +115,7 @@ function createProductReport($strType)
   ?>
       <tr>
           <td class="label">
-              <?php echo $astrSearchElements[$j]['label']?>:
+              <?php echo $astrSearchElements[$j]['label']?>
           </td>
           <td class="field">
               <?php echo $astrSearchElements[$j]['element']?>
@@ -127,7 +127,7 @@ function createProductReport($strType)
   ?>
       <tr>
           <td class="label">
-              <?php echo $astrSearchElements[$j]['label']?>:
+              <?php echo $astrSearchElements[$j]['label']?>
           </td>
   <?php /*
       <tr>
@@ -161,7 +161,7 @@ function createProductReport($strType)
   ?>
       <tr>
           <td class="label">
-              <?php echo $astrShowElements[$j]['label']?>:
+              <?php echo $astrShowElements[$j]['label']?>
           </td>
           <td class="field">
               <?php echo htmlFormElement($astrShowElements[$j]['name'], $astrShowElements[$j]['type'], $astrShowElements[$j]['value'], $astrShowElements[$j]['style'], $astrShowElements[$j]['listquery'], "MODIFY", $astrShowElements[$j]['parent_key'])?>
@@ -173,7 +173,7 @@ function createProductReport($strType)
   ?>
       <tr>
           <td class="label">
-              <?php echo $astrHtmlElements[$j]['label']?>:
+              <?php echo $astrHtmlElements[$j]['label']?>
           </td>
           <td class="field">
               <?php echo $astrHtmlElements[$j]['html']?>
@@ -227,7 +227,7 @@ function printReport()
   $strQuery = 
       "SELECT i.id ".
       "FROM {prefix}invoice i ".
-      "WHERE deleted=0 AND i.invoice_date > ? AND i.invoice_date <= ?";
+      "WHERE i.deleted=0 AND i.invoice_date > ? AND i.invoice_date <= ?";
   
   $strQuery2 = "";
   $strQuery3 = 
@@ -273,7 +273,7 @@ function printReport()
     'FROM {prefix}invoice_row ir ' .
     'LEFT OUTER JOIN {prefix}product p ON p.id = ir.product_id ' .
     'LEFT OUTER JOIN {prefix}row_type t ON t.id = ir.type_id ' .
-    "WHERE deleted=0 AND ir.invoice_id IN ($strQuery) $strProductWhere" .
+    "WHERE ir.deleted=0 AND ir.invoice_id IN ($strQuery) $strProductWhere" .
     'GROUP BY p.product_name, ir.description, ir.vat, t.name ' .
     'ORDER BY p.product_name, ir.description';
     

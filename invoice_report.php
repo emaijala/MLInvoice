@@ -56,8 +56,8 @@ function createInvoiceReport($strType)
   switch ( $strType ) {
   
   case 'report':
-     $strTopLabel = $GLOBALS['locPRINTREPORTFORYEAR'];
-     $strMidLabel = $GLOBALS['locPRINTREPORTTO'];
+     $strTopLabel = $GLOBALS['locPRINTINVOICEREPORT'];
+     $strMidLabel = $GLOBALS['locPRINTREPORTSTATES'];
      $strListQuery = 
           "SELECT '0' AS id, '".$GLOBALS['locALL']."' AS name UNION ".
           "SELECT '01' AS id, '".$GLOBALS['locJAN']."' AS name UNION ".
@@ -113,7 +113,7 @@ function createInvoiceReport($strType)
 ?>
       <tr>
           <td class="label">
-              <?php echo $astrSearchElements[$j]['label']?>:
+              <?php echo $astrSearchElements[$j]['label']?>
           </td>
           <td class="field">
               <?php echo $astrSearchElements[$j]['element']?>
@@ -125,7 +125,7 @@ function createInvoiceReport($strType)
 ?>
       <tr>
           <td class="label">
-              <?php echo $astrSearchElements[$j]['label']?>:
+              <?php echo $astrSearchElements[$j]['label']?>
           </td>
           <td class="field">
               <?php echo htmlFormElement($astrSearchElements[$j]['name'], $astrSearchElements[$j]['type'], $astrSearchElements[$j]['value'], $astrSearchElements[$j]['style'], $astrSearchElements[$j]['listquery'], "MODIFY", isset($astrSearchElements[$j]['parent_key']) ? $astrSearchElements[$j]['parent_key'] : FALSE)?>
@@ -154,7 +154,7 @@ function createInvoiceReport($strType)
 ?>
       <tr>
           <td class="label">
-              <?php echo $astrShowElements[$j]['label']?>:
+              <?php echo $astrShowElements[$j]['label']?>
           </td>
           <td class="field">
               <?php echo htmlFormElement($astrShowElements[$j]['name'], $astrShowElements[$j]['type'], $astrShowElements[$j]['value'], $astrShowElements[$j]['style'], $astrShowElements[$j]['listquery'], "MODIFY", $astrShowElements[$j]['parent_key'])?>
@@ -166,7 +166,7 @@ function createInvoiceReport($strType)
   ?>
       <tr>
           <td class="label">
-              <?php echo $astrHtmlElements[$j]['label']?>:
+              <?php echo $astrHtmlElements[$j]['label']?>
           </td>
           <td class="field">
               <?php echo $astrHtmlElements[$j]['html']?>

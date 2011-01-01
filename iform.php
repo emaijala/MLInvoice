@@ -293,61 +293,56 @@ function OpenPop(strLink, strTitle, event) {
 <table class="iform">
   <tr>
 <?php
-if ($strMode == 'MODIFY') 
+$strRowSpan = '';
+foreach ($astrFormElements as $elem)
 {
-  $strRowSpan = '';
-  foreach ($astrFormElements as $elem)
+  if ($elem['type'] == 'ROWSUM') 
   {
-    if ($elem['type'] == 'ROWSUM') 
-    {
 ?>
     <td class="label <?php echo strtolower($elem['style'])?>_label">
-        <?php echo $elem['label']?><br>
+      <?php echo $elem['label']?><br>
     </td>
 <?php
-    }
-    elseif( $elem['type'] != 'HID_INT' && $elem['type'] != 'SECHID_INT' && $elem['type'] != 'BUTTON' && $elem['type'] != 'NEWLINE' && $elem['type'] != 'ROWSUM' ) 
-    {
+  }
+  elseif( $elem['type'] != 'HID_INT' && $elem['type'] != 'SECHID_INT' && $elem['type'] != 'BUTTON' && $elem['type'] != 'NEWLINE' && $elem['type'] != 'ROWSUM' ) 
+  {
 ?>
     <td class="label <?php echo strtolower($elem['style'])?>_label">
-        <?php echo $elem['label']?><br>
-        <?php echo htmlFormElement( $elem['name'],$elem['type'], gpcStripSlashes(isset($astrValues[$elem['name']]) ? $astrValues[$elem['name']] : ''), $elem['style'],$elem['listquery'], "MODIFY", 0, '', array(), $elem['elem_attributes'])?>
+      <?php echo $elem['label']?><br>
+      <?php echo htmlFormElement( $elem['name'],$elem['type'], gpcStripSlashes(isset($astrValues[$elem['name']]) ? $astrValues[$elem['name']] : ''), $elem['style'],$elem['listquery'], "MODIFY", 0, '', array(), $elem['elem_attributes'])?>
     </td>
 <?php
-    }
-    elseif( $elem['type'] == 'SECHID_INT' ) 
-    {
+  }
+  elseif( $elem['type'] == 'SECHID_INT' ) 
+  {
 ?>
     <input type="hidden" name="<?php echo $elem['name']?>" value="<?php echo gpcStripSlashes($astrValues[$elem['name']])?>">
 <?php
-    }
-    elseif( $elem['type'] == 'BUTTON' ) {
+  }
+  elseif( $elem['type'] == 'BUTTON' ) 
+  {
 ?>
     <td class="label">
-        &nbsp;
+      &nbsp;
     </td>
 <?php
-    }
-    elseif( $elem['type'] == 'NEWLINE' ) {
-        $strRowSpan = 'rowspan="2"';
+  }
+  elseif( $elem['type'] == 'NEWLINE' ) 
+  {
+    $strRowSpan = 'rowspan="2"';
 ?>
 </tr>
 <tr>
 <?php
-    }
+  }
 }
-
 ?>
     <td class="button" <?php echo $strRowSpan?>>
-        <br/>
-        <input type="hidden" name="add_x" value="0">
-        <a class="tinyactionlink" href="#" onclick="self.document.forms[0].add_x.value=1; self.document.forms[0].submit(); return false;"><?php echo $GLOBALS['locADDROW']?></a>
+      <br>
+      <input type="hidden" name="add_x" value="0">
+      <a class="tinyactionlink" href="#" onclick="self.document.forms[0].add_x.value=1; self.document.forms[0].submit(); return false;"><?php echo $GLOBALS['locADDROW']?></a>
     </td>
   </tr>
-
-<?php
-}
-?>
 
 <?php
 foreach ($astrOldValues as $row) 
@@ -383,7 +378,7 @@ foreach ($astrOldValues as $row)
       $title = $GLOBALS['locVATLESS'] . ': ' . miscRound2Decim($sum) . ' &ndash; ' . $GLOBALS['locVATPART'] . ': ' . miscRound2Decim($VAT);         
 ?>
     <td class="<?php echo $elemStyle?>" >
-        <?php echo htmlFormElement($elem['name'], 'TITLEDTEXT', miscRound2Decim($sumVAT), $elem['style'], '', 'NO_MOD', 0, $title, array(), isset($elem['elem_attributes']) ? $elem['elem_attributes'] : '')?>
+      <?php echo htmlFormElement($elem['name'], 'TITLEDTEXT', miscRound2Decim($sumVAT), $elem['style'], '', 'NO_MOD', 0, $title, array(), isset($elem['elem_attributes']) ? $elem['elem_attributes'] : '')?>
     </td>
 <?php
     }
@@ -395,8 +390,8 @@ foreach ($astrOldValues as $row)
       elseif ($elem['style'] == 'count' || $elem['style'] == 'currency')
         $value = miscRound2Decim($value, 2);
 ?>
-    <td class="<?php echo $elemStyle?>" >
-        <?php echo htmlFormElement($elem['name'], $elem['type'], $value, $elem['style'], $elem['listquery'], 'NO_MOD', 0, $elem['label'], array(), isset($elem['elem_attributes']) ? $elem['elem_attributes'] : '')?>
+    <td class="<?php echo $elemStyle?>">
+      <?php echo htmlFormElement($elem['name'], $elem['type'], $value, $elem['style'], $elem['listquery'], 'NO_MOD', 0, $elem['label'], array(), isset($elem['elem_attributes']) ? $elem['elem_attributes'] : '')?>
     </td>
 <?php
     }
@@ -421,20 +416,12 @@ foreach ($astrOldValues as $row)
   $strPopLinkEdit = "iform_pop.php?selectform=$strForm&amp;$strParentKey=$intParentKey&amp;$strPrimaryName=$intPrimaryId&amp;defaults=$strDefaults";
   $strPopLinkCopy = "iform_pop.php?selectform=$strForm&amp;$strParentKey=$intParentKey&amp;$strPrimaryName=$intPrimaryId&amp;defaults=$strDefaults&amp;copyact=1";
 ?>
-    
-<?php
-  if ($strMode == 'MODIFY') 
-  {
-?>
     <td class="button">
-        <a class="tinyactionlink" href="#" onclick="OpenPop('<?php echo $strPopLinkEdit?>', '<?php echo $GLOBALS['locRowModification']?>', event); return false;"><?php echo $GLOBALS['locEDIT']?></a>
+      <a class="tinyactionlink" href="#" onclick="OpenPop('<?php echo $strPopLinkEdit?>', '<?php echo $GLOBALS['locRowModification']?>', event); return false;"><?php echo $GLOBALS['locEDIT']?></a>
     </td>
     <td class="button">
-        <a class="tinyactionlink" href="#" onclick="OpenPop('<?php echo $strPopLinkCopy?>', '<?php echo $GLOBALS['locRowCopy']?>', event); return false;"><?php echo $GLOBALS['locCOPY']?></a>
+      <a class="tinyactionlink" href="#" onclick="OpenPop('<?php echo $strPopLinkCopy?>', '<?php echo $GLOBALS['locRowCopy']?>', event); return false;"><?php echo $GLOBALS['locCOPY']?></a>
     </td>
-<?php
-  }
-?>
   </tr>
 <?php
 }
@@ -470,16 +457,16 @@ if (isset($showPriceSummary) && $showPriceSummary)
   }
 ?>
   <tr class="summary">
-      <td class="input" colspan="9" align="right">
-          <b><?php echo $GLOBALS['locTOTALEXCLUDINGVAT']?><br>
-          <?php echo $GLOBALS['locTOTALVAT']?><br>
-          <?php echo $GLOBALS['locTOTALINCLUDINGVAT']?></b>
-      </td>
-      <td class="input" align="right">
-          <b>&nbsp;<?php echo miscRound2Decim($intTotSum)?><br>
-          &nbsp;<?php echo miscRound2Decim($intTotVAT)?><br>
-          &nbsp;<?php echo miscRound2Decim($intTotSumVAT)?></b>
-      </td>
+    <td class="input" colspan="9" align="right">
+      <?php echo $GLOBALS['locTOTALEXCLUDINGVAT']?><br>
+      <?php echo $GLOBALS['locTOTALVAT']?><br>
+      <?php echo $GLOBALS['locTOTALINCLUDINGVAT']?>
+    </td>
+    <td class="input" align="right">
+      &nbsp;<?php echo miscRound2Decim($intTotSum)?><br>
+      &nbsp;<?php echo miscRound2Decim($intTotVAT)?><br>
+      &nbsp;<?php echo miscRound2Decim($intTotSumVAT)?>
+    </td>
   </tr>
 <?php
 }
