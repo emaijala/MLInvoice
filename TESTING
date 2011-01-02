@@ -24,3 +24,6 @@ Tarkista seuraavissa aina tallennuksen jälkeen, että tiedot ovat oikein.
 18. Muokkaa kopion jotain laskuriviä ja tarkista, että muutokset tallentuvat oikein.
 19. Poista kopioitu lasku. 
 20. Paina alkuperäisessä laskussa Hae laskunro ja laskupvm -painiketta. Tarkista, että laskunro, laskupvm ja viitenro päivittyvät.
+
+21. Lisää uusi käyttäjä ja tarkista, että kirjautuminen onnistuu.
+22. Vaihda käyttäjän salasana ja tarkista, että kirjautuminen onnistuu edelleen.
