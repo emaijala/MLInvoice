@@ -141,13 +141,11 @@ function createForm($strFunc, $strList, $strForm)
         $strUpdateFields .= ', ';
       }
       $strFields .= $name;
-      $strInsert .= '?';
-      $strUpdateFields .= "$name=?";
+      $fieldPlaceholder = '?';
       switch ($type)
       {
       case 'PASSWD':
-        $strInsert .= 'md5(?), ';
-        $strUpdateFields .= "$name=md5(?), ";
+        $fieldPlaceholder = 'md5(?)';
         $arrValues[] = $value;
         break;
       case 'INT':
@@ -163,6 +161,8 @@ function createForm($strFunc, $strList, $strForm)
       default: 
         $arrValues[] = $value;
       }
+      $strInsert .= $fieldPlaceholder;
+      $strUpdateFields .= "$name=$fieldPlaceholder";
     }
 
     if (!$blnMissingValues)
