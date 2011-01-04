@@ -248,8 +248,11 @@ else
   $pdf->Cell(40, 5, $GLOBALS['locINVOICEHEADER'], 0, 1, 'R');
 $pdf->SetFont('Helvetica','',10);
 $pdf->SetXY(115, $pdf->GetY()+5);
-$pdf->Cell(40, 5, $GLOBALS['locCUSTOMERNUMBER'] .": ", 0, 0, 'R');
-$pdf->Cell(60, 5, $intCustomerNo, 0, 1);
+if ($intCustomerNo != 0)
+{
+  $pdf->Cell(40, 5, $GLOBALS['locCUSTOMERNUMBER'] .": ", 0, 0, 'R');
+  $pdf->Cell(60, 5, $intCustomerNo, 0, 1);
+}
 $pdf->SetX(115);
 $pdf->Cell(40, 5, $GLOBALS["loc${locStr}Number"] . ': ', 0, 0, 'R');
 $pdf->Cell(60, 5, $strInvoiceNo, 0, 1);
