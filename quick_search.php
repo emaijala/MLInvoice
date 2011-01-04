@@ -68,7 +68,7 @@ echo htmlPageStart( _PAGE_TITLE_ );
 </tr>
 <?php
 $intRes = mysql_param_query($strQuery, array($strFunc, $_SESSION['sesUSERID']));
-while ($row = mysql_fetch_row($intRes)) 
+while ($row = mysql_fetch_assoc($intRes)) 
 {
   $intID = $row['id'];
   $strName = $row['name'];
@@ -88,7 +88,7 @@ while ($row = mysql_fetch_row($intRes))
 </tr>
 <?php
 }
-else 
+if (!isset($intID)) 
 {
 ?>
 <tr>
