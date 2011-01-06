@@ -26,15 +26,24 @@ $strFunc = getRequest('func', '');
 switch ($strFunc)
 {
 case 'get_company':
-  $companyId = getRequest('id', '');
-  if ($companyId) 
-  {
-    $res = mysql_param_query('SELECT * FROM {prefix}company WHERE ID=?', array($companyId));
-    $row = mysql_fetch_assoc($res);
-    header('Content-Type: application/json');
-    echo json_encode($row);
-  }
-break;
+  printJSONRecord('company');
+  break;
+
+case 'get_product':
+  printJSONRecord('product');
+  break;
+
+case 'get_invoice':
+  printJSONRecord('invoice');
+  break;
+
+case 'get_invoice_row':
+  printJSONRecord('invoice_row');
+  break;
+
+case 'get_company_contact':
+  printJSONRecord('company_contact');
+  break;
 
 case 'get_invoice_defaults':
   $baseId = getRequest('base_id', 0);
@@ -55,8 +64,20 @@ case 'get_invoice_defaults':
   );
   header('Content-Type: application/json');
   echo json_encode($arrData);
-
-break;
+  break;
+  
 default:
   header('HTTP/1.1 404 Not Found');
+}
+
+function printJSONRecord($table)
+{
+  $id = getRequest('id', '');
+  if ($id) 
+  {
+    $res = mysql_param_query("SELECT * FROM {prefix}$table WHERE id=?", array($id));
+    $row = mysql_fetch_assoc($res);
+    header('Content-Type: application/json');
+    echo json_encode($row);
+  }
 }

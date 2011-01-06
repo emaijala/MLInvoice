@@ -28,288 +28,215 @@ require "sqlfuncs.php";
 require "sessionfuncs.php";
 require "miscfuncs.php";
 require "datefuncs.php";
+require_once "localize.php";
+require_once 'form_funcs.php';
 
 sesVerifySession();
 
-require_once "localize.php";
 
-$strForm = getPost('selectform', getRequest('selectform', ''));
-$strMode = getPost('mode', getGet('mode', 'MODIFY'));
-$strDefaults = getPost('defaults', getRequest('defaults', '')); 
+$strForm = getPostRequest('selectform', '');
+$strMode = getPostRequest('mode', 'MODIFY');
 
-if( $strDefaults ) {
-    $tmpDefaults = explode(" ", urldecode($strDefaults));
-    //print_r($tmpDefaults);
-    $x = 0;
-    while (list($key, $val) = each($tmpDefaults)) {
-        if( $val ) {
-            $tmpValues = explode(">", $val);
-            $astrDefaults[$tmpValues[0]] = $tmpValues[1];
-            $x++;
-        }
-    }
-}
-else {
-    $astrDefaults = array();
-}
 require "form_switch.php";
 
 echo htmlPageStart( _PAGE_TITLE_ );
 
-$blnCopy = getPost('copy_x', FALSE) ? TRUE : FALSE;
-$blnAdd = getPost('add_x', FALSE) ? TRUE : FALSE;
-$blnDelete = getPost('del_x', FALSE) ? TRUE : FALSE;
+$blnAdd = getPost('addact', FALSE) ? TRUE : FALSE;
+$blnSave = getPost('saveact', FALSE) ? TRUE : FALSE;
+$blnDelete = getPost('deleteact', FALSE) ? TRUE : FALSE;
 $intKeyValue = getPostRequest($strPrimaryKey, FALSE);
 $intParentKey = getPostRequest($strParentKey, FALSE);
 
 $blnInsertDone = FALSE;
-$strOnLoad = '';
-for( $i = 0; $i < count($astrFormElements); $i++ ) {
-    if($astrFormElements[$i]['name'] != '' && array_key_exists($astrFormElements[$i]['name'],$astrDefaults)) {
-        $astrValues[$astrFormElements[$i]['name']] = $astrDefaults[$astrFormElements[$i]['name']];
-    }
-    elseif( !$astrFormElements[$i]['default'] ) {
-        if( $astrFormElements[$i]['type'] == "INT" ) {
-            $tmpValue = str_replace(",", ".", getPost($astrFormElements[$i]['name'], ''));
-            $astrValues[$astrFormElements[$i]['name']] = $tmpValue ? (float)$tmpValue : FALSE;
-        }
-        elseif( $astrFormElements[$i]['type'] == "LIST" ) {
-            $astrValues[$astrFormElements[$i]['name']] = getPost($astrFormElements[$i]['name'], '');
-        }
-        else {
-            $astrValues[$astrFormElements[$i]['name']] = getPost($astrFormElements[$i]['name'], FALSE);
-        }
-    }
-    else {
-        if( $astrFormElements[$i]['default'] == "DATE_NOW" ) {
-           $strDefaultValue = date("d.m.Y");
-        }
-        elseif( $astrFormElements[$i]['default'] == "DATE_NOW+14" ) {
-           $strDefaultValue = date("d.m.Y",mktime(0, 0, 0, date("m"), date("d")+14, date("Y")));
-        }
-        elseif( $astrFormElements[$i]['default'] == "DATE_NOW+31" ) {
-           $strDefaultValue = date("d.m.Y",mktime(0, 0, 0, date("m"), date("d")+31, date("Y")));
-        }
-        elseif( $astrFormElements[$i]['default'] == "TIME_NOW" ) {
-           $strDefaultValue = date("H:i");
-        }
-        elseif( $astrFormElements[$i]['default'] == "POST" ) {
-           $strDefaultValue = getPost($astrFormElements[$i]['name'], '');
-        }
-        elseif( strstr($astrFormElements[$i]['default'], "ADD") ) {
-           $strQuery = str_replace("_PARENTID_", $intParentKey, $astrFormElements[$i]['listquery']);
-           $intRes = mysql_query_check($strQuery);
-           $intAdd = reset(mysql_fetch_row($intRes));
-           $strDefaultValue = isset($intAdd) ? $intAdd : 0;
-        }
-        else {
-            $strDefaultValue = $astrFormElements[$i]['default'];
-        }
-        
-        if( $astrFormElements[$i]['type'] == "INT" ) {
-            $tmpValue = str_replace(",", ".", getPost($astrFormElements[$i]['name'], ''));
-            $astrValues[$astrFormElements[$i]['name']] = $tmpValue !== '' ? (float)$tmpValue : $strDefaultValue;
-        }
-        else {
-            $astrValues[$astrFormElements[$i]['name']] = getPost($astrFormElements[$i]['name'], $strDefaultValue);
-        }
-    }
-}
-if( $blnAdd ) {
-    $strFields = '';
-    $strInsert = '';
-    $arrValues = array();
-    $blnMissingValues = FALSE;
-    for( $i = 0; $i < count($astrFormElements); $i++ ) {
-        $strControlType = $astrFormElements[$i]['type'];
-        $strControlName = $astrFormElements[$i]['name'];
-        $mixControlValue = isset($astrValues[$strControlName]) ? $astrValues[$strControlName] : NULL;
-        if(isset($mixControlValue)) {
-            if( $strControlType != 'NEWLINE' ) {
-                if( $strControlType == 'TEXT' || $strControlType == 'AREA' ) {
-                  $strFields .= "$strControlName, ";
-                  $strInsert .= '?, ';
-                  $arrValues[] = $mixControlValue;
-                }
-                elseif( $strControlType == 'INT' || $strControlType == 'HID_INT' || $strControlType == 'SECHID_INT' ) {
-                  //build the insert into fields
-                  $strFields .= "$strControlName, ";
-                  //format the numbers to right format - finnish use ,-separator
-                  $flttmpValue = 
-                      $mixControlValue ? str_replace(",", ".", $mixControlValue) : 0;
-                  $strInsert .= '?, ';
-                  $arrValues[] = $flttmpValue;
-                }
-                elseif( $strControlType == 'LIST' || $strControlType == 'CHECK' ) {
-                    $strFields .= "$strControlName, ";
-                    $tmpValue = (isset($mixControlValue) && $mixControlValue !== '') ? str_replace(",", ".", $mixControlValue) : NULL;
-                    $strInsert .= '?, ';
-                    $arrValues[] = $tmpValue;
-                }
-                elseif( $strControlType == 'INTDATE' ) {
-                    if( !$mixControlValue ) {
-                        $mixControlValue = 'NULL';
-                    }
-                    $strFields .= "$strControlName, ";
-                    $strInsert .= '?, ';
-                    //convert user input to right format
-                    $arrValues[] = dateConvDate2IntDate($mixControlValue);
-                }
-                elseif( $strControlType == 'TIME' ) {
-                    $strFields .= $strControlName.", ";
-                    //convert user input to right format
-                    $strInsert .= '?, ';
-                    //convert user input to right format
-                    $astrSearch = array('.', ',', ' ');
-                    $arrValues[] = str_replace($astrSearch, ":", $mixControlValue);
-                }
-            }
-        }
-        elseif( $strControlType != 'IFORM' && $strControlType != 'HID_INT' && $strControlType != 'NEWLINE' && $strControlType != 'BUTTON' && $strControlType != 'ROWSUM' ) {
-            if ( !$astrFormElements[$i]['allow_null'] ) {
-                $blnMissingValues = TRUE;
-                $strOnLoad .= "alert('".$GLOBALS['locERRVALUEMISSING']." : ".$astrFormElements[$i]['label']."');";
-            }
-        }
-    }
-    if( !$blnMissingValues ) {
-        $strInsert = substr($strInsert, 0, -2);
-        $strFields = substr($strFields, 0, -2);
+$strMessage = '';
 
-        $strQuery = "INSERT INTO $strTable ($strFields, $strParentKey) VALUES ($strInsert, ?)";
-        $arrValues[] = $intParentKey;
+$astrValues = getPostValues($astrFormElements, $intKeyValue, $intParentKey);
 
-        $intRes = mysql_param_query($strQuery, $arrValues, TRUE);
-        if( $intRes ) {
-            $intKeyValue = mysql_insert_id();
-            $blnInsertDone = TRUE;
-        }
-        else {
-            $strOnLoad = "alert('".$GLOBALS['locDBERROR']."');";
-        }
-    }
-}
-if( $blnInsertDone ) {
-    for( $i = 0; $i < count($astrFormElements); $i++ ) {
-        if( !$astrFormElements[$i]['default'] ) {
-            unset($astrValues[$astrFormElements[$i]['name']]);
-        }
-        
-        else {
-            if( $astrFormElements[$i]['default'] == "DATE_NOW" ) {
-               $strDefaultValue = date("Ymd");
-            }
-            elseif( strstr($astrFormElements[$i]['default'], "ADD") ) {
-               $intAdd = substr($astrFormElements[$i]['default'], 4);
-               $_POST[$astrFormElements[$i]['name']] += $intAdd;
-               
-            }
-            else {
-                $strDefaultValue = $astrFormElements[$i]['default'];
-            }
-            $astrValues[$astrFormElements[$i]['name']] = getPost($astrFormElements[$i]['name'], $strDefaultValue);
-        }
-    }
-}
-if( $blnDelete && $intKeyValue ) {
-    //create the delete query
-    $strQuery = "UPDATE $strTable SET deleted=1 WHERE $strPrimaryKey=?";
-    //send query to database
-    mysql_param_query($strQuery, array($intKeyValue));
-    //dispose the primarykey value
+if ($blnAdd || $blnSave) 
+{
+  if ($blnAdd)
     unset($intKeyValue);
-    //clear form elements
-    unset($astrValues);
-    $blnNew = TRUE;
+  $res = saveFormData($strTable, $intKeyValue, $astrFormElements, $astrValues, $strParentKey, $intParentKey);
+  if ($res !== TRUE)
+  {
+    $strMessage .= $GLOBALS['locERRVALUEMISSING'] . ": $res";
+  }
+  else
+  {
+    // Update defaults for running values
+    foreach ($astrFormElements as $elem)
+    {
+      if (!$elem['default']) 
+      {
+        unset($astrValues[$elem['name']]);
+      }  
+      else 
+      {
+        if ($elem['default'] == 'DATE_NOW' ) 
+        {
+          $strDefaultValue = date('Ymd');
+        }
+        elseif (strstr($elem['default'], 'ADD')) 
+        {
+           $intAdd = substr($elem['default'], 4);
+           $_POST[$elem['name']] += $intAdd;
+        }
+        else 
+        {
+          $strDefaultValue = $elem['default'];
+        }
+        $astrValues[$elem['name']] = getPost($elem['name'], $strDefaultValue);
+      }
+    }
+  }
 }
+elseif ($blnDelete && $intKeyValue) 
+{
+  $strQuery = "UPDATE $strTable SET deleted=1 WHERE $strPrimaryKey=?";
+  mysql_param_query($strQuery, array($intKeyValue));
+  unset($intKeyValue);
+  unset($astrValues);
+  $blnNew = TRUE;
+}
+
 if ($intParentKey) 
 {
-    $strQuery =
-        "SELECT * FROM $strTable " .
-        'WHERE ' . (getSetting('show_deleted_records') ? '' : 'deleted=0 AND ') . "$strParentKey=? $strOrder";
+  $strQuery =
+    "SELECT * FROM $strTable " .
+    'WHERE ' . (getSetting('show_deleted_records') ? '' : 'deleted=0 AND ') . "$strParentKey=? $strOrder";
 
-    $intRes = mysql_param_query($strQuery, array($intParentKey));
-    $astrOldValues = array();
-    for ($i = 0, $row = mysql_fetch_assoc($intRes); $row; $i++, $row = mysql_fetch_assoc($intRes)) 
+  $res = mysql_param_query($strQuery, array($intParentKey));
+  $astrExistingValues = array();
+  for ($i = 0, $row = mysql_fetch_assoc($res); $row; $i++, $row = mysql_fetch_assoc($res)) 
+  {
+    $astrExistingValues[$i]['deleted'] = $row['deleted'];
+    foreach ($astrFormElements as $elem)
     {
-        $tmpID = $row['id'];
-        $astrOldValues[$i]['deleted'] = $row['deleted'];
-        foreach ($astrFormElements as $elem)
+      if ($elem['type'] != 'NEWLINE' && $elem['type'] != 'ROWSUM' ) 
+      {
+        if ($elem['type'] == 'INTDATE') 
         {
-            if ($elem['type'] != 'NEWLINE' && $elem['type'] != 'ROWSUM' ) 
-            {
-                if ($elem['type'] == 'INTDATE') 
-                {
-                    $astrOldValues[$i][$elem['name']] = dateConvIntDate2Date($row[$elem['name']]);
-                }
-                elseif ($elem['type'] == 'BUTTON') 
-                {
-                    $astrOldValues[$i][$elem['name']] = $tmpID;
-                }
-                else 
-                {
-                    $astrOldValues[$i][$elem['name']] = $row[$elem['name']];
-                }
-            }
-            else 
-            {
-                $astrOldValues[$i][$elem['name']] = $intKeyValue;
-            }
+          $astrExistingValues[$i][$elem['name']] = dateConvIntDate2Date($row[$elem['name']]);
         }
+        elseif ($elem['type'] == 'BUTTON') 
+        {
+          $astrExistingValues[$i][$elem['name']] = $row['id'];
+        }
+        else 
+        {
+          $astrExistingValues[$i][$elem['name']] = $row[$elem['name']];
+        }
+      }
+      else 
+      {
+        $astrExistingValues[$i][$elem['name']] = $intKeyValue;
+      }
     }
+  }
 }
 
 ?>
-<body class="iform" onload="<?php echo $strOnLoad?>">
+<body class="iform">
 <script type="text/javascript">
 <!--
 $(function() {
   $('input[class~="hasCalendar"]').datepicker();
+  $('a[class~="row_edit_button"]').click(function(event) {
+    var row_id = $(this).attr('href').match(/(\d+)/)[1];
+    popup_editor(event, '<?php echo $GLOBALS['locRowEdit']?>', row_id, false);
+    return false;
+  });
+  
+
+  $('a[class~="row_copy_button"]').click(function(event) {
+    var row_id = $(this).attr('href').match(/(\d+)/)[1];
+    popup_editor(event, '<?php echo $GLOBALS['locRowCopy']?>', row_id, true);
+    return false;
+  });
+  
 });
 
-function OpenPop(strLink, strTitle, event) {
-    $("#popup_edit").dialog({ modal: true, width: 810, height: 340, resizable: false, 
-      position: [50, event.clientY], 
+function popup_editor(event, title, id, copy_row)
+{
+  $.getJSON('json.php?func=get_<?php echo $strJSONType?>&id=' + id, function(json) { 
+    if (!json.id) return; 
+    var form = document.getElementById('iform_popup');
+    
+    if (copy_row)
+      form.addact.value = 1;
+    form.<?php echo $strPrimaryKey?>.value = id;
+<?php
+foreach ($astrFormElements as $elem)
+{
+  if (in_array($elem['type'], array('HID_INT', 'SECHID_INT', 'BUTTON', 'NEWLINE', 'ROWSUM')))
+    continue;
+  $name = $elem['name'];
+  if ($elem['type'] == 'LIST')
+  {
+?>
+    for (var i = 0; i < form.<?php echo $name?>.options.length; i++)
+    {  
+      var item = form.<?php echo $name?>.options[i];
+      if (item.value == json.<?php echo $name?>)
+      {
+        item.selected = true;
+        break;
+      }
+    }
+<?php
+  }
+  elseif ($elem['type'] == 'INT')
+  {
+?> 
+    form.<?php echo $name?>.value = json.<?php echo $name?>.replace('.', ',');
+<?php
+  }
+  else
+  {
+?> 
+    form.<?php echo $name?>.value = json.<?php echo $name?>;
+<?php
+  }
+}
+?>    
+    $("#popup_edit").dialog({ modal: true, width: 810, height: 140, resizable: false, 
+      position: [50, 20], 
       buttons: {
-          "<?php echo $GLOBALS['locSAVE']?>": function() { var form = $("#popup_edit_iframe").contents().find("#pop_iform").get(0); form.saveact.value=1; form.submit(); return false; },
-          "<?php echo $GLOBALS['locDELETE']?>": function() { if(confirm('<?php echo $GLOBALS['locCONFIRMDELETE']?>')==true) { var form = $("#popup_edit_iframe").contents().find("#pop_iform").get(0); form.deleteact.value=1; form.submit(); } return false; },
+          "<?php echo $GLOBALS['locSAVE']?>": function() { var form = document.getElementById('iform_popup'); form.saveact.value=1; form.submit(); return false; },
+          "<?php echo $GLOBALS['locDELETE']?>": function() { if(confirm('<?php echo $GLOBALS['locCONFIRMDELETE']?>')==true) { var form = document.getElementById('iform_popup'); form.deleteact.value=1; form.submit(); } return false; },
           "<?php echo $GLOBALS['locCLOSE']?>": function() { $("#popup_edit").dialog('close'); }
       },
-      title: strTitle,
-    }).find("#popup_edit_iframe").attr("src", strLink);
-    
-    return true;
-}
+      title: title,
+    });
+
+  });
+}  
 -->
 </script>
 
-<div id="popup_edit" style="display: none; width: 900px; overflow: hidden">
-<iframe marginheight="0" marginwidth="0" frameborder="0" id="popup_edit_iframe" src="about:blank" style="width: 800px; height: 290px; overflow: hidden; border: 0"></iframe>
-</div>
+<?php
+if ($strMessage)
+{
+?>
+<div class="message"><?php echo $strMessage?></div>
+<?php
+}
+?>
 
 <form method="post" action="<?php echo $strMainForm?>" target="_self" name="iform">
 <input type="hidden" name="<?php echo $strParentKey?>" value="<?php echo $intParentKey?>">
-<input type="hidden" name="defaults" value="<?php echo $strDefaults?>">
 <table class="iform">
   <tr>
 <?php
 $strRowSpan = '';
 foreach ($astrFormElements as $elem)
 {
-  if ($elem['type'] == 'ROWSUM') 
+  if (!in_array($elem['type'], array('HID_INT', 'SECHID_INT', 'BUTTON', 'NEWLINE', 'ROWSUM')))
   {
 ?>
     <td class="label <?php echo strtolower($elem['style'])?>_label">
       <?php echo $elem['label']?><br>
-    </td>
-<?php
-  }
-  elseif( $elem['type'] != 'HID_INT' && $elem['type'] != 'SECHID_INT' && $elem['type'] != 'BUTTON' && $elem['type'] != 'NEWLINE' && $elem['type'] != 'ROWSUM' ) 
-  {
-?>
-    <td class="label <?php echo strtolower($elem['style'])?>_label">
-      <?php echo $elem['label']?><br>
-      <?php echo htmlFormElement( $elem['name'],$elem['type'], gpcStripSlashes(isset($astrValues[$elem['name']]) ? $astrValues[$elem['name']] : ''), $elem['style'],$elem['listquery'], "MODIFY", 0, '', array(), $elem['elem_attributes'])?>
+      <?php echo htmlFormElement($elem['name'], $elem['type'], gpcStripSlashes(isset($astrValues[$elem['name']]) ? $astrValues[$elem['name']] : ''), $elem['style'],$elem['listquery'], "MODIFY", 0, '', array(), $elem['elem_attributes'])?>
     </td>
 <?php
   }
@@ -335,17 +262,25 @@ foreach ($astrFormElements as $elem)
 <tr>
 <?php
   }
+  elseif ($elem['type'] == 'ROWSUM') 
+  {
+?>
+    <td class="label <?php echo strtolower($elem['style'])?>_label">
+      <?php echo $elem['label']?><br>
+    </td>
+<?php
+  }
 }
 ?>
     <td class="button" <?php echo $strRowSpan?>>
       <br>
-      <input type="hidden" name="add_x" value="0">
-      <a class="tinyactionlink" href="#" onclick="self.document.forms[0].add_x.value=1; self.document.forms[0].submit(); return false;"><?php echo $GLOBALS['locADDROW']?></a>
+      <input type="hidden" name="addact" value="0">
+      <a class="tinyactionlink" href="#" onclick="self.document.forms[0].addact.value=1; self.document.forms[0].submit(); return false;"><?php echo $GLOBALS['locADDROW']?></a>
     </td>
   </tr>
 
 <?php
-foreach ($astrOldValues as $row) 
+foreach ($astrExistingValues as $row) 
 {
 ?>
   <tr>
@@ -397,7 +332,7 @@ foreach ($astrOldValues as $row)
     }
     elseif ($elem['type'] == 'HID_INT' || $elem['type'] == 'SECHID_INT') 
     {
-      $strHidField = htmlFormElement( $elem['name'],"HID_INT", gpcStripSlashes($row[$elem['name']]), $elem['style'], $elem['listquery'], 'NO_MOD', 0, $elem['label']);
+      $strHidField = htmlFormElement($elem['name'],"HID_INT", gpcStripSlashes($row[$elem['name']]), $elem['style'], $elem['listquery'], 'NO_MOD', 0, $elem['label']);
       if( $elem['type'] == "HID_INT" ) 
       {
         $strPrimaryName = $elem['name'];
@@ -413,14 +348,14 @@ foreach ($astrOldValues as $row)
 <?php
     }
   }
-  $strPopLinkEdit = "iform_pop.php?selectform=$strForm&amp;$strParentKey=$intParentKey&amp;$strPrimaryName=$intPrimaryId&amp;defaults=$strDefaults";
-  $strPopLinkCopy = "iform_pop.php?selectform=$strForm&amp;$strParentKey=$intParentKey&amp;$strPrimaryName=$intPrimaryId&amp;defaults=$strDefaults&amp;copyact=1";
+  $strPopLinkEdit = "#$intPrimaryId";
+  $strPopLinkCopy = "#$intPrimaryId";
 ?>
     <td class="button">
-      <a class="tinyactionlink" href="#" onclick="OpenPop('<?php echo $strPopLinkEdit?>', '<?php echo $GLOBALS['locRowModification']?>', event); return false;"><?php echo $GLOBALS['locEDIT']?></a>
+      <a class="tinyactionlink row_edit_button" href="<?php echo $strPopLinkEdit?>"><?php echo $GLOBALS['locEDIT']?></a>
     </td>
     <td class="button">
-      <a class="tinyactionlink" href="#" onclick="OpenPop('<?php echo $strPopLinkCopy?>', '<?php echo $GLOBALS['locRowCopy']?>', event); return false;"><?php echo $GLOBALS['locCOPY']?></a>
+      <a class="tinyactionlink row_copy_button" href="<?php echo $strPopLinkCopy?>"><?php echo $GLOBALS['locCOPY']?></a>
     </td>
   </tr>
 <?php
@@ -431,7 +366,7 @@ if (isset($showPriceSummary) && $showPriceSummary)
   $intTotSum = 0;
   $intTotVAT = 0;
   $intTotSumVAT = 0;
-  foreach ($astrOldValues as $row) 
+  foreach ($astrExistingValues as $row) 
   {
     $intItemPrice = $row[$priceColumn];
     $intItems = $row[$multiplierColumn]; 
@@ -474,6 +409,49 @@ if (isset($showPriceSummary) && $showPriceSummary)
 ?>
 </table>
 </form>
-</body>
 
+<!-- popup editor -->
+<div id="popup_edit" style="display: none; width: 900px; overflow: hidden">
+<form method="post" action="<?php echo $strMainForm?>" target="_self" name="iform_popup" id="iform_popup">
+<input type="hidden" name="<?php echo $strPrimaryKey?>" value="">
+<input type="hidden" name="<?php echo $strParentKey?>" value="<?php echo $intParentKey?>">
+<input type="hidden" name="saveact" value="0">
+<input type="hidden" name="addact" value="0">
+<input type="hidden" name="deleteact" value="0">
+<table class="iform">
+  <tr>
+<?php
+$strRowSpan = '';
+foreach ($astrFormElements as $elem)
+{
+  if (!in_array($elem['type'], array('HID_INT', 'SECHID_INT', 'BUTTON', 'NEWLINE', 'ROWSUM')))
+  {
+?>
+    <td class="label <?php echo strtolower($elem['style'])?>_label">
+      <?php echo $elem['label']?><br>
+      <?php echo htmlFormElement($elem['name'], $elem['type'], '', $elem['style'], $elem['listquery'], "MODIFY", 0, '', array(), $elem['elem_attributes'])?>
+    </td>
+<?php
+  }
+  elseif( $elem['type'] == 'SECHID_INT' ) 
+  {
+?>
+    <input type="hidden" name="<?php echo $elem['name']?>" value="<?php echo gpcStripSlashes($astrValues[$elem['name']])?>">
+<?php
+  }
+  elseif( $elem['type'] == 'BUTTON' ) 
+  {
+?>
+    <td class="label">
+      &nbsp;
+    </td>
+<?php
+  }
+}
+?>
+</table>
+</form>
+</div>
+
+</body>
 </html>

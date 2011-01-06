@@ -270,6 +270,7 @@ function htmlFormElement( $strName, $strType, $strValue, $strStyle, $strListQuer
             }
         break;
         case 'INT' :
+            $strValue = str_replace(".", ",", $strValue); // TODO: make this configurable
             if( $strMode == "MODIFY" ) {
                 $strFormElement = 
                   "<input type=\"text\" class=\"$strStyle\" " .

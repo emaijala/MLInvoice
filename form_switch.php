@@ -100,6 +100,7 @@ break;
 
 case 'company_contact':
        $strTable = '{prefix}company_contact';
+       $strJSONType = 'company_contact';
        $strPrimaryKey = "id";
        $strParentKey = "company_id";
        $strMainForm = "iform.php?selectform=company_contact";
@@ -258,38 +259,32 @@ EOS;
 break;
 case 'invoice_rows':
    $strTable = '{prefix}invoice_row';
+   $strJSONType = 'invoice_row';
    $strPrimaryKey = "id";
    $strParentKey = "invoice_id";
    $strMainForm = "iform.php?selectform=invoice_rows";
    $strOrder = 'ORDER BY {prefix}invoice_row.order_no, {prefix}invoice_row.row_date';
    
-   $intProductId = getRequest('new_product', 0);
-   $strDescription = '';
-   $intTypeId = 'POST';
-   $intPrice = 'POST';
-   $intVAT = getSetting('invoice_default_vat_percent');
-   $intVATIncluded = 0;
-   if ($intProductId)
-   {
-     // Retrieve default values from the specified product
-     $strQuery = 
-        "SELECT * ".
-        "FROM {prefix}product ".
-        "WHERE id=?";
-     $intRes = mysql_param_query($strQuery, array($intProductId));
-     if ($row = mysql_fetch_assoc($intRes)) 
-     {
-       $strDescription = trim($row['description']);
-       $intTypeId = $row['type_id'];
-       $intPrice = $row['unit_price'];
-       $intVAT = $row['vat_percent'];
-       $intVATIncluded = $row['vat_included'];
-     }
-   }
-   
    $intInvoiceId = getRequest('invoice_id', 0);
    $productOnChange = <<<EOS
-onChange = "var loc = new String(window.location); loc = loc.replace(/&new_product=\d+/, '').replace(/&invoice_id=\d+/, ''); loc += '&invoice_id=$intInvoiceId&new_product=' + document.forms[0].product_id.value; window.location = loc;"
+onchange = "var form = this.form; $.getJSON('json.php?func=get_product&id=' + form.product_id.value, function(json) { 
+  if (!json.id) return; 
+  //var form = document.forms[0]; 
+  form.description.value = json.description;
+  
+  for (var i = 0; i < form.type_id.options.length; i++)
+  {  
+    var item = form.type_id.options[i];
+    if (item.value == json.type_id)
+    {
+      item.selected = true;
+      break;
+    }
+  }
+  form.price.value = json.unit_price.replace('.', ','); 
+  form.vat.value = json.vat_percent.replace('.', ','); 
+  form.vat_included.checked = json.vat_included ? true : false;
+});"
 EOS;
 
    $multiplierColumn = 'pcs';
@@ -305,19 +300,19 @@ EOS;
      array(
         "name" => "product_id", "label" => $GLOBALS['locPRODUCTNAME'], "type" => "LIST", "style" => "medium", "listquery" => "SELECT id, product_name FROM {prefix}product WHERE deleted=0 ORDER BY product_name", "position" => 0, "default" => $intProductId, "allow_null" => TRUE, 'elem_attributes' => $productOnChange ),
      array(
-        "name" => "description", "label" => $GLOBALS['locROWDESC'], "type" => "TEXT", "style" => "medium", "listquery" => "", "position" => 0, "default" => $strDescription, "allow_null" => TRUE ),
+        "name" => "description", "label" => $GLOBALS['locROWDESC'], "type" => "TEXT", "style" => "medium", "listquery" => "", "position" => 0, "default" => '', "allow_null" => TRUE ),
      array(
         "name" => "row_date", "label" => $GLOBALS['locDATE'], "type" => "INTDATE", "style" => "date", "listquery" => "", "position" => 0, "default" => 'DATE_NOW', "allow_null" => FALSE ),
      array(
         "name" => "pcs", "label" => $GLOBALS['locPCS'], "type" => "INT", "style" => "count", "listquery" => "", "position" => 0, "default" => FALSE, "allow_null" => FALSE ),
      array(
-        "name" => "type_id", "label" => $GLOBALS['locUNIT'], "type" => "LIST", "style" => "short", "listquery" => "SELECT id, name FROM {prefix}row_type WHERE deleted=0 ORDER BY order_no", "position" => 0, "default" => $intTypeId, "allow_null" => FALSE ),
+        "name" => "type_id", "label" => $GLOBALS['locUNIT'], "type" => "LIST", "style" => "short", "listquery" => "SELECT id, name FROM {prefix}row_type WHERE deleted=0 ORDER BY order_no", "position" => 0, "default" => 'POST', "allow_null" => FALSE ),
      array(
-        "name" => "price", "label" => $GLOBALS['locPRICE'], "type" => "INT", "style" => "currency", "listquery" => "", "position" => 0, "default" => $intPrice, "allow_null" => FALSE ),
+        "name" => "price", "label" => $GLOBALS['locPRICE'], "type" => "INT", "style" => "currency", "listquery" => "", "position" => 0, "default" => 'POST', "allow_null" => FALSE ),
      array(
-        "name" => "vat", "label" => $GLOBALS['locVAT'], "type" => "INT", "style" => "percent", "listquery" => "", "position" => 0, "default" => $intVAT, "allow_null" => TRUE ),
+        "name" => "vat", "label" => $GLOBALS['locVAT'], "type" => "INT", "style" => "percent", "listquery" => "", "position" => 0, "default" => getSetting('invoice_default_vat_percent'), "allow_null" => TRUE ),
      array(
-        "name" => "vat_included", "label" => $GLOBALS['locVATINC'], "type" => "CHECK", "style" => "xshort", "listquery" => "", "position" => 0, "default" => $intVATIncluded, "allow_null" => TRUE ),
+        "name" => "vat_included", "label" => $GLOBALS['locVATINC'], "type" => "CHECK", "style" => "xshort", "listquery" => "", "position" => 0, "default" => 0, "allow_null" => TRUE ),
      array(
         "name" => "order_no", "label" => $GLOBALS['locROWNO'], "type" => "INT", "style" => "tiny", "listquery" => "SELECT max(order_no)+5 FROM {prefix}invoice_row WHERE deleted=0 AND invoice_id=_PARENTID_", "position" => 0, "default" => "ADD+5", "allow_null" => TRUE ),
      array(
@@ -497,7 +492,7 @@ break;
 }
 
 // Clean up the array
-$akeys = array('name', 'type', 'position', 'style', 'label', 'default', 'defaults', 'parent_key', 'listquery', 'allow_null', 'elem_attributes');
+$akeys = array('name', 'type', 'position', 'style', 'label', 'default', 'parent_key', 'listquery', 'allow_null', 'elem_attributes');
 for( $j = 0; $j < count($astrFormElements); $j++ ) {
   for( $i = 0; $i < count($akeys); $i++ ) {
     if (!isset($astrFormElements[$j][$akeys[$i]]))
