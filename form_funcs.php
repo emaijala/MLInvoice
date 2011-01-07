@@ -26,7 +26,7 @@ function getPostValues(&$formElements, $primaryKey, $parentKey = FALSE)
 
   foreach ($formElements as $elem) 
   {
-    if (in_array($elem['type'], array('', 'IFORM', 'RESULT', 'BUTTON', 'JSBUTTON', 'IMAGE', 'ROWSUM', 'NEWLINE'))) 
+    if (in_array($elem['type'], array('', 'IFORM', 'RESULT', 'BUTTON', 'JSBUTTON', 'IMAGE', 'ROWSUM', 'NEWLINE', 'LABEL'))) 
     {
       $values[$elem['name']] = isset($primaryKey) ? $primaryKey : FALSE;
     }
@@ -97,7 +97,7 @@ function saveFormData($table, &$primaryKey, &$formElements, &$values, $parentKey
     $name = $elem['name'];
     $value = $values[$name];
             
-    if (in_array($type, array('', 'IFORM', 'RESULT', 'BUTTON', 'JSBUTTON', 'IMAGE', 'ROWSUM', 'NEWLINE')))
+    if (in_array($type, array('', 'IFORM', 'RESULT', 'BUTTON', 'JSBUTTON', 'IMAGE', 'ROWSUM', 'NEWLINE', 'LABEL')))
       continue;
   
     if (!$elem['allow_null'] && (!isset($value) || $value === ''))
