@@ -17,11 +17,11 @@ class PDF extends TCPDF
     $this->SetY(-17);
     $this->SetFont('Helvetica','',7);
     $this->SetX(7);
-    $this->MultiCell(75, 5, $this->footerLeft, 0, "L", 0, 0);
+    $this->MultiCell(120, 5, $this->footerLeft, 0, "L", 0, 0);
     $this->SetX(75);
-    $this->MultiCell(75, 5, $this->footerCenter, 0, "C", 0, 0);
-    $this->SetX(150);
-    $this->MultiCell(50, 5, $this->footerRight, 0, "R", 0, 0);
+    $this->MultiCell(65, 5, $this->footerCenter, 0, "C", 0, 0);
+    $this->SetX(140);
+    $this->MultiCell(60, 5, $this->footerRight, 0, "R", 0, 0);
   }
 
   // Disable openssl_random_pseudo_bytes call as it's very slow on Windows  

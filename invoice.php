@@ -126,7 +126,7 @@ $strAssocAddressLine .= $strCity;
 $strAssocAddress = 
     $strAssociation. "\n$strStreetAddress\n$strZipCode $strCity";
 if ($strPhone)
-  $strContactInfo = "\n" . $GLOBALS['locPHONE'] . ": $strPhone";
+  $strContactInfo = "\n" . $GLOBALS['locPHONE'] . " $strPhone";
 else
   $strContactInfo = '';
 
@@ -423,11 +423,11 @@ if ($printStyle == 'invoice')
   //bottom - paymentinfo
   $pdf->SetFont('Helvetica','',7);
   $pdf->SetXY(7, $intStartY);
-  $pdf->MultiCell(66, 5, $strAssocAddressLine, 0, "L", 0);
+  $pdf->MultiCell(120, 5, $strAssocAddressLine, 0, "L", 0);
   $pdf->SetXY(75, $intStartY);
-  $pdf->MultiCell(75, 5, $strContactInfo, 0, "C", 0);
-  $pdf->SetXY(150, $intStartY);
-  $pdf->MultiCell(50, 5, "$strEmail\n$strWww", 0, "R", 0);
+  $pdf->MultiCell(65, 5, $strContactInfo, 0, "C", 0);
+  $pdf->SetXY(140, $intStartY);
+  $pdf->MultiCell(60, 5, "$strEmail\n$strWww", 0, "R", 0);
   
   
   // Invoice form
