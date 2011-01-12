@@ -53,9 +53,21 @@ span.message {
   font-weight: bold;
 }
 
-div.form_container
-{
+div.form_container {
   margin: 10px;
+  font-size: 12px;
+}
+
+div.small_label {
+  width: 100px;
+  float: left;
+  margin-bottom: 8px; 
+  clear: left;
+}
+
+div.field {
+  float: left;
+  margin-bottom: 8px; 
 }
 
 div.report

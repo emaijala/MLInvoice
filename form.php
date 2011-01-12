@@ -62,7 +62,7 @@ function createForm($strFunc, $strList, $strForm)
     unset($_REQUEST);
   }
   
-  $astrValues = getPostValues($astrFormElements, $intKeyValue);
+  $astrValues = getPostValues($astrFormElements, isset($intKeyValue) ? $intKeyValue : FALSE);
   
   $redirect = getRequest('redirect', null);
   if (isset($redirect))
@@ -152,8 +152,8 @@ function createForm($strFunc, $strList, $strForm)
   });
   </script>
   
-  <div class="form_container">
   <?php createFormButtons($blnNew, $copyLinkOverride) ?>
+  <div class="form_container">
   <table>
     <form method="post" action="" name="admin_form" id="admin_form">
     <input type="hidden" name="saveact" value="0">
@@ -199,9 +199,110 @@ function createForm($strFunc, $strList, $strForm)
       {
         echo "      <td class=\"label\" colspan=\"2\">&nbsp;</td>";
       }
+      elseif ($elem['type'] == "BUTTON" || $elem['type'] == "JSBUTTON") 
+      {
+?>
+      <td class="button" colspan="<?php echo $intColspan?>">
+        <?php echo htmlFormElement($elem['name'], $elem['type'], $astrValues[$elem['name']], $elem['style'], $elem['listquery'], "MODIFY", $elem['parent_key'],$elem['label'], array(), isset($elem['elem_attributes']) ? $elem['elem_attributes'] : '')?>
+      </td>
+<?php          
+      }
+      elseif ($elem['type'] == "HID_INT" || strstr($elem['type'], "HID_")) 
+      {
+?>
+      <?php echo htmlFormElement($elem['name'], $elem['type'], $astrValues[$elem['name']], $elem['style'], $elem['listquery'], "MODIFY", $elem['parent_key'],$elem['label'])?>
+<?php          
+      }
+      elseif ($elem['type'] == "IMAGE") 
+      {
+?>
+      <td class="image" colspan="<?php echo $intColspan?>">
+          <?php echo htmlFormElement($elem['name'], $elem['type'], $astrValues[$elem['name']], $elem['style'], $elem['listquery'], "MODIFY", $elem['parent_key'],$elem['label'], array(), isset($elem['elem_attributes']) ? $elem['elem_attributes'] : '')?>
+      </td>
+<?php          
+      }
       elseif ($elem['type'] == "IFORM" && !$blnNew) 
       {
         $formClosed = true;
+        createIForm($astrFormElements, $elem, $intKeyValue);
+      }
+      else 
+      {
+        $value = $astrValues[$elem['name']];
+        if ($elem['style'] == 'measurement')
+          $value = $value ? miscRound2Decim($value, 2) : '';
+?>
+      <td class="label">
+        <?php echo $elem['label']?>
+      </td>
+      <td class="field" <?php echo $strColspan?>>
+        <?php echo htmlFormElement($elem['name'], $elem['type'], $value, $elem['style'], $elem['listquery'], "MODIFY", isset($elem['parent_key']) ? $elem['parent_key'] : '', '', array(), isset($elem['elem_attributes']) ? $elem['elem_attributes'] : '')?>
+        <?php if (isset($elem['quick_add'])) echo $elem['quick_add']?>
+      </td>
+<?php
+      }
+      
+      if ($elem['position'] == 0 || $elem['position'] == 2) 
+      {
+        echo "    </tr>\n";
+      }
+    }
+  }
+  ?>
+  </table>
+  <?php if (!$formClosed) echo "  </form>\n"?>
+  </div>
+<?php 
+  createFormButtons($blnNew, $copyLinkOverride);
+
+  if (isset($subFormElements))
+  {
+?>
+<div id="popup_edit" style="display: none; width: 900px; overflow: hidden">
+<form method="post" action="" name="iform_popup" id="iform_popup">
+<input type="hidden" name="id" value="">
+<input type="hidden" name="<?php echo $strParentKey?>" value="<?php echo $intKeyValue?>">
+<table class="iform">
+  <tr>
+<?php
+$strRowSpan = '';
+    foreach ($subFormElements as $elem)
+    {
+      if (!in_array($elem['type'], array('HID_INT', 'SECHID_INT', 'BUTTON', 'NEWLINE', 'ROWSUM')))
+      {
+?>
+    <td class="label <?php echo strtolower($elem['style'])?>_label">
+      <?php echo $elem['label']?><br>
+      <?php echo htmlFormElement($elem['name'], $elem['type'], '', $elem['style'], $elem['listquery'], "MODIFY", 0, '', array(), $elem['elem_attributes'])?>
+    </td>
+<?php
+      }
+      elseif( $elem['type'] == 'SECHID_INT' ) 
+      {
+?>
+    <input type="hidden" name="<?php echo $elem['name']?>" value="<?php echo gpcStripSlashes($astrValues[$elem['name']])?>">
+<?php
+      }
+      elseif( $elem['type'] == 'BUTTON' ) 
+      {
+?>
+    <td class="label">
+      &nbsp;
+    </td>
+<?php
+      }
+    }
+?>
+</table>
+</form>
+</div>
+
+<?php
+  }
+}
+
+function createIForm($astrFormElements, $elem, $intKeyValue)
+{
 ?>
     </form>
     <tr>
@@ -210,7 +311,7 @@ function createForm($strFunc, $strList, $strForm)
       </td>
     </tr>
     <tr>
-      <td class="label" colspan="<?php echo $intColspan?>">
+      <td class="label" colspan="4">
 <script type="text/javascript">
 
 $(document).ready(function() { 
@@ -572,101 +673,6 @@ foreach ($subFormElements as $elem)
         </div>
       </td>
 <?php          
-      }
-      elseif ($elem['type'] == "BUTTON" || $elem['type'] == "JSBUTTON") 
-      {
-?>
-      <td class="button" colspan="<?php echo $intColspan?>">
-        <?php echo htmlFormElement($elem['name'], $elem['type'], $astrValues[$elem['name']], $elem['style'], $elem['listquery'], "MODIFY", $elem['parent_key'],$elem['label'], array(), isset($elem['elem_attributes']) ? $elem['elem_attributes'] : '')?>
-      </td>
-<?php          
-      }
-      elseif ($elem['type'] == "HID_INT" || strstr($elem['type'], "HID_")) 
-      {
-?>
-      <?php echo htmlFormElement($elem['name'], $elem['type'], $astrValues[$elem['name']], $elem['style'], $elem['listquery'], "MODIFY", $elem['parent_key'],$elem['label'])?>
-<?php          
-      }
-      elseif ($elem['type'] == "IMAGE") 
-      {
-?>
-      <td class="image" colspan="<?php echo $intColspan?>">
-          <?php echo htmlFormElement($elem['name'], $elem['type'], $astrValues[$elem['name']], $elem['style'], $elem['listquery'], "MODIFY", $elem['parent_key'],$elem['label'], array(), isset($elem['elem_attributes']) ? $elem['elem_attributes'] : '')?>
-      </td>
-<?php          
-      }
-      else 
-      {
-        $value = $astrValues[$elem['name']];
-        if ($elem['style'] == 'measurement')
-          $value = $value ? miscRound2Decim($value, 2) : '';
-?>
-      <td class="label">
-        <?php echo $elem['label']?>
-      </td>
-      <td class="field" <?php echo $strColspan?>>
-        <?php echo htmlFormElement($elem['name'], $elem['type'], $value, $elem['style'], $elem['listquery'], "MODIFY", isset($elem['parent_key']) ? $elem['parent_key'] : '', '', array(), isset($elem['elem_attributes']) ? $elem['elem_attributes'] : '')?>
-      </td>
-<?php
-      }
-      
-      if ($elem['position'] == 0 || $elem['position'] == 2) 
-      {
-        echo "    </tr>\n";
-      }
-    }
-  }
-  ?>
-  </table>
-  <?php if (!$formClosed) echo "  </form>\n"?>
-  </div>
-<?php 
-  createFormButtons($blnNew, $copyLinkOverride);
-
-  if (isset($subFormElements))
-  {
-?>
-<div id="popup_edit" style="display: none; width: 900px; overflow: hidden">
-<form method="post" action="" name="iform_popup" id="iform_popup">
-<input type="hidden" name="id" value="">
-<input type="hidden" name="<?php echo $strParentKey?>" value="<?php echo $intKeyValue?>">
-<table class="iform">
-  <tr>
-<?php
-$strRowSpan = '';
-    foreach ($subFormElements as $elem)
-    {
-      if (!in_array($elem['type'], array('HID_INT', 'SECHID_INT', 'BUTTON', 'NEWLINE', 'ROWSUM')))
-      {
-?>
-    <td class="label <?php echo strtolower($elem['style'])?>_label">
-      <?php echo $elem['label']?><br>
-      <?php echo htmlFormElement($elem['name'], $elem['type'], '', $elem['style'], $elem['listquery'], "MODIFY", 0, '', array(), $elem['elem_attributes'])?>
-    </td>
-<?php
-      }
-      elseif( $elem['type'] == 'SECHID_INT' ) 
-      {
-?>
-    <input type="hidden" name="<?php echo $elem['name']?>" value="<?php echo gpcStripSlashes($astrValues[$elem['name']])?>">
-<?php
-      }
-      elseif( $elem['type'] == 'BUTTON' ) 
-      {
-?>
-    <td class="label">
-      &nbsp;
-    </td>
-<?php
-      }
-    }
-?>
-</table>
-</form>
-</div>
-
-<?php
-  }
 }
 
 function createFormButtons($boolNew, $copyLinkOverride)

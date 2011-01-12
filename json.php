@@ -31,12 +31,32 @@ case 'get_company':
   printJSONRecord('company');
   break;
 
-case 'get_product':
-  printJSONRecord('product');
+case 'put_company':
+  saveJSONRecord('company', '');
   break;
 
-case 'get_products':
-  printJSONRecords('product', '', 'product_name');
+case 'get_companies':
+  printJSONRecords('company', '', 'company_name');
+  break;
+
+case 'get_company_contacts':
+  printJSONRecords('company_contact', 'company_id', 'contact_person');
+  break;
+
+case 'get_company_contact':
+  printJSONRecord('company_contact');
+  break;
+
+case 'delete_company_contact':
+  deleteRecord('company_contact');
+  break;
+
+case 'put_company_contact':
+  saveJSONRecord('company_contact', 'company_id');
+  break;
+
+case 'get_product':
+  printJSONRecord('product');
   break;
 
 case 'get_products':
@@ -55,7 +75,6 @@ case 'get_invoice_row':
   printJSONRecord('invoice_row');
   break;
 
-
 case 'get_invoice_rows':
   printJSONRecords('invoice_row', 'invoice_id', 'order_no');
   break;
@@ -66,22 +85,6 @@ case 'put_invoice_row':
 
 case 'delete_invoice_row':
   deleteRecord('invoice_row');
-  break;
-
-case 'get_company_contacts':
-  printJSONRecords('company_contact', 'company_id', 'contact_person');
-  break;
-
-case 'get_company_contact':
-  printJSONRecord('company_contact');
-  break;
-
-case 'delete_company_contact':
-  deleteRecord('company_contact');
-  break;
-
-case 'put_company_contact':
-  saveJSONRecord('company_contact', 'company_id');
   break;
 
 case 'get_invoice_defaults':

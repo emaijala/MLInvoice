@@ -215,6 +215,87 @@ EOS;
 onclick = "$.getJSON('json.php?func=get_invoice_defaults&id=' + document.forms[0].id.value + '&base_id=' + document.forms[0].base_id.value, function(json) { var frm = document.forms[0]; frm.invoice_date.value = json.date; frm.due_date.value = json.due_date; frm.invoice_no.value = json.invoice_no; frm.ref_number.value = json.ref_no;}); return false;"
 EOS;
 
+   $locNew = $GLOBALS['locNEW'] . '...';
+   $locCompName = $GLOBALS['locCOMPNAME'];
+   $locEmail = $GLOBALS['locEMAIL'];
+   $locPhone = $GLOBALS['locPHONE'];
+   $locSave = $GLOBALS['locSAVE'];
+   $locClose = $GLOBALS['locCLOSE'];
+   $locMissing = $GLOBALS['locERRVALUEMISSING'];
+   $locTitle = $GLOBALS['locNEWCOMPANY'];
+   $addCompanyCode = <<<EOS
+<a class="formbuttonlink" href="#" onclick="add_company()">$locNew</a>
+<div id="quick_add_company" class="form_container" style="display: none">
+  <div class="small_label">$locCompName</div> <div class="field"><input type="text" id="quick_name" class="medium"></div>
+  <div class="small_label">$locEmail</div> <div class="field"><input type="text" id="quick_email" class="medium"></div>
+  <div class="small_label">$locPhone</div> <div class="field"><input type="text" id="quick_phone" class="medium"></div>
+</div>
+<script type="text/javascript">
+function add_company()
+{
+  $("#quick_add_company").dialog({ modal: true, width: 400, height: 250, resizable: false, 
+    buttons: {
+        "$locSave": function() { save_company(); },
+        "$locClose": function() { $("#quick_add_company").dialog('close'); }
+    },
+    title: '$locTitle',
+  });  
+}
+
+function save_company()
+{
+  var obj = new Object();
+  obj.company_name = document.getElementById("quick_name").value;
+  obj.email = document.getElementById("quick_email").value;
+  obj.phone = document.getElementById("quick_phone").value;
+  $.ajax({
+    'url': "json.php?func=put_company",
+    'type': 'POST',
+    'dataType': 'json',
+    'data': $.toJSON(obj),
+    'contentType': 'application/json; charset=utf-8',
+    'success': function(data) {
+      if (data.missing_fields)
+      {
+        alert('$locMissing: ' + data.missing_fields);
+      }
+      else
+      {
+        init_company_list(data.id);
+        $("#quick_add_company").dialog('close');
+      }
+    },
+    'error': function(XMLHTTPReq, textStatus, errorThrown) {
+      if (textStatus == 'timeout')
+        alert('Timeout trying to save company');
+      else
+        alert('Error trying to save company: ' + XMLHTTPReq.status + ' - ' + XMLHTTPReq.statusText);
+      return false;
+    }
+  });    
+}
+
+function init_company_list(selected_id)
+{
+  $.getJSON('json.php?func=get_companies', function(json) { 
+    var company_id = document.getElementById('company_id');
+    company_id.options.length = 0;
+    for (var i = 0; i < json.records.length; i++)
+    {
+      var record = json.records[i];
+      var option = document.createElement('option');
+      option.value = record.id;
+      option.text = record.company_name;
+      if (record.id == selected_id)
+        option.selected = true;
+      company_id.options.add(option);
+    }
+  });
+}
+
+</script>
+EOS;
+   
    $copyLinkOverride = "copy_invoice.php?func=$strFunc&amp;list=$strList&amp;id=$intInvoiceId";
 
    $astrFormElements =
@@ -226,7 +307,7 @@ EOS;
         "name" => "name", "label" => $GLOBALS['locINVNAME'], "type" => "TEXT", "style" => "medium", "listquery" => "", "position" => 1, "default" => FALSE, "allow_null" => TRUE ),
      $arrRefundingInvoice,
      array(
-        "name" => "company_id", "label" => $GLOBALS['locPAYER'], "type" => "LIST", "style" => "medium", "listquery" => "SELECT id, company_name FROM {prefix}company WHERE deleted=0 ORDER BY company_name", "position" => 1, "default" => FALSE, "allow_null" => FALSE, 'elem_attributes' => $companyOnChange ),
+        "name" => "company_id", "label" => $GLOBALS['locPAYER'], "type" => "LIST", "style" => "medium", "listquery" => "SELECT id, company_name FROM {prefix}company WHERE deleted=0 ORDER BY company_name", "position" => 1, "default" => FALSE, "allow_null" => FALSE, 'quick_add' => $addCompanyCode, 'elem_attributes' => $companyOnChange ),
      array(
         "name" => "reference", "label" => $GLOBALS['locCLIENTSREFERENCE'], "type" => "TEXT", "style" => "medium", "listquery" => "", "position" => 2, "default" => FALSE, "allow_null" => TRUE ),
      array(
