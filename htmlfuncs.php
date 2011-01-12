@@ -59,9 +59,10 @@ Todo : This could be more generic...
   <meta http-equiv="Content-Type" content="text/html; charset=$charset">
   <title>$strTitle</title>
   <link rel="shortcut icon" href="favicon.ico" type="image/x-icon">
-  <link rel="stylesheet" type="text/css" href="css/style.css">
   <link rel="stylesheet" type="text/css" href="jquery/css/smoothness/jquery-ui-1.8.6.custom.css">
+  <link rel="stylesheet" type="text/css" href="css/style.css">
   <script type="text/javascript" src="jquery/js/jquery-1.4.4.min.js"></script>
+  <script type="text/javascript" src="jquery/js/jquery.json-2.2.min.js"></script>
   <script type="text/javascript" src="jquery/js/jquery-ui-1.8.6.custom.min.js"></script>
   <script type="text/javascript" src="jquery/js/jquery.ui.datepicker-fi.js"></script>
   <script type="text/javascript" src="datatables/media/js/jquery.dataTables.min.js"></script>
@@ -354,44 +355,6 @@ function htmlFormElement( $strName, $strType, $strValue, $strStyle, $strListQuer
             }
         break;
         
-        case 'IFORM' :
-            if( $strValue ) {
-                if( $strMode == "MODIFY" ) {
-                    $strDefaults = '';
-                    if( is_array($astrDefaults) ) {
-                        $strDefaults = "defaults=";
-                        while (list($key, $val) = each($astrDefaults)) {
-                           $strDefaults .= urlencode("$key>$val+");
-                        }
-                    }
-                    $strFormElement = 
-                    "<iframe marginheight=\"0\" marginwidth=\"0\" frameborder=\"0\" src=\"iform.php?selectform=$strName&amp;$strParentKey=$strValue&amp;$strDefaults\" ".
-                    "class=\"$strStyle\" id=\"$strName\" name=\"$strName\"$astrAdditionalAttributes>\n".
-                    "<h3>A browser with iframe support required</h3>\n".
-                    "</iframe>\n";
-                }
-                elseif( $strMode == "PDF" ) {
-                    $strFormElement = print_iform($strValue, $strParentKey, $strName);
-                    
-                }
-                else {
-                    if( is_array($astrDefaults) ) {
-                        $strDefaults = "defaults=";
-                        while (list($key, $val) = each($astrDefaults)) {
-                           $strDefaults .= urlencode("$key>$val+");
-                        }
-                    }
-                    $strFormElement = 
-                    "<iframe src=\"iform.php?selectform=$strName&amp;$strParentKey=$strValue&amp;$strDefaults&amp;mode=VIEW\" ".
-                    "class=\"$strStyle\" id=\"$strName\" name=\"$strName\"$astrAdditionalAttributes>\n".
-                    "<h3>A browser with iframe support required</h3>\n".
-                    "</iframe>\n";
-                }
-            }
-            else {
-                $strFormElement = $GLOBALS['locSAVEFIRST'];
-            }
-        break;
         case 'BUTTON' :
             $strListQuery = str_replace("_ID_", $strValue, $strListQuery);
             switch( $strStyle ) {

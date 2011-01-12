@@ -62,6 +62,7 @@ function mysql_query_check($query, $noFail=false)
     error_log("Query '$query' failed: ($intError) " . mysql_error());
     if (!$noFail)
     {
+      header('HTTP/1.1 500 Internal Server Error');
       switch ($intError)
       {
       case 1451: die($GLOBALS['locDBERRORFOREIGNKEY']);
@@ -97,7 +98,7 @@ function mysql_param_query($query, $params=false, $noFail=false)
       else
       {
         $v = mysql_real_escape_string($v); 
-        if (!is_numeric($v) || (strlen(trim($v)) > 0 && substr(trim($v), 0, 1) == '0'))
+        if (!is_numeric($v) || (strlen(trim($v)) > 1 && substr(trim($v), 0, 1) == '0'))
           $v = "'$v'";
       }
     }

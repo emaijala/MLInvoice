@@ -34,7 +34,7 @@ Tämä ohjelma on vapaa. Lue oheinen LICENSE.
  INTDATE : date textarea with calendar button
  CHECK : checkbox
  LIST : listbox
- IFORM : form in iframe
+ IFORM : embedded ajaxified list-form
  BUTTON : button for various events
  
 ***********************************************************************/
@@ -48,6 +48,7 @@ switch ( $strForm ) {
 case 'company':
    $strTable = '{prefix}company';
    $strPrimaryKey = 'id';
+   $strParentKey = "company_id";
    $astrSearchFields = 
     array( 
         array("name" => "company_name", "type" => "TEXT")
@@ -94,16 +95,16 @@ case 'company':
      array(
         "name" => "info", "label" => $GLOBALS['locINFO'], "type" => "AREA", "style" => "medium", "listquery" => "", "position" => 2, "default" => FALSE, "allow_null" => TRUE ),
      array(
-        "name" => "company_contact", "label" => $GLOBALS['locCONTACTS'], "type" => "IFORM", "style" => "full resizable", "listquery" => "", "position" => 0, "default" => FALSE, "allow_null" => TRUE, "parent_key" => "company_id" )
+        "name" => "company_contacts", "label" => $GLOBALS['locCONTACTS'], "type" => "IFORM", "style" => "full", "listquery" => "", "position" => 0, "default" => FALSE, "allow_null" => TRUE, "parent_key" => "company_id" )
     );
 break;
 
 case 'company_contact':
+case 'company_contacts':
        $strTable = '{prefix}company_contact';
        $strJSONType = 'company_contact';
        $strPrimaryKey = "id";
        $strParentKey = "company_id";
-       $strMainForm = "iform.php?selectform=company_contact";
        $astrFormElements =
         array(
          array(
@@ -157,6 +158,7 @@ case 'invoice':
    $strTable = '{prefix}invoice';
    $strListTableAlias = 'i.'; // this is for the search function
    $strPrimaryKey = "id";
+   $strParentKey = "invoice_id";
    
    $defaultInvNo = FALSE;
    $defaultRefNo = FALSE;
@@ -254,22 +256,22 @@ EOS;
      array(
         "name" => "printreceipt", "label" => $GLOBALS['locPRINTRECEIPT'], "type" => "BUTTON", "style" => "redirect", "listquery" => "invoice.php?id=_ID_&style=receipt", "position" => 2, "default" => FALSE, "allow_null" => TRUE ),
      array(
-        "name" => "invoice_rows", "label" => $GLOBALS['locINVROWS'], "type" => "IFORM", "style" => "xfull resizable", "listquery" => "", "position" => 0, "default" => FALSE, "allow_null" => TRUE, "parent_key" => "invoice_id" )
+        "name" => "invoice_rows", "label" => $GLOBALS['locINVROWS'], "type" => "IFORM", "style" => "xfull", "listquery" => "", "position" => 0, "default" => FALSE, "allow_null" => TRUE, "parent_key" => "invoice_id" )
     );
 break;
+case 'invoice_row':
 case 'invoice_rows':
    $strTable = '{prefix}invoice_row';
    $strJSONType = 'invoice_row';
    $strPrimaryKey = "id";
    $strParentKey = "invoice_id";
-   $strMainForm = "iform.php?selectform=invoice_rows";
    $strOrder = 'ORDER BY {prefix}invoice_row.order_no, {prefix}invoice_row.row_date';
    
    $intInvoiceId = getRequest('invoice_id', 0);
    $productOnChange = <<<EOS
 onchange = "var form = this.form; $.getJSON('json.php?func=get_product&id=' + form.product_id.value, function(json) { 
   if (!json.id) return; 
-  //var form = document.forms[0]; 
+  
   form.description.value = json.description;
   
   for (var i = 0; i < form.type_id.options.length; i++)
@@ -283,7 +285,7 @@ onchange = "var form = this.form; $.getJSON('json.php?func=get_product&id=' + fo
   }
   form.price.value = json.unit_price.replace('.', ','); 
   form.vat.value = json.vat_percent.replace('.', ','); 
-  form.vat_included.checked = json.vat_included ? true : false;
+  form.vat_included.checked = json.vat_included == 1 ? true : false;
 });"
 EOS;
 
@@ -298,7 +300,7 @@ EOS;
      array(
         "name" => "id", "label" => "", "type" => "HID_INT", "style" => "medium", "listquery" => "", "position" => 0, "default" => FALSE, "allow_null" => FALSE ),
      array(
-        "name" => "product_id", "label" => $GLOBALS['locPRODUCTNAME'], "type" => "LIST", "style" => "medium", "listquery" => "SELECT id, product_name FROM {prefix}product WHERE deleted=0 ORDER BY product_name", "position" => 0, "default" => $intProductId, "allow_null" => TRUE, 'elem_attributes' => $productOnChange ),
+        "name" => "product_id", "label" => $GLOBALS['locPRODUCTNAME'], "type" => "LIST", "style" => "medium", "listquery" => "SELECT id, product_name FROM {prefix}product WHERE deleted=0 ORDER BY product_name", "position" => 0, "default" => FALSE, "allow_null" => TRUE, 'elem_attributes' => $productOnChange ),
      array(
         "name" => "description", "label" => $GLOBALS['locROWDESC'], "type" => "TEXT", "style" => "medium", "listquery" => "", "position" => 0, "default" => '', "allow_null" => TRUE ),
      array(

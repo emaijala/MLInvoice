@@ -48,6 +48,11 @@ div.message {
   font-weight: bold; 
 }
 
+span.message {
+  margin: 4px;
+  font-weight: bold;
+}
+
 div.form_container
 {
   margin: 10px;
@@ -88,18 +93,18 @@ table.iform_pop {
   padding: 0px;
 }
 
-.iform tr:nth-child(even) {
+.iform tr:nth-child(odd) {
   background-color: white;
 }
 .iform tr[class=summary]:nth-child(even) {
-  background-color: #eeeeee;
+  background-color: white;
 }
-.iform tr:nth-child(odd) {
+.iform tr:nth-child(even) {
   background-color: #eeeeee;
 }
 
 .iform td[class=button] {
-  background-color: #eeeeee;
+  background-color: white;
 }
 
 tr.odd {
@@ -168,129 +173,85 @@ td.reportsublabel {
   background-color: #DD0909;
 }
 td.tiny {
-  height: 14px;
   width: 40px;
 }
 td.tiny_label {
-  font-size: 10px;
-  font-weight: bold;
-  height: 14px;
   width: 40px;
 }
 td.xshort {
-  height: 14px;
   width: 55px;
 }
 td.xshort_label {
-  font-size: 10px;
-  font-weight: bold;
-  height: 14px;
   width: 55px;
 }
 td.short {
-  height: 14px;
   width: 70px;
 }
 td.short_label {
-  font-size: 10px;
-  font-weight: bold;
-  height: 14px;
   width: 70px;
 }
 td.date_label {
-  font-size: 10px;
-  font-weight: bold;
-  height: 14px;
   width: 75px;
 }
 td.small_label {
-  font-size: 10px;
-  font-weight: bold;
-  height: 14px;
   width: 100px;
 }
 td.small {
-  height: 14px;
   width: 100px;
 }
 td.date {
-  height: 14px;
   width: 75px;
 }
 td.medium {
-  height: 14px;
   width: 160px;
 }
 td.medium_label {
-  font-size: 10px;
-  font-weight: bold;
-  height: 14px;
   width: 160px;
 }
 td.long {
-  height: 14px;
   width: 240px;
 }
 td.long_label {
-  font-size: 10px;
-  font-weight: bold;
-  height: 14px;
   width: 240px;
 }
 td.currency {
-  height: 14px;
   width: 60px;
   padding-right: 8px;
   text-align: right;
 }
 td.currency_label {
-  font-size: 10px;
-  font-weight: bold;
-  height: 14px;
   width: 60px;
   padding-right: 8px;
 }
 td.count {
-  height: 14px;
   width: 60px;
   text-align: right;
   padding-right: 4px;
 }
 td.count_label {
-  font-size: 10px;
-  font-weight: bold;
-  height: 14px;
   width: 60px;
 }
 td.measurement {
-  height: 14px;
   width: 60px;
   text-align: right;
   padding-right: 4px;
 }
 td.measurement_label {
-  font-size: 10px;
-  font-weight: bold;
-  height: 14px;
   width: 60px;
 }
 td.percent {
-  height: 14px;
   width: 30px;
   text-align: right;
   padding-right: 4px;
 }
 td.percent_label {
-  font-size: 10px;
-  font-weight: bold;
-  height: 14px;
   width: 30px;
 }
 
 td a.navilink {
   color: black; 
   text-decoration: none;  
-  font-size:13px;
+  font-size: 13px;
   font-weight: normal;
   width: 100%;
   height: 100%;
@@ -397,6 +358,11 @@ iframe.full {
 iframe.xfull {
   height: 400px;
   width: 960px;
+}
+
+div.iform {
+  padding: 0px 0px 0px 0px;
+  border: 1px solid gray;
 }
 
 button {
@@ -537,4 +503,14 @@ img.image {
   border: 1px solid #dddddd;
   max-width: 400px;
   max-height: 250px;
+}
+
+/* jQuery UI overrides */
+.ui-widget .ui-widget {
+  font-size: 12px;
+}
+
+.ui-dialog .ui-dialog-buttonpane {
+  padding: 0.2em 1em 0.2em 0.4em;
+  text-align: left;
 }

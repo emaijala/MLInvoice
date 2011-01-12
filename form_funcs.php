@@ -35,35 +35,7 @@ function getPostValues(&$formElements, $primaryKey, $parentKey = FALSE)
       $values[$elem['name']] = getPostRequest($elem['name'], FALSE);
       if ($elem['default'] && ($values[$elem['name']] === FALSE || ($elem['type'] == 'INT' && $values[$elem['name']] === ''))) 
       {
-        if ($elem['default'] == 'DATE_NOW') 
-        {
-          $values[$elem['name']] = date('d.m.Y');
-        }
-        elseif (strstr($elem['default'], 'DATE_NOW+')) 
-        {
-          $atmpValues = explode('+', $elem['default']);
-          $values[$elem['name']] = date('d.m.Y', mktime(0, 0, 0, date('m'), date('d') + $atmpValues[1], date('Y')));
-        }            
-        elseif ($elem['default'] == 'TIME_NOW') 
-        {
-          $values[$elem['name']] = date('H:i');
-        }
-        elseif (strstr($elem['default'], 'ADD')) 
-        {
-          $strQuery = str_replace("_PARENTID_", $parentKey, $elem['listquery']);
-          $intRes = mysql_query_check($strQuery);
-          $intAdd = reset(mysql_fetch_row($intRes));
-          $values[$elem['name']] = isset($intAdd) ? $intAdd : 0;
-        }
-        elseif ($elem['default'] == 'POST')
-        {
-          // POST has special treatment in iform
-          $values[$elem['name']] = '';
-        }
-        else 
-        {
-          $values[$elem['name']] = $elem['default'];
-        }
+        $values[$elem['name']] = getFormDefaultValue($elem, $parentKey);
       }
       elseif ($elem['type'] == 'INT')
       {
@@ -78,8 +50,39 @@ function getPostValues(&$formElements, $primaryKey, $parentKey = FALSE)
   return $values;
 }
 
+// Get the default value for the given form element
+function getFormDefaultValue($elem, $parentKey)
+{
+  if ($elem['default'] === 'DATE_NOW') 
+  {
+    return date('d.m.Y');
+  }
+  elseif (strstr($elem['default'], 'DATE_NOW+')) 
+  {
+    $atmpValues = explode('+', $elem['default']);
+    return date('d.m.Y', mktime(0, 0, 0, date('m'), date('d') + $atmpValues[1], date('Y')));
+  }            
+  elseif ($elem['default'] === 'TIME_NOW') 
+  {
+    return date('H:i');
+  }
+  elseif (strstr($elem['default'], 'ADD')) 
+  {
+    $strQuery = str_replace("_PARENTID_", $parentKey, $elem['listquery']);
+    $intRes = mysql_query_check($strQuery);
+    $intAdd = reset(mysql_fetch_row($intRes));
+    return isset($intAdd) ? $intAdd : 0;
+  }
+  elseif ($elem['default'] === 'POST')
+  {
+    // POST has special treatment in iform
+    return '';
+  }
+  return $elem['default'];
+}
+
 // Save form data. If primaryKey is not set, add a new record and set it, otherwise update existing record.
-// Return a string of missing values of encountered. In that case, the record was not saved. Otherwise return true.
+// Return a string of missing values if encountered. In that case, the record is not saved. Otherwise return true.
 function saveFormData($table, &$primaryKey, &$formElements, &$values, $parentKeyName = '', $parentKey = FALSE)
 {  
   $missingValues = '';
@@ -94,19 +97,20 @@ function saveFormData($table, &$primaryKey, &$formElements, &$values, $parentKey
   foreach ($formElements as $elem) 
   {
     $type = $elem['type'];
-    $name = $elem['name'];
-    $value = $values[$name];
             
     if (in_array($type, array('', 'IFORM', 'RESULT', 'BUTTON', 'JSBUTTON', 'IMAGE', 'ROWSUM', 'NEWLINE', 'LABEL')))
       continue;
+
+    $name = $elem['name'];
   
-    if (!$elem['allow_null'] && (!isset($value) || $value === ''))
+    if (!$elem['allow_null'] && (!isset($values[$name]) || $values[$name] === ''))
     {
       if ($missingValues)
         $missingValues .= ', ';
       $missingValues .= $elem['label'];
       continue;
     }
+    $value = isset($values[$name]) ? $values[$name] : FALSE;
     if ($strFields)
     {
       $strFields .= ', ';
@@ -119,7 +123,7 @@ function saveFormData($table, &$primaryKey, &$formElements, &$values, $parentKey
     {
     case 'PASSWD':
       $fieldPlaceholder = 'md5(?)';
-      $arrValues[] = $value;
+      $arrValues[] = $values[$name];
       break;
     case 'INT':
     case 'HID_INT':
@@ -141,7 +145,7 @@ function saveFormData($table, &$primaryKey, &$formElements, &$values, $parentKey
     $strInsert .= $fieldPlaceholder;
     $strUpdateFields .= "$name=$fieldPlaceholder";
   }
-
+    
   if ($missingValues)
     return $missingValues;
 
@@ -218,4 +222,31 @@ function fetchRecord($table, $primaryKey, &$formElements, &$values)
     }
   }
   return $result;
+}
+
+function getFormElements($form)
+{
+  $strForm = $form;
+  require 'form_switch.php';
+  return $astrFormElements;
+}
+
+function getFormRowSumColumns($form)
+{
+  $strForm = $form;
+  require 'form_switch.php';
+  return array(
+    'multiplier' => isset($multiplierColumn) ? $multiplierColumn : '',
+    'price' => isset($priceColumn) ? $priceColumn : '',
+    'vat' => isset($VATColumn) ? $VATColumn : '',
+    'vat_included' => isset($VATIncludedColumn) ? $VATIncludedColumn : '',
+    'show_summary' => isset($showPriceSummary) ? $showPriceSummary : ''
+  );
+}
+
+function getFormJSONType($form)
+{
+  $strForm = $form;
+  require 'form_switch.php';
+  return $strJSONType;
 }
