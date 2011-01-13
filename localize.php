@@ -382,6 +382,7 @@ default :
     $GLOBALS['locSettingInvoicePenaltyInterestPercent'] = 'Viivästyskorkoprosentti';
     $GLOBALS['locSettingInvoiceNotificationFee'] = 'Huomautusmaksu';
     $GLOBALS['locSettingInvoicePDFFilename'] = 'Laskun tiedostonimi (%s = laskun numero)';
+    $GLOBALS['locSettingInvoiceOpenInNewWindow'] = 'Avaa PDF-lasku uudessa ikkunassa';
 
     // Base logo
     $GLOBALS['locBaseLogoTitle'] = 'Logo';

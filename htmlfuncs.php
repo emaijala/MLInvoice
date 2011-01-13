@@ -410,6 +410,10 @@ function htmlFormElement( $strName, $strType, $strValue, $strStyle, $strListQuer
                     $strHref = "#";
                     $strOnClick = "onclick=\"var form = document.getElementById('admin_form'); form.saveact.value=1; form.redirect.value='$strName'; form.submit(); return false;\"";
                 break;
+                case 'openwindow':
+                    $strHref = "#";
+                    $strOnClick = "onclick=\"var form = document.getElementById('admin_form'); form.saveact.value=1; form.redirect.value='$strName'; form.submit(); return false;\"";
+                break;
                 default :
                     $strHW = "";
                     $strHref = "#";

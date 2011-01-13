@@ -297,7 +297,7 @@ function init_company_list(selected_id)
 EOS;
    
    $copyLinkOverride = "copy_invoice.php?func=$strFunc&amp;list=$strList&amp;id=$intInvoiceId";
-
+   $printStyle = getSetting('invoice_new_window') ? 'openwindow' : 'redirect';
    $astrFormElements =
     array(
      array(
@@ -327,15 +327,15 @@ EOS;
      array(
         "name" => "getinvoiceno", "label" => $GLOBALS['locGETINVNO'], "type" => "BUTTON", "style" => "custom", "listquery" => "", "position" => 1, "default" => FALSE, "allow_null" => TRUE, 'elem_attributes' => $getInvoiceNo ),
      array(
-        "name" => "printinvoice", "label" => $GLOBALS['locPRINTINV'], "type" => "BUTTON", "style" => "redirect", "listquery" => "invoice.php?id=_ID_", "position" => 2, "default" => FALSE, "allow_null" => TRUE ),
+        "name" => "printinvoice", "label" => $GLOBALS['locPRINTINV'], "type" => "BUTTON", "style" => $printStyle, "listquery" => "invoice.php?id=_ID_", "position" => 2, "default" => FALSE, "allow_null" => TRUE ),
      array(
         "name" => "addreminderfees", "label" => $GLOBALS['locADDREMINDERFEES'], "type" => "BUTTON", "style" => "redirect", "listquery" => "add_reminder_fees.php?func=$strFunc&list=$strList&id=_ID_", "position" => 1, "default" => FALSE, "allow_null" => TRUE ),
      array(
-        "name" => "printdispatch", "label" => $GLOBALS['locPRINTDISPATCHNOTE'], "type" => "BUTTON", "style" => "redirect", "listquery" => "invoice.php?id=_ID_&style=dispatch", "position" => 2, "default" => FALSE, "allow_null" => TRUE ),
+        "name" => "printdispatch", "label" => $GLOBALS['locPRINTDISPATCHNOTE'], "type" => "BUTTON", "style" => $printStyle, "listquery" => "invoice.php?id=_ID_&style=dispatch", "position" => 2, "default" => FALSE, "allow_null" => TRUE ),
      array(
         "name" => "refundinvoice", "label" => $GLOBALS['locREFUNDINV'], "type" => "BUTTON", "style" => "redirect", "listquery" => "copy_invoice.php?func=$strFunc&list=$strList&id=_ID_&refund=1", "position" => 1, "default" => FALSE, "allow_null" => TRUE ),
      array(
-        "name" => "printreceipt", "label" => $GLOBALS['locPRINTRECEIPT'], "type" => "BUTTON", "style" => "redirect", "listquery" => "invoice.php?id=_ID_&style=receipt", "position" => 2, "default" => FALSE, "allow_null" => TRUE ),
+        "name" => "printreceipt", "label" => $GLOBALS['locPRINTRECEIPT'], "type" => "BUTTON", "style" => $printStyle, "listquery" => "invoice.php?id=_ID_&style=receipt", "position" => 2, "default" => FALSE, "allow_null" => TRUE ),
      array(
         "name" => "invoice_rows", "label" => $GLOBALS['locINVROWS'], "type" => "IFORM", "style" => "xfull", "listquery" => "", "position" => 0, "default" => FALSE, "allow_null" => TRUE, "parent_key" => "invoice_id" )
     );
@@ -389,7 +389,7 @@ EOS;
      array(
         "name" => "pcs", "label" => $GLOBALS['locPCS'], "type" => "INT", "style" => "count", "listquery" => "", "position" => 0, "default" => FALSE, "allow_null" => FALSE ),
      array(
-        "name" => "type_id", "label" => $GLOBALS['locUNIT'], "type" => "LIST", "style" => "short", "listquery" => "SELECT id, name FROM {prefix}row_type WHERE deleted=0 ORDER BY order_no", "position" => 0, "default" => 'POST', "allow_null" => FALSE ),
+        "name" => "type_id", "label" => $GLOBALS['locUNIT'], "type" => "LIST", "style" => "short", "listquery" => "SELECT id, name FROM {prefix}row_type WHERE deleted=0 ORDER BY order_no", "position" => 0, "default" => 'POST', "allow_null" => TRUE ),
      array(
         "name" => "price", "label" => $GLOBALS['locPRICE'], "type" => "INT", "style" => "currency", "listquery" => "", "position" => 0, "default" => 'POST', "allow_null" => FALSE ),
      array(
