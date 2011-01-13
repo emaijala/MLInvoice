@@ -68,8 +68,8 @@ if ($intInvoiceId)
       // Remove old fee from same day
       mysql_param_query('UPDATE {prefix}invoice_row SET deleted=1 WHERE invoice_id=? AND reminder_row=2 AND row_date = ?', array($intInvoiceId, date('Ymd')));
       
-      $strQuery = 'INSERT INTO {prefix}invoice_row (invoice_id, description, pcs, price, row_date, vat, vat_included, reminder_row) ' .
-        'VALUES (?, ?, 1, ?, ?, 0, 0, 2)';
+      $strQuery = 'INSERT INTO {prefix}invoice_row (invoice_id, description, pcs, price, row_date, vat, vat_included, order_no, reminder_row) ' .
+        'VALUES (?, ?, 1, ?, ?, 0, 0, -2, 2)';
       mysql_param_query($strQuery, array($intInvoiceId, $GLOBALS['locREMINDERFEEDESC'], getSetting('invoice_notification_fee'), date('Ymd')));
     }
     // Add penalty interest
@@ -101,8 +101,8 @@ if ($intInvoiceId)
       }
       $intPenalty = $intTotSumVAT * $penaltyInterest / 100 * $intDaysOverdue / 360;
       
-      $strQuery = 'INSERT INTO {prefix}invoice_row (invoice_id, description, pcs, price, row_date, vat, vat_included, reminder_row) ' .
-        'VALUES (?, ?, 1, ?, ?, 0, 0, 1)';
+      $strQuery = 'INSERT INTO {prefix}invoice_row (invoice_id, description, pcs, price, row_date, vat, vat_included, order_no, reminder_row) ' .
+        'VALUES (?, ?, 1, ?, ?, 0, 0, -1, 1)';
       mysql_param_query($strQuery, array($intInvoiceId, $GLOBALS['locPENALTYINTERESTDESC'], $intPenalty, date('Ymd')));
     }
   }
