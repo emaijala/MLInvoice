@@ -112,7 +112,7 @@ function sesCreateKey()
 function sesUpdateHistory($title, $url, $level)
 {
   $arrNew = array();
-  foreach ($_SESSION['HISTORY'] as &$item)
+  foreach ($_SESSION['HISTORY'] as $item)
   {
     if ($item['level'] < $level)
       $arrNew[] = $item;
