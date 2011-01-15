@@ -103,34 +103,43 @@ foreach ($arrHistory as $arrHE)
   </div>
 
 <?php
-switch ($strFunc)
+if ($strFunc == 'system' && getRequest('operation', '') == 'export' && $_SESSION['sesACCESSLEVEL'] == 99)
 {
-case 'reports':
   createFuncMenu($strFunc);
-  switch ($strForm)
+  require_once 'export.php';
+  do_export();
+}
+else
+{
+  switch ($strFunc)
   {
-  case 'invoice': require_once 'invoice_report.php'; createInvoiceReport('report'); break;
-  case 'product': require_once 'product_report.php'; createProductReport('report'); break;
-  }
-  break;
-default:
-  if ($strForm)
-  {
-    if ($strFunc == 'settings')
-      createFuncMenu($strFunc);
-    createForm($strFunc, $strList, $strForm);
-  }
-  else
-  {
+  case 'reports':
     createFuncMenu($strFunc);
-    if ($strFunc == 'open_invoices')
-      createOpenInvoiceList();
+    switch ($strForm)
+    {
+    case 'invoice': require_once 'invoice_report.php'; createInvoiceReport('report'); break;
+    case 'product': require_once 'product_report.php'; createProductReport('report'); break;
+    }
+    break;
+  default:
+    if ($strForm)
+    {
+      if ($strFunc == 'settings')
+        createFuncMenu($strFunc);
+      createForm($strFunc, $strList, $strForm);
+    }
     else
     {
-      if ($strList == 'settings')
-        createSettingsList();
+      createFuncMenu($strFunc);
+      if ($strFunc == 'open_invoices')
+        createOpenInvoiceList();
       else
-        createList($strFunc, $strList);
+      {
+        if ($strList == 'settings')
+          createSettingsList();
+        else
+          createList($strFunc, $strList);
+      }
     }
   }
 }

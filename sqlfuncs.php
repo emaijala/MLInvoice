@@ -179,4 +179,15 @@ function create_db_dump()
   }
 }
 
+function table_valid($table)
+{
+  $tables = array();
+  $res = mysql_query_check('SHOW TABLES');
+  while ($row = mysql_fetch_row($res))
+  {
+    $tables[] = $row[0];
+  }
+  return in_array(_DB_PREFIX_ . "_$table", $tables);
+}
+
 ?>

@@ -108,6 +108,37 @@ case 'get_invoice_defaults':
   echo json_encode($arrData);
   break;
   
+case 'get_table_columns':
+  $table = getRequest('table', '');
+  if (!$table)
+  {
+    header('HTTP/1.1 400 Bad Request');
+    exit;
+  }
+  if (!table_valid($table))
+  {
+    header('HTTP/1.1 400 Bad Request');
+    die('Invalid table name');
+    }
+
+  header('Content-Type: application/json');
+  echo "{\"columns\":[";
+  $res = mysql_query_check("select * from {prefix}$table where 1=2");
+  $field_count = mysql_num_fields($res);
+  for ($i = 0; $i < $field_count; $i++)
+  {
+    $field_def = mysql_fetch_field($res, $i);
+    if ($i == 0)
+    {
+      echo "\n";
+    }
+    else
+      echo ",\n";
+    echo json_encode(array('name' => $field_def->name));
+  }
+  echo "\n]}";
+  break;
+  
 default:
   header('HTTP/1.1 404 Not Found');
 }

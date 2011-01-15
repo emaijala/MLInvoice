@@ -308,6 +308,7 @@ function init_rows()
 <?php
   $subFormElements = getFormElements($elem['name']);
   $rowSumColumns = getFormRowSumColumns($elem['name']);
+  $strParentKey = getFormParentKey($elem['name']);
   foreach ($subFormElements as $subElem)
   {
     if ($subElem['type'] != 'LIST')

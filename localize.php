@@ -246,6 +246,8 @@ default :
     $GLOBALS['locINVOICEREPORT'] = 'Laskutusraportti'; 
     $GLOBALS['locPRODUCTREPORT'] = 'Tuoteraportti';
     $GLOBALS['locBACKUPDATABASE'] = 'Luo varmuuskopio tietokannasta';
+    $GLOBALS['locExportData'] = 'Vie tietoja';
+    $GLOBALS['locImportData'] = 'Tuo tietoja';
     
     // LIST HEADERS
     $GLOBALS['locHEADERINVOICEDATE'] = 'P‰iv‰m‰‰r‰';       
@@ -398,6 +400,37 @@ default :
     $GLOBALS['locBaseLogoWidth'] = 'Logon leveys (mm, oletus 80)';
     $GLOBALS['locBaseLogoBottomMargin'] = 'Logon alamarginaali (mm, oletus 5)';
 
+    // Export
+    $GLOBALS['locTable_base'] = 'Laskuttajat';    
+    $GLOBALS['locTable_company'] = 'Asiakkaat (XML- ja JSON-muodot sis‰lt‰v‰t kontaktit)';    
+    $GLOBALS['locTable_invoice'] = 'Laskut';    
+    $GLOBALS['locTable_invoice_row'] = 'Laskurivit';    
+    $GLOBALS['locTable_product'] = 'Tuotteet';    
+    $GLOBALS['locTable_row_type'] = 'Laskurivityypit';    
+    $GLOBALS['locTable_invoice_state'] = 'Laskun tilat';    
+    $GLOBALS['locExportCharacterSet'] = 'Merkistˆ';    
+    $GLOBALS['locExportTable'] = 'Taulu';    
+    $GLOBALS['locExportTableBases'] = 'Laskuttajat';    
+    $GLOBALS['locExportTableCompanies'] = 'Asiakkaat';    
+    $GLOBALS['locExportTableInvoices'] = 'Laskut (XML- ja JSON-muodot sis‰lt‰v‰t laskurivit)';    
+    $GLOBALS['locExportTableInvoiceRows'] = 'Laskurivit';    
+    $GLOBALS['locExportTableProducts'] = 'Tuotteet';    
+    $GLOBALS['locExportTableRowTypes'] = 'Laskurivityypit';    
+    $GLOBALS['locExportTableInvoiceStates'] = 'Laskun tilat';    
+    $GLOBALS['locExportFormat'] = 'Formaatti';    
+    $GLOBALS['locExportFieldDelimiter'] = 'Kent‰n erotin';    
+    $GLOBALS['locExportEnclosureCharacter'] = 'Tekstimerkki';    
+    $GLOBALS['locExportRowDelimiter'] = 'Rivinvaihto';    
+    $GLOBALS['locExportColumns'] = 'Sarakkeet';    
+    $GLOBALS['locExportColumnNone'] = '(ei mit‰‰n)';
+    $GLOBALS['locExportFieldDelimiterComma'] = 'Pilkku';
+    $GLOBALS['locExportFieldDelimiterSemicolon'] = 'Puolipiste';
+    $GLOBALS['locExportFieldDelimiterTab'] = 'Sarkain'; 
+    $GLOBALS['locExportFieldDelimiterPipe'] = 'Putki'; 
+    $GLOBALS['locExportFieldDelimiterColon'] = 'Kaksoispiste';
+    $GLOBALS['locExportEnclosureDoubleQuote'] = 'Lainausmerkki';
+    $GLOBALS['locExportEnclosureSingleQuote'] = 'Heittomerkki';
+    $GLOBALS['locExportEnclosureNone'] = 'Ei mit‰‰n';
 break;
 
 }

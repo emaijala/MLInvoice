@@ -231,6 +231,13 @@ function getFormElements($form)
   return $astrFormElements;
 }
 
+function getFormParentKey($form)
+{
+  $strForm = $form;
+  require 'form_switch.php';
+  return $strParentKey;
+}
+
 function getFormRowSumColumns($form)
 {
   $strForm = $form;
