@@ -245,9 +245,9 @@ default :
     $GLOBALS['locQUICKSEARCH'] = 'Pikahaku';
     $GLOBALS['locINVOICEREPORT'] = 'Laskutusraportti'; 
     $GLOBALS['locPRODUCTREPORT'] = 'Tuoteraportti';
-    $GLOBALS['locBACKUPDATABASE'] = 'Luo varmuuskopio tietokannasta';
-    $GLOBALS['locExportData'] = 'Vie tietoja';
-    $GLOBALS['locImportData'] = 'Tuo tietoja';
+    $GLOBALS['locBACKUPDATABASE'] = 'Tietokannan varmuuskopiointi';
+    $GLOBALS['locImportData'] = 'Tietojen tuonti';
+    $GLOBALS['locExportData'] = 'Tietojen vienti';
     
     // LIST HEADERS
     $GLOBALS['locHEADERINVOICEDATE'] = 'Päivämäärä';       
@@ -402,7 +402,8 @@ default :
 
     // Export
     $GLOBALS['locTable_base'] = 'Laskuttajat';    
-    $GLOBALS['locTable_company'] = 'Asiakkaat (XML- ja JSON-muodot sisältävät kontaktit)';    
+    $GLOBALS['locTable_company'] = 'Asiakkaat';    
+    $GLOBALS['locTable_company_contact'] = 'Yhteyshenkilöt';    
     $GLOBALS['locTable_invoice'] = 'Laskut';    
     $GLOBALS['locTable_invoice_row'] = 'Laskurivit';    
     $GLOBALS['locTable_product'] = 'Tuotteet';    
@@ -412,7 +413,8 @@ default :
     $GLOBALS['locExportTable'] = 'Taulu';    
     $GLOBALS['locExportTableBases'] = 'Laskuttajat';    
     $GLOBALS['locExportTableCompanies'] = 'Asiakkaat';    
-    $GLOBALS['locExportTableInvoices'] = 'Laskut (XML- ja JSON-muodot sisältävät laskurivit)';    
+    $GLOBALS['locExportTableCompanyContacts'] = 'Asiakkaiden yhteyshenkilöt';    
+    $GLOBALS['locExportTableInvoices'] = 'Laskut';    
     $GLOBALS['locExportTableInvoiceRows'] = 'Laskurivit';    
     $GLOBALS['locExportTableProducts'] = 'Tuotteet';    
     $GLOBALS['locExportTableRowTypes'] = 'Laskurivityypit';    
@@ -431,6 +433,9 @@ default :
     $GLOBALS['locExportEnclosureDoubleQuote'] = 'Lainausmerkki';
     $GLOBALS['locExportEnclosureSingleQuote'] = 'Heittomerkki';
     $GLOBALS['locExportEnclosureNone'] = 'Ei mitään';
+    $GLOBALS['locExportIncludeChildRows'] = 'Sisällytä lapsirivit';
+    $GLOBALS['locExportAddAllColumns'] = 'Lisää kaikki';
+    $GLOBALS['locExportDo'] = 'Vie';
 break;
 
 }

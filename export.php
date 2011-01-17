@@ -30,6 +30,17 @@ function str_putcsv($data, $delimiter = ',', $enclosure = '"')
   return rtrim($data,"\n");
 }
 
+function output_str($str, $charset)
+{
+  if ($charset && $charset != _CHARSET_)
+  {
+    $str = iconv(_CHARSET_, $charset, $str);
+    if (substr($str, 0, 2) == "\xFE\xFF")
+      $str = substr($str, 2);
+  }
+  echo $str;
+}
+
 function do_export()
 {
   $table = getRequest('table', '');
@@ -39,39 +50,37 @@ function do_export()
   $rowDelimiter = getRequest('row_delim', "\n");
   $columns = getRequest('column', '');
   $charset = getRequest('charset', 'UTF-8');
+  $childRows = getRequest('child_rows', '');
   
   if ($table && $format && $columns)
   {
     if (!table_valid($table))
       die('Invalid table name');
 
-    $columns_def = array();
     $field_defs = array();
-    $res = mysql_query_check("select * from {prefix}$table where 1=2");
-    $field_count = mysql_num_fields($res);
-    for ($i = 0; $i < $field_count; $i++)
+    
+    $res = mysql_query_check("show fields from {prefix}$table");
+    $field_count = mysql_num_rows($res);
+    $field_defs = array();
+    while ($row = mysql_fetch_assoc($res))
     {
-      $field_def = mysql_fetch_field($res, $i);
-      $columns_def[] = $field_def->name;
-      $field_defs[$field_def->name] = $field_def->type;
+      $field_defs[$row['Field']] = $row;
     }
-
+    
     foreach ($columns as $key => $column)
     { 
       if (!$column)
         unset($columns[$key]);
-      elseif (!in_array($column, $columns_def))
+      elseif (!isset($field_defs[$column]))
         die('Invalid column name');
     }
   
-    $columnStr = implode($columns, ',');
-
     ob_clean();    
+    $filename = isset($GLOBALS["locTable_$table"]) ? $GLOBALS["locTable_$table"] : $table;
     switch ($format)
     {
     case 'csv':
       header('Content-type: text/csv');
-      $filename = isset($GLOBALS["locTable_$table"]) ? $GLOBALS["locTable_$table"] : $table;
       header("Content-Disposition: attachment; filename=\"$filename.csv\"");
       $field_delims = array(
         'comma' => ',',
@@ -101,37 +110,95 @@ function do_export()
       if (!isset($row_delims[$rowDelimiter]))
         die('Invalid field delimiter');
       $rowDelimiter = $row_delims[$rowDelimiter];
-      echo str_putcsv($columns, $fieldDelimiter, $enclosureChar) . $rowDelimiter;
+      output_str(str_putcsv($columns, $fieldDelimiter, $enclosureChar) . $rowDelimiter, $charset);
+      break;
+    
+    case 'xml':
+      header('Content-type: text/xml');
+      header("Content-Disposition: attachment; filename=\"$filename.xml\"");
+      output_str("<?xml version=\"1.0\"?>\n<records>\n", $charset);
+      break;
+
+    case 'json':
+      //header('Content-type: application/json');
+      //header("Content-Disposition: attachment; filename=\"$filename.json\"");
       break;
     }
+    output_str($str, $charset);
     
-    $res = mysql_query_check("select $columnStr from {prefix}$table");
+    $res = mysql_query_check("select * from {prefix}$table");
     while ($row = mysql_fetch_assoc($res))
     {
-      foreach ($row as $key => $value)
+      $data = array();
+      foreach ($columns as $column)
       {
+        $value = $row[$column];
         if (is_null($value))
-          continue;
-        if ($field_defs[$key] == 'blob' && $value)
-          $row[$key] = '0x' . bin2hex($value);
-        elseif (!in_array($field_defs[$key], array('int', 'real')) && $value && $charset && $charset != _CHARSET_)
+          $data[$column] = '';
+        if ($value && substr($field_defs[$column]['Type'], 0, 8) == 'longblob')
+          $data[$column] = '0x' . bin2hex($value);
+        else
         {
-          if (in_array($charset, array('UTF-8', 'UTF-16')))
-            $row[$key] = substr(iconv(_CHARSET_, $charset, $value), 2);
-          else
-            $row[$key] = iconv(_CHARSET_, $charset, $value);
+          $data[$column] = $value;
         }
       }
       switch ($format)
       {
       case 'csv':
-        echo str_putcsv($row, $fieldDelimiter, $enclosureChar) . $rowDelimiter;
+        output_str(str_putcsv($data, $fieldDelimiter, $enclosureChar) . $rowDelimiter, $charset);
         break;
+        
       case 'xml':
+        $str = "  <$table>\n";
+        foreach ($columns as $column)
+        { 
+          $str .= "    <$column>" . xml_encode($data[$column]) . "</$column>\n";
+        }
+        
+        if ($childRows && ($table == 'invoice' || $table == 'company'))
+        {
+          if ($table == 'invoice')
+            $cres = mysql_param_query('select * from {prefix}invoice_row where invoice_id=?', array($row['id']));
+          else
+            $cres = mysql_param_query('select * from {prefix}company_contact where company_id=?', array($row['id']));
+          while ($crow = mysql_fetch_assoc($cres))
+          {
+            $str .= "    <invoice_row>\n";
+            foreach ($crow as $column => $value)
+            {
+              $str .= "      <$column>" . xml_encode($value) . "</$column>\n";
+            }
+            $str .= "    </invoice_row>\n";
+          }
+        }
+        $str .= "  </$table>\n";
+        output_str($str, $charset);
         break;
+        
       case 'json':
+        if ($childRows && ($table == 'invoice' || $table == 'company'))
+        {
+          $data['invoice_row'] = array();
+          if ($table == 'invoice')
+            $cres = mysql_param_query('select * from {prefix}invoice_row where invoice_id=?', array($row['id']));
+          else
+            $cres = mysql_param_query('select * from {prefix}company_contact where company_id=?', array($row['id']));
+          while ($crow = mysql_fetch_assoc($cres))
+          {
+            $data['invoice_row'][] = $crow;
+          }
+        }
+        output_str(json_encode($data), $charset);
         break;
       }
+    }
+    switch ($format)
+    {
+    case 'xml':
+      output_str("</records>\n");
+      break;
+    case 'json':
+      break;
     }
     exit;
   }
@@ -150,7 +217,8 @@ $(document).ready(function() {
     alert('Server request failed: ' + request.status + ' - ' + request.statusText);
     $('#spinner').css('visibility', 'hidden');
   });
-  reset_columns()
+  update_field_states();
+  reset_columns();
 });
 
 var g_column_id = 0;
@@ -158,6 +226,7 @@ var g_column_id = 0;
 function reset_columns()
 {
   $("#columns > select").remove();
+  g_column_id = 0;
   add_column();
 }
 
@@ -195,6 +264,39 @@ function update_columns()
     add_column();
 }
 
+function update_field_states()
+{
+  var type = document.getElementById('format').value;
+  document.getElementById('field_delim').disabled = type != 'csv';
+  document.getElementById('enclosure_char').disabled = type != 'csv';
+  document.getElementById('row_delim').disabled = type != 'csv';
+  document.getElementById('child_rows').disabled = type == 'csv';
+}
+
+function add_all_columns()
+{
+  var options = document.getElementById("column" + g_column_id).options;
+  
+  $("#columns > select").remove();
+  g_column_id = 0;
+
+  var columns = document.getElementById("columns");
+  for (var i = 1; i < options.length; i++)
+  {
+    var index = ++g_column_id;
+    var select = document.createElement("select");
+    select.id = "column" + index;
+    select.name = "column[]";
+    select.onchange = update_columns;
+    var option = document.createElement("option");
+    for (var opt = 0; opt < options.length; opt++)
+      select.options.add(options[opt].cloneNode(true));
+    select.selectedIndex = i;
+    columns.appendChild(document.createTextNode(' '));
+    columns.appendChild(select);
+  }
+}
+
 </script>
 
   <div class="form_container">
@@ -204,7 +306,7 @@ function update_columns()
       <input type="hidden" name="func" value="system">
       <input type="hidden" name="operation" value="export">
 
-      <div class="small_label"><?php echo $GLOBALS['locExportCharacterSet']?></div>
+      <div class="medium_label"><?php echo $GLOBALS['locExportCharacterSet']?></div>
       <div class="field">
         <select name="charset">
           <option value="UTF-8">UTF-8</option>
@@ -215,11 +317,12 @@ function update_columns()
         </select>
       </div>
       
-      <div class="small_label"><?php echo $GLOBALS['locExportTable']?></div>
+      <div class="medium_label"><?php echo $GLOBALS['locExportTable']?></div>
       <div class="field">
         <select id="sel_table" name="table" onchange="reset_columns()">
           <option value="base"><?php echo $GLOBALS['locExportTableBases']?></option>
           <option value="company"><?php echo $GLOBALS['locExportTableCompanies']?></option>
+          <option value="company_contact"><?php echo $GLOBALS['locExportTableCompanyContacts']?></option>
           <option value="invoice"><?php echo $GLOBALS['locExportTableInvoices']?></option>
           <option value="invoice_row"><?php echo $GLOBALS['locExportTableInvoiceRows']?></option>
           <option value="product"><?php echo $GLOBALS['locExportTableProducts']?></option>
@@ -228,18 +331,18 @@ function update_columns()
         </select>
       </div>
       
-      <div class="small_label"><?php echo $GLOBALS['locExportFormat']?></div>
+      <div class="medium_label"><?php echo $GLOBALS['locExportFormat']?></div>
       <div class="field">
-        <select name="format">
+        <select id="format" name="format" onchange="update_field_states()">
           <option value="csv">CSV</option>
           <option value="xml">XML</option>
           <option value="json">JSON</option>
         </select>
       </div>
 
-      <div class="small_label"><?php echo $GLOBALS['locExportFieldDelimiter']?></div>
+      <div class="medium_label"><?php echo $GLOBALS['locExportFieldDelimiter']?></div>
       <div class="field">
-        <select name="field_delim">
+        <select id="field_delim" name="field_delim">
           <option value="comma"><?php echo $GLOBALS['locExportFieldDelimiterComma']?></option>
           <option value="semicolon"><?php echo $GLOBALS['locExportFieldDelimiterSemicolon']?></option>
           <option value="tab"><?php echo $GLOBALS['locExportFieldDelimiterTab']?></option>
@@ -248,29 +351,34 @@ function update_columns()
         </select>
       </div>
       
-      <div class="small_label"><?php echo $GLOBALS['locExportEnclosureCharacter']?></div> 
+      <div class="medium_label"><?php echo $GLOBALS['locExportEnclosureCharacter']?></div> 
       <div class="field">
-        <select name="enclosure_char">
+        <select id="enclosure_char" name="enclosure_char">
           <option value="doublequote"><?php echo $GLOBALS['locExportEnclosureDoubleQuote']?></option>
           <option value="singlequote"><?php echo $GLOBALS['locExportEnclosureSingleQuote']?></option>
           <option value="none"><?php echo $GLOBALS['locExportEnclosureNone']?></option>
         </select>
       </div>
       
-      <div class="small_label"><?php echo $GLOBALS['locExportRowDelimiter']?></div>
+      <div class="medium_label"><?php echo $GLOBALS['locExportRowDelimiter']?></div>
       <div class="field">
-        <select name="row_delim">
+        <select id="row_delim" name="row_delim">
           <option value="lf">LF</option>
           <option value="crlf">CR+LF</option>
           <option value="cr">CR</option>
         </select>
       </div>
 
-      <div class="small_label"><?php echo $GLOBALS['locExportColumns']?></div>
+      <div class="medium_label"><?php echo $GLOBALS['locExportIncludeChildRows']?></div> 
+      <div class="field">
+        <input id="child_rows" name="child_rows" type="checkbox" checked="checked">
+      </div>
+      
+      <div class="medium_label"><?php echo $GLOBALS['locExportColumns']?> <input type="button" value="<?php echo $GLOBALS['locExportAddAllColumns']?>" onclick="add_all_columns()"></div>
       <div id="columns" class="field">
       </div>
       
-      <div class="small_label"><input type="submit" value="Export"></div>
+      <div class="medium_label"><input type="submit" value="<?php echo $GLOBALS['locExportDo']?>"></div>
     </form>
   </div>
 <?php

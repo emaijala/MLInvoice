@@ -111,7 +111,7 @@ function mysql_param_query($query, $params=false, $noFail=false)
 function create_db_dump()
 {
   $in_tables = array('invoice_state', 'row_type', 'company_type', 'base', 'company', 'company_contact',
-    'product', 'invoice', 'invoice_row', 'session_type', 'users', 'quicksearch');
+    'product', 'invoice', 'invoice_row', 'session_type', 'users', 'quicksearch', 'settings');
 
   $filename = 'vllasku_backup_' . date('Ymd') . '.sql';
   header('Content-type: text/x-sql');
@@ -137,24 +137,24 @@ function create_db_dump()
   }
   foreach ($tables as $table)
   {
-    $res = mysql_query_check("show create table `$table`");
+    $res = mysql_query_check("show create table $table");
     $row = mysql_fetch_assoc($res);
     if (!$row)
       die("Could not read table definition for table $table");
     echo $row['Create Table'] . ";\n\n";
     
-    $res = mysql_query_check("select * from `$table`");
-    $field_count = mysql_num_fields($res);
+    $res = mysql_query_check("show fields from $table");
+    $field_count = mysql_num_rows($res);
     $field_defs = array();
     $columns = '';
-    for ($i = 0; $i < $field_count; $i++)
+    while ($row = mysql_fetch_assoc($res))
     {
-      $field_def = mysql_fetch_field($res, $i);
-      $field_defs[] = $field_def->type;
+      $field_defs[] = $row;
       if ($columns)
         $columns .= ', ';
-      $columns .= $field_def->name;
+      $columns .= $row['Field'];
     }
+    $res = mysql_query_check("select * from $table");
     while ($row = mysql_fetch_row($res))
     {
       echo "INSERT INTO `$table` ($columns) VALUES (";
@@ -163,12 +163,12 @@ function create_db_dump()
         if ($i > 0)
           echo ', ';
         $value = $row[$i];
-        $type = $field_defs[$i];
+        $type = $field_defs[$i]['Type'];
         if (is_null($value))
           echo 'null';
-        elseif ($type == 'int' || $type == 'real')
+        elseif (substr($type, 0, 3) == 'int' || substr($type, 0, 7) == 'decimal')
           echo $value;
-        elseif ($type == 'blob' && $value)
+        elseif ($value && ($type == 'longblob' || strpos($value, "\n")))
           echo '0x' . bin2hex($value);
         else
           echo '\'' . addslashes($value) . '\'';

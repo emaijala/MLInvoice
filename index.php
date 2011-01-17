@@ -109,6 +109,12 @@ if ($strFunc == 'system' && getRequest('operation', '') == 'export' && $_SESSION
   require_once 'export.php';
   do_export();
 }
+elseif ($strFunc == 'system' && getRequest('operation', '') == 'import' && $_SESSION['sesACCESSLEVEL'] == 99)
+{
+  createFuncMenu($strFunc);
+  require_once 'import.php';
+  do_import();
+}
 else
 {
   switch ($strFunc)

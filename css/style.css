@@ -65,6 +65,13 @@ div.small_label {
   clear: left;
 }
 
+div.medium_label {
+  width: 160px;
+  float: left;
+  margin-bottom: 8px; 
+  clear: left;
+}
+
 div.field {
   float: left;
   margin-bottom: 8px; 
