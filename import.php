@@ -258,7 +258,7 @@ function update_mapping_table()
   var enclosure_char = document.getElementById("enclosure_char").value;
   var row_delim = document.getElementById("row_delim").value;
   
-  $("#columns > tr").remove();
+  $("#column_table > tr").remove();
   $("#mapping_errors").text("");
   
   $.getJSON("json.php?func=get_import_preview&charset=" + charset + "&table=" + table + 
@@ -293,7 +293,7 @@ function update_mapping_table()
       for (var i = 0; i < json.rows.length; i++)
       {
         var tr = document.createElement("tr");
-        for (var j = 0; j < json.rows.length; j++)
+        for (var j = 0; j < json.rows[0].length; j++)
         {
           var td = document.createElement("td");
           td.appendChild(document.createTextNode(json.rows[i][j] ? json.rows[i][j] : ''));
