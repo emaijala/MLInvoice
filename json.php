@@ -139,6 +139,11 @@ case 'get_table_columns':
   echo "\n]}";
   break;
   
+case 'get_import_preview':
+  require 'import.php';
+  create_import_preview();
+  break;
+  
 default:
   header('HTTP/1.1 404 Not Found');
 }

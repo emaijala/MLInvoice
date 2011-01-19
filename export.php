@@ -17,6 +17,7 @@ Tämä ohjelma on vapaa. Lue oheinen LICENSE.
 
 require_once 'localize.php';
 require_once 'miscfuncs.php';
+require_once 'import.php';
 
 function str_putcsv($data, $delimiter = ',', $enclosure = '"') 
 {
@@ -43,13 +44,13 @@ function output_str($str, $charset)
 
 function do_export()
 {
+  $charset = getRequest('charset', 'UTF-8');
   $table = getRequest('table', '');
   $format = getRequest('format', '');
   $fieldDelimiter = getRequest('field_delim', ',');
   $enclosureChar = getRequest('enclosure_char', '"');
   $rowDelimiter = getRequest('row_delim', "\n");
   $columns = getRequest('column', '');
-  $charset = getRequest('charset', 'UTF-8');
   $childRows = getRequest('child_rows', '');
   
   if ($table && $format && $columns)
@@ -82,34 +83,19 @@ function do_export()
     case 'csv':
       header('Content-type: text/csv');
       header("Content-Disposition: attachment; filename=\"$filename.csv\"");
-      $field_delims = array(
-        'comma' => ',',
-        'semicolon' => ';',
-        'tab' => "\t",
-        'pipe' => '|',
-        'colon' => ':'
-      );
-  
-      $enclosure_chars = array(
-        'doublequote' => '"',
-        'singlequote' => '\'',
-        'none' => '',
-      );
-  
-      $row_delims = array(
-        'lf' => "\n",
-        'crlf' => "\r\n",
-        'cr' => "\r"
-      );
+      $field_delims = get_field_delims();
+      $enclosure_chars = get_enclosure_chars();
+      $row_delims = get_row_delims();
+      
       if (!isset($field_delims[$fieldDelimiter]))
         die('Invalid field delimiter');
-      $fieldDelimiter = $field_delims[$fieldDelimiter];
+      $fieldDelimiter = $field_delims[$fieldDelimiter]['char'];
       if (!isset($enclosure_chars[$enclosureChar]))
         die('Invalid enclosure character');
-      $enclosureChar = $enclosure_chars[$enclosureChar];
+      $enclosureChar = $enclosure_chars[$enclosureChar]['char'];
       if (!isset($row_delims[$rowDelimiter]))
         die('Invalid field delimiter');
-      $rowDelimiter = $row_delims[$rowDelimiter];
+      $rowDelimiter = $row_delims[$rowDelimiter]['char'];
       output_str(str_putcsv($columns, $fieldDelimiter, $enclosureChar) . $rowDelimiter, $charset);
       break;
     
@@ -120,11 +106,10 @@ function do_export()
       break;
 
     case 'json':
-      //header('Content-type: application/json');
-      //header("Content-Disposition: attachment; filename=\"$filename.json\"");
+      header('Content-type: application/json');
+      header("Content-Disposition: attachment; filename=\"$filename.json\"");
       break;
     }
-    output_str($str, $charset);
     
     $res = mysql_query_check("select * from {prefix}$table");
     while ($row = mysql_fetch_assoc($res))
@@ -242,7 +227,7 @@ function add_column()
     select.onchange = update_columns;
     var option = document.createElement("option");
     option.value = "";
-    option.text = "<?php echo $GLOBALS['locExportColumnNone']?>";
+    option.text = "<?php echo $GLOBALS['locImportExportColumnNone']?>";
     select.options.add(option);
     for (var i = 0; i < json.columns.length; i++)
     {
@@ -306,9 +291,9 @@ function add_all_columns()
       <input type="hidden" name="func" value="system">
       <input type="hidden" name="operation" value="export">
 
-      <div class="medium_label"><?php echo $GLOBALS['locExportCharacterSet']?></div>
+      <div class="medium_label"><?php echo $GLOBALS['locImportExportCharacterSet']?></div>
       <div class="field">
-        <select name="charset">
+        <select id="charset" name="charset">
           <option value="UTF-8">UTF-8</option>
           <option value="UTF-16">UTF-16</option>
           <option value="ISO-8859-1">ISO-8859-1</option>
@@ -317,21 +302,21 @@ function add_all_columns()
         </select>
       </div>
       
-      <div class="medium_label"><?php echo $GLOBALS['locExportTable']?></div>
+      <div class="medium_label"><?php echo $GLOBALS['locImportExportTable']?></div>
       <div class="field">
         <select id="sel_table" name="table" onchange="reset_columns()">
-          <option value="base"><?php echo $GLOBALS['locExportTableBases']?></option>
-          <option value="company"><?php echo $GLOBALS['locExportTableCompanies']?></option>
-          <option value="company_contact"><?php echo $GLOBALS['locExportTableCompanyContacts']?></option>
-          <option value="invoice"><?php echo $GLOBALS['locExportTableInvoices']?></option>
-          <option value="invoice_row"><?php echo $GLOBALS['locExportTableInvoiceRows']?></option>
-          <option value="product"><?php echo $GLOBALS['locExportTableProducts']?></option>
-          <option value="row_type"><?php echo $GLOBALS['locExportTableRowTypes']?></option>
-          <option value="invoice_state"><?php echo $GLOBALS['locExportTableInvoiceStates']?></option>
+          <option value="base"><?php echo $GLOBALS['locImportExportTableBases']?></option>
+          <option value="company"><?php echo $GLOBALS['locImportExportTableCompanies']?></option>
+          <option value="company_contact"><?php echo $GLOBALS['locImportExportTableCompanyContacts']?></option>
+          <option value="invoice"><?php echo $GLOBALS['locImportExportTableInvoices']?></option>
+          <option value="invoice_row"><?php echo $GLOBALS['locImportExportTableInvoiceRows']?></option>
+          <option value="product"><?php echo $GLOBALS['locImportExportTableProducts']?></option>
+          <option value="row_type"><?php echo $GLOBALS['locImportExportTableRowTypes']?></option>
+          <option value="invoice_state"><?php echo $GLOBALS['locImportExportTableInvoiceStates']?></option>
         </select>
       </div>
       
-      <div class="medium_label"><?php echo $GLOBALS['locExportFormat']?></div>
+      <div class="medium_label"><?php echo $GLOBALS['locImportExportFormat']?></div>
       <div class="field">
         <select id="format" name="format" onchange="update_field_states()">
           <option value="csv">CSV</option>
@@ -340,32 +325,42 @@ function add_all_columns()
         </select>
       </div>
 
-      <div class="medium_label"><?php echo $GLOBALS['locExportFieldDelimiter']?></div>
+      <div class="medium_label"><?php echo $GLOBALS['locImportExportFieldDelimiter']?></div>
       <div class="field">
         <select id="field_delim" name="field_delim">
-          <option value="comma"><?php echo $GLOBALS['locExportFieldDelimiterComma']?></option>
-          <option value="semicolon"><?php echo $GLOBALS['locExportFieldDelimiterSemicolon']?></option>
-          <option value="tab"><?php echo $GLOBALS['locExportFieldDelimiterTab']?></option>
-          <option value="pipe"><?php echo $GLOBALS['locExportFieldDelimiterPipe']?></option>
-          <option value="colon"><?php echo $GLOBALS['locExportFieldDelimiterColon']?></option>
+<?php
+  $field_delims = get_field_delims();
+  foreach ($field_delims as $key => $delim)
+  {
+    echo "<option value=\"$key\">" . $delim['name'] . "</option>\n";
+  }
+?>
         </select>
       </div>
       
-      <div class="medium_label"><?php echo $GLOBALS['locExportEnclosureCharacter']?></div> 
+      <div class="medium_label"><?php echo $GLOBALS['locImportExportEnclosureCharacter']?></div> 
       <div class="field">
         <select id="enclosure_char" name="enclosure_char">
-          <option value="doublequote"><?php echo $GLOBALS['locExportEnclosureDoubleQuote']?></option>
-          <option value="singlequote"><?php echo $GLOBALS['locExportEnclosureSingleQuote']?></option>
-          <option value="none"><?php echo $GLOBALS['locExportEnclosureNone']?></option>
+<?php
+  $enclosure_chars = get_enclosure_chars();
+  foreach ($enclosure_chars as $key => $delim)
+  {
+    echo "<option value=\"$key\">" . $delim['name'] . "</option>\n";
+  }
+?>
         </select>
       </div>
       
-      <div class="medium_label"><?php echo $GLOBALS['locExportRowDelimiter']?></div>
+      <div class="medium_label"><?php echo $GLOBALS['locImportExportRowDelimiter']?></div>
       <div class="field">
         <select id="row_delim" name="row_delim">
-          <option value="lf">LF</option>
-          <option value="crlf">CR+LF</option>
-          <option value="cr">CR</option>
+<?php
+  $row_delims = get_row_delims();
+  foreach ($row_delims as $key => $delim)
+  {
+    echo "<option value=\"$key\">" . $delim['name'] . "</option>\n";
+  }
+?>
         </select>
       </div>
 
@@ -378,7 +373,9 @@ function add_all_columns()
       <div id="columns" class="field">
       </div>
       
-      <div class="medium_label"><input type="submit" value="<?php echo $GLOBALS['locExportDo']?>"></div>
+      <div class="form_buttons" style="clear: both">
+        <input type="submit" value="<?php echo $GLOBALS['locExportDo']?>">
+      </div>
     </form>
   </div>
 <?php

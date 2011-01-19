@@ -15,32 +15,7 @@ Tämä ohjelma on vapaa. Lue oheinen LICENSE.
 
 *******************************************************************************/
 
-// Tietokantapalvelimen osoite
-define('_DB_SERVER_', 'localhost');
-
-// Tunnus tietokantapalvelimelle
-define('_DB_USERNAME_', 'vllasku');
-
-// Salasana tietokantapalvelimelle
-define('_DB_PASSWORD_', 'vllasku');
-
-// Tietokannan nimi
-define('_DB_NAME_', 'vllasku');
-
-// Tietokantataulujen prefix
-define ('_DB_PREFIX_', 'vllasku');
-
-// Merkistö: UTF-8 tai ISO-8859-15
-define ('_CHARSET_', 'UTF-8');
-
-// Sivujen otsikko
-define ("_PAGE_TITLE_", "VLLasku");
-
-// http vai https - vaihda vain jos automaattinen valinta alla ei toimi
-define ('_PROTOCOL_', isset($_SERVER['HTTPS']) ? 'https://' : 'http://');
-//define ("_PROTOCOL_", "http://");
-
-// HUOM! Asetukset löytyvät nyt käyttöliittymästä kohdasta Asetukset - Yleiset asetukset
+require_once 'config.php';
 
 mb_internal_encoding(_CHARSET_);
 

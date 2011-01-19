@@ -33,9 +33,13 @@ div.function_navi {
   padding: 0px 0px 10px 10px;
 }
 
-div.form_buttons
-{
+div.form_buttons {
   margin: 5px;
+}
+
+h1 {
+  font-size: 14px;
+  font-weight: bold;
 }
 
 div.list_container
@@ -382,6 +386,13 @@ iframe.xfull {
 div.iform {
   padding: 0px 0px 0px 0px;
   border: 1px solid gray;
+}
+
+div.column_mapping {
+  sdwidth: 900px; 
+  border: 1px solid gray;
+  clear: both;
+  overflow: auto;
 }
 
 button {

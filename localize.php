@@ -162,6 +162,7 @@ default :
     $GLOBALS['locNOACCESS'] = 'Käyttöoikeudet eivät riitä.';
     $GLOBALS['locErrFileUploadFailed'] = 'Tiedoston lataus epäonnistui';
     $GLOBALS['locErrFileTypeInvalid'] = 'Tiedoston tyyppi ei kelpaa';
+    $GLOBALS['locErrImportFileNotFound'] = 'Tiedostoa ei löytynyt - tarkista asetukset';
     
     //FORM BUTTON HELPERS
     $GLOBALS['locSAVE'] = 'Tallenna';
@@ -400,6 +401,46 @@ default :
     $GLOBALS['locBaseLogoWidth'] = 'Logon leveys (mm, oletus 80)';
     $GLOBALS['locBaseLogoBottomMargin'] = 'Logon alamarginaali (mm, oletus 5)';
 
+    // Import / Export
+    $GLOBALS['locImportExportFieldDelimiterComma'] = 'Pilkku';
+    $GLOBALS['locImportExportFieldDelimiterSemicolon'] = 'Puolipiste';
+    $GLOBALS['locImportExportFieldDelimiterTab'] = 'Sarkain'; 
+    $GLOBALS['locImportExportFieldDelimiterPipe'] = 'Putki'; 
+    $GLOBALS['locImportExportFieldDelimiterColon'] = 'Kaksoispiste';
+    $GLOBALS['locImportExportEnclosureDoubleQuote'] = 'Lainausmerkki';
+    $GLOBALS['locImportExportEnclosureSingleQuote'] = 'Heittomerkki';
+    $GLOBALS['locImportExportEnclosureNone'] = 'Ei mitään';
+    $GLOBALS['locImportExportCharacterSet'] = 'Merkistö';    
+    $GLOBALS['locImportExportTable'] = 'Taulu';    
+    $GLOBALS['locImportExportTableBases'] = 'Laskuttajat';    
+    $GLOBALS['locImportExportTableCompanies'] = 'Asiakkaat';    
+    $GLOBALS['locImportExportTableCompanyContacts'] = 'Asiakkaiden yhteyshenkilöt';    
+    $GLOBALS['locImportExportTableInvoices'] = 'Laskut';    
+    $GLOBALS['locImportExportTableInvoiceRows'] = 'Laskurivit';    
+    $GLOBALS['locImportExportTableProducts'] = 'Tuotteet';    
+    $GLOBALS['locImportExportTableRowTypes'] = 'Laskurivityypit';    
+    $GLOBALS['locImportExportTableInvoiceStates'] = 'Laskun tilat';    
+    $GLOBALS['locImportExportFormat'] = 'Formaatti';    
+    $GLOBALS['locImportExportFieldDelimiter'] = 'Kentän erotin';    
+    $GLOBALS['locImportExportEnclosureCharacter'] = 'Tekstimerkki';    
+    $GLOBALS['locImportExportRowDelimiter'] = 'Rivinvaihto';    
+    $GLOBALS['locImportExportColumnNone'] = '(ei mitään)';
+    
+    // Import
+    $GLOBALS['locImportFileSelection'] = 'Tuotavan tiedoston valinta';
+    $GLOBALS['locImportFileParameters'] = 'Tuotavan tiedoston asetukset';
+    $GLOBALS['locImportUploadFile'] = 'Lataa tiedosto palvelimelle (tiedoston maksimikoko %s)';
+    $GLOBALS['locImportUseServerFile'] = 'Käytä palvelimella olevaa tiedostoa (määritelty asetustiedostossa)';
+    $GLOBALS['locImportColumnMapping'] = 'Sarakkeiden kohdistus';
+    $GLOBALS['locImportIdentificationColumns'] = 'Olemassaolevien rivien tunnistukseen käytettävät sarakkeet';
+    $GLOBALS['locImportExistingRowHandling'] = 'Olemassaolevien rivien käsittely';
+    $GLOBALS['locImportExistingRowNone'] = 'Ei mitään';
+    $GLOBALS['locImportExistingRowIgnore'] = 'Ohita';
+    $GLOBALS['locImportExistingRowReplace'] = 'Korvaa';
+    $GLOBALS['locImportColumnUnused'] = '(ei käytössä)';
+    $GLOBALS['locImportNext'] = 'Seuraava';
+    $GLOBALS['locImportDo'] = 'Tuo';
+
     // Export
     $GLOBALS['locTable_base'] = 'Laskuttajat';    
     $GLOBALS['locTable_company'] = 'Asiakkaat';    
@@ -409,31 +450,8 @@ default :
     $GLOBALS['locTable_product'] = 'Tuotteet';    
     $GLOBALS['locTable_row_type'] = 'Laskurivityypit';    
     $GLOBALS['locTable_invoice_state'] = 'Laskun tilat';    
-    $GLOBALS['locExportCharacterSet'] = 'Merkistö';    
-    $GLOBALS['locExportTable'] = 'Taulu';    
-    $GLOBALS['locExportTableBases'] = 'Laskuttajat';    
-    $GLOBALS['locExportTableCompanies'] = 'Asiakkaat';    
-    $GLOBALS['locExportTableCompanyContacts'] = 'Asiakkaiden yhteyshenkilöt';    
-    $GLOBALS['locExportTableInvoices'] = 'Laskut';    
-    $GLOBALS['locExportTableInvoiceRows'] = 'Laskurivit';    
-    $GLOBALS['locExportTableProducts'] = 'Tuotteet';    
-    $GLOBALS['locExportTableRowTypes'] = 'Laskurivityypit';    
-    $GLOBALS['locExportTableInvoiceStates'] = 'Laskun tilat';    
-    $GLOBALS['locExportFormat'] = 'Formaatti';    
-    $GLOBALS['locExportFieldDelimiter'] = 'Kentän erotin';    
-    $GLOBALS['locExportEnclosureCharacter'] = 'Tekstimerkki';    
-    $GLOBALS['locExportRowDelimiter'] = 'Rivinvaihto';    
-    $GLOBALS['locExportColumns'] = 'Sarakkeet';    
-    $GLOBALS['locExportColumnNone'] = '(ei mitään)';
-    $GLOBALS['locExportFieldDelimiterComma'] = 'Pilkku';
-    $GLOBALS['locExportFieldDelimiterSemicolon'] = 'Puolipiste';
-    $GLOBALS['locExportFieldDelimiterTab'] = 'Sarkain'; 
-    $GLOBALS['locExportFieldDelimiterPipe'] = 'Putki'; 
-    $GLOBALS['locExportFieldDelimiterColon'] = 'Kaksoispiste';
-    $GLOBALS['locExportEnclosureDoubleQuote'] = 'Lainausmerkki';
-    $GLOBALS['locExportEnclosureSingleQuote'] = 'Heittomerkki';
-    $GLOBALS['locExportEnclosureNone'] = 'Ei mitään';
     $GLOBALS['locExportIncludeChildRows'] = 'Sisällytä lapsirivit';
+    $GLOBALS['locExportColumns'] = 'Sarakkeet';    
     $GLOBALS['locExportAddAllColumns'] = 'Lisää kaikki';
     $GLOBALS['locExportDo'] = 'Vie';
 break;
