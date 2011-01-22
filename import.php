@@ -74,6 +74,13 @@ function do_import()
     $error = $GLOBALS['locErrImportFileNotFound'];
   }
 
+  $importMode = getRequest('import_mode', '');
+  if ($importMode)
+  {
+    import_file($importMode);
+    return;
+  }
+
 unset($_SESSION['import_file']);
 $maxUploadSize = getMaxUploadSize();
 $maxFileSize = fileSizeToHumanReadable($maxUploadSize);
@@ -108,11 +115,38 @@ function show_setup_form()
   if (!$fp)
     die("Could not open import file for reading");
 
-  $data = fread($fp, 10240);
+  $data = fread($fp, 8192);
+  $bytesRead = ftell($fp);
   
   fclose($fp);
   
   $charset = 'UTF-8';
+  
+  if ($bytesRead > 3)
+  {
+    if (ord($data[0]) == 0xFE && ord($data[1]) == 0xFF)
+    {
+      $charset = 'UTF-16BE';
+      $data = iconv('UTF-16BE', _CHARSET_, $data);
+    }
+    elseif (ord($data[0]) == 0xFF && ord($data[1]) == 0xFE)
+    {
+      $charset = 'UTF-16LE';
+      $data = iconv('UTF-16LE', _CHARSET_, $data);
+    }
+    elseif (ord($data[0]) == 0 && ord($data[2]) == 0)
+    {
+      $charset = 'UTF-16BE';
+      $data = iconv('UTF-16BE', _CHARSET_, $data);
+      error_log('UTF-16BE');
+    }
+    elseif (ord($data[1]) == 0 && ord($data[2]) == 0)
+    {
+      $charset = 'UTF-16LE';
+      $data = iconv('UTF-16LE', _CHARSET_, $data);
+    }
+  }
+  
   if (strtolower(substr(ltrim($data), 0, 5)) == '<?xml')
   {
     $format = 'xml';
@@ -312,7 +346,7 @@ function add_mapping_columns()
   $.getJSON("json.php?func=get_table_columns&table=" + table, function(json) { 
     var columns = document.getElementById("columns");
     var select = document.createElement("select");
-    select.name = "column[]";
+    select.name = "map_column[]";
     var option = document.createElement("option");
     option.value = "";
     option.text = "<?php echo $GLOBALS['locImportExportColumnNone']?>";
@@ -330,7 +364,7 @@ function add_mapping_columns()
     {
       var td = document.createElement('td');
       var clone = select.cloneNode(true);
-      clone.id = "column" + i;
+      clone.id = "map_column" + i;
       td.appendChild(clone);
       tr.appendChild(td);
     }
@@ -343,27 +377,29 @@ function add_mapping_columns()
     <h1><?php echo $GLOBALS['locImportFileParameters']?></h1>
     <span id="imessage" style="display: none"></span>
     <span id="spinner" style="visibility: hidden"><img src="images/spinner.gif" alt=""></span>
-    <form id="export_form" name="export_form" method="GET" action="">
+    <form id="import_form" name="import_form" method="GET" action="">
       <input type="hidden" name="func" value="system">
-      <input type="hidden" name="operation" value="export">
+      <input type="hidden" name="operation" value="import">
 
       <div class="medium_label"><?php echo $GLOBALS['locImportExportCharacterSet']?></div>
       <div class="field">
         <select id="charset" name="charset" onchange="update_mapping_table()">
           <option value="UTF-8"<?php if ($charset == 'UTF-8') echo ' selected="selected"'?>>UTF-8</option>
-          <option value="UTF-16"<?php if ($charset == 'UTF-16') echo ' selected="selected"'?>>UTF-16</option>
           <option value="ISO-8859-1"<?php if ($charset == 'ISO-8859-1') echo ' selected="selected"'?>>ISO-8859-1</option>
           <option value="ISO-8859-15"<?php if ($charset == 'ISO-8859-15') echo ' selected="selected"'?>>ISO-8859-15</option>
           <option value="Windows-1251"<?php if ($charset == 'Windows-1251') echo ' selected="selected"'?>>Windows-1251</option>
+          <option value="UTF-16"<?php if ($charset == 'UTF-16') echo ' selected="selected"'?>>UTF-16</option>
+          <option value="UTF-16LE"<?php if ($charset == 'UTF-16LE') echo ' selected="selected"'?>>UTF-16 LE</option>
+          <option value="UTF-16BE"<?php if ($charset == 'UTF-16BE') echo ' selected="selected"'?>>UTF-16 BE</option>
         </select>
       </div>
       
       <div class="medium_label"><?php echo $GLOBALS['locImportExportTable']?></div>
       <div class="field">
         <select id="sel_table" name="table" onchange="reset_columns(); update_mapping_table()">
-          <option value="base"><?php echo $GLOBALS['locImportExportTableBases']?></option>
           <option value="company"><?php echo $GLOBALS['locImportExportTableCompanies']?></option>
           <option value="company_contact"><?php echo $GLOBALS['locImportExportTableCompanyContacts']?></option>
+          <option value="base"><?php echo $GLOBALS['locImportExportTableBases']?></option>
           <option value="invoice"><?php echo $GLOBALS['locImportExportTableInvoices']?></option>
           <option value="invoice_row"><?php echo $GLOBALS['locImportExportTableInvoiceRows']?></option>
           <option value="product"><?php echo $GLOBALS['locImportExportTableProducts']?></option>
@@ -426,14 +462,19 @@ function add_mapping_columns()
       <div class="medium_label"><?php echo $GLOBALS['locImportExistingRowHandling']?></div>
       <div class="field">
         <select id="duplicate_processing" name="duplicate_processing">
-          <option value="none"><?php echo $GLOBALS['locImportExistingRowNone']?></option>
           <option value="ignore" selected="selected"><?php echo $GLOBALS['locImportExistingRowIgnore']?></option>
-          <option value="replace"><?php echo $GLOBALS['locImportExistingRowReplace']?></option>
+          <option value="update"><?php echo $GLOBALS['locImportExistingRowUpdate']?></option>
         </select>
       </div>
       
       <div class="medium_label"><?php echo $GLOBALS['locImportIdentificationColumns']?></div>
       <div id="columns" class="field">
+      </div>
+
+      <div class="medium_label"><?php echo $GLOBALS['locImportMode']?></div> 
+      <div class="field">
+        <input id="import_type_report" name="import_mode" type="radio" value="report" checked="checked"><label for="import_mode_report"><?php echo $GLOBALS['locImportModeReport']?></label><br>
+        <input id="import_type_import" name="import_mode" type="radio" value="import"><label for="import_mode_import"><?php echo $GLOBALS['locImportModeImport']?></label>
       </div>
 
       <div class="medium_label"><?php echo $GLOBALS['locImportColumnMapping']?></div>
@@ -444,18 +485,21 @@ function add_mapping_columns()
       </div>
 
       <div class="form_buttons" style="clear: both">
-        <input type="submit" value="<?php echo $GLOBALS['locImportDo']?>">
+        <input type="submit" value="<?php echo $GLOBALS['locImportStart']?>">
       </div>
     </form>
   </div>
 <?php
 }
 
+function get_csv($handle, $delimiter, $enclosure, $charset, $line_ending)
+{
+  $str = fgets_charset($handle, $charset, $line_ending);
+  return str_getcsv($str);
+}
+
 function create_import_preview()
 {
-  // For now we don't really care about the row delimiter
-  ini_set('auto_detect_line_endings',TRUE);
-  
   $charset = getRequest('charset', 'UTF-8');
   $table = getRequest('table', '');
   $format = getRequest('format', '');
@@ -501,14 +545,14 @@ function create_import_preview()
     
     // Force enclosure char, otherwise fgetcsv would balk.
     if ($enclosureChar == '')
-      $enclosureChar = '"';
+      $enclosureChar = '\x01';
       
     $errors = array();
-    $headings = fgetcsv($fp, 0, $fieldDelimiter, $enclosureChar);    
+    $headings = get_csv($fp, $fieldDelimiter, $enclosureChar, $charset, $rowDelimiter);    
     $rows = array();
     for ($i = 0; $i < 10 && !feof($fp); $i++)
     {
-      $row = fgetcsv($fp, 0, $fieldDelimiter, $enclosureChar);    
+      $row = get_csv($fp, $fieldDelimiter, $enclosureChar, $charset, $rowDelimiter);    
       if (!isset($row))
       {
         $errors[] = 'Could not read row from import file';
@@ -522,5 +566,175 @@ function create_import_preview()
       'rows' => $rows,
     );
   }
+  fclose($fp);
   echo json_encode($response);
+}
+
+function process_import_row($table, $row, $dupMode, $dupCheckColumns, $mode)
+{
+  $result = '';
+  if ($dupMode != '' && count($dupCheckColumns) > 0)
+  {
+    $query = "select id from {prefix}$table where Deleted=0";
+    $where = '';
+    $params = array();
+    foreach ($dupCheckColumns as $dupCol)
+    {
+      $where .= " AND $dupCol=?";
+      $params[] = $row[$dupCol];
+    }
+    $res = mysql_param_query($query . $where, $params);
+    if ($dupRow = mysql_fetch_row($res))
+    {
+      $id = $dupRow[0];
+      if ($dupMode == 'update')
+        $result = "Update existing row id $id in table $table";
+      else
+        $result = "Not updating existing row id $id in table $table";
+      
+      if ($mode == 'import' && $dupMode == 'update')
+      {
+        // Update existing row
+        $query = "UPDATE {prefix}$table SET ";
+        $columns = '';
+        $params = array();
+        foreach ($row as $key => $value)
+        {
+          if ($key == 'id')
+            continue;
+          if ($columns)
+            $columns .= ', ';
+          $columns .= "$key=?";
+          $params[] = $value;
+        }
+        $query .= "$columns WHERE id=?";
+        $params[] = $id;
+        mysql_param_query($query, $params);
+      }
+      return $result;
+    }
+  }
+  // Add new row
+  $result = "Add as new into table $table";
+  $query = "INSERT INTO {prefix}$table ";
+  $columns = '';
+  $values = '';
+  $params = array();
+  foreach ($row as $key => $value)
+  {
+    if ($columns)
+      $columns .= ', ';
+    if ($values)
+      $values .= ', ';
+    $columns .= $key;
+    $values .= '?';
+    $params[] = $value;
+  }
+  $query .= "($columns) VALUES ($values)";
+  mysql_param_query($query, $params);
+  
+  return $result;
+}
+
+function import_file($importMode)
+{
+  $charset = getRequest('charset', 'UTF-8');
+  $table = getRequest('table', '');
+  $format = getRequest('format', '');
+  $fieldDelimiter = getRequest('field_delim', 'comma');
+  $enclosureChar = getRequest('enclosure_char', 'doublequote');
+  $rowDelimiter = getRequest('row_delim', "lf");
+  $duplicateMode = getRequest('duplicate_processing', '');
+  $duplicateCheckColumns = getRequest('column', array());
+  $columnMappings = getRequest('map_column', array());
+
+  if (!$charset || !$format || !$fieldDelimiter || !$enclosureChar || !$rowDelimiter)
+  {
+    die('Invalid parameters');
+  }
+  $fp = fopen($_SESSION['import_file'], 'r');
+  if (!$fp)
+  {
+    die("Could not open import file for reading");
+  }
+
+?>
+  <div class="form_container">
+    <h1><?php echo $GLOBALS['locImportResults']?></h1>
+<?php
+  ob_end_flush();
+  
+  if ($format == 'csv')
+  {
+    if (!table_valid($table))
+    {
+      die('Invalid table name: ' . htmlspecialchars($table));
+    }
+  
+    $res = mysql_query_check("show fields from {prefix}$table");
+    $field_count = mysql_num_rows($res);
+    $field_defs = array();
+    while ($row = mysql_fetch_assoc($res))
+    {
+      $field_defs[$row['Field']] = $row;
+    }
+    
+    foreach ($columnMappings as $key => $column)
+    { 
+      if ($column && !isset($field_defs[$column]))
+        die('Invalid column name: ' . htmlspecialchars($column));
+    }
+
+    foreach ($duplicateCheckColumns as $key => $column)
+    { 
+      if (!$column)
+        unset($duplicateCheckColumns[$key]);
+      elseif (!isset($field_defs[$column]))
+        die('Invalid duplicate check column name: ' . htmlspecialchars($column));
+    }
+  
+    $field_delims = get_field_delims();
+    $enclosure_chars = get_enclosure_chars();
+    $row_delims = get_row_delims();
+    
+    if (!isset($field_delims[$fieldDelimiter]))
+      die('Invalid field delimiter');
+    $fieldDelimiter = $field_delims[$fieldDelimiter]['char'];
+    if (!isset($enclosure_chars[$enclosureChar]))
+      die('Invalid enclosure character');
+    $enclosureChar = $enclosure_chars[$enclosureChar]['char'];
+    if (!isset($row_delims[$rowDelimiter]))
+      die('Invalid field delimiter');
+    $rowDelimiter = $row_delims[$rowDelimiter]['char'];
+    
+    // Force enclosure char, otherwise fgetcsv would balk.
+    if ($enclosureChar == '')
+      $enclosureChar = '\x01';
+      
+    $errors = array();
+    $headings = get_csv($fp, $fieldDelimiter, $enclosureChar, $charset, $rowDelimiter);    
+    $rowNum = 0;
+    while (!feof($fp))
+    {
+      $row = get_csv($fp, $fieldDelimiter, $enclosureChar, $charset, $rowDelimiter);    
+      if (!isset($row))
+        break;
+
+      ++$rowNum;        
+      $mapped_row = array();
+      for ($i = 0; $i < count($row); $i++)
+      {
+        if ($columnMappings[$i])
+          $mapped_row[$columnMappings[$i]] = $row[$i];
+      }
+      $result = process_import_row($table, $mapped_row, $duplicateMode, $duplicateCheckColumns, $importMode);
+      if ($result)
+        echo "    Row $rowNum: $result<br>\n";
+    }
+  }
+  fclose($fp);
+  echo '    ' . $GLOBALS['locImportDone'] . "\n";
+?>
+  </div>
+<?php
 }

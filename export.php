@@ -36,7 +36,8 @@ function output_str($str, $charset)
   if ($charset && $charset != _CHARSET_)
   {
     $str = iconv(_CHARSET_, $charset, $str);
-    if (substr($str, 0, 2) == "\xFE\xFF")
+    // No need for BOM here, this is just a simple string
+    if (substr($str, 0, 2) == "\xFE\xFF" || substr($str, 0, 2) == "\xFF\xFE")
       $str = substr($str, 2);
   }
   echo $str;
@@ -58,8 +59,6 @@ function do_export()
     if (!table_valid($table))
       die('Invalid table name');
 
-    $field_defs = array();
-    
     $res = mysql_query_check("show fields from {prefix}$table");
     $field_count = mysql_num_rows($res);
     $field_defs = array();
@@ -81,8 +80,6 @@ function do_export()
     switch ($format)
     {
     case 'csv':
-      header('Content-type: text/csv');
-      header("Content-Disposition: attachment; filename=\"$filename.csv\"");
       $field_delims = get_field_delims();
       $enclosure_chars = get_enclosure_chars();
       $row_delims = get_row_delims();
@@ -96,18 +93,27 @@ function do_export()
       if (!isset($row_delims[$rowDelimiter]))
         die('Invalid field delimiter');
       $rowDelimiter = $row_delims[$rowDelimiter]['char'];
+
+      header('Content-type: text/csv');
+      header("Content-Disposition: attachment; filename=\"$filename.csv\"");
+      if ($charset == 'UTF-16') 
+        echo iconv($charset, 'UTF-16', ''); // output BOM
       output_str(str_putcsv($columns, $fieldDelimiter, $enclosureChar) . $rowDelimiter, $charset);
       break;
     
     case 'xml':
       header('Content-type: text/xml');
       header("Content-Disposition: attachment; filename=\"$filename.xml\"");
+      if ($charset == 'UTF-16') 
+        echo iconv($charset, 'UTF-16', ''); // output BOM
       output_str("<?xml version=\"1.0\"?>\n<records>\n", $charset);
       break;
 
     case 'json':
       header('Content-type: application/json');
       header("Content-Disposition: attachment; filename=\"$filename.json\"");
+      if ($charset == 'UTF-16') 
+        echo iconv($charset, 'UTF-16', ''); // output BOM
       break;
     }
     
@@ -295,19 +301,21 @@ function add_all_columns()
       <div class="field">
         <select id="charset" name="charset">
           <option value="UTF-8">UTF-8</option>
-          <option value="UTF-16">UTF-16</option>
           <option value="ISO-8859-1">ISO-8859-1</option>
           <option value="ISO-8859-15">ISO-8859-15</option>
           <option value="Windows-1251">Windows-1251</option>
+          <option value="UTF-16">UTF-16</option>
+          <option value="UTF-16LE">UTF-16 LE</option>
+          <option value="UTF-16BE">UTF-16 BE</option>
         </select>
       </div>
       
       <div class="medium_label"><?php echo $GLOBALS['locImportExportTable']?></div>
       <div class="field">
         <select id="sel_table" name="table" onchange="reset_columns()">
-          <option value="base"><?php echo $GLOBALS['locImportExportTableBases']?></option>
           <option value="company"><?php echo $GLOBALS['locImportExportTableCompanies']?></option>
           <option value="company_contact"><?php echo $GLOBALS['locImportExportTableCompanyContacts']?></option>
+          <option value="base"><?php echo $GLOBALS['locImportExportTableBases']?></option>
           <option value="invoice"><?php echo $GLOBALS['locImportExportTableInvoices']?></option>
           <option value="invoice_row"><?php echo $GLOBALS['locImportExportTableInvoiceRows']?></option>
           <option value="product"><?php echo $GLOBALS['locImportExportTableProducts']?></option>

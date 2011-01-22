@@ -434,12 +434,16 @@ default :
     $GLOBALS['locImportColumnMapping'] = 'Sarakkeiden kohdistus';
     $GLOBALS['locImportIdentificationColumns'] = 'Olemassaolevien rivien tunnistukseen käytettävät sarakkeet';
     $GLOBALS['locImportExistingRowHandling'] = 'Olemassaolevien rivien käsittely';
-    $GLOBALS['locImportExistingRowNone'] = 'Ei mitään';
     $GLOBALS['locImportExistingRowIgnore'] = 'Ohita';
-    $GLOBALS['locImportExistingRowReplace'] = 'Korvaa';
+    $GLOBALS['locImportExistingRowUpdate'] = 'Päivitä';
     $GLOBALS['locImportColumnUnused'] = '(ei käytössä)';
+    $GLOBALS['locImportMode'] = 'Suoritettava toiminto';
+    $GLOBALS['locImportModeReport'] = 'Vain raportti (ei tee varsinaista tuontia)';
+    $GLOBALS['locImportModeImport'] = 'Tietojen tuonti';
+    $GLOBALS['locImportResults'] = 'Tuonnin tulokset';
     $GLOBALS['locImportNext'] = 'Seuraava';
-    $GLOBALS['locImportDo'] = 'Tuo';
+    $GLOBALS['locImportStart'] = 'Käynnistä';
+    $GLOBALS['locImportDone'] = 'Tuonti valmis';
 
     // Export
     $GLOBALS['locTable_base'] = 'Laskuttajat';    

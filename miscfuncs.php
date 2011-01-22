@@ -236,4 +236,66 @@ function xml_encode($str)
   return $str;
 }
 
+if (!function_exists('str_getcsv')) 
+{
+  function str_getcsv($input, $delimiter=',', $enclosure='"', $escape=null, $eol=null) 
+  {
+    $temp=fopen("php://memory", "rw");
+    fwrite($temp, $input);
+    fseek($temp, 0);
+    $r=fgetcsv($temp, 4096, $delimiter, $enclosure);
+    fclose($temp);
+    return $r;
+  }
+} 
+
+function fgets_charset($handle, $charset, $line_ending = "\n")
+{
+  if (substr($charset, 0, 6) == 'UTF-16')
+  {
+    $be = $charset == 'UTF-16' || $charset == 'UTF-16BE';
+    $str = '';
+    $le_pos = 0;
+    $le_len = strlen($line_ending);
+    while (!feof($handle))
+    {
+      $c1 = fgetc($handle);
+      $c2 = fgetc($handle);
+      if ($c1 === false || $c2 === false)
+        break;
+      $str .= $c1 . $c2;
+      if (($be && ord($c1) == 0 && $c2 == $line_ending[$le_pos]) || (!$be && ord($c2) == 0 && $c1 == $line_ending[$le_pos]))
+      {
+        if (++$le_pos >= $le_len)
+          break;
+      }
+      else
+        $le_pos = 0;
+    }
+    $str = iconv($charset, _CHARSET_, $str);
+  }
+  else
+  {
+    $str = '';
+    $le_pos = 0;
+    $le_len = strlen($line_ending);
+    while (!feof($handle))
+    {
+      $c1 = fgetc($handle);
+      if ($c1 === false)
+        break;
+      $str .= $c1;
+      if ($c1 == $line_ending[$le_pos])
+      {
+        if (++$le_pos >= $le_len)
+          break;
+      }
+      else
+        $le_pos = 0;
+    }
+    $str = iconv($charset, _CHARSET_, $str);
+  }
+  return $str;
+}
+
 ?>
