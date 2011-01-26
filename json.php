@@ -71,6 +71,10 @@ case 'get_invoice':
   printJSONRecord('invoice');
   break;
 
+case 'put_invoice':
+  saveJSONRecord('invoice', '');
+  break;
+
 case 'get_invoice_row':
   printJSONRecord('invoice_row');
   break;

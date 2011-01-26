@@ -195,11 +195,11 @@ if (isset($logo_filedata))
     $logo_top = $pdf->GetY()+5;
   if (!isset($logo_left))
     $logo_left = $pdf->GetX();
-  if (!isset($logo_width))
+  if (!isset($logo_width) || $logo_width == 0)
     $logo_width = 80;
   if (!isset($logo_bottom_margin))
     $logo_bottom_margin = 5;
- 
+
   $pdf->Image('@' . $logo_filedata, $logo_left, $logo_top, $logo_width, 0, '', '', 'N', false, 300, '', false, false, 0, true);
   $pdf->SetY($pdf->GetY() + $logo_bottom_margin);
 }
@@ -279,10 +279,10 @@ if ($printStyle == 'invoice')
   $pdf->SetX(115);
   $pdf->Cell(40, 5, $GLOBALS['locPDFINVREFNO'] .": ", 0, 0, 'R');
   $pdf->Cell(60, 5, $strRefNumber, 0, 1);
-  $pdf->SetX(115);
 }
-if ($strReference)
+if ($strReference && $printStyle != 'dispatch')
 {
+  $pdf->SetX(115);
   $pdf->Cell(40, 5, $GLOBALS['locYOURREFERENCE'] .": ", 0, 0, 'R');
   $pdf->Cell(60, 5, $strReference, 0, 1);
 }

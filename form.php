@@ -145,9 +145,9 @@ function createForm($strFunc, $strList, $strForm)
   
   ?>
   <div class="form">
-    <div class="message"><?php echo $strMessage ?></div>
+    <div id="message" class="message"><?php echo $strMessage ?></div>
   
-  <?php createFormButtons($blnNew, $copyLinkOverride) ?>
+  <?php createFormButtons($blnNew, $copyLinkOverride, 1) ?>
   <div class="form_container">
   <table>
     <form method="post" action="" name="admin_form" id="admin_form">
@@ -254,13 +254,13 @@ $(document).ready(function() {
   {
 ?>
   $('input[class~="hasCalendar"]').datepicker();
-  $('#imessage').ajaxStart(function() {
+  $('#message').ajaxStart(function() {
     $('#spinner').css('visibility', 'visible');
   });
-  $('#imessage').ajaxStop(function() {
+  $('#message').ajaxStop(function() {
     $('#spinner').css('visibility', 'hidden');
   });
-  $('#imessage').ajaxError(function(event, request, settings) {
+  $('#message').ajaxError(function(event, request, settings) {
     alert('Server request failed: ' + request.status + ' - ' + request.statusText);
     $('#spinner').css('visibility', 'hidden');
   });
@@ -285,6 +285,63 @@ function init_rows_done()
 <?php 
   }
 ?>
+
+function save_record(redirect_url, redir_style)
+{
+  var form = document.getElementById('admin_form');
+  var obj = new Object();
+  
+<?php
+  foreach ($astrFormElements as $elem)
+  {
+    if ($elem['name'] && !in_array($elem['type'], array('HID_INT', 'SECHID_INT', 'BUTTON', 'JSBUTTON', 'NEWLINE', 'ROWSUM', 'CHECK', 'IFORM')))
+    {
+?>
+  obj.<?php echo $elem['name']?> = form.<?php echo $elem['name']?>.value;
+<?php
+    }
+    elseif ($elem['type'] == 'CHECK')
+    {
+?>
+  obj.<?php echo $elem['name']?> = form.<?php echo $elem['name']?>.checked ? 1 : 0;
+<?php
+    }
+  }
+?>
+  obj.id = form.id.value;
+  $('#message').text('').hide();
+  $.ajax({
+    'url': "json.php?func=put_<?php echo $strJSONType?>",
+    'type': 'POST',
+    'dataType': 'json',
+    'data': $.toJSON(obj),
+    'contentType': 'application/json; charset=utf-8',
+    'success': function(data) {
+      if (data.missing_fields)
+      {
+        $('#message').text('<?php echo $GLOBALS['locERRVALUEMISSING']?>: ' + data.missing_fields).show();
+      }
+      else
+      {
+        if (redirect_url)
+        {
+          if (redir_style == 'openwindow')
+            window.open(redirect_url);
+          else
+            window.location = redirect_url;
+        }
+      }
+    },
+    'error': function(XMLHTTPReq, textStatus, errorThrown) {
+      if (textStatus == 'timeout')
+        alert('Timeout trying to save data');
+      else
+        alert('Error trying to save data: ' + XMLHTTPReq.status + ' - ' + XMLHTTPReq.statusText);
+      return false;
+    }
+  });  
+}  
+ 
 </script>
 <?php 
   createFormButtons($blnNew, $copyLinkOverride);
@@ -296,7 +353,7 @@ function createIForm($astrFormElements, $elem, $intKeyValue)
     </form>
     <tr>
       <td class="label" colspan="4">
-        <?php echo $elem['label']?> <span id="spinner" style="visibility: hidden"><img src="images/spinner.gif" alt=""></span>
+        <?php echo $elem['label']?> 
       </td>
     </tr>
     <tr>
@@ -691,33 +748,24 @@ function popup_editor(event, title, id, copy_row)
 <?php
 }
 
-function createFormButtons($boolNew, $copyLinkOverride)
+function createFormButtons($boolNew, $copyLinkOverride, $spinner = 0)
 {
 ?>
   <div class="form_buttons">
-  <table>
-    <tr>
-      <td>
-        <a class="actionlink" href="#" onclick="document.getElementById('admin_form').saveact.value=1; document.getElementById('admin_form').submit(); return false;"><?php echo $GLOBALS['locSAVE']?></a>
-      </td>
+    <a class="actionlink" href="#" onclick="document.getElementById('admin_form').saveact.value=1; document.getElementById('admin_form').submit(); return false;"><?php echo $GLOBALS['locSAVE']?></a>
   <?php
-  if( !$boolNew ) {
-      $copyCmd = $copyLinkOverride ? "window.location='$copyLinkOverride'; return false;" : "document.getElementById('admin_form').copyact.value=1; document.getElementById('admin_form').submit(); return false;";
+  if (!$boolNew) 
+  {
+    $copyCmd = $copyLinkOverride ? "window.location='$copyLinkOverride'; return false;" : "document.getElementById('admin_form').copyact.value=1; document.getElementById('admin_form').submit(); return false;";
   ?>    
-      <td>
-        <a class="actionlink" href="#" onclick="<?php echo $copyCmd?>"><?php echo $GLOBALS['locCOPY']?></a>
-      </td>
-      <td>
-        <a class="actionlink" href="#" onclick="document.getElementById('admin_form').newact.value=1; document.getElementById('admin_form').submit(); return false;"><?php echo $GLOBALS['locNEW']?></a>
-      </td>
-      <td>
-        <a class="actionlink" href="#" onclick="if(confirm('<?php echo $GLOBALS['locCONFIRMDELETE']?>')==true) {  document.getElementById('admin_form').deleteact.value=1; document.getElementById('admin_form').submit(); return false;} else{ return false; }"><?php echo $GLOBALS['locDELETE']?></a>        
-      </td>
+    <a class="actionlink" href="#" onclick="<?php echo $copyCmd?>"><?php echo $GLOBALS['locCOPY']?></a>
+    <a class="actionlink" href="#" onclick="document.getElementById('admin_form').newact.value=1; document.getElementById('admin_form').submit(); return false;"><?php echo $GLOBALS['locNEW']?></a>
+    <a class="actionlink" href="#" onclick="if(confirm('<?php echo $GLOBALS['locCONFIRMDELETE']?>')==true) {  document.getElementById('admin_form').deleteact.value=1; document.getElementById('admin_form').submit(); return false;} else{ return false; }"><?php echo $GLOBALS['locDELETE']?></a>        
   <?php
   }
-  ?>
-    </tr>        
-  </table>
+  if ($spinner)
+    echo ' <span id="spinner" style="visibility: hidden"><img src="images/spinner.gif" alt=""></span>';
+?>
   </div>
 <?php
 }
