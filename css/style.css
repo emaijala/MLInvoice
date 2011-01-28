@@ -76,6 +76,12 @@ div.medium_label {
   clear: left;
 }
 
+div.unlimited_label {
+  float: left;
+  margin-bottom: 8px; 
+  clear: left;
+}
+
 div.field {
   float: left;
   margin-bottom: 8px; 

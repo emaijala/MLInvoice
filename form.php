@@ -438,7 +438,7 @@ function init_rows()
     }
     else
     {
-      echo "      $('<td></td>').addClass('$class' + (record.deleted == 1 ? ' deleted' : '')).text(record.$name).appendTo(tr);\n";
+      echo "      $('<td></td>').addClass('$class' + (record.deleted == 1 ? ' deleted' : '')).text(record.$name ? record.$name : '').appendTo(tr);\n";
     }
   }
 ?>

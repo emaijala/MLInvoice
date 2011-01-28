@@ -431,7 +431,7 @@ default :
     $GLOBALS['locImportFileParameters'] = 'Tuotavan tiedoston asetukset';
     $GLOBALS['locImportUploadFile'] = 'Lataa tiedosto palvelimelle (tiedoston maksimikoko %s)';
     $GLOBALS['locImportUseServerFile'] = 'Käytä palvelimella olevaa tiedostoa (määritelty asetustiedostossa)';
-    $GLOBALS['locImportColumnMapping'] = 'Sarakkeiden kohdistus';
+    $GLOBALS['locImportColumnMapping'] = 'Sarakkeiden kohdistus (ensimmäiset 10 riviä)';
     $GLOBALS['locImportIdentificationColumns'] = 'Olemassaolevien rivien tunnistukseen käytettävät sarakkeet';
     $GLOBALS['locImportExistingRowHandling'] = 'Olemassaolevien rivien käsittely';
     $GLOBALS['locImportExistingRowIgnore'] = 'Ohita';
@@ -446,6 +446,7 @@ default :
     $GLOBALS['locImportDone'] = 'Tuonti valmis';
 
     // Export
+    $GLOBALS['locExport'] = 'Vienti';
     $GLOBALS['locTable_base'] = 'Laskuttajat';    
     $GLOBALS['locTable_company'] = 'Asiakkaat';    
     $GLOBALS['locTable_company_contact'] = 'Yhteyshenkilöt';    
@@ -455,6 +456,7 @@ default :
     $GLOBALS['locTable_row_type'] = 'Laskurivityypit';    
     $GLOBALS['locTable_invoice_state'] = 'Laskun tilat';    
     $GLOBALS['locExportIncludeChildRows'] = 'Sisällytä lapsirivit';
+    $GLOBALS['locExportIncludeDeletedRecords'] = 'Sisällytä poistetut tietueet';
     $GLOBALS['locExportColumns'] = 'Sarakkeet';    
     $GLOBALS['locExportAddAllColumns'] = 'Lisää kaikki';
     $GLOBALS['locExportDo'] = 'Vie';

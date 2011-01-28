@@ -53,6 +53,7 @@ function do_export()
   $rowDelimiter = getRequest('row_delim', "\n");
   $columns = getRequest('column', '');
   $childRows = getRequest('child_rows', '');
+  $deletedRecords = getRequest('deleted', false);
   
   if ($table && $format && $columns)
   {
@@ -114,10 +115,21 @@ function do_export()
       header("Content-Disposition: attachment; filename=\"$filename.json\"");
       if ($charset == 'UTF-16') 
         echo iconv($charset, 'UTF-16', ''); // output BOM
+      echo "{\"$table\":[\n";
       break;
     }
     
-    $res = mysql_query_check("select * from {prefix}$table");
+    $query = "select * from {prefix}$table";
+    if (!$deletedRecords)
+    {
+      $query .= ' where deleted=0';
+      if ($table == 'company_contact')
+        $query .= ' and company_id not in (select id from {prefix}company where deleted=1)';
+      elseif ($table == 'invoice_row')
+        $query .= ' and invoice_id not in (select id from {prefix}invoice where deleted=1)';
+    }
+    $res = mysql_query_check($query);
+    $first = true;
     while ($row = mysql_fetch_assoc($res))
     {
       $data = array();
@@ -169,16 +181,24 @@ function do_export()
       case 'json':
         if ($childRows && ($table == 'invoice' || $table == 'company'))
         {
-          $data['invoice_row'] = array();
+          if ($table == 'invoice')
+            $childTable = 'invoice_row';
+          else
+            $childTable = 'company_contact';
+          $data[$childTable] = array();
           if ($table == 'invoice')
             $cres = mysql_param_query('select * from {prefix}invoice_row where invoice_id=?', array($row['id']));
           else
             $cres = mysql_param_query('select * from {prefix}company_contact where company_id=?', array($row['id']));
           while ($crow = mysql_fetch_assoc($cres))
           {
-            $data['invoice_row'][] = $crow;
+            $data[$childTable][] = $crow;
           }
         }
+        if ($first)
+          $first = false;
+        else
+          echo(",\n");
         output_str(json_encode($data), $charset);
         break;
       }
@@ -189,6 +209,7 @@ function do_export()
       output_str("</records>\n");
       break;
     case 'json':
+      echo("\n]}\n");
       break;
     }
     exit;
@@ -291,6 +312,7 @@ function add_all_columns()
 </script>
 
   <div class="form_container">
+    <h1><?php echo $GLOBALS['locExport']?></h1>
     <span id="imessage" style="display: none"></span>
     <span id="spinner" style="visibility: hidden"><img src="images/spinner.gif" alt=""></span>
     <form id="export_form" name="export_form" method="GET" action="">
@@ -375,6 +397,11 @@ function add_all_columns()
       <div class="medium_label"><?php echo $GLOBALS['locExportIncludeChildRows']?></div> 
       <div class="field">
         <input id="child_rows" name="child_rows" type="checkbox" checked="checked">
+      </div>
+      
+      <div class="medium_label"><?php echo $GLOBALS['locExportIncludeDeletedRecords']?></div> 
+      <div class="field">
+        <input id="deleted" name="deleted" type="checkbox">
       </div>
       
       <div class="medium_label"><?php echo $GLOBALS['locExportColumns']?> <input type="button" value="<?php echo $GLOBALS['locExportAddAllColumns']?>" onclick="add_all_columns()"></div>

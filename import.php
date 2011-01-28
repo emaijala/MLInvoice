@@ -307,7 +307,7 @@ function update_mapping_table()
     {
       for (var i = 0; i < json.errors.length; i++)
       {
-        $("#mapping_errors").html($(this).html() + "<br>" + $("<span/>").text(json.errors[i]));
+        $("#mapping_errors").append($("<span/>").text(json.errors[i])).append("<br>");
       }
     }
     var table = document.getElementById("column_table");
@@ -342,6 +342,9 @@ function update_mapping_table()
 
 function add_mapping_columns()
 {
+  var type = document.getElementById('format').value;
+  if (type != 'csv')
+    return;
   var table = document.getElementById("sel_table").value;
   $.getJSON("json.php?func=get_table_columns&table=" + table, function(json) { 
     var columns = document.getElementById("columns");
@@ -410,7 +413,7 @@ function add_mapping_columns()
       
       <div class="medium_label"><?php echo $GLOBALS['locImportExportFormat']?></div>
       <div class="field">
-        <select id="format" name="format" onchange="update_field_states(); update_mapping_table()">
+        <select id="format" name="format" onchange="update_field_states(); reset_columns(); update_mapping_table()">
           <option value="csv"<?php if ($format == 'csv') echo ' selected="selected"'?>>CSV</option>
           <option value="xml"<?php if ($format == 'xml') echo ' selected="selected"'?>>XML</option>
           <option value="json"<?php if ($format == 'json') echo ' selected="selected"'?>>JSON</option>
@@ -473,11 +476,11 @@ function add_mapping_columns()
 
       <div class="medium_label"><?php echo $GLOBALS['locImportMode']?></div> 
       <div class="field">
-        <input id="import_type_report" name="import_mode" type="radio" value="report" checked="checked"><label for="import_mode_report"><?php echo $GLOBALS['locImportModeReport']?></label><br>
-        <input id="import_type_import" name="import_mode" type="radio" value="import"><label for="import_mode_import"><?php echo $GLOBALS['locImportModeImport']?></label>
+        <input id="import_mode_report" name="import_mode" type="radio" value="report" checked="checked"><label for="import_mode_report"><?php echo $GLOBALS['locImportModeReport']?></label><br>
+        <input id="import_mode_import" name="import_mode" type="radio" value="import"><label for="import_mode_import"><?php echo $GLOBALS['locImportModeImport']?></label>
       </div>
 
-      <div class="medium_label"><?php echo $GLOBALS['locImportColumnMapping']?></div>
+      <div class="unlimited_label"><?php echo $GLOBALS['locImportColumnMapping']?></div>
       <div class="column_mapping">
         <div id="mapping_errors"></div>
         <table id="column_table">
@@ -520,15 +523,15 @@ function create_import_preview()
 
   header('Content-Type: application/json');
 
-  $fp = fopen($_SESSION['import_file'], 'r');
-  if (!$fp)
-  {
-    echo json_encode(array('errors' => array('Could not open import file for reading'))); 
-    die("Could not open import file '" + $_SESSION['import_file'] + "' for reading");
-  }
-
   if ($format == 'csv')
   {
+    $fp = fopen($_SESSION['import_file'], 'r');
+    if (!$fp)
+    {
+      echo json_encode(array('errors' => array('Could not open import file for reading'))); 
+      die("Could not open import file '" + $_SESSION['import_file'] + "' for reading");
+    }
+  
     $field_delims = get_field_delims();
     $enclosure_chars = get_enclosure_chars();
     $row_delims = get_row_delims();
@@ -565,14 +568,109 @@ function create_import_preview()
       'headings' => $headings,
       'rows' => $rows,
     );
+    fclose($fp);
   }
-  fclose($fp);
+  elseif ($format == 'xml')
+  {
+    $data = file_get_contents($_SESSION['import_file']);
+    if ($data === false)
+    {
+      echo json_encode(array('errors' => array('Could not open import file for reading'))); 
+      die("Could not open import file '" + $_SESSION['import_file'] + "' for reading");
+    }
+
+    if ($charset != _CHARSET_)
+      $data = iconv($charset, _CHARSET_, $data);
+    
+    try
+    {
+      $xml = new SimpleXMLElement($data);
+    }
+    catch (Exception $e) 
+    {
+      echo json_encode(array('errors' => array($e->getMessage()))); 
+      die('XML parsing failed: ' . htmlspecialchars($e->getMessage()));
+    }
+    $recNum = 0;
+    $headings = array();
+    $rows = array();
+    foreach ($xml as $record)
+    {
+      if (++$recNum > 10)
+        break;
+      $record = get_object_vars($record);
+      
+      $row = array();
+      foreach ($record as $column => $value)
+      {
+        if (!is_array($value) && !is_object($value))
+        {
+          if ($recNum == 1)
+            $headings[] = $column;
+          $row[] = $value;
+        }
+      }
+      $rows[] = $row;
+    }
+    $response = array(
+      'errors' => array(),
+      'headings' => $headings,
+      'rows' => $rows,
+    );
+  }
+  elseif ($format == 'json')
+  {
+    $data = file_get_contents($_SESSION['import_file']);
+    if ($data === false)
+    {
+      echo json_encode(array('errors' => array('Could not open import file for reading'))); 
+      error_log("Could not open import file '" + $_SESSION['import_file'] + "' for reading");
+      exit;
+    }
+
+    if ($charset != _CHARSET_)
+      $data = iconv($charset, _CHARSET_, $data);
+
+    $data = json_decode($data, true);
+    if ($data === null)
+    {
+      echo json_encode(array('errors' => array('Could not decode JSON'))); 
+      error_log('JSON parsing failed');
+      exit;
+    }
+    $recNum = 0;
+    $headings = array();
+    $rows = array();
+
+    foreach (reset($data) as $record)
+    {
+      if (++$recNum > 10)
+        break;
+      
+      $row = array();
+      foreach ($record as $column => $value)
+      {
+        if (is_array($value))
+          continue;
+        if ($recNum == 1)
+          $headings[] = $column;
+        $row[] = $value;
+      }
+      $rows[] = $row;
+    }
+    $response = array(
+      'errors' => array(),
+      'headings' => $headings,
+      'rows' => $rows,
+    );
+  }
   echo json_encode($response);
 }
 
-function process_import_row($table, $row, $dupMode, $dupCheckColumns, $mode)
+function process_import_row($table, $row, $dupMode, $dupCheckColumns, $mode, &$addedRecordId)
 {
   $result = '';
+  $recordId = null;
   if ($dupMode != '' && count($dupCheckColumns) > 0)
   {
     $query = "select id from {prefix}$table where Deleted=0";
@@ -587,6 +685,7 @@ function process_import_row($table, $row, $dupMode, $dupCheckColumns, $mode)
     if ($dupRow = mysql_fetch_row($res))
     {
       $id = $dupRow[0];
+      $found_dup = true;
       if ($dupMode == 'update')
         $result = "Update existing row id $id in table $table";
       else
@@ -615,13 +714,14 @@ function process_import_row($table, $row, $dupMode, $dupCheckColumns, $mode)
     }
   }
   // Add new row
-  $result = "Add as new into table $table";
   $query = "INSERT INTO {prefix}$table ";
   $columns = '';
   $values = '';
   $params = array();
   foreach ($row as $key => $value)
   {
+    if ($key == 'id')
+      continue;
     if ($columns)
       $columns .= ', ';
     if ($values)
@@ -631,9 +731,52 @@ function process_import_row($table, $row, $dupMode, $dupCheckColumns, $mode)
     $params[] = $value;
   }
   $query .= "($columns) VALUES ($values)";
-  mysql_param_query($query, $params);
-  
+  if ($mode == 'import')
+  {
+    mysql_param_query($query, $params);
+    $addedRecordId = mysql_insert_id();
+  }
+  else
+    $addedRecordId = 'x'; 
+  $result = "Add as new (ID $addedRecordId) into table $table";
   return $result;
+}
+
+function process_child_records($parentTable, $parentId, $childRecords, $duplicateMode, $importMode, &$field_defs)
+{
+  switch ($parentTable)
+  {
+    case 'invoice': $childTable = 'invoice_row'; break;
+    case 'company': $childTable = 'company_contact'; break;
+    default: die('Unsupported child table');
+  }
+  $childNum = 0;
+  foreach ($childRecords as $childColumns)
+  {
+    ++$childNum;
+    $childColumns["${parentTable}_id"] = $parentId;
+    
+    if (!isset($field_defs[$childTable]))
+    {
+      $field_defs[$childTable] = array();
+      $res = mysql_query_check("show fields from {prefix}$childTable");
+      $field_count = mysql_num_rows($res);
+      while ($row = mysql_fetch_assoc($res))
+      {
+        $field_defs[$childTable][$row['Field']] = $row;
+      }
+    }
+    
+    foreach ($childColumns as $column => $value)
+    {
+      if (!isset($field_defs[$childTable][$column]))
+        die("Invalid column name: $childTable." . htmlspecialchars($column));
+    }
+    $childDupColumns = array();
+    $addedChildRecordId = null;
+    $result = process_import_row($childTable, $childColumns, $duplicateMode, $childDupColumns, $importMode, $addedChildrecordId);
+   echo "    &nbsp; Child Record $childNum: $result<br>\n";
+  }
 }
 
 function import_file($importMode)
@@ -652,45 +795,42 @@ function import_file($importMode)
   {
     die('Invalid parameters');
   }
-  $fp = fopen($_SESSION['import_file'], 'r');
-  if (!$fp)
-  {
-    die("Could not open import file for reading");
-  }
 
 ?>
   <div class="form_container">
     <h1><?php echo $GLOBALS['locImportResults']?></h1>
 <?php
-  ob_end_flush();
+  
+  $res = mysql_query_check("show fields from {prefix}$table");
+  $field_count = mysql_num_rows($res);
+  $field_defs = array();
+  $field_defs[$table] = array();
+  while ($row = mysql_fetch_assoc($res))
+  {
+    $field_defs[$table][$row['Field']] = $row;
+  }
+  
+  foreach ($duplicateCheckColumns as $key => $column)
+  { 
+    if (!$column)
+      unset($duplicateCheckColumns[$key]);
+    elseif (!isset($field_defs[$table][$column]))
+      die('Invalid duplicate check column name: ' . htmlspecialchars($column));
+  }
+
+  if (!table_valid($table))
+    die('Invalid table name: ' . htmlspecialchars($table));
   
   if ($format == 'csv')
   {
-    if (!table_valid($table))
-    {
-      die('Invalid table name: ' . htmlspecialchars($table));
-    }
+    $fp = fopen($_SESSION['import_file'], 'r');
+    if (!$fp)
+      die("Could not open import file for reading");
   
-    $res = mysql_query_check("show fields from {prefix}$table");
-    $field_count = mysql_num_rows($res);
-    $field_defs = array();
-    while ($row = mysql_fetch_assoc($res))
-    {
-      $field_defs[$row['Field']] = $row;
-    }
-    
     foreach ($columnMappings as $key => $column)
     { 
-      if ($column && !isset($field_defs[$column]))
+      if ($column && !isset($field_defs[$table][$column]))
         die('Invalid column name: ' . htmlspecialchars($column));
-    }
-
-    foreach ($duplicateCheckColumns as $key => $column)
-    { 
-      if (!$column)
-        unset($duplicateCheckColumns[$key]);
-      elseif (!isset($field_defs[$column]))
-        die('Invalid duplicate check column name: ' . htmlspecialchars($column));
     }
   
     $field_delims = get_field_delims();
@@ -728,11 +868,121 @@ function import_file($importMode)
           $mapped_row[$columnMappings[$i]] = $row[$i];
       }
       $result = process_import_row($table, $mapped_row, $duplicateMode, $duplicateCheckColumns, $importMode);
-      if ($result)
-        echo "    Row $rowNum: $result<br>\n";
+      echo "    Row $rowNum: $result<br>\n";
+      ob_flush();
+    }
+    fclose($fp);
+  }
+  elseif ($format == 'xml')
+  {
+    $data = file_get_contents($_SESSION['import_file']);
+    if ($charset != _CHARSET_)
+      $data = iconv($charset, _CHARSET_, $data);
+    
+    try
+    {
+      $xml = new SimpleXMLElement($data);
+    }
+    catch (Exception $e) 
+    {
+      die('XML parsing failed: ' . htmlspecialchars($e->getMessage()));
+    }
+    $errors = array();
+    $recNum = 0;
+    foreach ($xml as $record)
+    {
+      $record = get_object_vars($record);
+      
+      $childRecords = array();
+      $mapped_row = array();
+      foreach ($record as $column => $value)
+      {
+        if (is_array($value))
+        {
+          foreach ($value as $subRecord)
+          {
+            $childRecords[] = get_object_vars($subRecord);
+          }
+        }
+        elseif (is_object($value))
+          $childRecords[] = get_object_vars($value);
+        else
+        {
+          if (!isset($field_defs[$table][$column]))
+            die("Invalid column name: $table." . htmlspecialchars($column));
+          $mapped_row[$column] = $value;
+        }
+      }
+
+      ++$recNum;        
+      $addedRecordId = null;
+      $result = process_import_row($table, $mapped_row, $duplicateMode, $duplicateCheckColumns, $importMode, $addedRecordId);
+      echo "    Record $recNum: $result<br>\n";
+      if (isset($addedRecordId)) // Updating not feasible || $duplicateMode == 'update')
+      {
+        process_child_records($table, $addedRecordId, $childRecords, $duplicateMode, $importMode, $field_defs);
+      }
+      ob_flush();
     }
   }
-  fclose($fp);
+  elseif ($format == 'json')
+  {
+    $data = file_get_contents($_SESSION['import_file']);
+    if ($data === false)
+    {
+      echo json_encode(array('errors' => array('Could not open import file for reading'))); 
+      error_log("Could not open import file '" + $_SESSION['import_file'] + "' for reading");
+      exit;
+    }
+
+    if ($charset != _CHARSET_)
+      $data = iconv($charset, _CHARSET_, $data);
+
+    $data = json_decode($data, true);
+    if ($data === null)
+    {
+      echo json_encode(array('errors' => array('Could not decode JSON'))); 
+      error_log('JSON parsing failed');
+      exit;
+    }
+    $recNum = 0;
+    $headings = array();
+    $rows = array();
+
+    foreach (reset($data) as $record)
+    {
+      $childRecords = array();
+      $mapped_row = array();
+      foreach ($record as $column => $value)
+      {
+        if (is_array($value))
+        {
+          foreach ($value as $subRecord)
+          {
+            $childRecords[] = $subRecord;
+          }
+        }
+        elseif (is_object($value))
+          $childRecords[] = get_object_vars($value);
+        else
+        {
+          if (!isset($field_defs[$table][$column]))
+            die("Invalid column name: $table." . htmlspecialchars($column));
+          $mapped_row[$column] = $value;
+        }
+      }
+
+      ++$recNum;        
+      $addedRecordId = null;
+      $result = process_import_row($table, $mapped_row, $duplicateMode, $duplicateCheckColumns, $importMode, $addedRecordId);
+      echo "    Record $recNum: $result<br>\n";
+      if (isset($addedRecordId)) // Updating not feasible || $duplicateMode == 'update')
+      {
+        process_child_records($table, $addedRecordId, $childRecords, $duplicateMode, $importMode, $field_defs);
+      }
+      ob_flush();
+    }
+  }
   echo '    ' . $GLOBALS['locImportDone'] . "\n";
 ?>
   </div>
