@@ -159,10 +159,31 @@ case 'row_type':
         array("name" => "order_no", 'width' => 150, "type" => "TEXT", "header" => $GLOBALS['locORDERNO']),
         array("name" => "name", 'width' => 450, "type" => "TEXT", "header" => $GLOBALS['locROWTYPE'])
     );
-    //array('order_no','name');
    $strMainForm = "row_type";
    $strTitle = $GLOBALS['locROWTYPES'];
 break;
+
+case 'print_template':
+  $strTable = "{prefix}print_template";
+  $astrSearchFields = 
+  array( 
+      array("name" => "name", "type" => "TEXT")
+  );
+  $strPrimaryKey = "id";
+  $strDeletedField = 'deleted';
+  $astrShowFields = 
+  array( 
+    array("name" => "order_no", 'width' => 150, "type" => "TEXT", "header" => $GLOBALS['locORDERNO']),
+    array("name" => "type", 'width' => 150, "type" => "TEXT", "header" => $GLOBALS['locPrintTemplateType'], 
+      'mappings' => array('invoice' => $GLOBALS['locPrintTemplateTypeInvoice']) ),
+    array("name" => "name", 'width' => 200, "type" => "TEXT", "header" => $GLOBALS['locPrintTemplateName']),
+    array("name" => "filename", 'width' => 200, "type" => "TEXT", "header" => $GLOBALS['locPrintTemplateFileName']),
+    array("name" => "parameters", 'width' => 150, "type" => "TEXT", "header" => $GLOBALS['locPrintTemplateParameters']),
+    array("name" => "output_filename", 'width' => 200, "type" => "TEXT", "header" => $GLOBALS['locPrintTemplateOutputFileName']),
+  );
+  $strMainForm = "print_template";
+  $strTitle = $GLOBALS['locPrintTemplates'];
+  break;
 
 /***********************************************************************
     SYSTEM

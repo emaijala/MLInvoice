@@ -143,9 +143,9 @@ case 'product':
      array(
         "name" => "product_group", "label" => $GLOBALS['locPRODUCTGROUP'], "type" => "TEXT", "style" => "medium", "listquery" => "", "position" => 2, "default" => FALSE, "allow_null" => TRUE ),
      array(
-        "name" => "internal_info", "label" => $GLOBALS['locINTERNALINFO'], "type" => "AREA", "style" => "medium", "listquery" => "", "position" => 0, "default" => FALSE, "allow_null" => TRUE ),
+        "name" => "internal_info", "label" => $GLOBALS['locINTERNALINFO'], "type" => "AREA", "style" => "xlarge", "listquery" => "", "position" => 0, "default" => FALSE, "allow_null" => TRUE ),
      array(
-        "name" => "unit_price", "label" => $GLOBALS['locUNITPRICE'], "type" => "INT", "style" => "medium", "listquery" => "", "position" => 2, "default" => FALSE, "allow_null" => TRUE ),
+        "name" => "unit_price", "label" => $GLOBALS['locUNITPRICE'], "type" => "INT", "style" => "medium", "listquery" => "", "position" => 1, "default" => FALSE, "allow_null" => TRUE ),
      array(
         "name" => "type_id", "label" => $GLOBALS['locUNIT'], "type" => "LIST", "style" => "short", "listquery" => "SELECT id, name FROM {prefix}row_type WHERE deleted=0 ORDER BY order_no;", "position" => 0, "default" => "POST", "allow_null" => FALSE ),
      array(
@@ -191,7 +191,7 @@ case 'invoice':
        $intRefundedInvoiceId = reset(mysql_fetch_row($intRes));
        if ($intRefundedInvoiceId)
          $arrRefundedInvoice = array(
-           "name" => "get", "label" => $GLOBALS['locSHOWREFUNDEDINV'], "type" => "BUTTON", "style" => "medium", "listquery" => "'$strBaseLink&amp;id=$intRefundedInvoiceId', '_self'", "position" => 2, "default" => FALSE, "allow_null" => TRUE 
+           "name" => "get", "label" => $GLOBALS['locSHOWREFUNDEDINV'], "type" => "BUTTON", "style" => "medium", "listquery" => "'$strBaseLink&amp;id=$intRefundedInvoiceId', '_self'", "position" => 3, "default" => FALSE, "allow_null" => TRUE 
          );
      }
      $strQuery = 
@@ -204,7 +204,7 @@ case 'invoice':
        $intRefundingInvoiceId = $row['id'];
        if ($intRefundingInvoiceId)
          $arrRefundingInvoice = array(
-           "name" => "get", "label" => $GLOBALS['locSHOWREFUNDINGINV'], "type" => "BUTTON", "style" => "medium", "listquery" => "'$strBaseLink&amp;id=$intRefundingInvoiceId', '_self'", "position" => 2, "default" => FALSE, "allow_null" => TRUE 
+           "name" => "get", "label" => $GLOBALS['locSHOWREFUNDINGINV'], "type" => "BUTTON", "style" => "medium", "listquery" => "'$strBaseLink&amp;id=$intRefundingInvoiceId', '_self'", "position" => 4, "default" => FALSE, "allow_null" => TRUE 
          );
      }
    }
@@ -299,16 +299,38 @@ function init_company_list(selected_id)
 
 EOS;
    
-   $copyLinkOverride = "copy_invoice.php?func=$strFunc&amp;list=$strList&amp;id=$intInvoiceId";
+   // Print buttons
    $printStyle = getSetting('invoice_new_window') ? 'openwindow' : 'redirect';
+   $printButtons = array();
+   $printButtons2 = array();
+   $res = mysql_query_check('SELECT * FROM {prefix}print_template WHERE type=\'invoice\' ORDER BY order_no');
+   $templateCount = mysql_num_rows($res);
+   $templateFirstCol = max(floor($templateCount / 2 + 1), 3);
+   $rowNum = 0;
+   while ($row = mysql_fetch_assoc($res))
+   {
+     $templateId = $row['id'];
+     $arr = array('name' => "print$templateId", 'label' => $row['name'], 'type' => 'JSBUTTON', 'style' => $printStyle, 'listquery' => "save_record('invoice.php?id=_ID_&template=$templateId', '$printStyle'); return false;", 'position' => 3, 'default' => FALSE, 'allow_null' => TRUE );
+     if (++$rowNum > $templateFirstCol)
+     {
+       $arr['position'] = 4;
+       $printButtons2[] = $arr;
+     }
+     else
+     {
+       $printButtons[] = $arr;
+     }
+   }
+   
+   $copyLinkOverride = "copy_invoice.php?func=$strFunc&amp;list=$strList&amp;id=$intInvoiceId";
    $astrFormElements =
     array(
      array(
         "name" => "base_id", "label" => $GLOBALS['locBILLER'], "type" => "LIST", "style" => "medium", "listquery" => "SELECT id, name FROM {prefix}base WHERE deleted=0 ORDER BY name", "position" => 1, "default" => 2, "allow_null" => FALSE ),
      $arrRefundedInvoice,
+     $arrRefundingInvoice,
      array(
         "name" => "name", "label" => $GLOBALS['locINVNAME'], "type" => "TEXT", "style" => "medium", "listquery" => "", "position" => 1, "default" => FALSE, "allow_null" => TRUE ),
-     $arrRefundingInvoice,
      array(
         "name" => "company_id", "label" => $GLOBALS['locPAYER'], "type" => "LIST", "style" => "medium", "listquery" => "SELECT id, company_name FROM {prefix}company WHERE deleted=0 ORDER BY company_name", "position" => 1, "default" => FALSE, "allow_null" => FALSE, 'quick_add' => $addCompanyCode, 'elem_attributes' => $companyOnChange ),
      array(
@@ -329,19 +351,27 @@ EOS;
         "name" => "archived", "label" => $GLOBALS['locARCHIVED'], "type" => "CHECK", "style" => "medium", "listquery" => "", "position" => 1, "default" => 0, "allow_null" => TRUE ),
      array(
         "name" => "getinvoiceno", "label" => $GLOBALS['locGETINVNO'], "type" => "BUTTON", "style" => "custom", "listquery" => "", "position" => 1, "default" => FALSE, "allow_null" => TRUE, 'elem_attributes' => $getInvoiceNo ),
-     array(
-        "name" => "printinvoice", "label" => $GLOBALS['locPRINTINV'], "type" => "JSBUTTON", "style" => $printStyle, "listquery" => "save_record('invoice.php?id=_ID_', '$printStyle'); return false;", "position" => 2, "default" => FALSE, "allow_null" => TRUE ),
-     array(
-        "name" => "addreminderfees", "label" => $GLOBALS['locADDREMINDERFEES'], "type" => "BUTTON", "style" => "redirect", "listquery" => "add_reminder_fees.php?func=$strFunc&list=$strList&id=_ID_", "position" => 1, "default" => FALSE, "allow_null" => TRUE ),
-     array(
-        "name" => "printdispatch", "label" => $GLOBALS['locPRINTDISPATCHNOTE'], "type" => "JSBUTTON", "style" => $printStyle, "listquery" => "save_record('invoice.php?id=_ID_&style=dispatch', '$printStyle'); return false;", "position" => 2, "default" => FALSE, "allow_null" => TRUE ),
+     isset($printButtons[0]) ? $printButtons[0] : array(),   
+     isset($printButtons2[0]) ? $printButtons2[0] : array(),   
      array(
         "name" => "refundinvoice", "label" => $GLOBALS['locREFUNDINV'], "type" => "BUTTON", "style" => "redirect", "listquery" => "copy_invoice.php?func=$strFunc&list=$strList&id=_ID_&refund=1", "position" => 1, "default" => FALSE, "allow_null" => TRUE ),
+     isset($printButtons[1]) ? $printButtons[1] : array(),   
+     isset($printButtons2[1]) ? $printButtons2[1] : array(),   
      array(
-        "name" => "printreceipt", "label" => $GLOBALS['locPRINTRECEIPT'], "type" => "JSBUTTON", "style" => $printStyle, "listquery" => "save_record('invoice.php?id=_ID_&style=receipt', '$printStyle'); return false;", "position" => 2, "default" => FALSE, "allow_null" => TRUE ),
-     array(
-        "name" => "invoice_rows", "label" => $GLOBALS['locINVROWS'], "type" => "IFORM", "style" => "xfull", "listquery" => "", "position" => 0, "default" => FALSE, "allow_null" => TRUE, "parent_key" => "invoice_id" )
+        "name" => "addreminderfees", "label" => $GLOBALS['locADDREMINDERFEES'], "type" => "BUTTON", "style" => "redirect", "listquery" => "add_reminder_fees.php?func=$strFunc&list=$strList&id=_ID_", "position" => 1, "default" => FALSE, "allow_null" => TRUE ),
+     isset($printButtons[2]) ? $printButtons[2] : array(),   
+     isset($printButtons2[2]) ? $printButtons2[2] : array(),   
     );
+    
+    for ($i = 3; $i < count($printButtons); $i++)
+    {
+      $astrFormElements[] = $printButtons[$i];
+      if (isset($printButtons2[$i]))
+        $astrFormElements[] = $printButtons2[$i];
+    }
+    
+    $astrFormElements[] = array(
+        "name" => "invoice_rows", "label" => $GLOBALS['locINVROWS'], "type" => "IFORM", "style" => "xfull", "listquery" => "", "position" => 0, "default" => FALSE, "allow_null" => TRUE, "parent_key" => "invoice_id" );
 break;
 case 'invoice_row':
 case 'invoice_rows':
@@ -450,9 +480,9 @@ EOF;
      array(
         "name" => "bank_account", "label" => $GLOBALS['locACCOUNT'], "type" => "TEXT", "style" => "medium", "listquery" => "", "position" => 2, "default" => FALSE, "allow_null" => FALSE ),
      array(
-        "name" => "bank_iban", "label" => $GLOBALS['locACCOUNTIBAN'], "type" => "TEXT", "style" => "medium", "listquery" => "", "position" => 3, "default" => FALSE, "allow_null" => FALSE ),
+        "name" => "bank_iban", "label" => $GLOBALS['locACCOUNTIBAN'], "type" => "TEXT", "style" => "medium", "listquery" => "", "position" => 1, "default" => FALSE, "allow_null" => FALSE ),
      array(
-        "name" => "bank_swiftbic", "label" => $GLOBALS['locSWIFTBIC'], "type" => "TEXT", "style" => "medium", "listquery" => "", "position" => 4, "default" => FALSE, "allow_null" => FALSE ),
+        "name" => "bank_swiftbic", "label" => $GLOBALS['locSWIFTBIC'], "type" => "TEXT", "style" => "medium", "listquery" => "", "position" => 2, "default" => FALSE, "allow_null" => FALSE ),
      array(
         "name" => "banksep2", "label" => $GLOBALS['locSECONDBANK'], "type" => "LABEL"),
      array(
@@ -460,9 +490,9 @@ EOF;
      array(
         "name" => "bank_account2", "label" => $GLOBALS['locACCOUNT'], "type" => "TEXT", "style" => "medium", "listquery" => "", "position" => 2, "default" => FALSE, "allow_null" => TRUE ),
      array(
-        "name" => "bank_iban2", "label" => $GLOBALS['locACCOUNTIBAN'], "type" => "TEXT", "style" => "medium", "listquery" => "", "position" => 3, "default" => FALSE, "allow_null" => TRUE ),
+        "name" => "bank_iban2", "label" => $GLOBALS['locACCOUNTIBAN'], "type" => "TEXT", "style" => "medium", "listquery" => "", "position" => 1, "default" => FALSE, "allow_null" => TRUE ),
      array(
-        "name" => "bank_swiftbic2", "label" => $GLOBALS['locSWIFTBIC'], "type" => "TEXT", "style" => "medium", "listquery" => "", "position" => 4, "default" => FALSE, "allow_null" => TRUE ),
+        "name" => "bank_swiftbic2", "label" => $GLOBALS['locSWIFTBIC'], "type" => "TEXT", "style" => "medium", "listquery" => "", "position" => 2, "default" => FALSE, "allow_null" => TRUE ),
      array(
         "name" => "banksep3", "label" => $GLOBALS['locTHIRDBANK'], "type" => "LABEL"),
      array(
@@ -470,9 +500,9 @@ EOF;
      array(
         "name" => "bank_account3", "label" => $GLOBALS['locACCOUNT'], "type" => "TEXT", "style" => "medium", "listquery" => "", "position" => 2, "default" => FALSE, "allow_null" => TRUE ),
      array(
-        "name" => "bank_iban3", "label" => $GLOBALS['locACCOUNTIBAN'], "type" => "TEXT", "style" => "medium", "listquery" => "", "position" => 3, "default" => FALSE, "allow_null" => TRUE ),
+        "name" => "bank_iban3", "label" => $GLOBALS['locACCOUNTIBAN'], "type" => "TEXT", "style" => "medium", "listquery" => "", "position" => 1, "default" => FALSE, "allow_null" => TRUE ),
      array(
-        "name" => "bank_swiftbic3", "label" => $GLOBALS['locSWIFTBIC'], "type" => "TEXT", "style" => "medium", "listquery" => "", "position" => 4, "default" => FALSE, "allow_null" => TRUE ),
+        "name" => "bank_swiftbic3", "label" => $GLOBALS['locSWIFTBIC'], "type" => "TEXT", "style" => "medium", "listquery" => "", "position" => 2, "default" => FALSE, "allow_null" => TRUE ),
      array(
         "name" => "logosep", "label" => $GLOBALS['locBaseLogoTitle'], "type" => "LABEL"),
      array(
@@ -575,6 +605,28 @@ case 'company_type':
             "name" => "order_no", "label" => $GLOBALS['locORDERNO'], "type" => "INT", "style" => "short", "listquery" => "", "position" => 2, "default" => FALSE, "allow_null" => FALSE )
         );
 break;
+
+case 'print_template':
+    $strTable = '{prefix}print_template';
+    $strPrimaryKey = "id";
+    
+    $elem_attributes = '';
+    $astrFormElements =
+      array(
+        array(
+          "name" => "type", "label" => $GLOBALS['locPrintTemplateType'], "type" => "LIST", "style" => "medium", "listquery" => "SELECT 'invoice' as id, '". $GLOBALS['locPrintTemplateTypeInvoice'] . "' as name", "position" => 1, "default" => FALSE, "allow_null" => FALSE ),
+        array(
+          "name" => "order_no", "label" => $GLOBALS['locORDERNO'], "type" => "INT", "style" => "short", "listquery" => "", "position" => 2, "default" => FALSE, "allow_null" => FALSE ),
+        array(
+          "name" => "name", "label" => $GLOBALS['locPrintTemplateName'], "type" => "TEXT", "style" => "medium", "listquery" => "", "position" => 1, "default" => FALSE, "allow_null" => FALSE ),
+        array(
+          "name" => "filename", "label" => $GLOBALS['locPrintTemplateFileName'], "type" => "TEXT", "style" => "medium", "listquery" => "", "position" => 2, "default" => FALSE, "allow_null" => TRUE ),
+        array(
+          "name" => "parameters", "label" => $GLOBALS['locPrintTemplateParameters'], "type" => "TEXT", "style" => "medium", "listquery" => "", "position" => 1, "default" => FALSE, "allow_null" => TRUE ),
+        array(
+          "name" => "output_filename", "label" => $GLOBALS['locPrintTemplateOutputFileName'], "type" => "TEXT", "style" => "medium", "listquery" => "", "position" => 2, "default" => FALSE, "allow_null" => TRUE ),
+     );
+     break;
 }
 
 // Clean up the array

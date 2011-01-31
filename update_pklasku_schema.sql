@@ -119,3 +119,15 @@ alter table pklasku_base add column (
   logo_width decimal(9,2) NULL,
   logo_bottom_margin decimal(9,2) NULL
 );
+
+CREATE TABLE pklasku_print_template (
+  id int(11) NOT NULL auto_increment,
+  deleted tinyint NOT NULL default 0,
+  name varchar(100) NOT NULL,
+  filename varchar(255) default NULL,
+  parameters varchar(255) NOT NULL,
+  output_filename varchar(255) default NULL,
+  type varchar(100) NOT NULL,
+  order_no int(11) default NULL,
+  PRIMARY KEY (id)
+) ENGINE=MyISAM;

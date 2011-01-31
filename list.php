@@ -121,18 +121,17 @@ function createHtmlList($strFunc, $strList, $strIDQuery, &$arrQueryParams, $strT
 
   $astrListValues = array(array());
   
-  $strSelectClause = "$strPrimaryKey,$strDeletedField,";
-  for( $j = 0; $j < count($astrShowFields); $j++ ) 
+  $strSelectClause = "$strPrimaryKey,$strDeletedField";
+  foreach ($astrShowFields as $field) 
   {
-    $strSelectClause .= $astrShowFields[$j]['name'] . ",";
+    $strSelectClause .= ',' . $field['name'];
   }
-  $strSelectClause = substr($strSelectClause, 0, -1);
   $strQuery =
     "SELECT $strSelectClause FROM $strTable ".
     "WHERE $strPrimaryKey IN ($strIDQuery) ";
+
   $intRes = mysql_param_query($strQuery, $arrQueryParams);
-  $row = mysql_fetch_row($intRes);
-  if (!$row)
+  if (mysql_num_rows($intRes) == 0)
   {
 ?>
   <div class="list_container">
@@ -145,20 +144,25 @@ function createHtmlList($strFunc, $strList, $strIDQuery, &$arrQueryParams, $strT
     return;
   }
   
-  for ($i = 0; $row; $i++, $row = mysql_fetch_row($intRes)) 
+  $i = -1;
+  while ($row = mysql_fetch_prefixed_assoc($intRes)) 
   {
-    $astrPrimaryKeys[$i] = $row[0];
-    $aboolDeleted[$i] = $row[1];
-    for ($j = 0; $j < count($astrShowFields); $j++) 
-    {
-      if( $astrShowFields[$j]['type'] == "TEXT" || $astrShowFields[$j]['type'] == "INT" ) 
+    ++$i;
+    $astrPrimaryKeys[$i] = $row[$strPrimaryKey];
+    $aboolDeleted[$i] = $row[$strDeletedField];
+    foreach ($astrShowFields as $field) 
+    { 
+      $name = $field['name'];
+      if ($field['type'] == 'TEXT' || $field['type'] == 'INT') 
       {
-        $astrListValues[$i][$j] = $row[$j + 2];
+        $value = $row[$name];
+        if (isset($field['mappings']) && isset($field['mappings'][$value]))
+          $value = $field['mappings'][$value];  
+        $astrListValues[$i][$name] = $value;
       }
-      elseif( $astrShowFields[$j]['type'] == "INTDATE" ) 
+      elseif ($field['type'] == 'INTDATE') 
       {
-        $astrListValues[$i][$j] = 
-          dateConvIntDate2Date($row[$j + 2]);
+        $astrListValues[$i][$name] = dateConvIntDate2Date($row[$name]);
       }
     }
   }
@@ -187,11 +191,11 @@ function createHtmlList($strFunc, $strList, $strIDQuery, &$arrQueryParams, $strT
       <thead>
         <tr>
 <?php
-  for( $j = 0; $j < count($astrShowFields); $j++ ) 
+  foreach ($astrShowFields as $field) 
   {
-    $strWidth = isset($astrShowFields[$j]['width']) ? (' width="' . $astrShowFields[$j]['width'] . '"') : '';
+    $strWidth = isset($field['width']) ? (' width="' . $field['width'] . '"') : '';
 ?>
-          <th class="label"<?php echo $strWidth?>><?php echo $astrShowFields[$j]['header']?></th>
+          <th class="label"<?php echo $strWidth?>><?php echo $field['header']?></th>
 <?php
   }
 ?>
@@ -199,7 +203,7 @@ function createHtmlList($strFunc, $strList, $strIDQuery, &$arrQueryParams, $strT
       </thead>
       <tbody>
 <?php
-  for( $i = 0; $i < count($astrListValues); $i++ ) 
+  for ($i = 0; $i < count($astrListValues); $i++) 
   {
     $strLink = "?func=$strFunc&amp;list=$strList&amp;form=$strMainForm&amp;id=" . $astrPrimaryKeys[$i];
     $deleted = $aboolDeleted[$i] ? ' deleted' : '';
@@ -207,10 +211,10 @@ function createHtmlList($strFunc, $strList, $strIDQuery, &$arrQueryParams, $strT
   
         <tr class="listrow">
 <?php
-    for( $j = 0; $j < count($astrListValues[$i]); $j++ ) 
+    foreach ($astrShowFields as $field) 
     {
 ?>
-          <td class="label<?php echo $deleted?>"><a class="navilink" href="<?php echo $strLink?>"><?php echo $astrListValues[$i][$j] ? htmlspecialchars($astrListValues[$i][$j]) : '&nbsp;'?></a></td>
+          <td class="label<?php echo $deleted?>"><a class="navilink" href="<?php echo $strLink?>"><?php echo trim($astrListValues[$i][$field['name']]) ? htmlspecialchars($astrListValues[$i][$field['name']]) : '&nbsp;'?></a></td>
 <?php
     }
 ?>

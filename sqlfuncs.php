@@ -108,6 +108,25 @@ function mysql_param_query($query, $params=false, $noFail=false)
   return mysql_query_check($query);
 } 
 
+function mysql_fetch_prefixed_assoc($result)
+{
+  if (!($row = mysql_fetch_row($result)))
+    return null;
+
+  $assoc = Array();
+  $columns = mysql_num_fields($result);
+  for ($i = 0; $i < $columns; $i++)
+  {
+    $table = mysql_field_table($result, $i);
+    $field = mysql_field_name($result, $i);
+    if (substr($table, 0, strlen(_DB_PREFIX_) + 1) == _DB_PREFIX_ . '_')
+      $assoc[$field] = $row[$i];
+    else
+      $assoc["$table.$field"] = $row[$i];
+  }
+  return $assoc;
+}
+
 function create_db_dump()
 {
   $in_tables = array('invoice_state', 'row_type', 'company_type', 'base', 'company', 'company_contact',

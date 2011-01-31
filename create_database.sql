@@ -193,6 +193,18 @@ CREATE TABLE vllasku_settings (
   PRIMARY KEY  (id)
 ) ENGINE=INNODB CHARACTER SET utf8 COLLATE utf8_swedish_ci;
 
+CREATE TABLE vllasku_print_template (
+  id int(11) NOT NULL auto_increment,
+  deleted tinyint NOT NULL default 0,
+  name varchar(100) NOT NULL,
+  filename varchar(255) default NULL,
+  parameters varchar(255) NOT NULL,
+  output_filename varchar(255) default NULL,
+  type varchar(100) NOT NULL,
+  order_no int(11) default NULL,
+  PRIMARY KEY (id)
+) ENGINE=INNODB CHARACTER SET utf8 COLLATE utf8_swedish_ci;
+
 SET NAMES 'utf8';
 
 INSERT INTO vllasku_company_type (id, name, order_no) VALUES (1, 'Autoilu', 5);
@@ -236,6 +248,10 @@ INSERT INTO vllasku_row_type (id, name, order_no) VALUES (8, 'km', 35);
 
 INSERT INTO vllasku_session_type (id, name, order_no, time_out, access_level) VALUES (1, 'Käyttäjä', 1, 3600, 1);
 INSERT INTO vllasku_session_type (id, name, order_no, time_out, access_level) VALUES (2, 'Admin', 2, 3600, 99);
+
+INSERT INTO vllasku_print_template (id, name, filename, parameters, output_filename, type, order_no) VALUES (1, 'Lasku', 'print_invoice.php', 'invoice', 'lasku_%d.pdf', 'invoice', 5);
+INSERT INTO vllasku_print_template (id, name, filename, parameters, output_filename, type, order_no) VALUES (2, 'Lähetysluettelo', 'print_invoice.php', 'dispatch', 'lahetysluettelo_%d.pdf','invoice', 10);
+INSERT INTO vllasku_print_template (id, name, filename, parameters, output_filename, type, order_no) VALUES (3, 'Kuitti', 'print_invoice.php', 'receipt', 'kuitti_%d.pdf','invoice', 15);
 
 INSERT INTO vllasku_users (id, name, email, login, passwd, type_id) VALUES (1, 'Administrator', 'foo@bar.fi.not', 'admin', md5('admin'), 2);
 

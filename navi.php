@@ -64,6 +64,7 @@ function createFuncMenu($strFunc)
       array("href" => "list=invoice_state", "text" => $GLOBALS['locINVOICESTATES'], "levels_allowed" => array(1)),
       array("href" => "list=product", "text" => $GLOBALS['locPRODUCTS'], "levels_allowed" => array(1)),
       array("href" => "list=row_type", "text" => $GLOBALS['locROWTYPES'], "levels_allowed" => array(1)),
+      array("href" => "list=print_template", "text" => $GLOBALS['locPrintTemplates'], "levels_allowed" => array(1)),
     );
     $strNewText = '';
     $strList = getRequest('list', '');
@@ -73,6 +74,7 @@ function createFuncMenu($strFunc)
     case 'invoice_state': $strNewText = $GLOBALS['locNEWINVOICESTATE']; break;
     case 'product': $strNewText = $GLOBALS['locNEWPRODUCT']; break;
     case 'row_type': $strNewText = $GLOBALS['locNEWROWTYPE']; break;
+    case 'print_template': $strNewText = $GLOBALS['locNewPrintTemplate']; break;
     }
     if ($strNewText)
       $strNewButton = "<a class=\"actionlink\" href=\"?func=settings&amp;list=$strList&amp;form=$strList\">$strNewText</a>";

@@ -146,6 +146,14 @@ default :
     $GLOBALS['locVATINCLUDED'] = 'Hinta sis‰lt‰‰ ALV:n';
     $GLOBALS['locVATINC'] = 'Sis.&nbsp;ALV';
     $GLOBALS['locACCESSLEVEL'] = 'Oikeustaso';
+
+    $GLOBALS['locPrintTemplates'] = 'Tulostusmallit';
+    $GLOBALS['locPrintTemplateName'] = 'Tulostusmallin nimi';
+    $GLOBALS['locPrintTemplateFileName'] = 'Tiedosto';
+    $GLOBALS['locPrintTemplateParameters'] = 'Parametrit';
+    $GLOBALS['locPrintTemplateOutputFileName'] = 'Tulostiedosto';
+    $GLOBALS['locPrintTemplateType'] = 'Tyyppi';
+    $GLOBALS['locPrintTemplateTypeInvoice'] = 'Lasku';
     
     
     //FORM ERRORS & MESSAGES
@@ -177,6 +185,7 @@ default :
     $GLOBALS['locNEWROWTYPE'] = 'Uusi laskurivityyppi';
     $GLOBALS['locNEWUSER'] = 'Uusi k‰ytt‰j‰';
     $GLOBALS['locNEWSESSIONTYPE'] = 'Uusi istunnon tyyppi';
+    $GLOBALS['locNewPrintTemplate'] = 'Uusi tulostusmalli';
     $GLOBALS['locDELETE'] = 'Poista';
     $GLOBALS['locPRINTADDR'] = 'Tulosta osoite';
     $GLOBALS['locPRINTINV'] = 'Tulosta lasku';
@@ -384,7 +393,7 @@ default :
     $GLOBALS['locSettingInvoicePeriodForComplaints'] = 'Huomautusaika';
     $GLOBALS['locSettingInvoicePenaltyInterestPercent'] = 'Viiv‰styskorkoprosentti';
     $GLOBALS['locSettingInvoiceNotificationFee'] = 'Huomautusmaksu';
-    $GLOBALS['locSettingInvoicePDFFilename'] = 'Laskun tiedostonimi (%s = laskun numero)';
+    $GLOBALS['locSettingInvoicePDFFilename'] = 'Laskun tiedostonimi (%s = laskun numero, tulostusmallin m‰‰ritys ohittaa t‰m‰n asetuksen)';
     $GLOBALS['locSettingInvoiceOpenInNewWindow'] = 'Avaa PDF-lasku uudessa ikkunassa';
 
     // Base logo

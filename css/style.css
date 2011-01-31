@@ -9,8 +9,13 @@ body {
 }
 
 form {
-  margin-bottom:0px;
-  margin-top:0px;
+  margin-bottom: 0px;
+  margin-top: 0px;
+}
+
+h1 {
+  font-size: 14px;
+  font-weight: bold;
 }
 
 div.navi {
@@ -37,13 +42,7 @@ div.form_buttons {
   margin: 5px;
 }
 
-h1 {
-  font-size: 14px;
-  font-weight: bold;
-}
-
-div.list_container
-{
+div.list_container {
   margin: 10px;
 }
 
@@ -90,14 +89,6 @@ div.field {
 div.report
 {
   margin: 10px;
-}
-
-body.iform {
-  margin: 0px;
-  padding: 2px;
-  font-size: 10px;
-  background-color: #EEEEEE;
-  border: none;
 }
 
 table {
@@ -183,6 +174,10 @@ td {
 td.button {
   vertical-align: top;
   padding: 2px 0px;
+}
+
+td.field {
+  padding-right: 16px;
 }
 
 td.error {
@@ -374,24 +369,11 @@ textarea.xlarge {
   width: 400px;
 }
 
-iframe {
-  font-size: 10px;
-  padding: 0px 0px 0px 0px;
-  border: 1px solid gray;
-}
-
-iframe.full {
-  height: 400px;
-  width: 900px;
-}
-iframe.xfull {
-  height: 400px;
-  width: 960px;
-}
-
 div.iform {
   padding: 0px 0px 0px 0px;
+  margin-top: 8px;
   border: 1px solid gray;
+  display: table;
 }
 
 div.column_mapping {
