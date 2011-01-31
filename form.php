@@ -159,8 +159,12 @@ function createForm($strFunc, $strList, $strForm)
     <input type="hidden" name="<?php echo $strPrimaryKey?>" value="<?php echo (isset($intKeyValue) && $intKeyValue) ? $intKeyValue : '' ?>">
 <?php
   $formClosed = false;
+  $prevPosition = FALSE;
+  $prevColSpan = 0;
   foreach ($astrFormElements as $elem) 
   {
+    if ($elem['type'] === FALSE)
+      continue;
     if ($elem['type'] == "LABEL") 
     {
   ?>
@@ -170,62 +174,82 @@ function createForm($strFunc, $strList, $strForm)
       </td>
     </tr>
   <?php
+      continue;
+    }
+    if ($elem['position'] == 0 || $elem['position'] < $prevPosition) 
+    {
+      $prevPosition = 0;
+      $prevColSpan = 1;
+      echo "    </tr>\n";
+    }
+    if ($prevPosition !== FALSE && $elem['position'] > 0)
+    {
+//error_log("ELEM: " . $elem['name'] . ' position: ' . $elem['position'] . ", prev: $prevPosition, $prevColSpan");
+      for ($i = $prevPosition + $prevColSpan; $i < $elem['position']; $i++)
+      {
+        echo "      <td class=\"label\">&nbsp;</td>";
+      }
+    }
+  
+    if ($elem['type'] == "IFORM") 
+    {
+    }
+    elseif ($elem['position'] == 0 && !strstr($elem['type'], "HID_")) 
+    {
+      echo "    <tr>\n";
+      $strColspan = "colspan=\"4\"";
+      $intColspan = 4;
+    }
+    elseif ($elem['position'] == 1 && !strstr($elem['type'], "HID_")) 
+    {
+      echo "    <tr>\n";
+      $strColspan = '';
+      $intColspan = 2;
     }
     else 
     {
-      if ($elem['position'] == 0 && !strstr($elem['type'], "HID_")) 
-      {
-        echo "    <tr>\n";
-        $strColspan = "colspan=\"3\"";
-        $intColspan = 4;
-      }
-      elseif ($elem['position'] == 1 && !strstr($elem['type'], "HID_")) 
-      {
-        echo "    <tr>\n";
-        $strColspan = '';
-        $intColspan = 2;
-      }
-      else 
-      {
-        $intColspan = 2;
-      }
-  
-      if ($blnNew && ($elem['type'] == 'BUTTON' || $elem['type'] == 'JSBUTTON' || $elem['type'] == 'IFORM' || $elem['type'] == 'IMAGE')) 
-      {
-        echo "      <td class=\"label\" colspan=\"2\">&nbsp;</td>";
-      }
-      elseif ($elem['type'] == "BUTTON" || $elem['type'] == "JSBUTTON") 
-      {
+      $intColspan = 2;
+    }
+
+    if ($blnNew && ($elem['type'] == 'BUTTON' || $elem['type'] == 'JSBUTTON' || $elem['type'] == 'IFORM' || $elem['type'] == 'IMAGE')) 
+    {
+      echo "      <td class=\"label\">&nbsp;</td>";
+    }
+    elseif ($elem['type'] == "BUTTON" || $elem['type'] == "JSBUTTON") 
+    {
+      $intColspan = 1;
 ?>
-      <td class="button" colspan="<?php echo $intColspan?>">
+      <td class="button">
         <?php echo htmlFormElement($elem['name'], $elem['type'], $astrValues[$elem['name']], $elem['style'], $elem['listquery'], "MODIFY", $elem['parent_key'],$elem['label'], array(), isset($elem['elem_attributes']) ? $elem['elem_attributes'] : '')?>
       </td>
 <?php          
-      }
-      elseif ($elem['type'] == "HID_INT" || strstr($elem['type'], "HID_")) 
-      {
+    }
+    elseif ($elem['type'] == "HID_INT" || strstr($elem['type'], "HID_")) 
+    {
 ?>
       <?php echo htmlFormElement($elem['name'], $elem['type'], $astrValues[$elem['name']], $elem['style'], $elem['listquery'], "MODIFY", $elem['parent_key'],$elem['label'])?>
 <?php          
-      }
-      elseif ($elem['type'] == "IMAGE") 
-      {
+    }
+    elseif ($elem['type'] == "IMAGE") 
+    {
 ?>
       <td class="image" colspan="<?php echo $intColspan?>">
           <?php echo htmlFormElement($elem['name'], $elem['type'], $astrValues[$elem['name']], $elem['style'], $elem['listquery'], "MODIFY", $elem['parent_key'],$elem['label'], array(), isset($elem['elem_attributes']) ? $elem['elem_attributes'] : '')?>
       </td>
 <?php          
-      }
-      elseif ($elem['type'] == "IFORM" && !$blnNew) 
-      {
-        $formClosed = true;
-        createIForm($astrFormElements, $elem, $intKeyValue);
-      }
-      else 
-      {
-        $value = $astrValues[$elem['name']];
-        if ($elem['style'] == 'measurement')
-          $value = $value ? miscRound2Decim($value, 2) : '';
+    }
+    elseif ($elem['type'] == "IFORM" && !$blnNew) 
+    {
+      echo "    </form>\n  </table\n";
+      $formClosed = true;
+      createIForm($astrFormElements, $elem, $intKeyValue);
+      break;
+    }
+    else 
+    {
+      $value = $astrValues[$elem['name']];
+      if ($elem['style'] == 'measurement')
+        $value = $value ? miscRound2Decim($value, 2) : '';
 ?>
       <td class="label">
         <?php echo $elem['label']?>
@@ -235,17 +259,12 @@ function createForm($strFunc, $strList, $strForm)
         <?php if (isset($elem['quick_add'])) echo $elem['quick_add']?>
       </td>
 <?php
-      }
-      
-      if ($elem['position'] == 0 || $elem['position'] == 2) 
-      {
-        echo "    </tr>\n";
-      }
     }
+    $prevPosition = is_int($elem['position']) ? $elem['position'] : 0;
+    $prevColSpan = $intColspan;
   }
-  ?>
-  </table>
-  <?php if (!$formClosed) echo "  </form>\n"?>
+?>
+  <?php if (!$formClosed) echo "    </form>\n  </table\n"?>
   </div>
 <script type="text/javascript">
 $(document).ready(function() { 
@@ -350,14 +369,6 @@ function save_record(redirect_url, redir_style)
 function createIForm($astrFormElements, $elem, $intKeyValue)
 {
 ?>
-    </form>
-    <tr>
-      <td class="label" colspan="4">
-        <?php echo $elem['label']?> 
-      </td>
-    </tr>
-    <tr>
-      <td class="label" colspan="4">
 <script type="text/javascript">
 
 function init_rows()
@@ -618,12 +629,12 @@ function popup_editor(event, title, id, copy_row)
     else
       form.id.value = id;
 <?php
-  foreach ($subFormElements as $elem)
+  foreach ($subFormElements as $subElem)
   {
-    if (in_array($elem['type'], array('HID_INT', 'SECHID_INT', 'BUTTON', 'NEWLINE', 'ROWSUM')))
+    if (in_array($subElem['type'], array('HID_INT', 'SECHID_INT', 'BUTTON', 'NEWLINE', 'ROWSUM')))
       continue;
-    $name = $elem['name'];
-    if ($elem['type'] == 'LIST')
+    $name = $subElem['name'];
+    if ($subElem['type'] == 'LIST')
     {
 ?>
     for (var i = 0; i < form.<?php echo $name?>.options.length; i++)
@@ -637,7 +648,7 @@ function popup_editor(event, title, id, copy_row)
     }
 <?php
     }
-    elseif ($elem['type'] == 'INT')
+    elseif ($subElem['type'] == 'INT')
     {
 ?> 
     form.<?php echo $name?>.value = json.<?php echo $name?> ? json.<?php echo $name?>.replace('.', ',') : '';
