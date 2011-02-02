@@ -128,6 +128,8 @@ CREATE TABLE vllasku_invoice (
   refunded_invoice_id int(11) default NULL,
   print_date int(11) default NULL,
   archived tinyint NOT NULL default 0,
+  info text default NULL,
+  internal_info text default NULL,
   PRIMARY KEY (id),
   FOREIGN KEY (company_id) REFERENCES vllasku_company(id),
   FOREIGN KEY (state_id) REFERENCES vllasku_invoice_state(id)

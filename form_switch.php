@@ -210,11 +210,15 @@ case 'invoice':
    }
    
    $companyOnChange = <<<EOS
-onchange = "$.getJSON('json.php?func=get_company&id=' + document.forms[0].company_id.value, function(json) { if (json.default_ref_number) document.forms[0].ref_number.value = json.default_ref_number;});"
+onchange = "$.getJSON('json.php?func=get_company&id=' + document.getElementById('company_id').value, function(json) { if (json && json.default_ref_number) document.getElementById('ref_number').value = json.default_ref_number;});"
 EOS;
 
    $getInvoiceNo = <<<EOS
-onclick = "$.getJSON('json.php?func=get_invoice_defaults&id=' + document.forms[0].id.value + '&base_id=' + document.forms[0].base_id.value, function(json) { var frm = document.forms[0]; frm.invoice_date.value = json.date; frm.due_date.value = json.due_date; frm.invoice_no.value = json.invoice_no; frm.ref_number.value = json.ref_no;}); return false;"
+$.getJSON('json.php?func=get_invoice_defaults&id=' + document.forms[0].id.value + '&base_id=' + document.getElementById('base_id').value, function(json) { document.getElementById('invoice_no').value = json.invoice_no; document.getElementById('ref_number').value = json.ref_no; }); return false;
+EOS;
+
+   $updateDates = <<<EOS
+$.getJSON('json.php?func=get_invoice_defaults&id=' + document.forms[0].id.value + '&base_id=' + document.getElementById('base_id').value, function(json) { document.getElementById('invoice_date').value = json.date; document.getElementById('due_date').value = json.due_date; }); return false;
 EOS;
 
    $locNew = $GLOBALS['locNEW'] . '...';
@@ -299,6 +303,12 @@ function init_company_list(selected_id)
 
 EOS;
    
+   $invoiceDateCheck = '';
+   if (getSetting('invoice_warn_if_noncurrent_date'))
+   {
+     $invoiceDateCheck = "var d = new Date(); var dt = document.getElementById('invoice_date').value.split('.'); if (parseInt(dt[0]) != d.getDate() || parseInt(dt[1]) != d.getMonth()+1 || parseInt(dt[2]) != d.getYear() + 1900) alert('" . $GLOBALS['locInvoiceDateNonCurrent'] . "'); ";
+   }
+   
    // Print buttons
    $printStyle = getSetting('invoice_new_window') ? 'openwindow' : 'redirect';
    $printButtons = array();
@@ -310,7 +320,7 @@ EOS;
    while ($row = mysql_fetch_assoc($res))
    {
      $templateId = $row['id'];
-     $arr = array('name' => "print$templateId", 'label' => $row['name'], 'type' => 'JSBUTTON', 'style' => $printStyle, 'listquery' => "save_record('invoice.php?id=_ID_&template=$templateId', '$printStyle'); return false;", 'position' => 3, 'default' => FALSE, 'allow_null' => TRUE );
+     $arr = array('name' => "print$templateId", 'label' => $row['name'], 'type' => 'JSBUTTON', 'style' => $printStyle, 'listquery' => "${invoiceDateCheck}save_record('invoice.php?id=_ID_&template=$templateId', '$printStyle'); return false;", 'position' => 3, 'default' => FALSE, 'allow_null' => TRUE );
      if (++$rowNum > $templateFirstCol)
      {
        $arr['position'] = 4;
@@ -332,17 +342,21 @@ EOS;
      array(
         "name" => "name", "label" => $GLOBALS['locINVNAME'], "type" => "TEXT", "style" => "medium", "listquery" => "", "position" => 1, "default" => FALSE, "allow_null" => TRUE ),
      array(
-        "name" => "company_id", "label" => $GLOBALS['locPAYER'], "type" => "LIST", "style" => "medium", "listquery" => "SELECT id, company_name FROM {prefix}company WHERE deleted=0 ORDER BY company_name", "position" => 1, "default" => FALSE, "allow_null" => FALSE, 'quick_add' => $addCompanyCode, 'elem_attributes' => $companyOnChange ),
+        "name" => "company_id", "label" => $GLOBALS['locPAYER'], "type" => "LIST", "style" => "medium", "listquery" => "SELECT id, IF(STRCMP(company_id,''), CONCAT(company_name, ' (', company_id, ')'), company_name) FROM {prefix}company WHERE deleted=0 ORDER BY company_name", "position" => 1, "default" => FALSE, "allow_null" => FALSE, 'quick_add' => $addCompanyCode, 'elem_attributes' => $companyOnChange ),
      array(
         "name" => "reference", "label" => $GLOBALS['locCLIENTSREFERENCE'], "type" => "TEXT", "style" => "medium", "listquery" => "", "position" => 2, "default" => FALSE, "allow_null" => TRUE ),
+     array(
+        "name" => "invoice_no", "label" => $GLOBALS['locINVNO'], "type" => "INT", "style" => "medium", "listquery" => "", "position" => 1, "default" => $defaultInvNo, "allow_null" => TRUE ),
+     array(
+        "name" => "ref_number", "label" => $GLOBALS['locREFNO'], "type" => "INT", "style" => "medium", "listquery" => "", "position" => 2, "default" => $defaultRefNo, "allow_null" => TRUE ),
+     array(
+        "name" => "getinvoiceno", "label" => $GLOBALS['locGetInvoiceNo'], "type" => "JSBUTTON", "style" => "custom", "listquery" => $getInvoiceNo, "position" => 5, "default" => FALSE, "allow_null" => TRUE ),
      array(
         "name" => "invoice_date", "label" => $GLOBALS['locINVDATE'], "type" => "INTDATE", "style" => "date", "listquery" => "", "position" => 1, "default" => "DATE_NOW", "allow_null" => FALSE ),
      array(
         "name" => "due_date", "label" => $GLOBALS['locDUEDATE'], "type" => "INTDATE", "style" => "date", "listquery" => "", "position" => 2, "default" => 'DATE_NOW+' . getSetting('invoice_payment_days'), "allow_null" => FALSE ),
      array(
-        "name" => "invoice_no", "label" => $GLOBALS['locINVNO'], "type" => "INT", "style" => "medium", "listquery" => "", "position" => 1, "default" => $defaultInvNo, "allow_null" => TRUE ),
-     array(
-        "name" => "ref_number", "label" => $GLOBALS['locREFNO'], "type" => "INT", "style" => "medium", "listquery" => "", "position" => 2, "default" => $defaultRefNo, "allow_null" => TRUE ),
+        "name" => "updatedates", "label" => $GLOBALS['locUpdateDates'], "type" => "JSBUTTON", "style" => "custom", "listquery" => "$updateDates", "position" => 5, "default" => FALSE, "allow_null" => TRUE ),
      array(
         "name" => "state_id", "label" => $GLOBALS['locSTATUS'], "type" => "LIST", "style" => "medium", "listquery" => "SELECT id, name FROM {prefix}invoice_state WHERE deleted=0 ORDER BY order_no", "position" => 1, "default" => 1, "allow_null" => FALSE ),
      array(
@@ -350,20 +364,21 @@ EOS;
      array(
         "name" => "archived", "label" => $GLOBALS['locARCHIVED'], "type" => "CHECK", "style" => "medium", "listquery" => "", "position" => 1, "default" => 0, "allow_null" => TRUE ),
      array(
-        "name" => "getinvoiceno", "label" => $GLOBALS['locGETINVNO'], "type" => "BUTTON", "style" => "custom", "listquery" => "", "position" => 1, "default" => FALSE, "allow_null" => TRUE, 'elem_attributes' => $getInvoiceNo ),
+        "name" => "info", "label" => $GLOBALS['locVisibleInfo'], "type" => "AREA", "style" => "medium", "listquery" => "", "position" => 1, "default" => FALSE, "allow_null" => TRUE ),
+     array(
+        "name" => "internal_info", "label" => $GLOBALS['locINTERNALINFO'], "type" => "AREA", "style" => "medium", "listquery" => "", "position" => 2, "default" => FALSE, "allow_null" => TRUE ),
+        
+     array(
+        "name" => "refundinvoice", "label" => $GLOBALS['locREFUNDINV'], "type" => "BUTTON", "style" => "redirect", "listquery" => "copy_invoice.php?func=$strFunc&list=$strList&id=_ID_&refund=1", "position" => 1, "default" => FALSE, "allow_null" => TRUE ),
      isset($printButtons[0]) ? $printButtons[0] : array(),   
      isset($printButtons2[0]) ? $printButtons2[0] : array(),   
      array(
-        "name" => "refundinvoice", "label" => $GLOBALS['locREFUNDINV'], "type" => "BUTTON", "style" => "redirect", "listquery" => "copy_invoice.php?func=$strFunc&list=$strList&id=_ID_&refund=1", "position" => 1, "default" => FALSE, "allow_null" => TRUE ),
+        "name" => "addreminderfees", "label" => $GLOBALS['locADDREMINDERFEES'], "type" => "BUTTON", "style" => "redirect", "listquery" => "add_reminder_fees.php?func=$strFunc&list=$strList&id=_ID_", "position" => 1, "default" => FALSE, "allow_null" => TRUE ),
      isset($printButtons[1]) ? $printButtons[1] : array(),   
      isset($printButtons2[1]) ? $printButtons2[1] : array(),   
-     array(
-        "name" => "addreminderfees", "label" => $GLOBALS['locADDREMINDERFEES'], "type" => "BUTTON", "style" => "redirect", "listquery" => "add_reminder_fees.php?func=$strFunc&list=$strList&id=_ID_", "position" => 1, "default" => FALSE, "allow_null" => TRUE ),
-     isset($printButtons[2]) ? $printButtons[2] : array(),   
-     isset($printButtons2[2]) ? $printButtons2[2] : array(),   
     );
     
-    for ($i = 3; $i < count($printButtons); $i++)
+    for ($i = 2; $i < count($printButtons); $i++)
     {
       $astrFormElements[] = $printButtons[$i];
       if (isset($printButtons2[$i]))

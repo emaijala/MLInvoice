@@ -88,7 +88,8 @@ default :
     $GLOBALS['locPAYDATE'] = 'Maksupvm';
     $GLOBALS['locSTATUS'] = 'Tila';
     $GLOBALS['locARCHIVED'] = 'Arkistoitu';
-    $GLOBALS['locGETINVNO'] = 'Hae päivämäärät, laskunro ja viitenro';
+    $GLOBALS['locGetInvoiceNo'] = 'Päivitä laskunro ja viitenro';
+    $GLOBALS['locUpdateDates'] = 'Päivitä päivämäärät';
     $GLOBALS['locINVROWS'] = 'Laskurivit';
     $GLOBALS['locORDERNO'] = 'Järj.nro';
     $GLOBALS['locROWTYPE'] = 'Rivityyppi';
@@ -141,6 +142,7 @@ default :
     $GLOBALS['locPRODUCTCODE'] = 'Tuotekoodi';
     $GLOBALS['locPRODUCTGROUP'] = 'Tuoteryhmä';
     $GLOBALS['locINTERNALINFO'] = 'Lisätiedot (ei näytetä)';
+    $GLOBALS['locVisibleInfo'] = 'Näytettävät lisätiedot';
     $GLOBALS['locUNITPRICE'] = 'Yksikköhinta';
     $GLOBALS['locVATPERCENT'] = 'ALV %';
     $GLOBALS['locVATINCLUDED'] = 'Hinta sisältää ALV:n';
@@ -171,6 +173,7 @@ default :
     $GLOBALS['locErrFileUploadFailed'] = 'Tiedoston lataus epäonnistui';
     $GLOBALS['locErrFileTypeInvalid'] = 'Tiedoston tyyppi ei kelpaa';
     $GLOBALS['locErrImportFileNotFound'] = 'Tiedostoa ei löytynyt - tarkista asetukset';
+    $GLOBALS['locInvoiceDateNonCurrent'] = 'Huom! Laskun päivämäärä poikkeaa nykyisestä';
     
     //FORM BUTTON HELPERS
     $GLOBALS['locSAVE'] = 'Tallenna';
@@ -325,6 +328,7 @@ default :
     $GLOBALS['locSECONDREMINDERNOTE'] = "Kirjanpitomme mukaan laskunne on edelleen maksamatta. Olkaa hyvä ja maksakaa lasku välittömästi samaa viitenumeroa käyttäen.";
     $GLOBALS['locREMINDERFEEDESC'] = 'Maksukehotus';
     $GLOBALS['locPENALTYINTERESTDESC'] = 'Viivästyskorko';
+    $GLOBALS['locPDFAdditionalInformation'] = 'Lisätiedot';
         
     //REPORTS
     $GLOBALS['locPRINTINVOICEREPORT'] = 'Tulosta laskutusraportti';
@@ -395,6 +399,7 @@ default :
     $GLOBALS['locSettingInvoiceNotificationFee'] = 'Huomautusmaksu';
     $GLOBALS['locSettingInvoicePDFFilename'] = 'Laskun tiedostonimi (%s = laskun numero, tulostusmallin määritys ohittaa tämän asetuksen)';
     $GLOBALS['locSettingInvoiceOpenInNewWindow'] = 'Avaa PDF-lasku uudessa ikkunassa';
+    $GLOBALS['locSettingInvoiceWarnIfNonCurrentDate'] = 'Varoita tulostettaessa, jos laskun päivämäärä poikkeaa nykyisestä';
 
     // Base logo
     $GLOBALS['locBaseLogoTitle'] = 'Logo';

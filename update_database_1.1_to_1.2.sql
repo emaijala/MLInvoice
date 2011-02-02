@@ -9,3 +9,8 @@ CREATE TABLE vllasku_print_template (
   order_no int(11) default NULL,
   PRIMARY KEY (id)
 ) ENGINE=INNODB CHARACTER SET utf8 COLLATE utf8_swedish_ci;
+
+alter table vllasku_invoice add column (
+  info text default NULL,
+  internal_info text default NULL
+);

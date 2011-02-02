@@ -49,11 +49,13 @@ div.list_container {
 div.message {
   margin: 10px;
   font-weight: bold; 
+  color: red;
 }
 
 span.message {
   margin: 4px;
   font-weight: bold;
+  color: red;
 }
 
 div.form_container {

@@ -47,7 +47,7 @@ $printParameters = $row[1];
 $printOutputFileName = $row[2];
   
 $strQuery = 
-  "SELECT inv.invoice_no, inv.invoice_date, inv.due_date, inv.ref_number, inv.name AS invoice_name, inv.reference, comp.company_name AS name, '' AS contact_person, comp.email, comp.billing_address, comp.company_name, comp.street_address, comp.zip_code, comp.city, inv.base_id, inv.state_id, inv.print_date, comp.customer_no, ref.invoice_no as refunded_invoice_no " .
+  "SELECT inv.invoice_no, inv.invoice_date, inv.due_date, inv.ref_number, inv.name AS invoice_name, inv.reference, comp.company_name AS name, '' AS contact_person, comp.email, comp.billing_address, comp.company_name, comp.street_address, comp.zip_code, comp.city, inv.base_id, inv.state_id, inv.print_date, comp.customer_no, ref.invoice_no as refunded_invoice_no, inv.info as invoice_info " .
   "FROM {prefix}invoice inv " .
   "INNER JOIN {prefix}company comp ON comp.id = inv.company_id ".
   "LEFT OUTER JOIN {prefix}invoice ref ON ref.id = inv.refunded_invoice_id ".

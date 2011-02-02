@@ -426,18 +426,19 @@ function htmlFormElement( $strName, $strType, $strValue, $strStyle, $strListQuer
                 "<a class=\"formbuttonlink\" href=\"$strHref\" $strOnClick$astrAdditionalAttributes>" . htmlspecialchars($strTitle) . "</a>\n";
         break;
         case 'JSBUTTON' :
-            if( $strValue ) 
-            {
-              $strListQuery = str_replace("_ID_", $strValue, $strListQuery);
-              $strOnClick = "onClick=\"$strListQuery\"";
-              $strFormElement = 
-                "<a class=\"formbuttonlink\" href=\"#\" $strOnClick$astrAdditionalAttributes>" . htmlspecialchars($strTitle) . "</a>\n";
-            }
-            else 
-            {
-              $strFormElement = $GLOBALS['locSAVEFIRST'];
-            }
-        break;
+          if (strstr($strListQuery, '_ID_') && !$strValue)
+          {
+            $strFormElement = $GLOBALS['locSAVEFIRST'];
+          }
+          else
+          {
+            if ($strValue)
+              $strListQuery = str_replace('_ID_', $strValue, $strListQuery);
+            $strOnClick = "onClick=\"$strListQuery\"";
+            $strFormElement = 
+              "<a class=\"formbuttonlink\" href=\"#\" $strOnClick$astrAdditionalAttributes>" . htmlspecialchars($strTitle) . "</a>\n";
+          }
+          break;
         case 'IMAGE' :
             $strListQuery = str_replace("_ID_", $strValue, $strListQuery);
             $strFormElement = "<img class=\"$strStyle\" src=\"$strListQuery\" title=\"" . htmlspecialchars($strTitle) . "\"></div>\n";

@@ -113,6 +113,12 @@ if ($strReference && $printStyle != 'dispatch')
   $pdf->Cell(40, 5, $GLOBALS['locYOURREFERENCE'] .": ", 0, 0, 'R');
   $pdf->Cell(60, 5, $strReference, 0, 1);
 }
+if (isset($invoiceData['invoice_info']) && $invoiceData['invoice_info'])
+{
+  $pdf->SetX(115);
+  $pdf->Cell(40, 5, $GLOBALS['locPDFAdditionalInformation'] . ': ', 0, 0, 'R');
+  $pdf->MultiCell(50, 5, $invoiceData['invoice_info'], 0, 'L', 0);
+}
 
 if ($strRefundedInvoiceNo)
 {

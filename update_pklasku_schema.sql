@@ -131,3 +131,8 @@ CREATE TABLE pklasku_print_template (
   order_no int(11) default NULL,
   PRIMARY KEY (id)
 ) ENGINE=MyISAM;
+
+alter table pklasku_invoice add column (
+  info text default NULL,
+  internal_info text default NULL
+);

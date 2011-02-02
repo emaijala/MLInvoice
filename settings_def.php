@@ -38,4 +38,5 @@ $arrSettings = array(
   'invoice_notification_fee' => array('label' => $GLOBALS['locSettingInvoiceNotificationFee'], 'type' => 'CURRENCY', 'style' => 'currency', 'position' => 1, 'default' => 5, 'allow_null' => FALSE ),
   'invoice_pdf_filename' => array('label' => $GLOBALS['locSettingInvoicePDFFilename'], 'type' => 'TEXT', 'style' => 'medium', 'position' => 1, 'default' => 'lasku_%s.pdf', 'allow_null' => FALSE ),
   'invoice_new_window' => array('label' => $GLOBALS['locSettingInvoiceOpenInNewWindow'], 'type' => 'CHECK', 'style' => 'medium', 'position' => 1, 'default' => 0, 'allow_null' => TRUE ),
+  'invoice_warn_if_noncurrent_date' => array('label' => $GLOBALS['locSettingInvoiceWarnIfNonCurrentDate'], 'type' => 'CHECK', 'style' => 'medium', 'position' => 1, 'default' => 1, 'allow_null' => TRUE ),
 );
