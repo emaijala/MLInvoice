@@ -342,7 +342,7 @@ EOS;
      array(
         "name" => "name", "label" => $GLOBALS['locINVNAME'], "type" => "TEXT", "style" => "medium", "listquery" => "", "position" => 1, "default" => FALSE, "allow_null" => TRUE ),
      array(
-        "name" => "company_id", "label" => $GLOBALS['locPAYER'], "type" => "LIST", "style" => "medium", "listquery" => "SELECT id, IF(STRCMP(company_id,''), CONCAT(company_name, ' (', company_id, ')'), company_name) FROM {prefix}company WHERE deleted=0 ORDER BY company_name", "position" => 1, "default" => FALSE, "allow_null" => FALSE, 'quick_add' => $addCompanyCode, 'elem_attributes' => $companyOnChange ),
+        "name" => "company_id", "label" => $GLOBALS['locPAYER'], "type" => "LIST", "style" => "medium", "listquery" => "SELECT id, IF(STRCMP(company_id,''), CONCAT(company_name, ' (', company_id, ')'), company_name) FROM {prefix}company WHERE deleted=0 ORDER BY company_name", "position" => 1, "default" => FALSE, 'allow_null' => TRUE, 'quick_add' => $addCompanyCode, 'elem_attributes' => $companyOnChange ),
      array(
         "name" => "reference", "label" => $GLOBALS['locCLIENTSREFERENCE'], "type" => "TEXT", "style" => "medium", "listquery" => "", "position" => 2, "default" => FALSE, "allow_null" => TRUE ),
      array(
