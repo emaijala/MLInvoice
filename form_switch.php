@@ -292,6 +292,8 @@ function init_company_list(selected_id)
       var option = document.createElement('option');
       option.value = record.id;
       option.text = record.company_name;
+      if (record.company_id)
+        option.text += ' (' + record.company_id + ')';
       if (record.id == selected_id)
         option.selected = true;
       company_id.options.add(option);
@@ -607,18 +609,6 @@ case 'user':
             array(
             "name" => "type_id", "label" => $GLOBALS['locTYPE'], "type" => "LIST", "style" => "medium", "listquery" => "SELECT id, name FROM {prefix}session_type WHERE deleted=0 ORDER BY order_no", "position" => 0, "default" => FALSE, "allow_null" => FALSE )
     );
-break;
-
-case 'company_type':
-    $strTable = '{prefix}company_type';
-    $strPrimaryKey = "id";
-    $astrFormElements =
-        array(
-            array(
-            "name" => "name", "label" => $GLOBALS['locCOMPTYPE'], "type" => "TEXT", "style" => "medium", "listquery" => "", "position" => 1, "default" => FALSE, "allow_null" => FALSE ),
-            array(
-            "name" => "order_no", "label" => $GLOBALS['locORDERNO'], "type" => "INT", "style" => "short", "listquery" => "", "position" => 2, "default" => FALSE, "allow_null" => FALSE )
-        );
 break;
 
 case 'print_template':

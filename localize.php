@@ -52,10 +52,9 @@ default :
     $GLOBALS['locBACKTOLOGIN'] = 'Takaisin kirjautumaan';
     
     //FORM LABELS
-    $GLOBALS['locCOMPNAME'] = 'Yrityksen nimi';
+    $GLOBALS['locCOMPNAME'] = 'Asiakkaan nimi';
     $GLOBALS['locCOMPVATID'] = 'Y-tunnus';
     $GLOBALS['locCONTACTPERS'] = 'Kontakti';
-    $GLOBALS['locCOMPTYPE'] = 'Yritystyyppi';
     $GLOBALS['locEMAIL'] = 'Email';
     $GLOBALS['locCUSTOMERNO'] = 'Asiakasnro';
     $GLOBALS['locCUSTOMERNUMBER'] = 'Asiakasnumero';
@@ -79,7 +78,7 @@ default :
     $GLOBALS['locPERSONID'] = 'Henk.tunnus';
     $GLOBALS['locINVNAME'] = 'Laskun nimi';
     $GLOBALS['locINVNO'] = 'Laskunro';
-    $GLOBALS['locPAYER'] = 'Maksaja';
+    $GLOBALS['locPAYER'] = 'Asiakas';
     $GLOBALS['locCLIENTSREFERENCE'] = 'Asiakkaan viite';
     $GLOBALS['locYOURREFERENCE'] = 'Viitteenne';
     $GLOBALS['locINVDATE'] = 'Laskupvm';
@@ -126,7 +125,7 @@ default :
     $GLOBALS['locPERSONTITLE'] = 'Titteli';
     $GLOBALS['locFAX'] = 'Fax';
     $GLOBALS['locLABELCONTACTINFO'] = 'Yhteystiedot';
-    $GLOBALS['locCOMPANY'] = 'Yritys';
+    $GLOBALS['locCOMPANY'] = 'Asiakas';
     $GLOBALS['locNOTINUSE'] = 'Poissa käytöstä';
     $GLOBALS['locNOTICE'] = 'Huomautukset';
     $GLOBALS['locPAYMENTTYPE'] = 'Maksutapa';
@@ -224,8 +223,6 @@ default :
     $GLOBALS['locINVOICESTATE'] = 'Laskun tila';
     $GLOBALS['locROWTYPES'] = 'Laskurivityypit';
     $GLOBALS['locROWTYPE'] = 'Laskurivityyppi';
-    $GLOBALS['locCOMPANYTYPES'] = 'Yritystyypit';
-    $GLOBALS['locCOMPANYTYPE'] = 'Yritystyyppi';
     $GLOBALS['locCOMPANIES'] = 'Asiakkaat';
     $GLOBALS['locCOMPANY'] = 'Asiakas';
     $GLOBALS['locPRODUCTS'] = 'Tuotteet';
@@ -270,7 +267,7 @@ default :
     $GLOBALS['locHEADERINVOICEREFERENCE'] = 'Viitenro';       
     $GLOBALS['locHEADERINVOICESTATE'] = 'Tila';
     $GLOBALS['locHEADERINVOICEBASE'] = 'Laskuttaja';
-    $GLOBALS['locHEADERINVOICECOMPANY'] = 'Maksaja';
+    $GLOBALS['locHEADERINVOICECOMPANY'] = 'Asiakas';
 
     // TABLE TEXTS
     $GLOBALS['locTABLETEXTS'] = 
