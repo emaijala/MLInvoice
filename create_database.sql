@@ -79,6 +79,7 @@ CREATE TABLE vllasku_company (
   company_id varchar(15) default NULL,
   customer_no int(11) default NULL,
   default_ref_number varchar(100) default NULL,
+  inactive tinyint NOT NULL default 0,
   PRIMARY KEY (id),
   FOREIGN KEY (type_id) REFERENCES vllasku_company_type(id)
 ) ENGINE=INNODB CHARACTER SET utf8 COLLATE utf8_swedish_ci;

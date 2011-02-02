@@ -70,9 +70,11 @@ case 'company':
      array(
         "name" => "company_name", "label" => $GLOBALS['locCOMPNAME'], "type" => "TEXT", "style" => "medium", "listquery" => "", "position" => 1, "default" => FALSE, "allow_null" => FALSE ),
      array(
-        "name" => "company_id", "label" => $GLOBALS['locCOMPVATID'], "type" => "TEXT", "style" => "medium", "listquery" => "", "position" => 2, "default" => FALSE, "allow_null" => TRUE ),
+        "name" => "inactive", "label" => $GLOBALS['locCompanyInactive'], "type" => "CHECK", "style" => "medium", "listquery" => "", "position" => 2, "default" => 0, "allow_null" => TRUE ),
      array(
-        "name" => "email", "label" => $GLOBALS['locEMAIL'], "type" => "TEXT", "style" => "medium", "listquery" => "", "position" => 1, "default" => FALSE, "allow_null" => TRUE ),
+        "name" => "company_id", "label" => $GLOBALS['locCOMPVATID'], "type" => "TEXT", "style" => "medium", "listquery" => "", "position" => 1, "default" => FALSE, "allow_null" => TRUE ),
+     array(
+        "name" => "email", "label" => $GLOBALS['locEMAIL'], "type" => "TEXT", "style" => "medium", "listquery" => "", "position" => 2, "default" => FALSE, "allow_null" => TRUE ),
      array(
         "name" => "customer_no", "label" => $GLOBALS['locCUSTOMERNO'], "type" => "INT", "style" => "medium", "listquery" => "", "position" => 1, "default" => $defaultCustomerNo, "allow_null" => TRUE ),
      array(
@@ -289,6 +291,8 @@ function init_company_list(selected_id)
     for (var i = 0; i < json.records.length; i++)
     {
       var record = json.records[i];
+      if (record.inactive == 1 && record.id != selected_id)
+        continue;
       var option = document.createElement('option');
       option.value = record.id;
       option.text = record.company_name;
@@ -338,13 +342,13 @@ EOS;
    $astrFormElements =
     array(
      array(
-        "name" => "base_id", "label" => $GLOBALS['locBILLER'], "type" => "LIST", "style" => "medium", "listquery" => "SELECT id, name FROM {prefix}base WHERE deleted=0 ORDER BY name", "position" => 1, "default" => 2, "allow_null" => FALSE ),
+        "name" => "base_id", "label" => $GLOBALS['locBILLER'], "type" => "LIST", "style" => "medium", "listquery" => "SELECT id, name FROM {prefix}base WHERE deleted=0", "position" => 1, "default" => 2, "allow_null" => FALSE ),
      $arrRefundedInvoice,
      $arrRefundingInvoice,
      array(
         "name" => "name", "label" => $GLOBALS['locINVNAME'], "type" => "TEXT", "style" => "medium", "listquery" => "", "position" => 1, "default" => FALSE, "allow_null" => TRUE ),
      array(
-        "name" => "company_id", "label" => $GLOBALS['locPAYER'], "type" => "LIST", "style" => "medium", "listquery" => "SELECT id, IF(STRCMP(company_id,''), CONCAT(company_name, ' (', company_id, ')'), company_name) FROM {prefix}company WHERE deleted=0 ORDER BY company_name", "position" => 1, "default" => FALSE, 'allow_null' => TRUE, 'quick_add' => $addCompanyCode, 'elem_attributes' => $companyOnChange ),
+        "name" => "company_id", "label" => $GLOBALS['locPAYER'], "type" => "LIST", "style" => "medium", "listquery" => "SELECT id, IF(STRCMP(company_id,''), CONCAT(company_name, ' (', company_id, ')'), company_name) FROM {prefix}company WHERE deleted=0 AND (inactive=0 OR id IN (SELECT company_id FROM {prefix}invoice i WHERE i.id=$intInvoiceId)) ORDER BY company_name, company_id", "position" => 1, "default" => FALSE, 'allow_null' => TRUE, 'quick_add' => $addCompanyCode, 'elem_attributes' => $companyOnChange ),
      array(
         "name" => "reference", "label" => $GLOBALS['locCLIENTSREFERENCE'], "type" => "TEXT", "style" => "medium", "listquery" => "", "position" => 2, "default" => FALSE, "allow_null" => TRUE ),
      array(

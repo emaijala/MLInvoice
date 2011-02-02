@@ -136,3 +136,7 @@ alter table pklasku_invoice add column (
   info text default NULL,
   internal_info text default NULL
 );
+
+alter table pklasku_company add column (
+  inactive tinyint NOT NULL default 0
+);

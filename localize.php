@@ -147,6 +147,7 @@ default :
     $GLOBALS['locVATINCLUDED'] = 'Hinta sisältää ALV:n';
     $GLOBALS['locVATINC'] = 'Sis.&nbsp;ALV';
     $GLOBALS['locACCESSLEVEL'] = 'Oikeustaso';
+    $GLOBALS['locCompanyInactive'] = 'Asiakas pois käytöstä';
 
     $GLOBALS['locPrintTemplates'] = 'Tulostusmallit';
     $GLOBALS['locPrintTemplateName'] = 'Tulostusmallin nimi';
@@ -258,6 +259,10 @@ default :
     $GLOBALS['locBACKUPDATABASE'] = 'Tietokannan varmuuskopiointi';
     $GLOBALS['locImportData'] = 'Tietojen tuonti';
     $GLOBALS['locExportData'] = 'Tietojen vienti';
+    $GLOBALS['locHeaderCompanyActive'] = 'Käytössä';
+    $GLOBALS['locActive'] = 'Käytössä';
+    $GLOBALS['locInactive'] = 'Ei käytössä';
+    
     
     // LIST HEADERS
     $GLOBALS['locHEADERINVOICEDATE'] = 'Päivämäärä';       
