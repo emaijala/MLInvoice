@@ -174,6 +174,7 @@ default :
     $GLOBALS['locErrFileTypeInvalid'] = 'Tiedoston tyyppi ei kelpaa';
     $GLOBALS['locErrImportFileNotFound'] = 'Tiedostoa ei löytynyt - tarkista asetukset';
     $GLOBALS['locInvoiceDateNonCurrent'] = 'Huom! Laskun päivämäärä poikkeaa nykyisestä';
+    $GLOBALS['locInvoiceNumberAlreadyInUse'] = 'Huom! Laskun numero on jo käytössä toisessa laskussa';
     
     //FORM BUTTON HELPERS
     $GLOBALS['locSAVE'] = 'Tallenna';

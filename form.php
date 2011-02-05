@@ -82,7 +82,8 @@ function createForm($strFunc, $strList, $strForm)
   
   if ($blnSave) 
   { 
-    $res = saveFormData($strTable, $intKeyValue, $astrFormElements, $astrValues);
+    $warnings = '';
+    $res = saveFormData($strTable, $intKeyValue, $astrFormElements, $astrValues, $warnings);
     if ($res !== TRUE)
     {
       $strMessage .= $GLOBALS['locERRVALUEMISSING'] . ": $res<br>";
@@ -91,6 +92,8 @@ function createForm($strFunc, $strList, $strForm)
     }
     else
     {
+      if ($warnings)
+        $strMessage .= htmlspecialchars($warnings) . '<br>';
       if (!$blnNew && getSetting('auto_close_form') && !isset($newLocation) && !isset($openWindow))
       {
         $qs = preg_replace('/&form=\w*/', '', $_SERVER['QUERY_STRING']);
@@ -184,7 +187,6 @@ function createForm($strFunc, $strList, $strForm)
     }
     if ($prevPosition !== FALSE && $elem['position'] > 0)
     {
-//error_log("ELEM: " . $elem['name'] . ' position: ' . $elem['position'] . ", prev: $prevPosition, $prevColSpan");
       for ($i = $prevPosition + $prevColSpan; $i < $elem['position']; $i++)
       {
         echo "      <td class=\"label\">&nbsp;</td>";
@@ -240,7 +242,7 @@ function createForm($strFunc, $strList, $strForm)
     }
     elseif ($elem['type'] == "IFORM" && !$blnNew) 
     {
-      echo "    </form>\n  </table\n";
+      echo "    </form>\n  </table>\n";
       $formClosed = true;
       createIForm($astrFormElements, $elem, $intKeyValue);
       break;
@@ -336,6 +338,8 @@ function save_record(redirect_url, redir_style)
     'data': $.toJSON(obj),
     'contentType': 'application/json; charset=utf-8',
     'success': function(data) {
+      if (data.warnings)
+        alert(data.warnings);
       if (data.missing_fields)
       {
         $('#message').text('<?php echo $GLOBALS['locERRVALUEMISSING']?>: ' + data.missing_fields).show();

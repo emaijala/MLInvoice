@@ -83,7 +83,7 @@ function getFormDefaultValue($elem, $parentKey)
 
 // Save form data. If primaryKey is not set, add a new record and set it, otherwise update existing record.
 // Return a string of missing values if encountered. In that case, the record is not saved. Otherwise return true.
-function saveFormData($table, &$primaryKey, &$formElements, &$values, $parentKeyName = '', $parentKey = FALSE)
+function saveFormData($table, &$primaryKey, &$formElements, &$values, &$warnings, $parentKeyName = '', $parentKey = FALSE)
 {  
   $missingValues = '';
   $strFields = '';
@@ -167,6 +167,22 @@ function saveFormData($table, &$primaryKey, &$formElements, &$values, $parentKey
     $arrValues[] = $primaryKey;
     mysql_param_query($strQuery, $arrValues);
   }
+  
+  // Special case for invoices - check for duplicate invoice numbers
+  if ($table == '{prefix}invoice' && isset($values['invoice_no']) && $values['invoice_no'])
+  {
+    $query = 'SELECT ID FROM {prefix}invoice where deleted=0 AND id!=? AND invoice_no=?';
+    $params = array($primaryKey, $values['invoice_no']);
+    if (getSetting('invoice_numbering_per_base'))
+    {
+      $query .= ' AND base_id=?';
+      $params[] = $values['base_id'];
+    }
+    $res = mysql_param_query($query, $params);
+    if (mysql_fetch_assoc($res))
+      $warnings = $GLOBALS['locInvoiceNumberAlreadyInUse'];
+  }
+  
   return TRUE;
 }
 

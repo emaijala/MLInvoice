@@ -152,7 +152,7 @@ default:
   header('HTTP/1.1 404 Not Found');
 }
 
-function printJSONRecord($table, $id = FALSE)
+function printJSONRecord($table, $id = FALSE, $warnings = null)
 {
   if ($id === FALSE)
     $id = getRequest('id', '');
@@ -161,6 +161,7 @@ function printJSONRecord($table, $id = FALSE)
     $res = mysql_param_query("SELECT * FROM {prefix}$table WHERE id=?", array($id));
     $row = mysql_fetch_assoc($res);
     header('Content-Type: application/json');
+    $row['warnings'] = $warnings;
     echo json_encode($row);
   }
 }
@@ -221,7 +222,8 @@ function saveJSONRecord($table, $parentKeyName)
   $id = isset($data['id']) ? $data['id'] : false;
   $new = $id ? false : true;
   unset($data['id']);
-  $res = saveFormData("{prefix}$table", $id, $astrFormElements, $data, $parentKeyName, $parentKeyName ? $data[$parentKeyName] : FALSE);
+  $warnings = '';
+  $res = saveFormData("{prefix}$table", $id, $astrFormElements, $data, $warnings, $parentKeyName, $parentKeyName ? $data[$parentKeyName] : FALSE);
   if ($res !== true)
   { 
     header('Content-Type: application/json');
@@ -230,7 +232,7 @@ function saveJSONRecord($table, $parentKeyName)
   }
   if ($new)
     header('HTTP/1.1 201 Created');
-  printJSONRecord($table, $id);
+  printJSONRecord($table, $id, $warnings);
 }
 
 function deleteRecord($table)
