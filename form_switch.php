@@ -216,11 +216,11 @@ onchange = "$.getJSON('json.php?func=get_company&id=' + document.getElementById(
 EOS;
 
    $getInvoiceNo = <<<EOS
-$.getJSON('json.php?func=get_invoice_defaults&id=' + document.forms[0].id.value + '&base_id=' + document.getElementById('base_id').value, function(json) { document.getElementById('invoice_no').value = json.invoice_no; document.getElementById('ref_number').value = json.ref_no; }); return false;
+$.getJSON('json.php?func=get_invoice_defaults&id=' + document.forms[0].id.value + '&base_id=' + document.getElementById('base_id').value, function(json) { document.getElementById('invoice_no').value = json.invoice_no; document.getElementById('ref_number').value = json.ref_no; $('.save_button').addClass('unsaved'); }); return false;
 EOS;
 
    $updateDates = <<<EOS
-$.getJSON('json.php?func=get_invoice_defaults&id=' + document.forms[0].id.value + '&base_id=' + document.getElementById('base_id').value, function(json) { document.getElementById('invoice_date').value = json.date; document.getElementById('due_date').value = json.due_date; }); return false;
+$.getJSON('json.php?func=get_invoice_defaults&id=' + document.forms[0].id.value + '&base_id=' + document.getElementById('base_id').value, function(json) { document.getElementById('invoice_date').value = json.date; document.getElementById('due_date').value = json.due_date; $('.save_button').addClass('unsaved'); }); return false;
 EOS;
 
    $locNew = $GLOBALS['locNEW'] . '...';
@@ -404,23 +404,24 @@ case 'invoice_rows':
    
    $intInvoiceId = getRequest('invoice_id', 0);
    $productOnChange = <<<EOS
-onchange = "var form = this.form; $.getJSON('json.php?func=get_product&id=' + form.product_id.value, function(json) { 
+onchange = "var form = this.form.id; $.getJSON('json.php?func=get_product&id=' + this.value, function(json) { 
   if (!json.id) return; 
   
-  form.description.value = json.description;
+  document.getElementById(form + '_description').value = json.description;
   
-  for (var i = 0; i < form.type_id.options.length; i++)
+  var type_id = document.getElementById(form + '_type_id');
+  for (var i = 0; i < type_id.options.length; i++)
   {  
-    var item = form.type_id.options[i];
+    var item = type_id.options[i];
     if (item.value == json.type_id)
     {
       item.selected = true;
       break;
     }
   }
-  form.price.value = json.unit_price.replace('.', ','); 
-  form.vat.value = json.vat_percent.replace('.', ','); 
-  form.vat_included.checked = json.vat_included == 1 ? true : false;
+  document.getElementById(form + '_price').value = json.unit_price.replace('.', ','); 
+  document.getElementById(form + '_vat').value = json.vat_percent.replace('.', ','); 
+  document.getElementById(form + '_vat_included').value = json.vat_included == 1 ? true : false;
 });"
 EOS;
 

@@ -500,6 +500,10 @@ a.tinyactionlink:hover {
   background-color: white;
 }
 
+a.unsaved {
+  background-color: #FFAAAA;
+}
+
 a.formbuttonlink {
   color: #333333; 
   background-color: #D3E3F3;
