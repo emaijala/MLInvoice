@@ -29,7 +29,7 @@ require_once "miscfuncs.php";
 require_once "datefuncs.php";
 require_once "localize.php";
 
-function createProductReport($strType)
+function createProductReport()
 {
   $strReport = getRequest('report', '');
   
@@ -54,50 +54,45 @@ function createProductReport($strType)
   $strYearListBox = htmlListBox( "year", $astrYearListValues, $astrYearListOptions, $intYear, "", TRUE, FALSE );
   
   $astrShowElements = array();
-  switch ( $strType ) {
+  $strTopLabel = $GLOBALS['locPRINTPRODUCTREPORT'];
+  $strMidLabel = $GLOBALS['locPRINTREPORTSTATES'];
+  $strListQuery = 
+      "SELECT '0' AS id, '".$GLOBALS['locALL']."' AS name UNION ".
+      "SELECT '01' AS id, '".$GLOBALS['locJAN']."' AS name UNION ".
+      "SELECT '02' AS id, '".$GLOBALS['locFEB']."' AS name UNION ".
+      "SELECT '03' AS id, '".$GLOBALS['locMAR']."' AS name UNION ".
+      "SELECT '04' AS id, '".$GLOBALS['locAPR']."' AS name UNION ".
+      "SELECT '05' AS id, '".$GLOBALS['locMAY']."' AS name UNION ".
+      "SELECT '06' AS id, '".$GLOBALS['locJUN']."' AS name UNION ".
+      "SELECT '07' AS id, '".$GLOBALS['locJUL']."' AS name UNION ".
+      "SELECT '08' AS id, '".$GLOBALS['locAUG']."' AS name UNION ".
+      "SELECT '09' AS id, '".$GLOBALS['locSEP']."' AS name UNION ".
+      "SELECT '10' AS id, '".$GLOBALS['locOCT']."' AS name UNION ".
+      "SELECT '11' AS id, '".$GLOBALS['locNOV']."' AS name UNION ".
+      "SELECT '12' AS id, '".$GLOBALS['locDEC']."' AS name ";
+  $astrSearchElements =
+  array(
+   array("type" => "ELEMENT", "element" => $strYearListBox, "label" => $GLOBALS['locYEAR']),
+   array("name" => "month", "label" => $GLOBALS['locMONTH'], "type" => "SUBMITLIST", "style" => "medium", "listquery" => $strListQuery, "value" => $intMonth),
+   array("name" => "base", "label" => $GLOBALS['locBILLER'], "type" => "SUBMITLIST", "style" => "medium", "listquery" => "SELECT id, name FROM {prefix}base WHERE deleted=0 ORDER BY name", "value" => $intBaseId),
+   array("name" => "company", "label" => $GLOBALS['locCOMPANY'], "type" => "SUBMITLIST", "style" => "medium", "listquery" => "SELECT id, company_name FROM {prefix}company WHERE deleted=0 ORDER BY company_name", "value" => $intCompanyId),
+   array("name" => "product", "label" => $GLOBALS['locPRODUCT'], "type" => "SUBMITLIST", "style" => "medium", "listquery" => "SELECT id, product_name FROM {prefix}product WHERE deleted=0 ORDER BY product_name", "value" => $intProductId)
+  );
   
-  case 'report':
-     $strTopLabel = $GLOBALS['locPRINTPRODUCTREPORT'];
-     $strMidLabel = $GLOBALS['locPRINTREPORTSTATES'];
-     $strListQuery = 
-          "SELECT '0' AS id, '".$GLOBALS['locALL']."' AS name UNION ".
-          "SELECT '01' AS id, '".$GLOBALS['locJAN']."' AS name UNION ".
-          "SELECT '02' AS id, '".$GLOBALS['locFEB']."' AS name UNION ".
-          "SELECT '03' AS id, '".$GLOBALS['locMAR']."' AS name UNION ".
-          "SELECT '04' AS id, '".$GLOBALS['locAPR']."' AS name UNION ".
-          "SELECT '05' AS id, '".$GLOBALS['locMAY']."' AS name UNION ".
-          "SELECT '06' AS id, '".$GLOBALS['locJUN']."' AS name UNION ".
-          "SELECT '07' AS id, '".$GLOBALS['locJUL']."' AS name UNION ".
-          "SELECT '08' AS id, '".$GLOBALS['locAUG']."' AS name UNION ".
-          "SELECT '09' AS id, '".$GLOBALS['locSEP']."' AS name UNION ".
-          "SELECT '10' AS id, '".$GLOBALS['locOCT']."' AS name UNION ".
-          "SELECT '11' AS id, '".$GLOBALS['locNOV']."' AS name UNION ".
-          "SELECT '12' AS id, '".$GLOBALS['locDEC']."' AS name ";
-     $astrSearchElements =
-      array(
-       array("type" => "ELEMENT", "element" => $strYearListBox, "label" => $GLOBALS['locYEAR']),
-       array("name" => "month", "label" => $GLOBALS['locMONTH'], "type" => "SUBMITLIST", "style" => "medium", "listquery" => $strListQuery, "value" => $intMonth),
-       array("name" => "base", "label" => $GLOBALS['locBILLER'], "type" => "SUBMITLIST", "style" => "medium", "listquery" => "SELECT id, name FROM {prefix}base WHERE deleted=0 ORDER BY name", "value" => $intBaseId),
-       array("name" => "company", "label" => $GLOBALS['locCOMPANY'], "type" => "SUBMITLIST", "style" => "medium", "listquery" => "SELECT id, company_name FROM {prefix}company WHERE deleted=0 ORDER BY company_name", "value" => $intCompanyId),
-       array("name" => "product", "label" => $GLOBALS['locPRODUCT'], "type" => "SUBMITLIST", "style" => "medium", "listquery" => "SELECT id, product_name FROM {prefix}product WHERE deleted=0 ORDER BY product_name", "value" => $intProductId)
-      );
-      
-      $strQuery = 
-          "SELECT id, name ".
-          "FROM {prefix}invoice_state WHERE deleted=0 ".
-          "ORDER BY order_no";
-      $intRes = mysql_query_check($strQuery);
-      for ($i = 0, $row = mysql_fetch_assoc($intRes); $row; $i++, $row = mysql_fetch_assoc($intRes)) 
-      {
-          $intStateId = $row['id'];
-          $strStateName = $row['name'];
-          $strTemp = "stateid_$intStateId";
-          $tmpSelected = getPost($strTemp, FALSE) ? TRUE : FALSE;
-          $strChecked = $tmpSelected ? 'checked' : '';
-          $astrHtmlElements[$i] = 
-            array("label" => $strStateName, "html" => "<input type=\"checkbox\" name=\"stateid_{$intStateId}\" value=\"1\" $strChecked>\n");
-      }
-  break;
+  $strQuery = 
+      "SELECT id, name ".
+      "FROM {prefix}invoice_state WHERE deleted=0 ".
+      "ORDER BY order_no";
+  $intRes = mysql_query_check($strQuery);
+  for ($i = 0, $row = mysql_fetch_assoc($intRes); $row; $i++, $row = mysql_fetch_assoc($intRes)) 
+  {
+      $intStateId = $row['id'];
+      $strStateName = $row['name'];
+      $strTemp = "stateid_$intStateId";
+      $tmpSelected = getPost($strTemp, FALSE) ? TRUE : FALSE;
+      $strChecked = $tmpSelected ? 'checked' : '';
+      $astrHtmlElements[$i] = 
+        array("label" => $strStateName, "html" => "<input type=\"checkbox\" name=\"stateid_{$intStateId}\" value=\"1\" $strChecked>\n");
   }
   ?>
   

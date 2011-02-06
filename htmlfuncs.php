@@ -123,50 +123,30 @@ Todo :
     return $strListBox;
 }
 
-function getSQLResult( $strQuery ) {
-/********************************************************************
-Function : getSQLResult
-    Return sql-query results
-
-Args : 
-    $strQuery (string): query to execute
-        
-Return : $strResult (string) : 
-            result string on success
-            FALSE on error
-
-Todo : style, Sorting? Allow only select query?
-********************************************************************/
-    $intRes = mysql_query_check( $strQuery );
-    return reset(mysql_fetch_row($intRes));
+function getSQLResult($strQuery) 
+{
+  $intRes = mysql_query_check( $strQuery );
+  return reset(mysql_fetch_row($intRes));
 }
-function htmlSQLListBox( $strName, $strQuery, $strSelected, $strStyle = "", $intOnChange = 0, $astrAdditionalAttributes ) {
-/********************************************************************
-Function : htmlSQLListBox
-    Create Html-listbox from results of given query
-
-Args : 
-    $strName (string): listbox name
-    $strQuery (string): query to execute
-    $strSelected (string): selected value
-    
-Return : $strListBox (string) : 
-            listbox element on success
-            FALSE on error
-
-Todo : style, Sorting? 
-********************************************************************/
+function htmlSQLListBox($strName, $strQuery, $strSelected, $strStyle = "", $intOnChange = 0, $astrAdditionalAttributes) 
+{
     $astrValues = array();
-    $astrOptions = array();
-    $intRes = mysql_query_check( $strQuery );
-    while ($row = mysql_fetch_row($intRes)) 
-    {
-        $astrValues[] = $row[0];
-        $astrOptions[] = $row[1];
-    }
-    $strListBox = htmlListBox($strName, $astrValues, $astrOptions, $strSelected, $strStyle, $intOnChange, TRUE, $astrAdditionalAttributes);
+  $astrOptions = array();
+  $intRes = mysql_query_check( $strQuery );
+  while ($row = mysql_fetch_row($intRes)) 
+  {
+    $astrValues[] = $row[0];
+    $astrOptions[] = $row[1];
+  }
+  $showEmpty = TRUE;
+  if (strstr($strStyle, ' noemptyvalue'))
+  {
+    $strStyle = str_replace(' noemptyvalue', '', $strStyle);
+    $showEmpty = FALSE;
+  }
+  $strListBox = htmlListBox($strName, $astrValues, $astrOptions, $strSelected, $strStyle, $intOnChange, $showEmpty, $astrAdditionalAttributes);
 
-    return $strListBox;
+  return $strListBox;
 }
 
 // Get the value for the specified option
@@ -354,7 +334,7 @@ function htmlFormElement( $strName, $strType, $strValue, $strStyle, $strListQuer
                 $strFormElement = htmlspecialchars(getSQLListBoxSelectedValue( $strListQuery, $strValue )) . "\n";                 
             }
         break;
-        
+
         case 'BUTTON' :
             $strListQuery = str_replace("_ID_", $strValue, $strListQuery);
             switch( $strStyle ) {

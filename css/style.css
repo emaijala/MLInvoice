@@ -274,6 +274,16 @@ td.percent_label {
   width: 30px;
 }
 
+td.row_sum {
+  border-top: 1px solid gray;
+  padding-bottom: 8px;
+}
+
+td.total_sum {
+  margin-top: 4px;
+  font-weight: bold;
+}
+
 td a.navilink {
   color: black; 
   text-decoration: none;  

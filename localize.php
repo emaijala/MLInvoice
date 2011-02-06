@@ -336,7 +336,6 @@ default :
     //REPORTS
     $GLOBALS['locPRINTINVOICEREPORT'] = 'Tulosta laskutusraportti';
     $GLOBALS['locPRINTPRODUCTREPORT'] = 'Tulosta tuoteraportti';
-    $GLOBALS['locPRINTREPORTSTATES'] = 'Raportoitavat tilat';
     $GLOBALS['locOPEN'] = 'Avoimet';
     $GLOBALS['locSENT'] = 'Laskutetut';
     $GLOBALS['locPAID'] = 'Maksetut';
@@ -345,6 +344,12 @@ default :
     $GLOBALS['locWITHVAT'] = 'Alvillinen';
     $GLOBALS['locTOTAL'] = 'Yhteensä';
     $GLOBALS['locALL'] = 'Kaikki       ';
+    $GLOBALS['locDateInterval'] = 'Aikaväli';
+    $GLOBALS['locPrintStateSums'] = 'Välisummat tiloittain';
+    $GLOBALS['locPrintFormat'] = 'Tulostusmuoto';
+    $GLOBALS['locPrintFormatHTML'] = 'HTML';
+    $GLOBALS['locPrintFormatPDF'] = 'PDF';
+    $GLOBALS['locPrintReportStates'] = 'Raportoitavat tilat';
     
     //extended search
     $GLOBALS['locSearchEqual'] = 'on yhtä kuin';

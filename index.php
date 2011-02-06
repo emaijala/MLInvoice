@@ -123,8 +123,12 @@ else
     createFuncMenu($strFunc);
     switch ($strForm)
     {
-    case 'invoice': require_once 'invoice_report.php'; createInvoiceReport('report'); break;
-    case 'product': require_once 'product_report.php'; createProductReport('report'); break;
+    case 'invoice': 
+      require_once 'invoice_report.php'; 
+      $invoiceReport = new InvoiceReport;
+      $invoiceReport->createReport(); 
+      break;
+    case 'product': require_once 'product_report.php'; createProductReport(); break;
     }
     break;
   default:
