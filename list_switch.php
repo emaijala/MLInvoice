@@ -25,7 +25,7 @@ Tämä ohjelma on vapaa. Lue oheinen LICENSE.
 
 $strTable = '';
 $strFilter = '';
-$levelsAllowed = array(1);
+$levelsAllowed = array(1, 90);
 switch ( $strList ? $strList : $strFunc ) {
 
 /***********************************************************************

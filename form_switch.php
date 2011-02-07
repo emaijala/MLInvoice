@@ -41,7 +41,7 @@ Tämä ohjelma on vapaa. Lue oheinen LICENSE.
 
 $strListTableAlias = '';
 $strOrder = '';
-$levelsAllowed = array(1);
+$levelsAllowed = array(1, 90);
 $copyLinkOverride = '';
 $strJSONType = '';
 switch ( $strForm ) {

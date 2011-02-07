@@ -33,7 +33,7 @@ function createForm($strFunc, $strList, $strForm)
 {
   require "form_switch.php";
   
-  if (!in_array($_SESSION['sesACCESSLEVEL'], $levelsAllowed) && $_SESSION['sesACCESSLEVEL'] != 99 )
+  if (!in_array($_SESSION['sesACCESSLEVEL'], $levelsAllowed) && $_SESSION['sesACCESSLEVEL'] != 99)
   {
 ?>
   <div class="form_container">

@@ -46,7 +46,7 @@ if (!$strFunc && $strForm)
 
 $title = getPageTitle($strFunc, $strList, $strForm);
 
-if ($strFunc == 'system' && getRequest('operation', '') == 'dbdump' && $_SESSION['sesACCESSLEVEL'] == 99)
+if ($strFunc == 'system' && getRequest('operation', '') == 'dbdump' && in_array($_SESSION['sesACCESSLEVEL'], array(90, 99)))
 {
   create_db_dump();
   exit;
@@ -55,13 +55,13 @@ if ($strFunc == 'system' && getRequest('operation', '') == 'dbdump' && $_SESSION
 echo htmlPageStart(_PAGE_TITLE_ . " - $title");
 
 $astrMainButtons = array (
-    array("name" => "invoice", "title" => "locSHOWINVOICENAVI", 'action' => 'open_invoices', "levels_allowed" => array(1) ),
-    array("name" => "archive", "title" => "locSHOWARCHIVENAVI", 'action' => 'archived_invoices', "levels_allowed" => array(1) ),
-    array("name" => "company", "title" => "locSHOWCOMPANYNAVI", 'action' => 'companies', "levels_allowed" => array(1) ),
-    array("name" => "reports", "title" => "locSHOWREPORTNAVI", 'action' => 'reports', "levels_allowed" => array(1) ),
-    array("name" => "settings", "title" => "locSHOWSETTINGSNAVI", 'action' => 'settings', "action" => "settings", "levels_allowed" => array(1) ),
-    array("name" => "system", "title" => "locSHOWSYSTEMNAVI", 'action' => 'system', "levels_allowed" => array(99) ),
-    array("name" => "logout", "title" => "locLOGOUT", 'action' => 'logout', "levels_allowed" => array(1) )
+    array("name" => "invoice", "title" => "locSHOWINVOICENAVI", 'action' => 'open_invoices', "levels_allowed" => array(1, 90) ),
+    array("name" => "archive", "title" => "locSHOWARCHIVENAVI", 'action' => 'archived_invoices', "levels_allowed" => array(1, 90) ),
+    array("name" => "company", "title" => "locSHOWCOMPANYNAVI", 'action' => 'companies', "levels_allowed" => array(1, 90) ),
+    array("name" => "reports", "title" => "locSHOWREPORTNAVI", 'action' => 'reports', "levels_allowed" => array(1, 90) ),
+    array("name" => "settings", "title" => "locSHOWSETTINGSNAVI", 'action' => 'settings', "action" => "settings", "levels_allowed" => array(1, 90) ),
+    array("name" => "system", "title" => "locSHOWSYSTEMNAVI", 'action' => 'system', "levels_allowed" => array(90, 99) ),
+    array("name" => "logout", "title" => "locLOGOUT", 'action' => 'logout', "levels_allowed" => array(1, 90) )
 );
 
 ?>
@@ -69,16 +69,18 @@ $astrMainButtons = array (
 <body>
   <div class="navi">
 <?php
-for( $i = 0; $i < count($astrMainButtons); $i++ ) {
-    $strButton = '<a class="functionlink'; 
-    if ($astrMainButtons[$i]['action'] == $strFunc || ($astrMainButtons[$i]['action'] == 'open_invoices' && $strFunc == 'invoices'))
-      $strButton .= ' selected';
-    $strButton .= '" href="?func=' . $astrMainButtons[$i]['action'] . '">';
-    $strButton .= $GLOBALS[$astrMainButtons[$i]['title']] . '</a>';
-        
-    if( in_array($_SESSION['sesACCESSLEVEL'], $astrMainButtons[$i]['levels_allowed']) || $_SESSION['sesACCESSLEVEL'] == 99 ) {
-      echo "    $strButton\n";
-    }
+foreach ($astrMainButtons as $button) 
+{
+  $strButton = '<a class="functionlink'; 
+  if ($button['action'] == $strFunc || ($button['action'] == 'open_invoices' && $strFunc == 'invoices'))
+    $strButton .= ' selected';
+  $strButton .= '" href="?func=' . $button['action'] . '">';
+  $strButton .= $GLOBALS[$button['title']] . '</a>';
+      
+  if (in_array($_SESSION['sesACCESSLEVEL'], $button['levels_allowed']) || $_SESSION['sesACCESSLEVEL'] == 99) 
+  {
+    echo "    $strButton\n";
+  }
 }
 
 $level = 1;
