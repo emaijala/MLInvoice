@@ -28,284 +28,182 @@ require_once "sqlfuncs.php";
 require_once "miscfuncs.php";
 require_once "datefuncs.php";
 require_once "localize.php";
+require_once "pdf.php";
 
-function createProductReport()
+class ProductReport
 {
-  $strReport = getRequest('report', '');
-  
-  if ($strReport)
+  private $pdf = null;
+
+  public function createReport()
   {
-    printReport();
-    return;
-  }
+    $strReport = getRequest('report', '');
+    
+    if ($strReport)
+    {
+      $this->printReport();
+      return;
+    }
+    
+    $intBaseId = getRequest('base', FALSE);
+    $intCompanyId = getRequest('company', FALSE);
+    $intProductId = getRequest('product', FALSE);
+    $startDate = getRequest('from', date('d.m.Y', mktime(0, 0, 0, date('m') - 1, 1, date('Y'))));
+    $endDate = getRequest('until', date('d.m.Y', mktime(0, 0, 0, date('m'), 0, date('Y'))));
+          
+    $typeListQuery = 
+        "SELECT 'html' AS id, '" . $GLOBALS['locPrintFormatHTML'] . "' AS name UNION ".
+        "SELECT 'pdf' AS id, '" . $GLOBALS['locPrintFormatPDF'] . "' AS name";
+?>
+    
+  <script type="text/javascript">
+  $(document).ready(function() { 
+    $('input[class~="hasCalendar"]').datepicker();
+  });
+  </script>
   
-  $intBaseId = getRequest('base', FALSE);
-  $intCompanyId = getRequest('company', FALSE);
-  $intProductId = getRequest('product', FALSE);
-  $intYear = getRequest('year', date("Y"));
-  $intMonth = getRequest('month', date("n"));
-  $intSelectedStateId = getRequest('stateid', 1);
-  
-  $intCurrentYear = date("Y");
-  for( $i = 0; $i <= 20; $i++) {
-      $astrYearListValues[$i] = ($intCurrentYear+10)-$i;
-      $astrYearListOptions[$i] = ($intCurrentYear+10)-$i;
-  }
-  $strYearListBox = htmlListBox( "year", $astrYearListValues, $astrYearListOptions, $intYear, "", TRUE, FALSE );
-  
-  $astrShowElements = array();
-  $strTopLabel = $GLOBALS['locPRODUCTREPORT'];
-  $strMidLabel = $GLOBALS['locPRINTREPORTSTATES'];
-  $strListQuery = 
-      "SELECT '0' AS id, '".$GLOBALS['locALL']."' AS name UNION ".
-      "SELECT '01' AS id, '".$GLOBALS['locJAN']."' AS name UNION ".
-      "SELECT '02' AS id, '".$GLOBALS['locFEB']."' AS name UNION ".
-      "SELECT '03' AS id, '".$GLOBALS['locMAR']."' AS name UNION ".
-      "SELECT '04' AS id, '".$GLOBALS['locAPR']."' AS name UNION ".
-      "SELECT '05' AS id, '".$GLOBALS['locMAY']."' AS name UNION ".
-      "SELECT '06' AS id, '".$GLOBALS['locJUN']."' AS name UNION ".
-      "SELECT '07' AS id, '".$GLOBALS['locJUL']."' AS name UNION ".
-      "SELECT '08' AS id, '".$GLOBALS['locAUG']."' AS name UNION ".
-      "SELECT '09' AS id, '".$GLOBALS['locSEP']."' AS name UNION ".
-      "SELECT '10' AS id, '".$GLOBALS['locOCT']."' AS name UNION ".
-      "SELECT '11' AS id, '".$GLOBALS['locNOV']."' AS name UNION ".
-      "SELECT '12' AS id, '".$GLOBALS['locDEC']."' AS name ";
-  $astrSearchElements =
-  array(
-   array("type" => "ELEMENT", "element" => $strYearListBox, "label" => $GLOBALS['locYEAR']),
-   array("name" => "month", "label" => $GLOBALS['locMONTH'], "type" => "SUBMITLIST", "style" => "medium", "listquery" => $strListQuery, "value" => $intMonth),
-   array("name" => "base", "label" => $GLOBALS['locBILLER'], "type" => "SUBMITLIST", "style" => "medium", "listquery" => "SELECT id, name FROM {prefix}base WHERE deleted=0 ORDER BY name", "value" => $intBaseId),
-   array("name" => "company", "label" => $GLOBALS['locCOMPANY'], "type" => "SUBMITLIST", "style" => "medium", "listquery" => "SELECT id, company_name FROM {prefix}company WHERE deleted=0 ORDER BY company_name", "value" => $intCompanyId),
-   array("name" => "product", "label" => $GLOBALS['locPRODUCT'], "type" => "SUBMITLIST", "style" => "medium", "listquery" => "SELECT id, product_name FROM {prefix}product WHERE deleted=0 ORDER BY product_name", "value" => $intProductId)
-  );
-  
-  $strQuery = 
-      "SELECT id, name ".
-      "FROM {prefix}invoice_state WHERE deleted=0 ".
-      "ORDER BY order_no";
-  $intRes = mysql_query_check($strQuery);
-  for ($i = 0, $row = mysql_fetch_assoc($intRes); $row; $i++, $row = mysql_fetch_assoc($intRes)) 
-  {
+  <div class="form_container">
+    <form method="get" action="" id="params" name="params">
+    <input name="func" type="hidden" value="reports">
+    <input name="form" type="hidden" value="product">
+    <input name="report" type="hidden" value="1">
+    
+    <div class="unlimited_label"><strong><?php echo $GLOBALS['locPRODUCTREPORT']?></strong></div>
+    
+    <div class="medium_label"><?php echo $GLOBALS['locDateInterval']?></div>
+    <div class="field"><?php echo htmlFormElement('from', 'TEXT', $startDate, 'medium hasCalendar', '', 'MODIFY', FALSE)?> - <?php echo htmlFormElement('until', 'TEXT', $endDate, 'medium hasCalendar', '', 'MODIFY', FALSE)?></div>
+
+    <div class="medium_label"><?php echo $GLOBALS['locBILLER']?></div>
+    <div class="field"><?php echo htmlFormElement('base', 'LIST', $intBaseId, 'medium hasCalendar', 'SELECT id, name FROM {prefix}base WHERE deleted=0 ORDER BY name', 'MODIFY', FALSE)?></div>
+
+    <div class="medium_label"><?php echo $GLOBALS['locCOMPANY']?></div>
+    <div class="field"><?php echo htmlFormElement('company', 'LIST', $intCompanyId, 'medium', 'SELECT id, company_name FROM {prefix}company WHERE deleted=0 ORDER BY company_name', 'MODIFY', FALSE)?></div>
+
+    <div class="medium_label"><?php echo $GLOBALS['locPRODUCT']?></div>
+    <div class="field"><?php echo htmlFormElement('product', 'LIST', $intProductId, 'medium', 'SELECT id, product_name FROM {prefix}product WHERE deleted=0 ORDER BY product_name', 'MODIFY', FALSE)?></div>
+
+    <div class="medium_label"><?php echo $GLOBALS['locPrintFormat']?></div>
+    <div class="field"><?php echo htmlFormElement('format', 'LIST', 'html', 'medium noemptyvalue', $typeListQuery, 'MODIFY', FALSE)?></div>
+
+    <div class="unlimited_label"><strong><?php echo $GLOBALS['locPrintReportStates']?></strong></div>
+  <?php
+    $strQuery = 
+        "SELECT id, name ".
+        "FROM {prefix}invoice_state WHERE deleted=0 ".
+        "ORDER BY order_no";
+    $intRes = mysql_query_check($strQuery);
+    while ($row = mysql_fetch_assoc($intRes))
+    {
       $intStateId = $row['id'];
       $strStateName = $row['name'];
-      $strTemp = "stateid_$intStateId";
-      $tmpSelected = getPost($strTemp, FALSE) ? TRUE : FALSE;
-      $strChecked = $tmpSelected ? 'checked' : '';
-      $astrHtmlElements[$i] = 
-        array("label" => $strStateName, "html" => "<input type=\"checkbox\" name=\"stateid_{$intStateId}\" value=\"1\" $strChecked>\n");
-  }
-  ?>
-  
-  <div class="list_container">
-  <form method="get" action="" name="selectinv">
-  <input name="func" type="hidden" value="reports">
-  <input name="form" type="hidden" value="product">
-  
-  <br>
-  <b><?php echo $strTopLabel?></b>
-  <table>
+      $tmpSelected = getRequest("stateid_$intStateId", TRUE) ? TRUE : FALSE;
+      $strChecked = $tmpSelected ? ' checked' : '';
+    ?>
+    <div class="medium_label"><input type="checkbox" name="stateid_<?php echo $intStateId?>" value="1"<?php echo $strChecked?>> <?php echo htmlspecialchars($strStateName)?></div>
   <?php
-  for( $j = 0; $j < count($astrSearchElements); $j++ ) {
-      if( $astrSearchElements[$j]['type'] == "ELEMENT" ) {
+    }
   ?>
-      <tr>
-          <td class="label">
-              <?php echo $astrSearchElements[$j]['label']?>
-          </td>
-          <td class="field">
-              <?php echo $astrSearchElements[$j]['element']?>
-          </td>
-      </tr>
-  <?php
-      }
-      else {
-  ?>
-      <tr>
-          <td class="label">
-              <?php echo $astrSearchElements[$j]['label']?>
-          </td>
-  <?php /*
-      <tr>
-      </tr>
-  */ ?>
-          <td class="field">
-              <?php echo htmlFormElement($astrSearchElements[$j]['name'], $astrSearchElements[$j]['type'], $astrSearchElements[$j]['value'], $astrSearchElements[$j]['style'], $astrSearchElements[$j]['listquery'], "MODIFY", isset($astrSearchElements[$j]['parent_key']) ? $astrSearchElements[$j]['parent_key'] : FALSE)?>
-          </td>
-      </tr>
-  <?php
-      }
-  }
-  
-  ?>
-  </table>
-  </form>
-  <form method="get" action="" name="invoice">
-  <input name="func" type="hidden" value="reports">
-  <input name="form" type="hidden" value="product">
-  
-  <input name="year" type="hidden" value="<?php echo $intYear?>">
-  <input name="month" type="hidden" value="<?php echo $intMonth?>">
-  <input name="base" type="hidden" value="<?php echo $intBaseId?>">
-  <input name="company" type="hidden" value="<?php echo $intCompanyId?>">
-  <input name="product" type="hidden" value="<?php echo $intProductId?>">
-  <input name="report" type="hidden" value="<?php echo $strType?>">
-  <b><?php echo $strMidLabel?></b>
-  <table>
-  <?php
-  for( $j = 0; $j < count($astrShowElements); $j++ ) {
-  ?>
-      <tr>
-          <td class="label">
-              <?php echo $astrShowElements[$j]['label']?>
-          </td>
-          <td class="field">
-              <?php echo htmlFormElement($astrShowElements[$j]['name'], $astrShowElements[$j]['type'], $astrShowElements[$j]['value'], $astrShowElements[$j]['style'], $astrShowElements[$j]['listquery'], "MODIFY", $astrShowElements[$j]['parent_key'])?>
-          </td>
-      </tr>
-  <?php
-  }
-  for( $j = 0; $j < count($astrHtmlElements); $j++ ) {
-  ?>
-      <tr>
-          <td class="label">
-              <?php echo $astrHtmlElements[$j]['label']?>
-          </td>
-          <td class="field">
-              <?php echo $astrHtmlElements[$j]['html']?>
-          </td>
-      </tr>
-  <?php
-  }
-  ?>
-      <tr>
-          <td>
-              <input type="hidden" name="get_x" value="0">
-              <a class="actionlink" href="#" onclick="self.document.invoice.get_x.value=1; self.document.invoice.submit(); return false;"><?php echo $GLOBALS['locGET']?></a>
-          </td>
-      </tr>
-  
-  </table>
-  </form>
+    <div class="medium_label">
+      <a class="actionlink" href="#" onclick="document.getElementById('params').submit(); return false;"><?php echo $GLOBALS['locGET']?></a>
+    </div>
+    </form>
   </div>
-<?php
-}
+  <?php
+  }
 
-function printReport()
-{
-  $intYear = getRequest('year', FALSE);
-  $intMonth = getRequest('month', 0);
-  $intStateID = getRequest('stateid', FALSE);
-  $intBaseId = getRequest('base', FALSE); 
-  $intProductId = getRequest('product', FALSE);
-  
-  if( $intMonth == 0 ) {
-      $intStartDate = "00";
-      $intEndDate = "31";
-      $intEndMonth = "12";
-  }
-  else {
-      $intStartDate = "00";
-      $intEndDate = date("t",mktime(0, 0, 0, $intMonth, 1, $intYear));
-      $intEndMonth = $intMonth;
-  }
-  if( strlen($intMonth) == 1 ) {
-      $intMonth = "0".$intMonth;
-  }
-  if( strlen($intEndMonth) == 1 ) {
-      $intEndMonth = "0".$intEndMonth;
-  }
-  $strStart = $intYear. $intMonth. $intStartDate;
-  $strEnd = $intYear. $intEndMonth. $intEndDate;
-  
-  $arrParams = array($strStart, $strEnd);
-  
-  $strQuery = 
-      "SELECT i.id ".
-      "FROM {prefix}invoice i ".
-      "WHERE i.deleted=0 AND i.invoice_date > ? AND i.invoice_date <= ?";
-  
-  $strQuery2 = "";
-  $strQuery3 = 
-      "SELECT id, name ".
-      "FROM {prefix}invoice_state WHERE deleted=0 ".
-      "ORDER BY order_no";
-  $intRes = mysql_query_check($strQuery3);
-  while ($row = mysql_fetch_assoc($intRes)) 
+  private function printReport()
   {
+    $intStateID = getRequest('stateid', FALSE);
+    $intBaseId = getRequest('base', FALSE); 
+    $intCompanyId = getRequest('company', FALSE); 
+    $intProductId = getRequest('product', FALSE);
+    $startDate = getRequest('from', FALSE);
+    $endDate = getRequest('until', FALSE);
+    $format = getRequest('format', 'html');
+    
+    if ($startDate)
+      $startDate = dateConvDate2IntDate($startDate);
+    if ($endDate)
+      $endDate = dateConvDate2IntDate($endDate);
+    
+    $arrParams = array();
+
+    $strQuery = 
+        "SELECT i.id ".
+        "FROM {prefix}invoice i ".
+        "WHERE i.deleted=0";
+
+    if ($startDate)
+    {
+      $strQuery .= ' AND i.invoice_date >= ?';
+      $arrParams[] = $startDate;
+    }
+    if ($endDate)
+    {
+      $strQuery .= ' AND i.invoice_date <= ?';
+      $arrParams[] = $endDate;
+    }
+    
+    $strQuery2 = '';
+    $strQuery3 = 
+        "SELECT id, name ".
+        "FROM {prefix}invoice_state WHERE deleted=0 ".
+        "ORDER BY order_no";
+    $intRes = mysql_query_check($strQuery3);
+    while ($row = mysql_fetch_assoc($intRes)) 
+    {
       $intStateId = $row['id'];
       $strStateName = $row['name'];
       $strTemp = "stateid_$intStateId";
       $tmpSelected = getRequest($strTemp, FALSE) ? TRUE : FALSE;
-      if( $tmpSelected ) {
-          $strQuery2 .= 
-              ' i.state_id = ? OR ';
-          $arrParams[] = $intStateId;
+      if ($tmpSelected) 
+      {
+        $strQuery2 .= ' i.state_id = ? OR ';
+        $arrParams[] = $intStateId;
       }
-  }
-  if( $strQuery2 ) {
-      $strQuery2 = " AND (". substr($strQuery2, 0, -3). ")";
-  }
-  
-  if( $intBaseId ) {
-      $strQuery .= 
-          " AND i.base_id = ?";
-      $arrParams[] = $intBaseId;
-  }
-  
-  $strQuery .= "$strQuery2 ORDER BY invoice_no";
- 
-  if ($intProductId)
-  {
-    $strProductWhere = 'AND ir.product_id = ? ';
-    $arrParams[] = $intProductId;
-  }
-  else
-    $strProductWhere = '';
-  
-  $strProductQuery = 'SELECT p.product_name, ir.description, ' . 
-    'CASE WHEN ir.vat_included = 0 THEN sum(ir.price * ir.pcs) ELSE sum(ir.price * ir.pcs / (1 + ir.vat / 100)) END as total_price, ' .
-    'ir.vat, sum(ir.pcs) as pcs, t.name as unit ' .
-    'FROM {prefix}invoice_row ir ' .
-    'LEFT OUTER JOIN {prefix}product p ON p.id = ir.product_id ' .
-    'LEFT OUTER JOIN {prefix}row_type t ON t.id = ir.type_id ' .
-    "WHERE ir.deleted=0 AND ir.invoice_id IN ($strQuery) $strProductWhere" .
-    'GROUP BY p.product_name, ir.description, ir.vat, t.name ' .
-    'ORDER BY p.product_name, ir.description';
+    }
+    if ($strQuery2) 
+    {
+      $strQuery2 = ' AND (' . substr($strQuery2, 0, -3) . ')';
+    }
     
-  $intRes = mysql_param_query($strProductQuery, $arrParams);
-  $intNumRows = mysql_numrows($intRes);
-  ?>
-  <div class="report">
-  <table>
-  <tr>
-      <th class="label">
-          <?php echo $GLOBALS['locPRODUCT']?>
-      </th>
-      <th class="label" align="right">
-          <?php echo $GLOBALS['locPCS']?>
-      </th>
-      <th class="label" align="right">
-          <?php echo $GLOBALS['locUNIT']?>
-      </th>
-      <th class="label" align="right">
-          <?php echo $GLOBALS['locVATLESS']?>
-      </th>
-      <th class="label" align="right">
-          <?php echo $GLOBALS['locVATPERCENT']?>
-      </th>
-      <th class="label" align="rght">
-          <?php echo $GLOBALS['locVATPART']?>
-      </th>
-      <th class="label" align="right">
-          <?php echo $GLOBALS['locWITHVAT']?>
-      </th>
-  </tr>
-  <?php
-  if ($intNumRows) 
-  {
+    if ($intBaseId) 
+    {
+      $strQuery .= ' AND i.base_id = ?';
+      $arrParams[] = $intBaseId;
+    }
+    
+    if ($intCompanyId) 
+    {
+      $strQuery .= ' AND i.company_id = ?';
+      $arrParams[] = $intCompanyId;
+    }
+    
+    $strQuery .= "$strQuery2 ORDER BY invoice_no";
+   
+    if ($intProductId)
+    {
+      $strProductWhere = 'AND ir.product_id = ? ';
+      $arrParams[] = $intProductId;
+    }
+    else
+      $strProductWhere = '';
+    
+    $strProductQuery = 'SELECT p.product_name, ir.description, ' . 
+      'CASE WHEN ir.vat_included = 0 THEN sum(ir.price * ir.pcs) ELSE sum(ir.price * ir.pcs / (1 + ir.vat / 100)) END as total_price, ' .
+      'ir.vat, sum(ir.pcs) as pcs, t.name as unit ' .
+      'FROM {prefix}invoice_row ir ' .
+      'LEFT OUTER JOIN {prefix}product p ON p.id = ir.product_id ' .
+      'LEFT OUTER JOIN {prefix}row_type t ON t.id = ir.type_id ' .
+      "WHERE ir.deleted=0 AND ir.invoice_id IN ($strQuery) $strProductWhere" .
+      'GROUP BY p.product_name, ir.description, ir.vat, t.name ' .
+      'ORDER BY p.product_name, ir.description';
+      
+    $this->printHeader($format, $startDate, $endDate);  
+      
     $intTotSum = 0;
     $intTotVAT = 0;
     $intTotSumVAT = 0;
+    $intRes = mysql_param_query($strProductQuery, $arrParams);
     while ($row = mysql_fetch_assoc($intRes))
     {
       $strProduct = $row['product_name'];
@@ -315,77 +213,198 @@ function printReport()
       $intSum = $row['total_price'];
       $intVATPercent = $row['vat'];
       
-      if ($strDescription)
-      {
-        if (mb_strlen($strDescription) > 20)
-          $strDescription = mb_substr($strDescription, 0, 17) . '...';
-        if ($strProduct)
-          $strProduct .= " ($strDescription)";
-        else
-          $strProduct = $strDescription;
-      }
-      if (!$strProduct)
-        $strProduct = '&ndash;';
-      else
-        $strProduct = htmlspecialchars($strProduct);
       $intVAT = $intSum * $intVATPercent / 100;
       $intSumVAT = $intSum + $intVAT;
       
       $intTotSum += $intSum;
       $intTotVAT += $intVAT;
       $intTotSumVAT += $intSumVAT;
-  ?>
-  <tr>
-      <td class="input">
-          <?php echo $strProduct?>
-      </td>
-      <td class="input" align="right">
-          <?php echo miscRound2Decim($intCount)?>
-      </td>
-      <td class="input" align="left">
-          <?php echo htmlspecialchars($strUnit)?>
-      </td>
-      <td class="input" align="right">
-          <?php echo miscRound2Decim($intSum)?>
-      </td>
-      <td class="input" align="right">
-          <?php echo htmlspecialchars($intVATPercent)?>
-      </td>
-      <td class="input" align="right">
-          <?php echo miscRound2Decim($intVAT)?>
-      </td>
-      <td class="input" align="right">
-          <?php echo miscRound2Decim($intSumVAT)?>
-      </td>
-  </tr>
-  <?php
+      
+      $this->printRow($format, $strProduct, $strDescription, $intCount, $strUnit, $intSum, $intVATPercent, $intVAT, $intSumVAT);
+    }
+    $this->printTotals($format, $intTotSum, $intTotVAT, $intTotSumVAT);
+    $this->printFooter($format);
+  }
+  
+  private function printHeader($format, $startDate, $endDate)
+  {
+    if ($format == 'pdf')
+    {
+      ob_end_clean();
+      $pdf = new PDF('P','mm','A4', _CHARSET_ == 'UTF-8', _CHARSET_, false);
+      $pdf->setTopMargin(20);
+      $pdf->headerRight = $GLOBALS['locReportPage'];
+      $pdf->printHeaderOnFirstPage = true;
+      $pdf->AddPage();
+      $pdf->SetAutoPageBreak(TRUE, 15);
+      
+      $pdf->setY(10);
+      $pdf->SetFont('Helvetica','B',12);
+      $pdf->Cell(100, 15, $GLOBALS['locPRODUCTREPORT'], 0, 1, 'L');
+      
+      if ($startDate || $endDate)
+      {
+        $pdf->SetFont('Helvetica','',8);
+        $pdf->Cell(25, 15, $GLOBALS['locDateInterval'], 0, 0, 'L');
+        $pdf->Cell(50, 15, dateConvIntDate2Date($startDate) . ' - ' . dateConvIntDate2Date($endDate), 0, 1, 'L');
+      }
+      
+      $pdf->SetFont('Helvetica','B',8);
+      $pdf->Cell(50, 4, $GLOBALS['locPRODUCT'], 0, 0, 'L');
+      $pdf->Cell(25, 4, $GLOBALS['locPCS'], 0, 0, 'R');
+      $pdf->Cell(25, 4, $GLOBALS['locUNIT'], 0, 0, 'R');
+      $pdf->Cell(25, 4, $GLOBALS['locVATLESS'], 0, 0, 'R');
+      $pdf->Cell(15, 4, $GLOBALS['locVATPERCENT'], 0, 0, 'R');
+      $pdf->Cell(25, 4, $GLOBALS['locVATPART'], 0, 0, 'R');
+      $pdf->Cell(25, 4, $GLOBALS['locWITHVAT'], 0, 1, 'R');
+      $this->pdf = $pdf;
+      return;
     }
   ?>
-  <tr>
-      <td class="input">
-          <b><?php echo $GLOBALS['locTOTAL']?></b>
-      </td>
-      <td class="input" align="right">
-          &nbsp;
-      </td>
-      <td class="input" align="right">
-          &nbsp;
-      </td>
-      <td class="input" align="right">
-          <b><?php echo miscRound2Decim($intTotSum)?></b>
-      </td>
-      <td class="input" align="right">
-          &nbsp;
-      </td>
-      <td class="input" align="right">
-          <b><?php echo miscRound2Decim($intTotVAT)?></b>
-      </td>
-      <td class="input" align="right">
-          <b><?php echo miscRound2Decim($intTotSumVAT)?></b>
-      </td>
-  </tr>
-  </table>
-  </div>
+    <div class="report">
+    <table>
+    <tr>
+        <th class="label">
+            <?php echo $GLOBALS['locPRODUCT']?>
+        </th>
+        <th class="label" align="right" style="text-align: right">
+            <?php echo $GLOBALS['locPCS']?>
+        </th>
+        <th class="label" align="right" style="text-align: right">
+            <?php echo $GLOBALS['locUNIT']?>
+        </th>
+        <th class="label" align="right" style="text-align: right">
+            <?php echo $GLOBALS['locVATLESS']?>
+        </th>
+        <th class="label" align="right" style="text-align: right">
+            <?php echo $GLOBALS['locVATPERCENT']?>
+        </th>
+        <th class="label" align="rght" style="text-align: right">
+            <?php echo $GLOBALS['locVATPART']?>
+        </th>
+        <th class="label" align="right" style="text-align: right">
+            <?php echo $GLOBALS['locWITHVAT']?>
+        </th>
+    </tr>
+  <?php
+  }
+  
+  private function printRow($format, $strProduct, $strDescription, $intCount, $strUnit, $intSum, $intVATPercent, $intVAT, $intSumVAT)
+  {
+    if ($strDescription)
+    {
+      if ($format == 'html' && mb_strlen($strDescription) > 20)
+        $strDescription = mb_substr($strDescription, 0, 17) . '...';
+      if ($strProduct)
+        $strProduct .= " ($strDescription)";
+      else
+        $strProduct = $strDescription;
+    }
+    
+    if ($format == 'pdf')
+    {
+      if (!$strProduct)
+        $strProduct = '-';
+        
+      $pdf = $this->pdf;
+      $pdf->SetFont('Helvetica','',8);
+      $nameX = $pdf->getX();
+      $pdf->setXY($nameX + 50, $pdf->getY() + 1);
+      $pdf->Cell(25, 4, miscRound2Decim($intCount), 0, 0, 'R');
+      $pdf->Cell(25, 4, $strUnit, 0, 0, 'R');
+      $pdf->Cell(25, 4, miscRound2Decim($intSum), 0, 0, 'R');
+      $pdf->Cell(15, 4, miscRound2Decim($intVATPercent, 1), 0, 0, 'R');
+      $pdf->Cell(25, 4, miscRound2Decim($intVAT), 0, 0, 'R');
+      $pdf->Cell(25, 4, miscRound2Decim($intSumVAT), 0, 0, 'R');
+      $pdf->setX($nameX);
+      $pdf->MultiCell(50, 4, $strProduct, 0, 'L');
+      return;
+    }
+    if (!$strProduct)
+      $strProduct = '&ndash;';
+    else
+      $strProduct = htmlspecialchars($strProduct);
+?>
+    <tr>
+        <td class="input">
+            <?php echo $strProduct?>
+        </td>
+        <td class="input" align="right">
+            <?php echo miscRound2Decim($intCount)?>
+        </td>
+        <td class="input" align="left">
+            <?php echo htmlspecialchars($strUnit)?>
+        </td>
+        <td class="input" align="right">
+            <?php echo miscRound2Decim($intSum)?>
+        </td>
+        <td class="input" align="right">
+            <?php echo miscRound2Decim($intVATPercent, 1)?>
+        </td>
+        <td class="input" align="right">
+            <?php echo miscRound2Decim($intVAT)?>
+        </td>
+        <td class="input" align="right">
+            <?php echo miscRound2Decim($intSumVAT)?>
+        </td>
+    </tr>
+  <?php
+  }
+      
+  private function printTotals($format, $intTotSum, $intTotVAT, $intTotSumVAT)
+  {
+    if ($format == 'pdf')
+    {
+      $pdf = $this->pdf;
+      $pdf->SetFont('Helvetica','B',8);
+      $pdf->setY($pdf->getY() + 3);
+      $pdf->Cell(50, 4, $GLOBALS['locTOTAL'], 0, 0, 'L');
+      $pdf->Cell(25, 4, '', 0, 0, 'L');
+      $pdf->Cell(25, 4, '', 0, 0, 'L');
+      $pdf->Cell(25, 4, miscRound2Decim($intTotSum), 0, 0, 'R');
+      $pdf->Cell(15, 4, '', 0, 0, 'L');
+      $pdf->Cell(25, 4, miscRound2Decim($intTotVAT), 0, 0, 'R');
+      $pdf->Cell(25, 4, miscRound2Decim($intTotSumVAT), 0, 1, 'R');
+      return;
+    }
+  ?>
+    <tr>
+        <td class="input total_sum">
+            <?php echo $GLOBALS['locTOTAL']?>
+        </td>
+        <td class="input total_sum" align="right">
+            &nbsp;
+        </td>
+        <td class="input total_sum" align="right">
+            &nbsp;
+        </td>
+        <td class="input total_sum" align="right">
+            <?php echo miscRound2Decim($intTotSum)?>
+        </td>
+        <td class="input total_sum" align="right">
+            &nbsp;
+        </td>
+        <td class="input total_sum" align="right">
+            <?php echo miscRound2Decim($intTotVAT)?>
+        </td>
+        <td class="input total_sum" align="right">
+            <?php echo miscRound2Decim($intTotSumVAT)?>
+        </td>
+    </tr>
+  <?php
+  }
+  
+  private function printFooter($format)
+  {
+    if ($format == 'pdf')
+    {
+      $pdf = $this->pdf;
+      $pdf->Output('report.pdf', 'I');
+      return;
+    }
+  ?>
+    </table>
+    </div>
   <?php
   }
 }

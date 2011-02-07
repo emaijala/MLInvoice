@@ -128,7 +128,11 @@ else
       $invoiceReport = new InvoiceReport;
       $invoiceReport->createReport(); 
       break;
-    case 'product': require_once 'product_report.php'; createProductReport(); break;
+    case 'product': 
+      require_once 'product_report.php'; 
+      $productReport = new ProductReport;
+      $productReport->createReport(); 
+      break;
     }
     break;
   default:

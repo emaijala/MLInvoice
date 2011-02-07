@@ -349,6 +349,7 @@ default :
     $GLOBALS['locPrintFormatHTML'] = 'HTML';
     $GLOBALS['locPrintFormatPDF'] = 'PDF';
     $GLOBALS['locPrintReportStates'] = 'Raportoitavat tilat';
+    $GLOBALS['locReportPage'] = 'Sivu %d';
     
     //extended search
     $GLOBALS['locSearchEqual'] = 'on yhtä kuin';

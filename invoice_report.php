@@ -49,7 +49,6 @@ class InvoiceReport
     $intCompanyId = getRequest('company', FALSE);
     $startDate = getRequest('from', date('d.m.Y', mktime(0, 0, 0, date('m') - 1, 1, date('Y'))));
     $endDate = getRequest('until', date('d.m.Y', mktime(0, 0, 0, date('m'), 0, date('Y'))));
-    $intSelectedStateId = getRequest('stateid', 1);
           
     $typeListQuery = 
         "SELECT 'html' AS id, '" . $GLOBALS['locPrintFormatHTML'] . "' AS name UNION ".
@@ -63,7 +62,7 @@ class InvoiceReport
   </script>
   
   <div class="form_container">
-    <form method="get" action="" name="invoice">
+    <form method="get" action="" id="params" name="params">
     <input name="func" type="hidden" value="reports">
     <input name="form" type="hidden" value="invoice">
     <input name="report" type="hidden" value="1">
@@ -104,7 +103,7 @@ class InvoiceReport
     }
   ?>
     <div class="medium_label">
-      <a class="actionlink" href="#" onclick="self.document.invoice.submit(); return false;"><?php echo $GLOBALS['locGET']?></a>
+      <a class="actionlink" href="#" onclick="document.getElementById('params').submit(); return false;"><?php echo $GLOBALS['locGET']?></a>
     </div>
     </form>
   </div>
@@ -153,15 +152,15 @@ class InvoiceReport
     $intRes = mysql_query_check($strQuery3);
     while ($row = mysql_fetch_assoc($intRes)) 
     {
-        $intStateId = $row['id'];
-        $strStateName = $row['name'];
-        $strTemp = "stateid_$intStateId";
-        $tmpSelected = getRequest($strTemp, FALSE) ? TRUE : FALSE;
-        if( $tmpSelected ) {
-            $strQuery2 .= 
-                ' i.state_id = ? OR ';
-            $arrParams[] = $intStateId;
-        }
+      $intStateId = $row['id'];
+      $strStateName = $row['name'];
+      $strTemp = "stateid_$intStateId";
+      $tmpSelected = getRequest($strTemp, FALSE) ? TRUE : FALSE;
+      if ($tmpSelected) 
+      {
+        $strQuery2 .= ' i.state_id = ? OR ';
+        $arrParams[] = $intStateId;
+      }
     }
     if ($strQuery2) 
     {
@@ -182,9 +181,6 @@ class InvoiceReport
     
     $strQuery .= "$strQuery2 ORDER BY " . ($sums ? 'state_id, invoice_date, invoice_no' : 'invoice_date, invoice_no');
     
-    $intRes = mysql_param_query($strQuery, $arrParams);
-    $intNumRows = mysql_numrows($intRes);
-  
     $this->printHeader($format, $startDate, $endDate);  
   
     $intTotSum = 0;
@@ -194,6 +190,7 @@ class InvoiceReport
     $stateTotSum = 0;
     $stateTotVAT = 0;
     $stateTotSumVAT = 0;
+    $intRes = mysql_param_query($strQuery, $arrParams);
     while ($row = mysql_fetch_assoc($intRes))
     {
       $intInvoiceID = $row['id'];
@@ -222,42 +219,39 @@ class InvoiceReport
           "FROM {prefix}invoice_row ir ".
           "WHERE ir.invoice_id=? AND ir.deleted=0";
       $intRes2 = mysql_param_query($strQuery, array($intInvoiceID));
-      if ($intRes2) 
+      $intRowSum = 0;
+      $intRowVAT = 0;
+      $intRowSumVAT = 0;
+      while ($row2 = mysql_fetch_assoc($intRes2))
       {
-        $intRowSum = 0;
-        $intRowVAT = 0;
-        $intRowSumVAT = 0;
-        while ($row2 = mysql_fetch_assoc($intRes2))
+        $intItemPrice = $row2['price'];
+        $intItems = $row2['pcs'];
+        $intVATPercent = $row2['vat'];
+        $boolVATIncluded = $row2['vat_included'];
+        
+        if ($boolVATIncluded)
         {
-          $intItemPrice = $row2['price'];
-          $intItems = $row2['pcs'];
-          $intVATPercent = $row2['vat'];
-          $boolVATIncluded = $row2['vat_included'];
-          
-          if ($boolVATIncluded)
-          {
-            $intSumVAT = $intItems * $intItemPrice;
-            $intSum = $intSumVAT / (1 + $intVATPercent / 100);
-            $intVAT = $intSumVAT - $intSum;
-          }
-          else
-          {
-            $intSum = $intItems * $intItemPrice;
-            $intVAT = $intSum * ($intVATPercent / 100);
-            $intSumVAT = $intSum + $intVAT;
-          }
-      
-          $intRowSum += $intSum;
-          $intRowVAT += $intVAT;
-          $intRowSumVAT += $intSumVAT;
-          $intTotSum += $intSum;
-          $intTotVAT += $intVAT;
-          $intTotSumVAT += $intSumVAT;
+          $intSumVAT = $intItems * $intItemPrice;
+          $intSum = $intSumVAT / (1 + $intVATPercent / 100);
+          $intVAT = $intSumVAT - $intSum;
         }
-        $stateTotSum += $intRowSum;
-        $stateTotVAT += $intRowVAT;
-        $stateTotSumVAT += $intRowSumVAT;
+        else
+        {
+          $intSum = $intItems * $intItemPrice;
+          $intVAT = $intSum * ($intVATPercent / 100);
+          $intSumVAT = $intSum + $intVAT;
+        }
+    
+        $intRowSum += $intSum;
+        $intRowVAT += $intVAT;
+        $intRowSumVAT += $intSumVAT;
+        $intTotSum += $intSum;
+        $intTotVAT += $intVAT;
+        $intTotSumVAT += $intSumVAT;
       }
+      $stateTotSum += $intRowSum;
+      $stateTotVAT += $intRowVAT;
+      $stateTotSumVAT += $intRowSumVAT;
       
       $this->printRow($format, $strInvoiceNo, $strInvoiceDate, $strName, $strInvoiceState, $intRowSum, $intRowVAT, $intRowSumVAT);
     }
@@ -273,7 +267,9 @@ class InvoiceReport
     {
       ob_end_clean();
       $pdf = new PDF('P','mm','A4', _CHARSET_ == 'UTF-8', _CHARSET_, false);
-      $pdf->setTopMargin(15);
+      $pdf->setTopMargin(20);
+      $pdf->headerRight = $GLOBALS['locReportPage'];
+      $pdf->printHeaderOnFirstPage = true;
       $pdf->AddPage();
       $pdf->SetAutoPageBreak(TRUE, 15);
       
@@ -283,19 +279,19 @@ class InvoiceReport
       
       if ($startDate || $endDate)
       {
-        $pdf->SetFont('Helvetica','',10);
+        $pdf->SetFont('Helvetica','',8);
         $pdf->Cell(25, 15, $GLOBALS['locDateInterval'], 0, 0, 'L');
         $pdf->Cell(50, 15, dateConvIntDate2Date($startDate) . ' - ' . dateConvIntDate2Date($endDate), 0, 1, 'L');
       }
       
-      $pdf->SetFont('Helvetica','B',10);
-      $pdf->Cell(25, 5, $GLOBALS['locINVNO'], 0, 0, 'L');
-      $pdf->Cell(25, 5, $GLOBALS['locINVDATE'], 0, 0, 'L');
-      $pdf->Cell(50, 5, $GLOBALS['locPAYER'], 0, 0, 'L');
-      $pdf->Cell(20, 5, $GLOBALS['locINVOICESTATE'], 0, 0, 'L');
-      $pdf->Cell(25, 5, $GLOBALS['locVATLESS'], 0, 0, 'R');
-      $pdf->Cell(25, 5, $GLOBALS['locVATPART'], 0, 0, 'R');
-      $pdf->Cell(20, 5, $GLOBALS['locWITHVAT'], 0, 1, 'R');
+      $pdf->SetFont('Helvetica','B',8);
+      $pdf->Cell(25, 4, $GLOBALS['locINVNO'], 0, 0, 'L');
+      $pdf->Cell(25, 4, $GLOBALS['locINVDATE'], 0, 0, 'L');
+      $pdf->Cell(45, 4, $GLOBALS['locPAYER'], 0, 0, 'L');
+      $pdf->Cell(20, 4, $GLOBALS['locINVOICESTATE'], 0, 0, 'L');
+      $pdf->Cell(25, 4, $GLOBALS['locVATLESS'], 0, 0, 'R');
+      $pdf->Cell(25, 4, $GLOBALS['locVATPART'], 0, 0, 'R');
+      $pdf->Cell(25, 4, $GLOBALS['locWITHVAT'], 0, 1, 'R');
       $this->pdf = $pdf;
       return;
     }
@@ -333,17 +329,18 @@ class InvoiceReport
     if ($format == 'pdf')
     {
       $pdf = $this->pdf;
-      $pdf->SetFont('Helvetica','',10);
-      $pdf->Cell(25, 5, $strInvoiceNo, 0, 0, 'L');
-      $pdf->Cell(25, 5, $strInvoiceDate, 0, 0, 'L');
+      $pdf->SetFont('Helvetica','',8);
+      $pdf->setY($pdf->getY() + 1);
+      $pdf->Cell(25, 4, $strInvoiceNo, 0, 0, 'L');
+      $pdf->Cell(25, 4, $strInvoiceDate, 0, 0, 'L');
       $nameX = $pdf->getX();
-      $pdf->setX($nameX + 50);
-      $pdf->Cell(20, 5, $strInvoiceState, 0, 0, 'L');
-      $pdf->Cell(25, 5, miscRound2Decim($intRowSum), 0, 0, 'R');
-      $pdf->Cell(25, 5, miscRound2Decim($intRowVAT), 0, 0, 'R');
-      $pdf->Cell(20, 5, miscRound2Decim($intRowSumVAT), 0, 0, 'R');
+      $pdf->setX($nameX + 45);
+      $pdf->Cell(20, 4, $strInvoiceState, 0, 0, 'L');
+      $pdf->Cell(25, 4, miscRound2Decim($intRowSum), 0, 0, 'R');
+      $pdf->Cell(25, 4, miscRound2Decim($intRowVAT), 0, 0, 'R');
+      $pdf->Cell(25, 4, miscRound2Decim($intRowSumVAT), 0, 0, 'R');
       $pdf->setX($nameX);
-      $pdf->MultiCell(50, 5, $strName, 0, 'L');
+      $pdf->MultiCell(45, 4, $strName, 0, 'L');
       return;
     }
   ?>
@@ -380,17 +377,17 @@ class InvoiceReport
       $pdf = $this->pdf;
       if ($pdf->getY() > $pdf->getPageHeight() - 7 - 15) 
         $pdf->AddPage();
-      $pdf->SetFont('Helvetica','',10);
+      $pdf->SetFont('Helvetica','',8);
       $pdf->setLineWidth(0.2);
       $pdf->line($pdf->getX() + 120, $pdf->getY(), $pdf->getX() + 120 + 70, $pdf->getY());
       $pdf->setY($pdf->getY() + 1);
-      $pdf->Cell(25, 5, '', 0, 0, 'L');
-      $pdf->Cell(25, 5, '', 0, 0, 'L');
-      $pdf->Cell(50, 5, '', 0, 0, 'L');
-      $pdf->Cell(20, 5, '', 0, 0, 'L');
-      $pdf->Cell(25, 5, miscRound2Decim($stateTotSum), 0, 0, 'R');
-      $pdf->Cell(25, 5, miscRound2Decim($stateToVAT), 0, 0, 'R');
-      $pdf->Cell(20, 5, miscRound2Decim($stateTotSumVAT), 0, 1, 'R');
+      $pdf->Cell(25, 4, '', 0, 0, 'L');
+      $pdf->Cell(25, 4, '', 0, 0, 'L');
+      $pdf->Cell(45, 4, '', 0, 0, 'L');
+      $pdf->Cell(20, 4, '', 0, 0, 'L');
+      $pdf->Cell(25, 4, miscRound2Decim($stateTotSum), 0, 0, 'R');
+      $pdf->Cell(25, 4, miscRound2Decim($stateToVAT), 0, 0, 'R');
+      $pdf->Cell(25, 4, miscRound2Decim($stateTotSumVAT), 0, 1, 'R');
       $pdf->setY($pdf->getY() + 2);
       return;
     }
@@ -417,13 +414,14 @@ class InvoiceReport
     if ($format == 'pdf')
     {
       $pdf = $this->pdf;
-      $pdf->SetFont('Helvetica','B',10);
-      $pdf->Cell(25, 5, '', 0, 0, 'L');
-      $pdf->Cell(25, 5, '', 0, 0, 'L');
-      $pdf->Cell(70, 5, $GLOBALS['locTOTAL'], 0, 0, 'R');
-      $pdf->Cell(25, 5, miscRound2Decim($intTotSum), 0, 0, 'R');
-      $pdf->Cell(25, 5, miscRound2Decim($intTotVAT), 0, 0, 'R');
-      $pdf->Cell(20, 5, miscRound2Decim($intTotSumVAT), 0, 1, 'R');
+      $pdf->SetFont('Helvetica','B',8);
+      $pdf->setY($pdf->getY() + 3);
+      $pdf->Cell(65, 4, $GLOBALS['locTOTAL'], 0, 0, 'L');
+      $pdf->Cell(25, 4, '', 0, 0, 'L');
+      $pdf->Cell(25, 4, '', 0, 0, 'L');
+      $pdf->Cell(25, 4, miscRound2Decim($intTotSum), 0, 0, 'R');
+      $pdf->Cell(25, 4, miscRound2Decim($intTotVAT), 0, 0, 'R');
+      $pdf->Cell(25, 4, miscRound2Decim($intTotSumVAT), 0, 1, 'R');
       return;
     }
   ?>

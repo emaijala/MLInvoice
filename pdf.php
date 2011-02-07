@@ -3,11 +3,23 @@ require_once 'tcpdf/tcpdf.php';
 
 class PDF extends TCPDF
 {
+  public $headerLeft = '', $headerCenter = '', $headerRight = '';
   public $footerLeft = '', $footerCenter = '', $footerRight = '';
+  public $printHeaderOnFirstPage = false;
   public $printFooterOnFirstPage = false;
   
   function Header()
   {
+    if ($this->PageNo() == 1 && !$this->printHeaderOnFirstPage)
+      return;
+    $this->SetY(10);
+    $this->SetFont('Helvetica','',7);
+    $this->SetX(7);
+    $this->MultiCell(120, 5, $this->handlePageNum($this->headerLeft), 0, "L", 0, 0);
+    $this->SetX(75);
+    $this->MultiCell(65, 5, $this->handlePageNum($this->headerCenter), 0, "C", 0, 0);
+    $this->SetX(140);
+    $this->MultiCell(60, 5, $this->handlePageNum($this->headerRight), 0, "R", 0, 0);
   }
 
   function Footer()
@@ -22,6 +34,11 @@ class PDF extends TCPDF
     $this->MultiCell(65, 5, $this->footerCenter, 0, "C", 0, 0);
     $this->SetX(140);
     $this->MultiCell(60, 5, $this->footerRight, 0, "R", 0, 0);
+  }
+  
+  protected function handlePageNum($str)
+  {
+    return sprintf($str, $this->PageNo());
   }
 
   // Disable openssl_random_pseudo_bytes call as it's very slow on Windows  
@@ -58,6 +75,5 @@ class PDF extends TCPDF
     $seed .= microtime();
     return $seed;
   }
-  
 } 
 ?>
