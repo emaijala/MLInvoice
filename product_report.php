@@ -54,7 +54,7 @@ function createProductReport()
   $strYearListBox = htmlListBox( "year", $astrYearListValues, $astrYearListOptions, $intYear, "", TRUE, FALSE );
   
   $astrShowElements = array();
-  $strTopLabel = $GLOBALS['locPRINTPRODUCTREPORT'];
+  $strTopLabel = $GLOBALS['locPRODUCTREPORT'];
   $strMidLabel = $GLOBALS['locPRINTREPORTSTATES'];
   $strListQuery = 
       "SELECT '0' AS id, '".$GLOBALS['locALL']."' AS name UNION ".

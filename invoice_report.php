@@ -71,7 +71,7 @@ class InvoiceReport
     <div class="unlimited_label"><strong><?php echo $GLOBALS['locINVOICEREPORT']?></strong></div>
     
     <div class="medium_label"><?php echo $GLOBALS['locDateInterval']?></div>
-    <div class="field"><?php echo htmlFormElement('from', 'TEXT', $startDate, 'medium hasCalendar', '', 'MODIFY', FALSE)?> - <?php echo htmlFormElement('until', 'TEXT', $endDate, 'medium', '', 'MODIFY', FALSE)?></div>
+    <div class="field"><?php echo htmlFormElement('from', 'TEXT', $startDate, 'medium hasCalendar', '', 'MODIFY', FALSE)?> - <?php echo htmlFormElement('until', 'TEXT', $endDate, 'medium hasCalendar', '', 'MODIFY', FALSE)?></div>
 
     <div class="medium_label"><?php echo $GLOBALS['locBILLER']?></div>
     <div class="field"><?php echo htmlFormElement('base', 'LIST', $intBaseId, 'medium hasCalendar', 'SELECT id, name FROM {prefix}base WHERE deleted=0 ORDER BY name', 'MODIFY', FALSE)?></div>
@@ -185,7 +185,7 @@ class InvoiceReport
     $intRes = mysql_param_query($strQuery, $arrParams);
     $intNumRows = mysql_numrows($intRes);
   
-    $this->printHeader($format);  
+    $this->printHeader($format, $startDate, $endDate);  
   
     $intTotSum = 0;
     $intTotVAT = 0;
@@ -267,22 +267,35 @@ class InvoiceReport
     $this->printFooter($format);
   }
   
-  private function printHeader($format)
+  private function printHeader($format, $startDate, $endDate)
   {
     if ($format == 'pdf')
     {
       ob_end_clean();
       $pdf = new PDF('P','mm','A4', _CHARSET_ == 'UTF-8', _CHARSET_, false);
+      $pdf->setTopMargin(15);
       $pdf->AddPage();
-      $pdf->SetAutoPageBreak(TRUE);
-      $pdf->SetFont('Helvetica','',10);
-      $pdf->Cell(25, 5, $GLOBALS['locINVNO'], 0, 0, "L");
-      $pdf->Cell(25, 5, $GLOBALS['locINVDATE'], 0, 0, "L");
-      $pdf->Cell(40, 5, $GLOBALS['locPAYER'], 0, 0, "L");
-      $pdf->Cell(20, 5, $GLOBALS['locINVOICESTATE'], 0, 0, "L");
-      $pdf->Cell(25, 5, $GLOBALS['locVATLESS'], 0, 0, "R");
-      $pdf->Cell(25, 5, $GLOBALS['locVATPART'], 0, 0, "R");
-      $pdf->Cell(20, 5, $GLOBALS['locWITHVAT'], 0, 1, "R");
+      $pdf->SetAutoPageBreak(TRUE, 15);
+      
+      $pdf->setY(10);
+      $pdf->SetFont('Helvetica','B',12);
+      $pdf->Cell(100, 15, $GLOBALS['locINVOICEREPORT'], 0, 1, 'L');
+      
+      if ($startDate || $endDate)
+      {
+        $pdf->SetFont('Helvetica','',10);
+        $pdf->Cell(25, 15, $GLOBALS['locDateInterval'], 0, 0, 'L');
+        $pdf->Cell(50, 15, dateConvIntDate2Date($startDate) . ' - ' . dateConvIntDate2Date($endDate), 0, 1, 'L');
+      }
+      
+      $pdf->SetFont('Helvetica','B',10);
+      $pdf->Cell(25, 5, $GLOBALS['locINVNO'], 0, 0, 'L');
+      $pdf->Cell(25, 5, $GLOBALS['locINVDATE'], 0, 0, 'L');
+      $pdf->Cell(50, 5, $GLOBALS['locPAYER'], 0, 0, 'L');
+      $pdf->Cell(20, 5, $GLOBALS['locINVOICESTATE'], 0, 0, 'L');
+      $pdf->Cell(25, 5, $GLOBALS['locVATLESS'], 0, 0, 'R');
+      $pdf->Cell(25, 5, $GLOBALS['locVATPART'], 0, 0, 'R');
+      $pdf->Cell(20, 5, $GLOBALS['locWITHVAT'], 0, 1, 'R');
       $this->pdf = $pdf;
       return;
     }
@@ -321,16 +334,16 @@ class InvoiceReport
     {
       $pdf = $this->pdf;
       $pdf->SetFont('Helvetica','',10);
-      $pdf->Cell(25, 5, $strInvoiceNo, 0, 0, "L");
-      $pdf->Cell(25, 5, $strInvoiceDate, 0, 0, "L");
+      $pdf->Cell(25, 5, $strInvoiceNo, 0, 0, 'L');
+      $pdf->Cell(25, 5, $strInvoiceDate, 0, 0, 'L');
       $nameX = $pdf->getX();
-      $pdf->setX($nameX + 40);
-      $pdf->Cell(20, 5, $strInvoiceState, 0, 0, "L");
-      $pdf->Cell(25, 5, miscRound2Decim($intRowSum), 0, 0, "R");
-      $pdf->Cell(25, 5, miscRound2Decim($intRowVAT), 0, 0, "R");
-      $pdf->Cell(20, 5, miscRound2Decim($intRowSumVAT), 0, 0, "R");
+      $pdf->setX($nameX + 50);
+      $pdf->Cell(20, 5, $strInvoiceState, 0, 0, 'L');
+      $pdf->Cell(25, 5, miscRound2Decim($intRowSum), 0, 0, 'R');
+      $pdf->Cell(25, 5, miscRound2Decim($intRowVAT), 0, 0, 'R');
+      $pdf->Cell(20, 5, miscRound2Decim($intRowSumVAT), 0, 0, 'R');
       $pdf->setX($nameX);
-      $pdf->MultiCell(40, 5, $strName, 0, "L");
+      $pdf->MultiCell(50, 5, $strName, 0, 'L');
       return;
     }
   ?>
@@ -365,17 +378,19 @@ class InvoiceReport
     if ($format == 'pdf')
     {
       $pdf = $this->pdf;
+      if ($pdf->getY() > $pdf->getPageHeight() - 7 - 15) 
+        $pdf->AddPage();
       $pdf->SetFont('Helvetica','',10);
       $pdf->setLineWidth(0.2);
-      $pdf->line($pdf->getX() + 110, $pdf->getY(), $pdf->getX() + 110 + 70, $pdf->getY());
+      $pdf->line($pdf->getX() + 120, $pdf->getY(), $pdf->getX() + 120 + 70, $pdf->getY());
       $pdf->setY($pdf->getY() + 1);
-      $pdf->Cell(25, 5, '', 0, 0, "L");
-      $pdf->Cell(25, 5, '', 0, 0, "L");
-      $pdf->Cell(40, 5, '', 0, 0, "L");
-      $pdf->Cell(20, 5, '', 0, 0, "L");
-      $pdf->Cell(25, 5, miscRound2Decim($stateTotSum), 0, 0, "R");
-      $pdf->Cell(25, 5, miscRound2Decim($stateToVAT), 0, 0, "R");
-      $pdf->Cell(20, 5, miscRound2Decim($stateTotSumVAT), 0, 1, "R");
+      $pdf->Cell(25, 5, '', 0, 0, 'L');
+      $pdf->Cell(25, 5, '', 0, 0, 'L');
+      $pdf->Cell(50, 5, '', 0, 0, 'L');
+      $pdf->Cell(20, 5, '', 0, 0, 'L');
+      $pdf->Cell(25, 5, miscRound2Decim($stateTotSum), 0, 0, 'R');
+      $pdf->Cell(25, 5, miscRound2Decim($stateToVAT), 0, 0, 'R');
+      $pdf->Cell(20, 5, miscRound2Decim($stateTotSumVAT), 0, 1, 'R');
       $pdf->setY($pdf->getY() + 2);
       return;
     }
@@ -403,12 +418,12 @@ class InvoiceReport
     {
       $pdf = $this->pdf;
       $pdf->SetFont('Helvetica','B',10);
-      $pdf->Cell(25, 5, '', 0, 0, "L");
-      $pdf->Cell(25, 5, '', 0, 0, "L");
-      $pdf->Cell(60, 5, $GLOBALS['locTOTAL'], 0, 0, "R");
-      $pdf->Cell(25, 5, miscRound2Decim($intTotSum), 0, 0, "R");
-      $pdf->Cell(25, 5, miscRound2Decim($intTotVAT), 0, 0, "R");
-      $pdf->Cell(20, 5, miscRound2Decim($intTotSumVAT), 0, 1, "R");
+      $pdf->Cell(25, 5, '', 0, 0, 'L');
+      $pdf->Cell(25, 5, '', 0, 0, 'L');
+      $pdf->Cell(70, 5, $GLOBALS['locTOTAL'], 0, 0, 'R');
+      $pdf->Cell(25, 5, miscRound2Decim($intTotSum), 0, 0, 'R');
+      $pdf->Cell(25, 5, miscRound2Decim($intTotVAT), 0, 0, 'R');
+      $pdf->Cell(20, 5, miscRound2Decim($intTotSumVAT), 0, 1, 'R');
       return;
     }
   ?>

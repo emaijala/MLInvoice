@@ -334,8 +334,7 @@ default :
     $GLOBALS['locPDFAdditionalInformation'] = 'Lisätiedot';
         
     //REPORTS
-    $GLOBALS['locPRINTINVOICEREPORT'] = 'Tulosta laskutusraportti';
-    $GLOBALS['locPRINTPRODUCTREPORT'] = 'Tulosta tuoteraportti';
+    $GLOBALS['locProductReport'] = 'Tuoteraportti';
     $GLOBALS['locOPEN'] = 'Avoimet';
     $GLOBALS['locSENT'] = 'Laskutetut';
     $GLOBALS['locPAID'] = 'Maksetut';
