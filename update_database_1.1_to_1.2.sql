@@ -10,6 +10,10 @@ CREATE TABLE vllasku_print_template (
   PRIMARY KEY (id)
 ) ENGINE=INNODB CHARACTER SET utf8 COLLATE utf8_swedish_ci;
 
+INSERT INTO vllasku_print_template (id, name, filename, parameters, output_filename, type, order_no) VALUES (1, 'Lasku', 'print_invoice.php', 'invoice', 'lasku_%d.pdf', 'invoice', 5);
+INSERT INTO vllasku_print_template (id, name, filename, parameters, output_filename, type, order_no) VALUES (2, 'Lähetysluettelo', 'print_invoice.php', 'dispatch', 'lahetysluettelo_%d.pdf','invoice', 10);
+INSERT INTO vllasku_print_template (id, name, filename, parameters, output_filename, type, order_no) VALUES (3, 'Kuitti', 'print_invoice.php', 'receipt', 'kuitti_%d.pdf','invoice', 15);
+
 alter table vllasku_invoice add column (
   info text default NULL,
   internal_info text default NULL

@@ -132,6 +132,10 @@ CREATE TABLE pklasku_print_template (
   PRIMARY KEY (id)
 ) ENGINE=MyISAM;
 
+INSERT INTO pklasku_print_template (id, name, filename, parameters, output_filename, type, order_no) VALUES (1, 'Lasku', 'print_invoice.php', 'invoice', 'lasku_%d.pdf', 'invoice', 5);
+INSERT INTO pklasku_print_template (id, name, filename, parameters, output_filename, type, order_no) VALUES (2, 'Lähetysluettelo', 'print_invoice.php', 'dispatch', 'lahetysluettelo_%d.pdf','invoice', 10);
+INSERT INTO pklasku_print_template (id, name, filename, parameters, output_filename, type, order_no) VALUES (3, 'Kuitti', 'print_invoice.php', 'receipt', 'kuitti_%d.pdf','invoice', 15);
+
 alter table pklasku_invoice add column (
   info text default NULL,
   internal_info text default NULL
