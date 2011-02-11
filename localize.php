@@ -284,10 +284,10 @@ default :
 			'"sInfoFiltered": "(suodatettu _MAX_ tietueesta)",' .
 			'"sSearch": "Haku",' .
 			'"oPaginate": {' .
-      '  "sFirst":    "Ensimmäinen",' .
-      '  "sPrevious": "Edellinen",' .
-      '  "sNext":     "Seuraava",' .
-      '  "sLast":     "Viimeinen"' .
+      '  "sFirst":    "|&lt;",' .
+      '  "sPrevious": "&lt;&lt;",' .
+      '  "sNext":     "&gt;&gt;",' .
+      '  "sLast":     "&gt;|"' .
       '}';
 
     //GETINVOICE
