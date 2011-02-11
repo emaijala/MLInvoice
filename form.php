@@ -555,7 +555,8 @@ function save_row(formId)
     }
   }
 ?>  obj.<?php echo $elem['parent_key'] . " = $intKeyValue"?>;
-  obj.id = form.id.value;
+  if (form.row_id)
+    obj.id = form.row_id.value;
   $('#imessage').text('').hide();
   $.ajax({
     'url': "json.php?func=put_<?php echo getFormJSONType($elem['name'])?>",
@@ -611,7 +612,7 @@ function save_row(formId)
 function delete_row(formId)
 {
   var form = document.getElementById(formId);
-  var id = form.id.value;
+  var id = form.row_id.value;
   $('#imessage').text('').hide();
   $.ajax({
     'url': "json.php?func=delete_<?php echo getFormJSONType($elem['name'])?>&id=" + id,
@@ -640,9 +641,9 @@ function popup_editor(event, title, id, copy_row)
     var form = document.getElementById('iform_popup');
     
     if (copy_row)
-      form.id.value = '';
+      form.row_id.value = '';
     else
-      form.id.value = id;
+      form.row_id.value = id;
 <?php
   foreach ($subFormElements as $subElem)
   {
@@ -739,7 +740,7 @@ function popup_editor(event, title, id, copy_row)
         </div>
         <div id="popup_edit" style="display: none; width: 900px; overflow: hidden">
         <form method="post" action="" name="iform_popup" id="iform_popup">
-        <input type="hidden" name="id" value="">
+        <input type="hidden" name="row_id" value="">
         <input type="hidden" name="<?php echo $strParentKey?>" value="<?php echo $intKeyValue?>">
         <table class="iform">
           <tr>
