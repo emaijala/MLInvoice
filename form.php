@@ -94,7 +94,7 @@ function createForm($strFunc, $strList, $strForm)
     {
       if ($warnings)
         $strMessage .= htmlspecialchars($warnings) . '<br>';
-      if (!$blnNew && getSetting('auto_close_form') && !isset($newLocation) && !isset($openWindow))
+      if (!$blnNew && getSetting('auto_close_after_save') && !isset($newLocation) && !isset($openWindow))
       {
         $qs = preg_replace('/&form=\w*/', '', $_SERVER['QUERY_STRING']);
         $qs = preg_replace('/&id=\w*/', '', $qs);
@@ -112,7 +112,7 @@ function createForm($strFunc, $strList, $strForm)
     unset($intKeyValue);
     unset($astrValues);
     $blnNew = TRUE;
-    if (getSetting('auto_close_form'))
+    if (getSetting('auto_close_after_delete'))
     {
       $qs = preg_replace('/&form=\w*/', '', $_SERVER['QUERY_STRING']);
       $qs = preg_replace('/&id=\w*/', '', $qs);

@@ -175,9 +175,8 @@ td.error {
   background-color: #8d5153;
 }
 .sublabel {
-  font-size: 14px;
-  font-weight: bold;
-  padding: 2px 2px 2px 10px;
+  font-size: 12px;
+  padding: 2px 2px 2px 2px;
   background-color: #CCDDEE;
 }
 td.reportsublabel {

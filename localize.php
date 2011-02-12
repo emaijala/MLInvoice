@@ -389,7 +389,8 @@ default :
     $GLOBALS['locNOUNPAIDINVOICES'] = 'Ei maksamattomia laskuja';
     
     // General Settings
-    $GLOBALS['locSettingAutoCloseForm'] = 'Sulje lomake automaattisesti tallennuksen tai poiston j‰lkeen';
+    $GLOBALS['locSettingAutoCloseFormAfterSave'] = 'Sulje lomake automaattisesti tallennuksen j‰lkeen';
+    $GLOBALS['locSettingAutoCloseFormAfterDelete'] = 'Sulje lomake automaattisesti poiston j‰lkeen';
     $GLOBALS['locSettingAddCustomerNumber'] = 'Lis‰‰ uudelle asiakkaalle juokseva asiakasnumero automaattisesti';
     $GLOBALS['locSettingShowDeletedRecords'] = 'N‰yt‰ poistetut tietueet (istuntokohtainen asetus)';
     $GLOBALS['locSettingInvoices'] = 'Laskutusasetukset';

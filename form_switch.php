@@ -66,7 +66,6 @@ case 'company':
     
    $astrFormElements =
     array(
-     array("label" => $GLOBALS['locLABELCONTACTINFO'], "type" => "LABEL"),
      array(
         "name" => "company_name", "label" => $GLOBALS['locCOMPNAME'], "type" => "TEXT", "style" => "medium", "listquery" => "", "position" => 1, "default" => FALSE, "allow_null" => FALSE ),
      array(
