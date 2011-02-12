@@ -176,9 +176,10 @@ function createHtmlList($strFunc, $strList, $strIDQuery, &$arrQueryParams, $strT
         <?php echo $GLOBALS['locTABLETEXTS']?> 
       },
       "bStateSave": true,
+      "bJQueryUI": true,
       "sPaginationType": "full_numbers",
       "aoColumnDefs": [
-        { "aTargets": "_all", "sType": "html-multi", }
+        { "aTargets": ["_all"], "sType": "html-multi", }
       ]
     }
   );
@@ -193,9 +194,9 @@ function createHtmlList($strFunc, $strList, $strIDQuery, &$arrQueryParams, $strT
 <?php
   foreach ($astrShowFields as $field) 
   {
-    $strWidth = isset($field['width']) ? (' width="' . $field['width'] . '"') : '';
+    $strWidth = isset($field['width']) ? (' style="width: ' . $field['width'] . 'px"') : '';
 ?>
-          <th class="label"<?php echo $strWidth?>><?php echo $field['header']?></th>
+          <th <?php echo $strWidth?>><?php echo $field['header']?></th>
 <?php
   }
 ?>

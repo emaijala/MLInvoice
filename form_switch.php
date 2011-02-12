@@ -337,6 +337,11 @@ EOS;
        $printButtons[] = $arr;
      }
    }
+
+   $companyListSelect = "SELECT id, IF(STRCMP(company_id,''), CONCAT(company_name, ' (', company_id, ')'), company_name) FROM {prefix}company WHERE deleted=0 AND (inactive=0";
+   if ($intInvoiceId && is_numeric($intInvoiceId))
+     $companyListSelect .= " OR id IN (SELECT company_id FROM {prefix}invoice i WHERE i.id=$intInvoiceId)";
+   $companyListSelect .= ") ORDER BY company_name, company_id";
    
    $copyLinkOverride = "copy_invoice.php?func=$strFunc&amp;list=$strList&amp;id=$intInvoiceId";
    $astrFormElements =
@@ -348,7 +353,7 @@ EOS;
      array(
         "name" => "name", "label" => $GLOBALS['locINVNAME'], "type" => "TEXT", "style" => "medium", "listquery" => "", "position" => 1, "default" => FALSE, "allow_null" => TRUE ),
      array(
-        "name" => "company_id", "label" => $GLOBALS['locPAYER'], "type" => "LIST", "style" => "medium", "listquery" => "SELECT id, IF(STRCMP(company_id,''), CONCAT(company_name, ' (', company_id, ')'), company_name) FROM {prefix}company WHERE deleted=0 AND (inactive=0 OR id IN (SELECT company_id FROM {prefix}invoice i WHERE i.id=$intInvoiceId)) ORDER BY company_name, company_id", "position" => 1, "default" => FALSE, 'allow_null' => TRUE, 'quick_add' => $addCompanyCode, 'elem_attributes' => $companyOnChange ),
+        "name" => "company_id", "label" => $GLOBALS['locPAYER'], "type" => "LIST", "style" => "medium", "listquery" => $companyListSelect, "position" => 1, "default" => FALSE, 'allow_null' => TRUE, 'quick_add' => $addCompanyCode, 'elem_attributes' => $companyOnChange ),
      array(
         "name" => "reference", "label" => $GLOBALS['locCLIENTSREFERENCE'], "type" => "TEXT", "style" => "medium", "listquery" => "", "position" => 2, "default" => FALSE, "allow_null" => TRUE ),
      array(
@@ -404,12 +409,12 @@ case 'invoice_rows':
    
    $intInvoiceId = getRequest('invoice_id', 0);
    $productOnChange = <<<EOS
-onchange = "var form = this.form.id; $.getJSON('json.php?func=get_product&id=' + this.value, function(json) { 
+onchange = "var form_id = this.form.id; $.getJSON('json.php?func=get_product&id=' + this.value, function(json) { 
   if (!json.id) return; 
   
-  document.getElementById(form + '_description').value = json.description;
+  document.getElementById(form_id + '_description').value = json.description;
   
-  var type_id = document.getElementById(form + '_type_id');
+  var type_id = document.getElementById(form_id + '_type_id');
   for (var i = 0; i < type_id.options.length; i++)
   {  
     var item = type_id.options[i];
@@ -419,9 +424,9 @@ onchange = "var form = this.form.id; $.getJSON('json.php?func=get_product&id=' +
       break;
     }
   }
-  document.getElementById(form + '_price').value = json.unit_price.replace('.', ','); 
-  document.getElementById(form + '_vat').value = json.vat_percent.replace('.', ','); 
-  document.getElementById(form + '_vat_included').value = json.vat_included == 1 ? true : false;
+  document.getElementById(form_id + '_price').value = json.unit_price.replace('.', ','); 
+  document.getElementById(form_id + '_vat').value = json.vat_percent.replace('.', ','); 
+  document.getElementById(form_id + '_vat_included').value = json.vat_included == 1 ? true : false;
 });"
 EOS;
 

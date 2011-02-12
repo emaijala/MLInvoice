@@ -147,11 +147,11 @@ function createForm($strFunc, $strList, $strForm)
   }
   
   ?>
-  <div class="form">
-    <div id="message" class="message"><?php echo $strMessage ?></div>
+  <div class="form_container">
+    <div id="message" class="message ui-state-error-text"><?php echo $strMessage ?></div>
   
   <?php createFormButtons($blnNew, $copyLinkOverride, 1) ?>
-  <div class="form_container">
+  <div class="form">
   <form method="post" action="" name="admin_form" id="admin_form">
   <input type="hidden" name="saveact" value="0">
   <input type="hidden" name="copyact" value="0">
@@ -700,7 +700,7 @@ function popup_editor(event, title, id, copy_row)
 
         <div class="iform <?php echo $elem['style']?>" id="<?php echo $elem['name']?>" name="<?php echo $elem['name']?>"<?php echo $elem['elem_attributes'] ? ' ' . $elem['elem_attributes'] : ''?>>
 
-          <span id="imessage" class="message" style="display: none"></span>
+          <span id="imessage" class="message ui-state-error-text" style="display: none"></span>
         
           <form method="post" action="#" name="iform" id="iform">
           <table class="iform" id="itable">

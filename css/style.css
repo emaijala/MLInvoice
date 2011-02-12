@@ -19,9 +19,7 @@ h1 {
 }
 
 div.navi {
-  color: black;
   padding: 10px 10px 1px 10px;
-  background-color: #EEEEEE;
   border-bottom: 1px solid #DDDDDD;
 }
 
@@ -39,23 +37,21 @@ div.function_navi {
 }
 
 div.form_buttons {
-  margin: 5px;
+  margin-top: 5px;
+  margin-bottom: 5px;
 }
 
 div.list_container {
   margin: 10px;
+  display: table;
 }
 
 div.message {
-  margin: 10px;
-  font-weight: bold; 
-  color: red;
+  margin: 2px;
 }
 
 span.message {
   margin: 4px;
-  font-weight: bold;
-  color: red;
 }
 
 div.form_container {
@@ -129,12 +125,6 @@ table.iform_pop {
   background-color: white;
 }
 
-tr.odd {
-  background-color: #eeeeee;
-}
-tr.even {
-  background-color: white;
-}
 tr.summary td {
   font-weight: bold;
 }
@@ -148,12 +138,11 @@ tr.summary td {
   vertical-align: middle;
 }
 
-
 th {
- vertical-align: top;
- font-size: 12px;
- font-weight: bold;
- text-align: left;
+  vertical-align: top;
+  font-size: 12px;
+  font-weight: bold;
+  text-align: left;
 }
 
 .label {
@@ -168,9 +157,9 @@ td.deleted a.navilink {
 }
 
 td {
- vertical-align: top;
- font-size: 12px;
- font-weight: normal;
+  vertical-align: top;
+  font-size: 12px;
+  font-weight: normal;
 }
 
 td.button {
@@ -547,4 +536,12 @@ img.image {
 .ui-dialog .ui-dialog-buttonpane {
   padding: 0.2em 1em 0.2em 0.4em;
   text-align: left;
+}
+
+.ui-toolbar {
+  padding: 4px;
+}
+
+.ui-widget-header {
+  font-weight: normal;
 }

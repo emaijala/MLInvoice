@@ -8,14 +8,15 @@
 }
 
 .dataTables_filter {
-  float: left;
-  margin-bottom: 2px;
+  float: right;
+  text-align: right;
+  width: 50%;
 }
 
 .dataTables_paginate {
-  float: left;
+  float: right;
+  text-align: right;
   font-size: 12px;
-  margin-top: 2px;
 }
 
 .dataTables_info {
@@ -132,11 +133,11 @@ table.display tr.even.gradeU {
 }
 
 
-tr.odd {
-	background-color: #E2E4FF;
+tr.even {
+	background-color: #EEEEEE;
 }
 
-tr.even {
+tr.odd {
 	background-color: white;
 }
 
@@ -177,9 +178,7 @@ td.details {
 }
 
 .paging_full_numbers {
-	width: 450px;
-	height: 22px;
-	line-height: 22px;
+	-width: 50%;
 }
 
 .paging_full_numbers span.paginate_button,
@@ -194,6 +193,23 @@ td.details {
 	*cursor: hand;
 }
 
+.paging_full_numbers .ui-button {
+  cursor: pointer;
+  margin: 0;
+  padding: 2px 6px;
+}
+
+table.list thead th div.DataTables_sort_wrapper {
+  padding-right: 20px;
+  position: relative;
+}
+table.list thead th div.DataTables_sort_wrapper span {
+  margin-top: -8px;
+  position: absolute;
+  right: 0;
+  top: 50%;
+}
+
 .paging_full_numbers span.paginate_button {
 	background-color: #ddd;
 }
@@ -206,11 +222,11 @@ td.details {
 	background-color: #DFEFFF;
 }
 
-table.display tr.even.row_selected td {
+table.display tr.odd.row_selected td {
 	background-color: #B0BED9;
 }
 
-table.display tr.odd.row_selected td {
+table.display tr.even.row_selected td {
 	background-color: #9FAFD1;
 }
 
@@ -219,27 +235,27 @@ table.display tr.odd.row_selected td {
  * Sorting classes for columns
  */
 /* For the standard odd/even */
-tr.odd td.sorting_1 {
+tr.even td.sorting_1 {
 	background-color: #D3E3F3;
 }
 
-tr.odd td.sorting_2 {
+tr.even td.sorting_2 {
 	background-color: #DADCFF;
 }
 
-tr.odd td.sorting_3 {
+tr.even td.sorting_3 {
 	background-color: #E0E2FF;
 }
 
-tr.even td.sorting_1 {
+tr.odd td.sorting_1 {
 	background-color: #DFEFFF;
 }
 
-tr.even td.sorting_2 {
+tr.odd td.sorting_2 {
 	background-color: #F2F3FF;
 }
 
-tr.even td.sorting_3 {
+tr.odd td.sorting_3 {
 	background-color: #F9F9FF;
 }
 

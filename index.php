@@ -67,7 +67,7 @@ $astrMainButtons = array (
 ?>
 
 <body>
-  <div class="navi">
+  <div class="navi ui-widget-header">
 <?php
 foreach ($astrMainButtons as $button) 
 {
