@@ -698,8 +698,8 @@ function popup_editor(event, title, id, copy_row)
 
 </script>
 
-        <div class="iform <?php echo $elem['style']?>" id="<?php echo $elem['name']?>" name="<?php echo $elem['name']?>"<?php echo $elem['elem_attributes'] ? ' ' . $elem['elem_attributes'] : ''?>>
-
+        <div class="iform <?php echo $elem['style']?> ui-corner-tl ui-corner-bl ui-corner-br ui-corner-tr ui-helper-clearfix" id="<?php echo $elem['name']?>" name="<?php echo $elem['name']?>"<?php echo $elem['elem_attributes'] ? ' ' . $elem['elem_attributes'] : ''?>>
+          <div class="ui-corner-tl ui-corner-tr fg-toolbar ui-toolbar ui-widget-header"><?php echo $elem['label']?></div>
           <span id="imessage" class="message ui-state-error-text" style="display: none"></span>
         
           <form method="post" action="#" name="iform" id="iform">
