@@ -543,3 +543,7 @@ img.image {
 .ui-widget-header {
   font-weight: normal;
 }
+
+.ui-state-default {
+  color: #222222;
+}
