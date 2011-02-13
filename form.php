@@ -151,15 +151,15 @@ function createForm($strFunc, $strList, $strForm)
     <div id="message" class="message ui-state-error-text"><?php echo $strMessage ?></div>
   
   <?php createFormButtons($blnNew, $copyLinkOverride, 1) ?>
-  <div class="form">
-  <form method="post" action="" name="admin_form" id="admin_form">
-  <input type="hidden" name="saveact" value="0">
-  <input type="hidden" name="copyact" value="0">
-  <input type="hidden" name="newact" value="<?php echo $blnNew ? 1 : 0?>">
-  <input type="hidden" name="deleteact" value="0">
-  <input type="hidden" name="redirect" id="redirect" value="">
-  <input type="hidden" name="<?php echo $strPrimaryKey?>" value="<?php echo (isset($intKeyValue) && $intKeyValue) ? $intKeyValue : '' ?>">
-  <table>
+    <div class="form">
+      <form method="post" action="" name="admin_form" id="admin_form">
+      <input type="hidden" name="saveact" value="0">
+      <input type="hidden" name="copyact" value="0">
+      <input type="hidden" name="newact" value="<?php echo $blnNew ? 1 : 0?>">
+      <input type="hidden" name="deleteact" value="0">
+      <input type="hidden" name="redirect" id="redirect" value="">
+      <input type="hidden" name="<?php echo $strPrimaryKey?>" value="<?php echo (isset($intKeyValue) && $intKeyValue) ? $intKeyValue : '' ?>">
+      <table>
 <?php
   $haveChildForm = false;
   $prevPosition = FALSE;
@@ -171,11 +171,11 @@ function createForm($strFunc, $strList, $strForm)
     if ($elem['type'] == "LABEL") 
     {
   ?>
-    <tr>
-      <td class="sublabel" colspan="4">
-        <?php echo $elem['label']?> 
-      </td>
-    </tr>
+        <tr>
+          <td class="sublabel" colspan="4">
+            <?php echo $elem['label']?> 
+          </td>
+        </tr>
   <?php
       continue;
     }
@@ -183,13 +183,13 @@ function createForm($strFunc, $strList, $strForm)
     {
       $prevPosition = 0;
       $prevColSpan = 1;
-      echo "    </tr>\n";
+      echo "        </tr>\n";
     }
     if ($prevPosition !== FALSE && $elem['position'] > 0)
     {
       for ($i = $prevPosition + $prevColSpan; $i < $elem['position']; $i++)
       {
-        echo "      <td class=\"label\">&nbsp;</td>";
+        echo "          <td class=\"label\">&nbsp;</td>";
       }
     }
   
@@ -198,13 +198,13 @@ function createForm($strFunc, $strList, $strForm)
     }
     elseif ($elem['position'] == 0 && !strstr($elem['type'], "HID_")) 
     {
-      echo "    <tr>\n";
+      echo "        <tr>\n";
       $strColspan = "colspan=\"4\"";
       $intColspan = 4;
     }
     elseif ($elem['position'] == 1 && !strstr($elem['type'], "HID_")) 
     {
-      echo "    <tr>\n";
+      echo "        <tr>\n";
       $strColspan = '';
       $intColspan = 2;
     }
@@ -215,34 +215,34 @@ function createForm($strFunc, $strList, $strForm)
 
     if ($blnNew && ($elem['type'] == 'BUTTON' || $elem['type'] == 'JSBUTTON' || $elem['type'] == 'IFORM' || $elem['type'] == 'IMAGE')) 
     {
-      echo "      <td class=\"label\">&nbsp;</td>";
+      echo "          <td class=\"label\">&nbsp;</td>";
     }
     elseif ($elem['type'] == "BUTTON" || $elem['type'] == "JSBUTTON") 
     {
       $intColspan = 1;
 ?>
-      <td class="button">
-        <?php echo htmlFormElement($elem['name'], $elem['type'], $astrValues[$elem['name']], $elem['style'], $elem['listquery'], "MODIFY", $elem['parent_key'],$elem['label'], array(), isset($elem['elem_attributes']) ? $elem['elem_attributes'] : '')?>
-      </td>
+          <td class="button">
+            <?php echo htmlFormElement($elem['name'], $elem['type'], $astrValues[$elem['name']], $elem['style'], $elem['listquery'], "MODIFY", $elem['parent_key'],$elem['label'], array(), isset($elem['elem_attributes']) ? $elem['elem_attributes'] : '')?>
+          </td>
 <?php          
     }
     elseif ($elem['type'] == "HID_INT" || strstr($elem['type'], "HID_")) 
     {
 ?>
-      <?php echo htmlFormElement($elem['name'], $elem['type'], $astrValues[$elem['name']], $elem['style'], $elem['listquery'], "MODIFY", $elem['parent_key'],$elem['label'])?>
+          <?php echo htmlFormElement($elem['name'], $elem['type'], $astrValues[$elem['name']], $elem['style'], $elem['listquery'], "MODIFY", $elem['parent_key'],$elem['label'])?>
 <?php          
     }
     elseif ($elem['type'] == "IMAGE") 
     {
 ?>
-      <td class="image" colspan="<?php echo $intColspan?>">
-          <?php echo htmlFormElement($elem['name'], $elem['type'], $astrValues[$elem['name']], $elem['style'], $elem['listquery'], "MODIFY", $elem['parent_key'],$elem['label'], array(), isset($elem['elem_attributes']) ? $elem['elem_attributes'] : '')?>
-      </td>
+          <td class="image" colspan="<?php echo $intColspan?>">
+            <?php echo htmlFormElement($elem['name'], $elem['type'], $astrValues[$elem['name']], $elem['style'], $elem['listquery'], "MODIFY", $elem['parent_key'],$elem['label'], array(), isset($elem['elem_attributes']) ? $elem['elem_attributes'] : '')?>
+          </td>
 <?php          
     }
     elseif ($elem['type'] == "IFORM" && !$blnNew) 
     {
-      echo "    </table>\n  </form>\n";
+      echo "      </table>\n      </form>\n";
       $haveChildForm = true;
       createIForm($astrFormElements, $elem, $intKeyValue);
       break;
@@ -253,22 +253,24 @@ function createForm($strFunc, $strList, $strForm)
       if ($elem['style'] == 'measurement')
         $value = $value ? miscRound2Decim($value, 2) : '';
 ?>
-      <td class="label">
-        <?php echo $elem['label']?>
-      </td>
-      <td class="field" <?php echo $strColspan?>>
-        <?php echo htmlFormElement($elem['name'], $elem['type'], $value, $elem['style'], $elem['listquery'], "MODIFY", isset($elem['parent_key']) ? $elem['parent_key'] : '', '', array(), isset($elem['elem_attributes']) ? $elem['elem_attributes'] : '')?>
-        <?php if (isset($elem['quick_add'])) echo $elem['quick_add']?>
-      </td>
+          <td class="label">
+            <?php echo $elem['label']?>
+          </td>
+          <td class="field" <?php echo $strColspan?>>
+            <?php echo htmlFormElement($elem['name'], $elem['type'], $value, $elem['style'], $elem['listquery'], "MODIFY", isset($elem['parent_key']) ? $elem['parent_key'] : '', '', array(), isset($elem['elem_attributes']) ? $elem['elem_attributes'] : '')?>
+            <?php if (isset($elem['quick_add'])) echo $elem['quick_add']?>
+          </td>
 <?php
     }
     $prevPosition = is_int($elem['position']) ? $elem['position'] : 0;
     $prevColSpan = $intColspan;
   }
 ?>
-  <?php if (!$haveChildForm) echo "    </table>\n  </form\n"?>
-  </div>
+  <?php if (!$haveChildForm) echo "      </table>\n      </form\n"?>
+    </div>
+
 <script type="text/javascript">
+/* <![CDATA[ */
 $(document).ready(function() { 
   $('input[class~="hasCalendar"]').datepicker();
   $('#message').ajaxStart(function() {
@@ -368,17 +370,19 @@ function save_record(redirect_url, redir_style)
     }
   });  
 }  
- 
+/* ]]> */ 
 </script>
+
 <?php 
   createFormButtons($blnNew, $copyLinkOverride);
+  echo "  </div>\n";
 }
 
 function createIForm($astrFormElements, $elem, $intKeyValue)
 {
 ?>
 <script type="text/javascript">
-
+/* <![CDATA[ */
 function init_rows()
 {
 <?php
@@ -393,7 +397,7 @@ function init_rows()
     $res = mysql_query_check($subElem['listquery']);
     while ($row = mysql_fetch_row($res))
     {
-      echo ',' . $row[0] . ':"' . $row[1] . '"';
+      echo ',' . $row[0] . ':"' . addcslashes($row[1], '\"\/') . '"';
     }
     echo "};\n";
   }
@@ -404,7 +408,7 @@ function init_rows()
     for (var i = 0; i < json.records.length; i++)
     {
       var record = json.records[i];
-      var tr = $('<tr></tr>');
+      var tr = $('<tr/>');
 <?php
   foreach ($subFormElements as $subElem)
   {
@@ -414,19 +418,19 @@ function init_rows()
     $class = $subElem['style'];
     if ($subElem['type'] == 'LIST')
     {
-      echo "      if (record.${name} == null) record.${name} = 0; $('<td></td>').addClass('$class' + (record.deleted == 1 ? ' deleted' : '')).text(arr_${name}[record.${name}]).appendTo(tr);\n";
+      echo "      if (record.${name} == null) record.${name} = 0; $('<td/>').addClass('$class' + (record.deleted == 1 ? ' deleted' : '')).text(arr_${name}[record.${name}]).appendTo(tr);\n";
     }
     elseif ($subElem['type'] == 'INT')
     {
-      echo "      $('<td></td>').addClass('$class' + (record.deleted == 1 ? ' deleted' : '')).text(record.$name ? record.$name.replace('.', ',') : '').appendTo(tr);\n";
+      echo "      $('<td/>').addClass('$class' + (record.deleted == 1 ? ' deleted' : '')).text(record.$name ? record.$name.replace('.', ',') : '').appendTo(tr);\n";
     }
     elseif ($subElem['type'] == 'INTDATE')
     {
-      echo "      $('<td></td>').addClass('$class' + (record.deleted == 1 ? ' deleted' : '')).text(record.$name.substr(6, 2) + '.' + record.$name.substr(4, 2) + '.' + record.$name.substr(0, 4)).appendTo(tr);\n";
+      echo "      $('<td/>').addClass('$class' + (record.deleted == 1 ? ' deleted' : '')).text(record.$name.substr(6, 2) + '.' + record.$name.substr(4, 2) + '.' + record.$name.substr(0, 4)).appendTo(tr);\n";
     }
     elseif ($subElem['type'] == 'CHECK')
     {
-      echo "      $('<td></td>').addClass('$class' + (record.deleted == 1 ? ' deleted' : '')).text(record.$name == 1 ? \"" . $GLOBALS['locYES'] . '" : "' . $GLOBALS['locNO'] . "\").appendTo(tr);\n";
+      echo "      $('<td/>').addClass('$class' + (record.deleted == 1 ? ' deleted' : '')).text(record.$name == 1 ? \"" . $GLOBALS['locYES'] . '" : "' . $GLOBALS['locNO'] . "\").appendTo(tr);\n";
     }
     elseif ($subElem['type'] == 'ROWSUM')
     {
@@ -452,17 +456,17 @@ function init_rows()
         sumVAT = sum + VAT;
       }
       var title = '<?php echo $GLOBALS['locVATLESS'] . ': '?>' + sum.toFixed(2).replace('.', ',') + ' &ndash; ' + '<?php echo $GLOBALS['locVATPART'] . ': '?>' + VAT.toFixed(2).replace('.', ',');         
-      $('<td></td>').addClass('<?php echo $class?>' + (record.deleted == 1 ? ' deleted' : '')).append('<span title="' + title + '">' + sumVAT.toFixed(2).replace('.', ',') + '</span').appendTo(tr); 
+      $('<td/>').addClass('<?php echo $class?>' + (record.deleted == 1 ? ' deleted' : '')).append('<span title="' + title + '">' + sumVAT.toFixed(2).replace('.', ',') + '<\/span>').appendTo(tr); 
 <?php          
     }
     else
     {
-      echo "      $('<td></td>').addClass('$class' + (record.deleted == 1 ? ' deleted' : '')).text(record.$name ? record.$name : '').appendTo(tr);\n";
+      echo "      $('<td/>').addClass('$class' + (record.deleted == 1 ? ' deleted' : '')).text(record.$name ? record.$name : '').appendTo(tr);\n";
     }
   }
 ?>
-      $('<td></td>').addClass('button').append('<a class="tinyactionlink row_edit_button rec' + record.id + '" href="#"><?php echo $GLOBALS['locEDIT']?></a>').appendTo(tr);
-      $('<td></td>').addClass('button').append('<a class="tinyactionlink row_copy_button rec' + record.id + '" href="#"><?php echo $GLOBALS['locCOPY']?></a>').appendTo(tr);
+      $('<td/>').addClass('button').append('<a class="tinyactionlink row_edit_button rec' + record.id + '" href="#"><?php echo $GLOBALS['locEDIT']?><\/a>').appendTo(tr);
+      $('<td/>').addClass('button').append('<a class="tinyactionlink row_copy_button rec' + record.id + '" href="#"><?php echo $GLOBALS['locCOPY']?><\/a>').appendTo(tr);
       $(table).append(tr);
     }
 <?php
@@ -501,19 +505,19 @@ function init_rows()
       totVAT += VAT;
       totSumVAT += sumVAT;
     }
-    var tr = $('<tr></tr>').addClass('summary');
-    $('<td></td>').addClass('input').attr('colspan', '9').attr('align', 'right').text('<?php echo $GLOBALS['locTOTALEXCLUDINGVAT']?>').appendTo(tr);
-    $('<td></td>').addClass('input').attr('align', 'right').text(totSum.toFixed(2).replace('.', ',')).appendTo(tr);
+    var tr = $('<tr/>').addClass('summary');
+    $('<td/>').addClass('input').attr('colspan', '9').attr('align', 'right').text('<?php echo $GLOBALS['locTOTALEXCLUDINGVAT']?>').appendTo(tr);
+    $('<td/>').addClass('input').attr('align', 'right').text(totSum.toFixed(2).replace('.', ',')).appendTo(tr);
     $(table).append(tr);
     
-    tr = $('<tr></tr>').addClass('summary');
-    $('<td></td>').addClass('input').attr('colspan', '9').attr('align', 'right').text('<?php echo $GLOBALS['locTOTALVAT']?>').appendTo(tr);
-    $('<td></td>').addClass('input').attr('align', 'right').text(totVAT.toFixed(2).replace('.', ',')).appendTo(tr);
+    tr = $('<tr/>').addClass('summary');
+    $('<td/>').addClass('input').attr('colspan', '9').attr('align', 'right').text('<?php echo $GLOBALS['locTOTALVAT']?>').appendTo(tr);
+    $('<td/>').addClass('input').attr('align', 'right').text(totVAT.toFixed(2).replace('.', ',')).appendTo(tr);
     $(table).append(tr);
     
-    var tr = $('<tr></tr>').addClass('summary');
-    $('<td></td>').addClass('input').attr('colspan', '9').attr('align', 'right').text('<?php echo $GLOBALS['locTOTALINCLUDINGVAT']?>').appendTo(tr);
-    $('<td></td>').addClass('input').attr('align', 'right').text(totSumVAT.toFixed(2).replace('.', ',')).appendTo(tr);
+    var tr = $('<tr/>').addClass('summary');
+    $('<td/>').addClass('input').attr('colspan', '9').attr('align', 'right').text('<?php echo $GLOBALS['locTOTALINCLUDINGVAT']?>').appendTo(tr);
+    $('<td/>').addClass('input').attr('align', 'right').text(totSumVAT.toFixed(2).replace('.', ',')).appendTo(tr);
     $(table).append(tr);
     
 <?php
@@ -695,16 +699,16 @@ function popup_editor(event, title, id, copy_row)
 
   });
 }  
-
+/* ]]> */
 </script>
 
-        <div class="iform <?php echo $elem['style']?> ui-corner-tl ui-corner-bl ui-corner-br ui-corner-tr ui-helper-clearfix" id="<?php echo $elem['name']?>" name="<?php echo $elem['name']?>"<?php echo $elem['elem_attributes'] ? ' ' . $elem['elem_attributes'] : ''?>>
-          <div class="ui-corner-tl ui-corner-tr fg-toolbar ui-toolbar ui-widget-header"><?php echo $elem['label']?></div>
-          <span id="imessage" class="message ui-state-error-text" style="display: none"></span>
-        
-          <form method="post" action="#" name="iform" id="iform">
-          <table class="iform" id="itable">
-            <tr id="form_row">
+      <div class="iform <?php echo $elem['style']?> ui-corner-tl ui-corner-bl ui-corner-br ui-corner-tr ui-helper-clearfix" id="<?php echo $elem['name']?>"<?php echo $elem['elem_attributes'] ? ' ' . $elem['elem_attributes'] : ''?>>
+        <div class="ui-corner-tl ui-corner-tr fg-toolbar ui-toolbar ui-widget-header"><?php echo $elem['label']?></div>
+        <span id="imessage" class="message ui-state-error-text" style="display: none"></span>
+      
+        <form method="post" action="#" name="iform" id="iform">
+        <table class="iform" id="itable">
+          <tr id="form_row">
 <?php
   $strRowSpan = '';
   foreach ($subFormElements as $subElem)
@@ -713,32 +717,32 @@ function popup_editor(event, title, id, copy_row)
     { 
       $value = getFormDefaultValue($subElem, $intKeyValue);
 ?>
-              <td class="label <?php echo strtolower($subElem['style'])?>_label">
-                <?php echo $subElem['label']?><br>
-                <?php echo htmlFormElement('iform_' . $subElem['name'], $subElem['type'], $value, $subElem['style'], $subElem['listquery'], "MODIFY", 0, '', array(), $subElem['elem_attributes'])?>
-              </td>
+            <td class="label <?php echo strtolower($subElem['style'])?>_label">
+              <?php echo $subElem['label']?><br>
+              <?php echo htmlFormElement('iform_' . $subElem['name'], $subElem['type'], $value, $subElem['style'], $subElem['listquery'], "MODIFY", 0, '', array(), $subElem['elem_attributes'])?>
+            </td>
 <?php
     }
     elseif ($subElem['type'] == 'ROWSUM') 
     {
 ?>
-              <td class="label <?php echo strtolower($subElem['style'])?>_label">
-                <?php echo $subElem['label']?><br>
-              </td>
+            <td class="label <?php echo strtolower($subElem['style'])?>_label">
+              <?php echo $subElem['label']?><br>
+            </td>
 <?php
     }
   }
 ?>
-              <td class="button" <?php echo $strRowSpan?>>
-                <br>
-                <input type="hidden" name="addact" value="0">
-                <a class="tinyactionlink add_row_button" href="#" onclick="save_row('iform'); return false;"><?php echo $GLOBALS['locADDROW']?></a>
-              </td>
-            </tr>
-          </table>
-          </form>
-        </div>
-        <div id="popup_edit" style="display: none; width: 900px; overflow: hidden">
+            <td class="button" <?php echo $strRowSpan?>>
+              <br>
+              <input type="hidden" name="addact" value="0">
+              <a class="tinyactionlink add_row_button" href="#" onclick="save_row('iform'); return false;"><?php echo $GLOBALS['locADDROW']?></a>
+            </td>
+          </tr>
+        </table>
+        </form>
+      </div>
+      <div id="popup_edit" style="display: none; width: 900px; overflow: hidden">
         <form method="post" action="" name="iform_popup" id="iform_popup">
         <input type="hidden" name="row_id" value="">
         <input type="hidden" name="<?php echo $strParentKey?>" value="<?php echo $intKeyValue?>">
@@ -776,8 +780,7 @@ function popup_editor(event, title, id, copy_row)
           </tr>
         </table>
         </form>
-        </div>
-      </td>
+      </div>
 <?php
 }
 

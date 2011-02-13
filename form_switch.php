@@ -211,15 +211,15 @@ case 'invoice':
    }
    
    $companyOnChange = <<<EOS
-onchange = "$.getJSON('json.php?func=get_company&id=' + document.getElementById('company_id').value, function(json) { if (json && json.default_ref_number) document.getElementById('ref_number').value = json.default_ref_number;});"
+onchange = "$.getJSON('json.php?func=get_company&amp;id=' + document.getElementById('company_id').value, function(json) { if (json && json.default_ref_number) document.getElementById('ref_number').value = json.default_ref_number;});"
 EOS;
 
    $getInvoiceNo = <<<EOS
-$.getJSON('json.php?func=get_invoice_defaults&id=' + document.forms[0].id.value + '&base_id=' + document.getElementById('base_id').value, function(json) { document.getElementById('invoice_no').value = json.invoice_no; document.getElementById('ref_number').value = json.ref_no; $('.save_button').addClass('unsaved'); }); return false;
+$.getJSON('json.php?func=get_invoice_defaults&amp;id=' + document.forms[0].id.value + '&amp;base_id=' + document.getElementById('base_id').value, function(json) { document.getElementById('invoice_no').value = json.invoice_no; document.getElementById('ref_number').value = json.ref_no; $('.save_button').addClass('unsaved'); }); return false;
 EOS;
 
    $updateDates = <<<EOS
-$.getJSON('json.php?func=get_invoice_defaults&id=' + document.forms[0].id.value + '&base_id=' + document.getElementById('base_id').value, function(json) { document.getElementById('invoice_date').value = json.date; document.getElementById('due_date').value = json.due_date; $('.save_button').addClass('unsaved'); }); return false;
+$.getJSON('json.php?func=get_invoice_defaults&amp;id=' + document.forms[0].id.value + '&amp;base_id=' + document.getElementById('base_id').value, function(json) { document.getElementById('invoice_date').value = json.date; document.getElementById('due_date').value = json.due_date; $('.save_button').addClass('unsaved'); }); return false;
 EOS;
 
    $locNew = $GLOBALS['locNEW'] . '...';
@@ -238,6 +238,8 @@ EOS;
   <div class="small_label">$locPhone</div> <div class="field"><input type="text" id="quick_phone" class="medium"></div>
 </div>
 <script type="text/javascript">
+/* <![CDATA[ */
+
 function add_company()
 {
   $("#quick_add_company").dialog({ modal: true, width: 400, height: 250, resizable: false, 
@@ -303,7 +305,7 @@ function init_company_list(selected_id)
     }
   });
 }
-
+/* ]]> */
 </script>
 
 EOS;
@@ -325,7 +327,7 @@ EOS;
    while ($row = mysql_fetch_assoc($res))
    {
      $templateId = $row['id'];
-     $arr = array('name' => "print$templateId", 'label' => $row['name'], 'type' => 'JSBUTTON', 'style' => $printStyle, 'listquery' => "${invoiceDateCheck}save_record('invoice.php?id=_ID_&template=$templateId', '$printStyle'); return false;", 'position' => 3, 'default' => FALSE, 'allow_null' => TRUE );
+     $arr = array('name' => "print$templateId", 'label' => $row['name'], 'type' => 'JSBUTTON', 'style' => $printStyle, 'listquery' => "${invoiceDateCheck}save_record('invoice.php?id=_ID_&amp;template=$templateId', '$printStyle'); return false;", 'position' => 3, 'default' => FALSE, 'allow_null' => TRUE );
      if (++$rowNum > $templateFirstCol)
      {
        $arr['position'] = 4;
@@ -408,7 +410,7 @@ case 'invoice_rows':
    
    $intInvoiceId = getRequest('invoice_id', 0);
    $productOnChange = <<<EOS
-onchange = "var form_id = this.form.id; $.getJSON('json.php?func=get_product&id=' + this.value, function(json) { 
+onchange = "var form_id = this.form.id; $.getJSON('json.php?func=get_product&amp;id=' + this.value, function(json) { 
   if (!json.id) return; 
   
   document.getElementById(form_id + '_description').value = json.description;
