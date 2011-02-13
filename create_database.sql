@@ -253,14 +253,14 @@ INSERT INTO vllasku_session_type (id, name, order_no, time_out, access_level) VA
 INSERT INTO vllasku_session_type (id, name, order_no, time_out, access_level) VALUES (2, 'Ylläpitäjä', 20, 3600, 99);
 INSERT INTO vllasku_session_type (id, name, order_no, time_out, access_level) VALUES (3, 'Käyttäjä - varmuuskopioija', 10, 3600, 90);
 
-INSERT INTO vllasku_print_template (id, name, filename, parameters, output_filename, type, order_no) VALUES (1, 'Lasku', 'print_invoice.php', 'invoice', 'lasku_%d.pdf', 'invoice', 5);
-INSERT INTO vllasku_print_template (id, name, filename, parameters, output_filename, type, order_no) VALUES (2, 'Lähetysluettelo', 'print_invoice.php', 'dispatch', 'lahetysluettelo_%d.pdf','invoice', 10);
-INSERT INTO vllasku_print_template (id, name, filename, parameters, output_filename, type, order_no) VALUES (3, 'Kuitti', 'print_invoice.php', 'receipt', 'kuitti_%d.pdf','invoice', 15);
+INSERT INTO vllasku_print_template (id, name, filename, parameters, output_filename, type, order_no) VALUES (1, 'Lasku', 'invoice_printer.php', 'invoice', 'lasku_%d.pdf', 'invoice', 5);
+INSERT INTO vllasku_print_template (id, name, filename, parameters, output_filename, type, order_no) VALUES (2, 'Lähetysluettelo', 'invoice_printer.php', 'dispatch', 'lahetysluettelo_%d.pdf','invoice', 10);
+INSERT INTO vllasku_print_template (id, name, filename, parameters, output_filename, type, order_no) VALUES (3, 'Kuitti', 'invoice_printer.php', 'receipt', 'kuitti_%d.pdf','invoice', 15);
 
-INSERT INTO vllasku_users (id, name, email, login, passwd, type_id) VALUES (1, 'Administrator', 'foo@bar.fi.not', 'admin', md5('admin'), 2);
+INSERT INTO vllasku_users (id, name, email, login, passwd, type_id) VALUES (1, 'Administrator', '', 'admin', md5('admin'), 2);
 
 -- ***** The following rows just add some sample data *****
-INSERT INTO vllasku_base (id, name, contact_person, street_address, zip_code, city, phone, bank_name, bank_account, bank_iban, bank_swiftbic, www, email, company_id) VALUES (1, 'Testifirma', 'Taavi Testaaja', 'Testitie', '00730', 'HELSINKI', '+358 50 123456', 'Pankki', '123456-654321', 'FI12 3456 7890 1234 56', 'FIHHPANK', 'http://sourceforge.net/', 'emaijala@gmail.com', '123456-7');
+INSERT INTO vllasku_base (id, name, contact_person, street_address, zip_code, city, phone, bank_name, bank_account, bank_iban, bank_swiftbic, www, email, company_id) VALUES (1, 'Testilaskuttaja', 'Taavi Testaaja', 'Testitie', '00730', 'HELSINKI', '+358 50 123456', 'Pankki', '123456-654321', 'FI12 3456 7890 1234 56', 'FIHHPANK', 'http://sourceforge.net/', 'emaijala@gmail.com', '123456-7');
 
 INSERT INTO vllasku_company (id, inside_info, type_id, company_name, contact_person, street_address, zip_code, city, phone, fax, email, gsm, billing_address, www, info, company_id) VALUES (1, NULL, NULL, 'Testifirma', NULL, 'Testitie', '00730', 'HELSINKI', '050-123 4567', '-', 'emaijala@gmail.com', '050-123 4567', 'Testifirma\r\nTestitie\r\n00730 HELSINKI', 'www.sourceforge.net', '', 'FI-123456-x');
 
