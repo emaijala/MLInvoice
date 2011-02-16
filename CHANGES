@@ -1,3 +1,32 @@
+Olennaiset muutokset versiossa 1.2:
+
+Toiminnallisuus:
+- Käyttöliittymässä ei enää käytetä iframeja, vaan esim. laskurivit toimivat AJAX-tyyppisesti.
+- Käyttöliittymän ulkoasua on viilattu selkeämmäksi.
+- Lisätty uuden asiakkaan lisäys suoraan laskun muokkauksessa.
+- Lasku tallennetaan automaattisesti ennen tulostusta.
+- Lasku-PDF:n voi asettaa avautumaan uudessa ikkunassa.
+- Toteutettu tietojen vienti ja tuonti (formaatit: CSV, XML, JSON).
+- Laskujen tulostus tehdään nyt tulostusluokilla, joita voi määritellä myös itse.
+- Laskuihin on lisätty kaksi huomautuskenttää, joista toinen näkyy myös tulostetussa laskussa.
+- Lisätty huomautus, jos tulostetaan lasku, jonka päivämäärä on menneisyydessä tai tulevaisuudessa.
+- Asiakasta ei enää ole pakko valita laskua tehtäessä (esim. käteiskuitteja varten).
+- Yhtenäistetty termistöä, "maksaja" ja "yritys" -> "asiakas".
+- Lisätty mahdollisuus poistaa asiakas käytöstä poistamatta sitä kokonaan. 
+- Lisätty varoitus, jos laskunumero on jo käytössä toisella laskulla.
+- Lisätty tallennusnappulan värin vaihtuminen kertomaan, jos on tallentamattomia muutoksia.
+- Raporteissa kuukauden valinta on korvattu päivämäärävälin valinnalla.
+- Lisätty PDF-tulostus raportteihin.
+- Lisätty mahdollisuus näyttää välisummat laskun tilan mukaisesti laskutusraportissa. 
+
+Muut:
+- Laskujen tulostuksessa pitkät yrityksen nimet tulostuvat aiempaa paremmin.
+- Korjattu päivämäärän mukainen järjestäminen listoissa.
+- Huomautusmaksu ja viivästyskorko lisätään aina negatiivisilla rivinumeroilla, jotta ne tulevat listan alkuun.
+- Laskunumeron ja viitenumeron päivitysnappula on nyt erillään päivämäärien päivitysnappulasta.
+- Tuotettu HTML on nyt aiempaa standardinmukaisempaa.
+
+
 Olennaiset muutokset versiossa 1.1:
 
 Toiminnallisuus:
