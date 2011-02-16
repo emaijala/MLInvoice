@@ -18,6 +18,7 @@ Toiminnallisuus:
 - Raporteissa kuukauden valinta on korvattu päivämäärävälin valinnalla.
 - Lisätty PDF-tulostus raportteihin.
 - Lisätty mahdollisuus näyttää välisummat laskun tilan mukaisesti laskutusraportissa. 
+- Muutettu asetustiedostokäytäntö päivitysten helpottamiseksi niin, että pakolliset asetukset löytyvät config.php -tiedostosta, jonka voi luoda config.php.sample -tiedoston pohjalta. 
 
 Muut:
 - Laskujen tulostuksessa pitkät yrityksen nimet tulostuvat aiempaa paremmin.
