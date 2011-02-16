@@ -59,13 +59,11 @@ class InvoicePrinter
       $this->totalVAT += $rowVAT;
       $this->totalSumVAT += $rowSumVAT;
     }
+    $this->separateStatement = ($this->printStyle == 'invoice') && getSetting('invoice_separate_statement');
   }
   
   public function printInvoice()
   {
-    if (!$this->separateStatement)
-      $this->separateStatement = ($this->printStyle == 'invoice') && getSetting('invoice_separate_statement');
-
     $invoiceData = $this->invoiceData;
     $senderData = $this->senderData;
     

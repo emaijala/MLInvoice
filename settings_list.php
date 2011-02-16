@@ -65,7 +65,7 @@ function createSettingsList()
     }
   }
 ?>
-  <div class="form">
+  <div class="form_container">
     <div class="message"><?php echo $messages?></div>
   
     <script type="text/javascript">
@@ -82,13 +82,14 @@ function createSettingsList()
         iframe.css("height", newHeight + 'px');
         body.css("overflow", "hidden");
       });   
+      $('#admin_form').find('input[type="text"],input[type="checkbox"],select,textarea').change(function() { $('.save_button').addClass('unsaved'); });
     });
     -->
     </script>
   
-    <form method="post" action="" name="admin_form" id="admin_form">
     <?php createSettingsListButtons()?>
-    <div class="form_container">
+    <div class="form">
+    <form method="post" action="" name="admin_form" id="admin_form">
 <?php
     foreach ($arrSettings as $name => $elem)
     {
@@ -131,10 +132,10 @@ function createSettingsList()
 <?php        
     }
 ?>      
-    </div>
     <input type="hidden" name="saveact" value="0">
     <?php createSettingsListButtons()?>
     </form>
+    </div>
   </div>
 <?php
 }
@@ -143,7 +144,7 @@ function createSettingsListButtons()
 {
 ?>
 <div class="form_buttons" style="clear: both">
-      <a class="actionlink" href="#" onclick="document.getElementById('admin_form').saveact.value=1; document.getElementById('admin_form').submit(); return false;"><?php echo $GLOBALS['locSAVE']?></a>
+      <a class="actionlink save_button" href="#" onclick="document.getElementById('admin_form').saveact.value=1; document.getElementById('admin_form').submit(); return false;"><?php echo $GLOBALS['locSAVE']?></a>
     </div>
 <?php
 }
