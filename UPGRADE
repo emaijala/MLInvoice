@@ -1,3 +1,12 @@
+Päivitys versiosta 1.1 versioon 1.2:
+
+   1. Aja tietokantaan päivitysskripti update_database_1.1_to_1.2.sql
+   2. Kopioi vanhasta versiosta settings.php:sta tietokanta-asetukset talteen.
+   3. Korvaa kaikki vanhan version tiedostot. Vanhat tiedostot kannattaa ensin poistaa tai siirtää talteen.
+   4. Kopioi config.php.sample nimelle config.php. 
+   5. Muuta config.php:sta tietokanta-asetukset talteen otetun settings.php:n mukaisiksi.
+   6. Kirjaudu sisään ja käy säätämässä muut asetukset kohdalleen kohdasta Asetukset -> Yleiset asetukset.
+
 Päivitys versiosta 1.0 versioon 1.1:
 
    1. Aja tietokantaan päivitysskripti update_database_1.0_to_1.1.sql
