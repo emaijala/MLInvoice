@@ -4,7 +4,7 @@ Asennus:
    2. Luo MySQL-käyttäjä, jolla on riittävät oikeudet (ainakin CREATE, INSERT, UPDATE ja DELETE) vllasku-tietokannan käyttöön.
    3. Pura vllaskun asennuspaketti www-palvelimelle sopivaan paikkaan (tyypillisesti esim. htdocs-hakemistoon). Varmista, että tiedostojen käyttöoikeudet riittävät. Varmista myös, että PHP:stä pystyy kirjoittamaan hakemistoon tcpdf/cache.
    4. Luo tietokantarakenne suorittamalla vllasku-tietokannassa create_database.sql -tiedoston (löytyy asennuspaketista) sisältämät komennot.
-   5. Muokkaa settings.php -tiedoston asetukset toimiviksi. Suurin osa asetuksista löytyy käyttöliittymästä (Asetukset -> Yleiset asetukset), mutta settings.php:sta löytyvät tietokantayhteyden luomiseksi olennaiset asetukset.
+   5. Kopioi config.php.sample nimelle config.php ja muokkaa sen sisältämät asetukset toimiviksi. Suurin osa asetuksista löytyy käyttöliittymästä (Asetukset -> Yleiset asetukset), mutta config.php:ssa ovat tietokantayhteyden luomiseksi olennaiset asetukset.
    6. Avaa VLLasku selaimeen ja kirjaudu sisään oletustunnuksilla admin admin
    7. TÄRKEÄÄ: Vaihda admin-käyttäjän salasana kohdasta Järjestelmä -> Käyttäjät.
    8. Muokkaa asetukset sopiviksi kohdasta Asetukset -> Yleiset asetukset.
