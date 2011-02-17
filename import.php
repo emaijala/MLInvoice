@@ -57,7 +57,8 @@ function do_import()
   {
     if ($_FILES['data']['error'] == UPLOAD_ERR_OK)
     {
-      $_SESSION['import_file'] = $_FILES['data']['tmp_name'];
+      $_SESSION['import_file'] = $_FILES['data']['tmp_name'] . '-vllasku-import';
+      move_uploaded_file($_FILES['data']['tmp_name'], $_SESSION['import_file']);    
       show_setup_form();
       return;
     }
@@ -67,7 +68,7 @@ function do_import()
   {
     if (_IMPORT_FILE_ && file_exists(_IMPORT_FILE_))
     {
-      $_SESSION['import_file'] = _IMPORT_FILE_;
+      $_SESSION['import_file'] = _IMPORT_FILE_;      
       show_setup_form();
       return;
     }
@@ -862,16 +863,27 @@ function import_file($importMode)
 
       ++$rowNum;        
       $mapped_row = array();
+      $haveMappings = false;
       for ($i = 0; $i < count($row); $i++)
       {
         if ($columnMappings[$i])
+        {
+          $haveMappings = true;
           $mapped_row[$columnMappings[$i]] = $row[$i];
+        }
       }
-      $result = process_import_row($table, $mapped_row, $duplicateMode, $duplicateCheckColumns, $importMode);
-      echo "    Row $rowNum: $result<br>\n";
+      if (!$haveMappings)
+        echo "    Row $rowNum: " . $GLOBALS['locImportNoMappedColumns'] . "<br>\n";
+      else
+      {
+        $addedRecordId = null;
+        $result = process_import_row($table, $mapped_row, $duplicateMode, $duplicateCheckColumns, $importMode, $addedRecordId);
+        echo "    Row $rowNum: $result<br>\n";
+      }
       ob_flush();
     }
     fclose($fp);
+    unlink($_SESSION['import_file']);
   }
   elseif ($format == 'xml')
   {

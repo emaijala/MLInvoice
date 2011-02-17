@@ -467,6 +467,7 @@ default :
     $GLOBALS['locImportNext'] = 'Seuraava';
     $GLOBALS['locImportStart'] = 'Käynnistä';
     $GLOBALS['locImportDone'] = 'Tuonti valmis';
+    $GLOBALS['locImportNoMappedColumns'] = 'Yhtään sarakkeen kohdistusta ei löytynyt, tyhjää tietuetta ei lisätty';
 
     // Export
     $GLOBALS['locExport'] = 'Vienti';
