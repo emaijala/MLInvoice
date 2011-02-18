@@ -195,6 +195,11 @@ function show_setup_form()
     $enclosure_chars = get_enclosure_chars();
     foreach ($rows as $row)
     {
+      if ($charset == 'UTF-8' && try_iconv($charset, _CHARSET_, $row) === false)
+      {
+        if (try_iconv('ISO-8859-1', _CHARSET_, $row) !== false)
+          $charset = 'ISO-8859-1';
+      }
       foreach (explode($field_delim['char'], $row) as $field)
       {
         foreach ($enclosure_chars as $key => $value)
@@ -551,7 +556,7 @@ function create_import_preview()
     
     // Force enclosure char, otherwise fgetcsv would balk.
     if ($enclosureChar == '')
-      $enclosureChar = '\x01';
+      $enclosureChar = "\x01";
       
     $errors = array();
     $headings = get_csv($fp, $fieldDelimiter, $enclosureChar, $charset, $rowDelimiter);    
@@ -854,7 +859,7 @@ function import_file($importMode)
     
     // Force enclosure char, otherwise fgetcsv would balk.
     if ($enclosureChar == '')
-      $enclosureChar = '\x01';
+      $enclosureChar = "\x01";
       
     $errors = array();
     $headings = get_csv($fp, $fieldDelimiter, $enclosureChar, $charset, $rowDelimiter);    
@@ -887,7 +892,8 @@ function import_file($importMode)
       ob_flush();
     }
     fclose($fp);
-    unlink($_SESSION['import_file']);
+    if ($_SESSION['import_file'] != _IMPORT_FILE_)
+      unlink($_SESSION['import_file']);
   }
   elseif ($format == 'xml')
   {

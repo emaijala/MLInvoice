@@ -298,4 +298,25 @@ function fgets_charset($handle, $charset, $line_ending = "\n")
   return $str;
 }
 
+function iconvErrorHandler($errno, $errstr, $errfile, $errline) 
+{
+  throw new ErrorException($errstr, 0, $errno, $errfile, $errline);
+}
+
+function try_iconv($from, $to, $str)
+{
+  set_error_handler('iconvErrorHandler');
+  try
+  {
+    $str = iconv($from, $to, $str);
+  }
+  catch (ErrorException $e) 
+  {
+    restore_error_handler();
+    return false;
+  }
+  restore_error_handler();
+  return $str;
+}
+
 ?>
