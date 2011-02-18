@@ -318,6 +318,8 @@ function update_mapping_table()
       for (var i = 0; i < json.headings.length; i++)
       {
         var th = document.createElement("th");
+        if (json.headings[i] == '')
+          json.headings[i] = '-';
         th.appendChild(document.createTextNode(json.headings[i]));
         tr.appendChild(th);
       }
@@ -499,7 +501,7 @@ function add_mapping_columns()
 function get_csv($handle, $delimiter, $enclosure, $charset, $line_ending)
 {
   $str = fgets_charset($handle, $charset, $line_ending);
-  return str_getcsv($str);
+  return str_getcsv($str, $delimiter, $enclosure);
 }
 
 function create_import_preview()
@@ -553,6 +555,8 @@ function create_import_preview()
       
     $errors = array();
     $headings = get_csv($fp, $fieldDelimiter, $enclosureChar, $charset, $rowDelimiter);    
+    if (!$headings) 
+      $errors[] = 'Could not parse headings row from import file';
     $rows = array();
     for ($i = 0; $i < 10 && !feof($fp); $i++)
     {
