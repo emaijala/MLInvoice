@@ -129,7 +129,7 @@ function createForm($strFunc, $strList, $strForm)
   
   if (isset($intKeyValue) && $intKeyValue) 
   {
-    $res = fetchRecord($strTable, &$intKeyValue, &$astrFormElements, &$astrValues);
+    $res = fetchRecord($strTable, $intKeyValue, $astrFormElements, $astrValues);
     if ($res === 'deleted')
       $strMessage .= $GLOBALS['locDeletedRecord'] . '<br>';
     elseif ($res === 'notfound')
