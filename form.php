@@ -218,7 +218,7 @@ function createForm($strFunc, $strList, $strForm)
       $intColspan = 2;
     }
 
-    if ($blnNew && ($elem['type'] == 'BUTTON' || $elem['type'] == 'JSBUTTON' || $elem['type'] == 'IFORM' || $elem['type'] == 'IMAGE')) 
+    if ($blnNew && ($elem['type'] == 'BUTTON' || $elem['type'] == 'JSBUTTON' || $elem['type'] == 'IMAGE')) 
     {
       echo "          <td class=\"label\">&nbsp;</td>";
     }
@@ -245,11 +245,11 @@ function createForm($strFunc, $strList, $strForm)
           </td>
 <?php          
     }
-    elseif ($elem['type'] == "IFORM" && !$blnNew) 
+    elseif ($elem['type'] == "IFORM") 
     {
       echo "      </table>\n      </form>\n";
       $haveChildForm = true;
-      createIForm($astrFormElements, $elem, $intKeyValue);
+      createIForm($astrFormElements, $elem, isset($intKeyValue) ? $intKeyValue : 0, $blnNew);
       break;
     }
     else 
@@ -398,7 +398,7 @@ function popup_dialog(url, on_close, dialog_title, event, width, height)
   echo "  </div>\n";
 }
 
-function createIForm($astrFormElements, $elem, $intKeyValue)
+function createIForm($astrFormElements, $elem, $intKeyValue, $newRecord)
 {
 ?>
 <script type="text/javascript">
@@ -725,7 +725,16 @@ function popup_editor(event, title, id, copy_row)
       <div class="iform <?php echo $elem['style']?> ui-corner-tl ui-corner-bl ui-corner-br ui-corner-tr ui-helper-clearfix" id="<?php echo $elem['name']?>"<?php echo $elem['elem_attributes'] ? ' ' . $elem['elem_attributes'] : ''?>>
         <div class="ui-corner-tl ui-corner-tr fg-toolbar ui-toolbar ui-widget-header"><?php echo $elem['label']?></div>
         <span id="imessage" class="message ui-state-error-text" style="display: none"></span>
-      
+<?php
+  if ($newRecord)
+  {
+?>
+        <div id="imessage" class="new_message"><?php echo $GLOBALS['locSaveRecordToAddRows']?></div>
+      </div>
+<?php
+    return;
+  }
+?>
         <form method="post" action="#" name="iform" id="iform">
         <table class="iform" id="itable">
           <tr id="form_row">

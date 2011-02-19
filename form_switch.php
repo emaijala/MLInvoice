@@ -344,11 +344,18 @@ EOS;
      $companyListSelect .= " OR id IN (SELECT company_id FROM {prefix}invoice i WHERE i.id=$intInvoiceId)";
    $companyListSelect .= ") ORDER BY company_name, company_id";
    
+   $intRes = mysql_query_check('SELECT ID from {prefix}base WHERE deleted=0');
+   if (mysql_num_rows($intRes) == 1)
+     $defaultBase = reset(mysql_fetch_row($intRes));
+   else
+     $defaultBase = FALSE;
+     
    $copyLinkOverride = "copy_invoice.php?func=$strFunc&amp;list=$strList&amp;id=$intInvoiceId";
+   
    $astrFormElements =
     array(
      array(
-        "name" => "base_id", "label" => $GLOBALS['locBILLER'], "type" => "LIST", "style" => "medium", "listquery" => "SELECT id, name FROM {prefix}base WHERE deleted=0", "position" => 1, "default" => 2, "allow_null" => FALSE ),
+        "name" => "base_id", "label" => $GLOBALS['locBILLER'], "type" => "LIST", "style" => "medium", "listquery" => "SELECT id, name FROM {prefix}base WHERE deleted=0", "position" => 1, "default" => $defaultBase, "allow_null" => FALSE ),
      $arrRefundedInvoice,
      $arrRefundingInvoice,
      array(

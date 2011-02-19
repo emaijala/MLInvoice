@@ -175,6 +175,7 @@ default :
     $GLOBALS['locErrImportFileNotFound'] = 'Tiedostoa ei löytynyt - tarkista asetukset';
     $GLOBALS['locInvoiceDateNonCurrent'] = 'Huom! Laskun päivämäärä poikkeaa nykyisestä';
     $GLOBALS['locInvoiceNumberAlreadyInUse'] = 'Huom! Laskun numero on jo käytössä toisessa laskussa';
+    $GLOBALS['locSaveRecordToAddRows'] = 'Tietue on tallennettava kerran, jotta näiden tietojen lisääminen on mahdollista.';
     
     //FORM BUTTON HELPERS
     $GLOBALS['locSAVE'] = 'Tallenna';

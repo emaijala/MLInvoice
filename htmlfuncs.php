@@ -104,7 +104,7 @@ Todo :
     $strListBox = 
         "<select class=\"$strStyle\" id=\"$strName\" name=\"$strName\" $strOnChange $astrAdditionalAttributes>\n";
     if( $blnShowEmpty ) {
-        $strListBox .= "<option value=\"\" selected> - </option>\n";
+        $strListBox .= '<option value=""' . ($strSelected ? '' : ' selected') . "> - </option>\n";
     }
     
     for( $i = 0; $i < count($astrValues); $i++ ) {

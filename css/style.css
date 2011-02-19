@@ -526,6 +526,10 @@ img.image {
   max-height: 250px;
 }
 
+.new_message {
+  margin: 20px;
+}
+
 /* jQuery UI overrides */
 .ui-widget .ui-widget {
   font-size: 12px;
@@ -547,3 +551,4 @@ img.image {
 .ui-state-default {
   color: #222222;
 }
+
