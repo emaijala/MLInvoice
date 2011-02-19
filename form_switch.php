@@ -476,7 +476,7 @@ case 'base_info':
 
    $title = $GLOBALS['locBaseLogoTitle'];   
    $openPopJS = <<<EOF
-OpenPop('base_logo.php?func=edit&amp;id=_ID_', '$(\\'img\\').attr(\\'src\\', \\'base_logo.php?func=view&id=_ID_\\')', '$title', event); return false;
+popup_dialog('base_logo.php?func=edit&amp;id=_ID_', '$(\\'img\\').attr(\\'src\\', \\'base_logo.php?func=view&id=_ID_\\')', '$title', event, 600, 400); return false;
 EOF;
    
    $astrFormElements =

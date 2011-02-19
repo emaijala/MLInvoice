@@ -147,6 +147,11 @@ function createForm($strFunc, $strList, $strForm)
   }
   
   ?>
+
+  <div id="popup_dlg" style="display: none; width: 900px; overflow: hidden">
+    <iframe marginheight="0" marginwidth="0" frameborder="0" id="popup_dlg_iframe" src="about:blank" style="width: 100%; height: 100%; overflow: hidden; border: 0"></iframe>
+  </div>
+
   <div class="form_container">
     <div id="message" class="message ui-state-error-text"><?php echo $strMessage ?></div>
   
@@ -370,6 +375,21 @@ function save_record(redirect_url, redir_style)
     }
   });  
 }  
+
+function popup_dialog(url, on_close, dialog_title, event, width, height) 
+{
+  $("#popup_dlg").dialog({ modal: true, width: width, height: height, resizable: true, 
+    position: [50, 50], 
+    buttons: {
+      "<?php echo $GLOBALS['locCLOSE']?>": function() { $("#popup_dlg").dialog('close'); }
+    },
+    title: dialog_title,
+    close: function(event, ui) { eval(on_close); }
+  }).find("#popup_dlg_iframe").attr("src", url);
+  
+  return true;  
+}
+
 /* ]]> */ 
 </script>
 
