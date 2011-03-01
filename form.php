@@ -163,7 +163,7 @@ function createForm($strFunc, $strList, $strForm)
       <input type="hidden" name="newact" value="<?php echo $blnNew ? 1 : 0?>">
       <input type="hidden" name="deleteact" value="0">
       <input type="hidden" name="redirect" id="redirect" value="">
-      <input type="hidden" name="<?php echo $strPrimaryKey?>" value="<?php echo (isset($intKeyValue) && $intKeyValue) ? $intKeyValue : '' ?>">
+      <input type="hidden" id="record_id" name="<?php echo $strPrimaryKey?>" value="<?php echo (isset($intKeyValue) && $intKeyValue) ? $intKeyValue : '' ?>">
       <table>
 <?php
   $haveChildForm = false;
@@ -271,7 +271,7 @@ function createForm($strFunc, $strList, $strForm)
     $prevColSpan = $intColspan;
   }
 ?>
-  <?php if (!$haveChildForm) echo "      </table>\n      </form\n"?>
+  <?php if (!$haveChildForm) echo "      </table>\n      </form>\n"?>
     </div>
 
 <script type="text/javascript">

@@ -176,6 +176,7 @@ default :
     $GLOBALS['locInvoiceDateNonCurrent'] = 'Huom! Laskun p‰iv‰m‰‰r‰ poikkeaa nykyisest‰';
     $GLOBALS['locInvoiceNumberAlreadyInUse'] = 'Huom! Laskun numero on jo k‰ytˆss‰ toisessa laskussa';
     $GLOBALS['locSaveRecordToAddRows'] = 'Tietue on tallennettava kerran, jotta n‰iden tietojen lis‰‰minen on mahdollista.';
+    $GLOBALS['locInvoiceNumberNotDefined'] = 'Huom! Laskun numero puuttuu';
     
     //FORM BUTTON HELPERS
     $GLOBALS['locSAVE'] = 'Tallenna';
@@ -395,9 +396,9 @@ default :
     $GLOBALS['locSettingAddCustomerNumber'] = 'Lis‰‰ uudelle asiakkaalle juokseva asiakasnumero automaattisesti';
     $GLOBALS['locSettingShowDeletedRecords'] = 'N‰yt‰ poistetut tietueet (istuntokohtainen asetus)';
     $GLOBALS['locSettingInvoices'] = 'Laskutusasetukset';
-    $GLOBALS['locSettingInvoiceAddNumber'] = 'Lis‰‰ uudelle laskulle juokseva laskunumero automaattisesti';
+    $GLOBALS['locSettingInvoiceAddNumber'] = 'Lis‰‰ laskulle juokseva laskunumero automaattisesti tulostettaessa';
+    $GLOBALS['locSettingInvoiceAddReferenceNumber'] = 'Lis‰‰ laskulle viitenumero automaattisesti tulostettaessa';
     $GLOBALS['locSettingInvoiceNumberingPerBase'] = 'Numeroi laskut laskuttajakohtaisesti';
-    $GLOBALS['locSettingInvoiceAddReferenceNumber'] = 'Lis‰‰ uudelle laskulle viitenumero automaattisesti';
     $GLOBALS['locSettingInvoiceShowBarcode'] = 'N‰yt‰ viivakoodi laskun tilisiirtolomakkeessa';
     $GLOBALS['locSettingInvoiceShowRowDate'] = 'N‰yt‰ laskurivin p‰iv‰ys laskussa';
     $GLOBALS['locSettingInvoiceSeparateStatement'] = 'Tulosta laskurivit aina erilliseen laskuerittelyyn';

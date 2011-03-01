@@ -179,6 +179,7 @@ function htmlFormElement( $strName, $strType, $strValue, $strStyle, $strListQuer
     if ($astrAdditionalAttributes)
       $astrAdditionalAttributes = " $astrAdditionalAttributes";
     $strFormElement = '';
+
     switch( $strType ) {
         case 'TEXT' :
             if( $strMode == "MODIFY" ) {
@@ -251,7 +252,15 @@ function htmlFormElement( $strName, $strType, $strValue, $strStyle, $strListQuer
             }
         break;
         case 'INT' :
+            $hideZero = FALSE;
+            if (strstr($strStyle, ' hidezerovalue'))
+            {
+              $strStyle = str_replace(' hidezerovalue', '', $strStyle);
+              $hideZero = TRUE;
+            }
             $strValue = str_replace(".", ",", $strValue); // TODO: make this configurable
+            if ($hideZero && $strValue == 0)
+              $strValue = '';
             if( $strMode == "MODIFY" ) {
                 $strFormElement = 
                   "<input type=\"text\" class=\"$strStyle\" " .

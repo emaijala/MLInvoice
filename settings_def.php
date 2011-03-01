@@ -26,8 +26,8 @@ $arrSettings = array(
   'invoice_sep' => array('label' => $GLOBALS['locSettingInvoices'], 'type' => 'LABEL'),
   
   'invoice_add_number' => array('label' => $GLOBALS['locSettingInvoiceAddNumber'], 'type' => 'CHECK', 'style' => 'medium', 'position' => 1, 'default' => 1, 'allow_null' => TRUE ),
-  'invoice_numbering_per_base' => array('label' => $GLOBALS['locSettingInvoiceNumberingPerBase'], 'type' => 'CHECK', 'style' => 'medium', 'position' => 1, 'default' => 0, 'allow_null' => TRUE ),
   'invoice_add_reference_number' => array('label' => $GLOBALS['locSettingInvoiceAddReferenceNumber'], 'type' => 'CHECK', 'style' => 'medium', 'position' => 1, 'default' => 1, 'allow_null' => TRUE ),
+  'invoice_numbering_per_base' => array('label' => $GLOBALS['locSettingInvoiceNumberingPerBase'], 'type' => 'CHECK', 'style' => 'medium', 'position' => 1, 'default' => 1, 'allow_null' => TRUE ),
   'invoice_show_barcode' => array('label' => $GLOBALS['locSettingInvoiceShowBarcode'], 'type' => 'CHECK', 'style' => 'medium', 'position' => 1, 'default' => 1, 'allow_null' => TRUE ),
   'invoice_show_row_date' => array('label' => $GLOBALS['locSettingInvoiceShowRowDate'], 'type' => 'CHECK', 'style' => 'medium', 'position' => 1, 'default' => 1, 'allow_null' => TRUE ),
   'invoice_separate_statement' => array('label' => $GLOBALS['locSettingInvoiceSeparateStatement'], 'type' => 'CHECK', 'style' => 'medium', 'position' => 1, 'default' => 0, 'allow_null' => TRUE ),

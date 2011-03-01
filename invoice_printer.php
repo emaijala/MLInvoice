@@ -203,8 +203,11 @@ class InvoicePrinter
       $pdf->Cell(40, 5, $GLOBALS['locPENALTYINTEREST'] .": ", 0, 0, 'R');
       $pdf->Cell(60, 5, miscRound2OptDecim(getSetting('invoice_penalty_interest'), 1) . ' %', 0, 1);
       $pdf->SetX(115);
-      $pdf->Cell(40, 5, $GLOBALS['locPDFINVREFNO'] .": ", 0, 0, 'R');
-      $pdf->Cell(60, 5, $this->refNumber, 0, 1);
+      if ($this->refNumber != 0)
+      {
+        $pdf->Cell(40, 5, $GLOBALS['locPDFINVREFNO'] .": ", 0, 0, 'R');
+        $pdf->Cell(60, 5, $this->refNumber, 0, 1);
+      }
     }
     
     $strReference = $invoiceData['reference'] ? $invoiceData['reference'] : $invoiceData['contact_person'];
@@ -564,10 +567,13 @@ class InvoicePrinter
     $pdf->SetFont('Helvetica','',10);
     $pdf->SetXY($intStartX + 112.4, $intStartY + 20);
     $pdf->Cell(70, 5, "Laskunumero " . $invoiceData['invoice_no'], 0, 1, "L");
-    $pdf->SetXY($intStartX + 112.4, $intStartY + 30);
-    $pdf->Cell(70, 5, "Viitenumero on aina mainittava maksettaessa.", 0, 1, "L");
-    $pdf->SetXY($intStartX + 112.4, $intStartY + 35);
-    $pdf->Cell(70, 5, cond_utf8_encode('Referensnumret bör alltid anges vid betalning.'), 0, 1, "L");
+    if ($this->refNumber != 0)
+    {
+      $pdf->SetXY($intStartX + 112.4, $intStartY + 30);
+      $pdf->Cell(70, 5, "Viitenumero on aina mainittava maksettaessa.", 0, 1, "L");
+      $pdf->SetXY($intStartX + 112.4, $intStartY + 35);
+      $pdf->Cell(70, 5, cond_utf8_encode('Referensnumret bör alltid anges vid betalning.'), 0, 1, "L");
+    }
     //terms
     $pdf->SetFont('Helvetica','',5);
     $pdf->SetXY($intStartX + 133, $intStartY + 85);
@@ -584,9 +590,12 @@ class InvoicePrinter
     $pdf->SetFont('Helvetica','',7);
     $pdf->SetXY($intStartX + 112.4, $intStartY + 59);
     $pdf->Cell(15, 5, "Viitenro", 0, 1, "L");
-    $pdf->SetFont('Helvetica','',10);
-    $pdf->SetXY($intStartX + 131, $intStartY + 59);
-    $pdf->Cell(15, 5, $this->refNumber, 0, 1, "L");
+    if ($this->refNumber != 0)
+    {
+      $pdf->SetFont('Helvetica','',10);
+      $pdf->SetXY($intStartX + 131, $intStartY + 59);
+      $pdf->Cell(15, 5, $this->refNumber, 0, 1, "L");
+    }
     
     //duedate
     $pdf->SetFont('Helvetica','',7);
