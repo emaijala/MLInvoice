@@ -99,7 +99,7 @@ case 'base_info':
    $strDeletedField = 'deleted';
    $astrShowFields = 
     array( 
-        array("name" => "name", 'width' => 200, "type" => "TEXT", "header" => $GLOBALS['locCOMPNAME']),
+        array("name" => "name", 'width' => 200, "type" => "TEXT", "header" => $GLOBALS['locBaseName']),
         array("name" => "company_id", 'width' => 100, "type" => "TEXT", "header" => $GLOBALS['locCOMPVATID']),
         array("name" => "contact_person", 'width' => 150, "type" => "TEXT", "header" => $GLOBALS['locCONTACTPERS']),
         array("name" => "email", 'width' => 150, "type" => "TEXT", "header" => $GLOBALS['locEMAIL'])

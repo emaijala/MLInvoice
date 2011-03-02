@@ -148,6 +148,7 @@ default :
     $GLOBALS['locVATINC'] = 'Sis.&nbsp;ALV';
     $GLOBALS['locACCESSLEVEL'] = 'Oikeustaso';
     $GLOBALS['locCompanyInactive'] = 'Asiakas pois käytöstä';
+    $GLOBALS['locBaseName'] = 'Yrityksen nimi';
 
     $GLOBALS['locPrintTemplates'] = 'Tulostusmallit';
     $GLOBALS['locPrintTemplateName'] = 'Tulostusmallin nimi';
