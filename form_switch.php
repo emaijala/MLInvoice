@@ -617,9 +617,7 @@ case 'session_type':
             array(
             "name" => "order_no", "label" => $GLOBALS['locORDERNO'], "type" => "INT", "style" => "short", "listquery" => "", "position" => 2, "default" => FALSE, "allow_null" => FALSE ),
             array(
-            "name" => "time_out", "label" => $GLOBALS['locTIMEOUT'], "type" => "INT", "style" => "short", "listquery" => "", "position" => 1, "default" => "5400", "allow_null" => FALSE ),
-            array(
-            "name" => "access_level", "label" => $GLOBALS['locACCESSLEVEL'], "type" => "INT", "style" => "short", "listquery" => "", "position" => 2, "default" => "1", "allow_null" => FALSE )
+            "name" => "access_level", "label" => $GLOBALS['locACCESSLEVEL'], "type" => "INT", "style" => "short", "listquery" => "", "position" => 1, "default" => "1", "allow_null" => FALSE )
     );
 break;
 

@@ -148,3 +148,12 @@ alter table pklasku_company add column (
 alter table pklasku_session_type change column name name varchar(255) default NULL;
 UPDATE pklasku_session_type set order_no=20, name='Ylläpitäjä' where id=2;
 INSERT INTO pklasku_session_type (id, name, order_no, time_out, access_level) VALUES (3, 'Käyttäjä - varmuuskopioija', 10, 3600, 90);
+
+DROP TABLE pklasku_session;
+CREATE TABLE pklasku_session (
+  id char(32) NOT NULL,
+  data longblob NULL,
+  session_timestamp timestamp NOT NULL default CURRENT_TIMESTAMP,
+  PRIMARY KEY (id),
+  INDEX i_session_timestamp(session_timestamp)
+) ENGINE=MyISAM;

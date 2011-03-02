@@ -208,6 +208,14 @@ CREATE TABLE vllasku_print_template (
   PRIMARY KEY (id)
 ) ENGINE=INNODB CHARACTER SET utf8 COLLATE utf8_swedish_ci;
 
+CREATE TABLE vllasku_session (
+  id char(32) NOT NULL,
+  data longblob NULL,
+  session_timestamp timestamp NOT NULL default CURRENT_TIMESTAMP,
+  PRIMARY KEY (id),
+  INDEX i_session_timestamp(session_timestamp)
+) ENGINE=INNODB CHARACTER SET utf8 COLLATE utf8_swedish_ci;
+
 SET NAMES 'utf8';
 
 INSERT INTO vllasku_company_type (id, name, order_no) VALUES (1, 'Autoilu', 5);

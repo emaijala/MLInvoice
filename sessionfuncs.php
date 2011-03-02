@@ -23,6 +23,8 @@ Tämä ohjelma on vapaa. Lue oheinen LICENSE.
 
 *******************************************************************************/
 
+require_once 'sqlfuncs.php';
+
 function sesCreateSession($strLogin, $strPasswd) 
 {
     if ($strLogin && $strPasswd) 
@@ -60,7 +62,6 @@ function sesCreateSession($strLogin, $strPasswd)
               
             $_SESSION['sesTYPEID'] = $row['type_id'];
             $_SESSION['sesLANG'] = 'fi';
-            $_SESSION['sesTIMEOUT'] = $row['time_out'];
             $_SESSION['sesUSERID'] = $row['user_id'];
             $_SESSION['sesACCESSLEVEL'] = $row['access_level'];
             $_SESSION['REMOTE_ADDR'] = $_SERVER['REMOTE_ADDR'];
@@ -85,7 +86,7 @@ function sesVerifySession($redirect = TRUE)
 {
     if (!session_id())
       session_start();
-    if (isset($_SESSION['REMOTE_ADDR']) && $_SESSION['REMOTE_ADDR'] == $_SERVER['REMOTE_ADDR'] && time() <= $_SESSION['ACCESSTIME'] + $_SESSION['sesTIMEOUT'])
+    if (isset($_SESSION['REMOTE_ADDR']) && $_SESSION['REMOTE_ADDR'] == $_SERVER['REMOTE_ADDR'])
     {
       $_SESSION['ACCESSTIME'] = time();
       return TRUE;
@@ -134,5 +135,47 @@ function createRandomString($length)
   }  
   return $str;  
 }  
+
+// Database-based session management
+function db_session_open($savePath, $sessionID) 
+{
+  // Some distributions have gc disabled, need to do it manually
+  db_session_gc(get_cfg_var('session.gc_maxlifetime'));
+}
+ 
+function db_session_close() 
+{
+}
+
+function db_session_read($sessionID) 
+{
+  $res = mysql_param_query('SELECT data FROM {prefix}session where id=?', array($sessionID));
+  if ($row = mysql_fetch_row($res))
+    return reset($row);
+  return '';  
+}
+
+function db_session_write($sessionID, $sessionData)
+{
+  mysql_param_query('REPLACE INTO {prefix}session (id, data) VALUES (?, ?)', array($sessionID, $sessionData));
+  return true;
+}
+
+function db_session_destroy($sessionID)
+{
+  mysql_param_query('DELETE FROM {prefix}session WHERE id=?', array($sessionID));
+  return true;
+}
+ 
+function db_session_gc($sessionMaxAge) 
+{
+  mysql_param_query('DELETE FROM {prefix}session WHERE session_timestamp<?', array(date('Y-m-d H:i:s', time()-$sessionMaxAge)));
+  return true;
+}
+
+session_set_save_handler('db_session_open', 'db_session_close', 'db_session_read', 'db_session_write', 'db_session_destroy', 'db_session_gc');
+session_name(_SESSION_NAME_);
+if (_SESSION_RESTRICT_PATH_)
+  session_set_cookie_params(0, dirname($_SERVER['PHP_SELF']) . '/');
 
 ?>
