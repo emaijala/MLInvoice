@@ -177,6 +177,12 @@ class InvoicePrinter
       $pdf->Cell(40, 5, $GLOBALS['locCUSTOMERNUMBER'] .": ", 0, 0, 'R');
       $pdf->Cell(60, 5, $invoiceData['customer_no'], 0, 1);
     }
+    if ($invoiceData['company_id'])
+    {
+      $pdf->SetX(115);
+      $pdf->Cell(40, 5, $GLOBALS['locCompanyVATID'] .": ", 0, 0, 'R');
+      $pdf->Cell(60, 5, $invoiceData['company_id'], 0, 1);
+    }
     $pdf->SetX(115);
     $pdf->Cell(40, 5, $GLOBALS["loc${locStr}Number"] . ': ', 0, 0, 'R');
     $pdf->Cell(60, 5, $invoiceData['invoice_no'], 0, 1);

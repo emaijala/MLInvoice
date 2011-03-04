@@ -335,6 +335,8 @@ default :
     $GLOBALS['locREMINDERFEEDESC'] = 'Maksukehotus';
     $GLOBALS['locPENALTYINTERESTDESC'] = 'Viivästyskorko';
     $GLOBALS['locPDFAdditionalInformation'] = 'Lisätiedot';
+    $GLOBALS['locCompanyVATID'] = 'Asiakkaan Y-tunnus';
+
         
     //REPORTS
     $GLOBALS['locProductReport'] = 'Tuoteraportti';
