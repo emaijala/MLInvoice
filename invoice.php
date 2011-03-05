@@ -47,9 +47,8 @@ $printParameters = $row[1];
 $printOutputFileName = $row[2];
   
 $strQuery = 
-  "SELECT inv.invoice_no, inv.invoice_date, inv.due_date, inv.ref_number, inv.name AS invoice_name, inv.reference, comp.company_name AS name, '' AS contact_person, comp.email, comp.billing_address, comp.company_name, comp.street_address, comp.zip_code, comp.city, inv.base_id, inv.state_id, inv.print_date, comp.company_id, comp.customer_no, ref.invoice_no as refunded_invoice_no, inv.info as invoice_info " .
+  "SELECT inv.*, ref.invoice_no as refunded_invoice_no " .
   "FROM {prefix}invoice inv " .
-  "LEFT OUTER JOIN {prefix}company comp ON comp.id = inv.company_id ".
   "LEFT OUTER JOIN {prefix}invoice ref ON ref.id = inv.refunded_invoice_id ".
   "WHERE inv.id=?";
 $intRes = mysql_param_query($strQuery, array($intInvoiceId));
@@ -57,8 +56,15 @@ $invoiceData = mysql_fetch_assoc($intRes);
 if (!$invoiceData)
   die('Could not find invoice data');
 
-$strSelect = 'SELECT * FROM {prefix}base WHERE id=?';
-$intRes = mysql_param_query($strSelect, array($invoiceData['base_id']));
+$strQuery = 'SELECT * FROM {prefix}company WHERE id=?';
+$intRes = mysql_param_query($strQuery, array($invoiceData['company_id']));
+$recipientData = mysql_fetch_assoc($intRes);
+
+//invoice_no, inv.invoice_date, inv.due_date, inv.ref_number, inv.name AS invoice_name, inv.reference, inv.base_id, inv.state_id, inv.print_date, ref.invoice_no as refunded_invoice_no, inv.info as invoice_info
+//comp.company_name AS name, '' AS contact_person, comp.email, comp.billing_address, comp.company_name, comp.street_address, comp.zip_code, comp.city, comp.company_id, comp.customer_no, 
+
+$strQuery = 'SELECT * FROM {prefix}base WHERE id=?';
+$intRes = mysql_param_query($strQuery, array($invoiceData['base_id']));
 $senderData = mysql_fetch_assoc($intRes);
 if (!$senderData)
   die('Could not find invoice sender data');
@@ -80,7 +86,7 @@ mysql_param_query('UPDATE {prefix}invoice SET print_date=? where id=?', array(da
 
 require $printTemplateFile;
 $printer = new InvoicePrinter;
-$printer->init($intInvoiceId, $printParameters, $printOutputFileName, $invoiceData, $senderData, $invoiceRowData);
+$printer->init($intInvoiceId, $printParameters, $printOutputFileName, $senderData, $recipientData, $invoiceData, $invoiceRowData);
 $printer->printInvoice()
 
 ?>

@@ -8,8 +8,9 @@ class InvoicePrinter
 {
   protected $pdf = null;
   protected $printStyle = '';
-  protected $invoiceData = null;
   protected $senderData = null;
+  protected $recipientData = null;
+  protected $invoiceData = null;
   protected $invoiceRowData = null;
   protected $separateStatement = false;
   
@@ -18,18 +19,23 @@ class InvoicePrinter
   protected $senderContactInfo = '';
   protected $billingAddress = '';
   protected $refNumber = '';
+  protected $recipientName = '';
+  protected $recipientAddress = '';
 
   protected $totalSum = 0;
   protected $totalVAT = 0;
   protected $totalSumVAT = 0;
+  
+  protected $recipientMaxY = 0;
 
-  public function init($invoiceId, $printParameters, $outputFileName, $invoiceData, $senderData, $invoiceRowData)
+  public function init($invoiceId, $printParameters, $outputFileName, $senderData, $recipientData, $invoiceData, $invoiceRowData)
   {
     $this->invoiceId = $invoiceId;
     $this->printStyle = $printParameters;
     $this->outputFileName = $outputFileName;
-    $this->invoiceData = $invoiceData;
     $this->senderData = $senderData;
+    $this->recipientData = $recipientData;
+    $this->invoiceData = $invoiceData;
     $this->invoiceRowData = $invoiceRowData;
  
     $this->totalSum = 0;
@@ -60,13 +66,7 @@ class InvoicePrinter
       $this->totalSumVAT += $rowSumVAT;
     }
     $this->separateStatement = ($this->printStyle == 'invoice') && getSetting('invoice_separate_statement');
-  }
-  
-  public function printInvoice()
-  {
-    $invoiceData = $this->invoiceData;
-    $senderData = $this->senderData;
-    
+
     $this->senderAddressLine = $senderData['name'];
     $strCompanyID = trim($senderData['company_id']);
     if ($strCompanyID)
@@ -90,14 +90,25 @@ class InvoicePrinter
     else
       $this->senderContactInfo = '';
     
+    if ($invoiceData['ref_number'] && strlen($invoiceData['ref_number']) < 4)
+    {
+      error_log('Reference number too short, will not be displayed');
+      $invoiceData['ref_number'] = '';
+    }
     $this->refNumber = trim(strrev(chunk_split(strrev($invoiceData['ref_number']),5,' ')));
     
-    $this->billingAddress = $invoiceData['billing_address'];
+    $this->billingAddress = $recipientData['billing_address'];
     if (!$this->billingAddress) 
-      $this->billingAddress = $invoiceData['company_name'] . "\n" . $invoiceData['street_address'] . "\n" . $invoiceData['zip_code'] . ' ' . $invoiceData['city'];
-    $strCompanyName = substr($this->billingAddress, 0, strpos($this->billingAddress, "\n"));
-    $strCompanyAddress = substr($this->billingAddress, strpos($this->billingAddress, "\n")+1);
-    
+      $this->billingAddress = $recipientData['company_name'] . "\n" . $recipientData['street_address'] . "\n" . $recipientData['zip_code'] . ' ' . $recipientData['city'];
+    $this->recipientName = substr($this->billingAddress, 0, strpos($this->billingAddress, "\n"));
+    $this->recipientAddress = substr($this->billingAddress, strpos($this->billingAddress, "\n")+1);
+  }
+  
+  public function printInvoice()
+  {
+    $invoiceData = $this->invoiceData;
+    $senderData = $this->senderData;
+    $recipientData = $this->recipientData;
     
     $pdf=new PDF('P','mm','A4', _CHARSET_ == 'UTF-8', _CHARSET_, false);
     $this->pdf = $pdf;
@@ -107,9 +118,37 @@ class InvoicePrinter
     $pdf->footerCenter = $this->senderContactInfo;
     $pdf->footerRight = $senderData['www'] . "\n" . $senderData['email'];
     
-    // TOP
+    $this->printSender();
+
+    $this->printRecipient();    
     
-    // Sender
+    $this->printInfo();
+    
+    $this->printSeparatorLine();
+    
+    if (!$this->separateStatement)
+    {
+      $this->printRows();
+    }
+    else 
+    {
+      $this->printSeparateStatementMessage();
+    }
+
+    if ($this->printStyle == 'invoice')
+      $this->printForm();  
+
+    if ($this->separateStatement)
+      $this->printRows();
+    
+    $this->printOut();
+  }  
+  
+  protected function printSender()
+  {
+    $pdf = $this->pdf;
+    $senderData = $this->senderData;
+    
     if (isset($senderData['logo_filedata']))
     {
       if (!isset($senderData['logo_top']))
@@ -134,21 +173,33 @@ class InvoicePrinter
       $pdf->MultiCell(120, 5, $senderData['street_address'] . "\n" . $senderData['zip_code'] . ' ' . $senderData['city'],0,1);
       $pdf->SetY($pdf->GetY()+5);
     }
+  }
+
+  protected function printRecipient()
+  {
+    $pdf = $this->pdf;
+    $recipientData = $this->recipientData;
     
-    // Recipient
     $pdf->SetTextColor(0);
     $pdf->SetFont('Helvetica','B',14);
-    $pdf->Cell(120, 6, $strCompanyName,0,1);
+    $pdf->Cell(120, 6, $this->recipientName, 0, 1);
     $pdf->SetFont('Helvetica','',14);
-    $pdf->MultiCell(120, 6, $strCompanyAddress,0,1);
+    $pdf->MultiCell(120, 6, $this->recipientAddress, 0, 1);
     $pdf->SetFont('Helvetica','',12);
-    if ($invoiceData['email'])
+    if ($recipientData['email'])
     {
       $pdf->SetY($pdf->GetY() + 4);
-      $pdf->Cell(120, 6, $invoiceData['email'], 0, 1);
+      $pdf->Cell(120, 6, $recipientData['email'], 0, 1);
     }
     
-    $recipientMaxY = $pdf->GetY();
+    $this->recipientMaxY = $pdf->GetY();
+  }
+  
+  protected function printInfo()
+  {
+    $pdf = $this->pdf;
+    $invoiceData = $this->invoiceData;
+    $recipientData = $this->recipientData;
     
     if ($this->printStyle == 'dispatch')
       $locStr = 'DispatchNote';
@@ -172,16 +223,16 @@ class InvoicePrinter
       $pdf->Cell(40, 5, $GLOBALS['locINVOICEHEADER'], 0, 1, 'R');
     $pdf->SetFont('Helvetica','',10);
     $pdf->SetXY(115, $pdf->GetY()+5);
-    if ($invoiceData['customer_no'] != 0)
+    if ($recipientData['customer_no'] != 0)
     {
       $pdf->Cell(40, 5, $GLOBALS['locCUSTOMERNUMBER'] .": ", 0, 0, 'R');
-      $pdf->Cell(60, 5, $invoiceData['customer_no'], 0, 1);
+      $pdf->Cell(60, 5, $recipientData['customer_no'], 0, 1);
     }
-    if ($invoiceData['company_id'])
+    if ($recipientData['company_id'])
     {
       $pdf->SetX(115);
       $pdf->Cell(40, 5, $GLOBALS['locCompanyVATID'] .": ", 0, 0, 'R');
-      $pdf->Cell(60, 5, $invoiceData['company_id'], 0, 1);
+      $pdf->Cell(60, 5, $recipientData['company_id'], 0, 1);
     }
     $pdf->SetX(115);
     $pdf->Cell(40, 5, $GLOBALS["loc${locStr}Number"] . ': ', 0, 0, 'R');
@@ -216,18 +267,17 @@ class InvoicePrinter
       }
     }
     
-    $strReference = $invoiceData['reference'] ? $invoiceData['reference'] : $invoiceData['contact_person'];
-    if ($strReference && $this->printStyle != 'dispatch')
+    if ($invoiceData['reference'] && $this->printStyle != 'dispatch')
     {
       $pdf->SetX(115);
       $pdf->Cell(40, 5, $GLOBALS['locYOURREFERENCE'] .": ", 0, 0, 'R');
-      $pdf->Cell(60, 5, $strReference, 0, 1);
+      $pdf->Cell(60, 5, $invoiceData['reference'], 0, 1);
     }
-    if (isset($invoiceData['invoice_info']) && $invoiceData['invoice_info'])
+    if (isset($invoiceData['info']) && $invoiceData['info'])
     {
       $pdf->SetX(115);
       $pdf->Cell(40, 5, $GLOBALS['locPDFAdditionalInformation'] . ': ', 0, 0, 'R');
-      $pdf->MultiCell(50, 5, $invoiceData['invoice_info'], 0, 'L', 0);
+      $pdf->MultiCell(50, 5, $invoiceData['info'], 0, 'L', 0);
     }
     
     if ($this->printStyle == 'invoice')
@@ -253,31 +303,23 @@ class InvoicePrinter
         $pdf->SetFont('Helvetica','',10);
       }
     }
-    
-    $pdf->SetY(max($pdf->GetY(), $recipientMaxY) + 5);
+  }
+  
+  protected function printSeparatorLine()
+  {
+    $pdf = $this->pdf;
+    $pdf->SetY(max($pdf->GetY(), $this->recipientMaxY) + 5);
     $pdf->Line(5, $pdf->GetY(), 202, $pdf->GetY());
     $pdf->SetY($pdf->GetY()+5);
-  
-    if (!$this->separateStatement)
-    {
-      $this->printRows();
-    }
-    else 
-    {
-      $pdf->SetFont('Helvetica','B',20);
-      $pdf->SetXY(20, $pdf->GetY()+40);
-      $pdf->MultiCell(180, 5, $GLOBALS['locSEESEPARATESTATEMENT'], 0, "L", 0);
-    }
+  }
 
-    if ($this->printStyle == 'invoice')
-      $this->printForm();  
-
-    if ($this->separateStatement)
-      $this->printRows();
-    
-    $filename = $this->outputFileName ? $this->outputFileName : getSetting('invoice_pdf_filename');
-    $pdf->Output(sprintf($filename, $invoiceData['invoice_no']), 'I');
-  }  
+  protected function printSeparateStatementMessage()
+  {
+    $pdf = $this->pdf;
+    $pdf->SetFont('Helvetica','B',20);
+    $pdf->SetXY(20, $pdf->GetY()+40);
+    $pdf->MultiCell(180, 5, $GLOBALS['locSEESEPARATESTATEMENT'], 0, "L", 0);
+  }
   
   protected function printRows()
   {
@@ -499,7 +541,7 @@ class InvoicePrinter
     $pdf->SetLineWidth(0.13);
     $pdf->Line($intStartX+23, $intStartY+63, $intStartX+90, $intStartY+63);
     
-    //receiver bank
+    //bank
     $pdf->SetFont('Helvetica','',7);
     $pdf->SetXY($intStartX, $intStartY + 1);
     $pdf->MultiCell(19, 2.8, "Saajan\ntilinumero", 0, "R", 0);
@@ -675,5 +717,15 @@ class InvoicePrinter
       }
     }
   }
+  
+  protected function printOut()
+  {
+    $pdf = $this->pdf;
+    $invoiceData = $this->invoiceData;
+
+    $filename = $this->outputFileName ? $this->outputFileName : getSetting('invoice_pdf_filename');
+    $pdf->Output(sprintf($filename, $invoiceData['invoice_no']), 'I');
+  }
+  
 }
   

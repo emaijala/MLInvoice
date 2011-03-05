@@ -178,6 +178,7 @@ default :
     $GLOBALS['locInvoiceNumberAlreadyInUse'] = 'Huom! Laskun numero on jo käytössä toisessa laskussa';
     $GLOBALS['locSaveRecordToAddRows'] = 'Tietue on tallennettava kerran, jotta näiden tietojen lisääminen on mahdollista.';
     $GLOBALS['locInvoiceNumberNotDefined'] = 'Huom! Laskun numero puuttuu';
+    $GLOBALS['locInvoiceRefNumberTooShort'] = 'Huom! Laskun viitenumero on liian lyhyt (minimi 4 numeroa)';
     
     //FORM BUTTON HELPERS
     $GLOBALS['locSAVE'] = 'Tallenna';

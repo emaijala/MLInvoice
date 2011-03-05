@@ -300,13 +300,16 @@ function init_company_list(selected_id)
 
 EOS;
    
-   $invoiceDateCheck = '';
+   $invoicePrintChecks = '';
    $invoiceNumberUpdatePrefix = '';
    $invoiceNumberUpdateSuffix = '';
+   
    if (getSetting('invoice_warn_if_noncurrent_date'))
    {
-     $invoiceDateCheck = "var d = new Date(); var dt = document.getElementById('invoice_date').value.split('.'); if (parseInt(dt[0]) != d.getDate() || parseInt(dt[1]) != d.getMonth()+1 || parseInt(dt[2]) != d.getYear() + 1900) alert('" . $GLOBALS['locInvoiceDateNonCurrent'] . "'); ";
+     $invoicePrintChecks .= "var d = new Date(); var dt = document.getElementById('invoice_date').value.split('.'); if (parseInt(dt[0]) != d.getDate() || parseInt(dt[1]) != d.getMonth()+1 || parseInt(dt[2]) != d.getYear() + 1900) alert('" . $GLOBALS['locInvoiceDateNonCurrent'] . "'); ";
    }
+   $invoicePrintChecks .= "var len = document.getElementById('ref_number').value.length; if (len > 0 && len < 4) alert('" . $GLOBALS['locInvoiceRefNumberTooShort'] . "'); ";
+   
    if (getSetting('invoice_add_number') || getSetting('invoice_add_reference_number'))
    {
      $invoiceNumberUpdatePrefix = "$.getJSON('json.php?func=get_invoice_defaults&amp;id=' + document.getElementById('record_id').value + '&amp;base_id=' + document.getElementById('base_id').value, function(json) { ";
@@ -331,7 +334,7 @@ EOS;
    while ($row = mysql_fetch_assoc($res))
    {
      $templateId = $row['id'];
-     $arr = array('name' => "print$templateId", 'label' => $row['name'], 'type' => 'JSBUTTON', 'style' => $printStyle, 'listquery' => "${invoiceDateCheck}${invoiceNumberUpdatePrefix}save_record('invoice.php?id=_ID_&amp;template=$templateId', '$printStyle'); return false;${invoiceNumberUpdateSuffix}", 'position' => 3, 'default' => FALSE, 'allow_null' => TRUE );
+     $arr = array('name' => "print$templateId", 'label' => $row['name'], 'type' => 'JSBUTTON', 'style' => $printStyle, 'listquery' => "${invoicePrintChecks}${invoiceNumberUpdatePrefix}save_record('invoice.php?id=_ID_&amp;template=$templateId', '$printStyle'); return false;${invoiceNumberUpdateSuffix}", 'position' => 3, 'default' => FALSE, 'allow_null' => TRUE );
      if (++$rowNum > $templateFirstCol)
      {
        $arr['position'] = 4;
