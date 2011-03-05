@@ -228,7 +228,6 @@ function createHtmlList($strFunc, $strList, $strIDQuery, &$arrQueryParams, $strT
       </tbody>
     </table>
     <br>
-    <br>
 <?php
 ?>
   </div>
