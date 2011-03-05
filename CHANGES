@@ -18,13 +18,18 @@ Toiminnallisuus:
 - Raporteissa kuukauden valinta on korvattu päivämäärävälin valinnalla.
 - Lisätty PDF-tulostus raportteihin.
 - Lisätty mahdollisuus näyttää välisummat laskun tilan mukaisesti laskutusraportissa. 
-- Muutettu asetustiedostokäytäntö päivitysten helpottamiseksi niin, että pakolliset asetukset löytyvät config.php -tiedostosta, jonka voi luoda config.php.sample -tiedoston pohjalta. 
+- Muutettu asetustiedostokäytäntö päivitysten helpottamiseksi niin, että pakolliset asetukset löytyvät config.php -tiedostosta, jonka voi luoda config.php.sample -tiedoston pohjalta.
+- Lisätty maksajan Y-tunnus laskun tietoihin.
+- Lisätty puuttuvan laskunumeron tarkistus laskun tulostukseen.
+- Muutettu automaattinen laskunumerointi ja viitenumerointi antamaan laskulle numerot vasta tulostettaessa.
+- Lisätty istuntotietojen tallennus tietokantaan rinnakkaisten asennusten helpottamiseksi.
+- Muutettu pienimmäksi mahdolliseksi automaattisesti annettavaksi laskunumeroksi 100 ja lisätty tarkistus liian lyhyen viitenumeron välttämiseksi.
 
 Muut:
 - Laskujen tulostuksessa pitkät yrityksen nimet tulostuvat aiempaa paremmin.
 - Korjattu päivämäärän mukainen järjestäminen listoissa.
 - Huomautusmaksu ja viivästyskorko lisätään aina negatiivisilla rivinumeroilla, jotta ne tulevat listan alkuun.
-- Laskunumeron ja viitenumeron päivitysnappula on nyt erillään päivämäärien päivitysnappulasta.
+- Laskunumeron ja viitenumeron päivitysnappula on nyt erillään päivämäärien päivitysnappulasta ja näytetään vain, ellei automaattinen laskunumerointi ole käytössä.
 - Tuotettu HTML on nyt aiempaa standardinmukaisempaa.
 
 
