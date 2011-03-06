@@ -609,7 +609,7 @@ class InvoicePrinter
     $pdf->Cell(19, 5, "Allekirjoitus", 0, 1, "R");
     //from account
     $pdf->SetXY($intStartX, $intStartY + 68);
-    $pdf->Cell(19, 5, cond_utf8_encode('Tililtä'), 0, 1, "R");
+    $pdf->Cell(19, 5, cond_utf8_decode('TililtÃ¤'), 0, 1, "R");
     
     //info
     $pdf->SetFont('Helvetica','',10);
@@ -620,14 +620,14 @@ class InvoicePrinter
       $pdf->SetXY($intStartX + 112.4, $intStartY + 30);
       $pdf->Cell(70, 5, "Viitenumero on aina mainittava maksettaessa.", 0, 1, "L");
       $pdf->SetXY($intStartX + 112.4, $intStartY + 35);
-      $pdf->Cell(70, 5, cond_utf8_encode('Referensnumret bör alltid anges vid betalning.'), 0, 1, "L");
+      $pdf->Cell(70, 5, cond_utf8_decode('Referensnumret bÃ¶r alltid anges vid betalning.'), 0, 1, "L");
     }
     //terms
     $pdf->SetFont('Helvetica','',5);
     $pdf->SetXY($intStartX + 133, $intStartY + 85);
-    $pdf->MultiCell(70, 2, cond_utf8_encode("Maksu välitetään saajalle maksujenvälityksen ehtojen mukaisesti ja vain\nmaksajan ilmoittaman tilinumeron perusteella"),0,1);
+    $pdf->MultiCell(70, 2, cond_utf8_decode("Maksu vÃ¤litetÃ¤Ã¤n saajalle maksujenvÃ¤lityksen ehtojen mukaisesti ja vain\nmaksajan ilmoittaman tilinumeron perusteella"),0,1);
     $pdf->SetXY($intStartX + 133, $intStartY + 90);
-    $pdf->MultiCell(70, 2, cond_utf8_encode("Betalningen förmedlas till mottagaren enligt villkoren för betalnings-\nförmedling och endast till det kontonummer som betalaren angivit"),0,1);
+    $pdf->MultiCell(70, 2, cond_utf8_decode("Betalningen fÃ¶rmedlas till mottagaren enligt villkoren fÃ¶r betalnings-\nfÃ¶rmedling och endast till det kontonummer som betalaren angivit"),0,1);
     $pdf->SetFont('Helvetica','',6);
     $pdf->SetXY($intStartX + 133, $intStartY + 95);
     $pdf->Cell($intMaxX + 1 - 133 - $intStartX, 5, "PANKKI BANKEN", 0, 1, "R");
@@ -648,7 +648,7 @@ class InvoicePrinter
     //duedate
     $pdf->SetFont('Helvetica','',7);
     $pdf->SetXY($intStartX + 112.4, $intStartY + 68);
-    $pdf->Cell(15, 5, cond_utf8_encode('Eräpäivä'), 0, 1, "L");
+    $pdf->Cell(15, 5, cond_utf8_decode('ErÃ¤pÃ¤ivÃ¤'), 0, 1, "L");
     $pdf->SetFont('Helvetica','',10);
     $pdf->SetXY($intStartX + 131.4, $intStartY + 68);
     $pdf->Cell(25, 5, ($invoiceData['state_id'] == 5 || $invoiceData['state_id'] == 6) ? $GLOBALS['locDUEDATENOW'] : dateConvIntDate2Date($invoiceData['due_date']), 0, 1, "L");

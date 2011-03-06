@@ -11,7 +11,7 @@ This program is free software. See attached LICENSE.
 VLLasku: web-pohjainen laskutusohjelma.
 Copyright (C) 2010-2011 Ere Maijala
 
-T‰m‰ ohjelma on vapaa. Lue oheinen LICENSE.
+T√§m√§ ohjelma on vapaa. Lue oheinen LICENSE.
 
 *******************************************************************************/
 
@@ -35,5 +35,5 @@ function getSetting($name)
     if ($row = mysql_fetch_assoc($res))
       return $row['value'];
   }
-  return isset($arrSettings[$name]) && isset($arrSettings[$name]['default']) ? cond_utf8_encode($arrSettings[$name]['default']) : '';
+  return isset($arrSettings[$name]) && isset($arrSettings[$name]['default']) ? cond_utf8_decode($arrSettings[$name]['default']) : '';
 }

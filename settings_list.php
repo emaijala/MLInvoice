@@ -11,7 +11,7 @@ This program is free software. See attached LICENSE.
 VLLasku: web-pohjainen laskutusohjelma.
 Copyright (C) 2010-2011 Ere Maijala
 
-T‰m‰ ohjelma on vapaa. Lue oheinen LICENSE.
+T√§m√§ ohjelma on vapaa. Lue oheinen LICENSE.
 
 *******************************************************************************/
 
@@ -106,7 +106,7 @@ function createSettingsList()
       {
         if (isset($elem['session']) && $elem['session'])
         {
-          $value = isset($_SESSION[$name]) ? $_SESSION[$name] : (isset($elem['default']) ? cond_utf8_encode($elem['default']) : '');
+          $value = isset($_SESSION[$name]) ? $_SESSION[$name] : (isset($elem['default']) ? cond_utf8_decode($elem['default']) : '');
         }
         else
         {
@@ -114,7 +114,7 @@ function createSettingsList()
           if ($row = mysql_fetch_assoc($res))
             $value = $row['value'];
           else
-            $value = isset($elem['default']) ? cond_utf8_encode($elem['default']) : '';
+            $value = isset($elem['default']) ? cond_utf8_decode($elem['default']) : '';
         }
           
         if ($elemType == 'CURRENCY')

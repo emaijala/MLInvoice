@@ -1,4 +1,4 @@
-﻿CREATE TABLE vllasku_invoice_state (
+CREATE TABLE vllasku_invoice_state (
   id int(11) NOT NULL auto_increment,
   deleted tinyint NOT NULL default 0,
   name varchar(15) default NULL,

@@ -30,7 +30,7 @@ define('_DB_NAME_', 'vllasku');
 // Tietokantataulujen prefix
 define ('_DB_PREFIX_', 'vllasku');
 
-// Merkistö: UTF-8 tai ISO-8859-15
+// Merkistö: UTF-8 tai ISO-8859-15. UTF-8:n pitäisi toimia riippumatta siitä, mitä merkistöä tietokannassa on.
 define ('_CHARSET_', 'UTF-8');
 
 // Sivujen otsikko
@@ -43,7 +43,7 @@ define ('_PROTOCOL_', isset($_SERVER['HTTPS']) ? 'https://' : 'http://');
 // Tietojen tuontiin palvelimelta käytettävä tiedosto
 define ('_IMPORT_FILE_', '');
 
-// Istunto-evästeen nimi ja rajaus polun mukaan. Näillä voi huolehtia rinnakkaisten asennusten kohdalla, etteivät evästeet vuoda asennuksesta toiseen.
+// Istunto-evästeen nimi ja rajaus polun mukaan. Näillä voi huolehtia rinnakkaisten asennusten kohdalla, etteivät evästeet vuoda asennuksesta toiseen. Ei vaikuta tietoturvaan.
 define ('_SESSION_NAME_', 'VLLASKUSESSION');
 define ('_SESSION_RESTRICT_PATH_', true);
 

@@ -11,7 +11,7 @@ This program is free software. See attached LICENSE.
 VLLasku: web-pohjainen laskutusohjelma.
 Copyright (C) 2010-2011 Ere Maijala
 
-T‰m‰ ohjelma on vapaa. Lue oheinen LICENSE.
+T√§m√§ ohjelma on vapaa. Lue oheinen LICENSE.
 
 *******************************************************************************/
 

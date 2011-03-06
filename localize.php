@@ -19,7 +19,7 @@ Perustuu osittain sovellukseen:
 PkLasku : web-pohjainen laskutusohjelmisto.
 Copyright (C) 2004-2008 Samu Reinikainen
 
-Tämä ohjelma on vapaa. Lue oheinen LICENSE.
+TÃ¤mÃ¤ ohjelma on vapaa. Lue oheinen LICENSE.
 
 *******************************************************************************/
 
@@ -34,10 +34,10 @@ break;
 default :
 
     //LOGIN
-    $GLOBALS['locWELCOMEMESSAGE'] = 'Ole hyvä ja syötä tunnuksesi ja salasanasi.';
-    $GLOBALS['locINVALIDCREDENTIALS'] = 'Käyttäjätunnus tai salasana väärä.';
-    $GLOBALS['locLOGINTIMEOUT'] = 'Kirjautumislomakkeen täyttöaika ylittynyt. Ole hyvä ja kirjaudu uudelleen.';
-    $GLOBALS['locMISSINGFIELDS'] = 'Ole hyvä ja syötä kaikki tiedot.';
+    $GLOBALS['locWELCOMEMESSAGE'] = 'Ole hyvÃ¤ ja syÃ¶tÃ¤ tunnuksesi ja salasanasi.';
+    $GLOBALS['locINVALIDCREDENTIALS'] = 'KÃ¤yttÃ¤jÃ¤tunnus tai salasana vÃ¤Ã¤rÃ¤.';
+    $GLOBALS['locLOGINTIMEOUT'] = 'Kirjautumislomakkeen tÃ¤yttÃ¶aika ylittynyt. Ole hyvÃ¤ ja kirjaudu uudelleen.';
+    $GLOBALS['locMISSINGFIELDS'] = 'Ole hyvÃ¤ ja syÃ¶tÃ¤ kaikki tiedot.';
     $GLOBALS['locLoggingIn'] = 'Kirjaudutaan...';
     $GLOBALS['locWELCOME'] = 'Tervetuloa';
     $GLOBALS['locLICENSENOTIFY'] = '';
@@ -48,7 +48,7 @@ default :
     
     //LOGOUT
     $GLOBALS['locTHANKYOU'] = 'Kiitos';
-    $GLOBALS['locSESSIONCLOSED'] = 'Istunto on päätetty.';
+    $GLOBALS['locSESSIONCLOSED'] = 'Istunto on pÃ¤Ã¤tetty.';
     $GLOBALS['locBACKTOLOGIN'] = 'Takaisin kirjautumaan';
     
     //FORM LABELS
@@ -59,7 +59,7 @@ default :
     $GLOBALS['locCUSTOMERNO'] = 'Asiakasnro';
     $GLOBALS['locCUSTOMERNUMBER'] = 'Asiakasnumero';
     $GLOBALS['locCUSTOMERDEFAULTREFNO'] = 'Asiakaskoht. viitenro';
-    $GLOBALS['locVATREGISTERED'] = 'ALV-rekisteröity';
+    $GLOBALS['locVATREGISTERED'] = 'ALV-rekisterÃ¶ity';
     $GLOBALS['locWWW'] = 'WWW';
     $GLOBALS['locADDRESS'] = 'Osoite';
     $GLOBALS['locSTREETADDR'] = 'Katuosoite';
@@ -69,10 +69,10 @@ default :
     $GLOBALS['locPOSTALADDR'] = 'Postitoimipaikka';
     $GLOBALS['locPHONE'] = 'Puh.';
     $GLOBALS['locPHONEHOME'] = 'Puh. (koti)';
-    $GLOBALS['locPHONEWORK'] = 'Puh. (työ)';
+    $GLOBALS['locPHONEWORK'] = 'Puh. (tyÃ¶)';
     $GLOBALS['locGSM'] = 'Puh. (matka)';
     $GLOBALS['locBILLADDR'] = 'Laskutusosoite';
-    $GLOBALS['locINFO'] = 'Lisätiedot';
+    $GLOBALS['locINFO'] = 'LisÃ¤tiedot';
     $GLOBALS['locNAMELAST'] = 'Sukunimi';
     $GLOBALS['locNAMEFIRST'] = 'Etunimet';
     $GLOBALS['locPERSONID'] = 'Henk.tunnus';
@@ -82,33 +82,33 @@ default :
     $GLOBALS['locCLIENTSREFERENCE'] = 'Asiakkaan viite';
     $GLOBALS['locYOURREFERENCE'] = 'Viitteenne';
     $GLOBALS['locINVDATE'] = 'Laskupvm';
-    $GLOBALS['locDUEDATE'] = 'Eräpvm';
+    $GLOBALS['locDUEDATE'] = 'ErÃ¤pvm';
     $GLOBALS['locREFNO'] = 'Viitenro';
     $GLOBALS['locPAYDATE'] = 'Maksupvm';
     $GLOBALS['locSTATUS'] = 'Tila';
     $GLOBALS['locARCHIVED'] = 'Arkistoitu';
-    $GLOBALS['locGetInvoiceNo'] = 'Päivitä laskunro ja viitenro';
-    $GLOBALS['locUpdateDates'] = 'Päivitä päivämäärät';
+    $GLOBALS['locGetInvoiceNo'] = 'PÃ¤ivitÃ¤ laskunro ja viitenro';
+    $GLOBALS['locUpdateDates'] = 'PÃ¤ivitÃ¤ pÃ¤ivÃ¤mÃ¤Ã¤rÃ¤t';
     $GLOBALS['locINVROWS'] = 'Laskurivit';
-    $GLOBALS['locORDERNO'] = 'Järj.nro';
+    $GLOBALS['locORDERNO'] = 'JÃ¤rj.nro';
     $GLOBALS['locROWTYPE'] = 'Rivityyppi';
-    $GLOBALS['locSHOWINVOICES'] = 'Näytä laskut';
+    $GLOBALS['locSHOWINVOICES'] = 'NÃ¤ytÃ¤ laskut';
     $GLOBALS['locDESCRIPTION'] = 'Kuvaus';
     $GLOBALS['locDATE'] = 'Pvm';
     $GLOBALS['locPRICE'] = 'Hinta';
     $GLOBALS['locPCS'] = 'Lkm';
-    $GLOBALS['locUNIT'] = 'Yksikkö';
+    $GLOBALS['locUNIT'] = 'YksikkÃ¶';
     $GLOBALS['locVAT'] = 'Alv';
     $GLOBALS['locSESSIONTYPE'] = 'Istunnon tyyppi';
     $GLOBALS['locTIMEOUT'] = 'Aikaraja';
     $GLOBALS['locLANGS'] = 'Kielet';
-    $GLOBALS['locUSERNAME'] = 'Käyttäjä';
+    $GLOBALS['locUSERNAME'] = 'KÃ¤yttÃ¤jÃ¤';
     $GLOBALS['locNAME'] = 'Nimi';
     $GLOBALS['locNAMED'] = 'Nimike';
     $GLOBALS['locLANG'] = 'Kieli';
     $GLOBALS['locLOGONNAME'] = 'Tunnus';
     $GLOBALS['locPASSWD'] = 'Salasana';
-    $GLOBALS['locTYPE'] = 'Käyttäjätyyppi';
+    $GLOBALS['locTYPE'] = 'KÃ¤yttÃ¤jÃ¤tyyppi';
     $GLOBALS['locBANK'] = 'Pankki';
     $GLOBALS['locACCOUNT'] = 'Tilinro';
     $GLOBALS['locACCOUNTIBAN'] = 'IBAN';
@@ -118,36 +118,36 @@ default :
     $GLOBALS['locTHIRDBANK'] = '3. Pankkiyhteys';
     $GLOBALS['locYEAR'] = 'Vuosi';
     $GLOBALS['locOTHERINFO'] = 'Muuta';
-    $GLOBALS['locADDINFO'] = 'Lisätiedot';
+    $GLOBALS['locADDINFO'] = 'LisÃ¤tiedot';
     $GLOBALS['locCATEGORY'] = 'Kategoria';
     $GLOBALS['locCONTACTS'] = 'Kontaktit';
-    $GLOBALS['locCONTACTPERSON'] = 'Kontaktihenkilö';
+    $GLOBALS['locCONTACTPERSON'] = 'KontaktihenkilÃ¶';
     $GLOBALS['locPERSONTITLE'] = 'Titteli';
     $GLOBALS['locFAX'] = 'Fax';
     $GLOBALS['locLABELCONTACTINFO'] = 'Yhteystiedot';
     $GLOBALS['locCOMPANY'] = 'Asiakas';
-    $GLOBALS['locNOTINUSE'] = 'Poissa käytöstä';
+    $GLOBALS['locNOTINUSE'] = 'Poissa kÃ¤ytÃ¶stÃ¤';
     $GLOBALS['locNOTICE'] = 'Huomautukset';
     $GLOBALS['locPAYMENTTYPE'] = 'Maksutapa';
     $GLOBALS['locBILLER'] = 'Laskuttaja';
     $GLOBALS['locROWNO'] = 'Rivinro';
     $GLOBALS['locCOPYINV'] = 'Kopioi lasku ja laskurivit';
-    $GLOBALS['locREFUNDINV'] = 'Mitätöi ja luo hyvityslasku';
-    $GLOBALS['locADDREMINDERFEES'] = 'Lisää huomautus- ja viivästysmaksu';
-    $GLOBALS['locSHOWREFUNDEDINV'] = 'Näytä hyvitetty lasku';
-    $GLOBALS['locSHOWREFUNDINGINV'] = 'Näytä hyvittävä lasku';
+    $GLOBALS['locREFUNDINV'] = 'MitÃ¤tÃ¶i ja luo hyvityslasku';
+    $GLOBALS['locADDREMINDERFEES'] = 'LisÃ¤Ã¤ huomautus- ja viivÃ¤stysmaksu';
+    $GLOBALS['locSHOWREFUNDEDINV'] = 'NÃ¤ytÃ¤ hyvitetty lasku';
+    $GLOBALS['locSHOWREFUNDINGINV'] = 'NÃ¤ytÃ¤ hyvittÃ¤vÃ¤ lasku';
     $GLOBALS['locPRODUCTNAME'] = 'Tuotteen nimi';
     $GLOBALS['locPRODUCTDESCRIPTION'] = 'Tuotekuvaus';
     $GLOBALS['locPRODUCTCODE'] = 'Tuotekoodi';
-    $GLOBALS['locPRODUCTGROUP'] = 'Tuoteryhmä';
-    $GLOBALS['locINTERNALINFO'] = 'Lisätiedot (ei näytetä)';
-    $GLOBALS['locVisibleInfo'] = 'Näytettävät lisätiedot';
-    $GLOBALS['locUNITPRICE'] = 'Yksikköhinta';
+    $GLOBALS['locPRODUCTGROUP'] = 'TuoteryhmÃ¤';
+    $GLOBALS['locINTERNALINFO'] = 'LisÃ¤tiedot (ei nÃ¤ytetÃ¤)';
+    $GLOBALS['locVisibleInfo'] = 'NÃ¤ytettÃ¤vÃ¤t lisÃ¤tiedot';
+    $GLOBALS['locUNITPRICE'] = 'YksikkÃ¶hinta';
     $GLOBALS['locVATPERCENT'] = 'ALV %';
-    $GLOBALS['locVATINCLUDED'] = 'Hinta sisältää ALV:n';
+    $GLOBALS['locVATINCLUDED'] = 'Hinta sisÃ¤ltÃ¤Ã¤ ALV:n';
     $GLOBALS['locVATINC'] = 'Sis.&nbsp;ALV';
     $GLOBALS['locACCESSLEVEL'] = 'Oikeustaso';
-    $GLOBALS['locCompanyInactive'] = 'Asiakas pois käytöstä';
+    $GLOBALS['locCompanyInactive'] = 'Asiakas pois kÃ¤ytÃ¶stÃ¤';
     $GLOBALS['locBaseName'] = 'Yrityksen nimi';
 
     $GLOBALS['locPrintTemplates'] = 'Tulostusmallit';
@@ -166,17 +166,17 @@ default :
     $GLOBALS['locDBERROR'] = 'Tietokantavirhe';
     $GLOBALS['locDBERRORDESC'] = 'Tietokantavirhe: ';
     $GLOBALS['locDBERRORFOREIGNKEY'] = 'Toiminto ei onnistunut, koska tietueeseen on viittauksia muualta.';
-    $GLOBALS['locSYSTEMONLY'] = 'Järjestelmän sisäinen - ei muokattavissa';
-    $GLOBALS['locINVOICENOTOVERDUE'] = 'Maksuja ei voida lisätä laskulle, jonka eräpäivä on tänään ta myöhemmin.';
-    $GLOBALS['locWRONGSTATEFORREMINDERFEED'] = 'Maksuja ei voida lisätä maksetulle tai mitätöidylle laskulle.';
+    $GLOBALS['locSYSTEMONLY'] = 'JÃ¤rjestelmÃ¤n sisÃ¤inen - ei muokattavissa';
+    $GLOBALS['locINVOICENOTOVERDUE'] = 'Maksuja ei voida lisÃ¤tÃ¤ laskulle, jonka erÃ¤pÃ¤ivÃ¤ on tÃ¤nÃ¤Ã¤n ta myÃ¶hemmin.';
+    $GLOBALS['locWRONGSTATEFORREMINDERFEED'] = 'Maksuja ei voida lisÃ¤tÃ¤ maksetulle tai mitÃ¤tÃ¶idylle laskulle.';
     $GLOBALS['locRECORDDELETED'] = 'Tiedot on poistettu.';
-    $GLOBALS['locNOACCESS'] = 'Käyttöoikeudet eivät riitä.';
-    $GLOBALS['locErrFileUploadFailed'] = 'Tiedoston lataus epäonnistui';
+    $GLOBALS['locNOACCESS'] = 'KÃ¤yttÃ¶oikeudet eivÃ¤t riitÃ¤.';
+    $GLOBALS['locErrFileUploadFailed'] = 'Tiedoston lataus epÃ¤onnistui';
     $GLOBALS['locErrFileTypeInvalid'] = 'Tiedoston tyyppi ei kelpaa';
-    $GLOBALS['locErrImportFileNotFound'] = 'Tiedostoa ei löytynyt - tarkista asetukset';
-    $GLOBALS['locInvoiceDateNonCurrent'] = 'Huom! Laskun päivämäärä poikkeaa nykyisestä';
-    $GLOBALS['locInvoiceNumberAlreadyInUse'] = 'Huom! Laskun numero on jo käytössä toisessa laskussa';
-    $GLOBALS['locSaveRecordToAddRows'] = 'Tietue on tallennettava kerran, jotta näiden tietojen lisääminen on mahdollista.';
+    $GLOBALS['locErrImportFileNotFound'] = 'Tiedostoa ei lÃ¶ytynyt - tarkista asetukset';
+    $GLOBALS['locInvoiceDateNonCurrent'] = 'Huom! Laskun pÃ¤ivÃ¤mÃ¤Ã¤rÃ¤ poikkeaa nykyisestÃ¤';
+    $GLOBALS['locInvoiceNumberAlreadyInUse'] = 'Huom! Laskun numero on jo kÃ¤ytÃ¶ssÃ¤ toisessa laskussa';
+    $GLOBALS['locSaveRecordToAddRows'] = 'Tietue on tallennettava kerran, jotta nÃ¤iden tietojen lisÃ¤Ã¤minen on mahdollista.';
     $GLOBALS['locInvoiceNumberNotDefined'] = 'Huom! Laskun numero puuttuu';
     $GLOBALS['locInvoiceRefNumberTooShort'] = 'Huom! Laskun viitenumero on liian lyhyt (minimi 4 numeroa)';
     
@@ -191,20 +191,20 @@ default :
     $GLOBALS['locNEWBASE'] = 'Uusi yritys';
     $GLOBALS['locNEWINVOICESTATE'] = 'Uusi laskun tila';
     $GLOBALS['locNEWROWTYPE'] = 'Uusi laskurivityyppi';
-    $GLOBALS['locNEWUSER'] = 'Uusi käyttäjä';
+    $GLOBALS['locNEWUSER'] = 'Uusi kÃ¤yttÃ¤jÃ¤';
     $GLOBALS['locNEWSESSIONTYPE'] = 'Uusi istunnon tyyppi';
     $GLOBALS['locNewPrintTemplate'] = 'Uusi tulostusmalli';
     $GLOBALS['locDELETE'] = 'Poista';
     $GLOBALS['locPRINTADDR'] = 'Tulosta osoite';
     $GLOBALS['locPRINTINV'] = 'Tulosta lasku';
-    $GLOBALS['locPRINTDISPATCHNOTE'] = 'Tulosta lähetysluettelo';
+    $GLOBALS['locPRINTDISPATCHNOTE'] = 'Tulosta lÃ¤hetysluettelo';
     $GLOBALS['locPRINTRECEIPT'] = 'Tulosta kuitti';
-    $GLOBALS['locADDROW'] = 'Lisää&nbsp;rivi';
+    $GLOBALS['locADDROW'] = 'LisÃ¤Ã¤&nbsp;rivi';
     $GLOBALS['locDELROW'] = 'Poista rivi';
-    $GLOBALS['locYES'] = 'Kyllä';
+    $GLOBALS['locYES'] = 'KyllÃ¤';
     $GLOBALS['locNO'] = 'Ei';
     $GLOBALS['locHELP'] = 'Ohje';
-    $GLOBALS['locCONFIRMDELETE'] = 'Haluatko varmasti poistaa nämä tiedot?';
+    $GLOBALS['locCONFIRMDELETE'] = 'Haluatko varmasti poistaa nÃ¤mÃ¤ tiedot?';
     $GLOBALS['locENTRYDELETED'] = 'Tiedot on poistettu';
     $GLOBALS['locDeletedRecord'] = 'Poistettu tietue';
     $GLOBALS['locSAVESEARCH'] = 'Tallenna haku';
@@ -217,7 +217,7 @@ default :
     $GLOBALS['locSHOWSEARCH'] = 'HAKU';
     $GLOBALS['locSHOWREPORTNAVI'] = 'RAPORTIT';
     $GLOBALS['locSHOWSETTINGSNAVI'] = 'ASETUKSET';
-    $GLOBALS['locSHOWSYSTEMNAVI'] = 'JÄRJESTELMÄ';
+    $GLOBALS['locSHOWSYSTEMNAVI'] = 'JÃ„RJESTELMÃ„';
     $GLOBALS['locSHOWINVOICENAVI'] = 'LASKUTUS';
     $GLOBALS['locSHOWARCHIVENAVI'] = 'ARKISTO';
     $GLOBALS['locSHOWCOMPANYNAVI'] = 'ASIAKKAAT';
@@ -242,19 +242,19 @@ default :
     $GLOBALS['locINVOICE'] = 'Laskun tiedot';
     $GLOBALS['locSETTINGS'] = 'Asetukset';
     $GLOBALS['locGeneralSettings'] = 'Yleiset asetukset';
-    $GLOBALS['locSYSTEM'] = 'Järjestelmä';
-    $GLOBALS['locNOENTRIES'] = 'Ei löytyneitä';
-    $GLOBALS['locENTERTERMS'] = 'Syötä hakusanat välilyönnillä eroteltuina. Tyhjä kenttä tai * näyttää kaikki tietueet.';
+    $GLOBALS['locSYSTEM'] = 'JÃ¤rjestelmÃ¤';
+    $GLOBALS['locNOENTRIES'] = 'Ei lÃ¶ytyneitÃ¤';
+    $GLOBALS['locENTERTERMS'] = 'SyÃ¶tÃ¤ hakusanat vÃ¤lilyÃ¶nnillÃ¤ eroteltuina. TyhjÃ¤ kenttÃ¤ tai * nÃ¤yttÃ¤Ã¤ kaikki tietueet.';
     $GLOBALS['locSEARCH'] = 'Etsi';
     $GLOBALS['locSESSIONTYPES'] = 'Istunnon tyypit';
-    $GLOBALS['locUSER'] = 'Käyttäjä';
-    $GLOBALS['locUSERS'] = 'Käyttäjät';
+    $GLOBALS['locUSER'] = 'KÃ¤yttÃ¤jÃ¤';
+    $GLOBALS['locUSERS'] = 'KÃ¤yttÃ¤jÃ¤t';
     $GLOBALS['locLOGOUT'] = 'KIRJAUDU ULOS';
     $GLOBALS['locBASE'] = 'Yritys';
     $GLOBALS['locBASES'] = 'Yritykset';
     $GLOBALS['locREPORTS'] = 'Raportit';
     $GLOBALS['locREPORT'] = 'Raportti';
-    $GLOBALS['locADDPAYMENT'] = 'Syötä maksetut';
+    $GLOBALS['locADDPAYMENT'] = 'SyÃ¶tÃ¤ maksetut';
     $GLOBALS['locCONFIRM'] = 'Vahvista';
     $GLOBALS['locPRINTINVOICE'] = 'Tulosta laskut';
     $GLOBALS['locEXTSEARCH'] = 'Laaja haku';
@@ -264,14 +264,14 @@ default :
     $GLOBALS['locBACKUPDATABASE'] = 'Tietokannan varmuuskopiointi';
     $GLOBALS['locImportData'] = 'Tietojen tuonti';
     $GLOBALS['locExportData'] = 'Tietojen vienti';
-    $GLOBALS['locHeaderCompanyActive'] = 'Käytössä';
-    $GLOBALS['locActive'] = 'Käytössä';
-    $GLOBALS['locInactive'] = 'Ei käytössä';
+    $GLOBALS['locHeaderCompanyActive'] = 'KÃ¤ytÃ¶ssÃ¤';
+    $GLOBALS['locActive'] = 'KÃ¤ytÃ¶ssÃ¤';
+    $GLOBALS['locInactive'] = 'Ei kÃ¤ytÃ¶ssÃ¤';
     
     
     // LIST HEADERS
-    $GLOBALS['locHEADERINVOICEDATE'] = 'Päivämäärä';       
-    $GLOBALS['locHEADERINVOICEDUEDATE'] = 'Eräpäivä';       
+    $GLOBALS['locHEADERINVOICEDATE'] = 'PÃ¤ivÃ¤mÃ¤Ã¤rÃ¤';       
+    $GLOBALS['locHEADERINVOICEDUEDATE'] = 'ErÃ¤pÃ¤ivÃ¤';       
     $GLOBALS['locHEADERINVOICENO'] = 'Nro';       
     $GLOBALS['locHEADERINVOICENAME'] = 'Laskun nimi';       
     $GLOBALS['locHEADERINVOICEREFERENCE'] = 'Viitenro';       
@@ -282,9 +282,9 @@ default :
     // TABLE TEXTS
     $GLOBALS['locTABLETEXTS'] = 
 			'"sLengthMenu": "_MENU_ per sivu",' .
-			'"sZeroRecords": "Ei löytyneitä",' .
+			'"sZeroRecords": "Ei lÃ¶ytyneitÃ¤",' .
 			'"sInfo": "_START_ - _END_ / _TOTAL_",' .
-			'"sInfoEmpty": "Ei näytettäviä tietueita",' .
+			'"sInfoEmpty": "Ei nÃ¤ytettÃ¤viÃ¤ tietueita",' .
 			'"sInfoFiltered": "(suodatettu _MAX_ tietueesta)",' .
 			'"sSearch": "Haku",' .
 			'"oPaginate": {' .
@@ -296,46 +296,46 @@ default :
 
     //GETINVOICE
     $GLOBALS['locREEMPLOYEE'] = 'Muista tallentaa!';
-    $GLOBALS['locMAYCLOSE'] = 'Voit sulkea tämän ikkunan!';
+    $GLOBALS['locMAYCLOSE'] = 'Voit sulkea tÃ¤mÃ¤n ikkunan!';
     $GLOBALS['locGET'] = 'Hae';
     
     //INVOICE PDF        
     $GLOBALS['locINVOICEHEADER'] = 'LASKU';
-    $GLOBALS['locDispatchNoteHeader'] = 'LÄHETYSLUETTELO';
+    $GLOBALS['locDispatchNoteHeader'] = 'LÃ„HETYSLUETTELO';
     $GLOBALS['locReceiptHeader'] = 'KUITTI';
     $GLOBALS['locPERIODFORCOMPLAINTS'] = 'Huomautusaika';
-    $GLOBALS['locPENALTYINTEREST'] = 'Viivästyskorko';
+    $GLOBALS['locPENALTYINTEREST'] = 'ViivÃ¤styskorko';
     $GLOBALS['locTERMSOFPAYMENT'] = 'Maksuehdot';
-    $GLOBALS['locSUM'] = 'Hinta €';
+    $GLOBALS['locSUM'] = 'Hinta Â€';
     $GLOBALS['locVATPERCENT'] = 'ALV %';
     $GLOBALS['locTAX'] = 'ALV';
-    $GLOBALS['locROWTOTAL'] = 'Yhteensä';
+    $GLOBALS['locROWTOTAL'] = 'YhteensÃ¤';
     $GLOBALS['locROWNAME'] = 'Nimike';
     $GLOBALS['locROWDESC'] = 'Tarkenne';
     $GLOBALS['locROWPRICE'] = 'Hinta';
-    $GLOBALS['locTOTALEXCLUDINGVAT'] = 'Arvonlisäveroton hinta yhteensä';
-    $GLOBALS['locTOTALVAT'] = 'Arvonlisävero yhteensä';
-    $GLOBALS['locTOTALINCLUDINGVAT'] = 'Arvonlisäverollinen hinta yhteensä';
+    $GLOBALS['locTOTALEXCLUDINGVAT'] = 'ArvonlisÃ¤veroton hinta yhteensÃ¤';
+    $GLOBALS['locTOTALVAT'] = 'ArvonlisÃ¤vero yhteensÃ¤';
+    $GLOBALS['locTOTALINCLUDINGVAT'] = 'ArvonlisÃ¤verollinen hinta yhteensÃ¤';
     $GLOBALS['locSEESEPARATESTATEMENT'] = 'ks. erillinen laskuerittely';
     $GLOBALS['locINVOICESTATEMENT'] = 'Laskuerittely';
     $GLOBALS['locVATREG'] = 'ALV-rek.';
     $GLOBALS['locInvoiceNumber'] = 'Laskun numero';
-    $GLOBALS['locDispatchNoteNumber'] = 'Lähetysluettelon numero';
+    $GLOBALS['locDispatchNoteNumber'] = 'LÃ¤hetysluettelon numero';
     $GLOBALS['locReceiptNumber'] = 'Kuitin numero';
-    $GLOBALS['locPDFInvoiceDate'] = 'Laskun päivämäärä';
-    $GLOBALS['locPDFDispatchNoteDate'] = 'Päivämäärä';
-    $GLOBALS['locPDFReceiptDate'] = 'Päivämäärä';
-    $GLOBALS['locPDFDUEDATE'] = 'Eräpäivä';
+    $GLOBALS['locPDFInvoiceDate'] = 'Laskun pÃ¤ivÃ¤mÃ¤Ã¤rÃ¤';
+    $GLOBALS['locPDFDispatchNoteDate'] = 'PÃ¤ivÃ¤mÃ¤Ã¤rÃ¤';
+    $GLOBALS['locPDFReceiptDate'] = 'PÃ¤ivÃ¤mÃ¤Ã¤rÃ¤';
+    $GLOBALS['locPDFDUEDATE'] = 'ErÃ¤pÃ¤ivÃ¤';
     $GLOBALS['locPDFINVREFNO'] = 'Viitenumero';
-    $GLOBALS['locREFUNDSINVOICE'] = 'Tämä lasku hyvittää laskun %d';
+    $GLOBALS['locREFUNDSINVOICE'] = 'TÃ¤mÃ¤ lasku hyvittÃ¤Ã¤ laskun %d';
     $GLOBALS['locDUEDATENOW'] = 'HETI';
     $GLOBALS['locFIRSTREMINDERHEADER'] = 'MAKSUKEHOTUS';
     $GLOBALS['locSECONDREMINDERHEADER'] = 'MAKSUKEHOTUS';
-    $GLOBALS['locFIRSTREMINDERNOTE'] = "Kirjanpitomme mukaan laskunne on vielä maksamatta. Pyydämme teitä maksamaan laskun pikaisesti samaa viitenumeroa käyttäen. Jos lasku on jo maksettu, on tämä kehotus aiheeton.";
-    $GLOBALS['locSECONDREMINDERNOTE'] = "Kirjanpitomme mukaan laskunne on edelleen maksamatta. Olkaa hyvä ja maksakaa lasku välittömästi samaa viitenumeroa käyttäen.";
+    $GLOBALS['locFIRSTREMINDERNOTE'] = "Kirjanpitomme mukaan laskunne on vielÃ¤ maksamatta. PyydÃ¤mme teitÃ¤ maksamaan laskun pikaisesti samaa viitenumeroa kÃ¤yttÃ¤en. Jos lasku on jo maksettu, on tÃ¤mÃ¤ kehotus aiheeton.";
+    $GLOBALS['locSECONDREMINDERNOTE'] = "Kirjanpitomme mukaan laskunne on edelleen maksamatta. Olkaa hyvÃ¤ ja maksakaa lasku vÃ¤littÃ¶mÃ¤sti samaa viitenumeroa kÃ¤yttÃ¤en.";
     $GLOBALS['locREMINDERFEEDESC'] = 'Maksukehotus';
-    $GLOBALS['locPENALTYINTERESTDESC'] = 'Viivästyskorko';
-    $GLOBALS['locPDFAdditionalInformation'] = 'Lisätiedot';
+    $GLOBALS['locPENALTYINTERESTDESC'] = 'ViivÃ¤styskorko';
+    $GLOBALS['locPDFAdditionalInformation'] = 'LisÃ¤tiedot';
     $GLOBALS['locCompanyVATID'] = 'Asiakkaan Y-tunnus';
 
         
@@ -347,10 +347,10 @@ default :
     $GLOBALS['locVATLESS'] = 'Alviton';
     $GLOBALS['locVATPART'] = 'Alv osuus';
     $GLOBALS['locWITHVAT'] = 'Alvillinen';
-    $GLOBALS['locTOTAL'] = 'Yhteensä';
+    $GLOBALS['locTOTAL'] = 'YhteensÃ¤';
     $GLOBALS['locALL'] = 'Kaikki       ';
-    $GLOBALS['locDateInterval'] = 'Aikaväli';
-    $GLOBALS['locPrintStateSums'] = 'Välisummat tiloittain';
+    $GLOBALS['locDateInterval'] = 'AikavÃ¤li';
+    $GLOBALS['locPrintStateSums'] = 'VÃ¤lisummat tiloittain';
     $GLOBALS['locPrintFormat'] = 'Tulostusmuoto';
     $GLOBALS['locPrintFormatHTML'] = 'HTML';
     $GLOBALS['locPrintFormatPDF'] = 'PDF';
@@ -358,20 +358,20 @@ default :
     $GLOBALS['locReportPage'] = 'Sivu %d';
     
     //extended search
-    $GLOBALS['locSearchEqual'] = 'on yhtä kuin';
+    $GLOBALS['locSearchEqual'] = 'on yhtÃ¤ kuin';
     $GLOBALS['locSearchNotEqual'] = 'on eri kuin';
     $GLOBALS['locSearchLessThan'] = 'on pienempi kuin';
     $GLOBALS['locSearchGreaterThan'] = 'on suurempi kuin';
     $GLOBALS['locSearchSaved'] = 'Haku tallennettu';
-    $GLOBALS['locLABELEXTSEARCH'] = 'Valitse listasta kentät, joista haluat tehdä haun.';
-    $GLOBALS['locSELECTSEARCHFIELD'] = 'Hakukenttä';
-    $GLOBALS['locSEARCHFIELD'] = 'Hakukenttä';
+    $GLOBALS['locLABELEXTSEARCH'] = 'Valitse listasta kentÃ¤t, joista haluat tehdÃ¤ haun.';
+    $GLOBALS['locSELECTSEARCHFIELD'] = 'HakukenttÃ¤';
+    $GLOBALS['locSEARCHFIELD'] = 'HakukenttÃ¤';
     $GLOBALS['locSEARCHMATCH'] = ' - ';
     $GLOBALS['locSEARCHTERM'] = 'Hakuehto';
     $GLOBALS['locSEARCHNAME'] = 'Haun nimi';
     $GLOBALS['locERRORNOSEARCHNAME'] = 'VIRHE:\n\rAnna nimi tallennettavalle haulle.';
     $GLOBALS['locLABELQUICKSEARCH'] = 'Tallennetut pikahaut: ';
-    $GLOBALS['locNOQUICKSEARCHES'] = 'Tallennettuja pikahakuja ei löytynyt. Voit tallentaa uusia pikahakuja laajan haun kautta.';
+    $GLOBALS['locNOQUICKSEARCHES'] = 'Tallennettuja pikahakuja ei lÃ¶ytynyt. Voit tallentaa uusia pikahakuja laajan haun kautta.';
    
     //MONTHS
     $GLOBALS['locMONTH'] = 'Kuukausi';
@@ -380,8 +380,8 @@ default :
     $GLOBALS['locMAR'] = 'Maaliskuu';
     $GLOBALS['locAPR'] = 'Huhtikuu';
     $GLOBALS['locMAY'] = 'Toukokuu';
-    $GLOBALS['locJUN'] = 'Kesäkuu';
-    $GLOBALS['locJUL'] = 'Heinäkuu';
+    $GLOBALS['locJUN'] = 'KesÃ¤kuu';
+    $GLOBALS['locJUL'] = 'HeinÃ¤kuu';
     $GLOBALS['locAUG'] = 'Elokuu';
     $GLOBALS['locSEP'] = 'Syyskuu';
     $GLOBALS['locOCT'] = 'Lokakuu';
@@ -395,26 +395,26 @@ default :
     $GLOBALS['locNOUNPAIDINVOICES'] = 'Ei maksamattomia laskuja';
     
     // General Settings
-    $GLOBALS['locSettingAutoCloseFormAfterSave'] = 'Sulje lomake automaattisesti tallennuksen jälkeen';
-    $GLOBALS['locSettingAutoCloseFormAfterDelete'] = 'Sulje lomake automaattisesti poiston jälkeen';
-    $GLOBALS['locSettingAddCustomerNumber'] = 'Lisää uudelle asiakkaalle juokseva asiakasnumero automaattisesti';
-    $GLOBALS['locSettingShowDeletedRecords'] = 'Näytä poistetut tietueet (istuntokohtainen asetus)';
+    $GLOBALS['locSettingAutoCloseFormAfterSave'] = 'Sulje lomake automaattisesti tallennuksen jÃ¤lkeen';
+    $GLOBALS['locSettingAutoCloseFormAfterDelete'] = 'Sulje lomake automaattisesti poiston jÃ¤lkeen';
+    $GLOBALS['locSettingAddCustomerNumber'] = 'LisÃ¤Ã¤ uudelle asiakkaalle juokseva asiakasnumero automaattisesti';
+    $GLOBALS['locSettingShowDeletedRecords'] = 'NÃ¤ytÃ¤ poistetut tietueet (istuntokohtainen asetus)';
     $GLOBALS['locSettingInvoices'] = 'Laskutusasetukset';
-    $GLOBALS['locSettingInvoiceAddNumber'] = 'Lisää laskulle juokseva laskunumero automaattisesti tulostettaessa';
-    $GLOBALS['locSettingInvoiceAddReferenceNumber'] = 'Lisää laskulle viitenumero automaattisesti tulostettaessa';
+    $GLOBALS['locSettingInvoiceAddNumber'] = 'LisÃ¤Ã¤ laskulle juokseva laskunumero automaattisesti tulostettaessa';
+    $GLOBALS['locSettingInvoiceAddReferenceNumber'] = 'LisÃ¤Ã¤ laskulle viitenumero automaattisesti tulostettaessa';
     $GLOBALS['locSettingInvoiceNumberingPerBase'] = 'Numeroi laskut laskuttajakohtaisesti';
-    $GLOBALS['locSettingInvoiceShowBarcode'] = 'Näytä viivakoodi laskun tilisiirtolomakkeessa';
-    $GLOBALS['locSettingInvoiceShowRowDate'] = 'Näytä laskurivin päiväys laskussa';
+    $GLOBALS['locSettingInvoiceShowBarcode'] = 'NÃ¤ytÃ¤ viivakoodi laskun tilisiirtolomakkeessa';
+    $GLOBALS['locSettingInvoiceShowRowDate'] = 'NÃ¤ytÃ¤ laskurivin pÃ¤ivÃ¤ys laskussa';
     $GLOBALS['locSettingInvoiceSeparateStatement'] = 'Tulosta laskurivit aina erilliseen laskuerittelyyn';
     $GLOBALS['locSettingInvoiceDefaultVATPercent'] = 'Oletus-ALV-prosentti';
-    $GLOBALS['locSettingInvoicePaymentDays'] = 'Oletusmaksuaika päivinä';
-    $GLOBALS['locSettingInvoiceTermsOfPayment'] = 'Maksuehdot (%d = maksuaika päivinä)';
+    $GLOBALS['locSettingInvoicePaymentDays'] = 'Oletusmaksuaika pÃ¤ivinÃ¤';
+    $GLOBALS['locSettingInvoiceTermsOfPayment'] = 'Maksuehdot (%d = maksuaika pÃ¤ivinÃ¤)';
     $GLOBALS['locSettingInvoicePeriodForComplaints'] = 'Huomautusaika';
-    $GLOBALS['locSettingInvoicePenaltyInterestPercent'] = 'Viivästyskorkoprosentti';
+    $GLOBALS['locSettingInvoicePenaltyInterestPercent'] = 'ViivÃ¤styskorkoprosentti';
     $GLOBALS['locSettingInvoiceNotificationFee'] = 'Huomautusmaksu';
-    $GLOBALS['locSettingInvoicePDFFilename'] = 'Laskun tiedostonimi (%s = laskun numero, tulostusmallin määritys ohittaa tämän asetuksen)';
+    $GLOBALS['locSettingInvoicePDFFilename'] = 'Laskun tiedostonimi (%s = laskun numero, tulostusmallin mÃ¤Ã¤ritys ohittaa tÃ¤mÃ¤n asetuksen)';
     $GLOBALS['locSettingInvoiceOpenInNewWindow'] = 'Avaa PDF-lasku uudessa ikkunassa';
-    $GLOBALS['locSettingInvoiceWarnIfNonCurrentDate'] = 'Varoita tulostettaessa, jos laskun päivämäärä poikkeaa nykyisestä';
+    $GLOBALS['locSettingInvoiceWarnIfNonCurrentDate'] = 'Varoita tulostettaessa, jos laskun pÃ¤ivÃ¤mÃ¤Ã¤rÃ¤ poikkeaa nykyisestÃ¤';
 
     // Base logo
     $GLOBALS['locBaseLogoTitle'] = 'Logo';
@@ -425,7 +425,7 @@ default :
     $GLOBALS['locBaseEraseLogo'] = 'Poista logo';
     $GLOBALS['locBaseLogoSaved'] = 'Logo tallennettu';
     $GLOBALS['locBaseLogoErased'] = 'Logo poistettu';
-    $GLOBALS['locBaseLogoTop'] = 'Yläreunasta (mm, oletus 15)';
+    $GLOBALS['locBaseLogoTop'] = 'YlÃ¤reunasta (mm, oletus 15)';
     $GLOBALS['locBaseLogoLeft'] = 'Vasemmalta (mm, oletus 10)';
     $GLOBALS['locBaseLogoWidth'] = 'Logon leveys (mm, oletus 80)';
     $GLOBALS['locBaseLogoBottomMargin'] = 'Logon alamarginaali (mm, oletus 5)';
@@ -438,57 +438,57 @@ default :
     $GLOBALS['locImportExportFieldDelimiterColon'] = 'Kaksoispiste';
     $GLOBALS['locImportExportEnclosureDoubleQuote'] = 'Lainausmerkki';
     $GLOBALS['locImportExportEnclosureSingleQuote'] = 'Heittomerkki';
-    $GLOBALS['locImportExportEnclosureNone'] = 'Ei mitään';
-    $GLOBALS['locImportExportCharacterSet'] = 'Merkistö';    
+    $GLOBALS['locImportExportEnclosureNone'] = 'Ei mitÃ¤Ã¤n';
+    $GLOBALS['locImportExportCharacterSet'] = 'MerkistÃ¶';    
     $GLOBALS['locImportExportTable'] = 'Taulu';    
     $GLOBALS['locImportExportTableBases'] = 'Laskuttajat';    
     $GLOBALS['locImportExportTableCompanies'] = 'Asiakkaat';    
-    $GLOBALS['locImportExportTableCompanyContacts'] = 'Asiakkaiden yhteyshenkilöt';    
+    $GLOBALS['locImportExportTableCompanyContacts'] = 'Asiakkaiden yhteyshenkilÃ¶t';    
     $GLOBALS['locImportExportTableInvoices'] = 'Laskut';    
     $GLOBALS['locImportExportTableInvoiceRows'] = 'Laskurivit';    
     $GLOBALS['locImportExportTableProducts'] = 'Tuotteet';    
     $GLOBALS['locImportExportTableRowTypes'] = 'Laskurivityypit';    
     $GLOBALS['locImportExportTableInvoiceStates'] = 'Laskun tilat';    
     $GLOBALS['locImportExportFormat'] = 'Formaatti';    
-    $GLOBALS['locImportExportFieldDelimiter'] = 'Kentän erotin';    
+    $GLOBALS['locImportExportFieldDelimiter'] = 'KentÃ¤n erotin';    
     $GLOBALS['locImportExportEnclosureCharacter'] = 'Tekstimerkki';    
     $GLOBALS['locImportExportRowDelimiter'] = 'Rivinvaihto';    
-    $GLOBALS['locImportExportColumnNone'] = '(ei mitään)';
+    $GLOBALS['locImportExportColumnNone'] = '(ei mitÃ¤Ã¤n)';
     
     // Import
     $GLOBALS['locImportFileSelection'] = 'Tuotavan tiedoston valinta';
     $GLOBALS['locImportFileParameters'] = 'Tuotavan tiedoston asetukset';
     $GLOBALS['locImportUploadFile'] = 'Lataa tiedosto palvelimelle (tiedoston maksimikoko %s)';
-    $GLOBALS['locImportUseServerFile'] = 'Käytä palvelimella olevaa tiedostoa (määritelty asetustiedostossa)';
-    $GLOBALS['locImportColumnMapping'] = 'Sarakkeiden kohdistus (ensimmäiset 10 riviä)';
-    $GLOBALS['locImportIdentificationColumns'] = 'Olemassaolevien rivien tunnistukseen käytettävät sarakkeet';
-    $GLOBALS['locImportExistingRowHandling'] = 'Olemassaolevien rivien käsittely';
+    $GLOBALS['locImportUseServerFile'] = 'KÃ¤ytÃ¤ palvelimella olevaa tiedostoa (mÃ¤Ã¤ritelty asetustiedostossa)';
+    $GLOBALS['locImportColumnMapping'] = 'Sarakkeiden kohdistus (ensimmÃ¤iset 10 riviÃ¤)';
+    $GLOBALS['locImportIdentificationColumns'] = 'Olemassaolevien rivien tunnistukseen kÃ¤ytettÃ¤vÃ¤t sarakkeet';
+    $GLOBALS['locImportExistingRowHandling'] = 'Olemassaolevien rivien kÃ¤sittely';
     $GLOBALS['locImportExistingRowIgnore'] = 'Ohita';
-    $GLOBALS['locImportExistingRowUpdate'] = 'Päivitä';
-    $GLOBALS['locImportColumnUnused'] = '(ei käytössä)';
+    $GLOBALS['locImportExistingRowUpdate'] = 'PÃ¤ivitÃ¤';
+    $GLOBALS['locImportColumnUnused'] = '(ei kÃ¤ytÃ¶ssÃ¤)';
     $GLOBALS['locImportMode'] = 'Suoritettava toiminto';
     $GLOBALS['locImportModeReport'] = 'Vain raportti (ei tee varsinaista tuontia)';
     $GLOBALS['locImportModeImport'] = 'Tietojen tuonti';
     $GLOBALS['locImportResults'] = 'Tuonnin tulokset';
     $GLOBALS['locImportNext'] = 'Seuraava';
-    $GLOBALS['locImportStart'] = 'Käynnistä';
+    $GLOBALS['locImportStart'] = 'KÃ¤ynnistÃ¤';
     $GLOBALS['locImportDone'] = 'Tuonti valmis';
-    $GLOBALS['locImportNoMappedColumns'] = 'Yhtään sarakkeen kohdistusta ei löytynyt, tyhjää tietuetta ei lisätty';
+    $GLOBALS['locImportNoMappedColumns'] = 'YhtÃ¤Ã¤n sarakkeen kohdistusta ei lÃ¶ytynyt, tyhjÃ¤Ã¤ tietuetta ei lisÃ¤tty';
 
     // Export
     $GLOBALS['locExport'] = 'Vienti';
     $GLOBALS['locTable_base'] = 'Laskuttajat';    
     $GLOBALS['locTable_company'] = 'Asiakkaat';    
-    $GLOBALS['locTable_company_contact'] = 'Yhteyshenkilöt';    
+    $GLOBALS['locTable_company_contact'] = 'YhteyshenkilÃ¶t';    
     $GLOBALS['locTable_invoice'] = 'Laskut';    
     $GLOBALS['locTable_invoice_row'] = 'Laskurivit';    
     $GLOBALS['locTable_product'] = 'Tuotteet';    
     $GLOBALS['locTable_row_type'] = 'Laskurivityypit';    
     $GLOBALS['locTable_invoice_state'] = 'Laskun tilat';    
-    $GLOBALS['locExportIncludeChildRows'] = 'Sisällytä lapsirivit';
-    $GLOBALS['locExportIncludeDeletedRecords'] = 'Sisällytä poistetut tietueet';
+    $GLOBALS['locExportIncludeChildRows'] = 'SisÃ¤llytÃ¤ lapsirivit';
+    $GLOBALS['locExportIncludeDeletedRecords'] = 'SisÃ¤llytÃ¤ poistetut tietueet';
     $GLOBALS['locExportColumns'] = 'Sarakkeet';    
-    $GLOBALS['locExportAddAllColumns'] = 'Lisää kaikki';
+    $GLOBALS['locExportAddAllColumns'] = 'LisÃ¤Ã¤ kaikki';
     $GLOBALS['locExportDo'] = 'Vie';
 break;
 
@@ -499,8 +499,8 @@ foreach ($GLOBALS as $key => &$tr)
   if (substr($key, 0, 3) == 'loc' && is_string($tr))
   {
     $GLOBALS["a$key"] = $tr;
-    if (_CHARSET_ == 'UTF-8')
-      $tr = utf8_encode($tr);
+    if (_CHARSET_ != 'UTF-8')
+      $tr = utf8_decode($tr);
   }
 }
 

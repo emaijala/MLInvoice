@@ -19,7 +19,7 @@ Perustuu osittain sovellukseen:
 PkLasku : web-pohjainen laskutusohjelmisto.
 Copyright (C) 2004-2008 Samu Reinikainen
 
-T‰m‰ ohjelma on vapaa. Lue oheinen LICENSE.
+T√§m√§ ohjelma on vapaa. Lue oheinen LICENSE.
 
 *******************************************************************************/
 
@@ -37,40 +37,40 @@ switch ( $strTopic ) {
     case 'main':
         $strHeadTitle = "Ohjeet";
         $strTopicText =
-            "Ohjelma koostuu yl‰valikosta, jossa on ohjelman p‰‰osien painikkeet, toimintovalikosta, jossa n‰ytet‰‰n valitun osion toiminnot ja toimintoikkunoista, joissa suoritetaan valitun toiminnon k‰sittely.<br>(Esim. 'Laaja haku'-painikkeesta avataan hakun‰kym‰, josta 'Etsi'-painikkeella avataan tulokset toimintoikkunaan.)<br><br>Ohje-painikkeella avautuvat tarkemmat ohjeet kyseiseen n‰kym‰‰n tai toimintoon.";
+            "Ohjelma koostuu yl√§valikosta, jossa on ohjelman p√§√§osien painikkeet, toimintovalikosta, jossa n√§ytet√§√§n valitun osion toiminnot ja toimintoikkunoista, joissa suoritetaan valitun toiminnon k√§sittely.<br>(Esim. 'Laaja haku'-painikkeesta avataan hakun√§kym√§, josta 'Etsi'-painikkeella avataan tulokset toimintoikkunaan.)<br><br>Ohje-painikkeella avautuvat tarkemmat ohjeet kyseiseen n√§kym√§√§n tai toimintoon.";
     break;
     case 'search':
         $strHeadTitle = "Haku";
         $strTopicText =
-            "Valitse toiminto, jossa haluat suorittaa haun (esim. 'ASIAKKAAT').<br><br>Syˆt‰ tyhj‰‰n kentt‰‰n hakusana(t), joilla tietoa haetaan (esim. sukunimi).<br>Voit j‰tt‰‰ kent‰n tyhj‰ksi tai k‰ytt‰‰ '*'-merkki‰, jolloin kaikki valitun toiminnon tiedot haetaan.<br><br>Haku suoritetaan 'Etsi'-painikkeesta.<br><br>'Laaja haku'-painikkeella avautuu ikkuna, jolla voi tehd‰ tarkkoja hakuja laajoilla hakuehdoilla (valitse ensin toiminto, jossa haluat tehd‰ haun).<br><br>'Pikahaku'-painikkeella avataan ikkuna, josta voi valita tallennetun pikahaun (pikahaut tallennetaan tarkan haun kautta).";
+            "Valitse toiminto, jossa haluat suorittaa haun (esim. 'ASIAKKAAT').<br><br>Sy√∂t√§ tyhj√§√§n kentt√§√§n hakusana(t), joilla tietoa haetaan (esim. sukunimi).<br>Voit j√§tt√§√§ kent√§n tyhj√§ksi tai k√§ytt√§√§ '*'-merkki√§, jolloin kaikki valitun toiminnon tiedot haetaan.<br><br>Haku suoritetaan 'Etsi'-painikkeesta.<br><br>'Laaja haku'-painikkeella avautuu ikkuna, jolla voi tehd√§ tarkkoja hakuja laajoilla hakuehdoilla (valitse ensin toiminto, jossa haluat tehd√§ haun).<br><br>'Pikahaku'-painikkeella avataan ikkuna, josta voi valita tallennetun pikahaun (pikahaut tallennetaan tarkan haun kautta).";
     break;
     case 'navi':
         $strHeadTitle = "Toimintovalikko";
         $strTopicText =
-            "Valitse toiminto painamalla sen nime‰.";
+            "Valitse toiminto painamalla sen nime√§.";
     break;
     case 'list':
         $strHeadTitle = "Hakutulokset";
         $strTopicText =
-            "Listan toiminnot ovat seuraavat (ylh‰‰lt‰ lukien) :<br><br>1. Otsikko n‰ytt‰‰ tietueen, johon haku tehtiin<br><br>2. Numerot kertovat lˆytyneiden tietojen m‰‰r‰n.<br>Kun tietoja on paljon, n‰ytet‰‰n ne osittain.<br> Nuolilla siirryt‰‰n tulosjoukosta toiseen.<br><br>3. Lˆytyneet tiedot listataan allekkain ja nime‰ klikkaamalla avataan tietojen k‰sittelyyn tarkoitettu lomake.<br><br>4. 'UUSI'-painikkeella voit luoda uuden tietueen. (Esim. uuden asiakkaan tiedot)";
+            "Listan toiminnot ovat seuraavat (ylh√§√§lt√§ lukien) :<br><br>1. Otsikko n√§ytt√§√§ tietueen, johon haku tehtiin<br><br>2. Numerot kertovat l√∂ytyneiden tietojen m√§√§r√§n.<br>Kun tietoja on paljon, n√§ytet√§√§n ne osittain.<br> Nuolilla siirryt√§√§n tulosjoukosta toiseen.<br><br>3. L√∂ytyneet tiedot listataan allekkain ja nime√§ klikkaamalla avataan tietojen k√§sittelyyn tarkoitettu lomake.<br><br>4. 'UUSI'-painikkeella voit luoda uuden tietueen. (Esim. uuden asiakkaan tiedot)";
     break;
     case 'form':
         $strHeadTitle = "Lomake";
         $strTopicText =
-            "Lomake koostuu seuraavista osista (ylh‰‰lt‰ lukien) :<br><br>1. Lomakkeella on vaihteleva m‰‰r‰ syˆttˆkentti‰ otsikoineen, joihin tiedot lis‰t‰‰n tai joiden tietoja muokataan.<br><br>2. 'TEE'-painikkeella suoritetaan monimutkaisempia toimintoja.<br> <br><br>3. Tiedot tallennetaan 'TALLETA'-painikkeella.<br>Muista aina tallentaa tekem‰si muutokset ennenkuin vaihdat ohjelman osiota. Tiedot tallentuvat vain painiketta painamalla.<br><br>4. 'UUSI'-painikkeella voit luoda uuden tietueen. (Esim. uuden asiakkaan tiedot)<br><br>5. 'POISTA'-painikkeella h‰vitet‰‰n lomakkeen tiedot. Tiedot poistuvat lopullisesti.<br>KƒYTƒ HARKITEN!";
+            "Lomake koostuu seuraavista osista (ylh√§√§lt√§ lukien) :<br><br>1. Lomakkeella on vaihteleva m√§√§r√§ sy√∂tt√∂kentti√§ otsikoineen, joihin tiedot lis√§t√§√§n tai joiden tietoja muokataan.<br><br>2. 'TEE'-painikkeella suoritetaan monimutkaisempia toimintoja.<br> <br><br>3. Tiedot tallennetaan 'TALLETA'-painikkeella.<br>Muista aina tallentaa tekem√§si muutokset ennenkuin vaihdat ohjelman osiota. Tiedot tallentuvat vain painiketta painamalla.<br><br>4. 'UUSI'-painikkeella voit luoda uuden tietueen. (Esim. uuden asiakkaan tiedot)<br><br>5. 'POISTA'-painikkeella h√§vitet√§√§n lomakkeen tiedot. Tiedot poistuvat lopullisesti.<br>K√ÑYT√Ñ HARKITEN!";
     break;
     case 'extsearch':
         $strHeadTitle = "Tarkka haku";
         $strTopicText =
-            "Valitse listasta kent‰t, joista haluat haun suorittaa.(esim 'Sukunimi')<br><br>Valitse listasta tapa, jolla haku suoritetaan. Esim. 'on yht‰ kuin' hakee hakusanaasi vastaavat tiedot ja 'on eri kuin'-valinta hakee tiedot joista ei lˆydy hakusanaa<br><br>Syˆt‰ tyhj‰‰n kentt‰‰n hakusana(t) tai valitse ehto listasta, joilla tietoa haetaan.(esim sukunimi tms.)<br><br>Haku suoritetaan 'ETSI'-painikkeesta.<br><br>Voit tallentaa hakuehdot myˆhemmin nopeasti k‰ytett‰v‰ksi pikahauksi 'TALLENNA HAKU'-painikkeella.(muista antaa pikahaulle kuvavaa nimi)";
+            "Valitse listasta kent√§t, joista haluat haun suorittaa.(esim 'Sukunimi')<br><br>Valitse listasta tapa, jolla haku suoritetaan. Esim. 'on yht√§ kuin' hakee hakusanaasi vastaavat tiedot ja 'on eri kuin'-valinta hakee tiedot joista ei l√∂ydy hakusanaa<br><br>Sy√∂t√§ tyhj√§√§n kentt√§√§n hakusana(t) tai valitse ehto listasta, joilla tietoa haetaan.(esim sukunimi tms.)<br><br>Haku suoritetaan 'ETSI'-painikkeesta.<br><br>Voit tallentaa hakuehdot my√∂hemmin nopeasti k√§ytett√§v√§ksi pikahauksi 'TALLENNA HAKU'-painikkeella.(muista antaa pikahaulle kuvavaa nimi)";
     break;
     case 'quicksearch':
         $strHeadTitle = "Pikahaku";
         $strTopicText =
-            "Suorita pikahaku klikkaamalla haluamasi haun nime‰<br><br>Voit poistaa turhat pikahaut painamalla nimen vieress‰ olevaa 'X'-painiketta<br><br>Pikahakuja voit tallentaa tarkan haun kautta.";
+            "Suorita pikahaku klikkaamalla haluamasi haun nime√§<br><br>Voit poistaa turhat pikahaut painamalla nimen vieress√§ olevaa 'X'-painiketta<br><br>Pikahakuja voit tallentaa tarkan haun kautta.";
     break;
     default :
-        $strHeadTitle = "Aiheeseen liittyvi‰ ohjeita ei lˆytynyt!";
+        $strHeadTitle = "Aiheeseen liittyvi√§ ohjeita ei l√∂ytynyt!";
     break;
 }
 

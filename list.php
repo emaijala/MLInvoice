@@ -11,7 +11,7 @@ This program is free software. See attached LICENSE.
 PkLasku : web-pohjainen laskutusohjelmisto.
 Copyright (C) 2004-2008 Samu Reinikainen
 
-T‰m‰ ohjelma on vapaa. Lue oheinen LICENSE.
+T√§m√§ ohjelma on vapaa. Lue oheinen LICENSE.
 
 *******************************************************************************/
 
