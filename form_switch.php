@@ -448,7 +448,7 @@ onchange = "var form_id = this.form.id; $.getJSON('json.php?func=get_product&amp
   }
   document.getElementById(form_id + '_price').value = json.unit_price.replace('.', ','); 
   document.getElementById(form_id + '_vat').value = json.vat_percent.replace('.', ','); 
-  document.getElementById(form_id + '_vat_included').value = json.vat_included == 1 ? true : false;
+  document.getElementById(form_id + '_vat_included').checked = json.vat_included == 1 ? true : false;
 });"
 EOS;
 
