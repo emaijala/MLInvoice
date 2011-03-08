@@ -27,6 +27,8 @@ alter table vllasku_session_type change column name name varchar(255) default NU
 UPDATE vllasku_session_type set order_no=20, name='Ylläpitäjä' where id=2;
 INSERT INTO vllasku_session_type (id, name, order_no, time_out, access_level) VALUES (3, 'Käyttäjä - varmuuskopioija', 10, 3600, 90);
 
+DROP TABLE IF EXISTS vllasku_session;
+
 CREATE TABLE vllasku_session (
   id char(32) NOT NULL,
   data longblob NULL,
