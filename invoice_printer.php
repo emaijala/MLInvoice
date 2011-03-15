@@ -290,16 +290,16 @@ class InvoicePrinter
       
       if ($invoiceData['state_id'] == 5)
       {
-        $pdf->SetX(60);
+        $pdf->SetX(108);
         $pdf->SetFont('Helvetica','B',10);
-        $pdf->MultiCell(150, 5, $GLOBALS['locFIRSTREMINDERNOTE'], 0, 'L', 0);
+        $pdf->MultiCell(98, 5, $GLOBALS['locFIRSTREMINDERNOTE'], 0, 'L', 0);
         $pdf->SetFont('Helvetica','',10);
       }
       elseif ($invoiceData['state_id'] == 6)
       {
-        $pdf->SetX(60);
+        $pdf->SetX(108);
         $pdf->SetFont('Helvetica','B',10);
-        $pdf->MultiCell(150, 5, $GLOBALS['locSECONDREMINDERNOTE'], 0, 'L', 0);
+        $pdf->MultiCell(98, 5, $GLOBALS['locSECONDREMINDERNOTE'], 0, 'L', 0);
         $pdf->SetFont('Helvetica','',10);
       }
     }
