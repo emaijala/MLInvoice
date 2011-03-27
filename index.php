@@ -26,7 +26,9 @@ require_once 'settings_list.php';
 
 sesVerifySession();
 
-ob_start(); // buffered so we can redirect later if necessary
+// buffered so we can redirect later if necessary
+ini_set('implicit_flush', 'Off');
+ob_start(); 
 
 $strFunc = getRequest('func', 'open_invoices');
 $strList = getRequest('list', '');

@@ -267,7 +267,22 @@ default :
     $GLOBALS['locHeaderCompanyActive'] = 'Käytössä';
     $GLOBALS['locActive'] = 'Käytössä';
     $GLOBALS['locInactive'] = 'Ei käytössä';
-    
+
+
+    // Email
+    $GLOBALS['locSendEmail'] = 'Sähköpostin lähetys';
+    $GLOBALS['locEmailFrom'] = 'Lähettäjä *';
+    $GLOBALS['locEmailTo'] = 'Vastaanottajat *';
+    $GLOBALS['locEmailCC'] = 'Kopio';
+    $GLOBALS['locEmailBCC'] = 'Piilokopio';
+    $GLOBALS['locEmailSubject'] = 'Otsikko *';
+    $GLOBALS['locEmailBody'] = 'Viesti *';
+    $GLOBALS['locSend'] = 'Lähetä';
+    $GLOBALS['locCancel'] = 'Peruuta';
+    $GLOBALS['locEmailFillRequiredFields'] = 'Täytä pakolliset kentät (*)';
+    $GLOBALS['locEmailSent'] = 'Sähköposti lähetetty';
+    $GLOBALS['locEmailFailed'] = 'Sähköpostin lähetys epäonnistui';
+
     
     // LIST HEADERS
     $GLOBALS['locHEADERINVOICEDATE'] = 'Päivämäärä';       

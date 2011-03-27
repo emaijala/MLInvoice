@@ -87,6 +87,6 @@ mysql_param_query('UPDATE {prefix}invoice SET print_date=? where id=?', array(da
 require $printTemplateFile;
 $printer = new InvoicePrinter;
 $printer->init($intInvoiceId, $printParameters, $printOutputFileName, $senderData, $recipientData, $invoiceData, $invoiceRowData);
-$printer->printInvoice()
+$printer->printInvoice();
 
 ?>
