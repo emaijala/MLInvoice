@@ -142,6 +142,16 @@ class ProductReport
       $strQuery .= ' AND i.invoice_date <= ?';
       $arrParams[] = $endDate;
     }
+    if ($intBaseId) 
+    {
+      $strQuery .= ' AND i.base_id = ?';
+      $arrParams[] = $intBaseId;
+    }
+    if ($intCompanyId) 
+    {
+      $strQuery .= ' AND i.company_id = ?';
+      $arrParams[] = $intCompanyId;
+    }
     
     $strQuery2 = '';
     $strQuery3 = 
@@ -164,18 +174,6 @@ class ProductReport
     if ($strQuery2) 
     {
       $strQuery2 = ' AND (' . substr($strQuery2, 0, -3) . ')';
-    }
-    
-    if ($intBaseId) 
-    {
-      $strQuery .= ' AND i.base_id = ?';
-      $arrParams[] = $intBaseId;
-    }
-    
-    if ($intCompanyId) 
-    {
-      $strQuery .= ' AND i.company_id = ?';
-      $arrParams[] = $intCompanyId;
     }
     
     $strQuery .= "$strQuery2 ORDER BY invoice_no";

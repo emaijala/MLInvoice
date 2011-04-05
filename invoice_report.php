@@ -143,6 +143,17 @@ class InvoiceReport
       $strQuery .= ' AND i.invoice_date <= ?';
       $arrParams[] = $endDate;
     }
+    if ($intBaseId) 
+    {
+      $strQuery .= ' AND i.base_id = ?';
+      $arrParams[] = $intBaseId;
+    }
+  
+    if ($intCompanyId) 
+    {
+      $strQuery .= ' AND i.company_id = ?';
+      $arrParams[] = $intCompanyId;
+    }
     
     $strQuery2 = '';
     $strQuery3 = 
@@ -155,28 +166,16 @@ class InvoiceReport
       $intStateId = $row['id'];
       $strStateName = $row['name'];
       $strTemp = "stateid_$intStateId";
-      $tmpSelected = getRequest($strTemp, FALSE) ? TRUE : FALSE;
+      $tmpSelected = getRequest($strTemp, FALSE);
       if ($tmpSelected) 
       {
-        $strQuery2 .= ' i.state_id = ? OR ';
+        $strQuery2 .= 'i.state_id = ? OR ';
         $arrParams[] = $intStateId;
       }
     }
     if ($strQuery2) 
     {
-      $strQuery2 = ' AND (' . substr($strQuery2, 0, -3) . ')';
-    }
-    
-    if ($intBaseId) 
-    {
-      $strQuery .= ' AND i.base_id = ?';
-      $arrParams[] = $intBaseId;
-    }
-  
-    if ($intCompanyId) 
-    {
-      $strQuery .= ' AND i.company_id = ?';
-      $arrParams[] = $intCompanyId;
+      $strQuery2 = ' AND (' . substr($strQuery2, 0, -4) . ')';
     }
     
     $strQuery .= "$strQuery2 ORDER BY " . ($sums ? 'state_id, invoice_date, invoice_no' : 'invoice_date, invoice_no');
