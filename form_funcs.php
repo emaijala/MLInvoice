@@ -111,6 +111,10 @@ function saveFormData($table, &$primaryKey, &$formElements, &$values, &$warnings
       continue;
     }
     $value = isset($values[$name]) ? $values[$name] : FALSE;
+    
+    if ($type == 'PASSWD' && !$value)
+      continue; // Don't save empty password
+    
     if ($strFields)
     {
       $strFields .= ', ';
