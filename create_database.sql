@@ -56,6 +56,10 @@ CREATE TABLE vllasku_base (
   logo_left decimal(9,2) NULL,
   logo_width decimal(9,2) NULL,
   logo_bottom_margin decimal(9,2) NULL,
+  invoice_email_from varchar(512) NULL,
+  invoice_email_bcc varchar(512) NULL,
+  invoice_email_subject varchar(255) NULL,
+  invoice_email_body text NULL,
   PRIMARY KEY (id)
 ) ENGINE=INNODB AUTO_INCREMENT=1 CHARACTER SET utf8 COLLATE utf8_swedish_ci;
 

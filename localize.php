@@ -431,6 +431,13 @@ default :
     $GLOBALS['locSettingInvoiceOpenInNewWindow'] = 'Avaa PDF-lasku uudessa ikkunassa';
     $GLOBALS['locSettingInvoiceWarnIfNonCurrentDate'] = 'Varoita tulostettaessa, jos laskun päivämäärä poikkeaa nykyisestä';
 
+    // Base email
+    $GLOBALS['locBaseEmailTitle'] = 'Laskujen lähetys sähköpostilla';
+    $GLOBALS['locBaseEmailFrom'] = 'Lähettäjän sähköpostiosoite';
+    $GLOBALS['locBaseEmailBCC'] = 'Piilokopion vastaanottaja';
+    $GLOBALS['locBaseEmailSubject'] = 'Aihe';
+    $GLOBALS['locBaseEmailBody'] = 'Viesti';
+
     // Base logo
     $GLOBALS['locBaseLogoTitle'] = 'Logo';
     $GLOBALS['locBaseChangeImage'] = 'Vaihda kuva...';

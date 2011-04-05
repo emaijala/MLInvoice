@@ -15,6 +15,8 @@ class InvoicePrinter extends InvoicePrinterBase
 
   public function printInvoice()
   {
+    $senderData = $this->senderData;
+  
     $this->emailFrom = getRequest('email_from', isset($senderData['invoice_email_from']) ? $senderData['invoice_email_from'] : '');
     $this->emailTo = getRequest('email_to', isset($recipientData['email']) ? $recipientData['email'] : '');
     $this->emailCC = getRequest('email_cc', '');
@@ -50,7 +52,7 @@ class InvoicePrinter extends InvoicePrinterBase
     <div class="medium_label"><?php echo $GLOBALS['locEmailTo']?></div> <div class="field"><input type="text" id="email_to" name="email_to" class="medium" value="<?php echo htmlspecialchars($this->emailTo)?>"></div>
     <div class="medium_label"><?php echo $GLOBALS['locEmailCC']?></div> <div class="field"><input type="text" id="email_cc" name="email_cc" class="medium"></div>
     <div class="medium_label"><?php echo $GLOBALS['locEmailBCC']?></div> <div class="field"><input type="text" id="email_bcc" name="email_bcc" class="medium" value="<?php echo htmlspecialchars($this->emailBCC)?>"></div>
-    <div class="medium_label"><?php echo $GLOBALS['locEmailSubject']?></div> <div class="field"><input type="text" id="email_subject" name="email_subject" class="medium" value=""></div>
+    <div class="medium_label"><?php echo $GLOBALS['locEmailSubject']?></div> <div class="field"><input type="text" id="email_subject" name="email_subject" class="medium" value="<?php echo htmlspecialchars($this->emailSubject)?>"></div>
     <div class="medium_label"><?php echo $GLOBALS['locEmailBody']?></div> <div class="field"><textarea id="emailBody" name="email_body" class="email_body" cols="80" rows="24"><?php echo htmlspecialchars($this->emailBody)?></textarea></div>
     <div class="form_buttons" style="clear: both">
       <a class="actionlink" onclick="document.getElementById('email_form').submit(); return false;" href="#"><?php echo $GLOBALS['locSend']?></a>
@@ -79,7 +81,8 @@ class InvoicePrinter extends InvoicePrinterBase
       'Cc' => $this->emailCC,
       'Bcc' => $this->emailBCC,
       'Mime-Version' => '1.0',
-      'Content-Type' => "multipart/mixed; boundary=\"${boundary}\""
+      'Content-Type' => "multipart/mixed; boundary=\"${boundary}\"",
+      'X-Mailer' => 'VLLasku',
     );
       
 

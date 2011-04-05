@@ -553,6 +553,16 @@ EOF;
      array(
         "name" => "bank_swiftbic3", "label" => $GLOBALS['locSWIFTBIC'], "type" => "TEXT", "style" => "medium", "listquery" => "", "position" => 2, "default" => FALSE, "allow_null" => TRUE ),
      array(
+        "name" => "emailsep", "label" => $GLOBALS['locBaseEmailTitle'], "type" => "LABEL"),
+     array(
+        "name" => "invoice_email_from", "label" => $GLOBALS['locBaseEmailFrom'], "type" => "TEXT", "style" => "medium", "listquery" => "", "position" => 1, "default" => FALSE, "allow_null" => TRUE ),
+     array(
+        "name" => "invoice_email_bcc", "label" => $GLOBALS['locBaseEmailBCC'], "type" => "TEXT", "style" => "medium", "listquery" => "", "position" => 2, "default" => FALSE, "allow_null" => TRUE ),
+     array(
+        "name" => "invoice_email_subject", "label" => $GLOBALS['locBaseEmailSubject'], "type" => "TEXT", "style" => "long", "listquery" => "", "position" => 0, "default" => FALSE, "allow_null" => TRUE ),
+     array(
+        "name" => "invoice_email_body", "label" => $GLOBALS['locBaseEmailBody'], "type" => "AREA", "style" => "email", "listquery" => "", "position" => 0, "default" => FALSE, "allow_null" => TRUE ),
+     array(
         "name" => "logosep", "label" => $GLOBALS['locBaseLogoTitle'], "type" => "LABEL"),
      array(
         "name" => "logo", "label" => '', "type" => "IMAGE", "style" => "image", "listquery" => 'base_logo.php?func=view&amp;id=_ID_', "position" => 0, "default" => FALSE, "allow_null" => TRUE ),
