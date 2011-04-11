@@ -429,8 +429,8 @@ default :
     $GLOBALS['locSettingInvoicePenaltyInterestPercent'] = 'Viivästyskorkoprosentti';
     $GLOBALS['locSettingInvoiceNotificationFee'] = 'Huomautusmaksu';
     $GLOBALS['locSettingInvoicePDFFilename'] = 'Laskun tiedostonimi (%s = laskun numero, tulostusmallin määritys ohittaa tämän asetuksen)';
-    $GLOBALS['locSettingInvoiceOpenInNewWindow'] = 'Avaa PDF-lasku uudessa ikkunassa';
     $GLOBALS['locSettingInvoiceWarnIfNonCurrentDate'] = 'Varoita tulostettaessa, jos laskun päivämäärä poikkeaa nykyisestä';
+    $GLOBALS['locSettingInvoiceClearRowValuesAfterAdd'] = 'Tyhjennä laskurivin syöttökentät rivin lisäyksen jälkeen';
 
     // Base email
     $GLOBALS['locBaseEmailTitle'] = 'Laskujen lähetys sähköpostilla';

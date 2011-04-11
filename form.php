@@ -414,6 +414,7 @@ function init_rows()
   $subFormElements = getFormElements($elem['name']);
   $rowSumColumns = getFormRowSumColumns($elem['name']);
   $strParentKey = getFormParentKey($elem['name']);
+  $clearRowValuesAfterAdd = getFormClearRowValuesAfterAdd($elem['name']);
   foreach ($subFormElements as $subElem)
   {
     if ($subElem['type'] != 'LIST')
@@ -608,24 +609,46 @@ function save_row(formId)
         init_rows();
         if (formId == 'iform_popup')
           $("#popup_edit").dialog('close');
-      }
-      if (!obj.id)
-      {
+        if (!obj.id)
+        {
 <?php
   foreach ($subFormElements as $subElem)
   {
-    if (!in_array($subElem['type'], array('HID_INT', 'SECHID_INT', 'BUTTON', 'NEWLINE', 'ROWSUM', 'CHECK', 'LIST')))
+    if (!in_array($subElem['type'], array('HID_INT', 'SECHID_INT', 'BUTTON', 'NEWLINE', 'ROWSUM')))
     {
       if (strstr($subElem['default'], 'ADD'))
       {
+        // The value is taken from whatever form was used but put into iform
 ?>
-        var fld = document.getElementById(formId + '_<?php echo $subElem['name']?>');
-        fld.value = parseInt(fld.value) + 5;
+          var fld = document.getElementById(formId + '_<?php echo $subElem['name']?>');
+          document.getElementById('iform_<?php echo $subElem['name']?>').value = parseInt(fld.value) + 5;
 <?php
+      }
+      elseif ($clearRowValuesAfterAdd && $subElem['type'] != 'INTDATE')
+      {
+        if ($subElem['type'] == 'LIST')
+        {
+?>
+          document.getElementById('iform_<?php echo $subElem['name']?>').selectedIndex = 0;
+<?php
+        }
+        elseif ($subElem['type'] == 'CHECK')
+        {
+?>
+          document.getElementById('iform_<?php echo $subElem['name']?>').checked = 0;
+<?php
+        }
+        else
+        {
+?>
+          document.getElementById('iform_<?php echo $subElem['name']?>').value = '';
+<?php
+        }
       }
     }
   }
-?>      
+?>    
+        }
       }
     },
     'error': function(XMLHTTPReq, textStatus, errorThrown) {
@@ -695,9 +718,21 @@ function popup_editor(event, title, id, copy_row)
     }
     elseif ($subElem['type'] == 'INT')
     {
+      if (strstr($subElem['default'], 'ADD'))
+      {
+?> 
+    if (copy_row)
+      form.<?php echo "iform_popup_$name"?>.value = document.getElementById('<?php echo "iform_$name"?>').value;
+    else
+      form.<?php echo "iform_popup_$name"?>.value = json.<?php echo $name?> ? json.<?php echo $name?>.replace('.', ',') : '';
+<?php
+      }
+      else
+      {
 ?> 
     form.<?php echo "iform_popup_$name"?>.value = json.<?php echo $name?> ? json.<?php echo $name?>.replace('.', ',') : '';
 <?php
+      }
     }
     elseif ($subElem['type'] == 'INTDATE')
     {
@@ -713,12 +748,13 @@ function popup_editor(event, title, id, copy_row)
     }
   }
 ?>    
+    var buttons = new Object(); 
+    buttons["<?php echo $GLOBALS['locSAVE']?>"] = function() { save_row('iform_popup'); };
+    if (!copy_row)
+      buttons["<?php echo $GLOBALS['locDELETE']?>"] = function() { if(confirm('<?php echo $GLOBALS['locCONFIRMDELETE']?>')==true) { delete_row('iform_popup'); } return false; };
+    buttons["<?php echo $GLOBALS['locCLOSE']?>"] = function() { $("#popup_edit").dialog('close'); };
     $("#popup_edit").dialog({ modal: true, width: 810, height: 150, resizable: false, 
-      buttons: {
-          "<?php echo $GLOBALS['locSAVE']?>": function() { save_row('iform_popup'); },
-          "<?php echo $GLOBALS['locDELETE']?>": function() { if(confirm('<?php echo $GLOBALS['locCONFIRMDELETE']?>')==true) { delete_row('iform_popup'); } return false; },
-          "<?php echo $GLOBALS['locCLOSE']?>": function() { $("#popup_edit").dialog('close'); }
-      },
+      buttons: buttons,
       title: title,
     });
 

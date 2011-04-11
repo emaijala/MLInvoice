@@ -277,3 +277,10 @@ function getFormJSONType($form)
   require 'form_switch.php';
   return $strJSONType;
 }
+
+function getFormClearRowValuesAfterAdd($form)
+{
+  $strForm = $form;
+  require 'form_switch.php';
+  return $clearRowValuesAfterAdd;
+}

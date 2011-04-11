@@ -44,6 +44,7 @@ $strOrder = '';
 $levelsAllowed = array(1, 90);
 $copyLinkOverride = '';
 $strJSONType = '';
+$clearRowValuesAfterAdd = true;
 switch ( $strForm ) {
 
 case 'company':
@@ -428,6 +429,7 @@ case 'invoice_rows':
    $strPrimaryKey = "id";
    $strParentKey = "invoice_id";
    $strOrder = 'ORDER BY {prefix}invoice_row.order_no, {prefix}invoice_row.row_date';
+   $clearRowValuesAfterAdd = getSetting('invoice_clear_row_values_after_add');
    
    $intInvoiceId = getRequest('invoice_id', 0);
    $productOnChange = <<<EOS
