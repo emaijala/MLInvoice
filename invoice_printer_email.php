@@ -48,6 +48,7 @@ class InvoicePrinter extends InvoicePrinterBase
     <input type="hidden" name="id" value="<?php echo htmlspecialchars(getRequest('id', ''))?>">
     <input type="hidden" name="template" value="<?php echo htmlspecialchars(getRequest('template', ''))?>">
     <input type="hidden" name="email_send" value="1">
+    <input type="hidden" name="func" value="<?php echo htmlspecialchars(getRequest('func', ''))?>">
     <div class="medium_label"><?php echo $GLOBALS['locEmailFrom']?></div> <div class="field"><input type="text" id="email_from" name="email_from" class="medium" value="<?php echo htmlspecialchars($this->emailFrom)?>"></div>
     <div class="medium_label"><?php echo $GLOBALS['locEmailTo']?></div> <div class="field"><input type="text" id="email_to" name="email_to" class="medium" value="<?php echo htmlspecialchars($this->emailTo)?>"></div>
     <div class="medium_label"><?php echo $GLOBALS['locEmailCC']?></div> <div class="field"><input type="text" id="email_cc" name="email_cc" class="medium"></div>
@@ -102,14 +103,13 @@ class InvoicePrinter extends InvoicePrinterBase
   
     $result = mail($this->mimeEncodeAddress($this->emailTo), mb_encode_mimeheader($this->emailSubject, 'UTF-8', 'Q'), $messageBody, $this->headersToStr($headers), '-f ' . $this->mimeEncodeAddress($this->emailFrom));
     
-    if ($result) 
+    if ($result && $invoiceData['state_id'] == 1)
     {
-      echo '<br><strong>' . $GLOBALS['locEmailSent'] . "</strong>\n";
-    } 
-    else 
-    {
-      echo '<br><strong>' . $GLOBALS['locEmailFailed'] . "</strong>\n";
-    }    
+      // Mark invoice sent
+      mysql_param_query('UPDATE {prefix}invoice SET state_id=2 WHERE id=?', array($this->invoiceId));
+    }
+    $_SESSION['formMessage'] = $result ? 'EmailSent' : 'EmailFailed';
+    echo header('Location: ' . _PROTOCOL_ . $_SERVER['HTTP_HOST'] . dirname($_SERVER['PHP_SELF']) . '/index.php?func=' . sanitize(getRequest('func', 'open_invoices')) . "&list=invoices&form=invoice&id={$this->invoiceId}");
   }
   
   protected function getFlowedBody()

@@ -326,4 +326,9 @@ function try_iconv($from, $to, $str)
   return $str;
 }
 
+function sanitize($str)
+{
+  return preg_replace('/[^\w\d]/', '', $str);
+}
+
 ?>

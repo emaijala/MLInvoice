@@ -157,7 +157,7 @@ default :
     $GLOBALS['locPrintTemplateOutputFileName'] = 'Tulostiedosto';
     $GLOBALS['locPrintTemplateType'] = 'Tyyppi';
     $GLOBALS['locPrintTemplateTypeInvoice'] = 'Lasku';
-    
+    $GLOBALS['locPrintTemplateOpenInNewWindow'] = 'Avaa uudessa ikkunassa';
     
     //FORM ERRORS & MESSAGES
     $GLOBALS['locERRVALUEMISSING'] = 'Virhe! Arvo puuttuu';
@@ -267,6 +267,7 @@ default :
     $GLOBALS['locHeaderCompanyActive'] = 'Käytössä';
     $GLOBALS['locActive'] = 'Käytössä';
     $GLOBALS['locInactive'] = 'Ei käytössä';
+    $GLOBALS['locBackToInvoice'] = 'Takaisin laskun tietoihin';
 
 
     // Email

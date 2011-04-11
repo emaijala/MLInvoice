@@ -30,9 +30,9 @@ sesVerifySession();
 ini_set('implicit_flush', 'Off');
 ob_start(); 
 
-$strFunc = getRequest('func', 'open_invoices');
-$strList = getRequest('list', '');
-$strForm = getRequest('form', '');
+$strFunc = sanitize(getRequest('func', 'open_invoices'));
+$strList = sanitize(getRequest('list', ''));
+$strForm = sanitize(getRequest('form', ''));
 
 if (!$strFunc)
   $strFunc = 'open_invoices';

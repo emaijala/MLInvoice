@@ -324,7 +324,6 @@ EOS;
      $invoiceNumberUpdatePrefix .= "invoice_no = document.getElementById('invoice_no'); if (invoice_no.value == '' || invoice_no.value == 0) alert('" . $GLOBALS['locInvoiceNumberNotDefined'] . "');";
    
    // Print buttons
-   $printStyle = getSetting('invoice_new_window') ? 'openwindow' : 'redirect';
    $printButtons = array();
    $printButtons2 = array();
    $res = mysql_query_check('SELECT * FROM {prefix}print_template WHERE type=\'invoice\' ORDER BY order_no');
@@ -334,7 +333,8 @@ EOS;
    while ($row = mysql_fetch_assoc($res))
    {
      $templateId = $row['id'];
-     $arr = array('name' => "print$templateId", 'label' => $row['name'], 'type' => 'JSBUTTON', 'style' => $printStyle, 'listquery' => "${invoicePrintChecks}${invoiceNumberUpdatePrefix}save_record('invoice.php?id=_ID_&amp;template=$templateId', '$printStyle'); return false;${invoiceNumberUpdateSuffix}", 'position' => 3, 'default' => FALSE, 'allow_null' => TRUE );
+     $printStyle = $row['new_window'] ? 'openwindow' : 'redirect';
+     $arr = array('name' => "print$templateId", 'label' => $row['name'], 'type' => 'JSBUTTON', 'style' => $printStyle, 'listquery' => "${invoicePrintChecks}${invoiceNumberUpdatePrefix}save_record('invoice.php?id=_ID_&amp;template=$templateId&amp;func=$strFunc', '$printStyle'); return false;${invoiceNumberUpdateSuffix}", 'position' => 3, 'default' => FALSE, 'allow_null' => TRUE );
      if (++$rowNum > $templateFirstCol)
      {
        $arr['position'] = 4;
@@ -670,6 +670,8 @@ case 'print_template':
           "name" => "parameters", "label" => $GLOBALS['locPrintTemplateParameters'], "type" => "TEXT", "style" => "medium", "listquery" => "", "position" => 1, "default" => FALSE, "allow_null" => TRUE ),
         array(
           "name" => "output_filename", "label" => $GLOBALS['locPrintTemplateOutputFileName'], "type" => "TEXT", "style" => "medium", "listquery" => "", "position" => 2, "default" => FALSE, "allow_null" => TRUE ),
+        array(
+          "name" => "new_window", "label" => $GLOBALS['locPrintTemplateOpenInNewWindow'], "type" => "CHECK", "style" => "medium", "listquery" => "", "position" => 1, "default" => FALSE, "allow_null" => TRUE ),
      );
      break;
 }

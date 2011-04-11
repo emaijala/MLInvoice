@@ -3,6 +3,7 @@
 abstract class InvoicePrinterBase
 {
   protected $pdf = null;
+  protected $invoiceId = null;
   protected $printStyle = '';
   protected $senderData = null;
   protected $recipientData = null;
@@ -673,43 +674,47 @@ abstract class InvoicePrinterBase
       {
         error_log('No dash in account number, barcode not created');
       }
+      elseif (strlen($senderData['bank_account']) > 15)
+      {
+        error_log('Account number too long, barcode not created');
+      }
+      elseif (strlen($invoiceData['due_date']) != 8)
+      {
+        error_log('Invalid due date \'' . $invoiceData['due_date'] . '\' - barcode not created');
+      }
+      elseif ($this->totalSumVAT >= 1000000)
+      {
+        error_log('Sum too large, barcode not created');
+      }
       else
       {
-        if ($intTotSumVAT >= 1000000)
-        {
-          error_log('Sum too large, barcode not created');
-        }
-        else
-        {
-          $tmpAccount = str_replace("-", str_repeat('0', 14 -(strlen($$senderData['bank_account'])-1)),$$senderData['bank_account']);
-          $tmpSum = str_replace(",", "", miscRound2Decim($this->totalSumVAT));
-          $tmpSum = str_repeat('0', 8 - strlen($tmpSum)). $tmpSum;
-          $tmpRefNumber = str_replace(" ", "", $this->refNumber);
-          $tmpRefNumber = str_repeat('0', 20 - strlen($tmpRefNumber)). $tmpRefNumber;
-          $atmdDueDate = explode(".", $invoiceData['due_date']);
-          $tmpDueDate = substr($atmdDueDate[2], -2). $atmdDueDate[1]. $atmdDueDate[0];
-          
-          $code_string = "2". $tmpAccount. $tmpSum. $tmpRefNumber. $tmpDueDate. "0000";
-          $code_string = $code_string. miscCalcCheckNo($code_string);
-      
-          $style = array(
-            'position' => '',
-            'align' => 'C',
-            'stretch' => true,
-            'fitwidth' => true,
-            'cellfitalign' => '',
-            'border' => false,
-            'hpadding' => 'auto',
-            'vpadding' => 'auto',
-            'fgcolor' => array(0,0,0),
-            'bgcolor' => false, //array(255,255,255),
-            'text' => false,
-            'font' => 'helvetica',
-            'fontsize' => 8,
-            'stretchtext' => 4
-          );
-          $pdf->write1DBarcode($code_string, 'C128C', 20, 284, 105, 11, 0.34, $style, 'N');
-        }
+        $tmpAccount = str_replace("-", str_repeat('0', 14 -(strlen($senderData['bank_account'])-1)),$senderData['bank_account']);
+        $tmpSum = str_replace(",", "", miscRound2Decim($this->totalSumVAT));
+        $tmpSum = str_repeat('0', 8 - strlen($tmpSum)) . $tmpSum;
+        $tmpRefNumber = str_replace(" ", "", $this->refNumber);
+        $tmpRefNumber = str_repeat('0', 20 - strlen($tmpRefNumber)). $tmpRefNumber;
+        $tmpDueDate = substr($invoiceData['due_date'], 2);
+     
+        $code_string = '2' . $tmpAccount . $tmpSum . $tmpRefNumber . $tmpDueDate . '0000';
+        $code_string .= miscCalcCheckNo($code_string);
+
+        $style = array(
+          'position' => '',
+          'align' => 'C',
+          'stretch' => true,
+          'fitwidth' => true,
+          'cellfitalign' => '',
+          'border' => false,
+          'hpadding' => 'auto',
+          'vpadding' => 'auto',
+          'fgcolor' => array(0,0,0),
+          'bgcolor' => false, //array(255,255,255),
+          'text' => false,
+          'font' => 'helvetica',
+          'fontsize' => 8,
+          'stretchtext' => 4
+        );
+        $pdf->write1DBarcode($code_string, 'C128C', 20, 284, 105, 11, 0.34, $style, 'N');
       }
     }
   }

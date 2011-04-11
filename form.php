@@ -52,6 +52,11 @@ function createForm($strFunc, $strList, $strForm)
     $blnNew = TRUE;
   
   $strMessage = '';
+  if (isset($_SESSION['formMessage']) && $_SESSION['formMessage'])
+  {
+    $strMessage = $GLOBALS['loc' . $_SESSION['formMessage']] . '<br>';
+    unset($_SESSION['formMessage']);
+  }
   
   // if NEW is clicked clear existing form data
   if ($blnNew && !$blnSave)
