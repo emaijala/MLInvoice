@@ -101,7 +101,7 @@ class InvoicePrinter extends InvoicePrinterBase
     $messageBody .= $data;
     $messageBody .= "\r\n--$boundary--";
   
-    $result = mail($this->mimeEncodeAddress($this->emailTo), mb_encode_mimeheader($this->emailSubject, 'UTF-8', 'Q'), $messageBody, $this->headersToStr($headers), '-f ' . $this->mimeEncodeAddress($this->emailFrom));
+    $result = mail($this->mimeEncodeAddress($this->emailTo), $this->mimeEncodeHeaderValue($this->emailSubject), $messageBody, $this->headersToStr($headers), '-f ' . $this->extractAddress($this->emailFrom));
     
     if ($result && $invoiceData['state_id'] == 1)
     {
@@ -155,15 +155,30 @@ class InvoicePrinter extends InvoicePrinterBase
       if (in_array($header, array("From", "To", "Cc", "Bcc")))
         $result .= "$header: " . $this->mimeEncodeAddress($value) . "\r\n";
       else
-        $result .= "$header: $value" . "\r\n";
+        $result .= "$header: $value\r\n";
     }
     return $result;
   }
+
+  protected function extractAddress($address)
+  {
+    if (preg_match("/<(.+)>/", $address, $matches) == 1)
+      return $matches[1];
+    return $address;
+  }
+  
   
   protected function mimeEncodeAddress($address)
   {
-    if (preg_match('/[\x80-]/', $address))
-      $address = preg_replace("/(.+)(<.+>)/", mb_encode_mimeheader("$1", 'UTF-8', 'Q') . " $2", $address);
+    if (preg_match("/(.+) (<.+>)/", $address, $matches) == 1)
+      $address = $this->mimeEncodeHeaderValue($matches[1]) . ' ' . $matches[2];
+    elseif (preg_match("/(.+)(<.+>)/", $address, $matches) == 1)
+      $address = $this->mimeEncodeHeaderValue($matches[1]) . $matches[2];
     return $address;
+  }
+  
+  protected function mimeEncodeHeaderValue($value)
+  {
+    return mb_encode_mimeheader(cond_utf8_encode($value), 'UTF-8', 'Q');
   }
 }
