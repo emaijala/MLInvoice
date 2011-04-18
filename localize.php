@@ -165,7 +165,6 @@ default :
     $GLOBALS['locSAVEFIRST'] = 'Tallenna muut tiedot ensin';
     $GLOBALS['locDBERROR'] = 'Tietokantavirhe';
     $GLOBALS['locDBERRORDESC'] = 'Tietokantavirhe: ';
-    $GLOBALS['locDBERRORFOREIGNKEY'] = 'Toiminto ei onnistunut, koska tietueeseen on viittauksia muualta.';
     $GLOBALS['locSYSTEMONLY'] = 'Järjestelmän sisäinen - ei muokattavissa';
     $GLOBALS['locINVOICENOTOVERDUE'] = 'Maksuja ei voida lisätä laskulle, jonka eräpäivä on tänään ta myöhemmin.';
     $GLOBALS['locWRONGSTATEFORREMINDERFEED'] = 'Maksuja ei voida lisätä maksetulle tai mitätöidylle laskulle.';

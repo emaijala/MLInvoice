@@ -63,11 +63,9 @@ function mysql_query_check($query, $noFail=false)
     if (!$noFail)
     {
       header('HTTP/1.1 500 Internal Server Error');
-      switch ($intError)
-      {
-      case 1451: die($GLOBALS['locDBERRORFOREIGNKEY']);
-      default: die($GLOBALS['locDBERROR']);
-      }
+      if (!defined('_DB_VERBOSE_ERRORS_') || !_DB_VERBOSE_ERRORS_)
+        die($GLOBALS['locDBERROR']);  
+      die(htmlspecialchars("Query '$query' failed: ($intError) " . mysql_error()));
     }
   }
   return $intRes;
