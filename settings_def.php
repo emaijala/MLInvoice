@@ -22,6 +22,7 @@ $arrSettings = array(
   'auto_close_after_delete' => array('label' => $GLOBALS['locSettingAutoCloseFormAfterDelete'], 'type' => 'CHECK', 'style' => 'medium', 'position' => 1, 'default' => 1, 'allow_null' => TRUE ),
   'add_customer_number' => array('label' => $GLOBALS['locSettingAddCustomerNumber'], 'type' => 'CHECK', 'style' => 'medium', 'position' => 1, 'default' => 1, 'allow_null' => TRUE ),
   'show_deleted_records' => array('label' => $GLOBALS['locSettingShowDeletedRecords'], 'type' => 'CHECK', 'style' => 'medium', 'session' => 1, 'position' => 1, 'default' => FALSE, 'allow_null' => TRUE ),
+  'session_keepalive' => array('label' => $GLOBALS['locSettingSessionKeepalive'], 'type' => 'CHECK', 'style' => 'medium', 'session' => 1, 'position' => 1, 'default' => TRUE, 'allow_null' => TRUE ),
   
   'invoice_sep' => array('label' => $GLOBALS['locSettingInvoices'], 'type' => 'LABEL'),
   

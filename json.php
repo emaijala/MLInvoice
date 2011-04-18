@@ -150,6 +150,10 @@ case 'get_import_preview':
   create_import_preview();
   break;
   
+case 'noop':
+  // Session keep-alive
+  break;
+  
 default:
   header('HTTP/1.1 404 Not Found');
 }

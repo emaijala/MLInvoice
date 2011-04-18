@@ -54,7 +54,8 @@ if ($strFunc == 'system' && getRequest('operation', '') == 'dbdump' && in_array(
   exit;
 }
 
-echo htmlPageStart(_PAGE_TITLE_ . " - $title");
+
+echo htmlPageStart(_PAGE_TITLE_ . " - $title", getSetting('session_keepalive') ? array('js/keepalive.js') : null);
 
 $astrMainButtons = array (
     array("name" => "invoice", "title" => "locSHOWINVOICENAVI", 'action' => 'open_invoices', "levels_allowed" => array(1, 90) ),

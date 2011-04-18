@@ -414,6 +414,7 @@ default :
     $GLOBALS['locSettingAutoCloseFormAfterDelete'] = 'Sulje lomake automaattisesti poiston jälkeen';
     $GLOBALS['locSettingAddCustomerNumber'] = 'Lisää uudelle asiakkaalle juokseva asiakasnumero automaattisesti';
     $GLOBALS['locSettingShowDeletedRecords'] = 'Näytä poistetut tietueet (istuntokohtainen asetus)';
+    $GLOBALS['locSettingSessionKeepalive'] = 'Vältä istunnon aikakatkaisua niin kauan kuin sovellus on auki selaimessa';
     $GLOBALS['locSettingInvoices'] = 'Laskutusasetukset';
     $GLOBALS['locSettingInvoiceAddNumber'] = 'Lisää laskulle juokseva laskunumero automaattisesti tulostettaessa';
     $GLOBALS['locSettingInvoiceAddReferenceNumber'] = 'Lisää laskulle viitenumero automaattisesti tulostettaessa';
