@@ -69,8 +69,7 @@ function getFormDefaultValue($elem, $parentKey)
   elseif (strstr($elem['default'], 'ADD')) 
   {
     $strQuery = str_replace("_PARENTID_", $parentKey, $elem['listquery']);
-    $intRes = mysql_query_check($strQuery);
-    $intAdd = reset(mysql_fetch_row($intRes));
+    $intAdd = mysql_fetch_value(mysql_query_check($strQuery));
     return isset($intAdd) ? $intAdd : 0;
   }
   elseif ($elem['default'] === 'POST')

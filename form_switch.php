@@ -61,7 +61,7 @@ case 'company':
    {
      $strQuery = 'SELECT max(customer_no) FROM {prefix}company WHERE deleted=0';
      $intRes = mysql_query_check($strQuery);
-     $intInvNo = reset(mysql_fetch_row($intRes)) + 1;
+     $intInvNo = mysql_fetch_value(mysql_query_check($strQuery)) + 1;
      $defaultCustomerNo = $intInvNo;
    }
     
@@ -180,7 +180,7 @@ case 'invoice':
      $strBaseLink = '?' . preg_replace('/&id=\d*/', '', $_SERVER['QUERY_STRING']);
      if ($intRes) 
      {
-       $intRefundedInvoiceId = reset(mysql_fetch_row($intRes));
+       $intRefundedInvoiceId = mysql_fetch_value($intRes);
        if ($intRefundedInvoiceId)
          $arrRefundedInvoice = array(
            "name" => "get", "label" => $GLOBALS['locSHOWREFUNDEDINV'], "type" => "BUTTON", "style" => "medium", "listquery" => "'$strBaseLink&amp;id=$intRefundedInvoiceId', '_self'", "position" => 3, "default" => FALSE, "allow_null" => TRUE 
@@ -354,7 +354,7 @@ EOS;
    
    $intRes = mysql_query_check('SELECT ID from {prefix}base WHERE deleted=0');
    if (mysql_num_rows($intRes) == 1)
-     $defaultBase = reset(mysql_fetch_row($intRes));
+     $defaultBase = mysql_fetch_value($intRes);
    else
      $defaultBase = FALSE;
      

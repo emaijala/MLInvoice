@@ -123,11 +123,6 @@ Todo :
     return $strListBox;
 }
 
-function getSQLResult($strQuery) 
-{
-  $intRes = mysql_query_check( $strQuery );
-  return reset(mysql_fetch_row($intRes));
-}
 function htmlSQLListBox($strName, $strQuery, $strSelected, $strStyle = "", $intOnChange = 0, $astrAdditionalAttributes) 
 {
     $astrValues = array();
@@ -314,10 +309,10 @@ function htmlFormElement( $strName, $strType, $strValue, $strStyle, $strListQuer
         case 'RESULT' :
             $strListQuery = str_replace("_ID_", $strValue, $strListQuery);
             if( $strMode != "PDF" ) {
-                $strFormElement = htmlspecialchars(getSQLResult( $strListQuery )) . "\n";
+                $strFormElement = htmlspecialchars(mysql_fetch_value(mysql_query_check($strListQuery))) . "\n";
             }
             else {
-                $strFormElement = getSQLResult( $strListQuery );
+                $strFormElement = mysql_fetch_value(mysql_query_check($strListQuery));
             }
             
         break;

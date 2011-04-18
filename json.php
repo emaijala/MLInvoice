@@ -98,7 +98,7 @@ case 'get_invoice_defaults':
     $res = mysql_param_query('SELECT max(cast(invoice_no as unsigned integer)) FROM {prefix}invoice WHERE deleted=0 AND id!=? AND base_id=?', array($invoiceId, $baseId));
   else
     $res = mysql_param_query('SELECT max(cast(invoice_no as unsigned integer)) FROM {prefix}invoice WHERE deleted=0 AND id!=?', array($invoiceId));
-  $invNo = reset(mysql_fetch_row($res)) + 1;
+  $invNo = mysql_fetch_value($res) + 1;
   if ($invNo < 100)
     $invNo = 100; // min ref number length is 3 + check digit, make sure invoice number matches that
   $refNo = $invNo . miscCalcCheckNo($invNo);

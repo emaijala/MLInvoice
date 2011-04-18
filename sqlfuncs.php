@@ -108,6 +108,12 @@ function mysql_param_query($query, $params=false, $noFail=false)
   return mysql_query_check($query);
 } 
 
+function mysql_fetch_value($result)
+{
+  $row = mysql_fetch_row($result);
+  return $row[0];
+}
+
 function mysql_fetch_prefixed_assoc($result)
 {
   if (!($row = mysql_fetch_row($result)))
