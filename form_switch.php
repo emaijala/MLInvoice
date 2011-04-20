@@ -149,6 +149,8 @@ case 'product':
      array(
         "name" => "unit_price", "label" => $GLOBALS['locUNITPRICE'], "type" => "INT", "style" => "medium", "listquery" => "", "position" => 1, "default" => FALSE, "allow_null" => TRUE ),
      array(
+        "name" => "discount", "label" => $GLOBALS['locDiscountPercent'], "type" => "INT", "style" => "percent", "listquery" => "", "position" => 2, "default" => 0, "allow_null" => TRUE ),
+     array(
         "name" => "type_id", "label" => $GLOBALS['locUNIT'], "type" => "LIST", "style" => "short", "listquery" => "SELECT id, name FROM {prefix}row_type WHERE deleted=0 ORDER BY order_no;", "position" => 0, "default" => "POST", "allow_null" => FALSE ),
      array(
         "name" => "vat_percent", "label" => $GLOBALS['locVATPERCENT'], "type" => "INT", "style" => "short", "listquery" => "", "position" => 1, "default" => FALSE, "allow_null" => TRUE ),
@@ -449,6 +451,7 @@ onchange = "var form_id = this.form.id; $.getJSON('json.php?func=get_product&amp
     }
   }
   document.getElementById(form_id + '_price').value = json.unit_price.replace('.', ','); 
+  document.getElementById(form_id + '_discount').value = json.discount.replace('.', ','); 
   document.getElementById(form_id + '_vat').value = json.vat_percent.replace('.', ','); 
   document.getElementById(form_id + '_vat_included').checked = json.vat_included == 1 ? true : false;
 });"
@@ -456,6 +459,7 @@ EOS;
 
    $multiplierColumn = 'pcs';
    $priceColumn = 'price';
+   $discountColumn = 'discount';
    $VATColumn = 'vat';
    $VATIncludedColumn = 'vat_included';
    $showPriceSummary = TRUE;
@@ -476,6 +480,8 @@ EOS;
         "name" => "type_id", "label" => $GLOBALS['locUNIT'], "type" => "LIST", "style" => "short", "listquery" => "SELECT id, name FROM {prefix}row_type WHERE deleted=0 ORDER BY order_no", "position" => 0, "default" => 'POST', "allow_null" => TRUE ),
      array(
         "name" => "price", "label" => $GLOBALS['locPRICE'], "type" => "INT", "style" => "currency", "listquery" => "", "position" => 0, "default" => 'POST', "allow_null" => FALSE ),
+     array(
+        "name" => "discount", "label" => $GLOBALS['locDiscount'], "type" => "INT", "style" => "percent", "listquery" => "", "position" => 0, "default" => 0, "allow_null" => TRUE ),
      array(
         "name" => "vat", "label" => $GLOBALS['locVAT'], "type" => "INT", "style" => "percent", "listquery" => "", "position" => 0, "default" => getSetting('invoice_default_vat_percent'), "allow_null" => TRUE ),
      array(

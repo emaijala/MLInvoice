@@ -463,9 +463,11 @@ function init_rows()
 ?>          
       var items = record.<?php echo $rowSumColumns['multiplier']?>;
       var price = record.<?php echo $rowSumColumns['price']?>;
+      var discount = record.<?php echo $rowSumColumns['discount']?> || 0;
       var VATPercent = record.<?php echo $rowSumColumns['vat']?>;
       var VATIncluded = record.<?php echo $rowSumColumns['vat_included']?>;
 
+      price *= (1 - discount / 100);
       var sum = 0;
       var sumVAT = 0;
       var VAT = 0;
@@ -508,9 +510,11 @@ function init_rows()
       
       var items = record.<?php echo $rowSumColumns['multiplier']?>;
       var price = record.<?php echo $rowSumColumns['price']?>;
+      var discount = record.<?php echo $rowSumColumns['discount']?> || 0;
       var VATPercent = record.<?php echo $rowSumColumns['vat']?>;
       var VATIncluded = record.<?php echo $rowSumColumns['vat_included']?>;
 
+      price *= (1 - discount / 100);
       var sum = 0;
       var sumVAT = 0;
       var VAT = 0;
@@ -532,17 +536,17 @@ function init_rows()
       totSumVAT += sumVAT;
     }
     var tr = $('<tr/>').addClass('summary');
-    $('<td/>').addClass('input').attr('colspan', '9').attr('align', 'right').text('<?php echo $GLOBALS['locTOTALEXCLUDINGVAT']?>').appendTo(tr);
+    $('<td/>').addClass('input').attr('colspan', '10').attr('align', 'right').text('<?php echo $GLOBALS['locTOTALEXCLUDINGVAT']?>').appendTo(tr);
     $('<td/>').addClass('input').attr('align', 'right').text(totSum.toFixed(2).replace('.', ',')).appendTo(tr);
     $(table).append(tr);
     
     tr = $('<tr/>').addClass('summary');
-    $('<td/>').addClass('input').attr('colspan', '9').attr('align', 'right').text('<?php echo $GLOBALS['locTOTALVAT']?>').appendTo(tr);
+    $('<td/>').addClass('input').attr('colspan', '10').attr('align', 'right').text('<?php echo $GLOBALS['locTOTALVAT']?>').appendTo(tr);
     $('<td/>').addClass('input').attr('align', 'right').text(totVAT.toFixed(2).replace('.', ',')).appendTo(tr);
     $(table).append(tr);
     
     var tr = $('<tr/>').addClass('summary');
-    $('<td/>').addClass('input').attr('colspan', '9').attr('align', 'right').text('<?php echo $GLOBALS['locTOTALINCLUDINGVAT']?>').appendTo(tr);
+    $('<td/>').addClass('input').attr('colspan', '10').attr('align', 'right').text('<?php echo $GLOBALS['locTOTALINCLUDINGVAT']?>').appendTo(tr);
     $('<td/>').addClass('input').attr('align', 'right').text(totSumVAT.toFixed(2).replace('.', ',')).appendTo(tr);
     $(table).append(tr);
     

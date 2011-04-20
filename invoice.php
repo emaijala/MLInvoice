@@ -70,7 +70,7 @@ if (!$senderData)
   die('Could not find invoice sender data');
     
 $strQuery = 
-    "SELECT pr.product_name, ir.description, ir.pcs, ir.price, ir.row_date, ir.vat, ir.vat_included, rt.name type ".
+    "SELECT pr.product_name, ir.description, ir.pcs, ir.price, ir.discount, ir.row_date, ir.vat, ir.vat_included, rt.name type ".
     "FROM {prefix}invoice_row ir ".
     "LEFT OUTER JOIN {prefix}row_type rt ON rt.id = ir.type_id ".
     "LEFT OUTER JOIN {prefix}product pr ON ir.product_id = pr.id ".

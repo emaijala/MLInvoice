@@ -10,3 +10,11 @@ alter table vllasku_print_template add column (
 );
 
 INSERT INTO vllasku_print_template (name, filename, parameters, output_filename, type, order_no) VALUES ('Sähköposti', 'invoice_printer_email.php', 'invoice', 'lasku_%d.pdf','invoice', 7);
+
+alter table vllasku_product add column (
+  discount decimal(9,1) NOT NULL default 0
+);
+
+alter table vllasku_invoice_row add column (
+  discount decimal(9,1) NOT NULL default 0
+);

@@ -264,6 +264,7 @@ function getFormRowSumColumns($form)
   return array(
     'multiplier' => isset($multiplierColumn) ? $multiplierColumn : '',
     'price' => isset($priceColumn) ? $priceColumn : '',
+    'discount' => isset($discountColumn) ? $discountColumn : '',
     'vat' => isset($VATColumn) ? $VATColumn : '',
     'vat_included' => isset($VATIncludedColumn) ? $VATIncludedColumn : '',
     'show_summary' => isset($showPriceSummary) ? $showPriceSummary : ''

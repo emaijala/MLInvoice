@@ -22,6 +22,7 @@ abstract class InvoicePrinterBase
   protected $totalSum = 0;
   protected $totalVAT = 0;
   protected $totalSumVAT = 0;
+  protected $discountedRows = false;
   
   protected $recipientMaxY = 0;
 
@@ -38,29 +39,15 @@ abstract class InvoicePrinterBase
     $this->totalSum = 0;
     $this->totalVAT = 0;
     $this->totalSumVAT = 0;
+    $this->discountedRows = false;
     foreach ($invoiceRowData as $row)
     {
-      $rowSum = 0;
-      $rowVAT = 0;
-      $rowSumVAT = 0;
-      if ($row['vat_included'])
-      {
-        $rowSumVAT = $row['pcs'] * $row['price'];
-        
-        $rowSum = $rowSumVAT / (1 + $row['vat'] / 100);
-        $rowVAT = $rowSumVAT - $rowSum;
-        
-        $row['price'] /= (1 + $row['vat'] / 100);
-      }
-      else
-      {
-        $rowSum = $row['pcs'] * $row['price'];
-        $rowVAT = $rowSum * ($row['vat'] / 100);
-        $rowSumVAT = $rowSum + $rowVAT;
-      }
+      list($rowSum, $rowVAT, $rowSumVAT) = calculateRowSum($row['price'], $row['pcs'], $row['vat'], $row['vat_included'], $row['discount']);
       $this->totalSum += $rowSum;
       $this->totalVAT += $rowVAT;
       $this->totalSumVAT += $rowSumVAT;
+      if ($row['discount'] > 0)
+        $this->discountedRows = true;
     }
     $this->separateStatement = ($this->printStyle == 'invoice') && getSetting('invoice_separate_statement');
 
@@ -329,7 +316,7 @@ abstract class InvoicePrinterBase
       $pdf->SetAutoPageBreak(TRUE, 22);
       
       $pdf->SetFont('Helvetica','B',20);
-      $pdf->SetXY(7, $pdf->GetY());
+      $pdf->SetXY(4, $pdf->GetY());
       $pdf->Cell(80, 5, $GLOBALS['locINVOICESTATEMENT'], 0, 0, "L");
       $pdf->SetFont('Helvetica','',10);
       $pdf->SetX(115);
@@ -357,7 +344,11 @@ abstract class InvoicePrinterBase
       $nameColWidth = 80;
   
     $showDate = getSetting('invoice_show_row_date');
-    $pdf->SetX(7);
+    if ($this->discountedRows)
+      $left = 4; 
+    else
+      $left = 10;
+    $pdf->SetX($left);
     if ($showDate) 
     {
       $pdf->Cell($nameColWidth - 20, 5, $GLOBALS['locROWNAME'], 0, 0, "L");
@@ -367,9 +358,12 @@ abstract class InvoicePrinterBase
         $pdf->Cell($nameColWidth, 5, $GLOBALS['locROWNAME'], 0, 0, "L");
     }
     if ($this->printStyle != 'dispatch')
-      $pdf->Cell(15, 5, $GLOBALS['locROWPRICE'], 0, 0, "R");
-    $pdf->Cell(15, 5, $GLOBALS['locPCS'], 0, 0, "R");
-    $pdf->Cell(15, 5, $GLOBALS['locUNIT'], 0, 0, "R");
+    {
+      $pdf->Cell(17, 5, $GLOBALS['locROWPRICE'], 0, 0, "R");
+      if ($this->discountedRows)
+        $pdf->Cell(12, 5, $GLOBALS['locRowDiscount'], 0, 0, "R");
+    }
+    $pdf->Cell(20, 5, $GLOBALS['locPieces'], 0, 0, "R");
     if ($this->printStyle != 'dispatch')
     {
       $pdf->Cell(20, 5, $GLOBALS['locROWTOTAL'], 0, 0, "R");
@@ -405,53 +399,42 @@ abstract class InvoicePrinterBase
         $description = $row['description'];
   
       // Sums
-      $rowSum = 0;
-      $rowVAT = 0;
-      $rowSumVAT = 0;
+      list($rowSum, $rowVAT, $rowSumVAT) = calculateRowSum($row['price'], $row['pcs'], $row['vat'], $row['vat_included'], $row['discount']);
       if ($row['vat_included'])
-      {
-        $rowSumVAT = $row['pcs'] * $row['price'];
-        
-        $rowSum = $rowSumVAT / (1 + $row['vat'] / 100);
-        $rowVAT = $rowSumVAT - $rowSum;
-        
         $row['price'] /= (1 + $row['vat'] / 100);
-      }
-      else
-      {
-        $rowSum = $row['pcs'] * $row['price'];
-        $rowVAT = $rowSum * ($row['vat'] / 100);
-        $rowSumVAT = $rowSum + $rowVAT;
-      }
       
       if ($row['price'] == 0 && $row['pcs'] == 0) 
       {
-        $pdf->SetX(7);
+        $pdf->SetX(5);
         $pdf->MultiCell(0, 5, $description, 0, 'L');
       }
       else 
       {
         if ($showDate) 
         {
-          $pdf->SetX($nameColWidth - 20 + 7);
+          $pdf->SetX($nameColWidth - 20 + $left);
           $pdf->Cell(20, 5, dateConvIntDate2Date($row['row_date']), 0, 0, "L");
         }
         else 
         {
-          $pdf->SetX($nameColWidth + 7);
+          $pdf->SetX($nameColWidth + $left);
         }
         if ($this->printStyle != 'dispatch')
-          $pdf->Cell(15, 5, miscRound2Decim($row['price']), 0, 0, "R");
-        $pdf->Cell(15, 5, miscRound2Decim($row['pcs']), 0, 0, "R");
-        $pdf->Cell(15, 5, $row['type'], 0, 0, "R");
+        {
+          $pdf->Cell(17, 5, miscRound2Decim($row['price']), 0, 0, "R");
+          if ($this->discountedRows)
+            $pdf->Cell(12, 5, miscRound2OptDecim($row['discount']), 0, 0, "R");
+        }
+        $pdf->Cell(13, 5, miscRound2OptDecim($row['pcs']), 0, 0, "R");
+        $pdf->Cell(7, 5, $row['type'], 0, 0, "L");
         if ($this->printStyle != 'dispatch')
         {
           $pdf->Cell(20, 5, miscRound2Decim($rowSum), 0, 0, "R");
-          $pdf->Cell(15, 5, miscRound2OptDecim($row['vat'], 1), 0, 0, "R");
+          $pdf->Cell(11, 5, miscRound2OptDecim($row['vat'], 1), 0, 0, "R"); $pdf->Cell(4, 5, '', 0, 0, "R");
           $pdf->Cell(15, 5, miscRound2Decim($rowVAT), 0, 0, "R");
           $pdf->Cell(20, 5, miscRound2Decim($rowSumVAT), 0, 0, "R");
         }
-        $pdf->SetX(7);
+        $pdf->SetX($left);
         if($showDate) 
         {
           $pdf->MultiCell($nameColWidth - 20, 5, $description, 0, 'L');
@@ -467,19 +450,19 @@ abstract class InvoicePrinterBase
       $pdf->SetFont('Helvetica','',10);
       $pdf->SetY($pdf->GetY()+10);
       $pdf->Cell(162, 5, $GLOBALS['locTOTALEXCLUDINGVAT'] .": ", 0, 0, "R");
-      $pdf->SetX(182);
+      $pdf->SetX(187 - $left);
       $pdf->Cell(20, 5, miscRound2Decim($this->totalSum), 0, 0, "R");
       
       $pdf->SetFont('Helvetica','',10);
       $pdf->SetY($pdf->GetY()+5);
       $pdf->Cell(162, 5, $GLOBALS['locTOTALVAT'] .": ", 0, 0, "R");
-      $pdf->SetX(182);
+      $pdf->SetX(187 - $left);
       $pdf->Cell(20, 5, miscRound2Decim($this->totalVAT), 0, 0, "R");
       
       $pdf->SetFont('Helvetica','B',10);
       $pdf->SetY($pdf->GetY()+5);
       $pdf->Cell(162, 5, $GLOBALS['locTOTALINCLUDINGVAT'] .": ", 0, 0, "R");
-      $pdf->SetX(182);
+      $pdf->SetX(187 - $left);
       $pdf->Cell(20, 5, miscRound2Decim($this->totalSumVAT), 0, 1, "R");
     }
   }

@@ -113,6 +113,7 @@ CREATE TABLE vllasku_product (
   type_id int(11) default NULL,
   vat_percent decimal(9,1) NOT NULL default 0,
   vat_included tinyint NOT NULL default 0,
+  discount decimal(9,1) NOT NULL default 0,
   PRIMARY KEY (id),
   FOREIGN KEY (type_id) REFERENCES vllasku_row_type(id)
 ) ENGINE=INNODB CHARACTER SET utf8 COLLATE utf8_swedish_ci;
@@ -150,10 +151,11 @@ CREATE TABLE vllasku_invoice_row (
   pcs decimal(9,2) default NULL,
   price decimal(9,2) default NULL,
   row_date int(11) default NULL,
-  vat decimal(9,1) NOT NULL default '0',
+  vat decimal(9,1) NOT NULL default 0,
   vat_included tinyint NOT NULL default 0,
   order_no int(11) default NULL,
   reminder_row tinyint NOT NULL default 0,
+  discount decimal(9,1) NOT NULL default 0,
   PRIMARY KEY (id),
   FOREIGN KEY (invoice_id) REFERENCES vllasku_invoice(id) ON DELETE CASCADE,
   FOREIGN KEY (product_id) REFERENCES vllasku_product(id),

@@ -82,27 +82,19 @@ if ($intInvoiceId)
       // Add new interest
       $intTotSumVAT = 0;
       $strQuery = 
-          'SELECT ir.pcs, ir.price, ir.vat, ir.vat_included '.
+          'SELECT ir.pcs, ir.price, ir.discount, ir.vat, ir.vat_included '.
           'FROM {prefix}invoice_row ir '.
           'WHERE ir.deleted=0 AND ir.invoice_id=?';
       $intRes = mysql_param_query($strQuery, array($intInvoiceId));
       while ($row = mysql_fetch_assoc($intRes))
       {
-        $strRowPrice = $row['price'];
-        $strPieces = $row['pcs'];
-        $strVAT = $row['vat'];
-        $boolVATIncluded = $row['vat_included'];
-        $intRowSum = $strPieces * $strRowPrice;
-        $intRowVAT = $intRowSum * ($strVAT / 100);
-        if ($boolVATIncluded)
-          $intRowSum -= $intRowVAT;
-        $intRowSumVAT = $intRowSum + $intRowVAT;
-        $intTotSumVAT += $intRowSumVAT;
+        list($rowSum, $rowVAT, $rowSumVAT) = calculateRowSum($row['price'], $row['pcs'], $row['vat'], $row['vat_included'], $row['discount']);
+        $intTotSumVAT += $rowSumVAT;
       }
       $intPenalty = $intTotSumVAT * $penaltyInterest / 100 * $intDaysOverdue / 360;
       
-      $strQuery = 'INSERT INTO {prefix}invoice_row (invoice_id, description, pcs, price, row_date, vat, vat_included, order_no, reminder_row) ' .
-        'VALUES (?, ?, 1, ?, ?, 0, 0, -1, 1)';
+      $strQuery = 'INSERT INTO {prefix}invoice_row (invoice_id, description, pcs, price, discount, row_date, vat, vat_included, order_no, reminder_row) ' .
+        'VALUES (?, ?, 1, ?, 0, ?, 0, 0, -1, 1)';
       mysql_param_query($strQuery, array($intInvoiceId, $GLOBALS['locPENALTYINTERESTDESC'], $intPenalty, date('Ymd')));
     }
   }

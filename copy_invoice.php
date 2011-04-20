@@ -94,6 +94,7 @@ if ($intInvoiceId)
       $intTypeId = $row['type_id'];
       $intPcs = $row['pcs'];
       $intPrice = $row['price'];
+      $intDiscount = $row['discount'];
       $intRowDate = $row['row_date'];
       $intVat = $row['vat'];
       $intOrderNo = $row['order_no'];
@@ -106,9 +107,9 @@ if ($intInvoiceId)
         continue;
       
       $strQuery = 
-        'INSERT INTO {prefix}invoice_row(invoice_id, product_id, description, type_id, pcs, price, row_date, vat, order_no, vat_included, reminder_row) '.
-        'VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)';
-      mysql_param_query($strQuery, array($intNewId, $intProductId, $strDescription, $intTypeId, $intPcs, $intPrice, $intRowDate, $intVat, $intOrderNo, $boolVatIncluded, $intReminderRow));
+        'INSERT INTO {prefix}invoice_row(invoice_id, product_id, description, type_id, pcs, price, discount, row_date, vat, order_no, vat_included, reminder_row) '.
+        'VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)';
+      mysql_param_query($strQuery, array($intNewId, $intProductId, $strDescription, $intTypeId, $intPcs, $intPrice, $intDiscount, $intRowDate, $intVat, $intOrderNo, $boolVatIncluded, $intReminderRow));
     }
   }
 }

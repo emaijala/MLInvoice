@@ -98,6 +98,8 @@ default :
     $GLOBALS['locPRICE'] = 'Hinta';
     $GLOBALS['locPCS'] = 'Lkm';
     $GLOBALS['locUNIT'] = 'Yksikkö';
+    $GLOBALS['locDiscount'] = 'Ale';
+    $GLOBALS['locDiscountPercent'] = 'Alennusprosentti';
     $GLOBALS['locVAT'] = 'Alv';
     $GLOBALS['locSESSIONTYPE'] = 'Istunnon tyyppi';
     $GLOBALS['locTIMEOUT'] = 'Aikaraja';
@@ -327,7 +329,9 @@ default :
     $GLOBALS['locROWTOTAL'] = 'Yhteensä';
     $GLOBALS['locROWNAME'] = 'Nimike';
     $GLOBALS['locROWDESC'] = 'Tarkenne';
+    $GLOBALS['locPieces'] = 'Määrä';
     $GLOBALS['locROWPRICE'] = 'Hinta';
+    $GLOBALS['locRowDiscount'] = 'Ale %';
     $GLOBALS['locTOTALEXCLUDINGVAT'] = 'Arvonlisäveroton hinta yhteensä';
     $GLOBALS['locTOTALVAT'] = 'Arvonlisävero yhteensä';
     $GLOBALS['locTOTALINCLUDINGVAT'] = 'Arvonlisäverollinen hinta yhteensä';

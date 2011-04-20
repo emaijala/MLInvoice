@@ -46,7 +46,6 @@ function gpcStripSlashes($strString) {
    return $strString;
 }
 
-
 function cond_utf8_decode($str)
 {
   if (_CHARSET_ != 'UTF-8')
@@ -329,6 +328,26 @@ function try_iconv($from, $to, $str)
 function sanitize($str)
 {
   return preg_replace('/[^\w\d]/', '', $str);
+}
+
+function calculateRowSum($price, $count, $VAT, $VATIncluded, $discount)
+{
+  if (isset($discount))
+    $price *= (1 - $discount / 100);
+    
+  if ($VATIncluded)
+  {
+    $rowSumVAT = $count * $price;
+    $rowSum = $rowSumVAT / (1 + $VAT / 100);
+    $rowVAT = $rowSumVAT - $rowSum;
+  }
+  else
+  {
+    $rowSum = $count * $price;
+    $rowVAT = $rowSum * ($VAT / 100);
+    $rowSumVAT = $rowSum + $rowVAT;
+  }
+  return array($rowSum, $rowVAT, $rowSumVAT);
 }
 
 ?>

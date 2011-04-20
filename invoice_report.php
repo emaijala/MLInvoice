@@ -200,8 +200,6 @@ class InvoiceReport
       $strInvoiceDate = dateConvIntDate2Date($row['invoice_date']);
       $strDueDate = dateConvIntDate2Date($row['due_date']);
       $strName = $row['name'];
-      if (!$strName) 
-        $strName = $row['client_name'];
       $strRefNumber = chunk_split($strRefNumber, 5, ' ');
       
       if ($sums && $currentState !== FALSE && $currentState != $strInvoiceState)
@@ -214,7 +212,7 @@ class InvoiceReport
       $currentState = $strInvoiceState;
       
       $strQuery = 
-          "SELECT ir.description, ir.pcs, ir.price, ir.row_date, ir.vat, ir.vat_included ".
+          "SELECT ir.description, ir.pcs, ir.price, ir.discount, ir.row_date, ir.vat, ir.vat_included ".
           "FROM {prefix}invoice_row ir ".
           "WHERE ir.invoice_id=? AND ir.deleted=0";
       $intRes2 = mysql_param_query($strQuery, array($intInvoiceID));
@@ -223,27 +221,12 @@ class InvoiceReport
       $intRowSumVAT = 0;
       while ($row2 = mysql_fetch_assoc($intRes2))
       {
-        $intItemPrice = $row2['price'];
-        $intItems = $row2['pcs'];
-        $intVATPercent = $row2['vat'];
-        $boolVATIncluded = $row2['vat_included'];
+        list($intSum, $intVAT, $intSumVAT) = calculateRowSum($row2['price'], $row2['pcs'], $row2['vat'], $row2['vat_included'], $row2['discount']);
         
-        if ($boolVATIncluded)
-        {
-          $intSumVAT = $intItems * $intItemPrice;
-          $intSum = $intSumVAT / (1 + $intVATPercent / 100);
-          $intVAT = $intSumVAT - $intSum;
-        }
-        else
-        {
-          $intSum = $intItems * $intItemPrice;
-          $intVAT = $intSum * ($intVATPercent / 100);
-          $intSumVAT = $intSum + $intVAT;
-        }
-    
         $intRowSum += $intSum;
         $intRowVAT += $intVAT;
         $intRowSumVAT += $intSumVAT;
+        
         $intTotSum += $intSum;
         $intTotVAT += $intVAT;
         $intTotSumVAT += $intSumVAT;
