@@ -37,8 +37,8 @@ div.function_navi {
 }
 
 div.form_buttons {
-  margin-top: 5px;
-  margin-bottom: 5px;
+  margin-top: 10px;
+  margin-bottom: 10px;
 }
 
 div.list_container {
@@ -55,7 +55,7 @@ span.message {
 }
 
 div.form_container {
-  margin: 10px;
+  margin: 6px;
   font-size: 12px;
 }
 
@@ -512,10 +512,9 @@ a.formbuttonlink {
   -moz-border-radius: 4px;
   -webkit-border-radius: 4px;
   border: 1px solid gray;
-  text-decoration : none;
-  padding : 1px 2px 1px 2px;
-  margin-left: 4px;
-  margin-right: 4px;
+  text-decoration: none;
+  padding: 1px 2px 1px 2px;
+  margin: 1px 4px 4px 1px;
   font-weight: normal; 
   font-size:10px; 
 }

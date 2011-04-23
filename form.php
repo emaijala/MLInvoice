@@ -154,15 +154,16 @@ function createForm($strFunc, $strList, $strForm)
   ?>
 
   <div id="popup_dlg" style="display: none; width: 900px; overflow: hidden">
-    <iframe marginheight="0" marginwidth="0" frameborder="0" id="popup_dlg_iframe" src="about:blank" style="width: 100%; height: 100%; overflow: hidden; border: 0"></iframe>
+    <iframe id="popup_dlg_iframe" src="about:blank" style="width: 100%; height: 100%; overflow: hidden; border: 0"></iframe>
   </div>
+<?php if (isset($popupHTML)) echo $popupHTML;?>  
 
   <div class="form_container">
     <div id="message" class="message ui-state-error-text"><?php echo $strMessage ?></div>
   
   <?php createFormButtons($blnNew, $copyLinkOverride, 1) ?>
     <div class="form">
-      <form method="post" action="" name="admin_form" id="admin_form">
+      <form method="post" name="admin_form" id="admin_form">
       <input type="hidden" name="saveact" value="0">
       <input type="hidden" name="copyact" value="0">
       <input type="hidden" name="newact" value="<?php echo $blnNew ? 1 : 0?>">
@@ -209,8 +210,8 @@ function createForm($strFunc, $strList, $strForm)
     elseif ($elem['position'] == 0 && !strstr($elem['type'], "HID_")) 
     {
       echo "        <tr>\n";
-      $strColspan = "colspan=\"4\"";
-      $intColspan = 4;
+      $strColspan = "colspan=\"3\"";
+      $intColspan = 3;
     }
     elseif ($elem['position'] == 1 && !strstr($elem['type'], "HID_")) 
     {
@@ -268,7 +269,7 @@ function createForm($strFunc, $strList, $strForm)
           </td>
           <td class="field" <?php echo $strColspan?>>
             <?php echo htmlFormElement($elem['name'], $elem['type'], $value, $elem['style'], $elem['listquery'], "MODIFY", isset($elem['parent_key']) ? $elem['parent_key'] : '', '', array(), isset($elem['elem_attributes']) ? $elem['elem_attributes'] : '')?>
-            <?php if (isset($elem['quick_add'])) echo $elem['quick_add']?>
+            <?php if (isset($elem['attached_elem'])) echo $elem['attached_elem']?>
           </td>
 <?php
     }
@@ -780,7 +781,7 @@ function popup_editor(event, title, id, copy_row)
     return;
   }
 ?>
-        <form method="post" action="#" name="iform" id="iform">
+        <form method="post" name="iform" id="iform">
         <table class="iform" id="itable">
           <tr id="form_row">
 <?php
@@ -817,7 +818,7 @@ function popup_editor(event, title, id, copy_row)
         </form>
       </div>
       <div id="popup_edit" style="display: none; width: 900px; overflow: hidden">
-        <form method="post" action="" name="iform_popup" id="iform_popup">
+        <form method="post" name="iform_popup" id="iform_popup">
         <input type="hidden" name="row_id" value="">
         <input type="hidden" name="<?php echo $strParentKey?>" value="<?php echo $intKeyValue?>">
         <table class="iform">

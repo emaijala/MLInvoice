@@ -52,12 +52,16 @@ Todo : This could be more generic...
     header("Last-Modified: " . gmdate("D, d M Y H:i:s") . " GMT");
 
     $charset = (_CHARSET_ == 'UTF-8') ? 'UTF-8' : 'ISO-8859-15';
+    if (isset($_SERVER['HTTP_USER_AGENT']) && strpos($_SERVER['HTTP_USER_AGENT'], 'MSIE') !== false)
+      $xUACompatible = "  <meta http-equiv=\"X-UA-Compatible\" content=\"IE=edge\">\n";
+    else
+      $xUACompatible = '';
     $strHtmlStart = <<<EOT
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<!DOCTYPE html>
 <html>
 <head>
   <meta http-equiv="Content-Type" content="text/html; charset=$charset">
-  <title>$strTitle</title>
+$xUACompatible  <title>$strTitle</title>
   <link rel="shortcut icon" href="favicon.ico" type="image/x-icon">
   <link rel="stylesheet" type="text/css" href="jquery/css/smoothness/jquery-ui-1.8.6.custom.css">
   <link rel="stylesheet" type="text/css" href="css/style.css">

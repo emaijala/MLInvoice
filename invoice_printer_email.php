@@ -44,7 +44,7 @@ class InvoicePrinter extends InvoicePrinterBase
 <div id="email_form_container" class="form_container">
   <h1><?php echo $GLOBALS['locSendEmail']?></h1>
 <?php if ($submitted) echo '<div class="ui-state-error-text">' . $GLOBALS['locEmailFillRequiredFields'] . "<br><br></div>\n";?>
-  <form action="" method="POST" id="email_form">
+  <form method="POST" id="email_form">
     <input type="hidden" name="id" value="<?php echo htmlspecialchars(getRequest('id', ''))?>">
     <input type="hidden" name="template" value="<?php echo htmlspecialchars(getRequest('template', ''))?>">
     <input type="hidden" name="email_send" value="1">

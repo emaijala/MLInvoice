@@ -140,7 +140,7 @@ function createFuncMenu($strFunc)
   }
   -->
   </script>
-  <form method="get" action="" name="form_search">
+  <form method="get" name="form_search">
   <input type="hidden" name="func" value="<?php echo $strFunc?>">
   <div class="function_navi">
 <?php

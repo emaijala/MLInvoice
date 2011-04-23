@@ -315,7 +315,7 @@ function add_all_columns()
     <h1><?php echo $GLOBALS['locExport']?></h1>
     <span id="imessage" style="display: none"></span>
     <span id="spinner" style="visibility: hidden"><img src="images/spinner.gif" alt=""></span>
-    <form id="export_form" name="export_form" method="GET" action="">
+    <form id="export_form" name="export_form" method="GET">
       <input type="hidden" name="func" value="system">
       <input type="hidden" name="operation" value="export">
 

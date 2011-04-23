@@ -89,7 +89,7 @@ function createSettingsList()
   
     <?php createSettingsListButtons()?>
     <div class="form">
-    <form method="post" action="" name="admin_form" id="admin_form">
+    <form method="post" name="admin_form" id="admin_form">
 <?php
     foreach ($arrSettings as $name => $elem)
     {

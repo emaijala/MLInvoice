@@ -62,7 +62,7 @@ class InvoiceReport
   </script>
   
   <div class="form_container">
-    <form method="get" action="" id="params" name="params">
+    <form method="get" id="params" name="params">
     <input name="func" type="hidden" value="reports">
     <input name="form" type="hidden" value="invoice">
     <input name="report" type="hidden" value="1">
@@ -281,25 +281,25 @@ class InvoiceReport
     <div class="report">
     <table>
     <tr>
-        <th class="label" align="left">
+        <th class="label">
             <?php echo $GLOBALS['locINVNO']?>
         </th>
-        <th class="label" align="left">
+        <th class="label">
             <?php echo $GLOBALS['locINVDATE']?>
         </th>
-        <th class="label" align="left">
+        <th class="label">
             <?php echo $GLOBALS['locPAYER']?>
         </th>
-        <th class="label" align="left">
+        <th class="label">
             <?php echo $GLOBALS['locINVOICESTATE']?>
         </th>
-        <th class="label" align="right" style="text-align: right">
+        <th class="label" style="text-align: right">
             <?php echo $GLOBALS['locVATLESS']?>
         </th>
-        <th class="label" align="right" style="text-align: right">
+        <th class="label" style="text-align: right">
             <?php echo $GLOBALS['locVATPART']?>
         </th>
-        <th class="label" align="right" style="text-align: right">
+        <th class="label" style="text-align: right">
             <?php echo $GLOBALS['locWITHVAT']?>
         </th>
     </tr>
@@ -339,13 +339,13 @@ class InvoiceReport
         <td class="input">
             <?php echo htmlspecialchars($strInvoiceState)?>
         </td>
-        <td class="input" align="right">
+        <td class="input" style="text-align: right">
             <?php echo miscRound2Decim($intRowSum)?>
         </td>
-        <td class="input" align="right">
+        <td class="input" style="text-align: right">
             <?php echo miscRound2Decim($intRowVAT)?>
         </td>
-        <td class="input" align="right">
+        <td class="input" style="text-align: right">
             <?php echo miscRound2Decim($intRowSumVAT)?>
         </td>
     </tr>
@@ -375,16 +375,16 @@ class InvoiceReport
     }
   ?>
     <tr>
-        <td class="input" colspan="4" align="right">
+        <td class="input" colspan="4" style="text-align: right">
             &nbsp;
         </td>
-        <td class="input row_sum" align="right">
+        <td class="input row_sum" style="text-align: right">
             &nbsp;<?php echo miscRound2Decim($stateTotSum)?>
         </td>
-        <td class="input row_sum" align="right">
+        <td class="input row_sum" style="text-align: right">
             &nbsp;<?php echo miscRound2Decim($stateTotVAT)?>
         </td>
-        <td class="input row_sum" align="right">
+        <td class="input row_sum" style="text-align: right">
             &nbsp;<?php echo miscRound2Decim($stateTotSumVAT)?>
         </td>
     </tr>            
@@ -408,16 +408,16 @@ class InvoiceReport
     }
   ?>
     <tr>
-        <td class="input total_sum" colspan="4" align="right">
+        <td class="input total_sum" colspan="4" style="text-align: right">
             <?php echo $GLOBALS['locTOTAL']?>
         </td>
-        <td class="input total_sum" align="right">
+        <td class="input total_sum" style="text-align: right">
             &nbsp;<?php echo miscRound2Decim($intTotSum)?>
         </td>
-        <td class="input total_sum" align="right">
+        <td class="input total_sum" style="text-align: right">
             &nbsp;<?php echo miscRound2Decim($intTotVAT)?>
         </td>
-        <td class="input total_sum" align="right">
+        <td class="input total_sum" style="text-align: right">
             &nbsp;<?php echo miscRound2Decim($intTotSumVAT)?>
         </td>
     </tr>

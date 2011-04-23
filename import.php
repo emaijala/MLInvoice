@@ -92,7 +92,7 @@ $maxFileSize = fileSizeToHumanReadable($maxUploadSize);
     <h1><?php echo $GLOBALS['locImportFileSelection']?></h1>
     <span id="imessage" style="display: none"></span>
     <span id="spinner" style="visibility: hidden"><img src="images/spinner.gif" alt=""></span>
-    <form id="form_import" enctype="multipart/form-data" action="" method="POST">
+    <form id="form_import" enctype="multipart/form-data" method="POST">
       <input type="hidden" name="func" value="system">
       <input type="hidden" name="operation" value="import">
       <div class="label" style="clear: both; margin-top: 10px; margin-bottom: 4px">
@@ -388,7 +388,7 @@ function add_mapping_columns()
     <h1><?php echo $GLOBALS['locImportFileParameters']?></h1>
     <span id="imessage" style="display: none"></span>
     <span id="spinner" style="visibility: hidden"><img src="images/spinner.gif" alt=""></span>
-    <form id="import_form" name="import_form" method="GET" action="">
+    <form id="import_form" name="import_form" method="GET">
       <input type="hidden" name="func" value="system">
       <input type="hidden" name="operation" value="import">
 
