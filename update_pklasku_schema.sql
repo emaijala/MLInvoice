@@ -184,3 +184,4 @@ alter table pklasku_print_template add column (
 );
 
 INSERT INTO pklasku_print_template (name, filename, parameters, output_filename, type, order_no, inactive) VALUES ('Invoice', 'invoice_printer.php', 'invoice,en', 'invoice_%d.pdf', 'invoice', 7, 1);
+INSERT INTO pklasku_print_template (name, filename, parameters, output_filename, type, order_no, inactive) VALUES ('Receipt', 'invoice_printer.php', 'receipt,en', 'receipt_%d.pdf', 'invoice', 30, 1);

@@ -131,7 +131,7 @@ function saveFormData($table, &$primaryKey, &$formElements, &$values, &$warnings
     case 'INT':
     case 'HID_INT':
     case 'SECHID_INT':
-      $arrValues[] = $value !== '' ? str_replace(",", ".", $value) : 0;
+      $arrValues[] = $value !== '' ? str_replace(",", ".", $value) : ($elem['allow_null'] ? NULL : 0);
       break;
     case 'LIST':
       $arrValues[] = $value !== '' ? str_replace(",", ".", $value) : NULL;

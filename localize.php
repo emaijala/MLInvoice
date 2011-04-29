@@ -147,8 +147,9 @@ default:
   $GLOBALS['locACCESSLEVEL'] = 'Oikeustaso';
   $GLOBALS['locCompanyInactive'] = 'Asiakas pois käytöstä';
   $GLOBALS['locBaseName'] = 'Yrityksen nimi';
-  $GLOBALS['locPrintTemplateInactive'] = 'Pois käytöstä';
+  $GLOBALS['locROWTYPE'] = 'Rivityyppi';
 
+  $GLOBALS['locPrintTemplate'] = 'Tulostusmalli';
   $GLOBALS['locPrintTemplates'] = 'Tulostusmallit';
   $GLOBALS['locPrintTemplateName'] = 'Tulostusmallin nimi';
   $GLOBALS['locPrintTemplateFileName'] = 'Tiedosto';
@@ -157,6 +158,7 @@ default:
   $GLOBALS['locPrintTemplateType'] = 'Tyyppi';
   $GLOBALS['locPrintTemplateTypeInvoice'] = 'Lasku';
   $GLOBALS['locPrintTemplateOpenInNewWindow'] = 'Avaa uudessa ikkunassa';
+  $GLOBALS['locPrintTemplateInactive'] = 'Pois käytöstä';
   
   //FORM ERRORS & MESSAGES
   $GLOBALS['locERRVALUEMISSING'] = 'Virhe! Arvo puuttuu';
