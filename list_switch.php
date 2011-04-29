@@ -179,9 +179,10 @@ case 'print_template':
     array("name" => "type", 'width' => 150, "type" => "TEXT", "header" => $GLOBALS['locPrintTemplateType'], 
       'mappings' => array('invoice' => $GLOBALS['locPrintTemplateTypeInvoice']) ),
     array("name" => "name", 'width' => 200, "type" => "TEXT", "header" => $GLOBALS['locPrintTemplateName']),
+    array("name" => "inactive", 'width' => 100, "type" => "TEXT", "header" => $GLOBALS['locHeaderPrintTemplateActive'],
+      'mappings' => array('0' => $GLOBALS['locActive'], '1' => $GLOBALS['locInactive']) ),
     array("name" => "filename", 'width' => 200, "type" => "TEXT", "header" => $GLOBALS['locPrintTemplateFileName']),
     array("name" => "parameters", 'width' => 150, "type" => "TEXT", "header" => $GLOBALS['locPrintTemplateParameters']),
-    array("name" => "output_filename", 'width' => 200, "type" => "TEXT", "header" => $GLOBALS['locPrintTemplateOutputFileName']),
   );
   $strMainForm = "print_template";
   $strTitle = $GLOBALS['locPrintTemplates'];

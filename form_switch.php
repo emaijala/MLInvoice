@@ -264,7 +264,7 @@ EOS;
    // Print buttons
    $printButtons = array();
    $printButtons2 = array();
-   $res = mysql_query_check('SELECT * FROM {prefix}print_template WHERE type=\'invoice\' ORDER BY order_no');
+   $res = mysql_query_check('SELECT * FROM {prefix}print_template WHERE type=\'invoice\' and inactive=0 ORDER BY order_no');
    $templateCount = mysql_num_rows($res);
    $templateFirstCol = max(floor($templateCount / 2 + 1), 3);
    $rowNum = 0;
@@ -610,6 +610,8 @@ case 'print_template':
           "name" => "output_filename", "label" => $GLOBALS['locPrintTemplateOutputFileName'], "type" => "TEXT", "style" => "medium", "listquery" => "", "position" => 2, "default" => FALSE, "allow_null" => TRUE ),
         array(
           "name" => "new_window", "label" => $GLOBALS['locPrintTemplateOpenInNewWindow'], "type" => "CHECK", "style" => "medium", "listquery" => "", "position" => 1, "default" => FALSE, "allow_null" => TRUE ),
+       array(
+          "name" => "inactive", "label" => $GLOBALS['locPrintTemplateInactive'], "type" => "CHECK", "style" => "medium", "listquery" => "", "position" => 2, "default" => 0, "allow_null" => TRUE ),
      );
      break;
 }

@@ -212,6 +212,7 @@ CREATE TABLE vllasku_print_template (
   type varchar(100) NOT NULL,
   order_no int(11) default NULL,
   new_window tinyint NOT NULL default 0,
+  inactive tinyint NOT NULL default 0,
   PRIMARY KEY (id)
 ) ENGINE=INNODB CHARACTER SET utf8 COLLATE utf8_swedish_ci;
 
@@ -272,6 +273,7 @@ INSERT INTO vllasku_print_template (id, name, filename, parameters, output_filen
 INSERT INTO vllasku_print_template (id, name, filename, parameters, output_filename, type, order_no) VALUES (2, 'Lähetysluettelo', 'invoice_printer.php', 'dispatch', 'lahetysluettelo_%d.pdf','invoice', 15);
 INSERT INTO vllasku_print_template (id, name, filename, parameters, output_filename, type, order_no) VALUES (3, 'Kuitti', 'invoice_printer.php', 'receipt', 'kuitti_%d.pdf','invoice', 20);
 INSERT INTO vllasku_print_template (id, name, filename, parameters, output_filename, type, order_no) VALUES (4, 'Sähköposti', 'invoice_printer_email.php', 'invoice', 'lasku_%d.pdf','invoice', 10);
+INSERT INTO vllasku_print_template (id, name, filename, parameters, output_filename, type, order_no, inactive) VALUES (5, 'Invoice', 'invoice_printer.php', 'invoice,en', 'invoice_%d.pdf', 'invoice', 7, 1);
 
 INSERT INTO vllasku_users (id, name, email, login, passwd, type_id) VALUES (1, 'Administrator', '', 'admin', md5('admin'), 2);
 

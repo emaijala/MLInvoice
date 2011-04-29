@@ -1,10 +1,13 @@
 <?php
 
+require_once 'localize_invoice_pdf.php';
+
 abstract class InvoicePrinterBase
 {
   protected $pdf = null;
   protected $invoiceId = null;
   protected $printStyle = '';
+  protected $printLanguage = 'fi';
   protected $senderData = null;
   protected $recipientData = null;
   protected $invoiceData = null;
@@ -29,12 +32,16 @@ abstract class InvoicePrinterBase
   public function init($invoiceId, $printParameters, $outputFileName, $senderData, $recipientData, $invoiceData, $invoiceRowData)
   {
     $this->invoiceId = $invoiceId;
-    $this->printStyle = $printParameters;
+    $parameters = explode(',', $printParameters);
+    $this->printStyle = $parameters[0];
+    $this->printLanguage = isset($parameters[1]) ? $parameters[1] : 'fi';
     $this->outputFileName = $outputFileName;
     $this->senderData = $senderData;
     $this->recipientData = $recipientData;
     $this->invoiceData = $invoiceData;
     $this->invoiceRowData = $invoiceRowData;
+ 
+    initInvoicePDFLocalizations($this->printLanguage);
  
     $this->totalSum = 0;
     $this->totalVAT = 0;
@@ -54,11 +61,11 @@ abstract class InvoicePrinterBase
     $this->senderAddressLine = $senderData['name'];
     $strCompanyID = trim($senderData['company_id']);
     if ($strCompanyID)
-      $strCompanyID = $GLOBALS['locCOMPVATID'] . ": $strCompanyID";
+      $strCompanyID = $GLOBALS['locPDFCompanyVATID'] . ": $strCompanyID";
     if ($strCompanyID && $senderData['vat_registered'])
       $strCompanyID .= ', ';
     if ($senderData['vat_registered'])
-      $strCompanyID .= $GLOBALS['locVATREG'];
+      $strCompanyID .= $GLOBALS['locPDFVATReg'];
     if ($strCompanyID)
       $this->senderAddressLine .= " ($strCompanyID)";
     $this->senderAddressLine .= "\n" . $senderData['street_address'];
@@ -70,7 +77,7 @@ abstract class InvoicePrinterBase
     
     $this->senderAddress = $senderData['name'] . "\n" . $senderData['street_address'] . "\n" . $senderData['zip_code'] . ' ' . $senderData['city'];
     if ($senderData['phone'])
-      $this->senderContactInfo = "\n" . $GLOBALS['locPHONE'] . ' ' . $senderData['phone'];
+      $this->senderContactInfo = "\n" . $GLOBALS['locPDFPhone'] . ' ' . $senderData['phone'];
     else
       $this->senderContactInfo = '';
     
@@ -196,30 +203,30 @@ abstract class InvoicePrinterBase
     $pdf->SetXY(115,10);
     $pdf->SetFont('Helvetica','B',12);
     if ($this->printStyle == 'dispatch')
-      $pdf->Cell(40, 5, $GLOBALS['locDispatchNoteHeader'], 0, 1, 'R');
+      $pdf->Cell(40, 5, $GLOBALS['locPDFDispatchNoteHeader'], 0, 1, 'R');
     elseif ($this->printStyle == 'receipt')
-      $pdf->Cell(40, 5, $GLOBALS['locReceiptHeader'], 0, 1, 'R');
+      $pdf->Cell(40, 5, $GLOBALS['locPDFReceiptHeader'], 0, 1, 'R');
     elseif ($invoiceData['state_id'] == 5)
-      $pdf->Cell(40, 5, $GLOBALS['locFIRSTREMINDERHEADER'], 0, 1, 'R');
+      $pdf->Cell(40, 5, $GLOBALS['locPDFFirstReminderHeader'], 0, 1, 'R');
     elseif ($invoiceData['state_id'] == 6)
-      $pdf->Cell(40, 5, $GLOBALS['locSECONDREMINDERHEADER'], 0, 1, 'R');
+      $pdf->Cell(40, 5, $GLOBALS['locPDFSecondReminderHeader'], 0, 1, 'R');
     else
-      $pdf->Cell(40, 5, $GLOBALS['locINVOICEHEADER'], 0, 1, 'R');
+      $pdf->Cell(40, 5, $GLOBALS['locPDFInvoiceHeader'], 0, 1, 'R');
     $pdf->SetFont('Helvetica','',10);
     $pdf->SetXY(115, $pdf->GetY()+5);
     if ($recipientData['customer_no'] != 0)
     {
-      $pdf->Cell(40, 5, $GLOBALS['locCUSTOMERNUMBER'] .": ", 0, 0, 'R');
+      $pdf->Cell(40, 5, $GLOBALS['locPDFCustomerNumber'] .": ", 0, 0, 'R');
       $pdf->Cell(60, 5, $recipientData['customer_no'], 0, 1);
     }
     if ($recipientData['company_id'])
     {
       $pdf->SetX(115);
-      $pdf->Cell(40, 5, $GLOBALS['locCompanyVATID'] .": ", 0, 0, 'R');
+      $pdf->Cell(40, 5, $GLOBALS['locPDFClientVATID'] .": ", 0, 0, 'R');
       $pdf->Cell(60, 5, $recipientData['company_id'], 0, 1);
     }
     $pdf->SetX(115);
-    $pdf->Cell(40, 5, $GLOBALS["loc${locStr}Number"] . ': ', 0, 0, 'R');
+    $pdf->Cell(40, 5, $GLOBALS["locPDF${locStr}Number"] . ': ', 0, 0, 'R');
     $pdf->Cell(60, 5, $invoiceData['invoice_no'], 0, 1);
     $pdf->SetX(115);
     $pdf->Cell(40, 5, $GLOBALS["locPDF${locStr}Date"] . ': ', 0, 0, 'R');
@@ -229,24 +236,24 @@ abstract class InvoicePrinterBase
     if ($this->printStyle == 'invoice')
     {
       $pdf->SetX(115);
-      $pdf->Cell(40, 5, $GLOBALS['locPDFDUEDATE'] .": ", 0, 0, 'R');
+      $pdf->Cell(40, 5, $GLOBALS['locPDFDueDate'] .": ", 0, 0, 'R');
       $pdf->Cell(60, 5, $strDueDate, 0, 1);
       $pdf->SetX(115);
-      $pdf->Cell(40, 5, $GLOBALS['locTERMSOFPAYMENT'] .": ", 0, 0, 'R');
+      $pdf->Cell(40, 5, $GLOBALS['locPDFTermsOfPayment'] .": ", 0, 0, 'R');
       $paymentDays = strDate2UnixTime($strDueDate)/3600/24 - strDate2UnixTime($strInvoiceDate)/3600/24;
       if ($paymentDays < 0) //weird
         $paymentDays = getSetting('invoice_payment_days');
       $pdf->Cell(60, 5, sprintf(getSetting('invoice_terms_of_payment'), $paymentDays), 0, 1);
       $pdf->SetX(115);
-      $pdf->Cell(40, 5, $GLOBALS['locPERIODFORCOMPLAINTS'] .": ", 0, 0, 'R');
+      $pdf->Cell(40, 5, $GLOBALS['locPDFPeriodForComplaints'] .": ", 0, 0, 'R');
       $pdf->Cell(60, 5, getSetting('invoice_period_for_complaints'), 0, 1);
       $pdf->SetX(115);
-      $pdf->Cell(40, 5, $GLOBALS['locPENALTYINTEREST'] .": ", 0, 0, 'R');
+      $pdf->Cell(40, 5, $GLOBALS['locPDFPenaltyInterest'] .": ", 0, 0, 'R');
       $pdf->Cell(60, 5, miscRound2OptDecim(getSetting('invoice_penalty_interest'), 1) . ' %', 0, 1);
       $pdf->SetX(115);
       if ($this->refNumber != 0)
       {
-        $pdf->Cell(40, 5, $GLOBALS['locPDFINVREFNO'] .": ", 0, 0, 'R');
+        $pdf->Cell(40, 5, $GLOBALS['locPDFInvoiceRefNo'] .": ", 0, 0, 'R');
         $pdf->Cell(60, 5, $this->refNumber, 0, 1);
       }
     }
@@ -254,7 +261,7 @@ abstract class InvoicePrinterBase
     if ($invoiceData['reference'] && $this->printStyle != 'dispatch')
     {
       $pdf->SetX(115);
-      $pdf->Cell(40, 5, $GLOBALS['locYOURREFERENCE'] .": ", 0, 0, 'R');
+      $pdf->Cell(40, 5, $GLOBALS['locPDFYourReference'] .": ", 0, 0, 'R');
       $pdf->Cell(60, 5, $invoiceData['reference'], 0, 1);
     }
     if (isset($invoiceData['info']) && $invoiceData['info'])
@@ -269,21 +276,21 @@ abstract class InvoicePrinterBase
       if ($invoiceData['refunded_invoice_no'])
       {
         $pdf->SetX(115);
-        $pdf->Cell(40, 5, sprintf($GLOBALS['locREFUNDSINVOICE'], $invoiceData['refunded_invoice_no']), 0, 1, 'R');
+        $pdf->Cell(40, 5, sprintf($GLOBALS['locPDFRefundsInvoice'], $invoiceData['refunded_invoice_no']), 0, 1, 'R');
       }
       
       if ($invoiceData['state_id'] == 5)
       {
         $pdf->SetX(108);
         $pdf->SetFont('Helvetica','B',10);
-        $pdf->MultiCell(98, 5, $GLOBALS['locFIRSTREMINDERNOTE'], 0, 'L', 0);
+        $pdf->MultiCell(98, 5, $GLOBALS['locPDFFirstReminderNote'], 0, 'L', 0);
         $pdf->SetFont('Helvetica','',10);
       }
       elseif ($invoiceData['state_id'] == 6)
       {
         $pdf->SetX(108);
         $pdf->SetFont('Helvetica','B',10);
-        $pdf->MultiCell(98, 5, $GLOBALS['locSECONDREMINDERNOTE'], 0, 'L', 0);
+        $pdf->MultiCell(98, 5, $GLOBALS['locPDFSecondReminderNote'], 0, 'L', 0);
         $pdf->SetFont('Helvetica','',10);
       }
     }
@@ -302,7 +309,7 @@ abstract class InvoicePrinterBase
     $pdf = $this->pdf;
     $pdf->SetFont('Helvetica','B',20);
     $pdf->SetXY(20, $pdf->GetY()+40);
-    $pdf->MultiCell(180, 5, $GLOBALS['locSEESEPARATESTATEMENT'], 0, "L", 0);
+    $pdf->MultiCell(180, 5, $GLOBALS['locPDFSeeSeparateStatement'], 0, "L", 0);
   }
   
   protected function printRows()
@@ -317,7 +324,7 @@ abstract class InvoicePrinterBase
       
       $pdf->SetFont('Helvetica','B',20);
       $pdf->SetXY(4, $pdf->GetY());
-      $pdf->Cell(80, 5, $GLOBALS['locINVOICESTATEMENT'], 0, 0, "L");
+      $pdf->Cell(80, 5, $GLOBALS['locPDFInvoiceStatement'], 0, 0, "L");
       $pdf->SetFont('Helvetica','',10);
       $pdf->SetX(115);
       
@@ -328,7 +335,7 @@ abstract class InvoicePrinterBase
       else
         $locStr = 'Invoice';
       
-      $pdf->Cell(40, 5, $GLOBALS["loc${locStr}Number"] . ': ', 0, 0, 'R');
+      $pdf->Cell(40, 5, $GLOBALS["locPDF${locStr}Number"] . ': ', 0, 0, 'R');
       $pdf->Cell(60, 5, $invoiceData['invoice_no'], 0, 1);
       $pdf->SetXY(7, $pdf->GetY()+10);
     }
@@ -351,25 +358,25 @@ abstract class InvoicePrinterBase
     $pdf->SetX($left);
     if ($showDate) 
     {
-      $pdf->Cell($nameColWidth - 20, 5, $GLOBALS['locROWNAME'], 0, 0, "L");
-      $pdf->Cell(20, 5, $GLOBALS['locDATE'], 0, 0, "L");
+      $pdf->Cell($nameColWidth - 20, 5, $GLOBALS['locPDFRowName'], 0, 0, "L");
+      $pdf->Cell(20, 5, $GLOBALS['locPDFRowDate'], 0, 0, "L");
     }
     else {
-        $pdf->Cell($nameColWidth, 5, $GLOBALS['locROWNAME'], 0, 0, "L");
+        $pdf->Cell($nameColWidth, 5, $GLOBALS['locPDFRowName'], 0, 0, "L");
     }
     if ($this->printStyle != 'dispatch')
     {
-      $pdf->Cell(17, 5, $GLOBALS['locROWPRICE'], 0, 0, "R");
+      $pdf->Cell(17, 5, $GLOBALS['locPDFRowPrice'], 0, 0, "R");
       if ($this->discountedRows)
-        $pdf->Cell(12, 5, $GLOBALS['locRowDiscount'], 0, 0, "R");
+        $pdf->Cell(12, 5, $GLOBALS['locPDFRowDiscount'], 0, 0, "R");
     }
-    $pdf->Cell(20, 5, $GLOBALS['locPieces'], 0, 0, "R");
+    $pdf->Cell(20, 5, $GLOBALS['locPDFRowPieces'], 0, 0, "R");
     if ($this->printStyle != 'dispatch')
     {
-      $pdf->Cell(20, 5, $GLOBALS['locROWTOTAL'], 0, 0, "R");
-      $pdf->Cell(15, 5, $GLOBALS['locVATPERCENT'], 0, 0, "R");
-      $pdf->Cell(15, 5, $GLOBALS['locTAX'], 0, 0, "R");
-      $pdf->Cell(20, 5, $GLOBALS['locROWTOTAL'], 0, 1, "R");
+      $pdf->Cell(20, 5, $GLOBALS['locPDFRowTotal'], 0, 0, "R");
+      $pdf->Cell(15, 5, $GLOBALS['locPDFRowVATPercent'], 0, 0, "R");
+      $pdf->Cell(15, 5, $GLOBALS['locPDFRowTax'], 0, 0, "R");
+      $pdf->Cell(20, 5, $GLOBALS['locPDFRowTotal'], 0, 1, "R");
     }
     else
     {
@@ -388,15 +395,25 @@ abstract class InvoicePrinterBase
     
       // Product / description
       $description = '';
-      if ($row['product_name'])
+      switch ($row['reminder_row'])
       {
-        if ($row['description']) 
-          $description = $row['product_name'] . ' (' . $row['description'] . ')';
+      case 1: 
+        $description = $GLOBALS['locPDFReminderFeeDesc'];
+        break;
+      case 2:
+        $description = $GLOBALS['locPDFPenaltyInterestDesc'];
+        break;
+      default:
+        if ($row['product_name'])
+        {
+          if ($row['description']) 
+            $description = $row['product_name'] . ' (' . $row['description'] . ')';
+          else
+            $description = $row['product_name'];
+        }
         else
-          $description = $row['product_name'];
+          $description = $row['description'];
       }
-      else
-        $description = $row['description'];
   
       // Sums
       list($rowSum, $rowVAT, $rowSumVAT) = calculateRowSum($row['price'], $row['pcs'], $row['vat'], $row['vat_included'], $row['discount']);
@@ -405,7 +422,7 @@ abstract class InvoicePrinterBase
       
       if ($row['price'] == 0 && $row['pcs'] == 0) 
       {
-        $pdf->SetX(5);
+        $pdf->SetX($left);
         $pdf->MultiCell(0, 5, $description, 0, 'L');
       }
       else 
@@ -449,19 +466,19 @@ abstract class InvoicePrinterBase
     {
       $pdf->SetFont('Helvetica','',10);
       $pdf->SetY($pdf->GetY()+10);
-      $pdf->Cell(162, 5, $GLOBALS['locTOTALEXCLUDINGVAT'] .": ", 0, 0, "R");
+      $pdf->Cell(162, 5, $GLOBALS['locPDFTotalExcludingVAT'] .": ", 0, 0, "R");
       $pdf->SetX(187 - $left);
       $pdf->Cell(20, 5, miscRound2Decim($this->totalSum), 0, 0, "R");
       
       $pdf->SetFont('Helvetica','',10);
       $pdf->SetY($pdf->GetY()+5);
-      $pdf->Cell(162, 5, $GLOBALS['locTOTALVAT'] .": ", 0, 0, "R");
+      $pdf->Cell(162, 5, $GLOBALS['locPDFTotalVAT'] .": ", 0, 0, "R");
       $pdf->SetX(187 - $left);
       $pdf->Cell(20, 5, miscRound2Decim($this->totalVAT), 0, 0, "R");
       
       $pdf->SetFont('Helvetica','B',10);
       $pdf->SetY($pdf->GetY()+5);
-      $pdf->Cell(162, 5, $GLOBALS['locTOTALINCLUDINGVAT'] .": ", 0, 0, "R");
+      $pdf->Cell(162, 5, $GLOBALS['locPDFTotalIncludingVAT'] .": ", 0, 0, "R");
       $pdf->SetX(187 - $left);
       $pdf->Cell(20, 5, miscRound2Decim($this->totalSumVAT), 0, 1, "R");
     }
@@ -517,20 +534,20 @@ abstract class InvoicePrinterBase
     //6. ver.line - 5.hor - 6. hor
     $pdf->Line($intStartX+160, $intStartY+66, $intStartX+160, $intStartY+74.5);
     
-    //underscript
+    // signature
     $pdf->SetLineWidth(0.13);
     $pdf->Line($intStartX+23, $intStartY+63, $intStartX+90, $intStartY+63);
     
-    //bank
+    // bank
     $pdf->SetFont('Helvetica','',7);
     $pdf->SetXY($intStartX, $intStartY + 1);
-    $pdf->MultiCell(19, 2.8, "Saajan\ntilinumero", 0, "R", 0);
+    $pdf->MultiCell(19, 2.8, $GLOBALS['locPDFFormRecipientAccountNumber1'], 0, "R", 0);
     $pdf->SetXY($intStartX, $intStartY + 8);
-    $pdf->MultiCell(19, 2.8, "Mottagarens\nkontonummer", 0, "R", 0);
+    $pdf->MultiCell(19, 2.8, $GLOBALS['locPDFFormRecipientAccountNumber2'], 0, "R", 0);
     $pdf->SetXY($intStartX + 112.4, $intStartY + 0.5);
-    $pdf->Cell(10, 2.8, "IBAN", 0, 1, "L");
+    $pdf->Cell(10, 2.8, $GLOBALS['locPDFFormIBAN'], 0, 1, "L");
     $pdf->SetXY($intStartX + 162.4, $intStartY + 0.5);
-    $pdf->Cell(10, 2.8, "BIC", 0, 1, "L");
+    $pdf->Cell(10, 2.8, $GLOBALS['locPDFFormBIC'], 0, 1, "L");
     
     // account 1
     $pdf->SetFont('Helvetica','',10);
@@ -563,61 +580,62 @@ abstract class InvoicePrinterBase
     $pdf->SetX($intStartX + 170.4);
     $pdf->Cell(15, 4, $senderData['bank_swiftbic3'], 0, 0, "L");
     
-    //payment recipient
+    // payment recipient
     $pdf->SetFont('Helvetica','',7);
     $pdf->SetXY($intStartX, $intStartY + 18);
-    $pdf->Cell(19, 5, "Saaja", 0, 1, "R");
+    $pdf->Cell(19, 5, $GLOBALS['locPDFFormRecipient1'], 0, 1, "R");
     $pdf->SetXY($intStartX, $intStartY + 22);
-    $pdf->Cell(19, 5, "Mottagare", 0, 1, "R");
+    $pdf->Cell(19, 5, $GLOBALS['locPDFFormRecipient2'], 0, 1, "R");
     $pdf->SetFont('Helvetica','',10);
     $pdf->SetXY($intStartX + 22,$intStartY + 18);
     $pdf->MultiCell(100, 4, $this->senderAddress,0,1);
     
-    //payer
+    // payer
     $pdf->SetFont('Helvetica','',7);
     $pdf->SetXY($intStartX, $intStartY + 35);
-    $pdf->MultiCell(19, 2.8, "Maksajan\nnimi ja\nosoite", 0, "R", 0);
+    $pdf->MultiCell(19, 2.8, $GLOBALS['locPDFFormPayerNameAndAddress1'], 0, "R", 0);
     $pdf->SetXY($intStartX, $intStartY + 45);
-    $pdf->MultiCell(19, 2.8, "Betalarens\nnamn och\naddress", 0, "R", 0);
+    $pdf->MultiCell(19, 2.8, $GLOBALS['locPDFFormPayernameAndAddress2'], 0, "R", 0);
     $pdf->SetFont('Helvetica','',10);
     $pdf->SetXY($intStartX + 22, $intStartY + 35);
     $pdf->MultiCell(100, 4, $this->billingAddress,0,1);
     
-    //underscript
+    // signature
     $pdf->SetFont('Helvetica','',7);
-    $pdf->SetXY($intStartX, $intStartY + 60);
-    $pdf->Cell(19, 5, "Allekirjoitus", 0, 1, "R");
-    //from account
-    $pdf->SetXY($intStartX, $intStartY + 68);
-    $pdf->Cell(19, 5, cond_utf8_decode('Tililtä'), 0, 1, "R");
+    $pdf->SetXY($intStartX, $intStartY + 59);
+    $pdf->MultiCell(19, 6, $GLOBALS['locPDFFormSignature'], 0, "R", 0);
+
+    // from account
+    $pdf->SetXY($intStartX, $intStartY + 67);
+    $pdf->MultiCell(19, 6, $GLOBALS['locPDFFormFromAccount'], 0, "R", 0);
     
-    //info
+    // info
     $pdf->SetFont('Helvetica','',10);
     $pdf->SetXY($intStartX + 112.4, $intStartY + 20);
-    $pdf->Cell(70, 5, "Laskunumero " . $invoiceData['invoice_no'], 0, 1, "L");
+    $pdf->Cell(70, 5, sprintf($GLOBALS['locPDFFormInvoiceNumber'], $invoiceData['invoice_no']), 0, 1, "L");
     if ($this->refNumber != 0)
     {
       $pdf->SetXY($intStartX + 112.4, $intStartY + 30);
-      $pdf->Cell(70, 5, "Viitenumero on aina mainittava maksettaessa.", 0, 1, "L");
+      $pdf->Cell(70, 5, $GLOBALS['locPDFFormRefNumberMandatory1'], 0, 1, "L");
       $pdf->SetXY($intStartX + 112.4, $intStartY + 35);
-      $pdf->Cell(70, 5, cond_utf8_decode('Referensnumret bör alltid anges vid betalning.'), 0, 1, "L");
+      $pdf->Cell(70, 5, $GLOBALS['locPDFFormRefNumberMandatory2'], 0, 1, "L");
     }
-    //terms
+    // terms
     $pdf->SetFont('Helvetica','',5);
     $pdf->SetXY($intStartX + 133, $intStartY + 85);
-    $pdf->MultiCell(70, 2, cond_utf8_decode("Maksu välitetään saajalle maksujenvälityksen ehtojen mukaisesti ja vain\nmaksajan ilmoittaman tilinumeron perusteella"),0,1);
+    $pdf->MultiCell(70, 2, $GLOBALS['locPDFFormClearingTerms1'], 0, 1);
     $pdf->SetXY($intStartX + 133, $intStartY + 90);
-    $pdf->MultiCell(70, 2, cond_utf8_decode("Betalningen förmedlas till mottagaren enligt villkoren för betalnings-\nförmedling och endast till det kontonummer som betalaren angivit"),0,1);
+    $pdf->MultiCell(70, 2, $GLOBALS['locPDFFormClearingTerms2'], 0, 1);
     $pdf->SetFont('Helvetica','',6);
     $pdf->SetXY($intStartX + 133, $intStartY + 95);
-    $pdf->Cell($intMaxX + 1 - 133 - $intStartX, 5, "PANKKI BANKEN", 0, 1, "R");
+    $pdf->Cell($intMaxX + 1 - 133 - $intStartX, 5, $GLOBALS['locPDFFormBank'], 0, 1, "R");
     
     
     $pdf->SetFont('Helvetica','',7);
-    //refno
+    // refno
     $pdf->SetFont('Helvetica','',7);
-    $pdf->SetXY($intStartX + 112.4, $intStartY + 59);
-    $pdf->Cell(15, 5, "Viitenro", 0, 1, "L");
+    $pdf->SetXY($intStartX + 112.4, $intStartY + 58);
+    $pdf->MultiCell(15, 6, $GLOBALS['locPDFFormReferenceNumber'], 0, "L", 0);
     if ($this->refNumber != 0)
     {
       $pdf->SetFont('Helvetica','',10);
@@ -625,25 +643,26 @@ abstract class InvoicePrinterBase
       $pdf->Cell(15, 5, $this->refNumber, 0, 1, "L");
     }
     
-    //duedate
+    // due date
     $pdf->SetFont('Helvetica','',7);
-    $pdf->SetXY($intStartX + 112.4, $intStartY + 68);
-    $pdf->Cell(15, 5, cond_utf8_decode('Eräpäivä'), 0, 1, "L");
+    $pdf->SetXY($intStartX + 112.4, $intStartY + 67);
+    $pdf->MultiCell(15, 6, $GLOBALS['locPDFFormDueDate'], 0, "L", 0);
     $pdf->SetFont('Helvetica','',10);
     $pdf->SetXY($intStartX + 131.4, $intStartY + 68);
-    $pdf->Cell(25, 5, ($invoiceData['state_id'] == 5 || $invoiceData['state_id'] == 6) ? $GLOBALS['locDUEDATENOW'] : dateConvIntDate2Date($invoiceData['due_date']), 0, 1, "L");
+    $pdf->Cell(25, 5, ($invoiceData['state_id'] == 5 || $invoiceData['state_id'] == 6) ? $GLOBALS['locPDFFormDueDateNOW'] : dateConvIntDate2Date($invoiceData['due_date']), 0, 1, "L");
     
-    //eur
+    // amount
     $pdf->SetFont('Helvetica','',7);
-    $pdf->SetXY($intStartX + 161, $intStartY + 68);
-    $pdf->Cell(15, 5, "Euro", 0, 1, "L");
+    $pdf->SetXY($intStartX + 161, $intStartY + 67);
+    $pdf->MultiCell(15, 6, $GLOBALS['locPDFFormCurrency'], 0, "L", 0);
     $pdf->SetFont('Helvetica','',10);
     $pdf->SetXY($intStartX + 151, $intStartY + 68);
     $pdf->Cell(40, 5, miscRound2Decim($this->totalSumVAT), 0, 1, "R");
     
-    //barcode
+    // barcode
     /*
-    1  	Currency (1=FIM, 2=EURO. EURO must not be used before 1.1.1999!)
+    1   Barcode version, this is version 2
+    1  	Currency (1=FIM, 2=EURO)
     14 	Zero-padded account number. The zeroes are added after the sixth number except in numbers that begin with 4 or 5. Those are padded after the seventh number.
     8 	Amount. The format is xxxxxx.xx, so you can't charge your customers millions ;)
     20 	Reference Number
@@ -691,7 +710,7 @@ abstract class InvoicePrinterBase
           'hpadding' => 'auto',
           'vpadding' => 'auto',
           'fgcolor' => array(0,0,0),
-          'bgcolor' => false, //array(255,255,255),
+          'bgcolor' => false, 
           'text' => false,
           'font' => 'helvetica',
           'fontsize' => 8,

@@ -15,6 +15,8 @@ Tämä ohjelma on vapaa. Lue oheinen LICENSE.
 
 *******************************************************************************/
 
+ini_set('display_errors', 0);
+
 require_once 'sqlfuncs.php';
 require_once 'miscfuncs.php';
 require_once 'sessionfuncs.php';
