@@ -16,6 +16,7 @@ class InvoicePrinter extends InvoicePrinterBase
   public function printInvoice()
   {
     $senderData = $this->senderData;
+    $recipientData = $this->recipientData;
   
     $this->emailFrom = getRequest('email_from', isset($senderData['invoice_email_from']) ? $senderData['invoice_email_from'] : '');
     $this->emailTo = getRequest('email_to', isset($recipientData['email']) ? $recipientData['email'] : '');
