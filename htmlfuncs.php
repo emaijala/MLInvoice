@@ -86,7 +86,8 @@ EOT;
     return $strHtmlStart;
 }
 
-function htmlListBox( $strName, $astrValues, $astrOptions, $strSelected, $strStyle = "", $blnOnChange = FALSE, $blnShowEmpty = TRUE, $astrAdditionalAttributes = '') {
+function htmlListBox($strName, $astrValues, $astrOptions, $strSelected, $strStyle = "", $blnOnChange = FALSE, $blnShowEmpty = TRUE, $astrAdditionalAttributes = '') 
+{
 /********************************************************************
 Function : htmlListBox
     Create Html-listbox
@@ -101,30 +102,37 @@ Return : $strListBox (string) : listbox element
 
 Todo : 
 ********************************************************************/
-    $strOnChange = '';
-    if( $blnOnChange ) {
-        $strOnChange = "onchange='this.form.submit();'";
+  $strOnChange = '';
+  if ($blnOnChange) 
+  {
+    $strOnChange = "onchange='this.form.submit();'";
+  }
+  if ($astrAdditionalAttributes)
+    $astrAdditionalAttributes = " $astrAdditionalAttributes";
+  $strListBox = 
+      "<select class=\"$strStyle\" id=\"$strName\" name=\"$strName\"{$strOnChange}{$astrAdditionalAttributes}>\n";
+  if ($blnShowEmpty) 
+  {
+    $strListBox .= '<option value=""' . ($strSelected ? '' : ' selected') . "> - </option>\n";
+  }
+  
+  for ($i = 0; $i < count($astrValues); $i++) 
+  {
+    if ($strSelected == $astrValues[$i]) 
+    {
+      $strSelect = "selected";
     }
-    $strListBox = 
-        "<select class=\"$strStyle\" id=\"$strName\" name=\"$strName\" $strOnChange $astrAdditionalAttributes>\n";
-    if( $blnShowEmpty ) {
-        $strListBox .= '<option value=""' . ($strSelected ? '' : ' selected') . "> - </option>\n";
+    else 
+    {
+      $strSelect = "";
     }
-    
-    for( $i = 0; $i < count($astrValues); $i++ ) {
-        if( $strSelected == $astrValues[$i] ) {
-            $strSelect = "selected";
-        }
-        else {
-            $strSelect = "";
-        }
-        $strListBox .= 
-            "<option value=\"" . htmlspecialchars($astrValues[$i]) . "\" $strSelect>" .
-            htmlspecialchars($astrOptions[$i]) . "</option>\n";
-    }        
-    $strListBox .= "</select>\n";
+    $strListBox .= 
+      "<option value=\"" . htmlspecialchars($astrValues[$i]) . "\" $strSelect>" .
+      htmlspecialchars($astrOptions[$i]) . "</option>\n";
+  }        
+  $strListBox .= "</select>\n";
 
-    return $strListBox;
+  return $strListBox;
 }
 
 function htmlSQLListBox($strName, $strQuery, $strSelected, $strStyle = "", $intOnChange = 0, $astrAdditionalAttributes) 

@@ -161,7 +161,7 @@ function createForm($strFunc, $strList, $strForm)
   <div class="form_container">
     <div id="message" class="message ui-state-error-text"><?php echo $strMessage ?></div>
   
-  <?php createFormButtons($blnNew, $copyLinkOverride, 1) ?>
+<?php createFormButtons($blnNew, $copyLinkOverride, 1) ?>
     <div class="form">
       <form method="post" name="admin_form" id="admin_form">
       <input type="hidden" name="saveact" value="0">
@@ -173,14 +173,18 @@ function createForm($strFunc, $strList, $strForm)
       <table>
 <?php
   $haveChildForm = false;
-  $prevPosition = FALSE;
-  $prevColSpan = 0;
+  $prevPosition = false;
+  $prevColSpan = 1;
+  $rowOpen = false;
   foreach ($astrFormElements as $elem) 
   {
-    if ($elem['type'] === FALSE)
+    if ($elem['type'] === false)
       continue;
     if ($elem['type'] == "LABEL") 
     {
+      if ($rowOpen)
+        echo "        </tr>\n";
+      $rowOpen = false;
   ?>
         <tr>
           <td class="sublabel" colspan="4">
@@ -190,38 +194,44 @@ function createForm($strFunc, $strList, $strForm)
   <?php
       continue;
     }
-    if ($elem['position'] == 0 || $elem['position'] < $prevPosition) 
+
+    if ($elem['position'] == 0 || $elem['position'] <= $prevPosition) 
     {
       $prevPosition = 0;
       $prevColSpan = 1;
       echo "        </tr>\n";
-    }
-    if ($prevPosition !== FALSE && $elem['position'] > 0)
-    {
-      for ($i = $prevPosition + $prevColSpan; $i < $elem['position']; $i++)
-      {
-        echo "          <td class=\"label\">&nbsp;</td>";
-      }
+      $rowOpen = false;
     }
   
-    if ($elem['type'] == "IFORM") 
+    if ($elem['type'] != "IFORM") 
     {
-    }
-    elseif ($elem['position'] == 0 && !strstr($elem['type'], "HID_")) 
-    {
-      echo "        <tr>\n";
-      $strColspan = "colspan=\"3\"";
-      $intColspan = 3;
-    }
-    elseif ($elem['position'] == 1 && !strstr($elem['type'], "HID_")) 
-    {
-      echo "        <tr>\n";
-      $strColspan = '';
-      $intColspan = 2;
-    }
-    else 
-    {
-      $intColspan = 2;
+      if (!$rowOpen)
+      {
+        $rowOpen = true;
+        echo "        <tr>\n";
+      }
+      if ($prevPosition !== FALSE && $elem['position'] > 0)
+      {
+        for ($i = $prevPosition + $prevColSpan; $i < $elem['position']; $i++)
+        {
+          echo "          <td class=\"label\">&nbsp;</td>\n";
+        }
+      }
+      
+      if ($elem['position'] == 0 && !strstr($elem['type'], "HID_")) 
+      {
+        $strColspan = "colspan=\"3\"";
+        $intColspan = 3;
+      }
+      elseif ($elem['position'] == 1 && !strstr($elem['type'], "HID_")) 
+      {
+        $strColspan = '';
+        $intColspan = 2;
+      }
+      else 
+      {
+        $intColspan = 2;
+      }
     }
 
     if ($blnNew && ($elem['type'] == 'BUTTON' || $elem['type'] == 'JSBUTTON' || $elem['type'] == 'IMAGE')) 
@@ -233,7 +243,8 @@ function createForm($strFunc, $strList, $strForm)
       $intColspan = 1;
 ?>
           <td class="button">
-            <?php echo htmlFormElement($elem['name'], $elem['type'], $astrValues[$elem['name']], $elem['style'], $elem['listquery'], "MODIFY", $elem['parent_key'],$elem['label'], array(), isset($elem['elem_attributes']) ? $elem['elem_attributes'] : '')?>
+            <?php echo htmlFormElement($elem['name'], $elem['type'], $astrValues[$elem['name']], $elem['style'], $elem['listquery'], "MODIFY", $elem['parent_key'],$elem['label'], array(), isset($elem['elem_attributes']) ? $elem['elem_attributes'] : '')
+?>
           </td>
 <?php          
     }
@@ -253,6 +264,8 @@ function createForm($strFunc, $strList, $strForm)
     }
     elseif ($elem['type'] == "IFORM") 
     {
+      if ($rowOpen)
+        echo "        </tr>\n";
       echo "      </table>\n      </form>\n";
       $haveChildForm = true;
       createIForm($astrFormElements, $elem, isset($intKeyValue) ? $intKeyValue : 0, $blnNew);
@@ -264,20 +277,26 @@ function createForm($strFunc, $strList, $strForm)
       if ($elem['style'] == 'measurement')
         $value = $value ? miscRound2Decim($value, 2) : '';
 ?>
-          <td class="label">
-            <?php echo $elem['label']?>
-          </td>
-          <td class="field" <?php echo $strColspan?>>
-            <?php echo htmlFormElement($elem['name'], $elem['type'], $value, $elem['style'], $elem['listquery'], "MODIFY", isset($elem['parent_key']) ? $elem['parent_key'] : '', '', array(), isset($elem['elem_attributes']) ? $elem['elem_attributes'] : '')?>
-            <?php if (isset($elem['attached_elem'])) echo $elem['attached_elem']?>
+          <td class="label"><?php echo $elem['label']?></td>
+          <td class="field"<?php echo $strColspan?>>
+            <?php echo htmlFormElement($elem['name'], $elem['type'], $value, $elem['style'], $elem['listquery'], "MODIFY", isset($elem['parent_key']) ? $elem['parent_key'] : '', '', array(), isset($elem['elem_attributes']) ? $elem['elem_attributes'] : '');
+      if (isset($elem['attached_elem'])) echo '            ' . $elem['attached_elem'] . "\n";
+?>
           </td>
 <?php
     }
     $prevPosition = is_int($elem['position']) ? $elem['position'] : 0;
+    if ($prevPosition == 0)
+      $prevPosition = 255;
     $prevColSpan = $intColspan;
   }
+  if (!$haveChildForm)
+  {
+    if ($rowOpen)
+      echo "        </tr>\n";
+    echo "      </table>\n      </form>\n";
+  }
 ?>
-  <?php if (!$haveChildForm) echo "      </table>\n      </form>\n"?>
     </div>
 
 <script type="text/javascript">
@@ -297,7 +316,7 @@ $(document).ready(function() {
   
   $('#admin_form').find('input[type="text"],input[type="checkbox"],select,textarea').change(function() { $('.save_button').addClass('unsaved'); });
 <?php 
-  if ($haveChildForm) 
+  if ($haveChildForm && !$blnNew) 
   {
 ?>
   init_rows();
@@ -311,7 +330,7 @@ $(document).ready(function() {
 ?>		
 });
 <?php 
-  if ($haveChildForm) 
+  if ($haveChildForm && !$blnNew) 
   {
 ?>
 function init_rows_done()
@@ -406,6 +425,19 @@ function popup_dialog(url, on_close, dialog_title, event, width, height)
 
 function createIForm($astrFormElements, $elem, $intKeyValue, $newRecord)
 {
+?>
+      <div class="iform <?php echo $elem['style']?> ui-corner-tl ui-corner-bl ui-corner-br ui-corner-tr ui-helper-clearfix" id="<?php echo $elem['name']?>"<?php echo $elem['elem_attributes'] ? ' ' . $elem['elem_attributes'] : ''?>>
+        <div class="ui-corner-tl ui-corner-tr fg-toolbar ui-toolbar ui-widget-header"><?php echo $elem['label']?></div>
+        <span id="imessage" class="message ui-state-error-text" style="display: none"></span>
+<?php
+  if ($newRecord)
+  {
+?>
+        <div id="inewmessage" class="new_message"><?php echo $GLOBALS['locSaveRecordToAddRows']?></div>
+      </div>
+<?php
+    return;
+  }
 ?>
 <script type="text/javascript">
 /* <![CDATA[ */
@@ -767,20 +799,6 @@ function popup_editor(event, title, id, copy_row)
 }  
 /* ]]> */
 </script>
-
-      <div class="iform <?php echo $elem['style']?> ui-corner-tl ui-corner-bl ui-corner-br ui-corner-tr ui-helper-clearfix" id="<?php echo $elem['name']?>"<?php echo $elem['elem_attributes'] ? ' ' . $elem['elem_attributes'] : ''?>>
-        <div class="ui-corner-tl ui-corner-tr fg-toolbar ui-toolbar ui-widget-header"><?php echo $elem['label']?></div>
-        <span id="imessage" class="message ui-state-error-text" style="display: none"></span>
-<?php
-  if ($newRecord)
-  {
-?>
-        <div id="imessage" class="new_message"><?php echo $GLOBALS['locSaveRecordToAddRows']?></div>
-      </div>
-<?php
-    return;
-  }
-?>
         <form method="post" name="iform" id="iform">
         <table class="iform" id="itable">
           <tr id="form_row">
@@ -862,21 +880,20 @@ function popup_editor(event, title, id, copy_row)
 function createFormButtons($boolNew, $copyLinkOverride, $spinner = 0)
 {
 ?>
-  <div class="form_buttons">
-    <a class="actionlink save_button" href="#" onclick="document.getElementById('admin_form').saveact.value=1; document.getElementById('admin_form').submit(); return false;"><?php echo $GLOBALS['locSAVE']?></a>
-  <?php
+    <div class="form_buttons">
+      <a class="actionlink save_button" href="#" onclick="document.getElementById('admin_form').saveact.value=1; document.getElementById('admin_form').submit(); return false;"><?php echo $GLOBALS['locSAVE']?></a>
+<?php
   if (!$boolNew) 
   {
     $copyCmd = $copyLinkOverride ? "window.location='$copyLinkOverride'; return false;" : "document.getElementById('admin_form').copyact.value=1; document.getElementById('admin_form').submit(); return false;";
-  ?>    
-    <a class="actionlink" href="#" onclick="<?php echo $copyCmd?>"><?php echo $GLOBALS['locCOPY']?></a>
-    <a class="actionlink" href="#" onclick="document.getElementById('admin_form').newact.value=1; document.getElementById('admin_form').submit(); return false;"><?php echo $GLOBALS['locNEW']?></a>
-    <a class="actionlink" href="#" onclick="if(confirm('<?php echo $GLOBALS['locCONFIRMDELETE']?>')==true) {  document.getElementById('admin_form').deleteact.value=1; document.getElementById('admin_form').submit(); return false;} else{ return false; }"><?php echo $GLOBALS['locDELETE']?></a>        
-  <?php
+?>      <a class="actionlink" href="#" onclick="<?php echo $copyCmd?>"><?php echo $GLOBALS['locCOPY']?></a>
+      <a class="actionlink" href="#" onclick="document.getElementById('admin_form').newact.value=1; document.getElementById('admin_form').submit(); return false;"><?php echo $GLOBALS['locNEW']?></a>
+      <a class="actionlink" href="#" onclick="if(confirm('<?php echo $GLOBALS['locCONFIRMDELETE']?>')==true) {  document.getElementById('admin_form').deleteact.value=1; document.getElementById('admin_form').submit(); return false;} else{ return false; }"><?php echo $GLOBALS['locDELETE']?></a>        
+<?php
   }
   if ($spinner)
-    echo ' <span id="spinner" style="visibility: hidden"><img src="images/spinner.gif" alt=""></span>';
+    echo '     <span id="spinner" style="visibility: hidden"><img src="images/spinner.gif" alt=""></span>' . "\n";
 ?>
-  </div>
+    </div>
 <?php
 }
