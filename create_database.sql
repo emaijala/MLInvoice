@@ -274,7 +274,7 @@ INSERT INTO vllasku_print_template (id, name, filename, parameters, output_filen
 INSERT INTO vllasku_print_template (id, name, filename, parameters, output_filename, type, order_no) VALUES (3, 'Kuitti', 'invoice_printer.php', 'receipt', 'kuitti_%d.pdf', 'invoice', 25);
 INSERT INTO vllasku_print_template (id, name, filename, parameters, output_filename, type, order_no) VALUES (4, 'Sähköposti', 'invoice_printer_email.php', 'invoice', 'lasku_%d.pdf', 'invoice', 10);
 INSERT INTO vllasku_print_template (id, name, filename, parameters, output_filename, type, order_no, inactive) VALUES (5, 'Invoice', 'invoice_printer.php', 'invoice,en', 'invoice_%d.pdf', 'invoice', 15, 1);
-INSERT INTO vllasku_print_template (id, name, filename, parameters, output_filename, type, order_no, inactive) VALUES (6, 'Receipt', 'invoice_printer.php', 'receipt,en', 'receipt_%d.pdf', 'invoice', 30);
+INSERT INTO vllasku_print_template (id, name, filename, parameters, output_filename, type, order_no, inactive) VALUES (6, 'Receipt', 'invoice_printer.php', 'receipt,en', 'receipt_%d.pdf', 'invoice', 30, 1);
 
 INSERT INTO vllasku_users (id, name, email, login, passwd, type_id) VALUES (1, 'Administrator', '', 'admin', md5('admin'), 2);
 
