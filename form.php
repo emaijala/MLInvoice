@@ -777,6 +777,12 @@ function popup_editor(event, title, id, copy_row)
     form.<?php echo "iform_popup_$name"?>.value = json.<?php echo $name?> ? json.<?php echo $name?>.substr(6, 2) + '.' + json.<?php echo $name?>.substr(4, 2) + '.' + json.<?php echo $name?>.substr(0, 4) : '';
 <?php
     }
+    elseif ($subElem['type'] == 'CHECK')
+    {
+?> 
+    form.<?php echo "iform_popup_$name"?>.checked = json.<?php echo $name?> != 0 ? true : false;
+<?php
+    }
     else
     {
 ?> 
@@ -790,7 +796,7 @@ function popup_editor(event, title, id, copy_row)
     if (!copy_row)
       buttons["<?php echo $GLOBALS['locDELETE']?>"] = function() { if(confirm('<?php echo $GLOBALS['locCONFIRMDELETE']?>')==true) { delete_row('iform_popup'); } return false; };
     buttons["<?php echo $GLOBALS['locCLOSE']?>"] = function() { $("#popup_edit").dialog('close'); };
-    $("#popup_edit").dialog({ modal: true, width: 810, height: 150, resizable: false, 
+    $("#popup_edit").dialog({ modal: true, width: 840, height: 150, resizable: false, 
       buttons: buttons,
       title: title,
     });
