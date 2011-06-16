@@ -264,7 +264,7 @@ EOS;
    // Print buttons
    $printButtons = array();
    $printButtons2 = array();
-   $res = mysql_query_check('SELECT * FROM {prefix}print_template WHERE type=\'invoice\' and inactive=0 ORDER BY order_no');
+   $res = mysql_query_check('SELECT * FROM {prefix}print_template WHERE deleted=0 and type=\'invoice\' and inactive=0 ORDER BY order_no');
    $templateCount = mysql_num_rows($res);
    $templateFirstCol = max(floor($templateCount / 2 + 1), 3);
    $rowNum = 0;
@@ -366,9 +366,11 @@ case 'invoice_rows':
    $intInvoiceId = getRequest('invoice_id', 0);
    $productOnChange = <<<EOS
 onchange = "var form_id = this.form.id; $.getJSON('json.php?func=get_product&amp;id=' + this.value, function(json) { 
-  if (!json.id) return; 
+  if (!json || !json.id) return; 
   
-  document.getElementById(form_id + '_description').value = json.description;
+  if (json.description != '' || document.getElementById(form_id + '_description').value == (globals.defaultDescription != null ? globals.defaultDescription : ''))
+    document.getElementById(form_id + '_description').value = json.description;
+  globals.defaultDescription = json.description;
   
   var type_id = document.getElementById(form_id + '_type_id');
   for (var i = 0; i < type_id.options.length; i++)

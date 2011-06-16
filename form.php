@@ -301,6 +301,8 @@ function createForm($strFunc, $strList, $strForm)
 
 <script type="text/javascript">
 /* <![CDATA[ */
+var globals = {};
+
 $(document).ready(function() { 
   $('input[class~="hasCalendar"]').datepicker();
   $('#message').ajaxStart(function() {
