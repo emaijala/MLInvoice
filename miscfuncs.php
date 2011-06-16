@@ -301,7 +301,11 @@ function fgets_charset($handle, $charset, $line_ending = "\n")
       else
         $le_pos = 0;
     }
-    $str = iconv($charset, _CHARSET_, $str);
+    $conv_str = iconv($charset, _CHARSET_, $str);
+    if ($str && !$conv_str)
+      error_log("Conversion from '$charset' to '" . _CHARSET_ . "' failed for string '$str'");
+    else
+      $str = $conv_str;
   }
   return $str;
 }
