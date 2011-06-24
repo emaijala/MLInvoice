@@ -160,6 +160,12 @@ function createHtmlList($strFunc, $strList, $strIDQuery, &$arrQueryParams, $strT
           $value = $field['mappings'][$value];  
         $astrListValues[$i][$name] = $value;
       }
+      elseif ($field['type'] == 'CURRENCY') 
+      {
+        $value = $row[$name];
+        $value = str_replace('.', ',', $value);
+        $astrListValues[$i][$name] = $value;
+      }
       elseif ($field['type'] == 'INTDATE') 
       {
         $astrListValues[$i][$name] = dateConvIntDate2Date($row[$name]);
@@ -214,8 +220,9 @@ function createHtmlList($strFunc, $strList, $strIDQuery, &$arrQueryParams, $strT
 <?php
     foreach ($astrShowFields as $field) 
     {
+      $value = trim($astrListValues[$i][$field['name']]) ? htmlspecialchars($astrListValues[$i][$field['name']]) : '&nbsp;';
 ?>
-          <td class="label<?php echo $deleted?>"><a class="navilink" href="<?php echo $strLink?>"><?php echo trim($astrListValues[$i][$field['name']]) ? htmlspecialchars($astrListValues[$i][$field['name']]) : '&nbsp;'?></a></td>
+          <td class="label<?php echo $deleted?>"><a class="navilink" href="<?php echo $strLink?>"><?php echo $value?></a></td>
 <?php
     }
 ?>
