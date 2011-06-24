@@ -86,7 +86,7 @@ EOT;
     return $strHtmlStart;
 }
 
-function htmlListBox($strName, $astrValues, $astrOptions, $strSelected, $strStyle = "", $blnOnChange = FALSE, $blnShowEmpty = TRUE, $astrAdditionalAttributes = '') 
+function htmlListBox($strName, $astrValues, $strSelected, $strStyle = "", $blnOnChange = FALSE, $blnShowEmpty = TRUE, $astrAdditionalAttributes = '') 
 {
 /********************************************************************
 Function : htmlListBox
@@ -116,19 +116,10 @@ Todo :
     $strListBox .= '<option value=""' . ($strSelected ? '' : ' selected') . "> - </option>\n";
   }
   
-  for ($i = 0; $i < count($astrValues); $i++) 
+  foreach ($astrValues as $value => $desc)
   {
-    if ($strSelected == $astrValues[$i]) 
-    {
-      $strSelect = "selected";
-    }
-    else 
-    {
-      $strSelect = "";
-    }
-    $strListBox .= 
-      "<option value=\"" . htmlspecialchars($astrValues[$i]) . "\" $strSelect>" .
-      htmlspecialchars($astrOptions[$i]) . "</option>\n";
+    $strSelect = $strSelected == $value ? ' selected' : '';
+    $strListBox .= "<option value=\"" . htmlspecialchars($value) . "\"$strSelect>" . htmlspecialchars($desc) . "</option>\n";
   }        
   $strListBox .= "</select>\n";
 
@@ -137,13 +128,11 @@ Todo :
 
 function htmlSQLListBox($strName, $strQuery, $strSelected, $strStyle = "", $intOnChange = 0, $astrAdditionalAttributes) 
 {
-    $astrValues = array();
-  $astrOptions = array();
+  $astrValues = array();
   $intRes = mysql_query_check( $strQuery );
   while ($row = mysql_fetch_row($intRes)) 
   {
-    $astrValues[] = $row[0];
-    $astrOptions[] = $row[1];
+    $astrValues[$row[0]] = $row[1];
   }
   $showEmpty = TRUE;
   if (strstr($strStyle, ' noemptyvalue'))
@@ -151,21 +140,29 @@ function htmlSQLListBox($strName, $strQuery, $strSelected, $strStyle = "", $intO
     $strStyle = str_replace(' noemptyvalue', '', $strStyle);
     $showEmpty = FALSE;
   }
-  $strListBox = htmlListBox($strName, $astrValues, $astrOptions, $strSelected, $strStyle, $intOnChange, $showEmpty, $astrAdditionalAttributes);
+  $strListBox = htmlListBox($strName, $astrValues, $strSelected, $strStyle, $intOnChange, $showEmpty, $astrAdditionalAttributes);
 
   return $strListBox;
 }
 
 // Get the value for the specified option
-function getSQLListBoxSelectedValue( $strQuery, $strSelected ) 
+function getSQLListBoxSelectedValue($strQuery, $strSelected) 
 {
-    $intRes = mysql_query_check( $strQuery );
-    while ($row = mysql_fetch_row($intRes)) 
-    {
-        if ($row[0] == $strSelected)
-          return $row[1];
-    }
-    return '';
+  $intRes = mysql_query_check( $strQuery );
+  while ($row = mysql_fetch_row($intRes)) 
+  {
+    if ($row[0] == $strSelected)
+      return $row[1];
+  }
+  return '';
+}
+
+// Get the value for the specified option
+function getListBoxSelectedValue($options, $selected) 
+{
+  if (isset($options[$selected]))
+    return $options[$selected];
+  return '';
 }
 
 /********************************************************************
@@ -182,7 +179,7 @@ Return : $strFormElement : html formelement
 Todo : 
     Check values. Errors. Style?
 ********************************************************************/
-function htmlFormElement( $strName, $strType, $strValue, $strStyle, $strListQuery, $strMode = "MODIFY", $strParentKey = NULL, $strTitle = "", $astrDefaults = array(), $astrAdditionalAttributes = '' ) {
+function htmlFormElement( $strName, $strType, $strValue, $strStyle, $strListQuery, $strMode = "MODIFY", $strParentKey = NULL, $strTitle = "", $astrDefaults = array(), $astrAdditionalAttributes = '', $options = NULL ) {
     if ($astrAdditionalAttributes)
       $astrAdditionalAttributes = " $astrAdditionalAttributes";
     $strFormElement = '';
@@ -348,6 +345,26 @@ function htmlFormElement( $strName, $strType, $strValue, $strStyle, $strListQuer
             }
             else {
                 $strFormElement = htmlspecialchars(getSQLListBoxSelectedValue( $strListQuery, $strValue )) . "\n";                 
+            }
+        break;
+        case 'SELECT' :
+            if ($strMode == 'MODIFY') 
+            {
+                $showEmpty = TRUE;
+                if (strstr($strStyle, ' noemptyvalue'))
+                {
+                  $strStyle = str_replace(' noemptyvalue', '', $strStyle);
+                  $showEmpty = FALSE;
+                }
+                $strFormElement = htmlListBox($strName, $options, $strValue, $strStyle, FALSE, $showEmpty, $astrAdditionalAttributes);
+            }
+            elseif ($strMode == "PDF") 
+            {
+                $strFormElement = getListBoxSelectedValue($options, $strValue);
+            }
+            else 
+            {
+                $strFormElement = htmlspecialchars(getListBoxSelectedValue($options, $strValue)) . "\n";
             }
         break;
 

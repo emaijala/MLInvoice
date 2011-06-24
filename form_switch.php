@@ -44,7 +44,8 @@ $strOrder = '';
 $levelsAllowed = array(1, 90);
 $copyLinkOverride = '';
 $strJSONType = '';
-$clearRowValuesAfterAdd = true;
+$clearRowValuesAfterAdd = false;
+$onAfterRowAdded = '';
 switch ( $strForm ) {
 
 case 'company':
@@ -108,6 +109,7 @@ case 'company_contacts':
        $strJSONType = 'company_contact';
        $strPrimaryKey = "id";
        $strParentKey = "company_id";
+       $clearRowValuesAfterAdd = true;
        $astrFormElements =
         array(
          array(
@@ -356,16 +358,47 @@ EOS;
 break;
 case 'invoice_row':
 case 'invoice_rows':
-   $strTable = '{prefix}invoice_row';
-   $strJSONType = 'invoice_row';
-   $strPrimaryKey = "id";
-   $strParentKey = "invoice_id";
-   $strOrder = 'ORDER BY {prefix}invoice_row.order_no, {prefix}invoice_row.row_date';
-   $clearRowValuesAfterAdd = getSetting('invoice_clear_row_values_after_add');
-   
-   $intInvoiceId = getRequest('invoice_id', 0);
+  $strTable = '{prefix}invoice_row';
+  $strJSONType = 'invoice_row';
+  $strPrimaryKey = "id";
+  $strParentKey = "invoice_id";
+  $strOrder = 'ORDER BY {prefix}invoice_row.order_no, {prefix}invoice_row.row_date';
+
+  switch (getSetting('invoice_clear_row_values_after_add'))
+  {
+  case 0: break;
+  case 1:
+    $clearRowValuesAfterAdd = true;
+    break;
+  case 2:
+    $onAfterRowAdded = <<<EOS
+  if (globals.selectedProduct)
+  {
+    var prod = globals.selectedProduct;
+    document.getElementById(form_id + '_description').value = prod.description;
+    globals.defaultDescription = prod.description;
+    
+    var type_id = document.getElementById(form_id + '_type_id');
+    for (var i = 0; i < type_id.options.length; i++)
+    {  
+      var item = type_id.options[i];
+      if (item.value == prod.type_id)
+      {
+        item.selected = true;
+        break;
+      }
+    }
+    document.getElementById(form_id + '_price').value = prod.unit_price.replace('.', ','); 
+    document.getElementById(form_id + '_discount').value = prod.discount.replace('.', ','); 
+    document.getElementById(form_id + '_vat').value = prod.vat_percent.replace('.', ','); 
+    document.getElementById(form_id + '_vat_included').checked = prod.vat_included == 1 ? true : false;
+  }
+EOS;
+  }
+
    $productOnChange = <<<EOS
 onchange = "var form_id = this.form.id; $.getJSON('json.php?func=get_product&amp;id=' + this.value, function(json) { 
+  globals.selectedProduct = json;
   if (!json || !json.id) return; 
   
   if (json.description != '' || document.getElementById(form_id + '_description').value == (globals.defaultDescription != null ? globals.defaultDescription : ''))
@@ -423,10 +456,8 @@ EOS;
      array(
         "name" => "row_sum", "label" => $GLOBALS['locROWTOTAL'], "type" => "ROWSUM", "style" => "currency", "listquery" => "", "position" => 0, "default" => "", "allow_null" => TRUE )
    );
+
 break;
-/******************************************************************************
-    END SEARCH FORMS - HAUN LOMAKKEET
-******************************************************************************/
 
 /******************************************************************************
     SYSTEM FORMS - SYSTEEMILOMAKKEET

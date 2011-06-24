@@ -450,6 +450,8 @@ function init_rows()
   $rowSumColumns = getFormRowSumColumns($elem['name']);
   $strParentKey = getFormParentKey($elem['name']);
   $clearRowValuesAfterAdd = getFormClearRowValuesAfterAdd($elem['name']);
+  $onAfterRowAdded = getFormOnAfterRowAdded($elem['name']);
+  $formJSONType = getFormJSONType($elem['name']);
   foreach ($subFormElements as $subElem)
   {
     if ($subElem['type'] != 'LIST')
@@ -603,9 +605,9 @@ function init_rows()
   });
 }
 
-function save_row(formId)
+function save_row(form_id)
 {
-  var form = document.getElementById(formId);
+  var form = document.getElementById(form_id);
   var obj = new Object();
 <?php
   foreach ($subFormElements as $subElem)
@@ -613,13 +615,13 @@ function save_row(formId)
     if (!in_array($subElem['type'], array('HID_INT', 'SECHID_INT', 'BUTTON', 'NEWLINE', 'ROWSUM', 'CHECK')))
     {
 ?>
-  obj.<?php echo $subElem['name']?> = document.getElementById(formId + '_<?php echo $subElem['name']?>').value;
+  obj.<?php echo $subElem['name']?> = document.getElementById(form_id + '_<?php echo $subElem['name']?>').value;
 <?php
     }
     elseif ($subElem['type'] == 'CHECK')
     {
 ?>
-  obj.<?php echo $subElem['name']?> = document.getElementById(formId + '_<?php echo $subElem['name']?>').checked ? 1 : 0;
+  obj.<?php echo $subElem['name']?> = document.getElementById(form_id + '_<?php echo $subElem['name']?>').checked ? 1 : 0;
 <?php
     }
   }
@@ -628,7 +630,7 @@ function save_row(formId)
     obj.id = form.row_id.value;
   $('#imessage').text('').hide();
   $.ajax({
-    'url': "json.php?func=put_<?php echo getFormJSONType($elem['name'])?>",
+    'url': "json.php?func=put_<?php echo $formJSONType?>",
     'type': 'POST',
     'dataType': 'json',
     'data': $.toJSON(obj),
@@ -636,20 +638,21 @@ function save_row(formId)
     'success': function(data) {
       if (data.missing_fields)
       {
-        if (formId == 'iform_popup')
+        if (form_id == 'iform_popup')
           alert('<?php echo $GLOBALS['locERRVALUEMISSING']?>: ' + data.missing_fields);
         else
           $('#imessage').text('<?php echo $GLOBALS['locERRVALUEMISSING']?>: ' + data.missing_fields).show();
       }
       else
       {
-        if (formId == 'iform') 
+        if (form_id == 'iform') 
           $('.add_row_button').removeClass('unsaved');
         init_rows();
-        if (formId == 'iform_popup')
+        if (form_id == 'iform_popup')
           $("#popup_edit").dialog('close');
         if (!obj.id)
         {
+          <?php echo $onAfterRowAdded?>
 <?php
   foreach ($subFormElements as $subElem)
   {
@@ -659,7 +662,7 @@ function save_row(formId)
       {
         // The value is taken from whatever form was used but put into iform
 ?>
-          var fld = document.getElementById(formId + '_<?php echo $subElem['name']?>');
+          var fld = document.getElementById(form_id + '_<?php echo $subElem['name']?>');
           document.getElementById('iform_<?php echo $subElem['name']?>').value = parseInt(fld.value) + 5;
 <?php
       }
@@ -700,19 +703,19 @@ function save_row(formId)
   });  
 }
 
-function delete_row(formId)
+function delete_row(form_id)
 {
-  var form = document.getElementById(formId);
+  var form = document.getElementById(form_id);
   var id = form.row_id.value;
   $('#imessage').text('').hide();
   $.ajax({
-    'url': "json.php?func=delete_<?php echo getFormJSONType($elem['name'])?>&id=" + id,
+    'url': "json.php?func=delete_<?php echo $formJSONType?>&id=" + id,
     'type': 'GET',
     'dataType': 'json',
     'contentType': 'application/json; charset=utf-8',
     'success': function(data) {
       init_rows();
-      if (formId == 'iform_popup')
+      if (form_id == 'iform_popup')
         $("#popup_edit").dialog('close');
     },
     'error': function(XMLHTTPReq, textStatus, errorThrown) {
@@ -727,7 +730,7 @@ function delete_row(formId)
 
 function popup_editor(event, title, id, copy_row)
 {
-  $.getJSON('json.php?func=get_<?php echo getFormJSONType($elem['name'])?>&id=' + id, function(json) { 
+  $.getJSON('json.php?func=get_<?php echo $formJSONType?>&id=' + id, function(json) { 
     if (!json.id) return; 
     var form = document.getElementById('iform_popup');
     

@@ -284,3 +284,10 @@ function getFormClearRowValuesAfterAdd($form)
   require 'form_switch.php';
   return $clearRowValuesAfterAdd;
 }
+
+function getFormOnAfterRowAdded($form)
+{
+  $strForm = $form;
+  require 'form_switch.php';
+  return $onAfterRowAdded;
+}

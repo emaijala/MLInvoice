@@ -400,7 +400,11 @@ default:
   $GLOBALS['locSettingInvoiceNotificationFee'] = 'Huomautusmaksu';
   $GLOBALS['locSettingInvoicePDFFilename'] = 'Laskun tiedostonimi (%s = laskun numero, tulostusmallin määritys ohittaa tämän asetuksen)';
   $GLOBALS['locSettingInvoiceWarnIfNonCurrentDate'] = 'Varoita tulostettaessa, jos laskun päivämäärä poikkeaa nykyisestä';
-  $GLOBALS['locSettingInvoiceClearRowValuesAfterAdd'] = 'Tyhjennä laskurivin syöttökentät rivin lisäyksen jälkeen';
+  $GLOBALS['locSettingInvoiceClearRowValuesAfterAdd'] = 'Laskurivin syöttökenttien käyttäytyminen rivin lisäyksen jälkeen';
+  $GLOBALS['locSettingInvoiceKeepRowValues'] = 'Säilytä arvot';
+  $GLOBALS['locSettingInvoiceClearRowValues'] = 'Tyhjennä kentät';
+  $GLOBALS['locSettingInvoiceUseProductDefaults'] = 'Käytä tuotteen oletusarvoja';
+  
 
   // Base email
   $GLOBALS['locBaseEmailTitle'] = 'Laskujen lähetys sähköpostilla';
