@@ -1,3 +1,26 @@
+Olennaiset muutokset versiossa 1.3:
+
+Toiminnallisuus:
+- Toteutettu laskujen lähetys sähköpostilla. Katso lisää käyttöohjeista.
+- Lisätty perustoiminnallisuus monikielisiä laskuja varten. Englanninkieliset laskut ovat oletuksena pois käytöstä, mutta voidaan ottaa käyttöön tulostusmalleista.
+- Tulostusmalleja voi ottaa käyttöön ja poistaa käytöstä ilman, että ne joutuu poistamaan kokonaan.
+- Uuteen ikkunaan avautuminen on nyt tulostusmallikohtainen asetus.
+- Lisätty mahdollisuus raportoida mahdolliset tietokantavirheet html-sivuilla (hyödyllinen, jos php:n lokiin ei pääse käsiksi)
+- Lisätty mahdollisuus pitää istunto käynnissä niin pitkään kuin VLLasku on auki selaimessa (oletuksena tämä on nyt käytössä).
+- Lisätty mahdollisuus määritellä laskuriville alennusprosentti.
+- Laajennettu mahdollisuutta määritellä asetuksissa, miten tuotteen valinta käyttäytyy laskurivien lisäyksessä.
+
+Muut
+- Korjattu murupolkujen toimintaa.
+- Korjattu tyhjien numerokenttien tallennusta.
+- Korjattu laskunumeron ja viitenumeron päivitys tulostusta aloitettaessa (ei toiminut Internet Explorerilla).
+- Laskun kopioon ei enää tulee laskunumeroa tai viitenumeroa vanhasta laskusta.
+- Vaihdettu HTML-versioon 5.
+- Parannettu yhteentoimivuutta Internet Explorerin kanssa.
+- Korjattu virhe, joka aiheutti kaikkien laskurivien noutamisen palvelimelta uutta laskua lisättäessä (hidasti ja saattoi aiheuttaa ongelmia, jos rivejä oli paljon).
+- Korjattu ALV-täpän käyttäytyminen laskurivin muokkauksessa.
+
+
 Olennaiset muutokset versiossa 1.2:
 
 Toiminnallisuus:
