@@ -190,7 +190,6 @@ class InvoicePrinter extends InvoicePrinterBase
     {
       $placeholder = substr(substr($placeholder, 0, -1), 1);
       $pcparts = explode(':', $placeholder);
-      error_log($pcparts[0] . '-' . $pcparts[1] . '*');
       switch ($pcparts[0])
       {
       case 'sender': $values[] = isset($this->senderData[$pcparts[1]]) ? $this->senderData[$pcparts[1]] : ''; break;
