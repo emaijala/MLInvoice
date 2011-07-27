@@ -1,3 +1,9 @@
+Päivitys versiosta 1.2 versioon 1.3:
+
+   1. Aja tietokantaan päivitysskripti update_database_1.2_to_1.3.sql
+   2. Korvaa kaikki vanhan version tiedostot config.php:ta lukuunottamatta uusilla. Vanhat tiedostot kannattaa ensin poistaa tai siirtää talteen.
+   3. Kirjaudu sisään ja käy säätämässä muut asetukset kohdalleen kohdasta Asetukset -> Yleiset asetukset.
+
 Päivitys versiosta 1.1 versioon 1.2:
 
    1. Aja tietokantaan päivitysskripti update_database_1.1_to_1.2.sql
