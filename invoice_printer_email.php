@@ -22,8 +22,8 @@ class InvoicePrinter extends InvoicePrinterBase
     $this->emailTo = getRequest('email_to', isset($recipientData['email']) ? $recipientData['email'] : '');
     $this->emailCC = getRequest('email_cc', '');
     $this->emailBCC = getRequest('email_bcc', isset($senderData['invoice_email_bcc']) ? $senderData['invoice_email_bcc'] : '');
-    $this->emailSubject = getRequest('email_subject', isset($senderData['invoice_email_subject']) ? $senderData['invoice_email_subject'] : '');
-    $this->emailBody = getRequest('email_body', isset($senderData['invoice_email_body']) ? $senderData['invoice_email_body'] : '');
+    $this->emailSubject = $this->replacePlaceholders(getRequest('email_subject', isset($senderData['invoice_email_subject']) ? $senderData['invoice_email_subject'] : ''));
+    $this->emailBody = $this->replacePlaceholders(getRequest('email_body', isset($senderData['invoice_email_body']) ? $senderData['invoice_email_body'] : ''));
     
     $send = getRequest('email_send', '');
     if (!$send || !$this->emailFrom || !$this->emailTo || !$this->emailSubject || !$this->emailBody)
@@ -181,5 +181,44 @@ class InvoicePrinter extends InvoicePrinterBase
   protected function mimeEncodeHeaderValue($value)
   {
     return mb_encode_mimeheader(cond_utf8_encode($value), 'UTF-8', 'Q');
+  }
+    
+  protected function getPlaceholderData($placeholders)
+  {
+    $values = array();
+    foreach ($placeholders as $placeholder)
+    {
+      $placeholder = substr(substr($placeholder, 0, -1), 1);
+      $pcparts = explode(':', $placeholder);
+      error_log($pcparts[0] . '-' . $pcparts[1] . '*');
+      switch ($pcparts[0])
+      {
+      case 'sender': $values[] = isset($this->senderData[$pcparts[1]]) ? $this->senderData[$pcparts[1]] : ''; break;
+      case 'recipient': $values[] = isset($this->recipientData[$pcparts[1]]) ? $this->recipientData[$pcparts[1]] : ''; break;
+      case 'invoice': 
+        switch ($pcparts[1])
+        {
+        case 'totalsum': $values[] = miscRound2Decim($this->totalSum); break;
+        case 'totalvat': $values[] = miscRound2Decim($this->totalVAT);  break;
+        case 'totalsumvat': $values[] = miscRound2Decim($this->totalSumVAT); break;
+        case 'ref_number': $values[] = $this->refNumber; break; // formatted reference number
+        default: 
+          $value = isset($this->invoiceData[$pcparts[1]]) ? $this->invoiceData[$pcparts[1]] : '';
+          if (substr($pcparts[1], -5) == '_date')
+            $value = dateConvIntDate2Date($value);
+          $values[] = $value;
+        }
+        break;
+      default:
+        error_log("Unknown placeholder '$placeholder' in invoice email fields");
+        $values[] = '';
+      }
+    }
+    return implode('', $values);
+  }
+    
+  protected function replacePlaceholders($string)
+  {
+    return preg_replace_callback('/\{\w+:\w+\}/', 'InvoicePrinter::getPlaceholderData', $string);
   }
 }
