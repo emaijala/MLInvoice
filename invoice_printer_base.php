@@ -672,7 +672,12 @@ abstract class InvoicePrinterBase
     */
     if( getSetting('invoice_show_barcode') && $this->totalSumVAT > 0) 
     {
-      if (strpos($senderData['bank_account'], '-') === false)
+      $tmpRefNumber = str_replace(" ", "", $this->refNumber);
+      if (intval($tmpRefNumber) == 0)
+      {
+        error_log('Empty or invalid reference number, barcode not created');
+      }
+      elseif (strpos($senderData['bank_account'], '-') === false)
       {
         error_log('No dash in account number, barcode not created');
       }
@@ -693,8 +698,7 @@ abstract class InvoicePrinterBase
         $tmpAccount = str_replace("-", str_repeat('0', 14 -(strlen($senderData['bank_account'])-1)),$senderData['bank_account']);
         $tmpSum = str_replace(",", "", miscRound2Decim($this->totalSumVAT));
         $tmpSum = str_repeat('0', 8 - strlen($tmpSum)) . $tmpSum;
-        $tmpRefNumber = str_replace(" ", "", $this->refNumber);
-        $tmpRefNumber = str_repeat('0', 20 - strlen($tmpRefNumber)). $tmpRefNumber;
+        $tmpRefNumber = str_repeat('0', 20 - strlen($tmpRefNumber)) . $tmpRefNumber;
         $tmpDueDate = substr($invoiceData['due_date'], 2);
      
         $code_string = '2' . $tmpAccount . $tmpSum . $tmpRefNumber . $tmpDueDate . '0000';

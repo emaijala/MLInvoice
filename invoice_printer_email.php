@@ -218,6 +218,6 @@ class InvoicePrinter extends InvoicePrinterBase
     
   protected function replacePlaceholders($string)
   {
-    return preg_replace_callback('/\{\w+:\w+\}/', 'InvoicePrinter::getPlaceholderData', $string);
+    return preg_replace_callback('/\{\w+:\w+\}/', array($this, 'getPlaceholderData'), $string);
   }
 }
