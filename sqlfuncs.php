@@ -134,7 +134,7 @@ function mysql_fetch_prefixed_assoc($result)
 function create_db_dump()
 {
   $in_tables = array('invoice_state', 'row_type', 'company_type', 'base', 'company', 'company_contact',
-    'product', 'invoice', 'invoice_row', 'session_type', 'users', 'quicksearch', 'settings', 'print_template');
+    'product', 'invoice', 'invoice_row', 'session_type', 'users', 'quicksearch', 'settings', 'session', 'print_template');
 
   $filename = 'vllasku_backup_' . date('Ymd') . '.sql';
   header('Content-type: text/x-sql');
@@ -149,7 +149,7 @@ function create_db_dump()
     $tables[] = _DB_PREFIX_ . "_$table";
   }
 
-  $res = mysql_query_check('SHOW TABLES');
+  $res = mysql_query_check("SHOW TABLES LIKE '" . _DB_PREFIX_ . "_%'");
   while ($row = mysql_fetch_row($res))
   {
     if (!in_array($row[0], $tables))
@@ -177,6 +177,10 @@ function create_db_dump()
         $columns .= ', ';
       $columns .= $row['Field'];
     }
+    // Don't dump current sessions
+    if ($table == _DB_PREFIX_ . '_session')
+      continue;
+    
     $res = mysql_query_check("select * from $table");
     while ($row = mysql_fetch_row($res))
     {
