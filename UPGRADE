@@ -1,3 +1,7 @@
+Päivitys versiosta 1.3.1 versioon 1.3.2:
+
+   1. Korvaa uusilla versioilla tiedostot form_switch.php ja sqlfuncs.php. Muuta ei tarvita.
+
 Päivitys versiosta 1.3 versioon 1.3.1:
 
    1. Korvaa uusilla versioilla tiedostot invoice_printer_base.php, invoice_printer_email.php ja sessionfuncs.php. Muuta ei tarvita.

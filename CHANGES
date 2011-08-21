@@ -1,3 +1,9 @@
+Olennaiset muutokset versiossa 1.3.2:
+
+- Laskun päivämäärän tarkistus toimii oikein myös elo- ja syyskuussa.
+- Tietokannan varmuuskopiointi ottaa huomioon vain taulut, joiden nimessä on oikea prefiksi.
+- Tuotteen tallennus huolehtii pakollisten kenttien täyttämisestä (aiemmin aiheutti tietokantavirheen).
+
 Olennaiset muutokset versiossa 1.3.1:
 
 - Korjattu paikanpitäjien käsittelyä laskun tulostuksessa toimimaan paremmin eri PHP-versioilla.

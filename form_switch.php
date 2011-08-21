@@ -146,11 +146,11 @@ case 'product':
     array(
       "name" => "unit_price", "label" => $GLOBALS['locUNITPRICE'], "type" => "INT", "style" => "medium", "listquery" => "", "position" => 1, "default" => FALSE, "allow_null" => TRUE ),
     array(
-      "name" => "discount", "label" => $GLOBALS['locDiscountPercent'], "type" => "INT", "style" => "percent", "listquery" => "", "position" => 2, "default" => 0, "allow_null" => TRUE ),
+      "name" => "discount", "label" => $GLOBALS['locDiscountPercent'], "type" => "INT", "style" => "percent", "listquery" => "", "position" => 2, "default" => 0, "allow_null" => FALSE ),
     array(
       "name" => "type_id", "label" => $GLOBALS['locUNIT'], "type" => "LIST", "style" => "short", "listquery" => "SELECT id, name FROM {prefix}row_type WHERE deleted=0 ORDER BY order_no;", "position" => 0, "default" => "POST", "allow_null" => FALSE ),
     array(
-      "name" => "vat_percent", "label" => $GLOBALS['locVATPERCENT'], "type" => "INT", "style" => "short", "listquery" => "", "position" => 1, "default" => FALSE, "allow_null" => TRUE ),
+      "name" => "vat_percent", "label" => $GLOBALS['locVATPERCENT'], "type" => "INT", "style" => "short", "listquery" => "", "position" => 1, "default" => FALSE, "allow_null" => FALSE ),
     array(
       "name" => "vat_included", "label" => $GLOBALS['locVATINCLUDED'], "type" => "CHECK", "style" => "medium", "listquery" => "", "position" => 2, "default" => FALSE, "allow_null" => TRUE ),
   );
