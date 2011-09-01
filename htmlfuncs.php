@@ -86,7 +86,7 @@ EOT;
     return $strHtmlStart;
 }
 
-function htmlListBox($strName, $astrValues, $strSelected, $strStyle = "", $blnOnChange = FALSE, $blnShowEmpty = TRUE, $astrAdditionalAttributes = '') 
+function htmlListBox($strName, $astrValues, $strSelected, $strStyle = "", $blnSubmitOnChange = FALSE, $blnShowEmpty = TRUE, $astrAdditionalAttributes = '') 
 {
 /********************************************************************
 Function : htmlListBox
@@ -94,8 +94,7 @@ Function : htmlListBox
 
 Args : 
     $strName (string): listbox name
-    $astrValues (stringarray): listbox values
-    $astrOptions (stringarray): listbox options
+    $astrValues (stringarray): listbox values => descriptions
     $strSelected (string): selected value
     
 Return : $strListBox (string) : listbox element
@@ -103,7 +102,7 @@ Return : $strListBox (string) : listbox element
 Todo : 
 ********************************************************************/
   $strOnChange = '';
-  if ($blnOnChange) 
+  if ($blnSubmitOnChange) 
   {
     $strOnChange = "onchange='this.form.submit();'";
   }

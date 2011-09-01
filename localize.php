@@ -347,9 +347,10 @@ default:
   $GLOBALS['locSearchNotEqual'] = 'on eri kuin';
   $GLOBALS['locSearchLessThan'] = 'on pienempi kuin';
   $GLOBALS['locSearchGreaterThan'] = 'on suurempi kuin';
+  $GLOBALS['locSearchSave'] = 'Tallenna haku';
   $GLOBALS['locSearchSaved'] = 'Haku tallennettu';
   $GLOBALS['locLABELEXTSEARCH'] = 'Valitse listasta kentät, joista haluat tehdä haun.';
-  $GLOBALS['locSELECTSEARCHFIELD'] = 'Hakukenttä';
+  $GLOBALS['locSELECTSEARCHFIELD'] = 'Lisää hakukenttä';
   $GLOBALS['locSEARCHFIELD'] = 'Hakukenttä';
   $GLOBALS['locSEARCHMATCH'] = ' - ';
   $GLOBALS['locSEARCHTERM'] = 'Hakuehto';
@@ -357,6 +358,8 @@ default:
   $GLOBALS['locERRORNOSEARCHNAME'] = 'VIRHE:\n\rAnna nimi tallennettavalle haulle.';
   $GLOBALS['locLABELQUICKSEARCH'] = 'Tallennetut pikahaut: ';
   $GLOBALS['locNOQUICKSEARCHES'] = 'Tallennettuja pikahakuja ei löytynyt. Voit tallentaa uusia pikahakuja laajan haun kautta.';
+  $GLOBALS['locSearchAND'] = 'JA';
+  $GLOBALS['locSearchOR'] = 'TAI';
  
   //MONTHS
   $GLOBALS['locMONTH'] = 'Kuukausi';

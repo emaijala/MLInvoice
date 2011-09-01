@@ -43,7 +43,7 @@ function createList($strFunc, $strList)
   
   $arrQueryParams = array();
   if( $strWhereClause ) {
-      $strWhereClause = "WHERE " . gpcStripSlashes(urldecode($strWhereClause));
+      $strWhereClause = "WHERE (" . gpcStripSlashes(urldecode($strWhereClause) . ')');
       $strWhereClause = str_replace("%-", "%", $strWhereClause);
   }
   elseif( $strSearchTerms == "*"  && !$intID ) {
@@ -54,8 +54,8 @@ function createList($strFunc, $strList)
       $strOrderClause2 = " " . $strPrimaryKey . " DESC ";
   }
   else {
-      $astrTerms = explode(" ",$strSearchTerms);
-      $strWhereClause = "WHERE ";
+      $astrTerms = explode(" ", $strSearchTerms);
+      $strWhereClause = "WHERE (";
       for( $i = 0; $i < count($astrTerms); $i++ ) {
           if( $astrTerms[$i] || $intID ) {
               $strWhereClause .= '(';
@@ -80,25 +80,26 @@ function createList($strFunc, $strList)
               $strWhereClause = substr( $strWhereClause, 0, -3) . ") AND ";
           }
       }
-      $strWhereClause = substr( $strWhereClause, 0, -4);
+      $strWhereClause = substr( $strWhereClause, 0, -4) . ')';
   }
       
   if ($strFilter)
   {
     if ($strWhereClause)
-      $strWhereClause .= " AND $strFilter";
+      $strWhereClause .= " AND ($strFilter)";
     else
-      $strWhereClause = " WHERE $strFilter";
+      $strWhereClause = " WHERE ($strFilter)";
   }
   
   if (!getSetting('show_deleted_records'))
   {
     if ($strWhereClause)
-      $strWhereClause .= " AND $strDeletedField=0";
+      $strWhereClause = "$strWhereClause AND $strDeletedField=0";
     else
       $strWhereClause = " WHERE $strDeletedField=0";
   }
   
+  error_log($strWhereClause);
   $strQuery = 
     "SELECT $strPrimaryKey FROM $strTable $strWhereClause"; 
 

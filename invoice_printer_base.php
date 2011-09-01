@@ -398,10 +398,10 @@ abstract class InvoicePrinterBase
       switch ($row['reminder_row'])
       {
       case 1: 
-        $description = $GLOBALS['locPDFReminderFeeDesc'];
+        $description = $GLOBALS['locPDFPenaltyInterestDesc'];
         break;
       case 2:
-        $description = $GLOBALS['locPDFPenaltyInterestDesc'];
+        $description = $GLOBALS['locPDFReminderFeeDesc'];
         break;
       default:
         if ($row['product_name'])

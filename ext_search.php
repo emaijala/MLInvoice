@@ -77,13 +77,11 @@ for( $j = 0; $j < count($astrFormElements); $j++ ) {
     }
 }
 
-$x = 0;
+$listValues = array();
 for( $j = 0; $j < count($astrFormElements); $j++ ) {
-    $strSelectedOperator = getPost('operator_'.$astrFormElements[$j]['name'], 'OR');
-    if($astrFormElements[$j]['type'] != '' && $astrFormElements[$j]['type'] != "LABEL" && $astrFormElements[$j]['type'] != "HIDINT" && $astrFormElements[$j]['type'] != 'IFORM' && $astrFormElements[$j]['type'] != 'BUTTON' && !in_array($astrFormElements[$j]['name'], $astrSelectedFields, true)) {
-        $astrListValues[$x] = $astrFormElements[$j]['name'];
-        $astrListOptions[$x] = str_replace("<br>", " ", $astrFormElements[$j]['label']); 
-        $x++;
+    $strSelectedOperator = getPost('operator_'.$astrFormElements[$j]['name'], 'AND');
+    if($astrFormElements[$j]['type'] != '' && $astrFormElements[$j]['type'] != "LABEL" && $astrFormElements[$j]['type'] != "HIDINT" && $astrFormElements[$j]['type'] != 'IFORM' && $astrFormElements[$j]['type'] != 'BUTTON' && $astrFormElements[$j]['type'] != 'JSBUTTON' && !in_array($astrFormElements[$j]['name'], $astrSelectedFields, true)) {
+        $listValues[$astrFormElements[$j]['name']] = str_replace("<br>", " ", $astrFormElements[$j]['label']);
     }
     $strControlType = $astrFormElements[$j]['type'];
     $strControlName = $astrFormElements[$j]['name'];
@@ -100,10 +98,13 @@ for( $j = 0; $j < count($astrFormElements); $j++ ) {
         }
     }
 }
-$strListBox = htmlListBox( "searchfield", $astrListValues, $astrListOptions, FALSE, "", 1 );
+$strListBox = htmlListBox( "searchfield", $listValues, false, "", true);
 
-$astrListValues = array('=','!=','<','>');
-$astrListOptions = array($GLOBALS['locSearchEqual'], $GLOBALS['locSearchNotEqual'], $GLOBALS['locSearchLessThan'], $GLOBALS['locSearchGreaterThan']);
+$comparisonValues = array(
+                '=' => $GLOBALS['locSearchEqual'],
+                '!=' => $GLOBALS['locSearchNotEqual'],
+                '<' => $GLOBALS['locSearchLessThan'],
+                '>' => $GLOBALS['locSearchGreaterThan']);
 
 $strOnLoad = '';
 if( $blnSearch || $blnSave ) {
@@ -176,22 +177,11 @@ $(function() {
 <input type="hidden" name="fields" value="<?php echo $strFields?>">
 <table>
 <tr>
-    <td class="sublabel" colspan="4">
-    <?php echo $GLOBALS['locLABELEXTSEARCH']?>
-    </td>
-</tr>
-<tr>
     <td class="label">
     <?php echo $GLOBALS['locSELECTSEARCHFIELD']?>
     </td>
     <td class="field">
     <?php echo $strListBox?>
-    </td>
-    <td class="label">
-    <?php echo $GLOBALS['locSEARCHNAME']?>
-    </td>
-    <td class="field">
-    <input class="medium" type="text" name="searchname" value="<?php echo $strSearchName?>"> 
     </td>
 </tr>
 </table>
@@ -209,11 +199,24 @@ $(function() {
 </tr>
 <?php
 
+$fieldCount = 0;
 for( $j = 0; $j < count($astrFormElements); $j++ ) {
     if(in_array($astrFormElements[$j]['name'], $astrSelectedFields, true)) {
         $strSearchMatch = getPost('searchmatch_'.$astrFormElements[$j]['name'], '=');
         if( $astrFormElements[$j]['style'] == "xxlong" ){
             $astrFormElements[$j]['style'] = "long";
+        }
+        
+        if(++$fieldCount > 1) {
+            
+            $strOperator = htmlListBox("operator_".$astrFormElements[$j]['name'], array('AND' => $GLOBALS['locSearchAND'], 'OR' => $GLOBALS['locSearchOR']), $strSelectedOperator);
+?>
+<tr>
+    <td colspan="4">
+        <?php echo $strOperator?>
+    </td>
+</tr>
+<?php
         }
 ?>
 <tr>
@@ -221,7 +224,7 @@ for( $j = 0; $j < count($astrFormElements); $j++ ) {
         <?php echo $astrFormElements[$j]['label']?>
     </td>
     <td class="field">
-        <?php echo htmlListBox( "searchmatch_". $astrFormElements[$j]['name'], $astrListValues, $astrListOptions, $strSearchMatch, "", 0 )?>
+        <?php echo htmlListBox( "searchmatch_". $astrFormElements[$j]['name'], $comparisonValues, $strSearchMatch, "", 0 )?>
     </td>
     <td class="field">
         <?php echo htmlFormElement($astrFormElements[$j]['name'], $astrFormElements[$j]['type'],                               gpcStripSlashes($astrValues[$astrFormElements[$j]['name']]),                               $astrFormElements[$j]['style'],$astrFormElements[$j]['listquery'], "MODIFY", $astrFormElements[$j]['parent_key'])?>
@@ -232,45 +235,47 @@ for( $j = 0; $j < count($astrFormElements); $j++ ) {
     </td>
 </tr>        
 <?php
-        
-        if( $j > 0 && $j < count($astrFormElements) ) {
-            
-            $strOperator = htmlFormElement("operator_".$astrFormElements[$j]['name'], "LIST",                               gpcStripSlashes($strSelectedOperator),                               "tiny","SELECT 'AND' AS id, 'AND' AS name UNION SELECT 'OR' AS id, 'OR' AS name", "MODIFY", '');
-?>
-<tr>
-    <td colspan="4" align="center">
-        <?php echo $strOperator?>
-    </td>
-</tr>
-<?php
-        }
     }
 }
 
 ?>
-</table>
-<center>
-<table>
 <tr>
-    <td>
+    <td colspan="4" style="text-align: center; padding-top: 8px; padding-bottom: 8px">
         <input type="hidden" name="search_x" value="0">
         <a class="actionlink" href="#" onclick="self.document.forms[0].search_x.value=1; self.document.forms[0].submit(); return false;"><?php echo $GLOBALS['locSEARCH']?></a>
+        <a class="actionlink" href="#" onclick="self.close(); return false;"><?php echo $GLOBALS['locCLOSE']?></a>
+    </td>
+</tr>
+<tr>
+    <td class="sublabel" colspan="4">
+    <?php echo $GLOBALS['locSearchSave']?>
+    </td>
+</tr>
+<?php 
+if ($blnSave && $strSearchName)
+{
+?>
+<tr>
+    <td colspan="3">
+         <?php echo $GLOBALS['locSearchSaved']?>
+    </td>
+</tr>
+<?php
+}
+?>
+<tr>
+    <td class="label">
+    <?php echo $GLOBALS['locSEARCHNAME']?>
+    </td>
+    <td class="field">
+    <input class="medium" type="text" name="searchname" value="<?php echo $strSearchName?>"> 
     </td>
     <td>
         <input type="hidden" name="save_x" value="0">
         <a class="actionlink" href="#" onclick="self.document.forms[0].save_x.value=1; self.document.forms[0].submit(); return false;"><?php echo $GLOBALS['locSAVESEARCH']?></a>
     </td>
-    <td>
-        <a class="actionlink" href="#" onclick="self.close(); return false;"><?php echo $GLOBALS['locCLOSE']?></a>
-    </td>
-</tr>
-<tr>
-    <td colspan="3">
-        <?php if ($blnSave && $strSearchName) echo $GLOBALS['locSearchSaved']?>
-    </td>
 </tr>
 </table>
-</center>
 </form>
 </body>
 </html>
