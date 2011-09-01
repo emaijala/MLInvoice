@@ -104,7 +104,7 @@ Todo :
   $strOnChange = '';
   if ($blnSubmitOnChange) 
   {
-    $strOnChange = "onchange='this.form.submit();'";
+    $strOnChange = " onchange='this.form.submit();'";
   }
   if ($astrAdditionalAttributes)
     $astrAdditionalAttributes = " $astrAdditionalAttributes";
