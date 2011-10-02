@@ -1,6 +1,6 @@
 Name:		vllasku
-Version:	1.3
-Release:	11%{?dist}
+Version:	1.3.3
+Release:	1%{?dist}
 Summary:	VLLasku - Web application to create Finnish invoices
 Group:		Applications/Internet
 License:	GPLv2
