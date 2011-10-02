@@ -218,6 +218,9 @@ EOS;
   $locCompName = $GLOBALS['locCOMPNAME'];
   $locEmail = $GLOBALS['locEMAIL'];
   $locPhone = $GLOBALS['locPHONE'];
+  $locAddress = $GLOBALS['locSTREETADDR'];
+  $locZip = $GLOBALS['locZIPCODE'];
+  $locCity = $GLOBALS['locCITY'];
   $locSave = $GLOBALS['locSAVE'];
   $locClose = $GLOBALS['locCLOSE'];
   $locTitle = $GLOBALS['locNEWCOMPANY'];
@@ -230,9 +233,12 @@ EOS;
   $popupHTML = <<<EOS
 <script type="text/javascript" src="js/add_company.js"></script>
 <div id="quick_add_company" class="form_container" style="display: none">
-  <div class="small_label">$locCompName</div> <div class="field"><input type="text" id="quick_name" class="medium"></div>
-  <div class="small_label">$locEmail</div> <div class="field"><input type="text" id="quick_email" class="medium"></div>
-  <div class="small_label">$locPhone</div> <div class="field"><input type="text" id="quick_phone" class="medium"></div>
+  <div class="medium_label">$locCompName</div> <div class="field"><input type="text" id="quick_name" class="medium"></div>
+  <div class="medium_label">$locEmail</div> <div class="field"><input type="text" id="quick_email" class="medium"></div>
+  <div class="medium_label">$locPhone</div> <div class="field"><input type="text" id="quick_phone" class="medium"></div>
+  <div class="medium_label">$locAddress</div> <div class="field"><input type="text" id="quick_street_address" class="medium"></div>
+  <div class="medium_label">$locZip</div> <div class="field"><input type="text" id="quick_zip_code" class="medium"></div>
+  <div class="medium_label">$locCity</div> <div class="field"><input type="text" id="quick_city" class="medium"></div>
 </div>
 EOS;
    

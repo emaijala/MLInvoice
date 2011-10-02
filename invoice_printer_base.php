@@ -62,10 +62,12 @@ abstract class InvoicePrinterBase
     $strCompanyID = trim($senderData['company_id']);
     if ($strCompanyID)
       $strCompanyID = $GLOBALS['locPDFCompanyVATID'] . ": $strCompanyID";
-    if ($strCompanyID && $senderData['vat_registered'])
+    if ($strCompanyID)
       $strCompanyID .= ', ';
     if ($senderData['vat_registered'])
       $strCompanyID .= $GLOBALS['locPDFVATReg'];
+    else
+      $strCompanyID .= $GLOBALS['locPDFNonVATReg'];
     if ($strCompanyID)
       $this->senderAddressLine .= " ($strCompanyID)";
     $this->senderAddressLine .= "\n" . $senderData['street_address'];
@@ -348,7 +350,12 @@ abstract class InvoicePrinterBase
     if ($this->printStyle == 'dispatch')
       $nameColWidth = 120;
     else
-      $nameColWidth = 80;
+    {
+      if ($this->senderData['vat_registered'])
+        $nameColWidth = 80;
+      else
+        $nameColWidth = 130;
+    }
   
     $showDate = getSetting('invoice_show_row_date');
     if ($this->discountedRows)
@@ -373,9 +380,12 @@ abstract class InvoicePrinterBase
     $pdf->Cell(20, 5, $GLOBALS['locPDFRowPieces'], 0, 0, "R");
     if ($this->printStyle != 'dispatch')
     {
-      $pdf->Cell(20, 5, $GLOBALS['locPDFRowTotal'], 0, 0, "R");
-      $pdf->Cell(15, 5, $GLOBALS['locPDFRowVATPercent'], 0, 0, "R");
-      $pdf->Cell(15, 5, $GLOBALS['locPDFRowTax'], 0, 0, "R");
+      if ($this->senderData['vat_registered'])
+      {
+        $pdf->MultiCell(20, 5, $GLOBALS['locPDFRowTotalVATLess'], 0, "R", 0, 0);
+        $pdf->Cell(15, 5, $GLOBALS['locPDFRowVATPercent'], 0, 0, "R");
+        $pdf->Cell(15, 5, $GLOBALS['locPDFRowTax'], 0, 0, "R");
+      }
       $pdf->Cell(20, 5, $GLOBALS['locPDFRowTotal'], 0, 1, "R");
     }
     else
@@ -446,9 +456,12 @@ abstract class InvoicePrinterBase
         $pdf->Cell(7, 5, $row['type'], 0, 0, "L");
         if ($this->printStyle != 'dispatch')
         {
-          $pdf->Cell(20, 5, miscRound2Decim($rowSum), 0, 0, "R");
-          $pdf->Cell(11, 5, miscRound2OptDecim($row['vat'], 1), 0, 0, "R"); $pdf->Cell(4, 5, '', 0, 0, "R");
-          $pdf->Cell(15, 5, miscRound2Decim($rowVAT), 0, 0, "R");
+          if ($this->senderData['vat_registered'])
+          {
+            $pdf->Cell(20, 5, miscRound2Decim($rowSum), 0, 0, "R");
+            $pdf->Cell(11, 5, miscRound2OptDecim($row['vat'], 1), 0, 0, "R"); $pdf->Cell(4, 5, '', 0, 0, "R");
+            $pdf->Cell(15, 5, miscRound2Decim($rowVAT), 0, 0, "R");
+          }
           $pdf->Cell(20, 5, miscRound2Decim($rowSumVAT), 0, 0, "R");
         }
         $pdf->SetX($left);
@@ -464,23 +477,34 @@ abstract class InvoicePrinterBase
     }
     if ($this->printStyle != 'dispatch')
     {
-      $pdf->SetFont('Helvetica','',10);
-      $pdf->SetY($pdf->GetY()+10);
-      $pdf->Cell(162, 5, $GLOBALS['locPDFTotalExcludingVAT'] .": ", 0, 0, "R");
-      $pdf->SetX(187 - $left);
-      $pdf->Cell(20, 5, miscRound2Decim($this->totalSum), 0, 0, "R");
-      
-      $pdf->SetFont('Helvetica','',10);
-      $pdf->SetY($pdf->GetY()+5);
-      $pdf->Cell(162, 5, $GLOBALS['locPDFTotalVAT'] .": ", 0, 0, "R");
-      $pdf->SetX(187 - $left);
-      $pdf->Cell(20, 5, miscRound2Decim($this->totalVAT), 0, 0, "R");
-      
-      $pdf->SetFont('Helvetica','B',10);
-      $pdf->SetY($pdf->GetY()+5);
-      $pdf->Cell(162, 5, $GLOBALS['locPDFTotalIncludingVAT'] .": ", 0, 0, "R");
-      $pdf->SetX(187 - $left);
-      $pdf->Cell(20, 5, miscRound2Decim($this->totalSumVAT), 0, 1, "R");
+      if ($this->senderData['vat_registered'])
+      {
+        $pdf->SetFont('Helvetica','',10);
+        $pdf->SetY($pdf->GetY()+10);
+        $pdf->Cell(162, 5, $GLOBALS['locPDFTotalExcludingVAT'] .": ", 0, 0, "R");
+        $pdf->SetX(187 - $left);
+        $pdf->Cell(20, 5, miscRound2Decim($this->totalSum), 0, 0, "R");
+        
+        $pdf->SetFont('Helvetica','',10);
+        $pdf->SetY($pdf->GetY()+5);
+        $pdf->Cell(162, 5, $GLOBALS['locPDFTotalVAT'] .": ", 0, 0, "R");
+        $pdf->SetX(187 - $left);
+        $pdf->Cell(20, 5, miscRound2Decim($this->totalVAT), 0, 0, "R");
+        
+        $pdf->SetFont('Helvetica','B',10);
+        $pdf->SetY($pdf->GetY()+5);
+        $pdf->Cell(162, 5, $GLOBALS['locPDFTotalIncludingVAT'] .": ", 0, 0, "R");
+        $pdf->SetX(187 - $left);
+        $pdf->Cell(20, 5, miscRound2Decim($this->totalSumVAT), 0, 1, "R");
+      }
+      else
+      {
+        $pdf->SetFont('Helvetica','B',10);
+        $pdf->SetY($pdf->GetY()+5);
+        $pdf->Cell(162, 5, $GLOBALS['locPDFTotalPrice'] .": ", 0, 0, "R");
+        $pdf->SetX(187 - $left);
+        $pdf->Cell(20, 5, miscRound2Decim($this->totalSumVAT), 0, 1, "R");
+      }
     }
   }
   
