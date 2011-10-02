@@ -1,3 +1,11 @@
+Olennaiset muutokset versiossa 1.3.3:
+
+- Laajennettu haku korjattu ja sen ulkoasua säädetty hiukan.
+- Huomautusmaksun ja koron tekstit olivat väärin päin laskussa. Tämä korjattu.
+- Uuden asiakkaan lisäykseen laskulomakkeella lisätty osoitekentät.
+- ALV-rekisteröimättömän yrityksen lähettämissä laskuissa ei enää näytetä verotonta hintaa, verokantaa tai veron osuutta (verottajan vaatimus). 
+- Verottoman hinnan otsikko laskussa muutettu kuvaavammaksi.
+
 Olennaiset muutokset versiossa 1.3.2:
 
 - Laskun päivämäärän tarkistus toimii oikein myös elo- ja syyskuussa.
