@@ -94,7 +94,7 @@ class InvoicePrinter extends InvoicePrinterBase
     $messageBody = "This is a multipart message in mime format.\r\n\r\n";
     $messageBody .= "--$boundary\r\n";
     $messageBody .= "Content-Type: text/plain; charset=UTF-8; format=flowed\r\n";
-    $messageBody .= "Content-Transfer-Encoding: 8-bit\r\n";
+    $messageBody .= "Content-Transfer-Encoding: 8bit\r\n";
     $messageBody .= "Content-Disposition: inline\r\n\r\n";
     $messageBody .= $this->getFlowedBody() . "\r\n";
 
