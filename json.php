@@ -117,6 +117,11 @@ case 'get_invoice_defaults':
   break;
   
 case 'get_table_columns':
+  if (!sesAdminAccess())
+  {
+    header('HTTP/1.1 403 Forbidden');
+    exit;
+  }
   $table = getRequest('table', '');
   if (!$table)
   {
@@ -148,6 +153,11 @@ case 'get_table_columns':
   break;
   
 case 'get_import_preview':
+  if (!sesAdminAccess())
+  {
+    header('HTTP/1.1 403 Forbidden');
+    exit;
+  }
   require 'import.php';
   create_import_preview();
   break;
@@ -217,6 +227,12 @@ function printJSONRecords($table, $parentIdCol, $sort)
 
 function saveJSONRecord($table, $parentKeyName)
 {
+  if (!sesWriteAccess())
+  {
+    header('HTTP/1.1 403 Forbidden');
+    exit;
+  }
+
 	$data = json_decode(file_get_contents('php://input'), true);
   if (!$data)
   {
@@ -245,6 +261,12 @@ function saveJSONRecord($table, $parentKeyName)
 
 function deleteRecord($table)
 {
+  if (!sesWriteAccess())
+  {
+    header('HTTP/1.1 403 Forbidden');
+    exit;
+  }
+
   $id = getRequest('id', '');
   if ($id)
   {

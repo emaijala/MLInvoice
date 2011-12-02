@@ -25,6 +25,11 @@ Tämä ohjelma on vapaa. Lue oheinen LICENSE.
 
 require_once 'sqlfuncs.php';
 
+define("ROLE_READONLY", 0);
+define("ROLE_USER", 1);
+define("ROLE_BACKUPMGR", 90);
+define("ROLE_ADMIN", 99);
+
 function sesCreateSession($strLogin, $strPasswd) 
 {
     if ($strLogin && $strPasswd) 
@@ -137,6 +142,16 @@ function createRandomString($length)
   }  
   return $str;  
 }  
+
+function sesWriteAccess()
+{
+  return in_array($_SESSION['sesACCESSLEVEL'], array(ROLE_USER, ROLE_BACKUPMGR, ROLE_ADMIN));
+}
+
+function sesAdminAccess()
+{
+  return $_SESSION['sesACCESSLEVEL'] == ROLE_ADMIN;
+}
 
 // Database-based session management
 function db_session_open($savePath, $sessionID) 

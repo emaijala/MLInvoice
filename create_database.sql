@@ -268,6 +268,7 @@ INSERT INTO vllasku_row_type (id, name, order_no) VALUES (8, 'km', 35);
 INSERT INTO vllasku_session_type (id, name, order_no, time_out, access_level) VALUES (1, 'Käyttäjä', 1, 3600, 1);
 INSERT INTO vllasku_session_type (id, name, order_no, time_out, access_level) VALUES (2, 'Ylläpitäjä', 20, 3600, 99);
 INSERT INTO vllasku_session_type (id, name, order_no, time_out, access_level) VALUES (3, 'Käyttäjä - varmuuskopioija', 10, 3600, 90);
+INSERT INTO vllasku_session_type (id, name, order_no, time_out, access_level) VALUES (4, 'Vain laskujen ja raporttien tarkastelu', 0, 3600, 0);
 
 INSERT INTO vllasku_print_template (id, name, filename, parameters, output_filename, type, order_no) VALUES (1, 'Lasku', 'invoice_printer.php', 'invoice', 'lasku_%d.pdf', 'invoice', 5);
 INSERT INTO vllasku_print_template (id, name, filename, parameters, output_filename, type, order_no) VALUES (2, 'Lähetysluettelo', 'invoice_printer.php', 'dispatch', 'lahetysluettelo_%d.pdf', 'invoice', 20);

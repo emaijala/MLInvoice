@@ -21,7 +21,7 @@ require_once "localize.php";
 
 function createSettingsList()
 {
-  if ($_SESSION['sesACCESSLEVEL'] != 99 )
+  if (!sesAdminAccess())
   {
 ?>
   <div class="form_container">

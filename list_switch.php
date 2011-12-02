@@ -25,7 +25,7 @@ Tämä ohjelma on vapaa. Lue oheinen LICENSE.
 
 $strTable = '';
 $strFilter = '';
-$levelsAllowed = array(1, 90);
+$levelsAllowed = array(ROLE_USER, ROLE_BACKUPMGR);
 switch ( $strList ? $strList : $strFunc ) {
 
 /***********************************************************************
@@ -58,6 +58,8 @@ break;
 
 case 'archived_invoices':
 case 'invoices':
+   $levelsAllowed[] = ROLE_READONLY;
+
    $strFilter = ($strFunc == 'invoices') ? 'i.archived = 0' : 'i.archived = 1';
    $strTable = '{prefix}invoice i ' .
      'LEFT OUTER JOIN {prefix}base b on i.base_id=b.id ' .

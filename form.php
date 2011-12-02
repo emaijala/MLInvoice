@@ -33,7 +33,7 @@ function createForm($strFunc, $strList, $strForm)
 {
   require "form_switch.php";
   
-  if (!in_array($_SESSION['sesACCESSLEVEL'], $levelsAllowed) && $_SESSION['sesACCESSLEVEL'] != 99)
+  if (!in_array($_SESSION['sesACCESSLEVEL'], $levelsAllowed) && $_SESSION['sesACCESSLEVEL'] != ROLE_ADMIN)
   {
 ?>
   <div class="form_container">
@@ -50,6 +50,16 @@ function createForm($strFunc, $strList, $strForm)
   $intKeyValue = getPostRequest($strPrimaryKey, FALSE);
   if (!$intKeyValue)
     $blnNew = TRUE;
+  
+  if (!sesWriteAccess() && ($blnNew || $blnCopy || $blnSave || $blnDelete))
+  {
+?>
+  <div class="form_container">
+    <?php echo $GLOBALS['locNOACCESS'] . "\n"?>
+  </div>
+<?php
+    return;
+  }
   
   $strMessage = '';
   if (isset($_SESSION['formMessage']) && $_SESSION['formMessage'])
@@ -529,9 +539,14 @@ function init_rows()
       echo "      $('<td/>').addClass('$class' + (record.deleted == 1 ? ' deleted' : '')).text(record.$name ? record.$name : '').appendTo(tr);\n";
     }
   }
+  if (sesWriteAccess())
+  {
 ?>
       $('<td/>').addClass('button').append('<a class="tinyactionlink row_edit_button rec' + record.id + '" href="#"><?php echo $GLOBALS['locEDIT']?><\/a>').appendTo(tr);
       $('<td/>').addClass('button').append('<a class="tinyactionlink row_copy_button rec' + record.id + '" href="#"><?php echo $GLOBALS['locCOPY']?><\/a>').appendTo(tr);
+<?php
+  }
+?>
       $(table).append(tr);
     }
 <?php
@@ -604,27 +619,30 @@ function init_rows()
     init_rows_done();
   });
 }
-
+<?php
+  if (sesWriteAccess())
+  {
+?>
 function save_row(form_id)
 {
   var form = document.getElementById(form_id);
   var obj = new Object();
 <?php
-  foreach ($subFormElements as $subElem)
-  {
-    if (!in_array($subElem['type'], array('HID_INT', 'SECHID_INT', 'BUTTON', 'NEWLINE', 'ROWSUM', 'CHECK')))
+    foreach ($subFormElements as $subElem)
     {
+      if (!in_array($subElem['type'], array('HID_INT', 'SECHID_INT', 'BUTTON', 'NEWLINE', 'ROWSUM', 'CHECK')))
+      {
 ?>
   obj.<?php echo $subElem['name']?> = document.getElementById(form_id + '_<?php echo $subElem['name']?>').value;
 <?php
-    }
-    elseif ($subElem['type'] == 'CHECK')
-    {
+      }
+      elseif ($subElem['type'] == 'CHECK')
+      {
 ?>
   obj.<?php echo $subElem['name']?> = document.getElementById(form_id + '_<?php echo $subElem['name']?>').checked ? 1 : 0;
 <?php
+      }
     }
-  }
 ?>  obj.<?php echo $elem['parent_key'] . " = $intKeyValue"?>;
   if (form.row_id)
     obj.id = form.row_id.value;
@@ -654,41 +672,41 @@ function save_row(form_id)
         {
           <?php echo $onAfterRowAdded?>
 <?php
-  foreach ($subFormElements as $subElem)
-  {
-    if (!in_array($subElem['type'], array('HID_INT', 'SECHID_INT', 'BUTTON', 'NEWLINE', 'ROWSUM')))
+    foreach ($subFormElements as $subElem)
     {
-      if (strstr($subElem['default'], 'ADD'))
+      if (!in_array($subElem['type'], array('HID_INT', 'SECHID_INT', 'BUTTON', 'NEWLINE', 'ROWSUM')))
       {
-        // The value is taken from whatever form was used but put into iform
+        if (strstr($subElem['default'], 'ADD'))
+        {
+          // The value is taken from whatever form was used but put into iform
 ?>
           var fld = document.getElementById(form_id + '_<?php echo $subElem['name']?>');
           document.getElementById('iform_<?php echo $subElem['name']?>').value = parseInt(fld.value) + 5;
 <?php
-      }
-      elseif ($clearRowValuesAfterAdd && $subElem['type'] != 'INTDATE')
-      {
-        if ($subElem['type'] == 'LIST')
+        }
+        elseif ($clearRowValuesAfterAdd && $subElem['type'] != 'INTDATE')
         {
+          if ($subElem['type'] == 'LIST')
+          {
 ?>
           document.getElementById('iform_<?php echo $subElem['name']?>').selectedIndex = 0;
 <?php
-        }
-        elseif ($subElem['type'] == 'CHECK')
-        {
+          }
+          elseif ($subElem['type'] == 'CHECK')
+          {
 ?>
           document.getElementById('iform_<?php echo $subElem['name']?>').checked = 0;
 <?php
-        }
-        else
-        {
+          }
+          else
+          {
 ?>
           document.getElementById('iform_<?php echo $subElem['name']?>').value = '';
 <?php
+          }
         }
       }
     }
-  }
 ?>    
         }
       }
@@ -739,13 +757,13 @@ function popup_editor(event, title, id, copy_row)
     else
       form.row_id.value = id;
 <?php
-  foreach ($subFormElements as $subElem)
-  {
-    if (in_array($subElem['type'], array('HID_INT', 'SECHID_INT', 'BUTTON', 'NEWLINE', 'ROWSUM')))
-      continue;
-    $name = $subElem['name'];
-    if ($subElem['type'] == 'LIST')
+    foreach ($subFormElements as $subElem)
     {
+      if (in_array($subElem['type'], array('HID_INT', 'SECHID_INT', 'BUTTON', 'NEWLINE', 'ROWSUM')))
+        continue;
+      $name = $subElem['name'];
+      if ($subElem['type'] == 'LIST')
+      {
 ?>
     for (var i = 0; i < form.<?php echo "iform_popup_$name"?>.options.length; i++)
     {  
@@ -757,44 +775,44 @@ function popup_editor(event, title, id, copy_row)
       }
     }
 <?php
-    }
-    elseif ($subElem['type'] == 'INT')
-    {
-      if (strstr($subElem['default'], 'ADD'))
+      }
+      elseif ($subElem['type'] == 'INT')
       {
+        if (strstr($subElem['default'], 'ADD'))
+        {
 ?> 
     if (copy_row)
       form.<?php echo "iform_popup_$name"?>.value = document.getElementById('<?php echo "iform_$name"?>').value;
     else
       form.<?php echo "iform_popup_$name"?>.value = json.<?php echo $name?> ? json.<?php echo $name?>.replace('.', ',') : '';
 <?php
+        }
+        else
+        {
+?> 
+    form.<?php echo "iform_popup_$name"?>.value = json.<?php echo $name?> ? json.<?php echo $name?>.replace('.', ',') : '';
+<?php
+        }
+      }
+      elseif ($subElem['type'] == 'INTDATE')
+      {
+?> 
+    form.<?php echo "iform_popup_$name"?>.value = json.<?php echo $name?> ? json.<?php echo $name?>.substr(6, 2) + '.' + json.<?php echo $name?>.substr(4, 2) + '.' + json.<?php echo $name?>.substr(0, 4) : '';
+<?php
+      }
+      elseif ($subElem['type'] == 'CHECK')
+      {
+?> 
+    form.<?php echo "iform_popup_$name"?>.checked = json.<?php echo $name?> != 0 ? true : false;
+<?php
       }
       else
       {
 ?> 
-    form.<?php echo "iform_popup_$name"?>.value = json.<?php echo $name?> ? json.<?php echo $name?>.replace('.', ',') : '';
+    form.<?php echo "iform_popup_$name"?>.value = json.<?php echo $name?>;
 <?php
       }
     }
-    elseif ($subElem['type'] == 'INTDATE')
-    {
-?> 
-    form.<?php echo "iform_popup_$name"?>.value = json.<?php echo $name?> ? json.<?php echo $name?>.substr(6, 2) + '.' + json.<?php echo $name?>.substr(4, 2) + '.' + json.<?php echo $name?>.substr(0, 4) : '';
-<?php
-    }
-    elseif ($subElem['type'] == 'CHECK')
-    {
-?> 
-    form.<?php echo "iform_popup_$name"?>.checked = json.<?php echo $name?> != 0 ? true : false;
-<?php
-    }
-    else
-    {
-?> 
-    form.<?php echo "iform_popup_$name"?>.value = json.<?php echo $name?>;
-<?php
-    }
-  }
 ?>    
     var buttons = new Object(); 
     buttons["<?php echo $GLOBALS['locSAVE']?>"] = function() { save_row('iform_popup'); };
@@ -808,34 +826,41 @@ function popup_editor(event, title, id, copy_row)
 
   });
 }  
+<?php
+  }
+?>
 /* ]]> */
 </script>
         <form method="post" name="iform" id="iform">
         <table class="iform" id="itable">
+<?php
+  if (sesWriteAccess())
+  {
+?>
           <tr id="form_row">
 <?php
-  $strRowSpan = '';
-  foreach ($subFormElements as $subElem)
-  {
-    if (!in_array($subElem['type'], array('HID_INT', 'SECHID_INT', 'BUTTON', 'NEWLINE', 'ROWSUM')))
-    { 
-      $value = getFormDefaultValue($subElem, $intKeyValue);
+    $strRowSpan = '';
+    foreach ($subFormElements as $subElem)
+    {
+      if (!in_array($subElem['type'], array('HID_INT', 'SECHID_INT', 'BUTTON', 'NEWLINE', 'ROWSUM')))
+      { 
+        $value = getFormDefaultValue($subElem, $intKeyValue);
 ?>
             <td class="label <?php echo strtolower($subElem['style'])?>_label">
               <?php echo $subElem['label']?><br>
               <?php echo htmlFormElement('iform_' . $subElem['name'], $subElem['type'], $value, $subElem['style'], $subElem['listquery'], "MODIFY", 0, '', array(), $subElem['elem_attributes'])?>
             </td>
 <?php
-    }
-    elseif ($subElem['type'] == 'ROWSUM') 
-    {
+      }
+      elseif ($subElem['type'] == 'ROWSUM') 
+      {
 ?>
             <td class="label <?php echo strtolower($subElem['style'])?>_label">
               <?php echo $subElem['label']?><br>
             </td>
 <?php
+      }
     }
-  }
 ?>
             <td class="button" <?php echo $strRowSpan?>>
               <br>
@@ -853,35 +878,38 @@ function popup_editor(event, title, id, copy_row)
         <table class="iform">
           <tr>
 <?php
-  $strRowSpan = '';
-  foreach ($subFormElements as $elem)
-  {
-    if (!in_array($elem['type'], array('HID_INT', 'SECHID_INT', 'BUTTON', 'NEWLINE', 'ROWSUM')))
+    $strRowSpan = '';
+    foreach ($subFormElements as $elem)
     {
+      if (!in_array($elem['type'], array('HID_INT', 'SECHID_INT', 'BUTTON', 'NEWLINE', 'ROWSUM')))
+      {
 ?>
             <td class="label <?php echo strtolower($elem['style'])?>_label">
               <?php echo $elem['label']?><br>
               <?php echo htmlFormElement('iform_popup_' . $elem['name'], $elem['type'], '', $elem['style'], $elem['listquery'], "MODIFY", 0, '', array(), $elem['elem_attributes'])?>
             </td>
 <?php
-    }
-    elseif( $elem['type'] == 'SECHID_INT' ) 
-    {
+      }
+      elseif( $elem['type'] == 'SECHID_INT' ) 
+      {
 ?>
             <input type="hidden" name="<?php echo 'iform_popup_' . $elem['name']?>" value="<?php echo gpcStripSlashes($astrValues[$elem['name']])?>">
 <?php
-    }
-    elseif( $elem['type'] == 'BUTTON' ) 
-    {
+      }
+      elseif( $elem['type'] == 'BUTTON' ) 
+      {
 ?>
             <td class="label">
               &nbsp;
             </td>
 <?php
+      }
     }
-  }
 ?>
           </tr>
+<?php
+  }
+?>
         </table>
         </form>
       </div>
@@ -890,6 +918,8 @@ function popup_editor(event, title, id, copy_row)
 
 function createFormButtons($boolNew, $copyLinkOverride, $spinner = 0)
 {
+  if (!sesWriteAccess())
+    return;
 ?>
     <div class="form_buttons">
       <a class="actionlink save_button" href="#" onclick="document.getElementById('admin_form').saveact.value=1; document.getElementById('admin_form').submit(); return false;"><?php echo $GLOBALS['locSAVE']?></a>

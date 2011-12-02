@@ -38,13 +38,13 @@ function createFuncMenu($strFunc)
   
   switch ($strFunc) 
   {
-  case "system" :
+  case "system":
     $astrNaviLinks =  array( 
-      array("href" => "list=user", "text" => $GLOBALS['locUSERS'], "levels_allowed" => array(99)),
-      array("href" => "list=session_type", "text" => $GLOBALS['locSESSIONTYPES'], "levels_allowed" => array(99)),
-      array("href" => "operation=dbdump", "text" => $GLOBALS['locBACKUPDATABASE'], "levels_allowed" => array(90, 99)),
-      array("href" => "operation=import", "text" => $GLOBALS['locImportData'], "levels_allowed" => array(99)),
-      array("href" => "operation=export", "text" => $GLOBALS['locExportData'], "levels_allowed" => array(99))
+      array("href" => "list=user", "text" => $GLOBALS['locUSERS'], "levels_allowed" => array(ROLE_ADMIN)),
+      array("href" => "list=session_type", "text" => $GLOBALS['locSESSIONTYPES'], "levels_allowed" => array(ROLE_ADMIN)),
+      array("href" => "operation=dbdump", "text" => $GLOBALS['locBACKUPDATABASE'], "levels_allowed" => array(ROLE_BACKUPMGR, ROLE_ADMIN)),
+      array("href" => "operation=import", "text" => $GLOBALS['locImportData'], "levels_allowed" => array(ROLE_ADMIN)),
+      array("href" => "operation=export", "text" => $GLOBALS['locExportData'], "levels_allowed" => array(ROLE_ADMIN))
     );
     $strNewText = '';
     $strList = getRequest('list', '');
@@ -57,14 +57,14 @@ function createFuncMenu($strFunc)
       $strNewButton = "<a class=\"actionlink\" href=\"?func=system&amp;list=$strList&amp;form=$strList\">$strNewText</a>";
     break;
     
-  case "settings" :
+  case "settings":
     $astrNaviLinks = array( 
-      array("href" => "list=settings", "text" => $GLOBALS['locGeneralSettings'], "levels_allowed" => array(1, 90)),
-      array("href" => "list=base_info", "text" => $GLOBALS['locBASES'], "levels_allowed" => array(1, 90)),
-      array("href" => "list=invoice_state", "text" => $GLOBALS['locINVOICESTATES'], "levels_allowed" => array(1, 90)),
-      array("href" => "list=product", "text" => $GLOBALS['locPRODUCTS'], "levels_allowed" => array(1, 90)),
-      array("href" => "list=row_type", "text" => $GLOBALS['locROWTYPES'], "levels_allowed" => array(1, 90)),
-      array("href" => "list=print_template", "text" => $GLOBALS['locPrintTemplates'], "levels_allowed" => array(1, 90)),
+      array("href" => "list=settings", "text" => $GLOBALS['locGeneralSettings'], "levels_allowed" => array(ROLE_USER, ROLE_BACKUPMGR)),
+      array("href" => "list=base_info", "text" => $GLOBALS['locBASES'], "levels_allowed" => array(ROLE_USER, ROLE_BACKUPMGR)),
+      array("href" => "list=invoice_state", "text" => $GLOBALS['locINVOICESTATES'], "levels_allowed" => array(ROLE_USER, ROLE_BACKUPMGR)),
+      array("href" => "list=product", "text" => $GLOBALS['locPRODUCTS'], "levels_allowed" => array(ROLE_USER, ROLE_BACKUPMGR)),
+      array("href" => "list=row_type", "text" => $GLOBALS['locROWTYPES'], "levels_allowed" => array(ROLE_USER, ROLE_BACKUPMGR)),
+      array("href" => "list=print_template", "text" => $GLOBALS['locPrintTemplates'], "levels_allowed" => array(ROLE_USER, ROLE_BACKUPMGR)),
     );
     $strNewText = '';
     $strList = getRequest('list', '');
@@ -80,10 +80,10 @@ function createFuncMenu($strFunc)
       $strNewButton = "<a class=\"actionlink\" href=\"?func=settings&amp;list=$strList&amp;form=$strList\">$strNewText</a>";
     break;
   
-  case "reports" :
+  case "reports":
     $astrNaviLinks = array( 
-      array("href" => "form=invoice", "text" => $GLOBALS['locINVOICEREPORT'], "levels_allowed" => array(1, 90)),
-      array("href" => "form=product", "text" => $GLOBALS['locPRODUCTREPORT'], "levels_allowed" => array(1, 90))
+      array("href" => "form=invoice", "text" => $GLOBALS['locINVOICEREPORT'], "levels_allowed" => array(ROLE_READONLY, ROLE_USER, ROLE_BACKUPMGR)),
+      array("href" => "form=product", "text" => $GLOBALS['locPRODUCTREPORT'], "levels_allowed" => array(ROLE_READONLY, ROLE_USER, ROLE_BACKUPMGR))
     );
     break;
   
@@ -96,14 +96,14 @@ function createFuncMenu($strFunc)
     $strNewButton = '<a class="actionlink" href="?func=companies&amp;form=company">' . $GLOBALS['locNEWCOMPANY'] . '</a>';
     break;
 
-  default :
+  default:
     $blnShowSearch = TRUE;
     $strFormName = "invoice";
     $astrNaviLinks = array();
     if ($strFunc == 'invoices')
-      $astrNaviLinks[] = array("href" => "index.php?func=open_invoices", "text" => $GLOBALS['locDISPLAYOPENINVOICES'], "levels_allowed" => array(1, 90));
+      $astrNaviLinks[] = array("href" => "index.php?func=open_invoices", "text" => $GLOBALS['locDISPLAYOPENINVOICES'], "levels_allowed" => array(ROLE_USER, ROLE_BACKUPMGR));
     else
-      $astrNaviLinks[] = array("href" => "index.php?func=invoices", "text" => $GLOBALS['locDISPLAYALLINVOICES'], "levels_allowed" => array(1, 90));
+      $astrNaviLinks[] = array("href" => "index.php?func=invoices", "text" => $GLOBALS['locDISPLAYALLINVOICES'], "levels_allowed" => array(ROLE_USER, ROLE_BACKUPMGR));
     if ($strFunc != 'archived_invoices')  
       $strNewButton = '<a class="actionlink" href="?func=invoices&amp;form=invoice">' . $GLOBALS['locNEWINVOICE'] . '</a>';
     $strFunc = 'invoices';
@@ -155,7 +155,7 @@ function createFuncMenu($strFunc)
   }
   foreach ($astrNaviLinks as $link) 
   {
-    if (in_array($_SESSION['sesACCESSLEVEL'], $link["levels_allowed"]) || $_SESSION['sesACCESSLEVEL'] == 99) 
+    if (in_array($_SESSION['sesACCESSLEVEL'], $link["levels_allowed"]) || $_SESSION['sesACCESSLEVEL'] == ROLE_ADMIN) 
     {
       if (strchr($link['href'], '?') === FALSE)
         $strHref = "?func=$strFunc&amp;" . $link['href'];
@@ -174,7 +174,10 @@ function createFuncMenu($strFunc)
     <a class="buttonlink" href="#" onClick="openSearchWindow('quick', event); return false;"><?php echo $GLOBALS['locQUICKSEARCH']?></a>
 <?php
   }
-  echo $strNewButton;
+  if (sesWriteAccess())
+  {
+    echo $strNewButton;
+  }
 ?>
   </div>
   </form>

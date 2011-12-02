@@ -28,7 +28,7 @@ function createList($strFunc, $strList)
   
   require "list_switch.php";
   
-  if (!in_array($_SESSION['sesACCESSLEVEL'], $levelsAllowed) && $_SESSION['sesACCESSLEVEL'] != 99 )
+  if (!in_array($_SESSION['sesACCESSLEVEL'], $levelsAllowed) && $_SESSION['sesACCESSLEVEL'] != ROLE_ADMIN )
   {
 ?>
   <div class="form_container">

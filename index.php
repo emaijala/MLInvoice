@@ -48,7 +48,7 @@ if (!$strFunc && $strForm)
 
 $title = getPageTitle($strFunc, $strList, $strForm);
 
-if ($strFunc == 'system' && getRequest('operation', '') == 'dbdump' && in_array($_SESSION['sesACCESSLEVEL'], array(90, 99)))
+if ($strFunc == 'system' && getRequest('operation', '') == 'dbdump' && in_array($_SESSION['sesACCESSLEVEL'], array(ROLE_BACKUPMGR, ROLE_ADMIN)))
 {
   create_db_dump();
   exit;
@@ -57,14 +57,15 @@ if ($strFunc == 'system' && getRequest('operation', '') == 'dbdump' && in_array(
 
 echo htmlPageStart(_PAGE_TITLE_ . " - $title", getSetting('session_keepalive') ? array('js/keepalive.js') : null);
 
+$normalMenuRights = array(ROLE_READONLY, ROLE_USER, ROLE_BACKUPMGR);
 $astrMainButtons = array (
-    array("name" => "invoice", "title" => "locSHOWINVOICENAVI", 'action' => 'open_invoices', "levels_allowed" => array(1, 90) ),
-    array("name" => "archive", "title" => "locSHOWARCHIVENAVI", 'action' => 'archived_invoices', "levels_allowed" => array(1, 90) ),
-    array("name" => "company", "title" => "locSHOWCOMPANYNAVI", 'action' => 'companies', "levels_allowed" => array(1, 90) ),
-    array("name" => "reports", "title" => "locSHOWREPORTNAVI", 'action' => 'reports', "levels_allowed" => array(1, 90) ),
-    array("name" => "settings", "title" => "locSHOWSETTINGSNAVI", 'action' => 'settings', "action" => "settings", "levels_allowed" => array(1, 90) ),
-    array("name" => "system", "title" => "locSHOWSYSTEMNAVI", 'action' => 'system', "levels_allowed" => array(90, 99) ),
-    array("name" => "logout", "title" => "locLOGOUT", 'action' => 'logout', "levels_allowed" => array(1, 90) )
+    array("name" => "invoice", "title" => "locSHOWINVOICENAVI", 'action' => 'open_invoices', "levels_allowed" => array(ROLE_READONLY, ROLE_USER, ROLE_BACKUPMGR) ),
+    array("name" => "archive", "title" => "locSHOWARCHIVENAVI", 'action' => 'archived_invoices', "levels_allowed" => array(ROLE_READONLY, ROLE_USER, ROLE_BACKUPMGR) ),
+    array("name" => "company", "title" => "locSHOWCOMPANYNAVI", 'action' => 'companies', "levels_allowed" => array(ROLE_USER, ROLE_BACKUPMGR) ),
+    array("name" => "reports", "title" => "locSHOWREPORTNAVI", 'action' => 'reports', "levels_allowed" => array(ROLE_READONLY, ROLE_USER, ROLE_BACKUPMGR) ),
+    array("name" => "settings", "title" => "locSHOWSETTINGSNAVI", 'action' => 'settings', "action" => "settings", "levels_allowed" => array(ROLE_USER, ROLE_BACKUPMGR) ),
+    array("name" => "system", "title" => "locSHOWSYSTEMNAVI", 'action' => 'system', "levels_allowed" => array(ROLE_BACKUPMGR, ROLE_ADMIN) ),
+    array("name" => "logout", "title" => "locLOGOUT", 'action' => 'logout', "levels_allowed" => null )
 );
 
 ?>
@@ -80,7 +81,7 @@ foreach ($astrMainButtons as $button)
   $strButton .= '" href="?func=' . $button['action'] . '">';
   $strButton .= $GLOBALS[$button['title']] . '</a>';
       
-  if (in_array($_SESSION['sesACCESSLEVEL'], $button['levels_allowed']) || $_SESSION['sesACCESSLEVEL'] == 99) 
+  if (!isset($button['levels_allowed']) || in_array($_SESSION['sesACCESSLEVEL'], $button['levels_allowed']) || $_SESSION['sesACCESSLEVEL'] == ROLE_ADMIN) 
   {
     echo "    $strButton\n";
   }
@@ -108,13 +109,13 @@ foreach ($arrHistory as $arrHE)
   </div>
 
 <?php
-if ($strFunc == 'system' && getRequest('operation', '') == 'export' && $_SESSION['sesACCESSLEVEL'] == 99)
+if ($strFunc == 'system' && getRequest('operation', '') == 'export' && $_SESSION['sesACCESSLEVEL'] == ROLE_ADMIN)
 {
   createFuncMenu($strFunc);
   require_once 'export.php';
   do_export();
 }
-elseif ($strFunc == 'system' && getRequest('operation', '') == 'import' && $_SESSION['sesACCESSLEVEL'] == 99)
+elseif ($strFunc == 'system' && getRequest('operation', '') == 'import' && $_SESSION['sesACCESSLEVEL'] == ROLE_ADMIN)
 {
   createFuncMenu($strFunc);
   require_once 'import.php';

@@ -41,7 +41,7 @@ Tämä ohjelma on vapaa. Lue oheinen LICENSE.
 
 $strListTableAlias = '';
 $strOrder = '';
-$levelsAllowed = array(1, 90);
+$levelsAllowed = array(ROLE_USER, ROLE_BACKUPMGR);
 $copyLinkOverride = '';
 $strJSONType = '';
 $clearRowValuesAfterAdd = false;
@@ -157,6 +157,7 @@ case 'product':
 break;
 
 case 'invoice':
+  $levelsAllowed[] = ROLE_READONLY;
   $strTable = '{prefix}invoice';
   $strListTableAlias = 'i.'; // this is for the search function
   $strPrimaryKey = "id";
@@ -201,36 +202,46 @@ case 'invoice':
     }
   }
   
-  $companyOnChange = <<<EOS
+  $invoicePrintChecks = '';
+  $invoiceNumberUpdatePrefix = '';
+  $invoiceNumberUpdateSuffix = '';
+  $companyOnChange = '';
+  $getInvoiceNo = '';
+  $updateDates = '';
+  $addCompanyCode = '';
+  
+  if (sesWriteAccess()) 
+  {
+    $companyOnChange = <<<EOS
 onchange = "$.getJSON('json.php?func=get_company&amp;id=' + document.getElementById('company_id').value, function(json) { if (json && json.default_ref_number) document.getElementById('ref_number').value = json.default_ref_number;});"
 EOS;
 
-  $getInvoiceNo = <<<EOS
+    $getInvoiceNo = <<<EOS
 $.getJSON('json.php?func=get_invoice_defaults&amp;id=' + document.getElementById('record_id').value + '&amp;base_id=' + document.getElementById('base_id').value, function(json) { document.getElementById('invoice_no').value = json.invoice_no; document.getElementById('ref_number').value = json.ref_no; $('.save_button').addClass('unsaved'); }); return false;
 EOS;
 
-  $locUpdateDates = $GLOBALS['locUpdateDates'];
-  $updateDates = <<<EOS
+    $locUpdateDates = $GLOBALS['locUpdateDates'];
+    $updateDates = <<<EOS
 <a class="formbuttonlink" href="#" onclick="$.getJSON('json.php?func=get_invoice_defaults&amp;id=' + document.getElementById('record_id').value + '&amp;base_id=' + document.getElementById('base_id').value, function(json) { document.getElementById('invoice_date').value = json.date; document.getElementById('due_date').value = json.due_date; $('.save_button').addClass('unsaved'); }); return false;">$locUpdateDates</a>
 EOS;
 
-  $locNew = $GLOBALS['locNEW'] . '...';
-  $locCompName = $GLOBALS['locCOMPNAME'];
-  $locEmail = $GLOBALS['locEMAIL'];
-  $locPhone = $GLOBALS['locPHONE'];
-  $locAddress = $GLOBALS['locSTREETADDR'];
-  $locZip = $GLOBALS['locZIPCODE'];
-  $locCity = $GLOBALS['locCITY'];
-  $locSave = $GLOBALS['locSAVE'];
-  $locClose = $GLOBALS['locCLOSE'];
-  $locTitle = $GLOBALS['locNEWCOMPANY'];
-  $locMissing = $GLOBALS['locERRVALUEMISSING'];
-  $addCompanyCode = <<<EOS
+    $locNew = $GLOBALS['locNEW'] . '...';
+    $locCompName = $GLOBALS['locCOMPNAME'];
+    $locEmail = $GLOBALS['locEMAIL'];
+    $locPhone = $GLOBALS['locPHONE'];
+    $locAddress = $GLOBALS['locSTREETADDR'];
+    $locZip = $GLOBALS['locZIPCODE'];
+    $locCity = $GLOBALS['locCITY'];
+    $locSave = $GLOBALS['locSAVE'];
+    $locClose = $GLOBALS['locCLOSE'];
+    $locTitle = $GLOBALS['locNEWCOMPANY'];
+    $locMissing = $GLOBALS['locERRVALUEMISSING'];
+    $addCompanyCode = <<<EOS
 <a class="formbuttonlink" href="#" onclick="add_company({'save': '$locSave', 'close': '$locClose', 'title': '$locTitle', 'missing': '$locMissing'})">$locNew</a>
 
 EOS;
 
-  $popupHTML = <<<EOS
+    $popupHTML = <<<EOS
 <script type="text/javascript" src="js/add_company.js"></script>
 <div id="quick_add_company" class="form_container" style="display: none">
   <div class="medium_label">$locCompName</div> <div class="field"><input type="text" id="quick_name" class="medium"></div>
@@ -241,29 +252,26 @@ EOS;
   <div class="medium_label">$locCity</div> <div class="field"><input type="text" id="quick_city" class="medium"></div>
 </div>
 EOS;
-   
-  $invoicePrintChecks = '';
-  $invoiceNumberUpdatePrefix = '';
-  $invoiceNumberUpdateSuffix = '';
-  
-  if (getSetting('invoice_warn_if_noncurrent_date'))
-  {
-    $invoicePrintChecks .= "var d = new Date(); var dt = document.getElementById('invoice_date').value.split('.'); if (parseInt(dt[0], 10) != d.getDate() || parseInt(dt[1], 10) != d.getMonth()+1 || parseInt(dt[2], 10) != d.getYear() + 1900) alert('" . $GLOBALS['locInvoiceDateNonCurrent'] . "'); ";
+
+    if (getSetting('invoice_warn_if_noncurrent_date'))
+    {
+      $invoicePrintChecks .= "var d = new Date(); var dt = document.getElementById('invoice_date').value.split('.'); if (parseInt(dt[0], 10) != d.getDate() || parseInt(dt[1], 10) != d.getMonth()+1 || parseInt(dt[2], 10) != d.getYear() + 1900) alert('" . $GLOBALS['locInvoiceDateNonCurrent'] . "'); ";
+    }
+    $invoicePrintChecks .= "var len = document.getElementById('ref_number').value.length; if (len > 0 && len < 4) alert('" . $GLOBALS['locInvoiceRefNumberTooShort'] . "'); ";
+    
+    if (getSetting('invoice_add_number') || getSetting('invoice_add_reference_number'))
+    {
+      $invoiceNumberUpdatePrefix = "$.getJSON('json.php?func=get_invoice_defaults&amp;id=' + document.getElementById('record_id').value + '&amp;base_id=' + document.getElementById('base_id').value, function(json) { ";
+      if (getSetting('invoice_add_number')) 
+        $invoiceNumberUpdatePrefix .= "var invoice_no = document.getElementById('invoice_no'); if (invoice_no.value == '' || invoice_no.value == 0) invoice_no.value = json.invoice_no; ";
+      if (getSetting('invoice_add_reference_number'))
+        $invoiceNumberUpdatePrefix .= "var ref_number = document.getElementById('ref_number'); if (ref_number.value == '' || ref_number.value == 0) ref_number.value = json.ref_no; ";
+      $invoiceNumberUpdatePrefix .= "$('.save_button').addClass('unsaved'); ";
+      $invoiceNumberUpdateSuffix = ' });';
+    }
+    if (!getSetting('invoice_add_number'))
+      $invoiceNumberUpdatePrefix .= "invoice_no = document.getElementById('invoice_no'); if (invoice_no.value == '' || invoice_no.value == 0) alert('" . $GLOBALS['locInvoiceNumberNotDefined'] . "');";
   }
-  $invoicePrintChecks .= "var len = document.getElementById('ref_number').value.length; if (len > 0 && len < 4) alert('" . $GLOBALS['locInvoiceRefNumberTooShort'] . "'); ";
-  
-  if (getSetting('invoice_add_number') || getSetting('invoice_add_reference_number'))
-  {
-    $invoiceNumberUpdatePrefix = "$.getJSON('json.php?func=get_invoice_defaults&amp;id=' + document.getElementById('record_id').value + '&amp;base_id=' + document.getElementById('base_id').value, function(json) { ";
-    if (getSetting('invoice_add_number')) 
-      $invoiceNumberUpdatePrefix .= "var invoice_no = document.getElementById('invoice_no'); if (invoice_no.value == '' || invoice_no.value == 0) invoice_no.value = json.invoice_no; ";
-    if (getSetting('invoice_add_reference_number'))
-      $invoiceNumberUpdatePrefix .= "var ref_number = document.getElementById('ref_number'); if (ref_number.value == '' || ref_number.value == 0) ref_number.value = json.ref_no; ";
-    $invoiceNumberUpdatePrefix .= "$('.save_button').addClass('unsaved'); ";
-    $invoiceNumberUpdateSuffix = ' });';
-  }
-  if (!getSetting('invoice_add_number'))
-    $invoiceNumberUpdatePrefix .= "invoice_no = document.getElementById('invoice_no'); if (invoice_no.value == '' || invoice_no.value == 0) alert('" . $GLOBALS['locInvoiceNumberNotDefined'] . "');";
   
   // Print buttons
   $printButtons = array();
@@ -276,7 +284,20 @@ EOS;
   {
     $templateId = $row['id'];
     $printStyle = $row['new_window'] ? 'openwindow' : 'redirect';
-    $arr = array('name' => "print$templateId", 'label' => $row['name'], 'type' => 'JSBUTTON', 'style' => $printStyle, 'listquery' => "${invoicePrintChecks}${invoiceNumberUpdatePrefix}save_record('invoice.php?id=_ID_&amp;template=$templateId&amp;func=$strFunc', '$printStyle'); ${invoiceNumberUpdateSuffix} return false;", 'position' => 3, 'default' => FALSE, 'allow_null' => TRUE );
+
+    if (sesWriteAccess())
+    {
+      $printFunc = "${invoicePrintChecks}${invoiceNumberUpdatePrefix}save_record('invoice.php?id=_ID_&amp;template=$templateId&amp;func=$strFunc', '$printStyle'); ${invoiceNumberUpdateSuffix} return false;";
+    }
+    else
+    {
+      if ($printStyle == 'openwindow')
+        $printFunc = "window.open('invoice.php?id=_ID_&amp;template=$templateId&amp;func=$strFunc'); return false;";
+      else
+        $printFunc = "window.location = 'invoice.php?id=_ID_&amp;template=$templateId&amp;func=$strFunc'; return false;";
+    }
+
+    $arr = array('name' => "print$templateId", 'label' => $row['name'], 'type' => 'JSBUTTON', 'style' => $printStyle, 'listquery' => $printFunc, 'position' => 3, 'default' => FALSE, 'allow_null' => TRUE );
     if (++$rowNum > $templateFirstCol)
     {
       $arr['position'] = 4;
@@ -302,45 +323,53 @@ EOS;
   $copyLinkOverride = "copy_invoice.php?func=$strFunc&amp;list=$strList&amp;id=$intInvoiceId";
   
   $updateInvoiceNo = null;
-  if (!getSetting('invoice_add_number') || !getSetting('invoice_add_reference_number'))
+  $readonly = '';
+  if (sesWriteAccess()) 
   {
-    $updateInvoiceNo = '<a class="formbuttonlink" href="#" onclick="' . $getInvoiceNo . '">' . $GLOBALS['locGetInvoiceNo'] . '</a>';
+    if (!getSetting('invoice_add_number') || !getSetting('invoice_add_reference_number'))
+    {
+      $updateInvoiceNo = '<a class="formbuttonlink" href="#" onclick="' . $getInvoiceNo . '">' . $GLOBALS['locGetInvoiceNo'] . '</a>';
+    }
+  }
+  else
+  {
+    $readonly = ' readonly'; 
   }
   
   $astrFormElements = array(
     array(
-      "name" => "base_id", "label" => $GLOBALS['locBILLER'], "type" => "LIST", "style" => "medium", "listquery" => "SELECT id, name FROM {prefix}base WHERE deleted=0", "position" => 1, "default" => $defaultBase, "allow_null" => FALSE ),
+      "name" => "base_id", "label" => $GLOBALS['locBILLER'], "type" => "LIST", "style" => "medium$readonly", "listquery" => "SELECT id, name FROM {prefix}base WHERE deleted=0", "position" => 1, "default" => $defaultBase, "allow_null" => FALSE ),
     array(
-      "name" => "name", "label" => $GLOBALS['locINVNAME'], "type" => "TEXT", "style" => "medium", "listquery" => "", "position" => 2, "default" => FALSE, "allow_null" => TRUE ),
+      "name" => "name", "label" => $GLOBALS['locINVNAME'], "type" => "TEXT", "style" => "medium$readonly", "listquery" => "", "position" => 2, "default" => FALSE, "allow_null" => TRUE ),
     array(
-      "name" => "company_id", "label" => $GLOBALS['locPAYER'], "type" => "LIST", "style" => "medium", "listquery" => $companyListSelect, "position" => 1, "default" => FALSE, 'allow_null' => TRUE, 'attached_elem' => $addCompanyCode, 'elem_attributes' => $companyOnChange ),
+      "name" => "company_id", "label" => $GLOBALS['locPAYER'], "type" => "LIST", "style" => "medium$readonly", "listquery" => $companyListSelect, "position" => 1, "default" => FALSE, 'allow_null' => TRUE, 'attached_elem' => $addCompanyCode, 'elem_attributes' => $companyOnChange ),
     array(
       "name" => "reference", "label" => $GLOBALS['locCLIENTSREFERENCE'], "type" => "TEXT", "style" => "medium", "listquery" => "", "position" => 2, "default" => FALSE, "allow_null" => TRUE ),
     array(
-      "name" => "invoice_no", "label" => $GLOBALS['locINVNO'], "type" => "INT", "style" => "medium hidezerovalue", "listquery" => "", "position" => 1, "default" => $defaultInvNo, "allow_null" => TRUE ),
+      "name" => "invoice_no", "label" => $GLOBALS['locINVNO'], "type" => "INT", "style" => "medium hidezerovalue$readonly", "listquery" => "", "position" => 1, "default" => $defaultInvNo, "allow_null" => TRUE ),
     array(
-      "name" => "ref_number", "label" => $GLOBALS['locREFNO'], "type" => "INT", "style" => "medium hidezerovalue", "listquery" => "", "position" => 2, "default" => $defaultRefNo, 'attached_elem' => $updateInvoiceNo, "allow_null" => TRUE ),
+      "name" => "ref_number", "label" => $GLOBALS['locREFNO'], "type" => "INT", "style" => "medium hidezerovalue$readonly", "listquery" => "", "position" => 2, "default" => $defaultRefNo, 'attached_elem' => $updateInvoiceNo, "allow_null" => TRUE ),
     array(
-      "name" => "invoice_date", "label" => $GLOBALS['locINVDATE'], "type" => "INTDATE", "style" => "date", "listquery" => "", "position" => 1, "default" => "DATE_NOW", "allow_null" => FALSE ),
+      "name" => "invoice_date", "label" => $GLOBALS['locINVDATE'], "type" => "INTDATE", "style" => "date$readonly", "listquery" => "", "position" => 1, "default" => "DATE_NOW", "allow_null" => FALSE ),
     array(
-      "name" => "due_date", "label" => $GLOBALS['locDUEDATE'], "type" => "INTDATE", "style" => "date", "listquery" => "", "position" => 2, "default" => 'DATE_NOW+' . getSetting('invoice_payment_days'), 'attached_elem' => $updateDates, "allow_null" => FALSE ),
+      "name" => "due_date", "label" => $GLOBALS['locDUEDATE'], "type" => "INTDATE", "style" => "date$readonly", "listquery" => "", "position" => 2, "default" => 'DATE_NOW+' . getSetting('invoice_payment_days'), 'attached_elem' => $updateDates, "allow_null" => FALSE ),
     array(
-      "name" => "state_id", "label" => $GLOBALS['locSTATUS'], "type" => "LIST", "style" => "medium", "listquery" => "SELECT id, name FROM {prefix}invoice_state WHERE deleted=0 ORDER BY order_no", "position" => 1, "default" => 1, "allow_null" => FALSE ),
+      "name" => "state_id", "label" => $GLOBALS['locSTATUS'], "type" => "LIST", "style" => "medium$readonly", "listquery" => "SELECT id, name FROM {prefix}invoice_state WHERE deleted=0 ORDER BY order_no", "position" => 1, "default" => 1, "allow_null" => FALSE ),
     array(
-      "name" => "payment_date", "label" => $GLOBALS['locPAYDATE'], "type" => "INTDATE", "style" => "date", "listquery" => "", "position" => 2, "default" => NULL, "allow_null" => TRUE ),
+      "name" => "payment_date", "label" => $GLOBALS['locPAYDATE'], "type" => "INTDATE", "style" => "date$readonly", "listquery" => "", "position" => 2, "default" => NULL, "allow_null" => TRUE ),
     array(
-      "name" => "archived", "label" => $GLOBALS['locARCHIVED'], "type" => "CHECK", "style" => "medium", "listquery" => "", "position" => 1, "default" => 0, "allow_null" => TRUE ),
+      "name" => "archived", "label" => $GLOBALS['locARCHIVED'], "type" => "CHECK", "style" => "medium$readonly", "listquery" => "", "position" => 1, "default" => 0, "allow_null" => TRUE ),
     array(
-      "name" => "info", "label" => $GLOBALS['locVisibleInfo'], "type" => "AREA", "style" => "medium", "listquery" => "", "position" => 1, "default" => FALSE, "allow_null" => TRUE ),
+      "name" => "info", "label" => $GLOBALS['locVisibleInfo'], "type" => "AREA", "style" => "medium$readonly", "listquery" => "", "position" => 1, "default" => FALSE, "allow_null" => TRUE ),
     array(
-      "name" => "internal_info", "label" => $GLOBALS['locINTERNALINFO'], "type" => "AREA", "style" => "medium", "listquery" => "", "position" => 2, "default" => FALSE, "allow_null" => TRUE ),
+      "name" => "internal_info", "label" => $GLOBALS['locINTERNALINFO'], "type" => "AREA", "style" => "medium$readonly", "listquery" => "", "position" => 2, "default" => FALSE, "allow_null" => TRUE ),
       
-    array(
+    $readonly ? array("name" => "refundinvoice", "label" => '', 'type' => '') : array(
       "name" => "refundinvoice", "label" => $GLOBALS['locREFUNDINV'], "type" => "BUTTON", "style" => "redirect", "listquery" => "copy_invoice.php?func=$strFunc&list=$strList&id=_ID_&refund=1", "position" => 1, "default" => FALSE, "allow_null" => TRUE ),
     $arrRefundedInvoice,
     isset($printButtons[0]) ? $printButtons[0] : array(),   
     isset($printButtons2[0]) ? $printButtons2[0] : array(),   
-    array(
+    $readonly ? array("name" => "addreminderfees", "label" => '', 'type' => '') : array(
       "name" => "addreminderfees", "label" => $GLOBALS['locADDREMINDERFEES'], "type" => "BUTTON", "style" => "redirect", "listquery" => "add_reminder_fees.php?func=$strFunc&list=$strList&id=_ID_", "position" => 1, "default" => FALSE, "allow_null" => TRUE ),
     $arrRefundingInvoice,
     isset($printButtons[1]) ? $printButtons[1] : array(),   
@@ -590,7 +619,7 @@ case 'row_type':
 break;
 
 case 'session_type':
-  $levelsAllowed = array(99);
+  $levelsAllowed = array(ROLE_ADMIN);
   $strTable = '{prefix}session_type';
   $strPrimaryKey = "id";
   $astrFormElements = array(
@@ -604,7 +633,7 @@ case 'session_type':
 break;
 
 case 'user':
-  $levelsAllowed = array(99);
+  $levelsAllowed = array(ROLE_ADMIN);
   $strTable = '{prefix}users';
   $strPrimaryKey = "id";
   $astrFormElements = array(
