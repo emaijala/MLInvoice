@@ -208,7 +208,7 @@ function fetchRecord($table, $primaryKey, &$formElements, &$values)
     $type = $elem['type'];
     $name = $elem['name'];
 
-    if (!$type || $type == 'LABEL')
+    if (!$type || $type == 'LABEL' || $type == 'FILLER')
       continue;
 
     switch ($type)

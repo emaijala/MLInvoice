@@ -186,6 +186,7 @@ function createForm($strFunc, $strList, $strForm)
   $prevPosition = false;
   $prevColSpan = 1;
   $rowOpen = false;
+  $fieldMode = sesWriteAccess() ? 'modify' : 'readonly';
   foreach ($astrFormElements as $elem) 
   {
     if ($elem['type'] === false)
@@ -253,22 +254,31 @@ function createForm($strFunc, $strList, $strForm)
       $intColspan = 1;
 ?>
           <td class="button">
-            <?php echo htmlFormElement($elem['name'], $elem['type'], $astrValues[$elem['name']], $elem['style'], $elem['listquery'], "MODIFY", $elem['parent_key'],$elem['label'], array(), isset($elem['elem_attributes']) ? $elem['elem_attributes'] : '')
+            <?php echo htmlFormElement($elem['name'], $elem['type'], $astrValues[$elem['name']], $elem['style'], $elem['listquery'], $fieldMode, $elem['parent_key'],$elem['label'], array(), isset($elem['elem_attributes']) ? $elem['elem_attributes'] : '')
 ?>
+          </td>
+<?php          
+    }
+    elseif ($elem['type'] == "FILLER") 
+    {
+      $intColspan = 1;
+?>
+          <td>
+            &nbsp;
           </td>
 <?php          
     }
     elseif ($elem['type'] == "HID_INT" || strstr($elem['type'], "HID_")) 
     {
 ?>
-          <?php echo htmlFormElement($elem['name'], $elem['type'], $astrValues[$elem['name']], $elem['style'], $elem['listquery'], "MODIFY", $elem['parent_key'],$elem['label'])?>
+          <?php echo htmlFormElement($elem['name'], $elem['type'], $astrValues[$elem['name']], $elem['style'], $elem['listquery'], $fieldMode, $elem['parent_key'],$elem['label'])?>
 <?php          
     }
     elseif ($elem['type'] == "IMAGE") 
     {
 ?>
           <td class="image" colspan="<?php echo $intColspan?>">
-            <?php echo htmlFormElement($elem['name'], $elem['type'], $astrValues[$elem['name']], $elem['style'], $elem['listquery'], "MODIFY", $elem['parent_key'],$elem['label'], array(), isset($elem['elem_attributes']) ? $elem['elem_attributes'] : '')?>
+            <?php echo htmlFormElement($elem['name'], $elem['type'], $astrValues[$elem['name']], $elem['style'], $elem['listquery'], $fieldMode, $elem['parent_key'],$elem['label'], array(), isset($elem['elem_attributes']) ? $elem['elem_attributes'] : '')?>
           </td>
 <?php          
     }
@@ -289,7 +299,7 @@ function createForm($strFunc, $strList, $strForm)
 ?>
           <td class="label"><?php echo $elem['label']?></td>
           <td class="field"<?php echo $strColspan?>>
-            <?php echo htmlFormElement($elem['name'], $elem['type'], $value, $elem['style'], $elem['listquery'], "MODIFY", isset($elem['parent_key']) ? $elem['parent_key'] : '', '', array(), isset($elem['elem_attributes']) ? $elem['elem_attributes'] : '');
+            <?php echo htmlFormElement($elem['name'], $elem['type'], $value, $elem['style'], $elem['listquery'], $fieldMode, isset($elem['parent_key']) ? $elem['parent_key'] : '', '', array(), isset($elem['elem_attributes']) ? $elem['elem_attributes'] : '');
       if (isset($elem['attached_elem'])) echo '            ' . $elem['attached_elem'] . "\n";
 ?>
           </td>
@@ -314,7 +324,14 @@ function createForm($strFunc, $strList, $strForm)
 var globals = {};
 
 $(document).ready(function() { 
+<?php 
+  if (sesWriteAccess())
+  {
+?>
   $('input[class~="hasCalendar"]').datepicker();
+<?php
+  }
+?>
   $('#message').ajaxStart(function() {
     $('#spinner').css('visibility', 'visible');
   });
@@ -833,34 +850,38 @@ function popup_editor(event, title, id, copy_row)
 </script>
         <form method="post" name="iform" id="iform">
         <table class="iform" id="itable">
-<?php
-  if (sesWriteAccess())
-  {
-?>
           <tr id="form_row">
 <?php
-    $strRowSpan = '';
-    foreach ($subFormElements as $subElem)
-    {
-      if (!in_array($subElem['type'], array('HID_INT', 'SECHID_INT', 'BUTTON', 'NEWLINE', 'ROWSUM')))
-      { 
-        $value = getFormDefaultValue($subElem, $intKeyValue);
+  $strRowSpan = '';
+  foreach ($subFormElements as $subElem)
+  {
+    if (!in_array($subElem['type'], array('HID_INT', 'SECHID_INT', 'BUTTON', 'NEWLINE', 'ROWSUM')))
+    { 
+      $value = getFormDefaultValue($subElem, $intKeyValue);
 ?>
             <td class="label <?php echo strtolower($subElem['style'])?>_label">
-              <?php echo $subElem['label']?><br>
-              <?php echo htmlFormElement('iform_' . $subElem['name'], $subElem['type'], $value, $subElem['style'], $subElem['listquery'], "MODIFY", 0, '', array(), $subElem['elem_attributes'])?>
-            </td>
+              <?php echo $subElem['label']?>
 <?php
-      }
-      elseif ($subElem['type'] == 'ROWSUM') 
+      if (sesWriteAccess())
       {
 ?>
-            <td class="label <?php echo strtolower($subElem['style'])?>_label">
-              <?php echo $subElem['label']?><br>
+              <br>
+              <?php echo htmlFormElement('iform_' . $subElem['name'], $subElem['type'], $value, $subElem['style'], $subElem['listquery'], 'MOFIFY', 0, '', array(), $subElem['elem_attributes'])?>
             </td>
 <?php
       }
     }
+    elseif ($subElem['type'] == 'ROWSUM') 
+    {
+?>
+            <td class="label <?php echo strtolower($subElem['style'])?>_label">
+              <?php echo $subElem['label']?><br>
+            </td>
+<?php
+    }
+  }
+  if (sesWriteAccess())
+  {
 ?>
             <td class="button" <?php echo $strRowSpan?>>
               <br>
@@ -886,7 +907,7 @@ function popup_editor(event, title, id, copy_row)
 ?>
             <td class="label <?php echo strtolower($elem['style'])?>_label">
               <?php echo $elem['label']?><br>
-              <?php echo htmlFormElement('iform_popup_' . $elem['name'], $elem['type'], '', $elem['style'], $elem['listquery'], "MODIFY", 0, '', array(), $elem['elem_attributes'])?>
+              <?php echo htmlFormElement('iform_popup_' . $elem['name'], $elem['type'], '', $elem['style'], $elem['listquery'], 'MODIFY', 0, '', array(), $elem['elem_attributes'])?>
             </td>
 <?php
       }
@@ -905,11 +926,9 @@ function popup_editor(event, title, id, copy_row)
 <?php
       }
     }
-?>
-          </tr>
-<?php
   }
 ?>
+          </tr>
         </table>
         </form>
       </div>

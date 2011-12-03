@@ -323,7 +323,6 @@ EOS;
   $copyLinkOverride = "copy_invoice.php?func=$strFunc&amp;list=$strList&amp;id=$intInvoiceId";
   
   $updateInvoiceNo = null;
-  $readonly = '';
   if (sesWriteAccess()) 
   {
     if (!getSetting('invoice_add_number') || !getSetting('invoice_add_reference_number'))
@@ -331,45 +330,41 @@ EOS;
       $updateInvoiceNo = '<a class="formbuttonlink" href="#" onclick="' . $getInvoiceNo . '">' . $GLOBALS['locGetInvoiceNo'] . '</a>';
     }
   }
-  else
-  {
-    $readonly = ' readonly'; 
-  }
   
   $astrFormElements = array(
     array(
-      "name" => "base_id", "label" => $GLOBALS['locBILLER'], "type" => "LIST", "style" => "medium$readonly", "listquery" => "SELECT id, name FROM {prefix}base WHERE deleted=0", "position" => 1, "default" => $defaultBase, "allow_null" => FALSE ),
+      "name" => "base_id", "label" => $GLOBALS['locBILLER'], "type" => "LIST", "style" => "medium", "listquery" => "SELECT id, name FROM {prefix}base WHERE deleted=0", "position" => 1, "default" => $defaultBase, "allow_null" => FALSE ),
     array(
-      "name" => "name", "label" => $GLOBALS['locINVNAME'], "type" => "TEXT", "style" => "medium$readonly", "listquery" => "", "position" => 2, "default" => FALSE, "allow_null" => TRUE ),
+      "name" => "name", "label" => $GLOBALS['locINVNAME'], "type" => "TEXT", "style" => "medium", "listquery" => "", "position" => 2, "default" => FALSE, "allow_null" => TRUE ),
     array(
-      "name" => "company_id", "label" => $GLOBALS['locPAYER'], "type" => "LIST", "style" => "medium$readonly", "listquery" => $companyListSelect, "position" => 1, "default" => FALSE, 'allow_null' => TRUE, 'attached_elem' => $addCompanyCode, 'elem_attributes' => $companyOnChange ),
+      "name" => "company_id", "label" => $GLOBALS['locPAYER'], "type" => "LIST", "style" => "medium", "listquery" => $companyListSelect, "position" => 1, "default" => FALSE, 'allow_null' => TRUE, 'attached_elem' => $addCompanyCode, 'elem_attributes' => $companyOnChange ),
     array(
       "name" => "reference", "label" => $GLOBALS['locCLIENTSREFERENCE'], "type" => "TEXT", "style" => "medium", "listquery" => "", "position" => 2, "default" => FALSE, "allow_null" => TRUE ),
     array(
-      "name" => "invoice_no", "label" => $GLOBALS['locINVNO'], "type" => "INT", "style" => "medium hidezerovalue$readonly", "listquery" => "", "position" => 1, "default" => $defaultInvNo, "allow_null" => TRUE ),
+      "name" => "invoice_no", "label" => $GLOBALS['locINVNO'], "type" => "INT", "style" => "medium hidezerovalue", "listquery" => "", "position" => 1, "default" => $defaultInvNo, "allow_null" => TRUE ),
     array(
-      "name" => "ref_number", "label" => $GLOBALS['locREFNO'], "type" => "INT", "style" => "medium hidezerovalue$readonly", "listquery" => "", "position" => 2, "default" => $defaultRefNo, 'attached_elem' => $updateInvoiceNo, "allow_null" => TRUE ),
+      "name" => "ref_number", "label" => $GLOBALS['locREFNO'], "type" => "INT", "style" => "medium hidezerovalue", "listquery" => "", "position" => 2, "default" => $defaultRefNo, 'attached_elem' => $updateInvoiceNo, "allow_null" => TRUE ),
     array(
-      "name" => "invoice_date", "label" => $GLOBALS['locINVDATE'], "type" => "INTDATE", "style" => "date$readonly", "listquery" => "", "position" => 1, "default" => "DATE_NOW", "allow_null" => FALSE ),
+      "name" => "invoice_date", "label" => $GLOBALS['locINVDATE'], "type" => "INTDATE", "style" => "date", "listquery" => "", "position" => 1, "default" => "DATE_NOW", "allow_null" => FALSE ),
     array(
-      "name" => "due_date", "label" => $GLOBALS['locDUEDATE'], "type" => "INTDATE", "style" => "date$readonly", "listquery" => "", "position" => 2, "default" => 'DATE_NOW+' . getSetting('invoice_payment_days'), 'attached_elem' => $updateDates, "allow_null" => FALSE ),
+      "name" => "due_date", "label" => $GLOBALS['locDUEDATE'], "type" => "INTDATE", "style" => "date", "listquery" => "", "position" => 2, "default" => 'DATE_NOW+' . getSetting('invoice_payment_days'), 'attached_elem' => $updateDates, "allow_null" => FALSE ),
     array(
-      "name" => "state_id", "label" => $GLOBALS['locSTATUS'], "type" => "LIST", "style" => "medium$readonly", "listquery" => "SELECT id, name FROM {prefix}invoice_state WHERE deleted=0 ORDER BY order_no", "position" => 1, "default" => 1, "allow_null" => FALSE ),
+      "name" => "state_id", "label" => $GLOBALS['locSTATUS'], "type" => "LIST", "style" => "medium", "listquery" => "SELECT id, name FROM {prefix}invoice_state WHERE deleted=0 ORDER BY order_no", "position" => 1, "default" => 1, "allow_null" => FALSE ),
     array(
-      "name" => "payment_date", "label" => $GLOBALS['locPAYDATE'], "type" => "INTDATE", "style" => "date$readonly", "listquery" => "", "position" => 2, "default" => NULL, "allow_null" => TRUE ),
+      "name" => "payment_date", "label" => $GLOBALS['locPAYDATE'], "type" => "INTDATE", "style" => "date", "listquery" => "", "position" => 2, "default" => NULL, "allow_null" => TRUE ),
     array(
-      "name" => "archived", "label" => $GLOBALS['locARCHIVED'], "type" => "CHECK", "style" => "medium$readonly", "listquery" => "", "position" => 1, "default" => 0, "allow_null" => TRUE ),
+      "name" => "archived", "label" => $GLOBALS['locARCHIVED'], "type" => "CHECK", "style" => "medium", "listquery" => "", "position" => 1, "default" => 0, "allow_null" => TRUE ),
     array(
-      "name" => "info", "label" => $GLOBALS['locVisibleInfo'], "type" => "AREA", "style" => "medium$readonly", "listquery" => "", "position" => 1, "default" => FALSE, "allow_null" => TRUE ),
+      "name" => "info", "label" => $GLOBALS['locVisibleInfo'], "type" => "AREA", "style" => "medium", "listquery" => "", "position" => 1, "default" => FALSE, "allow_null" => TRUE ),
     array(
-      "name" => "internal_info", "label" => $GLOBALS['locINTERNALINFO'], "type" => "AREA", "style" => "medium$readonly", "listquery" => "", "position" => 2, "default" => FALSE, "allow_null" => TRUE ),
+      "name" => "internal_info", "label" => $GLOBALS['locINTERNALINFO'], "type" => "AREA", "style" => "medium", "listquery" => "", "position" => 2, "default" => FALSE, "allow_null" => TRUE ),
       
-    $readonly ? array("name" => "refundinvoice", "label" => '', 'type' => '') : array(
+    !sesWriteAccess() ? array("name" => "refundinvoice", "label" => '', 'type' => 'FILLER', 'position' => 1) : array(
       "name" => "refundinvoice", "label" => $GLOBALS['locREFUNDINV'], "type" => "BUTTON", "style" => "redirect", "listquery" => "copy_invoice.php?func=$strFunc&list=$strList&id=_ID_&refund=1", "position" => 1, "default" => FALSE, "allow_null" => TRUE ),
     $arrRefundedInvoice,
     isset($printButtons[0]) ? $printButtons[0] : array(),   
     isset($printButtons2[0]) ? $printButtons2[0] : array(),   
-    $readonly ? array("name" => "addreminderfees", "label" => '', 'type' => '') : array(
+    !sesWriteAccess() ? array("name" => "addreminderfees", "label" => '', 'type' => 'FILLER', 'position' => 1) : array(
       "name" => "addreminderfees", "label" => $GLOBALS['locADDREMINDERFEES'], "type" => "BUTTON", "style" => "redirect", "listquery" => "add_reminder_fees.php?func=$strFunc&list=$strList&id=_ID_", "position" => 1, "default" => FALSE, "allow_null" => TRUE ),
     $arrRefundingInvoice,
     isset($printButtons[1]) ? $printButtons[1] : array(),   

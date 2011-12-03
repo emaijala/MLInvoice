@@ -33,6 +33,20 @@ require_once "localize.php";
 require "datefuncs.php";
 require "miscfuncs.php";
 
+if (!sesWriteAccess())
+{
+  echo htmlPageStart(_PAGE_TITLE_, getSetting('session_keepalive') ? array('js/keepalive.js') : null);
+?>
+<body>
+  <div class="form_container">
+    <?php echo $GLOBALS['locNOACCESS'] . "\n"?>
+  </div>
+</body>
+</html>
+<?php
+  return;
+}
+
 $intInvoiceId = getRequest('id', FALSE);
 $boolRefund = getRequest('refund', FALSE);
 $strFunc = getRequest('func', '');
