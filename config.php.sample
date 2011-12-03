@@ -39,6 +39,9 @@ define ('_CHARSET_', 'UTF-8');
 // Sivujen otsikko
 define ('_PAGE_TITLE_', 'VLLasku');
 
+// Käytettävän jQuery UI-teeman sijainti
+#define ('_UI_THEME_LOCATION_', 'jquery/css/theme/jquery-ui-1.8.16.custom.css');
+
 // http vai https - vaihda vain jos automaattinen valinta alla ei toimi
 define ('_PROTOCOL_', isset($_SERVER['HTTPS']) ? 'https://' : 'http://');
 //define ('_PROTOCOL_', 'http://');

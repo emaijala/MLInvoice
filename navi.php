@@ -161,7 +161,7 @@ function createFuncMenu($strFunc)
         $strHref = "?func=$strFunc&amp;" . $link['href'];
       else
         $strHref = $link['href'];
-      $class = (strstr($_SERVER['QUERY_STRING'], $link['href'])) ? ' selected' : '';
+      $class = (strstr($_SERVER['QUERY_STRING'], $link['href'])) ? ' ui-state-highlight' : '';
 ?>    
     <a class="buttonlink<?php echo $class?>" href="<?php echo $strHref?>"><?php echo $link['text']?></a>
 <?php            
@@ -176,7 +176,7 @@ function createFuncMenu($strFunc)
   }
   if (sesWriteAccess())
   {
-    echo $strNewButton;
+    echo "&nbsp; &nbsp; $strNewButton";
   }
 ?>
   </div>

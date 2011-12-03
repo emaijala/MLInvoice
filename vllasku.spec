@@ -1,5 +1,5 @@
 Name:		vllasku
-Version:	1.3.3
+Version:	1.4.0
 Release:	1%{?dist}
 Summary:	VLLasku - Web application to create Finnish invoices
 Group:		Applications/Internet
@@ -57,12 +57,14 @@ EOM
 
 %files
 %defattr(-,root,root,-)
-%doc INSTALL LICENSE README TESTING UPGRADE CHANGES create_database.sql update_pklasku_schema.sql update_database_1.0_to_1.1.sql update_database_1.1_to_1.2.sql update_database_1.2_to_1.3.sql
+%doc INSTALL LICENSE README TESTING UPGRADE CHANGES create_database.sql update_pklasku_schema.sql update_database_1.0_to_1.1.sql update_database_1.1_to_1.2.sql update_database_1.2_to_1.3.sql update_database_1.3_to_1.4.sql
 %config(noreplace) %{_sysconfdir}/httpd/conf.d/%{name}.conf
 %attr(2755,root,apache) %dir %{_sysconfdir}/%{name}
 %attr(0640,root,apache) %config(noreplace) %{_sysconfdir}/%{name}/config.php
 %{_datadir}/%{name}
 
 %changelog
+* Sat Dec 3 2012 Ere Maijala <emaijala@gmail.com> - 1.4.0-1
+- updated for version 1.4.0
 * Fri Jun  3 2011 Ere Maijala <emaijala@gmail.com> - 1.3.0-1
 - initial spec from Mika Ilmaranta <ilmis@foobar.fi>

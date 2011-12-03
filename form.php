@@ -169,7 +169,7 @@ function createForm($strFunc, $strList, $strForm)
 <?php if (isset($popupHTML)) echo $popupHTML;?>  
 
   <div class="form_container">
-    <div id="message" class="message ui-state-error-text"><?php echo $strMessage ?></div>
+    <div id="message" class="message ui-state-error ui-corner-all<?php if (!$strMessage) echo ' ui-helper-hidden'?>"><?php echo $strMessage ?></div>
   
 <?php createFormButtons($blnNew, $copyLinkOverride, 1) ?>
     <div class="form">
@@ -332,6 +332,7 @@ $(document).ready(function() {
 <?php
   }
 ?>
+
   $('#message').ajaxStart(function() {
     $('#spinner').css('visibility', 'visible');
   });
@@ -343,13 +344,13 @@ $(document).ready(function() {
     $('#spinner').css('visibility', 'hidden');
   });
   
-  $('#admin_form').find('input[type="text"],input[type="checkbox"],select,textarea').change(function() { $('.save_button').addClass('unsaved'); });
+  $('#admin_form').find('input[type="text"],input[type="checkbox"],select,textarea').change(function() { $('.save_button').addClass('ui-state-highlight'); });
 <?php 
   if ($haveChildForm && !$blnNew) 
   {
 ?>
   init_rows();
-  $('#iform').find('input[type="text"],input[type="checkbox"],select,textarea').change(function() { $('.add_row_button').addClass('unsaved'); });
+  $('#iform').find('input[type="text"],input[type="checkbox"],select,textarea').change(function() { $('.add_row_button').addClass('ui-state-highlight'); });
 <?php 
   } 
   elseif (isset($newLocation)) 
@@ -394,7 +395,7 @@ function save_record(redirect_url, redir_style)
   }
 ?>
   obj.id = form.id.value;
-  $('#message').text('').hide();
+  $('#message').hide();
   $.ajax({
     'url': "json.php?func=put_<?php echo $strJSONType?>",
     'type': 'POST',
@@ -407,10 +408,11 @@ function save_record(redirect_url, redir_style)
       if (data.missing_fields)
       {
         $('#message').text('<?php echo $GLOBALS['locERRVALUEMISSING']?>: ' + data.missing_fields).show();
+        $('#message').show();
       }
       else
       {
-        $('.save_button').removeClass('unsaved');
+        $('.save_button').removeClass('ui-state-highlight');
         if (redirect_url)
         {
           if (redir_style == 'openwindow')
@@ -457,7 +459,7 @@ function createIForm($astrFormElements, $elem, $intKeyValue, $newRecord)
 ?>
       <div class="iform <?php echo $elem['style']?> ui-corner-tl ui-corner-bl ui-corner-br ui-corner-tr ui-helper-clearfix" id="<?php echo $elem['name']?>"<?php echo $elem['elem_attributes'] ? ' ' . $elem['elem_attributes'] : ''?>>
         <div class="ui-corner-tl ui-corner-tr fg-toolbar ui-toolbar ui-widget-header"><?php echo $elem['label']?></div>
-        <span id="imessage" class="message ui-state-error-text" style="display: none"></span>
+        <div id="imessage" class="message ui-state-error ui-corner-all" style="display: none"></div>
 <?php
   if ($newRecord)
   {
@@ -633,6 +635,9 @@ function init_rows()
       popup_editor(event, '<?php echo $GLOBALS['locRowCopy']?>', row_id, true);
       return false;
     });
+    
+    $('a[class~="tinyactionlink"]').button();
+  
     init_rows_done();
   });
 }
@@ -681,7 +686,7 @@ function save_row(form_id)
       else
       {
         if (form_id == 'iform') 
-          $('.add_row_button').removeClass('unsaved');
+          $('.add_row_button').removeClass('ui-state-highlight');
         init_rows();
         if (form_id == 'iform_popup')
           $("#popup_edit").dialog('close');
@@ -866,7 +871,7 @@ function popup_editor(event, title, id, copy_row)
       {
 ?>
               <br>
-              <?php echo htmlFormElement('iform_' . $subElem['name'], $subElem['type'], $value, $subElem['style'], $subElem['listquery'], 'MOFIFY', 0, '', array(), $subElem['elem_attributes'])?>
+              <?php echo htmlFormElement('iform_' . $subElem['name'], $subElem['type'], $value, $subElem['style'], $subElem['listquery'], 'MODIFY', 0, '', array(), $subElem['elem_attributes'])?>
             </td>
 <?php
       }

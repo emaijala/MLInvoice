@@ -56,6 +56,7 @@ Todo : This could be more generic...
       $xUACompatible = "  <meta http-equiv=\"X-UA-Compatible\" content=\"IE=edge\">\n";
     else
       $xUACompatible = '';
+    $theme = defined('_UI_THEME_LOCATION_') ? _UI_THEME_LOCATION_ : 'jquery/css/theme/jquery-ui-1.8.16.custom.css';
     $strHtmlStart = <<<EOT
 <!DOCTYPE html>
 <html>
@@ -63,15 +64,30 @@ Todo : This could be more generic...
   <meta http-equiv="Content-Type" content="text/html; charset=$charset">
 $xUACompatible  <title>$strTitle</title>
   <link rel="shortcut icon" href="favicon.ico" type="image/x-icon">
-  <link rel="stylesheet" type="text/css" href="jquery/css/smoothness/jquery-ui-1.8.6.custom.css">
+  <link rel="stylesheet" type="text/css" href="$theme">
   <link rel="stylesheet" type="text/css" href="css/style.css">
-  <script type="text/javascript" src="jquery/js/jquery-1.4.4.min.js"></script>
-  <script type="text/javascript" src="jquery/js/jquery.json-2.2.min.js"></script>
-  <script type="text/javascript" src="jquery/js/jquery-ui-1.8.6.custom.min.js"></script>
+  <script type="text/javascript" src="jquery/js/jquery-1.6.2.min.js"></script>
+  <script type="text/javascript" src="jquery/js/jquery.json-2.3.min.js"></script>
+  <script type="text/javascript" src="jquery/js/jquery-ui-1.8.16.custom.min.js"></script>
   <script type="text/javascript" src="jquery/js/jquery.ui.datepicker-fi.js"></script>
   <script type="text/javascript" src="datatables/media/js/jquery.dataTables.min.js"></script>
   <script type="text/javascript" src="js/functions.js"></script>
-
+  <script type="text/javascript">
+    $(document).ready(function() { 
+      $('a[class~="actionlink"]').button();
+      $('a[class~="tinyactionlink"]').button();
+      $('a[class~="buttonlink"]').button();
+      $('a[class~="formbuttonlink"]').button();
+      $('#maintabs ul li').hover(
+        function () {
+          $(this).addClass("ui-state-hover");
+        },
+        function () {
+          $(this).removeClass("ui-state-hover");
+        }
+      );
+    });
+  </script>
 EOT;
 
     if (isset($arrExtraScripts))

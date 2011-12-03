@@ -19,7 +19,7 @@ h1 {
 }
 
 div.navi {
-  padding: 10px 10px 1px 10px;
+  padding: 4px 6px 0px 6px;
   border-bottom: 1px solid #DDDDDD;
 }
 
@@ -48,10 +48,12 @@ div.list_container {
 
 div.message {
   margin: 2px;
+  padding: 2px;
 }
 
 span.message {
   margin: 4px;
+  padding: 1px;
 }
 
 div.form_container {
@@ -293,7 +295,7 @@ input {
   font-size: 12px;
   font-weight: normal;
   padding: 0px 0px 0px 0px;
-  vertical-align: top;
+  xvertical-align: top;
 }
 
 input.tiny {
@@ -400,7 +402,6 @@ a {
   font-size: 12px; 
 }
 a:hover {
-  color: #000099; 
   text-decoration: underline;
 }
 
@@ -417,16 +418,6 @@ a.navilink:hover {
 }
 
 a.buttonlink {
-  color: #333333;
-  border-radius: 4px;
-  -moz-border-radius: 4px;
-  -webkit-border-radius: 4px;
-  background-color: #E9E9E9;
-  border: 1px solid gray;
-  text-decoration: none;
-  padding: 1px 2px 1px 2px;
-  margin-left: 4px;
-  margin-right: 4px;
   font-weight: normal; 
   font-size: 12px; 
 }
@@ -436,26 +427,12 @@ a.buttonlink:hover {
 }
 
 a.functionlink {
-  color: #333333;
-  border-top-left-radius: 4px;
-  border-top-right-radius: 4px;
-  -moz-border-radius-topleft: 4px;
-  -moz-border-radius-topright: 4px;
-  -webkit-border-top-left-radius: 4px;
-  -webkit-border-top-right-radius: 4px;
-  background-color: #E9E9E9;
-  border: 1px solid gray;
-  border-bottom: 0;
-  text-decoration: none;
-  padding: 1px 2px 1px 2px;
-  margin-left: 0px;
-  margin-right: 2px;
+  cursor: pointer;
+}
+
+a.functionlink {
   font-weight: bold; 
   font-size: 12px; 
-}
-a.functionlink:hover {
-  color: black; 
-  background-color: white;
 }
 
 a.selected {
@@ -463,64 +440,17 @@ a.selected {
 }
 
 a.actionlink {
-  color: #333333; 
-  background-color: #D3E3F3;
-  border-radius: 4px;
-  -moz-border-radius: 4px;
-  -webkit-border-radius: 4px;
-  border: 1px solid gray;
-  text-decoration : none;
-  padding : 1px 2px 1px 2px;
-  margin-left: 4px;
-  margin-right: 4px;
   font-weight: normal; 
   font-size: 12px; 
 }
-a.actionlink:hover {
-  color: black; 
-  background-color: white;
-}
 
 a.tinyactionlink {
-  color: #333333; 
-  background-color: #D3E3F3;
-  border-radius: 4px;
-  -moz-border-radius: 4px;
-  -webkit-border-radius: 4px;
-  border: 1px solid gray;
-  text-decoration : none;
-  padding : 1px 2px 1px 2px;
-  margin-left: 0px;
-  margin-right: 0px;
-  font-weight: normal; 
-  font-size:9px; 
-  vertical-align: middle;
-}
-a.tinyactionlink:hover {
-  color: black; 
-  background-color: white;
-}
-
-a.unsaved {
-  background-color: #FFAAAA;
-}
-
-a.formbuttonlink {
-  color: #333333; 
-  background-color: #D3E3F3;
-  border-radius: 4px;
-  -moz-border-radius: 4px;
-  -webkit-border-radius: 4px;
-  border: 1px solid gray;
-  text-decoration: none;
-  padding: 1px 2px 1px 2px;
-  margin: 1px 4px 4px 1px;
   font-weight: normal; 
   font-size:10px; 
 }
-a.formbuttonlink:hover {
-  color: black; 
-  background-color: white;
+
+a.formbuttonlink {
+  font-size: 10px; 
 }
 
 img.image {

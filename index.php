@@ -71,21 +71,23 @@ $astrMainButtons = array (
 ?>
 
 <body>
-  <div class="navi ui-widget-header">
+  <div id="maintabs" class="navi ui-widget-header ui-tabs">
+  <ul class="ui-tabs-nav ui-helper-reset ui-helper-clearfix ui-corner-all">
 <?php
 foreach ($astrMainButtons as $button) 
 {
-  $strButton = '<a class="functionlink'; 
+  $strButton = '<li class="functionlink ui-state-default ui-corner-top'; 
   if ($button['action'] == $strFunc || ($button['action'] == 'open_invoices' && $strFunc == 'invoices'))
-    $strButton .= ' selected';
-  $strButton .= '" href="?func=' . $button['action'] . '">';
-  $strButton .= $GLOBALS[$button['title']] . '</a>';
+    $strButton .= ' ui-tabs-selected ui-state-active';
+  $strButton .= '"><a class="functionlink" href="?func=' . $button['action'] . '">';
+  $strButton .= $GLOBALS[$button['title']] . '</a></li>';
       
   if (!isset($button['levels_allowed']) || sesAccessLevel($button['levels_allowed']) || sesAdminAccess()) 
   {
     echo "    $strButton\n";
   }
 }
+echo "  </ul>\n";
 
 $level = 1;
 if ($strList && ($strFunc == 'settings' || $strFunc == 'system'))
