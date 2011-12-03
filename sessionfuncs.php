@@ -153,6 +153,11 @@ function sesAdminAccess()
   return $_SESSION['sesACCESSLEVEL'] == ROLE_ADMIN;
 }
 
+function sesAccessLevel($allowedLevels)
+{
+  return in_array($_SESSION['sesACCESSLEVEL'], $allowedLevels);
+}
+
 // Database-based session management
 function db_session_open($savePath, $sessionID) 
 {

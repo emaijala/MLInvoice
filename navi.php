@@ -155,7 +155,7 @@ function createFuncMenu($strFunc)
   }
   foreach ($astrNaviLinks as $link) 
   {
-    if (in_array($_SESSION['sesACCESSLEVEL'], $link["levels_allowed"]) || $_SESSION['sesACCESSLEVEL'] == ROLE_ADMIN) 
+    if (sesAccessLevel($link["levels_allowed"]) || sesAdminAccess()) 
     {
       if (strchr($link['href'], '?') === FALSE)
         $strHref = "?func=$strFunc&amp;" . $link['href'];

@@ -26,7 +26,7 @@ require_once 'settings_list.php';
 
 sesVerifySession();
 
-// buffered so we can redirect later if necessary
+// buffered, so we can redirect later if necessary
 ini_set('implicit_flush', 'Off');
 ob_start(); 
 
@@ -48,7 +48,7 @@ if (!$strFunc && $strForm)
 
 $title = getPageTitle($strFunc, $strList, $strForm);
 
-if ($strFunc == 'system' && getRequest('operation', '') == 'dbdump' && in_array($_SESSION['sesACCESSLEVEL'], array(ROLE_BACKUPMGR, ROLE_ADMIN)))
+if ($strFunc == 'system' && getRequest('operation', '') == 'dbdump' && sesAccessLevel(array(ROLE_BACKUPMGR, ROLE_ADMIN)))
 {
   create_db_dump();
   exit;
@@ -81,7 +81,7 @@ foreach ($astrMainButtons as $button)
   $strButton .= '" href="?func=' . $button['action'] . '">';
   $strButton .= $GLOBALS[$button['title']] . '</a>';
       
-  if (!isset($button['levels_allowed']) || in_array($_SESSION['sesACCESSLEVEL'], $button['levels_allowed']) || $_SESSION['sesACCESSLEVEL'] == ROLE_ADMIN) 
+  if (!isset($button['levels_allowed']) || sesAccessLevel($button['levels_allowed']) || sesAdminAccess()) 
   {
     echo "    $strButton\n";
   }
@@ -109,13 +109,13 @@ foreach ($arrHistory as $arrHE)
   </div>
 
 <?php
-if ($strFunc == 'system' && getRequest('operation', '') == 'export' && $_SESSION['sesACCESSLEVEL'] == ROLE_ADMIN)
+if ($strFunc == 'system' && getRequest('operation', '') == 'export' && sesAdminAccess())
 {
   createFuncMenu($strFunc);
   require_once 'export.php';
   do_export();
 }
-elseif ($strFunc == 'system' && getRequest('operation', '') == 'import' && $_SESSION['sesACCESSLEVEL'] == ROLE_ADMIN)
+elseif ($strFunc == 'system' && getRequest('operation', '') == 'import' && sesAdminAccess())
 {
   createFuncMenu($strFunc);
   require_once 'import.php';
