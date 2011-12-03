@@ -164,21 +164,8 @@ function getListBoxSelectedValue($options, $selected)
   return '';
 }
 
-/********************************************************************
-Function : htmlFormElement
-    Create html formelements
-
-Args : 
-    $strName (string): element name
-    $strType (string): element type
-    $strValue (string): element value
-    
-Return : $strFormElement : html formelement
-
-Todo : 
-    Check values. Errors. Style?
-********************************************************************/
-function htmlFormElement( $strName, $strType, $strValue, $strStyle, $strListQuery, $strMode = "MODIFY", $strParentKey = NULL, $strTitle = "", $astrDefaults = array(), $astrAdditionalAttributes = '', $options = NULL ) 
+// Create form element
+function htmlFormElement($strName, $strType, $strValue, $strStyle, $strListQuery, $strMode = 'MODIFY', $strParentKey = NULL, $strTitle = "", $astrDefaults = array(), $astrAdditionalAttributes = '', $options = NULL) 
 {
   if ($astrAdditionalAttributes)
     $astrAdditionalAttributes = " $astrAdditionalAttributes";

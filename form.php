@@ -186,7 +186,7 @@ function createForm($strFunc, $strList, $strForm)
   $prevPosition = false;
   $prevColSpan = 1;
   $rowOpen = false;
-  $fieldMode = sesWriteAccess() ? 'modify' : 'readonly';
+  $fieldMode = sesWriteAccess() ? 'MODIFY' : 'READONLY';
   foreach ($astrFormElements as $elem) 
   {
     if ($elem['type'] === false)
