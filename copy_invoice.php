@@ -38,7 +38,7 @@ if (!sesWriteAccess())
   echo htmlPageStart(_PAGE_TITLE_, getSetting('session_keepalive') ? array('js/keepalive.js') : null);
 ?>
 <body>
-  <div class="form_container">
+  <div class="form_container ui-widget-content">
     <?php echo $GLOBALS['locNOACCESS'] . "\n"?>
   </div>
 </body>

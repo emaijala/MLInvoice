@@ -311,7 +311,7 @@ function add_all_columns()
 
 </script>
 
-  <div class="form_container">
+  <div class="form_container ui-widget-content">
     <h1><?php echo $GLOBALS['locExport']?></h1>
     <span id="imessage" style="display: none"></span>
     <span id="spinner" style="visibility: hidden"><img src="images/spinner.gif" alt=""></span>

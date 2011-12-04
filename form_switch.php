@@ -243,7 +243,7 @@ EOS;
 
     $popupHTML = <<<EOS
 <script type="text/javascript" src="js/add_company.js"></script>
-<div id="quick_add_company" class="form_container" style="display: none">
+<div id="quick_add_company" class="form_container ui-widget-content" style="display: none">
   <div class="medium_label">$locCompName</div> <div class="field"><input type="text" id="quick_name" class="medium"></div>
   <div class="medium_label">$locEmail</div> <div class="field"><input type="text" id="quick_email" class="medium"></div>
   <div class="medium_label">$locPhone</div> <div class="field"><input type="text" id="quick_phone" class="medium"></div>

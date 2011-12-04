@@ -1,11 +1,13 @@
 @import url('table.css');
 
+html {
+  height: 100%;
+}
+
 body {
   margin: 0;
-  color: #000000;
-  font-family: verdana, arial, helvetica, sans-serif;
-  font-size: 12px;
   background-color: #FFFFFF;
+  font-size: 62.5%;
 }
 
 form {
@@ -14,26 +16,31 @@ form {
 }
 
 h1 {
-  font-size: 14px;
-  font-weight: bold;
+  font-size: 1.1em;
+}
+
+div.login {
+  height: 100%;
 }
 
 div.navi {
-  padding: 4px 6px 0px 6px;
+  padding: 4px 4px 0px 4px;
   border-bottom: 1px solid #DDDDDD;
 }
 
 div.breadcrumbs {
-  margin: 6px 0 16px 10px;
+  margin: 6px 0 6px 8px;
+  padding-left: 2px;
+  border: 0;
 }
 
 div.breadcrumbs a {
-  font-size: 10pt;
   font-weight: bold;
+  font-size: 1.1em;
 }
 
 div.function_navi {
-  padding: 0px 0px 10px 10px;
+  padding: 4px 0px 10px 10px;
 }
 
 div.form_buttons {
@@ -44,6 +51,7 @@ div.form_buttons {
 div.list_container {
   margin: 10px;
   display: table;
+  font-size: 1.0em;
 }
 
 div.message {
@@ -57,8 +65,10 @@ span.message {
 }
 
 div.form_container {
-  margin: 6px;
-  font-size: 12px;
+  padding: 8px;
+  margin: 0;
+  border: 0;
+  font-size: 1.0em;
 }
 
 div.small_label {
@@ -113,21 +123,23 @@ table.iform_pop {
 }
 
 .iform tr:nth-child(odd) {
-  background-color: white;
+  background-color: transparent;
 }
-.iform tr[class=summary]:nth-child(even) {
-  background-color: white;
+.iform tr[class=summary]:nth-child(even) td {
+  background-color: transparent;
 }
-.iform tr:nth-child(even) {
-  background-color: #eeeeee;
+.iform tr:nth-child(even) td {
+  background: rgb(0, 0, 0) transparent;
+  background: rgba(0, 0, 0, 0.1);
 }
-
-.iform td[class=button] {
-  background-color: white;
+.iform tr:nth-child(even) td.button {
+  background: rgb(0, 0, 0) transparent;
+  background: rgba(0, 0, 0, 0);
 }
 
 tr.summary td {
   font-weight: bold;
+  background-color: transparent;
 }
 
 .iform td {
@@ -141,8 +153,6 @@ tr.summary td {
 
 th {
   vertical-align: top;
-  font-size: 12px;
-  font-weight: bold;
   text-align: left;
 }
 
@@ -150,16 +160,15 @@ th {
 }
 
 td.deleted a.navilink {
-  color: #bbbbbb;
+  text-decoration: line-through;
 }
 
 .iform td.deleted {
-  color: #bbbbbb;
+  text-decoration: line-through;
 }
 
 td {
   vertical-align: top;
-  font-size: 12px;
   font-weight: normal;
 }
 
@@ -177,7 +186,7 @@ td.error {
   background-color: #8d5153;
 }
 .sublabel {
-  font-size: 12px;
+  font-size: 80%;
   padding: 2px 2px 2px 2px;
   background-color: #CCDDEE;
 }
@@ -274,16 +283,13 @@ td.total_sum {
 }
 
 td a.navilink {
-  color: black; 
   text-decoration: none;  
-  font-size: 12px;
   font-weight: normal;
   width: 100%;
   height: 100%;
   display: block;
 }
 td a.navilink:hover {
-  color: black; 
   text-decoration: none; 
   font-weight: normal;
   width: 100%;
@@ -295,7 +301,6 @@ input {
   font-size: 12px;
   font-weight: normal;
   padding: 0px 0px 0px 0px;
-  xvertical-align: top;
 }
 
 input.tiny {
@@ -396,47 +401,33 @@ button {
 }
 
 a {
-  color: black; 
   text-decoration: none;  
-  font-weight: normal; 
-  font-size: 12px; 
 }
 a:hover {
   text-decoration: underline;
 }
 
 a.navilink {
-  color: #444444; 
   text-decoration: none;  
   font-weight: normal; 
-  font-size: 12px; 
 }
 a.navilink:hover {
-  color: black; 
   text-decoration: underline;
   font-weight: normal;
 }
 
 a.buttonlink {
   font-weight: normal; 
-  font-size: 12px; 
 }
 a.buttonlink:hover {
-  color: black; 
-  background-color: white;
 }
 
 a.functionlink {
   cursor: pointer;
-}
-
-a.functionlink {
   font-weight: bold; 
-  font-size: 12px; 
 }
 
 a.selected {
-  background-color: white;
 }
 
 a.actionlink {
@@ -464,9 +455,6 @@ img.image {
 }
 
 /* jQuery UI overrides */
-.ui-widget .ui-widget {
-  font-size: 12px;
-}
 
 .ui-dialog .ui-dialog-buttonpane {
   padding: 0.2em 1em 0.2em 0.4em;
@@ -475,13 +463,5 @@ img.image {
 
 .ui-toolbar {
   padding: 4px;
-}
-
-.ui-widget-header {
-  font-weight: normal;
-}
-
-.ui-state-default {
-  color: #222222;
 }
 

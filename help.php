@@ -77,7 +77,7 @@ switch ( $strTopic ) {
 
 echo htmlPageStart( _PAGE_TITLE_ );
 
-echo '<div class="form_container">';
+echo '<div class="form_container ui-widget-content">';
 echo "<center><h1>".$strHeadTitle."</h1></center>";
 
 echo "<p>".$strTopicText."</p>";

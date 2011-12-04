@@ -87,7 +87,7 @@ $maxUploadSize = getMaxUploadSize();
 $maxFileSize = fileSizeToHumanReadable($maxUploadSize);
 ?>
 
-  <div class="form_container">
+  <div class="form_container ui-widget-content">
     <?php if ($error) echo "<div class=\"error\">$error</div>\n"?>
     <h1><?php echo $GLOBALS['locImportFileSelection']?></h1>
     <span id="imessage" style="display: none"></span>
@@ -384,7 +384,7 @@ function add_mapping_columns()
 
 </script>
 
-  <div class="form_container">
+  <div class="form_container ui-widget-content">
     <h1><?php echo $GLOBALS['locImportFileParameters']?></h1>
     <span id="imessage" style="display: none"></span>
     <span id="spinner" style="visibility: hidden"><img src="images/spinner.gif" alt=""></span>
@@ -807,7 +807,7 @@ function import_file($importMode)
   }
 
 ?>
-  <div class="form_container">
+  <div class="form_container ui-widget-content">
     <h1><?php echo $GLOBALS['locImportResults']?></h1>
 <?php
   

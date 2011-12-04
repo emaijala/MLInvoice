@@ -37,7 +37,10 @@ echo htmlPageStart( _PAGE_TITLE_ );
 
 ?>
 
-<body style="margin: 30px">
+<body style="height: 100%">
+<div class="login ui-widget">
+<div class="login ui-widget-content">
+<div style="padding: 30px;">
 
 <h1><?php echo $GLOBALS['locTHANKYOU']?></h1>
 <p>
@@ -48,7 +51,9 @@ echo htmlPageStart( _PAGE_TITLE_ );
 <a href="login.php"><?php echo $GLOBALS['locBACKTOLOGIN']?></a>
 </p>
 
-</form>
+</div>
+</div>
+</div>
 </body>
 </html>
 <?php

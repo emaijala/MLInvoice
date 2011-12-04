@@ -24,7 +24,7 @@ function createSettingsList()
   if (!sesAdminAccess())
   {
 ?>
-  <div class="form_container">
+  <div class="form_container ui-widget-content">
     <?php echo $GLOBALS['locNOACCESS'] . "\n"?>
   </div>
 <?php
@@ -65,7 +65,7 @@ function createSettingsList()
     }
   }
 ?>
-  <div class="form_container">
+  <div class="form_container ui-widget-content">
     <div class="message"><?php echo $messages?></div>
   
     <script type="text/javascript">

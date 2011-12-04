@@ -61,7 +61,7 @@ class InvoiceReport
   });
   </script>
   
-  <div class="form_container">
+  <div class="form_container ui-widget-content ui-helper-clearfix">
     <form method="get" id="params" name="params">
     <input name="func" type="hidden" value="reports">
     <input name="form" type="hidden" value="invoice">

@@ -36,7 +36,7 @@ function createForm($strFunc, $strList, $strForm)
   if (!sesAccessLevel($levelsAllowed) && !sesAdminAccess())
   {
 ?>
-  <div class="form_container">
+  <div class="form_container ui-widget-content">
     <?php echo $GLOBALS['locNOACCESS'] . "\n"?>
   </div>
 <?php
@@ -54,7 +54,7 @@ function createForm($strFunc, $strList, $strForm)
   if (!sesWriteAccess() && ($blnNew || $blnCopy || $blnSave || $blnDelete))
   {
 ?>
-  <div class="form_container">
+  <div class="form_container ui-widget-content">
     <?php echo $GLOBALS['locNOACCESS'] . "\n"?>
   </div>
 <?php
@@ -135,7 +135,7 @@ function createForm($strFunc, $strList, $strForm)
       return;
     }
 ?>
-  <div class="form_container">
+  <div class="form_container ui-widget-content">
     <?php echo $GLOBALS['locRECORDDELETED'] . "\n"?>
   </div>
 <?php
@@ -168,7 +168,7 @@ function createForm($strFunc, $strList, $strForm)
   </div>
 <?php if (isset($popupHTML)) echo $popupHTML;?>  
 
-  <div class="form_container">
+  <div class="form_container ui-widget-content">
     <div id="message" class="message ui-state-error ui-corner-all<?php if (!$strMessage) echo ' ui-helper-hidden'?>"><?php echo $strMessage ?></div>
   
 <?php createFormButtons($blnNew, $copyLinkOverride, 1) ?>

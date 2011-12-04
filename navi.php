@@ -176,7 +176,7 @@ function createFuncMenu($strFunc)
   }
   if (sesWriteAccess())
   {
-    echo "&nbsp; &nbsp; $strNewButton";
+    echo "&nbsp; &nbsp; $strNewButton\n";
   }
 ?>
   </div>

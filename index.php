@@ -71,8 +71,10 @@ $astrMainButtons = array (
 ?>
 
 <body>
+<div class="pagewrapper ui-widget-content">
+<div class="ui-widget">
   <div id="maintabs" class="navi ui-widget-header ui-tabs">
-  <ul class="ui-tabs-nav ui-helper-reset ui-helper-clearfix ui-corner-all">
+  <ul class="ui-tabs-nav ui-helper-clearfix ui-corner-all">
 <?php
 foreach ($astrMainButtons as $button) 
 {
@@ -166,5 +168,7 @@ else
   }
 }
 ?>
+</div>
+</div>
 </body>
 </html>

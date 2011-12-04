@@ -31,7 +31,7 @@ function createList($strFunc, $strList)
   if (!sesAccessLevel($levelsAllowed) && !sesAdminAccess())
   {
 ?>
-  <div class="form_container">
+  <div class="form_container ui-widget-content">
     <?php echo $GLOBALS['locNOACCESS'] . "\n"?>
   </div>
 <?php

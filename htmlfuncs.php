@@ -88,6 +88,7 @@ $xUACompatible  <title>$strTitle</title>
       );
     });
   </script>
+
 EOT;
 
     if (isset($arrExtraScripts))

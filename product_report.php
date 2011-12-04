@@ -61,13 +61,13 @@ class ProductReport
   });
   </script>
   
-  <div class="form_container">
+  <div class="form_container ui-widget-content ui-helper-clearfix">
     <form method="get" id="params" name="params">
     <input name="func" type="hidden" value="reports">
     <input name="form" type="hidden" value="product">
     <input name="report" type="hidden" value="1">
     
-    <div class="unlimited_label"><strong><?php echo $GLOBALS['locPRODUCTREPORT']?></strong></div>
+    <div class="unlimited_label"><h1><?php echo $GLOBALS['locPRODUCTREPORT']?></h1></div>
     
     <div class="medium_label"><?php echo $GLOBALS['locDateInterval']?></div>
     <div class="field"><?php echo htmlFormElement('from', 'TEXT', $startDate, 'medium hasCalendar', '', 'MODIFY', FALSE)?> - <?php echo htmlFormElement('until', 'TEXT', $endDate, 'medium hasCalendar', '', 'MODIFY', FALSE)?></div>
@@ -84,7 +84,7 @@ class ProductReport
     <div class="medium_label"><?php echo $GLOBALS['locPrintFormat']?></div>
     <div class="field"><?php echo htmlFormElement('format', 'LIST', 'html', 'medium noemptyvalue', $typeListQuery, 'MODIFY', FALSE)?></div>
 
-    <div class="unlimited_label"><strong><?php echo $GLOBALS['locPrintReportStates']?></strong></div>
+    <div class="unlimited_label"><h1><?php echo $GLOBALS['locPrintReportStates']?></h1></div>
   <?php
     $strQuery = 
         "SELECT id, name ".

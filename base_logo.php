@@ -93,7 +93,7 @@ echo htmlPageStart(_PAGE_TITLE_);
   <div class="form">
     <div class="message"><?php echo $messages?></div>
     
-    <div class="form_container">
+    <div class="form_container ui-widget-content">
       <div style="margin-bottom: 10px"><img class="image" src="?func=view&amp;id=<?php echo $baseId?>"></div>
       <form id="form_upload" enctype="multipart/form-data" action="base_logo.php" method="POST">
         <input type="hidden" name="func" value="upload">

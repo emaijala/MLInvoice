@@ -42,7 +42,10 @@ class InvoicePrinter extends InvoicePrinterBase
     
     echo htmlPageStart(_PAGE_TITLE_ . ' - ' . $GLOBALS['locSendEmail']);
 ?>
-<div id="email_form_container" class="form_container">
+<body>
+<div class="ui-widget">
+
+<div id="email_form_container" class="form_container ui-widget-content">
   <h1><?php echo $GLOBALS['locSendEmail']?></h1>
 <?php if ($submitted) echo '<div class="ui-state-error-text">' . $GLOBALS['locEmailFillRequiredFields'] . "<br><br></div>\n";?>
   <form method="POST" id="email_form">
@@ -61,6 +64,7 @@ class InvoicePrinter extends InvoicePrinterBase
       <a class="actionlink" onclick="if (window.opener) window.close(); else history.back(); return false;" href="#"><?php echo $GLOBALS['locCancel']?></a>
     </div>
   </form>
+</div>
 </div>
 </body>
 </html>
