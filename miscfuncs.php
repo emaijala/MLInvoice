@@ -34,14 +34,15 @@ Todo :
     Check function todo's
 ********************************************************************/    
 
-function gpcAddSlashes( $strString ) {
-   if ( !get_magic_quotes_gpc() )
+function gpcAddSlashes($strString) 
+{
+   if (!get_magic_quotes_gpc())
        return addslashes($strString);
    return $strString;
 }
 
 function gpcStripSlashes($strString) {
-   if ( get_magic_quotes_gpc() )
+   if (get_magic_quotes_gpc() && is_string($strString))
        return stripslashes($strString);
    return $strString;
 }

@@ -6,8 +6,8 @@ html {
 
 body {
   margin: 0;
-  background-color: #FFFFFF;
   font-size: 62.5%;
+  height: 100%;
 }
 
 form {
@@ -19,8 +19,8 @@ h1 {
   font-size: 1.1em;
 }
 
-div.login {
-  height: 100%;
+div.pagewrapper {
+  min-height: 100%;
 }
 
 div.navi {
@@ -89,6 +89,7 @@ div.unlimited_label {
   float: left;
   margin-bottom: 8px; 
   clear: left;
+  font-size: 1.1em;
 }
 
 div.field {
@@ -152,11 +153,11 @@ tr.summary td {
 }
 
 th {
-  vertical-align: top;
   text-align: left;
 }
 
-.label {
+.toplabel {
+  vertical-align: top;
 }
 
 td.deleted a.navilink {
@@ -168,7 +169,6 @@ td.deleted a.navilink {
 }
 
 td {
-  vertical-align: top;
   font-weight: normal;
 }
 
@@ -186,15 +186,15 @@ td.error {
   background-color: #8d5153;
 }
 .sublabel {
-  font-size: 80%;
   padding: 2px 2px 2px 2px;
-  background-color: #CCDDEE;
+  clear: both; 
+  margin-top: 10px;
 }
 td.reportsublabel {
-  font-size: 14px;
   font-weight: bold;
   padding: 2px 2px 2px 2px;
-  background-color: #DD0909;
+  clear: both; 
+  margin-top: 10px;
 }
 td.tiny {
   width: 40px;
@@ -291,15 +291,12 @@ td a.navilink {
 }
 td a.navilink:hover {
   text-decoration: none; 
-  font-weight: normal;
   width: 100%;
   height: 100%;
   display: block;
 }
 
 input {
-  font-size: 12px;
-  font-weight: normal;
   padding: 0px 0px 0px 0px;
 }
 
@@ -335,14 +332,10 @@ input.percent {
 }
 
 select {
-  font-size: 12px;
-  font-weight: normal;
   padding: 0px 0px 0px 0px;
 }
 
 select.normal {
-  font-size: 12px;
-  font-weight: normal;
   padding: 0px 0px 0px 0px;
 }
 select.small {
@@ -353,8 +346,6 @@ select.medium {
 }
 
 textarea {
-  font-size: 12px;
-  font-weight: normal;
   padding: 0px 0px 0px 0px;
 }
 
@@ -430,38 +421,22 @@ a.functionlink {
 a.selected {
 }
 
-a.actionlink {
-  font-weight: normal; 
-  font-size: 12px; 
-}
-
-a.tinyactionlink {
-  font-weight: normal; 
-  font-size:10px; 
-}
-
-a.formbuttonlink {
-  font-size: 10px; 
-}
-
 img.image {
   border: 1px solid #dddddd;
   max-width: 400px;
   max-height: 250px;
+  background-color: white;
 }
 
 .new_message {
   margin: 20px;
 }
 
-/* jQuery UI overrides */
-
-.ui-dialog .ui-dialog-buttonpane {
-  padding: 0.2em 1em 0.2em 0.4em;
-  text-align: left;
+.form_buttons img {
+  vertical-align: middle;
 }
 
-.ui-toolbar {
+.fg-toolbar {
   padding: 4px;
 }
 

@@ -57,9 +57,8 @@ $key = sesCreateKey();
 echo htmlPageStart(_PAGE_TITLE_, array('jquery/js/jquery.md5.js'));
 ?>
 
-<body style="height: 100%" onload="document.getElementById('flogin').focus();">
-<div class="login ui-widget">
-<div class="login ui-widget-content">
+<body onload="document.getElementById('flogin').focus();">
+<div class="pagewrapper ui-widget ui-widget-content">
 <div class="form" style="padding: 30px;">
 <h1><?php echo $GLOBALS['locWELCOME']?></h1>
 <p>
@@ -100,7 +99,6 @@ function createHash()
 <br>
 <br>
 
-</div>
 </div>
 </div>
 </body>

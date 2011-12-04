@@ -97,7 +97,7 @@ function createSettingsList()
       if ($elemType == 'LABEL')
       {
 ?>
-        <div class="sublabel" style="clear: both; margin-top: 10px"><?php echo $elem['label']?></div>
+        <div class="sublabel ui-widget-header ui-state-default ui-state-active"><?php echo $elem['label']?></div>
 <?php        
         continue;
       }

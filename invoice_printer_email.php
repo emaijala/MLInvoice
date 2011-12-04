@@ -43,9 +43,9 @@ class InvoicePrinter extends InvoicePrinterBase
     echo htmlPageStart(_PAGE_TITLE_ . ' - ' . $GLOBALS['locSendEmail']);
 ?>
 <body>
-<div class="ui-widget">
+<div class="pagewrapper ui-widget ui-widget-content">
 
-<div id="email_form_container" class="form_container ui-widget-content">
+<div id="email_form_container" class="form_container">
   <h1><?php echo $GLOBALS['locSendEmail']?></h1>
 <?php if ($submitted) echo '<div class="ui-state-error-text">' . $GLOBALS['locEmailFillRequiredFields'] . "<br><br></div>\n";?>
   <form method="POST" id="email_form">

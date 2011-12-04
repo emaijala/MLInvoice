@@ -168,7 +168,7 @@ function createForm($strFunc, $strList, $strForm)
   </div>
 <?php if (isset($popupHTML)) echo $popupHTML;?>  
 
-  <div class="form_container ui-widget-content">
+  <div class="form_container">
     <div id="message" class="message ui-state-error ui-corner-all<?php if (!$strMessage) echo ' ui-helper-hidden'?>"><?php echo $strMessage ?></div>
   
 <?php createFormButtons($blnNew, $copyLinkOverride, 1) ?>
@@ -198,7 +198,7 @@ function createForm($strFunc, $strList, $strForm)
       $rowOpen = false;
   ?>
         <tr>
-          <td class="sublabel" colspan="4">
+          <td class="sublabel ui-widget-header ui-state-default ui-state-active" colspan="4">
             <?php echo $elem['label']?> 
           </td>
         </tr>
@@ -296,8 +296,19 @@ function createForm($strFunc, $strList, $strForm)
       $value = $astrValues[$elem['name']];
       if ($elem['style'] == 'measurement')
         $value = $value ? miscRound2Decim($value, 2) : '';
+      if ($elem['type'] == 'AREA')
+      {
+?>
+          <td class="toplabel"><?php echo $elem['label']?></td>
+<?php
+      }
+      else
+      {
 ?>
           <td class="label"><?php echo $elem['label']?></td>
+<?php
+      }
+?>
           <td class="field"<?php echo $strColspan?>>
             <?php echo htmlFormElement($elem['name'], $elem['type'], $value, $elem['style'], $elem['listquery'], $fieldMode, isset($elem['parent_key']) ? $elem['parent_key'] : '', '', array(), isset($elem['elem_attributes']) ? $elem['elem_attributes'] : '');
       if (isset($elem['attached_elem'])) echo '            ' . $elem['attached_elem'] . "\n";
@@ -495,7 +506,7 @@ function init_rows()
   }
 ?> 
   $.getJSON('json.php?func=get_<?php echo $elem['name']?>&parent_id=<?php echo $intKeyValue?>', function(json) { 
-    $('#itable > tbody > tr:gt(0)').remove();
+    $('#itable > tbody > tr:gt(1)').remove();
     var table = document.getElementById('itable');
     for (var i = 0; i < json.records.length; i++)
     {
@@ -855,45 +866,55 @@ function popup_editor(event, title, id, copy_row)
 </script>
         <form method="post" name="iform" id="iform">
         <table class="iform" id="itable">
-          <tr id="form_row">
+          <thead>
+            <tr>
 <?php
   $strRowSpan = '';
   foreach ($subFormElements as $subElem)
   {
-    if (!in_array($subElem['type'], array('HID_INT', 'SECHID_INT', 'BUTTON', 'NEWLINE', 'ROWSUM')))
+    if (!in_array($subElem['type'], array('HID_INT', 'SECHID_INT', 'BUTTON', 'NEWLINE')))
     { 
-      $value = getFormDefaultValue($subElem, $intKeyValue);
 ?>
-            <td class="label <?php echo strtolower($subElem['style'])?>_label">
-              <?php echo $subElem['label']?>
-<?php
-      if (sesWriteAccess())
-      {
-?>
-              <br>
-              <?php echo htmlFormElement('iform_' . $subElem['name'], $subElem['type'], $value, $subElem['style'], $subElem['listquery'], 'MODIFY', 0, '', array(), $subElem['elem_attributes'])?>
-            </td>
-<?php
-      }
-    }
-    elseif ($subElem['type'] == 'ROWSUM') 
-    {
-?>
-            <td class="label <?php echo strtolower($subElem['style'])?>_label">
-              <?php echo $subElem['label']?><br>
-            </td>
+              <th class="label ui-state-default <?php echo strtolower($subElem['style'])?>_label"><?php echo $subElem['label']?></th>
 <?php
     }
   }
+?>
+            </tr>
+          </thead>
+          <tbody>
+<?php
   if (sesWriteAccess())
   {
 ?>
-            <td class="button" <?php echo $strRowSpan?>>
-              <br>
-              <input type="hidden" name="addact" value="0">
-              <a class="tinyactionlink add_row_button" href="#" onclick="save_row('iform'); return false;"><?php echo $GLOBALS['locADDROW']?></a>
-            </td>
-          </tr>
+            <tr id="form_row">
+<?php
+    foreach ($subFormElements as $subElem)
+    {
+      if (!in_array($subElem['type'], array('HID_INT', 'SECHID_INT', 'BUTTON', 'NEWLINE', 'ROWSUM')))
+      { 
+        $value = getFormDefaultValue($subElem, $intKeyValue);
+?>
+              <td class="label <?php echo strtolower($subElem['style'])?>_label">
+                <?php echo htmlFormElement('iform_' . $subElem['name'], $subElem['type'], $value, $subElem['style'], $subElem['listquery'], 'MODIFY', 0, '', array(), $subElem['elem_attributes'])?>
+              </td>
+<?php
+      }
+      elseif ($subElem['type'] == 'ROWSUM')
+      {
+?>
+              <td class="label <?php echo strtolower($subElem['style'])?>_label">
+                &nbsp;
+              </td>
+<?php
+      }
+    }
+?>
+              <td class="button" <?php echo $strRowSpan?>>
+                <a class="tinyactionlink add_row_button" href="#" onclick="save_row('iform'); return false;"><?php echo $GLOBALS['locADDROW']?></a>
+              </td>
+            </tr>
+          </tbody>
         </table>
         </form>
       </div>
