@@ -99,7 +99,6 @@ function createList($strFunc, $strList)
       $strWhereClause = " WHERE $strDeletedField=0";
   }
   
-  error_log($strWhereClause);
   $strQuery = 
     "SELECT $strPrimaryKey FROM $strTable $strWhereClause"; 
 
