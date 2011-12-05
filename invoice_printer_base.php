@@ -21,6 +21,7 @@ abstract class InvoicePrinterBase
   protected $refNumber = '';
   protected $recipientName = '';
   protected $recipientAddress = '';
+  protected $barcode = '';
 
   protected $totalSum = 0;
   protected $totalVAT = 0;
@@ -95,6 +96,49 @@ abstract class InvoicePrinterBase
       $this->billingAddress = $recipientData['company_name'] . "\n" . $recipientData['street_address'] . "\n" . $recipientData['zip_code'] . ' ' . $recipientData['city'];
     $this->recipientName = substr($this->billingAddress, 0, strpos($this->billingAddress, "\n"));
     $this->recipientAddress = substr($this->billingAddress, strpos($this->billingAddress, "\n")+1);
+    
+    // barcode
+    /*
+    1   Barcode version, this is version 4
+    1  	Currency (1=FIM, 2=EURO)
+    16 	IBAN without leading country code
+    6 	Euros
+    2   Cents
+    3   Spares, contain zeros
+    20 	Reference Number
+    6 	Due Date. Format is YYMMDD.
+    */
+    $this->barcode = '';
+    if ($this->totalSumVAT > 0) 
+    {
+      $tmpRefNumber = str_replace(' ', '', $this->refNumber);
+      $IBAN = str_replace(' ', '', substr($senderData['bank_iban'], 2));
+      if (intval($tmpRefNumber) == 0)
+      {
+        error_log('Empty or invalid reference number, barcode not created');
+      }
+      elseif (strlen($IBAN) <> 16)
+      {
+        error_log('IBAN length invalid (should be 16 numbers without leading country code and spaces), barcode not created');
+      }
+      elseif (strlen($invoiceData['due_date']) != 8)
+      {
+        error_log('Invalid due date \'' . $invoiceData['due_date'] . '\' - barcode not created');
+      }
+      elseif ($this->totalSumVAT >= 1000000)
+      {
+        error_log('Invoice total too large, barcode not created');
+      }
+      else
+      {
+        $tmpSum = str_replace(",", "", miscRound2Decim($this->totalSumVAT));
+        $tmpSum = str_repeat('0', 8 - strlen($tmpSum)) . $tmpSum;
+        $tmpRefNumber = str_repeat('0', 20 - strlen($tmpRefNumber)) . $tmpRefNumber;
+        $tmpDueDate = substr($invoiceData['due_date'], 2);
+     
+        $this->barcode = '4' . $IBAN . $tmpSum . '000' . $tmpRefNumber . $tmpDueDate;
+      }
+    }
   }
   
   public function printInvoice()
@@ -525,37 +569,33 @@ abstract class InvoicePrinterBase
 
     // Invoice form
     $intStartY = $intStartY + 8;
-    $intStartX = 7;
+    $intStartX = 3.6;
   
-    $intMaxX = 200;
-    //1. hor.line - full width
+    $intMaxX = 210 - $intStartX;
+    // 1. hor.line - full width
     $pdf->SetLineWidth(0.13);
     $pdf->Line($intStartX, $intStartY - 0.5, $intMaxX, $intStartY - 0.5);
     $pdf->SetLineWidth(0.50);
-    //2. hor.line - full width
+    // 2. hor.line - full width
     $pdf->Line($intStartX, $intStartY+16, $intMaxX, $intStartY+16);
-    //3. hor.line - start-half page
+    // 3. hor.line - start-half page
     $pdf->Line($intStartX, $intStartY+32, $intStartX+111.4, $intStartY+32);
-    //4. hor.line - half-end page
+    // 4. hor.line - half-end page
     $pdf->Line($intStartX+111.4, $intStartY+57.5, $intMaxX, $intStartY+57.5);
-    //5. hor.line - full width
+    // 5. hor.line - full width
     $pdf->Line($intStartX, $intStartY+66, $intMaxX, $intStartY+66);
-    //6. hor.line - full width
+    // 6. hor.line - full width
     $pdf->Line($intStartX, $intStartY+74.5, $intMaxX, $intStartY+74.5);
     
-    //1. ver.line - 1.hor - 3.hor
+    // 1. ver.line - 1.hor - 3.hor
     $pdf->Line($intStartX+20, $intStartY, $intStartX+20, $intStartY+32);
-    //2. ver.line - 5.hor - 6.hor
+    // 2. ver.line - 5.hor - 6.hor
     $pdf->Line($intStartX+20, $intStartY+66, $intStartX+20, $intStartY+74.5);
-    //3. ver.line - 1.hor - 2.hor
-    $pdf->SetLineWidth(0.13);
-    $pdf->Line($intStartX+162, $intStartY, $intStartX+162, $intStartY+16);
-    $pdf->SetLineWidth(0.50);
-    //4. ver.line - full height
+    // 3. ver.line - full height
     $pdf->Line($intStartX+111.4, $intStartY, $intStartX+111.4, $intStartY+74.5);
-    //5. ver.line - 4.hor - 6. hor
+    // 4. ver.line - 4.hor - 6. hor
     $pdf->Line($intStartX+130, $intStartY+57.5, $intStartX+130, $intStartY+74.5);
-    //6. ver.line - 5.hor - 6. hor
+    // 5. ver.line - 5.hor - 6. hor
     $pdf->Line($intStartX+160, $intStartY+66, $intStartX+160, $intStartY+74.5);
     
     // signature
@@ -568,41 +608,35 @@ abstract class InvoicePrinterBase
     $pdf->MultiCell(19, 2.8, $GLOBALS['locPDFFormRecipientAccountNumber1'], 0, "R", 0);
     $pdf->SetXY($intStartX, $intStartY + 8);
     $pdf->MultiCell(19, 2.8, $GLOBALS['locPDFFormRecipientAccountNumber2'], 0, "R", 0);
-    $pdf->SetXY($intStartX + 112.4, $intStartY + 0.5);
+    $pdf->SetXY($intStartX + 21, $intStartY + 0.5);
     $pdf->Cell(10, 2.8, $GLOBALS['locPDFFormIBAN'], 0, 1, "L");
-    $pdf->SetXY($intStartX + 162.4, $intStartY + 0.5);
+    $pdf->SetXY($intStartX + 112.4, $intStartY + 0.5);
     $pdf->Cell(10, 2.8, $GLOBALS['locPDFFormBIC'], 0, 1, "L");
     
     // account 1
     $pdf->SetFont('Helvetica','',10);
-    $pdf->SetXY($intStartX + 22, $intStartY + 1);
+    $pdf->SetXY($intStartX + 21, $intStartY + 3);
     $pdf->Cell(15, 4, $senderData['bank_name'], 0, 0, "L");
     $pdf->SetX($intStartX + 65);
-    $pdf->Cell(40, 4, $senderData['bank_account'], 0, 0, "L");
-    $pdf->SetX($intStartX + 120.4);
-    $pdf->Cell(50, 4, $senderData['bank_iban'], 0, 0, "L");
-    $pdf->SetX($intStartX + 170.4);
-    $pdf->Cell(15, 4, $senderData['bank_swiftbic'], 0, 0, "L");
+    $pdf->Cell(66, 4, $senderData['bank_iban'], 0, 0, "L");
+    $pdf->SetX($intStartX + 112.4);
+    $pdf->Cell(66, 4, $senderData['bank_swiftbic'], 0, 0, "L");
     
     // account 2
-    $pdf->SetXY($intStartX + 22, $intStartY + 5);
+    $pdf->SetXY($intStartX + 21, $intStartY + 7);
     $pdf->Cell(15, 4, $senderData['bank_name2'], 0, 0, "L");
     $pdf->SetX($intStartX + 65);
-    $pdf->Cell(40, 4, $senderData['bank_account2'], 0, 0, "L");
-    $pdf->SetX($intStartX + 120.4);
-    $pdf->Cell(50, 4, $senderData['bank_iban2'], 0, 0, "L");
-    $pdf->SetX($intStartX + 170.4);
+    $pdf->Cell(66, 4, $senderData['bank_iban2'], 0, 0, "L");
+    $pdf->SetX($intStartX + 112.4);
     $pdf->Cell(15, 4, $senderData['bank_swiftbic2'], 0, 0, "L");
     
     // account 3
-    $pdf->SetXY($intStartX + 22, $intStartY + 9);
+    $pdf->SetXY($intStartX + 21, $intStartY + 11);
     $pdf->Cell(15, 4, $senderData['bank_name3'], 0, 0, "L");
     $pdf->SetX($intStartX + 65);
-    $pdf->Cell(40, 4, $senderData['bank_account3'], 0, 0, "L");
-    $pdf->SetX($intStartX + 120.4);
-    $pdf->Cell(50, 4, $senderData['bank_iban3'], 0, 0, "L");
-    $pdf->SetX($intStartX + 170.4);
-    $pdf->Cell(15, 4, $senderData['bank_swiftbic3'], 0, 0, "L");
+    $pdf->Cell(66, 4, $senderData['bank_iban3'], 0, 0, "L");
+    $pdf->SetX($intStartX + 112.4);
+    $pdf->Cell(66, 4, $senderData['bank_swiftbic3'], 0, 0, "L");
     
     // payment recipient
     $pdf->SetFont('Helvetica','',7);
@@ -611,7 +645,7 @@ abstract class InvoicePrinterBase
     $pdf->SetXY($intStartX, $intStartY + 22);
     $pdf->Cell(19, 5, $GLOBALS['locPDFFormRecipient2'], 0, 1, "R");
     $pdf->SetFont('Helvetica','',10);
-    $pdf->SetXY($intStartX + 22,$intStartY + 18);
+    $pdf->SetXY($intStartX + 21, $intStartY + 18);
     $pdf->MultiCell(100, 4, $this->senderAddress,0,1);
     
     // payer
@@ -621,7 +655,7 @@ abstract class InvoicePrinterBase
     $pdf->SetXY($intStartX, $intStartY + 45);
     $pdf->MultiCell(19, 2.8, $GLOBALS['locPDFFormPayernameAndAddress2'], 0, "R", 0);
     $pdf->SetFont('Helvetica','',10);
-    $pdf->SetXY($intStartX + 22, $intStartY + 35);
+    $pdf->SetXY($intStartX + 21, $intStartY + 35);
     $pdf->MultiCell(100, 4, $this->billingAddress,0,1);
     
     // signature
@@ -683,69 +717,25 @@ abstract class InvoicePrinterBase
     $pdf->SetXY($intStartX + 151, $intStartY + 68);
     $pdf->Cell(40, 5, miscRound2Decim($this->totalSumVAT), 0, 1, "R");
     
-    // barcode
-    /*
-    1   Barcode version, this is version 2
-    1  	Currency (1=FIM, 2=EURO)
-    14 	Zero-padded account number. The zeroes are added after the sixth number except in numbers that begin with 4 or 5. Those are padded after the seventh number.
-    8 	Amount. The format is xxxxxx.xx, so you can't charge your customers millions ;)
-    20 	Reference Number
-    6 	Due Date. Format is YYMMDD.
-    4 	Zero padding
-    1 	Check code 1
-    */
-    if( getSetting('invoice_show_barcode') && $this->totalSumVAT > 0) 
+    if (getSetting('invoice_show_barcode') && $this->barcode) 
     {
-      $tmpRefNumber = str_replace(" ", "", $this->refNumber);
-      if (intval($tmpRefNumber) == 0)
-      {
-        error_log('Empty or invalid reference number, barcode not created');
-      }
-      elseif (strpos($senderData['bank_account'], '-') === false)
-      {
-        error_log('No dash in account number, barcode not created');
-      }
-      elseif (strlen($senderData['bank_account']) > 15)
-      {
-        error_log('Account number too long, barcode not created');
-      }
-      elseif (strlen($invoiceData['due_date']) != 8)
-      {
-        error_log('Invalid due date \'' . $invoiceData['due_date'] . '\' - barcode not created');
-      }
-      elseif ($this->totalSumVAT >= 1000000)
-      {
-        error_log('Sum too large, barcode not created');
-      }
-      else
-      {
-        $tmpAccount = str_replace("-", str_repeat('0', 14 -(strlen($senderData['bank_account'])-1)),$senderData['bank_account']);
-        $tmpSum = str_replace(",", "", miscRound2Decim($this->totalSumVAT));
-        $tmpSum = str_repeat('0', 8 - strlen($tmpSum)) . $tmpSum;
-        $tmpRefNumber = str_repeat('0', 20 - strlen($tmpRefNumber)) . $tmpRefNumber;
-        $tmpDueDate = substr($invoiceData['due_date'], 2);
-     
-        $code_string = '2' . $tmpAccount . $tmpSum . $tmpRefNumber . $tmpDueDate . '0000';
-        $code_string .= miscCalcCheckNo($code_string);
-
-        $style = array(
-          'position' => '',
-          'align' => 'C',
-          'stretch' => true,
-          'fitwidth' => true,
-          'cellfitalign' => '',
-          'border' => false,
-          'hpadding' => 'auto',
-          'vpadding' => 'auto',
-          'fgcolor' => array(0,0,0),
-          'bgcolor' => false, 
-          'text' => false,
-          'font' => 'helvetica',
-          'fontsize' => 8,
-          'stretchtext' => 4
-        );
-        $pdf->write1DBarcode($code_string, 'C128C', 20, 284, 105, 11, 0.34, $style, 'N');
-      }
+      $style = array(
+        'position' => '',
+        'align' => 'C',
+        'stretch' => true,
+        'fitwidth' => true,
+        'cellfitalign' => '',
+        'border' => false,
+        'hpadding' => 'auto',
+        'vpadding' => 'auto',
+        'fgcolor' => array(0,0,0),
+        'bgcolor' => false, 
+        'text' => false,
+        'font' => 'helvetica',
+        'fontsize' => 8,
+        'stretchtext' => 4
+      );
+      $pdf->write1DBarcode($this->barcode, 'C128C', 20, 284, 105, 11, 0.34, $style, 'N');
     }
   }
   
