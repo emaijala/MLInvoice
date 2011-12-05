@@ -16,12 +16,10 @@
 .dataTables_paginate {
   float: right;
   text-align: right;
-  font-size: 1.1em;
 }
 
 .dataTables_info {
   float: left;
-  font-size: 1.1em;
   margin-top: 5px;
   margin-right: 16px;
 }
@@ -95,7 +93,7 @@ table.display td.center {
 
 tr.even {
   background: rgb(0, 0, 0) transparent;
-  background: rgba(0, 0, 0, 0.1);
+  background: rgba(0, 0, 0, 0.05);
 }
 
 tr.odd {
@@ -199,12 +197,12 @@ table.display tr.even.row_selected td {
 /* For the standard odd/even */
 tr.even td.sorting_1 {
   background: rgb(0, 0, 0) transparent;
-  background: rgba(0, 0, 0, 0.2);
+  background: rgba(0, 0, 0, 0.1);
 }
 
 tr.odd td.sorting_1 {
   background: rgb(0, 0, 0) transparent;
-  background: rgba(0, 0, 0, 0.1);
+  background: rgba(0, 0, 0, 0.05);
 }
 
 

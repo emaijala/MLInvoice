@@ -51,7 +51,6 @@ div.form_buttons {
 div.list_container {
   margin: 10px;
   display: table;
-  font-size: 1.0em;
 }
 
 div.message {
@@ -68,7 +67,6 @@ div.form_container {
   padding: 8px;
   margin: 0;
   border: 0;
-  font-size: 1.0em;
 }
 
 div.small_label {
@@ -131,7 +129,7 @@ table.iform_pop {
 }
 .iform tr:nth-child(even) td {
   background: rgb(0, 0, 0) transparent;
-  background: rgba(0, 0, 0, 0.1);
+  background: rgba(0, 0, 0, 0.05);
 }
 .iform tr:nth-child(even) td.button {
   background: rgb(0, 0, 0) transparent;
