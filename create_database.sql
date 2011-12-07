@@ -105,7 +105,7 @@ CREATE TABLE vllasku_product (
   id int(11) NOT NULL auto_increment,
   deleted tinyint NOT NULL default 0,
   product_name varchar(100) NOT NULL,
-  description varchar(100) NULL,
+  description varchar(255) NULL,
   product_code varchar(100) NULL,
   product_group varchar(100) NULL,
   internal_info text,
