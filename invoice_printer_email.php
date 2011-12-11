@@ -81,6 +81,9 @@ class InvoicePrinter extends InvoicePrinterBase
 
     $boundary = '-----' . md5(uniqid(time())) . '-----';
     
+    // Note: According to https://bugs.php.net/bug.php?id=15841 the PHP documentation is wrong, 
+    // and CRLF should not be used except on Windows. PHP_EOL should work.
+    
     $headers = array(
       'Date' => date('r'),
       'From' => $this->emailFrom,
@@ -95,16 +98,16 @@ class InvoicePrinter extends InvoicePrinterBase
     $filename = $this->outputFileName ? $this->outputFileName : getSetting('invoice_pdf_filename');
     $data = $pdf->Output(sprintf($filename, $invoiceData['invoice_no']), 'E');
         
-    $messageBody = "This is a multipart message in mime format.\r\n\r\n";
-    $messageBody .= "--$boundary\r\n";
-    $messageBody .= "Content-Type: text/plain; charset=UTF-8; format=flowed\r\n";
-    $messageBody .= "Content-Transfer-Encoding: 8bit\r\n";
-    $messageBody .= "Content-Disposition: inline\r\n\r\n";
-    $messageBody .= $this->getFlowedBody() . "\r\n";
+    $messageBody = 'This is a multipart message in mime format.' . PHP_EOL . PHP_EOL;
+    $messageBody .= "--$boundary" . PHP_EOL;
+    $messageBody .= 'Content-Type: text/plain; charset=UTF-8; format=flowed' . PHP_EOL;
+    $messageBody .= 'Content-Transfer-Encoding: 8bit' . PHP_EOL;
+    $messageBody .= 'Content-Disposition: inline' . PHP_EOL . PHP_EOL;
+    $messageBody .= $this->getFlowedBody() . PHP_EOL;
 
-    $messageBody .= "--$boundary\r\n";
+    $messageBody .= "--$boundary" . PHP_EOL;
     $messageBody .= $data;
-    $messageBody .= "\r\n--$boundary--";
+    $messageBody .= PHP_EOL . "--$boundary--";
   
     $result = mail($this->mimeEncodeAddress($this->emailTo), $this->mimeEncodeHeaderValue($this->emailSubject), $messageBody, $this->headersToStr($headers), '-f ' . $this->extractAddress($this->emailFrom));
     
@@ -122,7 +125,7 @@ class InvoicePrinter extends InvoicePrinterBase
     $body = cond_utf8_encode($this->emailBody);
     
     $lines = array();
-    foreach (explode("\n", $body) as $paragraph)
+    foreach (explode(PHP_EOL, $body) as $paragraph)
     {
       $line = '';
       foreach (explode(' ', $paragraph) as $word)
@@ -145,7 +148,7 @@ class InvoicePrinter extends InvoicePrinterBase
     $result = '';
     foreach ($lines as $line)
     {
-      $result .= chunk_split($line, 998, "\r\n");
+      $result .= chunk_split($line, 998, PHP_EOL);
     }
     return $result;
   }
@@ -158,9 +161,9 @@ class InvoicePrinter extends InvoicePrinterBase
       if (!$value)
         continue;
       if (in_array($header, array("From", "To", "Cc", "Bcc")))
-        $result .= "$header: " . $this->mimeEncodeAddress($value) . "\r\n";
+        $result .= "$header: " . $this->mimeEncodeAddress($value) . PHP_EOL;
       else
-        $result .= "$header: $value\r\n";
+        $result .= "$header: $value" . PHP_EOL;
     }
     return $result;
   }
@@ -205,6 +208,7 @@ class InvoicePrinter extends InvoicePrinterBase
         case 'totalvat': $values[] = miscRound2Decim($this->totalVAT);  break;
         case 'totalsumvat': $values[] = miscRound2Decim($this->totalSumVAT); break;
         case 'ref_number': $values[] = $this->refNumber; break; // formatted reference number
+        case 'barcode': $values[] = $this->barcode; break;
         default: 
           $value = isset($this->invoiceData[$pcparts[1]]) ? $this->invoiceData[$pcparts[1]] : '';
           if (substr($pcparts[1], -5) == '_date')
@@ -212,6 +216,7 @@ class InvoicePrinter extends InvoicePrinterBase
           $values[] = $value;
         }
         break;
+      case 'config': $values[] = getSetting($pcparts[1]); break;
       default:
         error_log("Unknown placeholder '$placeholder' in invoice email fields");
         $values[] = '';

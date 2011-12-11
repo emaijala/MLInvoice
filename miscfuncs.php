@@ -357,4 +357,14 @@ function calculateRowSum($price, $count, $VAT, $VATIncluded, $discount)
   return array($rowSum, $rowVAT, $rowSumVAT);
 }
 
+function createVATID($id)
+{
+  $id = strtoupper(str_replace('-', '', $id));
+  if (!preg_match('/^[A-Z]{2}/', $id)) 
+  {
+    $id = "FI$id";
+  }
+  return $id;
+}
+
 ?>

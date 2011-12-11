@@ -27,6 +27,7 @@ abstract class InvoicePrinterBase
   protected $totalVAT = 0;
   protected $totalSumVAT = 0;
   protected $discountedRows = false;
+  protected $groupedVATs = array();
   
   protected $recipientMaxY = 0;
 
@@ -48,14 +49,33 @@ abstract class InvoicePrinterBase
     $this->totalVAT = 0;
     $this->totalSumVAT = 0;
     $this->discountedRows = false;
-    foreach ($invoiceRowData as $row)
+    foreach ($this->invoiceRowData as $key => $row)
     {
       list($rowSum, $rowVAT, $rowSumVAT) = calculateRowSum($row['price'], $row['pcs'], $row['vat'], $row['vat_included'], $row['discount']);
+      $this->invoiceRowData[$key]['rowsum'] = $rowSum;
+      $this->invoiceRowData[$key]['rowvat'] = $rowVAT;
+      $this->invoiceRowData[$key]['rowsumvat'] = $rowSumVAT;
       $this->totalSum += $rowSum;
       $this->totalVAT += $rowVAT;
       $this->totalSumVAT += $rowSumVAT;
       if ($row['discount'] > 0)
         $this->discountedRows = true;
+        
+      // Create array grouped by the VAT base
+      $vat = 'vat' . number_format($row['vat'], 2, '', '');
+      if (isset($this->groupedVATs[$vat]))
+      {
+        $this->groupedVATs[$vat]['totalsum'] += $rowSum;
+        $this->groupedVATs[$vat]['totalvat'] += $rowVAT;
+        $this->groupedVATs[$vat]['totalsumvat'] += $rowSumVAT;
+      }
+      else
+      {
+        $this->groupedVATs[$vat]['vat'] = $row['vat'];
+        $this->groupedVATs[$vat]['totalsum'] = $rowSum;
+        $this->groupedVATs[$vat]['totalvat'] = $rowVAT;
+        $this->groupedVATs[$vat]['totalsumvat'] = $rowSumVAT;
+      }
     }
     $this->separateStatement = ($this->printStyle == 'invoice') && getSetting('invoice_separate_statement');
 

@@ -35,6 +35,7 @@ CREATE TABLE vllasku_base (
   www varchar(255) default NULL,
   email varchar(100) default NULL,
   company_id varchar(15) default NULL,
+  org_unit_number varchar(35) default NULL,
   bank_name varchar(50) NOT NULL,
   bank_account varchar(30) NOT NULL,
   bank_iban varchar(50) NOT NULL,
@@ -81,6 +82,7 @@ CREATE TABLE vllasku_company (
   www varchar(100) default NULL,
   info text,
   company_id varchar(15) default NULL,
+  org_unit_number varchar(35) default NULL,
   customer_no int(11) default NULL,
   default_ref_number varchar(100) default NULL,
   inactive tinyint NOT NULL default 0,
@@ -276,6 +278,8 @@ INSERT INTO vllasku_print_template (id, name, filename, parameters, output_filen
 INSERT INTO vllasku_print_template (id, name, filename, parameters, output_filename, type, order_no) VALUES (4, 'Sähköposti', 'invoice_printer_email.php', 'invoice', 'lasku_%d.pdf', 'invoice', 10);
 INSERT INTO vllasku_print_template (id, name, filename, parameters, output_filename, type, order_no, inactive) VALUES (5, 'Invoice', 'invoice_printer.php', 'invoice,en', 'invoice_%d.pdf', 'invoice', 15, 1);
 INSERT INTO vllasku_print_template (id, name, filename, parameters, output_filename, type, order_no, inactive) VALUES (6, 'Receipt', 'invoice_printer.php', 'receipt,en', 'receipt_%d.pdf', 'invoice', 30, 1);
+INSERT INTO vllasku_print_template (id, name, filename, parameters, output_filename, type, order_no, inactive) VALUES (7, 'Finvoice', 'invoice_printer_finvoice.php', '', 'finvoice_%d.xml', 'invoice', 40, 1);
+INSERT INTO vllasku_print_template (id, name, filename, parameters, output_filename, type, order_no, inactive) VALUES (8, 'Finvoice Styled', 'invoice_printer_finvoice.php', 'Finvoice.xsl', 'finvoice_%d.xml', 'invoice', 50, 1);
 
 INSERT INTO vllasku_users (id, name, email, login, passwd, type_id) VALUES (1, 'Administrator', '', 'admin', md5('admin'), 2);
 

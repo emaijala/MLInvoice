@@ -148,6 +148,7 @@ default:
   $GLOBALS['locCompanyInactive'] = 'Asiakas pois käytöstä';
   $GLOBALS['locBaseName'] = 'Yrityksen nimi';
   $GLOBALS['locROWTYPE'] = 'Rivityyppi';
+  $GLOBALS['locOrgUnitNumber'] = 'Organisaatiotunniste (OVT)';
 
   $GLOBALS['locPrintTemplate'] = 'Tulostusmalli';
   $GLOBALS['locPrintTemplates'] = 'Tulostusmallit';
