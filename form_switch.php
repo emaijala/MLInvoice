@@ -444,10 +444,10 @@ onchange = "var form_id = this.form.id; $.getJSON('json.php?func=get_product&amp
       break;
     }
   }
-  document.getElementById(form_id + '_price').value = json.unit_price.replace('.', ','); 
-  document.getElementById(form_id + '_discount').value = json.discount.replace('.', ','); 
-  document.getElementById(form_id + '_vat').value = json.vat_percent.replace('.', ','); 
-  document.getElementById(form_id + '_vat_included').checked = json.vat_included == 1 ? true : false;
+  document.getElementById(form_id + '_price').value = json.unit_price ? json.unit_price.replace('.', ',') : ''; 
+  document.getElementById(form_id + '_discount').value = json.discount ? json.discount.replace('.', ',') : ''; 
+  document.getElementById(form_id + '_vat').value = json.vat_percent ? json.vat_percent.replace('.', ',') : ''; 
+  document.getElementById(form_id + '_vat_included').checked = (json.vat_included && json.vat_included == 1) ? true : false;
 });"
 EOS;
 
