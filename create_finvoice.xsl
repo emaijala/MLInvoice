@@ -200,6 +200,7 @@
         <EpiBfiIdentifier IdentificationSchemeName="BIC"><xsl:value-of select="../sender/bank_swiftbic"/></EpiBfiIdentifier>
       </EpiBfiPartyDetails>
       <EpiBeneficiaryPartyDetails>
+        <EpiNameAddressDetails><xsl:value-of select="../sender/name"/></EpiNameAddressDetails>
         <EpiBei><xsl:value-of select="../sender/company_id"/></EpiBei>
         <EpiAccountID IdentificationSchemeName="IBAN"><xsl:call-template name="string-replace-all"><xsl:with-param name="text" select="../sender/bank_iban" /><xsl:with-param name="replace" select="' '" /><xsl:with-param name="by" select="''"/></xsl:call-template></EpiAccountID>
       </EpiBeneficiaryPartyDetails>
