@@ -506,7 +506,7 @@ function init_rows()
   }
 ?> 
   $.getJSON('json.php?func=get_<?php echo $elem['name']?>&parent_id=<?php echo $intKeyValue?>', function(json) { 
-    $('#itable > tbody > tr:gt(1)').remove();
+    $('#itable > tbody > tr[id!=form_row]').remove();
     var table = document.getElementById('itable');
     for (var i = 0; i < json.records.length; i++)
     {
