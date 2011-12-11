@@ -50,7 +50,7 @@ switch ( $strForm ) {
 
 case 'company':
   $strTable = '{prefix}company';
-  $strPrimaryKey = 'id';
+  $strJSONType = 'company';
   $strParentKey = "company_id";
   $astrSearchFields = 
   array( 
@@ -108,7 +108,6 @@ case 'company_contact':
 case 'company_contacts':
   $strTable = '{prefix}company_contact';
   $strJSONType = 'company_contact';
-  $strPrimaryKey = "id";
   $strParentKey = "company_id";
   $clearRowValuesAfterAdd = true;
   $astrFormElements = array(
@@ -129,7 +128,7 @@ break;
 
 case 'product':
   $strTable = '{prefix}product';
-  $strPrimaryKey = "id";
+  $strJSONType = 'product';
   $astrSearchFields = array( 
     //array("name" => "first_name", "type" => "TEXT"),
     array("name" => "product_name", "type" => "TEXT")
@@ -162,7 +161,6 @@ case 'invoice':
   $levelsAllowed[] = ROLE_READONLY;
   $strTable = '{prefix}invoice';
   $strListTableAlias = 'i.'; // this is for the search function
-  $strPrimaryKey = "id";
   $strParentKey = "invoice_id";
   $strJSONType = 'invoice';
   
@@ -239,7 +237,7 @@ EOS;
     $locTitle = $GLOBALS['locNEWCOMPANY'];
     $locMissing = $GLOBALS['locERRVALUEMISSING'];
     $addCompanyCode = <<<EOS
-<a class="formbuttonlink" href="#" onclick="add_company({'save': '$locSave', 'close': '$locClose', 'title': '$locTitle', 'missing': '$locMissing'})">$locNew</a>
+<a class="formbuttonlink" href="#" onclick="add_company({'save': '$locSave', 'close': '$locClose', 'title': '$locTitle', 'missing': '$locMissing: '})">$locNew</a>
 
 EOS;
 
@@ -333,6 +331,8 @@ EOS;
     }
   }
   
+  $addReminderFees = "$.getJSON('json.php?func=add_reminder_fees&amp;id=' + document.getElementById('record_id').value, function(json) { if (json.errors) { $('#errormsg').text(json.errors).show() } else { showmsg('{$GLOBALS['locReminderFeesAdded']}'); } init_rows(); }); return false;";
+  
   $astrFormElements = array(
     array(
       "name" => "base_id", "label" => $GLOBALS['locBILLER'], "type" => "LIST", "style" => "medium", "listquery" => "SELECT id, name FROM {prefix}base WHERE deleted=0", "position" => 1, "default" => $defaultBase, "allow_null" => FALSE ),
@@ -367,7 +367,7 @@ EOS;
     isset($printButtons[0]) ? $printButtons[0] : array(),   
     isset($printButtons2[0]) ? $printButtons2[0] : array(),   
     !sesWriteAccess() ? array("name" => "addreminderfees", "label" => '', 'type' => 'FILLER', 'position' => 1) : array(
-      "name" => "addreminderfees", "label" => $GLOBALS['locADDREMINDERFEES'], "type" => "BUTTON", "style" => "redirect", "listquery" => "add_reminder_fees.php?func=$strFunc&list=$strList&id=_ID_", "position" => 1, "default" => FALSE, "allow_null" => TRUE ),
+      "name" => "addreminderfees", "label" => $GLOBALS['locADDREMINDERFEES'], "type" => "JSBUTTON", "style" => "redirect", "listquery" => "$addReminderFees", "position" => 1, "default" => FALSE, "allow_null" => TRUE ),
     $arrRefundingInvoice,
     isset($printButtons[1]) ? $printButtons[1] : array(),   
     isset($printButtons2[1]) ? $printButtons2[1] : array(),   
@@ -389,7 +389,6 @@ case 'invoice_row':
 case 'invoice_rows':
   $strTable = '{prefix}invoice_row';
   $strJSONType = 'invoice_row';
-  $strPrimaryKey = "id";
   $strParentKey = "invoice_id";
   $strOrder = 'ORDER BY {prefix}invoice_row.order_no, {prefix}invoice_row.row_date';
 
@@ -491,9 +490,9 @@ break;
 /******************************************************************************
     SYSTEM FORMS - SYSTEEMILOMAKKEET
 ******************************************************************************/
-case 'base_info':
+case 'base':
   $strTable = '{prefix}base';
-  $strPrimaryKey = "id";
+  $strJSONType = 'base';
   
   $title = $GLOBALS['locBaseLogoTitle'];   
   $openPopJS = <<<EOF
@@ -582,14 +581,13 @@ break;
 
 case 'invoice_state':
   $strTable = '{prefix}invoice_state';
-  $strPrimaryKey = "id";
+  $strJSONType = 'invoice_state';
   
   $elem_attributes = '';
   $intId = getRequest('id', FALSE);
   if ($intId && $intId <= 7)
   {
     $elem_attributes = 'readonly';
-    $strPrimaryKey = '';
     $astrFormElements = array(
       array(
         "name" => "label", "label" => $GLOBALS['locSYSTEMONLY'], "type" => "LABEL")
@@ -608,7 +606,7 @@ break;
 
 case 'row_type':
   $strTable = '{prefix}row_type';
-  $strPrimaryKey = "id";
+  $strJSONType = 'row_type';
   $astrFormElements = array(
     array(
       "name" => "name", "label" => $GLOBALS['locROWTYPE'], "type" => "TEXT", "style" => "medium", "listquery" => "", "position" => 1, "default" => FALSE, "allow_null" => FALSE ),
@@ -620,7 +618,7 @@ break;
 case 'session_type':
   $levelsAllowed = array(ROLE_ADMIN);
   $strTable = '{prefix}session_type';
-  $strPrimaryKey = "id";
+  $strJSONType = 'session_type';
   $astrFormElements = array(
     array(
       "name" => "name", "label" => $GLOBALS['locSESSIONTYPE'], "type" => "TEXT", "style" => "medium", "listquery" => "", "position" => 1, "default" => FALSE, "allow_null" => FALSE ),
@@ -634,7 +632,7 @@ break;
 case 'user':
   $levelsAllowed = array(ROLE_ADMIN);
   $strTable = '{prefix}users';
-  $strPrimaryKey = "id";
+  $strJSONType = 'user';
   $astrFormElements = array(
     array(
       "name" => "name", "label" => $GLOBALS['locUSERNAME'], "type" => "TEXT", "style" => "medium", "listquery" => "", "position" => 1, "default" => FALSE, "allow_null" => FALSE ), 
@@ -649,7 +647,7 @@ break;
 
 case 'print_template':
   $strTable = '{prefix}print_template';
-  $strPrimaryKey = "id";
+  $strJSONType = 'print_template';
   
   $elem_attributes = '';
   $astrFormElements = array(

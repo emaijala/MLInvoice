@@ -15,23 +15,13 @@ Tämä ohjelma on vapaa. Lue oheinen LICENSE.
 
 *******************************************************************************/
 
-require "htmlfuncs.php";
-require "sqlfuncs.php";
-require "sessionfuncs.php";
-
-sesVerifySession();
-
 require_once "localize.php";
-require "datefuncs.php";
-require "miscfuncs.php";
+require_once "datefuncs.php";
+require_once "miscfuncs.php";
 
-$intInvoiceId = getRequest('id', FALSE);
-$strFunc = getRequest('func', 'invoices');
-$strList = getRequest('list', 'invoices');
-
-$strAlert = '';
-if ($intInvoiceId) 
+function addReminderFees($intInvoiceId)
 {
+  $strAlert = '';
   $strQuery = 
     'SELECT inv.due_date, inv.state_id, inv.print_date ' .
     'FROM {prefix}invoice inv ' .
@@ -42,6 +32,10 @@ if ($intInvoiceId)
      $intStateId = $row['state_id'];
      $strDueDate = dateConvIntDate2Date($row['due_date']);
      $strPrintDate = $row['print_date'];
+  }
+  else
+  {
+    return $GLOBALS['locRecordNotFound'];
   }
   
   $intDaysOverdue = floor((time() - strtotime($strDueDate)) / 60 / 60 / 24);
@@ -98,15 +92,6 @@ if ($intInvoiceId)
       mysql_param_query($strQuery, array($intInvoiceId, $GLOBALS['locPENALTYINTERESTDESC'], $intPenalty, date('Ymd')));
     }
   }
+  return $strAlert;  
 }
-
-$strOnLoad = "window.location='index.php?func=$strFunc&list=$strList&form=invoice&id=$intInvoiceId';";
-if ($strAlert)
-  $strOnLoad = "alert('$strAlert'); $strOnLoad";
-
-echo htmlPageStart( _PAGE_TITLE_ );
 ?>
-
-<body class="form" onload="<?php echo $strOnLoad?>">
-</body>
-</html>

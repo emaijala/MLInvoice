@@ -30,11 +30,37 @@ $strFunc = getRequest('func', '');
 switch ($strFunc)
 {
 case 'get_company':
-  printJSONRecord('company');
+case 'get_company_contact':
+case 'get_product':
+case 'get_invoice':
+case 'get_invoice_row':
+case 'get_base':
+case 'get_print_template':
+case 'get_invoice_state':
+case 'get_row_type':
+case 'get_print_template':
+  printJSONRecord(substr($strFunc, 4));
   break;
 
 case 'put_company':
-  saveJSONRecord('company', '');
+case 'put_product':
+case 'put_invoice':
+case 'put_base':
+case 'put_print_template':
+case 'put_invoice_state':
+case 'put_row_type':
+case 'put_print_template':
+  saveJSONRecord(substr($strFunc, 4), '');
+  break;
+
+case 'session_type':
+case 'user':
+  if (!sesAdminAccess())
+  {
+    header('HTTP/1.1 403 Forbidden');
+    exit;
+  }
+    saveJSONRecord(substr($strFunc, 4), '');
   break;
 
 case 'get_companies':
@@ -45,10 +71,6 @@ case 'get_company_contacts':
   printJSONRecords('company_contact', 'company_id', 'contact_person');
   break;
 
-case 'get_company_contact':
-  printJSONRecord('company_contact');
-  break;
-
 case 'delete_company_contact':
   deleteRecord('company_contact');
   break;
@@ -57,28 +79,12 @@ case 'put_company_contact':
   saveJSONRecord('company_contact', 'company_id');
   break;
 
-case 'get_product':
-  printJSONRecord('product');
-  break;
-
 case 'get_products':
   printJSONRecords('product', '', 'product_name');
   break;
 
 case 'get_row_types':
   printJSONRecords('row_type', '', 'order_no');
-  break;
-
-case 'get_invoice':
-  printJSONRecord('invoice');
-  break;
-
-case 'put_invoice':
-  saveJSONRecord('invoice', '');
-  break;
-
-case 'get_invoice_row':
-  printJSONRecord('invoice_row');
   break;
 
 case 'get_invoice_rows':
@@ -91,6 +97,21 @@ case 'put_invoice_row':
 
 case 'delete_invoice_row':
   deleteRecord('invoice_row');
+  break;
+  
+case 'add_reminder_fees':
+  require 'add_reminder_fees.php';
+  $invoiceId = getRequest('id', 0);
+  $errors = addReminderFees($invoiceId);
+  if ($errors)
+  {
+    $ret = array('status' => 'error', 'errors' => $errors);
+  }
+  else
+  {
+    $ret = array('status' => 'ok');
+  }
+  echo json_encode($ret);
   break;
 
 case 'get_invoice_defaults':

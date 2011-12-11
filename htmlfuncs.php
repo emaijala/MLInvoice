@@ -279,12 +279,12 @@ function htmlFormElement($strName, $strType, $strValue, $strStyle, $strListQuery
           
         case 'redirect':
           $strHref = "#";
-          $strOnClick = "onclick=\"var form = document.getElementById('admin_form'); form.saveact.value=1; form.redirect.value='$strName'; form.submit(); return false;\"";
+          $strOnClick = "onclick=\"save_record('$strListQuery', 'redirect'); return false;\"";
           break;
           
         case 'openwindow':
           $strHref = "#";
-          $strOnClick = "onclick=\"var form = document.getElementById('admin_form'); form.saveact.value=1; form.redirect.value='$strName'; form.submit(); return false;\"";
+          $strOnClick = "onclick=\"save_record('$strListQuery', 'openwindow'); return false;\"";
           break;
           
         default:

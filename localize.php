@@ -132,6 +132,7 @@ default:
   $GLOBALS['locCOPYINV'] = 'Kopioi lasku ja laskurivit';
   $GLOBALS['locREFUNDINV'] = 'Mitätöi ja luo hyvityslasku';
   $GLOBALS['locADDREMINDERFEES'] = 'Lisää viivästysmaksut';
+  $GLOBALS['locReminderFeesAdded'] = 'Viivästysmaksut lisätty';
   $GLOBALS['locSHOWREFUNDEDINV'] = 'Näytä hyvitetty lasku';
   $GLOBALS['locSHOWREFUNDINGINV'] = 'Näytä hyvittävä lasku';
   $GLOBALS['locPRODUCTNAME'] = 'Tuotteen nimi';
@@ -168,7 +169,7 @@ default:
   $GLOBALS['locDBERROR'] = 'Tietokantavirhe';
   $GLOBALS['locDBERRORDESC'] = 'Tietokantavirhe: ';
   $GLOBALS['locSYSTEMONLY'] = 'Järjestelmän sisäinen - ei muokattavissa';
-  $GLOBALS['locINVOICENOTOVERDUE'] = 'Maksuja ei voida lisätä laskulle, jonka eräpäivä on tänään ta myöhemmin.';
+  $GLOBALS['locINVOICENOTOVERDUE'] = 'Maksuja ei voida lisätä laskulle, jonka eräpäivä on tänään tai myöhemmin.';
   $GLOBALS['locWRONGSTATEFORREMINDERFEED'] = 'Maksuja ei voida lisätä maksetulle tai mitätöidylle laskulle.';
   $GLOBALS['locRECORDDELETED'] = 'Tiedot on poistettu.';
   $GLOBALS['locNOACCESS'] = 'Käyttöoikeudet eivät riitä.';
@@ -180,6 +181,7 @@ default:
   $GLOBALS['locSaveRecordToAddRows'] = 'Tietue on tallennettava kerran, jotta näiden tietojen lisääminen on mahdollista.';
   $GLOBALS['locInvoiceNumberNotDefined'] = 'Huom! Laskun numero puuttuu';
   $GLOBALS['locInvoiceRefNumberTooShort'] = 'Huom! Laskun viitenumero on liian lyhyt (minimi 4 numeroa)';
+  $GLOBALS['locRecordNotFound'] = 'Tietuetta ei löytynyt';
   
   //FORM BUTTON HELPERS
   $GLOBALS['locSAVE'] = 'Tallenna';

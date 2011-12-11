@@ -91,7 +91,7 @@ break;
 /***********************************************************************
     SETTINGS
 ***********************************************************************/
-case 'base_info':
+case 'base':
    $strTable = "{prefix}base";
    $astrSearchFields = 
     array( 
@@ -107,7 +107,7 @@ case 'base_info':
         array("name" => "email", 'width' => 150, "type" => "TEXT", "header" => $GLOBALS['locEMAIL'])
     );
     //array('name');
-   $strMainForm = "base_info";
+   $strMainForm = 'base';
    $strTitle = $GLOBALS['locBASES'];
 break;
 

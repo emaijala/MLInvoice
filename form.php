@@ -45,13 +45,12 @@ function createForm($strFunc, $strList, $strForm)
   
   $blnNew = getPostRequest('newact', FALSE);
   $blnCopy = getPostRequest('copyact', FALSE) ? TRUE : FALSE;
-  $blnSave = getPostRequest('saveact', FALSE) ? TRUE : FALSE;
   $blnDelete = getPostRequest('deleteact', FALSE) ? TRUE : FALSE;
-  $intKeyValue = getPostRequest($strPrimaryKey, FALSE);
+  $intKeyValue = getPostRequest('id', FALSE);
   if (!$intKeyValue)
     $blnNew = TRUE;
   
-  if (!sesWriteAccess() && ($blnNew || $blnCopy || $blnSave || $blnDelete))
+  if (!sesWriteAccess() && ($blnNew || $blnCopy || $blnDelete))
   {
 ?>
   <div class="form_container ui-widget-content">
@@ -64,12 +63,12 @@ function createForm($strFunc, $strList, $strForm)
   $strMessage = '';
   if (isset($_SESSION['formMessage']) && $_SESSION['formMessage'])
   {
-    $strMessage = $GLOBALS['loc' . $_SESSION['formMessage']] . '<br>';
+    $strMessage = $GLOBALS['loc' . $_SESSION['formMessage']];
     unset($_SESSION['formMessage']);
   }
   
   // if NEW is clicked clear existing form data
-  if ($blnNew && !$blnSave)
+  if ($blnNew)
   {
     unset($intKeyValue);
     unset($astrValues);
@@ -95,34 +94,9 @@ function createForm($strFunc, $strList, $strForm)
     }
   }
   
-  if ($blnSave) 
-  { 
-    $warnings = '';
-    $res = saveFormData($strTable, $intKeyValue, $astrFormElements, $astrValues, $warnings);
-    if ($res !== TRUE)
-    {
-      $strMessage .= $GLOBALS['locERRVALUEMISSING'] . ": $res<br>";
-      unset($newLocation);
-      unset($openWindow);
-    }
-    else
-    {
-      if ($warnings)
-        $strMessage .= htmlspecialchars($warnings) . '<br>';
-      if (!$blnNew && getSetting('auto_close_after_save') && !isset($newLocation) && !isset($openWindow))
-      {
-        $qs = preg_replace('/&form=\w*/', '', $_SERVER['QUERY_STRING']);
-        $qs = preg_replace('/&id=\w*/', '', $qs);
-        header("Location: ". _PROTOCOL_ . $_SERVER['HTTP_HOST'] . dirname($_SERVER['PHP_SELF']) . "/index.php?$qs");
-        return;
-      }    
-      $blnNew = FALSE;
-      $blnInsertDone = TRUE;
-    }
-  }    
-  elseif ($blnDelete && $intKeyValue) 
+  if ($blnDelete && $intKeyValue) 
   {
-    $strQuery = "UPDATE $strTable SET deleted=1 WHERE $strPrimaryKey=?";
+    $strQuery = "UPDATE $strTable SET deleted=1 WHERE id=?";
     mysql_param_query($strQuery, array($intKeyValue));
     unset($intKeyValue);
     unset($astrValues);
@@ -169,17 +143,17 @@ function createForm($strFunc, $strList, $strForm)
 <?php if (isset($popupHTML)) echo $popupHTML;?>  
 
   <div class="form_container">
-    <div id="message" class="message ui-state-error ui-corner-all<?php if (!$strMessage) echo ' ui-helper-hidden'?>"><?php echo $strMessage ?></div>
+    <div id="message" class="message ui-state-highlight ui-corner-all ui-helper-hidden"></div>
+    <div id="errormsg" class="message ui-state-error ui-corner-all ui-helper-hidden"></div>
   
 <?php createFormButtons($blnNew, $copyLinkOverride, 1) ?>
     <div class="form">
       <form method="post" name="admin_form" id="admin_form">
-      <input type="hidden" name="saveact" value="0">
       <input type="hidden" name="copyact" value="0">
       <input type="hidden" name="newact" value="<?php echo $blnNew ? 1 : 0?>">
       <input type="hidden" name="deleteact" value="0">
       <input type="hidden" name="redirect" id="redirect" value="">
-      <input type="hidden" id="record_id" name="<?php echo $strPrimaryKey?>" value="<?php echo (isset($intKeyValue) && $intKeyValue) ? $intKeyValue : '' ?>">
+      <input type="hidden" id="record_id" name="id" value="<?php echo (isset($intKeyValue) && $intKeyValue) ? $intKeyValue : '' ?>">
       <table>
 <?php
   $haveChildForm = false;
@@ -334,8 +308,20 @@ function createForm($strFunc, $strList, $strForm)
 /* <![CDATA[ */
 var globals = {};
 
+function showmsg(msg) 
+{
+  $("#message").text(msg).show();
+  setTimeout('$("#message").fadeOut()', 5000);
+}
+
 $(document).ready(function() { 
 <?php 
+  if ($strMessage)
+  {
+?>
+  showmsg("<?php echo $strMessage?>");
+<?php 
+  }
   if (sesWriteAccess())
   {
 ?>
@@ -350,8 +336,8 @@ $(document).ready(function() {
   $('#message').ajaxStop(function() {
     $('#spinner').css('visibility', 'hidden');
   });
-  $('#message').ajaxError(function(event, request, settings) {
-    alert('Server request failed: ' + request.status + ' - ' + request.statusText);
+  $('#errormsg').ajaxError(function(event, request, settings) {
+    $('#errormsg').text('Server request failed: ' + request.status + ' - ' + request.statusText).show();
     $('#spinner').css('visibility', 'hidden');
   });
   
@@ -391,7 +377,7 @@ function save_record(redirect_url, redir_style)
 <?php
   foreach ($astrFormElements as $elem)
   {
-    if ($elem['name'] && !in_array($elem['type'], array('HID_INT', 'SECHID_INT', 'BUTTON', 'JSBUTTON', 'NEWLINE', 'ROWSUM', 'CHECK', 'IFORM')))
+    if ($elem['name'] && !in_array($elem['type'], array('HID_INT', 'SECHID_INT', 'BUTTON', 'JSBUTTON', 'LABEL', 'IMAGE', 'NEWLINE', 'ROWSUM', 'CHECK', 'IFORM')))
     {
 ?>
   obj.<?php echo $elem['name']?> = form.<?php echo $elem['name']?>.value;
@@ -407,6 +393,7 @@ function save_record(redirect_url, redir_style)
 ?>
   obj.id = form.id.value;
   $('#message').hide();
+  $('#errormsg').hide();
   $.ajax({
     'url': "json.php?func=put_<?php echo $strJSONType?>",
     'type': 'POST',
@@ -418,8 +405,7 @@ function save_record(redirect_url, redir_style)
         alert(data.warnings);
       if (data.missing_fields)
       {
-        $('#message').text('<?php echo $GLOBALS['locERRVALUEMISSING']?>: ' + data.missing_fields).show();
-        $('#message').show();
+        $('#errormsg').text('<?php echo $GLOBALS['locERRVALUEMISSING']?>: ' + data.missing_fields).show();
       }
       else
       {
@@ -430,6 +416,16 @@ function save_record(redirect_url, redir_style)
             window.open(redirect_url);
           else
             window.location = redirect_url;
+        }
+        if (!obj.id)
+        {
+          obj.id = data.id;
+          form.id.value = obj.id;
+          if (!redirect_url || redir_style == 'openwindow')
+          {
+            var newloc = new String(window.location).split('#', 1)[0];
+            window.location = newloc + '&id=' + obj.id;
+          }
         }
       }
     },
@@ -967,7 +963,7 @@ function createFormButtons($boolNew, $copyLinkOverride, $spinner = 0)
     return;
 ?>
     <div class="form_buttons">
-      <a class="actionlink save_button" href="#" onclick="document.getElementById('admin_form').saveact.value=1; document.getElementById('admin_form').submit(); return false;"><?php echo $GLOBALS['locSAVE']?></a>
+      <a class="actionlink save_button" href="#" onclick="save_record(); return false;"><?php echo $GLOBALS['locSAVE']?></a>
 <?php
   if (!$boolNew) 
   {

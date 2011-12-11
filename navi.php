@@ -60,7 +60,7 @@ function createFuncMenu($strFunc)
   case "settings":
     $astrNaviLinks = array( 
       array("href" => "list=settings", "text" => $GLOBALS['locGeneralSettings'], "levels_allowed" => array(ROLE_USER, ROLE_BACKUPMGR)),
-      array("href" => "list=base_info", "text" => $GLOBALS['locBASES'], "levels_allowed" => array(ROLE_USER, ROLE_BACKUPMGR)),
+      array("href" => "list=base", "text" => $GLOBALS['locBASES'], "levels_allowed" => array(ROLE_USER, ROLE_BACKUPMGR)),
       array("href" => "list=invoice_state", "text" => $GLOBALS['locINVOICESTATES'], "levels_allowed" => array(ROLE_USER, ROLE_BACKUPMGR)),
       array("href" => "list=product", "text" => $GLOBALS['locPRODUCTS'], "levels_allowed" => array(ROLE_USER, ROLE_BACKUPMGR)),
       array("href" => "list=row_type", "text" => $GLOBALS['locROWTYPES'], "levels_allowed" => array(ROLE_USER, ROLE_BACKUPMGR)),
@@ -70,7 +70,7 @@ function createFuncMenu($strFunc)
     $strList = getRequest('list', '');
     switch ($strList)
     {
-    case 'base_info': $strNewText = $GLOBALS['locNEWBASE']; break;
+    case 'base': $strNewText = $GLOBALS['locNEWBASE']; break;
     case 'invoice_state': $strNewText = $GLOBALS['locNEWINVOICESTATE']; break;
     case 'product': $strNewText = $GLOBALS['locNEWPRODUCT']; break;
     case 'row_type': $strNewText = $GLOBALS['locNEWROWTYPE']; break;
