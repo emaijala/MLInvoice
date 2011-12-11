@@ -63,6 +63,7 @@ function initInvoicePDFLocalizations($language)
     $GLOBALS['locPDFClientVATID'] = 'Customer VAT Number';
     $GLOBALS['locPDFReminderFeeDesc'] = 'Reminder Fee';
     $GLOBALS['locPDFPenaltyInterestDesc'] = 'Penalty Interest';
+    $GLOBALS['locPDFVirtualBarcode'] = 'Virtual Barcode';
     $GLOBALS['locPDFFormRecipientAccountNumber1'] = "Recipient's\naccount\nnumber";
     $GLOBALS['locPDFFormRecipientAccountNumber2'] = '';
     $GLOBALS['locPDFFormIBAN'] = 'IBAN';
@@ -130,6 +131,7 @@ function initInvoicePDFLocalizations($language)
     $GLOBALS['locPDFClientVATID'] = 'Asiakkaan Y-tunnus';
     $GLOBALS['locPDFReminderFeeDesc'] = 'Maksukehotus';
     $GLOBALS['locPDFPenaltyInterestDesc'] = 'Viivästyskorko';
+    $GLOBALS['locPDFVirtualBarcode'] = 'Virtuaaliviivakoodi';
     $GLOBALS['locPDFFormRecipientAccountNumber1'] = "Saajan\ntilinumero";
     $GLOBALS['locPDFFormRecipientAccountNumber2'] = "Mottagarens\nkontonummer";
     $GLOBALS['locPDFFormIBAN'] = 'IBAN';

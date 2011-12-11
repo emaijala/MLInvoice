@@ -7,6 +7,10 @@ class PDF extends TCPDF
   public $footerLeft = '', $footerCenter = '', $footerRight = '';
   public $printHeaderOnFirstPage = false;
   public $printFooterOnFirstPage = false;
+  public $headerLeftPos = 4;
+  public $headerRightPos = 143;
+  public $footerLeftPos = 4;
+  public $footerRightPos = 143;
   
   function Header()
   {
@@ -14,11 +18,11 @@ class PDF extends TCPDF
       return;
     $this->SetY(10);
     $this->SetFont('Helvetica','',7);
-    $this->SetX(7);
+    $this->SetX($this->headerLeftPos);
     $this->MultiCell(120, 5, $this->handlePageNum($this->headerLeft), 0, "L", 0, 0);
     $this->SetX(75);
     $this->MultiCell(65, 5, $this->handlePageNum($this->headerCenter), 0, "C", 0, 0);
-    $this->SetX(140);
+    $this->SetX($this->headerRightPos);
     $this->MultiCell(60, 5, $this->handlePageNum($this->headerRight), 0, "R", 0, 0);
   }
 
@@ -28,11 +32,11 @@ class PDF extends TCPDF
       return;
     $this->SetY(-17);
     $this->SetFont('Helvetica','',7);
-    $this->SetX(7);
+    $this->SetX($this->footerLeftPos);
     $this->MultiCell(120, 5, $this->footerLeft, 0, "L", 0, 0);
     $this->SetX(75);
     $this->MultiCell(65, 5, $this->footerCenter, 0, "C", 0, 0);
-    $this->SetX(140);
+    $this->SetX($this->footerRightPos);
     $this->MultiCell(60, 5, $this->footerRight, 0, "R", 0, 0);
   }
   

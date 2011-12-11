@@ -4,9 +4,13 @@ Toiminnallisuus:
 - Lisätty käyttäjärooli, jolla on vain lukuoikeudet.
 - Vaihdettu SEPA-laskulomakkeeseen ja pankkiviivakoodin versioon 4.
 - Käyttöliittymä muokattu käyttämään jQuery UI -teemoja. Oletusteema perustuu Smoothness-teemaan. Muun teeman (esim. jQuery UI ThemeRollerilla tehdyn) voi ottaa käyttöön config.php:n asetuksella.
+- Finvoice-laskutustuki
+- Uusia paikanpitäjiä sähköpostiviestissä käytettäväksi (esim. asetukset ja invoice:barcode virtuaaliviivakoodia varten)
+- Mahdollisuus näyttää laskussa virtuaaliviivakoodi (ks. uusi tulostusmalli)
 
 Muut:
 - Korjattu Content-Transfer-Encoding -otsikkotieto lähetetyistä sähköpostiviesteistä.
+- Korjattu sähköpostiviestin otsikoiden rivinvaihto tietyissä ympäristöissä (aiheutti ongelmia esim. Hotmailin kanssa)
 
 
 Olennaiset muutokset versiossa 1.3.3:

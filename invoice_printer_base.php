@@ -37,6 +37,7 @@ abstract class InvoicePrinterBase
     $parameters = explode(',', $printParameters);
     $this->printStyle = $parameters[0];
     $this->printLanguage = isset($parameters[1]) ? $parameters[1] : 'fi';
+    $this->printVirtualBarcode = isset($parameters[2]) ? ($parameters[2] == 'Y') : false;
     $this->outputFileName = $outputFileName;
     $this->senderData = $senderData;
     $this->recipientData = $recipientData;
@@ -578,13 +579,18 @@ abstract class InvoicePrinterBase
     $senderData = $this->senderData;
     $invoiceData = $this->invoiceData;
     
-    $intStartY = 187;
     $pdf->SetFont('Helvetica','',7);
-    $pdf->SetXY(7, $intStartY);
+    if ($this->printVirtualBarcode && $this->barcode)
+    {
+      $pdf->SetXY(4, 180);
+      $pdf->Cell(120, 2.8, $GLOBALS['locPDFVirtualBarcode'] . ': ' . $this->barcode, 0, 1, "L");
+    }
+    $intStartY = 187;
+    $pdf->SetXY(4, $intStartY);
     $pdf->MultiCell(120, 5, $this->senderAddressLine, 0, "L", 0);
     $pdf->SetXY(75, $intStartY);
     $pdf->MultiCell(65, 5, $this->senderContactInfo, 0, "C", 0);
-    $pdf->SetXY(140, $intStartY);
+    $pdf->SetXY(143, $intStartY);
     $pdf->MultiCell(60, 5, $senderData['www'] . "\n" . $senderData['email'], 0, "R", 0);
 
     // Invoice form
