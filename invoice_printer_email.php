@@ -106,7 +106,7 @@ class InvoicePrinter extends InvoicePrinterBase
     $messageBody .= $this->getFlowedBody() . PHP_EOL;
 
     $messageBody .= "--$boundary" . PHP_EOL;
-    $messageBody .= $data;
+    $messageBody .= str_replace("\r\n", PHP_EOL, $data);
     $messageBody .= PHP_EOL . "--$boundary--";
   
     $result = mail($this->mimeEncodeAddress($this->emailTo), $this->mimeEncodeHeaderValue($this->emailSubject), $messageBody, $this->headersToStr($headers), '-f ' . $this->extractAddress($this->emailFrom));
