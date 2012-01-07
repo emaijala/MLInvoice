@@ -306,6 +306,14 @@ function createForm($strFunc, $strList, $strForm)
 /* <![CDATA[ */
 var globals = {};
 
+$(window).bind('beforeunload', function(e) {
+  if ($('.save_button').hasClass('ui-state-highlight') || $('.add_row_button').hasClass('ui-state-highlight'))
+  {
+    e.returnValue = "<?php echo $GLOBALS['locUnsavedData']?>";
+    return "<?php echo $GLOBALS['locUnsavedData']?>";
+  }
+});
+
 function showmsg(msg, timeout) 
 {
   $.floatingMessage("<span>" + msg + "</span>", {
