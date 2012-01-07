@@ -168,7 +168,7 @@ function createHtmlList($strFunc, $strList, $strIDQuery, &$arrQueryParams, $strT
       }
       elseif ($field['type'] == 'INTDATE') 
       {
-        $astrListValues[$i][$name] = dateConvIntDate2Date($row[$name]);
+        $astrListValues[$i][$name] = dateConvDBDate2Date($row[$name]);
       }
     }
   }

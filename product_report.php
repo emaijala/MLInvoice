@@ -121,9 +121,9 @@ class ProductReport
     $format = getRequest('format', 'html');
     
     if ($startDate)
-      $startDate = dateConvDate2IntDate($startDate);
+      $startDate = dateConvDate2DBDate($startDate);
     if ($endDate)
-      $endDate = dateConvDate2IntDate($endDate);
+      $endDate = dateConvDate2DBDate($endDate);
     
     $arrParams = array();
 
@@ -244,7 +244,7 @@ class ProductReport
       {
         $pdf->SetFont('Helvetica','',8);
         $pdf->Cell(25, 15, $GLOBALS['locDateInterval'], 0, 0, 'L');
-        $pdf->Cell(50, 15, dateConvIntDate2Date($startDate) . ' - ' . dateConvIntDate2Date($endDate), 0, 1, 'L');
+        $pdf->Cell(50, 15, dateConvDBDate2Date($startDate) . ' - ' . dateConvDBDate2Date($endDate), 0, 1, 'L');
       }
       
       $pdf->SetFont('Helvetica','B',8);

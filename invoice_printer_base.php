@@ -297,8 +297,8 @@ abstract class InvoicePrinterBase
     $pdf->Cell(60, 5, $invoiceData['invoice_no'], 0, 1);
     $pdf->SetX(115);
     $pdf->Cell(40, 5, $GLOBALS["locPDF${locStr}Date"] . ': ', 0, 0, 'R');
-    $strInvoiceDate = dateConvIntDate2Date($invoiceData['invoice_date']);
-    $strDueDate = dateConvIntDate2Date($invoiceData['due_date']);
+    $strInvoiceDate = dateConvDBDate2Date($invoiceData['invoice_date']);
+    $strDueDate = dateConvDBDate2Date($invoiceData['due_date']);
     $pdf->Cell(60, 5, $strInvoiceDate, 0, 1);
     if ($this->printStyle == 'invoice')
     {
@@ -505,7 +505,7 @@ abstract class InvoicePrinterBase
         if ($showDate) 
         {
           $pdf->SetX($nameColWidth - 20 + $left);
-          $pdf->Cell(20, 5, dateConvIntDate2Date($row['row_date']), 0, 0, "L");
+          $pdf->Cell(20, 5, dateConvDBDate2Date($row['row_date']), 0, 0, "L");
         }
         else 
         {
@@ -733,7 +733,7 @@ abstract class InvoicePrinterBase
     $pdf->MultiCell(15, 6, $GLOBALS['locPDFFormDueDate'], 0, "L", 0);
     $pdf->SetFont('Helvetica','',10);
     $pdf->SetXY($intStartX + 131.4, $intStartY + 68);
-    $pdf->Cell(25, 5, ($invoiceData['state_id'] == 5 || $invoiceData['state_id'] == 6) ? $GLOBALS['locPDFFormDueDateNOW'] : dateConvIntDate2Date($invoiceData['due_date']), 0, 1, "L");
+    $pdf->Cell(25, 5, ($invoiceData['state_id'] == 5 || $invoiceData['state_id'] == 6) ? $GLOBALS['locPDFFormDueDateNOW'] : dateConvDBDate2Date($invoiceData['due_date']), 0, 1, "L");
     
     // amount
     $pdf->SetFont('Helvetica','',7);

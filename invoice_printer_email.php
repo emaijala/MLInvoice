@@ -213,7 +213,7 @@ class InvoicePrinter extends InvoicePrinterBase
         default: 
           $value = isset($this->invoiceData[$pcparts[1]]) ? $this->invoiceData[$pcparts[1]] : '';
           if (substr($pcparts[1], -5) == '_date')
-            $value = dateConvIntDate2Date($value);
+            $value = dateConvDBDate2Date($value);
           $values[] = $value;
         }
         break;

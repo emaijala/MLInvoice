@@ -163,7 +163,7 @@ if ($blnSearch || $blnSave)
       // date-elements need own formatting too
       elseif ($astrFormElements[$j]['type'] == 'INTDATE') 
       {
-        $tmpValue = dateConvDate2IntDate($astrValues[$astrFormElements[$j]['name']]);
+        $tmpValue = dateConvDate2DBDate($astrValues[$astrFormElements[$j]['name']]);
         // add to the where clause
         $strWhereClause .= $strListTableAlias . $astrFormElements[$j]['name'] . ' ' . $strSearchMatch . ' ' . $tmpValue . " $strSelectedOperator ";
       }

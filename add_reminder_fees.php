@@ -30,7 +30,7 @@ function addReminderFees($intInvoiceId)
   if ($row = mysql_fetch_assoc($intRes)) 
   {
      $intStateId = $row['state_id'];
-     $strDueDate = dateConvIntDate2Date($row['due_date']);
+     $strDueDate = dateConvDBDate2Date($row['due_date']);
      $strPrintDate = $row['print_date'];
   }
   else

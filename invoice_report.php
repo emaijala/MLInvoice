@@ -120,9 +120,9 @@ class InvoiceReport
     $format = getRequest('format', 'html');
   
     if ($startDate)
-      $startDate = dateConvDate2IntDate($startDate);
+      $startDate = dateConvDate2DBDate($startDate);
     if ($endDate)
-      $endDate = dateConvDate2IntDate($endDate);
+      $endDate = dateConvDate2DBDate($endDate);
     
     $arrParams = array();
     
@@ -197,8 +197,8 @@ class InvoiceReport
       $strInvoiceNo = $row['invoice_no'];
       $strInvoiceState = $row['state'];
       $strRefNumber = $row['ref_number'];
-      $strInvoiceDate = dateConvIntDate2Date($row['invoice_date']);
-      $strDueDate = dateConvIntDate2Date($row['due_date']);
+      $strInvoiceDate = dateConvDBDate2Date($row['invoice_date']);
+      $strDueDate = dateConvDBDate2Date($row['due_date']);
       $strName = $row['name'];
       $strRefNumber = chunk_split($strRefNumber, 5, ' ');
       
@@ -263,7 +263,7 @@ class InvoiceReport
       {
         $pdf->SetFont('Helvetica','',8);
         $pdf->Cell(25, 15, $GLOBALS['locDateInterval'], 0, 0, 'L');
-        $pdf->Cell(50, 15, dateConvIntDate2Date($startDate) . ' - ' . dateConvIntDate2Date($endDate), 0, 1, 'L');
+        $pdf->Cell(50, 15, dateConvDBDate2Date($startDate) . ' - ' . dateConvDBDate2Date($endDate), 0, 1, 'L');
       }
       
       $pdf->SetFont('Helvetica','B',8);

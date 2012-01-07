@@ -140,7 +140,7 @@ function saveFormData($table, &$primaryKey, &$formElements, &$values, &$warnings
       $arrValues[] = $value ? 1 : 0;
       break;
     case 'INTDATE':
-      $arrValues[] = $value ? dateConvDate2IntDate($value) : NULL;
+      $arrValues[] = $value ? dateConvDate2DBDate($value) : NULL;
       break;
     default: 
       $arrValues[] = $value;
@@ -234,7 +234,7 @@ function fetchRecord($table, $primaryKey, &$formElements, &$values)
       }
       break;
     case 'INTDATE':
-      $values[$name] = dateConvIntDate2Date($row[$name]);
+      $values[$name] = dateConvDBDate2Date($row[$name]);
       break;
     default:
       $values[$name] = $row[$name];

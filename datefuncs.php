@@ -15,7 +15,7 @@ Tämä ohjelma on vapaa. Lue oheinen LICENSE.
 
 *******************************************************************************/
 
-function dateConvIntDate2Date($intDate) 
+function dateConvDBDate2Date($intDate) 
 {
   if (!$intDate)
     return '';
@@ -25,7 +25,7 @@ function dateConvIntDate2Date($intDate)
   return "$day.$mon.$year";
 }
 
-function dateConvDate2IntDate($strDate) 
+function dateConvDate2DBDate($strDate) 
 {
   $arr = explode('.', $strDate);
   if (count($arr) < 3)
