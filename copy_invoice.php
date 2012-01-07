@@ -3,10 +3,6 @@
 VLLasku: web-based invoicing application.
 Copyright (C) 2010-2012 Ere Maijala
 
-Portions based on:
-PkLasku : web-based invoicing software.
-Copyright (C) 2004-2008 Samu Reinikainen
-
 This program is free software. See attached LICENSE.
 
 *******************************************************************************/
@@ -14,10 +10,6 @@ This program is free software. See attached LICENSE.
 /*******************************************************************************
 VLLasku: web-pohjainen laskutusohjelma.
 Copyright (C) 2010-2012 Ere Maijala
-
-Perustuu osittain sovellukseen:
-PkLasku : web-pohjainen laskutusohjelmisto.
-Copyright (C) 2004-2008 Samu Reinikainen
 
 Tämä ohjelma on vapaa. Lue oheinen LICENSE.
 
