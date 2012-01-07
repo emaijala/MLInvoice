@@ -217,12 +217,12 @@ onchange = "$.getJSON('json.php?func=get_company&amp;id=' + document.getElementB
 EOS;
 
     $getInvoiceNo = <<<EOS
-$.getJSON('json.php?func=get_invoice_defaults&amp;id=' + document.getElementById('record_id').value + '&amp;base_id=' + document.getElementById('base_id').value, function(json) { document.getElementById('invoice_no').value = json.invoice_no; document.getElementById('ref_number').value = json.ref_no; $('.save_button').addClass('unsaved'); }); return false;
+$.getJSON('json.php?func=get_invoice_defaults&amp;id=' + document.getElementById('record_id').value + '&amp;base_id=' + document.getElementById('base_id').value, function(json) { document.getElementById('invoice_no').value = json.invoice_no; document.getElementById('ref_number').value = json.ref_no; $('.save_button').addClass('ui-state-highlight'); }); return false;
 EOS;
 
     $locUpdateDates = $GLOBALS['locUpdateDates'];
     $updateDates = <<<EOS
-<a class="formbuttonlink" href="#" onclick="$.getJSON('json.php?func=get_invoice_defaults&amp;id=' + document.getElementById('record_id').value + '&amp;base_id=' + document.getElementById('base_id').value, function(json) { document.getElementById('invoice_date').value = json.date; document.getElementById('due_date').value = json.due_date; $('.save_button').addClass('unsaved'); }); return false;">$locUpdateDates</a>
+<a class="formbuttonlink" href="#" onclick="$.getJSON('json.php?func=get_invoice_defaults&amp;id=' + document.getElementById('record_id').value + '&amp;base_id=' + document.getElementById('base_id').value, function(json) { document.getElementById('invoice_date').value = json.date; document.getElementById('due_date').value = json.due_date; $('.save_button').addClass('ui-state-highlight'); }); return false;">$locUpdateDates</a>
 EOS;
 
     $locNew = $GLOBALS['locNEW'] . '...';
@@ -266,7 +266,7 @@ EOS;
         $invoiceNumberUpdatePrefix .= "var invoice_no = document.getElementById('invoice_no'); if (invoice_no.value == '' || invoice_no.value == 0) invoice_no.value = json.invoice_no; ";
       if (getSetting('invoice_add_reference_number'))
         $invoiceNumberUpdatePrefix .= "var ref_number = document.getElementById('ref_number'); if (ref_number.value == '' || ref_number.value == 0) ref_number.value = json.ref_no; ";
-      $invoiceNumberUpdatePrefix .= "$('.save_button').addClass('unsaved'); ";
+      $invoiceNumberUpdatePrefix .= "$('.save_button').addClass('ui-state-highlight'); ";
       $invoiceNumberUpdateSuffix = ' });';
     }
     if (!getSetting('invoice_add_number'))
