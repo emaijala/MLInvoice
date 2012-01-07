@@ -57,8 +57,8 @@ function mysql_query_check($query, $noFail=false)
   if ($intRes === FALSE)
   {
     $intError = mysql_errno();
-    if (strlen($query) > 500)
-      $query = substr($query, 0, 500) . '[' . (strlen($query) - 500) . ' more characters]';
+    if (strlen($query) > 1024)
+      $query = substr($query, 0, 1024) . '[' . (strlen($query) - 1024) . ' more characters]';
     error_log("Query '$query' failed: ($intError) " . mysql_error());
     if (!$noFail)
     {

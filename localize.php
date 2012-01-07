@@ -357,7 +357,6 @@ default:
   $GLOBALS['locLABELEXTSEARCH'] = 'Valitse listasta kentät, joista haluat tehdä haun.';
   $GLOBALS['locSELECTSEARCHFIELD'] = 'Lisää hakukenttä';
   $GLOBALS['locSEARCHFIELD'] = 'Hakukenttä';
-  $GLOBALS['locSEARCHMATCH'] = ' - ';
   $GLOBALS['locSEARCHTERM'] = 'Hakuehto';
   $GLOBALS['locSEARCHNAME'] = 'Haun nimi';
   $GLOBALS['locERRORNOSEARCHNAME'] = 'VIRHE:\n\rAnna nimi tallennettavalle haulle.';

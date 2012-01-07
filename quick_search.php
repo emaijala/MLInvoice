@@ -58,7 +58,9 @@ while ($row = mysql_fetch_assoc($intRes))
 echo htmlPageStart( _PAGE_TITLE_ );
 ?>
 
-<body class="form">
+<body>
+<div class="form_container ui-widget-content">
+<div class="form ui-widget">
 <form method="post" action="quick_search.php?func=<?php echo $strFunc?>" target="_self" name="search_form">
 <table style="width: 100%">
 <tr>
@@ -77,7 +79,7 @@ while ($row = mysql_fetch_assoc($intRes))
   $strLink = "index.php?func=$strFunc&where=$strWhereClause";
   $strOnClick = "opener.location.href='$strLink'";
 ?>
-<tr>
+<tr class="search_row">
     <td class="label">
         <a href="quick_search.php" onClick="<?php echo $strOnClick?>; return false;"><?php echo $strName?></a> 
     </td>
@@ -111,5 +113,7 @@ if (!isset($intID))
 </table>
 </center>
 </form>
+</div>
+</div>
 </body>
 </html>

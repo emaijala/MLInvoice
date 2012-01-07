@@ -89,7 +89,6 @@ for ($j = 0; $j < count($astrFormElements); $j++)
 $listValues = array();
 for ($j = 0; $j < count($astrFormElements); $j++) 
 {
-  $strSelectedOperator = getPost('operator_' . $astrFormElements[$j]['name'], 'AND');
   if ($astrFormElements[$j]['type'] != '' && $astrFormElements[$j]['type'] != 'LABEL' && $astrFormElements[$j]['type'] != 'HIDINT' && $astrFormElements[$j]['type'] != 'IFORM' && $astrFormElements[$j]['type'] != 'BUTTON' && $astrFormElements[$j]['type'] != 'JSBUTTON' && !in_array($astrFormElements[$j]['name'], $astrSelectedFields, true)) 
   {
     $listValues[$astrFormElements[$j]['name']] = str_replace('<br>', ' ', $astrFormElements[$j]['label']);
@@ -128,13 +127,17 @@ if ($blnSearch || $blnSave)
   $strWhereClause = '';
   for ($j = 0; $j < count($astrFormElements); $j++) 
   {
-    if (in_array($astrFormElements[$j]['name'], $astrSelectedFields, true)) 
+    $elem = $astrFormElements[$j];
+    $name = $elem['name'];
+    if (in_array($name, $astrSelectedFields, true)) 
     {
-      $strSearchMatch = getPost('searchmatch_' . $astrFormElements[$j]['name'], '=');
-      $strSearchValue = $astrValues[$astrFormElements[$j]['name']];
+      $strSearchOperator = getPost("operator_$name", '');
+      if ($strSearchOperator)
+        $strSearchOperator = " $strSearchOperator ";
+      $strSearchMatch = getPost("searchmatch_$name", '=');
 
       // do LIKE || NOT LIKE search to elements with text or varchar datatype
-      if ($astrFormElements[$j]['type'] == 'TEXT' || $astrFormElements[$j]['type'] == 'AREA') 
+      if ($elem['type'] == 'TEXT' || $elem['type'] == 'AREA') 
       {
         if ($strSearchMatch == '=') 
         {
@@ -144,33 +147,25 @@ if ($blnSearch || $blnSave)
         {
           $strSearchMatch = 'NOT LIKE';
         }
-        //add to the where clause
-        $strWhereClause .= $strListTableAlias . $astrFormElements[$j]['name'] . ' ' . $strSearchMatch . " '%-" . $strSearchValue . "%-' $strSelectedOperator ";
+        $strSearchValue = "'%$" . $astrValues[$name] . "%'";
       }
-      // do =, !=, < or > search to elements that are numeric
       elseif ($astrFormElements[$j]['type'] == 'INT' || $astrFormElements[$j]['type'] == 'LIST') 
       {
-        // add to the where clause
-        $strWhereClause .= $strListTableAlias . $astrFormElements[$j]['name'] . ' ' . $strSearchMatch . ' ' . $strSearchValue . " $strSelectedOperator ";
+        $strSearchValue = $astrValues[$name];
       }
-      // checkbox elements handled bit differently than other int's
       elseif ($astrFormElements[$j]['type'] == 'CHECK') 
       {
-        $tmpValue = $astrValues[$astrFormElements[$j]['name']] ? 1 : 0;
-        // add to the where clause
-        $strWhereClause .= $strListTableAlias . $astrFormElements[$j]['name'] . ' ' . $strSearchMatch . ' ' . $tmpValue . " $strSelectedOperator ";
+        $strSearchValue = $astrValues[$name] ? 1 : 0;
       }
-      // date-elements need own formatting too
       elseif ($astrFormElements[$j]['type'] == 'INTDATE') 
       {
-        $tmpValue = dateConvDate2DBDate($astrValues[$astrFormElements[$j]['name']]);
-        // add to the where clause
-        $strWhereClause .= $strListTableAlias . $astrFormElements[$j]['name'] . ' ' . $strSearchMatch . ' ' . $tmpValue . " $strSelectedOperator ";
+        $strSearchValue = dateConvDate2DBDate($astrValues[$name]);
       }
+      if ($strSearchValue)
+        $strWhereClause .= "$strSearchOperator$strListTableAlias$name$strSearchMatch$strSearchValue";
     }
   }
     
-  $strWhereClause = substr($strWhereClause, 0, -4);
   $strWhereClause = urlencode($strWhereClause);
   if ($blnSearch) 
   {
@@ -193,7 +188,7 @@ if ($blnSearch || $blnSave)
 
 echo htmlPageStart(_PAGE_TITLE_);
 ?>
-<body class="form" onload="<?php echo $strOnLoad?>">
+<body onload="<?php echo $strOnLoad?>">
 <script type="text/javascript">
 <!--
 $(function() {
@@ -201,31 +196,26 @@ $(function() {
 });
 -->
 </script>
+<div class="form_container ui-widget-content">
+<div class="form ui-widget">
 <form method="post" action="ext_search.php?func=<?php echo $strFunc?>&amp;form=<?php echo $strForm?>" target="_self" name="search_form">
 <input type="hidden" name="fields" value="<?php echo $strFields?>">
 <table>
+<thead>
 <tr>
-  <td class="label">
-  <?php echo $GLOBALS['locSELECTSEARCHFIELD']?>
+  <th class="sublabel">
+    <?php echo $GLOBALS['locSEARCHFIELD']?>
   </td>
-  <td class="field">
-  <?php echo $strListBox?>
+  <th class="sublabel">
+    &nbsp;
   </td>
-</tr>
-</table>
-<table>
-<tr>
-  <td class="sublabel">
-  <?php echo $GLOBALS['locSEARCHFIELD']?>
-  </td>
-  <td class="sublabel">
-  <?php echo $GLOBALS['locSEARCHMATCH']?>
-  </td>
-  <td class="sublabel">
-  <?php echo $GLOBALS['locSEARCHTERM']?>
+  <th class="sublabel">
+    <?php echo $GLOBALS['locSEARCHTERM']?>
   </td>
   <td></td>
 </tr>
+</thead>
+<tbody>
 <?php
 
 $fieldCount = 0;
@@ -241,6 +231,7 @@ for ($j = 0; $j < count($astrFormElements); $j++)
     
     if (++$fieldCount > 1) 
     {
+      $strSelectedOperator = getPost('operator_' . $astrFormElements[$j]['name'], 'AND');
       $strOperator = htmlListBox('operator_' . $astrFormElements[$j]['name'], array('AND' => $GLOBALS['locSearchAND'], 'OR' => $GLOBALS['locSearchOR']), $strSelectedOperator);
 ?>
 <tr>
@@ -251,7 +242,7 @@ for ($j = 0; $j < count($astrFormElements); $j++)
 <?php
     }
 ?>
-<tr>
+<tr class="search_row">
   <td class="label">
     <?php echo $astrFormElements[$j]['label']?>
   </td>
@@ -271,6 +262,14 @@ for ($j = 0; $j < count($astrFormElements); $j++)
 }
 
 ?>
+<tr>
+  <td class="label">
+  <?php echo $GLOBALS['locSELECTSEARCHFIELD']?>
+  </td>
+  <td class="field" colspan="3">
+  <?php echo $strListBox?>
+  </td>
+</tr>
 <tr>
   <td colspan="4" style="text-align: center; padding-top: 8px; padding-bottom: 8px">
     <input type="hidden" name="search_x" value="0">
@@ -307,7 +306,10 @@ if ($blnSave && $strSearchName)
     <a class="actionlink" href="#" onclick="self.document.forms[0].save_x.value=1; self.document.forms[0].submit(); return false;"><?php echo $GLOBALS['locSAVESEARCH']?></a>
   </td>
 </tr>
+</tbody>
 </table>
 </form>
+</div>
+</div>
 </body>
 </html>

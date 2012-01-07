@@ -20,6 +20,43 @@ require_once "miscfuncs.php";
 require_once "datefuncs.php";
 require_once "localize.php";
 
+function extractSearchTerm(&$searchTerms, &$field, &$operator, &$term, &$boolean)
+{
+  if (!preg_match('/([\w\.]+)\s*(=|!=|<|>)\s*(.+)/', $searchTerms, $matches))
+    return false;
+  $field = $matches[1];
+  $operator = $matches[2];
+  $rest = $matches[3];
+  $term = '';
+  $inQuotes = false;
+  while ($rest)
+  {
+    $ch = substr($rest, 0, 1);
+    $rest = substr($rest, 1);
+    if ($ch == "'")
+      $inQuotes = !$inQuotes;
+    elseif ($ch == ' ' && !$inQuotes)
+      break;
+    $term .= $ch;
+  }
+  if (substr($rest, 0, 4) == 'AND ')
+  {
+    $boolean = 'AND';
+    $searchTerms = substr($rest, 4);
+  }
+  elseif (substr($rest, 0, 3) == 'OR ')
+  {
+    $boolean = 'OR';
+    $searchTerms = substr($rest, 3);
+  }
+  else
+  {
+    $boolean = '';
+    $searchTerms = '';
+  }
+  return $term != '';
+}
+
 function createList($strFunc, $strList)
 {
   $strWhereClause = getPostRequest('where', '');
@@ -42,9 +79,19 @@ function createList($strFunc, $strList)
     return;
   
   $arrQueryParams = array();
-  if( $strWhereClause ) {
-      $strWhereClause = "WHERE (" . gpcStripSlashes(urldecode($strWhereClause) . ')');
-      $strWhereClause = str_replace("%-", "%", $strWhereClause);
+  if( $strWhereClause ) { 
+    // Validate and build query parameters
+    $boolean = '';
+    $where = '';
+    while (extractSearchTerm($strWhereClause, $field, $operator, $term, $nextBool))
+    {
+      $where .= "$boolean $field $operator ?";
+      $arrQueryParams[] = str_replace("%-", "%", $term);
+      if (!$nextBool)
+        break;
+      $boolean = " $nextBool";
+    }
+    $strWhereClause = "WHERE ($where)"; 
   }
   elseif( $strSearchTerms == "*"  && !$intID ) {
       $strWhereClause = "WHERE " . $strPrimaryKey . " IS NOT NULL ";

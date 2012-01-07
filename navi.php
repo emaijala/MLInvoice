@@ -123,7 +123,7 @@ function createFuncMenu($strFunc)
           strLink = 'ext_search.php?func=<?php echo $strFunc?>&form=<?php echo $strFormName?>';
           strLink = strLink + '<?php echo $strExtSearchTerm?>';
           height = '400';
-          width = '500';
+          width = '600';
           windowname = 'ext';
       }
       if( mode == 'quick' ) {
