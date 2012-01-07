@@ -7,10 +7,14 @@ Toiminnallisuus:
 - Lisätty Finvoice-laskutustuki.
 - Lisätty uusia paikanpitäjiä sähköpostiviestissä käytettäväksi (esim. asetukset ja invoice:barcode virtuaaliviivakoodia varten).
 - Lisätty mahdollisuus näyttää laskussa virtuaaliviivakoodi (ks. uusi tulostusmalli).
+- Muutettu lomakkeiden tietojen tallennustapa sellaiseksi, ettei sivua tarvitse aina ladata uudelleen.
+- Lisätty huomautus, jos tietoja on tallentamatta ja yritetään siirtyä toiselle sivulle.
 
-Muut:
+Muut: 
 - Korjattu Content-Transfer-Encoding -otsikkotieto lähetetyistä sähköpostiviesteistä.
-- Korjattu sähköpostiviestin otsikoiden rivinvaihto tietyissä ympäristöissä (aiheutti ongelmia esim. Hotmailin kanssa)
+- Korjattu sähköpostiviestin rivinvaihdot tietyissä ympäristöissä (aiheutti ongelmia esim. Hotmailin kanssa).
+- Korjattu sähköpostiviestin luontia niin, ettei peräkkäisiä tai rivin alussa olevia välilyöntejä katoa.
+- Korjattu useammalla kentällä hakua laajassa haussa.
 
 
 Olennaiset muutokset versiossa 1.3.3:
