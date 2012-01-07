@@ -37,7 +37,7 @@ function dateConvDate2DBDate($strDate)
 function strDate2UnixTime($strDate) 
 {
     $arr = explode('.', $strDate);
-    if (count($astrTmp) < 3)
+    if (count($arr) < 3)
       return 0;
     return mktime(0, 0, 0, $arr[1], $arr[0], $arr[2]); 
 }
