@@ -366,6 +366,7 @@ textarea.xlarge {
 textarea.email_body {
   height: 200px;
   width: 500px;
+  font-family: Monaco, "Lucida Console", "Courier New", Courier, monospace;
 }
 
 div.iform {
@@ -438,3 +439,12 @@ img.image {
   padding: 4px;
 }
 
+.ui-floating-message {
+  display: table; 
+}
+
+.ui-floating-message div {
+  text-align: center;
+  display: table-cell; 
+  vertical-align: middle;
+}

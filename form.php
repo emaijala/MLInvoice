@@ -143,8 +143,6 @@ function createForm($strFunc, $strList, $strForm)
 <?php if (isset($popupHTML)) echo $popupHTML;?>  
 
   <div class="form_container">
-    <div id="message" class="message ui-state-highlight ui-corner-all ui-helper-hidden"></div>
-    <div id="errormsg" class="message ui-state-error ui-corner-all ui-helper-hidden"></div>
   
 <?php createFormButtons($blnNew, $copyLinkOverride, 1) ?>
     <div class="form">
@@ -308,10 +306,30 @@ function createForm($strFunc, $strList, $strForm)
 /* <![CDATA[ */
 var globals = {};
 
-function showmsg(msg) 
+function showmsg(msg, timeout) 
 {
-  $("#message").text(msg).show();
-  setTimeout('$("#message").fadeOut()', 5000);
+  $.floatingMessage("<span>" + msg + "</span>", {
+    position: "top-right",
+    className: "ui-widget ui-state-highlight",
+    show: "show",
+    hide: "fade",
+    stuffEaseTime: 200,
+    moveEaseTime: 0,
+    time: typeof(timeout) != 'undefined' ? timeout : 5000
+  });  
+}
+
+function errormsg(msg, timeout) 
+{
+  $.floatingMessage("<span>" + msg + "</span>", {
+    position: "top-right",
+    className: "ui-widget ui-state-error",
+    show: "show",
+    hide: "fade",
+    stuffEaseTime: 200,
+    moveEaseTime: 0,
+    time: typeof(timeout) != 'undefined' ? timeout : 5000
+  });  
 }
 
 $(document).ready(function() { 
@@ -337,7 +355,7 @@ $(document).ready(function() {
     $('#spinner').css('visibility', 'hidden');
   });
   $('#errormsg').ajaxError(function(event, request, settings) {
-    $('#errormsg').text('Server request failed: ' + request.status + ' - ' + request.statusText).show();
+    errormsg('Server request failed: ' + request.status + ' - ' + request.statusText);
     $('#spinner').css('visibility', 'hidden');
   });
   
@@ -392,8 +410,6 @@ function save_record(redirect_url, redir_style)
   }
 ?>
   obj.id = form.id.value;
-  $('#message').hide();
-  $('#errormsg').hide();
   $.ajax({
     'url': "json.php?func=put_<?php echo $strJSONType?>",
     'type': 'POST',
@@ -405,11 +421,12 @@ function save_record(redirect_url, redir_style)
         alert(data.warnings);
       if (data.missing_fields)
       {
-        $('#errormsg').text('<?php echo $GLOBALS['locERRVALUEMISSING']?>: ' + data.missing_fields).show();
+        errormsg('<?php echo $GLOBALS['locERRVALUEMISSING']?>: ' + data.missing_fields);
       }
       else
       {
         $('.save_button').removeClass('ui-state-highlight');
+        showmsg('<?php echo $GLOBALS['locRecordSaved']?>', 2000);
         if (redirect_url)
         {
           if (redir_style == 'openwindow')
@@ -431,9 +448,9 @@ function save_record(redirect_url, redir_style)
     },
     'error': function(XMLHTTPReq, textStatus, errorThrown) {
       if (textStatus == 'timeout')
-        alert('Timeout trying to save data');
+        errormsg('Timeout trying to save data');
       else
-        alert('Error trying to save data: ' + XMLHTTPReq.status + ' - ' + XMLHTTPReq.statusText);
+        errormsg('Error trying to save data: ' + XMLHTTPReq.status + ' - ' + XMLHTTPReq.statusText);
       return false;
     }
   });  
@@ -466,7 +483,6 @@ function createIForm($astrFormElements, $elem, $intKeyValue, $newRecord)
 ?>
       <div class="iform <?php echo $elem['style']?> ui-corner-tl ui-corner-bl ui-corner-br ui-corner-tr ui-helper-clearfix" id="<?php echo $elem['name']?>"<?php echo $elem['elem_attributes'] ? ' ' . $elem['elem_attributes'] : ''?>>
         <div class="ui-corner-tl ui-corner-tr fg-toolbar ui-toolbar ui-widget-header"><?php echo $elem['label']?></div>
-        <div id="imessage" class="message ui-state-error ui-corner-all" style="display: none"></div>
 <?php
   if ($newRecord)
   {
@@ -675,7 +691,6 @@ function save_row(form_id)
 ?>  obj.<?php echo $elem['parent_key'] . " = $intKeyValue"?>;
   if (form.row_id)
     obj.id = form.row_id.value;
-  $('#imessage').text('').hide();
   $.ajax({
     'url': "json.php?func=put_<?php echo $formJSONType?>",
     'type': 'POST',
@@ -685,10 +700,7 @@ function save_row(form_id)
     'success': function(data) {
       if (data.missing_fields)
       {
-        if (form_id == 'iform_popup')
-          alert('<?php echo $GLOBALS['locERRVALUEMISSING']?>: ' + data.missing_fields);
-        else
-          $('#imessage').text('<?php echo $GLOBALS['locERRVALUEMISSING']?>: ' + data.missing_fields).show();
+        errormsg('<?php echo $GLOBALS['locERRVALUEMISSING']?>: ' + data.missing_fields);
       }
       else
       {
@@ -754,7 +766,6 @@ function delete_row(form_id)
 {
   var form = document.getElementById(form_id);
   var id = form.row_id.value;
-  $('#imessage').text('').hide();
   $.ajax({
     'url': "json.php?func=delete_<?php echo $formJSONType?>&id=" + id,
     'type': 'GET',
@@ -767,9 +778,9 @@ function delete_row(form_id)
     },
     'error': function(XMLHTTPReq, textStatus, errorThrown) {
       if (textStatus == 'timeout')
-        alert('Timeout trying to save row');
+        errormsg('Timeout trying to save row');
       else
-        alert('Error trying to save row: ' + XMLHTTPReq.status + ' - ' + XMLHTTPReq.statusText);
+        errormsg('Error trying to save row: ' + XMLHTTPReq.status + ' - ' + XMLHTTPReq.statusText);
       return false;
     }
   });  

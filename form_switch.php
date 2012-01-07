@@ -561,7 +561,7 @@ EOF;
     array(
       "name" => "invoice_email_subject", "label" => $GLOBALS['locBaseEmailSubject'], "type" => "TEXT", "style" => "long", "listquery" => "", "position" => 0, "default" => FALSE, "allow_null" => TRUE ),
     array(
-      "name" => "invoice_email_body", "label" => $GLOBALS['locBaseEmailBody'], "type" => "AREA", "style" => "email", "listquery" => "", "position" => 0, "default" => FALSE, "allow_null" => TRUE ),
+      "name" => "invoice_email_body", "label" => $GLOBALS['locBaseEmailBody'], "type" => "AREA", "style" => "email email_body", "listquery" => "", "position" => 0, "default" => FALSE, "allow_null" => TRUE ),
     array(
       "name" => "logosep", "label" => $GLOBALS['locBaseLogoTitle'], "type" => "LABEL"),
     array(

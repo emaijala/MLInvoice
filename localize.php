@@ -182,6 +182,7 @@ default:
   $GLOBALS['locInvoiceNumberNotDefined'] = 'Huom! Laskun numero puuttuu';
   $GLOBALS['locInvoiceRefNumberTooShort'] = 'Huom! Laskun viitenumero on liian lyhyt (minimi 4 numeroa)';
   $GLOBALS['locRecordNotFound'] = 'Tietuetta ei löytynyt';
+  $GLOBALS['locRecordSaved'] = 'Tallennettu';
   
   //FORM BUTTON HELPERS
   $GLOBALS['locSAVE'] = 'Tallenna';

@@ -71,6 +71,7 @@ $xUACompatible  <title>$strTitle</title>
   <script type="text/javascript" src="jquery/js/jquery-ui-1.8.16.custom.min.js"></script>
   <script type="text/javascript" src="jquery/js/jquery.ui.datepicker-fi.js"></script>
   <script type="text/javascript" src="datatables/media/js/jquery.dataTables.min.js"></script>
+  <script type="text/javascript" src="jquery/js/jquery.floatingmessage.js"></script>
   <script type="text/javascript" src="js/functions.js"></script>
   <script type="text/javascript">
     $(document).ready(function() { 

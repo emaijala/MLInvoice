@@ -130,9 +130,6 @@ class InvoicePrinter extends InvoicePrinterBase
       $line = '';
       foreach (explode(' ', $paragraph) as $word)
       {
-        $word = trim($word);
-        if (!$word)
-          continue;
         if (strlen($line) + strlen($word) > 66)
         {
           $lines[] = "$line ";
@@ -140,10 +137,14 @@ class InvoicePrinter extends InvoicePrinterBase
         }
         if ($line)
           $line .= " $word";
-        else
+        elseif ($word)
           $line = $word;
+        else
+          $line = ' ';
       }
-      $lines[] = $line;
+      $line = rtrim($line);
+      $line = preg_replace('/\s+' . PHP_EOL . '$/', PHP_EOL, $line);
+      $lines[] = rtrim($line, ' ');
     }
     $result = '';
     foreach ($lines as $line)
