@@ -1,7 +1,7 @@
 <?php
 /*******************************************************************************
 VLLasku: web-based invoicing application.
-Copyright (C) 2010-2011 Ere Maijala
+Copyright (C) 2010-2012 Ere Maijala
 
 Portions based on:
 PkLasku : web-based invoicing software.
@@ -13,7 +13,7 @@ This program is free software. See attached LICENSE.
 
 /*******************************************************************************
 VLLasku: web-pohjainen laskutusohjelma.
-Copyright (C) 2010-2011 Ere Maijala
+Copyright (C) 2010-2012 Ere Maijala
 
 Perustuu osittain sovellukseen:
 PkLasku : web-pohjainen laskutusohjelmisto.
@@ -23,15 +23,15 @@ Tämä ohjelma on vapaa. Lue oheinen LICENSE.
 
 *******************************************************************************/
 
-require "htmlfuncs.php";
-require "sqlfuncs.php";
-require "sessionfuncs.php";
+require_once 'htmlfuncs.php';
+require_once 'sqlfuncs.php';
+require_once 'sessionfuncs.php';
 
 sesVerifySession();
 
-require_once "localize.php";
-require "datefuncs.php";
-require "miscfuncs.php";
+require_once 'localize.php';
+require_once 'datefuncs.php';
+require_once 'miscfuncs.php';
 
 if (!sesWriteAccess())
 {
