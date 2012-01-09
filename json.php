@@ -39,7 +39,12 @@ case 'get_print_template':
 case 'get_invoice_state':
 case 'get_row_type':
 case 'get_print_template':
+case 'get_company':
+case 'get_session_type':
   printJSONRecord(substr($strFunc, 4));
+  break;
+case 'get_user':
+  printJSONRecord('users');
   break;
 
 case 'put_company':
@@ -50,6 +55,8 @@ case 'put_print_template':
 case 'put_invoice_state':
 case 'put_row_type':
 case 'put_print_template':
+case 'put_user':
+case 'put_session_type':
   saveJSONRecord(substr($strFunc, 4), '');
   break;
 
@@ -197,8 +204,12 @@ function printJSONRecord($table, $id = FALSE, $warnings = null)
     $id = getRequest('id', '');
   if ($id) 
   {
-    $res = mysql_param_query("SELECT * FROM {prefix}$table WHERE id=?", array($id));
+    if (substr($table, 0, 8) != '{prefix}')
+      $table = "{prefix}table";
+    $res = mysql_param_query("SELECT * FROM $table WHERE id=?", array($id));
     $row = mysql_fetch_assoc($res);
+    if ($table == 'users')
+      unset($row['password']);
     header('Content-Type: application/json');
     $row['warnings'] = $warnings;
     echo json_encode($row);
@@ -241,6 +252,8 @@ function printJSONRecords($table, $parentIdCol, $sort)
     }
     else
       echo ",\n";
+    if ($table == 'users')
+      unset($row['password']);
     echo json_encode($row);
   }
   echo "\n]}";
@@ -268,7 +281,7 @@ function saveJSONRecord($table, $parentKeyName)
   $new = $id ? false : true;
   unset($data['id']);
   $warnings = '';
-  $res = saveFormData("{prefix}$table", $id, $astrFormElements, $data, $warnings, $parentKeyName, $parentKeyName ? $data[$parentKeyName] : FALSE);
+  $res = saveFormData($strTable, $id, $astrFormElements, $data, $warnings, $parentKeyName, $parentKeyName ? $data[$parentKeyName] : FALSE);
   if ($res !== true)
   { 
     header('Content-Type: application/json');
@@ -277,7 +290,7 @@ function saveJSONRecord($table, $parentKeyName)
   }
   if ($new)
     header('HTTP/1.1 201 Created');
-  printJSONRecord($table, $id, $warnings);
+  printJSONRecord($strTable, $id, $warnings);
 }
 
 function deleteRecord($table)
