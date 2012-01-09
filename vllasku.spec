@@ -1,5 +1,5 @@
 Name:		vllasku
-Version:	1.4.1
+Version:	1.4.2
 Release:	1%{?dist}
 Summary:	VLLasku - Web application to create Finnish invoices
 Group:		Applications/Internet
@@ -16,6 +16,8 @@ Requires:	php-mysql
 Requires:	php-pecl-json
 %endif
 Requires:	php-mbstring
+Requires: php-xml
+Requires: php-xsl
 BuildArch:	noarch
 
 %description
@@ -64,9 +66,12 @@ EOM
 %{_datadir}/%{name}
 
 %changelog
-* Sat Dec 3 2012 Ere Maijala <emaijala@gmail.com> - 1.4.1-1
+* Mon Jan 9 2012 Ere Maijala <emaijala@gmail.com> - 1.4.2-1
+- updated for version 1.4.2
+- Added php-xml and php-xsl to requirements
+* Sat Jan 7 2012 Ere Maijala <emaijala@gmail.com> - 1.4.1-1
 - updated for version 1.4.1
-* Sat Dec 3 2012 Ere Maijala <emaijala@gmail.com> - 1.4.0-1
+* Sat Dec 3 2011 Ere Maijala <emaijala@gmail.com> - 1.4.0-1
 - updated for version 1.4.0
 * Fri Jun  3 2011 Ere Maijala <emaijala@gmail.com> - 1.3.0-1
 - initial spec from Mika Ilmaranta <ilmis@foobar.fi>
