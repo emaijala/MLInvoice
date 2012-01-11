@@ -1,3 +1,8 @@
+Olennaiset muutokset versiossa 1.4.3:
+
+- Korjattu mm. tuotteiden ja laskurivien tietojen hakua.
+- Lisätty invoice_printer_base.php:hen offset-muuttujat, joilla voi säätää osoitetietojen sijaintia PDF-laskussa. Näille lisätään tulevaisuudessa kunnolliset asetukset.
+
 Olennaiset muutokset versiossa 1.4.2:
 
 - Korjattu käyttäjien ja istunnon tyyppien tallennus.

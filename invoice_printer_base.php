@@ -31,6 +31,9 @@ abstract class InvoicePrinterBase
   
   protected $recipientMaxY = 0;
 
+  protected $addressXOffset = 0;
+  protected $addressYOffset = 0;
+
   public function init($invoiceId, $printParameters, $outputFileName, $senderData, $recipientData, $invoiceData, $invoiceRowData)
   {
     $this->invoiceId = $invoiceId;
@@ -225,9 +228,11 @@ abstract class InvoicePrinterBase
     {
       $pdf->SetTextColor(125);
       $pdf->SetFont('Helvetica','B',10);
-      $pdf->SetY($pdf->GetY()+5);
+      $pdf->SetY($pdf->GetY() + 5 + $this->addressYOffset);
+      $pdf->setX($pdf->GetX() + $this->addressXOffset);
       $pdf->Cell(120, 5, $senderData['name'], 0, 1);
       $pdf->SetFont('Helvetica','',10);
+      $pdf->setX($pdf->GetX() + $this->addressXOffset);
       $pdf->MultiCell(120, 5, $senderData['street_address'] . "\n" . $senderData['zip_code'] . ' ' . $senderData['city'],0,1);
       $pdf->SetY($pdf->GetY()+5);
     }
@@ -240,13 +245,16 @@ abstract class InvoicePrinterBase
     
     $pdf->SetTextColor(0);
     $pdf->SetFont('Helvetica','B',14);
+    $pdf->setX($pdf->GetX() + $this->addressXOffset);
     $pdf->Cell(120, 6, $this->recipientName, 0, 1);
     $pdf->SetFont('Helvetica','',14);
+    $pdf->setX($pdf->GetX() + $this->addressXOffset);
     $pdf->MultiCell(120, 6, $this->recipientAddress, 0, 1);
     $pdf->SetFont('Helvetica','',12);
     if ($recipientData['email'])
     {
       $pdf->SetY($pdf->GetY() + 4);
+      $pdf->setX($pdf->GetX() + $this->addressXOffset);
       $pdf->Cell(120, 6, $recipientData['email'], 0, 1);
     }
     

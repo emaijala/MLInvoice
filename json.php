@@ -205,7 +205,7 @@ function printJSONRecord($table, $id = FALSE, $warnings = null)
   if ($id) 
   {
     if (substr($table, 0, 8) != '{prefix}')
-      $table = "{prefix}table";
+      $table = "{prefix}$table";
     $res = mysql_param_query("SELECT * FROM $table WHERE id=?", array($id));
     $row = mysql_fetch_assoc($res);
     if ($table == 'users')
