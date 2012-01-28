@@ -411,7 +411,7 @@ default:
   $GLOBALS['locSettingInvoiceKeepRowValues'] = 'Säilytä arvot';
   $GLOBALS['locSettingInvoiceClearRowValues'] = 'Tyhjennä kentät';
   $GLOBALS['locSettingInvoiceUseProductDefaults'] = 'Käytä tuotteen oletusarvoja';
-  
+  $GLOBALS['locSettingUnitPriceDecimals'] = 'Yksikköhinnassa näytettävät desimaalit';
 
   // Base email
   $GLOBALS['locBaseEmailTitle'] = 'Laskujen lähetys sähköpostilla';

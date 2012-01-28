@@ -210,7 +210,7 @@ function createHtmlList($strFunc, $strList, $strIDQuery, &$arrQueryParams, $strT
       elseif ($field['type'] == 'CURRENCY') 
       {
         $value = $row[$name];
-        $value = str_replace('.', ',', $value);
+        $value = miscRound2Decim($value, isset($field['decimals']) ? $field['decimals'] : 2);
         $astrListValues[$i][$name] = $value;
       }
       elseif ($field['type'] == 'INTDATE') 

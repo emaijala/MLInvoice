@@ -521,7 +521,7 @@ abstract class InvoicePrinterBase
         }
         if ($this->printStyle != 'dispatch')
         {
-          $pdf->Cell(17, 5, miscRound2Decim($row['price']), 0, 0, "R");
+          $pdf->Cell(17, 5, miscRound2Decim($row['price'], getSetting('unit_price_decimals')), 0, 0, "R");
           if ($this->discountedRows)
             $pdf->Cell(12, 5, miscRound2OptDecim($row['discount']), 0, 0, "R");
         }

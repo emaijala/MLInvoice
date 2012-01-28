@@ -145,7 +145,7 @@ case 'product':
     array(
       "name" => "internal_info", "label" => $GLOBALS['locINTERNALINFO'], "type" => "AREA", "style" => "xlarge", "listquery" => "", "position" => 0, "default" => FALSE, "allow_null" => TRUE ),
     array(
-      "name" => "unit_price", "label" => $GLOBALS['locUNITPRICE'], "type" => "INT", "style" => "medium", "listquery" => "", "position" => 1, "default" => FALSE, "allow_null" => TRUE ),
+      "name" => "unit_price", "label" => $GLOBALS['locUNITPRICE'], "type" => "INT", "style" => "medium", "listquery" => "", "position" => 1, "default" => FALSE, 'decimals' => getSetting('unit_price_decimals'), "allow_null" => TRUE ),
     array(
       "name" => "discount", "label" => $GLOBALS['locDiscountPercent'], "type" => "INT", "style" => "percent", "listquery" => "", "position" => 2, "default" => 0, "allow_null" => FALSE ),
     array(
@@ -472,7 +472,7 @@ EOS;
      array(
         "name" => "type_id", "label" => $GLOBALS['locUNIT'], "type" => "LIST", "style" => "short", "listquery" => "SELECT id, name FROM {prefix}row_type WHERE deleted=0 ORDER BY order_no", "position" => 0, "default" => 'POST', "allow_null" => TRUE ),
      array(
-        "name" => "price", "label" => $GLOBALS['locPRICE'], "type" => "INT", "style" => "currency", "listquery" => "", "position" => 0, "default" => 'POST', "allow_null" => FALSE ),
+        "name" => "price", "label" => $GLOBALS['locPRICE'], "type" => "INT", "style" => "currency", "listquery" => "", "position" => 0, "default" => 'POST', 'decimals' => getSetting('unit_price_decimals'), "allow_null" => FALSE ),
      array(
         "name" => "discount", "label" => $GLOBALS['locDiscount'], "type" => "INT", "style" => "percent", "listquery" => "", "position" => 0, "default" => 0, "allow_null" => TRUE ),
      array(
@@ -482,7 +482,7 @@ EOS;
      array(
         "name" => "order_no", "label" => $GLOBALS['locROWNO'], "type" => "INT", "style" => "tiny", "listquery" => "SELECT max(order_no)+5 FROM {prefix}invoice_row WHERE deleted=0 AND invoice_id=_PARENTID_", "position" => 0, "default" => "ADD+5", "allow_null" => TRUE ),
      array(
-        "name" => "row_sum", "label" => $GLOBALS['locROWTOTAL'], "type" => "ROWSUM", "style" => "currency", "listquery" => "", "position" => 0, "default" => "", "allow_null" => TRUE )
+        "name" => "row_sum", "label" => $GLOBALS['locROWTOTAL'], "type" => "ROWSUM", "style" => "currency", "listquery" => "", "position" => 0, "default" => "", 'decimals' => getSetting('unit_price_decimals'), "allow_null" => TRUE )
    );
 
 break;

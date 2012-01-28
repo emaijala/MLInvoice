@@ -503,6 +503,12 @@ function createIForm($astrFormElements, $elem, $intKeyValue, $newRecord)
 ?>
 <script type="text/javascript">
 /* <![CDATA[ */
+
+function format_currency(value, decimals)
+{
+  return parseFloat(value).toFixed(decimals).replace('.', ',');
+}
+
 function init_rows()
 {
 <?php
@@ -545,7 +551,14 @@ function init_rows()
     }
     elseif ($subElem['type'] == 'INT')
     {
-      echo "      $('<td/>').addClass('$class' + (record.deleted == 1 ? ' deleted' : '')).text(record.$name ? record.$name.replace('.', ',') : '').appendTo(tr);\n";
+      if (isset($subElem['decimals']))
+      {
+        echo "      $('<td/>').addClass('$class' + (record.deleted == 1 ? ' deleted' : '')).text(record.$name ? format_currency(record.$name, {$subElem['decimals']}) : '').appendTo(tr);\n";
+      }
+      else
+      {
+        echo "      $('<td/>').addClass('$class' + (record.deleted == 1 ? ' deleted' : '')).text(record.$name ? record.$name.replace('.', ',') : '').appendTo(tr);\n";
+      }
     }
     elseif ($subElem['type'] == 'INTDATE')
     {
@@ -580,8 +593,11 @@ function init_rows()
         VAT = sum * (VATPercent / 100);
         sumVAT = sum + VAT;
       }
-      var title = '<?php echo $GLOBALS['locVATLESS'] . ': '?>' + sum.toFixed(2).replace('.', ',') + ' &ndash; ' + '<?php echo $GLOBALS['locVATPART'] . ': '?>' + VAT.toFixed(2).replace('.', ',');         
-      $('<td/>').addClass('<?php echo $class?>' + (record.deleted == 1 ? ' deleted' : '')).append('<span title="' + title + '">' + sumVAT.toFixed(2).replace('.', ',') + '<\/span>').appendTo(tr); 
+      sum = format_currency(sum, <?php echo isset($subElem['decimals']) ? $subElem['decimals'] : 2?>);
+      VAT = format_currency(VAT, <?php echo isset($subElem['decimals']) ? $subElem['decimals'] : 2?>);
+      sumVAT = format_currency(sumVAT, <?php echo isset($subElem['decimals']) ? $subElem['decimals'] : 2?>);
+      var title = '<?php echo $GLOBALS['locVATLESS'] . ': '?>' + sum + ' &ndash; ' + '<?php echo $GLOBALS['locVATPART'] . ': '?>' + VAT;         
+      $('<td/>').addClass('<?php echo $class?>' + (record.deleted == 1 ? ' deleted' : '')).append('<span title="' + title + '">' + sumVAT + '<\/span>').appendTo(tr); 
 <?php          
     }
     else
@@ -829,17 +845,28 @@ function popup_editor(event, title, id, copy_row)
         if (strstr($subElem['default'], 'ADD'))
         {
 ?> 
+    var value;
     if (copy_row)
-      form.<?php echo "iform_popup_$name"?>.value = document.getElementById('<?php echo "iform_$name"?>').value;
+      value = document.getElementById('<?php echo "iform_$name"?>').value;
     else
-      form.<?php echo "iform_popup_$name"?>.value = json.<?php echo $name?> ? json.<?php echo $name?>.replace('.', ',') : '';
+      value = json.<?php echo $name?> ? json.<?php echo $name?>.replace('.', ',') : '';
+    form.<?php echo "iform_popup_$name"?>.value = value;
 <?php
         }
         else
         {
+          if (isset($subElem['decimals']))
+          {
+?> 
+    form.<?php echo "iform_popup_$name"?>.value = json.<?php echo $name?> ? format_currency(json.<?php echo $name?>, <?php echo $subElem['decimals']?>) : '';
+<?php
+          }
+          else
+          {
 ?> 
     form.<?php echo "iform_popup_$name"?>.value = json.<?php echo $name?> ? json.<?php echo $name?>.replace('.', ',') : '';
 <?php
+          }
         }
       }
       elseif ($subElem['type'] == 'INTDATE')

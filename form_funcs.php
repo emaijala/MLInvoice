@@ -236,6 +236,16 @@ function fetchRecord($table, $primaryKey, &$formElements, &$values)
     case 'INTDATE':
       $values[$name] = dateConvDBDate2Date($row[$name]);
       break;
+    case 'INT':
+      if (isset($elem['decimals'])) 
+      {
+        $values[$name] = miscRound2Decim($row[$name], $elem['decimals']);
+      } 
+      else 
+      {
+        $values[$name] = $row[$name];
+      }
+      break;
     default:
       $values[$name] = $row[$name];
     }
