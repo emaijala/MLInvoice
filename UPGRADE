@@ -1,3 +1,8 @@
+Päivitys versiosta 1.4.x versioon 1.5:
+
+   1. Aja tietokantaan päivitysskripti update_database_1.4_to_1.5.sql
+   2. Korvaa vanhan version tiedostot uusilla (paketin voi purkaa suoraan vanhan version päälle).
+
 Päivitys versiosta 1.4.2 versioon 1.4.3:
 
    1. Korvaa uudella versiolla tiedostot json.php ja invoice_printer_base.php. Vaihtoehtoisesti voit myös kopioida uuden paketin sisällön kokonaan vanhan päälle.</li>

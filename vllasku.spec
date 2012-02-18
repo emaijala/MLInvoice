@@ -48,7 +48,7 @@ EOM
 %{__install} -d -m755 $RPM_BUILD_ROOT%{_sysconfdir}/%{name}
 %{__install} -d -m755 $RPM_BUILD_ROOT%{_datadir}/%{name}
 
-%{__install} -m644 *.php *.ico config.php.sample $RPM_BUILD_ROOT%{_datadir}/%{name}
+%{__install} -m644 *.php *.ico *.xsl *.xsd config.php.sample $RPM_BUILD_ROOT%{_datadir}/%{name}
 %{__cp} -a css datatables images jquery js tcpdf $RPM_BUILD_ROOT%{_datadir}/%{name}
 
 %{__mv} $RPM_BUILD_ROOT%{_datadir}/%{name}/config.php.sample \
