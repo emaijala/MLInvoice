@@ -113,7 +113,14 @@ abstract class InvoicePrinterBase
       error_log('Reference number too short, will not be displayed');
       $invoiceData['ref_number'] = '';
     }
-    $this->refNumber = trim(strrev(chunk_split(strrev($invoiceData['ref_number']),5,' ')));
+    if (strncasecmp($invoiceData['ref_number'], 'RF', 2) == 0) 
+    {
+      $this->refNumber = strtoupper(trim(strrev(chunk_split(strrev($invoiceData['ref_number']), 4, ' '))));
+    }
+    else
+    {
+      $this->refNumber = trim(strrev(chunk_split(strrev($invoiceData['ref_number']), 5, ' ')));
+    }
     
     $this->billingAddress = $recipientData['billing_address'];
     if (!$this->billingAddress) 

@@ -207,7 +207,14 @@
     </EpiPartyDetails>
     <EpiPaymentInstructionDetails>
       <EpiPaymentInstructionId><xsl:value-of select="invoice_no"/></EpiPaymentInstructionId>
+  <xsl:choose>
+    <xsl:when test="substring(formatted_ref_number, 1, 2) = 'RF'">
+      <EpiRemittanceInfoIdentifier IdentificationSchemeName="ISO"><xsl:value-of select="formatted_ref_number"/></EpiRemittanceInfoIdentifier>
+    </xsl:when>
+    <xsl:otherwise>
       <EpiRemittanceInfoIdentifier IdentificationSchemeName="SPY"><xsl:value-of select="format-number(ref_number, '00000000000000000000')"/></EpiRemittanceInfoIdentifier>
+    </xsl:otherwise>
+  </xsl:choose>    
       <EpiInstructedAmount AmountCurrencyIdentifier="EUR"><xsl:value-of select="format-number(totalsumvat, '0,00', 'euro')"/></EpiInstructedAmount>
       <EpiCharge ChargeOption="SHA">SHA</EpiCharge>
       <EpiDateOptionDate Format="CCYYMMDD"><xsl:value-of select="due_date"/></EpiDateOptionDate>
