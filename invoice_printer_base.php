@@ -115,7 +115,7 @@ abstract class InvoicePrinterBase
     }
     if (strncasecmp($invoiceData['ref_number'], 'RF', 2) == 0) 
     {
-      $this->refNumber = strtoupper(trim(strrev(chunk_split(strrev($invoiceData['ref_number']), 4, ' '))));
+      $this->refNumber = strtoupper(trim(chunk_split($invoiceData['ref_number'], 4, ' ')));
     }
     else
     {
@@ -333,7 +333,7 @@ abstract class InvoicePrinterBase
       $pdf->Cell(40, 5, $GLOBALS['locPDFPenaltyInterest'] .": ", 0, 0, 'R');
       $pdf->Cell(60, 5, miscRound2OptDecim(getSetting('invoice_penalty_interest'), 1) . ' %', 0, 1);
       $pdf->SetX(115);
-      if ($this->refNumber != 0)
+      if ($this->refNumber)
       {
         $pdf->Cell(40, 5, $GLOBALS['locPDFInvoiceRefNo'] .": ", 0, 0, 'R');
         $pdf->Cell(60, 5, $this->refNumber, 0, 1);
@@ -712,7 +712,7 @@ abstract class InvoicePrinterBase
     $pdf->SetFont('Helvetica','',10);
     $pdf->SetXY($intStartX + 112.4, $intStartY + 20);
     $pdf->Cell(70, 5, sprintf($GLOBALS['locPDFFormInvoiceNumber'], $invoiceData['invoice_no']), 0, 1, "L");
-    if ($this->refNumber != 0)
+    if ($this->refNumber)
     {
       $pdf->SetXY($intStartX + 112.4, $intStartY + 30);
       $pdf->Cell(70, 5, $GLOBALS['locPDFFormRefNumberMandatory1'], 0, 1, "L");
@@ -735,7 +735,7 @@ abstract class InvoicePrinterBase
     $pdf->SetFont('Helvetica','',7);
     $pdf->SetXY($intStartX + 112.4, $intStartY + 58);
     $pdf->MultiCell(15, 6, $GLOBALS['locPDFFormReferenceNumber'], 0, "L", 0);
-    if ($this->refNumber != 0)
+    if ($this->refNumber)
     {
       $pdf->SetFont('Helvetica','',10);
       $pdf->SetXY($intStartX + 131, $intStartY + 59);
