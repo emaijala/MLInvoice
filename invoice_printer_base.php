@@ -30,6 +30,7 @@ abstract class InvoicePrinterBase
   protected $groupedVATs = array();
   
   protected $recipientMaxY = 0;
+  protected $invoiceRowMaxY = 152;
 
   protected $addressXOffset = 0;
   protected $addressYOffset = 0;
@@ -144,9 +145,9 @@ abstract class InvoicePrinterBase
     {
       $tmpRefNumber = str_replace(' ', '', $this->refNumber);
       $IBAN = str_replace(' ', '', substr($senderData['bank_iban'], 2));
-      if (intval($tmpRefNumber) == 0)
+      if (intval($tmpRefNumber) == 0 || (strncmp($tmpRefNumber, 'RF', 2) == 0 && intval(substr($tmpRefNumber, 2) == 0)))
       {
-        error_log('Empty or invalid reference number, barcode not created');
+        error_log('Empty or invalid reference number "' . $tmpRefNumber . '", barcode not created');
       }
       elseif (strlen($IBAN) <> 16)
       {
@@ -164,28 +165,28 @@ abstract class InvoicePrinterBase
       {
         $tmpSum = str_replace(",", "", miscRound2Decim($this->totalSumVAT));
         $tmpSum = str_repeat('0', 8 - strlen($tmpSum)) . $tmpSum;
-        $tmpRefNumber = str_repeat('0', 20 - strlen($tmpRefNumber)) . $tmpRefNumber;
         $tmpDueDate = substr($invoiceData['due_date'], 2);
-     
-        $this->barcode = '4' . $IBAN . $tmpSum . '000' . $tmpRefNumber . $tmpDueDate;
+        
+        if (strncmp($tmpRefNumber, 'RF', 2) == 0) 
+        {
+          $checkDigits = substr($tmpRefNumber, 2, 2);
+          $tmpRefNumber = substr($tmpRefNumber, 4);
+          $tmpRefNumber = $checkDigits . str_repeat('0', 21 - strlen($tmpRefNumber)) . $tmpRefNumber;
+          $this->barcode = '5' . $IBAN . $tmpSum . $tmpRefNumber . $tmpDueDate;
+        }
+        else
+        {
+          $tmpRefNumber = str_repeat('0', 20 - strlen($tmpRefNumber)) . $tmpRefNumber;
+          $this->barcode = '4' . $IBAN . $tmpSum . '000' . $tmpRefNumber . $tmpDueDate;
+        }
       }
     }
   }
   
   public function printInvoice()
   {
-    $invoiceData = $this->invoiceData;
-    $senderData = $this->senderData;
-    $recipientData = $this->recipientData;
-    
-    $pdf=new PDF('P','mm','A4', _CHARSET_ == 'UTF-8', _CHARSET_, false);
-    $this->pdf = $pdf;
-    $pdf->AddPage(); 
-    $pdf->SetAutoPageBreak(FALSE);
-    $pdf->footerLeft = $this->senderAddressLine;
-    $pdf->footerCenter = $this->senderContactInfo;
-    $pdf->footerRight = $senderData['www'] . "\n" . $senderData['email'];
-    
+    $this->initPDF();
+  
     $this->printSender();
 
     $this->printRecipient();    
@@ -211,6 +212,17 @@ abstract class InvoicePrinterBase
     
     $this->printOut();
   }  
+  
+  protected function initPDF()
+  {
+    $pdf=new PDF('P','mm','A4', _CHARSET_ == 'UTF-8', _CHARSET_, false);
+    $pdf->AddPage(); 
+    $pdf->SetAutoPageBreak(FALSE);
+    $pdf->footerLeft = $this->senderAddressLine;
+    $pdf->footerCenter = $this->senderContactInfo;
+    $pdf->footerRight = $this->senderData['www'] . "\n" . $this->senderData['email'];
+    $this->pdf = $pdf;
+  }
   
   protected function printSender()
   {
@@ -476,7 +488,7 @@ abstract class InvoicePrinterBase
     $pdf->SetY($pdf->GetY()+5);
     foreach ($this->invoiceRowData as $row) 
     {
-      if (!$this->separateStatement && $this->printStyle == 'invoice' && $pdf->GetY() > 152)
+      if (!$this->separateStatement && $this->printStyle == 'invoice' && $pdf->GetY() > $this->invoiceRowMaxY)
       {
         $this->separateStatement = true;
         $this->printInvoice();
@@ -788,6 +800,4 @@ abstract class InvoicePrinterBase
     $filename = $this->outputFileName ? $this->outputFileName : getSetting('invoice_pdf_filename');
     $pdf->Output(sprintf($filename, $invoiceData['invoice_no']), 'I');
   }
-  
 }
-  

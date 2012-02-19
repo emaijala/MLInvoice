@@ -281,6 +281,7 @@ INSERT INTO vllasku_print_template (id, name, filename, parameters, output_filen
 INSERT INTO vllasku_print_template (id, name, filename, parameters, output_filename, type, order_no, inactive) VALUES (7, 'Finvoice', 'invoice_printer_finvoice.php', '', 'finvoice_%d.xml', 'invoice', 40, 1);
 INSERT INTO vllasku_print_template (id, name, filename, parameters, output_filename, type, order_no, inactive) VALUES (8, 'Finvoice Styled', 'invoice_printer_finvoice.php', 'Finvoice.xsl', 'finvoice_%d.xml', 'invoice', 50, 1);
 INSERT INTO vllasku_print_template (id, name, filename, parameters, output_filename, type, order_no, inactive) VALUES (9, 'Lasku virtuaaliviivakoodilla', 'invoice_printer.php', 'invoice,fi,Y', 'lasku_%d.pdf', 'invoice', 60, 1);
+INSERT INTO vllasku_print_template (id, name, filename, parameters, output_filename, type, order_no, inactive) VALUES (10, 'Lomakkeeton lasku', 'invoice_printer_formless.php', 'invoice,fi,N', 'lasku_%d.pdf', 'invoice', 70, 1);
 
 INSERT INTO vllasku_users (id, name, email, login, passwd, type_id) VALUES (1, 'Administrator', '', 'admin', md5('admin'), 2);
 
