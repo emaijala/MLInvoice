@@ -505,5 +505,3 @@ foreach ($GLOBALS as $key => &$tr)
       $tr = utf8_decode($tr);
   }
 }
-
-?>

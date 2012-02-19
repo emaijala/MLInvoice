@@ -94,4 +94,3 @@ function addReminderFees($intInvoiceId)
   }
   return $strAlert;  
 }
-?>

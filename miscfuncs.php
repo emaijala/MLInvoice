@@ -366,5 +366,3 @@ function createVATID($id)
   }
   return $id;
 }
-
-?>

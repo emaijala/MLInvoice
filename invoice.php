@@ -89,5 +89,3 @@ require $printTemplateFile;
 $printer = new InvoicePrinter;
 $printer->init($intInvoiceId, $printParameters, $printOutputFileName, $senderData, $recipientData, $invoiceData, $invoiceRowData);
 $printer->printInvoice();
-
-?>

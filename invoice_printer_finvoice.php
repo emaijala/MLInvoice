@@ -6,7 +6,6 @@ require_once 'miscfuncs.php';
 
 class InvoicePrinter extends InvoicePrinterXSLT
 {
-  
   public function printInvoice()
   {
     parent::transform('create_finvoice.xsl', 'Finvoice.xsd');
@@ -22,5 +21,4 @@ class InvoicePrinter extends InvoicePrinterXSLT
     }
     echo $this->_xml;
   }
-
 }

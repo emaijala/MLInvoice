@@ -679,6 +679,3 @@ for( $j = 0; $j < count($astrFormElements); $j++ ) {
       $astrFormElements[$j][$akeys[$i]] = FALSE;
   }
 }
-
-
-?>

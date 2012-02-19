@@ -216,5 +216,3 @@ function table_valid($table)
   }
   return in_array(_DB_PREFIX_ . "_$table", $tables);
 }
-
-?>

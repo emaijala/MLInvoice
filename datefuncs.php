@@ -41,5 +41,3 @@ function strDate2UnixTime($strDate)
       return 0;
     return mktime(0, 0, 0, $arr[1], $arr[0], $arr[2]); 
 }
-
-?>

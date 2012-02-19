@@ -55,5 +55,3 @@ echo htmlPageStart( _PAGE_TITLE_ );
 </div>
 </body>
 </html>
-<?php
-

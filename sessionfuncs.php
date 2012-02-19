@@ -197,7 +197,6 @@ function db_session_gc($sessionMaxAge)
 
 session_set_save_handler('db_session_open', 'db_session_close', 'db_session_read', 'db_session_write', 'db_session_destroy', 'db_session_gc');
 session_name(_SESSION_NAME_);
-if (_SESSION_RESTRICT_PATH_)
+if (_SESSION_RESTRICT_PATH_) {
   session_set_cookie_params(0, dirname($_SERVER['PHP_SELF']) . '/');
-
-?>
+}

@@ -349,4 +349,3 @@ function htmlFormElement($strName, $strType, $strValue, $strStyle, $strListQuery
 
   return $strFormElement;
 }
-?>

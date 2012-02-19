@@ -123,5 +123,4 @@ class InvoicePrinterXSLT extends InvoicePrinterBase
       }
     }
   }
- 
 }

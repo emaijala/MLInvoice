@@ -80,4 +80,3 @@ class PDF extends TCPDF
     return $seed;
   }
 } 
-?>
