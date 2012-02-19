@@ -30,6 +30,8 @@ function initInvoicePDFLocalizations($language)
     $GLOBALS['locPDFPeriodForComplaints'] = 'Period for Complaints';
     $GLOBALS['locPDFPenaltyInterest'] = 'Penalty Interest';
     $GLOBALS['locPDFTermsOfPayment'] = 'Terms of Payment';
+    $GLOBALS['locPDFRecipientBankAccount'] = 'Recipient\'s account';
+    $GLOBALS['locPDFRecipientBankBIC'] = 'BIC';
     $GLOBALS['locPDFRowTax'] = 'VAT';
     $GLOBALS['locPDFRowVATPercent'] = 'VAT %';
     $GLOBALS['locPDFRowName'] = 'Item';
@@ -98,6 +100,8 @@ function initInvoicePDFLocalizations($language)
     $GLOBALS['locPDFPeriodForComplaints'] = 'Huomautusaika';
     $GLOBALS['locPDFPenaltyInterest'] = 'Viivästyskorko';
     $GLOBALS['locPDFTermsOfPayment'] = 'Maksuehdot';
+    $GLOBALS['locPDFRecipientBankAccount'] = 'Saajan tilinumero';
+    $GLOBALS['locPDFRecipientBankBIC'] = 'BIC';
     $GLOBALS['locPDFRowTax'] = 'ALV';
     $GLOBALS['locPDFRowVATPercent'] = 'ALV %';
     $GLOBALS['locPDFRowName'] = 'Nimike';
