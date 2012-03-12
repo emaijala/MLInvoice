@@ -11,7 +11,7 @@ function sort_multi(a,b)
     bd = bm[3] + '.' + bm[2] + '.' + bm[1];
     return ((ad < bd) ? -1 : ((ad > bd) ?  1 : 0));
   }
-  var float_re = /^\d+\.?\d*$/;
+  var float_re = /^\d+[\.\,]?\d*$/;
   if (a.match(float_re) && b.match(float_re))
   {
     a = parseFloat(a);
