@@ -143,7 +143,7 @@ Todo :
   return $strListBox;
 }
 
-function htmlSQLListBox($strName, $strQuery, $strSelected, $strStyle = "", $intOnChange = 0, $astrAdditionalAttributes) 
+function htmlSQLListBox($strName, $strQuery, $strSelected, $strStyle = "", $blnSubmitOnChange = FALSE, $astrAdditionalAttributes) 
 {
   $astrValues = array();
   $intRes = mysql_query_check( $strQuery );
@@ -157,7 +157,7 @@ function htmlSQLListBox($strName, $strQuery, $strSelected, $strStyle = "", $intO
     $strStyle = str_replace(' noemptyvalue', '', $strStyle);
     $showEmpty = FALSE;
   }
-  $strListBox = htmlListBox($strName, $astrValues, $strSelected, $strStyle, $intOnChange, $showEmpty, $astrAdditionalAttributes);
+  $strListBox = htmlListBox($strName, $astrValues, $strSelected, $strStyle, $blnSubmitOnChange, $showEmpty, $astrAdditionalAttributes);
 
   return $strListBox;
 }
@@ -258,13 +258,26 @@ function htmlFormElement($strName, $strType, $strValue, $strStyle, $strListQuery
     case 'LIST':
       if ($strMode == "MODIFY") 
       {
-        $strFormElement = htmlSQLListBox($strName, $strListQuery, $strValue, $strStyle, 0, $astrAdditionalAttributes);
+        $strFormElement = htmlSQLListBox($strName, $strListQuery, $strValue, $strStyle, false, $astrAdditionalAttributes);
       }
       else 
       {
         $strFormElement = 
           "<input type=\"text\" class=\"$strStyle\" " .
           "id=\"$strName\" name=\"$strName\" value=\"" . htmlspecialchars(getSQLListBoxSelectedValue($strListQuery, $strValue)) . "\"$astrAdditionalAttributes$readOnly>\n";
+      }
+      break;
+      
+    case 'SELECT':
+      if ($strMode == "MODIFY") 
+      {
+        $strFormElement = htmlListBox($strName, $options, $strValue, $strStyle, false, $astrAdditionalAttributes);
+      }
+      else 
+      {
+        $strFormElement = 
+          "<input type=\"text\" class=\"$strStyle\" " .
+          "id=\"$strName\" name=\"$strName\" value=\"" . htmlspecialchars(getListBoxSelectedValue($options, $strValue)) . "\"$astrAdditionalAttributes$readOnly>\n";
       }
       break;
       
