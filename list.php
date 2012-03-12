@@ -233,6 +233,7 @@ function createHtmlList($strFunc, $strList, $strIDQuery, &$arrQueryParams, $strT
       },
       "bStateSave": true,
       "bJQueryUI": true,
+      "iDisplayLength": <?php echo getSetting('default_list_rows')?>,
       "sPaginationType": "full_numbers",
       "aoColumnDefs": [
         { "aTargets": ["_all"], "sType": "html-multi", }

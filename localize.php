@@ -413,6 +413,7 @@ default:
   $GLOBALS['locSettingInvoiceClearRowValues'] = 'Tyhjennä kentät';
   $GLOBALS['locSettingInvoiceUseProductDefaults'] = 'Käytä tuotteen oletusarvoja';
   $GLOBALS['locSettingUnitPriceDecimals'] = 'Yksikköhinnassa näytettävät desimaalit';
+  $GLOBALS['locSettingDefaultListRows'] = 'Listoilla oletuksena näytettävä rivimäärä';
 
   // Base email
   $GLOBALS['locBaseEmailTitle'] = 'Laskujen lähetys sähköpostilla';
