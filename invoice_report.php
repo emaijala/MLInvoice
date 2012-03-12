@@ -235,7 +235,7 @@ class InvoiceReport
       $stateTotVAT += $intRowVAT;
       $stateTotSumVAT += $intRowSumVAT;
       
-      $this->printRow($format, $strInvoiceNo, $strInvoiceDate, $strName, $strInvoiceState, $intRowSum, $intRowVAT, $intRowSumVAT);
+      $this->printRow($format, $strInvoiceNo, $strInvoiceDate, $strDueDate, $strName, $strInvoiceState, $intRowSum, $intRowVAT, $intRowSumVAT);
     }
     if ($sums)
       $this->printStateSums($format, $currentState, $stateTotSum, $stateTotVAT, $stateTotSumVAT);
@@ -267,10 +267,11 @@ class InvoiceReport
       }
       
       $pdf->SetFont('Helvetica','B',8);
-      $pdf->Cell(25, 4, $GLOBALS['locINVNO'], 0, 0, 'L');
-      $pdf->Cell(25, 4, $GLOBALS['locINVDATE'], 0, 0, 'L');
+      $pdf->Cell(18, 4, $GLOBALS['locINVNO'], 0, 0, 'L');
+      $pdf->Cell(20, 4, $GLOBALS['locINVDATE'], 0, 0, 'L');
+      $pdf->Cell(20, 4, $GLOBALS['locDUEDATE'], 0, 0, 'L');
       $pdf->Cell(45, 4, $GLOBALS['locPAYER'], 0, 0, 'L');
-      $pdf->Cell(20, 4, $GLOBALS['locINVOICESTATE'], 0, 0, 'L');
+      $pdf->Cell(15, 4, $GLOBALS['locINVOICESTATE'], 0, 0, 'L');
       $pdf->Cell(25, 4, $GLOBALS['locVATLESS'], 0, 0, 'R');
       $pdf->Cell(25, 4, $GLOBALS['locVATPART'], 0, 0, 'R');
       $pdf->Cell(25, 4, $GLOBALS['locWITHVAT'], 0, 1, 'R');
@@ -286,6 +287,9 @@ class InvoiceReport
         </th>
         <th class="label">
             <?php echo $GLOBALS['locINVDATE']?>
+        </th>
+        <th class="label">
+            <?php echo $GLOBALS['locDUEDATE']?>
         </th>
         <th class="label">
             <?php echo $GLOBALS['locPAYER']?>
@@ -306,18 +310,19 @@ class InvoiceReport
   <?php
   }
   
-  private function printRow($format, $strInvoiceNo, $strInvoiceDate, $strName, $strInvoiceState, $intRowSum, $intRowVAT, $intRowSumVAT)
+  private function printRow($format, $strInvoiceNo, $strInvoiceDate, $strDueDate, $strName, $strInvoiceState, $intRowSum, $intRowVAT, $intRowSumVAT)
   {
     if ($format == 'pdf')
     {
       $pdf = $this->pdf;
       $pdf->SetFont('Helvetica','',8);
       $pdf->setY($pdf->getY() + 1);
-      $pdf->Cell(25, 4, $strInvoiceNo, 0, 0, 'L');
-      $pdf->Cell(25, 4, $strInvoiceDate, 0, 0, 'L');
+      $pdf->Cell(18, 4, $strInvoiceNo, 0, 0, 'L');
+      $pdf->Cell(20, 4, $strInvoiceDate, 0, 0, 'L');
+      $pdf->Cell(20, 4, $strDueDate, 0, 0, 'L');
       $nameX = $pdf->getX();
       $pdf->setX($nameX + 45);
-      $pdf->Cell(20, 4, $strInvoiceState, 0, 0, 'L');
+      $pdf->Cell(15, 4, $strInvoiceState, 0, 0, 'L');
       $pdf->Cell(25, 4, miscRound2Decim($intRowSum), 0, 0, 'R');
       $pdf->Cell(25, 4, miscRound2Decim($intRowVAT), 0, 0, 'R');
       $pdf->Cell(25, 4, miscRound2Decim($intRowSumVAT), 0, 0, 'R');
@@ -332,6 +337,9 @@ class InvoiceReport
         </td>
         <td class="input">
             <?php echo htmlspecialchars($strInvoiceDate)?>
+        </td>
+        <td class="input">
+            <?php echo htmlspecialchars($strDueDate)?>
         </td>
         <td class="input">
             <?php echo htmlspecialchars($strName)?>
@@ -361,14 +369,15 @@ class InvoiceReport
         $pdf->AddPage();
       $pdf->SetFont('Helvetica','',8);
       $pdf->setLineWidth(0.2);
-      $pdf->line($pdf->getX() + 120, $pdf->getY(), $pdf->getX() + 120 + 70, $pdf->getY());
+      $pdf->line($pdf->getX() + 120, $pdf->getY(), $pdf->getX() + 120 + 73, $pdf->getY());
       $pdf->setY($pdf->getY() + 1);
-      $pdf->Cell(25, 4, '', 0, 0, 'L');
-      $pdf->Cell(25, 4, '', 0, 0, 'L');
-      $pdf->Cell(45, 4, '', 0, 0, 'L');
+      $pdf->Cell(18, 4, '', 0, 0, 'L');
       $pdf->Cell(20, 4, '', 0, 0, 'L');
+      $pdf->Cell(20, 4, '', 0, 0, 'L');
+      $pdf->Cell(45, 4, '', 0, 0, 'L');
+      $pdf->Cell(15, 4, '', 0, 0, 'L');
       $pdf->Cell(25, 4, miscRound2Decim($stateTotSum), 0, 0, 'R');
-      $pdf->Cell(25, 4, miscRound2Decim($stateToVAT), 0, 0, 'R');
+      $pdf->Cell(25, 4, miscRound2Decim($stateTotVAT), 0, 0, 'R');
       $pdf->Cell(25, 4, miscRound2Decim($stateTotSumVAT), 0, 1, 'R');
       $pdf->setY($pdf->getY() + 2);
       return;
@@ -398,7 +407,7 @@ class InvoiceReport
       $pdf = $this->pdf;
       $pdf->SetFont('Helvetica','B',8);
       $pdf->setY($pdf->getY() + 3);
-      $pdf->Cell(65, 4, $GLOBALS['locTOTAL'], 0, 0, 'L');
+      $pdf->Cell(68, 4, $GLOBALS['locTOTAL'], 0, 0, 'L');
       $pdf->Cell(25, 4, '', 0, 0, 'L');
       $pdf->Cell(25, 4, '', 0, 0, 'L');
       $pdf->Cell(25, 4, miscRound2Decim($intTotSum), 0, 0, 'R');
