@@ -171,11 +171,14 @@ function createHtmlList($strFunc, $strList, $strIDQuery, &$arrQueryParams, $strT
   $strSelectClause = "$strPrimaryKey,$strDeletedField";
   foreach ($astrShowFields as $field) 
   {
-    $strSelectClause .= ',' . $field['name'];
+    $strSelectClause .= ',' . (isset($field['sql']) ? $field['sql'] : $field['name']);
   }
   $strQuery =
     "SELECT $strSelectClause FROM $strTable ".
     "WHERE $strPrimaryKey IN ($strIDQuery) ";
+  if ($strGroupBy) {
+    $strQuery .= " GROUP BY $strGroupBy";
+  }
 
   $intRes = mysql_param_query($strQuery, $arrQueryParams);
   if (mysql_num_rows($intRes) == 0)

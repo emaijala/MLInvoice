@@ -308,6 +308,7 @@ default:
   $GLOBALS['locHEADERINVOICESTATE'] = 'Tila';
   $GLOBALS['locHEADERINVOICEBASE'] = 'Laskuttaja';
   $GLOBALS['locHEADERINVOICECOMPANY'] = 'Asiakas';
+  $GLOBALS['locHeaderInvoiceTotal'] = 'Summa';
 
   // TABLE TEXTS
   $GLOBALS['locTABLETEXTS'] = 

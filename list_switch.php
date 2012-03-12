@@ -25,6 +25,7 @@ Tämä ohjelma on vapaa. Lue oheinen LICENSE.
 
 $strTable = '';
 $strFilter = '';
+$strGroupBy = '';
 $levelsAllowed = array(ROLE_USER, ROLE_BACKUPMGR);
 switch ( $strList ? $strList : $strFunc ) {
 
@@ -64,7 +65,8 @@ case 'invoices':
    $strTable = '{prefix}invoice i ' .
      'LEFT OUTER JOIN {prefix}base b on i.base_id=b.id ' .
      'LEFT OUTER JOIN {prefix}company c on i.company_id=c.id ' .
-     'LEFT OUTER JOIN {prefix}invoice_state s on i.state_id=s.id';
+     'LEFT OUTER JOIN {prefix}invoice_state s on i.state_id=s.id ' .
+     'LEFT OUTER JOIN (select invoice_id, CASE WHEN ir.vat_included = 0 THEN ir.price * ir.pcs * (1 - ir.discount / 100) * (1 + ir.vat / 100) ELSE ir.price * ir.pcs * (1 - ir.discount / 100) END as row_total from {prefix}invoice_row ir) ir ON (ir.invoice_id=i.id)';
    $astrSearchFields = 
     array(
         array("name" => "i.invoice_no", "type" => "TEXT"),
@@ -75,15 +77,17 @@ case 'invoices':
    $strDeletedField = 'i.deleted';
    $astrShowFields = 
     array( 
-        array("name" => "i.invoice_date", 'width' => 100, "type" => "INTDATE", "order" => "DESC", "header" => $GLOBALS['locHEADERINVOICEDATE']),
-        array("name" => "i.due_date", 'width' => 100, "type" => "INTDATE", "order" => "DESC", "header" => $GLOBALS['locHEADERINVOICEDUEDATE']),
+        array("name" => "i.invoice_date", 'width' => 80, "type" => "INTDATE", "order" => "DESC", "header" => $GLOBALS['locHEADERINVOICEDATE']),
+        array("name" => "i.due_date", 'width' => 80, "type" => "INTDATE", "order" => "DESC", "header" => $GLOBALS['locHEADERINVOICEDUEDATE']),
         array("name" => "i.invoice_no", 'width' => 80, "type" => "TEXT", "header" => $GLOBALS['locHEADERINVOICENO']),
         array("name" => "b.name", 'width' => 150, "type" => "TEXT", "header" => $GLOBALS['locHEADERINVOICEBASE']),
         array("name" => "c.company_name", 'width' => 150, "type" => "TEXT", "header" => $GLOBALS['locHEADERINVOICECOMPANY']),
         array("name" => "i.name", 'width' => 100, "type" => "TEXT", "header" => $GLOBALS['locHEADERINVOICENAME']),
         array("name" => "s.name", 'width' => 120, "type" => "TEXT", "header" => $GLOBALS['locHEADERINVOICESTATE']),
-        array("name" => "i.ref_number", 'width' => 100, "type" => "TEXT", "header" => $GLOBALS['locHEADERINVOICEREFERENCE'])
+        array("name" => "i.ref_number", 'width' => 100, "type" => "TEXT", "header" => $GLOBALS['locHEADERINVOICEREFERENCE']),
+        array('name' => '.total_price', 'sql' => 'sum(ir.row_total) as total_price', 'width' => 80, 'type' => 'CURRENCY', 'header' => $GLOBALS['locHeaderInvoiceTotal'])
     );
+   $strGroupBy = 'i.invoice_date, i.due_date, i.invoice_no, b.name, c.company_name, i.name, s.name, i.ref_number';
    $strMainForm = "invoice";
    $strTitle = $GLOBALS['locINVOICES'];
 break;
