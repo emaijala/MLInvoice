@@ -34,7 +34,7 @@ function sesCreateSession($strLogin, $strPasswd)
 {
     if ($strLogin && $strPasswd) 
     {
-        if (!isset($_SESSION['keyip']))
+        if (!isset($_SESSION['key']) || !isset($_SESSION['keyip']))
           return 'TIMEOUT';
         $key_ip = $_SESSION['keyip'];
         if ($_SERVER['REMOTE_ADDR'] != $key_ip)

@@ -36,7 +36,7 @@ if ($strLogon)
         switch (sesCreateSession($strLogin, $strPasswd))
         {
         case 'OK':
-            header("Location: ". _PROTOCOL_ . $_SERVER['HTTP_HOST'] . dirname($_SERVER['PHP_SELF']) . "/index.php");
+            header('Location: ' . getSelfPath() . '/index.php');
             exit;
         case 'FAIL': 
             $strMessage = $GLOBALS['locINVALIDCREDENTIALS'];

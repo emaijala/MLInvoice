@@ -366,3 +366,10 @@ function createVATID($id)
   }
   return $id;
 }
+
+function getSelfPath()
+{
+  $path = $_SERVER['PHP_SELF'];
+  $path = substr($path, 0, strrpos($path, '/')); 
+  return _PROTOCOL_ . $_SERVER['HTTP_HOST'] . $path; 
+}
