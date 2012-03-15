@@ -334,7 +334,7 @@ abstract class InvoicePrinterBase
       $pdf->Cell(60, 5, $strDueDate, 0, 1);
       $pdf->SetX(115);
       $pdf->Cell(40, 5, $GLOBALS['locPDFTermsOfPayment'] .": ", 0, 0, 'R');
-      $paymentDays = strDate2UnixTime($strDueDate)/3600/24 - strDate2UnixTime($strInvoiceDate)/3600/24;
+      $paymentDays = round(strDate2UnixTime($strDueDate)/3600/24 - strDate2UnixTime($strInvoiceDate)/3600/24);
       if ($paymentDays < 0) //weird
         $paymentDays = getSetting('invoice_payment_days');
       $pdf->Cell(60, 5, sprintf(getSetting('invoice_terms_of_payment'), $paymentDays), 0, 1);
