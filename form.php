@@ -741,7 +741,7 @@ function save_row(form_id)
     {
       if (!in_array($subElem['type'], array('HID_INT', 'SECHID_INT', 'BUTTON', 'NEWLINE', 'ROWSUM')))
       {
-        if (strstr($subElem['default'], 'ADD'))
+        if (isset($subElem['default']) && strstr($subElem['default'], 'ADD'))
         {
           // The value is taken from whatever form was used but put into iform
 ?>
@@ -842,7 +842,7 @@ function popup_editor(event, title, id, copy_row)
       }
       elseif ($subElem['type'] == 'INT')
       {
-        if (strstr($subElem['default'], 'ADD'))
+        if (isset($subElem['default']) && strstr($subElem['default'], 'ADD'))
         {
 ?> 
     var value;

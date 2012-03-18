@@ -63,7 +63,7 @@ abstract class InvoicePrinterBase
       $this->totalSum += $rowSum;
       $this->totalVAT += $rowVAT;
       $this->totalSumVAT += $rowSumVAT;
-      if ($row['discount'] > 0)
+      if (isset($row['discount']) && $row['discount'] > 0)
         $this->discountedRows = true;
         
       // Create array grouped by the VAT base
@@ -543,9 +543,10 @@ abstract class InvoicePrinterBase
         }
         if ($this->printStyle != 'dispatch')
         {
-          $pdf->Cell(17, 5, miscRound2Decim($row['price'], getSetting('unit_price_decimals')), 0, 0, "R");
+          $decimals = isset($row['price_decimals']) ? $row['price_decimals'] : 2;
+          $pdf->Cell(17, 5, miscRound2Decim($row['price'], $decimals), 0, 0, "R");
           if ($this->discountedRows)
-            $pdf->Cell(12, 5, $row['discount'] != '0' ? miscRound2OptDecim($row['discount']) : '', 0, 0, "R");
+            $pdf->Cell(12, 5, (isset($row['discount']) && $row['discount'] != '0') ? miscRound2OptDecim($row['discount']) : '', 0, 0, "R");
         }
         $pdf->Cell(13, 5, miscRound2OptDecim($row['pcs']), 0, 0, "R");
         $pdf->Cell(7, 5, $row['type'], 0, 0, "L");

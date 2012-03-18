@@ -24,7 +24,7 @@ class InvoicePrinterXSLT extends InvoicePrinterBase
     $this->_arrayToXML($invoiceData, $invoice);
     $rows = $invoice->addChild('rows');
     $this->_arrayToXML($this->invoiceRowData, $rows, 'row');
-    
+
     require 'settings_def.php';
     $settingsData = array();
     foreach ($arrSettings as $key => $value) 

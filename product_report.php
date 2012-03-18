@@ -187,7 +187,7 @@ class ProductReport
       $strProductWhere = '';
     
     $strProductQuery = 'SELECT p.product_name, ir.description, ' . 
-      'CASE WHEN ir.vat_included = 0 THEN sum(ir.price * ir.pcs * (1 - ir.discount / 100)) ELSE sum(ir.price * ir.pcs * (1 - ir.discount / 100) / (1 + ir.vat / 100)) END as total_price, ' .
+      'CASE WHEN ir.vat_included = 0 THEN sum(ir.price * ir.pcs * (1 - IFNULL(ir.discount, 0) / 100)) ELSE sum(ir.price * ir.pcs * (1 - IFNULL(ir.discount, 0) / 100) / (1 + ir.vat / 100)) END as total_price, ' .
       'ir.vat, sum(ir.pcs) as pcs, t.name as unit ' .
       'FROM {prefix}invoice_row ir ' .
       'LEFT OUTER JOIN {prefix}product p ON p.id = ir.product_id ' .

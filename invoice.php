@@ -60,9 +60,6 @@ $strQuery = 'SELECT * FROM {prefix}company WHERE id=?';
 $intRes = mysql_param_query($strQuery, array($invoiceData['company_id']));
 $recipientData = mysql_fetch_assoc($intRes);
 
-//invoice_no, inv.invoice_date, inv.due_date, inv.ref_number, inv.name AS invoice_name, inv.reference, inv.base_id, inv.state_id, inv.print_date, ref.invoice_no as refunded_invoice_no, inv.info as invoice_info
-//comp.company_name AS name, '' AS contact_person, comp.email, comp.billing_address, comp.company_name, comp.street_address, comp.zip_code, comp.city, comp.company_id, comp.customer_no, 
-
 $strQuery = 'SELECT * FROM {prefix}base WHERE id=?';
 $intRes = mysql_param_query($strQuery, array($invoiceData['base_id']));
 $senderData = mysql_fetch_assoc($intRes);
@@ -71,7 +68,7 @@ if (!$senderData)
 $senderData['vat_id'] = createVATID($senderData['company_id']);
     
 $strQuery = 
-    "SELECT pr.product_name, pr.product_code, ir.description, ir.pcs, ir.price, ir.discount, ir.row_date, ir.vat, ir.vat_included, ir.reminder_row, rt.name type ".
+    "SELECT pr.product_name, pr.product_code, pr.price_decimals, ir.description, ir.pcs, ir.price, IFNULL(ir.discount, 0) as discount, ir.row_date, ir.vat, ir.vat_included, ir.reminder_row, rt.name type ".
     "FROM {prefix}invoice_row ir ".
     "LEFT OUTER JOIN {prefix}row_type rt ON rt.id = ir.type_id ".
     "LEFT OUTER JOIN {prefix}product pr ON ir.product_id = pr.id ".

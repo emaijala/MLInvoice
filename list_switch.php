@@ -66,7 +66,7 @@ case 'invoices':
      'LEFT OUTER JOIN {prefix}base b on i.base_id=b.id ' .
      'LEFT OUTER JOIN {prefix}company c on i.company_id=c.id ' .
      'LEFT OUTER JOIN {prefix}invoice_state s on i.state_id=s.id ' .
-     'LEFT OUTER JOIN (select invoice_id, CASE WHEN ir.vat_included = 0 THEN ir.price * ir.pcs * (1 - ir.discount / 100) * (1 + ir.vat / 100) ELSE ir.price * ir.pcs * (1 - ir.discount / 100) END as row_total from {prefix}invoice_row ir) ir ON (ir.invoice_id=i.id)';
+     'LEFT OUTER JOIN (select invoice_id, CASE WHEN ir.vat_included = 0 THEN ir.price * ir.pcs * (1 - IFNULL(ir.discount, 0) / 100) * (1 + ir.vat / 100) ELSE ir.price * ir.pcs * (1 - IFNULL(ir.discount, 0) / 100) END as row_total from {prefix}invoice_row ir) ir ON (ir.invoice_id=i.id)';
    $astrSearchFields = 
     array(
         array("name" => "i.invoice_no", "type" => "TEXT"),

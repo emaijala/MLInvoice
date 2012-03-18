@@ -33,7 +33,7 @@ function getPostValues(&$formElements, $primaryKey, $parentKey = FALSE)
     else 
     {
       $values[$elem['name']] = getPostRequest($elem['name'], FALSE);
-      if ($elem['default'] && ($values[$elem['name']] === FALSE || ($elem['type'] == 'INT' && $values[$elem['name']] === ''))) 
+      if (isset($elem['default']) && ($values[$elem['name']] === FALSE || ($elem['type'] == 'INT' && $values[$elem['name']] === ''))) 
       {
         $values[$elem['name']] = getFormDefaultValue($elem, $parentKey);
       }
@@ -53,6 +53,10 @@ function getPostValues(&$formElements, $primaryKey, $parentKey = FALSE)
 // Get the default value for the given form element
 function getFormDefaultValue($elem, $parentKey)
 {
+  if (!isset($elem['default'])) 
+  {
+    return false;
+  }
   if ($elem['default'] === 'DATE_NOW') 
   {
     return date('d.m.Y');

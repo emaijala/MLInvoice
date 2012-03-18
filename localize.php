@@ -142,6 +142,7 @@ default:
   $GLOBALS['locINTERNALINFO'] = 'Lisätiedot (ei<br>näytetä laskussa)';
   $GLOBALS['locVisibleInfo'] = 'Laskussa näytettävät<br>lisätiedot';
   $GLOBALS['locUNITPRICE'] = 'Yksikköhinta';
+  $GLOBALS['locPriceInvoiceDecimals'] = 'Desimaaleja laskulla';
   $GLOBALS['locVATPERCENT'] = 'ALV %';
   $GLOBALS['locVATINCLUDED'] = 'Hinta sisältää ALV:n';
   $GLOBALS['locVATINC'] = 'Sis.&nbsp;ALV';
