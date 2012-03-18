@@ -414,6 +414,8 @@ default:
   $GLOBALS['locSettingInvoiceUseProductDefaults'] = 'Käytä tuotteen oletusarvoja';
   $GLOBALS['locSettingUnitPriceDecimals'] = 'Yksikköhinnassa näytettävät desimaalit';
   $GLOBALS['locSettingDefaultListRows'] = 'Listoilla oletuksena näytettävä rivimäärä';
+  $GLOBALS['locSettingInvoiceAddressXOffset'] = 'Osoitteen siirto vaakasuorassa (millimetrejä oletuksesta, myös negatiiviset arvot)';
+  $GLOBALS['locSettingInvoiceAddressYOffset'] = 'Osoitteen siirto pystysuorassa (millimetrejä oletuksesta, myös negatiiviset arvot)';
 
   // Base email
   $GLOBALS['locBaseEmailTitle'] = 'Laskujen lähetys sähköpostilla';

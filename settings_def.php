@@ -45,6 +45,8 @@ $arrSettings = array(
   'invoice_penalty_interest' => array('label' => $GLOBALS['locSettingInvoicePenaltyInterestPercent'], 'type' => 'PERCENT', 'style' => 'percent', 'position' => 1, 'default' => 8, 'allow_null' => FALSE ),
   'invoice_notification_fee' => array('label' => $GLOBALS['locSettingInvoiceNotificationFee'], 'type' => 'CURRENCY', 'style' => 'currency', 'position' => 1, 'default' => 5, 'allow_null' => FALSE ),
   'invoice_pdf_filename' => array('label' => $GLOBALS['locSettingInvoicePDFFilename'], 'type' => 'TEXT', 'style' => 'medium', 'position' => 1, 'default' => 'lasku_%s.pdf', 'allow_null' => FALSE ),
+  'invoice_address_x_offset' => array('label' => $GLOBALS['locSettingInvoiceAddressXOffset'], 'type' => 'INT', 'style' => 'currency', 'position' => 1, 'default' => 0, 'allow_null' => TRUE ),
+  'invoice_address_y_offset' => array('label' => $GLOBALS['locSettingInvoiceAddressYOffset'], 'type' => 'INT', 'style' => 'currency', 'position' => 1, 'default' => 0, 'allow_null' => TRUE ),
   'invoice_warn_if_noncurrent_date' => array('label' => $GLOBALS['locSettingInvoiceWarnIfNonCurrentDate'], 'type' => 'CHECK', 'style' => 'medium', 'position' => 1, 'default' => 1, 'allow_null' => TRUE ),
   'invoice_clear_row_values_after_add' => array('label' => $GLOBALS['locSettingInvoiceClearRowValuesAfterAdd'], 'type' => 'SELECT', 'style' => 'long noemptyvalue', 'position' => 1, 'default' => 0, 'allow_null' => TRUE, 'options' => Array(
     0 => $GLOBALS['locSettingInvoiceKeepRowValues'],

@@ -181,6 +181,9 @@ abstract class InvoicePrinterBase
         }
       }
     }
+    
+    $this->addressXOffset = getSetting('invoice_address_x_offset', 0);
+    $this->addressYOffset = getSetting('invoice_address_y_offset', 0);
   }
   
   public function printInvoice()
@@ -241,7 +244,7 @@ abstract class InvoicePrinterBase
         $senderData['logo_bottom_margin'] = 5;
     
       $pdf->Image('@' . $senderData['logo_filedata'], $senderData['logo_left'], $senderData['logo_top'], $senderData['logo_width'], 0, '', '', 'N', false, 300, '', false, false, 0, true);
-      $pdf->SetY($pdf->GetY() + $senderData['logo_bottom_margin']);
+      $pdf->SetY($pdf->GetY() + $senderData['logo_bottom_margin'] + $this->addressYOffset);
     }
     else
     {
