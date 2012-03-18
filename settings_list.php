@@ -39,15 +39,18 @@ function createSettingsList()
   if ($blnSave)
   {
     foreach ($arrSettings as $name => $elem)
-    {
-      if ($elem['type'] == 'LABEL')
+    {    
+      $type = $elem['type'];
+      $label = $elem['label'];
+      if ($type == 'LABEL')
         continue;
+        
       $newValue = getPost($name, NULL);
-      if (!isset($newValue))
+      if (!isset($newValue) || $newValue === '')
       {
         if (!$elem['allow_null'])
         {
-          $messages .= $GLOBALS['locERRVALUEMISSING'] . ": $name<br>\n";
+          $messages .= $GLOBALS['locERRVALUEMISSING'] . ": '$label'<br>\n";
           continue;
         }
         else
@@ -55,8 +58,16 @@ function createSettingsList()
           $newValue = '';
         }
       }
-      if ($elem['type'] == 'CURRENCY' || $elem['type'] == 'PERCENT')
+      if (in_array($type, array('CURRENCY', 'PERCENT')))
         $newValue = str_replace(",", ".", $newValue);
+      if (in_array($type, array('CURRENCY', 'PERCENT', 'INT'))) {
+        $newValue = trim($newValue);
+        if (!is_numeric($newValue)) {
+          $messages .= $GLOBALS['locErrInvalidValue'] . " '$label'<br>\n";
+          continue;
+        }
+      }
+        
         
       if (isset($elem['session']) && $elem['session'])
         $_SESSION[$name] = $newValue;
@@ -66,7 +77,9 @@ function createSettingsList()
   }
 ?>
   <div class="form_container ui-widget-content">
-    <div class="message"><?php echo $messages?></div>
+<?php if ($messages) {?>
+    <div class="ui-widget ui-state-error"><?php echo $messages?></div>
+<?php }?>
   
     <script type="text/javascript">
     <!--

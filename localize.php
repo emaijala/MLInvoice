@@ -163,8 +163,7 @@ default:
   $GLOBALS['locPrintTemplateInactive'] = 'Pois käytöstä';
   
   //FORM ERRORS & MESSAGES
-  $GLOBALS['locERRVALUEMISSING'] = 'Virhe! Arvo puuttuu';
-  $GLOBALS['locERRDUPLUNIQUE'] = 'Virhe! Arvo on jo tietokannassa.';
+  $GLOBALS['locERRVALUEMISSING'] = 'Arvo puuttuu';
   $GLOBALS['locSAVEFIRST'] = 'Tallenna muut tiedot ensin';
   $GLOBALS['locDBERROR'] = 'Tietokantavirhe';
   $GLOBALS['locDBERRORDESC'] = 'Tietokantavirhe: ';
@@ -184,6 +183,7 @@ default:
   $GLOBALS['locRecordNotFound'] = 'Tietuetta ei löytynyt';
   $GLOBALS['locRecordSaved'] = 'Tallennettu';
   $GLOBALS['locUnsavedData'] = 'Kaikkia tietoja ei ole tallennettu';
+  $GLOBALS['locErrInvalidValue'] = 'Virheellinen arvo kentässä';
   
   //FORM BUTTON HELPERS
   $GLOBALS['locSAVE'] = 'Tallenna';
