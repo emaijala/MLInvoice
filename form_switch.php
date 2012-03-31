@@ -153,7 +153,7 @@ case 'product':
     array(
       "name" => "discount", "label" => $GLOBALS['locDiscountPercent'], "type" => "INT", "style" => "percent", "listquery" => "", "position" => 2, "allow_null" => TRUE ),
     array(
-      "name" => "vat_percent", "label" => $GLOBALS['locVATPERCENT'], "type" => "INT", "style" => "short", "listquery" => "", "position" => 1, "allow_null" => FALSE ),
+      "name" => "vat_percent", "label" => $GLOBALS['locVATPERCENT'], "type" => "INT", "style" => "short", "listquery" => "", "position" => 1, "default" => getSetting('invoice_default_vat_percent'), "allow_null" => FALSE ),
     array(
       "name" => "vat_included", "label" => $GLOBALS['locVATINCLUDED'], "type" => "CHECK", "style" => "medium", "listquery" => "", "position" => 2, "default" => FALSE, "allow_null" => TRUE ),
   );
