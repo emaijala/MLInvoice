@@ -24,6 +24,7 @@ Tämä ohjelma on vapaa. Lue oheinen LICENSE.
 *******************************************************************************/
 
 require_once 'sqlfuncs.php';
+require_once 'miscfuncs.php';
 
 define("ROLE_READONLY", 0);
 define("ROLE_USER", 1);
@@ -34,12 +35,16 @@ function sesCreateSession($strLogin, $strPasswd)
 {
     if ($strLogin && $strPasswd) 
     {
-        if (!isset($_SESSION['key']) || !isset($_SESSION['keyip']))
+        if (!isset($_SESSION['key']) || !isset($_SESSION['keyip'])) 
+        {
+          error_log('No key information in session, timeout or session problem');
           return 'TIMEOUT';
+        }
         $key_ip = $_SESSION['keyip'];
         if ($_SERVER['REMOTE_ADDR'] != $key_ip)
         {
           // Delay so that brute-force attacks become unpractical
+          error_log("Login failed for $strLogin due to IP address change");
           sleep(2);
           return 'FAIL';
         }
@@ -47,8 +52,10 @@ function sesCreateSession($strLogin, $strPasswd)
         $key = $_SESSION['key'];
         unset($_SESSION['key']);
         $keytime = $_SESSION['keytime'];
-        if (!$key || time() - $keytime > 300)
+        if (!$key || time() - $keytime > 300) {
+          error_log('Key not found or timeout, ' . time() - $keytime . ' seconds since login form was created');
           return 'TIMEOUT';
+        }
         
         $strQuery = 
             'SELECT {prefix}users.id AS user_id, type_id, time_out, access_level, passwd '.
@@ -64,6 +71,7 @@ function sesCreateSession($strLogin, $strPasswd)
             {
               // Delay so that brute-force attacks become unpractical
               sleep(2);
+              error_log("Login failed for $strLogin");
               return 'FAIL';
             }
               
@@ -79,6 +87,7 @@ function sesCreateSession($strLogin, $strPasswd)
         }
     }
     // Delay so that brute-force attacks become unpractical
+    error_log('Login failed due to missing user name or password');
     sleep(2);
     return 'FAIL';
 }
@@ -198,5 +207,5 @@ function db_session_gc($sessionMaxAge)
 session_set_save_handler('db_session_open', 'db_session_close', 'db_session_read', 'db_session_write', 'db_session_destroy', 'db_session_gc');
 session_name(_SESSION_NAME_);
 if (_SESSION_RESTRICT_PATH_) {
-  session_set_cookie_params(0, dirname($_SERVER['PHP_SELF']) . '/');
+  session_set_cookie_params(0, getSelfDirectory() . '/');
 }

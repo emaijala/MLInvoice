@@ -56,7 +56,8 @@ default:
   $GLOBALS['locEMAIL'] = 'Email';
   $GLOBALS['locCUSTOMERNO'] = 'Asiakasnro';
   $GLOBALS['locCUSTOMERDEFAULTREFNO'] = 'Asiakaskoht. viitenro';
-  $GLOBALS['locVATREGISTERED'] = 'ALV-rekisteröity';
+  $GLOBALS['locVATREGISTERED'] = 'ALV-rekisteröity*';
+  $GLOBALS['locVATRegisteredHint'] = 'Huom! ALV-rekisteröimättömän yrityksen laskuissa ei näytetä ALV-erittelyä';
   $GLOBALS['locWWW'] = 'WWW';
   $GLOBALS['locADDRESS'] = 'Osoite';
   $GLOBALS['locSTREETADDR'] = 'Katuosoite';

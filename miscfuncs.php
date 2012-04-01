@@ -369,6 +369,11 @@ function createVATID($id)
 
 function getSelfPath()
 {
+  return _PROTOCOL_ . $_SERVER['HTTP_HOST'] . getSelfDirectory();
+}
+
+function getSelfDirectory()
+{
   $path = $_SERVER['PHP_SELF'];
   $p = strrpos($path, '/');
   if ($p > 0) {
@@ -376,5 +381,5 @@ function getSelfPath()
   } else {
     $path = '';
   }
-  return _PROTOCOL_ . $_SERVER['HTTP_HOST'] . $path; 
+  return $path; 
 }

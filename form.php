@@ -277,7 +277,7 @@ function createForm($strFunc, $strList, $strForm)
       else
       {
 ?>
-          <td class="label"><?php echo $elem['label']?></td>
+          <td class="label"<?php if (isset($elem['title'])) echo ' title="' . $elem['title'] . '"'?>><?php echo $elem['label']?></td>
 <?php
       }
 ?>

@@ -15,6 +15,10 @@ Tämä ohjelma on vapaa. Lue oheinen LICENSE.
 
 *******************************************************************************/
 
+// buffered, so we can redirect later if necessary
+ini_set('implicit_flush', 'Off');
+ob_start(); 
+
 require_once 'sessionfuncs.php';
 require_once 'navi.php';
 require_once 'list.php';
@@ -25,10 +29,6 @@ require_once 'localize.php';
 require_once 'settings_list.php';
 
 sesVerifySession();
-
-// buffered, so we can redirect later if necessary
-ini_set('implicit_flush', 'Off');
-ob_start(); 
 
 $strFunc = sanitize(getRequest('func', 'open_invoices'));
 $strList = sanitize(getRequest('list', ''));

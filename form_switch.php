@@ -509,7 +509,7 @@ EOF;
     array(
       "name" => "org_unit_number", "label" => $GLOBALS['locOrgUnitNumber'], "type" => "TEXT", "style" => "medium", "listquery" => "", "position" => 1, "allow_null" => TRUE ),
     array(
-      "name" => "vat_registered", "label" => $GLOBALS['locVATREGISTERED'], "type" => "CHECK", "style" => "short", "listquery" => "", "position" => 2, "allow_null" => TRUE ),
+      "name" => "vat_registered", "label" => $GLOBALS['locVATREGISTERED'], "title" => $GLOBALS['locVATRegisteredHint'], "type" => "CHECK", "style" => "short", "listquery" => "", "position" => 2, "allow_null" => TRUE ),
     array(
       "name" => "contact_person", "label" => $GLOBALS['locCONTACTPERS'], "type" => "TEXT", "style" => "medium", "listquery" => "", "position" => 1, "allow_null" => TRUE ),
     array(

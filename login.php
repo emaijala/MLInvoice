@@ -15,6 +15,10 @@ Tämä ohjelma on vapaa. Lue oheinen LICENSE.
 
 *******************************************************************************/
 
+// buffered, so we can redirect later if necessary
+ini_set('implicit_flush', 'Off');
+ob_start(); 
+
 require "sqlfuncs.php";
 require "miscfuncs.php";
 require "htmlfuncs.php";
