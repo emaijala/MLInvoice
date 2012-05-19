@@ -63,14 +63,13 @@ if ($intInvoiceId)
   {
     $strname = $row['name'];
     $intCompanyId = $row['company_id'];
-    $intInvoiceNo = $row['invoice_no'];
-    $intInvoiceDate = $row['invoice_date'];
-    $intDueDate = $row['due_date'];
     $intPaymentDate = $row['payment_date'];
     $intRefNumber = $row['ref_number'];
     $intStateId = $row['state_id'];
     $strReference = $row['reference'];
     $intBaseId = $row['base_id'];
+    $info = $row['info'];
+    $internalInfo = $row['internal_info'];
   }
   
   $intDate = date("Ymd");
@@ -81,16 +80,16 @@ if ($intInvoiceId)
   
   $intRefundedId = $boolRefund ? $intInvoiceId : 'NULL';
   $strQuery = 
-      'INSERT INTO {prefix}invoice(name, company_id, invoice_date, due_date, payment_date, state_id, reference, base_id, refunded_invoice_id) '.
-      'VALUES (?, ?, ?, ?, NULL, 1, ?, ?, ?)';
+      'INSERT INTO {prefix}invoice(name, company_id, invoice_date, due_date, payment_date, state_id, reference, base_id, refunded_invoice_id, info, internal_info) '.
+      'VALUES (?, ?, ?, ?, NULL, 1, ?, ?, ?, ?, ?)';
       
-  mysql_param_query($strQuery, array($strname, $intCompanyId, $intDate, $intDueDate, $strReference, $intBaseId, $intRefundedId));
+  mysql_param_query($strQuery, array($strname, $intCompanyId, $intDate, $intDueDate, $strReference, $intBaseId, $intRefundedId, $info, $internalInfo));
   $intNewId = mysql_insert_id();
   if ($intNewId) 
   {    
     $strQuery = 
-        'SELECT * '.
-        'FROM {prefix}invoice_row '.
+        'SELECT * ' .
+        'FROM {prefix}invoice_row ' .
         'WHERE deleted=0 AND invoice_id=?';
     $intRes = mysql_param_query($strQuery, array($intInvoiceId));
     while ($row = mysql_fetch_assoc($intRes)) 
@@ -101,7 +100,6 @@ if ($intInvoiceId)
       $intPcs = $row['pcs'];
       $intPrice = $row['price'];
       $intDiscount = $row['discount'];
-      $intRowDate = $row['row_date'];
       $intVat = $row['vat'];
       $intOrderNo = $row['order_no'];
       $boolVatIncluded = $row['vat_included'];
@@ -115,7 +113,7 @@ if ($intInvoiceId)
       $strQuery = 
         'INSERT INTO {prefix}invoice_row(invoice_id, product_id, description, type_id, pcs, price, discount, row_date, vat, order_no, vat_included, reminder_row) '.
         'VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)';
-      mysql_param_query($strQuery, array($intNewId, $intProductId, $strDescription, $intTypeId, $intPcs, $intPrice, $intDiscount, $intRowDate, $intVat, $intOrderNo, $boolVatIncluded, $intReminderRow));
+      mysql_param_query($strQuery, array($intNewId, $intProductId, $strDescription, $intTypeId, $intPcs, $intPrice, $intDiscount, $intDate, $intVat, $intOrderNo, $boolVatIncluded, $intReminderRow));
     }
   }
 }
