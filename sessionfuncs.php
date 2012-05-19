@@ -58,10 +58,10 @@ function sesCreateSession($strLogin, $strPasswd)
         }
         
         $strQuery = 
-            'SELECT {prefix}users.id AS user_id, type_id, time_out, access_level, passwd '.
-            'FROM {prefix}users '.
-            'INNER JOIN {prefix}session_type ON {prefix}session_type.id = {prefix}users.type_id '.
-            "WHERE login=?";
+            'SELECT u.id AS user_id, u.type_id, u.passwd, st.time_out, st.access_level '.
+            'FROM {prefix}users u '.
+            'INNER JOIN {prefix}session_type st ON st.id = u.type_id '.
+            "WHERE u.deleted=0 AND u.login=?";
         $intRes = mysql_param_query($strQuery, array($strLogin));
         if ($row = mysql_fetch_assoc($intRes)) 
         {
