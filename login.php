@@ -19,11 +19,11 @@ Tämä ohjelma on vapaa. Lue oheinen LICENSE.
 ini_set('implicit_flush', 'Off');
 ob_start(); 
 
-require "sqlfuncs.php";
-require "miscfuncs.php";
-require "htmlfuncs.php";
-require "sessionfuncs.php";
-require_once "localize.php";
+require_once 'sqlfuncs.php';
+require_once 'miscfuncs.php';
+require_once 'htmlfuncs.php';
+require_once 'sessionfuncs.php';
+require_once 'localize.php';
 
 session_start();
 
