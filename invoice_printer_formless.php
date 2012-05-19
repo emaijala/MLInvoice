@@ -4,7 +4,7 @@ require_once 'invoice_printer_base.php';
 require_once 'htmlfuncs.php';
 require_once 'miscfuncs.php';
 
-class InvoicePrinter extends InvoicePrinterBase
+class InvoicePrinterFormless extends InvoicePrinterBase
 {
   public function printInvoice()
   {

@@ -4,7 +4,7 @@ require_once 'invoice_printer_base.php';
 require_once 'htmlfuncs.php';
 require_once 'miscfuncs.php';
 
-class InvoicePrinterXSLT extends InvoicePrinterBase
+class InvoicePrinterXslt extends InvoicePrinterBase
 {
   protected function transform($xslt, $xsd = '')
   {

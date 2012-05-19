@@ -4,7 +4,7 @@ require_once 'invoice_printer_base.php';
 require_once 'htmlfuncs.php';
 require_once 'miscfuncs.php';
 
-class InvoicePrinter extends InvoicePrinterBase
+class InvoicePrinterEmail extends InvoicePrinterBase
 {
   protected $emailFrom = '';
   protected $emailTo = '';
@@ -55,7 +55,7 @@ class InvoicePrinter extends InvoicePrinterBase
     <input type="hidden" name="func" value="<?php echo htmlspecialchars(getRequest('func', ''))?>">
     <div class="medium_label"><?php echo $GLOBALS['locEmailFrom']?></div> <div class="field"><input type="text" id="email_from" name="email_from" class="medium" value="<?php echo htmlspecialchars($this->emailFrom)?>"></div>
     <div class="medium_label"><?php echo $GLOBALS['locEmailTo']?></div> <div class="field"><input type="text" id="email_to" name="email_to" class="medium" value="<?php echo htmlspecialchars($this->emailTo)?>"></div>
-    <div class="medium_label"><?php echo $GLOBALS['locEmailCC']?></div> <div class="field"><input type="text" id="email_cc" name="email_cc" class="medium"></div>
+    <div class="medium_label"><?php echo $GLOBALS['locEmailCC']?></div> <div class="field"><input type="text" id="email_cc" name="email_cc" class="medium" value="<?php echo htmlspecialchars($this->emailCC)?>"></div>
     <div class="medium_label"><?php echo $GLOBALS['locEmailBCC']?></div> <div class="field"><input type="text" id="email_bcc" name="email_bcc" class="medium" value="<?php echo htmlspecialchars($this->emailBCC)?>"></div>
     <div class="medium_label"><?php echo $GLOBALS['locEmailSubject']?></div> <div class="field"><input type="text" id="email_subject" name="email_subject" class="medium" value="<?php echo htmlspecialchars($this->emailSubject)?>"></div>
     <div class="medium_label"><?php echo $GLOBALS['locEmailBody']?></div> <div class="field"><textarea id="emailBody" name="email_body" class="email_body" cols="80" rows="24"><?php echo htmlspecialchars($this->emailBody)?></textarea></div>

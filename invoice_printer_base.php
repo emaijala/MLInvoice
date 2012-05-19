@@ -13,6 +13,7 @@ abstract class InvoicePrinterBase
   protected $invoiceData = null;
   protected $invoiceRowData = null;
   protected $separateStatement = false;
+  protected $readOnlySafe = false;
   
   protected $senderAddress = '';
   protected $senderAddressLine = '';
@@ -35,6 +36,15 @@ abstract class InvoicePrinterBase
   protected $addressXOffset = 0;
   protected $addressYOffset = 0;
 
+  public function __construct()
+  {
+  }
+  
+  public function getReadOnlySafe()
+  {
+    return $this->readOnlySafe;
+  }
+  
   public function init($invoiceId, $printParameters, $outputFileName, $senderData, $recipientData, $invoiceData, $invoiceRowData)
   {
     $this->invoiceId = $invoiceId;

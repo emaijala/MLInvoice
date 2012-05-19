@@ -293,6 +293,12 @@ EOS;
     }
     else
     {
+      // Check if this print template is safe for read-only use
+      $printer = instantiateInvoicePrinter($row['filename']);
+      if (!$printer->getReadOnlySafe()) {
+        continue;
+      }
+      
       if ($printStyle == 'openwindow')
         $printFunc = "window.open('invoice.php?id=_ID_&amp;template=$templateId&amp;func=$strFunc'); return false;";
       else

@@ -80,9 +80,10 @@ while ($row = mysql_fetch_assoc($intRes))
   $invoiceRowData[] = $row;
 }
 
-mysql_param_query('UPDATE {prefix}invoice SET print_date=? where id=?', array(date('Ymd'), $intInvoiceId));
-
-require $printTemplateFile;
-$printer = new InvoicePrinter;
+if (sesWriteAccess()) {
+  mysql_param_query('UPDATE {prefix}invoice SET print_date=? where id=?', array(date('Ymd'), $intInvoiceId));
+}
+  
+$printer = instantiateInvoicePrinter($printTemplateFile);
 $printer->init($intInvoiceId, $printParameters, $printOutputFileName, $senderData, $recipientData, $invoiceData, $invoiceRowData);
 $printer->printInvoice();

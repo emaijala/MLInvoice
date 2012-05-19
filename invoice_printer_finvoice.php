@@ -4,7 +4,7 @@ require_once 'invoice_printer_xslt.php';
 require_once 'htmlfuncs.php';
 require_once 'miscfuncs.php';
 
-class InvoicePrinter extends InvoicePrinterXSLT
+class InvoicePrinterFinvoice extends InvoicePrinterXSLT
 {
   public function printInvoice()
   {

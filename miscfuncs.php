@@ -383,3 +383,15 @@ function getSelfDirectory()
   }
   return $path; 
 }
+
+function instantiateInvoicePrinter($printTemplateFile)
+{
+  $className = $printTemplateFile;
+  $className = str_replace('.php', '', $className);
+  $className = str_replace('_', ' ', $className);
+  $className = ucwords($className);
+  $className = str_replace(' ', '', $className);
+  
+  require_once $printTemplateFile;
+  return new $className();
+}
