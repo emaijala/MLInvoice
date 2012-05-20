@@ -263,16 +263,17 @@ EOS;
     
     if (getSetting('invoice_add_number') || getSetting('invoice_add_reference_number'))
     {
-      $invoiceNumberUpdatePrefix = "$.getJSON('json.php?func=get_invoice_defaults&amp;id=' + document.getElementById('record_id').value + '&amp;base_id=' + document.getElementById('base_id').value, function(json) { ";
+      $invoiceNumberUpdatePrefix = "$.getJSON('json.php?func=get_invoice_defaults&amp;id=' + document.getElementById('record_id').value + '&amp;base_id=' + document.getElementById('base_id').value + '&amp;invoice_no=' + document.getElementById('invoice_no').value, function(json) { ";
       if (getSetting('invoice_add_number')) 
-        $invoiceNumberUpdatePrefix .= "var invoice_no = document.getElementById('invoice_no'); if (invoice_no.value == '' || invoice_no.value == 0) invoice_no.value = json.invoice_no; ";
+        $invoiceNumberUpdatePrefix .= "var invoice_no = document.getElementById('invoice_no'); if (invoice_no.value == '' || invoice_no.value < 100) invoice_no.value = json.invoice_no; ";
       if (getSetting('invoice_add_reference_number'))
         $invoiceNumberUpdatePrefix .= "var ref_number = document.getElementById('ref_number'); if (ref_number.value == '' || ref_number.value == 0) ref_number.value = json.ref_no; ";
       $invoiceNumberUpdatePrefix .= "$('.save_button').addClass('ui-state-highlight'); ";
       $invoiceNumberUpdateSuffix = ' });';
     }
-    if (!getSetting('invoice_add_number'))
+    if (!getSetting('invoice_add_number')) {
       $invoiceNumberUpdatePrefix .= "invoice_no = document.getElementById('invoice_no'); if (invoice_no.value == '' || invoice_no.value == 0) alert('" . $GLOBALS['locInvoiceNumberNotDefined'] . "');";
+    }
   }
   
   // Print buttons
