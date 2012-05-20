@@ -1,5 +1,5 @@
 Name:		vllasku
-Version:	1.5
+Version:	1.5.1
 Release:	1%{?dist}
 Summary:	VLLasku - Web application to create Finnish invoices
 Group:		Applications/Internet
@@ -66,6 +66,8 @@ EOM
 %{_datadir}/%{name}
 
 %changelog
+* Sun Mar 18 2012 Ere Maijala <emaijala@gmail.com> - 1.5.1-1
+- updated for version 1.5.1
 * Sun Mar 18 2012 Ere Maijala <emaijala@gmail.com> - 1.5.0-1
 - updated for version 1.5.0
 * Wed Jan 11 2012 Ere Maijala <emaijala@gmail.com> - 1.4.3-1
