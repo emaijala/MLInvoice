@@ -96,6 +96,7 @@ if ($intInvoiceId)
     {
       $intProductId = $row['product_id'];
       $strDescription = $row['description'];
+      $rowDate = $row['row_date'];
       $intTypeId = $row['type_id'];
       $intPcs = $row['pcs'];
       $intPrice = $row['price'];
@@ -110,10 +111,14 @@ if ($intInvoiceId)
       else if ($intReminderRow)
         continue;
       
+      if (getSetting('invoice_update_row_dates_on_copy')) {
+        $rowDate = $intDate;
+      }
+      
       $strQuery = 
         'INSERT INTO {prefix}invoice_row(invoice_id, product_id, description, type_id, pcs, price, discount, row_date, vat, order_no, vat_included, reminder_row) '.
         'VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)';
-      mysql_param_query($strQuery, array($intNewId, $intProductId, $strDescription, $intTypeId, $intPcs, $intPrice, $intDiscount, $intDate, $intVat, $intOrderNo, $boolVatIncluded, $intReminderRow));
+      mysql_param_query($strQuery, array($intNewId, $intProductId, $strDescription, $intTypeId, $intPcs, $intPrice, $intDiscount, $rowDate, $intVat, $intOrderNo, $boolVatIncluded, $intReminderRow));
     }
   }
 }

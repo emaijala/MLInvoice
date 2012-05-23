@@ -418,7 +418,8 @@ default:
   $GLOBALS['locSettingDefaultListRows'] = 'Listoilla oletuksena näytettävä rivimäärä';
   $GLOBALS['locSettingInvoiceAddressXOffset'] = 'Osoitteen siirto vaakasuorassa (millimetrejä oletuksesta, myös negatiiviset arvot)';
   $GLOBALS['locSettingInvoiceAddressYOffset'] = 'Osoitteen siirto pystysuorassa (millimetrejä oletuksesta, myös negatiiviset arvot)';
-
+  $GLOBALS['locSettingInvoiceUpdateRowDateOnCopy'] = 'Päivitä laskurivien päivämäärät kopioitaessa lasku uudeksi';
+  
   // Base email
   $GLOBALS['locBaseEmailTitle'] = 'Laskujen lähetys sähköpostilla';
   $GLOBALS['locBaseEmailFrom'] = 'Lähettäjän sähköpostiosoite';

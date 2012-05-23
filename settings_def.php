@@ -53,4 +53,5 @@ $arrSettings = array(
     1 => $GLOBALS['locSettingInvoiceClearRowValues'],
     2 => $GLOBALS['locSettingInvoiceUseProductDefaults'])
   ),
+  'invoice_update_row_dates_on_copy' => array('label' => $GLOBALS['locSettingInvoiceUpdateRowDateOnCopy'], 'type' => 'CHECK', 'style' => 'medium', 'position' => 1, 'default' => 1, 'allow_null' => TRUE ), 
 );
