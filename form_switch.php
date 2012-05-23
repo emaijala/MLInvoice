@@ -512,7 +512,7 @@ EOF;
     array(
       "name" => "name", "label" => $GLOBALS['locBaseName'], "type" => "TEXT", "style" => "medium", "listquery" => "", "position" => 1, "allow_null" => FALSE ),
     array(
-      "name" => "company_id", "label" => $GLOBALS['locCOMPVATID'], "type" => "TEXT", "style" => "medium", "listquery" => "", "position" => 2, "allow_null" => FALSE ),
+      "name" => "company_id", "label" => $GLOBALS['locCOMPVATID'], "type" => "TEXT", "style" => "medium", "listquery" => "", "position" => 2, "allow_null" => TRUE ),
     array(
       "name" => "org_unit_number", "label" => $GLOBALS['locOrgUnitNumber'], "type" => "TEXT", "style" => "medium", "listquery" => "", "position" => 1, "allow_null" => TRUE ),
     array(
