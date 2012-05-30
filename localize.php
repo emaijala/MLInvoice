@@ -284,6 +284,7 @@ default:
   $GLOBALS['locTOTALVAT'] = 'Arvonlisävero yhteensä';
   $GLOBALS['locTOTALINCLUDINGVAT'] = 'Arvonlisäverollinen hinta yhteensä';
   $GLOBALS['locHeaderPrintTemplateActive'] = 'Käytössä';
+  $GLOBALS['locInvoicesTotal'] = '(yhteensä %s)';
 
 
   // Email
@@ -383,7 +384,7 @@ default:
   $GLOBALS['locNOV'] = 'Marraskuu';
   $GLOBALS['locDEC'] = 'Joulukuu';
           
-  //open_invoices.php
+  // open_invoices.php
   $GLOBALS['locLABELOPENINVOICES'] = 'Avoimet laskut';
   $GLOBALS['locNOOPENINVOICES'] = 'Ei avoimia laskuja';
   $GLOBALS['locLABELUNPAIDINVOICES'] = 'Maksamattomat laskut';

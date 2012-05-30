@@ -453,3 +453,15 @@ img.image {
   background: rgb(0, 0, 0) transparent;
   background: rgba(0, 0, 0, 0.05);
 }
+
+.overdue {
+  background-color: #FFCCDD;
+}
+
+.overdue7 {
+  background-color: #FF99AA;
+}
+
+.overdue14 {
+  background-color: #FF5566;
+}

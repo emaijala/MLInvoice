@@ -24,6 +24,7 @@ Tämä ohjelma on vapaa. Lue oheinen LICENSE.
 *******************************************************************************/
 
 $strTable = '';
+$strJoin = '';
 $strFilter = '';
 $strGroupBy = '';
 $levelsAllowed = array(ROLE_USER, ROLE_BACKUPMGR);
@@ -62,11 +63,12 @@ case 'invoices':
    $levelsAllowed[] = ROLE_READONLY;
 
    $strFilter = ($strFunc == 'invoices') ? 'i.archived = 0' : 'i.archived = 1';
-   $strTable = '{prefix}invoice i ' .
+   $strTable = '{prefix}invoice i';
+   $strJoin = 
      'LEFT OUTER JOIN {prefix}base b on i.base_id=b.id ' .
      'LEFT OUTER JOIN {prefix}company c on i.company_id=c.id ' .
      'LEFT OUTER JOIN {prefix}invoice_state s on i.state_id=s.id ' .
-     'LEFT OUTER JOIN (select invoice_id, CASE WHEN ir.vat_included = 0 THEN ir.price * ir.pcs * (1 - IFNULL(ir.discount, 0) / 100) * (1 + ir.vat / 100) ELSE ir.price * ir.pcs * (1 - IFNULL(ir.discount, 0) / 100) END as row_total from {prefix}invoice_row ir where ir.deleted = 0) ir ON (ir.invoice_id=i.id)';
+     'LEFT OUTER JOIN (select ir.invoice_id, CASE WHEN ir.vat_included = 0 THEN ir.price * ir.pcs * (1 - IFNULL(ir.discount, 0) / 100) * (1 + ir.vat / 100) ELSE ir.price * ir.pcs * (1 - IFNULL(ir.discount, 0) / 100) END as row_total from {prefix}invoice_row ir where ir.deleted = 0) it ON (it.invoice_id=i.id)';
    $astrSearchFields = 
     array(
         array("name" => "i.invoice_no", "type" => "TEXT"),
@@ -85,9 +87,9 @@ case 'invoices':
         array("name" => "i.name", 'width' => 100, "type" => "TEXT", "header" => $GLOBALS['locHEADERINVOICENAME']),
         array("name" => "s.name", 'width' => 120, "type" => "TEXT", "header" => $GLOBALS['locHEADERINVOICESTATE']),
         array("name" => "i.ref_number", 'width' => 100, "type" => "TEXT", "header" => $GLOBALS['locHEADERINVOICEREFERENCE']),
-        array('name' => '.total_price', 'sql' => 'sum(ir.row_total) as total_price', 'width' => 80, 'type' => 'CURRENCY', 'header' => $GLOBALS['locHeaderInvoiceTotal'])
+        array('name' => '.total_price', 'sql' => 'SUM(it.row_total) as total_price', 'width' => 80, 'type' => 'CURRENCY', 'header' => $GLOBALS['locHeaderInvoiceTotal'])
     );
-   $strGroupBy = 'i.invoice_date, i.due_date, i.invoice_no, b.name, c.company_name, i.name, s.name, i.ref_number';
+   $strGroupBy = 'i.id, i.deleted, i.invoice_date, i.due_date, i.invoice_no, b.name, c.company_name, i.name, s.name, i.ref_number';
    $strMainForm = "invoice";
    $strTitle = $GLOBALS['locINVOICES'];
 break;

@@ -160,7 +160,7 @@ function createHtmlList($strFunc, $strList, $strIDQuery, &$arrQueryParams, $strT
     $strTableName = "resultlist_$strMainForm";
   
   if ($strTitleOverride)
-    $strTitle = "<strong>$strTitleOverride</strong><br><br>";
+    $strTitle = $strTitleOverride;
   else
     $strTitle = '';
   if (!$strNoEntries)
@@ -174,7 +174,7 @@ function createHtmlList($strFunc, $strList, $strIDQuery, &$arrQueryParams, $strT
     $strSelectClause .= ',' . (isset($field['sql']) ? $field['sql'] : $field['name']);
   }
   $strQuery =
-    "SELECT $strSelectClause FROM $strTable ".
+    "SELECT $strSelectClause FROM $strTable $strJoin ".
     "WHERE $strPrimaryKey IN ($strIDQuery) ";
   if ($strGroupBy) {
     $strQuery .= " GROUP BY $strGroupBy";
@@ -193,6 +193,9 @@ function createHtmlList($strFunc, $strList, $strIDQuery, &$arrQueryParams, $strT
 <?php
     return;
   }
+  
+  // Only for invoice lists
+  $totalSum = 0;
   
   $i = -1;
   while ($row = mysql_fetch_prefixed_assoc($intRes)) 
@@ -213,6 +216,9 @@ function createHtmlList($strFunc, $strList, $strIDQuery, &$arrQueryParams, $strT
       elseif ($field['type'] == 'CURRENCY') 
       {
         $value = $row[$name];
+        if ($name == '.total_price') {
+          $totalSum += $value;
+        }
         $value = miscRound2Decim($value, isset($field['decimals']) ? $field['decimals'] : 2);
         $astrListValues[$i][$name] = $value;
       }
@@ -222,7 +228,14 @@ function createHtmlList($strFunc, $strList, $strIDQuery, &$arrQueryParams, $strT
       }
     }
   }
-
+  
+  if ($strList == 'invoices' || $strFunc == 'invoices') {
+    $strTitle .= ' ' . sprintf($GLOBALS['locInvoicesTotal'], miscRound2Decim($totalSum));
+  }
+  if ($strTitle) {
+    $strTitle = "<strong>$strTitle</strong><br><br>";
+  }
+  
 ?>
   <script type="text/javascript">
   
@@ -263,17 +276,32 @@ function createHtmlList($strFunc, $strList, $strIDQuery, &$arrQueryParams, $strT
 <?php
   for ($i = 0; $i < count($astrListValues); $i++) 
   {
+    $row = $astrListValues[$i];
     $strLink = "?func=$strFunc&amp;list=$strList&amp;form=$strMainForm&amp;id=" . $astrPrimaryKeys[$i];
     $deleted = $aboolDeleted[$i] ? ' deleted' : '';
 ?>
-  
         <tr class="listrow">
 <?php
     foreach ($astrShowFields as $field) 
     {
-      $value = trim($astrListValues[$i][$field['name']]) ? htmlspecialchars($astrListValues[$i][$field['name']]) : '&nbsp;';
+      $name = $field['name'];
+      $overdue = false;
+      
+      // Special colouring for overdue invoices
+      if ($name == 'i.due_date' && $strTableName == 'resultlist_unpaid_invoices') {
+        $rowDue = strDate2UnixTime($row['i.due_date']);
+        if ($rowDue < mktime(0, 0, 0, date("m"), date("d") - 14, date("Y"))) {
+          $overdue = ' overdue14';
+        } elseif ($rowDue < mktime(0, 0, 0, date("m"), date("d") - 7, date("Y"))) {
+          $overdue = ' overdue7';
+        } elseif ($rowDue < mktime(0, 0, 0, date("m"), date("d"), date("Y"))) {
+          $overdue = ' overdue';
+        }
+      }
+      
+      $value = trim($row[$name]) ? htmlspecialchars($row[$name]) : '&nbsp;';
 ?>
-          <td class="label<?php echo $deleted?>"><a class="navilink" href="<?php echo $strLink?>"><?php echo $value?></a></td>
+          <td class="label<?php echo $deleted?>"><?php if ($overdue) echo "<div class=\"$overdue\">"?><a class="navilink" href="<?php echo $strLink?>"><?php echo $value?></a><?php if ($overdue) echo "</div>"?></td>
 <?php
     }
 ?>
