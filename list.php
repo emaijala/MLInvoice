@@ -22,20 +22,34 @@ require_once "localize.php";
 
 function extractSearchTerm(&$searchTerms, &$field, &$operator, &$term, &$boolean)
 {
-  if (!preg_match('/([\w\.]+)\s*(=|!=|<|>)\s*(.+)/', $searchTerms, $matches))
+  if (!preg_match('/([\w\.\_]+)\s*(=|!=|<|>|LIKE)\s*(.+)/', $searchTerms, $matches)) {
     return false;
+  }
   $field = $matches[1];
   $operator = $matches[2];
   $rest = $matches[3];
   $term = '';
   $inQuotes = false;
+  $escaped = false;
   while ($rest)
   {
     $ch = substr($rest, 0, 1);
     $rest = substr($rest, 1);
-    if ($ch == "'")
+    if ($escaped) {
+      $escaped = false;
+      $term .= $ch;
+      continue;
+    }
+    if ($ch == '\\') {
+      $escaped = true;
+      continue;
+    }
+      
+    if ($ch == "'") {
       $inQuotes = !$inQuotes;
-    elseif ($ch == ' ' && !$inQuotes)
+      continue;
+    }
+    if ($ch == ' ' && !$inQuotes) 
       break;
     $term .= $ch;
   }
@@ -59,8 +73,8 @@ function extractSearchTerm(&$searchTerms, &$field, &$operator, &$term, &$boolean
 
 function createList($strFunc, $strList)
 {
-  $strWhereClause = getPostRequest('where', '');
-  $strSearchTerms = trim(getPostRequest('searchterms', ''));
+  $strWhereClause = getRequest('where', '');
+  $strSearchTerms = trim(getRequest('searchterms', ''));
   $intID = getRequest('id', FALSE);
   
   require "list_switch.php";
@@ -79,7 +93,7 @@ function createList($strFunc, $strList)
     return;
   
   $arrQueryParams = array();
-  if( $strWhereClause ) { 
+  if ($strWhereClause) { 
     // Validate and build query parameters
     $boolean = '';
     $where = '';
@@ -91,12 +105,12 @@ function createList($strFunc, $strList)
         break;
       $boolean = " $nextBool";
     }
-    $strWhereClause = "WHERE ($where)"; 
+    $strWhereClause = "WHERE ($where)";
   }
-  elseif( $strSearchTerms == "*"  && !$intID ) {
+  elseif ($strSearchTerms == "*"  && !$intID) {
       $strWhereClause = "WHERE " . $strPrimaryKey . " IS NOT NULL ";
   }
-  elseif( !$strSearchTerms && !$intID ) {
+  elseif (!$strSearchTerms && !$intID) {
       $strWhereClause = "WHERE " . $strPrimaryKey . " IS NOT NULL ";
       $strOrderClause2 = " " . $strPrimaryKey . " DESC ";
   }
@@ -129,7 +143,7 @@ function createList($strFunc, $strList)
       }
       $strWhereClause = substr( $strWhereClause, 0, -4) . ')';
   }
-      
+
   if ($strFilter)
   {
     if ($strWhereClause)
@@ -146,8 +160,7 @@ function createList($strFunc, $strList)
       $strWhereClause = " WHERE $strDeletedField=0";
   }
   
-  $strQuery = 
-    "SELECT $strPrimaryKey FROM $strTable $strWhereClause"; 
+  $strQuery = "SELECT $strPrimaryKey FROM $strTable $strWhereClause"; 
 
   createHtmlList($strFunc, $strList, $strQuery, $arrQueryParams);
 }

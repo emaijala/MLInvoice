@@ -147,7 +147,7 @@ if ($blnSearch || $blnSave)
         {
           $strSearchMatch = 'NOT LIKE';
         }
-        $strSearchValue = "'%$" . $astrValues[$name] . "%'";
+        $strSearchValue = "'%" . addcslashes($astrValues[$name], "'\\") . "%'";
       }
       elseif ($astrFormElements[$j]['type'] == 'INT' || $astrFormElements[$j]['type'] == 'LIST') 
       {
@@ -162,7 +162,7 @@ if ($blnSearch || $blnSave)
         $strSearchValue = dateConvDate2DBDate($astrValues[$name]);
       }
       if ($strSearchValue)
-        $strWhereClause .= "$strSearchOperator$strListTableAlias$name$strSearchMatch$strSearchValue";
+        $strWhereClause .= "$strSearchOperator$strListTableAlias$name $strSearchMatch $strSearchValue";
     }
   }
     
@@ -250,7 +250,7 @@ for ($j = 0; $j < count($astrFormElements); $j++)
     <?php echo htmlListBox('searchmatch_' . $astrFormElements[$j]['name'], $comparisonValues, $strSearchMatch, '', 0)?>
   </td>
   <td class="field">
-    <?php echo htmlFormElement($astrFormElements[$j]['name'], $astrFormElements[$j]['type'], gpcStripSlashes($astrValues[$astrFormElements[$j]['name']]), $astrFormElements[$j]['style'], $astrFormElements[$j]['listquery'], 'MODIFY', $astrFormElements[$j]['parent_key'])?>
+    <?php echo htmlFormElement($astrFormElements[$j]['name'], $astrFormElements[$j]['type'], $astrValues[$astrFormElements[$j]['name']], $astrFormElements[$j]['style'], $astrFormElements[$j]['listquery'], 'MODIFY', $astrFormElements[$j]['parent_key'])?>
   </td>
   <td>
     <input type="hidden" name="delete_<?php echo $astrFormElements[$j]['name']?>_x" value="0">
