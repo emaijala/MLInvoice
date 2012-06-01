@@ -45,13 +45,9 @@ class InvoiceReport
       return;
     }
     
-    $intBaseId = getRequest('base', FALSE);
-    $intCompanyId = getRequest('company', FALSE);
+    $intBaseId = getRequest('base', false);
+    $intCompanyId = getRequest('company', false);
     $dateRange = getRequest('date', '');
-              
-    $typeListQuery = 
-        "SELECT 'html' AS id, '" . $GLOBALS['locPrintFormatHTML'] . "' AS name UNION ".
-        "SELECT 'pdf' AS id, '" . $GLOBALS['locPrintFormatPDF'] . "' AS name";
 ?>
     
   <script type="text/javascript">
@@ -69,53 +65,66 @@ class InvoiceReport
     <div class="unlimited_label"><strong><?php echo $GLOBALS['locINVOICEREPORT']?></strong></div>
     
     <div class="medium_label"><?php echo $GLOBALS['locDateInterval']?></div>
-    <div class="field"><?php echo htmlFormElement('date', 'TEXT', $dateRange, 'medium hasDateRangePicker', '', 'MODIFY', FALSE)?></div>
+    <div class="field"><?php echo htmlFormElement('date', 'TEXT', $dateRange, 'medium hasDateRangePicker', '', 'MODIFY', false)?></div>
 
     <div class="medium_label"><?php echo $GLOBALS['locBILLER']?></div>
-    <div class="field"><?php echo htmlFormElement('base', 'LIST', $intBaseId, 'medium', 'SELECT id, name FROM {prefix}base WHERE deleted=0 ORDER BY name', 'MODIFY', FALSE)?></div>
+    <div class="field"><?php echo htmlFormElement('base', 'LIST', $intBaseId, 'medium', 'SELECT id, name FROM {prefix}base WHERE deleted=0 ORDER BY name', 'MODIFY', false)?></div>
 
     <div class="medium_label"><?php echo $GLOBALS['locCOMPANY']?></div>
-    <div class="field"><?php echo htmlFormElement('company', 'LIST', $intCompanyId, 'medium', 'SELECT id, company_name FROM {prefix}company WHERE deleted=0 ORDER BY company_name', 'MODIFY', FALSE)?></div>
+    <div class="field"><?php echo htmlFormElement('company', 'LIST', $intCompanyId, 'medium', 'SELECT id, company_name FROM {prefix}company WHERE deleted=0 ORDER BY company_name', 'MODIFY', false)?></div>
 
     <div class="medium_label"><?php echo $GLOBALS['locPrintFormat']?></div>
-    <div class="field"><?php echo htmlFormElement('format', 'LIST', 'html', 'medium noemptyvalue', $typeListQuery, 'MODIFY', FALSE)?></div>
-
-    <div class="medium_label"><?php echo $GLOBALS['locPrintStateSums']?></div>
-    <div class="field"><?php echo htmlFormElement('sums', 'CHECK', 0, 'medium', '', 'MODIFY', FALSE)?></div>
+    <div class="field"><input type="radio" name="format" value="html" checked="checked"><?php echo $GLOBALS['locPrintFormatHTML']?></input></div>
+    <div class="medium_label"></div>
+    <div class="field"><input type="radio" name="format" value="pdf"><?php echo $GLOBALS['locPrintFormatPDF']?></input></div>
+    <div class="field_sep"></div>
     
-    <div class="unlimited_label"><strong><?php echo $GLOBALS['locPrintReportStates']?></strong></div>
-  <?php
+    <div class="medium_label"><?php echo $GLOBALS['locPrintGrouping']?></div>
+    <div class="field"><input type="radio" name="grouping" value="" checked="checked"><?php echo $GLOBALS['locPrintGroupingNone']?></input></div>
+    <div class="medium_label"></div>
+    <div class="field"><input type="radio" name="grouping" value="state"><?php echo $GLOBALS['locPrintGroupingState']?></input></div>
+    <div class="medium_label"></div>
+    <div class="field"><input type="radio" name="grouping" value="month"><?php echo $GLOBALS['locPrintGroupingMonth']?></input></div>
+    <div class="field_sep">&nbsp;</div>
+    
+    <div class="medium_label"><?php echo $GLOBALS['locPrintReportStates']?></div>
+<?php
     $strQuery = 
         "SELECT id, name ".
         "FROM {prefix}invoice_state WHERE deleted=0 ".
         "ORDER BY order_no";
     $intRes = mysql_query_check($strQuery);
+    $first = true;
     while ($row = mysql_fetch_assoc($intRes))
     {
       $intStateId = $row['id'];
       $strStateName = $row['name'];
-      $tmpSelected = getRequest("stateid_$intStateId", TRUE) ? TRUE : FALSE;
+      $tmpSelected = getRequest("stateid_$intStateId", TRUE) ? TRUE : false;
       $strChecked = $tmpSelected ? ' checked' : '';
-    ?>
-    <div class="medium_label"><input type="checkbox" name="stateid_<?php echo $intStateId?>" value="1"<?php echo $strChecked?>> <?php echo htmlspecialchars($strStateName)?></div>
-  <?php
+      if (!$first) {
+        echo "    <div class=\"medium_label\"></div>\n";
+      }
+      $first = false;
+?>
+    <div class="field"><input type="checkbox" name="stateid_<?php echo $intStateId?>" value="1"<?php echo $strChecked?>> <?php echo htmlspecialchars($strStateName)?></div>
+<?php
     }
-  ?>
+?>
     <div class="medium_label">
       <a class="actionlink" href="#" onclick="document.getElementById('params').submit(); return false;"><?php echo $GLOBALS['locGET']?></a>
     </div>
     </form>
   </div>
-  <?php
+<?php
   }
   
   private function printReport()
   {
-    $intBaseId = getRequest('base', FALSE);
-    $intCompanyId = getRequest('company', FALSE);
-    $startDate = getRequest('from', FALSE);
-    $endDate = getRequest('until', FALSE);
-    $sums = getRequest('sums', FALSE);
+    $intBaseId = getRequest('base', false);
+    $intCompanyId = getRequest('company', false);
+    $startDate = getRequest('from', false);
+    $endDate = getRequest('until', false);
+    $grouping = getRequest('grouping', '');
     $format = getRequest('format', 'html');
   
     $dateRange = explode(' - ', getRequest('date', ''));
@@ -171,7 +180,7 @@ class InvoiceReport
       $intStateId = $row['id'];
       $strStateName = $row['name'];
       $strTemp = "stateid_$intStateId";
-      $tmpSelected = getRequest($strTemp, FALSE);
+      $tmpSelected = getRequest($strTemp, false);
       if ($tmpSelected) 
       {
         $strQuery2 .= 'i.state_id = ? OR ';
@@ -183,17 +192,17 @@ class InvoiceReport
       $strQuery2 = ' AND (' . substr($strQuery2, 0, -4) . ')';
     }
     
-    $strQuery .= "$strQuery2 ORDER BY " . ($sums ? 'state_id, invoice_date, invoice_no' : 'invoice_date, invoice_no');
+    $strQuery .= "$strQuery2 ORDER BY " . ($grouping == 'state' ? 'state_id, invoice_date, invoice_no' : 'invoice_date, invoice_no');
     
     $this->printHeader($format, $startDate, $endDate);  
   
     $intTotSum = 0;
     $intTotVAT = 0;
     $intTotSumVAT = 0;
-    $currentState = FALSE;
-    $stateTotSum = 0;
-    $stateTotVAT = 0;
-    $stateTotSumVAT = 0;
+    $currentGroup = false;
+    $groupTotSum = 0;
+    $groupTotVAT = 0;
+    $groupTotSumVAT = 0;
     $intRes = mysql_param_query($strQuery, $arrParams);
     while ($row = mysql_fetch_assoc($intRes))
     {
@@ -206,15 +215,25 @@ class InvoiceReport
       $strDueDate = dateConvDBDate2Date($row['due_date']);
       $strName = $row['name'];
       $strRefNumber = chunk_split($strRefNumber, 5, ' ');
-      
-      if ($sums && $currentState !== FALSE && $currentState != $strInvoiceState)
-      {
-        $this->printStateSums($format, $currentState, $stateTotSum, $stateTotVAT, $stateTotSumVAT);
-        $stateTotSum = 0;
-        $stateTotVAT = 0;
-        $stateTotSumVAT = 0;
+      switch ($grouping) {
+        case 'state':
+          $invoiceGroup = $strInvoiceState;
+          break;
+        case 'month':
+          $invoiceGroup = substr($row['invoice_date'], 4, 2);
+          break;
+        default:
+          $invoiceGroup = false;
       }
-      $currentState = $strInvoiceState;
+      
+      if ($grouping && $currentGroup !== false && $currentGroup != $invoiceGroup)
+      {
+        $this->printGroupSums($format, $groupTotSum, $groupTotVAT, $groupTotSumVAT);
+        $groupTotSum = 0;
+        $groupTotVAT = 0;
+        $groupTotSumVAT = 0;
+      }
+      $currentGroup = $invoiceGroup;
       
       $strQuery = 
           "SELECT ir.description, ir.pcs, ir.price, ir.discount, ir.row_date, ir.vat, ir.vat_included ".
@@ -236,14 +255,15 @@ class InvoiceReport
         $intTotVAT += $intVAT;
         $intTotSumVAT += $intSumVAT;
       }
-      $stateTotSum += $intRowSum;
-      $stateTotVAT += $intRowVAT;
-      $stateTotSumVAT += $intRowSumVAT;
+      $groupTotSum += $intRowSum;
+      $groupTotVAT += $intRowVAT;
+      $groupTotSumVAT += $intRowSumVAT;
       
       $this->printRow($format, $strInvoiceNo, $strInvoiceDate, $strDueDate, $strName, $strInvoiceState, $intRowSum, $intRowVAT, $intRowSumVAT);
     }
-    if ($sums)
-      $this->printStateSums($format, $currentState, $stateTotSum, $stateTotVAT, $stateTotSumVAT);
+    if ($grouping) {
+      $this->printGroupSums($format, $groupTotSum, $groupTotVAT, $groupTotSumVAT);
+    }
     $this->printTotals($format, $intTotSum, $intTotVAT, $intTotSumVAT);
     $this->printFooter($format);
   }
@@ -283,7 +303,7 @@ class InvoiceReport
       $this->pdf = $pdf;
       return;
     }
-  ?>
+?>
     <div class="report">
     <table>
     <tr>
@@ -312,7 +332,7 @@ class InvoiceReport
             <?php echo $GLOBALS['locWITHVAT']?>
         </th>
     </tr>
-  <?php
+<?php
   }
   
   private function printRow($format, $strInvoiceNo, $strInvoiceDate, $strDueDate, $strName, $strInvoiceState, $intRowSum, $intRowVAT, $intRowSumVAT)
@@ -335,7 +355,7 @@ class InvoiceReport
       $pdf->MultiCell(45, 4, $strName, 0, 'L');
       return;
     }
-  ?>
+?>
     <tr>
         <td class="input">
             <?php echo htmlspecialchars($strInvoiceNo)?>
@@ -362,10 +382,10 @@ class InvoiceReport
             <?php echo miscRound2Decim($intRowSumVAT)?>
         </td>
     </tr>
-  <?php
+<?php
   }
       
-  private function printStateSums($format, $state, $stateTotSum, $stateTotVAT, $stateTotSumVAT)
+  private function printGroupSums($format, $groupTotSum, $groupTotVAT, $groupTotSumVAT)
   {
     if ($format == 'pdf')
     {
@@ -381,28 +401,28 @@ class InvoiceReport
       $pdf->Cell(20, 4, '', 0, 0, 'L');
       $pdf->Cell(45, 4, '', 0, 0, 'L');
       $pdf->Cell(15, 4, '', 0, 0, 'L');
-      $pdf->Cell(25, 4, miscRound2Decim($stateTotSum), 0, 0, 'R');
-      $pdf->Cell(25, 4, miscRound2Decim($stateTotVAT), 0, 0, 'R');
-      $pdf->Cell(25, 4, miscRound2Decim($stateTotSumVAT), 0, 1, 'R');
+      $pdf->Cell(25, 4, miscRound2Decim($groupTotSum), 0, 0, 'R');
+      $pdf->Cell(25, 4, miscRound2Decim($groupTotVAT), 0, 0, 'R');
+      $pdf->Cell(25, 4, miscRound2Decim($groupTotSumVAT), 0, 1, 'R');
       $pdf->setY($pdf->getY() + 2);
       return;
     }
-  ?>
+?>
     <tr>
-        <td class="input" colspan="4" style="text-align: right">
+        <td class="input" colspan="5" style="text-align: right">
             &nbsp;
         </td>
         <td class="input row_sum" style="text-align: right">
-            &nbsp;<?php echo miscRound2Decim($stateTotSum)?>
+            &nbsp;<?php echo miscRound2Decim($groupTotSum)?>
         </td>
         <td class="input row_sum" style="text-align: right">
-            &nbsp;<?php echo miscRound2Decim($stateTotVAT)?>
+            &nbsp;<?php echo miscRound2Decim($groupTotVAT)?>
         </td>
         <td class="input row_sum" style="text-align: right">
-            &nbsp;<?php echo miscRound2Decim($stateTotSumVAT)?>
+            &nbsp;<?php echo miscRound2Decim($groupTotSumVAT)?>
         </td>
     </tr>            
-  <?php
+<?php
   }
   
   private function printTotals($format, $intTotSum, $intTotVAT, $intTotSumVAT)
@@ -412,17 +432,17 @@ class InvoiceReport
       $pdf = $this->pdf;
       $pdf->SetFont('Helvetica','B',8);
       $pdf->setY($pdf->getY() + 3);
-      $pdf->Cell(68, 4, $GLOBALS['locTOTAL'], 0, 0, 'L');
       $pdf->Cell(25, 4, '', 0, 0, 'L');
       $pdf->Cell(25, 4, '', 0, 0, 'L');
+      $pdf->Cell(68, 4, $GLOBALS['locTOTAL'], 0, 0, 'R');
       $pdf->Cell(25, 4, miscRound2Decim($intTotSum), 0, 0, 'R');
       $pdf->Cell(25, 4, miscRound2Decim($intTotVAT), 0, 0, 'R');
       $pdf->Cell(25, 4, miscRound2Decim($intTotSumVAT), 0, 1, 'R');
       return;
     }
-  ?>
+?>
     <tr>
-        <td class="input total_sum" colspan="4" style="text-align: right">
+        <td class="input total_sum" colspan="5" style="text-align: right">
             <?php echo $GLOBALS['locTOTAL']?>
         </td>
         <td class="input total_sum" style="text-align: right">
@@ -435,7 +455,7 @@ class InvoiceReport
             &nbsp;<?php echo miscRound2Decim($intTotSumVAT)?>
         </td>
     </tr>
-  <?php
+<?php
   }
   
   private function printFooter($format)
@@ -446,9 +466,9 @@ class InvoiceReport
       $pdf->Output('report.pdf', 'I');
       return;
     }
-  ?>
+?>
     </table>
     </div>
-  <?php
+<?php
   }
 }

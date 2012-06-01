@@ -48,10 +48,6 @@ class ProductReport
     $intCompanyId = getRequest('company', FALSE);
     $intProductId = getRequest('product', FALSE);
     $dateRange = getRequest('date', '');
-          
-    $typeListQuery = 
-        "SELECT 'html' AS id, '" . $GLOBALS['locPrintFormatHTML'] . "' AS name UNION ".
-        "SELECT 'pdf' AS id, '" . $GLOBALS['locPrintFormatPDF'] . "' AS name";
 ?>
     
   <script type="text/javascript">
@@ -81,32 +77,40 @@ class ProductReport
     <div class="field"><?php echo htmlFormElement('product', 'LIST', $intProductId, 'medium', 'SELECT id, product_name FROM {prefix}product WHERE deleted=0 ORDER BY product_name', 'MODIFY', FALSE)?></div>
 
     <div class="medium_label"><?php echo $GLOBALS['locPrintFormat']?></div>
-    <div class="field"><?php echo htmlFormElement('format', 'LIST', 'html', 'medium noemptyvalue', $typeListQuery, 'MODIFY', FALSE)?></div>
-
-    <div class="unlimited_label"><h1><?php echo $GLOBALS['locPrintReportStates']?></h1></div>
-  <?php
+    <div class="field"><input type="radio" name="format" value="html" checked="checked"><?php echo $GLOBALS['locPrintFormatHTML']?></input></div>
+    <div class="medium_label"></div>
+    <div class="field"><input type="radio" name="format" value="pdf"><?php echo $GLOBALS['locPrintFormatPDF']?></input></div>
+    <div class="field_sep"></div>
+    
+    <div class="medium_label"><?php echo $GLOBALS['locPrintReportStates']?></div>
+<?php
     $strQuery = 
         "SELECT id, name ".
         "FROM {prefix}invoice_state WHERE deleted=0 ".
         "ORDER BY order_no";
     $intRes = mysql_query_check($strQuery);
+      $first = true;
     while ($row = mysql_fetch_assoc($intRes))
     {
       $intStateId = $row['id'];
       $strStateName = $row['name'];
-      $tmpSelected = getRequest("stateid_$intStateId", TRUE) ? TRUE : FALSE;
+      $tmpSelected = getRequest("stateid_$intStateId", TRUE) ? TRUE : false;
       $strChecked = $tmpSelected ? ' checked' : '';
-    ?>
-    <div class="medium_label"><input type="checkbox" name="stateid_<?php echo $intStateId?>" value="1"<?php echo $strChecked?>> <?php echo htmlspecialchars($strStateName)?></div>
-  <?php
+      if (!$first) {
+        echo "    <div class=\"medium_label\"></div>\n";
+      }
+      $first = false;
+?>
+    <div class="field"><input type="checkbox" name="stateid_<?php echo $intStateId?>" value="1"<?php echo $strChecked?>> <?php echo htmlspecialchars($strStateName)?></div>
+<?php
     }
-  ?>
+?>
     <div class="medium_label">
       <a class="actionlink" href="#" onclick="document.getElementById('params').submit(); return false;"><?php echo $GLOBALS['locGET']?></a>
     </div>
     </form>
   </div>
-  <?php
+<?php
   }
 
   private function printReport()
@@ -261,7 +265,7 @@ class ProductReport
       $this->pdf = $pdf;
       return;
     }
-  ?>
+?>
     <div class="report">
     <table>
     <tr>
@@ -287,7 +291,7 @@ class ProductReport
             <?php echo $GLOBALS['locWITHVAT']?>
         </th>
     </tr>
-  <?php
+<?php
   }
   
   private function printRow($format, $strProduct, $strDescription, $intCount, $strUnit, $intSum, $intVATPercent, $intVAT, $intSumVAT)
@@ -349,7 +353,7 @@ class ProductReport
             <?php echo miscRound2Decim($intSumVAT)?>
         </td>
     </tr>
-  <?php
+<?php
   }
       
   private function printTotals($format, $intTotSum, $intTotVAT, $intTotSumVAT)
@@ -368,7 +372,7 @@ class ProductReport
       $pdf->Cell(25, 4, miscRound2Decim($intTotSumVAT), 0, 1, 'R');
       return;
     }
-  ?>
+?>
     <tr>
         <td class="input total_sum">
             <?php echo $GLOBALS['locTOTAL']?>
@@ -392,7 +396,7 @@ class ProductReport
             <?php echo miscRound2Decim($intTotSumVAT)?>
         </td>
     </tr>
-  <?php
+<?php
   }
   
   private function printFooter($format)
@@ -403,9 +407,9 @@ class ProductReport
       $pdf->Output('report.pdf', 'I');
       return;
     }
-  ?>
+?>
     </table>
     </div>
-  <?php
+<?php
   }
 }

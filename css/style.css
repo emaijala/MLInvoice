@@ -465,3 +465,9 @@ img.image {
 .overdue14 {
   background-color: #FF5566;
 }
+
+.field_sep {
+	float: left;
+	clear: both;
+	height: 6px;
+}
