@@ -76,7 +76,7 @@ function sesCreateSession($strLogin, $strPasswd)
             }
               
             $_SESSION['sesTYPEID'] = $row['type_id'];
-            $_SESSION['sesLANG'] = 'fi';
+            $_SESSION['sesLANG'] = 'fi-FI';
             $_SESSION['sesUSERID'] = $row['user_id'];
             $_SESSION['sesACCESSLEVEL'] = $row['access_level'];
             $_SESSION['REMOTE_ADDR'] = $_SERVER['REMOTE_ADDR'];

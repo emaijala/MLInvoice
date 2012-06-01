@@ -47,9 +47,8 @@ class InvoiceReport
     
     $intBaseId = getRequest('base', FALSE);
     $intCompanyId = getRequest('company', FALSE);
-    $startDate = getRequest('from', date('d.m.Y', mktime(0, 0, 0, date('m') - 1, 1, date('Y'))));
-    $endDate = getRequest('until', date('d.m.Y', mktime(0, 0, 0, date('m'), 0, date('Y'))));
-          
+    $dateRange = getRequest('date', '');
+              
     $typeListQuery = 
         "SELECT 'html' AS id, '" . $GLOBALS['locPrintFormatHTML'] . "' AS name UNION ".
         "SELECT 'pdf' AS id, '" . $GLOBALS['locPrintFormatPDF'] . "' AS name";
@@ -57,7 +56,7 @@ class InvoiceReport
     
   <script type="text/javascript">
   $(document).ready(function() { 
-    $('input[class~="hasCalendar"]').datepicker();
+    $('input[class~="hasDateRangePicker"]').daterangepicker(<?php echo $GLOBALS['locDateRangePickerOptions']?>);
   });
   </script>
   
@@ -70,10 +69,10 @@ class InvoiceReport
     <div class="unlimited_label"><strong><?php echo $GLOBALS['locINVOICEREPORT']?></strong></div>
     
     <div class="medium_label"><?php echo $GLOBALS['locDateInterval']?></div>
-    <div class="field"><?php echo htmlFormElement('from', 'TEXT', $startDate, 'medium hasCalendar', '', 'MODIFY', FALSE)?> - <?php echo htmlFormElement('until', 'TEXT', $endDate, 'medium hasCalendar', '', 'MODIFY', FALSE)?></div>
+    <div class="field"><?php echo htmlFormElement('date', 'TEXT', $dateRange, 'medium hasDateRangePicker', '', 'MODIFY', FALSE)?></div>
 
     <div class="medium_label"><?php echo $GLOBALS['locBILLER']?></div>
-    <div class="field"><?php echo htmlFormElement('base', 'LIST', $intBaseId, 'medium hasCalendar', 'SELECT id, name FROM {prefix}base WHERE deleted=0 ORDER BY name', 'MODIFY', FALSE)?></div>
+    <div class="field"><?php echo htmlFormElement('base', 'LIST', $intBaseId, 'medium', 'SELECT id, name FROM {prefix}base WHERE deleted=0 ORDER BY name', 'MODIFY', FALSE)?></div>
 
     <div class="medium_label"><?php echo $GLOBALS['locCOMPANY']?></div>
     <div class="field"><?php echo htmlFormElement('company', 'LIST', $intCompanyId, 'medium', 'SELECT id, company_name FROM {prefix}company WHERE deleted=0 ORDER BY company_name', 'MODIFY', FALSE)?></div>
@@ -119,10 +118,16 @@ class InvoiceReport
     $sums = getRequest('sums', FALSE);
     $format = getRequest('format', 'html');
   
-    if ($startDate)
+    $dateRange = explode(' - ', getRequest('date', ''));
+    $startDate = $dateRange[0];
+    $endDate = isset($dateRange[1]) ? $dateRange[1] : ''; 
+        
+    if ($startDate) {
       $startDate = dateConvDate2DBDate($startDate);
-    if ($endDate)
+    }
+    if ($endDate) {
       $endDate = dateConvDate2DBDate($endDate);
+    }
     
     $arrParams = array();
     

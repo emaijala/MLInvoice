@@ -355,7 +355,6 @@ $(document).ready(function() {
 <?php
   }
 ?>
-
   $('#message').ajaxStart(function() {
     $('#spinner').css('visibility', 'visible');
   });

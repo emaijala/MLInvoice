@@ -25,9 +25,9 @@ Tämä ohjelma on vapaa. Lue oheinen LICENSE.
 
 require_once "settings.php";
 
-switch (isset($_SESSION['sesLANG']) ? $_SESSION['sesLANG'] : 'fi') 
+switch (isset($_SESSION['sesLANG']) ? $_SESSION['sesLANG'] : 'fi-FI') 
 {
-case 'en':
+case 'en-US':
   break;
 
 default:
@@ -314,20 +314,57 @@ default:
   $GLOBALS['locHeaderInvoiceTotal'] = 'Summa';
 
   // TABLE TEXTS
-  $GLOBALS['locTABLETEXTS'] = 
-    '"sLengthMenu": "_MENU_ per sivu",' .
-    '"sZeroRecords": "Ei löytyneitä",' .
-    '"sInfo": "_START_ - _END_ / _TOTAL_",' .
-    '"sInfoEmpty": "Ei näytettäviä tietueita",' .
-    '"sInfoFiltered": "(suodatettu _MAX_ tietueesta)",' .
-    '"sSearch": "Haku",' .
-    '"oPaginate": {' .
-    '  "sFirst":    "&laquo;",' .
-    '  "sPrevious": "&lsaquo;",' .
-    '  "sNext":     "&rsaquo;",' .
-    '  "sLast":     "&raquo;"' .
-    '}';
+  $GLOBALS['locTABLETEXTS'] = <<<EOT
+    "sLengthMenu": "_MENU_ per sivu",
+    "sZeroRecords": "Ei löytyneitä",
+    "sInfo": "_START_ - _END_ / _TOTAL_",
+    "sInfoEmpty": "Ei näytettäviä tietueita",
+    "sInfoFiltered": "(suodatettu _MAX_ tietueesta)",
+    "sSearch": "Haku",
+    "oPaginate": {
+      "sFirst":    "&laquo;",
+      "sPrevious": "&lsaquo;",
+      "sNext":     "&rsaquo;",
+      "sLast":     "&raquo;"
+    }
+EOT;
 
+  // Date range picker
+  $GLOBALS['locDateRangePickerOptions'] = <<<EOT
+    {
+      presetRanges: [
+        {text: 'Tämä päivä', dateStart: 'today', dateEnd: 'today'},
+        {text: 'Tämä viikko', dateStart: 'monday', dateEnd: 'today'},
+        {text: 'Viimeiset 7 päivää', dateStart: 'today-7days', dateEnd: 'today'},
+        {text: 'Tämä kuukausi',
+          dateStart: new Date((new Date()).getFullYear(), (new Date()).getMonth(), 1),
+          dateEnd: 'today'
+        },
+        {text: 'Edellinen kuukausi',
+          dateStart: new Date((new Date()).getFullYear(), (new Date()).getMonth()-1, 1),
+          dateEnd: new Date((new Date()).getFullYear(), (new Date()).getMonth(), 0)
+        },
+        {text: 'Tämä vuosi',
+          dateStart: new Date((new Date()).getFullYear(), 0, 1),
+          dateEnd: 'today'
+        },
+        {text: 'Edellinen vuosi',
+          dateStart: new Date((new Date()).getFullYear()-1, 0, 1),
+          dateEnd: new Date((new Date()).getFullYear(), 1, 0)
+        }
+      ],
+      presets: {
+        dateRange: 'Aikaväli'
+      },
+      rangeStartTitle: 'Alkupäivä',
+      rangeEndTitle: 'Loppupäivä',
+      nextLinkText: 'Seuraava',
+      prevLinkText: 'Edellinen',
+      doneButtonText: 'Valmis',
+      dateFormat: 'd.m.yy'
+    }
+EOT;
+  
   //GETINVOICE
   $GLOBALS['locREEMPLOYEE'] = 'Muista tallentaa!';
   $GLOBALS['locMAYCLOSE'] = 'Voit sulkea tämän ikkunan!';

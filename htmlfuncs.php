@@ -57,6 +57,7 @@ Todo : This could be more generic...
     else
       $xUACompatible = '';
     $theme = defined('_UI_THEME_LOCATION_') ? _UI_THEME_LOCATION_ : 'jquery/css/theme/jquery-ui-1.8.16.custom.css';
+    $lang = isset($_SESSION['sesLANG']) ? $_SESSION['sesLANG'] : 'fi-FI'; 
     $strHtmlStart = <<<EOT
 <!DOCTYPE html>
 <html>
@@ -65,6 +66,7 @@ Todo : This could be more generic...
 $xUACompatible  <title>$strTitle</title>
   <link rel="shortcut icon" href="favicon.ico" type="image/x-icon">
   <link rel="stylesheet" type="text/css" href="$theme">
+  <link rel="stylesheet" type="text/css" href="jquery/css/ui.daterangepicker.css">
   <link rel="stylesheet" type="text/css" href="css/style.css">
   <script type="text/javascript" src="jquery/js/jquery-1.6.2.min.js"></script>
   <script type="text/javascript" src="jquery/js/jquery.json-2.3.min.js"></script>
@@ -72,6 +74,8 @@ $xUACompatible  <title>$strTitle</title>
   <script type="text/javascript" src="jquery/js/jquery.ui.datepicker-fi.js"></script>
   <script type="text/javascript" src="datatables/media/js/jquery.dataTables.min.js"></script>
   <script type="text/javascript" src="jquery/js/jquery.floatingmessage.js"></script>
+  <script type="text/javascript" src="js/date-$lang.js"></script>
+  <script type="text/javascript" src="jquery/js/jquery.daterangepicker.js"></script>
   <script type="text/javascript" src="js/functions.js"></script>
   <script type="text/javascript">
     $(document).ready(function() { 
