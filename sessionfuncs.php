@@ -76,13 +76,12 @@ function sesCreateSession($strLogin, $strPasswd)
             }
               
             $_SESSION['sesTYPEID'] = $row['type_id'];
-            $_SESSION['sesLANG'] = 'fi-FI';
             $_SESSION['sesUSERID'] = $row['user_id'];
             $_SESSION['sesACCESSLEVEL'] = $row['access_level'];
             $_SESSION['REMOTE_ADDR'] = $_SERVER['REMOTE_ADDR'];
             $_SESSION['HISTORY'] = array();
             $_SESSION['ACCESSTIME'] = time();
-             
+
             return 'OK';
         }
     }
@@ -100,27 +99,28 @@ function sesEndSession()
 
 function sesVerifySession($redirect = TRUE) 
 {
-    if (!session_id())
-      session_start();
-    if (isset($_SESSION['REMOTE_ADDR']) && $_SESSION['REMOTE_ADDR'] == $_SERVER['REMOTE_ADDR'])
-    {
-      $_SESSION['ACCESSTIME'] = time();
-      return TRUE;
+  if (!session_id()) {
+    session_start();
+  }
+  if (isset($_SESSION['REMOTE_ADDR']) && $_SESSION['REMOTE_ADDR'] == $_SERVER['REMOTE_ADDR'])
+  {
+    $_SESSION['ACCESSTIME'] = time();
+    return TRUE;
+  }
+  if ($redirect)
+  {
+    if (substr($_SERVER['SCRIPT_FILENAME'], -9, 9) == 'index.php' && $_SERVER['QUERY_STRING']) {
+      $_SESSION['BACKLINK'] = getSelfPath() . '/index.php?' . $_SERVER['QUERY_STRING'];
+      header('Location: ' . getSelfPath() . '/login.php?backlink=1');
+    } else {
+      header('Location: ' . getSelfPath() . '/login.php');        
     }
-    if ($redirect)
-    {
-      if (substr($_SERVER['SCRIPT_FILENAME'], -9, 9) == 'index.php' && $_SERVER['QUERY_STRING']) {
-        $_SESSION['BACKLINK'] = getSelfPath() . '/index.php?' . $_SERVER['QUERY_STRING'];
-        header('Location: ' . getSelfPath() . '/login.php?backlink=1');
-      } else {
-        header('Location: ' . getSelfPath() . '/login.php');        
-      }
-    }
-    else
-    {
-      header('HTTP/1.1 403 Forbidden');
-    }
-    exit;
+  }
+  else
+  {
+    header('HTTP/1.1 403 Forbidden');
+  }
+  exit;
 }
 
 function sesCreateKey()

@@ -111,7 +111,7 @@ class InvoiceReport
     }
 ?>
     <div class="medium_label">
-      <a class="actionlink" href="#" onclick="document.getElementById('params').submit(); return false;"><?php echo $GLOBALS['locGet']?></a>
+      <a class="actionlink" href="#" onclick="document.getElementById('params').submit(); return false;"><?php echo $GLOBALS['locCreateReport']?></a>
     </div>
     </form>
   </div>

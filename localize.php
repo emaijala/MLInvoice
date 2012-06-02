@@ -15,7 +15,9 @@ Tämä ohjelma on vapaa. Lue oheinen LICENSE.
 
 *******************************************************************************/
 
-require_once "settings.php";
+if (!session_id()) {
+  session_start();
+}
 
 $language = isset($_SESSION['sesLANG']) 
   ? $_SESSION['sesLANG'] 
@@ -23,7 +25,6 @@ $language = isset($_SESSION['sesLANG'])
 if (!file_exists("lang/$language.ini")) {
   $language = 'fi-FI';
 }
-
 $languageStrings = parse_ini_file("lang/$language.ini");
 if (file_exists("lang/$language.local.ini")) {
   $languageStrings = array_merge($languageStrings, parse_ini_file("lang/$language.local.ini"));

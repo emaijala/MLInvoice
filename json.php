@@ -22,6 +22,7 @@ require_once 'miscfuncs.php';
 require_once 'sessionfuncs.php';
 require_once 'form_funcs.php';
 require_once 'localize.php';
+require_once 'settings.php';
 
 sesVerifySession(FALSE);
 

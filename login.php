@@ -21,9 +21,9 @@ ob_start();
 
 require_once 'sqlfuncs.php';
 require_once 'miscfuncs.php';
+require_once 'config.php';
 require_once 'htmlfuncs.php';
 require_once 'sessionfuncs.php';
-require_once 'localize.php';
 
 session_start();
 
@@ -32,6 +32,23 @@ $strPasswd = getPost('fpasswd', FALSE);
 $strLogon = getPost('logon', '');
 $backlink = getRequest('backlink', '0');
 
+if (defined('_UI_LANGUAGE_SELECTION_')) {
+  $languages = array();
+  foreach (explode(';', _UI_LANGUAGE_SELECTION_) as $lang) {
+    $lang = explode('=', $lang, 2);
+    $languages[$lang[0]] = $lang[1];
+  }
+  $language = getRequest('lang', '');
+  if ($language && isset($languages[$language])) {
+    $_SESSION['sesLANG'] = $language;
+  }
+}
+if (!isset($_SESSION['sesLANG'])) {
+  $_SESSION['sesLANG'] = defined('_UI_LANGUAGE_') ? _UI_LANGUAGE_ : 'fi-FI';
+}
+
+require_once 'localize.php';
+  
 $strMessage = $GLOBALS['locWelcomeMessage'];
 
 if ($strLogon) 
@@ -69,6 +86,18 @@ echo htmlPageStart(_PAGE_TITLE_, array('jquery/js/jquery.md5.js'));
 <body onload="document.getElementById('flogin').focus();">
 <div class="pagewrapper ui-widget ui-widget-content">
 <div class="form" style="padding: 30px;">
+<?php
+if (isset($languages)) {
+  foreach ($languages as $code => $name) {
+    if ($code == $_SESSION['sesLANG']) {
+      continue;
+    }
+?>
+<a href="login.php?lang=<?php echo $code?>"><?php echo htmlentities($name)?></a><br/>
+<?php
+  }
+} 
+?>
 <h1><?php echo $GLOBALS['locWelcome']?></h1>
 <p>
   <span id="loginmsg"><?php echo $strMessage?></span>

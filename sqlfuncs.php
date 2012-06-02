@@ -23,21 +23,7 @@ Tämä ohjelma on vapaa. Lue oheinen LICENSE.
 
 *******************************************************************************/
 
-/********************************************************************
-Includefile : sqlfuncs.php
-    SQL related functions. 
-    Creates sql-connection - no need to create in other files.
-
-Provides functions : 
-    
-    
-Includes files: settings.php
-
-Todo : 
-    
-********************************************************************/
-
-require_once 'settings.php';
+require_once 'config.php';
 
 // Connect to database server
 $link = mysql_connect(_DB_SERVER_, _DB_USERNAME_, _DB_PASSWORD_)

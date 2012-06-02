@@ -19,6 +19,10 @@ Tämä ohjelma on vapaa. Lue oheinen LICENSE.
 // Käyttöliittymän kieli. Oletus on suomi.
 //define('_UI_LANGUAGE_', 'en-US');
 
+// Uncomment below to display language selection list in login screen.
+// Poista kommentit allaolevasta, jotta kirjautumissivulla näytetään kielen valinta.  
+//define('_UI_LANGUAGE_SELECTION_', 'en-US=In English;fi-FI=Suomeksi');
+
 // Database server address
 // Tietokantapalvelimen osoite
 define('_DB_SERVER_', 'localhost');
