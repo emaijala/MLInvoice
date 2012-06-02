@@ -109,7 +109,12 @@ function sesVerifySession($redirect = TRUE)
     }
     if ($redirect)
     {
-      header('Location: ' . _PROTOCOL_ . $_SERVER['HTTP_HOST'] . dirname($_SERVER['PHP_SELF']) . '/login.php');
+      if (substr($_SERVER['SCRIPT_FILENAME'], -9, 9) == 'index.php' && $_SERVER['QUERY_STRING']) {
+        $_SESSION['BACKLINK'] = getSelfPath() . '/index.php?' . $_SERVER['QUERY_STRING'];
+        header('Location: ' . getSelfPath() . '/login.php?backlink=1');
+      } else {
+        header('Location: ' . getSelfPath() . '/login.php');        
+      }
     }
     else
     {

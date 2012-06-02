@@ -30,6 +30,7 @@ session_start();
 $strLogin = getPost('flogin', FALSE);
 $strPasswd = getPost('fpasswd', FALSE); 
 $strLogon = getPost('logon', '');
+$backlink = getRequest('backlink', '0');
 
 $strMessage = $GLOBALS['locWELCOMEMESSAGE'];
 
@@ -40,7 +41,11 @@ if ($strLogon)
         switch (sesCreateSession($strLogin, $strPasswd))
         {
         case 'OK':
-            header('Location: ' . getSelfPath() . '/index.php');
+            if ($backlink == '1') {
+              header('Location: ' . $_SESSION['BACKLINK']);
+            } else {
+              header('Location: ' . getSelfPath() . '/index.php');
+            }
             exit;
         case 'FAIL': 
             $strMessage = $GLOBALS['locINVALIDCREDENTIALS'];
@@ -83,6 +88,7 @@ function createHash()
 </script>  
 
 <form action="login.php" method="post" name="login_form" onsubmit="createHash();">
+  <input type="hidden" name="backlink" value="<?php echo $backlink?>">
   <input type="hidden" name="fpasswd" id="fpasswd" value="">
   <input type="hidden" name="key" id="key" value="<?php echo $key?>">
   <p>
