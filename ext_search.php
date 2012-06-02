@@ -182,7 +182,7 @@ if ($blnSearch || $blnSave)
   }
   elseif ($blnSave && !$strSearchName) 
   {
-    $strOnLoad = "alert('".$GLOBALS['locERRORNOSEARCHNAME']."')";
+    $strOnLoad = "alert('".$GLOBALS['locErrorNoSearchName']."')";
   }
 }
 
@@ -204,13 +204,13 @@ $(function() {
 <thead>
 <tr>
   <th class="sublabel">
-    <?php echo $GLOBALS['locSEARCHFIELD']?>
+    <?php echo $GLOBALS['locSearchField']?>
   </td>
   <th class="sublabel">
     &nbsp;
   </td>
   <th class="sublabel">
-    <?php echo $GLOBALS['locSEARCHTERM']?>
+    <?php echo $GLOBALS['locSearchTerm']?>
   </td>
   <td></td>
 </tr>
@@ -254,7 +254,7 @@ for ($j = 0; $j < count($astrFormElements); $j++)
   </td>
   <td>
     <input type="hidden" name="delete_<?php echo $astrFormElements[$j]['name']?>_x" value="0">
-    <a class="tinyactionlink" href="#" title="<?php echo $GLOBALS['locDELROW']?>" onclick="self.document.forms[0].delete_<?php echo $astrFormElements[$j]['name']?>_x.value=1; self.document.forms[0].submit(); return false;"> X </a>
+    <a class="tinyactionlink" href="#" title="<?php echo $GLOBALS['locDelRow']?>" onclick="self.document.forms[0].delete_<?php echo $astrFormElements[$j]['name']?>_x.value=1; self.document.forms[0].submit(); return false;"> X </a>
   </td>
 </tr>        
 <?php
@@ -264,7 +264,7 @@ for ($j = 0; $j < count($astrFormElements); $j++)
 ?>
 <tr>
   <td class="label">
-  <?php echo $GLOBALS['locSELECTSEARCHFIELD']?>
+  <?php echo $GLOBALS['locSelectSearchField']?>
   </td>
   <td class="field" colspan="3">
   <?php echo $strListBox?>
@@ -273,8 +273,8 @@ for ($j = 0; $j < count($astrFormElements); $j++)
 <tr>
   <td colspan="4" style="text-align: center; padding-top: 8px; padding-bottom: 8px">
     <input type="hidden" name="search_x" value="0">
-    <a class="actionlink" href="#" onclick="self.document.forms[0].search_x.value=1; self.document.forms[0].submit(); return false;"><?php echo $GLOBALS['locSEARCH']?></a>
-    <a class="actionlink" href="#" onclick="self.close(); return false;"><?php echo $GLOBALS['locCLOSE']?></a>
+    <a class="actionlink" href="#" onclick="self.document.forms[0].search_x.value=1; self.document.forms[0].submit(); return false;"><?php echo $GLOBALS['locSearch']?></a>
+    <a class="actionlink" href="#" onclick="self.close(); return false;"><?php echo $GLOBALS['locClose']?></a>
   </td>
 </tr>
 <tr>
@@ -296,14 +296,14 @@ if ($blnSave && $strSearchName)
 ?>
 <tr>
   <td class="label">
-  <?php echo $GLOBALS['locSEARCHNAME']?>
+  <?php echo $GLOBALS['locSearchName']?>
   </td>
   <td class="field">
   <input class="medium" type="text" name="searchname" value="<?php echo $strSearchName?>"> 
   </td>
   <td>
     <input type="hidden" name="save_x" value="0">
-    <a class="actionlink" href="#" onclick="self.document.forms[0].save_x.value=1; self.document.forms[0].submit(); return false;"><?php echo $GLOBALS['locSAVESEARCH']?></a>
+    <a class="actionlink" href="#" onclick="self.document.forms[0].save_x.value=1; self.document.forms[0].submit(); return false;"><?php echo $GLOBALS['locSaveSearch']?></a>
   </td>
 </tr>
 </tbody>

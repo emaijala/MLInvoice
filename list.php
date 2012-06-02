@@ -83,7 +83,7 @@ function createList($strFunc, $strList)
   {
 ?>
   <div class="form_container ui-widget-content">
-    <?php echo $GLOBALS['locNOACCESS'] . "\n"?>
+    <?php echo $GLOBALS['locNoAccess'] . "\n"?>
   </div>
 <?php
     return;
@@ -177,7 +177,7 @@ function createHtmlList($strFunc, $strList, $strIDQuery, &$arrQueryParams, $strT
   else
     $strTitle = '';
   if (!$strNoEntries)
-    $strNoEntries = $GLOBALS['locNOENTRIES'];
+    $strNoEntries = $GLOBALS['locNoEntries'];
 
   $astrListValues = array(array());
   
@@ -246,7 +246,7 @@ function createHtmlList($strFunc, $strList, $strIDQuery, &$arrQueryParams, $strT
     $strTitle .= ' ' . sprintf($GLOBALS['locInvoicesTotal'], miscRound2Decim($totalSum));
   }
   if ($strTitle) {
-    $strTitle = "<strong>$strTitle</strong><br><br>";
+    $strTitle = "<strong>$strTitle</strong><br><br>\n";
   }
   
 ?>
@@ -255,7 +255,7 @@ function createHtmlList($strFunc, $strList, $strIDQuery, &$arrQueryParams, $strT
   $(document).ready(function() {
     $('#<?php echo $strTableName?>').dataTable( {
       "oLanguage": {
-        <?php echo $GLOBALS['locTABLETEXTS']?> 
+        <?php echo $GLOBALS['locTableTexts']?> 
       },
       "bStateSave": true,
       "bJQueryUI": true,

@@ -41,11 +41,11 @@ function addReminderFees($intInvoiceId)
   $intDaysOverdue = floor((time() - strtotime($strDueDate)) / 60 / 60 / 24);
   if ($intDaysOverdue <= 0)
   {
-    $strAlert = addslashes($GLOBALS['locINVOICENOTOVERDUE']);
+    $strAlert = addslashes($GLOBALS['locInvoiceNotOverdue']);
   }
   elseif ($intStateId == 3 || $intStateId == 4)
   {
-    $strAlert = addslashes($GLOBALS['locWRONGSTATEFORREMINDERFEED']);
+    $strAlert = addslashes($GLOBALS['locWrongStateForReminderFee']);
   }
   else
   {
@@ -64,7 +64,7 @@ function addReminderFees($intInvoiceId)
       
       $strQuery = 'INSERT INTO {prefix}invoice_row (invoice_id, description, pcs, price, row_date, vat, vat_included, order_no, reminder_row) ' .
         'VALUES (?, ?, 1, ?, ?, 0, 0, -2, 2)';
-      mysql_param_query($strQuery, array($intInvoiceId, $GLOBALS['locREMINDERFEEDESC'], getSetting('invoice_notification_fee'), date('Ymd')));
+      mysql_param_query($strQuery, array($intInvoiceId, $GLOBALS['locReminderFeeDesc'], getSetting('invoice_notification_fee'), date('Ymd')));
     }
     // Add penalty interest
     $penaltyInterest = getSetting('invoice_penalty_interest');
@@ -89,7 +89,7 @@ function addReminderFees($intInvoiceId)
       
       $strQuery = 'INSERT INTO {prefix}invoice_row (invoice_id, description, pcs, price, discount, row_date, vat, vat_included, order_no, reminder_row) ' .
         'VALUES (?, ?, 1, ?, 0, ?, 0, 0, -1, 1)';
-      mysql_param_query($strQuery, array($intInvoiceId, $GLOBALS['locPENALTYINTERESTDESC'], $intPenalty, date('Ymd')));
+      mysql_param_query($strQuery, array($intInvoiceId, $GLOBALS['locPenaltyInterestDesc'], $intPenalty, date('Ymd')));
     }
   }
   return $strAlert;  

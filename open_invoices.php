@@ -39,11 +39,11 @@ function createOpenInvoiceList()
     "SELECT id FROM {prefix}invoice " .
     "WHERE state_id=1 AND archived=0 " . (getSetting('show_deleted_records') ? '' : 'AND deleted=0 ');
     "ORDER BY invoice_date, name";
-  createHtmlList('open_invoices', 'invoices', $strQuery, $arrParams, $GLOBALS['locLABELOPENINVOICES'], $GLOBALS['locNOOPENINVOICES'], 'resultlist_open_invoices');
+  createHtmlList('open_invoices', 'invoices', $strQuery, $arrParams, $GLOBALS['locLabelOpenInvoices'], $GLOBALS['locNoOpenInvoices'], 'resultlist_open_invoices');
 
   $strQuery = 
     "SELECT id FROM {prefix}invoice " .
     "WHERE state_id IN (2, 5, 6, 7) AND archived=0 " . (getSetting('show_deleted_records') ? '' : 'AND deleted=0 ');
     "ORDER BY invoice_date, name";
-  createHtmlList('open_invoices', 'invoices', $strQuery, $arrParams, $GLOBALS['locLABELUNPAIDINVOICES'], $GLOBALS['locNOUNPAIDINVOICES'], 'resultlist_unpaid_invoices');
+  createHtmlList('open_invoices', 'invoices', $strQuery, $arrParams, $GLOBALS['locLabelUnpaidInvoices'], $GLOBALS['locNoUnpaidInvoices'], 'resultlist_unpaid_invoices');
 }

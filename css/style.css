@@ -40,7 +40,7 @@ div.breadcrumbs a {
 }
 
 div.function_navi {
-  padding: 4px 0px 10px 10px;
+  padding: 4px 0px 4px 10px;
 }
 
 div.form_buttons {
@@ -407,7 +407,8 @@ a.navilink:hover {
 }
 
 a.buttonlink {
-  font-weight: normal; 
+  font-weight: normal;
+  margin-bottom: 2px; 
 }
 a.buttonlink:hover {
 }

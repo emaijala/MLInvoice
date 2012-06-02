@@ -59,13 +59,13 @@ echo htmlPageStart(_PAGE_TITLE_ . " - $title", getSetting('session_keepalive') ?
 
 $normalMenuRights = array(ROLE_READONLY, ROLE_USER, ROLE_BACKUPMGR);
 $astrMainButtons = array (
-    array("name" => "invoice", "title" => "locSHOWINVOICENAVI", 'action' => 'open_invoices', "levels_allowed" => array(ROLE_READONLY, ROLE_USER, ROLE_BACKUPMGR) ),
-    array("name" => "archive", "title" => "locSHOWARCHIVENAVI", 'action' => 'archived_invoices', "levels_allowed" => array(ROLE_READONLY, ROLE_USER, ROLE_BACKUPMGR) ),
-    array("name" => "company", "title" => "locSHOWCOMPANYNAVI", 'action' => 'companies', "levels_allowed" => array(ROLE_USER, ROLE_BACKUPMGR) ),
-    array("name" => "reports", "title" => "locSHOWREPORTNAVI", 'action' => 'reports', "levels_allowed" => array(ROLE_READONLY, ROLE_USER, ROLE_BACKUPMGR) ),
-    array("name" => "settings", "title" => "locSHOWSETTINGSNAVI", 'action' => 'settings', "action" => "settings", "levels_allowed" => array(ROLE_USER, ROLE_BACKUPMGR) ),
-    array("name" => "system", "title" => "locSHOWSYSTEMNAVI", 'action' => 'system', "levels_allowed" => array(ROLE_BACKUPMGR, ROLE_ADMIN) ),
-    array("name" => "logout", "title" => "locLOGOUT", 'action' => 'logout', "levels_allowed" => null )
+    array("name" => "invoice", "title" => "locShowInvoiceNavi", 'action' => 'open_invoices', "levels_allowed" => array(ROLE_READONLY, ROLE_USER, ROLE_BACKUPMGR) ),
+    array("name" => "archive", "title" => "locShowArchiveNavi", 'action' => 'archived_invoices', "levels_allowed" => array(ROLE_READONLY, ROLE_USER, ROLE_BACKUPMGR) ),
+    array("name" => "company", "title" => "locShowClientNavi", 'action' => 'companies', "levels_allowed" => array(ROLE_USER, ROLE_BACKUPMGR) ),
+    array("name" => "reports", "title" => "locShowReportNavi", 'action' => 'reports', "levels_allowed" => array(ROLE_READONLY, ROLE_USER, ROLE_BACKUPMGR) ),
+    array("name" => "settings", "title" => "locShowSettingsNavi", 'action' => 'settings', "action" => "settings", "levels_allowed" => array(ROLE_USER, ROLE_BACKUPMGR) ),
+    array("name" => "system", "title" => "locShowSystemNavi", 'action' => 'system', "levels_allowed" => array(ROLE_BACKUPMGR, ROLE_ADMIN) ),
+    array("name" => "logout", "title" => "locLogout", 'action' => 'logout', "levels_allowed" => null )
 );
 
 ?>

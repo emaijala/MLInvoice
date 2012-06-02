@@ -31,7 +31,7 @@ if (!sesWriteAccess())
 ?>
 <body>
   <div class="form_container ui-widget-content">
-    <?php echo $GLOBALS['locNOACCESS'] . "\n"?>
+    <?php echo $GLOBALS['locNoAccess'] . "\n"?>
   </div>
 </body>
 </html>
@@ -74,9 +74,6 @@ if ($intInvoiceId)
   
   $intDate = date("Ymd");
   $intDueDate = date("Ymd",mktime(0, 0, 0, date("m"), date("d") + getSetting('invoice_payment_days'), date("Y")));
-  
-  $intNewInvNo = 0;
-  $intNewRefNo = 'NULL';
   
   $intRefundedId = $boolRefund ? $intInvoiceId : 'NULL';
   $strQuery = 

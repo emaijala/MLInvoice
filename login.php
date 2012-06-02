@@ -32,7 +32,7 @@ $strPasswd = getPost('fpasswd', FALSE);
 $strLogon = getPost('logon', '');
 $backlink = getRequest('backlink', '0');
 
-$strMessage = $GLOBALS['locWELCOMEMESSAGE'];
+$strMessage = $GLOBALS['locWelcomeMessage'];
 
 if ($strLogon) 
 {
@@ -48,16 +48,16 @@ if ($strLogon)
             }
             exit;
         case 'FAIL': 
-            $strMessage = $GLOBALS['locINVALIDCREDENTIALS'];
+            $strMessage = $GLOBALS['locInvalidCredentials'];
             break;
         case 'TIMEOUT':
-            $strMessage = $GLOBALS['locLOGINTIMEOUT'];
+            $strMessage = $GLOBALS['locLoginTimeout'];
             break;
         }
     }
     else 
     {
-        $strMessage = $GLOBALS['locMISSINGFIELDS'];
+        $strMessage = $GLOBALS['locMissingFields'];
     }
 }
 
@@ -69,7 +69,7 @@ echo htmlPageStart(_PAGE_TITLE_, array('jquery/js/jquery.md5.js'));
 <body onload="document.getElementById('flogin').focus();">
 <div class="pagewrapper ui-widget ui-widget-content">
 <div class="form" style="padding: 30px;">
-<h1><?php echo $GLOBALS['locWELCOME']?></h1>
+<h1><?php echo $GLOBALS['locWelcome']?></h1>
 <p>
   <span id="loginmsg"><?php echo $strMessage?></span>
 </p>
@@ -92,22 +92,13 @@ function createHash()
   <input type="hidden" name="fpasswd" id="fpasswd" value="">
   <input type="hidden" name="key" id="key" value="<?php echo $key?>">
   <p>
-    <span style="width: 90px; display: inline-block;"><?php echo $GLOBALS['locUSERID']?></span> <input class="medium" name="flogin" id="flogin" type="text" value="">
+    <span style="width: 90px; display: inline-block;"><?php echo $GLOBALS['locUserID']?></span> <input class="medium" name="flogin" id="flogin" type="text" value="">
   </p>
   <p>
-    <span style="width: 90px; display: inline-block;"><?php echo $GLOBALS['locPASSWORD']?></span> <input class="medium" name="passwd" id="passwd" type="password" value="">
+    <span style="width: 90px; display: inline-block;"><?php echo $GLOBALS['locPassword']?></span> <input class="medium" name="passwd" id="passwd" type="password" value="">
   </p>
-  <input type="submit" name="logon" value="<?php echo $GLOBALS['locLOGIN']?>">
+  <input type="submit" name="logon" value="<?php echo $GLOBALS['locLogin']?>">
 </form>
-
-<br>
-<br>
-<?php echo $GLOBALS['locLICENSENOTIFY']?>
-<br>
-<br>
-<?php echo $GLOBALS['locCREDITS']?>
-<br>
-<br>
 
 </div>
 </div>

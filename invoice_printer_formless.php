@@ -99,7 +99,7 @@ class InvoicePrinterFormless extends InvoicePrinterBase
       $pdf->SetX(115);
       if ($this->refNumber)
       {
-        $pdf->Cell(40, 5, $GLOBALS['locPDFInvoiceRefNo'] .": ", 0, 0, 'R');
+        $pdf->Cell(40, 5, $GLOBALS['locPDFInvoiceRefNr'] .": ", 0, 0, 'R');
         $pdf->Cell(60, 5, $this->refNumber, 0, 1);
       }
     }

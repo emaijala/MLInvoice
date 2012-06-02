@@ -62,15 +62,15 @@ class InvoiceReport
     <input name="form" type="hidden" value="invoice">
     <input name="report" type="hidden" value="1">
     
-    <div class="unlimited_label"><strong><?php echo $GLOBALS['locINVOICEREPORT']?></strong></div>
+    <div class="unlimited_label"><strong><?php echo $GLOBALS['locInvoiceReport']?></strong></div>
     
     <div class="medium_label"><?php echo $GLOBALS['locDateInterval']?></div>
     <div class="field"><?php echo htmlFormElement('date', 'TEXT', $dateRange, 'medium hasDateRangePicker', '', 'MODIFY', false)?></div>
 
-    <div class="medium_label"><?php echo $GLOBALS['locBILLER']?></div>
+    <div class="medium_label"><?php echo $GLOBALS['locBiller']?></div>
     <div class="field"><?php echo htmlFormElement('base', 'LIST', $intBaseId, 'medium', 'SELECT id, name FROM {prefix}base WHERE deleted=0 ORDER BY name', 'MODIFY', false)?></div>
 
-    <div class="medium_label"><?php echo $GLOBALS['locCOMPANY']?></div>
+    <div class="medium_label"><?php echo $GLOBALS['locClient']?></div>
     <div class="field"><?php echo htmlFormElement('company', 'LIST', $intCompanyId, 'medium', 'SELECT id, company_name FROM {prefix}company WHERE deleted=0 ORDER BY company_name', 'MODIFY', false)?></div>
 
     <div class="medium_label"><?php echo $GLOBALS['locPrintFormat']?></div>
@@ -111,7 +111,7 @@ class InvoiceReport
     }
 ?>
     <div class="medium_label">
-      <a class="actionlink" href="#" onclick="document.getElementById('params').submit(); return false;"><?php echo $GLOBALS['locGET']?></a>
+      <a class="actionlink" href="#" onclick="document.getElementById('params').submit(); return false;"><?php echo $GLOBALS['locGet']?></a>
     </div>
     </form>
   </div>
@@ -208,7 +208,7 @@ class InvoiceReport
     {
       $intInvoiceID = $row['id'];
       $strInvoiceName = $row['invoice_name'];
-      $strInvoiceNo = $row['invoice_no'];
+      $strInvoiceNr = $row['invoice_no'];
       $strInvoiceState = $row['state'];
       $strRefNumber = $row['ref_number'];
       $strInvoiceDate = dateConvDBDate2Date($row['invoice_date']);
@@ -259,7 +259,7 @@ class InvoiceReport
       $groupTotVAT += $intRowVAT;
       $groupTotSumVAT += $intRowSumVAT;
       
-      $this->printRow($format, $strInvoiceNo, $strInvoiceDate, $strDueDate, $strName, $strInvoiceState, $intRowSum, $intRowVAT, $intRowSumVAT);
+      $this->printRow($format, $strInvoiceNr, $strInvoiceDate, $strDueDate, $strName, $strInvoiceState, $intRowSum, $intRowVAT, $intRowSumVAT);
     }
     if ($grouping) {
       $this->printGroupSums($format, $groupTotSum, $groupTotVAT, $groupTotSumVAT);
@@ -282,7 +282,7 @@ class InvoiceReport
       
       $pdf->setY(10);
       $pdf->SetFont('Helvetica','B',12);
-      $pdf->Cell(100, 15, $GLOBALS['locINVOICEREPORT'], 0, 1, 'L');
+      $pdf->Cell(100, 15, $GLOBALS['locInvoiceReport'], 0, 1, 'L');
       
       if ($startDate || $endDate)
       {
@@ -292,14 +292,14 @@ class InvoiceReport
       }
       
       $pdf->SetFont('Helvetica','B',8);
-      $pdf->Cell(18, 4, $GLOBALS['locINVNO'], 0, 0, 'L');
-      $pdf->Cell(20, 4, $GLOBALS['locINVDATE'], 0, 0, 'L');
-      $pdf->Cell(20, 4, $GLOBALS['locDUEDATE'], 0, 0, 'L');
-      $pdf->Cell(45, 4, $GLOBALS['locPAYER'], 0, 0, 'L');
-      $pdf->Cell(15, 4, $GLOBALS['locINVOICESTATE'], 0, 0, 'L');
-      $pdf->Cell(25, 4, $GLOBALS['locVATLESS'], 0, 0, 'R');
-      $pdf->Cell(25, 4, $GLOBALS['locVATPART'], 0, 0, 'R');
-      $pdf->Cell(25, 4, $GLOBALS['locWITHVAT'], 0, 1, 'R');
+      $pdf->Cell(18, 4, $GLOBALS['locInvoiceNumber'], 0, 0, 'L');
+      $pdf->Cell(20, 4, $GLOBALS['locInvDate'], 0, 0, 'L');
+      $pdf->Cell(20, 4, $GLOBALS['locDueDate'], 0, 0, 'L');
+      $pdf->Cell(45, 4, $GLOBALS['locPayer'], 0, 0, 'L');
+      $pdf->Cell(15, 4, $GLOBALS['locInvoiceState'], 0, 0, 'L');
+      $pdf->Cell(25, 4, $GLOBALS['locVATLess'], 0, 0, 'R');
+      $pdf->Cell(25, 4, $GLOBALS['locVATPart'], 0, 0, 'R');
+      $pdf->Cell(25, 4, $GLOBALS['locWithVAT'], 0, 1, 'R');
       $this->pdf = $pdf;
       return;
     }
@@ -308,41 +308,41 @@ class InvoiceReport
     <table>
     <tr>
         <th class="label">
-            <?php echo $GLOBALS['locINVNO']?>
+            <?php echo $GLOBALS['locInvoiceNumber']?>
         </th>
         <th class="label">
-            <?php echo $GLOBALS['locINVDATE']?>
+            <?php echo $GLOBALS['locInvDate']?>
         </th>
         <th class="label">
-            <?php echo $GLOBALS['locDUEDATE']?>
+            <?php echo $GLOBALS['locDueDate']?>
         </th>
         <th class="label">
-            <?php echo $GLOBALS['locPAYER']?>
+            <?php echo $GLOBALS['locPayer']?>
         </th>
         <th class="label">
-            <?php echo $GLOBALS['locINVOICESTATE']?>
+            <?php echo $GLOBALS['locInvoiceState']?>
         </th>
         <th class="label" style="text-align: right">
-            <?php echo $GLOBALS['locVATLESS']?>
+            <?php echo $GLOBALS['locVATLess']?>
         </th>
         <th class="label" style="text-align: right">
-            <?php echo $GLOBALS['locVATPART']?>
+            <?php echo $GLOBALS['locVATPart']?>
         </th>
         <th class="label" style="text-align: right">
-            <?php echo $GLOBALS['locWITHVAT']?>
+            <?php echo $GLOBALS['locWithVAT']?>
         </th>
     </tr>
 <?php
   }
   
-  private function printRow($format, $strInvoiceNo, $strInvoiceDate, $strDueDate, $strName, $strInvoiceState, $intRowSum, $intRowVAT, $intRowSumVAT)
+  private function printRow($format, $strInvoiceNr, $strInvoiceDate, $strDueDate, $strName, $strInvoiceState, $intRowSum, $intRowVAT, $intRowSumVAT)
   {
     if ($format == 'pdf')
     {
       $pdf = $this->pdf;
       $pdf->SetFont('Helvetica','',8);
       $pdf->setY($pdf->getY() + 1);
-      $pdf->Cell(18, 4, $strInvoiceNo, 0, 0, 'L');
+      $pdf->Cell(18, 4, $strInvoiceNr, 0, 0, 'L');
       $pdf->Cell(20, 4, $strInvoiceDate, 0, 0, 'L');
       $pdf->Cell(20, 4, $strDueDate, 0, 0, 'L');
       $nameX = $pdf->getX();
@@ -358,7 +358,7 @@ class InvoiceReport
 ?>
     <tr>
         <td class="input">
-            <?php echo htmlspecialchars($strInvoiceNo)?>
+            <?php echo htmlspecialchars($strInvoiceNr)?>
         </td>
         <td class="input">
             <?php echo htmlspecialchars($strInvoiceDate)?>
@@ -434,7 +434,7 @@ class InvoiceReport
       $pdf->setY($pdf->getY() + 3);
       $pdf->Cell(25, 4, '', 0, 0, 'L');
       $pdf->Cell(25, 4, '', 0, 0, 'L');
-      $pdf->Cell(68, 4, $GLOBALS['locTOTAL'], 0, 0, 'R');
+      $pdf->Cell(68, 4, $GLOBALS['locTotal'], 0, 0, 'R');
       $pdf->Cell(25, 4, miscRound2Decim($intTotSum), 0, 0, 'R');
       $pdf->Cell(25, 4, miscRound2Decim($intTotVAT), 0, 0, 'R');
       $pdf->Cell(25, 4, miscRound2Decim($intTotSumVAT), 0, 1, 'R');
@@ -443,7 +443,7 @@ class InvoiceReport
 ?>
     <tr>
         <td class="input total_sum" colspan="5" style="text-align: right">
-            <?php echo $GLOBALS['locTOTAL']?>
+            <?php echo $GLOBALS['locTotal']?>
         </td>
         <td class="input total_sum" style="text-align: right">
             &nbsp;<?php echo miscRound2Decim($intTotSum)?>

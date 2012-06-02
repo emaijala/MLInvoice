@@ -45,16 +45,15 @@ echo htmlPageStart( _PAGE_TITLE_ );
 <div class="pagewrapper ui-widget ui-widget-content">
 <div style="padding: 30px;">
 
-<h1><?php echo $GLOBALS['locTHANKYOU']?></h1>
+<h1><?php echo $GLOBALS['locThankYou']?></h1>
 <p>
-<?php echo $GLOBALS['locSESSIONCLOSED']?>
+<?php echo $GLOBALS['locSessionClosed']?>
 </p>
 
 <p>
-<a href="login.php"><?php echo $GLOBALS['locBACKTOLOGIN']?></a>
+<a href="login.php"><?php echo $GLOBALS['locBackToLogin']?></a>
 </p>
 
-</div>
 </div>
 </div>
 </body>

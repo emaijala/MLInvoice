@@ -65,7 +65,7 @@ echo htmlPageStart( _PAGE_TITLE_ );
 <table style="width: 100%">
 <tr>
     <td class="sublabel" colspan="4">
-    <?php echo $GLOBALS['locLABELQUICKSEARCH']?><br><br>
+    <?php echo $GLOBALS['locLabelQuickSearch']?><br><br>
     </td>
 </tr>
 <?php
@@ -85,7 +85,7 @@ while ($row = mysql_fetch_assoc($intRes))
     </td>
     <td>
         <input type="hidden" name="delete_<?php echo $intID?>_x" value="0">
-        <a class="tinyactionlink" href="#" title="<?php echo $GLOBALS['locDELROW']?>" onclick="self.document.forms[0].delete_<?php echo $intID?>_x.value=1; self.document.forms[0].submit(); return false;"> X </a>
+        <a class="tinyactionlink" href="#" title="<?php echo $GLOBALS['locDelRow']?>" onclick="self.document.forms[0].delete_<?php echo $intID?>_x.value=1; self.document.forms[0].submit(); return false;"> X </a>
     </td>
 </tr>
 <?php
@@ -95,7 +95,7 @@ if (!isset($intID))
 ?>
 <tr>
     <td class="label">
-        <?php echo $GLOBALS['locNOQUICKSEARCHES']?> 
+        <?php echo $GLOBALS['locNoQuickSearches']?> 
     </td>
 </tr>
 <?php
@@ -107,7 +107,7 @@ if (!isset($intID))
 <table>
 <tr>
     <td>
-        <a class="actionlink" href="#" onclick="self.close(); return false;"><?php echo $GLOBALS['locCLOSE']?></a>
+        <a class="actionlink" href="#" onclick="self.close(); return false;"><?php echo $GLOBALS['locClose']?></a>
     </td>
 </tr>
 </table>

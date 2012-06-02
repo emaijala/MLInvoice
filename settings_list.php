@@ -25,7 +25,7 @@ function createSettingsList()
   {
 ?>
   <div class="form_container ui-widget-content">
-    <?php echo $GLOBALS['locNOACCESS'] . "\n"?>
+    <?php echo $GLOBALS['locNoAccess'] . "\n"?>
   </div>
 <?php
     return;
@@ -50,7 +50,7 @@ function createSettingsList()
       {
         if (!$elem['allow_null'])
         {
-          $messages .= $GLOBALS['locERRVALUEMISSING'] . ": '$label'<br>\n";
+          $messages .= $GLOBALS['ErrValueMissing'] . ": '$label'<br>\n";
           continue;
         }
         else
@@ -157,7 +157,7 @@ function createSettingsListButtons()
 {
 ?>
 <div class="form_buttons" style="clear: both">
-      <a class="actionlink save_button" href="#" onclick="document.getElementById('admin_form').saveact.value=1; document.getElementById('admin_form').submit(); return false;"><?php echo $GLOBALS['locSAVE']?></a>
+      <a class="actionlink save_button" href="#" onclick="document.getElementById('admin_form').saveact.value=1; document.getElementById('admin_form').submit(); return false;"><?php echo $GLOBALS['locSave']?></a>
     </div>
 <?php
 }

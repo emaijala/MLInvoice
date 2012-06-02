@@ -343,7 +343,7 @@ function htmlFormElement($strName, $strType, $strValue, $strStyle, $strListQuery
     case 'JSBUTTON':
       if (strstr($strListQuery, '_ID_') && !$strValue)
       {
-        $strFormElement = $GLOBALS['locSAVEFIRST'];
+        $strFormElement = $GLOBALS['locSaveFirst'];
       }
       else
       {

@@ -16,7 +16,7 @@ Tämä ohjelma on vapaa. Lue oheinen LICENSE.
 *******************************************************************************/
 
 $arrSettings = array(
-  'start_sep' => array('label' => $GLOBALS['locSETTINGS'], 'type' => 'LABEL'),
+  'start_sep' => array('label' => $GLOBALS['locSettings'], 'type' => 'LABEL'),
 
   'auto_close_after_delete' => array('label' => $GLOBALS['locSettingAutoCloseFormAfterDelete'], 'type' => 'CHECK', 'style' => 'medium', 'position' => 1, 'default' => 1, 'allow_null' => TRUE ),
   'add_customer_number' => array('label' => $GLOBALS['locSettingAddCustomerNumber'], 'type' => 'CHECK', 'style' => 'medium', 'position' => 1, 'default' => 1, 'allow_null' => TRUE ),

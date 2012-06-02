@@ -45,17 +45,17 @@ case 'companies':
    $strDeletedField = 'deleted';
    $astrShowFields = 
     array( 
-        array("name" => "company_name", 'width' => 150, "type" => "TEXT", "header" => $GLOBALS['locCOMPNAME']),
-        array("name" => "company_id", 'width' => 100, "type" => "TEXT", "header" => $GLOBALS['locCOMPVATID']),
-        array("name" => "inactive", 'width' => 100, "type" => "TEXT", "header" => $GLOBALS['locHeaderCompanyActive'],
+        array("name" => "company_name", 'width' => 150, "type" => "TEXT", "header" => $GLOBALS['locClientName']),
+        array("name" => "company_id", 'width' => 100, "type" => "TEXT", "header" => $GLOBALS['locClientVATID']),
+        array("name" => "inactive", 'width' => 100, "type" => "TEXT", "header" => $GLOBALS['locHeaderClientActive'],
           'mappings' => array('0' => $GLOBALS['locActive'], '1' => $GLOBALS['locInactive']) ),
-        array("name" => "customer_no", 'width' => 100, "type" => "TEXT", "header" => $GLOBALS['locCUSTOMERNO']),
-        array("name" => "email", 'width' => 150, "type" => "TEXT", "header" => $GLOBALS['locEMAIL']),
-        array("name" => "phone", 'width' => 100, "type" => "TEXT", "header" => $GLOBALS['locPHONE']),
+        array("name" => "customer_no", 'width' => 100, "type" => "TEXT", "header" => $GLOBALS['locCustomerNr']),
+        array("name" => "email", 'width' => 150, "type" => "TEXT", "header" => $GLOBALS['locEmail']),
+        array("name" => "phone", 'width' => 100, "type" => "TEXT", "header" => $GLOBALS['locPhone']),
         array("name" => "gsm", 'width' => 100, "type" => "TEXT", "header" => $GLOBALS['locGSM'])
     );
    $strMainForm = "company";
-   $strTitle = $GLOBALS['locCOMPANIES'];
+   $strTitle = $GLOBALS['locClients'];
 break;
 
 case 'archived_invoices':
@@ -79,19 +79,19 @@ case 'invoices':
    $strDeletedField = 'i.deleted';
    $astrShowFields = 
     array( 
-        array("name" => "i.invoice_date", 'width' => 80, "type" => "INTDATE", "order" => "DESC", "header" => $GLOBALS['locHEADERINVOICEDATE']),
-        array("name" => "i.due_date", 'width' => 80, "type" => "INTDATE", "order" => "DESC", "header" => $GLOBALS['locHEADERINVOICEDUEDATE']),
-        array("name" => "i.invoice_no", 'width' => 80, "type" => "TEXT", "header" => $GLOBALS['locHEADERINVOICENO']),
-        array("name" => "b.name", 'width' => 150, "type" => "TEXT", "header" => $GLOBALS['locHEADERINVOICEBASE']),
-        array("name" => "c.company_name", 'width' => 150, "type" => "TEXT", "header" => $GLOBALS['locHEADERINVOICECOMPANY']),
-        array("name" => "i.name", 'width' => 100, "type" => "TEXT", "header" => $GLOBALS['locHEADERINVOICENAME']),
-        array("name" => "s.name", 'width' => 120, "type" => "TEXT", "header" => $GLOBALS['locHEADERINVOICESTATE']),
-        array("name" => "i.ref_number", 'width' => 100, "type" => "TEXT", "header" => $GLOBALS['locHEADERINVOICEREFERENCE']),
+        array("name" => "i.invoice_date", 'width' => 80, "type" => "INTDATE", "order" => "DESC", "header" => $GLOBALS['locHeaderInvoiceDate']),
+        array("name" => "i.due_date", 'width' => 80, "type" => "INTDATE", "order" => "DESC", "header" => $GLOBALS['locHeaderInvoiceDueDate']),
+        array("name" => "i.invoice_no", 'width' => 80, "type" => "TEXT", "header" => $GLOBALS['locHeaderInvoiceNr']),
+        array("name" => "b.name", 'width' => 150, "type" => "TEXT", "header" => $GLOBALS['locHeaderInvoiceBase']),
+        array("name" => "c.company_name", 'width' => 150, "type" => "TEXT", "header" => $GLOBALS['locHeaderInvoiceClient']),
+        array("name" => "i.name", 'width' => 100, "type" => "TEXT", "header" => $GLOBALS['locHeaderInvoiceName']),
+        array("name" => "s.name", 'width' => 120, "type" => "TEXT", "header" => $GLOBALS['locHeaderInvoiceState']),
+        array("name" => "i.ref_number", 'width' => 100, "type" => "TEXT", "header" => $GLOBALS['locHeaderInvoiceReference']),
         array('name' => '.total_price', 'sql' => 'SUM(it.row_total) as total_price', 'width' => 80, 'type' => 'CURRENCY', 'header' => $GLOBALS['locHeaderInvoiceTotal'])
     );
    $strGroupBy = 'i.id, i.deleted, i.invoice_date, i.due_date, i.invoice_no, b.name, c.company_name, i.name, s.name, i.ref_number';
    $strMainForm = "invoice";
-   $strTitle = $GLOBALS['locINVOICES'];
+   $strTitle = $GLOBALS['locInvoices'];
 break;
 
 /***********************************************************************
@@ -108,13 +108,13 @@ case 'base':
    $astrShowFields = 
     array( 
         array("name" => "name", 'width' => 200, "type" => "TEXT", "header" => $GLOBALS['locBaseName']),
-        array("name" => "company_id", 'width' => 100, "type" => "TEXT", "header" => $GLOBALS['locCOMPVATID']),
-        array("name" => "contact_person", 'width' => 150, "type" => "TEXT", "header" => $GLOBALS['locCONTACTPERS']),
-        array("name" => "email", 'width' => 150, "type" => "TEXT", "header" => $GLOBALS['locEMAIL'])
+        array("name" => "company_id", 'width' => 100, "type" => "TEXT", "header" => $GLOBALS['locClientVATID']),
+        array("name" => "contact_person", 'width' => 150, "type" => "TEXT", "header" => $GLOBALS['locContactPerson']),
+        array("name" => "email", 'width' => 150, "type" => "TEXT", "header" => $GLOBALS['locEmail'])
     );
     //array('name');
    $strMainForm = 'base';
-   $strTitle = $GLOBALS['locBASES'];
+   $strTitle = $GLOBALS['locBases'];
 break;
 
 case 'invoice_state':
@@ -127,12 +127,12 @@ case 'invoice_state':
    $strDeletedField = 'deleted';
    $astrShowFields = 
     array( 
-        array("name" => "order_no", 'width' => 150, "type" => "TEXT", "header" => $GLOBALS['locORDERNO']),
-        array("name" => "name", 'width' => 450, "type" => "TEXT", "header" => $GLOBALS['locSTATUS'])
+        array("name" => "order_no", 'width' => 150, "type" => "TEXT", "header" => $GLOBALS['locOrderNr']),
+        array("name" => "name", 'width' => 450, "type" => "TEXT", "header" => $GLOBALS['locStatus'])
     );
     //array('order_no','name');
    $strMainForm = "invoice_state";
-   $strTitle = $GLOBALS['locINVOICESTATES'];
+   $strTitle = $GLOBALS['locInvoiceStates'];
 break;
 
 case 'product':
@@ -146,14 +146,14 @@ case 'product':
    $strDeletedField = 'deleted';
    $astrShowFields = 
     array( 
-        array("name" => "product_name", 'width' => 200, "type" => "TEXT", "header" => $GLOBALS['locPRODUCTNAME']),
-        array("name" => "product_code", 'width' => 150, "type" => "TEXT", "header" => $GLOBALS['locPRODUCTCODE']),
-        array("name" => "product_group", 'width' => 150, "type" => "TEXT", "header" => $GLOBALS['locPRODUCTGROUP']),
-        array("name" => "unit_price", 'width' => 100, "type" => "CURRENCY", "header" => $GLOBALS['locUNITPRICE'], 'decimals' => getSetting('unit_price_decimals'))
+        array("name" => "product_name", 'width' => 200, "type" => "TEXT", "header" => $GLOBALS['locProductName']),
+        array("name" => "product_code", 'width' => 150, "type" => "TEXT", "header" => $GLOBALS['locProductCode']),
+        array("name" => "product_group", 'width' => 150, "type" => "TEXT", "header" => $GLOBALS['locProductGroup']),
+        array("name" => "unit_price", 'width' => 100, "type" => "CURRENCY", "header" => $GLOBALS['locUnitPrice'], 'decimals' => getSetting('unit_price_decimals'))
     );
    
    $strMainForm = "product";
-   $strTitle = $GLOBALS['locPRODUCTS'];
+   $strTitle = $GLOBALS['locProducts'];
 break;
 
 case 'row_type':
@@ -166,11 +166,11 @@ case 'row_type':
    $strDeletedField = 'deleted';
    $astrShowFields = 
     array( 
-        array("name" => "order_no", 'width' => 150, "type" => "TEXT", "header" => $GLOBALS['locORDERNO']),
-        array("name" => "name", 'width' => 450, "type" => "TEXT", "header" => $GLOBALS['locROWTYPE'])
+        array("name" => "order_no", 'width' => 150, "type" => "TEXT", "header" => $GLOBALS['locOrderNr']),
+        array("name" => "name", 'width' => 450, "type" => "TEXT", "header" => $GLOBALS['locRowType'])
     );
    $strMainForm = "row_type";
-   $strTitle = $GLOBALS['locROWTYPES'];
+   $strTitle = $GLOBALS['locRowTypes'];
 break;
 
 case 'print_template':
@@ -183,7 +183,7 @@ case 'print_template':
   $strDeletedField = 'deleted';
   $astrShowFields = 
   array( 
-    array("name" => "order_no", 'width' => 150, "type" => "TEXT", "header" => $GLOBALS['locORDERNO']),
+    array("name" => "order_no", 'width' => 150, "type" => "TEXT", "header" => $GLOBALS['locOrderNr']),
     array("name" => "type", 'width' => 150, "type" => "TEXT", "header" => $GLOBALS['locPrintTemplateType'], 
       'mappings' => array('invoice' => $GLOBALS['locPrintTemplateTypeInvoice']) ),
     array("name" => "name", 'width' => 200, "type" => "TEXT", "header" => $GLOBALS['locPrintTemplateName']),
@@ -210,12 +210,12 @@ case 'session_type':
    $strDeletedField = 'deleted';
    $astrShowFields = 
     array( 
-        array("name" => "order_no", 'width' => 150, "type" => "TEXT", "header" => $GLOBALS['locORDERNO']),
-        array("name" => "name", 'width' => 450, "type" => "TEXT", "header" => $GLOBALS['locSESSIONTYPE'])
+        array("name" => "order_no", 'width' => 150, "type" => "TEXT", "header" => $GLOBALS['locOrderNr']),
+        array("name" => "name", 'width' => 450, "type" => "TEXT", "header" => $GLOBALS['locSessionType'])
     );
     //array('order_no','name');
    $strMainForm = "session_type";
-   $strTitle = $GLOBALS['locSESSIONTYPES'];
+   $strTitle = $GLOBALS['locSessionTypes'];
 break;
    
 case 'user':
@@ -229,11 +229,11 @@ case 'user':
    $strDeletedField = 'deleted';
    $astrShowFields = 
     array( 
-        array("name" => "name", 'width' => 350, "type" => "TEXT", "header" => $GLOBALS['locUSERNAME']),
-        array("name" => "login", 'width' => 250, "type" => "TEXT", "header" => $GLOBALS['locLOGONNAME'])
+        array("name" => "name", 'width' => 350, "type" => "TEXT", "header" => $GLOBALS['locUserName']),
+        array("name" => "login", 'width' => 250, "type" => "TEXT", "header" => $GLOBALS['locLoginName'])
     );
    $strMainForm = "user";
-   $strTitle = $GLOBALS['locUSERS'];
+   $strTitle = $GLOBALS['locUsers'];
 break;
 
 default :

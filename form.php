@@ -37,7 +37,7 @@ function createForm($strFunc, $strList, $strForm)
   {
 ?>
   <div class="form_container ui-widget-content">
-    <?php echo $GLOBALS['locNOACCESS'] . "\n"?>
+    <?php echo $GLOBALS['locNoAccess'] . "\n"?>
   </div>
 <?php
     return;
@@ -54,7 +54,7 @@ function createForm($strFunc, $strList, $strForm)
   {
 ?>
   <div class="form_container ui-widget-content">
-    <?php echo $GLOBALS['locNOACCESS'] . "\n"?>
+    <?php echo $GLOBALS['locNoAccess'] . "\n"?>
   </div>
 <?php
     return;
@@ -110,7 +110,7 @@ function createForm($strFunc, $strList, $strForm)
     }
 ?>
   <div class="form_container ui-widget-content">
-    <?php echo $GLOBALS['locRECORDDELETED'] . "\n"?>
+    <?php echo $GLOBALS['locRecordDeleted'] . "\n"?>
   </div>
 <?php
     return;
@@ -123,7 +123,7 @@ function createForm($strFunc, $strList, $strForm)
       $strMessage .= $GLOBALS['locDeletedRecord'] . '<br>';
     elseif ($res === 'notfound')
     {
-      echo $GLOBALS['locENTRYDELETED']; 
+      echo $GLOBALS['locEntryDeleted']; 
       die;
     }
   }
@@ -428,7 +428,7 @@ function save_record(redirect_url, redir_style)
         alert(data.warnings);
       if (data.missing_fields)
       {
-        errormsg('<?php echo $GLOBALS['locERRVALUEMISSING']?>: ' + data.missing_fields);
+        errormsg('<?php echo $GLOBALS['locErrValueMissing']?>: ' + data.missing_fields);
       }
       else
       {
@@ -468,7 +468,7 @@ function popup_dialog(url, on_close, dialog_title, event, width, height)
   $("#popup_dlg").dialog({ modal: true, width: width, height: height, resizable: true, 
     position: [50, 50], 
     buttons: {
-      "<?php echo $GLOBALS['locCLOSE']?>": function() { $("#popup_dlg").dialog('close'); }
+      "<?php echo $GLOBALS['locClose']?>": function() { $("#popup_dlg").dialog('close'); }
     },
     title: dialog_title,
     close: function(event, ui) { eval(on_close); }
@@ -565,7 +565,7 @@ function init_rows()
     }
     elseif ($subElem['type'] == 'CHECK')
     {
-      echo "      $('<td/>').addClass('$class' + (record.deleted == 1 ? ' deleted' : '')).text(record.$name == 1 ? \"" . $GLOBALS['locYES'] . '" : "' . $GLOBALS['locNO'] . "\").appendTo(tr);\n";
+      echo "      $('<td/>').addClass('$class' + (record.deleted == 1 ? ' deleted' : '')).text(record.$name == 1 ? \"" . $GLOBALS['locYesButton'] . '" : "' . $GLOBALS['locNoButton'] . "\").appendTo(tr);\n";
     }
     elseif ($subElem['type'] == 'ROWSUM')
     {
@@ -595,7 +595,7 @@ function init_rows()
       sum = format_currency(sum, <?php echo isset($subElem['decimals']) ? $subElem['decimals'] : 2?>);
       VAT = format_currency(VAT, <?php echo isset($subElem['decimals']) ? $subElem['decimals'] : 2?>);
       sumVAT = format_currency(sumVAT, <?php echo isset($subElem['decimals']) ? $subElem['decimals'] : 2?>);
-      var title = '<?php echo $GLOBALS['locVATLESS'] . ': '?>' + sum + ' &ndash; ' + '<?php echo $GLOBALS['locVATPART'] . ': '?>' + VAT;         
+      var title = '<?php echo $GLOBALS['locVATLess'] . ': '?>' + sum + ' &ndash; ' + '<?php echo $GLOBALS['locVATPart'] . ': '?>' + VAT;         
       $('<td/>').addClass('<?php echo $class?>' + (record.deleted == 1 ? ' deleted' : '')).append('<span title="' + title + '">' + sumVAT + '<\/span>').appendTo(tr); 
 <?php          
     }
@@ -607,8 +607,8 @@ function init_rows()
   if (sesWriteAccess())
   {
 ?>
-      $('<td/>').addClass('button').append('<a class="tinyactionlink row_edit_button rec' + record.id + '" href="#"><?php echo $GLOBALS['locEDIT']?><\/a>').appendTo(tr);
-      $('<td/>').addClass('button').append('<a class="tinyactionlink row_copy_button rec' + record.id + '" href="#"><?php echo $GLOBALS['locCOPY']?><\/a>').appendTo(tr);
+      $('<td/>').addClass('button').append('<a class="tinyactionlink row_edit_button rec' + record.id + '" href="#"><?php echo $GLOBALS['locEdit']?><\/a>').appendTo(tr);
+      $('<td/>').addClass('button').append('<a class="tinyactionlink row_copy_button rec' + record.id + '" href="#"><?php echo $GLOBALS['locCopy']?><\/a>').appendTo(tr);
 <?php
   }
 ?>
@@ -653,17 +653,17 @@ function init_rows()
       totSumVAT += sumVAT;
     }
     var tr = $('<tr/>').addClass('summary');
-    $('<td/>').addClass('input').attr('colspan', '10').attr('align', 'right').text('<?php echo $GLOBALS['locTOTALEXCLUDINGVAT']?>').appendTo(tr);
+    $('<td/>').addClass('input').attr('colspan', '10').attr('align', 'right').text('<?php echo $GLOBALS['locTotalExcludingVAT']?>').appendTo(tr);
     $('<td/>').addClass('input').attr('align', 'right').text(totSum.toFixed(2).replace('.', ',')).appendTo(tr);
     $(table).append(tr);
     
     tr = $('<tr/>').addClass('summary');
-    $('<td/>').addClass('input').attr('colspan', '10').attr('align', 'right').text('<?php echo $GLOBALS['locTOTALVAT']?>').appendTo(tr);
+    $('<td/>').addClass('input').attr('colspan', '10').attr('align', 'right').text('<?php echo $GLOBALS['locTotalVAT']?>').appendTo(tr);
     $('<td/>').addClass('input').attr('align', 'right').text(totVAT.toFixed(2).replace('.', ',')).appendTo(tr);
     $(table).append(tr);
     
     var tr = $('<tr/>').addClass('summary');
-    $('<td/>').addClass('input').attr('colspan', '10').attr('align', 'right').text('<?php echo $GLOBALS['locTOTALINCLUDINGVAT']?>').appendTo(tr);
+    $('<td/>').addClass('input').attr('colspan', '10').attr('align', 'right').text('<?php echo $GLOBALS['locTotalIncludingVAT']?>').appendTo(tr);
     $('<td/>').addClass('input').attr('align', 'right').text(totSumVAT.toFixed(2).replace('.', ',')).appendTo(tr);
     $(table).append(tr);
     
@@ -723,7 +723,7 @@ function save_row(form_id)
     'success': function(data) {
       if (data.missing_fields)
       {
-        errormsg('<?php echo $GLOBALS['locERRVALUEMISSING']?>: ' + data.missing_fields);
+        errormsg('<?php echo $GLOBALS['locErrValueMissing']?>: ' + data.missing_fields);
       }
       else
       {
@@ -889,10 +889,10 @@ function popup_editor(event, title, id, copy_row)
     }
 ?>    
     var buttons = new Object(); 
-    buttons["<?php echo $GLOBALS['locSAVE']?>"] = function() { save_row('iform_popup'); };
+    buttons["<?php echo $GLOBALS['locSave']?>"] = function() { save_row('iform_popup'); };
     if (!copy_row)
-      buttons["<?php echo $GLOBALS['locDELETE']?>"] = function() { if(confirm('<?php echo $GLOBALS['locCONFIRMDELETE']?>')==true) { delete_row('iform_popup'); } return false; };
-    buttons["<?php echo $GLOBALS['locCLOSE']?>"] = function() { $("#popup_edit").dialog('close'); };
+      buttons["<?php echo $GLOBALS['locDelete']?>"] = function() { if(confirm('<?php echo $GLOBALS['locConfirmDelete']?>')==true) { delete_row('iform_popup'); } return false; };
+    buttons["<?php echo $GLOBALS['locClose']?>"] = function() { $("#popup_edit").dialog('close'); };
     $("#popup_edit").dialog({ modal: true, width: 840, height: 150, resizable: false, 
       buttons: buttons,
       title: title,
@@ -952,7 +952,7 @@ function popup_editor(event, title, id, copy_row)
     }
 ?>
               <td class="button" <?php echo $strRowSpan?>>
-                <a class="tinyactionlink add_row_button" href="#" onclick="save_row('iform'); return false;"><?php echo $GLOBALS['locADDROW']?></a>
+                <a class="tinyactionlink add_row_button" href="#" onclick="save_row('iform'); return false;"><?php echo $GLOBALS['locAddRow']?></a>
               </td>
             </tr>
           </tbody>
@@ -1008,14 +1008,14 @@ function createFormButtons($boolNew, $copyLinkOverride, $spinner = 0)
     return;
 ?>
     <div class="form_buttons">
-      <a class="actionlink save_button" href="#" onclick="save_record(); return false;"><?php echo $GLOBALS['locSAVE']?></a>
+      <a class="actionlink save_button" href="#" onclick="save_record(); return false;"><?php echo $GLOBALS['locSave']?></a>
 <?php
   if (!$boolNew) 
   {
     $copyCmd = $copyLinkOverride ? "window.location='$copyLinkOverride'; return false;" : "document.getElementById('admin_form').copyact.value=1; document.getElementById('admin_form').submit(); return false;";
-?>      <a class="actionlink" href="#" onclick="<?php echo $copyCmd?>"><?php echo $GLOBALS['locCOPY']?></a>
-      <a class="actionlink" href="#" onclick="document.getElementById('admin_form').newact.value=1; document.getElementById('admin_form').submit(); return false;"><?php echo $GLOBALS['locNEW']?></a>
-      <a class="actionlink" href="#" onclick="if(confirm('<?php echo $GLOBALS['locCONFIRMDELETE']?>')==true) {  document.getElementById('admin_form').deleteact.value=1; document.getElementById('admin_form').submit(); return false;} else{ return false; }"><?php echo $GLOBALS['locDELETE']?></a>        
+?>      <a class="actionlink" href="#" onclick="<?php echo $copyCmd?>"><?php echo $GLOBALS['locCopy']?></a>
+      <a class="actionlink" href="#" onclick="document.getElementById('admin_form').newact.value=1; document.getElementById('admin_form').submit(); return false;"><?php echo $GLOBALS['locNew']?></a>
+      <a class="actionlink" href="#" onclick="if(confirm('<?php echo $GLOBALS['locConfirmDelete']?>')==true) {  document.getElementById('admin_form').deleteact.value=1; document.getElementById('admin_form').submit(); return false;} else{ return false; }"><?php echo $GLOBALS['locDelete']?></a>        
 <?php
   }
   if ($spinner)

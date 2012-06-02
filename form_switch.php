@@ -57,38 +57,37 @@ case 'company':
     array("name" => "company_name", "type" => "TEXT")
   );
   
-  $defaultCustomerNo = FALSE;
+  $defaultCustomerNr = FALSE;
   if (getSetting('add_customer_number'))
   {
-   $strQuery = 'SELECT max(customer_no) FROM {prefix}company WHERE deleted=0';
-   $intRes = mysql_query_check($strQuery);
-   $intInvNo = mysql_fetch_value(mysql_query_check($strQuery)) + 1;
-   $defaultCustomerNo = $intInvNo;
+    $strQuery = 'SELECT max(customer_no) FROM {prefix}company WHERE deleted=0';
+    $intRes = mysql_query_check($strQuery);
+    $defaultCustomerNr = mysql_fetch_value(mysql_query_check($strQuery)) + 1;
   }
   
   $astrFormElements = array(
     array(
-      "name" => "company_name", "label" => $GLOBALS['locCOMPNAME'], "type" => "TEXT", "style" => "medium", "listquery" => "", "position" => 1, "allow_null" => FALSE ),
+      "name" => "company_name", "label" => $GLOBALS['locClientName'], "type" => "TEXT", "style" => "medium", "listquery" => "", "position" => 1, "allow_null" => FALSE ),
     array(
-      "name" => "inactive", "label" => $GLOBALS['locCompanyInactive'], "type" => "CHECK", "style" => "medium", "listquery" => "", "position" => 2, "default" => 0, "allow_null" => TRUE ),
+      "name" => "inactive", "label" => $GLOBALS['locClientInactive'], "type" => "CHECK", "style" => "medium", "listquery" => "", "position" => 2, "default" => 0, "allow_null" => TRUE ),
     array(
-      "name" => "company_id", "label" => $GLOBALS['locCOMPVATID'], "type" => "TEXT", "style" => "medium", "listquery" => "", "position" => 1, "allow_null" => TRUE ),
+      "name" => "company_id", "label" => $GLOBALS['locClientVATID'], "type" => "TEXT", "style" => "medium", "listquery" => "", "position" => 1, "allow_null" => TRUE ),
     array(
       "name" => "org_unit_number", "label" => $GLOBALS['locOrgUnitNumber'], "type" => "TEXT", "style" => "medium", "listquery" => "", "position" => 2, "allow_null" => TRUE ),
     array(
-      "name" => "email", "label" => $GLOBALS['locEMAIL'], "type" => "TEXT", "style" => "medium", "listquery" => "", "position" => 1, "allow_null" => TRUE ),
+      "name" => "email", "label" => $GLOBALS['locEmail'], "type" => "TEXT", "style" => "medium", "listquery" => "", "position" => 1, "allow_null" => TRUE ),
     array(
-      "name" => "customer_no", "label" => $GLOBALS['locCUSTOMERNO'], "type" => "INT", "style" => "medium", "listquery" => "", "position" => 2, "default" => $defaultCustomerNo, "allow_null" => TRUE ),
+      "name" => "customer_no", "label" => $GLOBALS['locCustomerNr'], "type" => "INT", "style" => "medium", "listquery" => "", "position" => 2, "default" => $defaultCustomerNr, "allow_null" => TRUE ),
     array(
-      "name" => "default_ref_number", "label" => $GLOBALS['locCUSTOMERDEFAULTREFNO'], "type" => "TEXT", "style" => "medium", "listquery" => "", "position" => 1, "allow_null" => TRUE ),
+      "name" => "default_ref_number", "label" => $GLOBALS['locCustomerDefaultRefNr'], "type" => "TEXT", "style" => "medium", "listquery" => "", "position" => 1, "allow_null" => TRUE ),
     array(
-      "name" => "street_address", "label" => $GLOBALS['locSTREETADDR'], "type" => "TEXT", "style" => "medium", "listquery" => "", "position" => 0, "allow_null" => TRUE ),
+      "name" => "street_address", "label" => $GLOBALS['locStreetAddr'], "type" => "TEXT", "style" => "medium", "listquery" => "", "position" => 0, "allow_null" => TRUE ),
     array(
-      "name" => "zip_code", "label" => $GLOBALS['locZIPCODE'], "type" => "TEXT", "style" => "short", "listquery" => "", "position" => 1, "allow_null" => TRUE ),
+      "name" => "zip_code", "label" => $GLOBALS['locZipCode'], "type" => "TEXT", "style" => "short", "listquery" => "", "position" => 1, "allow_null" => TRUE ),
     array(
-      "name" => "city", "label" => $GLOBALS['locCITY'], "type" => "TEXT", "style" => "medium", "listquery" => "", "position" => 2, "allow_null" => TRUE ),
+      "name" => "city", "label" => $GLOBALS['locCity'], "type" => "TEXT", "style" => "medium", "listquery" => "", "position" => 2, "allow_null" => TRUE ),
     array(
-      "name" => "phone", "label" => $GLOBALS['locPHONE'], "type" => "TEXT", "style" => "medium", "listquery" => "", "position" => 1, "allow_null" => TRUE ),
+      "name" => "phone", "label" => $GLOBALS['locPhone'], "type" => "TEXT", "style" => "medium", "listquery" => "", "position" => 1, "allow_null" => TRUE ),
     array(
       "name" => "fax", "label" => $GLOBALS['locFAX'], "type" => "TEXT", "style" => "medium", "listquery" => "", "position" => 2, "allow_null" => TRUE ),
     array(
@@ -96,11 +95,11 @@ case 'company':
     array(
       "name" => "www", "label" => $GLOBALS['locWWW'], "type" => "TEXT", "style" => "medium", "listquery" => "", "position" => 2, "allow_null" => TRUE ),
     array(
-      "name" => "billing_address", "label" => $GLOBALS['locBILLADDR'], "type" => "AREA", "style" => "medium", "listquery" => "", "position" => 1, "allow_null" => TRUE ),
+      "name" => "billing_address", "label" => $GLOBALS['locBillAddr'], "type" => "AREA", "style" => "medium", "listquery" => "", "position" => 1, "allow_null" => TRUE ),
     array(
-      "name" => "info", "label" => $GLOBALS['locINFO'], "type" => "AREA", "style" => "medium", "listquery" => "", "position" => 2, "allow_null" => TRUE ),
+      "name" => "info", "label" => $GLOBALS['locInfo'], "type" => "AREA", "style" => "medium", "listquery" => "", "position" => 2, "allow_null" => TRUE ),
     array(
-      "name" => "company_contacts", "label" => $GLOBALS['locCONTACTS'], "type" => "IFORM", "style" => "full", "listquery" => "", "position" => 0, "allow_null" => TRUE, "parent_key" => "company_id" )
+      "name" => "company_contacts", "label" => $GLOBALS['locContacts'], "type" => "IFORM", "style" => "full", "listquery" => "", "position" => 0, "allow_null" => TRUE, "parent_key" => "company_id" )
   );
 break;
 
@@ -114,15 +113,15 @@ case 'company_contacts':
     array(
       "name" => "id", "label" => "", "type" => "HID_INT", "style" => "medium", "listquery" => "", "position" => 0, "allow_null" => FALSE ),
     array(
-      "name" => "contact_person", "label" => $GLOBALS['locCONTACTPERSON'], "type" => "TEXT", "style" => "medium", "listquery" => "", "position" => 0, "allow_null" => FALSE ),
+      "name" => "contact_person", "label" => $GLOBALS['locContactPerson'], "type" => "TEXT", "style" => "medium", "listquery" => "", "position" => 0, "allow_null" => FALSE ),
     array(
-      "name" => "person_title", "label" => $GLOBALS['locPERSONTITLE'], "type" => "TEXT", "style" => "small", "listquery" => '', "position" => 0, "allow_null" => TRUE ),
+      "name" => "person_title", "label" => $GLOBALS['locPersonTitle'], "type" => "TEXT", "style" => "small", "listquery" => '', "position" => 0, "allow_null" => TRUE ),
     array(
-      "name" => "phone", "label" => $GLOBALS['locPHONE'], "type" => "TEXT", "style" => "medium", "listquery" => "", "position" => 0, "allow_null" => TRUE ),
+      "name" => "phone", "label" => $GLOBALS['locPhone'], "type" => "TEXT", "style" => "medium", "listquery" => "", "position" => 0, "allow_null" => TRUE ),
     array(
       "name" => "gsm", "label" => $GLOBALS['locGSM'], "type" => "TEXT", "style" => "medium", "listquery" => "", "position" => 0, "allow_null" => TRUE ),
     array(
-      "name" => "email", "label" => $GLOBALS['locEMAIL'], "type" => "TEXT", "style" => "medium", "listquery" => "", "position" => 0, "allow_null" => TRUE )
+      "name" => "email", "label" => $GLOBALS['locEmail'], "type" => "TEXT", "style" => "medium", "listquery" => "", "position" => 0, "allow_null" => TRUE )
   );
 break;
 
@@ -135,27 +134,27 @@ case 'product':
   );
   $astrFormElements = array(
     array(
-      "name" => "product_name", "label" => $GLOBALS['locPRODUCTNAME'], "type" => "TEXT", "style" => "medium", "listquery" => "", "position" => 1, "allow_null" => FALSE ),
+      "name" => "product_name", "label" => $GLOBALS['locProductName'], "type" => "TEXT", "style" => "medium", "listquery" => "", "position" => 1, "allow_null" => FALSE ),
     array(
-      "name" => "description", "label" => $GLOBALS['locPRODUCTDESCRIPTION'], "type" => "TEXT", "style" => "long", "listquery" => "", "position" => 2, "allow_null" => TRUE ),
+      "name" => "description", "label" => $GLOBALS['locProductDescription'], "type" => "TEXT", "style" => "long", "listquery" => "", "position" => 2, "allow_null" => TRUE ),
     array(
-      "name" => "product_code", "label" => $GLOBALS['locPRODUCTCODE'], "type" => "TEXT", "style" => "medium", "listquery" => "", "position" => 1, "allow_null" => TRUE ),
+      "name" => "product_code", "label" => $GLOBALS['locProductCode'], "type" => "TEXT", "style" => "medium", "listquery" => "", "position" => 1, "allow_null" => TRUE ),
     array(
-      "name" => "product_group", "label" => $GLOBALS['locPRODUCTGROUP'], "type" => "TEXT", "style" => "medium", "listquery" => "", "position" => 2, "allow_null" => TRUE ),
+      "name" => "product_group", "label" => $GLOBALS['locProductGroup'], "type" => "TEXT", "style" => "medium", "listquery" => "", "position" => 2, "allow_null" => TRUE ),
     array(
-      "name" => "internal_info", "label" => $GLOBALS['locINTERNALINFO'], "type" => "AREA", "style" => "xlarge", "listquery" => "", "position" => 0, "allow_null" => TRUE ),
+      "name" => "internal_info", "label" => $GLOBALS['locInternalInfo'], "type" => "AREA", "style" => "xlarge", "listquery" => "", "position" => 0, "allow_null" => TRUE ),
     array(
-      "name" => "unit_price", "label" => $GLOBALS['locUNITPRICE'], "type" => "INT", "style" => "medium", "listquery" => "", "position" => 1, 'decimals' => getSetting('unit_price_decimals'), "allow_null" => TRUE ),
+      "name" => "unit_price", "label" => $GLOBALS['locUnitPrice'], "type" => "INT", "style" => "medium", "listquery" => "", "position" => 1, 'decimals' => getSetting('unit_price_decimals'), "allow_null" => TRUE ),
     array(
-      "name" => "type_id", "label" => $GLOBALS['locUNIT'], "type" => "LIST", "style" => "short", "listquery" => "SELECT id, name FROM {prefix}row_type WHERE deleted=0 ORDER BY order_no;", "position" => 2, "default" => "POST", "allow_null" => FALSE ),
+      "name" => "type_id", "label" => $GLOBALS['locUnit'], "type" => "LIST", "style" => "short", "listquery" => "SELECT id, name FROM {prefix}row_type WHERE deleted=0 ORDER BY order_no;", "position" => 2, "default" => "POST", "allow_null" => FALSE ),
     array(
       "name" => "price_decimals", "label" => $GLOBALS['locPriceInvoiceDecimals'], "type" => "INT", "style" => "short", "listquery" => "", "position" => 1, "default" => 2, "allow_null" => FALSE ),
     array(
       "name" => "discount", "label" => $GLOBALS['locDiscountPercent'], "type" => "INT", "style" => "percent", "listquery" => "", "position" => 2, "allow_null" => TRUE ),
     array(
-      "name" => "vat_percent", "label" => $GLOBALS['locVATPERCENT'], "type" => "INT", "style" => "short", "listquery" => "", "position" => 1, "default" => getSetting('invoice_default_vat_percent'), "allow_null" => FALSE ),
+      "name" => "vat_percent", "label" => $GLOBALS['locVATPercent'], "type" => "INT", "style" => "short", "listquery" => "", "position" => 1, "default" => getSetting('invoice_default_vat_percent'), "allow_null" => FALSE ),
     array(
-      "name" => "vat_included", "label" => $GLOBALS['locVATINCLUDED'], "type" => "CHECK", "style" => "medium", "listquery" => "", "position" => 2, "default" => FALSE, "allow_null" => TRUE ),
+      "name" => "vat_included", "label" => $GLOBALS['locVATIncluded'], "type" => "CHECK", "style" => "medium", "listquery" => "", "position" => 2, "default" => FALSE, "allow_null" => TRUE ),
   );
 break;
 
@@ -165,9 +164,6 @@ case 'invoice':
   $strListTableAlias = 'i.'; // this is for the search function
   $strParentKey = "invoice_id";
   $strJSONType = 'invoice';
-  
-  $defaultInvNo = FALSE;
-  $defaultRefNo = FALSE;
   
   $arrRefundedInvoice = array('allow_null' => TRUE);
   $arrRefundingInvoice = array('allow_null' => TRUE);
@@ -186,7 +182,7 @@ case 'invoice':
       $intRefundedInvoiceId = mysql_fetch_value($intRes);
       if ($intRefundedInvoiceId)
         $arrRefundedInvoice = array(
-         "name" => "get", "label" => $GLOBALS['locSHOWREFUNDEDINV'], "type" => "BUTTON", "style" => "custom", "listquery" => "$strBaseLink&amp;id=$intRefundedInvoiceId", "position" => 2, "allow_null" => TRUE 
+         "name" => "get", "label" => $GLOBALS['locShowRefundedInvoice'], "type" => "BUTTON", "style" => "custom", "listquery" => "$strBaseLink&amp;id=$intRefundedInvoiceId", "position" => 2, "allow_null" => TRUE 
         );
     }
     $strQuery = 
@@ -199,7 +195,7 @@ case 'invoice':
       $intRefundingInvoiceId = $row['id'];
       if ($intRefundingInvoiceId)
         $arrRefundingInvoice = array(
-          "name" => "get", "label" => $GLOBALS['locSHOWREFUNDINGINV'], "type" => "BUTTON", "style" => "custom", "listquery" => "'$strBaseLink&amp;id=$intRefundingInvoiceId", "position" => 2, "allow_null" => TRUE 
+          "name" => "get", "label" => $GLOBALS['locShowRefundingInvoice'], "type" => "BUTTON", "style" => "custom", "listquery" => "'$strBaseLink&amp;id=$intRefundingInvoiceId", "position" => 2, "allow_null" => TRUE 
         );
     }
   }
@@ -208,7 +204,7 @@ case 'invoice':
   $invoiceNumberUpdatePrefix = '';
   $invoiceNumberUpdateSuffix = '';
   $companyOnChange = '';
-  $getInvoiceNo = '';
+  $getInvoiceNr = '';
   $updateDates = '';
   $addCompanyCode = '';
   
@@ -218,7 +214,7 @@ case 'invoice':
 onchange = "$.getJSON('json.php?func=get_company&amp;id=' + document.getElementById('company_id').value, function(json) { if (json && json.default_ref_number) document.getElementById('ref_number').value = json.default_ref_number;});"
 EOS;
 
-    $getInvoiceNo = <<<EOS
+    $getInvoiceNr = <<<EOS
 $.getJSON('json.php?func=get_invoice_defaults&amp;id=' + document.getElementById('record_id').value + '&amp;base_id=' + document.getElementById('base_id').value, function(json) { document.getElementById('invoice_no').value = json.invoice_no; document.getElementById('ref_number').value = json.ref_no; $('.save_button').addClass('ui-state-highlight'); }); return false;
 EOS;
 
@@ -227,17 +223,17 @@ EOS;
 <a class="formbuttonlink" href="#" onclick="$.getJSON('json.php?func=get_invoice_defaults&amp;id=' + document.getElementById('record_id').value + '&amp;base_id=' + document.getElementById('base_id').value, function(json) { document.getElementById('invoice_date').value = json.date; document.getElementById('due_date').value = json.due_date; $('.save_button').addClass('ui-state-highlight'); }); return false;">$locUpdateDates</a>
 EOS;
 
-    $locNew = $GLOBALS['locNEW'] . '...';
-    $locCompName = $GLOBALS['locCOMPNAME'];
-    $locEmail = $GLOBALS['locEMAIL'];
-    $locPhone = $GLOBALS['locPHONE'];
-    $locAddress = $GLOBALS['locSTREETADDR'];
-    $locZip = $GLOBALS['locZIPCODE'];
-    $locCity = $GLOBALS['locCITY'];
-    $locSave = $GLOBALS['locSAVE'];
-    $locClose = $GLOBALS['locCLOSE'];
-    $locTitle = $GLOBALS['locNEWCOMPANY'];
-    $locMissing = $GLOBALS['locERRVALUEMISSING'];
+    $locNew = $GLOBALS['locNew'] . '...';
+    $locClientName = $GLOBALS['locClientName'];
+    $locEmail = $GLOBALS['locEmail'];
+    $locPhone = $GLOBALS['locPhone'];
+    $locAddress = $GLOBALS['locStreetAddr'];
+    $locZip = $GLOBALS['locZipCode'];
+    $locCity = $GLOBALS['locCity'];
+    $locSave = $GLOBALS['locSave'];
+    $locClose = $GLOBALS['locClose'];
+    $locTitle = $GLOBALS['locNewClient'];
+    $locMissing = $GLOBALS['locErrValueMissing'];
     $addCompanyCode = <<<EOS
 <a class="formbuttonlink" href="#" onclick="add_company({'save': '$locSave', 'close': '$locClose', 'title': '$locTitle', 'missing': '$locMissing: '})">$locNew</a>
 
@@ -246,7 +242,7 @@ EOS;
     $popupHTML = <<<EOS
 <script type="text/javascript" src="js/add_company.js"></script>
 <div id="quick_add_company" class="form_container ui-widget-content" style="display: none">
-  <div class="medium_label">$locCompName</div> <div class="field"><input type="text" id="quick_name" class="medium"></div>
+  <div class="medium_label">$locClientName</div> <div class="field"><input type="text" id="quick_name" class="medium"></div>
   <div class="medium_label">$locEmail</div> <div class="field"><input type="text" id="quick_email" class="medium"></div>
   <div class="medium_label">$locPhone</div> <div class="field"><input type="text" id="quick_phone" class="medium"></div>
   <div class="medium_label">$locAddress</div> <div class="field"><input type="text" id="quick_street_address" class="medium"></div>
@@ -331,12 +327,12 @@ EOS;
    
   $copyLinkOverride = "copy_invoice.php?func=$strFunc&amp;list=$strList&amp;id=$intInvoiceId";
   
-  $updateInvoiceNo = null;
+  $updateInvoiceNr = null;
   if (sesWriteAccess()) 
   {
     if (!getSetting('invoice_add_number') || !getSetting('invoice_add_reference_number'))
     {
-      $updateInvoiceNo = '<a class="formbuttonlink" href="#" onclick="' . $getInvoiceNo . '">' . $GLOBALS['locGetInvoiceNo'] . '</a>';
+      $updateInvoiceNr = '<a class="formbuttonlink" href="#" onclick="' . $getInvoiceNr . '">' . $GLOBALS['locGetInvoiceNr'] . '</a>';
     }
   }
   
@@ -344,39 +340,39 @@ EOS;
   
   $astrFormElements = array(
     array(
-      "name" => "base_id", "label" => $GLOBALS['locBILLER'], "type" => "LIST", "style" => "medium", "listquery" => "SELECT id, name FROM {prefix}base WHERE deleted=0", "position" => 1, "default" => $defaultBase, "allow_null" => FALSE ),
+      "name" => "base_id", "label" => $GLOBALS['locBiller'], "type" => "LIST", "style" => "medium", "listquery" => "SELECT id, name FROM {prefix}base WHERE deleted=0", "position" => 1, "default" => $defaultBase, "allow_null" => FALSE ),
     array(
-      "name" => "name", "label" => $GLOBALS['locINVNAME'], "type" => "TEXT", "style" => "medium", "listquery" => "", "position" => 2, "allow_null" => TRUE ),
+      "name" => "name", "label" => $GLOBALS['locInvName'], "type" => "TEXT", "style" => "medium", "listquery" => "", "position" => 2, "allow_null" => TRUE ),
     array(
-      "name" => "company_id", "label" => $GLOBALS['locPAYER'], "type" => "LIST", "style" => "medium", "listquery" => $companyListSelect, "position" => 1, 'allow_null' => TRUE, 'attached_elem' => $addCompanyCode, 'elem_attributes' => $companyOnChange ),
+      "name" => "company_id", "label" => $GLOBALS['locPayer'], "type" => "LIST", "style" => "medium", "listquery" => $companyListSelect, "position" => 1, 'allow_null' => TRUE, 'attached_elem' => $addCompanyCode, 'elem_attributes' => $companyOnChange ),
     array(
-      "name" => "reference", "label" => $GLOBALS['locCLIENTSREFERENCE'], "type" => "TEXT", "style" => "medium", "listquery" => "", "position" => 2, "allow_null" => TRUE ),
+      "name" => "reference", "label" => $GLOBALS['locClientsReference'], "type" => "TEXT", "style" => "medium", "listquery" => "", "position" => 2, "allow_null" => TRUE ),
     array(
-      "name" => "invoice_no", "label" => $GLOBALS['locINVNO'], "type" => "INT", "style" => "medium hidezerovalue", "listquery" => "", "position" => 1, "default" => $defaultInvNo, "allow_null" => TRUE ),
+      "name" => "invoice_no", "label" => $GLOBALS['locInvoiceNumber'], "type" => "INT", "style" => "medium hidezerovalue", "listquery" => "", "position" => 1, "default" => null, "allow_null" => TRUE ),
     array(
-      "name" => "ref_number", "label" => $GLOBALS['locREFNO'], "type" => "TEXT", "style" => "medium hidezerovalue", "listquery" => "", "position" => 2, "default" => $defaultRefNo, 'attached_elem' => $updateInvoiceNo, "allow_null" => TRUE ),
+      "name" => "ref_number", "label" => $GLOBALS['locReferenceNumber'], "type" => "TEXT", "style" => "medium hidezerovalue", "listquery" => "", "position" => 2, "default" => null, 'attached_elem' => $updateInvoiceNr, "allow_null" => TRUE ),
     array(
-      "name" => "invoice_date", "label" => $GLOBALS['locINVDATE'], "type" => "INTDATE", "style" => "date", "listquery" => "", "position" => 1, "default" => "DATE_NOW", "allow_null" => FALSE ),
+      "name" => "invoice_date", "label" => $GLOBALS['locInvDate'], "type" => "INTDATE", "style" => "date", "listquery" => "", "position" => 1, "default" => "DATE_NOW", "allow_null" => FALSE ),
     array(
-      "name" => "due_date", "label" => $GLOBALS['locDUEDATE'], "type" => "INTDATE", "style" => "date", "listquery" => "", "position" => 2, "default" => 'DATE_NOW+' . getSetting('invoice_payment_days'), 'attached_elem' => $updateDates, "allow_null" => FALSE ),
+      "name" => "due_date", "label" => $GLOBALS['locDueDate'], "type" => "INTDATE", "style" => "date", "listquery" => "", "position" => 2, "default" => 'DATE_NOW+' . getSetting('invoice_payment_days'), 'attached_elem' => $updateDates, "allow_null" => FALSE ),
     array(
-      "name" => "state_id", "label" => $GLOBALS['locSTATUS'], "type" => "LIST", "style" => "medium", "listquery" => "SELECT id, name FROM {prefix}invoice_state WHERE deleted=0 ORDER BY order_no", "position" => 1, "default" => 1, "allow_null" => FALSE ),
+      "name" => "state_id", "label" => $GLOBALS['locStatus'], "type" => "LIST", "style" => "medium", "listquery" => "SELECT id, name FROM {prefix}invoice_state WHERE deleted=0 ORDER BY order_no", "position" => 1, "default" => 1, "allow_null" => FALSE ),
     array(
-      "name" => "payment_date", "label" => $GLOBALS['locPAYDATE'], "type" => "INTDATE", "style" => "date", "listquery" => "", "position" => 2, "allow_null" => TRUE ),
+      "name" => "payment_date", "label" => $GLOBALS['locPayDate'], "type" => "INTDATE", "style" => "date", "listquery" => "", "position" => 2, "allow_null" => TRUE ),
     array(
-      "name" => "archived", "label" => $GLOBALS['locARCHIVED'], "type" => "CHECK", "style" => "medium", "listquery" => "", "position" => 1, "default" => 0, "allow_null" => TRUE ),
+      "name" => "archived", "label" => $GLOBALS['locArchived'], "type" => "CHECK", "style" => "medium", "listquery" => "", "position" => 1, "default" => 0, "allow_null" => TRUE ),
     array(
       "name" => "info", "label" => $GLOBALS['locVisibleInfo'], "type" => "AREA", "style" => "medium", "listquery" => "", "position" => 1, "allow_null" => TRUE ),
     array(
-      "name" => "internal_info", "label" => $GLOBALS['locINTERNALINFO'], "type" => "AREA", "style" => "medium", "listquery" => "", "position" => 2, "allow_null" => TRUE ),
+      "name" => "internal_info", "label" => $GLOBALS['locInternalInfo'], "type" => "AREA", "style" => "medium", "listquery" => "", "position" => 2, "allow_null" => TRUE ),
       
     !sesWriteAccess() ? array("name" => "refundinvoice", "label" => '', 'type' => 'FILLER', 'position' => 1) : array(
-      "name" => "refundinvoice", "label" => $GLOBALS['locREFUNDINV'], "type" => "BUTTON", "style" => "redirect", "listquery" => "copy_invoice.php?func=$strFunc&list=$strList&id=_ID_&refund=1", "position" => 1, "default" => FALSE, "allow_null" => TRUE ),
+      "name" => "refundinvoice", "label" => $GLOBALS['locRefundInvoice'], "type" => "BUTTON", "style" => "redirect", "listquery" => "copy_invoice.php?func=$strFunc&list=$strList&id=_ID_&refund=1", "position" => 1, "default" => FALSE, "allow_null" => TRUE ),
     $arrRefundedInvoice,
     isset($printButtons[0]) ? $printButtons[0] : array(),   
     isset($printButtons2[0]) ? $printButtons2[0] : array(),   
     !sesWriteAccess() ? array("name" => "addreminderfees", "label" => '', 'type' => 'FILLER', 'position' => 1) : array(
-      "name" => "addreminderfees", "label" => $GLOBALS['locADDREMINDERFEES'], "type" => "JSBUTTON", "style" => "redirect", "listquery" => "$addReminderFees", "position" => 1, "default" => FALSE, "allow_null" => TRUE ),
+      "name" => "addreminderfees", "label" => $GLOBALS['locAddReminderFees'], "type" => "JSBUTTON", "style" => "redirect", "listquery" => "$addReminderFees", "position" => 1, "default" => FALSE, "allow_null" => TRUE ),
     $arrRefundingInvoice,
     isset($printButtons[1]) ? $printButtons[1] : array(),   
     isset($printButtons2[1]) ? $printButtons2[1] : array(),   
@@ -390,7 +386,7 @@ EOS;
   }
   
   $astrFormElements[] = array(
-    "name" => "invoice_rows", "label" => $GLOBALS['locINVROWS'], "type" => "IFORM", "style" => "xfull", "listquery" => "", "position" => 0, "allow_null" => TRUE, "parent_key" => "invoice_id" 
+    "name" => "invoice_rows", "label" => $GLOBALS['locInvRows'], "type" => "IFORM", "style" => "xfull", "listquery" => "", "position" => 0, "allow_null" => TRUE, "parent_key" => "invoice_id" 
   );
 break;
 
@@ -471,27 +467,27 @@ EOS;
      array(
         "name" => "id", "label" => "", "type" => "HID_INT", "style" => "medium", "listquery" => "", "position" => 0, "allow_null" => FALSE ),
      array(
-        "name" => "product_id", "label" => $GLOBALS['locPRODUCTNAME'], "type" => "LIST", "style" => "medium", "listquery" => "SELECT id, product_name FROM {prefix}product WHERE deleted=0 ORDER BY product_name", "position" => 0, "allow_null" => TRUE, 'elem_attributes' => $productOnChange ),
+        "name" => "product_id", "label" => $GLOBALS['locProductName'], "type" => "LIST", "style" => "medium", "listquery" => "SELECT id, product_name FROM {prefix}product WHERE deleted=0 ORDER BY product_name", "position" => 0, "allow_null" => TRUE, 'elem_attributes' => $productOnChange ),
      array(
-        "name" => "description", "label" => $GLOBALS['locROWDESC'], "type" => "TEXT", "style" => "medium", "listquery" => "", "position" => 0, "allow_null" => TRUE ),
+        "name" => "description", "label" => $GLOBALS['locRowDesc'], "type" => "TEXT", "style" => "medium", "listquery" => "", "position" => 0, "allow_null" => TRUE ),
      array(
-        "name" => "row_date", "label" => $GLOBALS['locDATE'], "type" => "INTDATE", "style" => "date", "listquery" => "", "position" => 0, "default" => 'DATE_NOW', "allow_null" => FALSE ),
+        "name" => "row_date", "label" => $GLOBALS['locDate'], "type" => "INTDATE", "style" => "date", "listquery" => "", "position" => 0, "default" => 'DATE_NOW', "allow_null" => FALSE ),
      array(
         "name" => "pcs", "label" => $GLOBALS['locPCS'], "type" => "INT", "style" => "count", "listquery" => "", "position" => 0, "allow_null" => FALSE ),
      array(
-        "name" => "type_id", "label" => $GLOBALS['locUNIT'], "type" => "LIST", "style" => "short", "listquery" => "SELECT id, name FROM {prefix}row_type WHERE deleted=0 ORDER BY order_no", "position" => 0, "default" => 'POST', "allow_null" => TRUE ),
+        "name" => "type_id", "label" => $GLOBALS['locUnit'], "type" => "LIST", "style" => "short", "listquery" => "SELECT id, name FROM {prefix}row_type WHERE deleted=0 ORDER BY order_no", "position" => 0, "default" => 'POST', "allow_null" => TRUE ),
      array(
-        "name" => "price", "label" => $GLOBALS['locPRICE'], "type" => "INT", "style" => "currency", "listquery" => "", "position" => 0, "default" => 'POST', 'decimals' => getSetting('unit_price_decimals'), "allow_null" => FALSE ),
+        "name" => "price", "label" => $GLOBALS['locPrice'], "type" => "INT", "style" => "currency", "listquery" => "", "position" => 0, "default" => 'POST', 'decimals' => getSetting('unit_price_decimals'), "allow_null" => FALSE ),
      array(
         "name" => "discount", "label" => $GLOBALS['locDiscount'], "type" => "INT", "style" => "percent", "listquery" => "", "position" => 0, "default" => 0, "allow_null" => TRUE ),
      array(
         "name" => "vat", "label" => $GLOBALS['locVAT'], "type" => "INT", "style" => "percent", "listquery" => "", "position" => 0, "default" => getSetting('invoice_default_vat_percent'), "allow_null" => TRUE ),
      array(
-        "name" => "vat_included", "label" => $GLOBALS['locVATINC'], "type" => "CHECK", "style" => "xshort", "listquery" => "", "position" => 0, "default" => 0, "allow_null" => TRUE ),
+        "name" => "vat_included", "label" => $GLOBALS['locVATInc'], "type" => "CHECK", "style" => "xshort", "listquery" => "", "position" => 0, "default" => 0, "allow_null" => TRUE ),
      array(
-        "name" => "order_no", "label" => $GLOBALS['locROWNO'], "type" => "INT", "style" => "tiny", "listquery" => "SELECT max(order_no)+5 FROM {prefix}invoice_row WHERE deleted=0 AND invoice_id=_PARENTID_", "position" => 0, "default" => "ADD+5", "allow_null" => TRUE ),
+        "name" => "order_no", "label" => $GLOBALS['locRowNr'], "type" => "INT", "style" => "tiny", "listquery" => "SELECT max(order_no)+5 FROM {prefix}invoice_row WHERE deleted=0 AND invoice_id=_PARENTID_", "position" => 0, "default" => "ADD+5", "allow_null" => TRUE ),
      array(
-        "name" => "row_sum", "label" => $GLOBALS['locROWTOTAL'], "type" => "ROWSUM", "style" => "currency", "listquery" => "", "position" => 0, 'decimals' => 2, "allow_null" => TRUE )
+        "name" => "row_sum", "label" => $GLOBALS['locRowTotal'], "type" => "ROWSUM", "style" => "currency", "listquery" => "", "position" => 0, 'decimals' => 2, "allow_null" => TRUE )
    );
 
 break;
@@ -512,53 +508,53 @@ EOF;
     array(
       "name" => "name", "label" => $GLOBALS['locBaseName'], "type" => "TEXT", "style" => "medium", "listquery" => "", "position" => 1, "allow_null" => FALSE ),
     array(
-      "name" => "company_id", "label" => $GLOBALS['locCOMPVATID'], "type" => "TEXT", "style" => "medium", "listquery" => "", "position" => 2, "allow_null" => TRUE ),
+      "name" => "company_id", "label" => $GLOBALS['locClientVATID'], "type" => "TEXT", "style" => "medium", "listquery" => "", "position" => 2, "allow_null" => TRUE ),
     array(
       "name" => "org_unit_number", "label" => $GLOBALS['locOrgUnitNumber'], "type" => "TEXT", "style" => "medium", "listquery" => "", "position" => 1, "allow_null" => TRUE ),
     array(
-      "name" => "vat_registered", "label" => $GLOBALS['locVATREGISTERED'], "title" => $GLOBALS['locVATRegisteredHint'], "type" => "CHECK", "style" => "short", "listquery" => "", "position" => 2, "allow_null" => TRUE ),
+      "name" => "vat_registered", "label" => $GLOBALS['locVATRegistered'], "title" => $GLOBALS['locVATRegisteredHint'], "type" => "CHECK", "style" => "short", "listquery" => "", "position" => 2, "allow_null" => TRUE ),
     array(
-      "name" => "contact_person", "label" => $GLOBALS['locCONTACTPERS'], "type" => "TEXT", "style" => "medium", "listquery" => "", "position" => 1, "allow_null" => TRUE ),
+      "name" => "contact_person", "label" => $GLOBALS['locContactPerson'], "type" => "TEXT", "style" => "medium", "listquery" => "", "position" => 1, "allow_null" => TRUE ),
     array(
-      "name" => "email", "label" => $GLOBALS['locEMAIL'], "type" => "TEXT", "style" => "medium", "listquery" => "", "position" => 2, "allow_null" => TRUE ),
+      "name" => "email", "label" => $GLOBALS['locEmail'], "type" => "TEXT", "style" => "medium", "listquery" => "", "position" => 2, "allow_null" => TRUE ),
     array(
-      "name" => "street_address", "label" => $GLOBALS['locSTREETADDR'], "type" => "TEXT", "style" => "medium", "listquery" => "", "position" => 0, "allow_null" => TRUE ),
+      "name" => "street_address", "label" => $GLOBALS['locStreetAddr'], "type" => "TEXT", "style" => "medium", "listquery" => "", "position" => 0, "allow_null" => TRUE ),
     array(
-      "name" => "zip_code", "label" => $GLOBALS['locZIPCODE'], "type" => "TEXT", "style" => "short", "listquery" => "", "position" => 1, "allow_null" => TRUE ),
+      "name" => "zip_code", "label" => $GLOBALS['locZipCode'], "type" => "TEXT", "style" => "short", "listquery" => "", "position" => 1, "allow_null" => TRUE ),
     array(
-      "name" => "city", "label" => $GLOBALS['locCITY'], "type" => "TEXT", "style" => "medium", "listquery" => "", "position" => 2, "allow_null" => TRUE ),
+      "name" => "city", "label" => $GLOBALS['locCity'], "type" => "TEXT", "style" => "medium", "listquery" => "", "position" => 2, "allow_null" => TRUE ),
     array(
-      "name" => "phone", "label" => $GLOBALS['locPHONE'], "type" => "TEXT", "style" => "medium", "listquery" => "", "position" => 1, "allow_null" => TRUE ),
+      "name" => "phone", "label" => $GLOBALS['locPhone'], "type" => "TEXT", "style" => "medium", "listquery" => "", "position" => 1, "allow_null" => TRUE ),
     array(
       "name" => "www", "label" => $GLOBALS['locWWW'], "type" => "TEXT", "style" => "medium", "listquery" => "", "position" => 2, "allow_null" => TRUE ),
     array(
-      "name" => "banksep1", "label" => $GLOBALS['locFIRSTBANK'], "type" => "LABEL"),
+      "name" => "banksep1", "label" => $GLOBALS['locFirstBank'], "type" => "LABEL"),
     array(
-      "name" => "bank_name", "label" => $GLOBALS['locBANK'], "type" => "TEXT", "style" => "medium", "listquery" => "", "position" => 1, "allow_null" => FALSE ),
+      "name" => "bank_name", "label" => $GLOBALS['locBank'], "type" => "TEXT", "style" => "medium", "listquery" => "", "position" => 1, "allow_null" => FALSE ),
     array(
-      "name" => "bank_account", "label" => $GLOBALS['locACCOUNT'], "type" => "TEXT", "style" => "medium", "listquery" => "", "position" => 2, "allow_null" => FALSE ),
+      "name" => "bank_account", "label" => $GLOBALS['locAccount'], "type" => "TEXT", "style" => "medium", "listquery" => "", "position" => 2, "allow_null" => FALSE ),
     array(
-      "name" => "bank_iban", "label" => $GLOBALS['locACCOUNTIBAN'], "type" => "TEXT", "style" => "medium", "listquery" => "", "position" => 1, "allow_null" => FALSE ),
+      "name" => "bank_iban", "label" => $GLOBALS['locAccountIBAN'], "type" => "TEXT", "style" => "medium", "listquery" => "", "position" => 1, "allow_null" => FALSE ),
     array(
       "name" => "bank_swiftbic", "label" => $GLOBALS['locSWIFTBIC'], "type" => "TEXT", "style" => "medium", "listquery" => "", "position" => 2, "allow_null" => FALSE ),
     array(
-      "name" => "banksep2", "label" => $GLOBALS['locSECONDBANK'], "type" => "LABEL"),
+      "name" => "banksep2", "label" => $GLOBALS['locSecondBank'], "type" => "LABEL"),
     array(
-      "name" => "bank_name2", "label" => $GLOBALS['locBANK'], "type" => "TEXT", "style" => "medium", "listquery" => "", "position" => 1, "allow_null" => TRUE ),
+      "name" => "bank_name2", "label" => $GLOBALS['locBank'], "type" => "TEXT", "style" => "medium", "listquery" => "", "position" => 1, "allow_null" => TRUE ),
     array(
-      "name" => "bank_account2", "label" => $GLOBALS['locACCOUNT'], "type" => "TEXT", "style" => "medium", "listquery" => "", "position" => 2, "allow_null" => TRUE ),
+      "name" => "bank_account2", "label" => $GLOBALS['locAccount'], "type" => "TEXT", "style" => "medium", "listquery" => "", "position" => 2, "allow_null" => TRUE ),
     array(
-      "name" => "bank_iban2", "label" => $GLOBALS['locACCOUNTIBAN'], "type" => "TEXT", "style" => "medium", "listquery" => "", "position" => 1, "allow_null" => TRUE ),
+      "name" => "bank_iban2", "label" => $GLOBALS['locAccountIBAN'], "type" => "TEXT", "style" => "medium", "listquery" => "", "position" => 1, "allow_null" => TRUE ),
     array(
       "name" => "bank_swiftbic2", "label" => $GLOBALS['locSWIFTBIC'], "type" => "TEXT", "style" => "medium", "listquery" => "", "position" => 2, "allow_null" => TRUE ),
     array(
-      "name" => "banksep3", "label" => $GLOBALS['locTHIRDBANK'], "type" => "LABEL"),
+      "name" => "banksep3", "label" => $GLOBALS['locThirdBank'], "type" => "LABEL"),
     array(
-      "name" => "bank_name3", "label" => $GLOBALS['locBANK'], "type" => "TEXT", "style" => "medium", "listquery" => "", "position" => 1, "allow_null" => TRUE ),
+      "name" => "bank_name3", "label" => $GLOBALS['locBank'], "type" => "TEXT", "style" => "medium", "listquery" => "", "position" => 1, "allow_null" => TRUE ),
     array(
-      "name" => "bank_account3", "label" => $GLOBALS['locACCOUNT'], "type" => "TEXT", "style" => "medium", "listquery" => "", "position" => 2, "allow_null" => TRUE ),
+      "name" => "bank_account3", "label" => $GLOBALS['locAccount'], "type" => "TEXT", "style" => "medium", "listquery" => "", "position" => 2, "allow_null" => TRUE ),
     array(
-      "name" => "bank_iban3", "label" => $GLOBALS['locACCOUNTIBAN'], "type" => "TEXT", "style" => "medium", "listquery" => "", "position" => 1, "allow_null" => TRUE ),
+      "name" => "bank_iban3", "label" => $GLOBALS['locAccountIBAN'], "type" => "TEXT", "style" => "medium", "listquery" => "", "position" => 1, "allow_null" => TRUE ),
     array(
       "name" => "bank_swiftbic3", "label" => $GLOBALS['locSWIFTBIC'], "type" => "TEXT", "style" => "medium", "listquery" => "", "position" => 2, "allow_null" => TRUE ),
     array(
@@ -599,16 +595,16 @@ case 'invoice_state':
     $elem_attributes = 'readonly';
     $astrFormElements = array(
       array(
-        "name" => "label", "label" => $GLOBALS['locSYSTEMONLY'], "type" => "LABEL")
+        "name" => "label", "label" => $GLOBALS['locSystemOnly'], "type" => "LABEL")
     );
   }
   else
   {
     $astrFormElements = array(
       array(
-        "name" => "name", "label" => $GLOBALS['locSTATUS'], "type" => "TEXT", "style" => "medium", "listquery" => "", "position" => 1, "allow_null" => FALSE, "elem_attributes" => $elem_attributes ),
+        "name" => "name", "label" => $GLOBALS['locStatus'], "type" => "TEXT", "style" => "medium", "listquery" => "", "position" => 1, "allow_null" => FALSE, "elem_attributes" => $elem_attributes ),
       array(
-        "name" => "order_no", "label" => $GLOBALS['locORDERNO'], "type" => "INT", "style" => "short", "listquery" => "", "position" => 2, "allow_null" => FALSE, "elem_attributes" => $elem_attributes )
+        "name" => "order_no", "label" => $GLOBALS['locOorderNo'], "type" => "INT", "style" => "short", "listquery" => "", "position" => 2, "allow_null" => FALSE, "elem_attributes" => $elem_attributes )
      );
    }
 break;
@@ -618,9 +614,9 @@ case 'row_type':
   $strJSONType = 'row_type';
   $astrFormElements = array(
     array(
-      "name" => "name", "label" => $GLOBALS['locROWTYPE'], "type" => "TEXT", "style" => "medium", "listquery" => "", "position" => 1, "allow_null" => FALSE ),
+      "name" => "name", "label" => $GLOBALS['locRowType'], "type" => "TEXT", "style" => "medium", "listquery" => "", "position" => 1, "allow_null" => FALSE ),
     array(
-      "name" => "order_no", "label" => $GLOBALS['locORDERNO'], "type" => "INT", "style" => "short", "listquery" => "", "position" => 2, "allow_null" => FALSE )
+      "name" => "order_no", "label" => $GLOBALS['locOrderNr'], "type" => "INT", "style" => "short", "listquery" => "", "position" => 2, "allow_null" => FALSE )
   );
 break;
 
@@ -630,11 +626,11 @@ case 'session_type':
   $strJSONType = 'session_type';
   $astrFormElements = array(
     array(
-      "name" => "name", "label" => $GLOBALS['locSESSIONTYPE'], "type" => "TEXT", "style" => "medium", "listquery" => "", "position" => 1, "allow_null" => FALSE ),
+      "name" => "name", "label" => $GLOBALS['locSessionType'], "type" => "TEXT", "style" => "medium", "listquery" => "", "position" => 1, "allow_null" => FALSE ),
     array(
-      "name" => "order_no", "label" => $GLOBALS['locORDERNO'], "type" => "INT", "style" => "short", "listquery" => "", "position" => 2, "allow_null" => FALSE ),
+      "name" => "order_no", "label" => $GLOBALS['locOrderNr'], "type" => "INT", "style" => "short", "listquery" => "", "position" => 2, "allow_null" => FALSE ),
     array(
-      "name" => "access_level", "label" => $GLOBALS['locACCESSLEVEL'], "type" => "INT", "style" => "short", "listquery" => "", "position" => 1, "default" => 1, "allow_null" => FALSE )
+      "name" => "access_level", "label" => $GLOBALS['locAccessLevel'], "type" => "INT", "style" => "short", "listquery" => "", "position" => 1, "default" => 1, "allow_null" => FALSE )
   );
 break;
 
@@ -644,13 +640,13 @@ case 'user':
   $strJSONType = 'user';
   $astrFormElements = array(
     array(
-      "name" => "name", "label" => $GLOBALS['locUSERNAME'], "type" => "TEXT", "style" => "medium", "listquery" => "", "position" => 1, "allow_null" => FALSE ), 
+      "name" => "name", "label" => $GLOBALS['locUserName'], "type" => "TEXT", "style" => "medium", "listquery" => "", "position" => 1, "allow_null" => FALSE ), 
     array(
-      "name" => "login", "label" => $GLOBALS['locLOGONNAME'], "type" => "TEXT", "style" => "medium", "listquery" => "", "position" => 1, "allow_null" => FALSE ),
+      "name" => "login", "label" => $GLOBALS['locLoginName'], "type" => "TEXT", "style" => "medium", "listquery" => "", "position" => 1, "allow_null" => FALSE ),
     array(
-      "name" => "passwd", "label" => $GLOBALS['locPASSWD'], "type" => "PASSWD", "style" => "medium", "listquery" => "", "position" => 2, "allow_null" => TRUE ),
+      "name" => "passwd", "label" => $GLOBALS['locPassword'], "type" => "PASSWD", "style" => "medium", "listquery" => "", "position" => 2, "allow_null" => TRUE ),
     array(
-      "name" => "type_id", "label" => $GLOBALS['locTYPE'], "type" => "LIST", "style" => "medium", "listquery" => "SELECT id, name FROM {prefix}session_type WHERE deleted=0 ORDER BY order_no", "position" => 0, "allow_null" => FALSE )
+      "name" => "type_id", "label" => $GLOBALS['locType'], "type" => "LIST", "style" => "medium", "listquery" => "SELECT id, name FROM {prefix}session_type WHERE deleted=0 ORDER BY order_no", "position" => 0, "allow_null" => FALSE )
   );
 break;
 
@@ -663,7 +659,7 @@ case 'print_template':
     array(
       "name" => "type", "label" => $GLOBALS['locPrintTemplateType'], "type" => "LIST", "style" => "medium", "listquery" => "SELECT 'invoice' as id, '". $GLOBALS['locPrintTemplateTypeInvoice'] . "' as name", "position" => 1, "allow_null" => FALSE ),
     array(
-      "name" => "order_no", "label" => $GLOBALS['locORDERNO'], "type" => "INT", "style" => "short", "listquery" => "", "position" => 2, "allow_null" => FALSE ),
+      "name" => "order_no", "label" => $GLOBALS['locOrderNr'], "type" => "INT", "style" => "short", "listquery" => "", "position" => 2, "allow_null" => FALSE ),
     array(
       "name" => "name", "label" => $GLOBALS['locPrintTemplateName'], "type" => "TEXT", "style" => "medium", "listquery" => "", "position" => 1, "allow_null" => FALSE ),
     array(

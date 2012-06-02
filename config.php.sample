@@ -15,42 +15,59 @@ Tämä ohjelma on vapaa. Lue oheinen LICENSE.
 
 *******************************************************************************/
 
+// UI Language. Default is Finnish.
+// Käyttöliittymän kieli. Oletus on suomi.
+//define('_UI_LANGUAGE_', 'en-US');
+
+// Database server address
 // Tietokantapalvelimen osoite
 define('_DB_SERVER_', 'localhost');
 
+// Database server user id
 // Tunnus tietokantapalvelimelle
 define('_DB_USERNAME_', 'vllasku');
 
+// Database server password
 // Salasana tietokantapalvelimelle
 define('_DB_PASSWORD_', 'vllasku');
 
+// Database name
 // Tietokannan nimi
 define('_DB_NAME_', 'vllasku');
 
+// Database table prefix
 // Tietokantataulujen prefix
 define ('_DB_PREFIX_', 'vllasku');
 
+// Whether verbose error messages are reported on html pages (true = yes, false = only in php error log)
 // Raportoidaanko tietokantavirheiden tarkat tiedot html-sivuilla (true = kyllä, false = vain php:n virhelokissa)
 define('_DB_VERBOSE_ERRORS_', true);
 
+// Character set: UTF-8 or ISO-8859-15. UTF-8 should work properly regardless of database character set.
 // Merkistö: UTF-8 tai ISO-8859-15. UTF-8:n pitäisi toimia riippumatta siitä, mitä merkistöä tietokannassa on.
 define ('_CHARSET_', 'UTF-8');
 
+// Page title
 // Sivujen otsikko
 define ('_PAGE_TITLE_', 'VLLasku');
 
+// jQuery UI theme location
 // Käytettävän jQuery UI-teeman sijainti
 //define ('_UI_THEME_LOCATION_', 'jquery/css/theme/jquery-ui-1.8.16.custom.css');
 
+// Whether to use http or https. Set only if automatic detection fails
 // http vai https - vaihda vain jos automaattinen valinta alla ei toimi
 define ('_PROTOCOL_', isset($_SERVER['HTTPS']) ? 'https://' : 'http://');
 //define ('_PROTOCOL_', 'http://');
 
+// Filename used when importing data into database using the Import function
 // Tietojen tuontiin palvelimelta käytettävä tiedosto
 define ('_IMPORT_FILE_', '');
 
+// Session cookie name and restriction to the path. These can be used to limit cookies with multiple installations on same server.
 // Istunto-evästeen nimi ja rajaus polun mukaan. Näillä voi huolehtia rinnakkaisten asennusten kohdalla, etteivät evästeet vuoda asennuksesta toiseen. Ei vaikuta tietoturvaan.
 define ('_SESSION_NAME_', 'VLLASKUSESSION');
 define ('_SESSION_RESTRICT_PATH_', true);
 
+// N.B.! Other settings can be found in the UI (Settings -> General Settings)
 // HUOM! Muut asetukset löytyvät käyttöliittymästä kohdasta Asetukset - Yleiset asetukset

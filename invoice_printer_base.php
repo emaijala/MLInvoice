@@ -97,7 +97,7 @@ abstract class InvoicePrinterBase
     $this->senderAddressLine = $senderData['name'];
     $strCompanyID = trim($senderData['company_id']);
     if ($strCompanyID)
-      $strCompanyID = $GLOBALS['locPDFCompanyVATID'] . ": $strCompanyID";
+      $strCompanyID = $GLOBALS['locPDFClientVATID'] . ": $strCompanyID";
     if ($strCompanyID)
       $strCompanyID .= ', ';
     if ($senderData['vat_registered'])
@@ -360,7 +360,7 @@ abstract class InvoicePrinterBase
       $pdf->SetX(115);
       if ($this->refNumber)
       {
-        $pdf->Cell(40, 5, $GLOBALS['locPDFInvoiceRefNo'] .": ", 0, 0, 'R');
+        $pdf->Cell(40, 5, $GLOBALS['locPDFInvoiceRefNr'] .": ", 0, 0, 'R');
         $pdf->Cell(60, 5, $this->refNumber, 0, 1);
       }
     }
@@ -757,7 +757,7 @@ abstract class InvoicePrinterBase
     
     
     $pdf->SetFont('Helvetica','',7);
-    // refno
+    // refnr
     $pdf->SetFont('Helvetica','',7);
     $pdf->SetXY($intStartX + 112.4, $intStartY + 58);
     $pdf->MultiCell(15, 6, $GLOBALS['locPDFFormReferenceNumber'], 0, "L", 0);

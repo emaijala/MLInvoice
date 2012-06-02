@@ -124,22 +124,22 @@ case 'add_reminder_fees':
 case 'get_invoice_defaults':
   $baseId = getRequest('base_id', 0);
   $invoiceId = getRequest('id', 0);
-  $invNo = getRequest('invoice_no', 0);
-  if (!$invNo) {
+  $invNr = getRequest('invoice_no', 0);
+  if (!$invNr) {
     if (getSetting('invoice_numbering_per_base') && $baseId)
       $res = mysql_param_query('SELECT max(cast(invoice_no as unsigned integer)) FROM {prefix}invoice WHERE deleted=0 AND id!=? AND base_id=?', array($invoiceId, $baseId));
     else
       $res = mysql_param_query('SELECT max(cast(invoice_no as unsigned integer)) FROM {prefix}invoice WHERE deleted=0 AND id!=?', array($invoiceId));
-    $invNo = mysql_fetch_value($res) + 1;
+    $invNr = mysql_fetch_value($res) + 1;
   }
-  if ($invNo < 100)
-    $invNo = 100; // min ref number length is 3 + check digit, make sure invoice number matches that
-  $refNo = $invNo . miscCalcCheckNo($invNo);
+  if ($invNr < 100)
+    $invNr = 100; // min ref number length is 3 + check digit, make sure invoice number matches that
+  $refNr = $invNr . miscCalcCheckNo($invNr);
   $strDate = date("d.m.Y");
   $strDueDate = date("d.m.Y", mktime(0, 0, 0, date("m"), date("d")+getSetting('invoice_payment_days'), date("Y")));
   $arrData = array(
-    'invoice_no' => $invNo, 
-    'ref_no' => $refNo,
+    'invoice_no' => $invNr, 
+    'ref_no' => $refNr,
     'date' => $strDate,
     'due_date' => $strDueDate
   );
