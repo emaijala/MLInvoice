@@ -42,6 +42,9 @@ function createFuncMenu($strFunc)
     $astrNaviLinks =  array( 
       array("href" => "list=user", "text" => $GLOBALS['locUSERS'], "levels_allowed" => array(ROLE_ADMIN)),
       array("href" => "list=session_type", "text" => $GLOBALS['locSESSIONTYPES'], "levels_allowed" => array(ROLE_ADMIN)),
+      array("href" => "list=invoice_state", "text" => $GLOBALS['locINVOICESTATES'], "levels_allowed" => array(ROLE_ADMIN)),
+      array("href" => "list=row_type", "text" => $GLOBALS['locROWTYPES'], "levels_allowed" => array(ROLE_ADMIN)),
+      array("href" => "list=print_template", "text" => $GLOBALS['locPrintTemplates'], "levels_allowed" => array(ROLE_ADMIN)),
       array("href" => "operation=dbdump", "text" => $GLOBALS['locBACKUPDATABASE'], "levels_allowed" => array(ROLE_BACKUPMGR, ROLE_ADMIN)),
       array("href" => "operation=import", "text" => $GLOBALS['locImportData'], "levels_allowed" => array(ROLE_ADMIN)),
       array("href" => "operation=export", "text" => $GLOBALS['locExportData'], "levels_allowed" => array(ROLE_ADMIN))
@@ -61,10 +64,7 @@ function createFuncMenu($strFunc)
     $astrNaviLinks = array( 
       array("href" => "list=settings", "text" => $GLOBALS['locGeneralSettings'], "levels_allowed" => array(ROLE_USER, ROLE_BACKUPMGR)),
       array("href" => "list=base", "text" => $GLOBALS['locBASES'], "levels_allowed" => array(ROLE_USER, ROLE_BACKUPMGR)),
-      array("href" => "list=invoice_state", "text" => $GLOBALS['locINVOICESTATES'], "levels_allowed" => array(ROLE_USER, ROLE_BACKUPMGR)),
       array("href" => "list=product", "text" => $GLOBALS['locPRODUCTS'], "levels_allowed" => array(ROLE_USER, ROLE_BACKUPMGR)),
-      array("href" => "list=row_type", "text" => $GLOBALS['locROWTYPES'], "levels_allowed" => array(ROLE_USER, ROLE_BACKUPMGR)),
-      array("href" => "list=print_template", "text" => $GLOBALS['locPrintTemplates'], "levels_allowed" => array(ROLE_USER, ROLE_BACKUPMGR)),
     );
     $strNewText = '';
     $strList = getRequest('list', '');
