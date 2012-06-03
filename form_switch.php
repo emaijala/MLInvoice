@@ -338,6 +338,12 @@ EOS;
   
   $addReminderFees = "$.getJSON('json.php?func=add_reminder_fees&amp;id=' + document.getElementById('record_id').value, function(json) { if (json.errors) { $('#errormsg').text(json.errors).show() } else { showmsg('{$GLOBALS['locReminderFeesAdded']}'); } init_rows(); }); return false;";
   
+  $intervalOptions = array(
+    '0' => $GLOBALS['locInvoiceIntervalNone'],
+    '2' => $GLOBALS['locInvoiceIntervalMonth'],
+    '3' => $GLOBALS['locInvoiceIntervalYear']
+  );
+  
   $astrFormElements = array(
     array(
       "name" => "base_id", "label" => $GLOBALS['locBiller'], "type" => "LIST", "style" => "medium", "listquery" => "SELECT id, name FROM {prefix}base WHERE deleted=0", "position" => 1, "default" => $defaultBase, "allow_null" => FALSE ),
@@ -355,6 +361,10 @@ EOS;
       "name" => "invoice_date", "label" => $GLOBALS['locInvDate'], "type" => "INTDATE", "style" => "date", "listquery" => "", "position" => 1, "default" => "DATE_NOW", "allow_null" => FALSE ),
     array(
       "name" => "due_date", "label" => $GLOBALS['locDueDate'], "type" => "INTDATE", "style" => "date", "listquery" => "", "position" => 2, "default" => 'DATE_NOW+' . getSetting('invoice_payment_days'), 'attached_elem' => $updateDates, "allow_null" => FALSE ),
+    array(
+      "name" => "interval_type", "label" => $GLOBALS['locInvoiceIntervalType'], "type" => "SELECT", "style" => "medium", "position" => 1, "options" => $intervalOptions, "default" => "0", "allow_null" => TRUE ),
+    array(
+      "name" => "next_interval_date", "label" => $GLOBALS['locInvoiceNextIntervalDate'], "type" => "INTDATE", "style" => "date", "listquery" => "", "position" => 2, "default" => '', "allow_null" => TRUE ),
     array(
       "name" => "state_id", "label" => $GLOBALS['locStatus'], "type" => "LIST", "style" => "medium", "listquery" => "SELECT id, name FROM {prefix}invoice_state WHERE deleted=0 ORDER BY order_no", "position" => 1, "default" => 1, "allow_null" => FALSE ),
     array(

@@ -139,9 +139,12 @@ CREATE TABLE vllasku_invoice (
   archived tinyint NOT NULL default 0,
   info text default NULL,
   internal_info text default NULL,
+  interval_type int(11) NOT NULL default 0,
+  next_interval_date int(11) default NULL,
   PRIMARY KEY (id),
   FOREIGN KEY (company_id) REFERENCES vllasku_company(id),
-  FOREIGN KEY (state_id) REFERENCES vllasku_invoice_state(id)
+  FOREIGN KEY (state_id) REFERENCES vllasku_invoice_state(id),
+  FOREIGN KEY (base_id) REFERENCES vllasku_base(id)
 ) ENGINE=INNODB AUTO_INCREMENT=1 CHARACTER SET utf8 COLLATE utf8_swedish_ci;
 
 CREATE TABLE vllasku_invoice_row (
@@ -225,6 +228,12 @@ CREATE TABLE vllasku_session (
   session_timestamp timestamp NOT NULL default CURRENT_TIMESTAMP,
   PRIMARY KEY (id),
   INDEX i_session_timestamp(session_timestamp)
+) ENGINE=INNODB CHARACTER SET utf8 COLLATE utf8_swedish_ci;
+
+CREATE TABLE vllasku_state (
+  id char(32) NOT NULL,
+  data varchar(100) NULL,
+  PRIMARY KEY (id)
 ) ENGINE=INNODB CHARACTER SET utf8 COLLATE utf8_swedish_ci;
 
 SET NAMES 'utf8';

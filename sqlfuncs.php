@@ -202,3 +202,63 @@ function table_valid($table)
   }
   return in_array(_DB_PREFIX_ . "_$table", $tables);
 }
+
+/**
+ * Verify database status and upgrade as necessary.
+ * Expects all pre-1.6.0 changes to have been already made.
+ * 
+ * @return string status (OK|UPGRADED|FAILED)
+ */
+function verifyDatabase()
+{
+  $res = mysql_query_check("SHOW TABLES LIKE '{prefix}state'");
+  if (mysql_num_rows($res) == 0) {
+    $res = mysql_query_check(<<<EOT
+CREATE TABLE {prefix}state (
+  id char(32) NOT NULL,
+  data varchar(100) NULL,
+  PRIMARY KEY (id)
+) ENGINE=INNODB CHARACTER SET utf8 COLLATE utf8_swedish_ci;
+EOT
+    , true);
+    if ($res === false) {
+      return 'FAILED';
+    }
+    mysql_query_check("REPLACE INTO {prefix}state (id, data) VALUES ('version', '15')");
+  } 
+
+  $res = mysql_param_query('SELECT data FROM {prefix}state WHERE id=?', array('version'));
+  $version = mysql_fetch_value($res);
+  $updates = array();
+  if ($version < 16) {
+    $updates = array(
+      "ALTER TABLE {prefix}invoice ADD CONSTRAINT FOREIGN KEY (base_id) REFERENCES {prefix}base(id)",
+      "ALTER TABLE {prefix}invoice ADD COLUMN interval_type int(11) NOT NULL default 0",
+      "ALTER TABLE {prefix}invoice ADD COLUMN next_interval_date int(11) default NULL",
+      "REPLACE INTO {prefix}state (id, data) VALUES ('version', '16')"
+    );
+  }
+  
+  if (!empty($updates)) {
+    foreach ($updates as $update) {
+      $res = mysql_query_check($update, true);
+      if ($res === false) {
+        error_log('Database upgrade query failed. Please execute the following queries manually: ');
+        $ok = true;
+        foreach ($updates as $update2) {
+          if ($update === $update2) {
+            $ok = false;
+          }
+          if ($ok) {
+            continue;
+          }
+          $update2 = str_replace('{prefix}', _DB_PREFIX_ . '_', $update2);
+          error_log($update2);
+        }
+        return 'FAILED';
+      }
+    }
+    return 'UPGRADED';
+  }
+  return 'OK';  
+}

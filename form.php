@@ -226,7 +226,7 @@ function createForm($strFunc, $strList, $strForm)
       $intColspan = 1;
 ?>
           <td class="button">
-            <?php echo htmlFormElement($elem['name'], $elem['type'], $astrValues[$elem['name']], $elem['style'], $elem['listquery'], $fieldMode, $elem['parent_key'],$elem['label'], array(), isset($elem['elem_attributes']) ? $elem['elem_attributes'] : '')
+            <?php echo htmlFormElement($elem['name'], $elem['type'], $astrValues[$elem['name']], $elem['style'], $elem['listquery'], $fieldMode, $elem['parent_key'],$elem['label'], array(), isset($elem['elem_attributes']) ? $elem['elem_attributes'] : '', isset($elem['options']) ? $elem['options'] : null)
 ?>
           </td>
 <?php          
@@ -250,7 +250,7 @@ function createForm($strFunc, $strList, $strForm)
     {
 ?>
           <td class="image" colspan="<?php echo $intColspan?>">
-            <?php echo htmlFormElement($elem['name'], $elem['type'], $astrValues[$elem['name']], $elem['style'], $elem['listquery'], $fieldMode, $elem['parent_key'],$elem['label'], array(), isset($elem['elem_attributes']) ? $elem['elem_attributes'] : '')?>
+            <?php echo htmlFormElement($elem['name'], $elem['type'], $astrValues[$elem['name']], $elem['style'], $elem['listquery'], $fieldMode, $elem['parent_key'],$elem['label'], array(), isset($elem['elem_attributes']) ? $elem['elem_attributes'] : '', isset($elem['options']) ? $elem['options'] : null)?>
           </td>
 <?php          
     }
@@ -282,7 +282,7 @@ function createForm($strFunc, $strList, $strForm)
       }
 ?>
           <td class="field"<?php echo $strColspan?>>
-            <?php echo htmlFormElement($elem['name'], $elem['type'], $value, $elem['style'], $elem['listquery'], $fieldMode, isset($elem['parent_key']) ? $elem['parent_key'] : '', '', array(), isset($elem['elem_attributes']) ? $elem['elem_attributes'] : '');
+            <?php echo htmlFormElement($elem['name'], $elem['type'], $value, $elem['style'], $elem['listquery'], $fieldMode, isset($elem['parent_key']) ? $elem['parent_key'] : '', '', array(), isset($elem['elem_attributes']) ? $elem['elem_attributes'] : '', isset($elem['options']) ? $elem['options'] : null);
       if (isset($elem['attached_elem'])) echo '            ' . $elem['attached_elem'] . "\n";
 ?>
           </td>
@@ -910,7 +910,6 @@ function popup_editor(event, title, id, copy_row)
           <thead>
             <tr>
 <?php
-  $strRowSpan = '';
   foreach ($subFormElements as $subElem)
   {
     if (!in_array($subElem['type'], array('HID_INT', 'SECHID_INT', 'BUTTON', 'NEWLINE')))
@@ -951,7 +950,7 @@ function popup_editor(event, title, id, copy_row)
       }
     }
 ?>
-              <td class="button" <?php echo $strRowSpan?>>
+              <td class="button" colspan="2">
                 <a class="tinyactionlink add_row_button" href="#" onclick="save_row('iform'); return false;"><?php echo $GLOBALS['locAddRow']?></a>
               </td>
             </tr>
@@ -966,7 +965,6 @@ function popup_editor(event, title, id, copy_row)
         <table class="iform">
           <tr>
 <?php
-    $strRowSpan = '';
     foreach ($subFormElements as $elem)
     {
       if (!in_array($elem['type'], array('HID_INT', 'SECHID_INT', 'BUTTON', 'NEWLINE', 'ROWSUM')))

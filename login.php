@@ -48,7 +48,19 @@ if (!isset($_SESSION['sesLANG'])) {
 }
 
 require_once 'localize.php';
-  
+
+switch(verifyDatabase())
+{
+  case 'OK': break;
+  case 'UPGRADED':
+    $upgradeMessage = $GLOBALS['locDatabaseUpgraded'];
+    break;
+  case 'FAILED':
+    $upgradeFailed = true;
+    $upgradeMessage = $GLOBALS['locDatabaseUpgradeFailed'];
+    break;
+}
+
 $strMessage = $GLOBALS['locWelcomeMessage'];
 
 if ($strLogon) 
@@ -86,6 +98,18 @@ echo htmlPageStart(_PAGE_TITLE_, array('jquery/js/jquery.md5.js'));
 <body onload="document.getElementById('flogin').focus();">
 <div class="pagewrapper ui-widget ui-widget-content">
 <div class="form" style="padding: 30px;">
+
+<?php
+if (isset($upgradeMessage)) {
+?>
+<div class="message ui-widget <?php echo isset($upgradeFailed) ? 'ui-state-error' : 'ui-state-highlight'?>">
+  <?php echo $upgradeMessage?>
+</div>
+<br/>
+<?php
+} 
+?>
+
 <?php
 if (isset($languages)) {
   foreach ($languages as $code => $name) {
@@ -96,6 +120,7 @@ if (isset($languages)) {
 <a href="login.php?lang=<?php echo $code?>"><?php echo htmlentities($name)?></a><br/>
 <?php
   }
+  echo '<br/>';
 } 
 ?>
 <h1><?php echo $GLOBALS['locWelcome']?></h1>
