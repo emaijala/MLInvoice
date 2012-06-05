@@ -238,6 +238,8 @@ CREATE TABLE vllasku_state (
 
 SET NAMES 'utf8';
 
+INSERT INTO vllasku_state (id, data) VALUES ('version', '16');
+
 INSERT INTO vllasku_company_type (id, name, order_no) VALUES (1, 'Autoilu', 5);
 INSERT INTO vllasku_company_type (id, name, order_no) VALUES (2, 'Elintarviketeollisuus', 10);
 INSERT INTO vllasku_company_type (id, name, order_no) VALUES (3, 'Graafinen ala', 15);
