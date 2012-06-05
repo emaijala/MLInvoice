@@ -1,6 +1,7 @@
 <?php
 
 require_once 'localize_invoice_pdf.php';
+require_once 'settings.php';
 
 abstract class InvoicePrinterBase
 {
