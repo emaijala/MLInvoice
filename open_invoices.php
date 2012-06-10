@@ -35,6 +35,13 @@ function createOpenInvoiceList()
 {
   $arrParams = array();
 
+  $currentDate = date("Ymd");
+  $strQuery =
+  "SELECT id FROM {prefix}invoice " .
+  "WHERE interval_type>0 AND next_interval_date<=$currentDate AND archived=0 " . (getSetting('show_deleted_records') ? '' : 'AND deleted=0 ');
+  "ORDER BY invoice_date, name";
+  createHtmlList('open_invoices', 'invoices', $strQuery, $arrParams, $GLOBALS['locLabelInvoicesWithIntervalDue'], $GLOBALS['locNoRepeatingInvoices'], 'resultlist_repeating_invoices');
+  
   $strQuery = 
     "SELECT id FROM {prefix}invoice " .
     "WHERE state_id=1 AND archived=0 " . (getSetting('show_deleted_records') ? '' : 'AND deleted=0 ');

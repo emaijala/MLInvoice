@@ -198,7 +198,9 @@ function createHtmlList($strFunc, $strList, $strIDQuery, &$arrQueryParams, $strT
   {
 ?>
   <div class="list_container">
-    <?php echo $strTitle?>
+    <strong><?php echo $strTitle?></strong>
+    <br>
+    <br>
     <?php echo $strNoEntries?>
     <br>
     <br>

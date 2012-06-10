@@ -24,14 +24,17 @@ sesVerifySession();
 require_once 'localize.php';
 require_once 'datefuncs.php';
 require_once 'miscfuncs.php';
+require_once 'settings.php';
 
 if (!sesWriteAccess())
 {
   echo htmlPageStart(_PAGE_TITLE_, getSetting('session_keepalive') ? array('js/keepalive.js') : null);
 ?>
 <body>
-  <div class="form_container ui-widget-content">
-    <?php echo $GLOBALS['locNoAccess'] . "\n"?>
+  <div class="ui-widget">
+    <div class="form_container ui-widget-content">
+      <?php echo $GLOBALS['locNoAccess'] . "\n"?>
+    </div>
   </div>
 </body>
 </html>
@@ -70,17 +73,50 @@ if ($intInvoiceId)
     $intBaseId = $row['base_id'];
     $info = $row['info'];
     $internalInfo = $row['internal_info'];
+    $intervalType = $row['interval_type'];
+    $nextIntervalDate = $row['next_interval_date'];
+  } else {
+    echo htmlPageStart(_PAGE_TITLE_, getSetting('session_keepalive') ? array('js/keepalive.js') : null);
+?>
+<body>
+  <div class="ui-widget">
+    <div class="form_container ui-widget-content">
+      <?php echo $GLOBALS['locRecordNotFound'] . "\n"?>
+    </div>
+  </div>    
+</body>
+</html>
+<?php
+    return;
   }
   
   $intDate = date("Ymd");
-  $intDueDate = date("Ymd",mktime(0, 0, 0, date("m"), date("d") + getSetting('invoice_payment_days'), date("Y")));
+  $intDueDate = date("Ymd", mktime(0, 0, 0, date("m"), date("d") + getSetting('invoice_payment_days'), date("Y")));
+  
+  switch ($intervalType) {
+    // Month
+    case 2: 
+      $nextIntervalDate = date("Ymd",mktime(0, 0, 0, date("m") + 1, date("d"), date("Y")));
+      break;
+    // Year 
+    case 3: 
+      $nextIntervalDate = date("Ymd",mktime(0, 0, 0, date("m"), date("d"), date("Y") + 1));
+      break;
+  }
+  if ($intervalType > 0) {
+    // Reset interval type of the original invoice
+    $strQuery = 'UPDATE {prefix}invoice ' .
+      'SET interval_type = 0 ' .
+      'WHERE {prefix}invoice.id = ?';
+    mysql_param_query($strQuery, array($intInvoiceId));
+  }
   
   $intRefundedId = $boolRefund ? $intInvoiceId : 'NULL';
   $strQuery = 
-      'INSERT INTO {prefix}invoice(name, company_id, invoice_date, due_date, payment_date, state_id, reference, base_id, refunded_invoice_id, info, internal_info) '.
-      'VALUES (?, ?, ?, ?, NULL, 1, ?, ?, ?, ?, ?)';
+      'INSERT INTO {prefix}invoice(name, company_id, invoice_date, due_date, payment_date, state_id, reference, base_id, refunded_invoice_id, info, internal_info, interval_type, next_interval_date) '.
+      'VALUES (?, ?, ?, ?, NULL, 1, ?, ?, ?, ?, ?, ?, ?)';
       
-  mysql_param_query($strQuery, array($strname, $intCompanyId, $intDate, $intDueDate, $strReference, $intBaseId, $intRefundedId, $info, $internalInfo));
+  mysql_param_query($strQuery, array($strname, $intCompanyId, $intDate, $intDueDate, $strReference, $intBaseId, $intRefundedId, $info, $internalInfo, $intervalType, $nextIntervalDate));
   $intNewId = mysql_insert_id();
   if ($intNewId) 
   {    

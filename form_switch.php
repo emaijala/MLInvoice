@@ -211,18 +211,18 @@ case 'invoice':
   if (sesWriteAccess()) 
   {
     $companyOnChange = <<<EOS
-onchange = "$.getJSON('json.php?func=get_company&amp;id=' + document.getElementById('company_id').value, function(json) { if (json && json.default_ref_number) document.getElementById('ref_number').value = json.default_ref_number;});"
+onchange = "$.getJSON('json.php?func=get_company', {id: $('#company_id').val() }, function(json) { if (json && json.default_ref_number) $('#ref_number').val(json.default_ref_number);});"
 EOS;
 
     $getInvoiceNr = <<<EOS
-$.getJSON('json.php?func=get_invoice_defaults&amp;id=' + document.getElementById('record_id').value + '&amp;base_id=' + document.getElementById('base_id').value, function(json) { document.getElementById('invoice_no').value = json.invoice_no; document.getElementById('ref_number').value = json.ref_no; $('.save_button').addClass('ui-state-highlight'); }); return false;
+$.getJSON('json.php?func=get_invoice_defaults, {id: $('#record_id').val(), base_id: $('base_id').val(), interval_type: $('#interval_type').val()}, function(json) { $('#invoice_no').val(json.invoice_no); $('#ref_number').val(json.ref_no); $('.save_button').addClass('ui-state-highlight'); }); return false;
 EOS;
 
     $locUpdateDates = $GLOBALS['locUpdateDates'];
     $updateDates = <<<EOS
-<a class="formbuttonlink" href="#" onclick="$.getJSON('json.php?func=get_invoice_defaults&amp;id=' + document.getElementById('record_id').value + '&amp;base_id=' + document.getElementById('base_id').value, function(json) { document.getElementById('invoice_date').value = json.date; document.getElementById('due_date').value = json.due_date; $('.save_button').addClass('ui-state-highlight'); }); return false;">$locUpdateDates</a>
+<a class="formbuttonlink" href="#" onclick="$.getJSON('json.php?func=get_invoice_defaults', {id: $('#record_id').val(), base_id: $('#base_id').val(), interval_type: $('#interval_type').val()}, function(json) { $('#invoice_date').val(json.date); $('#due_date').val(json.due_date); $('#next_interval_date').val(json.next_interval_date); $('.save_button').addClass('ui-state-highlight'); }); return false;">$locUpdateDates</a>
 EOS;
-
+    
     $locNew = $GLOBALS['locNew'] . '...';
     $locClientName = $GLOBALS['locClientName'];
     $locEmail = $GLOBALS['locEmail'];

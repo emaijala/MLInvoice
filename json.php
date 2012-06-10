@@ -125,6 +125,7 @@ case 'add_reminder_fees':
 case 'get_invoice_defaults':
   $baseId = getRequest('base_id', 0);
   $invoiceId = getRequest('id', 0);
+  $intervalType = getRequest('interval_type', 0);
   $invNr = getRequest('invoice_no', 0);
   if (!$invNr) {
     if (getSetting('invoice_numbering_per_base') && $baseId)
@@ -138,11 +139,22 @@ case 'get_invoice_defaults':
   $refNr = $invNr . miscCalcCheckNo($invNr);
   $strDate = date("d.m.Y");
   $strDueDate = date("d.m.Y", mktime(0, 0, 0, date("m"), date("d")+getSetting('invoice_payment_days'), date("Y")));
+  switch ($intervalType) {
+    case 2:
+      $nextIntervalDate = date("d.m.Y", mktime(0, 0, 0, date("m") + 1, date("d"), date("Y")));
+      break;
+    case 3:
+      $nextIntervalDate = date("d.m.Y", mktime(0, 0, 0, date("m"), date("d"), date("Y") + 1));
+      break;
+    default:
+      $nextIntervalDate = '';
+  }
   $arrData = array(
     'invoice_no' => $invNr, 
     'ref_no' => $refNr,
     'date' => $strDate,
-    'due_date' => $strDueDate
+    'due_date' => $strDueDate,
+    'next_interval_date' => $nextIntervalDate
   );
   header('Content-Type: application/json');
   echo json_encode($arrData);
