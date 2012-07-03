@@ -546,7 +546,7 @@ function init_rows()
     $class = $subElem['style'];
     if ($subElem['type'] == 'LIST')
     {
-      echo "      if (record.${name} == null) record.${name} = 0; $('<td/>').addClass('$class' + (record.deleted == 1 ? ' deleted' : '')).text(arr_${name}[record.${name}]).appendTo(tr);\n";
+      echo "      if (record.${name} == null) record.${name} = 0; $('<td/>').addClass('$class' + (record.deleted == 1 ? ' deleted' : '')).text((record.${name} in arr_${name}) ? arr_${name}[record.${name}] : '{$GLOBALS['locDeletedProduct']}').appendTo(tr);\n";
     }
     elseif ($subElem['type'] == 'INT')
     {
