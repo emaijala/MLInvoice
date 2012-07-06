@@ -1,0 +1,17 @@
+# OS Created Files
+
+.DS_Store*
+ehthumbs.db
+Icon?
+Thumbs.db
+
+# Eclipse Files
+.metadata/*
+.settings/*
+.project
+.buildpath
+.ExternalToolBuilders
+
+# Local files
+config.php
+tcpdf/cache
