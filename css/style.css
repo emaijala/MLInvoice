@@ -32,6 +32,7 @@ div.breadcrumbs {
   margin: 6px 0 6px 8px;
   padding-left: 2px;
   border: 0;
+  float: left;
 }
 
 div.breadcrumbs a {
@@ -39,12 +40,20 @@ div.breadcrumbs a {
   font-size: 1.1em;
 }
 
+div.version {
+  float: right;
+  margin-top: 4px;
+  margin-right: 10px; 
+}
+
 div.function_navi {
+	clear: both;
   padding: 4px 0px 4px 10px;
 }
 
 div.form_buttons {
-  margin-top: 10px;
+  clear: both;
+	margin-top: 10px;
   margin-bottom: 10px;
 }
 

@@ -27,6 +27,7 @@ require_once 'open_invoices.php';
 require_once 'settings.php';
 require_once 'localize.php';
 require_once 'settings_list.php';
+require_once 'version.php';
 
 sesVerifySession();
 
@@ -74,7 +75,7 @@ $astrMainButtons = array (
 <div class="pagewrapper ui-widget-content">
 <div class="ui-widget">
   <div id="maintabs" class="navi ui-widget-header ui-tabs">
-  <ul class="ui-tabs-nav ui-helper-clearfix ui-corner-all">
+    <ul class="ui-tabs-nav ui-helper-clearfix ui-corner-all">
 <?php
 foreach ($astrMainButtons as $button) 
 {
@@ -86,10 +87,13 @@ foreach ($astrMainButtons as $button)
       
   if (!isset($button['levels_allowed']) || sesAccessLevel($button['levels_allowed']) || sesAdminAccess()) 
   {
-    echo "    $strButton\n";
+    echo "      $strButton\n";
   }
 }
-echo "  </ul>\n";
+?>
+    </ul>
+  </div>
+<?php
 
 $level = 1;
 if ($strList && ($strFunc == 'settings' || $strFunc == 'system'))
@@ -107,12 +111,17 @@ foreach ($arrHistory as $arrHE)
 }
 
 ?>
-  </div>
   <div class="breadcrumbs">
     <?php echo $strBreadcrumbs . "\n"?>
   </div>
-
+<?php 
+if ($strFunc == 'open_invoices') {
+?>
+  <div class="version">
+    VLLasku <?php echo $softwareVersion?>
+  </div>
 <?php
+}
 if ($strFunc == 'system' && getRequest('operation', '') == 'export' && sesAdminAccess())
 {
   createFuncMenu($strFunc);
