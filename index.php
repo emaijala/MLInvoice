@@ -115,7 +115,7 @@ foreach ($arrHistory as $arrHE)
     <?php echo $strBreadcrumbs . "\n"?>
   </div>
 <?php 
-if ($strFunc == 'open_invoices') {
+if ($strFunc == 'open_invoices' && !$strForm) {
 ?>
   <div class="version">
     MLInvoice <?php echo $softwareVersion?>

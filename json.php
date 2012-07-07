@@ -137,14 +137,14 @@ case 'get_invoice_defaults':
   if ($invNr < 100)
     $invNr = 100; // min ref number length is 3 + check digit, make sure invoice number matches that
   $refNr = $invNr . miscCalcCheckNo($invNr);
-  $strDate = date("d.m.Y");
-  $strDueDate = date("d.m.Y", mktime(0, 0, 0, date("m"), date("d")+getSetting('invoice_payment_days'), date("Y")));
+  $strDate = date($GLOBALS['locDateFormat']);
+  $strDueDate = date($GLOBALS['locDateFormat'], mktime(0, 0, 0, date("m"), date("d")+getSetting('invoice_payment_days'), date("Y")));
   switch ($intervalType) {
     case 2:
-      $nextIntervalDate = date("d.m.Y", mktime(0, 0, 0, date("m") + 1, date("d"), date("Y")));
+      $nextIntervalDate = date($GLOBALS['locDateFormat'], mktime(0, 0, 0, date("m") + 1, date("d"), date("Y")));
       break;
     case 3:
-      $nextIntervalDate = date("d.m.Y", mktime(0, 0, 0, date("m"), date("d"), date("Y") + 1));
+      $nextIntervalDate = date($GLOBALS['locDateFormat'], mktime(0, 0, 0, date("m"), date("d"), date("Y") + 1));
       break;
     default:
       $nextIntervalDate = '';

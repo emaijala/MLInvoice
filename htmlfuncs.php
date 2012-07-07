@@ -57,7 +57,8 @@ Todo : This could be more generic...
     else
       $xUACompatible = '';
     $theme = defined('_UI_THEME_LOCATION_') ? _UI_THEME_LOCATION_ : 'jquery/css/theme/jquery-ui-1.8.16.custom.css';
-    $lang = isset($_SESSION['sesLANG']) ? $_SESSION['sesLANG'] : 'fi-FI'; 
+    $lang = isset($_SESSION['sesLANG']) ? $_SESSION['sesLANG'] : 'fi-FI';
+    $datePickerOptions = $GLOBALS['locDatePickerOptions']; 
     $strHtmlStart = <<<EOT
 <!DOCTYPE html>
 <html>
@@ -71,27 +72,27 @@ $xUACompatible  <title>$strTitle</title>
   <script type="text/javascript" src="jquery/js/jquery-1.6.2.min.js"></script>
   <script type="text/javascript" src="jquery/js/jquery.json-2.3.min.js"></script>
   <script type="text/javascript" src="jquery/js/jquery-ui-1.8.16.custom.min.js"></script>
-  <script type="text/javascript" src="jquery/js/jquery.ui.datepicker-fi.js"></script>
   <script type="text/javascript" src="datatables/media/js/jquery.dataTables.min.js"></script>
   <script type="text/javascript" src="jquery/js/jquery.floatingmessage.js"></script>
   <script type="text/javascript" src="js/date-$lang.js"></script>
   <script type="text/javascript" src="jquery/js/jquery.daterangepicker.js"></script>
   <script type="text/javascript" src="js/functions.js"></script>
   <script type="text/javascript">
-    $(document).ready(function() { 
-      $('a[class~="actionlink"]').button();
-      $('a[class~="tinyactionlink"]').button();
-      $('a[class~="buttonlink"]').button();
-      $('a[class~="formbuttonlink"]').button();
-      $('#maintabs ul li').hover(
-        function () {
-          $(this).addClass("ui-state-hover");
-        },
-        function () {
-          $(this).removeClass("ui-state-hover");
-        }
-      );
-    });
+$(document).ready(function() { 
+  $.datepicker.setDefaults($datePickerOptions);
+  $('a[class~="actionlink"]').button();
+  $('a[class~="tinyactionlink"]').button();
+  $('a[class~="buttonlink"]').button();
+  $('a[class~="formbuttonlink"]').button();
+  $('#maintabs ul li').hover(
+    function () {
+      $(this).addClass("ui-state-hover");
+    },
+    function () {
+      $(this).removeClass("ui-state-hover");
+    }
+  );
+});
   </script>
 
 EOT;

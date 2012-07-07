@@ -34,7 +34,7 @@ $backlink = getRequest('backlink', '0');
 
 if (defined('_UI_LANGUAGE_SELECTION_')) {
   $languages = array();
-  foreach (explode(';', _UI_LANGUAGE_SELECTION_) as $lang) {
+  foreach (explode('|', _UI_LANGUAGE_SELECTION_) as $lang) {
     $lang = explode('=', $lang, 2);
     $languages[$lang[0]] = $lang[1];
   }

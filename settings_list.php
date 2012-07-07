@@ -59,7 +59,7 @@ function createSettingsList()
         }
       }
       if (in_array($type, array('CURRENCY', 'PERCENT')))
-        $newValue = str_replace(",", ".", $newValue);
+        $newValue = str_replace($GLOBALS['locDecimalSeparator'], '.', $newValue);
       if (in_array($type, array('CURRENCY', 'PERCENT', 'INT'))) {
         $newValue = trim($newValue);
         if (!is_numeric($newValue)) {

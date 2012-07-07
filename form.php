@@ -505,7 +505,7 @@ function createIForm($astrFormElements, $elem, $intKeyValue, $newRecord)
 
 function format_currency(value, decimals)
 {
-  return parseFloat(value).toFixed(decimals).replace('.', ',');
+  return parseFloat(value).toFixed(decimals).replace('.', '<?php echo $GLOBALS['locDecimalSeparator']?>');
 }
 
 function init_rows()
@@ -556,7 +556,7 @@ function init_rows()
       }
       else
       {
-        echo "      $('<td/>').addClass('$class' + (record.deleted == 1 ? ' deleted' : '')).text(record.$name ? record.$name.replace('.', ',') : '').appendTo(tr);\n";
+        echo "      $('<td/>').addClass('$class' + (record.deleted == 1 ? ' deleted' : '')).text(record.$name ? record.$name.replace('.', '{$GLOBALS['locDecimalSeparator']}') : '').appendTo(tr);\n";
       }
     }
     elseif ($subElem['type'] == 'INTDATE')
@@ -654,17 +654,17 @@ function init_rows()
     }
     var tr = $('<tr/>').addClass('summary');
     $('<td/>').addClass('input').attr('colspan', '10').attr('align', 'right').text('<?php echo $GLOBALS['locTotalExcludingVAT']?>').appendTo(tr);
-    $('<td/>').addClass('input').attr('align', 'right').text(totSum.toFixed(2).replace('.', ',')).appendTo(tr);
+    $('<td/>').addClass('input').attr('align', 'right').text(format_currency(totSum, 2)).appendTo(tr);
     $(table).append(tr);
     
     tr = $('<tr/>').addClass('summary');
     $('<td/>').addClass('input').attr('colspan', '10').attr('align', 'right').text('<?php echo $GLOBALS['locTotalVAT']?>').appendTo(tr);
-    $('<td/>').addClass('input').attr('align', 'right').text(totVAT.toFixed(2).replace('.', ',')).appendTo(tr);
+    $('<td/>').addClass('input').attr('align', 'right').text(format_currency(totVAT, 2)).appendTo(tr);
     $(table).append(tr);
     
     var tr = $('<tr/>').addClass('summary');
     $('<td/>').addClass('input').attr('colspan', '10').attr('align', 'right').text('<?php echo $GLOBALS['locTotalIncludingVAT']?>').appendTo(tr);
-    $('<td/>').addClass('input').attr('align', 'right').text(totSumVAT.toFixed(2).replace('.', ',')).appendTo(tr);
+    $('<td/>').addClass('input').attr('align', 'right').text(format_currency(totSumVAT, 2)).appendTo(tr);
     $(table).append(tr);
     
 <?php
@@ -698,7 +698,7 @@ function save_row(form_id)
 <?php
     foreach ($subFormElements as $subElem)
     {
-      if (!in_array($subElem['type'], array('HID_INT', 'SECHID_INT', 'BUTTON', 'NEWLINE', 'ROWSUM', 'CHECK')))
+      if (!in_array($subElem['type'], array('HID_INT', 'SECHID_INT', 'BUTTON', 'NEWLINE', 'ROWSUM', 'CHECK', 'INT')))
       {
 ?>
   obj.<?php echo $subElem['name']?> = document.getElementById(form_id + '_<?php echo $subElem['name']?>').value;
@@ -710,7 +710,13 @@ function save_row(form_id)
   obj.<?php echo $subElem['name']?> = document.getElementById(form_id + '_<?php echo $subElem['name']?>').checked ? 1 : 0;
 <?php
       }
-    }
+      elseif ($subElem['type'] == 'INT')
+      {
+?>
+  obj.<?php echo $subElem['name']?> = document.getElementById(form_id + '_<?php echo $subElem['name']?>').value.replace('<?php echo $GLOBALS['locDecimalSeparator']?>', '.');
+<?php
+      }
+}
 ?>  obj.<?php echo $elem['parent_key'] . " = $intKeyValue"?>;
   if (form.row_id)
     obj.id = form.row_id.value;
@@ -848,7 +854,7 @@ function popup_editor(event, title, id, copy_row)
     if (copy_row)
       value = document.getElementById('<?php echo "iform_$name"?>').value;
     else
-      value = json.<?php echo $name?> ? json.<?php echo $name?>.replace('.', ',') : '';
+      value = json.<?php echo $name?> ? json.<?php echo $name?>.replace('.', '<?php $GLOBALS['locDecimalSeparator']?>') : '';
     form.<?php echo "iform_popup_$name"?>.value = value;
 <?php
         }
@@ -863,7 +869,7 @@ function popup_editor(event, title, id, copy_row)
           else
           {
 ?> 
-    form.<?php echo "iform_popup_$name"?>.value = json.<?php echo $name?> ? json.<?php echo $name?>.replace('.', ',') : '';
+    form.<?php echo "iform_popup_$name"?>.value = json.<?php echo $name?> ? json.<?php echo $name?>.replace('.', '<?php echo $GLOBALS['locDecimalSeparator']?>') : '';
 <?php
           }
         }

@@ -62,13 +62,13 @@ function cond_utf8_encode($str)
 }
 
 function miscRound2Decim( $intValue, $intDecim = 2 ) {
-    return number_format($intValue, $intDecim, ',', '');
+    return number_format($intValue, $intDecim, $GLOBALS['locDecimalSeparator'], $GLOBALS['locThousandSeparator']);
 }
 
 function miscRound2OptDecim( $intValue, $intDecim = 2 ) {
     if ($intValue == floor($intValue))
       $intDecim = 0;
-    return number_format($intValue, $intDecim, ',', '');
+    return number_format($intValue, $intDecim, $GLOBALS['locDecimalSeparator'], $GLOBALS['locThousandSeparator']);
 }
 
 function miscCalcCheckNo( $intValue ) {

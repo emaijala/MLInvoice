@@ -59,17 +59,13 @@ function getFormDefaultValue($elem, $parentKey)
   }
   if ($elem['default'] === 'DATE_NOW') 
   {
-    return date('d.m.Y');
+    return date($GLOBALS['locDateFormat']);
   }
   elseif (strstr($elem['default'], 'DATE_NOW+')) 
   {
     $atmpValues = explode('+', $elem['default']);
-    return date('d.m.Y', mktime(0, 0, 0, date('m'), date('d') + $atmpValues[1], date('Y')));
+    return date($GLOBALS['locDateFormat'], mktime(0, 0, 0, date('m'), date('d') + $atmpValues[1], date('Y')));
   }            
-  elseif ($elem['default'] === 'TIME_NOW') 
-  {
-    return date('H:i');
-  }
   elseif (strstr($elem['default'], 'ADD')) 
   {
     $strQuery = str_replace("_PARENTID_", $parentKey, $elem['listquery']);
