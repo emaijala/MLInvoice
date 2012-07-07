@@ -39,6 +39,8 @@ Tämä ohjelma on vapaa. Lue oheinen LICENSE.
  
 ***********************************************************************/
 
+require_once 'settings.php';
+
 $strListTableAlias = '';
 $strOrder = '';
 $levelsAllowed = array(ROLE_USER, ROLE_BACKUPMGR);

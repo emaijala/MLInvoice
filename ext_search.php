@@ -149,7 +149,7 @@ if ($blnSearch || $blnSave)
         }
         $strSearchValue = "'%" . addcslashes($astrValues[$name], "'\\") . "%'";
       }
-      elseif ($astrFormElements[$j]['type'] == 'INT' || $astrFormElements[$j]['type'] == 'LIST') 
+      elseif ($astrFormElements[$j]['type'] == 'INT' || $astrFormElements[$j]['type'] == 'LIST' || $astrFormElements[$j]['type'] == 'SELECT') 
       {
         $strSearchValue = $astrValues[$name];
       }
@@ -250,7 +250,7 @@ for ($j = 0; $j < count($astrFormElements); $j++)
     <?php echo htmlListBox('searchmatch_' . $astrFormElements[$j]['name'], $comparisonValues, $strSearchMatch, '', 0)?>
   </td>
   <td class="field">
-    <?php echo htmlFormElement($astrFormElements[$j]['name'], $astrFormElements[$j]['type'], $astrValues[$astrFormElements[$j]['name']], $astrFormElements[$j]['style'], $astrFormElements[$j]['listquery'], 'MODIFY', $astrFormElements[$j]['parent_key'])?>
+    <?php echo htmlFormElement($astrFormElements[$j]['name'], $astrFormElements[$j]['type'], $astrValues[$astrFormElements[$j]['name']], $astrFormElements[$j]['style'], $astrFormElements[$j]['listquery'], 'MODIFY', $astrFormElements[$j]['parent_key'], '', array(), '', isset($astrFormElements[$j]['options']) ? $astrFormElements[$j]['options'] : NULL)?>
   </td>
   <td>
     <input type="hidden" name="delete_<?php echo $astrFormElements[$j]['name']?>_x" value="0">
