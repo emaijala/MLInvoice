@@ -1,6 +1,6 @@
 <?php
 /*******************************************************************************
-VLLasku: web-based invoicing application.
+MLInvoice: web-based invoicing application.
 Copyright (C) 2010-2012 Ere Maijala
 
 Portions based on:
@@ -12,7 +12,7 @@ This program is free software. See attached LICENSE.
 *******************************************************************************/
 
 /*******************************************************************************
-VLLasku: web-pohjainen laskutusohjelma.
+MLInvoice: web-pohjainen laskutusohjelma.
 Copyright (C) 2010-2012 Ere Maijala
 
 Perustuu osittain sovellukseen:
@@ -122,7 +122,7 @@ function create_db_dump()
   $in_tables = array('invoice_state', 'row_type', 'company_type', 'base', 'company', 'company_contact',
     'product', 'invoice', 'invoice_row', 'session_type', 'users', 'quicksearch', 'settings', 'session', 'print_template');
 
-  $filename = 'vllasku_backup_' . date('Ymd') . '.sql';
+  $filename = 'mlinvoice_backup_' . date('Ymd') . '.sql';
   header('Content-type: text/x-sql');
   header("Content-Disposition: attachment; filename=\"$filename\"");
 

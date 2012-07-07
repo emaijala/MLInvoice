@@ -114,7 +114,7 @@ if (!defined('K_TCPDF_EXTERNAL_CONFIG')) {
 	/**
 	 * document creator
 	 */
-	define ('PDF_CREATOR', 'VLLasku');
+	define ('PDF_CREATOR', 'MLInvoice');
 
 	/**
 	 * document author

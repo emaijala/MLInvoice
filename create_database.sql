@@ -1,4 +1,4 @@
-CREATE TABLE vllasku_invoice_state (
+CREATE TABLE mlinvoice_invoice_state (
   id int(11) NOT NULL auto_increment,
   deleted tinyint NOT NULL default 0,
   name varchar(15) default NULL,
@@ -6,7 +6,7 @@ CREATE TABLE vllasku_invoice_state (
   PRIMARY KEY (id)
 ) ENGINE=INNODB AUTO_INCREMENT=4 CHARACTER SET utf8 COLLATE utf8_swedish_ci;
 
-CREATE TABLE vllasku_row_type (
+CREATE TABLE mlinvoice_row_type (
   id int(11) NOT NULL auto_increment,
   deleted tinyint NOT NULL default 0,
   name varchar(15) default NULL,
@@ -15,7 +15,7 @@ CREATE TABLE vllasku_row_type (
 ) ENGINE=INNODB AUTO_INCREMENT=9 CHARACTER SET utf8 COLLATE utf8_swedish_ci;
 
 
-CREATE TABLE vllasku_company_type (
+CREATE TABLE mlinvoice_company_type (
   id int(11) NOT NULL auto_increment,
   deleted tinyint NOT NULL default 0,
   name varchar(255) default NULL,
@@ -23,7 +23,7 @@ CREATE TABLE vllasku_company_type (
   PRIMARY KEY (id)
 ) ENGINE=INNODB AUTO_INCREMENT=23 CHARACTER SET utf8 COLLATE utf8_swedish_ci;
 
-CREATE TABLE vllasku_base (
+CREATE TABLE mlinvoice_base (
   id int(11) NOT NULL auto_increment,
   deleted tinyint NOT NULL default 0,
   name varchar(100) NOT NULL,
@@ -64,7 +64,7 @@ CREATE TABLE vllasku_base (
   PRIMARY KEY (id)
 ) ENGINE=INNODB AUTO_INCREMENT=1 CHARACTER SET utf8 COLLATE utf8_swedish_ci;
 
-CREATE TABLE vllasku_company (
+CREATE TABLE mlinvoice_company (
   id int(11) NOT NULL auto_increment,
   deleted tinyint NOT NULL default 0,
   inside_info text,
@@ -87,10 +87,10 @@ CREATE TABLE vllasku_company (
   default_ref_number varchar(100) default NULL,
   inactive tinyint NOT NULL default 0,
   PRIMARY KEY (id),
-  FOREIGN KEY (type_id) REFERENCES vllasku_company_type(id)
+  FOREIGN KEY (type_id) REFERENCES mlinvoice_company_type(id)
 ) ENGINE=INNODB CHARACTER SET utf8 COLLATE utf8_swedish_ci;
 
-CREATE TABLE vllasku_company_contact (
+CREATE TABLE mlinvoice_company_contact (
   id int(11) NOT NULL auto_increment,
   deleted tinyint NOT NULL default 0,
   company_id int(11) NOT NULL default '0',
@@ -100,10 +100,10 @@ CREATE TABLE vllasku_company_contact (
   phone varchar(30) default NULL,
   gsm varchar(30) default NULL,
   PRIMARY KEY (id),
-  FOREIGN KEY (company_id) REFERENCES vllasku_company(id)
+  FOREIGN KEY (company_id) REFERENCES mlinvoice_company(id)
 ) ENGINE=INNODB AUTO_INCREMENT=1 CHARACTER SET utf8 COLLATE utf8_swedish_ci;
 
-CREATE TABLE vllasku_product (
+CREATE TABLE mlinvoice_product (
   id int(11) NOT NULL auto_increment,
   deleted tinyint NOT NULL default 0,
   product_name varchar(100) NOT NULL,
@@ -118,10 +118,10 @@ CREATE TABLE vllasku_product (
   discount decimal(3,1) NULL,
   price_decimals decimal(1,0) NOT NULL default 2,
   PRIMARY KEY (id),
-  FOREIGN KEY (type_id) REFERENCES vllasku_row_type(id)
+  FOREIGN KEY (type_id) REFERENCES mlinvoice_row_type(id)
 ) ENGINE=INNODB CHARACTER SET utf8 COLLATE utf8_swedish_ci;
 
-CREATE TABLE vllasku_invoice (
+CREATE TABLE mlinvoice_invoice (
   id int(11) NOT NULL auto_increment,
   deleted tinyint NOT NULL default 0,
   name varchar(50) default NULL,
@@ -142,12 +142,12 @@ CREATE TABLE vllasku_invoice (
   interval_type int(11) NOT NULL default 0,
   next_interval_date int(11) default NULL,
   PRIMARY KEY (id),
-  FOREIGN KEY (company_id) REFERENCES vllasku_company(id),
-  FOREIGN KEY (state_id) REFERENCES vllasku_invoice_state(id),
-  FOREIGN KEY (base_id) REFERENCES vllasku_base(id)
+  FOREIGN KEY (company_id) REFERENCES mlinvoice_company(id),
+  FOREIGN KEY (state_id) REFERENCES mlinvoice_invoice_state(id),
+  FOREIGN KEY (base_id) REFERENCES mlinvoice_base(id)
 ) ENGINE=INNODB AUTO_INCREMENT=1 CHARACTER SET utf8 COLLATE utf8_swedish_ci;
 
-CREATE TABLE vllasku_invoice_row (
+CREATE TABLE mlinvoice_invoice_row (
   id int(11) NOT NULL auto_increment,
   deleted tinyint NOT NULL default 0,
   invoice_id int(11) default NULL,
@@ -163,12 +163,12 @@ CREATE TABLE vllasku_invoice_row (
   reminder_row tinyint NOT NULL default 0,
   discount decimal(3,1) NULL,
   PRIMARY KEY (id),
-  FOREIGN KEY (invoice_id) REFERENCES vllasku_invoice(id) ON DELETE CASCADE,
-  FOREIGN KEY (product_id) REFERENCES vllasku_product(id),
-  FOREIGN KEY (type_id) REFERENCES vllasku_row_type(id)
+  FOREIGN KEY (invoice_id) REFERENCES mlinvoice_invoice(id) ON DELETE CASCADE,
+  FOREIGN KEY (product_id) REFERENCES mlinvoice_product(id),
+  FOREIGN KEY (type_id) REFERENCES mlinvoice_row_type(id)
 ) ENGINE=INNODB AUTO_INCREMENT=1 CHARACTER SET utf8 COLLATE utf8_swedish_ci;
 
-CREATE TABLE vllasku_session_type (
+CREATE TABLE mlinvoice_session_type (
   id int(11) NOT NULL auto_increment,
   deleted tinyint NOT NULL default 0,
   name varchar(255) default NULL,
@@ -178,7 +178,7 @@ CREATE TABLE vllasku_session_type (
   PRIMARY KEY (id)
 ) ENGINE=INNODB AUTO_INCREMENT=3 CHARACTER SET utf8 COLLATE utf8_swedish_ci;
 
-CREATE TABLE vllasku_users (
+CREATE TABLE mlinvoice_users (
   id int(11) NOT NULL auto_increment,
   deleted tinyint NOT NULL default 0,
   name varchar(50) default NULL,
@@ -187,10 +187,10 @@ CREATE TABLE vllasku_users (
   passwd varchar(255) default NULL,
   type_id int(11) default NULL,
   PRIMARY KEY (id),
-  FOREIGN KEY (type_id) REFERENCES vllasku_session_type(id)
+  FOREIGN KEY (type_id) REFERENCES mlinvoice_session_type(id)
 ) ENGINE=INNODB AUTO_INCREMENT=2 CHARACTER SET utf8 COLLATE utf8_swedish_ci;
 
-CREATE TABLE vllasku_quicksearch (
+CREATE TABLE mlinvoice_quicksearch (
   id int(11) NOT NULL auto_increment,
   user_id int(11) NOT NULL,
   name varchar(255) default NULL,
@@ -198,17 +198,17 @@ CREATE TABLE vllasku_quicksearch (
   form varchar(100) default NULL,
   whereclause text,
   PRIMARY KEY (id),
-  FOREIGN KEY (user_id) REFERENCES vllasku_users(id)
+  FOREIGN KEY (user_id) REFERENCES mlinvoice_users(id)
 ) ENGINE=INNODB CHARACTER SET utf8 COLLATE utf8_swedish_ci;
 
-CREATE TABLE vllasku_settings (
+CREATE TABLE mlinvoice_settings (
   id int(11) NOT NULL auto_increment,
   name varchar(100) NOT NULL,
   value text NULL,
   PRIMARY KEY  (id)
 ) ENGINE=INNODB CHARACTER SET utf8 COLLATE utf8_swedish_ci;
 
-CREATE TABLE vllasku_print_template (
+CREATE TABLE mlinvoice_print_template (
   id int(11) NOT NULL auto_increment,
   deleted tinyint NOT NULL default 0,
   name varchar(100) NOT NULL,
@@ -222,7 +222,7 @@ CREATE TABLE vllasku_print_template (
   PRIMARY KEY (id)
 ) ENGINE=INNODB CHARACTER SET utf8 COLLATE utf8_swedish_ci;
 
-CREATE TABLE vllasku_session (
+CREATE TABLE mlinvoice_session (
   id char(32) NOT NULL,
   data longblob NULL,
   session_timestamp timestamp NOT NULL default CURRENT_TIMESTAMP,
@@ -230,7 +230,7 @@ CREATE TABLE vllasku_session (
   INDEX i_session_timestamp(session_timestamp)
 ) ENGINE=INNODB CHARACTER SET utf8 COLLATE utf8_swedish_ci;
 
-CREATE TABLE vllasku_state (
+CREATE TABLE mlinvoice_state (
   id char(32) NOT NULL,
   data varchar(100) NULL,
   PRIMARY KEY (id)
@@ -238,77 +238,77 @@ CREATE TABLE vllasku_state (
 
 SET NAMES 'utf8';
 
-INSERT INTO vllasku_state (id, data) VALUES ('version', '16');
+INSERT INTO mlinvoice_state (id, data) VALUES ('version', '16');
 
-INSERT INTO vllasku_company_type (id, name, order_no) VALUES (1, 'Autoilu', 5);
-INSERT INTO vllasku_company_type (id, name, order_no) VALUES (2, 'Elintarviketeollisuus', 10);
-INSERT INTO vllasku_company_type (id, name, order_no) VALUES (3, 'Graafinen ala', 15);
-INSERT INTO vllasku_company_type (id, name, order_no) VALUES (4, 'Henkilöstöhallinto', 20);
-INSERT INTO vllasku_company_type (id, name, order_no) VALUES (5, 'Julkinen sektori', 25);
-INSERT INTO vllasku_company_type (id, name, order_no) VALUES (6, 'Kemian teollisuus', 30);
-INSERT INTO vllasku_company_type (id, name, order_no) VALUES (7, 'Kiinteistö', 35);
-INSERT INTO vllasku_company_type (id, name, order_no) VALUES (8, 'Kuljetus ja logistiikka', 40);
-INSERT INTO vllasku_company_type (id, name, order_no) VALUES (9, 'Kumi- ja muoviteollisuus', 45);
-INSERT INTO vllasku_company_type (id, name, order_no) VALUES (10, 'Maa- ja metsätalous', 50);
-INSERT INTO vllasku_company_type (id, name, order_no) VALUES (11, 'Markkinointi ja mainonta', 55);
-INSERT INTO vllasku_company_type (id, name, order_no) VALUES (12, 'Matkailu, majoitus ja virkistystoiminta', 60);
-INSERT INTO vllasku_company_type (id, name, order_no) VALUES (13, 'Metalli', 65);
-INSERT INTO vllasku_company_type (id, name, order_no) VALUES (14, 'Rakentaminen', 70);
-INSERT INTO vllasku_company_type (id, name, order_no) VALUES (15, 'Taideteollisuus', 75);
-INSERT INTO vllasku_company_type (id, name, order_no) VALUES (16, 'Taloushallinto', 80);
-INSERT INTO vllasku_company_type (id, name, order_no) VALUES (17, 'Tekstiili- ja vaatetusteollisuus', 85);
-INSERT INTO vllasku_company_type (id, name, order_no) VALUES (18, 'Terveydenhuolto ja hyvinvointi', 90);
-INSERT INTO vllasku_company_type (id, name, order_no) VALUES (19, 'Tietotekniikka', 95);
-INSERT INTO vllasku_company_type (id, name, order_no) VALUES (20, 'Vapaa-aika ja harrastustoiminta', 100);
-INSERT INTO vllasku_company_type (id, name, order_no) VALUES (21, 'Ympäristö', 105);
-INSERT INTO vllasku_company_type (id, name, order_no) VALUES (22, 'Elektroniikka', 110);
+INSERT INTO mlinvoice_company_type (id, name, order_no) VALUES (1, 'Autoilu', 5);
+INSERT INTO mlinvoice_company_type (id, name, order_no) VALUES (2, 'Elintarviketeollisuus', 10);
+INSERT INTO mlinvoice_company_type (id, name, order_no) VALUES (3, 'Graafinen ala', 15);
+INSERT INTO mlinvoice_company_type (id, name, order_no) VALUES (4, 'Henkilöstöhallinto', 20);
+INSERT INTO mlinvoice_company_type (id, name, order_no) VALUES (5, 'Julkinen sektori', 25);
+INSERT INTO mlinvoice_company_type (id, name, order_no) VALUES (6, 'Kemian teollisuus', 30);
+INSERT INTO mlinvoice_company_type (id, name, order_no) VALUES (7, 'Kiinteistö', 35);
+INSERT INTO mlinvoice_company_type (id, name, order_no) VALUES (8, 'Kuljetus ja logistiikka', 40);
+INSERT INTO mlinvoice_company_type (id, name, order_no) VALUES (9, 'Kumi- ja muoviteollisuus', 45);
+INSERT INTO mlinvoice_company_type (id, name, order_no) VALUES (10, 'Maa- ja metsätalous', 50);
+INSERT INTO mlinvoice_company_type (id, name, order_no) VALUES (11, 'Markkinointi ja mainonta', 55);
+INSERT INTO mlinvoice_company_type (id, name, order_no) VALUES (12, 'Matkailu, majoitus ja virkistystoiminta', 60);
+INSERT INTO mlinvoice_company_type (id, name, order_no) VALUES (13, 'Metalli', 65);
+INSERT INTO mlinvoice_company_type (id, name, order_no) VALUES (14, 'Rakentaminen', 70);
+INSERT INTO mlinvoice_company_type (id, name, order_no) VALUES (15, 'Taideteollisuus', 75);
+INSERT INTO mlinvoice_company_type (id, name, order_no) VALUES (16, 'Taloushallinto', 80);
+INSERT INTO mlinvoice_company_type (id, name, order_no) VALUES (17, 'Tekstiili- ja vaatetusteollisuus', 85);
+INSERT INTO mlinvoice_company_type (id, name, order_no) VALUES (18, 'Terveydenhuolto ja hyvinvointi', 90);
+INSERT INTO mlinvoice_company_type (id, name, order_no) VALUES (19, 'Tietotekniikka', 95);
+INSERT INTO mlinvoice_company_type (id, name, order_no) VALUES (20, 'Vapaa-aika ja harrastustoiminta', 100);
+INSERT INTO mlinvoice_company_type (id, name, order_no) VALUES (21, 'Ympäristö', 105);
+INSERT INTO mlinvoice_company_type (id, name, order_no) VALUES (22, 'Elektroniikka', 110);
 
-INSERT INTO vllasku_invoice_state (id, name, order_no) VALUES (1, 'AVOIN', 5);
-INSERT INTO vllasku_invoice_state (id, name, order_no) VALUES (2, 'LÄHETETTY', 10);
-INSERT INTO vllasku_invoice_state (id, name, order_no) VALUES (3, 'MAKSETTU', 15);
-INSERT INTO vllasku_invoice_state (id, name, order_no) VALUES (4, 'MITÄTÖITY', 20);
-INSERT INTO vllasku_invoice_state (id, name, order_no) VALUES (5, '1. HUOMAUTUS', 25);
-INSERT INTO vllasku_invoice_state (id, name, order_no) VALUES (6, '2. HUOMAUTUS', 30);
-INSERT INTO vllasku_invoice_state (id, name, order_no) VALUES (7, 'PERINTÄ', 35);
+INSERT INTO mlinvoice_invoice_state (id, name, order_no) VALUES (1, 'AVOIN', 5);
+INSERT INTO mlinvoice_invoice_state (id, name, order_no) VALUES (2, 'LÄHETETTY', 10);
+INSERT INTO mlinvoice_invoice_state (id, name, order_no) VALUES (3, 'MAKSETTU', 15);
+INSERT INTO mlinvoice_invoice_state (id, name, order_no) VALUES (4, 'MITÄTÖITY', 20);
+INSERT INTO mlinvoice_invoice_state (id, name, order_no) VALUES (5, '1. HUOMAUTUS', 25);
+INSERT INTO mlinvoice_invoice_state (id, name, order_no) VALUES (6, '2. HUOMAUTUS', 30);
+INSERT INTO mlinvoice_invoice_state (id, name, order_no) VALUES (7, 'PERINTÄ', 35);
 
-INSERT INTO vllasku_row_type (id, name, order_no) VALUES (1, 'h', 5);
-INSERT INTO vllasku_row_type (id, name, order_no) VALUES (2, 'pv', 10);
-INSERT INTO vllasku_row_type (id, name, order_no) VALUES (3, 'kk', 15);
-INSERT INTO vllasku_row_type (id, name, order_no) VALUES (4, 'kpl', 20);
-INSERT INTO vllasku_row_type (id, name, order_no) VALUES (5, 'vuosi', 25);
-INSERT INTO vllasku_row_type (id, name, order_no) VALUES (6, 'erä', 30);
-INSERT INTO vllasku_row_type (id, name, order_no) VALUES (8, 'km', 35);
+INSERT INTO mlinvoice_row_type (id, name, order_no) VALUES (1, 'h', 5);
+INSERT INTO mlinvoice_row_type (id, name, order_no) VALUES (2, 'pv', 10);
+INSERT INTO mlinvoice_row_type (id, name, order_no) VALUES (3, 'kk', 15);
+INSERT INTO mlinvoice_row_type (id, name, order_no) VALUES (4, 'kpl', 20);
+INSERT INTO mlinvoice_row_type (id, name, order_no) VALUES (5, 'vuosi', 25);
+INSERT INTO mlinvoice_row_type (id, name, order_no) VALUES (6, 'erä', 30);
+INSERT INTO mlinvoice_row_type (id, name, order_no) VALUES (8, 'km', 35);
 
-INSERT INTO vllasku_session_type (id, name, order_no, time_out, access_level) VALUES (1, 'Käyttäjä', 1, 3600, 1);
-INSERT INTO vllasku_session_type (id, name, order_no, time_out, access_level) VALUES (2, 'Ylläpitäjä', 20, 3600, 99);
-INSERT INTO vllasku_session_type (id, name, order_no, time_out, access_level) VALUES (3, 'Käyttäjä - varmuuskopioija', 10, 3600, 90);
-INSERT INTO vllasku_session_type (id, name, order_no, time_out, access_level) VALUES (4, 'Vain laskujen ja raporttien tarkastelu', 0, 3600, 0);
+INSERT INTO mlinvoice_session_type (id, name, order_no, time_out, access_level) VALUES (1, 'Käyttäjä', 1, 3600, 1);
+INSERT INTO mlinvoice_session_type (id, name, order_no, time_out, access_level) VALUES (2, 'Ylläpitäjä', 20, 3600, 99);
+INSERT INTO mlinvoice_session_type (id, name, order_no, time_out, access_level) VALUES (3, 'Käyttäjä - varmuuskopioija', 10, 3600, 90);
+INSERT INTO mlinvoice_session_type (id, name, order_no, time_out, access_level) VALUES (4, 'Vain laskujen ja raporttien tarkastelu', 0, 3600, 0);
 
-INSERT INTO vllasku_print_template (id, name, filename, parameters, output_filename, type, order_no) VALUES (1, 'Lasku', 'invoice_printer.php', 'invoice', 'lasku_%d.pdf', 'invoice', 5);
-INSERT INTO vllasku_print_template (id, name, filename, parameters, output_filename, type, order_no) VALUES (2, 'Lähetysluettelo', 'invoice_printer.php', 'dispatch', 'lahetysluettelo_%d.pdf', 'invoice', 20);
-INSERT INTO vllasku_print_template (id, name, filename, parameters, output_filename, type, order_no) VALUES (3, 'Kuitti', 'invoice_printer.php', 'receipt', 'kuitti_%d.pdf', 'invoice', 25);
-INSERT INTO vllasku_print_template (id, name, filename, parameters, output_filename, type, order_no) VALUES (4, 'Sähköposti', 'invoice_printer_email.php', 'invoice', 'lasku_%d.pdf', 'invoice', 10);
-INSERT INTO vllasku_print_template (id, name, filename, parameters, output_filename, type, order_no, inactive) VALUES (5, 'Invoice', 'invoice_printer.php', 'invoice,en', 'invoice_%d.pdf', 'invoice', 15, 1);
-INSERT INTO vllasku_print_template (id, name, filename, parameters, output_filename, type, order_no, inactive) VALUES (6, 'Receipt', 'invoice_printer.php', 'receipt,en', 'receipt_%d.pdf', 'invoice', 30, 1);
-INSERT INTO vllasku_print_template (id, name, filename, parameters, output_filename, type, order_no, inactive) VALUES (7, 'Finvoice', 'invoice_printer_finvoice.php', '', 'finvoice_%d.xml', 'invoice', 40, 1);
-INSERT INTO vllasku_print_template (id, name, filename, parameters, output_filename, type, order_no, inactive) VALUES (8, 'Finvoice Styled', 'invoice_printer_finvoice.php', 'Finvoice.xsl', 'finvoice_%d.xml', 'invoice', 50, 1);
-INSERT INTO vllasku_print_template (id, name, filename, parameters, output_filename, type, order_no, inactive) VALUES (9, 'Lasku virtuaaliviivakoodilla', 'invoice_printer.php', 'invoice,fi,Y', 'lasku_%d.pdf', 'invoice', 60, 1);
-INSERT INTO vllasku_print_template (id, name, filename, parameters, output_filename, type, order_no, inactive) VALUES (10, 'Lomakkeeton lasku', 'invoice_printer_formless.php', 'invoice,fi,N', 'lasku_%d.pdf', 'invoice', 70, 1);
+INSERT INTO mlinvoice_print_template (id, name, filename, parameters, output_filename, type, order_no) VALUES (1, 'Lasku', 'invoice_printer.php', 'invoice', 'lasku_%d.pdf', 'invoice', 5);
+INSERT INTO mlinvoice_print_template (id, name, filename, parameters, output_filename, type, order_no) VALUES (2, 'Lähetysluettelo', 'invoice_printer.php', 'dispatch', 'lahetysluettelo_%d.pdf', 'invoice', 20);
+INSERT INTO mlinvoice_print_template (id, name, filename, parameters, output_filename, type, order_no) VALUES (3, 'Kuitti', 'invoice_printer.php', 'receipt', 'kuitti_%d.pdf', 'invoice', 25);
+INSERT INTO mlinvoice_print_template (id, name, filename, parameters, output_filename, type, order_no) VALUES (4, 'Sähköposti', 'invoice_printer_email.php', 'invoice', 'lasku_%d.pdf', 'invoice', 10);
+INSERT INTO mlinvoice_print_template (id, name, filename, parameters, output_filename, type, order_no, inactive) VALUES (5, 'Invoice', 'invoice_printer.php', 'invoice,en', 'invoice_%d.pdf', 'invoice', 15, 1);
+INSERT INTO mlinvoice_print_template (id, name, filename, parameters, output_filename, type, order_no, inactive) VALUES (6, 'Receipt', 'invoice_printer.php', 'receipt,en', 'receipt_%d.pdf', 'invoice', 30, 1);
+INSERT INTO mlinvoice_print_template (id, name, filename, parameters, output_filename, type, order_no, inactive) VALUES (7, 'Finvoice', 'invoice_printer_finvoice.php', '', 'finvoice_%d.xml', 'invoice', 40, 1);
+INSERT INTO mlinvoice_print_template (id, name, filename, parameters, output_filename, type, order_no, inactive) VALUES (8, 'Finvoice Styled', 'invoice_printer_finvoice.php', 'Finvoice.xsl', 'finvoice_%d.xml', 'invoice', 50, 1);
+INSERT INTO mlinvoice_print_template (id, name, filename, parameters, output_filename, type, order_no, inactive) VALUES (9, 'Lasku virtuaaliviivakoodilla', 'invoice_printer.php', 'invoice,fi,Y', 'lasku_%d.pdf', 'invoice', 60, 1);
+INSERT INTO mlinvoice_print_template (id, name, filename, parameters, output_filename, type, order_no, inactive) VALUES (10, 'Lomakkeeton lasku', 'invoice_printer_formless.php', 'invoice,fi,N', 'lasku_%d.pdf', 'invoice', 70, 1);
 
-INSERT INTO vllasku_users (id, name, email, login, passwd, type_id) VALUES (1, 'Administrator', '', 'admin', md5('admin'), 2);
+INSERT INTO mlinvoice_users (id, name, email, login, passwd, type_id) VALUES (1, 'Administrator', '', 'admin', md5('admin'), 2);
 
 -- ***** The following rows just add some sample data *****
-INSERT INTO vllasku_base (id, name, contact_person, street_address, zip_code, city, phone, bank_name, bank_account, bank_iban, bank_swiftbic, www, email, company_id) VALUES (1, 'Testilaskuttaja', 'Taavi Testaaja', 'Testitie', '00730', 'HELSINKI', '+358 50 123456', 'Pankki', '123456-654321', 'FI12 3456 7890 1234 56', 'FIHHPANK', 'http://sourceforge.net/', 'emaijala@gmail.com', '123456-7');
+INSERT INTO mlinvoice_base (id, name, contact_person, street_address, zip_code, city, phone, bank_name, bank_account, bank_iban, bank_swiftbic, www, email, company_id) VALUES (1, 'Testilaskuttaja', 'Taavi Testaaja', 'Testitie', '00730', 'HELSINKI', '+358 50 123456', 'Pankki', '123456-654321', 'FI12 3456 7890 1234 56', 'FIHHPANK', 'http://sourceforge.net/', 'emaijala@gmail.com', '123456-7');
 
-INSERT INTO vllasku_company (id, inside_info, type_id, company_name, contact_person, street_address, zip_code, city, phone, fax, email, gsm, billing_address, www, info, company_id) VALUES (1, NULL, NULL, 'Testifirma', NULL, 'Testitie', '00730', 'HELSINKI', '050-123 4567', '-', 'emaijala@gmail.com', '050-123 4567', 'Testifirma\r\nTestitie\r\n00730 HELSINKI', 'www.sourceforge.net', '', 'FI-123456-x');
+INSERT INTO mlinvoice_company (id, inside_info, type_id, company_name, contact_person, street_address, zip_code, city, phone, fax, email, gsm, billing_address, www, info, company_id) VALUES (1, NULL, NULL, 'Testifirma', NULL, 'Testitie', '00730', 'HELSINKI', '050-123 4567', '-', 'emaijala@gmail.com', '050-123 4567', 'Testifirma\r\nTestitie\r\n00730 HELSINKI', 'www.sourceforge.net', '', 'FI-123456-x');
 
-INSERT INTO vllasku_company_contact (id, company_id, contact_person, person_title, email, phone, gsm) VALUES (1, 1, 'Ere Maijala', 'Päällikkö', 'emaijala@gmail.com', '-', '050-123 4567');
+INSERT INTO mlinvoice_company_contact (id, company_id, contact_person, person_title, email, phone, gsm) VALUES (1, 1, 'Ere Maijala', 'Päällikkö', 'emaijala@gmail.com', '-', '050-123 4567');
 
-INSERT INTO vllasku_invoice 
+INSERT INTO mlinvoice_invoice 
   (id, name, company_id, invoice_no, invoice_date, due_date, payment_date, ref_number, state_id, reference, base_id) 
   VALUES (1, 'Testi', 1, '100', 20101230, 20110113, NULL, '', 1, '', 1);
 
-INSERT INTO vllasku_invoice_row (id, invoice_id, description, type_id, pcs, price, row_date, vat, order_no) 
+INSERT INTO mlinvoice_invoice_row (id, invoice_id, description, type_id, pcs, price, row_date, vat, order_no) 
   VALUES (1, 1, 'Testirivi 1', 3, 12.00, 150.00, 20060515, 23, 5);
 
 

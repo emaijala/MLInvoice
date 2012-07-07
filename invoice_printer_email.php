@@ -91,7 +91,7 @@ class InvoicePrinterEmail extends InvoicePrinterBase
       'Bcc' => $this->emailBCC,
       'Mime-Version' => '1.0',
       'Content-Type' => "multipart/mixed; boundary=\"${boundary}\"",
-      'X-Mailer' => 'VLLasku',
+      'X-Mailer' => 'MLInvoice',
     );
       
 

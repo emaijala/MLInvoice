@@ -1,6 +1,6 @@
 <?php
 /*******************************************************************************
-VLLasku: web-based invoicing application.
+MLInvoice: web-based invoicing application.
 Copyright (C) 2010-2012 Ere Maijala
 
 This program is free software. See attached LICENSE.
@@ -8,7 +8,7 @@ This program is free software. See attached LICENSE.
 *******************************************************************************/
 
 /*******************************************************************************
-VLLasku: web-pohjainen laskutusohjelma.
+MLInvoice: web-pohjainen laskutusohjelma.
 Copyright (C) 2010-2012 Ere Maijala
 
 Tämä ohjelma on vapaa. Lue oheinen LICENSE.
@@ -29,19 +29,19 @@ define('_DB_SERVER_', 'localhost');
 
 // Database server user id
 // Tunnus tietokantapalvelimelle
-define('_DB_USERNAME_', 'vllasku');
+define('_DB_USERNAME_', 'mlinvoice');
 
 // Database server password
 // Salasana tietokantapalvelimelle
-define('_DB_PASSWORD_', 'vllasku');
+define('_DB_PASSWORD_', '');
 
 // Database name
 // Tietokannan nimi
-define('_DB_NAME_', 'vllasku');
+define('_DB_NAME_', 'mlinvoice');
 
 // Database table prefix
 // Tietokantataulujen prefix
-define ('_DB_PREFIX_', 'vllasku');
+define ('_DB_PREFIX_', 'mlinvoice');
 
 // Whether verbose error messages are reported on html pages (true = yes, false = only in php error log)
 // Raportoidaanko tietokantavirheiden tarkat tiedot html-sivuilla (true = kyllä, false = vain php:n virhelokissa)
@@ -53,7 +53,7 @@ define ('_CHARSET_', 'UTF-8');
 
 // Page title
 // Sivujen otsikko
-define ('_PAGE_TITLE_', 'VLLasku');
+define ('_PAGE_TITLE_', 'MLInvoice');
 
 // jQuery UI theme location
 // Käytettävän jQuery UI-teeman sijainti
@@ -70,7 +70,7 @@ define ('_IMPORT_FILE_', '');
 
 // Session cookie name and restriction to the path. These can be used to limit cookies with multiple installations on same server.
 // Istunto-evästeen nimi ja rajaus polun mukaan. Näillä voi huolehtia rinnakkaisten asennusten kohdalla, etteivät evästeet vuoda asennuksesta toiseen. Ei vaikuta tietoturvaan.
-define ('_SESSION_NAME_', 'VLLASKUSESSION');
+define ('_SESSION_NAME_', 'MLINVOICESESSION');
 define ('_SESSION_RESTRICT_PATH_', true);
 
 // N.B.! Other settings can be found in the UI (Settings -> General Settings)

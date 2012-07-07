@@ -1,6 +1,6 @@
 <?php
 /*******************************************************************************
-VLLasku: web-based invoicing application.
+MLInvoice: web-based invoicing application.
 Copyright (C) 2010-2012 Ere Maijala
 
 This program is free software. See attached LICENSE.
@@ -8,7 +8,7 @@ This program is free software. See attached LICENSE.
 *******************************************************************************/
 
 /*******************************************************************************
-VLLasku: web-pohjainen laskutusohjelma.
+MLInvoice: web-pohjainen laskutusohjelma.
 Copyright (C) 2010-2012 Ere Maijala
 
 Tämä ohjelma on vapaa. Lue oheinen LICENSE.
@@ -57,7 +57,7 @@ function do_import()
   {
     if ($_FILES['data']['error'] == UPLOAD_ERR_OK)
     {
-      $_SESSION['import_file'] = $_FILES['data']['tmp_name'] . '-vllasku-import';
+      $_SESSION['import_file'] = $_FILES['data']['tmp_name'] . '-mlinvoice-import';
       move_uploaded_file($_FILES['data']['tmp_name'], $_SESSION['import_file']);    
       show_setup_form();
       return;
