@@ -111,7 +111,7 @@ if ($intInvoiceId)
     mysql_param_query($strQuery, array($intInvoiceId));
   }
   
-  $intRefundedId = $boolRefund ? $intInvoiceId : 'NULL';
+  $intRefundedId = $boolRefund ? $intInvoiceId : null;
   $strQuery = 
       'INSERT INTO {prefix}invoice(name, company_id, invoice_date, due_date, payment_date, state_id, reference, base_id, refunded_invoice_id, info, internal_info, interval_type, next_interval_date) '.
       'VALUES (?, ?, ?, ?, NULL, 1, ?, ?, ?, ?, ?, ?, ?)';
