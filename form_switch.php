@@ -304,7 +304,7 @@ EOS;
         $printFunc = "window.location = 'invoice.php?id=_ID_&amp;template=$templateId&amp;func=$strFunc'; return false;";
     }
 
-    $arr = array('name' => "print$templateId", 'label' => $row['name'], 'type' => 'JSBUTTON', 'style' => $printStyle, 'listquery' => $printFunc, 'position' => 3, 'allow_null' => TRUE );
+    $arr = array('name' => "print$templateId", 'label' => isset($GLOBALS["loc{$row['name']}"]) ? $GLOBALS["loc{$row['name']}"] : $row['name'], 'type' => 'JSBUTTON', 'style' => $printStyle, 'listquery' => $printFunc, 'position' => 3, 'allow_null' => TRUE );
     if (++$rowNum > $templateFirstCol)
     {
       $arr['position'] = 4;
@@ -368,7 +368,7 @@ EOS;
     array(
       "name" => "next_interval_date", "label" => $GLOBALS['locInvoiceNextIntervalDate'], "type" => "INTDATE", "style" => "date", "listquery" => "", "position" => 2, "default" => '', "allow_null" => TRUE ),
     array(
-      "name" => "state_id", "label" => $GLOBALS['locStatus'], "type" => "LIST", "style" => "medium", "listquery" => "SELECT id, name FROM {prefix}invoice_state WHERE deleted=0 ORDER BY order_no", "position" => 1, "default" => 1, "allow_null" => FALSE ),
+      "name" => "state_id", "label" => $GLOBALS['locStatus'], "type" => "LIST", "style" => "medium translated", "listquery" => "SELECT id, name FROM {prefix}invoice_state WHERE deleted=0 ORDER BY order_no", "position" => 1, "default" => 1, "allow_null" => FALSE ),
     array(
       "name" => "payment_date", "label" => $GLOBALS['locPayDate'], "type" => "INTDATE", "style" => "date", "listquery" => "", "position" => 2, "allow_null" => TRUE ),
     array(
@@ -487,7 +487,7 @@ EOS;
      array(
         "name" => "pcs", "label" => $GLOBALS['locPCS'], "type" => "INT", "style" => "count", "listquery" => "", "position" => 0, "allow_null" => FALSE ),
      array(
-        "name" => "type_id", "label" => $GLOBALS['locUnit'], "type" => "LIST", "style" => "short", "listquery" => "SELECT id, name FROM {prefix}row_type WHERE deleted=0 ORDER BY order_no", "position" => 0, "default" => 'POST', "allow_null" => TRUE ),
+        "name" => "type_id", "label" => $GLOBALS['locUnit'], "type" => "LIST", "style" => "short translated", "listquery" => "SELECT id, name FROM {prefix}row_type WHERE deleted=0 ORDER BY order_no", "position" => 0, "default" => 'POST', "allow_null" => TRUE ),
      array(
         "name" => "price", "label" => $GLOBALS['locPrice'], "type" => "INT", "style" => "currency", "listquery" => "", "position" => 0, "default" => 'POST', 'decimals' => getSetting('unit_price_decimals'), "allow_null" => FALSE ),
      array(

@@ -314,7 +314,11 @@ function createHtmlList($strFunc, $strList, $strIDQuery, &$arrQueryParams, $strT
         }
       }
       
-      $value = trim($row[$name]) ? htmlspecialchars($row[$name]) : '&nbsp;';
+      if (isset($field['translate']) && $field['translate'] && isset($GLOBALS["loc{$row[$name]}"])) {
+        $value = $GLOBALS["loc{$row[$name]}"];
+      } else {
+        $value = trim($row[$name]) ? htmlspecialchars($row[$name]) : '&nbsp;';
+      }
 ?>
           <td class="label<?php echo $deleted?>"><?php if ($overdue) echo "<div class=\"$overdue\">"?><a class="navilink" href="<?php echo $strLink?>"><?php echo $value?></a><?php if ($overdue) echo "</div>"?></td>
 <?php

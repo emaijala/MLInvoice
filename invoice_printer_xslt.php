@@ -25,6 +25,12 @@ class InvoicePrinterXslt extends InvoicePrinterBase
     $rows = $invoice->addChild('rows');
     $this->_arrayToXML($this->invoiceRowData, $rows, 'row');
 
+    foreach ($this->invoiceRowData as &$data) {
+      if (isset($GLOBALS["locPDF{$data['type']}"])) {
+        $data['type'] = $GLOBALS["locPDF{$data['type']}"];
+      }
+    }
+    
     require 'settings_def.php';
     $settingsData = array();
     foreach ($arrSettings as $key => $value) 
@@ -90,7 +96,6 @@ class InvoicePrinterXslt extends InvoicePrinterBase
         exit(1);
       }
     }
-    //$this->_xml = $xml->asXML();
   }
  
   protected function _arrayToXML($array, &$xml, $subnodename = '') 

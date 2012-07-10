@@ -505,7 +505,23 @@ function createIForm($astrFormElements, $elem, $intKeyValue, $newRecord)
 
 function format_currency(value, decimals)
 {
-  return parseFloat(value).toFixed(decimals).replace('.', '<?php echo $GLOBALS['locDecimalSeparator']?>');
+  var s = parseFloat(value).toFixed(decimals).replace('.', '<?php echo $GLOBALS['locDecimalSeparator']?>');
+<?php 
+  if ($GLOBALS['locThousandSeparator']) {
+?>
+  var parts = s.split('<?php echo $GLOBALS['locDecimalSeparator']?>');
+  var regexp = /(\d+)(\d{3})<?php echo $GLOBALS['locDecimalSeparator']?>?/;
+	while (regexp.test(parts[0])) {
+		parts[0] = parts[0].replace(regexp, '$1' + '<?php echo $GLOBALS['locThousandSeparator']?>' + '$2');
+	}
+	s = parts[0];
+	if (parts.length > 1) {
+		s += '<?php echo $GLOBALS['locDecimalSeparator']?>' + parts[1];
+	}
+<?php 
+  }
+?>
+  return s;
 }
 
 function init_rows()
@@ -523,8 +539,12 @@ function init_rows()
       continue;
     echo '  var arr_' . $subElem['name'] . ' = {"0":"-"';
     $res = mysql_query_check($subElem['listquery']);
+    $translate = strstr($subElem['style'], ' translated');
     while ($row = mysql_fetch_row($res))
     {
+      if ($translate && isset($GLOBALS["loc{$row[1]}"])) {
+        $row[1] = $GLOBALS["loc{$row[1]}"];
+      }
       echo ',' . $row[0] . ':"' . addcslashes($row[1], '\"\/') . '"';
     }
     echo "};\n";

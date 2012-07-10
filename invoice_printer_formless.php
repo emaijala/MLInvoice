@@ -70,8 +70,8 @@ class InvoicePrinterFormless extends InvoicePrinterBase
     $pdf->Cell(60, 5, $invoiceData['invoice_no'], 0, 1);
     $pdf->SetX(115);
     $pdf->Cell(40, 5, $GLOBALS["locPDF${locStr}Date"] . ': ', 0, 0, 'R');
-    $strInvoiceDate = dateConvDBDate2Date($invoiceData['invoice_date']);
-    $strDueDate = dateConvDBDate2Date($invoiceData['due_date']);
+    $strInvoiceDate = $this->_formatDate($invoiceData['invoice_date']);
+    $strDueDate = $this->_formatDate($invoiceData['due_date']);
     $pdf->Cell(60, 5, $strInvoiceDate, 0, 1);
     if ($this->printStyle == 'invoice')
     {
@@ -80,7 +80,7 @@ class InvoicePrinterFormless extends InvoicePrinterBase
       $pdf->Cell(60, 5, $strDueDate, 0, 1);
       $pdf->SetX(115);
       $pdf->Cell(40, 5, $GLOBALS['locPDFTermsOfPayment'] .": ", 0, 0, 'R');
-      $paymentDays = strDate2UnixTime($strDueDate)/3600/24 - strDate2UnixTime($strInvoiceDate)/3600/24;
+      $paymentDays = round(dbDate2UnixTime($invoiceData['due_date']) / 3600 / 24 - dbDate2UnixTime($invoiceData['invoice_date']) / 3600 / 24);
       if ($paymentDays < 0) //weird
         $paymentDays = getSetting('invoice_payment_days');
       $pdf->Cell(60, 5, sprintf(getSetting('invoice_terms_of_payment'), $paymentDays), 0, 1);
@@ -89,7 +89,7 @@ class InvoicePrinterFormless extends InvoicePrinterBase
       $pdf->Cell(60, 5, getSetting('invoice_period_for_complaints'), 0, 1);
       $pdf->SetX(115);
       $pdf->Cell(40, 5, $GLOBALS['locPDFPenaltyInterest'] .": ", 0, 0, 'R');
-      $pdf->Cell(60, 5, miscRound2OptDecim(getSetting('invoice_penalty_interest'), 1) . ' %', 0, 1);
+      $pdf->Cell(60, 5, $this->_formatNumber(getSetting('invoice_penalty_interest'), 1, true) . ' %', 0, 1);
       $pdf->SetX(115);
       $pdf->Cell(40, 5, $GLOBALS['locPDFRecipientBankAccount'] .": ", 0, 0, 'R');
       $pdf->Cell(60, 5, $senderData['bank_iban'], 0, 1);

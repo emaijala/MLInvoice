@@ -23,17 +23,6 @@ Tämä ohjelma on vapaa. Lue oheinen LICENSE.
 
 *******************************************************************************/
 
-/********************************************************************
-Includefile : miscfuncs.php
-    Miscallenous functions
-
-Includes files: -none-
-
-Todo : 
-    sort functions, move funcs to appropriate files.
-    Check function todo's
-********************************************************************/    
-
 function gpcAddSlashes($strString) 
 {
    if (!get_magic_quotes_gpc())
@@ -61,17 +50,26 @@ function cond_utf8_encode($str)
   return $str;
 }
 
-function miscRound2Decim( $intValue, $intDecim = 2 ) {
-    return number_format($intValue, $intDecim, $GLOBALS['locDecimalSeparator'], $GLOBALS['locThousandSeparator']);
+function miscRound2Decim($value, $decimals = 2, $decimalSeparator = null, $thousandSeparator = null) 
+{
+  return number_format(
+    $value, 
+    $decimals, 
+    isset($decimalSeparator) ? $decimalSeparator : $GLOBALS['locDecimalSeparator'], 
+    isset($thousandSeparator) ? $thousandSeparator : $GLOBALS['locThousandSeparator']
+  );
 }
 
-function miscRound2OptDecim( $intValue, $intDecim = 2 ) {
-    if ($intValue == floor($intValue))
-      $intDecim = 0;
-    return number_format($intValue, $intDecim, $GLOBALS['locDecimalSeparator'], $GLOBALS['locThousandSeparator']);
+function miscRound2OptDecim($value, $decimals = 2, $decimalSeparator = null, $thousandSeparator = null) 
+{
+  if ($value == floor($value)) {
+    $decimals = 0;
+  }
+  return miscRound2Decim($value, $decimals, $decimalSeparator, $thousandSeparator);
 }
 
-function miscCalcCheckNo( $intValue ) {
+function miscCalcCheckNo($intValue) 
+{
     $astrWeight = array(
         '1','3','7','1','3','7','1','3','7','1','3','7','1','3','7',
         '1','3','7','1','3','7','1','3','7','1','3','7','1','3','7','1','3','7',
@@ -88,9 +86,7 @@ function miscCalcCheckNo( $intValue ) {
         $intSum += $value * array_pop($astrWeight);
     }
     $intCheckNo = ceil($intSum/10)*10 - $intSum;
-    
-    //echo "value : $intValue -- sum : $intSum -- check : $intCheckNo";
-    
+        
     return $intCheckNo;
 }
 

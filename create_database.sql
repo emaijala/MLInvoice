@@ -238,62 +238,41 @@ CREATE TABLE mlinvoice_state (
 
 SET NAMES 'utf8';
 
-INSERT INTO mlinvoice_state (id, data) VALUES ('version', '16');
+INSERT INTO mlinvoice_state (id, data) VALUES ('version', '17');
 
-INSERT INTO mlinvoice_company_type (id, name, order_no) VALUES (1, 'Autoilu', 5);
-INSERT INTO mlinvoice_company_type (id, name, order_no) VALUES (2, 'Elintarviketeollisuus', 10);
-INSERT INTO mlinvoice_company_type (id, name, order_no) VALUES (3, 'Graafinen ala', 15);
-INSERT INTO mlinvoice_company_type (id, name, order_no) VALUES (4, 'Henkilöstöhallinto', 20);
-INSERT INTO mlinvoice_company_type (id, name, order_no) VALUES (5, 'Julkinen sektori', 25);
-INSERT INTO mlinvoice_company_type (id, name, order_no) VALUES (6, 'Kemian teollisuus', 30);
-INSERT INTO mlinvoice_company_type (id, name, order_no) VALUES (7, 'Kiinteistö', 35);
-INSERT INTO mlinvoice_company_type (id, name, order_no) VALUES (8, 'Kuljetus ja logistiikka', 40);
-INSERT INTO mlinvoice_company_type (id, name, order_no) VALUES (9, 'Kumi- ja muoviteollisuus', 45);
-INSERT INTO mlinvoice_company_type (id, name, order_no) VALUES (10, 'Maa- ja metsätalous', 50);
-INSERT INTO mlinvoice_company_type (id, name, order_no) VALUES (11, 'Markkinointi ja mainonta', 55);
-INSERT INTO mlinvoice_company_type (id, name, order_no) VALUES (12, 'Matkailu, majoitus ja virkistystoiminta', 60);
-INSERT INTO mlinvoice_company_type (id, name, order_no) VALUES (13, 'Metalli', 65);
-INSERT INTO mlinvoice_company_type (id, name, order_no) VALUES (14, 'Rakentaminen', 70);
-INSERT INTO mlinvoice_company_type (id, name, order_no) VALUES (15, 'Taideteollisuus', 75);
-INSERT INTO mlinvoice_company_type (id, name, order_no) VALUES (16, 'Taloushallinto', 80);
-INSERT INTO mlinvoice_company_type (id, name, order_no) VALUES (17, 'Tekstiili- ja vaatetusteollisuus', 85);
-INSERT INTO mlinvoice_company_type (id, name, order_no) VALUES (18, 'Terveydenhuolto ja hyvinvointi', 90);
-INSERT INTO mlinvoice_company_type (id, name, order_no) VALUES (19, 'Tietotekniikka', 95);
-INSERT INTO mlinvoice_company_type (id, name, order_no) VALUES (20, 'Vapaa-aika ja harrastustoiminta', 100);
-INSERT INTO mlinvoice_company_type (id, name, order_no) VALUES (21, 'Ympäristö', 105);
-INSERT INTO mlinvoice_company_type (id, name, order_no) VALUES (22, 'Elektroniikka', 110);
+INSERT INTO mlinvoice_invoice_state (id, name, order_no) VALUES (1, 'StateOpen', 5);
+INSERT INTO mlinvoice_invoice_state (id, name, order_no) VALUES (2, 'StateSent', 10);
+INSERT INTO mlinvoice_invoice_state (id, name, order_no) VALUES (3, 'StatePaid', 15);
+INSERT INTO mlinvoice_invoice_state (id, name, order_no) VALUES (4, 'StateAnnulled', 20);
+INSERT INTO mlinvoice_invoice_state (id, name, order_no) VALUES (5, 'StateFirstReminder', 25);
+INSERT INTO mlinvoice_invoice_state (id, name, order_no) VALUES (6, 'StateSecondReminder', 30);
+INSERT INTO mlinvoice_invoice_state (id, name, order_no) VALUES (7, 'StateDebtCollection', 35);
 
-INSERT INTO mlinvoice_invoice_state (id, name, order_no) VALUES (1, 'AVOIN', 5);
-INSERT INTO mlinvoice_invoice_state (id, name, order_no) VALUES (2, 'LÄHETETTY', 10);
-INSERT INTO mlinvoice_invoice_state (id, name, order_no) VALUES (3, 'MAKSETTU', 15);
-INSERT INTO mlinvoice_invoice_state (id, name, order_no) VALUES (4, 'MITÄTÖITY', 20);
-INSERT INTO mlinvoice_invoice_state (id, name, order_no) VALUES (5, '1. HUOMAUTUS', 25);
-INSERT INTO mlinvoice_invoice_state (id, name, order_no) VALUES (6, '2. HUOMAUTUS', 30);
-INSERT INTO mlinvoice_invoice_state (id, name, order_no) VALUES (7, 'PERINTÄ', 35);
-
-INSERT INTO mlinvoice_row_type (id, name, order_no) VALUES (1, 'h', 5);
-INSERT INTO mlinvoice_row_type (id, name, order_no) VALUES (2, 'pv', 10);
-INSERT INTO mlinvoice_row_type (id, name, order_no) VALUES (3, 'kk', 15);
-INSERT INTO mlinvoice_row_type (id, name, order_no) VALUES (4, 'kpl', 20);
-INSERT INTO mlinvoice_row_type (id, name, order_no) VALUES (5, 'vuosi', 25);
-INSERT INTO mlinvoice_row_type (id, name, order_no) VALUES (6, 'erä', 30);
-INSERT INTO mlinvoice_row_type (id, name, order_no) VALUES (8, 'km', 35);
+INSERT INTO mlinvoice_row_type (id, name, order_no) VALUES (1, 'TypeHour', 5);
+INSERT INTO mlinvoice_row_type (id, name, order_no) VALUES (2, 'TypeDay', 10);
+INSERT INTO mlinvoice_row_type (id, name, order_no) VALUES (3, 'TypeMonth', 15);
+INSERT INTO mlinvoice_row_type (id, name, order_no) VALUES (4, 'TypePieces', 20);
+INSERT INTO mlinvoice_row_type (id, name, order_no) VALUES (5, 'TypeYear', 25);
+INSERT INTO mlinvoice_row_type (id, name, order_no) VALUES (6, 'TypeLot', 30);
+INSERT INTO mlinvoice_row_type (id, name, order_no) VALUES (8, 'TypeKilometer', 35);
 
 INSERT INTO mlinvoice_session_type (id, name, order_no, time_out, access_level) VALUES (1, 'Käyttäjä', 1, 3600, 1);
 INSERT INTO mlinvoice_session_type (id, name, order_no, time_out, access_level) VALUES (2, 'Ylläpitäjä', 20, 3600, 99);
 INSERT INTO mlinvoice_session_type (id, name, order_no, time_out, access_level) VALUES (3, 'Käyttäjä - varmuuskopioija', 10, 3600, 90);
 INSERT INTO mlinvoice_session_type (id, name, order_no, time_out, access_level) VALUES (4, 'Vain laskujen ja raporttien tarkastelu', 0, 3600, 0);
 
-INSERT INTO mlinvoice_print_template (id, name, filename, parameters, output_filename, type, order_no) VALUES (1, 'Lasku', 'invoice_printer.php', 'invoice', 'lasku_%d.pdf', 'invoice', 5);
-INSERT INTO mlinvoice_print_template (id, name, filename, parameters, output_filename, type, order_no) VALUES (2, 'Lähetysluettelo', 'invoice_printer.php', 'dispatch', 'lahetysluettelo_%d.pdf', 'invoice', 20);
-INSERT INTO mlinvoice_print_template (id, name, filename, parameters, output_filename, type, order_no) VALUES (3, 'Kuitti', 'invoice_printer.php', 'receipt', 'kuitti_%d.pdf', 'invoice', 25);
-INSERT INTO mlinvoice_print_template (id, name, filename, parameters, output_filename, type, order_no) VALUES (4, 'Sähköposti', 'invoice_printer_email.php', 'invoice', 'lasku_%d.pdf', 'invoice', 10);
-INSERT INTO mlinvoice_print_template (id, name, filename, parameters, output_filename, type, order_no, inactive) VALUES (5, 'Invoice', 'invoice_printer.php', 'invoice,en', 'invoice_%d.pdf', 'invoice', 15, 1);
-INSERT INTO mlinvoice_print_template (id, name, filename, parameters, output_filename, type, order_no, inactive) VALUES (6, 'Receipt', 'invoice_printer.php', 'receipt,en', 'receipt_%d.pdf', 'invoice', 30, 1);
-INSERT INTO mlinvoice_print_template (id, name, filename, parameters, output_filename, type, order_no, inactive) VALUES (7, 'Finvoice', 'invoice_printer_finvoice.php', '', 'finvoice_%d.xml', 'invoice', 40, 1);
-INSERT INTO mlinvoice_print_template (id, name, filename, parameters, output_filename, type, order_no, inactive) VALUES (8, 'Finvoice Styled', 'invoice_printer_finvoice.php', 'Finvoice.xsl', 'finvoice_%d.xml', 'invoice', 50, 1);
-INSERT INTO mlinvoice_print_template (id, name, filename, parameters, output_filename, type, order_no, inactive) VALUES (9, 'Lasku virtuaaliviivakoodilla', 'invoice_printer.php', 'invoice,fi,Y', 'lasku_%d.pdf', 'invoice', 60, 1);
-INSERT INTO mlinvoice_print_template (id, name, filename, parameters, output_filename, type, order_no, inactive) VALUES (10, 'Lomakkeeton lasku', 'invoice_printer_formless.php', 'invoice,fi,N', 'lasku_%d.pdf', 'invoice', 70, 1);
+INSERT INTO mlinvoice_print_template (id, name, filename, parameters, output_filename, type, order_no) VALUES (1, 'PrintInvoiceFinnish', 'invoice_printer.php', 'invoice', 'lasku_%d.pdf', 'invoice', 5);
+INSERT INTO mlinvoice_print_template (id, name, filename, parameters, output_filename, type, order_no) VALUES (2, 'PrintDispatchNoteFinnish', 'invoice_printer.php', 'dispatch', 'lahetysluettelo_%d.pdf', 'invoice', 20);
+INSERT INTO mlinvoice_print_template (id, name, filename, parameters, output_filename, type, order_no) VALUES (3, 'PrintReceiptFinnish', 'invoice_printer.php', 'receipt', 'kuitti_%d.pdf', 'invoice', 25);
+INSERT INTO mlinvoice_print_template (id, name, filename, parameters, output_filename, type, order_no) VALUES (4, 'PrintEmailFinnish', 'invoice_printer_email.php', 'invoice', 'lasku_%d.pdf', 'invoice', 10);
+INSERT INTO mlinvoice_print_template (id, name, filename, parameters, output_filename, type, order_no, inactive) VALUES (5, 'PrintInvoiceEnglish', 'invoice_printer.php', 'invoice,en', 'invoice_%d.pdf', 'invoice', 15, 1);
+INSERT INTO mlinvoice_print_template (id, name, filename, parameters, output_filename, type, order_no, inactive) VALUES (6, 'PrintReceiptEnglish', 'invoice_printer.php', 'receipt,en', 'receipt_%d.pdf', 'invoice', 30, 1);
+INSERT INTO mlinvoice_print_template (id, name, filename, parameters, output_filename, type, order_no, inactive) VALUES (7, 'PrintFinvoice', 'invoice_printer_finvoice.php', '', 'finvoice_%d.xml', 'invoice', 40, 1);
+INSERT INTO mlinvoice_print_template (id, name, filename, parameters, output_filename, type, order_no, inactive) VALUES (8, 'PrintFinvoiceStyled', 'invoice_printer_finvoice.php', 'Finvoice.xsl', 'finvoice_%d.xml', 'invoice', 50, 1);
+INSERT INTO mlinvoice_print_template (id, name, filename, parameters, output_filename, type, order_no, inactive) VALUES (9, 'PrintInvoiceFinnishWithVirtualBarcode', 'invoice_printer.php', 'invoice,fi,Y', 'lasku_%d.pdf', 'invoice', 60, 1);
+INSERT INTO mlinvoice_print_template (id, name, filename, parameters, output_filename, type, order_no, inactive) VALUES (10, 'PrintInvoiceFinnishFormless', 'invoice_printer_formless.php', 'invoice,fi,N', 'lasku_%d.pdf', 'invoice', 70, 1);
+INSERT INTO mlinvoice_print_template (id, name, filename, parameters, output_filename, type, order_no, inactive) VALUES (11, 'PrintInvoiceEnglishWithVirtualBarcode', 'invoice_printer.php', 'invoice,en,Y', 'invoice_%d.pdf', 'invoice', 70, 1);
+INSERT INTO mlinvoice_print_template (id, name, filename, parameters, output_filename, type, order_no, inactive) VALUES (12, 'PrintInvoiceEnglishFormless', 'invoice_printer_formless.php', 'invoice,en,N', 'invoice_%d.pdf', 'invoice', 80, 1);
 
 INSERT INTO mlinvoice_users (id, name, email, login, passwd, type_id) VALUES (1, 'Administrator', '', 'admin', md5('admin'), 2);
 

@@ -109,7 +109,7 @@ EOT;
     return $strHtmlStart;
 }
 
-function htmlListBox($strName, $astrValues, $strSelected, $strStyle = "", $blnSubmitOnChange = FALSE, $blnShowEmpty = TRUE, $astrAdditionalAttributes = '') 
+function htmlListBox($strName, $astrValues, $strSelected, $strStyle = '', $blnSubmitOnChange = FALSE, $blnShowEmpty = TRUE, $astrAdditionalAttributes = '', $translate = false) 
 {
 /********************************************************************
 Function : htmlListBox
@@ -141,6 +141,9 @@ Todo :
   foreach ($astrValues as $value => $desc)
   {
     $strSelect = $strSelected == $value ? ' selected' : '';
+    if ($translate && isset($GLOBALS["loc$desc"])) {
+      $desc = $GLOBALS["loc$desc"];
+    }
     $strListBox .= "<option value=\"" . htmlspecialchars($value) . "\"$strSelect>" . htmlspecialchars($desc) . "</option>\n";
   }        
   $strListBox .= "</select>\n";
@@ -148,7 +151,7 @@ Todo :
   return $strListBox;
 }
 
-function htmlSQLListBox($strName, $strQuery, $strSelected, $strStyle = "", $blnSubmitOnChange = FALSE, $astrAdditionalAttributes) 
+function htmlSQLListBox($strName, $strQuery, $strSelected, $strStyle = '', $blnSubmitOnChange = FALSE, $astrAdditionalAttributes = '', $translate = false) 
 {
   $astrValues = array();
   $intRes = mysql_query_check( $strQuery );
@@ -162,7 +165,7 @@ function htmlSQLListBox($strName, $strQuery, $strSelected, $strStyle = "", $blnS
     $strStyle = str_replace(' noemptyvalue', '', $strStyle);
     $showEmpty = FALSE;
   }
-  $strListBox = htmlListBox($strName, $astrValues, $strSelected, $strStyle, $blnSubmitOnChange, $showEmpty, $astrAdditionalAttributes);
+  $strListBox = htmlListBox($strName, $astrValues, $strSelected, $strStyle, $blnSubmitOnChange, $showEmpty, $astrAdditionalAttributes, $translate);
 
   return $strListBox;
 }
@@ -261,28 +264,39 @@ function htmlFormElement($strName, $strType, $strValue, $strStyle, $strListQuery
       break;
         
     case 'LIST':
+      $translate = false;
+      if (strstr($strStyle, ' translated')) {
+        $translate = true;
+        $strStyle = str_replace(' translated', '', $strStyle);
+      }
+        
       if ($strMode == "MODIFY") 
       {
-        $strFormElement = htmlSQLListBox($strName, $strListQuery, $strValue, $strStyle, false, $astrAdditionalAttributes);
+        $strFormElement = htmlSQLListBox($strName, $strListQuery, $strValue, $strStyle, false, $astrAdditionalAttributes, $translate);
       }
       else 
       {
         $strFormElement = 
           "<input type=\"text\" class=\"$strStyle\" " .
-          "id=\"$strName\" name=\"$strName\" value=\"" . htmlspecialchars(getSQLListBoxSelectedValue($strListQuery, $strValue)) . "\"$astrAdditionalAttributes$readOnly>\n";
+          "id=\"$strName\" name=\"$strName\" value=\"" . htmlspecialchars(getSQLListBoxSelectedValue($strListQuery, $strValue, $translate)) . "\"$astrAdditionalAttributes$readOnly>\n";
       }
       break;
       
     case 'SELECT':
+      $translate = false;
+      if (strstr($strStyle, ' translated')) {
+        $translate = true;
+        $strStyle = str_replace(' translated', '', $strStyle);
+      }
       if ($strMode == "MODIFY") 
       {
-        $strFormElement = htmlListBox($strName, $options, $strValue, $strStyle, false, $astrAdditionalAttributes);
+        $strFormElement = htmlListBox($strName, $options, $strValue, $strStyle, false, $astrAdditionalAttributes, $translate);
       }
       else 
       {
         $strFormElement = 
           "<input type=\"text\" class=\"$strStyle\" " .
-          "id=\"$strName\" name=\"$strName\" value=\"" . htmlspecialchars(getListBoxSelectedValue($options, $strValue)) . "\"$astrAdditionalAttributes$readOnly>\n";
+          "id=\"$strName\" name=\"$strName\" value=\"" . htmlspecialchars(getListBoxSelectedValue($options, $strValue, $translate)) . "\"$astrAdditionalAttributes$readOnly>\n";
       }
       break;
       

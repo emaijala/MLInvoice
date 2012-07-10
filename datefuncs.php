@@ -16,14 +16,14 @@ Tämä ohjelma on vapaa. Lue oheinen LICENSE.
 *******************************************************************************/
 
 // Convert database format to user-readable
-function dateConvDBDate2Date($intDate) 
+function dateConvDBDate2Date($intDate, $format = '') 
 {
   if (!$intDate)
     return '';
   $day = substr($intDate, 6);
   $mon = substr($intDate, 4, 2);
   $year = substr($intDate, 0, 4);
-  return date($GLOBALS['locDateFormat'], mktime(0, 0, 0, $mon, $day, $year));
+  return date($format ? $format : $GLOBALS['locDateFormat'], mktime(0, 0, 0, $mon, $day, $year));
 }
 
 // Convert user-readable format to database
@@ -38,4 +38,13 @@ function strDate2UnixTime($strDate)
 {
   $arr = date_parse_from_format($GLOBALS['locDateFormat'], $strDate);
   return mktime(0, 0, 0, $arr['month'], $arr['day'], $arr['year']); 
+}
+
+// Convert the database format to unix time
+function dbDate2UnixTime($date)
+{
+  $day = substr($date, 6);
+  $mon = substr($date, 4, 2);
+  $year = substr($date, 0, 4);
+  return mktime(0, 0, 0, $mon, $day, $year);
 }

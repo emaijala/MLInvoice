@@ -85,7 +85,7 @@ case 'invoices':
         array("name" => "b.name", 'width' => 150, "type" => "TEXT", "header" => $GLOBALS['locHeaderInvoiceBase']),
         array("name" => "c.company_name", 'width' => 150, "type" => "TEXT", "header" => $GLOBALS['locHeaderInvoiceClient']),
         array("name" => "i.name", 'width' => 100, "type" => "TEXT", "header" => $GLOBALS['locHeaderInvoiceName']),
-        array("name" => "s.name", 'width' => 120, "type" => "TEXT", "header" => $GLOBALS['locHeaderInvoiceState']),
+        array("name" => "s.name", 'width' => 120, "type" => "TEXT", "header" => $GLOBALS['locHeaderInvoiceState'], 'translate' => true),
         array("name" => "i.ref_number", 'width' => 100, "type" => "TEXT", "header" => $GLOBALS['locHeaderInvoiceReference']),
         array('name' => '.total_price', 'sql' => 'SUM(it.row_total) as total_price', 'width' => 80, 'type' => 'CURRENCY', 'header' => $GLOBALS['locHeaderInvoiceTotal'])
     );
@@ -167,7 +167,7 @@ case 'row_type':
    $astrShowFields = 
     array( 
         array("name" => "order_no", 'width' => 150, "type" => "TEXT", "header" => $GLOBALS['locOrderNr']),
-        array("name" => "name", 'width' => 450, "type" => "TEXT", "header" => $GLOBALS['locRowType'])
+        array("name" => "name", 'width' => 450, "type" => "TEXT", "header" => $GLOBALS['locRowType'], 'translate' => true)
     );
    $strMainForm = "row_type";
    $strTitle = $GLOBALS['locRowTypes'];
@@ -186,7 +186,7 @@ case 'print_template':
     array("name" => "order_no", 'width' => 150, "type" => "TEXT", "header" => $GLOBALS['locOrderNr']),
     array("name" => "type", 'width' => 150, "type" => "TEXT", "header" => $GLOBALS['locPrintTemplateType'], 
       'mappings' => array('invoice' => $GLOBALS['locPrintTemplateTypeInvoice']) ),
-    array("name" => "name", 'width' => 200, "type" => "TEXT", "header" => $GLOBALS['locPrintTemplateName']),
+    array("name" => "name", 'width' => 200, "type" => "TEXT", "header" => $GLOBALS['locPrintTemplateName'], 'translate' => true),
     array("name" => "inactive", 'width' => 100, "type" => "TEXT", "header" => $GLOBALS['locHeaderPrintTemplateActive'],
       'mappings' => array('0' => $GLOBALS['locActive'], '1' => $GLOBALS['locInactive']) ),
     array("name" => "filename", 'width' => 200, "type" => "TEXT", "header" => $GLOBALS['locPrintTemplateFileName']),

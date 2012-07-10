@@ -232,10 +232,41 @@ EOT
   $updates = array();
   if ($version < 16) {
     $updates = array(
-      "ALTER TABLE {prefix}invoice ADD CONSTRAINT FOREIGN KEY (base_id) REFERENCES {prefix}base(id)",
-      "ALTER TABLE {prefix}invoice ADD COLUMN interval_type int(11) NOT NULL default 0",
-      "ALTER TABLE {prefix}invoice ADD COLUMN next_interval_date int(11) default NULL",
+      'ALTER TABLE {prefix}invoice ADD CONSTRAINT FOREIGN KEY (base_id) REFERENCES {prefix}base(id)',
+      'ALTER TABLE {prefix}invoice ADD COLUMN interval_type int(11) NOT NULL default 0',
+      'ALTER TABLE {prefix}invoice ADD COLUMN next_interval_date int(11) default NULL',
       "REPLACE INTO {prefix}state (id, data) VALUES ('version', '16')"
+    );
+  }
+  if ($version < 17) {
+    $updates = array(
+      "UPDATE {prefix}invoice_state set name='StateOpen' where id=1",
+      "UPDATE {prefix}invoice_state set name='StateSent' where id=2",
+      "UPDATE {prefix}invoice_state set name='StatePaid' where id=3",
+      "UPDATE {prefix}invoice_state set name='StateAnnulled' where id=4",
+      "UPDATE {prefix}invoice_state set name='StateFirstReminder' where id=5",
+      "UPDATE {prefix}invoice_state set name='StateSecondReminder' where id=6",
+      "UPDATE {prefix}invoice_state set name='StateDebtCollection' where id=7",
+      "UPDATE {prefix}print_template set name='PrintInvoiceFinnish' where name='Lasku'",
+      "UPDATE {prefix}print_template set name='PrintDispatchNoteFinnish' where name='Lähetysluettelo'",
+      "UPDATE {prefix}print_template set name='PrintReceiptFinnish' where name='Kuitti'",
+      "UPDATE {prefix}print_template set name='PrintEmailFinnish' where name='Email'",
+      "UPDATE {prefix}print_template set name='PrintInvoiceEnglish' where name='Invoice'",
+      "UPDATE {prefix}print_template set name='PrintReceiptEnglish' where name='Receipt'",
+      "UPDATE {prefix}print_template set name='PrintFinvoice' where name='Finvoice'",
+      "UPDATE {prefix}print_template set name='PrintFinvoiceStyled' where name='Finvoice Styled'",
+      "UPDATE {prefix}print_template set name='PrintInvoiceFinnishWithVirtualBarcode' where name='Lasku virtuaaliviivakoodilla'",
+      "UPDATE {prefix}print_template set name='PrintInvoiceFinnishFormless' where name='Lomakkeeton lasku'",
+      "INSERT INTO {prefix}print_template (name, filename, parameters, output_filename, type, order_no, inactive) VALUES ('PrintInvoiceEnglishWithVirtualBarcode', 'invoice_printer.php', 'invoice,en,Y', 'invoice_%d.pdf', 'invoice', 70, 1)",
+      "INSERT INTO {prefix}print_template (name, filename, parameters, output_filename, type, order_no, inactive) VALUES ('PrintInvoiceEnglishFormless', 'invoice_printer_formless.php', 'invoice,en,N', 'invoice_%d.pdf', 'invoice', 80, 1)",
+      "UPDATE {prefix}row_type set name='TypeHour' where name='h'",
+      "UPDATE {prefix}row_type set name='TypeDay' where name='pv'",
+      "UPDATE {prefix}row_type set name='TypeMonth' where name='kk'",
+      "UPDATE {prefix}row_type set name='TypePieces' where name='kpl'",
+      "UPDATE {prefix}row_type set name='TypeYear' where name='vuosi'",
+      "UPDATE {prefix}row_type set name='TypeLot' where name='erä'",
+      "UPDATE {prefix}row_type set name='TypeKilometer' where name='km'",      
+      "REPLACE INTO {prefix}state (id, data) VALUES ('version', '17')"
     );
   }
   
