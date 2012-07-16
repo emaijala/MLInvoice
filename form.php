@@ -454,7 +454,10 @@ function save_record(redirect_url, redir_style)
       }
     },
     'error': function(XMLHTTPReq, textStatus, errorThrown) {
-      if (textStatus == 'timeout')
+      if (XMLHTTPReq.status == 409) {
+        errormsg(jQuery.parseJSON(XMLHTTPReq.responseText).warnings);
+      }
+      else if (textStatus == 'timeout')
         errormsg('Timeout trying to save data');
       else
         errormsg('Error trying to save data: ' + XMLHTTPReq.status + ' - ' + XMLHTTPReq.statusText);

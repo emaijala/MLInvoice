@@ -654,7 +654,7 @@ case 'user':
     array(
       "name" => "name", "label" => $GLOBALS['locUserName'], "type" => "TEXT", "style" => "medium", "listquery" => "", "position" => 1, "allow_null" => FALSE ), 
     array(
-      "name" => "login", "label" => $GLOBALS['locLoginName'], "type" => "TEXT", "style" => "medium", "listquery" => "", "position" => 1, "allow_null" => FALSE ),
+      "name" => "login", "label" => $GLOBALS['locLoginName'], "type" => "TEXT", "style" => "medium", "listquery" => "", "position" => 1, "allow_null" => FALSE, 'unique' => true ),
     array(
       "name" => "passwd", "label" => $GLOBALS['locPassword'], "type" => "PASSWD", "style" => "medium", "listquery" => "", "position" => 2, "allow_null" => TRUE ),
     array(

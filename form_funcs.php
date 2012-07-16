@@ -81,7 +81,8 @@ function getFormDefaultValue($elem, $parentKey)
 }
 
 // Save form data. If primaryKey is not set, add a new record and set it, otherwise update existing record.
-// Return a string of missing values if encountered. In that case, the record is not saved. Otherwise return true.
+// Return true on success.
+// Return false on conflict or a string of missing values if encountered. In these cases, the record is not saved.
 function saveFormData($table, &$primaryKey, &$formElements, &$values, &$warnings, $parentKeyName = '', $parentKey = FALSE)
 {  
   $missingValues = '';
@@ -113,6 +114,20 @@ function saveFormData($table, &$primaryKey, &$formElements, &$values, &$warnings
     
     if ($type == 'PASSWD' && !$value)
       continue; // Don't save empty password
+
+    if (isset($elem['unique']) && $elem['unique']) {
+      $query = "SELECT * FROM $table WHERE deleted=0 AND $name=?";
+      $params = array($value);
+      if (isset($primaryKey) && $primaryKey) {
+        $query .= ' AND id!=?';
+        $params[] = $primaryKey;
+      }
+      $res = mysql_param_query($query, $params);
+      if (mysql_fetch_array($res)) {
+        $warnings = sprintf($GLOBALS['locDuplicateValue'], $elem['label']);
+        return false;
+      } 
+    }
     
     if ($strFields)
     {

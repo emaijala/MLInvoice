@@ -300,8 +300,16 @@ function saveJSONRecord($table, $parentKeyName)
   $res = saveFormData($strTable, $id, $astrFormElements, $data, $warnings, $parentKeyName, $parentKeyName ? $data[$parentKeyName] : FALSE);
   if ($res !== true)
   { 
+    if ($warnings) {
+      header('HTTP/1.1 409 Conflict');
+    }
     header('Content-Type: application/json');
-    echo json_encode(array('missing_fields' => $res));
+    echo json_encode(
+      array(
+        'missing_fields' => $res,
+        'warnings' => $warnings
+      )
+    );
     return;
   }
   if ($new)
