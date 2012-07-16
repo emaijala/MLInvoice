@@ -174,7 +174,7 @@ abstract class InvoicePrinterBase
       }
       else
       {
-        $tmpSum = str_replace($GLOBALS['locPDFDecimalSeparator'], '', $this->_formatNumber($this->totalSumVAT));
+        $tmpSum = str_replace($GLOBALS['locPDFDecimalSeparator'], '', $this->_formatCurrency($this->totalSumVAT));
         $tmpSum = str_repeat('0', 8 - strlen($tmpSum)) . $tmpSum;
         $tmpDueDate = substr($invoiceData['due_date'], 2);
         
@@ -555,9 +555,9 @@ abstract class InvoicePrinterBase
         if ($this->printStyle != 'dispatch')
         {
           $decimals = isset($row['price_decimals']) ? $row['price_decimals'] : 2;
-          $pdf->Cell(17, 5, $this->_formatNumber($row['price'], $decimals), 0, 0, 'R');
+          $pdf->Cell(17, 5, $this->_formatCurrency($row['price'], $decimals), 0, 0, 'R');
           if ($this->discountedRows)
-            $pdf->Cell(12, 5, (isset($row['discount']) && $row['discount'] != '0') ? $this->_formatNumber($row['discount'], 2, true) : '', 0, 0, 'R');
+            $pdf->Cell(12, 5, (isset($row['discount']) && $row['discount'] != '0') ? $this->_formatCurrency($row['discount'], 2, true) : '', 0, 0, 'R');
         }
         $pdf->Cell(13, 5, $this->_formatNumber($row['pcs'], 2, true), 0, 0, 'R');
         $pdf->Cell(7, 5, isset($GLOBALS["locPDF{$row['type']}"]) ? $GLOBALS["locPDF{$row['type']}"] : $row['type'], 0, 0, 'L');
@@ -565,11 +565,11 @@ abstract class InvoicePrinterBase
         {
           if ($this->senderData['vat_registered'])
           {
-            $pdf->Cell(20, 5, $this->_formatNumber($rowSum), 0, 0, 'R');
+            $pdf->Cell(20, 5, $this->_formatCurrency($rowSum), 0, 0, 'R');
             $pdf->Cell(11, 5, $this->_formatNumber($row['vat'], 1, true), 0, 0, 'R'); $pdf->Cell(4, 5, '', 0, 0, 'R');
-            $pdf->Cell(15, 5, $this->_formatNumber($rowVAT), 0, 0, 'R');
+            $pdf->Cell(15, 5, $this->_formatCurrency($rowVAT), 0, 0, 'R');
           }
-          $pdf->Cell(20, 5, $this->_formatNumber($rowSumVAT), 0, 0, 'R');
+          $pdf->Cell(20, 5, $this->_formatCurrency($rowSumVAT), 0, 0, 'R');
         }
         $pdf->SetX($left);
         if($showDate) 
@@ -590,19 +590,19 @@ abstract class InvoicePrinterBase
         $pdf->SetY($pdf->GetY()+10);
         $pdf->Cell(162, 5, $GLOBALS['locPDFTotalExcludingVAT'] . ': ', 0, 0, 'R');
         $pdf->SetX(187 - $left);
-        $pdf->Cell(20, 5, $this->_formatNumber($this->totalSum), 0, 0, 'R');
+        $pdf->Cell(20, 5, $this->_formatCurrency($this->totalSum), 0, 0, 'R');
         
         $pdf->SetFont('Helvetica','',10);
         $pdf->SetY($pdf->GetY()+5);
         $pdf->Cell(162, 5, $GLOBALS['locPDFTotalVAT'] . ': ', 0, 0, 'R');
         $pdf->SetX(187 - $left);
-        $pdf->Cell(20, 5, $this->_formatNumber($this->totalVAT), 0, 0, 'R');
+        $pdf->Cell(20, 5, $this->_formatCurrency($this->totalVAT), 0, 0, 'R');
         
         $pdf->SetFont('Helvetica','B',10);
         $pdf->SetY($pdf->GetY()+5);
         $pdf->Cell(162, 5, $GLOBALS['locPDFTotalIncludingVAT'] . ': ', 0, 0, 'R');
         $pdf->SetX(187 - $left);
-        $pdf->Cell(20, 5, $this->_formatNumber($this->totalSumVAT), 0, 1, 'R');
+        $pdf->Cell(20, 5, $this->_formatCurrency($this->totalSumVAT), 0, 1, 'R');
       }
       else
       {
@@ -610,7 +610,7 @@ abstract class InvoicePrinterBase
         $pdf->SetY($pdf->GetY()+5);
         $pdf->Cell(162, 5, $GLOBALS['locPDFTotalPrice'] . ': ', 0, 0, 'R');
         $pdf->SetX(187 - $left);
-        $pdf->Cell(20, 5, $this->_formatNumber($this->totalSumVAT), 0, 1, 'R');
+        $pdf->Cell(20, 5, $this->_formatCurrency($this->totalSumVAT), 0, 1, 'R');
       }
     }
   }
@@ -827,5 +827,11 @@ abstract class InvoicePrinterBase
       return miscRound2OptDecim($value, $decimals, $GLOBALS['locPDFDecimalSeparator'], $GLOBALS['locPDFThousandSeparator']);
     }
     return miscRound2Decim($value, $decimals, $GLOBALS['locPDFDecimalSeparator'], $GLOBALS['locPDFThousandSeparator']); 
+  }
+
+  protected function _formatCurrency($value, $decimals = 2, $decimalsOptional = false)
+  {
+    $number = $this->_formatNumber($value, $decimals, $decimalsOptional);
+    return $GLOBALS['locPDFCurrencyPrefix'] . $number . $GLOBALS['locPDFCurrencySuffix']; 
   }
 }

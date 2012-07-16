@@ -205,9 +205,9 @@ class InvoicePrinterEmail extends InvoicePrinterBase
       case 'invoice': 
         switch ($pcparts[1])
         {
-        case 'totalsum': $values[] = $this->_formatNumber($this->totalSum); break;
-        case 'totalvat': $values[] = $this->_formatNumber($this->totalVAT);  break;
-        case 'totalsumvat': $values[] = $this->_formatNumber($this->totalSumVAT); break;
+        case 'totalsum': $values[] = $this->_formatCurrency($this->totalSum); break;
+        case 'totalvat': $values[] = $this->_formatCurrency($this->totalVAT);  break;
+        case 'totalsumvat': $values[] = $this->_formatCurrency($this->totalSumVAT); break;
         case 'ref_number': $values[] = $this->refNumber; break; // formatted reference number
         case 'barcode': $values[] = $this->barcode; break;
         default: 
