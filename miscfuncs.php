@@ -154,8 +154,6 @@ function getPageTitle($strFunc, $strList, $strForm)
       case 'base': return $GLOBALS['locBase']; 
       case 'invoice_state': return $GLOBALS['locInvoiceState']; 
       case 'product': return $GLOBALS['locProduct'];
-      case 'row_type': return $GLOBALS['locRowType']; 
-      case 'print_template': return $GLOBALS['locPrintTemplate']; 
       default: return $GLOBALS['locSettings'];
       }
     }
@@ -167,8 +165,6 @@ function getPageTitle($strFunc, $strList, $strForm)
       case 'base': return $GLOBALS['locBases']; 
       case 'invoice_state': return $GLOBALS['locInvoiceStates']; 
       case 'product': return $GLOBALS['locProducts']; 
-      case 'row_type': return $GLOBALS['locRowTypes']; 
-      case 'print_template': return $GLOBALS['locPrintTemplates']; 
       default: return $GLOBALS['locSettings'];
       }
     }
@@ -180,6 +176,8 @@ function getPageTitle($strFunc, $strList, $strForm)
       {
       case 'user': return $GLOBALS['locUser'];
       case 'session_type': return $GLOBALS['locSessionType']; 
+      case 'row_type': return $GLOBALS['locRowType']; 
+      case 'print_template': return $GLOBALS['locPrintTemplate']; 
       default: return $GLOBALS['locSystem'];
       }
     }
@@ -189,6 +187,8 @@ function getPageTitle($strFunc, $strList, $strForm)
       {
       case 'user': return $GLOBALS['locUsers'];
       case 'session_type': return $GLOBALS['locSessionTypes'];
+      case 'row_type': return $GLOBALS['locRowTypes']; 
+      case 'print_template': return $GLOBALS['locPrintTemplates']; 
       default: return $GLOBALS['locSystem'];
       }
     }
