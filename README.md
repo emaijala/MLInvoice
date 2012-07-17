@@ -16,7 +16,8 @@ Main Features:
 - Email sending
 - Finvoice support
 
-See the project home page at http://www.labs.fi/mlinvoice.eng.php for more information.
+See the MLInvoice home page at http://www.labs.fi/mlinvoice.eng.php for more information, 
+installation instructions and the change log.
 
 Suomeksi
 --------
@@ -31,5 +32,5 @@ MLInvoice on ilmainen web-pohjainen laskutusjärjestelmä suomalaisille yrityksi
 - Sähköpostilähetys
 - Finvoice-laskutus
 
-Asennus- ja päivitysohjeet löytyvät osoitteesta http://www.labs.fi/mlinvoice_installation.php
-Tiedot muutoksista löytyvät osoitteesta http://www.labs.fi/mlinvoice_features.php
+Lisätietoja, asennus- ja päivitysohjeet sekä tiedot muutoksista uusissa versiossa löytyvät
+MLInvoicen kotisivulta http://www.labs.fi/mlinvoice.php
