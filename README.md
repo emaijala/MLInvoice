@@ -4,7 +4,12 @@ MLInvoice
 In English
 ----------
 
-MLInvoice is a free web-based invoicing system primarily for Finnish companies. It includes support for creating and emailing PDFs and Finvoice electronic invoices. The code is written and commented in English, and invoices can be created in English. Multilanguage support/English UI will be introduced in version 1.6.0.
+MLInvoice is a free web-based invoicing system primarily for Finnish companies. It includes 
+support for creating and emailing PDFs and Finvoice electronic invoices. The code is written 
+and commented in English. The user interface is available in both Finnish and English, and 
+invoices can also be created in both languages independently of the UI language. Different
+locale settings can be defined in the language files. It is also possible to add new 
+translations without having to touch the code.
 
 Main Features:
 
@@ -22,7 +27,8 @@ installation instructions and the change log.
 Suomeksi
 --------
 
-MLInvoice on ilmainen web-pohjainen laskutusjärjestelmä suomalaisille yrityksille. Pääominaisuuksia ovat:
+MLInvoice on ilmainen web-pohjainen laskutusjärjestelmä erityisesti suomalaisille yrityksille. 
+Pääominaisuuksia ovat:
 
 - Asiakasrekisteri
 - Tuoterekisteri
