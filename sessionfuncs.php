@@ -109,7 +109,9 @@ function sesVerifySession($redirect = TRUE)
   }
   if ($redirect)
   {
-    if (substr($_SERVER['SCRIPT_FILENAME'], -9, 9) == 'index.php' && $_SERVER['QUERY_STRING']) {
+    if (substr($_SERVER['SCRIPT_FILENAME'], -9, 9) == 'index.php' 
+      && $_SERVER['QUERY_STRING']
+      && getRequest('func', '') != 'logout') {
       $_SESSION['BACKLINK'] = getSelfPath() . '/index.php?' . $_SERVER['QUERY_STRING'];
       header('Location: ' . getSelfPath() . '/login.php?backlink=1');
     } else {
