@@ -231,15 +231,15 @@ EOT
   $version = mysql_fetch_value($res);
   $updates = array();
   if ($version < 16) {
-    $updates = array(
+    $updates = array_merge($updates, array(
       'ALTER TABLE {prefix}invoice ADD CONSTRAINT FOREIGN KEY (base_id) REFERENCES {prefix}base(id)',
       'ALTER TABLE {prefix}invoice ADD COLUMN interval_type int(11) NOT NULL default 0',
       'ALTER TABLE {prefix}invoice ADD COLUMN next_interval_date int(11) default NULL',
       "REPLACE INTO {prefix}state (id, data) VALUES ('version', '16')"
-    );
+    ));
   }
   if ($version < 17) {
-    $updates = array(
+    $updates = array_merge($updates, array(
       "UPDATE {prefix}invoice_state set name='StateOpen' where id=1",
       "UPDATE {prefix}invoice_state set name='StateSent' where id=2",
       "UPDATE {prefix}invoice_state set name='StatePaid' where id=3",
@@ -267,7 +267,14 @@ EOT
       "UPDATE {prefix}row_type set name='TypeLot' where name='erä'",
       "UPDATE {prefix}row_type set name='TypeKilometer' where name='km'",      
       "REPLACE INTO {prefix}state (id, data) VALUES ('version', '17')"
-    );
+    ));
+  }
+  if ($version < 18) {
+    $updates = array_merge($updates, array(
+      'ALTER TABLE {prefix}base ADD COLUMN country varchar(255) default NULL',
+      'ALTER TABLE {prefix}company ADD COLUMN country varchar(255) default NULL',
+      "REPLACE INTO {prefix}state (id, data) VALUES ('version', '18')"
+    ));
   }
   
   if (!empty($updates)) {

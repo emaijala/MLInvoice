@@ -83,11 +83,13 @@ case 'company':
     array(
       "name" => "default_ref_number", "label" => $GLOBALS['locCustomerDefaultRefNr'], "type" => "TEXT", "style" => "medium", "listquery" => "", "position" => 1, "allow_null" => TRUE ),
     array(
-      "name" => "street_address", "label" => $GLOBALS['locStreetAddr'], "type" => "TEXT", "style" => "medium", "listquery" => "", "position" => 0, "allow_null" => TRUE ),
+      "name" => "street_address", "label" => $GLOBALS['locStreetAddr'], "type" => "TEXT", "style" => "medium", "listquery" => "", "position" => 1, "allow_null" => TRUE ),
     array(
-      "name" => "zip_code", "label" => $GLOBALS['locZipCode'], "type" => "TEXT", "style" => "short", "listquery" => "", "position" => 1, "allow_null" => TRUE ),
+      "name" => "zip_code", "label" => $GLOBALS['locZipCode'], "type" => "TEXT", "style" => "short", "listquery" => "", "position" => 2, "allow_null" => TRUE ),
     array(
-      "name" => "city", "label" => $GLOBALS['locCity'], "type" => "TEXT", "style" => "medium", "listquery" => "", "position" => 2, "allow_null" => TRUE ),
+      "name" => "city", "label" => $GLOBALS['locCity'], "type" => "TEXT", "style" => "medium", "listquery" => "", "position" => 1, "allow_null" => TRUE ),
+    array(
+      "name" => "country", "label" => $GLOBALS['locCountry'], "type" => "TEXT", "style" => "medium", "listquery" => "", "position" => 2, "allow_null" => TRUE ),
     array(
       "name" => "phone", "label" => $GLOBALS['locPhone'], "type" => "TEXT", "style" => "medium", "listquery" => "", "position" => 1, "allow_null" => TRUE ),
     array(
@@ -530,11 +532,13 @@ EOF;
     array(
       "name" => "email", "label" => $GLOBALS['locEmail'], "type" => "TEXT", "style" => "medium", "listquery" => "", "position" => 2, "allow_null" => TRUE ),
     array(
-      "name" => "street_address", "label" => $GLOBALS['locStreetAddr'], "type" => "TEXT", "style" => "medium", "listquery" => "", "position" => 0, "allow_null" => TRUE ),
+      "name" => "street_address", "label" => $GLOBALS['locStreetAddr'], "type" => "TEXT", "style" => "medium", "listquery" => "", "position" => 1, "allow_null" => TRUE ),
     array(
-      "name" => "zip_code", "label" => $GLOBALS['locZipCode'], "type" => "TEXT", "style" => "short", "listquery" => "", "position" => 1, "allow_null" => TRUE ),
+      "name" => "zip_code", "label" => $GLOBALS['locZipCode'], "type" => "TEXT", "style" => "short", "listquery" => "", "position" => 2, "allow_null" => TRUE ),
     array(
-      "name" => "city", "label" => $GLOBALS['locCity'], "type" => "TEXT", "style" => "medium", "listquery" => "", "position" => 2, "allow_null" => TRUE ),
+      "name" => "city", "label" => $GLOBALS['locCity'], "type" => "TEXT", "style" => "medium", "listquery" => "", "position" => 1, "allow_null" => TRUE ),
+    array(
+      "name" => "country", "label" => $GLOBALS['locCountry'], "type" => "TEXT", "style" => "medium", "listquery" => "", "position" => 2, "allow_null" => TRUE ),
     array(
       "name" => "phone", "label" => $GLOBALS['locPhone'], "type" => "TEXT", "style" => "medium", "listquery" => "", "position" => 1, "allow_null" => TRUE ),
     array(

@@ -113,8 +113,17 @@ abstract class InvoicePrinterBase
     if ($senderData['zip_code'])
       $this->senderAddressLine .= $senderData['zip_code'] . ' ';
     $this->senderAddressLine .= $senderData['city'];
+    if ($senderData['country'] && $this->senderAddressLine) {
+      $this->senderAddressLine .= ', ';
+    }
+    $this->senderAddressLine .= $senderData['country'];
     
     $this->senderAddress = $senderData['name'] . "\n" . $senderData['street_address'] . "\n" . $senderData['zip_code'] . ' ' . $senderData['city'];
+    if ($senderData['country'] && $this->senderAddress) {
+      $this->senderAddress .= ', ';
+    }
+    $this->senderAddress .= $senderData['country'];
+    
     if ($senderData['phone'])
       $this->senderContactInfo = "\n" . $GLOBALS['locPDFPhone'] . ' ' . $senderData['phone'];
     else
@@ -259,14 +268,15 @@ abstract class InvoicePrinterBase
     }
     else
     {
+      $address = $senderData['street_address'] . "\n" . $senderData['zip_code'] . ' ' . $senderData['city'] . "\n" . $senderData['country'];
       $pdf->SetTextColor(125);
       $pdf->SetFont('Helvetica','B',10);
-      $pdf->SetY($pdf->GetY() + 5 + $this->addressYOffset);
+      $pdf->SetY($pdf->GetY() + $this->addressYOffset);
       $pdf->setX($pdf->GetX() + $this->addressXOffset);
       $pdf->Cell(120, 5, $senderData['name'], 0, 1);
       $pdf->SetFont('Helvetica','',10);
       $pdf->setX($pdf->GetX() + $this->addressXOffset);
-      $pdf->MultiCell(120, 5, $senderData['street_address'] . "\n" . $senderData['zip_code'] . ' ' . $senderData['city'],0,1);
+      $pdf->MultiCell(120, 5, $address, 0, 1);
       $pdf->SetY($pdf->GetY()+5);
     }
   }
