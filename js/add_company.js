@@ -3,7 +3,7 @@ function add_company(translations)
   var buttons = new Object();   
   buttons[translations["save"]] = function() { save_company(translations); };
   buttons[translations["close"]] = function() { $("#quick_add_company").dialog("close"); };
-  $("#quick_add_company").dialog({ modal: true, width: 420, height: 300, resizable: false, 
+  $("#quick_add_company").dialog({ modal: true, width: 420, height: 320, resizable: false, 
     buttons: buttons,
     title: translations["title"],
   });  
@@ -18,6 +18,7 @@ function save_company(translations)
   obj.street_address = document.getElementById("quick_street_address").value;
   obj.zip_code = document.getElementById("quick_zip_code").value;
   obj.city = document.getElementById("quick_city").value;
+  obj.country = document.getElementById("quick_country").value;
   $.ajax({
     "url": "json.php?func=put_company",
     "type": "POST",
