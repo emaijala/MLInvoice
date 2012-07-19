@@ -133,7 +133,7 @@ case 'product':
     array(
       'name' => 'unit_price', 'label' => $GLOBALS['locUnitPrice'], 'type' => 'INT', 'style' => 'medium', 'position' => 1, 'decimals' => getSetting('unit_price_decimals'), 'allow_null' => true ),
     array(
-      'name' => 'type_id', 'label' => $GLOBALS['locUnit'], 'type' => 'LIST', 'style' => 'short', 'listquery' => 'SELECT id, name FROM {prefix}row_type WHERE deleted=0 ORDER BY order_no;', 'position' => 2, 'default' => 'POST' ),
+      'name' => 'type_id', 'label' => $GLOBALS['locUnit'], 'type' => 'LIST', 'style' => 'short translated', 'listquery' => 'SELECT id, name FROM {prefix}row_type WHERE deleted=0 ORDER BY order_no;', 'position' => 2, 'default' => 'POST' ),
     array(
       'name' => 'price_decimals', 'label' => $GLOBALS['locPriceInvoiceDecimals'], 'type' => 'INT', 'style' => 'short', 'position' => 1, 'default' => 2 ),
     array(
