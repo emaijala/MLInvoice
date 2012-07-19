@@ -240,7 +240,7 @@ CREATE TABLE mlinvoice_state (
 
 SET NAMES 'utf8';
 
-INSERT INTO mlinvoice_state (id, data) VALUES ('version', '17');
+INSERT INTO mlinvoice_state (id, data) VALUES ('version', '19');
 
 INSERT INTO mlinvoice_invoice_state (id, name, order_no) VALUES (1, 'StateOpen', 5);
 INSERT INTO mlinvoice_invoice_state (id, name, order_no) VALUES (2, 'StateSent', 10);
@@ -258,10 +258,10 @@ INSERT INTO mlinvoice_row_type (id, name, order_no) VALUES (5, 'TypeYear', 25);
 INSERT INTO mlinvoice_row_type (id, name, order_no) VALUES (6, 'TypeLot', 30);
 INSERT INTO mlinvoice_row_type (id, name, order_no) VALUES (8, 'TypeKilometer', 35);
 
-INSERT INTO mlinvoice_session_type (id, name, order_no, time_out, access_level) VALUES (1, 'Käyttäjä', 1, 3600, 1);
-INSERT INTO mlinvoice_session_type (id, name, order_no, time_out, access_level) VALUES (2, 'Ylläpitäjä', 20, 3600, 99);
-INSERT INTO mlinvoice_session_type (id, name, order_no, time_out, access_level) VALUES (3, 'Käyttäjä - varmuuskopioija', 10, 3600, 90);
-INSERT INTO mlinvoice_session_type (id, name, order_no, time_out, access_level) VALUES (4, 'Vain laskujen ja raporttien tarkastelu', 0, 3600, 0);
+INSERT INTO mlinvoice_session_type (id, name, order_no, time_out, access_level) VALUES (1, 'SessionTypeUser', 1, 3600, 1);
+INSERT INTO mlinvoice_session_type (id, name, order_no, time_out, access_level) VALUES (2, 'SessionTypeAdmin', 20, 3600, 99);
+INSERT INTO mlinvoice_session_type (id, name, order_no, time_out, access_level) VALUES (3, 'SessionTypeBackupUser', 10, 3600, 90);
+INSERT INTO mlinvoice_session_type (id, name, order_no, time_out, access_level) VALUES (4, 'SessionTypeReadOnly', 0, 3600, 0);
 
 INSERT INTO mlinvoice_print_template (id, name, filename, parameters, output_filename, type, order_no) VALUES (1, 'PrintInvoiceFinnish', 'invoice_printer.php', 'invoice', 'lasku_%d.pdf', 'invoice', 5);
 INSERT INTO mlinvoice_print_template (id, name, filename, parameters, output_filename, type, order_no) VALUES (2, 'PrintDispatchNoteFinnish', 'invoice_printer.php', 'dispatch', 'lahetysluettelo_%d.pdf', 'invoice', 20);

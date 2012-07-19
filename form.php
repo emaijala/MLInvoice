@@ -74,6 +74,7 @@ function createForm($strFunc, $strList, $strForm)
     unset($astrValues);
     unset($_POST);
     unset($_REQUEST);
+    $readOnlyForm = false;
   }
   
   $astrValues = getPostValues($astrFormElements, isset($intKeyValue) ? $intKeyValue : FALSE);
@@ -94,7 +95,7 @@ function createForm($strFunc, $strList, $strForm)
     }
   }
   
-  if ($blnDelete && $intKeyValue) 
+  if ($blnDelete && $intKeyValue && !$readOnlyForm) 
   {
     $strQuery = "UPDATE $strTable SET deleted=1 WHERE id=?";
     mysql_param_query($strQuery, array($intKeyValue));
@@ -133,6 +134,7 @@ function createForm($strFunc, $strList, $strForm)
     unset($intKeyValue);
     unset($_POST);
     $blnNew = TRUE;
+    $readOnlyForm = false;
   }
   
   ?>
@@ -144,7 +146,7 @@ function createForm($strFunc, $strList, $strForm)
 
   <div class="form_container">
   
-<?php createFormButtons($blnNew, $copyLinkOverride, 1) ?>
+<?php createFormButtons($blnNew, $copyLinkOverride, true, $readOnlyForm) ?>
     <div class="form">
       <form method="post" name="admin_form" id="admin_form">
       <input type="hidden" name="copyact" value="0">
@@ -158,7 +160,7 @@ function createForm($strFunc, $strList, $strForm)
   $prevPosition = false;
   $prevColSpan = 1;
   $rowOpen = false;
-  $fieldMode = sesWriteAccess() ? 'MODIFY' : 'READONLY';
+  $fieldMode = sesWriteAccess() && !$readOnlyForm ? 'MODIFY' : 'READONLY';
   foreach ($astrFormElements as $elem) 
   {
     if ($elem['type'] === false)
@@ -484,7 +486,7 @@ function popup_dialog(url, on_close, dialog_title, event, width, height)
 </script>
 
 <?php 
-  createFormButtons($blnNew, $copyLinkOverride);
+  createFormButtons($blnNew, $copyLinkOverride, false, $readOnlyForm);
   echo "  </div>\n";
 }
 
@@ -1029,21 +1031,30 @@ function popup_editor(event, title, id, copy_row)
 <?php
 }
 
-function createFormButtons($boolNew, $copyLinkOverride, $spinner = 0)
+function createFormButtons($boolNew, $copyLinkOverride, $spinner, $readOnlyForm)
 {
   if (!sesWriteAccess())
     return;
 ?>
     <div class="form_buttons">
+<?php 
+  if (!$readOnlyForm) {
+?>
       <a class="actionlink save_button" href="#" onclick="save_record(); return false;"><?php echo $GLOBALS['locSave']?></a>
 <?php
+  }
+
   if (!$boolNew) 
   {
     $copyCmd = $copyLinkOverride ? "window.location='$copyLinkOverride'; return false;" : "document.getElementById('admin_form').copyact.value=1; document.getElementById('admin_form').submit(); return false;";
 ?>      <a class="actionlink" href="#" onclick="<?php echo $copyCmd?>"><?php echo $GLOBALS['locCopy']?></a>
       <a class="actionlink" href="#" onclick="document.getElementById('admin_form').newact.value=1; document.getElementById('admin_form').submit(); return false;"><?php echo $GLOBALS['locNew']?></a>
+<?php 
+    if (!$readOnlyForm) {
+?>
       <a class="actionlink" href="#" onclick="if(confirm('<?php echo $GLOBALS['locConfirmDelete']?>')==true) {  document.getElementById('admin_form').deleteact.value=1; document.getElementById('admin_form').submit(); return false;} else{ return false; }"><?php echo $GLOBALS['locDelete']?></a>        
 <?php
+    } 
   }
   if ($spinner)
     echo '     <span id="spinner" style="visibility: hidden"><img src="images/spinner.gif" alt=""></span>' . "\n";

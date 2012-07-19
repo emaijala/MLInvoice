@@ -32,7 +32,9 @@ $copyLinkOverride = '';
 $strJSONType = '';
 $clearRowValuesAfterAdd = false;
 $onAfterRowAdded = '';
-switch ( $strForm ) {
+$readOnlyForm = false;
+
+switch ($strForm) {
 
 case 'company':
   $strTable = '{prefix}company';
@@ -586,33 +588,28 @@ EOF;
 break;
 
 case 'invoice_state':
+  $levelsAllowed = array(ROLE_ADMIN);
   $strTable = '{prefix}invoice_state';
   $strJSONType = 'invoice_state';
   
-  $elem_attributes = '';
   $intId = getRequest('id', FALSE);
   if ($intId && $intId <= 7)
   {
-    $elem_attributes = 'readonly';
-    $astrFormElements = array(
-      array(
-        'name' => 'label', 'label' => $GLOBALS['locSystemOnly'], 'type' => 'LABEL')
-    );
+    $readOnlyForm = true;
   }
-  else
-  {
-    $astrFormElements = array(
-      array(
-        'name' => 'name', 'label' => $GLOBALS['locStatus'], 'type' => 'TEXT', 'style' => 'medium', 'position' => 1, 'elem_attributes' => $elem_attributes ),
-      array(
-        'name' => 'order_no', 'label' => $GLOBALS['locOorderNo'], 'type' => 'INT', 'style' => 'short', 'position' => 2, 'elem_attributes' => $elem_attributes )
-     );
-   }
+  $astrFormElements = array(
+    array(
+      'name' => 'name', 'label' => $GLOBALS['locStatus'], 'type' => 'TEXT', 'style' => 'medium', 'position' => 1 ),
+    array(
+      'name' => 'order_no', 'label' => $GLOBALS['locOrderNr'], 'type' => 'INT', 'style' => 'short', 'position' => 2 )
+   );
 break;
 
 case 'row_type':
+  $levelsAllowed = array(ROLE_ADMIN);
   $strTable = '{prefix}row_type';
   $strJSONType = 'row_type';
+
   $astrFormElements = array(
     array(
       'name' => 'name', 'label' => $GLOBALS['locRowType'], 'type' => 'TEXT', 'style' => 'medium', 'position' => 1 ),
@@ -625,6 +622,12 @@ case 'session_type':
   $levelsAllowed = array(ROLE_ADMIN);
   $strTable = '{prefix}session_type';
   $strJSONType = 'session_type';
+  
+  $intId = getRequest('id', FALSE);
+  if ($intId && $intId <= 4)
+  {
+    $readOnlyForm = true;
+  }  
   $astrFormElements = array(
     array(
       'name' => 'name', 'label' => $GLOBALS['locSessionType'], 'type' => 'TEXT', 'style' => 'medium', 'position' => 1 ),
@@ -645,9 +648,9 @@ case 'user':
     array(
       'name' => 'login', 'label' => $GLOBALS['locLoginName'], 'type' => 'TEXT', 'style' => 'medium', 'position' => 1, 'unique' => true ),
     array(
-      'name' => 'PASSWD', 'label' => $GLOBALS['locPassword'], 'type' => 'PASSWD', 'style' => 'medium', 'position' => 2, 'allow_null' => true ),
+      'name' => 'passwd', 'label' => $GLOBALS['locPassword'], 'type' => 'PASSWD', 'style' => 'medium', 'position' => 2, 'allow_null' => true ),
     array(
-      'name' => 'type_id', 'label' => $GLOBALS['locType'], 'type' => 'LIST', 'style' => 'medium', 'listquery' => 'SELECT id, name FROM {prefix}session_type WHERE deleted=0 ORDER BY order_no', 'position' => 0 )
+      'name' => 'type_id', 'label' => $GLOBALS['locType'], 'type' => 'LIST', 'style' => 'medium translated', 'listquery' => 'SELECT id, name FROM {prefix}session_type WHERE deleted=0 ORDER BY order_no', 'position' => 0 )
   );
 break;
 

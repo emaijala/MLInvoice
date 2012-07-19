@@ -152,7 +152,6 @@ function getPageTitle($strFunc, $strList, $strForm)
       switch ($strForm)
       {
       case 'base': return $GLOBALS['locBase']; 
-      case 'invoice_state': return $GLOBALS['locInvoiceState']; 
       case 'product': return $GLOBALS['locProduct'];
       default: return $GLOBALS['locSettings'];
       }
@@ -163,7 +162,6 @@ function getPageTitle($strFunc, $strList, $strForm)
       {
       case 'settings': return $GLOBALS['locGeneralSettings']; 
       case 'base': return $GLOBALS['locBases']; 
-      case 'invoice_state': return $GLOBALS['locInvoiceStates']; 
       case 'product': return $GLOBALS['locProducts']; 
       default: return $GLOBALS['locSettings'];
       }
@@ -178,6 +176,7 @@ function getPageTitle($strFunc, $strList, $strForm)
       case 'session_type': return $GLOBALS['locSessionType']; 
       case 'row_type': return $GLOBALS['locRowType']; 
       case 'print_template': return $GLOBALS['locPrintTemplate']; 
+      case 'invoice_state': return $GLOBALS['locInvoiceState']; 
       default: return $GLOBALS['locSystem'];
       }
     }
@@ -189,6 +188,7 @@ function getPageTitle($strFunc, $strList, $strForm)
       case 'session_type': return $GLOBALS['locSessionTypes'];
       case 'row_type': return $GLOBALS['locRowTypes']; 
       case 'print_template': return $GLOBALS['locPrintTemplates']; 
+      case 'invoice_state': return $GLOBALS['locInvoiceStates']; 
       default: return $GLOBALS['locSystem'];
       }
     }

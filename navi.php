@@ -41,7 +41,6 @@ function createFuncMenu($strFunc)
   case "system":
     $astrNaviLinks =  array( 
       array("href" => "list=user", "text" => $GLOBALS['locUsers'], "levels_allowed" => array(ROLE_ADMIN)),
-      array("href" => "list=session_type", "text" => $GLOBALS['locSessionTypes'], "levels_allowed" => array(ROLE_ADMIN)),
       array("href" => "list=invoice_state", "text" => $GLOBALS['locInvoiceStates'], "levels_allowed" => array(ROLE_ADMIN)),
       array("href" => "list=row_type", "text" => $GLOBALS['locRowTypes'], "levels_allowed" => array(ROLE_ADMIN)),
       array("href" => "list=print_template", "text" => $GLOBALS['locPrintTemplates'], "levels_allowed" => array(ROLE_ADMIN)),

@@ -128,7 +128,7 @@ case 'invoice_state':
    $astrShowFields = 
     array( 
         array("name" => "order_no", 'width' => 150, "type" => "TEXT", "header" => $GLOBALS['locOrderNr']),
-        array("name" => "name", 'width' => 450, "type" => "TEXT", "header" => $GLOBALS['locStatus'])
+        array("name" => "name", 'width' => 450, "type" => "TEXT", "header" => $GLOBALS['locStatus'], 'translate' => true)
     );
     //array('order_no','name');
    $strMainForm = "invoice_state";
@@ -211,7 +211,7 @@ case 'session_type':
    $astrShowFields = 
     array( 
         array("name" => "order_no", 'width' => 150, "type" => "TEXT", "header" => $GLOBALS['locOrderNr']),
-        array("name" => "name", 'width' => 450, "type" => "TEXT", "header" => $GLOBALS['locSessionType'])
+        array("name" => "name", 'width' => 450, "type" => "TEXT", "header" => $GLOBALS['locSessionType'], 'translate' => true)
     );
     //array('order_no','name');
    $strMainForm = "session_type";

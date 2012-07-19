@@ -278,6 +278,15 @@ EOT
       "REPLACE INTO {prefix}state (id, data) VALUES ('version', '18')"
     ));
   }
+  if ($version < 19) {
+    $updates = array_merge($updates, array(
+      "UPDATE {prefix}session_type set name='SessionTypeUser' where name='Käyttäjä'",
+      "UPDATE {prefix}session_type set name='SessionTypeAdmin' where name='Ylläpitäjä'",
+      "UPDATE {prefix}session_type set name='SessionTypeBackupUser' where name='Käyttäjä - varmuuskopioija'",
+      "UPDATE {prefix}session_type set name='SessionTypeReadOnly' where name='Vain laskujen ja raporttien tarkastelu'",
+      "REPLACE INTO {prefix}state (id, data) VALUES ('version', '19')"
+    ));
+  }
   
   if (!empty($updates)) {
     foreach ($updates as $update) {
