@@ -240,6 +240,7 @@ EOT
   }
   if ($version < 17) {
     $updates = array_merge($updates, array(
+      "ALTER TABLE {prefix}invoice_state CHANGE COLUMN name name varchar(255)",
       "UPDATE {prefix}invoice_state set name='StateOpen' where id=1",
       "UPDATE {prefix}invoice_state set name='StateSent' where id=2",
       "UPDATE {prefix}invoice_state set name='StatePaid' where id=3",
@@ -259,6 +260,7 @@ EOT
       "UPDATE {prefix}print_template set name='PrintInvoiceFinnishFormless' where name='Lomakkeeton lasku'",
       "INSERT INTO {prefix}print_template (name, filename, parameters, output_filename, type, order_no, inactive) VALUES ('PrintInvoiceEnglishWithVirtualBarcode', 'invoice_printer.php', 'invoice,en,Y', 'invoice_%d.pdf', 'invoice', 70, 1)",
       "INSERT INTO {prefix}print_template (name, filename, parameters, output_filename, type, order_no, inactive) VALUES ('PrintInvoiceEnglishFormless', 'invoice_printer_formless.php', 'invoice,en,N', 'invoice_%d.pdf', 'invoice', 80, 1)",
+      "ALTER TABLE {prefix}row_type CHANGE COLUMN name name varchar(255)",
       "UPDATE {prefix}row_type set name='TypeHour' where name='h'",
       "UPDATE {prefix}row_type set name='TypeDay' where name='pv'",
       "UPDATE {prefix}row_type set name='TypeMonth' where name='kk'",

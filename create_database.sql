@@ -1,7 +1,7 @@
 CREATE TABLE mlinvoice_invoice_state (
   id int(11) NOT NULL auto_increment,
   deleted tinyint NOT NULL default 0,
-  name varchar(15) default NULL,
+  name varchar(255) default NULL,
   order_no int(11) default NULL,
   PRIMARY KEY (id)
 ) ENGINE=INNODB AUTO_INCREMENT=4 CHARACTER SET utf8 COLLATE utf8_swedish_ci;
@@ -9,7 +9,7 @@ CREATE TABLE mlinvoice_invoice_state (
 CREATE TABLE mlinvoice_row_type (
   id int(11) NOT NULL auto_increment,
   deleted tinyint NOT NULL default 0,
-  name varchar(15) default NULL,
+  name varchar(255) default NULL,
   order_no int(11) default NULL,
   PRIMARY KEY (id)
 ) ENGINE=INNODB AUTO_INCREMENT=9 CHARACTER SET utf8 COLLATE utf8_swedish_ci;
