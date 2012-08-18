@@ -71,6 +71,7 @@ $xUACompatible  <title>$strTitle</title>
   <link rel="stylesheet" type="text/css" href="css/style.css">
   <script type="text/javascript" src="jquery/js/jquery-1.6.2.min.js"></script>
   <script type="text/javascript" src="jquery/js/jquery.json-2.3.min.js"></script>
+  <script type="text/javascript" src="jquery/js/jquery.cookie.js"></script>
   <script type="text/javascript" src="jquery/js/jquery-ui-1.8.16.custom.min.js"></script>
   <script type="text/javascript" src="datatables/media/js/jquery.dataTables.min.js"></script>
   <script type="text/javascript" src="jquery/js/jquery.floatingmessage.js"></script>
@@ -232,7 +233,6 @@ function htmlFormElement($strName, $strType, $strValue, $strStyle, $strListQuery
         $strStyle = str_replace(' hidezerovalue', '', $strStyle);
         $hideZero = TRUE;
       }
-      $strValue = str_replace(".", ",", $strValue); // TODO: make this configurable
       if ($hideZero && $strValue == 0)
         $strValue = '';
       $strFormElement = 

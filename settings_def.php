@@ -29,6 +29,7 @@ $arrSettings = array(
     50 => '50',
     100 => '100')
   ),
+  'check_updates' => array('label' => $GLOBALS['locSettingCheckForUpdates'], 'type' => 'CHECK', 'style' => 'medium', 'position' => 1, 'default' => 0, 'allow_null' => TRUE ), 
   
   'invoice_sep' => array('label' => $GLOBALS['locSettingInvoices'], 'type' => 'LABEL'),
   

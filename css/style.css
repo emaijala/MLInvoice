@@ -40,7 +40,7 @@ div.breadcrumbs a {
   font-size: 1.1em;
 }
 
-div.version {
+div#version {
   float: right;
   margin-top: 4px;
   margin-right: 10px; 

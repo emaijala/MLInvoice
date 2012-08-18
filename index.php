@@ -117,10 +117,36 @@ foreach ($arrHistory as $arrHE)
 <?php 
 if ($strFunc == 'open_invoices' && !$strForm) {
 ?>
-  <div class="version">
+  <div id="version">
     MLInvoice <?php echo $softwareVersion?>
   </div>
+<?php 
+  if (getSetting('check_updates')) {
+?>
+  <script type="text/javascript">
+    $(document).ready(function() {
+      if ($.cookie("updateversion")) {
+        updateVersionMessage($.parseJSON($.cookie("updateversion")));
+        return;
+      }
+    	$.getJSON('http://www.labs.fi/mlinvoice_version.php?callback=?', function(data) {
+        updateVersionMessage(data);
+    	});
+    });
+    	
+    function updateVersionMessage(data)
+    {
+    	var title = new String("<?php echo $GLOBALS['locUpdateAvailableTitle']?>").replace("{version}", data.version).replace("{date}", data.date);
+      if (data.version > <?php echo $softwareVersion?>) {
+        $("<a/>").attr("href", data.url).attr("title", title).text("<?php echo $GLOBALS['locUpdateAvailable']?>").appendTo("#version");
+      } else if (data.version < <?php echo $softwareVersion?>) {
+        $("<span/>").text("<?php echo $GLOBALS['locPrereleaseVersion']?>").appendTo("#version");
+      }
+      $.cookie("updateversion", $.toJSON(data), { expires: 1 });
+    }
+  </script>
 <?php
+  }
 }
 if ($strFunc == 'system' && getRequest('operation', '') == 'export' && sesAdminAccess())
 {
