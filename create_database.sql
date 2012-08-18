@@ -113,11 +113,11 @@ CREATE TABLE mlinvoice_product (
   product_code varchar(100) NULL,
   product_group varchar(100) NULL,
   internal_info text,
-  unit_price decimal(9,5) NULL,
+  unit_price decimal(15,5) NULL,
   type_id int(11) default NULL,
   vat_percent decimal(9,1) NOT NULL default 0,
   vat_included tinyint NOT NULL default 0,
-  discount decimal(3,1) NULL,
+  discount decimal(4,1) NULL,
   price_decimals decimal(1,0) NOT NULL default 2,
   PRIMARY KEY (id),
   FOREIGN KEY (type_id) REFERENCES mlinvoice_row_type(id)
@@ -157,13 +157,13 @@ CREATE TABLE mlinvoice_invoice_row (
   description varchar(255) default NULL,
   type_id int(11) default NULL,
   pcs decimal(9,2) default NULL,
-  price decimal(9,5) default NULL,
+  price decimal(15,5) default NULL,
   row_date int(11) default NULL,
   vat decimal(9,1) NOT NULL default 0,
   vat_included tinyint NOT NULL default 0,
   order_no int(11) default NULL,
   reminder_row tinyint NOT NULL default 0,
-  discount decimal(3,1) NULL,
+  discount decimal(4,1) NULL,
   PRIMARY KEY (id),
   FOREIGN KEY (invoice_id) REFERENCES mlinvoice_invoice(id) ON DELETE CASCADE,
   FOREIGN KEY (product_id) REFERENCES mlinvoice_product(id),
@@ -240,7 +240,7 @@ CREATE TABLE mlinvoice_state (
 
 SET NAMES 'utf8';
 
-INSERT INTO mlinvoice_state (id, data) VALUES ('version', '19');
+INSERT INTO mlinvoice_state (id, data) VALUES ('version', '20');
 
 INSERT INTO mlinvoice_invoice_state (id, name, order_no) VALUES (1, 'StateOpen', 5);
 INSERT INTO mlinvoice_invoice_state (id, name, order_no) VALUES (2, 'StateSent', 10);
