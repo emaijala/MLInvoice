@@ -289,10 +289,10 @@ EOT
   }
   if ($version < 20) {
     $updates = array_merge($updates, array(
-      "ALTER TABLE vllasku_product CHANGE COLUMN unit_price unit_price decimal(15,5)",
-      "ALTER TABLE vllasku_invoice_row CHANGE COLUMN price price decimal(15,5)",
-      "ALTER TABLE vllasku_product CHANGE COLUMN discount discount decimal(4,1) NULL",
-      "ALTER TABLE vllasku_invoice_row CHANGE COLUMN discount discount decimal(4,1) NULL", 
+      "ALTER TABLE {prefix}product CHANGE COLUMN unit_price unit_price decimal(15,5)",
+      "ALTER TABLE {prefix}invoice_row CHANGE COLUMN price price decimal(15,5)",
+      "ALTER TABLE {prefix}product CHANGE COLUMN discount discount decimal(4,1) NULL",
+      "ALTER TABLE {prefix}invoice_row CHANGE COLUMN discount discount decimal(4,1) NULL", 
       "REPLACE INTO {prefix}state (id, data) VALUES ('version', '20')"
     ));
   }
