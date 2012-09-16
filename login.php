@@ -70,7 +70,7 @@ if ($strLogon)
         switch (sesCreateSession($strLogin, $strPasswd))
         {
         case 'OK':
-            if ($backlink == '1') {
+            if ($backlink == '1' && isset($_SESSION['BACKLINK'])) {
               header('Location: ' . $_SESSION['BACKLINK']);
             } else {
               header('Location: ' . getSelfPath() . '/index.php');
