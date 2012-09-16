@@ -93,7 +93,7 @@ class ProductReport
     while ($row = mysql_fetch_assoc($intRes))
     {
       $intStateId = $row['id'];
-      $strStateName = $row['name'];
+      $strStateName = $GLOBALS['loc' . $row['name']];
       $tmpSelected = getRequest("stateid_$intStateId", TRUE) ? TRUE : false;
       $strChecked = $tmpSelected ? ' checked' : '';
       if (!$first) {
@@ -215,6 +215,9 @@ class ProductReport
       $strDescription = $row['description'];
       $intCount = $row['pcs'];
       $strUnit = $row['unit'];
+      if ($strUnit) {
+        $strUnit = $GLOBALS["loc$strUnit"];
+      }
       $intSum = $row['total_price'];
       $intVATPercent = $row['vat'];
       

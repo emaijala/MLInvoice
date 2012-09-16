@@ -98,7 +98,7 @@ class InvoiceReport
     while ($row = mysql_fetch_assoc($intRes))
     {
       $intStateId = $row['id'];
-      $strStateName = $row['name'];
+      $strStateName = $GLOBALS['loc' . $row['name']];
       $tmpSelected = getRequest("stateid_$intStateId", TRUE) ? TRUE : false;
       $strChecked = $tmpSelected ? ' checked' : '';
       if (!$first) {
@@ -209,7 +209,7 @@ class InvoiceReport
       $intInvoiceID = $row['id'];
       $strInvoiceName = $row['invoice_name'];
       $strInvoiceNr = $row['invoice_no'];
-      $strInvoiceState = $row['state'];
+      $strInvoiceState = $GLOBALS['loc' . $row['state']];
       $strRefNumber = $row['ref_number'];
       $strInvoiceDate = dateConvDBDate2Date($row['invoice_date']);
       $strDueDate = dateConvDBDate2Date($row['due_date']);
