@@ -98,7 +98,7 @@ abstract class InvoicePrinterBase
     $this->senderAddressLine = $senderData['name'];
     $strCompanyID = trim($senderData['company_id']);
     if ($strCompanyID)
-      $strCompanyID = $GLOBALS['locPDFClientVATID'] . ": $strCompanyID";
+      $strCompanyID = $GLOBALS['locPDFVATID'] . ": $strCompanyID";
     if ($strCompanyID)
       $strCompanyID .= ', ';
     if ($senderData['vat_registered'])
