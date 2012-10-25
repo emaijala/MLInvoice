@@ -141,7 +141,7 @@ case 'product':
     array(
       'name' => 'discount', 'label' => $GLOBALS['locDiscountPercent'], 'type' => 'INT', 'style' => 'percent', 'position' => 2, 'allow_null' => true ),
     array(
-      'name' => 'vat_percent', 'label' => $GLOBALS['locVATPercent'], 'type' => 'INT', 'style' => 'short', 'position' => 1, 'default' => getSetting('invoice_default_vat_percent') ),
+      'name' => 'vat_percent', 'label' => $GLOBALS['locVATPercent'], 'type' => 'INT', 'style' => 'short', 'position' => 1, 'default' => getSetting('invoice_default_vat_percent'), 'decimals' => 1 ),
     array(
       'name' => 'vat_included', 'label' => $GLOBALS['locVATIncluded'], 'type' => 'CHECK', 'style' => 'medium', 'position' => 2, 'default' => FALSE, 'allow_null' => true ),
   );
@@ -482,7 +482,7 @@ EOS;
      array(
         'name' => 'discount', 'label' => $GLOBALS['locDiscount'], 'type' => 'INT', 'style' => 'percent', 'position' => 0, 'default' => 0, 'allow_null' => true ),
      array(
-        'name' => 'vat', 'label' => $GLOBALS['locVAT'], 'type' => 'INT', 'style' => 'percent', 'position' => 0, 'default' => getSetting('invoice_default_vat_percent'), 'allow_null' => true ),
+        'name' => 'vat', 'label' => $GLOBALS['locVAT'], 'type' => 'INT', 'style' => 'percent', 'position' => 0, 'default' => str_replace('.', $GLOBALS['locDecimalSeparator'], getSetting('invoice_default_vat_percent')), 'allow_null' => true ),
      array(
         'name' => 'vat_included', 'label' => $GLOBALS['locVATInc'], 'type' => 'CHECK', 'style' => 'xshort', 'position' => 0, 'default' => 0, 'allow_null' => true ),
      array(
