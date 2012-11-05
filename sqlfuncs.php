@@ -296,6 +296,14 @@ EOT
       "REPLACE INTO {prefix}state (id, data) VALUES ('version', '20')"
     ));
   }
+  if ($version < 21) {
+    $updates = array_merge($updates, array(
+      "INSERT INTO {prefix}print_template (name, filename, parameters, output_filename, type, order_no, inactive) VALUES ('PrintInvoiceSwedish', 'invoice_printer.php', 'invoice,sv-FI,Y', 'faktura_%d.pdf', 'invoice', 90, 1)",
+      "INSERT INTO {prefix}print_template (name, filename, parameters, output_filename, type, order_no, inactive) VALUES ('PrintInvoiceSwedishFormless', 'invoice_printer_formless.php', 'invoice,sv-FI,N', 'faktura_%d.pdf', 'invoice', 100, 1)",
+      "REPLACE INTO {prefix}state (id, data) VALUES ('version', '21')"
+    ));
+  }
+  
   
   if (!empty($updates)) {
     foreach ($updates as $update) {

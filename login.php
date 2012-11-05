@@ -117,7 +117,7 @@ if (isset($languages)) {
       continue;
     }
 ?>
-<a href="login.php?lang=<?php echo $code?>"><?php echo htmlentities($name)?></a><br/>
+<a href="login.php?lang=<?php echo $code?>"><?php echo htmlspecialchars($name)?></a><br/>
 <?php
   }
   echo '<br/>';

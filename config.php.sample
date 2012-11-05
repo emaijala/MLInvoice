@@ -21,7 +21,7 @@ Tämä ohjelma on vapaa. Lue oheinen LICENSE.
 
 // Uncomment below to display language selection list in login screen.
 // Poista kommentit allaolevasta, jotta kirjautumissivulla näytetään kielen valinta.  
-//define('_UI_LANGUAGE_SELECTION_', 'en-US=In English|fi-FI=Suomeksi');
+//define('_UI_LANGUAGE_SELECTION_', 'en-US=In English|fi-FI=Suomeksi|sv-FI=På svenska');
 
 // Database server address
 // Tietokantapalvelimen osoite

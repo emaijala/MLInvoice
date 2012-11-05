@@ -1,0 +1,6 @@
+; This is an example of local language string overrides
+; Copy this file to invoice_se-FI.local.ini and add/change strings to modify texts on the invoice prinouts 
+
+; This example will add a currency symbol to all prices
+CurrencySuffix = ' €'
+TotalIncludingVAT = 'Slutsumma total (inkl. moms) EUR'
