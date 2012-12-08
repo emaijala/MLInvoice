@@ -391,3 +391,12 @@ function instantiateInvoicePrinter($printTemplateFile)
   require_once $printTemplateFile;
   return new $className();
 }
+
+function formatRefNumber($refNumber)
+{
+  if (strncasecmp($refNumber, 'RF', 2) == 0) 
+  {
+    return strtoupper(trim(chunk_split($refNumber, 4, ' ')));
+  }
+  return trim(strrev(chunk_split(strrev($refNumber), 5, ' ')));  
+}

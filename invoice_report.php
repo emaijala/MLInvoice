@@ -32,8 +32,18 @@ require_once "pdf.php";
 
 class InvoiceReport
 {
+  protected $fields = array(
+    'invoice_no' => array('label' => 'locInvoiceNumber', 'checked' => true),
+    'invoice_date' => array('label' => 'locInvDate', 'checked' => true),
+    'due_date' => array('label' => 'locDueDate', 'checked' => true),
+    'payment_date' => array('label' => 'locPaymentDate', 'checked' => false),
+    'company_name' => array('label' => 'locPayer', 'checked' => true),
+    'status' => array('label' => 'locInvoiceState', 'checked' => true),
+    'ref_number' => array('label' => 'locReferenceNumber', 'checked' => false),
+    'sums' => array('label' => 'locSum', 'checked' => true)
+  );
 
-  private $pdf = null;
+  protected $pdf = null;
 
   public function createReport()
   {
@@ -47,12 +57,16 @@ class InvoiceReport
     
     $intBaseId = getRequest('base', false);
     $intCompanyId = getRequest('company', false);
-    $dateRange = getRequest('date', '');
+    $invoiceDateRange = getRequest('date', '');
+    $paymentDateRange = getRequest('payment_date', '');
+    $fields = getRequest('fields[]', array());
 ?>
     
   <script type="text/javascript">
   $(document).ready(function() { 
-    $('input[class~="hasDateRangePicker"]').daterangepicker(<?php echo $GLOBALS['locDateRangePickerOptions']?>);
+    $('input[class~="hasDateRangePicker"]').each(function() {
+      $(this).daterangepicker(<?php echo $GLOBALS['locDateRangePickerOptions']?>);
+    });
   });
   </script>
   
@@ -64,9 +78,14 @@ class InvoiceReport
     
     <div class="unlimited_label"><strong><?php echo $GLOBALS['locInvoiceReport']?></strong></div>
     
-    <div class="medium_label"><?php echo $GLOBALS['locDateInterval']?></div>
-    <div class="field"><?php echo htmlFormElement('date', 'TEXT', $dateRange, 'medium hasDateRangePicker', '', 'MODIFY', false)?></div>
+  <div style="float: left; clear: both">
+    
+    <div class="medium_label"><?php echo $GLOBALS['locInvoiceDateInterval']?></div>
+    <div class="field"><?php echo htmlFormElement('date', 'TEXT', $invoiceDateRange, 'medium hasDateRangePicker', '', 'MODIFY', false)?></div>
 
+    <div class="medium_label"><?php echo $GLOBALS['locPaymentDateInterval']?></div>
+    <div class="field"><?php echo htmlFormElement('payment_date', 'TEXT', $paymentDateRange, 'medium hasDateRangePicker', '', 'MODIFY', false)?></div>
+    
     <div class="medium_label"><?php echo $GLOBALS['locBiller']?></div>
     <div class="field"><?php echo htmlFormElement('base', 'LIST', $intBaseId, 'medium', 'SELECT id, name FROM {prefix}base WHERE deleted=0 ORDER BY name', 'MODIFY', false)?></div>
 
@@ -77,6 +96,8 @@ class InvoiceReport
     <div class="field"><input type="radio" name="format" value="html" checked="checked"><?php echo $GLOBALS['locPrintFormatHTML']?></input></div>
     <div class="medium_label"></div>
     <div class="field"><input type="radio" name="format" value="pdf"><?php echo $GLOBALS['locPrintFormatPDF']?></input></div>
+    <div class="medium_label"></div>
+    <div class="field"><input type="radio" name="format" value="pdfl"><?php echo $GLOBALS['locPrintFormatPDFLandscape']?></input></div>
     <div class="field_sep"></div>
     
     <div class="medium_label"><?php echo $GLOBALS['locPrintGrouping']?></div>
@@ -86,7 +107,7 @@ class InvoiceReport
     <div class="medium_label"></div>
     <div class="field"><input type="radio" name="grouping" value="month"><?php echo $GLOBALS['locPrintGroupingMonth']?></input></div>
     <div class="field_sep">&nbsp;</div>
-    
+
     <div class="medium_label"><?php echo $GLOBALS['locPrintReportStates']?></div>
 <?php
     $strQuery = 
@@ -102,14 +123,32 @@ class InvoiceReport
       $tmpSelected = getRequest("stateid_$intStateId", TRUE) ? TRUE : false;
       $strChecked = $tmpSelected ? ' checked' : '';
       if (!$first) {
-        echo "    <div class=\"medium_label\"></div>\n";
+        echo "      <div class=\"medium_label\"></div>\n";
       }
       $first = false;
 ?>
-    <div class="field"><input type="checkbox" name="stateid_<?php echo $intStateId?>" value="1"<?php echo $strChecked?>> <?php echo htmlspecialchars($strStateName)?></div>
+      <div class="field"><input type="checkbox" name="stateid_<?php echo $intStateId?>" value="1"<?php echo $strChecked?>> <?php echo htmlspecialchars($strStateName)?></div>
 <?php
     }
 ?>
+    </div>
+    <div style="float: left; margin-left: 40px">
+      <div class="medium_label"><?php echo $GLOBALS['locPrintFields']?></div>
+<?php
+    $first = true;
+    foreach ($this->fields as $field => $spec) {
+      $label = $GLOBALS[$spec['label']];
+      $checked = $spec['checked'] ? 'checked="checked"' : '';
+      if (!$first) {
+        echo "      <div class=\"medium_label\"></div>\n";
+      }
+      ?>
+        <div class="field"><input type="checkbox" name="fields[]" value="<?php echo $field?>" <?php echo $checked?>> <?php echo $label?></div>
+<?php
+      $first = false;      
+    }
+?>
+    </div>
     <div class="medium_label">
       <a class="actionlink" href="#" onclick="document.getElementById('params').submit(); return false;"><?php echo $GLOBALS['locCreateReport']?></a>
     </div>
@@ -126,22 +165,31 @@ class InvoiceReport
     $endDate = getRequest('until', false);
     $grouping = getRequest('grouping', '');
     $format = getRequest('format', 'html');
-  
+    $printFields = getRequest('fields', array());
+    
     $dateRange = explode(' - ', getRequest('date', ''));
     $startDate = $dateRange[0];
     $endDate = isset($dateRange[1]) ? $dateRange[1] : ''; 
-        
     if ($startDate) {
       $startDate = dateConvDate2DBDate($startDate);
     }
     if ($endDate) {
       $endDate = dateConvDate2DBDate($endDate);
     }
+    $paymentDateRange = explode(' - ', getRequest('payment_date', ''));
+    $paymentStartDate = $paymentDateRange[0];
+    $paymentEndDate = isset($paymentDateRange[1]) ? $paymentDateRange[1] : '';
+    if ($paymentStartDate) {
+      $paymentStartDate = dateConvDate2DBDate($paymentStartDate);
+    }
+    if ($paymentEndDate) {
+      $paymentEndDate = dateConvDate2DBDate($paymentEndDate);
+    }
     
     $arrParams = array();
     
     $strQuery = 
-        "SELECT i.id, i.invoice_no, i.invoice_date, i.due_date, i.ref_number, i.name AS invoice_name, i.reference, c.company_name AS name, c.billing_address, ist.name as state ".
+        "SELECT i.id, i.invoice_no, i.invoice_date, i.due_date, i.payment_date, i.ref_number, i.ref_number, c.company_name AS name, c.billing_address, ist.name as state ".
         "FROM {prefix}invoice i ".
         "LEFT OUTER JOIN {prefix}company c ON c.id = i.company_id ".
         "LEFT OUTER JOIN {prefix}invoice_state ist ON i.state_id = ist.id ".
@@ -156,6 +204,16 @@ class InvoiceReport
     {
       $strQuery .= ' AND i.invoice_date <= ?';
       $arrParams[] = $endDate;
+    }
+    if ($paymentStartDate)
+    {
+      $strQuery .= ' AND i.payment_date >= ?';
+      $arrParams[] = $paymentStartDate;
+    }
+    if ($paymentEndDate)
+    {
+      $strQuery .= ' AND i.payment_date <= ?';
+      $arrParams[] = $paymentEndDate;
     }
     if ($intBaseId) 
     {
@@ -194,7 +252,7 @@ class InvoiceReport
     
     $strQuery .= "$strQuery2 ORDER BY " . ($grouping == 'state' ? 'state_id, invoice_date, invoice_no' : 'invoice_date, invoice_no');
     
-    $this->printHeader($format, $startDate, $endDate);  
+    $this->printHeader($format, $printFields, $startDate, $endDate);  
   
     $intTotSum = 0;
     $intTotVAT = 0;
@@ -206,18 +264,9 @@ class InvoiceReport
     $intRes = mysql_param_query($strQuery, $arrParams);
     while ($row = mysql_fetch_assoc($intRes))
     {
-      $intInvoiceID = $row['id'];
-      $strInvoiceName = $row['invoice_name'];
-      $strInvoiceNr = $row['invoice_no'];
-      $strInvoiceState = $GLOBALS['loc' . $row['state']];
-      $strRefNumber = $row['ref_number'];
-      $strInvoiceDate = dateConvDBDate2Date($row['invoice_date']);
-      $strDueDate = dateConvDBDate2Date($row['due_date']);
-      $strName = $row['name'];
-      $strRefNumber = chunk_split($strRefNumber, 5, ' ');
       switch ($grouping) {
         case 'state':
-          $invoiceGroup = $strInvoiceState;
+          $invoiceGroup = $row['state'];
           break;
         case 'month':
           $invoiceGroup = substr($row['invoice_date'], 4, 2);
@@ -228,7 +277,7 @@ class InvoiceReport
       
       if ($grouping && $currentGroup !== false && $currentGroup != $invoiceGroup)
       {
-        $this->printGroupSums($format, $groupTotSum, $groupTotVAT, $groupTotSumVAT);
+        $this->printGroupSums($format, $printFields, $row, $groupTotSum, $groupTotVAT, $groupTotSumVAT);
         $groupTotSum = 0;
         $groupTotVAT = 0;
         $groupTotSumVAT = 0;
@@ -239,7 +288,7 @@ class InvoiceReport
           "SELECT ir.description, ir.pcs, ir.price, ir.discount, ir.row_date, ir.vat, ir.vat_included ".
           "FROM {prefix}invoice_row ir ".
           "WHERE ir.invoice_id=? AND ir.deleted=0";
-      $intRes2 = mysql_param_query($strQuery, array($intInvoiceID));
+      $intRes2 = mysql_param_query($strQuery, array($row['id']));
       $intRowSum = 0;
       $intRowVAT = 0;
       $intRowSumVAT = 0;
@@ -259,21 +308,21 @@ class InvoiceReport
       $groupTotVAT += $intRowVAT;
       $groupTotSumVAT += $intRowSumVAT;
       
-      $this->printRow($format, $strInvoiceNr, $strInvoiceDate, $strDueDate, $strName, $strInvoiceState, $intRowSum, $intRowVAT, $intRowSumVAT);
+      $this->printRow($format, $printFields, $row, $intRowSum, $intRowVAT, $intRowSumVAT);
     }
     if ($grouping) {
-      $this->printGroupSums($format, $groupTotSum, $groupTotVAT, $groupTotSumVAT);
+      $this->printGroupSums($format, $printFields, $row, $groupTotSum, $groupTotVAT, $groupTotSumVAT);
     }
-    $this->printTotals($format, $intTotSum, $intTotVAT, $intTotSumVAT);
-    $this->printFooter($format);
+    $this->printTotals($format, $printFields, $intTotSum, $intTotVAT, $intTotSumVAT);
+    $this->printFooter($format, $printFields);
   }
   
-  private function printHeader($format, $startDate, $endDate)
+  private function printHeader($format, $printFields, $startDate, $endDate)
   {
-    if ($format == 'pdf')
+    if ($format == 'pdf' || $format == 'pdfl')
     {
       ob_end_clean();
-      $pdf = new PDF('P','mm','A4', _CHARSET_ == 'UTF-8', _CHARSET_, false);
+      $pdf = new PDF($format == 'pdf' ? 'P' : 'L', 'mm', 'A4', _CHARSET_ == 'UTF-8', _CHARSET_, false);
       $pdf->setTopMargin(20);
       $pdf->headerRight = $GLOBALS['locReportPage'];
       $pdf->printHeaderOnFirstPage = true;
@@ -292,14 +341,34 @@ class InvoiceReport
       }
       
       $pdf->SetFont('Helvetica','B',8);
-      $pdf->Cell(18, 4, $GLOBALS['locInvoiceNumber'], 0, 0, 'L');
-      $pdf->Cell(20, 4, $GLOBALS['locInvDate'], 0, 0, 'L');
-      $pdf->Cell(20, 4, $GLOBALS['locDueDate'], 0, 0, 'L');
-      $pdf->Cell(45, 4, $GLOBALS['locPayer'], 0, 0, 'L');
-      $pdf->Cell(15, 4, $GLOBALS['locInvoiceState'], 0, 0, 'L');
-      $pdf->Cell(25, 4, $GLOBALS['locVATLess'], 0, 0, 'R');
-      $pdf->Cell(25, 4, $GLOBALS['locVATPart'], 0, 0, 'R');
-      $pdf->Cell(25, 4, $GLOBALS['locWithVAT'], 0, 1, 'R');
+
+      if (in_array('invoice_no', $printFields)) {
+        $pdf->Cell(18, 4, $GLOBALS['locInvoiceNumber'], 0, 0, 'L');
+      }
+      if (in_array('invoice_date', $printFields)) {
+        $pdf->Cell(20, 4, $GLOBALS['locInvDate'], 0, 0, 'L');
+      }
+      if (in_array('due_date', $printFields)) {
+        $pdf->Cell(20, 4, $GLOBALS['locDueDate'], 0, 0, 'L');
+      }
+      if (in_array('payment_date', $printFields)) {
+        $pdf->Cell(20, 4, $GLOBALS['locPaymentDate'], 0, 0, 'L');
+      }
+      if (in_array('company_name', $printFields)) {
+        $pdf->Cell(45, 4, $GLOBALS['locPayer'], 0, 0, 'L');
+      }
+      if (in_array('status', $printFields)) {
+        $pdf->Cell(20, 4, $GLOBALS['locInvoiceState'], 0, 0, 'L');
+      }
+      if (in_array('ref_number', $printFields)) {
+        $pdf->Cell(25, 4, $GLOBALS['locReferenceNumber'], 0, 0, 'L');
+      }
+      if (in_array('sums', $printFields)) {
+        $pdf->Cell(25, 4, $GLOBALS['locVATLess'], 0, 0, 'R');
+        $pdf->Cell(25, 4, $GLOBALS['locVATPart'], 0, 0, 'R');
+        $pdf->Cell(25, 4, $GLOBALS['locWithVAT'], 0, 1, 'R');
+      }
+      
       $this->pdf = $pdf;
       return;
     }
@@ -307,21 +376,42 @@ class InvoiceReport
     <div class="report">
     <table>
     <tr>
+      <?php if (in_array('invoice_no', $printFields)) {?>
         <th class="label">
             <?php echo $GLOBALS['locInvoiceNumber']?>
         </th>
+      <?php }
+      if (in_array('invoice_date', $printFields)) {?>
         <th class="label">
             <?php echo $GLOBALS['locInvDate']?>
         </th>
+      <?php }
+      if (in_array('due_date', $printFields)) {?>
         <th class="label">
             <?php echo $GLOBALS['locDueDate']?>
         </th>
+      <?php }
+      if (in_array('payment_date', $printFields)) {?>
+        <th class="label">
+            <?php echo $GLOBALS['locPaymentDate']?>
+        </th>
+        <?php }
+      if (in_array('company_name', $printFields)) {?>
         <th class="label">
             <?php echo $GLOBALS['locPayer']?>
         </th>
+      <?php }
+      if (in_array('status', $printFields)) {?>
         <th class="label">
             <?php echo $GLOBALS['locInvoiceState']?>
         </th>
+      <?php }
+      if (in_array('ref_number', $printFields)) {?>
+        <th class="label">
+            <?php echo $GLOBALS['locReferenceNumber']?>
+        </th>
+      <?php }
+      if (in_array('sums', $printFields)) {?>
         <th class="label" style="text-align: right">
             <?php echo $GLOBALS['locVATLess']?>
         </th>
@@ -331,47 +421,90 @@ class InvoiceReport
         <th class="label" style="text-align: right">
             <?php echo $GLOBALS['locWithVAT']?>
         </th>
+      <?php } ?>
     </tr>
 <?php
   }
   
-  private function printRow($format, $strInvoiceNr, $strInvoiceDate, $strDueDate, $strName, $strInvoiceState, $intRowSum, $intRowVAT, $intRowSumVAT)
+  private function printRow($format, $printFields, $row, $intRowSum, $intRowVAT, $intRowSumVAT)
   {
-    if ($format == 'pdf')
+    if ($format == 'pdf' || $format == 'pdfl')
     {
       $pdf = $this->pdf;
       $pdf->SetFont('Helvetica','',8);
       $pdf->setY($pdf->getY() + 1);
-      $pdf->Cell(18, 4, $strInvoiceNr, 0, 0, 'L');
-      $pdf->Cell(20, 4, $strInvoiceDate, 0, 0, 'L');
-      $pdf->Cell(20, 4, $strDueDate, 0, 0, 'L');
-      $nameX = $pdf->getX();
-      $pdf->setX($nameX + 45);
-      $pdf->Cell(15, 4, $strInvoiceState, 0, 0, 'L');
-      $pdf->Cell(25, 4, miscRound2Decim($intRowSum), 0, 0, 'R');
-      $pdf->Cell(25, 4, miscRound2Decim($intRowVAT), 0, 0, 'R');
-      $pdf->Cell(25, 4, miscRound2Decim($intRowSumVAT), 0, 0, 'R');
-      $pdf->setX($nameX);
-      $pdf->MultiCell(45, 4, $strName, 0, 'L');
+      if (in_array('invoice_no', $printFields)) {
+        $pdf->Cell(18, 4, $row['invoice_no'], 0, 0, 'L');
+      }
+      if (in_array('invoice_date', $printFields)) {
+        $pdf->Cell(20, 4, dateConvDBDate2Date($row['invoice_date']), 0, 0, 'L');
+      }
+      if (in_array('due_date', $printFields)) {
+        $pdf->Cell(20, 4, dateConvDBDate2Date($row['due_date']), 0, 0, 'L');
+      }
+      if (in_array('payment_date', $printFields)) {
+        $pdf->Cell(20, 4, dateConvDBDate2Date($row['payment_date']), 0, 0, 'L');
+      }
+      if (in_array('company_name', $printFields)) {
+        $nameX = $pdf->getX();
+        $pdf->setX($nameX + 45);
+      }
+      if (in_array('status', $printFields)) {
+        $pdf->Cell(20, 4, $GLOBALS['loc' . $row['state']], 0, 0, 'L');
+      }
+      if (in_array('ref_number', $printFields)) {
+        $pdf->Cell(25, 4, formatRefNumber($row['ref_number']), 0, 0, 'L');
+      }
+      if (in_array('sums', $printFields)) {
+        $pdf->Cell(25, 4, miscRound2Decim($intRowSum), 0, 0, 'R');
+        $pdf->Cell(25, 4, miscRound2Decim($intRowVAT), 0, 0, 'R');
+        $pdf->Cell(25, 4, miscRound2Decim($intRowSumVAT), 0, 0, 'R');
+      }
+      // Print company name last, as it can span multiple lines
+      if (in_array('company_name', $printFields)) {
+        $pdf->setX($nameX);
+        $pdf->MultiCell(45, 4, $row['name'], 0, 'L');
+      }
       return;
     }
 ?>
     <tr>
+      <?php if (in_array('invoice_no', $printFields)) {?>
         <td class="input">
-            <?php echo htmlspecialchars($strInvoiceNr)?>
+            <?php echo htmlspecialchars($row['invoice_no'])?>
         </td>
+      <?php }
+      if (in_array('invoice_date', $printFields)) {?>
         <td class="input">
-            <?php echo htmlspecialchars($strInvoiceDate)?>
+            <?php echo htmlspecialchars(dateConvDBDate2Date($row['invoice_date']))?>
         </td>
+      <?php }
+      if (in_array('due_date', $printFields)) {?>
         <td class="input">
-            <?php echo htmlspecialchars($strDueDate)?>
+            <?php echo htmlspecialchars(dateConvDBDate2Date($row['due_date']))?>
         </td>
+      <?php }
+      if (in_array('payment_date', $printFields)) {?>
         <td class="input">
-            <?php echo htmlspecialchars($strName)?>
+            <?php echo htmlspecialchars(dateConvDBDate2Date($row['payment_date']))?>
         </td>
+      <?php }
+      if (in_array('company_name', $printFields)) {?>
         <td class="input">
-            <?php echo htmlspecialchars($strInvoiceState)?>
+            <?php echo htmlspecialchars($row['name'])?>
         </td>
+      <?php }
+      if (in_array('status', $printFields)) {?>
+        <td class="input">
+            <?php echo htmlspecialchars($GLOBALS['loc' . $row['state']])?>
+        </td>
+      <?php }
+      if (in_array('ref_number', $printFields)) {?>
+        <td class="input">
+            <?php echo htmlspecialchars(formatRefNumber($row['ref_number']))?>
+        </td>
+      <?php }
+      if (in_array('sums', $printFields)) {?>
         <td class="input" style="text-align: right">
             <?php echo miscRound2Decim($intRowSum)?>
         </td>
@@ -381,37 +514,88 @@ class InvoiceReport
         <td class="input" style="text-align: right">
             <?php echo miscRound2Decim($intRowSumVAT)?>
         </td>
-    </tr>
+      <?php } ?>
+      </tr>
 <?php
   }
       
-  private function printGroupSums($format, $groupTotSum, $groupTotVAT, $groupTotSumVAT)
+  private function printGroupSums($format, $printFields, $row, $groupTotSum, $groupTotVAT, $groupTotSumVAT)
   {
-    if ($format == 'pdf')
+    if (!in_array('sums', $printFields)) {
+      return;
+    }
+    if ($format == 'pdf' || $format == 'pdfl')
     {
       $pdf = $this->pdf;
       if ($pdf->getY() > $pdf->getPageHeight() - 7 - 15) 
         $pdf->AddPage();
       $pdf->SetFont('Helvetica','',8);
       $pdf->setLineWidth(0.2);
-      $pdf->line($pdf->getX() + 120, $pdf->getY(), $pdf->getX() + 120 + 73, $pdf->getY());
-      $pdf->setY($pdf->getY() + 1);
-      $pdf->Cell(18, 4, '', 0, 0, 'L');
-      $pdf->Cell(20, 4, '', 0, 0, 'L');
-      $pdf->Cell(20, 4, '', 0, 0, 'L');
-      $pdf->Cell(45, 4, '', 0, 0, 'L');
-      $pdf->Cell(15, 4, '', 0, 0, 'L');
+      
+      $rowWidth = 0;
+      $sumPos = 75;
+      if (in_array('invoice_no', $printFields)) {
+        $rowWidth += 18;
+      }
+      if (in_array('invoice_date', $printFields)) {
+        $rowWidth += 20;
+      }
+      if (in_array('due_date', $printFields)) {
+        $rowWidth += 20;
+      }
+      if (in_array('payment_date', $printFields)) {
+        $rowWidth += 20;
+      }
+      if (in_array('company_name', $printFields)) {
+        $rowWidth += 45;
+      }
+      if (in_array('status', $printFields)) {
+        $rowWidth += 20;
+      }
+      if (in_array('ref_number', $printFields)) {
+        $rowWidth += 25;
+      }
+      $sumPos = $rowWidth;
+      $rowWidth += 75;
+      
+      $pdf->line($pdf->getX() + $sumPos, $pdf->getY(), $pdf->getX() + $rowWidth, $pdf->getY());
+      $pdf->setXY($pdf->getX() + $sumPos, $pdf->getY() + 1);
       $pdf->Cell(25, 4, miscRound2Decim($groupTotSum), 0, 0, 'R');
       $pdf->Cell(25, 4, miscRound2Decim($groupTotVAT), 0, 0, 'R');
       $pdf->Cell(25, 4, miscRound2Decim($groupTotSumVAT), 0, 1, 'R');
       $pdf->setY($pdf->getY() + 2);
       return;
     }
+
+    $colSpan = 0;
+    if (in_array('invoice_no', $printFields)) {
+      ++$colSpan;
+    }
+    if (in_array('invoice_date', $printFields)) {
+      ++$colSpan;
+    }
+    if (in_array('due_date', $printFields)) {
+      ++$colSpan;      
+    }
+    if (in_array('payment_date', $printFields)) {
+      ++$colSpan;      
+    }
+    if (in_array('company_name', $printFields)) {
+      ++$colSpan;
+    }
+    if (in_array('status', $printFields)) {
+      ++$colSpan;
+    }
+    if (in_array('ref_number', $printFields)) {
+      ++$colSpan;
+    }
 ?>
     <tr>
-        <td class="input" colspan="5" style="text-align: right">
+    <?php if ($colSpan > 0) { ?>
+        <td class="input" colspan="<?php echo $colSpan?>">
             &nbsp;
         </td>
+    <?php } ?>
         <td class="input row_sum" style="text-align: right">
             &nbsp;<?php echo miscRound2Decim($groupTotSum)?>
         </td>
@@ -425,26 +609,85 @@ class InvoiceReport
 <?php
   }
   
-  private function printTotals($format, $intTotSum, $intTotVAT, $intTotSumVAT)
+  private function printTotals($format, $printFields, $intTotSum, $intTotVAT, $intTotSumVAT)
   {
-    if ($format == 'pdf')
+    if (!in_array('sums', $printFields)) {
+      return;
+    }
+    if ($format == 'pdf' || $format == 'pdfl')
     {
       $pdf = $this->pdf;
+      if ($pdf->getY() > $pdf->getPageHeight() - 7 - 15) 
+        $pdf->AddPage();
+      $pdf->SetFont('Helvetica','',8);
+      $pdf->setLineWidth(0.2);
+      
+      $rowWidth = 0;
+      $sumPos = 75;
+      if (in_array('invoice_no', $printFields)) {
+        $rowWidth += 18;
+      }
+      if (in_array('invoice_date', $printFields)) {
+        $rowWidth += 20;
+      }
+      if (in_array('due_date', $printFields)) {
+        $rowWidth += 20;
+      }
+      if (in_array('payment_date', $printFields)) {
+        $rowWidth += 20;
+      }
+      if (in_array('company_name', $printFields)) {
+        $rowWidth += 45;
+      }
+      if (in_array('status', $printFields)) {
+        $rowWidth += 20;
+      }
+      if (in_array('ref_number', $printFields)) {
+        $rowWidth += 25;
+      }
+      $sumPos = $rowWidth;
+      $rowWidth += 75;
+      
+      $pdf = $this->pdf;
       $pdf->SetFont('Helvetica','B',8);
-      $pdf->setY($pdf->getY() + 3);
-      $pdf->Cell(25, 4, '', 0, 0, 'L');
-      $pdf->Cell(25, 4, '', 0, 0, 'L');
-      $pdf->Cell(68, 4, $GLOBALS['locTotal'], 0, 0, 'R');
+      $pdf->line($pdf->getX() + $sumPos, $pdf->getY(), $pdf->getX() + $rowWidth, $pdf->getY());
+      $pdf->setY($pdf->getY() + 1);
+      $pdf->Cell($sumPos, 4, $GLOBALS['locTotal'], 0, 0, 'R');
       $pdf->Cell(25, 4, miscRound2Decim($intTotSum), 0, 0, 'R');
       $pdf->Cell(25, 4, miscRound2Decim($intTotVAT), 0, 0, 'R');
       $pdf->Cell(25, 4, miscRound2Decim($intTotSumVAT), 0, 1, 'R');
       return;
     }
+
+    $colSpan = 0;
+    if (in_array('invoice_no', $printFields)) {
+      ++$colSpan;
+    }
+    if (in_array('invoice_date', $printFields)) {
+      ++$colSpan;
+    }
+    if (in_array('due_date', $printFields)) {
+      ++$colSpan;      
+    }
+    if (in_array('payment_date', $printFields)) {
+      ++$colSpan;      
+    }
+    if (in_array('company_name', $printFields)) {
+      ++$colSpan;
+    }
+    if (in_array('status', $printFields)) {
+      ++$colSpan;
+    }
+    if (in_array('ref_number', $printFields)) {
+      ++$colSpan;
+    }
 ?>
     <tr>
-        <td class="input total_sum" colspan="5" style="text-align: right">
+    <?php if ($colSpan > 0) { ?>
+        <td class="input total_sum" colspan="<?php echo $colSpan?>" style="text-align: right">
             <?php echo $GLOBALS['locTotal']?>
         </td>
+    <?php } ?>
         <td class="input total_sum" style="text-align: right">
             &nbsp;<?php echo miscRound2Decim($intTotSum)?>
         </td>
@@ -458,9 +701,9 @@ class InvoiceReport
 <?php
   }
   
-  private function printFooter($format)
+  private function printFooter($format, $printFields)
   {
-    if ($format == 'pdf')
+    if ($format == 'pdf' || $format == 'pdfl')
     {
       $pdf = $this->pdf;
       $pdf->Output('report.pdf', 'I');
