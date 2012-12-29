@@ -84,6 +84,6 @@ if (sesWriteAccess()) {
   mysql_param_query('UPDATE {prefix}invoice SET print_date=? where id=?', array(date('Ymd'), $intInvoiceId));
 }
   
-$printer = instantiateInvoicePrinter($printTemplateFile);
+$printer = instantiateInvoicePrinter(trim($printTemplateFile));
 $printer->init($intInvoiceId, $printParameters, $printOutputFileName, $senderData, $recipientData, $invoiceData, $invoiceRowData);
 $printer->printInvoice();
