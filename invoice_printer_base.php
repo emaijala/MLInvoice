@@ -176,7 +176,7 @@ abstract class InvoicePrinterBase
       }
       else
       {
-        $tmpSum = str_replace($GLOBALS['locPDFDecimalSeparator'], '', $this->_formatCurrency($this->totalSumVAT));
+        $tmpSum = miscRound2Decim($this->totalSumVAT, 2, '', '');
         $tmpSum = str_repeat('0', 8 - strlen($tmpSum)) . $tmpSum;
         $tmpDueDate = substr($invoiceData['due_date'], 2);
         
@@ -806,6 +806,7 @@ abstract class InvoicePrinterBase
         'fontsize' => 8,
         'stretchtext' => 4
       );
+      error_log('Barcode: ' . $this->barcode);
       $pdf->write1DBarcode($this->barcode, 'C128C', 20, 284, 105, 11, 0.34, $style, 'N');
     }
   }
