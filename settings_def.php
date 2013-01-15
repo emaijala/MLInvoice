@@ -49,6 +49,7 @@ $arrSettings = array(
   'invoice_address_x_offset' => array('label' => $GLOBALS['locSettingInvoiceAddressXOffset'], 'type' => 'INT', 'style' => 'currency', 'position' => 1, 'default' => 0, 'allow_null' => TRUE ),
   'invoice_address_y_offset' => array('label' => $GLOBALS['locSettingInvoiceAddressYOffset'], 'type' => 'INT', 'style' => 'currency', 'position' => 1, 'default' => 0, 'allow_null' => TRUE ),
   'invoice_warn_if_noncurrent_date' => array('label' => $GLOBALS['locSettingInvoiceWarnIfNonCurrentDate'], 'type' => 'CHECK', 'style' => 'medium', 'position' => 1, 'default' => 1, 'allow_null' => TRUE ),
+  'invoice_show_recipient_email' => array('label' => $GLOBALS['locSettingInvoiceShowRecipientEmail'], 'type' => 'CHECK', 'style' => 'medium', 'position' => 1, 'default' => 1, 'allow_null' => TRUE ),
   'invoice_clear_row_values_after_add' => array('label' => $GLOBALS['locSettingInvoiceClearRowValuesAfterAdd'], 'type' => 'SELECT', 'style' => 'long noemptyvalue', 'position' => 1, 'default' => 0, 'allow_null' => TRUE, 'options' => Array(
     0 => $GLOBALS['locSettingInvoiceKeepRowValues'],
     1 => $GLOBALS['locSettingInvoiceClearRowValues'],
