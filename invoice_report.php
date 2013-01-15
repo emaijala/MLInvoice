@@ -119,7 +119,7 @@ class InvoiceReport
     while ($row = mysql_fetch_assoc($intRes))
     {
       $intStateId = $row['id'];
-      $strStateName = $GLOBALS['loc' . $row['name']];
+      $strStateName = isset($GLOBALS['loc' . $row['name']]) ? $GLOBALS['loc' . $row['name']] : $row['name'];
       $tmpSelected = getRequest("stateid_$intStateId", TRUE) ? TRUE : false;
       $strChecked = $tmpSelected ? ' checked' : '';
       if (!$first) {
@@ -450,7 +450,7 @@ class InvoiceReport
         $pdf->setX($nameX + 45);
       }
       if (in_array('status', $printFields)) {
-        $pdf->Cell(20, 4, $GLOBALS['loc' . $row['state']], 0, 0, 'L');
+        $pdf->Cell(20, 4, isset($GLOBALS['loc' . $row['state']]) ? $GLOBALS['loc' . $row['state']] : $row['state'], 0, 0, 'L');
       }
       if (in_array('ref_number', $printFields)) {
         $pdf->Cell(25, 4, formatRefNumber($row['ref_number']), 0, 0, 'L');
@@ -496,7 +496,7 @@ class InvoiceReport
       <?php }
       if (in_array('status', $printFields)) {?>
         <td class="input">
-            <?php echo htmlspecialchars($GLOBALS['loc' . $row['state']])?>
+            <?php echo htmlspecialchars(isset($GLOBALS['loc' . $row['state']]) ? $GLOBALS['loc' . $row['state']] : $row['state'])?>
         </td>
       <?php }
       if (in_array('ref_number', $printFields)) {?>
