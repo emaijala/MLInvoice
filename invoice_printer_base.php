@@ -136,15 +136,17 @@ abstract class InvoicePrinterBase
     }
     $this->refNumber = formatRefNumber($invoiceData['ref_number']);
     
+    $this->recipientFullAddress = $recipientData['company_name'] . "\n" . $recipientData['street_address'] . "\n" . $recipientData['zip_code'] . ' ' . $recipientData['city'];
     $this->billingAddress = $recipientData['billing_address'];
-    if (!$this->billingAddress) 
-      $this->billingAddress = $recipientData['company_name'] . "\n" . $recipientData['street_address'] . "\n" . $recipientData['zip_code'] . ' ' . $recipientData['city'];
+    if (!$this->billingAddress) { 
+      $this->billingAddress = $this->recipientFullAddress;
+    }
     $this->recipientName = substr($this->billingAddress, 0, strpos($this->billingAddress, "\n"));
     $this->recipientAddress = substr($this->billingAddress, strpos($this->billingAddress, "\n") + 1);
     
     // barcode
     /*
-    1   Barcode version, this is version 4
+    1   Barcode version, this is version 4 or 5
     1  	Currency (1=FIM, 2=EURO)
     16 	IBAN without leading country code
     6 	Euros
@@ -727,7 +729,7 @@ abstract class InvoicePrinterBase
     $pdf->MultiCell(19, 2.8, $GLOBALS['locPDFFormPayernameAndAddress2'], 0, 'R', 0);
     $pdf->SetFont('Helvetica','',10);
     $pdf->SetXY($intStartX + 21, $intStartY + 35);
-    $pdf->MultiCell(100, 4, $this->billingAddress,0,1);
+    $pdf->MultiCell(100, 4, $this->recipientFullAddress, 0, 1);
     
     // signature
     $pdf->SetFont('Helvetica','',7);
