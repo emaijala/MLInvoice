@@ -56,7 +56,7 @@ Todo : This could be more generic...
       $xUACompatible = "  <meta http-equiv=\"X-UA-Compatible\" content=\"IE=edge\">\n";
     else
       $xUACompatible = '';
-    $theme = defined('_UI_THEME_LOCATION_') ? _UI_THEME_LOCATION_ : 'jquery/css/theme/jquery-ui-1.8.16.custom.css';
+    $theme = defined('_UI_THEME_LOCATION_') ? _UI_THEME_LOCATION_ : 'jquery/css/theme/jquery-ui-1.10.0.custom.min.css';
     $lang = isset($_SESSION['sesLANG']) ? $_SESSION['sesLANG'] : 'fi-FI';
     $datePickerOptions = $GLOBALS['locDatePickerOptions']; 
     $strHtmlStart = <<<EOT
@@ -69,12 +69,13 @@ $xUACompatible  <title>$strTitle</title>
   <link rel="stylesheet" type="text/css" href="$theme">
   <link rel="stylesheet" type="text/css" href="jquery/css/ui.daterangepicker.css">
   <link rel="stylesheet" type="text/css" href="css/style.css">
-  <script type="text/javascript" src="jquery/js/jquery-1.6.2.min.js"></script>
+  <script type="text/javascript" src="jquery/js/jquery-1.9.0.min.js"></script>
   <script type="text/javascript" src="jquery/js/jquery.json-2.3.min.js"></script>
   <script type="text/javascript" src="jquery/js/jquery.cookie.js"></script>
-  <script type="text/javascript" src="jquery/js/jquery-ui-1.8.16.custom.min.js"></script>
+  <script type="text/javascript" src="jquery/js/jquery-ui-1.10.0.custom.min.js"></script>
   <script type="text/javascript" src="datatables/media/js/jquery.dataTables.min.js"></script>
   <script type="text/javascript" src="jquery/js/jquery.floatingmessage.js"></script>
+  <script type="text/javascript" src="js/date.js"></script>
   <script type="text/javascript" src="js/date-$lang.js"></script>
   <script type="text/javascript" src="jquery/js/jquery.daterangepicker.js"></script>
   <script type="text/javascript" src="js/functions.js"></script>
@@ -203,8 +204,14 @@ function htmlFormElement($strName, $strType, $strValue, $strStyle, $strListQuery
   switch ($strType) 
   {
     case 'TEXT':
+      if (strstr($strStyle, 'hasDateRangePicker')) {
+        $autocomplete = ' autocomplete="off"';
+      } else {
+        $autocomplete = ''; 
+      }
+  
       $strFormElement = 
-        "<input type=\"text\" class=\"$strStyle\" " .
+        "<input type=\"text\" class=\"$strStyle\"$autocomplete " .
         "id=\"$strName\" name=\"$strName\" value=\"" . htmlspecialchars($strValue) . "\"$astrAdditionalAttributes$readOnly>\n";
       break;
       

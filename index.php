@@ -137,9 +137,9 @@ if ($strFunc == 'open_invoices' && !$strForm) {
     function updateVersionMessage(data)
     {
     	var title = new String("<?php echo $GLOBALS['locUpdateAvailableTitle']?>").replace("{version}", data.version).replace("{date}", data.date);
-      if (data.version > <?php echo $softwareVersion?>) {
+      if (data.version > "<?php echo $softwareVersion?>") {
         $("<a/>").attr("href", data.url).attr("title", title).text("<?php echo $GLOBALS['locUpdateAvailable']?>").appendTo("#version");
-      } else if (data.version < <?php echo $softwareVersion?>) {
+      } else if (data.version < "<?php echo $softwareVersion?>") {
         $("<span/>").text("<?php echo $GLOBALS['locPrereleaseVersion']?>").appendTo("#version");
       }
       $.cookie("updateversion", $.toJSON(data), { expires: 1 });

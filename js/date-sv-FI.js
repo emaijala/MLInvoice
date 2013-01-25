@@ -7,19 +7,19 @@
  */
 Date.CultureInfo = {
 	/* Culture Name */
-    name: "fi-FI",
-    englishName: "Finnish (Finland)",
-    nativeName: "suomi (Suomi)",
+    name: "sv-FI",
+    englishName: "Swedish (Finland)",
+    nativeName: "svenska (Finland)",
     
     /* Day Name Strings */
-    dayNames: ["sunnuntai", "maanantai", "tiistai", "keskiviikko", "torstai", "perjantai", "lauantai"],
-    abbreviatedDayNames: ["su", "ma", "ti", "ke", "to", "pe", "la"],
-    shortestDayNames: ["su", "ma", "ti", "ke", "to", "pe", "la"],
-    firstLetterDayNames: ["s", "m", "t", "k", "t", "p", "l"],
+    dayNames: ["söndag", "måndag", "tisdag", "onsdag", "torsdag", "fredag", "lördag"],
+    abbreviatedDayNames: ["sö", "må", "ti", "on", "to", "fr", "lö"],
+    shortestDayNames: ["sö", "må", "ti", "on", "to", "fr", "lö"],
+    firstLetterDayNames: ["s", "m", "t", "o", "t", "f", "l"],
     
     /* Month Name Strings */
-    monthNames: ["tammikuu", "helmikuu", "maaliskuu", "huhtikuu", "toukokuu", "kesäkuu", "heinäkuu", "elokuu", "syyskuu", "lokakuu", "marraskuu", "joulukuu"],
-    abbreviatedMonthNames: ["tammi", "helmi", "maalis", "huhti", "touko", "kesä", "heinä", "elo", "syys", "loka", "marras", "joulu"],
+    monthNames: ["januari", "februari", "mars", "april", "maj", "juni", "juli", "augusti", "september", "oktober", "november", "december"],
+    abbreviatedMonthNames: ["jan", "feb", "mar", "apr", "maj", "jun", "jul", "aug", "sep", "okt", "nov", "dec"],
 
 	/* AM/PM Designators */
     amDesignator: "",
@@ -51,14 +51,14 @@ Date.CultureInfo = {
     /* Standard date and time format patterns */
     formatPatterns: {
         shortDate: "d.M.yyyy",
-        longDate: "d. MMMM'ta 'yyyy",
-        shortTime: "H:mm",
-        longTime: "H:mm:ss",
-        fullDateTime: "d. MMMM'ta 'yyyy H:mm:ss",
+        longDate: "'den 'd MMMM yyyy",
+        shortTime: "HH:mm",
+        longTime: "HH:mm:ss",
+        fullDateTime: "'den 'd MMMM yyyy HH:mm:ss",
         sortableDateTime: "yyyy-MM-ddTHH:mm:ss",
         universalSortableDateTime: "yyyy-MM-dd HH:mm:ssZ",
         rfc1123: "ddd, dd MMM yyyy HH:mm:ss GMT",
-        monthDay: "d. MMMM'ta'",
+        monthDay: "'den 'd MMMM",
         yearMonth: "MMMM yyyy"
     },
 
@@ -91,26 +91,26 @@ Date.CultureInfo = {
      * As well, please review the list of "Future Strings" section below. 
      */	
     regexPatterns: {
-        jan: /^tammi(kuu)?/i,
-        feb: /^helmi(kuu)?/i,
-        mar: /^maalis(kuu)?/i,
-        apr: /^huhti(kuu)?/i,
-        may: /^touko(kuu)?/i,
-        jun: /^kesä(kuu)?/i,
-        jul: /^heinä(kuu)?/i,
-        aug: /^elo(kuu)?/i,
-        sep: /^syys(kuu)?/i,
-        oct: /^loka(kuu)?/i,
-        nov: /^marras(kuu)?/i,
-        dec: /^joulu(kuu)?/i,
+        jan: /^jan(uari)?/i,
+        feb: /^feb(ruari)?/i,
+        mar: /^mar(s)?/i,
+        apr: /^apr(il)?/i,
+        may: /^maj/i,
+        jun: /^jun(i)?/i,
+        jul: /^jul(i)?/i,
+        aug: /^aug(usti)?/i,
+        sep: /^sep(t(ember)?)?/i,
+        oct: /^okt(ober)?/i,
+        nov: /^nov(ember)?/i,
+        dec: /^dec(ember)?/i,
 
-        sun: /^sunnuntai/i,
-        mon: /^maanantai/i,
-        tue: /^tiistai/i,
-        wed: /^keskiviikko/i,
-        thu: /^torstai/i,
-        fri: /^perjantai/i,
-        sat: /^lauantai/i,
+        sun: /^söndag/i,
+        mon: /^måndag/i,
+        tue: /^tisdag/i,
+        wed: /^onsdag/i,
+        thu: /^torsdag/i,
+        fri: /^fredag/i,
+        sat: /^lördag/i,
 
         future: /^next/i,
         past: /^last|past|prev(ious)?/i,
