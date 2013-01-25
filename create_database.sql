@@ -289,9 +289,9 @@ INSERT INTO mlinvoice_company_contact (id, company_id, contact_person, person_ti
 
 INSERT INTO mlinvoice_invoice 
   (id, name, company_id, invoice_no, invoice_date, due_date, payment_date, ref_number, state_id, reference, base_id) 
-  VALUES (1, 'Testi', 1, '100', 20101230, 20110113, NULL, '', 1, '', 1);
+  VALUES (1, 'Testi', 1, '100', 20121230, 20130113, NULL, '', 1, '', 1);
 
 INSERT INTO mlinvoice_invoice_row (id, invoice_id, description, type_id, pcs, price, row_date, vat, order_no) 
-  VALUES (1, 1, 'Testirivi 1', 3, 12.00, 150.00, 20060515, 23, 5);
+  VALUES (1, 1, 'Testirivi 1', 3, 12.00, 150.00, 20121219, 24, 5);
 
 
