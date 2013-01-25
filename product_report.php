@@ -93,7 +93,7 @@ class ProductReport
     while ($row = mysql_fetch_assoc($intRes))
     {
       $intStateId = $row['id'];
-      $strStateName = $GLOBALS['loc' . $row['name']];
+      $strStateName = isset($GLOBALS['loc' . $row['name']]) ? $GLOBALS['loc' . $row['name']] : $row['name'];
       $tmpSelected = getRequest("stateid_$intStateId", TRUE) ? TRUE : false;
       $strChecked = $tmpSelected ? ' checked' : '';
       if (!$first) {
