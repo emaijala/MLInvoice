@@ -136,8 +136,18 @@ function createForm($strFunc, $strList, $strForm)
     $blnNew = TRUE;
     $readOnlyForm = false;
   }
-  
-  ?>
+
+  if ($addressAutocomplete && getSetting('address_autocomplete')) {
+?>    
+<script src="http://maps.googleapis.com/maps/api/js?sensor=false&amp;libraries=places"></script>
+<script type="text/javascript">
+$(document).ready(function() {
+	initAddressAutocomplete("");
+});
+</script>
+<?php
+  }
+?>
 
   <div id="popup_dlg" style="display: none; width: 900px; overflow: hidden">
     <iframe id="popup_dlg_iframe" src="about:blank" style="width: 100%; height: 100%; overflow: hidden; border: 0"></iframe>

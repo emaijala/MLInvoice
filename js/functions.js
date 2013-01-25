@@ -31,3 +31,43 @@ jQuery.fn.dataTableExt.oSort['html-multi-desc'] = function(a,b) {
   return -sort_multi(a, b);
 };
 
+var input = document.getElementById('addr');
+var options = {
+  types: ['geocode']
+};
+
+function initAddressAutocomplete(prefix)
+{
+  var input = document.getElementById(prefix + "street_address");
+  if (input == null) {
+	return;  
+  }
+  $(input).attr("placeholder", "");
+  $(input).blur(function() {
+	var val = $(input).val();
+	setTimeout(function() {
+      $(input).val(val); 
+    }, 0); 
+  });
+  
+  var options = {
+    types: ["geocode"]
+  };
+  autocomplete = new google.maps.places.Autocomplete(input, options);
+  
+  google.maps.event.addListener(autocomplete, "place_changed", function() {
+	var place = autocomplete.getPlace();
+	setTimeout(function() {
+	  $("#" + prefix + "street_address").val(place.name);
+	  $.each(place.address_components, function(index, component) {
+	    if ($.inArray("postal_code", component.types) >= 0) {
+	      $("#" + prefix + "zip_code").val(component.long_name);
+	    } else if ($.inArray("locality", component.types) >= 0 || $.inArray("administrative_area_level_3", component.types) >= 0) {
+	      $("#" + prefix + "city").val(component.long_name);
+	    } else if ($.inArray("country", component.types) >= 0) {
+	      $("#" + prefix + "country").val(component.long_name);
+	    };
+	  });
+	}, 0);
+  });
+}

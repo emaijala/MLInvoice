@@ -33,6 +33,7 @@ $strJSONType = '';
 $clearRowValuesAfterAdd = false;
 $onAfterRowAdded = '';
 $readOnlyForm = false;
+$addressAutocomplete = false;
 
 switch ($strForm) {
 
@@ -40,6 +41,7 @@ case 'company':
   $strTable = '{prefix}company';
   $strJSONType = 'company';
   $strParentKey = 'company_id';
+  $addressAutocomplete = true;
   $astrSearchFields = 
   array( 
     array('name' => 'company_name', 'type' => 'TEXT')
@@ -229,8 +231,20 @@ EOS;
 
 EOS;
 
+    $autocomplete = '';
+    if (getSetting('address_autocomplete')) {
+      $autocomplete = <<<EOS
+<script src="http://maps.googleapis.com/maps/api/js?sensor=false&amp;libraries=places"></script>
+<script type="text/javascript">
+$(document).ready(function() {
+	initAddressAutocomplete('quick_');
+});
+</script>
+EOS;
+    }
+    
     $popupHTML = <<<EOS
-<script type="text/javascript" src="js/add_company.js"></script>
+$autocomplete<script type="text/javascript" src="js/add_company.js"></script>
 <div id="quick_add_company" class="form_container ui-widget-content" style="display: none">
   <div class="medium_label">$locClientName</div> <div class="field"><input type='TEXT' id="quick_name" class='medium'></div>
   <div class="medium_label">$locEmail</div> <div class="field"><input type='TEXT' id="quick_email" class='medium'></div>
@@ -499,6 +513,7 @@ break;
 case 'base':
   $strTable = '{prefix}base';
   $strJSONType = 'base';
+  $addressAutocomplete = true;
   
   $title = $GLOBALS['locBaseLogoTitle'];   
   $openPopJS = <<<EOF

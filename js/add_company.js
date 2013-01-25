@@ -3,7 +3,7 @@ function add_company(translations)
   var buttons = new Object();   
   buttons[translations["save"]] = function() { save_company(translations); };
   buttons[translations["close"]] = function() { $("#quick_add_company").dialog("close"); };
-  $("#quick_add_company").dialog({ modal: true, width: 420, height: 320, resizable: false, 
+  $("#quick_add_company").dialog({ modal: true, width: 420, height: 320, resizable: false, zIndex: 900,
     buttons: buttons,
     title: translations["title"],
   });  

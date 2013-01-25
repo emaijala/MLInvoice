@@ -481,3 +481,8 @@ img.image {
 	clear: both;
 	height: 6px;
 }
+
+.pac-container {
+	font-size: 120%;
+	min-width: 250px;
+}
