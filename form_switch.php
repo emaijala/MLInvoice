@@ -141,7 +141,7 @@ case 'product':
     array(
       'name' => 'price_decimals', 'label' => $GLOBALS['locPriceInvoiceDecimals'], 'type' => 'INT', 'style' => 'short', 'position' => 1, 'default' => 2 ),
     array(
-      'name' => 'discount', 'label' => $GLOBALS['locDiscountPercent'], 'type' => 'INT', 'style' => 'percent', 'position' => 2, 'allow_null' => true ),
+      'name' => 'discount', 'label' => $GLOBALS['locDiscountPercent'], 'type' => 'INT', 'style' => 'percent', 'position' => 2, 'decimals' => 1, 'allow_null' => true ),
     array(
       'name' => 'vat_percent', 'label' => $GLOBALS['locVATPercent'], 'type' => 'INT', 'style' => 'short', 'position' => 1, 'default' => getSetting('invoice_default_vat_percent'), 'decimals' => 1 ),
     array(
