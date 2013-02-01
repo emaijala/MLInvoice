@@ -65,5 +65,6 @@ function init_company_list(selected_id)
         option.selected = true;
       company_id.options.add(option);
     }
+    $(company_id).trigger('change');
   });
 }

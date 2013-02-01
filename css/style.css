@@ -289,6 +289,10 @@ td.total_sum {
   font-weight: bold;
 }
 
+td a {
+  text-decoration: underline;
+}
+
 td a.navilink {
   text-decoration: none;  
   font-weight: normal;

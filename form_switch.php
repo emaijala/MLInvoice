@@ -351,11 +351,11 @@ EOS;
   
   $astrFormElements = array(
     array(
-      'name' => 'base_id', 'label' => $GLOBALS['locBiller'], 'type' => 'LIST', 'style' => 'medium', 'listquery' => 'SELECT id, name FROM {prefix}base WHERE deleted=0', 'position' => 1, 'default' => $defaultBase ),
+      'name' => 'base_id', 'label' => $GLOBALS['locBiller'], 'type' => 'LIST', 'style' => 'medium linked', 'listquery' => 'SELECT id, name FROM {prefix}base WHERE deleted=0', 'position' => 1, 'default' => $defaultBase ),
     array(
       'name' => 'name', 'label' => $GLOBALS['locInvName'], 'type' => 'TEXT', 'style' => 'medium', 'position' => 2, 'allow_null' => true ),
     array(
-      'name' => 'company_id', 'label' => $GLOBALS['locPayer'], 'type' => 'LIST', 'style' => 'medium', 'listquery' => $companyListSelect, 'position' => 1, 'allow_null' => true, 'attached_elem' => $addCompanyCode, 'elem_attributes' => $companyOnChange ),
+      'name' => 'company_id', 'label' => $GLOBALS['locPayer'], 'type' => 'LIST', 'style' => 'medium linked', 'listquery' => $companyListSelect, 'position' => 1, 'allow_null' => true, 'attached_elem' => $addCompanyCode, 'elem_attributes' => $companyOnChange ),
     array(
       'name' => 'reference', 'label' => $GLOBALS['locClientsReference'], 'type' => 'TEXT', 'style' => 'medium', 'position' => 2, 'allow_null' => true ),
     array(

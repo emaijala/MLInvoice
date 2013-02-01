@@ -1,3 +1,27 @@
+$(document).ready(function() {
+
+  // Link from base label
+  var baseIdLabelText = $("#base_id_label").text();
+  $("#base_id.linked").change(function() {
+    if ($(this).val() == "") {
+      $("#base_id_label").text(baseIdLabelText);
+    } else {
+      $("#base_id_label").html('<a href="index.php?func=settings&list=base&form=base&id=' + $(this).val() + '">' + baseIdLabelText + "</a>");
+    }
+  }).trigger('change');
+  
+  // Link from company label
+  var companyIdLabelText = $("#company_id_label").text();
+  $("#company_id.linked").change(function() {
+    if ($(this).val() == "") {
+      $("#company_id_label").text(companyIdLabelText);
+    } else {
+      $("#company_id_label").html('<a href="index.php?func=companies&list=&form=company&id=' + $(this).val() + '">' + companyIdLabelText + "</a>");
+    }
+  }).trigger('change');
+  
+});
+
 function sort_multi(a,b) 
 {
   a = a.replace( /<.*?>/g, "" );

@@ -289,7 +289,7 @@ $(document).ready(function() {
       else
       {
 ?>
-          <td class="label"<?php if (isset($elem['title'])) echo ' title="' . $elem['title'] . '"'?>><?php echo $elem['label']?></td>
+          <td id="<?php echo htmlentities($elem['name']) . '_label' ?>" class="label"<?php if (isset($elem['title'])) echo ' title="' . $elem['title'] . '"'?>><?php echo $elem['label']?></td>
 <?php
       }
 ?>
