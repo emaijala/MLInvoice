@@ -303,7 +303,14 @@ EOT
       "REPLACE INTO {prefix}state (id, data) VALUES ('version', '21')"
     ));
   }
-  
+  if ($version < 22) {
+    $updates = array_merge($updates, array(
+      "INSERT INTO {prefix}print_template (name, filename, parameters, output_filename, type, order_no, inactive) VALUES ('PrintEmailReceiptFinnish', 'invoice_printer_email.php', 'receipt', 'kuitti_%d.pdf', 'invoice', 110, 1)",
+      "INSERT INTO {prefix}print_template (name, filename, parameters, output_filename, type, order_no, inactive) VALUES ('PrintEmailReceiptSwedish', 'invoice_printer_email.php', 'receipt,sv-FI', 'kvitto_%d.pdf', 'invoice', 120, 1)",
+      "INSERT INTO {prefix}print_template (name, filename, parameters, output_filename, type, order_no, inactive) VALUES ('PrintEmailReceiptEnglish', 'invoice_printer_email.php', 'receipt,en', 'receipt_%d.pdf', 'invoice', 130, 1)",
+      "REPLACE INTO {prefix}state (id, data) VALUES ('version', '22')"
+    ));
+  }
   
   if (!empty($updates)) {
     foreach ($updates as $update) {
