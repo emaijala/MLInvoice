@@ -1,2 +1,2 @@
 <?php
-$softwareVersion = '1.6.1';
+$softwareVersion = '1.6.2';

@@ -1,5 +1,5 @@
 Name:		mlinvoice
-Version:	1.6.1
+Version:	1.6.2
 Release:	1%{?dist}
 Summary:	MLInvoice - Web application to create Finnish invoices
 Group:		Applications/Internet
@@ -22,8 +22,8 @@ Requires: php-xsl
 BuildArch:	noarch
 
 %description
-MLInvoice is a web application written in PHP for printing Finnish
-invoices. It available in English and Finnish. Among its features 
+MLInvoice is a web application written in PHP for printing invoices. 
+It available in English and Finnish. Among its features 
 are automatic invoice numbering and reference calculation, pdf 
 generation, customer database and unlimited number of user accounts. 
 Data is stored in a MySQL database.
@@ -60,35 +60,37 @@ EOM
 
 %files
 %defattr(-,root,root,-)
-%doc LICENSE README.md create_database.sql update_pklasku_schema.sql update_database_1.0_to_1.1.sql update_database_1.1_to_1.2.sql update_database_1.2_to_1.3.sql update_database_1.3_to_1.4.sql update_database_1.4_to_1.5.sql
+%doc LICENSE README.md create_database.sql update_database_1.0_to_1.1.sql update_database_1.1_to_1.2.sql update_database_1.2_to_1.3.sql update_database_1.3_to_1.4.sql update_database_1.4_to_1.5.sql
 %config(noreplace) %{_sysconfdir}/httpd/conf.d/%{name}.conf
 %attr(2755,root,apache) %dir %{_sysconfdir}/%{name}
 %attr(0640,root,apache) %config(noreplace) %{_sysconfdir}/%{name}/config.php
 %{_datadir}/%{name}
 
 %changelog
-* Mon Oct 5 2012 Ere Maijala <emaijala@gmail.com> - 1.6.1-1
+* Wed Feb 13 2013 Ere Maijala <ere@labs.fi> - 1.6.2-1
+- updated for version 1.6.2
+* Mon Oct 5 2012 Ere Maijala <ere@labs.fi> - 1.6.1-1
 - updated for version 1.6.1
-* Sat Jul 7 2012 Ere Maijala <emaijala@gmail.com> - 1.6.0-1
+* Sat Jul 7 2012 Ere Maijala <ere@labs.fi> - 1.6.0-1
 - rebranded and updated for version 1.6.0
-* Sat Jun 2 2012 Ere Maijala <emaijala@gmail.com> - 1.5.3-1
+* Sat Jun 2 2012 Ere Maijala <ere@labs.fi> - 1.5.3-1
 - updated for version 1.5.3
-* Wed May 23 2012 Ere Maijala <emaijala@gmail.com> - 1.5.2-1
+* Wed May 23 2012 Ere Maijala <ere@labs.fi> - 1.5.2-1
 - updated for version 1.5.2
-* Sun May 20 2012 Ere Maijala <emaijala@gmail.com> - 1.5.1-1
+* Sun May 20 2012 Ere Maijala <ere@labs.fi> - 1.5.1-1
 - updated for version 1.5.1
-* Sun Mar 18 2012 Ere Maijala <emaijala@gmail.com> - 1.5.1-1
+* Sun Mar 18 2012 Ere Maijala <ere@labs.fi> - 1.5.1-1
 - updated for version 1.5.1
-* Sun Mar 18 2012 Ere Maijala <emaijala@gmail.com> - 1.5.0-1
+* Sun Mar 18 2012 Ere Maijala <ere@labs.fi> - 1.5.0-1
 - updated for version 1.5.0
-* Wed Jan 11 2012 Ere Maijala <emaijala@gmail.com> - 1.4.3-1
+* Wed Jan 11 2012 Ere Maijala <ere@labs.fi> - 1.4.3-1
 - updated for version 1.4.3
-* Mon Jan 9 2012 Ere Maijala <emaijala@gmail.com> - 1.4.2-1
+* Mon Jan 9 2012 Ere Maijala <ere@labs.fi> - 1.4.2-1
 - updated for version 1.4.2
 - Added php-xml and php-xsl to requirements
-* Sat Jan 7 2012 Ere Maijala <emaijala@gmail.com> - 1.4.1-1
+* Sat Jan 7 2012 Ere Maijala <ere@labs.fi> - 1.4.1-1
 - updated for version 1.4.1
-* Sat Dec 3 2011 Ere Maijala <emaijala@gmail.com> - 1.4.0-1
+* Sat Dec 3 2011 Ere Maijala <ere@labs.fi> - 1.4.0-1
 - updated for version 1.4.0
-* Fri Jun  3 2011 Ere Maijala <emaijala@gmail.com> - 1.3.0-1
+* Fri Jun  3 2011 Ere Maijala <ere@labs.fi> - 1.3.0-1
 - initial spec from Mika Ilmaranta <ilmis@foobar.fi>
