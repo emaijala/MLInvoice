@@ -73,5 +73,9 @@ define('_IMPORT_FILE_', '');
 define('_SESSION_NAME_', 'MLINVOICESESSION');
 define('_SESSION_RESTRICT_PATH_', true);
 
+// Time zone to use. Typically set in PHP settings, but can be configured locally here too for MLInvoice.
+// Aikavyöhyke. Määritelty tyypillisesti PHP-asetuksissa, mutta voidaan määritellä tässä MLInvoicea varten.
+//date_default_timezone_set('Europe/Helsinki');
+
 // N.B.! Other settings can be found in the UI (Settings -> General Settings)
 // HUOM! Muut asetukset löytyvät käyttöliittymästä kohdasta Asetukset - Yleiset asetukset
