@@ -195,7 +195,7 @@ function db_session_read($sessionID)
 
 function db_session_write($sessionID, $sessionData)
 {
-  mysql_param_query('REPLACE INTO {prefix}session (id, data) VALUES (?, ?)', array($sessionID, $sessionData));
+  mysql_param_query('REPLACE INTO {prefix}session (id, data, session_timestamp) VALUES (?, ?, ?)', array($sessionID, $sessionData, date('Y-m-d H:i:s', time())));
   return true;
 }
 
@@ -207,6 +207,9 @@ function db_session_destroy($sessionID)
  
 function db_session_gc($sessionMaxAge) 
 {
+  if (!$sessionMaxAge) {
+    $sessionMaxAge = 900;
+  }
   mysql_param_query('DELETE FROM {prefix}session WHERE session_timestamp<?', array(date('Y-m-d H:i:s', time()-$sessionMaxAge)));
   return true;
 }
