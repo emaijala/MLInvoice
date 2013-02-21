@@ -136,17 +136,6 @@ function createForm($strFunc, $strList, $strForm)
     $blnNew = TRUE;
     $readOnlyForm = false;
   }
-
-  if ($addressAutocomplete && getSetting('address_autocomplete')) {
-?>    
-<script src="http://maps.googleapis.com/maps/api/js?sensor=false&amp;libraries=places"></script>
-<script type="text/javascript">
-$(document).ready(function() {
-	initAddressAutocomplete("");
-});
-</script>
-<?php
-  }
 ?>
 
   <div id="popup_dlg" style="display: none; width: 900px; overflow: hidden">
@@ -498,6 +487,23 @@ function popup_dialog(url, on_close, dialog_title, event, width, height)
 <?php 
   createFormButtons($blnNew, $copyLinkOverride, false, $readOnlyForm);
   echo "  </div>\n";
+    
+  if ($addressAutocomplete && getSetting('address_autocomplete')) {
+?>
+  <script type="text/javascript">
+  $(document).ready(function() {
+  var s = document.createElement("script");
+    s.type = "text/javascript";
+    s.src  = "http://maps.googleapis.com/maps/api/js?sensor=false&libraries=places&callback=gmapsready";
+    window.gmapsready = function(){
+        initAddressAutocomplete("");
+        initAddressAutocomplete("quick_");
+    };
+    $("head").append(s);  
+  });
+  </script>
+<?php
+  }
 }
 
 function createIForm($astrFormElements, $elem, $intKeyValue, $newRecord)

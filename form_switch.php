@@ -155,6 +155,7 @@ case 'invoice':
   $strListTableAlias = 'i.'; // this is for the search function
   $strParentKey = 'invoice_id';
   $strJSONType = 'invoice';
+  $addressAutocomplete = true;
   
   $arrRefundedInvoice = array('allow_null' => true);
   $arrRefundingInvoice = array('allow_null' => true);
@@ -231,20 +232,8 @@ EOS;
 
 EOS;
 
-    $autocomplete = '';
-    if (getSetting('address_autocomplete')) {
-      $autocomplete = <<<EOS
-<script src="http://maps.googleapis.com/maps/api/js?sensor=false&amp;libraries=places"></script>
-<script type="text/javascript">
-$(document).ready(function() {
-	initAddressAutocomplete('quick_');
-});
-</script>
-EOS;
-    }
-    
     $popupHTML = <<<EOS
-$autocomplete<script type="text/javascript" src="js/add_company.js"></script>
+<script type="text/javascript" src="js/add_company.js"></script>
 <div id="quick_add_company" class="form_container ui-widget-content" style="display: none">
   <div class="medium_label">$locClientName</div> <div class="field"><input type='TEXT' id="quick_name" class='medium'></div>
   <div class="medium_label">$locEmail</div> <div class="field"><input type='TEXT' id="quick_email" class='medium'></div>

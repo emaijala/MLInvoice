@@ -85,11 +85,11 @@ function initAddressAutocomplete(prefix)
 	  $("#" + prefix + "street_address").val(place.name);
 	  $.each(place.address_components, function(index, component) {
 	    if ($.inArray("postal_code", component.types) >= 0) {
-	      $("#" + prefix + "zip_code").val(component.long_name);
+	      $("#" + prefix + "zip_code").val(component.long_name).trigger('change');
 	    } else if ($.inArray("locality", component.types) >= 0 || $.inArray("administrative_area_level_3", component.types) >= 0) {
-	      $("#" + prefix + "city").val(component.long_name);
+	      $("#" + prefix + "city").val(component.long_name).trigger('change');
 	    } else if ($.inArray("country", component.types) >= 0) {
-	      $("#" + prefix + "country").val(component.long_name);
+	      $("#" + prefix + "country").val(component.long_name).trigger('change');
 	    };
 	  });
 	}, 0);
