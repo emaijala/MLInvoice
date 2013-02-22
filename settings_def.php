@@ -57,4 +57,5 @@ $arrSettings = array(
     2 => $GLOBALS['locSettingInvoiceUseProductDefaults'])
   ),
   'invoice_update_row_dates_on_copy' => array('label' => $GLOBALS['locSettingInvoiceUpdateRowDateOnCopy'], 'type' => 'CHECK', 'style' => 'medium', 'position' => 1, 'default' => 1, 'allow_null' => TRUE ), 
+  'invoice_send_reminder_to_invoicing_address' => array('label' => $GLOBALS['locSettingInvoiceSendReminderToInvoicingAddress'], 'type' => 'CHECK', 'style' => 'medium', 'position' => 1, 'default' => 0, 'allow_null' => TRUE ) 
 );

@@ -138,11 +138,15 @@ abstract class InvoicePrinterBase
     
     $this->recipientFullAddress = $recipientData['company_name'] . "\n" . $recipientData['street_address'] . "\n" . $recipientData['zip_code'] . ' ' . $recipientData['city'];
     $this->billingAddress = $recipientData['billing_address'];
-    if (!$this->billingAddress) { 
+    if (!$this->billingAddress || 
+      (($invoiceData['state_id'] == 5 || $invoiceData['state_id'] == 6)
+       && !getSetting('invoice_send_reminder_to_invoicing_address'))
+    ) { 
       $this->billingAddress = $this->recipientFullAddress;
     }
-    $this->recipientName = substr($this->billingAddress, 0, strpos($this->billingAddress, "\n"));
-    $this->recipientAddress = substr($this->billingAddress, strpos($this->billingAddress, "\n") + 1);
+    $addressParts = explode("\n", $this->billingAddress, 2);
+    $this->recipientName = isset($addressParts[0]) ? $addressParts[0] : '';
+    $this->recipientAddress = isset($addressParts[1]) ? $addressParts[1] : '';
     
     // barcode
     /*
