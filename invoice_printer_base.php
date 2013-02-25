@@ -535,6 +535,9 @@ abstract class InvoicePrinterBase
             $description = $row['product_name'] . ' (' . $row['description'] . ')';
           else
             $description = $row['product_name'];
+          if ($row['product_code']) {
+            $description = $row['product_code'] . ' ' . $description; 
+          }
         }
         else
           $description = $row['description'];

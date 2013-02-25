@@ -146,8 +146,8 @@ case 'product':
    $strDeletedField = 'deleted';
    $astrShowFields = 
     array( 
-        array("name" => "product_name", 'width' => 200, "type" => "TEXT", "header" => $GLOBALS['locProductName']),
         array("name" => "product_code", 'width' => 150, "type" => "TEXT", "header" => $GLOBALS['locProductCode']),
+        array("name" => "product_name", 'width' => 200, "type" => "TEXT", "header" => $GLOBALS['locProductName']),
         array("name" => "product_group", 'width' => 150, "type" => "TEXT", "header" => $GLOBALS['locProductGroup']),
         array("name" => "unit_price", 'width' => 100, "type" => "CURRENCY", "header" => $GLOBALS['locUnitPrice'], 'decimals' => getSetting('unit_price_decimals'))
     );
