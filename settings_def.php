@@ -30,10 +30,10 @@ $arrSettings = array(
     100 => '100')
   ),
   'check_updates' => array('label' => $GLOBALS['locSettingCheckForUpdates'], 'type' => 'CHECK', 'style' => 'medium', 'position' => 1, 'default' => 0, 'allow_null' => TRUE ),
-  'address_autocomplete' => array('label' => $GLOBALS['locSettingAddressAutocomplete'], 'type' => 'CHECK', 'style' => 'medium', 'position' => 1, 'default' => 0, 'allow_null' => TRUE ), 
-  
+  'address_autocomplete' => array('label' => $GLOBALS['locSettingAddressAutocomplete'], 'type' => 'CHECK', 'style' => 'medium', 'position' => 1, 'default' => 0, 'allow_null' => TRUE ),
+
   'invoice_sep' => array('label' => $GLOBALS['locSettingInvoices'], 'type' => 'LABEL'),
-  
+
   'invoice_add_number' => array('label' => $GLOBALS['locSettingInvoiceAddNumber'], 'type' => 'CHECK', 'style' => 'medium', 'position' => 1, 'default' => 1, 'allow_null' => TRUE ),
   'invoice_add_reference_number' => array('label' => $GLOBALS['locSettingInvoiceAddReferenceNumber'], 'type' => 'CHECK', 'style' => 'medium', 'position' => 1, 'default' => 1, 'allow_null' => TRUE ),
   'invoice_numbering_per_base' => array('label' => $GLOBALS['locSettingInvoiceNumberingPerBase'], 'type' => 'CHECK', 'style' => 'medium', 'position' => 1, 'default' => 1, 'allow_null' => TRUE ),
@@ -56,7 +56,8 @@ $arrSettings = array(
     1 => $GLOBALS['locSettingInvoiceClearRowValues'],
     2 => $GLOBALS['locSettingInvoiceUseProductDefaults'])
   ),
-  'invoice_update_row_dates_on_copy' => array('label' => $GLOBALS['locSettingInvoiceUpdateRowDateOnCopy'], 'type' => 'CHECK', 'style' => 'medium', 'position' => 1, 'default' => 1, 'allow_null' => TRUE ), 
-  'invoice_send_reminder_to_invoicing_address' => array('label' => $GLOBALS['locSettingInvoiceSendReminderToInvoicingAddress'], 'type' => 'CHECK', 'style' => 'medium', 'position' => 1, 'default' => 0, 'allow_null' => TRUE ), 
-  'invoice_display_product_codes' => array('label' => $GLOBALS['locSettingInvoiceDisplayProductCodes'], 'type' => 'CHECK', 'style' => 'medium', 'position' => 1, 'default' => 0, 'allow_null' => TRUE ) 
+  'invoice_update_row_dates_on_copy' => array('label' => $GLOBALS['locSettingInvoiceUpdateRowDateOnCopy'], 'type' => 'CHECK', 'style' => 'medium', 'position' => 1, 'default' => 1, 'allow_null' => TRUE ),
+  'invoice_send_reminder_to_invoicing_address' => array('label' => $GLOBALS['locSettingInvoiceSendReminderToInvoicingAddress'], 'type' => 'CHECK', 'style' => 'medium', 'position' => 1, 'default' => 0, 'allow_null' => TRUE ),
+  'invoice_display_product_codes' => array('label' => $GLOBALS['locSettingInvoiceDisplayProductCodes'], 'type' => 'CHECK', 'style' => 'medium', 'position' => 1, 'default' => 0, 'allow_null' => TRUE ),
+  'invoice_display_vatless_price_in_list' => array('label' => $GLOBALS['locSettingInvoiceDisplayVATLessPriceInList'], 'type' => 'CHECK', 'style' => 'medium', 'position' => 1, 'default' => 0, 'allow_null' => TRUE )
 );

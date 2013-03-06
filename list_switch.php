@@ -35,16 +35,16 @@ switch ( $strList ? $strList : $strFunc ) {
 ***********************************************************************/
 case 'companies':
    $strTable = '{prefix}company';
-   $astrSearchFields = 
-    array( 
+   $astrSearchFields =
+    array(
         array("name" => "company_name", "type" => "TEXT"),
         array("name" => "company_id", "type" => "TEXT")
     );
    $astrHiddenSearchField = array("name" => "type_id", "type" => "INT");
    $strPrimaryKey = "id";
    $strDeletedField = 'deleted';
-   $astrShowFields = 
-    array( 
+   $astrShowFields =
+    array(
         array("name" => "company_name", 'width' => 150, "type" => "TEXT", "header" => $GLOBALS['locClientName']),
         array("name" => "company_id", 'width' => 100, "type" => "TEXT", "header" => $GLOBALS['locClientVATID']),
         array("name" => "inactive", 'width' => 100, "type" => "TEXT", "header" => $GLOBALS['locHeaderClientActive'],
@@ -64,12 +64,16 @@ case 'invoices':
 
    $strFilter = ($strFunc == 'invoices') ? 'i.archived = 0' : 'i.archived = 1';
    $strTable = '{prefix}invoice i';
-   $strJoin = 
+   $strJoin =
      'LEFT OUTER JOIN {prefix}base b on i.base_id=b.id ' .
      'LEFT OUTER JOIN {prefix}company c on i.company_id=c.id ' .
-     'LEFT OUTER JOIN {prefix}invoice_state s on i.state_id=s.id ' .
-     'LEFT OUTER JOIN (select ir.invoice_id, CASE WHEN ir.vat_included = 0 THEN ir.price * ir.pcs * (1 - IFNULL(ir.discount, 0) / 100) * (1 + ir.vat / 100) ELSE ir.price * ir.pcs * (1 - IFNULL(ir.discount, 0) / 100) END as row_total from {prefix}invoice_row ir where ir.deleted = 0) it ON (it.invoice_id=i.id)';
-   $astrSearchFields = 
+     'LEFT OUTER JOIN {prefix}invoice_state s on i.state_id=s.id ';
+   if (getSetting('invoice_display_vatless_price_in_list')) {
+     $strJoin .= 'LEFT OUTER JOIN (select ir.invoice_id, CASE WHEN ir.vat_included = 0 THEN ir.price * ir.pcs * (1 - IFNULL(ir.discount, 0) / 100) ELSE ir.price * ir.pcs * (1 - IFNULL(ir.discount, 0) / 100) / (1 + ir.vat / 100) END as row_total from {prefix}invoice_row ir where ir.deleted = 0) it ON (it.invoice_id=i.id)';
+   } else {
+     $strJoin .= 'LEFT OUTER JOIN (select ir.invoice_id, CASE WHEN ir.vat_included = 0 THEN ir.price * ir.pcs * (1 - IFNULL(ir.discount, 0) / 100) * (1 + ir.vat / 100) ELSE ir.price * ir.pcs * (1 - IFNULL(ir.discount, 0) / 100) END as row_total from {prefix}invoice_row ir where ir.deleted = 0) it ON (it.invoice_id=i.id)';
+   }
+   $astrSearchFields =
     array(
         array("name" => "i.invoice_no", "type" => "TEXT"),
         array("name" => "i.ref_number", "type" => "TEXT"),
@@ -77,8 +81,8 @@ case 'invoices':
     );
    $strPrimaryKey = "i.id";
    $strDeletedField = 'i.deleted';
-   $astrShowFields = 
-    array( 
+   $astrShowFields =
+    array(
         array("name" => "i.invoice_date", 'width' => 80, "type" => "INTDATE", "order" => "DESC", "header" => $GLOBALS['locHeaderInvoiceDate']),
         array("name" => "i.due_date", 'width' => 80, "type" => "INTDATE", "order" => "DESC", "header" => $GLOBALS['locHeaderInvoiceDueDate']),
         array("name" => "i.invoice_no", 'width' => 80, "type" => "TEXT", "header" => $GLOBALS['locHeaderInvoiceNr']),
@@ -99,14 +103,14 @@ break;
 ***********************************************************************/
 case 'base':
    $strTable = "{prefix}base";
-   $astrSearchFields = 
-    array( 
+   $astrSearchFields =
+    array(
         array("name" => "name", "type" => "TEXT")
     );
    $strPrimaryKey = "id";
    $strDeletedField = 'deleted';
-   $astrShowFields = 
-    array( 
+   $astrShowFields =
+    array(
         array("name" => "name", 'width' => 200, "type" => "TEXT", "header" => $GLOBALS['locBaseName']),
         array("name" => "company_id", 'width' => 100, "type" => "TEXT", "header" => $GLOBALS['locClientVATID']),
         array("name" => "contact_person", 'width' => 150, "type" => "TEXT", "header" => $GLOBALS['locContactPerson']),
@@ -119,14 +123,14 @@ break;
 
 case 'invoice_state':
    $strTable = "{prefix}invoice_state";
-   $astrSearchFields = 
-    array( 
+   $astrSearchFields =
+    array(
         array("name" => "name'", "type" => "TEXT")
     );
    $strPrimaryKey = "id";
    $strDeletedField = 'deleted';
-   $astrShowFields = 
-    array( 
+   $astrShowFields =
+    array(
         array("name" => "order_no", 'width' => 150, "type" => "TEXT", "header" => $GLOBALS['locOrderNr']),
         array("name" => "name", 'width' => 450, "type" => "TEXT", "header" => $GLOBALS['locStatus'], 'translate' => true)
     );
@@ -137,35 +141,35 @@ break;
 
 case 'product':
    $strTable = '{prefix}product';
-   $astrSearchFields = 
-    array( 
+   $astrSearchFields =
+    array(
         array("name" => "product_name", "type" => "TEXT"),
         array("name" => "product_code", "type" => "TEXT")
     );
    $strPrimaryKey = "id";
    $strDeletedField = 'deleted';
-   $astrShowFields = 
-    array( 
+   $astrShowFields =
+    array(
         array("name" => "product_code", 'width' => 150, "type" => "TEXT", "header" => $GLOBALS['locProductCode']),
         array("name" => "product_name", 'width' => 200, "type" => "TEXT", "header" => $GLOBALS['locProductName']),
         array("name" => "product_group", 'width' => 150, "type" => "TEXT", "header" => $GLOBALS['locProductGroup']),
         array("name" => "unit_price", 'width' => 100, "type" => "CURRENCY", "header" => $GLOBALS['locUnitPrice'], 'decimals' => getSetting('unit_price_decimals'))
     );
-   
+
    $strMainForm = "product";
    $strTitle = $GLOBALS['locProducts'];
 break;
 
 case 'row_type':
    $strTable = "{prefix}row_type";
-   $astrSearchFields = 
-    array( 
+   $astrSearchFields =
+    array(
         array("name" => "name", "type" => "TEXT")
     );
    $strPrimaryKey = "id";
    $strDeletedField = 'deleted';
-   $astrShowFields = 
-    array( 
+   $astrShowFields =
+    array(
         array("name" => "order_no", 'width' => 150, "type" => "TEXT", "header" => $GLOBALS['locOrderNr']),
         array("name" => "name", 'width' => 450, "type" => "TEXT", "header" => $GLOBALS['locRowType'], 'translate' => true)
     );
@@ -175,16 +179,16 @@ break;
 
 case 'print_template':
   $strTable = "{prefix}print_template";
-  $astrSearchFields = 
-  array( 
+  $astrSearchFields =
+  array(
       array("name" => "name", "type" => "TEXT")
   );
   $strPrimaryKey = "id";
   $strDeletedField = 'deleted';
-  $astrShowFields = 
-  array( 
+  $astrShowFields =
+  array(
     array("name" => "order_no", 'width' => 150, "type" => "TEXT", "header" => $GLOBALS['locOrderNr']),
-    array("name" => "type", 'width' => 150, "type" => "TEXT", "header" => $GLOBALS['locPrintTemplateType'], 
+    array("name" => "type", 'width' => 150, "type" => "TEXT", "header" => $GLOBALS['locPrintTemplateType'],
       'mappings' => array('invoice' => $GLOBALS['locPrintTemplateTypeInvoice']) ),
     array("name" => "name", 'width' => 200, "type" => "TEXT", "header" => $GLOBALS['locPrintTemplateName'], 'translate' => true),
     array("name" => "inactive", 'width' => 100, "type" => "TEXT", "header" => $GLOBALS['locHeaderPrintTemplateActive'],
@@ -202,14 +206,14 @@ case 'print_template':
 case 'session_type':
    $levelsAllowed = array(99);
    $strTable = "{prefix}session_type";
-   $astrSearchFields = 
-    array( 
+   $astrSearchFields =
+    array(
         array("name" => "name", "type" => "TEXT")
     );
    $strPrimaryKey = "id";
    $strDeletedField = 'deleted';
-   $astrShowFields = 
-    array( 
+   $astrShowFields =
+    array(
         array("name" => "order_no", 'width' => 150, "type" => "TEXT", "header" => $GLOBALS['locOrderNr']),
         array("name" => "name", 'width' => 450, "type" => "TEXT", "header" => $GLOBALS['locSessionType'], 'translate' => true)
     );
@@ -217,18 +221,18 @@ case 'session_type':
    $strMainForm = "session_type";
    $strTitle = $GLOBALS['locSessionTypes'];
 break;
-   
+
 case 'user':
    $levelsAllowed = array(99);
    $strTable = "{prefix}users";
-   $astrSearchFields = 
-    array( 
+   $astrSearchFields =
+    array(
         array("name" => "name", "type" => "TEXT")
     );
    $strPrimaryKey = "id";
    $strDeletedField = 'deleted';
-   $astrShowFields = 
-    array( 
+   $astrShowFields =
+    array(
         array("name" => "name", 'width' => 350, "type" => "TEXT", "header" => $GLOBALS['locUserName']),
         array("name" => "login", 'width' => 250, "type" => "TEXT", "header" => $GLOBALS['locLoginName'])
     );
