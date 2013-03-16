@@ -42,11 +42,11 @@ case 'company':
   $strJSONType = 'company';
   $strParentKey = 'company_id';
   $addressAutocomplete = true;
-  $astrSearchFields = 
-  array( 
+  $astrSearchFields =
+  array(
     array('name' => 'company_name', 'type' => 'TEXT')
   );
-  
+
   $defaultCustomerNr = FALSE;
   if (getSetting('add_customer_number'))
   {
@@ -54,7 +54,7 @@ case 'company':
     $intRes = mysql_query_check($strQuery);
     $defaultCustomerNr = mysql_fetch_value(mysql_query_check($strQuery)) + 1;
   }
-  
+
   $astrFormElements = array(
     array(
       'name' => 'company_name', 'label' => $GLOBALS['locClientName'], 'type' => 'TEXT', 'style' => 'medium', 'position' => 1 ),
@@ -120,16 +120,18 @@ break;
 case 'product':
   $strTable = '{prefix}product';
   $strJSONType = 'product';
-  $astrSearchFields = array( 
+  $astrSearchFields = array(
     array('name' => 'product_name', 'type' => 'TEXT')
   );
   $astrFormElements = array(
     array(
-      'name' => 'product_name', 'label' => $GLOBALS['locProductName'], 'type' => 'TEXT', 'style' => 'medium', 'position' => 1 ),
-    array(
-      'name' => 'description', 'label' => $GLOBALS['locProductDescription'], 'type' => 'TEXT', 'style' => 'long', 'position' => 2, 'allow_null' => true ),
+      'name' => 'order_no', 'label' => $GLOBALS['locOrderNr'], 'type' => 'INT', 'style' => 'short', 'position' => 1, 'allow_null' => true ),
     array(
       'name' => 'product_code', 'label' => $GLOBALS['locProductCode'], 'type' => 'TEXT', 'style' => 'medium', 'position' => 1, 'allow_null' => true ),
+    array(
+      'name' => 'product_name', 'label' => $GLOBALS['locProductName'], 'type' => 'TEXT', 'style' => 'medium', 'position' => 2 ),
+    array(
+      'name' => 'description', 'label' => $GLOBALS['locProductDescription'], 'type' => 'TEXT', 'style' => 'long', 'position' => 1, 'allow_null' => true ),
     array(
       'name' => 'product_group', 'label' => $GLOBALS['locProductGroup'], 'type' => 'TEXT', 'style' => 'medium', 'position' => 2, 'allow_null' => true ),
     array(
@@ -156,42 +158,42 @@ case 'invoice':
   $strParentKey = 'invoice_id';
   $strJSONType = 'invoice';
   $addressAutocomplete = true;
-  
+
   $arrRefundedInvoice = array('allow_null' => true);
   $arrRefundingInvoice = array('allow_null' => true);
   $intInvoiceId = getRequest('id', 0);
   if ($intInvoiceId)
   {
-    $strQuery = 
+    $strQuery =
       'SELECT refunded_invoice_id '.
       'FROM {prefix}invoice '.
       'WHERE id=?'; // ok to maintain links to deleted invoices too
     $intRes = mysql_param_query($strQuery, array($intInvoiceId));
     $strBaseLink = '?' . preg_replace('/&id=\d*/', '', $_SERVER['QUERY_STRING']);
     $strBaseLink = preg_replace('/&/', '&amp;', $strBaseLink);
-    if ($intRes) 
+    if ($intRes)
     {
       $intRefundedInvoiceId = mysql_fetch_value($intRes);
       if ($intRefundedInvoiceId)
         $arrRefundedInvoice = array(
-         'name' => 'get', 'label' => $GLOBALS['locShowRefundedInvoice'], 'type' => 'BUTTON', 'style' => 'custom', 'listquery' => "$strBaseLink&amp;id=$intRefundedInvoiceId", 'position' => 2, 'allow_null' => true 
+         'name' => 'get', 'label' => $GLOBALS['locShowRefundedInvoice'], 'type' => 'BUTTON', 'style' => 'custom', 'listquery' => "$strBaseLink&amp;id=$intRefundedInvoiceId", 'position' => 2, 'allow_null' => true
         );
     }
-    $strQuery = 
+    $strQuery =
       'SELECT id '.
       'FROM {prefix}invoice '.
       'WHERE deleted=0 AND refunded_invoice_id=?';
     $intRes = mysql_param_query($strQuery, array($intInvoiceId));
-    if ($intRes && ($row = mysql_fetch_assoc($intRes))) 
+    if ($intRes && ($row = mysql_fetch_assoc($intRes)))
     {
       $intRefundingInvoiceId = $row['id'];
       if ($intRefundingInvoiceId)
         $arrRefundingInvoice = array(
-          'name' => 'get', 'label' => $GLOBALS['locShowRefundingInvoice'], 'type' => 'BUTTON', 'style' => 'custom', 'listquery' => "'$strBaseLink&amp;id=$intRefundingInvoiceId", 'position' => 2, 'allow_null' => true 
+          'name' => 'get', 'label' => $GLOBALS['locShowRefundingInvoice'], 'type' => 'BUTTON', 'style' => 'custom', 'listquery' => "'$strBaseLink&amp;id=$intRefundingInvoiceId", 'position' => 2, 'allow_null' => true
         );
     }
   }
-  
+
   $invoicePrintChecks = '';
   $invoiceNumberUpdatePrefix = '';
   $invoiceNumberUpdateSuffix = '';
@@ -199,8 +201,8 @@ case 'invoice':
   $getInvoiceNr = '';
   $updateDates = '';
   $addCompanyCode = '';
-  
-  if (sesWriteAccess()) 
+
+  if (sesWriteAccess())
   {
     $companyOnChange = <<<EOS
 onchange = "$.getJSON('json.php?func=get_company', {id: $('#company_id').val() }, function(json) { if (json && json.default_ref_number) $('#ref_number').val(json.default_ref_number);});"
@@ -214,7 +216,7 @@ EOS;
     $updateDates = <<<EOS
 <a class="formbuttonlink" href="#" onclick="$.getJSON('json.php?func=get_invoice_defaults', {id: $('#record_id').val(), base_id: $('#base_id').val(), interval_type: $('#interval_type').val()}, function(json) { $('#invoice_date').val(json.date); $('#due_date').val(json.due_date); $('#next_interval_date').val(json.next_interval_date); $('.save_button').addClass('ui-state-highlight'); }); return false;">$locUpdateDates</a>
 EOS;
-    
+
     $locNew = $GLOBALS['locNew'] . '...';
     $locClientName = $GLOBALS['locClientName'];
     $locEmail = $GLOBALS['locEmail'];
@@ -250,11 +252,11 @@ EOS;
       $invoicePrintChecks .= "var d = new Date(); var dt = document.getElementById('invoice_date').value.split('.'); if (parseInt(dt[0], 10) != d.getDate() || parseInt(dt[1], 10) != d.getMonth()+1 || parseInt(dt[2], 10) != d.getYear() + 1900) alert('" . $GLOBALS['locInvoiceDateNonCurrent'] . "'); ";
     }
     $invoicePrintChecks .= "var len = document.getElementById('ref_number').value.length; if (len > 0 && len < 4) alert('" . $GLOBALS['locInvoiceRefNumberTooShort'] . "'); ";
-    
+
     if (getSetting('invoice_add_number') || getSetting('invoice_add_reference_number'))
     {
       $invoiceNumberUpdatePrefix = "$.getJSON('json.php?func=get_invoice_defaults&amp;id=' + document.getElementById('record_id').value + '&amp;base_id=' + document.getElementById('base_id').value + '&amp;invoice_no=' + document.getElementById('invoice_no').value, function(json) { ";
-      if (getSetting('invoice_add_number')) 
+      if (getSetting('invoice_add_number'))
         $invoiceNumberUpdatePrefix .= "var invoice_no = document.getElementById('invoice_no'); if (invoice_no.value == '' || invoice_no.value < 100) invoice_no.value = json.invoice_no; ";
       if (getSetting('invoice_add_reference_number'))
         $invoiceNumberUpdatePrefix .= "var ref_number = document.getElementById('ref_number'); if (ref_number.value == '' || ref_number.value == 0) ref_number.value = json.ref_no; ";
@@ -265,7 +267,7 @@ EOS;
       $invoiceNumberUpdatePrefix .= "invoice_no = document.getElementById('invoice_no'); if (invoice_no.value == '' || invoice_no.value == 0) alert('" . $GLOBALS['locInvoiceNumberNotDefined'] . "');";
     }
   }
-  
+
   // Print buttons
   $printButtons = array();
   $printButtons2 = array();
@@ -289,7 +291,7 @@ EOS;
       if (!$printer->getReadOnlySafe()) {
         continue;
       }
-      
+
       if ($printStyle == 'openwindow')
         $printFunc = "window.open('invoice.php?id=_ID_&amp;template=$templateId&amp;func=$strFunc'); return false;";
       else
@@ -307,37 +309,37 @@ EOS;
       $printButtons[] = $arr;
     }
   }
-  
+
   $companyListSelect = "SELECT id, IF(STRCMP(company_id,''), CONCAT(company_name, ' (', company_id, ')'), company_name) FROM {prefix}company WHERE deleted=0 AND (inactive=0";
   if ($intInvoiceId && is_numeric($intInvoiceId))
     $companyListSelect .= " OR id IN (SELECT company_id FROM {prefix}invoice i WHERE i.id=$intInvoiceId)";
   $companyListSelect .= ') ORDER BY company_name, company_id';
-  
+
   $intRes = mysql_query_check('SELECT ID from {prefix}base WHERE deleted=0');
   if (mysql_num_rows($intRes) == 1)
     $defaultBase = mysql_fetch_value($intRes);
   else
     $defaultBase = FALSE;
-   
+
   $copyLinkOverride = "copy_invoice.php?func=$strFunc&amp;list=$strList&amp;id=$intInvoiceId";
-  
+
   $updateInvoiceNr = null;
-  if (sesWriteAccess()) 
+  if (sesWriteAccess())
   {
     if (!getSetting('invoice_add_number') || !getSetting('invoice_add_reference_number'))
     {
       $updateInvoiceNr = '<a class="formbuttonlink" href="#" onclick="' . $getInvoiceNr . '">' . $GLOBALS['locGetInvoiceNr'] . '</a>';
     }
   }
-  
+
   $addReminderFees = "$.getJSON('json.php?func=add_reminder_fees&amp;id=' + document.getElementById('record_id').value, function(json) { if (json.errors) { $('#errormsg').text(json.errors).show() } else { showmsg('{$GLOBALS['locReminderFeesAdded']}'); } init_rows(); }); return false;";
-  
+
   $intervalOptions = array(
     '0' => $GLOBALS['locInvoiceIntervalNone'],
     '2' => $GLOBALS['locInvoiceIntervalMonth'],
     '3' => $GLOBALS['locInvoiceIntervalYear']
   );
-  
+
   $astrFormElements = array(
     array(
       'name' => 'base_id', 'label' => $GLOBALS['locBiller'], 'type' => 'LIST', 'style' => 'medium linked', 'listquery' => 'SELECT id, name FROM {prefix}base WHERE deleted=0', 'position' => 1, 'default' => $defaultBase ),
@@ -369,28 +371,28 @@ EOS;
       'name' => 'info', 'label' => $GLOBALS['locVisibleInfo'], 'type' => 'AREA', 'style' => 'medium', 'position' => 1, 'allow_null' => true ),
     array(
       'name' => 'internal_info', 'label' => $GLOBALS['locInternalInfo'], 'type' => 'AREA', 'style' => 'medium', 'position' => 2, 'allow_null' => true ),
-      
+
     !sesWriteAccess() ? array('name' => 'refundinvoice', 'label' => '', 'type' => 'FILLER', 'position' => 1) : array(
       'name' => 'refundinvoice', 'label' => $GLOBALS['locRefundInvoice'], 'type' => 'BUTTON', 'style' => 'redirect', 'listquery' => "copy_invoice.php?func=$strFunc&list=$strList&id=_ID_&refund=1", 'position' => 1, 'default' => FALSE, 'allow_null' => true ),
     $arrRefundedInvoice,
-    isset($printButtons[0]) ? $printButtons[0] : array(),   
-    isset($printButtons2[0]) ? $printButtons2[0] : array(),   
+    isset($printButtons[0]) ? $printButtons[0] : array(),
+    isset($printButtons2[0]) ? $printButtons2[0] : array(),
     !sesWriteAccess() ? array('name' => 'addreminderfees', 'label' => '', 'type' => 'FILLER', 'position' => 1) : array(
       'name' => 'addreminderfees', 'label' => $GLOBALS['locAddReminderFees'], 'type' => 'JSBUTTON', 'style' => 'redirect', 'listquery' => $addReminderFees, 'position' => 1, 'default' => FALSE, 'allow_null' => true ),
     $arrRefundingInvoice,
-    isset($printButtons[1]) ? $printButtons[1] : array(),   
-    isset($printButtons2[1]) ? $printButtons2[1] : array(),   
+    isset($printButtons[1]) ? $printButtons[1] : array(),
+    isset($printButtons2[1]) ? $printButtons2[1] : array(),
   );
-  
+
   for ($i = 2; $i < count($printButtons); $i++)
   {
     $astrFormElements[] = $printButtons[$i];
     if (isset($printButtons2[$i]))
       $astrFormElements[] = $printButtons2[$i];
   }
-  
+
   $astrFormElements[] = array(
-    'name' => 'invoice_rows', 'label' => $GLOBALS['locInvRows'], 'type' => 'IFORM', 'style' => 'xfull', 'position' => 0, 'allow_null' => true, 'parent_key' => 'invoice_id' 
+    'name' => 'invoice_rows', 'label' => $GLOBALS['locInvRows'], 'type' => 'IFORM', 'style' => 'xfull', 'position' => 0, 'allow_null' => true, 'parent_key' => 'invoice_id'
   );
 break;
 
@@ -414,10 +416,10 @@ case 'invoice_rows':
     var prod = globals.selectedProduct;
     document.getElementById(form_id + '_description').value = prod.description;
     globals.defaultDescription = prod.description;
-    
+
     var type_id = document.getElementById(form_id + '_type_id');
     for (var i = 0; i < type_id.options.length; i++)
-    {  
+    {
       var item = type_id.options[i];
       if (item.value == prod.type_id)
       {
@@ -425,26 +427,26 @@ case 'invoice_rows':
         break;
       }
     }
-    document.getElementById(form_id + '_price').value = prod.unit_price.replace('.', ','); 
-    document.getElementById(form_id + '_discount').value = prod.discount.replace('.', ','); 
-    document.getElementById(form_id + '_vat').value = prod.vat_percent.replace('.', ','); 
+    document.getElementById(form_id + '_price').value = prod.unit_price.replace('.', ',');
+    document.getElementById(form_id + '_discount').value = prod.discount.replace('.', ',');
+    document.getElementById(form_id + '_vat').value = prod.vat_percent.replace('.', ',');
     document.getElementById(form_id + '_vat_included').checked = prod.vat_included == 1 ? true : false;
   }
 EOS;
   }
 
    $productOnChange = <<<EOS
-onchange = "var form_id = this.form.id; $.getJSON('json.php?func=get_product&amp;id=' + this.value, function(json) { 
+onchange = "var form_id = this.form.id; $.getJSON('json.php?func=get_product&amp;id=' + this.value, function(json) {
   globals.selectedProduct = json;
-  if (!json || !json.id) return; 
-  
+  if (!json || !json.id) return;
+
   if (json.description != '' || document.getElementById(form_id + '_description').value == (globals.defaultDescription != null ? globals.defaultDescription : ''))
     document.getElementById(form_id + '_description').value = json.description;
   globals.defaultDescription = json.description;
-  
+
   var type_id = document.getElementById(form_id + '_type_id');
   for (var i = 0; i < type_id.options.length; i++)
-  {  
+  {
     var item = type_id.options[i];
     if (item.value == json.type_id)
     {
@@ -452,9 +454,9 @@ onchange = "var form_id = this.form.id; $.getJSON('json.php?func=get_product&amp
       break;
     }
   }
-  document.getElementById(form_id + '_price').value = json.unit_price ? json.unit_price.replace('.', ',') : ''; 
-  document.getElementById(form_id + '_discount').value = json.discount ? json.discount.replace('.', ',') : ''; 
-  document.getElementById(form_id + '_vat').value = json.vat_percent ? json.vat_percent.replace('.', ',') : ''; 
+  document.getElementById(form_id + '_price').value = json.unit_price ? json.unit_price.replace('.', ',') : '';
+  document.getElementById(form_id + '_discount').value = json.discount ? json.discount.replace('.', ',') : '';
+  document.getElementById(form_id + '_vat').value = json.vat_percent ? json.vat_percent.replace('.', ',') : '';
   document.getElementById(form_id + '_vat_included').checked = (json.vat_included && json.vat_included == 1) ? true : false;
 });"
 EOS;
@@ -471,7 +473,7 @@ EOS;
      array(
         'name' => 'id', 'label' => '', 'type' => 'HID_INT', 'style' => 'medium', 'position' => 0 ),
      array(
-        'name' => 'product_id', 'label' => $GLOBALS['locProductName'], 'type' => 'LIST', 'style' => 'medium', 'listquery' => "SELECT id, CASE WHEN product_code != '' THEN concat(product_code, ' ', product_name) ELSE product_name END FROM {prefix}product WHERE deleted=0 ORDER BY product_name", 'position' => 0, 'allow_null' => true, 'elem_attributes' => $productOnChange ),
+        'name' => 'product_id', 'label' => $GLOBALS['locProductName'], 'type' => 'LIST', 'style' => 'medium', 'listquery' => "SELECT id, CASE WHEN product_code != '' THEN concat(product_code, ' ', product_name) ELSE product_name END FROM {prefix}product WHERE deleted=0 ORDER BY order_no, product_code, product_name", 'position' => 0, 'allow_null' => true, 'elem_attributes' => $productOnChange ),
      array(
         'name' => 'description', 'label' => $GLOBALS['locRowDesc'], 'type' => 'TEXT', 'style' => 'medium', 'position' => 0, 'allow_null' => true ),
      array(
@@ -503,12 +505,12 @@ case 'base':
   $strTable = '{prefix}base';
   $strJSONType = 'base';
   $addressAutocomplete = true;
-  
-  $title = $GLOBALS['locBaseLogoTitle'];   
+
+  $title = $GLOBALS['locBaseLogoTitle'];
   $openPopJS = <<<EOF
 popup_dialog('base_logo.php?func=edit&amp;id=_ID_', '$(\\'img\\').attr(\\'src\\', \\'base_logo.php?func=view&id=_ID_\\')', '$title', event, 600, 400); return false;
 EOF;
-   
+
   $astrFormElements = array(
     array(
       'name' => 'name', 'label' => $GLOBALS['locBaseName'], 'type' => 'TEXT', 'style' => 'medium', 'position' => 1 ),
@@ -595,7 +597,7 @@ case 'invoice_state':
   $levelsAllowed = array(ROLE_ADMIN);
   $strTable = '{prefix}invoice_state';
   $strJSONType = 'invoice_state';
-  
+
   $intId = getRequest('id', FALSE);
   if ($intId && $intId <= 7)
   {
@@ -626,12 +628,12 @@ case 'session_type':
   $levelsAllowed = array(ROLE_ADMIN);
   $strTable = '{prefix}session_type';
   $strJSONType = 'session_type';
-  
+
   $intId = getRequest('id', FALSE);
   if ($intId && $intId <= 4)
   {
     $readOnlyForm = true;
-  }  
+  }
   $astrFormElements = array(
     array(
       'name' => 'name', 'label' => $GLOBALS['locSessionType'], 'type' => 'TEXT', 'style' => 'medium', 'position' => 1 ),
@@ -648,7 +650,7 @@ case 'user':
   $strJSONType = 'user';
   $astrFormElements = array(
     array(
-      'name' => 'name', 'label' => $GLOBALS['locUserName'], 'type' => 'TEXT', 'style' => 'medium', 'position' => 1 ), 
+      'name' => 'name', 'label' => $GLOBALS['locUserName'], 'type' => 'TEXT', 'style' => 'medium', 'position' => 1 ),
     array(
       'name' => 'login', 'label' => $GLOBALS['locLoginName'], 'type' => 'TEXT', 'style' => 'medium', 'position' => 1, 'unique' => true ),
     array(
@@ -661,7 +663,7 @@ break;
 case 'print_template':
   $strTable = '{prefix}print_template';
   $strJSONType = 'print_template';
-  
+
   $elem_attributes = '';
   $astrFormElements = array(
     array(

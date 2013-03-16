@@ -150,6 +150,7 @@ case 'product':
    $strDeletedField = 'deleted';
    $astrShowFields =
     array(
+        array("name" => "order_no", 'width' => 150, "type" => "TEXT", "header" => $GLOBALS['locOrderNr']),
         array("name" => "product_code", 'width' => 150, "type" => "TEXT", "header" => $GLOBALS['locProductCode']),
         array("name" => "product_name", 'width' => 200, "type" => "TEXT", "header" => $GLOBALS['locProductName']),
         array("name" => "product_group", 'width' => 150, "type" => "TEXT", "header" => $GLOBALS['locProductGroup']),
@@ -217,7 +218,6 @@ case 'session_type':
         array("name" => "order_no", 'width' => 150, "type" => "TEXT", "header" => $GLOBALS['locOrderNr']),
         array("name" => "name", 'width' => 450, "type" => "TEXT", "header" => $GLOBALS['locSessionType'], 'translate' => true)
     );
-    //array('order_no','name');
    $strMainForm = "session_type";
    $strTitle = $GLOBALS['locSessionTypes'];
 break;

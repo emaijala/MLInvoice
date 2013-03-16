@@ -119,6 +119,7 @@ CREATE TABLE mlinvoice_product (
   vat_included tinyint NOT NULL default 0,
   discount decimal(4,1) NULL,
   price_decimals decimal(1,0) NOT NULL default 2,
+  order_no int(11) default NULL,
   PRIMARY KEY (id),
   FOREIGN KEY (type_id) REFERENCES mlinvoice_row_type(id)
 ) ENGINE=INNODB CHARACTER SET utf8 COLLATE utf8_swedish_ci;
@@ -183,9 +184,9 @@ CREATE TABLE mlinvoice_session_type (
 CREATE TABLE mlinvoice_users (
   id int(11) NOT NULL auto_increment,
   deleted tinyint NOT NULL default 0,
-  name varchar(50) default NULL,
+  name varchar(255) default NULL,
   email varchar(255) default NULL,
-  login varchar(15) default NULL,
+  login varchar(255) default NULL,
   passwd varchar(255) default NULL,
   type_id int(11) default NULL,
   PRIMARY KEY (id),
@@ -240,7 +241,7 @@ CREATE TABLE mlinvoice_state (
 
 SET NAMES 'utf8';
 
-INSERT INTO mlinvoice_state (id, data) VALUES ('version', '20');
+INSERT INTO mlinvoice_state (id, data) VALUES ('version', '23');
 
 INSERT INTO mlinvoice_invoice_state (id, name, order_no) VALUES (1, 'StateOpen', 5);
 INSERT INTO mlinvoice_invoice_state (id, name, order_no) VALUES (2, 'StateSent', 10);

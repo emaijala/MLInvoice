@@ -52,19 +52,19 @@ function mysql_query_check($query, $noFail=false)
     {
       header('HTTP/1.1 500 Internal Server Error');
       if (!defined('_DB_VERBOSE_ERRORS_') || !_DB_VERBOSE_ERRORS_)
-        die($GLOBALS['locDBError']);  
+        die($GLOBALS['locDBError']);
       die(htmlspecialchars("Query '$query' failed: ($intError) " . mysql_error()));
     }
   }
   return $intRes;
 }
 
-function mysql_param_query($query, $params=false, $noFail=false) 
+function mysql_param_query($query, $params=false, $noFail=false)
 {
-  if ($params) 
+  if ($params)
   {
-    foreach ($params as &$v) 
-    { 
+    foreach ($params as &$v)
+    {
       if (is_null($v))
         $v = 'NULL';
       elseif (is_array($v))
@@ -74,7 +74,7 @@ function mysql_param_query($query, $params=false, $noFail=false)
         {
           if ($t)
             $t .= ',';
-          $v2 = mysql_real_escape_string($v2); 
+          $v2 = mysql_real_escape_string($v2);
           if (!is_numeric($v2) || (strlen(trim($v2)) > 0 && substr(trim($v2), 0, 1) == '0'))
             $v2 = "'$v2'";
           $t .= $v2;
@@ -83,16 +83,16 @@ function mysql_param_query($query, $params=false, $noFail=false)
       }
       else
       {
-        $v = mysql_real_escape_string($v); 
+        $v = mysql_real_escape_string($v);
         if (!is_numeric($v) || (strlen(trim($v)) > 1 && substr(trim($v), 0, 1) == '0'))
           $v = "'$v'";
       }
     }
     $sql_query = vsprintf(str_replace("?","%s",$query), $params);
     return mysql_query_check($sql_query, $noFail);
-  }    
+  }
   return mysql_query_check($query);
-} 
+}
 
 function mysql_fetch_value($result)
 {
@@ -133,7 +133,7 @@ function create_db_dump()
 
   $tables = array();
   foreach ($in_tables as $table)
-  { 
+  {
     $tables[] = _DB_PREFIX_ . "_$table";
   }
 
@@ -153,7 +153,7 @@ function create_db_dump()
     if (!$row)
       die("Could not read table definition for table $table");
     echo $row['Create Table'] . ";\n\n";
-    
+
     $res = mysql_query_check("show fields from $table");
     $field_count = mysql_num_rows($res);
     $field_defs = array();
@@ -168,7 +168,7 @@ function create_db_dump()
     // Don't dump current sessions
     if ($table == _DB_PREFIX_ . '_session')
       continue;
-    
+
     $res = mysql_query_check("select * from $table");
     while ($row = mysql_fetch_row($res))
     {
@@ -208,7 +208,7 @@ function table_valid($table)
 /**
  * Verify database status and upgrade as necessary.
  * Expects all pre-1.6.0 changes to have been already made.
- * 
+ *
  * @return string status (OK|UPGRADED|FAILED)
  */
 function verifyDatabase()
@@ -227,7 +227,7 @@ EOT
       return 'FAILED';
     }
     mysql_query_check("REPLACE INTO {prefix}state (id, data) VALUES ('version', '15')");
-  } 
+  }
 
   $res = mysql_param_query('SELECT data FROM {prefix}state WHERE id=?', array('version'));
   $version = mysql_fetch_value($res);
@@ -269,7 +269,7 @@ EOT
       "UPDATE {prefix}row_type set name='TypePieces' where name='kpl'",
       "UPDATE {prefix}row_type set name='TypeYear' where name='vuosi'",
       "UPDATE {prefix}row_type set name='TypeLot' where name='erä'",
-      "UPDATE {prefix}row_type set name='TypeKilometer' where name='km'",      
+      "UPDATE {prefix}row_type set name='TypeKilometer' where name='km'",
       "REPLACE INTO {prefix}state (id, data) VALUES ('version', '17')"
     ));
   }
@@ -294,7 +294,7 @@ EOT
       "ALTER TABLE {prefix}product CHANGE COLUMN unit_price unit_price decimal(15,5)",
       "ALTER TABLE {prefix}invoice_row CHANGE COLUMN price price decimal(15,5)",
       "ALTER TABLE {prefix}product CHANGE COLUMN discount discount decimal(4,1) NULL",
-      "ALTER TABLE {prefix}invoice_row CHANGE COLUMN discount discount decimal(4,1) NULL", 
+      "ALTER TABLE {prefix}invoice_row CHANGE COLUMN discount discount decimal(4,1) NULL",
       "REPLACE INTO {prefix}state (id, data) VALUES ('version', '20')"
     ));
   }
@@ -313,7 +313,15 @@ EOT
       "REPLACE INTO {prefix}state (id, data) VALUES ('version', '22')"
     ));
   }
-  
+  if ($version < 23) {
+    $updates = array_merge($updates, array(
+      'ALTER TABLE {prefix}product ADD COLUMN order_no int(11) default NULL',
+      'ALTER TABLE {prefix}users CHANGE COLUMN name name varchar(255)',
+      'ALTER TABLE {prefix}users CHANGE COLUMN login login varchar(255)',
+      "REPLACE INTO {prefix}state (id, data) VALUES ('version', '23')"
+    ));
+  }
+
   if (!empty($updates)) {
     foreach ($updates as $update) {
       $res = mysql_query_check($update, true);
@@ -335,5 +343,5 @@ EOT
     }
     return 'UPGRADED';
   }
-  return 'OK';  
+  return 'OK';
 }
