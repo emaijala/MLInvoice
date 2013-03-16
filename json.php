@@ -106,7 +106,7 @@ case 'put_invoice_row':
 case 'delete_invoice_row':
   deleteRecord('invoice_row');
   break;
-  
+
 case 'add_reminder_fees':
   require 'add_reminder_fees.php';
   $invoiceId = getRequest('id', 0);
@@ -150,7 +150,7 @@ case 'get_invoice_defaults':
       $nextIntervalDate = '';
   }
   $arrData = array(
-    'invoice_no' => $invNr, 
+    'invoice_no' => $invNr,
     'ref_no' => $refNr,
     'date' => $strDate,
     'due_date' => $strDueDate,
@@ -159,7 +159,7 @@ case 'get_invoice_defaults':
   header('Content-Type: application/json');
   echo json_encode($arrData);
   break;
-  
+
 case 'get_table_columns':
   if (!sesAdminAccess())
   {
@@ -172,11 +172,24 @@ case 'get_table_columns':
     header('HTTP/1.1 400 Bad Request');
     exit;
   }
+  // account_statement is a pseudo table for account statement "import"
+  if ($table == 'account_statement') {
+    header('Content-Type: application/json');
+    echo "{\"columns\":";
+    echo json_encode(array(
+      array('id' => 'date', 'name' => $GLOBALS['locImportStatementPaymentDate']),
+      array('id' => 'amount', 'name' => $GLOBALS['locImportStatementAmount']),
+      array('id' => 'refnr', 'name' => $GLOBALS['locImportStatementRefNr'])
+    ));
+    echo "\n}";
+    exit;
+  }
+
   if (!table_valid($table))
   {
     header('HTTP/1.1 400 Bad Request');
     die('Invalid table name');
-    }
+  }
 
   header('Content-Type: application/json');
   echo "{\"columns\":[";
@@ -195,21 +208,28 @@ case 'get_table_columns':
   }
   echo "\n]}";
   break;
-  
+
 case 'get_import_preview':
   if (!sesAdminAccess())
   {
     header('HTTP/1.1 403 Forbidden');
     exit;
   }
-  require 'import.php';
-  create_import_preview();
+  $table = getRequest('table', '');
+  if ($table == 'account_statement') {
+    require 'import_statement.php';
+    $import = new ImportStatement();
+  } else {
+    require 'import.php';
+    $import = new ImportFile();
+  }
+  $import->create_import_preview();
   break;
-  
+
 case 'noop':
   // Session keep-alive
   break;
-  
+
 default:
   header('HTTP/1.1 404 Not Found');
 }
@@ -218,7 +238,7 @@ function printJSONRecord($table, $id = FALSE, $warnings = null)
 {
   if ($id === FALSE)
     $id = getRequest('id', '');
-  if ($id) 
+  if ($id)
   {
     if (substr($table, 0, 8) != '{prefix}')
       $table = "{prefix}$table";
@@ -250,7 +270,7 @@ function printJSONRecords($table, $parentIdCol, $sort)
     else
       $where = " WHERE deleted=0";
   }
-  
+
   $query .= $where;
   if ($sort)
     $query .= " order by $sort";
@@ -299,7 +319,7 @@ function saveJSONRecord($table, $parentKeyName)
   $warnings = '';
   $res = saveFormData($strTable, $id, $astrFormElements, $data, $warnings, $parentKeyName, $parentKeyName ? $data[$parentKeyName] : FALSE);
   if ($res !== true)
-  { 
+  {
     if ($warnings) {
       header('HTTP/1.1 409 Conflict');
     }

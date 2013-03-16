@@ -17,7 +17,7 @@ Tämä ohjelma on vapaa. Lue oheinen LICENSE.
 
 // buffered, so we can redirect later if necessary
 ini_set('implicit_flush', 'Off');
-ob_start(); 
+ob_start();
 
 require_once 'sessionfuncs.php';
 require_once 'navi.php';
@@ -77,15 +77,15 @@ $astrMainButtons = array (
   <div id="maintabs" class="navi ui-widget-header ui-tabs">
     <ul class="ui-tabs-nav ui-helper-clearfix ui-corner-all">
 <?php
-foreach ($astrMainButtons as $button) 
+foreach ($astrMainButtons as $button)
 {
-  $strButton = '<li class="functionlink ui-state-default ui-corner-top'; 
+  $strButton = '<li class="functionlink ui-state-default ui-corner-top';
   if ($button['action'] == $strFunc || ($button['action'] == 'open_invoices' && $strFunc == 'invoices'))
     $strButton .= ' ui-tabs-selected ui-state-active';
   $strButton .= '"><a class="functionlink" href="?func=' . $button['action'] . '">';
   $strButton .= $GLOBALS[$button['title']] . '</a></li>';
-      
-  if (!isset($button['levels_allowed']) || sesAccessLevel($button['levels_allowed']) || sesAdminAccess()) 
+
+  if (!isset($button['levels_allowed']) || sesAccessLevel($button['levels_allowed']) || sesAdminAccess())
   {
     echo "      $strButton\n";
   }
@@ -98,7 +98,7 @@ foreach ($astrMainButtons as $button)
 $level = 1;
 if ($strList && ($strFunc == 'settings' || $strFunc == 'system'))
   ++$level;
-if ($strForm) 
+if ($strForm)
   ++$level;
 $arrHistory = sesUpdateHistory($title, $_SERVER['QUERY_STRING'], $level);
 
@@ -114,13 +114,13 @@ foreach ($arrHistory as $arrHE)
   <div class="breadcrumbs">
     <?php echo $strBreadcrumbs . "\n"?>
   </div>
-<?php 
+<?php
 if ($strFunc == 'open_invoices' && !$strForm) {
 ?>
   <div id="version">
     MLInvoice <?php echo $softwareVersion?>
   </div>
-<?php 
+<?php
   if (getSetting('check_updates')) {
 ?>
   <script type="text/javascript">
@@ -133,7 +133,7 @@ if ($strFunc == 'open_invoices' && !$strForm) {
         updateVersionMessage(data);
     	});
     });
-    	
+
     function updateVersionMessage(data)
     {
     	var title = new String("<?php echo $GLOBALS['locUpdateAvailableTitle']?>").replace("{version}", data.version).replace("{date}", data.date);
@@ -158,7 +158,15 @@ elseif ($strFunc == 'system' && getRequest('operation', '') == 'import' && sesAd
 {
   createFuncMenu($strFunc);
   require_once 'import.php';
-  do_import();
+  $import = new ImportFile();
+  $import->launch();
+}
+elseif ($strFunc == 'import_statement')
+{
+  createFuncMenu($strFunc);
+  require_once 'import_statement.php';
+  $import = new ImportStatement();
+  $import->launch();
 }
 else
 {
@@ -168,15 +176,15 @@ else
     createFuncMenu($strFunc);
     switch ($strForm)
     {
-    case 'invoice': 
-      require_once 'invoice_report.php'; 
+    case 'invoice':
+      require_once 'invoice_report.php';
       $invoiceReport = new InvoiceReport;
-      $invoiceReport->createReport(); 
+      $invoiceReport->createReport();
       break;
-    case 'product': 
-      require_once 'product_report.php'; 
+    case 'product':
+      require_once 'product_report.php';
       $productReport = new ProductReport;
-      $productReport->createReport(); 
+      $productReport->createReport();
       break;
     }
     break;

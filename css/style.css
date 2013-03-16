@@ -396,13 +396,6 @@ div.column_mapping {
   overflow: auto;
 }
 
-button {
-  background-color: transparent;
-  border: 0px;
-  padding: 0px 0px 0px 0px;
-  vertical-align: top;
-}
-
 a {
   text-decoration: none;  
 }

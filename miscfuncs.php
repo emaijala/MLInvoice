@@ -23,7 +23,7 @@ Tämä ohjelma on vapaa. Lue oheinen LICENSE.
 
 *******************************************************************************/
 
-function gpcAddSlashes($strString) 
+function gpcAddSlashes($strString)
 {
    if (!get_magic_quotes_gpc())
        return addslashes($strString);
@@ -50,17 +50,17 @@ function cond_utf8_encode($str)
   return $str;
 }
 
-function miscRound2Decim($value, $decimals = 2, $decimalSeparator = null, $thousandSeparator = null) 
+function miscRound2Decim($value, $decimals = 2, $decimalSeparator = null, $thousandSeparator = null)
 {
   return number_format(
-    $value, 
-    $decimals, 
-    isset($decimalSeparator) ? $decimalSeparator : $GLOBALS['locDecimalSeparator'], 
+    $value,
+    $decimals,
+    isset($decimalSeparator) ? $decimalSeparator : $GLOBALS['locDecimalSeparator'],
     isset($thousandSeparator) ? $thousandSeparator : $GLOBALS['locThousandSeparator']
   );
 }
 
-function miscRound2OptDecim($value, $decimals = 2, $decimalSeparator = null, $thousandSeparator = null) 
+function miscRound2OptDecim($value, $decimals = 2, $decimalSeparator = null, $thousandSeparator = null)
 {
   if ($value == floor($value)) {
     $decimals = 0;
@@ -68,7 +68,7 @@ function miscRound2OptDecim($value, $decimals = 2, $decimalSeparator = null, $th
   return miscRound2Decim($value, $decimals, $decimalSeparator, $thousandSeparator);
 }
 
-function miscCalcCheckNo($intValue) 
+function miscCalcCheckNo($intValue)
 {
     $astrWeight = array(
         '1','3','7','1','3','7','1','3','7','1','3','7','1','3','7',
@@ -86,7 +86,7 @@ function miscCalcCheckNo($intValue)
         $intSum += $value * array_pop($astrWeight);
     }
     $intCheckNo = ceil($intSum/10)*10 - $intSum;
-        
+
     return $intCheckNo;
 }
 
@@ -141,9 +141,9 @@ function getPageTitle($strFunc, $strList, $strForm)
   case 'reports':
     switch ($strForm)
     {
-    case 'invoice': return $GLOBALS['locInvoiceReport']; 
-    case 'product': return $GLOBALS['locProductReport']; 
-    default: return $GLOBALS['locReports']; 
+    case 'invoice': return $GLOBALS['locInvoiceReport'];
+    case 'product': return $GLOBALS['locProductReport'];
+    default: return $GLOBALS['locReports'];
     }
     break;
   case 'settings':
@@ -151,7 +151,7 @@ function getPageTitle($strFunc, $strList, $strForm)
     {
       switch ($strForm)
       {
-      case 'base': return $GLOBALS['locBase']; 
+      case 'base': return $GLOBALS['locBase'];
       case 'product': return $GLOBALS['locProduct'];
       default: return $GLOBALS['locSettings'];
       }
@@ -160,9 +160,9 @@ function getPageTitle($strFunc, $strList, $strForm)
     {
       switch ($strList)
       {
-      case 'settings': return $GLOBALS['locGeneralSettings']; 
-      case 'base': return $GLOBALS['locBases']; 
-      case 'product': return $GLOBALS['locProducts']; 
+      case 'settings': return $GLOBALS['locGeneralSettings'];
+      case 'base': return $GLOBALS['locBases'];
+      case 'product': return $GLOBALS['locProducts'];
       default: return $GLOBALS['locSettings'];
       }
     }
@@ -173,10 +173,10 @@ function getPageTitle($strFunc, $strList, $strForm)
       switch ($strForm)
       {
       case 'user': return $GLOBALS['locUser'];
-      case 'session_type': return $GLOBALS['locSessionType']; 
-      case 'row_type': return $GLOBALS['locRowType']; 
-      case 'print_template': return $GLOBALS['locPrintTemplate']; 
-      case 'invoice_state': return $GLOBALS['locInvoiceState']; 
+      case 'session_type': return $GLOBALS['locSessionType'];
+      case 'row_type': return $GLOBALS['locRowType'];
+      case 'print_template': return $GLOBALS['locPrintTemplate'];
+      case 'invoice_state': return $GLOBALS['locInvoiceState'];
       default: return $GLOBALS['locSystem'];
       }
     }
@@ -186,13 +186,15 @@ function getPageTitle($strFunc, $strList, $strForm)
       {
       case 'user': return $GLOBALS['locUsers'];
       case 'session_type': return $GLOBALS['locSessionTypes'];
-      case 'row_type': return $GLOBALS['locRowTypes']; 
-      case 'print_template': return $GLOBALS['locPrintTemplates']; 
-      case 'invoice_state': return $GLOBALS['locInvoiceStates']; 
+      case 'row_type': return $GLOBALS['locRowTypes'];
+      case 'print_template': return $GLOBALS['locPrintTemplates'];
+      case 'invoice_state': return $GLOBALS['locInvoiceStates'];
       default: return $GLOBALS['locSystem'];
       }
     }
     break;
+  case 'import_statement':
+    return $GLOBALS['locImportAccountStatement'];
   }
   return '';
 }
@@ -222,7 +224,7 @@ function getMaxUploadSize()
 function fileSizeToHumanReadable($value)
 {
   $suffixes = array('B','KB','MB','GB','TB','PB');
-  
+
   $idx = 0;
   while ($idx < count($suffixes) - 1 && $value / 1024 > 0.9)
   {
@@ -241,9 +243,9 @@ function xml_encode($str)
   return $str;
 }
 
-if (!function_exists('str_getcsv')) 
+if (!function_exists('str_getcsv'))
 {
-  function str_getcsv($input, $delimiter=',', $enclosure='"', $escape=null, $eol=null) 
+  function str_getcsv($input, $delimiter=',', $enclosure='"', $escape=null, $eol=null)
   {
     $temp=fopen("php://memory", "rw");
     fwrite($temp, $input);
@@ -252,7 +254,7 @@ if (!function_exists('str_getcsv'))
     fclose($temp);
     return $r;
   }
-} 
+}
 
 function fgets_charset($handle, $charset, $line_ending = "\n")
 {
@@ -307,7 +309,7 @@ function fgets_charset($handle, $charset, $line_ending = "\n")
   return $str;
 }
 
-function iconvErrorHandler($errno, $errstr, $errfile, $errline) 
+function iconvErrorHandler($errno, $errstr, $errfile, $errline)
 {
   throw new ErrorException($errstr, 0, $errno, $errfile, $errline);
 }
@@ -319,7 +321,7 @@ function try_iconv($from, $to, $str)
   {
     $str = iconv($from, $to, $str);
   }
-  catch (ErrorException $e) 
+  catch (ErrorException $e)
   {
     restore_error_handler();
     return false;
@@ -337,7 +339,7 @@ function calculateRowSum($price, $count, $VAT, $VATIncluded, $discount)
 {
   if (isset($discount))
     $price *= (1 - $discount / 100);
-    
+
   if ($VATIncluded)
   {
     $rowSumVAT = $count * $price;
@@ -356,7 +358,7 @@ function calculateRowSum($price, $count, $VAT, $VATIncluded, $discount)
 function createVATID($id)
 {
   $id = strtoupper(str_replace('-', '', $id));
-  if (!preg_match('/^[A-Z]{2}/', $id)) 
+  if (!preg_match('/^[A-Z]{2}/', $id))
   {
     $id = "FI$id";
   }
@@ -373,11 +375,11 @@ function getSelfDirectory()
   $path = $_SERVER['PHP_SELF'];
   $p = strrpos($path, '/');
   if ($p > 0) {
-    $path = substr($path, 0, $p); 
+    $path = substr($path, 0, $p);
   } else {
     $path = '';
   }
-  return $path; 
+  return $path;
 }
 
 function instantiateInvoicePrinter($printTemplateFile)
@@ -387,16 +389,16 @@ function instantiateInvoicePrinter($printTemplateFile)
   $className = str_replace('_', ' ', $className);
   $className = ucwords($className);
   $className = str_replace(' ', '', $className);
-  
+
   require_once $printTemplateFile;
   return new $className();
 }
 
 function formatRefNumber($refNumber)
 {
-  if (strncasecmp($refNumber, 'RF', 2) == 0) 
+  if (strncasecmp($refNumber, 'RF', 2) == 0)
   {
     return strtoupper(trim(chunk_split($refNumber, 4, ' ')));
   }
-  return trim(strrev(chunk_split(strrev($refNumber), 5, ' ')));  
+  return trim(strrev(chunk_split(strrev($refNumber), 5, ' ')));
 }
