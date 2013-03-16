@@ -93,6 +93,11 @@ case 'invoices':
         array("name" => "i.ref_number", 'width' => 100, "type" => "TEXT", "header" => $GLOBALS['locHeaderInvoiceReference']),
         array('name' => '.total_price', 'sql' => 'SUM(it.row_total) as total_price', 'width' => 80, 'type' => 'CURRENCY', 'header' => $GLOBALS['locHeaderInvoiceTotal'])
     );
+   if (($strList ? $strList : $strFunc) == 'archived_invoices') {
+     array_splice($astrShowFields, 2, 0, array(
+       array("name" => "i.payment_date", 'width' => 80, "type" => "INTDATE", "order" => "DESC", "header" => $GLOBALS['locHeaderInvoicePaymentDate']),
+     ));
+   }
    $strGroupBy = 'i.id, i.deleted, i.invoice_date, i.due_date, i.invoice_no, b.name, c.company_name, i.name, s.name, i.ref_number';
    $strMainForm = "invoice";
    $strTitle = $GLOBALS['locInvoices'];
