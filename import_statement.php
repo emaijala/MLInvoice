@@ -79,6 +79,7 @@ class ImportStatement extends ImportFile
     }
 
     $refnr = str_replace(' ',  '', $row['refnr']);
+    $refnr = ltrim($refnr, '0');
     $date = date('Ymd', DateTime::createFromFormat(getRequest('date_format', 'd.m.Y'), $row['date'])->getTimestamp());
     $amount = trim($row['amount']);
     if (substr($amount, 0, 1) == '-') {
