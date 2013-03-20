@@ -40,7 +40,7 @@ $arrSettings = array(
   'invoice_show_barcode' => array('label' => $GLOBALS['locSettingInvoiceShowBarcode'], 'type' => 'CHECK', 'style' => 'medium', 'position' => 1, 'default' => 1, 'allow_null' => TRUE ),
   'invoice_show_row_date' => array('label' => $GLOBALS['locSettingInvoiceShowRowDate'], 'type' => 'CHECK', 'style' => 'medium', 'position' => 1, 'default' => 1, 'allow_null' => TRUE ),
   'invoice_separate_statement' => array('label' => $GLOBALS['locSettingInvoiceSeparateStatement'], 'type' => 'CHECK', 'style' => 'medium', 'position' => 1, 'default' => 0, 'allow_null' => TRUE ),
-  'invoice_default_vat_percent' => array('label' => $GLOBALS['locSettingInvoiceDefaultVATPercent'], 'type' => 'PERCENT', 'style' => 'percent', 'position' => 1, 'default' => 23, 'allow_null' => FALSE ),
+  'invoice_default_vat_percent' => array('label' => $GLOBALS['locSettingInvoiceDefaultVATPercent'], 'type' => 'PERCENT', 'style' => 'percent', 'position' => 1, 'default' => 24, 'allow_null' => FALSE ),
   'invoice_payment_days' => array('label' => $GLOBALS['locSettingInvoicePaymentDays'], 'type' => 'INT', 'style' => 'tiny', 'position' => 1, 'default' => 14, 'allow_null' => FALSE ),
   'invoice_terms_of_payment' => array('label' => $GLOBALS['locSettingInvoiceTermsOfPayment'], 'type' => 'TEXT', 'style' => 'medium', 'position' => 1, 'default' => '%d pv netto', 'allow_null' => FALSE ),
   'invoice_period_for_complaints' => array('label' => $GLOBALS['locSettingInvoicePeriodForComplaints'], 'type' => 'TEXT', 'style' => 'medium', 'position' => 1, 'default' => '7 päivää', 'allow_null' => FALSE ),
