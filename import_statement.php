@@ -21,7 +21,7 @@ class ImportStatement extends ImportFile
           'charset' => 1,
           'format' => 0,
           'field_delim' => 1,
-          'enclosure_char' => 2,
+          'enclosure_char' => 0,
           'row_delim' => 0,
           'date_format' => 0
         ),
@@ -123,7 +123,7 @@ class ImportStatement extends ImportFile
        array($row['id']));
     $rowTotal = mysql_fetch_assoc($intRes2);
 
-    if (floatval($rowTotal['total_price']) != $amount) {
+    if (miscRound2Decim($rowTotal['total_price']) != miscRound2Decim($amount)) {
       $msg = str_replace('{statementAmount}', miscRound2Decim($amount), $GLOBALS['locImportStatementAmountMismatch']);
       $msg = str_replace('{invoiceAmount}', miscRound2Decim($rowTotal['total_price']), $msg);
       $msg = str_replace('{refnr}', $refnr, $msg);
