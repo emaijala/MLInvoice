@@ -258,6 +258,7 @@ INSERT INTO mlinvoice_row_type (id, name, order_no) VALUES (4, 'TypePieces', 20)
 INSERT INTO mlinvoice_row_type (id, name, order_no) VALUES (5, 'TypeYear', 25);
 INSERT INTO mlinvoice_row_type (id, name, order_no) VALUES (6, 'TypeLot', 30);
 INSERT INTO mlinvoice_row_type (id, name, order_no) VALUES (8, 'TypeKilometer', 35);
+INSERT INTO mlinvoice_row_type (id, name, order_no) VALUES (9, 'TypeKilogram', 40);
 
 INSERT INTO mlinvoice_session_type (id, name, order_no, time_out, access_level) VALUES (1, 'SessionTypeUser', 1, 3600, 1);
 INSERT INTO mlinvoice_session_type (id, name, order_no, time_out, access_level) VALUES (2, 'SessionTypeAdmin', 20, 3600, 99);
