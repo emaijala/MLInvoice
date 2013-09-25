@@ -80,10 +80,10 @@ $xUACompatible  <title>$strTitle</title>
   <script type="text/javascript" src="js/date-$lang.js"></script>
   <script type="text/javascript" src="jquery/js/jquery.daterangepicker.js"></script>
   <script type="text/javascript" src="js/functions.js"></script>
-	<script type="text/javascript" src="select2/select2.js"></script>
+	<script type="text/javascript" src="select2/select2.min.js"></script>
   <script type="text/javascript">
 $(document).ready(function() { 
-	$("#company_id").select2();
+	$("#company_id,#iform_product_id").select2({ width:"element" });
   $.datepicker.setDefaults($datePickerOptions);
   $('a[class~="actionlink"]').button();
   $('a[class~="tinyactionlink"]').button();
