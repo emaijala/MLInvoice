@@ -69,6 +69,7 @@ $xUACompatible  <title>$strTitle</title>
   <link rel="stylesheet" type="text/css" href="$theme">
   <link rel="stylesheet" type="text/css" href="jquery/css/ui.daterangepicker.css">
   <link rel="stylesheet" type="text/css" href="css/style.css">
+	<link href="select2/select2.css" rel="stylesheet" />
   <script type="text/javascript" src="jquery/js/jquery-1.9.0.min.js"></script>
   <script type="text/javascript" src="jquery/js/jquery.json-2.3.min.js"></script>
   <script type="text/javascript" src="jquery/js/jquery.cookie.js"></script>
@@ -79,8 +80,10 @@ $xUACompatible  <title>$strTitle</title>
   <script type="text/javascript" src="js/date-$lang.js"></script>
   <script type="text/javascript" src="jquery/js/jquery.daterangepicker.js"></script>
   <script type="text/javascript" src="js/functions.js"></script>
+	<script type="text/javascript" src="select2/select2.min.js"></script>
   <script type="text/javascript">
 $(document).ready(function() { 
+	$("#company_id,#iform_product_id").select2({ width:"element" });
   $.datepicker.setDefaults($datePickerOptions);
   $('a[class~="actionlink"]').button();
   $('a[class~="tinyactionlink"]').button();
