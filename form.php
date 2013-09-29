@@ -32,7 +32,7 @@ require_once 'form_funcs.php';
 function createForm($strFunc, $strList, $strForm)
 {
   require "form_switch.php";
-  
+
   if (!sesAccessLevel($levelsAllowed) && !sesAdminAccess())
   {
 ?>
@@ -42,14 +42,14 @@ function createForm($strFunc, $strList, $strForm)
 <?php
     return;
   }
-  
+
   $blnNew = getPostRequest('newact', FALSE);
   $blnCopy = getPostRequest('copyact', FALSE) ? TRUE : FALSE;
   $blnDelete = getPostRequest('deleteact', FALSE) ? TRUE : FALSE;
   $intKeyValue = getPostRequest('id', FALSE);
   if (!$intKeyValue)
     $blnNew = TRUE;
-  
+
   if (!sesWriteAccess() && ($blnNew || $blnCopy || $blnDelete))
   {
 ?>
@@ -59,14 +59,14 @@ function createForm($strFunc, $strList, $strForm)
 <?php
     return;
   }
-  
+
   $strMessage = '';
   if (isset($_SESSION['formMessage']) && $_SESSION['formMessage'])
   {
     $strMessage = $GLOBALS['loc' . $_SESSION['formMessage']];
     unset($_SESSION['formMessage']);
   }
-  
+
   // if NEW is clicked clear existing form data
   if ($blnNew)
   {
@@ -76,13 +76,13 @@ function createForm($strFunc, $strList, $strForm)
     unset($_REQUEST);
     $readOnlyForm = false;
   }
-  
+
   $astrValues = getPostValues($astrFormElements, isset($intKeyValue) ? $intKeyValue : FALSE);
-  
+
   $redirect = getRequest('redirect', null);
   if (isset($redirect))
   {
-    // Redirect after save 
+    // Redirect after save
     foreach ($astrFormElements as $elem)
     {
       if ($elem['name'] == $redirect)
@@ -94,8 +94,8 @@ function createForm($strFunc, $strList, $strForm)
       }
     }
   }
-  
-  if ($blnDelete && $intKeyValue && !$readOnlyForm) 
+
+  if ($blnDelete && $intKeyValue && !$readOnlyForm)
   {
     $strQuery = "UPDATE $strTable SET deleted=1 WHERE id=?";
     mysql_param_query($strQuery, array($intKeyValue));
@@ -116,20 +116,20 @@ function createForm($strFunc, $strList, $strForm)
 <?php
     return;
   }
-  
-  if (isset($intKeyValue) && $intKeyValue) 
+
+  if (isset($intKeyValue) && $intKeyValue)
   {
     $res = fetchRecord($strTable, $intKeyValue, $astrFormElements, $astrValues);
     if ($res === 'deleted')
       $strMessage .= $GLOBALS['locDeletedRecord'] . '<br>';
     elseif ($res === 'notfound')
     {
-      echo $GLOBALS['locEntryDeleted']; 
+      echo $GLOBALS['locEntryDeleted'];
       die;
     }
   }
-  
-  if ($blnCopy) 
+
+  if ($blnCopy)
   {
     unset($intKeyValue);
     unset($_POST);
@@ -141,10 +141,10 @@ function createForm($strFunc, $strList, $strForm)
   <div id="popup_dlg" style="display: none; width: 900px; overflow: hidden">
     <iframe id="popup_dlg_iframe" src="about:blank" style="width: 100%; height: 100%; overflow: hidden; border: 0"></iframe>
   </div>
-<?php if (isset($popupHTML)) echo $popupHTML;?>  
+<?php if (isset($popupHTML)) echo $popupHTML;?>
 
   <div class="form_container">
-  
+
 <?php createFormButtons($blnNew, $copyLinkOverride, true, $readOnlyForm) ?>
     <div class="form">
       <form method="post" name="admin_form" id="admin_form">
@@ -160,11 +160,11 @@ function createForm($strFunc, $strList, $strForm)
   $prevColSpan = 1;
   $rowOpen = false;
   $fieldMode = sesWriteAccess() && !$readOnlyForm ? 'MODIFY' : 'READONLY';
-  foreach ($astrFormElements as $elem) 
+  foreach ($astrFormElements as $elem)
   {
     if ($elem['type'] === false)
       continue;
-    if ($elem['type'] == "LABEL") 
+    if ($elem['type'] == "LABEL")
     {
       if ($rowOpen)
         echo "        </tr>\n";
@@ -172,22 +172,22 @@ function createForm($strFunc, $strList, $strForm)
   ?>
         <tr>
           <td class="sublabel ui-widget-header ui-state-default ui-state-active" colspan="4">
-            <?php echo $elem['label']?> 
+            <?php echo $elem['label']?>
           </td>
         </tr>
   <?php
       continue;
     }
 
-    if ($elem['position'] == 0 || $elem['position'] <= $prevPosition) 
+    if ($elem['position'] == 0 || $elem['position'] <= $prevPosition)
     {
       $prevPosition = 0;
       $prevColSpan = 1;
       echo "        </tr>\n";
       $rowOpen = false;
     }
-  
-    if ($elem['type'] != "IFORM") 
+
+    if ($elem['type'] != "IFORM")
     {
       if (!$rowOpen)
       {
@@ -201,28 +201,28 @@ function createForm($strFunc, $strList, $strForm)
           echo "          <td class=\"label\">&nbsp;</td>\n";
         }
       }
-      
-      if ($elem['position'] == 0 && !strstr($elem['type'], "HID_")) 
+
+      if ($elem['position'] == 0 && !strstr($elem['type'], "HID_"))
       {
         $strColspan = "colspan=\"3\"";
         $intColspan = 3;
       }
-      elseif ($elem['position'] == 1 && !strstr($elem['type'], "HID_")) 
+      elseif ($elem['position'] == 1 && !strstr($elem['type'], "HID_"))
       {
         $strColspan = '';
         $intColspan = 2;
       }
-      else 
+      else
       {
         $intColspan = 2;
       }
     }
 
-    if ($blnNew && ($elem['type'] == 'BUTTON' || $elem['type'] == 'JSBUTTON' || $elem['type'] == 'IMAGE')) 
+    if ($blnNew && ($elem['type'] == 'BUTTON' || $elem['type'] == 'JSBUTTON' || $elem['type'] == 'IMAGE'))
     {
       echo "          <td class=\"label\">&nbsp;</td>";
     }
-    elseif ($elem['type'] == "BUTTON" || $elem['type'] == "JSBUTTON") 
+    elseif ($elem['type'] == "BUTTON" || $elem['type'] == "JSBUTTON")
     {
       $intColspan = 1;
 ?>
@@ -230,32 +230,32 @@ function createForm($strFunc, $strList, $strForm)
             <?php echo htmlFormElement($elem['name'], $elem['type'], $astrValues[$elem['name']], $elem['style'], $elem['listquery'], $fieldMode, $elem['parent_key'],$elem['label'], array(), isset($elem['elem_attributes']) ? $elem['elem_attributes'] : '', isset($elem['options']) ? $elem['options'] : null)
 ?>
           </td>
-<?php          
+<?php
     }
-    elseif ($elem['type'] == "FILLER") 
+    elseif ($elem['type'] == "FILLER")
     {
       $intColspan = 1;
 ?>
           <td>
             &nbsp;
           </td>
-<?php          
+<?php
     }
-    elseif ($elem['type'] == "HID_INT" || strstr($elem['type'], "HID_")) 
+    elseif ($elem['type'] == "HID_INT" || strstr($elem['type'], "HID_"))
     {
 ?>
           <?php echo htmlFormElement($elem['name'], $elem['type'], $astrValues[$elem['name']], $elem['style'], $elem['listquery'], $fieldMode, $elem['parent_key'],$elem['label'])?>
-<?php          
+<?php
     }
-    elseif ($elem['type'] == "IMAGE") 
+    elseif ($elem['type'] == "IMAGE")
     {
 ?>
           <td class="image" colspan="<?php echo $intColspan?>">
             <?php echo htmlFormElement($elem['name'], $elem['type'], $astrValues[$elem['name']], $elem['style'], $elem['listquery'], $fieldMode, $elem['parent_key'],$elem['label'], array(), isset($elem['elem_attributes']) ? $elem['elem_attributes'] : '', isset($elem['options']) ? $elem['options'] : null)?>
           </td>
-<?php          
+<?php
     }
-    elseif ($elem['type'] == "IFORM") 
+    elseif ($elem['type'] == "IFORM")
     {
       if ($rowOpen)
         echo "        </tr>\n";
@@ -264,7 +264,7 @@ function createForm($strFunc, $strList, $strForm)
       createIForm($astrFormElements, $elem, isset($intKeyValue) ? $intKeyValue : 0, $blnNew);
       break;
     }
-    else 
+    else
     {
       $value = $astrValues[$elem['name']];
       if ($elem['style'] == 'measurement')
@@ -315,7 +315,7 @@ $(window).bind('beforeunload', function(e) {
   }
 });
 
-function showmsg(msg, timeout) 
+function showmsg(msg, timeout)
 {
   $.floatingMessage("<span>" + msg + "</span>", {
     position: "top-right",
@@ -325,10 +325,10 @@ function showmsg(msg, timeout)
     stuffEaseTime: 200,
     moveEaseTime: 0,
     time: typeof(timeout) != 'undefined' ? timeout : 5000
-  });  
+  });
 }
 
-function errormsg(msg, timeout) 
+function errormsg(msg, timeout)
 {
   $.floatingMessage("<span>" + msg + "</span>", {
     position: "top-right",
@@ -338,16 +338,16 @@ function errormsg(msg, timeout)
     stuffEaseTime: 200,
     moveEaseTime: 0,
     time: typeof(timeout) != 'undefined' ? timeout : 5000
-  });  
+  });
 }
 
-$(document).ready(function() { 
-<?php 
+$(document).ready(function() {
+<?php
   if ($strMessage)
   {
 ?>
   showmsg("<?php echo $strMessage?>");
-<?php 
+<?php
   }
   if (sesWriteAccess())
   {
@@ -366,32 +366,32 @@ $(document).ready(function() {
     errormsg('Server request failed: ' + request.status + ' - ' + request.statusText);
     $('#spinner').css('visibility', 'hidden');
   });
-  
+
   $('#admin_form').find('input[type="text"],input[type="checkbox"],select,textarea').change(function() { $('.save_button').addClass('ui-state-highlight'); });
-<?php 
-  if ($haveChildForm && !$blnNew) 
+<?php
+  if ($haveChildForm && !$blnNew)
   {
 ?>
   init_rows();
   $('#iform').find('input[type="text"],input[type="checkbox"],select,textarea').change(function() { $('.add_row_button').addClass('ui-state-highlight'); });
-<?php 
-  } 
-  elseif (isset($newLocation)) 
+<?php
+  }
+  elseif (isset($newLocation))
     echo "window.location='$newLocation';";
-  if (isset($openWindow)) 
+  if (isset($openWindow))
     echo "window.open('$openWindow');";
-?>		
+?>
 });
-<?php 
-  if ($haveChildForm && !$blnNew) 
+<?php
+  if ($haveChildForm && !$blnNew)
   {
 ?>
 function init_rows_done()
 {
-<?php if (isset($newLocation)) 
+<?php if (isset($newLocation))
   echo "window.location='$newLocation';"?>
 }
-<?php 
+<?php
   }
 ?>
 
@@ -399,7 +399,7 @@ function save_record(redirect_url, redir_style)
 {
   var form = document.getElementById('admin_form');
   var obj = new Object();
-  
+
 <?php
   foreach ($astrFormElements as $elem)
   {
@@ -464,30 +464,30 @@ function save_record(redirect_url, redir_style)
         errormsg('Error trying to save data: ' + XMLHTTPReq.status + ' - ' + XMLHTTPReq.statusText);
       return false;
     }
-  });  
-}  
+  });
+}
 
-function popup_dialog(url, on_close, dialog_title, event, width, height) 
+function popup_dialog(url, on_close, dialog_title, event, width, height)
 {
-  $("#popup_dlg").dialog({ modal: true, width: width, height: height, resizable: true, 
-    position: [50, 50], 
+  $("#popup_dlg").dialog({ modal: true, width: width, height: height, resizable: true,
+    position: [50, 50],
     buttons: {
       "<?php echo $GLOBALS['locClose']?>": function() { $("#popup_dlg").dialog('close'); }
     },
     title: dialog_title,
     close: function(event, ui) { eval(on_close); }
   }).find("#popup_dlg_iframe").attr("src", url);
-  
-  return true;  
+
+  return true;
 }
 
-/* ]]> */ 
+/* ]]> */
 </script>
 
-<?php 
+<?php
   createFormButtons($blnNew, $copyLinkOverride, false, $readOnlyForm);
   echo "  </div>\n";
-    
+
   if ($addressAutocomplete && getSetting('address_autocomplete')) {
 ?>
   <script type="text/javascript">
@@ -499,7 +499,7 @@ function popup_dialog(url, on_close, dialog_title, event, width, height)
         initAddressAutocomplete("");
         initAddressAutocomplete("quick_");
     };
-    $("head").append(s);  
+    $("head").append(s);
   });
   </script>
 <?php
@@ -527,7 +527,7 @@ function createIForm($astrFormElements, $elem, $intKeyValue, $newRecord)
 function format_currency(value, decimals)
 {
   var s = parseFloat(value).toFixed(decimals).replace('.', '<?php echo $GLOBALS['locDecimalSeparator']?>');
-<?php 
+<?php
   if ($GLOBALS['locThousandSeparator']) {
 ?>
   var parts = s.split('<?php echo $GLOBALS['locDecimalSeparator']?>');
@@ -539,10 +539,15 @@ function format_currency(value, decimals)
 	if (parts.length > 1) {
 		s += '<?php echo $GLOBALS['locDecimalSeparator']?>' + parts[1];
 	}
-<?php 
+<?php
   }
 ?>
   return s;
+}
+
+function round_number(num, dec)
+{
+  return Math.round(num * Math.pow(10, dec)) / Math.pow(10, dec);
 }
 
 function init_rows()
@@ -570,8 +575,8 @@ function init_rows()
     }
     echo "};\n";
   }
-?> 
-  $.getJSON('json.php?func=get_<?php echo $elem['name']?>&parent_id=<?php echo $intKeyValue?>', function(json) { 
+?>
+  $.getJSON('json.php?func=get_<?php echo $elem['name']?>&parent_id=<?php echo $intKeyValue?>', function(json) {
     $('#itable > tbody > tr[id!=form_row]').remove();
     var table = document.getElementById('itable');
     for (var i = 0; i < json.records.length; i++)
@@ -610,7 +615,7 @@ function init_rows()
     }
     elseif ($subElem['type'] == 'ROWSUM')
     {
-?>          
+?>
       var items = record.<?php echo $rowSumColumns['multiplier']?>;
       var price = record.<?php echo $rowSumColumns['price']?>;
       var discount = record.<?php echo $rowSumColumns['discount']?> || 0;
@@ -623,22 +628,22 @@ function init_rows()
       var VAT = 0;
       if (VATIncluded == 1)
       {
-        sumVAT = items * price;
-        sum = sumVAT / (1 + VATPercent / 100);
+        sumVAT = round_number(items * price, 2);
+        sum = round_number(sumVAT / (1 + VATPercent / 100), 2);
         VAT = sumVAT - sum;
       }
       else
       {
-        sum = items * price;
-        VAT = sum * (VATPercent / 100);
+        sum = round_number(items * price, 2);
+        VAT = round_number(sum * (VATPercent / 100), 2);
         sumVAT = sum + VAT;
       }
       sum = format_currency(sum, <?php echo isset($subElem['decimals']) ? $subElem['decimals'] : 2?>);
       VAT = format_currency(VAT, <?php echo isset($subElem['decimals']) ? $subElem['decimals'] : 2?>);
       sumVAT = format_currency(sumVAT, <?php echo isset($subElem['decimals']) ? $subElem['decimals'] : 2?>);
-      var title = '<?php echo $GLOBALS['locVATLess'] . ': '?>' + sum + ' &ndash; ' + '<?php echo $GLOBALS['locVATPart'] . ': '?>' + VAT;         
-      $('<td/>').addClass('<?php echo $class?>' + (record.deleted == 1 ? ' deleted' : '')).append('<span title="' + title + '">' + sumVAT + '<\/span>').appendTo(tr); 
-<?php          
+      var title = '<?php echo $GLOBALS['locVATLess'] . ': '?>' + sum + ' &ndash; ' + '<?php echo $GLOBALS['locVATPart'] . ': '?>' + VAT;
+      $('<td/>').addClass('<?php echo $class?>' + (record.deleted == 1 ? ' deleted' : '')).append('<span title="' + title + '">' + sumVAT + '<\/span>').appendTo(tr);
+<?php
     }
     else
     {
@@ -665,7 +670,7 @@ function init_rows()
     for (var i = 0; i < json.records.length; i++)
     {
       var record = json.records[i];
-      
+
       var items = record.<?php echo $rowSumColumns['multiplier']?>;
       var price = record.<?php echo $rowSumColumns['price']?>;
       var discount = record.<?php echo $rowSumColumns['discount']?> || 0;
@@ -678,17 +683,17 @@ function init_rows()
       var VAT = 0;
       if (VATIncluded == 1)
       {
-        sumVAT = items * price;
-        sum = sumVAT / (1 + VATPercent / 100);
+        sumVAT = round_number(items * price, 2);
+        sum = round_number(sumVAT / (1 + VATPercent / 100), 2);
         VAT = sumVAT - sum;
       }
       else
       {
-        sum = items * price;
-        VAT = sum * (VATPercent / 100);
+        sum = round_number(items * price, 2);
+        VAT = round_number(sum * (VATPercent / 100), 2);
         sumVAT = sum + VAT;
       }
-      
+
       totSum += sum;
       totVAT += VAT;
       totSumVAT += sumVAT;
@@ -697,17 +702,17 @@ function init_rows()
     $('<td/>').addClass('input').attr('colspan', '10').attr('align', 'right').text('<?php echo $GLOBALS['locTotalExcludingVAT']?>').appendTo(tr);
     $('<td/>').addClass('input').attr('align', 'right').text(format_currency(totSum, 2)).appendTo(tr);
     $(table).append(tr);
-    
+
     tr = $('<tr/>').addClass('summary');
     $('<td/>').addClass('input').attr('colspan', '10').attr('align', 'right').text('<?php echo $GLOBALS['locTotalVAT']?>').appendTo(tr);
     $('<td/>').addClass('input').attr('align', 'right').text(format_currency(totVAT, 2)).appendTo(tr);
     $(table).append(tr);
-    
+
     var tr = $('<tr/>').addClass('summary');
     $('<td/>').addClass('input').attr('colspan', '10').attr('align', 'right').text('<?php echo $GLOBALS['locTotalIncludingVAT']?>').appendTo(tr);
     $('<td/>').addClass('input').attr('align', 'right').text(format_currency(totSumVAT, 2)).appendTo(tr);
     $(table).append(tr);
-    
+
 <?php
   }
 ?>
@@ -716,15 +721,15 @@ function init_rows()
       popup_editor(event, '<?php echo $GLOBALS['locRowModification']?>', row_id, false);
       return false;
     });
-    
+
     $('a[class~="row_copy_button"]').click(function(event) {
       var row_id = $(this).attr('class').match(/rec(\d+)/)[1];
       popup_editor(event, '<?php echo $GLOBALS['locRowCopy']?>', row_id, true);
       return false;
     });
-    
+
     $('a[class~="tinyactionlink"]').button();
-  
+
     init_rows_done();
   });
 }
@@ -774,7 +779,7 @@ function save_row(form_id)
       }
       else
       {
-        if (form_id == 'iform') 
+        if (form_id == 'iform')
           $('.add_row_button').removeClass('ui-state-highlight');
         init_rows();
         if (form_id == 'iform_popup')
@@ -818,7 +823,7 @@ function save_row(form_id)
         }
       }
     }
-?>    
+?>
         }
       }
     },
@@ -829,7 +834,7 @@ function save_row(form_id)
         alert('Error trying to save row: ' + XMLHTTPReq.status + ' - ' + XMLHTTPReq.statusText);
       return false;
     }
-  });  
+  });
 }
 
 function delete_row(form_id)
@@ -853,15 +858,15 @@ function delete_row(form_id)
         errormsg('Error trying to save row: ' + XMLHTTPReq.status + ' - ' + XMLHTTPReq.statusText);
       return false;
     }
-  });  
+  });
 }
 
 function popup_editor(event, title, id, copy_row)
 {
-  $.getJSON('json.php?func=get_<?php echo $formJSONType?>&id=' + id, function(json) { 
-    if (!json.id) return; 
+  $.getJSON('json.php?func=get_<?php echo $formJSONType?>&id=' + id, function(json) {
+    if (!json.id) return;
     var form = document.getElementById('iform_popup');
-    
+
     if (copy_row)
       form.row_id.value = '';
     else
@@ -876,7 +881,7 @@ function popup_editor(event, title, id, copy_row)
       {
 ?>
     for (var i = 0; i < form.<?php echo "iform_popup_$name"?>.options.length; i++)
-    {  
+    {
       var item = form.<?php echo "iform_popup_$name"?>.options[i];
       if (item.value == json.<?php echo $name?>)
       {
@@ -890,7 +895,7 @@ function popup_editor(event, title, id, copy_row)
       {
         if (isset($subElem['default']) && strstr($subElem['default'], 'ADD'))
         {
-?> 
+?>
     var value;
     if (copy_row)
       value = document.getElementById('<?php echo "iform_$name"?>').value;
@@ -903,13 +908,13 @@ function popup_editor(event, title, id, copy_row)
         {
           if (isset($subElem['decimals']))
           {
-?> 
+?>
     form.<?php echo "iform_popup_$name"?>.value = json.<?php echo $name?> ? format_currency(json.<?php echo $name?>, <?php echo $subElem['decimals']?>) : '';
 <?php
           }
           else
           {
-?> 
+?>
     form.<?php echo "iform_popup_$name"?>.value = json.<?php echo $name?> ? json.<?php echo $name?>.replace('.', '<?php echo $GLOBALS['locDecimalSeparator']?>') : '';
 <?php
           }
@@ -917,36 +922,36 @@ function popup_editor(event, title, id, copy_row)
       }
       elseif ($subElem['type'] == 'INTDATE')
       {
-?> 
+?>
     form.<?php echo "iform_popup_$name"?>.value = json.<?php echo $name?> ? json.<?php echo $name?>.substr(6, 2) + '.' + json.<?php echo $name?>.substr(4, 2) + '.' + json.<?php echo $name?>.substr(0, 4) : '';
 <?php
       }
       elseif ($subElem['type'] == 'CHECK')
       {
-?> 
+?>
     form.<?php echo "iform_popup_$name"?>.checked = json.<?php echo $name?> != 0 ? true : false;
 <?php
       }
       else
       {
-?> 
+?>
     form.<?php echo "iform_popup_$name"?>.value = json.<?php echo $name?>;
 <?php
       }
     }
-?>    
-    var buttons = new Object(); 
+?>
+    var buttons = new Object();
     buttons["<?php echo $GLOBALS['locSave']?>"] = function() { save_row('iform_popup'); };
     if (!copy_row)
       buttons["<?php echo $GLOBALS['locDelete']?>"] = function() { if(confirm('<?php echo $GLOBALS['locConfirmDelete']?>')==true) { delete_row('iform_popup'); } return false; };
     buttons["<?php echo $GLOBALS['locClose']?>"] = function() { $("#popup_edit").dialog('close'); };
-    $("#popup_edit").dialog({ modal: true, width: 840, height: 150, resizable: false, 
+    $("#popup_edit").dialog({ modal: true, width: 840, height: 150, resizable: false,
       buttons: buttons,
       title: title,
     });
 
   });
-}  
+}
 <?php
   }
 ?>
@@ -960,7 +965,7 @@ function popup_editor(event, title, id, copy_row)
   foreach ($subFormElements as $subElem)
   {
     if (!in_array($subElem['type'], array('HID_INT', 'SECHID_INT', 'BUTTON', 'NEWLINE')))
-    { 
+    {
 ?>
               <th class="label ui-state-default <?php echo strtolower($subElem['style'])?>_label"><?php echo $subElem['label']?></th>
 <?php
@@ -979,7 +984,7 @@ function popup_editor(event, title, id, copy_row)
     foreach ($subFormElements as $subElem)
     {
       if (!in_array($subElem['type'], array('HID_INT', 'SECHID_INT', 'BUTTON', 'NEWLINE', 'ROWSUM')))
-      { 
+      {
         $value = getFormDefaultValue($subElem, $intKeyValue);
 ?>
               <td class="label <?php echo strtolower($subElem['style'])?>_label">
@@ -1023,13 +1028,13 @@ function popup_editor(event, title, id, copy_row)
             </td>
 <?php
       }
-      elseif( $elem['type'] == 'SECHID_INT' ) 
+      elseif( $elem['type'] == 'SECHID_INT' )
       {
 ?>
             <input type="hidden" name="<?php echo 'iform_popup_' . $elem['name']?>" value="<?php echo gpcStripSlashes($astrValues[$elem['name']])?>">
 <?php
       }
-      elseif( $elem['type'] == 'BUTTON' ) 
+      elseif( $elem['type'] == 'BUTTON' )
       {
 ?>
             <td class="label">
@@ -1053,24 +1058,24 @@ function createFormButtons($boolNew, $copyLinkOverride, $spinner, $readOnlyForm)
     return;
 ?>
     <div class="form_buttons">
-<?php 
+<?php
   if (!$readOnlyForm) {
 ?>
       <a class="actionlink save_button" href="#" onclick="save_record(); return false;"><?php echo $GLOBALS['locSave']?></a>
 <?php
   }
 
-  if (!$boolNew) 
+  if (!$boolNew)
   {
     $copyCmd = $copyLinkOverride ? "window.location='$copyLinkOverride'; return false;" : "document.getElementById('admin_form').copyact.value=1; document.getElementById('admin_form').submit(); return false;";
 ?>      <a class="actionlink" href="#" onclick="<?php echo $copyCmd?>"><?php echo $GLOBALS['locCopy']?></a>
       <a class="actionlink" href="#" onclick="document.getElementById('admin_form').newact.value=1; document.getElementById('admin_form').submit(); return false;"><?php echo $GLOBALS['locNew']?></a>
-<?php 
+<?php
     if (!$readOnlyForm) {
 ?>
-      <a class="actionlink" href="#" onclick="if(confirm('<?php echo $GLOBALS['locConfirmDelete']?>')==true) {  document.getElementById('admin_form').deleteact.value=1; document.getElementById('admin_form').submit(); return false;} else{ return false; }"><?php echo $GLOBALS['locDelete']?></a>        
+      <a class="actionlink" href="#" onclick="if(confirm('<?php echo $GLOBALS['locConfirmDelete']?>')==true) {  document.getElementById('admin_form').deleteact.value=1; document.getElementById('admin_form').submit(); return false;} else{ return false; }"><?php echo $GLOBALS['locDelete']?></a>
 <?php
-    } 
+    }
   }
   if ($spinner)
     echo '     <span id="spinner" style="visibility: hidden"><img src="images/spinner.gif" alt=""></span>' . "\n";

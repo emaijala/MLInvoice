@@ -342,14 +342,14 @@ function calculateRowSum($price, $count, $VAT, $VATIncluded, $discount)
 
   if ($VATIncluded)
   {
-    $rowSumVAT = $count * $price;
-    $rowSum = $rowSumVAT / (1 + $VAT / 100);
+    $rowSumVAT = round($count * $price, 2);
+    $rowSum = round(($rowSumVAT / (1 + $VAT / 100)), 2);
     $rowVAT = $rowSumVAT - $rowSum;
   }
   else
   {
-    $rowSum = $count * $price;
-    $rowVAT = $rowSum * ($VAT / 100);
+    $rowSum = round($count * $price, 2);
+    $rowVAT = round(($rowSum * ($VAT / 100)), 2);
     $rowSumVAT = $rowSum + $rowVAT;
   }
   return array($rowSum, $rowVAT, $rowSumVAT);
