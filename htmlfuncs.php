@@ -27,16 +27,16 @@ Tämä ohjelma on vapaa. Lue oheinen LICENSE.
 Includefile : htmlfuncs.php
     Functions to create various html elements
 
-********************************************************************/    
+********************************************************************/
 
 function htmlPageStart($strTitle, $arrExtraScripts = null) {
 /********************************************************************
 Function : htmlPageStart
     create Html-pagestart
 
-Args : 
+Args :
     $strTitle (string): pages title
-    
+
 Return : $strHtmlStart (string): page startpart
 
 Todo : This could be more generic...
@@ -58,7 +58,7 @@ Todo : This could be more generic...
       $xUACompatible = '';
     $theme = defined('_UI_THEME_LOCATION_') ? _UI_THEME_LOCATION_ : 'jquery/css/theme/jquery-ui-1.10.0.custom.min.css';
     $lang = isset($_SESSION['sesLANG']) ? $_SESSION['sesLANG'] : 'fi-FI';
-    $datePickerOptions = $GLOBALS['locDatePickerOptions']; 
+    $datePickerOptions = $GLOBALS['locDatePickerOptions'];
     $strHtmlStart = <<<EOT
 <!DOCTYPE html>
 <html>
@@ -82,8 +82,8 @@ $xUACompatible  <title>$strTitle</title>
   <script type="text/javascript" src="js/functions.js"></script>
 	<script type="text/javascript" src="select2/select2.min.js"></script>
   <script type="text/javascript">
-$(document).ready(function() { 
-	$("#company_id,#iform_product_id").select2({ width:"element" });
+$(document).ready(function() {
+	$("select#company_id,select#iform_product_id").select2({ width:"element" });
   $.datepicker.setDefaults($datePickerOptions);
   $('a[class~="actionlink"]').button();
   $('a[class~="tinyactionlink"]').button();
@@ -114,35 +114,35 @@ EOT;
     return $strHtmlStart;
 }
 
-function htmlListBox($strName, $astrValues, $strSelected, $strStyle = '', $blnSubmitOnChange = FALSE, $blnShowEmpty = TRUE, $astrAdditionalAttributes = '', $translate = false) 
+function htmlListBox($strName, $astrValues, $strSelected, $strStyle = '', $blnSubmitOnChange = FALSE, $blnShowEmpty = TRUE, $astrAdditionalAttributes = '', $translate = false)
 {
 /********************************************************************
 Function : htmlListBox
     Create Html-listbox
 
-Args : 
+Args :
     $strName (string): listbox name
     $astrValues (stringarray): listbox values => descriptions
     $strSelected (string): selected value
-    
+
 Return : $strListBox (string) : listbox element
 
-Todo : 
+Todo :
 ********************************************************************/
   $strOnChange = '';
-  if ($blnSubmitOnChange) 
+  if ($blnSubmitOnChange)
   {
     $strOnChange = " onchange='this.form.submit();'";
   }
   if ($astrAdditionalAttributes)
     $astrAdditionalAttributes = " $astrAdditionalAttributes";
-  $strListBox = 
+  $strListBox =
       "<select class=\"$strStyle\" id=\"$strName\" name=\"$strName\"{$strOnChange}{$astrAdditionalAttributes}>\n";
-  if ($blnShowEmpty) 
+  if ($blnShowEmpty)
   {
     $strListBox .= '<option value=""' . ($strSelected ? '' : ' selected') . "> - </option>\n";
   }
-  
+
   foreach ($astrValues as $value => $desc)
   {
     $strSelect = $strSelected == $value ? ' selected' : '';
@@ -150,17 +150,17 @@ Todo :
       $desc = $GLOBALS["loc$desc"];
     }
     $strListBox .= "<option value=\"" . htmlspecialchars($value) . "\"$strSelect>" . htmlspecialchars($desc) . "</option>\n";
-  }        
+  }
   $strListBox .= "</select>\n";
 
   return $strListBox;
 }
 
-function htmlSQLListBox($strName, $strQuery, $strSelected, $strStyle = '', $blnSubmitOnChange = FALSE, $astrAdditionalAttributes = '', $translate = false) 
+function htmlSQLListBox($strName, $strQuery, $strSelected, $strStyle = '', $blnSubmitOnChange = FALSE, $astrAdditionalAttributes = '', $translate = false)
 {
   $astrValues = array();
   $intRes = mysql_query_check( $strQuery );
-  while ($row = mysql_fetch_row($intRes)) 
+  while ($row = mysql_fetch_row($intRes))
   {
     $astrValues[$row[0]] = $row[1];
   }
@@ -176,10 +176,10 @@ function htmlSQLListBox($strName, $strQuery, $strSelected, $strStyle = '', $blnS
 }
 
 // Get the value for the specified option
-function getSQLListBoxSelectedValue($strQuery, $strSelected) 
+function getSQLListBoxSelectedValue($strQuery, $strSelected)
 {
   $intRes = mysql_query_check( $strQuery );
-  while ($row = mysql_fetch_row($intRes)) 
+  while ($row = mysql_fetch_row($intRes))
   {
     if ($row[0] == $strSelected)
       return $row[1];
@@ -188,7 +188,7 @@ function getSQLListBoxSelectedValue($strQuery, $strSelected)
 }
 
 // Get the value for the specified option
-function getListBoxSelectedValue($options, $selected) 
+function getListBoxSelectedValue($options, $selected)
 {
   if (isset($options[$selected]))
     return $options[$selected];
@@ -196,7 +196,7 @@ function getListBoxSelectedValue($options, $selected)
 }
 
 // Create form element
-function htmlFormElement($strName, $strType, $strValue, $strStyle, $strListQuery, $strMode = 'MODIFY', $strParentKey = NULL, $strTitle = "", $astrDefaults = array(), $astrAdditionalAttributes = '', $options = NULL) 
+function htmlFormElement($strName, $strType, $strValue, $strStyle, $strListQuery, $strMode = 'MODIFY', $strParentKey = NULL, $strTitle = "", $astrDefaults = array(), $astrAdditionalAttributes = '', $options = NULL)
 {
   if ($astrAdditionalAttributes)
     $astrAdditionalAttributes = " $astrAdditionalAttributes";
@@ -204,38 +204,38 @@ function htmlFormElement($strName, $strType, $strValue, $strStyle, $strListQuery
   $readOnly = $strMode == 'MODIFY' ? '' : ' readonly="readonly"';
   $disabled = $strMode == 'MODIFY' ? '' : ' disabled="disabled"';
 
-  switch ($strType) 
+  switch ($strType)
   {
     case 'TEXT':
       if (strstr($strStyle, 'hasDateRangePicker')) {
         $autocomplete = ' autocomplete="off"';
       } else {
-        $autocomplete = ''; 
+        $autocomplete = '';
       }
-  
-      $strFormElement = 
+
+      $strFormElement =
         "<input type=\"text\" class=\"$strStyle\"$autocomplete " .
         "id=\"$strName\" name=\"$strName\" value=\"" . htmlspecialchars($strValue) . "\"$astrAdditionalAttributes$readOnly>\n";
       break;
-      
+
     case 'PASSWD':
-      $strFormElement = 
+      $strFormElement =
         "<input type=\"password\" class=\"$strStyle\" " .
         "id=\"$strName\" name=\"$strName\" value=\"\"$astrAdditionalAttributes$readOnly>\n";
       break;
-      
+
     case 'CHECK':
       $strValue = $strValue ? 'checked' : '';
-      $strFormElement = 
+      $strFormElement =
         "<input type=\"checkbox\" id=\"$strName\" name=\"$strName\" value=\"1\" " . htmlspecialchars($strValue) . "$astrAdditionalAttributes$disabled>\n";
       break;
-      
+
     case 'RADIO':
       $strChecked = $strValue ? 'checked' : '';
-      $strFormElement = 
+      $strFormElement =
         "<input type=\"radio\" id=\"$strName\" name=\"$strName\" value=\"" . htmlspecialchars($strValue) . "\"$astrAdditionalAttributes$disabled>\n";
       break;
-      
+
     case 'INT':
       $hideZero = FALSE;
       if (strstr($strStyle, ' hidezerovalue'))
@@ -245,93 +245,93 @@ function htmlFormElement($strName, $strType, $strValue, $strStyle, $strListQuery
       }
       if ($hideZero && $strValue == 0)
         $strValue = '';
-      $strFormElement = 
+      $strFormElement =
         "<input type=\"text\" class=\"$strStyle\" " .
         "id=\"$strName\" name=\"$strName\" value=\"" . htmlspecialchars($strValue) . "\"$astrAdditionalAttributes$readOnly>\n";
       break;
-      
+
     case 'INTDATE':
-      $strFormElement = 
+      $strFormElement =
         "<input type=\"text\" class=\"$strStyle hasCalendar\" ".
         "id=\"$strName\" name=\"$strName\" value=\"" . htmlspecialchars($strValue) . "\"$astrAdditionalAttributes$readOnly>\n";
       break;
-      
+
     case 'HID_INT':
-      $strFormElement = 
+      $strFormElement =
         "<input type=\"hidden\" ".
         "id=\"$strName\" name=\"$strName\" value=\"" . htmlspecialchars($strValue) . "\">\n";
       break;
-    
+
     case 'AREA':
-      $strFormElement = 
+      $strFormElement =
         "<textarea rows=\"24\" cols=\"80\" class=\"" . $strStyle . "\" ".
         "id=\"" . $strName . "\" name=\"" . $strName . "\"$astrAdditionalAttributes$readOnly>" . $strValue . "</textarea>\n";
       break;
-    
+
     case 'RESULT':
       $strListQuery = str_replace("_ID_", $strValue, $strListQuery);
       $strFormElement = htmlspecialchars(mysql_fetch_value(mysql_query_check($strListQuery))) . "\n";
       break;
-        
+
     case 'LIST':
       $translate = false;
       if (strstr($strStyle, ' translated')) {
         $translate = true;
         $strStyle = str_replace(' translated', '', $strStyle);
       }
-        
-      if ($strMode == "MODIFY") 
+
+      if ($strMode == "MODIFY")
       {
         $strFormElement = htmlSQLListBox($strName, $strListQuery, $strValue, $strStyle, false, $astrAdditionalAttributes, $translate);
       }
-      else 
+      else
       {
-        $strFormElement = 
+        $strFormElement =
           "<input type=\"text\" class=\"$strStyle\" " .
           "id=\"$strName\" name=\"$strName\" value=\"" . htmlspecialchars(getSQLListBoxSelectedValue($strListQuery, $strValue, $translate)) . "\"$astrAdditionalAttributes$readOnly>\n";
       }
       break;
-      
+
     case 'SELECT':
       $translate = false;
       if (strstr($strStyle, ' translated')) {
         $translate = true;
         $strStyle = str_replace(' translated', '', $strStyle);
       }
-      if ($strMode == "MODIFY") 
+      if ($strMode == "MODIFY")
       {
         $strFormElement = htmlListBox($strName, $options, $strValue, $strStyle, false, $astrAdditionalAttributes, $translate);
       }
-      else 
+      else
       {
-        $strFormElement = 
+        $strFormElement =
           "<input type=\"text\" class=\"$strStyle\" " .
           "id=\"$strName\" name=\"$strName\" value=\"" . htmlspecialchars(getListBoxSelectedValue($options, $strValue, $translate)) . "\"$astrAdditionalAttributes$readOnly>\n";
       }
       break;
-      
+
     case 'BUTTON':
       $strListQuery = str_replace("_ID_", $strValue, $strListQuery);
-      switch ($strStyle) 
+      switch ($strStyle)
       {
         case 'custom' :
           $strListQuery = str_replace("'","",$strListQuery);
           $strHref = $strListQuery;
           $strOnClick = "";
           break;
-          
+
         case 'redirect':
           $strHref = "#";
           $strOnClick = "onclick=\"save_record('$strListQuery', 'redirect'); return false;\"";
           break;
-          
+
         case 'openwindow':
           $strHref = "#";
           $strOnClick = "onclick=\"save_record('$strListQuery', 'openwindow'); return false;\"";
           break;
-          
+
         default:
-          switch ($strStyle) 
+          switch ($strStyle)
           {
             case 'tiny':
                 $strHW = "height=1,width=1,";
@@ -361,10 +361,10 @@ function htmlFormElement($strName, $strType, $strValue, $strStyle, $strListQuery
             "status=no,toolbar=no'); return false;\"";
           break;
       }
-      $strFormElement = 
+      $strFormElement =
           "<a class=\"formbuttonlink\" href=\"$strHref\" $strOnClick$astrAdditionalAttributes>" . htmlspecialchars($strTitle) . "</a>\n";
       break;
-    
+
     case 'JSBUTTON':
       if (strstr($strListQuery, '_ID_') && !$strValue)
       {
@@ -375,16 +375,16 @@ function htmlFormElement($strName, $strType, $strValue, $strStyle, $strListQuery
         if ($strValue)
           $strListQuery = str_replace('_ID_', $strValue, $strListQuery);
         $strOnClick = "onClick=\"$strListQuery\"";
-        $strFormElement = 
+        $strFormElement =
           "<a class=\"formbuttonlink\" href=\"#\" $strOnClick$astrAdditionalAttributes>" . htmlspecialchars($strTitle) . "</a>\n";
       }
       break;
-      
+
     case 'IMAGE':
       $strListQuery = str_replace("_ID_", $strValue, $strListQuery);
       $strFormElement = "<img class=\"$strStyle\" src=\"$strListQuery\" title=\"" . htmlspecialchars($strTitle) . "\"></div>\n";
       break;
-      
+
     default:
       $strFormElement = "&nbsp;\n";
   }
