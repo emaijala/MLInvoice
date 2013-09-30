@@ -31,7 +31,7 @@ function extractSearchTerm(&$searchTerms, &$field, &$operator, &$term, &$boolean
   $term = '';
   $inQuotes = false;
   $escaped = false;
-  while ($rest)
+  while ($rest != '')
   {
     $ch = substr($rest, 0, 1);
     $rest = substr($rest, 1);
@@ -44,12 +44,12 @@ function extractSearchTerm(&$searchTerms, &$field, &$operator, &$term, &$boolean
       $escaped = true;
       continue;
     }
-      
+
     if ($ch == "'") {
       $inQuotes = !$inQuotes;
       continue;
     }
-    if ($ch == ' ' && !$inQuotes) 
+    if ($ch == ' ' && !$inQuotes)
       break;
     $term .= $ch;
   }
@@ -76,9 +76,9 @@ function createList($strFunc, $strList)
   $strWhereClause = getRequest('where', '');
   $strSearchTerms = trim(getRequest('searchterms', ''));
   $intID = getRequest('id', FALSE);
-  
+
   require "list_switch.php";
-  
+
   if (!sesAccessLevel($levelsAllowed) && !sesAdminAccess())
   {
 ?>
@@ -91,9 +91,9 @@ function createList($strFunc, $strList)
 
   if (!$strTable)
     return;
-  
+
   $arrQueryParams = array();
-  if ($strWhereClause) { 
+  if ($strWhereClause) {
     // Validate and build query parameters
     $boolean = '';
     $where = '';
@@ -130,13 +130,13 @@ function createList($strFunc, $strList)
                       $arrQueryParams[] = $astrTerms[$i];
                   }
                   elseif( $astrSearchFields[$j]['type'] == "PRIMARY" && preg_match ("/^([0-9]+)$/", $intID) ) {
-                      $strWhereClause = 
+                      $strWhereClause =
                           "WHERE ". $astrSearchFields[$j]['name']. " = ?     ";
                       $arrQueryParams = array($intID);
                       unset($astrSearchFields);
                       break 2;
                   }
-                  
+
               }
               $strWhereClause = substr( $strWhereClause, 0, -3) . ") AND ";
           }
@@ -151,7 +151,7 @@ function createList($strFunc, $strList)
     else
       $strWhereClause = " WHERE ($strFilter)";
   }
-  
+
   if (!getSetting('show_deleted_records'))
   {
     if ($strWhereClause)
@@ -159,8 +159,8 @@ function createList($strFunc, $strList)
     else
       $strWhereClause = " WHERE $strDeletedField=0";
   }
-  
-  $strQuery = "SELECT $strPrimaryKey FROM $strTable $strWhereClause"; 
+
+  $strQuery = "SELECT $strPrimaryKey FROM $strTable $strWhereClause";
 
   createHtmlList($strFunc, $strList, $strQuery, $arrQueryParams);
 }
@@ -171,7 +171,7 @@ function createHtmlList($strFunc, $strList, $strIDQuery, &$arrQueryParams, $strT
 
   if (!$strTableName)
     $strTableName = "resultlist_$strMainForm";
-  
+
   if ($strTitleOverride)
     $strTitle = $strTitleOverride;
   else
@@ -180,9 +180,9 @@ function createHtmlList($strFunc, $strList, $strIDQuery, &$arrQueryParams, $strT
     $strNoEntries = $GLOBALS['locNoEntries'];
 
   $astrListValues = array(array());
-  
+
   $strSelectClause = "$strPrimaryKey,$strDeletedField";
-  foreach ($astrShowFields as $field) 
+  foreach ($astrShowFields as $field)
   {
     $strSelectClause .= ',' . (isset($field['sql']) ? $field['sql'] : $field['name']);
   }
@@ -208,27 +208,27 @@ function createHtmlList($strFunc, $strList, $strIDQuery, &$arrQueryParams, $strT
 <?php
     return;
   }
-  
+
   // Only for invoice lists
   $totalSum = 0;
-  
+
   $i = -1;
-  while ($row = mysql_fetch_prefixed_assoc($intRes)) 
+  while ($row = mysql_fetch_prefixed_assoc($intRes))
   {
     ++$i;
     $astrPrimaryKeys[$i] = $row[$strPrimaryKey];
     $aboolDeleted[$i] = $row[$strDeletedField];
-    foreach ($astrShowFields as $field) 
-    { 
+    foreach ($astrShowFields as $field)
+    {
       $name = $field['name'];
-      if ($field['type'] == 'TEXT' || $field['type'] == 'INT') 
+      if ($field['type'] == 'TEXT' || $field['type'] == 'INT')
       {
         $value = $row[$name];
         if (isset($field['mappings']) && isset($field['mappings'][$value]))
-          $value = $field['mappings'][$value];  
+          $value = $field['mappings'][$value];
         $astrListValues[$i][$name] = $value;
       }
-      elseif ($field['type'] == 'CURRENCY') 
+      elseif ($field['type'] == 'CURRENCY')
       {
         $value = $row[$name];
         if ($name == '.total_price') {
@@ -237,27 +237,27 @@ function createHtmlList($strFunc, $strList, $strIDQuery, &$arrQueryParams, $strT
         $value = miscRound2Decim($value, isset($field['decimals']) ? $field['decimals'] : 2);
         $astrListValues[$i][$name] = $value;
       }
-      elseif ($field['type'] == 'INTDATE') 
+      elseif ($field['type'] == 'INTDATE')
       {
         $astrListValues[$i][$name] = dateConvDBDate2Date($row[$name]);
       }
     }
   }
-  
+
   if ($strList == 'invoices' || $strFunc == 'invoices') {
     $strTitle .= ' ' . sprintf($GLOBALS['locInvoicesTotal'], miscRound2Decim($totalSum));
   }
   if ($strTitle) {
     $strTitle = "<strong>$strTitle</strong><br><br>\n";
   }
-  
+
 ?>
   <script type="text/javascript">
-  
+
   $(document).ready(function() {
     $('#<?php echo $strTableName?>').dataTable( {
       "oLanguage": {
-        <?php echo $GLOBALS['locTableTexts']?> 
+        <?php echo $GLOBALS['locTableTexts']?>
       },
       "bStateSave": true,
       "bJQueryUI": true,
@@ -270,14 +270,14 @@ function createHtmlList($strFunc, $strList, $strIDQuery, &$arrQueryParams, $strT
   );
   });
   </script>
-  
+
   <div class="list_container">
     <?php echo $strTitle?>
     <table id="<?php echo $strTableName?>" class="list">
       <thead>
         <tr>
 <?php
-  foreach ($astrShowFields as $field) 
+  foreach ($astrShowFields as $field)
   {
     $strWidth = isset($field['width']) ? (' style="width: ' . $field['width'] . 'px"') : '';
 ?>
@@ -289,7 +289,7 @@ function createHtmlList($strFunc, $strList, $strIDQuery, &$arrQueryParams, $strT
       </thead>
       <tbody>
 <?php
-  for ($i = 0; $i < count($astrListValues); $i++) 
+  for ($i = 0; $i < count($astrListValues); $i++)
   {
     $row = $astrListValues[$i];
     $strLink = "?func=$strFunc&amp;list=$strList&amp;form=$strMainForm&amp;id=" . $astrPrimaryKeys[$i];
@@ -297,11 +297,11 @@ function createHtmlList($strFunc, $strList, $strIDQuery, &$arrQueryParams, $strT
 ?>
         <tr class="listrow">
 <?php
-    foreach ($astrShowFields as $field) 
+    foreach ($astrShowFields as $field)
     {
       $name = $field['name'];
       $overdue = false;
-      
+
       // Special colouring for overdue invoices
       if ($name == 'i.due_date' && $strTableName == 'resultlist_unpaid_invoices') {
         $rowDue = strDate2UnixTime($row['i.due_date']);
@@ -313,7 +313,7 @@ function createHtmlList($strFunc, $strList, $strIDQuery, &$arrQueryParams, $strT
           $overdue = ' overdue';
         }
       }
-      
+
       if (isset($field['translate']) && $field['translate'] && isset($GLOBALS["loc{$row[$name]}"])) {
         $value = $GLOBALS["loc{$row[$name]}"];
       } else {
@@ -325,7 +325,7 @@ function createHtmlList($strFunc, $strList, $strIDQuery, &$arrQueryParams, $strT
     }
 ?>
         </tr>
-  
+
 <?php
   }
   $strLink = '?' . str_replace('&', '&amp;', $_SERVER['QUERY_STRING']) . "&amp;form=$strMainForm";
