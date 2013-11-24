@@ -270,7 +270,7 @@ EOT
       "UPDATE {prefix}row_type set name='TypeYear' where name='vuosi'",
       "UPDATE {prefix}row_type set name='TypeLot' where name='erä'",
       "UPDATE {prefix}row_type set name='TypeKilometer' where name='km'",
-      "UPDATE {prefix}row_type set name='TypeKilogram' where name='kg'",      
+      "UPDATE {prefix}row_type set name='TypeKilogram' where name='kg'",
       "REPLACE INTO {prefix}state (id, data) VALUES ('version', '17')"
     ));
   }

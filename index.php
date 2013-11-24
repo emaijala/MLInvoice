@@ -152,7 +152,8 @@ if ($strFunc == 'system' && getRequest('operation', '') == 'export' && sesAdminA
 {
   createFuncMenu($strFunc);
   require_once 'export.php';
-  do_export();
+  $export = new ExportData();
+  $export->launch();
 }
 elseif ($strFunc == 'system' && getRequest('operation', '') == 'import' && sesAdminAccess())
 {

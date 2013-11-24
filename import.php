@@ -269,7 +269,7 @@ class ImportFile
     echo json_encode($response);
   }
 
-  protected function get_row_delims()
+  public function get_row_delims()
   {
     return array(
       'lf' => array('char' => "\n", 'name' => 'LF'),
@@ -278,7 +278,7 @@ class ImportFile
     );
   }
 
-  protected function get_field_delims()
+  public function get_field_delims()
   {
     return array(
       'comma' => array('char' => ',', 'name' => $GLOBALS['locImportExportFieldDelimiterComma']),
@@ -289,7 +289,7 @@ class ImportFile
     );
   }
 
-  protected function get_enclosure_chars()
+  public function get_enclosure_chars()
   {
     return array(
       'doublequote' => array('char' => '"', 'name' =>  $GLOBALS['locImportExportEnclosureDoubleQuote']),
@@ -298,7 +298,7 @@ class ImportFile
     );
   }
 
-  protected function get_date_formats()
+  public function get_date_formats()
   {
     return array (
       'd.m.Y',
