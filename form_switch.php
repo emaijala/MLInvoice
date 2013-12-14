@@ -71,6 +71,10 @@ case 'company':
     array(
       'name' => 'default_ref_number', 'label' => $GLOBALS['locCustomerDefaultRefNr'], 'type' => 'TEXT', 'style' => 'medium', 'position' => 1, 'allow_null' => true ),
     array(
+      'name' => 'delivery_terms_id', 'label' => $GLOBALS['locDeliveryTerms'], 'type' => 'LIST', 'style' => 'medium', 'listquery' => 'SELECT id, name FROM {prefix}delivery_terms WHERE deleted=0 ORDER BY order_no;', 'position' => 1, 'default' => null, 'allow_null' => true ),
+    array(
+      'name' => 'delivery_method_id', 'label' => $GLOBALS['locDeliveryMethod'], 'type' => 'LIST', 'style' => 'medium', 'listquery' => 'SELECT id, name FROM {prefix}delivery_method WHERE deleted=0 ORDER BY order_no;', 'position' => 2, 'default' => null, 'allow_null' => true ),
+    array(
       'name' => 'street_address', 'label' => $GLOBALS['locStreetAddr'], 'type' => 'TEXT', 'style' => 'medium', 'position' => 1, 'allow_null' => true ),
     array(
       'name' => 'zip_code', 'label' => $GLOBALS['locZipCode'], 'type' => 'TEXT', 'style' => 'short', 'position' => 2, 'allow_null' => true ),
@@ -366,6 +370,10 @@ EOS;
     array(
       'name' => 'payment_date', 'label' => $GLOBALS['locPayDate'], 'type' => 'INTDATE', 'style' => 'date', 'position' => 2, 'allow_null' => true ),
     array(
+      'name' => 'delivery_terms_id', 'label' => $GLOBALS['locDeliveryTerms'], 'type' => 'LIST', 'style' => 'medium', 'listquery' => 'SELECT id, name FROM {prefix}delivery_terms WHERE deleted=0 ORDER BY order_no;', 'position' => 1, 'default' => null, 'allow_null' => true ),
+    array(
+      'name' => 'delivery_method_id', 'label' => $GLOBALS['locDeliveryMethod'], 'type' => 'LIST', 'style' => 'medium', 'listquery' => 'SELECT id, name FROM {prefix}delivery_method WHERE deleted=0 ORDER BY order_no;', 'position' => 2, 'default' => null, 'allow_null' => true ),
+    array(
       'name' => 'archived', 'label' => $GLOBALS['locArchived'], 'type' => 'CHECK', 'style' => 'medium', 'position' => 1, 'default' => 0, 'allow_null' => true ),
     array(
       'name' => 'info', 'label' => $GLOBALS['locVisibleInfo'], 'type' => 'AREA', 'style' => 'medium', 'position' => 1, 'allow_null' => true ),
@@ -641,6 +649,32 @@ case 'session_type':
       'name' => 'order_no', 'label' => $GLOBALS['locOrderNr'], 'type' => 'INT', 'style' => 'short', 'position' => 2 ),
     array(
       'name' => 'access_level', 'label' => $GLOBALS['locAccessLevel'], 'type' => 'INT', 'style' => 'short', 'position' => 1, 'default' => 1 )
+  );
+break;
+
+case 'delivery_terms':
+  $levelsAllowed = array(ROLE_ADMIN);
+  $strTable = '{prefix}delivery_terms';
+  $strJSONType = 'delivery_terms';
+
+  $astrFormElements = array(
+    array(
+      'name' => 'name', 'label' => $GLOBALS['locDeliveryTerms'], 'type' => 'TEXT', 'style' => 'medium', 'position' => 1 ),
+    array(
+      'name' => 'order_no', 'label' => $GLOBALS['locOrderNr'], 'type' => 'INT', 'style' => 'short', 'position' => 2 )
+  );
+break;
+
+case 'delivery_method':
+  $levelsAllowed = array(ROLE_ADMIN);
+  $strTable = '{prefix}delivery_method';
+  $strJSONType = 'delivery_method';
+
+  $astrFormElements = array(
+    array(
+      'name' => 'name', 'label' => $GLOBALS['locDeliveryMethod'], 'type' => 'TEXT', 'style' => 'medium', 'position' => 1 ),
+    array(
+      'name' => 'order_no', 'label' => $GLOBALS['locOrderNr'], 'type' => 'INT', 'style' => 'short', 'position' => 2 )
   );
 break;
 

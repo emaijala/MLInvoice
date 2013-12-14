@@ -36,7 +36,7 @@ require_once "miscfuncs.php";
 $intInvoiceId = getRequest('id', FALSE);
 $printTemplate = getRequest('template', 1);
 
-if (!$intInvoiceId) 
+if (!$intInvoiceId)
   return;
 
 $res = mysql_param_query('SELECT filename, parameters, output_filename from {prefix}print_template WHERE id=?', array($printTemplate));
@@ -45,11 +45,13 @@ if (!$row = mysql_fetch_row($res))
 $printTemplateFile = $row[0];
 $printParameters = $row[1];
 $printOutputFileName = $row[2];
-  
-$strQuery = 
-  "SELECT inv.*, ref.invoice_no as refunded_invoice_no " .
+
+$strQuery =
+  "SELECT inv.*, ref.invoice_no as refunded_invoice_no, delivery_terms.name as delivery_terms, delivery_method.name as delivery_method " .
   "FROM {prefix}invoice inv " .
   "LEFT OUTER JOIN {prefix}invoice ref ON ref.id = inv.refunded_invoice_id ".
+  "LEFT OUTER JOIN {prefix}delivery_terms as delivery_terms ON delivery_terms.id = inv.delivery_terms_id ".
+  "LEFT OUTER JOIN {prefix}delivery_method as delivery_method ON delivery_method.id = inv.delivery_method_id ".
   "WHERE inv.id=?";
 $intRes = mysql_param_query($strQuery, array($intInvoiceId));
 $invoiceData = mysql_fetch_assoc($intRes);
@@ -66,8 +68,8 @@ $senderData = mysql_fetch_assoc($intRes);
 if (!$senderData)
   die('Could not find invoice sender data');
 $senderData['vat_id'] = createVATID($senderData['company_id']);
-    
-$strQuery = 
+
+$strQuery =
     "SELECT pr.product_name, pr.product_code, pr.price_decimals, ir.description, ir.pcs, ir.price, IFNULL(ir.discount, 0) as discount, ir.row_date, ir.vat, ir.vat_included, ir.reminder_row, rt.name type ".
     "FROM {prefix}invoice_row ir ".
     "LEFT OUTER JOIN {prefix}row_type rt ON rt.id = ir.type_id ".
@@ -75,7 +77,7 @@ $strQuery =
     "WHERE ir.invoice_id=? AND ir.deleted=0 ORDER BY ir.order_no, row_date, pr.product_name DESC, ir.description DESC";
 $intRes = mysql_param_query($strQuery, array($intInvoiceId));
 $invoiceRowData = array();
-while ($row = mysql_fetch_assoc($intRes)) 
+while ($row = mysql_fetch_assoc($intRes))
 {
   $invoiceRowData[] = $row;
 }
@@ -83,7 +85,7 @@ while ($row = mysql_fetch_assoc($intRes))
 if (sesWriteAccess()) {
   mysql_param_query('UPDATE {prefix}invoice SET print_date=? where id=?', array(date('Ymd'), $intInvoiceId));
 }
-  
+
 $printer = instantiateInvoicePrinter(trim($printTemplateFile));
 $printer->init($intInvoiceId, $printParameters, $printOutputFileName, $senderData, $recipientData, $invoiceData, $invoiceRowData);
 $printer->printInvoice();

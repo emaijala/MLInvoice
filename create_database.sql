@@ -4,7 +4,7 @@ CREATE TABLE mlinvoice_invoice_state (
   name varchar(255) default NULL,
   order_no int(11) default NULL,
   PRIMARY KEY (id)
-) ENGINE=INNODB AUTO_INCREMENT=4 CHARACTER SET utf8 COLLATE utf8_swedish_ci;
+) ENGINE=INNODB CHARACTER SET utf8 COLLATE utf8_swedish_ci;
 
 CREATE TABLE mlinvoice_row_type (
   id int(11) NOT NULL auto_increment,
@@ -12,8 +12,7 @@ CREATE TABLE mlinvoice_row_type (
   name varchar(255) default NULL,
   order_no int(11) default NULL,
   PRIMARY KEY (id)
-) ENGINE=INNODB AUTO_INCREMENT=9 CHARACTER SET utf8 COLLATE utf8_swedish_ci;
-
+) ENGINE=INNODB CHARACTER SET utf8 COLLATE utf8_swedish_ci;
 
 CREATE TABLE mlinvoice_company_type (
   id int(11) NOT NULL auto_increment,
@@ -21,7 +20,7 @@ CREATE TABLE mlinvoice_company_type (
   name varchar(255) default NULL,
   order_no int(11) default NULL,
   PRIMARY KEY (id)
-) ENGINE=INNODB AUTO_INCREMENT=23 CHARACTER SET utf8 COLLATE utf8_swedish_ci;
+) ENGINE=INNODB CHARACTER SET utf8 COLLATE utf8_swedish_ci;
 
 CREATE TABLE mlinvoice_base (
   id int(11) NOT NULL auto_increment,
@@ -63,7 +62,23 @@ CREATE TABLE mlinvoice_base (
   invoice_email_subject varchar(255) NULL,
   invoice_email_body text NULL,
   PRIMARY KEY (id)
-) ENGINE=INNODB AUTO_INCREMENT=1 CHARACTER SET utf8 COLLATE utf8_swedish_ci;
+) ENGINE=INNODB CHARACTER SET utf8 COLLATE utf8_swedish_ci;
+
+CREATE TABLE mlinvoice_delivery_terms (
+  id int(11) NOT NULL auto_increment,
+  deleted tinyint NOT NULL default 0,
+  name varchar(255) default NULL,
+  order_no int(11) default NULL,
+  PRIMARY KEY (id)
+) ENGINE=INNODB CHARACTER SET utf8 COLLATE utf8_swedish_ci;
+
+CREATE TABLE mlinvoice_delivery_method (
+  id int(11) NOT NULL auto_increment,
+  deleted tinyint NOT NULL default 0,
+  name varchar(255) default NULL,
+  order_no int(11) default NULL,
+  PRIMARY KEY (id)
+) ENGINE=INNODB CHARACTER SET utf8 COLLATE utf8_swedish_ci;
 
 CREATE TABLE mlinvoice_company (
   id int(11) NOT NULL auto_increment,
@@ -88,8 +103,12 @@ CREATE TABLE mlinvoice_company (
   customer_no int(11) default NULL,
   default_ref_number varchar(100) default NULL,
   inactive tinyint NOT NULL default 0,
+  delivery_terms_id int(11) default NULL,
+  delivery_method_id int(11) default NULL,
   PRIMARY KEY (id),
-  FOREIGN KEY (type_id) REFERENCES mlinvoice_company_type(id)
+  FOREIGN KEY (type_id) REFERENCES mlinvoice_company_type(id),
+  FOREIGN KEY (delivery_terms_id) REFERENCES mlinvoice_delivery_terms(id),
+  FOREIGN KEY (delivery_method_id) REFERENCES mlinvoice_delivery_method(id)
 ) ENGINE=INNODB CHARACTER SET utf8 COLLATE utf8_swedish_ci;
 
 CREATE TABLE mlinvoice_company_contact (
@@ -103,7 +122,7 @@ CREATE TABLE mlinvoice_company_contact (
   gsm varchar(30) default NULL,
   PRIMARY KEY (id),
   FOREIGN KEY (company_id) REFERENCES mlinvoice_company(id)
-) ENGINE=INNODB AUTO_INCREMENT=1 CHARACTER SET utf8 COLLATE utf8_swedish_ci;
+) ENGINE=INNODB CHARACTER SET utf8 COLLATE utf8_swedish_ci;
 
 CREATE TABLE mlinvoice_product (
   id int(11) NOT NULL auto_increment,
@@ -144,10 +163,13 @@ CREATE TABLE mlinvoice_invoice (
   internal_info text default NULL,
   interval_type int(11) NOT NULL default 0,
   next_interval_date int(11) default NULL,
+  delivery_terms_id int(11) default NULL,
+  delivery_method_id int(11) default NULL,
   PRIMARY KEY (id),
   FOREIGN KEY (company_id) REFERENCES mlinvoice_company(id),
   FOREIGN KEY (state_id) REFERENCES mlinvoice_invoice_state(id),
-  FOREIGN KEY (base_id) REFERENCES mlinvoice_base(id)
+  FOREIGN KEY (base_id) REFERENCES mlinvoice_base(id),
+  FOREIGN KEY (delivery_method_id) REFERENCES mlinvoice_delivery_method(id)
 ) ENGINE=INNODB AUTO_INCREMENT=1 CHARACTER SET utf8 COLLATE utf8_swedish_ci;
 
 CREATE TABLE mlinvoice_invoice_row (
@@ -169,7 +191,7 @@ CREATE TABLE mlinvoice_invoice_row (
   FOREIGN KEY (invoice_id) REFERENCES mlinvoice_invoice(id) ON DELETE CASCADE,
   FOREIGN KEY (product_id) REFERENCES mlinvoice_product(id),
   FOREIGN KEY (type_id) REFERENCES mlinvoice_row_type(id)
-) ENGINE=INNODB AUTO_INCREMENT=1 CHARACTER SET utf8 COLLATE utf8_swedish_ci;
+) ENGINE=INNODB CHARACTER SET utf8 COLLATE utf8_swedish_ci;
 
 CREATE TABLE mlinvoice_session_type (
   id int(11) NOT NULL auto_increment,
@@ -179,7 +201,7 @@ CREATE TABLE mlinvoice_session_type (
   time_out int(11) default NULL,
   access_level int(11) default NULL,
   PRIMARY KEY (id)
-) ENGINE=INNODB AUTO_INCREMENT=3 CHARACTER SET utf8 COLLATE utf8_swedish_ci;
+) ENGINE=INNODB CHARACTER SET utf8 COLLATE utf8_swedish_ci;
 
 CREATE TABLE mlinvoice_users (
   id int(11) NOT NULL auto_increment,
@@ -191,7 +213,7 @@ CREATE TABLE mlinvoice_users (
   type_id int(11) default NULL,
   PRIMARY KEY (id),
   FOREIGN KEY (type_id) REFERENCES mlinvoice_session_type(id)
-) ENGINE=INNODB AUTO_INCREMENT=2 CHARACTER SET utf8 COLLATE utf8_swedish_ci;
+) ENGINE=INNODB CHARACTER SET utf8 COLLATE utf8_swedish_ci;
 
 CREATE TABLE mlinvoice_quicksearch (
   id int(11) NOT NULL auto_increment,
@@ -282,7 +304,9 @@ INSERT INTO mlinvoice_print_template (id, name, filename, parameters, output_fil
 INSERT INTO mlinvoice_print_template (id, name, filename, parameters, output_filename, type, order_no, inactive) VALUES (16, 'PrintEmailReceiptFinnish', 'invoice_printer_email.php', 'receipt', 'kuitti_%d.pdf', 'invoice', 110, 1);
 INSERT INTO mlinvoice_print_template (id, name, filename, parameters, output_filename, type, order_no, inactive) VALUES (17, 'PrintEmailReceiptSwedish', 'invoice_printer_email.php', 'receipt,sv-FI', 'kvitto_%d.pdf', 'invoice', 120, 1);
 INSERT INTO mlinvoice_print_template (id, name, filename, parameters, output_filename, type, order_no, inactive) VALUES (18, 'PrintEmailReceiptEnglish', 'invoice_printer_email.php', 'receipt,en', 'receipt_%d.pdf', 'invoice', 130, 1);
-
+INSERT INTO mlinvoice_print_template (id, name, filename, parameters, output_filename, type, order_no, inactive) VALUES (19, 'PrintOrderConfirmationFinnish', 'invoice_printer_order_confirmation.php', 'receipt', 'tilausvahvistus_%d.pdf', 'invoice', 140, 1);
+INSERT INTO mlinvoice_print_template (id, name, filename, parameters, output_filename, type, order_no, inactive) VALUES (20, 'PrintOrderConfirmationSwedish', 'invoice_printer_order_confirmation.php', 'receipt,sv-FI', 'orderbekraftelse_%d.pdf', 'invoice', 150, 1);
+INSERT INTO mlinvoice_print_template (id, name, filename, parameters, output_filename, type, order_no, inactive) VALUES (21, 'PrintOrderConfirmationEnglish', 'invoice_printer_order_confirmation.php', 'receipt,en', 'order_confirmation_%d.pdf', 'invoice', 160, 1);
 INSERT INTO mlinvoice_users (id, name, email, login, passwd, type_id) VALUES (1, 'Administrator', '', 'admin', md5('admin'), 2);
 
 -- ***** The following rows just add some sample data *****

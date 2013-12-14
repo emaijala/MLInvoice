@@ -42,6 +42,8 @@ case 'get_row_type':
 case 'get_print_template':
 case 'get_company':
 case 'get_session_type':
+case 'get_delivery_terms':
+case 'get_delivery_method':
   printJSONRecord(substr($strFunc, 4));
   break;
 case 'get_user':
@@ -58,6 +60,8 @@ case 'put_row_type':
 case 'put_print_template':
 case 'put_user':
 case 'put_session_type':
+case 'put_delivery_terms':
+case 'put_delivery_method':
   saveJSONRecord(substr($strFunc, 4), '');
   break;
 

@@ -24,16 +24,16 @@ function getPostValues(&$formElements, $primaryKey, $parentKey = FALSE)
 {
   $values = array();
 
-  foreach ($formElements as $elem) 
+  foreach ($formElements as $elem)
   {
-    if (in_array($elem['type'], array('', 'IFORM', 'RESULT', 'BUTTON', 'JSBUTTON', 'IMAGE', 'ROWSUM', 'NEWLINE', 'LABEL'))) 
+    if (in_array($elem['type'], array('', 'IFORM', 'RESULT', 'BUTTON', 'JSBUTTON', 'IMAGE', 'ROWSUM', 'NEWLINE', 'LABEL')))
     {
       $values[$elem['name']] = isset($primaryKey) ? $primaryKey : FALSE;
     }
-    else 
+    else
     {
       $values[$elem['name']] = getPostRequest($elem['name'], FALSE);
-      if (isset($elem['default']) && ($values[$elem['name']] === FALSE || ($elem['type'] == 'INT' && $values[$elem['name']] === ''))) 
+      if (isset($elem['default']) && ($values[$elem['name']] === FALSE || ($elem['type'] == 'INT' && $values[$elem['name']] === '')))
       {
         $values[$elem['name']] = getFormDefaultValue($elem, $parentKey);
       }
@@ -53,20 +53,20 @@ function getPostValues(&$formElements, $primaryKey, $parentKey = FALSE)
 // Get the default value for the given form element
 function getFormDefaultValue($elem, $parentKey)
 {
-  if (!isset($elem['default'])) 
+  if (!isset($elem['default']))
   {
     return false;
   }
-  if ($elem['default'] === 'DATE_NOW') 
+  if ($elem['default'] === 'DATE_NOW')
   {
     return date($GLOBALS['locDateFormat']);
   }
-  elseif (strstr($elem['default'], 'DATE_NOW+')) 
+  elseif (strstr($elem['default'], 'DATE_NOW+'))
   {
     $atmpValues = explode('+', $elem['default']);
     return date($GLOBALS['locDateFormat'], mktime(0, 0, 0, date('m'), date('d') + $atmpValues[1], date('Y')));
-  }            
-  elseif (strstr($elem['default'], 'ADD')) 
+  }
+  elseif (strstr($elem['default'], 'ADD'))
   {
     $strQuery = str_replace("_PARENTID_", $parentKey, $elem['listquery']);
     $intAdd = mysql_fetch_value(mysql_query_check($strQuery));
@@ -84,25 +84,25 @@ function getFormDefaultValue($elem, $parentKey)
 // Return true on success.
 // Return false on conflict or a string of missing values if encountered. In these cases, the record is not saved.
 function saveFormData($table, &$primaryKey, &$formElements, &$values, &$warnings, $parentKeyName = '', $parentKey = FALSE)
-{  
+{
   $missingValues = '';
   $strFields = '';
   $strInsert = '';
   $strUpdateFields = '';
   $arrValues = array();
-  
+
   if (!isset($primaryKey) || !$primaryKey)
     unset($values['id']);
-  
-  foreach ($formElements as $elem) 
+
+  foreach ($formElements as $elem)
   {
     $type = $elem['type'];
-            
+
     if (in_array($type, array('', 'IFORM', 'RESULT', 'BUTTON', 'JSBUTTON', 'IMAGE', 'ROWSUM', 'NEWLINE', 'LABEL')))
       continue;
 
     $name = $elem['name'];
-  
+
     if (!$elem['allow_null'] && (!isset($values[$name]) || $values[$name] === ''))
     {
       if ($missingValues)
@@ -111,7 +111,7 @@ function saveFormData($table, &$primaryKey, &$formElements, &$values, &$warnings
       continue;
     }
     $value = isset($values[$name]) ? $values[$name] : FALSE;
-    
+
     if ($type == 'PASSWD' && !$value)
       continue; // Don't save empty password
 
@@ -126,9 +126,9 @@ function saveFormData($table, &$primaryKey, &$formElements, &$values, &$warnings
       if (mysql_fetch_array($res)) {
         $warnings = sprintf($GLOBALS['locDuplicateValue'], $elem['label']);
         return false;
-      } 
+      }
     }
-    
+
     if ($strFields)
     {
       $strFields .= ', ';
@@ -157,17 +157,17 @@ function saveFormData($table, &$primaryKey, &$formElements, &$values, &$warnings
     case 'INTDATE':
       $arrValues[] = $value ? dateConvDate2DBDate($value) : NULL;
       break;
-    default: 
+    default:
       $arrValues[] = $value;
     }
     $strInsert .= $fieldPlaceholder;
     $strUpdateFields .= "$name=$fieldPlaceholder";
   }
-    
+
   if ($missingValues)
     return $missingValues;
 
-  if (!isset($primaryKey) || !$primaryKey) 
+  if (!isset($primaryKey) || !$primaryKey)
   {
     if ($parentKeyName)
     {
@@ -177,15 +177,15 @@ function saveFormData($table, &$primaryKey, &$formElements, &$values, &$warnings
     }
     $strQuery = "INSERT INTO $table ($strFields) VALUES ($strInsert)";
     mysql_param_query($strQuery, $arrValues);
-    $primaryKey = mysql_insert_id();   
+    $primaryKey = mysql_insert_id();
   }
-  else 
+  else
   {
     $strQuery = "UPDATE $table SET $strUpdateFields, deleted=0 WHERE id=?";
     $arrValues[] = $primaryKey;
     mysql_param_query($strQuery, $arrValues);
   }
-  
+
   // Special case for invoices - check for duplicate invoice numbers
   if ($table == '{prefix}invoice' && isset($values['invoice_no']) && $values['invoice_no'])
   {
@@ -200,7 +200,7 @@ function saveFormData($table, &$primaryKey, &$formElements, &$values, &$warnings
     if (mysql_fetch_assoc($res))
       $warnings = $GLOBALS['locInvoiceNumberAlreadyInUse'];
   }
-  
+
   return TRUE;
 }
 
@@ -214,7 +214,7 @@ function fetchRecord($table, $primaryKey, &$formElements, &$values)
   $row = mysql_fetch_assoc($intRes);
   if (!$row)
     return 'notfound';
-  
+
   if ($row['deleted'])
     $result = 'deleted';
 
@@ -235,11 +235,11 @@ function fetchRecord($table, $primaryKey, &$formElements, &$values)
     case 'BUTTON':
     case 'JSBUTTON':
     case 'IMAGE':
-      if (strstr($elem['listquery'], "=_ID_")) 
+      if (strstr($elem['listquery'], "=_ID_"))
       {
         $values[$name] = $primaryKey;
       }
-      else 
+      else
       {
         $tmpListQuery = $elem['listquery'];
         $strReplName = substr($tmpListQuery, strpos($tmpListQuery, "_"));
@@ -252,11 +252,11 @@ function fetchRecord($table, $primaryKey, &$formElements, &$values)
       $values[$name] = dateConvDBDate2Date($row[$name]);
       break;
     case 'INT':
-      if (isset($elem['decimals'])) 
+      if (isset($elem['decimals']))
       {
         $values[$name] = miscRound2Decim($row[$name], $elem['decimals']);
-      } 
-      else 
+      }
+      else
       {
         $values[$name] = $row[$name];
       }

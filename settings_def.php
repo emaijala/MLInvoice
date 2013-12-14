@@ -61,4 +61,5 @@ $arrSettings = array(
   'invoice_display_product_codes' => array('label' => $GLOBALS['locSettingInvoiceDisplayProductCodes'], 'type' => 'CHECK', 'style' => 'medium', 'position' => 1, 'default' => 0, 'allow_null' => TRUE ),
   'invoice_display_vatless_price_in_list' => array('label' => $GLOBALS['locSettingInvoiceDisplayVATLessPriceInList'], 'type' => 'CHECK', 'style' => 'medium', 'position' => 1, 'default' => 0, 'allow_null' => TRUE ),
   'invoice_auto_archive' => array('label' => $GLOBALS['locSettingInvoiceAutoArchive'], 'type' => 'CHECK', 'style' => 'medium', 'position' => 1, 'default' => 1, 'allow_null' => TRUE ),
+  'order_confirmation_terms' => array('label' => $GLOBALS['locSettingOrderConfirmationTerms'], 'type' => 'AREA', 'style' => 'xlarge', 'position' => 1, 'default' => '', 'allow_null' => FALSE )
 );

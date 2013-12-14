@@ -177,6 +177,8 @@ function getPageTitle($strFunc, $strList, $strForm)
       case 'row_type': return $GLOBALS['locRowType'];
       case 'print_template': return $GLOBALS['locPrintTemplate'];
       case 'invoice_state': return $GLOBALS['locInvoiceState'];
+      case 'delivery_terms': return $GLOBALS['locDeliveryTerms'];
+      case 'delivery_method': return $GLOBALS['locDeliveryMethod'];
       default: return $GLOBALS['locSystem'];
       }
     }
@@ -189,6 +191,8 @@ function getPageTitle($strFunc, $strList, $strForm)
       case 'row_type': return $GLOBALS['locRowTypes'];
       case 'print_template': return $GLOBALS['locPrintTemplates'];
       case 'invoice_state': return $GLOBALS['locInvoiceStates'];
+      case 'delivery_terms': return $GLOBALS['locDeliveryTerms'];
+      case 'delivery_method': return $GLOBALS['locDeliveryMethods'];
       default: return $GLOBALS['locSystem'];
       }
     }

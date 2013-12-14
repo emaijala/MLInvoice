@@ -183,6 +183,40 @@ case 'row_type':
    $strTitle = $GLOBALS['locRowTypes'];
 break;
 
+case 'delivery_terms':
+   $strTable = "{prefix}delivery_terms";
+   $astrSearchFields =
+    array(
+        array("name" => "name", "type" => "TEXT")
+    );
+   $strPrimaryKey = "id";
+   $strDeletedField = 'deleted';
+   $astrShowFields =
+    array(
+        array("name" => "order_no", 'width' => 150, "type" => "TEXT", "header" => $GLOBALS['locOrderNr']),
+        array("name" => "name", 'width' => 450, "type" => "TEXT", "header" => $GLOBALS['locDeliveryTerms'])
+    );
+   $strMainForm = "delivery_terms";
+   $strTitle = $GLOBALS['locDeliveryTerms'];
+break;
+
+case 'delivery_method':
+   $strTable = "{prefix}delivery_method";
+   $astrSearchFields =
+    array(
+        array("name" => "name", "type" => "TEXT")
+    );
+   $strPrimaryKey = "id";
+   $strDeletedField = 'deleted';
+   $astrShowFields =
+    array(
+        array("name" => "order_no", 'width' => 150, "type" => "TEXT", "header" => $GLOBALS['locOrderNr']),
+        array("name" => "name", 'width' => 450, "type" => "TEXT", "header" => $GLOBALS['locDeliveryMethod'])
+    );
+   $strMainForm = "delivery_method";
+   $strTitle = $GLOBALS['locDeliveryMethod'];
+break;
+
 case 'print_template':
   $strTable = "{prefix}print_template";
   $astrSearchFields =

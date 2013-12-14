@@ -43,6 +43,8 @@ function createFuncMenu($strFunc)
       array("href" => "list=user", "text" => $GLOBALS['locUsers'], "levels_allowed" => array(ROLE_ADMIN)),
       array("href" => "list=invoice_state", "text" => $GLOBALS['locInvoiceStates'], "levels_allowed" => array(ROLE_ADMIN)),
       array("href" => "list=row_type", "text" => $GLOBALS['locRowTypes'], "levels_allowed" => array(ROLE_ADMIN)),
+      array("href" => "list=delivery_terms", "text" => $GLOBALS['locDeliveryTerms'], "levels_allowed" => array(ROLE_ADMIN)),
+      array("href" => "list=delivery_method", "text" => $GLOBALS['locDeliveryMethods'], "levels_allowed" => array(ROLE_ADMIN)),
       array("href" => "list=print_template", "text" => $GLOBALS['locPrintTemplates'], "levels_allowed" => array(ROLE_ADMIN)),
       array("href" => "operation=dbdump", "text" => $GLOBALS['locBackupDatabase'], "levels_allowed" => array(ROLE_BACKUPMGR, ROLE_ADMIN)),
       array("href" => "operation=import", "text" => $GLOBALS['locImportData'], "levels_allowed" => array(ROLE_ADMIN)),
@@ -54,9 +56,16 @@ function createFuncMenu($strFunc)
     {
     case 'user': $strNewText = $GLOBALS['locNewUser']; break;
     case 'session_type': $strNewText = $GLOBALS['locNewSessionType']; break;
+    case 'invoice_state':
+    case 'row_type':
+    case 'delivery_terms':
+    case 'delivery_method':
+    case 'print_template':
+      $strNewText = $GLOBALS['locAddNew'];
+      break;
     }
     if ($strNewText)
-      $strNewButton = "<a class=\"actionlink\" href=\"?func=system&amp;list=$strList&amp;form=$strList\">$strNewText</a>";
+      $strNewButton = "<br/><br/><a class=\"buttonlink new_button\" href=\"?func=system&amp;list=$strList&amp;form=$strList\">$strNewText</a>";
     break;
 
   case "settings":
@@ -70,13 +79,10 @@ function createFuncMenu($strFunc)
     switch ($strList)
     {
     case 'base': $strNewText = $GLOBALS['locNewBase']; break;
-    case 'invoice_state': $strNewText = $GLOBALS['locNewInvoiceState']; break;
     case 'product': $strNewText = $GLOBALS['locNewProduct']; break;
-    case 'row_type': $strNewText = $GLOBALS['locNewRowType']; break;
-    case 'print_template': $strNewText = $GLOBALS['locNewPrintTemplate']; break;
     }
     if ($strNewText)
-      $strNewButton = "<a class=\"actionlink\" href=\"?func=settings&amp;list=$strList&amp;form=$strList\">$strNewText</a>";
+      $strNewButton = "<br/><br/><a class=\"buttonlink\" href=\"?func=settings&amp;list=$strList&amp;form=$strList\">$strNewText</a>";
     break;
 
   case "reports":
@@ -92,7 +98,7 @@ function createFuncMenu($strFunc)
     $strFormName = "company";
     $strFormSwitch = "company";
     $astrNaviLinks = array();
-    $strNewButton = '<a class="actionlink" href="?func=companies&amp;form=company">' . $GLOBALS['locNewClient'] . '</a>';
+    $strNewButton = '<a class="buttonlink" href="?func=companies&amp;form=company">' . $GLOBALS['locNewClient'] . '</a>';
     break;
 
   default:
@@ -104,15 +110,12 @@ function createFuncMenu($strFunc)
     else
       $astrNaviLinks[] = array("href" => "index.php?func=open_invoices", "text" => $GLOBALS['locDisplayOpenInvoices'], "levels_allowed" => array(ROLE_USER, ROLE_BACKUPMGR));
     if ($strFunc != 'archived_invoices') {
-      $strNewButton = '<a class="actionlink" href="?func=invoices&amp;form=invoice">' . $GLOBALS['locNewInvoice'] . '</a>';
+      $strNewButton = '<a class="buttonlink" href="?func=invoices&amp;form=invoice">' . $GLOBALS['locNewInvoice'] . '</a>';
       $astrNaviLinks[] = array("href" => "index.php?func=import_statement", "text" => $GLOBALS['locImportAccountStatement'], "levels_allowed" => array(ROLE_USER, ROLE_BACKUPMGR));
     }
     $strFunc = 'invoices';
     break;
   }
-
-  if ($strNewButton)
-    $strNewButton = "    $strNewButton\n";
 
   ?>
   <script type="text/javascript">

@@ -30,7 +30,7 @@ function createSettingsList()
 <?php
     return;
   }
-  
+
   require 'settings_def.php';
 
   $messages = '';
@@ -39,12 +39,12 @@ function createSettingsList()
   if ($blnSave)
   {
     foreach ($arrSettings as $name => $elem)
-    {    
+    {
       $type = $elem['type'];
       $label = $elem['label'];
       if ($type == 'LABEL')
         continue;
-        
+
       $newValue = getPost($name, NULL);
       if (!isset($newValue) || $newValue === '')
       {
@@ -67,8 +67,8 @@ function createSettingsList()
           continue;
         }
       }
-        
-        
+
+
       if (isset($elem['session']) && $elem['session'])
         $_SESSION[$name] = $newValue;
       mysql_param_query('DELETE from {prefix}settings WHERE name=?', array($name));
@@ -80,7 +80,7 @@ function createSettingsList()
 <?php if ($messages) {?>
     <div class="ui-widget ui-state-error"><?php echo $messages?></div>
 <?php }?>
-  
+
     <script type="text/javascript">
     <!--
     $(document).ready(function() {
@@ -94,12 +94,12 @@ function createSettingsList()
           newHeight = 250;
         iframe.css("height", newHeight + 'px');
         body.css("overflow", "hidden");
-      });   
+      });
       $('#admin_form').find('input[type="text"],input[type="checkbox"],select,textarea').change(function() { $('.save_button').addClass('unsaved'); });
     });
     -->
     </script>
-  
+
     <?php createSettingsListButtons()?>
     <div class="form">
     <form method="post" name="admin_form" id="admin_form">
@@ -111,7 +111,7 @@ function createSettingsList()
       {
 ?>
         <div class="sublabel ui-widget-header ui-state-default ui-state-active"><?php echo $elem['label']?></div>
-<?php        
+<?php
         continue;
       }
       $value = getPost($name, NULL);
@@ -129,7 +129,7 @@ function createSettingsList()
           else
             $value = isset($elem['default']) ? cond_utf8_decode($elem['default']) : '';
         }
-          
+
         if ($elemType == 'CURRENCY')
           $value = miscRound2Decim($value);
         elseif ($elemType == 'PERCENT')
@@ -137,14 +137,23 @@ function createSettingsList()
       }
       if ($elemType == 'CURRENCY' || $elemType == 'PERCENT')
         $elemType = 'INT';
+      if ($elemType == 'CHECK') {
+?>
+      <div class="field" style="clear: both">
+        <?php echo htmlFormElement($name, $elemType, $value, $elem['style'], '', "MODIFY", '', '', array(), isset($elem['elem_attributes']) ? $elem['elem_attributes'] : '', isset($elem['options']) ? $elem['options'] : null)?>
+        <label for="<?php echo $name?>"><?php echo $elem['label']?></label>
+      </div>
+<?php
+      } else {
 ?>
       <div class="label" style="clear: both"><label for="<?php echo $name?>"><?php echo $elem['label']?></label></div>
       <div class="field" style="clear: both">
         <?php echo htmlFormElement($name, $elemType, $value, $elem['style'], '', "MODIFY", '', '', array(), isset($elem['elem_attributes']) ? $elem['elem_attributes'] : '', isset($elem['options']) ? $elem['options'] : null)?>
       </div>
-<?php        
+<?php
+      }
     }
-?>      
+?>
     <input type="hidden" name="saveact" value="0">
     <?php createSettingsListButtons()?>
     </form>

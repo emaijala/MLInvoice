@@ -322,6 +322,47 @@ EOT
       "REPLACE INTO {prefix}state (id, data) VALUES ('version', '23')"
     ));
   }
+  if ($version < 24) {
+    $updates = array_merge($updates, array(
+      "INSERT INTO {prefix}print_template (name, filename, parameters, output_filename, type, order_no, inactive) VALUES ('PrintOrderConfirmationFinnish', 'invoice_printer_order_confirmation.php', 'receipt', 'tilausvahvistus_%d.pdf', 'invoice', 140, 1)",
+      "INSERT INTO {prefix}print_template (name, filename, parameters, output_filename, type, order_no, inactive) VALUES ('PrintOrderConfirmationSwedish', 'invoice_printer_order_confirmation.php', 'receipt,sv-FI', 'orderbekraftelse_%d.pdf', 'invoice', 150, 1)",
+      "INSERT INTO {prefix}print_template (name, filename, parameters, output_filename, type, order_no, inactive) VALUES ('PrintOrderConfirmationEnglish', 'invoice_printer_order_confirmation.php', 'receipt,en', 'order_confirmation_%d.pdf', 'invoice', 160, 1)",
+      "REPLACE INTO {prefix}state (id, data) VALUES ('version', '24')"
+    ));
+  }
+  if ($version < 25) {
+    $updates = array_merge($updates, array(
+    <<<EOT
+CREATE TABLE {prefix}delivery_terms (
+  id int(11) NOT NULL auto_increment,
+  deleted tinyint NOT NULL default 0,
+  name varchar(255) default NULL,
+  order_no int(11) default NULL,
+  PRIMARY KEY (id)
+) ENGINE=INNODB CHARACTER SET utf8 COLLATE utf8_swedish_ci
+EOT
+      ,
+      <<<EOT
+CREATE TABLE {prefix}delivery_method (
+  id int(11) NOT NULL auto_increment,
+  deleted tinyint NOT NULL default 0,
+  name varchar(255) default NULL,
+  order_no int(11) default NULL,
+  PRIMARY KEY (id)
+) ENGINE=INNODB CHARACTER SET utf8 COLLATE utf8_swedish_ci
+EOT
+      ,
+      'ALTER TABLE {prefix}invoice ADD COLUMN delivery_terms_id int(11) default NULL',
+      'ALTER TABLE {prefix}invoice ADD CONSTRAINT FOREIGN KEY (delivery_terms_id) REFERENCES {prefix}delivery_terms(id)',
+      'ALTER TABLE {prefix}invoice ADD COLUMN delivery_method_id int(11) default NULL',
+      'ALTER TABLE {prefix}invoice ADD CONSTRAINT FOREIGN KEY (delivery_method_id) REFERENCES {prefix}delivery_method(id)',
+      'ALTER TABLE {prefix}company ADD COLUMN delivery_terms_id int(11) default NULL',
+      'ALTER TABLE {prefix}company ADD CONSTRAINT FOREIGN KEY (delivery_terms_id) REFERENCES {prefix}delivery_terms(id)',
+      'ALTER TABLE {prefix}company ADD COLUMN delivery_method_id int(11) default NULL',
+      'ALTER TABLE {prefix}company ADD CONSTRAINT FOREIGN KEY (delivery_method_id) REFERENCES {prefix}delivery_method(id)',
+      "REPLACE INTO {prefix}state (id, data) VALUES ('version', '25')"
+    ));
+  }
 
   if (!empty($updates)) {
     foreach ($updates as $update) {
