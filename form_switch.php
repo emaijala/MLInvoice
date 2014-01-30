@@ -481,7 +481,7 @@ EOS;
      array(
         'name' => 'id', 'label' => '', 'type' => 'HID_INT', 'style' => 'medium', 'position' => 0 ),
      array(
-        'name' => 'product_id', 'label' => $GLOBALS['locProductName'], 'type' => 'LIST', 'style' => 'medium', 'listquery' => "SELECT id, CASE WHEN product_code != '' THEN concat(product_code, ' ', product_name) ELSE product_name END FROM {prefix}product WHERE deleted=0 ORDER BY order_no, product_code, product_name", 'position' => 0, 'allow_null' => true, 'elem_attributes' => $productOnChange ),
+        'name' => 'product_id', 'label' => $GLOBALS['locProductName'], 'type' => 'SEARCHLIST', 'style' => 'medium', 'listquery' => "table=product", 'position' => 0, 'allow_null' => true, 'elem_attributes' => $productOnChange ),
      array(
         'name' => 'description', 'label' => $GLOBALS['locRowDesc'], 'type' => 'TEXT', 'style' => 'medium', 'position' => 0, 'allow_null' => true ),
      array(

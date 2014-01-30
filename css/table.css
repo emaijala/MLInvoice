@@ -94,11 +94,25 @@ table.display td.center {
 tr.even {
   background: rgb(0, 0, 0) transparent;
   background: rgba(0, 0, 0, 0.05);
+  cursor: pointer;
 }
 
 tr.odd {
   background: rgb(0, 0, 0) transparent;
   background: rgba(0, 0, 0, 0.0);
+  cursor: pointer;
+}
+
+tr.overdue td:nth-child(2) {
+  background-color: #FFCCDD;
+}
+
+tr.overdue7 td:nth-child(2) {
+  background-color: #FF99AA;
+}
+
+tr.overdue14 td:nth-child(2) {
+  background-color: #FF5566;
 }
 
 

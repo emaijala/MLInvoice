@@ -149,7 +149,8 @@ function saveFormData($table, &$primaryKey, &$formElements, &$values, &$warnings
       $arrValues[] = $value !== '' ? str_replace(",", ".", $value) : ($elem['allow_null'] ? NULL : 0);
       break;
     case 'LIST':
-      $arrValues[] = $value !== '' ? str_replace(",", ".", $value) : NULL;
+    case 'SEARCHLIST':
+      $arrValues[] = isset($values[$name]) ? ($value !== '' ? str_replace(",", ".", $value) : NULL) : NULL;
       break;
     case 'CHECK':
       $arrValues[] = $value ? 1 : 0;

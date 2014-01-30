@@ -561,8 +561,9 @@ function init_rows()
   $formJSONType = getFormJSONType($elem['name']);
   foreach ($subFormElements as $subElem)
   {
-    if ($subElem['type'] != 'LIST')
+    if ($subElem['type'] != 'LIST') {
       continue;
+    }
     echo '  var arr_' . $subElem['name'] . ' = {"0":"-"';
     $res = mysql_query_check($subElem['listquery']);
     $translate = strstr($subElem['style'], ' translated');
@@ -590,9 +591,9 @@ function init_rows()
       continue;
     $name = $subElem['name'];
     $class = $subElem['style'];
-    if ($subElem['type'] == 'LIST')
+    if ($subElem['type'] == 'LIST' || $subElem['type'] == 'SEARCHLIST')
     {
-      echo "      if (record.${name} == null) record.${name} = 0; $('<td/>').addClass('$class' + (record.deleted == 1 ? ' deleted' : '')).text((record.${name} in arr_${name}) ? arr_${name}[record.${name}] : '{$GLOBALS['locDeletedProduct']}').appendTo(tr);\n";
+      echo "      if (record.${name} == null) record.${name} = 0; $('<td/>').addClass('$class' + (record.deleted == 1 ? ' deleted' : '')).text(record.${name}_text).appendTo(tr);\n";
     }
     elseif ($subElem['type'] == 'INT')
     {
@@ -802,7 +803,7 @@ function save_row(form_id)
         }
         elseif ($clearRowValuesAfterAdd && $subElem['type'] != 'INTDATE')
         {
-          if ($subElem['type'] == 'LIST')
+          if ($subElem['type'] == 'LIST' || $subElem['type'] == 'SEARCHLIST')
           {
 ?>
           document.getElementById('iform_<?php echo $subElem['name']?>').selectedIndex = 0;
@@ -877,7 +878,16 @@ function popup_editor(event, title, id, copy_row)
       if (in_array($subElem['type'], array('HID_INT', 'SECHID_INT', 'BUTTON', 'NEWLINE', 'ROWSUM')))
         continue;
       $name = $subElem['name'];
-      if ($subElem['type'] == 'LIST')
+      if ($subElem['type'] == 'SEARCHLIST') {
+?>
+    var item = {
+      id: json.<?php echo $name?>,
+      text: json.<?php echo $name?>_text
+    };
+    $('#<?php echo "iform_popup_$name"?>').select2('data', item);
+<?php
+      }
+      elseif ($subElem['type'] == 'LIST')
       {
 ?>
     for (var i = 0; i < form.<?php echo "iform_popup_$name"?>.options.length; i++)

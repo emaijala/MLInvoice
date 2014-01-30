@@ -352,7 +352,7 @@ select.normal {
 select.small {
   width: 100px;
 }
-select.medium {
+select.medium, div.medium {
   width: 160px;
 }
 
@@ -461,18 +461,6 @@ img.image {
   background: rgba(0, 0, 0, 0.05);
 }
 
-.overdue {
-  background-color: #FFCCDD;
-}
-
-.overdue7 {
-  background-color: #FF99AA;
-}
-
-.overdue14 {
-  background-color: #FF5566;
-}
-
 .field_sep {
 	float: left;
 	clear: both;
@@ -482,4 +470,9 @@ img.image {
 .pac-container {
 	font-size: 120%;
 	min-width: 250px;
+}
+
+.table_header {
+	font-weight: bold;
+	margin-bottom: 1em;
 }

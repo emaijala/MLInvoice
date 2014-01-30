@@ -59,6 +59,13 @@ Todo : This could be more generic...
     $theme = defined('_UI_THEME_LOCATION_') ? _UI_THEME_LOCATION_ : 'jquery/css/theme/jquery-ui-1.10.0.custom.min.css';
     $lang = isset($_SESSION['sesLANG']) ? $_SESSION['sesLANG'] : 'fi-FI';
     $datePickerOptions = $GLOBALS['locDatePickerOptions'];
+    $select2locale = '';
+    if (file_exists("select2/select2_locale_$lang.js")) {
+      $select2locale = <<<EOT
+
+  <script type="text/javascript" src="select2/select2_locale_$lang.js"></script>
+EOT;
+    }
     $strHtmlStart = <<<EOT
 <!DOCTYPE html>
 <html>
@@ -70,7 +77,7 @@ $xUACompatible  <title>$strTitle</title>
   <link rel="stylesheet" type="text/css" href="jquery/css/ui.daterangepicker.css">
   <link rel="stylesheet" type="text/css" href="css/style.css">
 	<link href="select2/select2.css" rel="stylesheet" />
-  <script type="text/javascript" src="jquery/js/jquery-1.9.0.min.js"></script>
+  <script type="text/javascript" src="jquery/js/jquery-1.10.2.min.js"></script>
   <script type="text/javascript" src="jquery/js/jquery.json-2.3.min.js"></script>
   <script type="text/javascript" src="jquery/js/jquery.cookie.js"></script>
   <script type="text/javascript" src="jquery/js/jquery-ui-1.10.0.custom.min.js"></script>
@@ -80,7 +87,7 @@ $xUACompatible  <title>$strTitle</title>
   <script type="text/javascript" src="js/date-$lang.js"></script>
   <script type="text/javascript" src="jquery/js/jquery.daterangepicker.js"></script>
   <script type="text/javascript" src="js/functions.js"></script>
-	<script type="text/javascript" src="select2/select2.min.js"></script>
+  <script type="text/javascript" src="select2/select2.min.js"></script>$select2locale
   <script type="text/javascript">
 $(document).ready(function() {
 	$("select#company_id,select#iform_product_id").select2({ width:"element" });
@@ -292,6 +299,43 @@ function htmlFormElement($strName, $strType, $strValue, $strStyle, $strListQuery
       }
       break;
 
+    case 'SEARCHLIST':
+      if ($strMode == "MODIFY")
+      {
+        error_log("ATR: $astrAdditionalAttributes");
+        $strFormElement = <<<EOT
+<input type="hidden" class="$strStyle" id="$strName" name="$strName"$astrAdditionalAttributes/>
+<script type="text/javascript">
+$("#$strName").select2({
+  placeholder: "",
+  ajax: {
+    url: "json.php?func=get_selectlist&$strListQuery",
+    dataType: 'json',
+    quietMillis: 200,
+    data: function (term, page) { // page is the one-based page number tracked by Select2
+      return {
+        q: term, //search term
+        pagelen: 50, // page size
+        page: page, // page number
+      };
+    },
+    results: function (data, page) {
+      return {results: data.records, more: data.moreAvailable};
+    }
+  },
+  dropdownCssClass: "bigdrop",
+  escapeMarkup: function (m) { return m; }
+});
+</script>
+EOT;
+      }
+      else
+      {
+        $strFormElement =
+          "<input type=\"text\" class=\"$strStyle\" " .
+          "id=\"$strName\" name=\"$strName\" value=\"" . htmlspecialchars(getSQLListBoxSelectedValue($strListQuery, $strValue, $translate)) . "\"$astrAdditionalAttributes$readOnly>\n";
+      }
+      break;
     case 'SELECT':
       $translate = false;
       if (strstr($strStyle, ' translated')) {

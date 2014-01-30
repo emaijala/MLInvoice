@@ -199,14 +199,16 @@ else
     else
     {
       createFuncMenu($strFunc);
-      if ($strFunc == 'open_invoices')
+      if ($strFunc == 'open_invoices') {
         createOpenInvoiceList();
-      else
-      {
-        if ($strList == 'settings')
+      } elseif ($strFunc == 'archived_invoices') {
+        createList('archived_invoices', 'invoice', 'archived_invoices', '', 'i.archived=1');
+      } else {
+        if ($strList == 'settings') {
           createSettingsList();
-        else
+        } else {
           createList($strFunc, $strList);
+        }
       }
     }
   }

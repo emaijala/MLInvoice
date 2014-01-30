@@ -37,11 +37,111 @@ if (_CHARSET_ == 'UTF-8')
 
 mysql_query_check('SET AUTOCOMMIT=1');
 
+function extractSearchTerm(&$searchTerms, &$field, &$operator, &$term, &$boolean)
+{
+  if (!preg_match('/^([\w\.\_]+)\s*(=|!=|<=?|>=?|LIKE)\s*(.+)/', $searchTerms, $matches)) {
+    if (!preg_match('/^([\w\.\_]+)\s+(IN)\s+(.+)/', $searchTerms, $matches)) {
+      return false;
+    }
+  }
+  $field = $matches[1];
+  $operator = $matches[2];
+  $rest = $matches[3];
+  $term = '';
+  $inQuotes = false;
+  $inParenthesis = 0;
+  $escaped = false;
+  while ($rest != '')
+  {
+    $ch = substr($rest, 0, 1);
+    $rest = substr($rest, 1);
+    if ($escaped) {
+      $escaped = false;
+      $term .= $ch;
+      continue;
+    }
+    if ($ch == '\\') {
+      $escaped = true;
+      continue;
+    }
+
+    if ($ch == "'") {
+      $inQuotes = !$inQuotes;
+      continue;
+    }
+    if ($ch == '(') {
+      ++$inParenthesis;
+    } elseif ($ch == ')') {
+      if (--$inParenthesis < 0) {
+        die('Unbalanced parenthesis');
+      }
+    }
+    if ($ch == ' ' && !$inQuotes && $inParenthesis == 0)
+      break;
+    $term .= $ch;
+  }
+  if ($inParenthesis > 0) {
+    die('Unbalanced parenthesis');
+  }
+  if (substr($rest, 0, 4) == 'AND ')
+  {
+    $boolean = ' AND ';
+    $searchTerms = substr($rest, 4);
+  }
+  elseif (substr($rest, 0, 3) == 'OR ')
+  {
+    $boolean = ' OR ';
+    $searchTerms = substr($rest, 3);
+  }
+  else
+  {
+    $boolean = '';
+    $searchTerms = '';
+  }
+  return $term != '';
+}
+
+function createWhereClause($astrSearchFields, $strSearchTerms, &$arrQueryParams, $leftAnchored = false)
+{
+  $astrTerms = explode(" ", $strSearchTerms);
+  $strWhereClause = "(";
+  $termPrefix = $leftAnchored ? '' : '%';
+  for( $i = 0; $i < count($astrTerms); $i++ ) {
+      if ($astrTerms[$i]) {
+          $strWhereClause .= '(';
+          for( $j = 0; $j < count($astrSearchFields); $j++ ) {
+              if( $astrSearchFields[$j]['type'] == "TEXT" ) {
+                  $strWhereClause .= $astrSearchFields[$j]['name'] . " LIKE ? OR ";
+                  $arrQueryParams[] = $termPrefix . $astrTerms[$i] . '%';
+              }
+              elseif( $astrSearchFields[$j]['type'] == "INT" && preg_match ("/^([0-9]+)$/", $astrTerms[$i]) ) {
+                  $strWhereClause .= $astrSearchFields[$j]['name'] . " = ?" . " OR ";
+                  $arrQueryParams[] = $astrTerms[$i];
+              }
+              elseif( $astrSearchFields[$j]['type'] == "PRIMARY" && preg_match ("/^([0-9]+)$/", $intID) ) {
+                  $strWhereClause =
+                      "WHERE ". $astrSearchFields[$j]['name']. " = ?     ";
+                  $arrQueryParams = array($intID);
+                  unset($astrSearchFields);
+                  break 2;
+              }
+
+          }
+          $strWhereClause = substr( $strWhereClause, 0, -3) . ") AND ";
+      }
+  }
+  $strWhereClause = substr( $strWhereClause, 0, -4) . ')';
+  return $strWhereClause;
+}
+
 function mysql_query_check($query, $noFail=false)
 {
   $query = str_replace('{prefix}', _DB_PREFIX_ . '_', $query);
-  //error_log("QUERY: $query");
+  $startTime = microtime(true);
   $intRes = mysql_query($query);
+  if (defined('_SQL_DEBUG_')) {
+    error_log('QUERY [' . round(microtime(true) - $startTime, 4) . "s]: $query");
+  }
   if ($intRes === FALSE)
   {
     $intError = mysql_errno();
@@ -75,8 +175,11 @@ function mysql_param_query($query, $params=false, $noFail=false)
           if ($t)
             $t .= ',';
           $v2 = mysql_real_escape_string($v2);
-          if (!is_numeric($v2) || (strlen(trim($v2)) > 0 && substr(trim($v2), 0, 1) == '0'))
-            $v2 = "'$v2'";
+          if (!is_numeric($v2) || (strlen(trim($v2)) > 0 && substr(trim($v2), 0, 1) == '0')) {
+            if (substr(trim($v2), 0, 1 != '(')) {
+              $v2 = "'$v2'";
+            }
+          }
           $t .= $v2;
         }
         $v = $t;
@@ -84,8 +187,11 @@ function mysql_param_query($query, $params=false, $noFail=false)
       else
       {
         $v = mysql_real_escape_string($v);
-        if (!is_numeric($v) || (strlen(trim($v)) > 1 && substr(trim($v), 0, 1) == '0'))
-          $v = "'$v'";
+        if (!is_numeric($v) || (strlen(trim($v)) > 1 && substr(trim($v), 0, 1) == '0')) {
+          if (substr(trim($v), 0, 1) != '(') {
+            $v = "'$v'";
+          }
+        }
       }
     }
     $sql_query = vsprintf(str_replace("?","%s",$query), $params);
@@ -361,6 +467,27 @@ EOT
       'ALTER TABLE {prefix}company ADD COLUMN delivery_method_id int(11) default NULL',
       'ALTER TABLE {prefix}company ADD CONSTRAINT FOREIGN KEY (delivery_method_id) REFERENCES {prefix}delivery_method(id)',
       "REPLACE INTO {prefix}state (id, data) VALUES ('version', '25')"
+    ));
+  }
+
+  if ($version < 26) {
+    $updates = array_merge($updates, array(
+      'CREATE INDEX {prefix}company_name on {prefix}company(company_name)',
+      'CREATE INDEX {prefix}company_id on {prefix}company(company_id)',
+      'CREATE INDEX {prefix}company_deleted on {prefix}company(deleted)',
+      'CREATE INDEX {prefix}invoice_no on {prefix}invoice(invoice_no)',
+      'CREATE INDEX {prefix}invoice_ref_number on {prefix}invoice(ref_number)',
+      'CREATE INDEX {prefix}invoice_name on {prefix}invoice(name)',
+      'CREATE INDEX {prefix}invoice_deleted on {prefix}invoice(deleted)',
+      'CREATE INDEX {prefix}base_name on {prefix}base(name)',
+      'CREATE INDEX {prefix}base_deleted on {prefix}base(deleted)',
+      'CREATE INDEX {prefix}product_name on {prefix}product(product_name)',
+      'CREATE INDEX {prefix}product_code on {prefix}product(product_code)',
+      'CREATE INDEX {prefix}product_deleted on {prefix}product(deleted)',
+      'CREATE INDEX {prefix}product_order_no_deleted on {prefix}product(order_no, deleted)',
+      'CREATE INDEX {prefix}users_name on {prefix}users(name)',
+      'CREATE INDEX {prefix}users_deleted on {prefix}users(deleted)',
+      "REPLACE INTO {prefix}state (id, data) VALUES ('version', '26')"
     ));
   }
 

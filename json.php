@@ -230,6 +230,75 @@ case 'get_import_preview':
   $import->create_import_preview();
   break;
 
+case 'get_list':
+  require 'list.php';
+
+  $listFunc = getRequest('listfunc', '');
+
+  $strList = getRequest('table', '');
+  if (!$strList) {
+    header('HTTP/1.1 400 Bad Request');
+    die('Table must be defined');
+  }
+
+  include 'list_switch.php';
+
+  if (!$strTable) {
+    header('HTTP/1.1 400 Bad Request');
+    die('Invalid table name');
+  }
+
+  $startRow = intval(getRequest('iDisplayStart', -1));
+  $rowCount = intval(getRequest('iDisplayLength', -1));
+  $sort = array();
+  if (getRequest('iSortCol_0', 0)) {
+    for ($i = 0; $i < intval(getRequest('iSortingCols', 0)); $i++) {
+      $sortColumn = intval(getRequest("iSortCol_$i", 0));
+			if (getRequest("bSortable_$i", 'false') == 'true') {
+			  $sortDir = getRequest("sSortDir_$i", 'asc');
+			  $sort[] = array($sortColumn => $sortDir === 'desc' ? 'desc' : 'asc');
+			}
+		}
+  }
+  $filter = getRequest('sSearch', '');
+  $where = getRequest('where', '');
+
+  header('Content-Type: application/json');
+  echo createJSONList($listFunc, $strList, $startRow, $rowCount, $sort, $filter, $where, intval(getRequest('sEcho', 1)));
+  break;
+
+case 'get_invoice_total_sum':
+  $where = getRequest('where', '');
+
+  header('Content-Type: application/json');
+  echo getInvoiceListTotal($where);
+  break;
+
+case 'get_selectlist':
+  require 'list.php';
+
+  $table = getRequest('table', '');
+  if (!$table)
+  {
+    header('HTTP/1.1 400 Bad Request (table)');
+    exit;
+  }
+
+  if (!table_valid($table))
+  {
+    header('HTTP/1.1 400 Bad Request');
+    die('Invalid table name');
+  }
+
+  $pageLen = intval(getRequest('pagelen', 10));
+  $page = intval(getRequest('page', 1)) - 1;
+  $filter = getRequest('q', '');
+  $sort = getRequest('sort', '');
+
+  header('Content-Type: application/json');
+  echo createJSONSelectList($table, $page * $pageLen, $pageLen, $filter, $sort);
+  break;
+
 case 'noop':
   // Session keep-alive
   break;
@@ -246,7 +315,17 @@ function printJSONRecord($table, $id = FALSE, $warnings = null)
   {
     if (substr($table, 0, 8) != '{prefix}')
       $table = "{prefix}$table";
-    $res = mysql_param_query("SELECT * FROM $table WHERE id=?", array($id));
+    $select = 'SELECT t.*';
+    $from = "FROM $table t";
+    $where = 'WHERE t.id=?';
+
+    if ($table == '{prefix}invoice_row') {
+      $select .= ", IFNULL(p.product_name, '') as product_id_text";
+      $from .= ' LEFT OUTER JOIN {prefix}product p on (p.id = t.product_id)';
+    }
+
+    $query = "$select $from $where";
+    $res = mysql_param_query($query, array($id));
     $row = mysql_fetch_assoc($res);
     if ($table == 'users')
       unset($row['password']);
@@ -258,27 +337,36 @@ function printJSONRecord($table, $id = FALSE, $warnings = null)
 
 function printJSONRecords($table, $parentIdCol, $sort)
 {
-  $query = "SELECT * FROM {prefix}$table";
+  $select = "SELECT t.*";
+  $from = "FROM {prefix}$table t";
+
+  if ($table == 'invoice_row') {
+    // Include product name
+    $select .= ", IFNULL(p.product_name, '') as product_id_text";
+    $from .= ' LEFT OUTER JOIN {prefix}product p on (p.id = t.product_id)';
+  }
+
   $where = '';
   $params = array();
   $id = getRequest('parent_id', '');
   if ($id && $parentIdCol)
   {
-    $where .= " WHERE $parentIdCol=?";
+    $where .= " WHERE t.$parentIdCol=?";
     $params[] = $id;
   }
   if (!getSetting('show_deleted_records'))
   {
-    if ($where)
-      $where .= " AND deleted=0";
-    else
-      $where = " WHERE deleted=0";
+    if ($where) {
+      $where .= ' AND t.deleted=0';
+    } else {
+      $where = ' WHERE t.deleted=0';
+    }
   }
 
-  $query .= $where;
-  if ($sort)
+  $query = "$select $from $where";
+  if ($sort) {
     $query .= " order by $sort";
-
+  }
   $res = mysql_param_query($query, $params);
   header('Content-Type: application/json');
   echo "{\"records\":[";
@@ -357,4 +445,52 @@ function deleteRecord($table)
     header('Content-Type: application/json');
     echo json_encode(array('status' => 'ok'));
   }
+}
+
+function getInvoiceListTotal($where)
+{
+  $strFunc = 'invoices';
+  $strList = 'invoice';
+
+  require 'list_switch.php';
+
+  $strWhereClause = '';
+  $joinOp = 'WHERE';
+  $arrQueryParams = array();
+  if ($where) {
+    // Validate and build query parameters
+    $boolean = '';
+    while (extractSearchTerm($where, $field, $operator, $term, $nextBool))
+    {
+      //echo ("bool: $boolean, field: $field, op: $operator, term: $term \n");
+      $strWhereClause .= "$boolean$field $operator ?";
+      $arrQueryParams[] = str_replace("%-", "%", $term);
+      if (!$nextBool)
+        break;
+      $boolean = " $nextBool";
+    }
+    if ($strWhereClause) {
+      $strWhereClause = "WHERE ($strWhereClause)";
+      $joinOp = ' AND';
+    }
+  }
+  if (!getSetting('show_deleted_records')) {
+    $strWhereClause .= "$joinOp $strDeletedField=0";
+    $joinOp = ' AND';
+  }
+
+
+  $sql = "SELECT sum(it.row_total) as total_sum from $strTable $strJoin $strWhereClause";
+
+  $sum = 0;
+  $res = mysql_param_query($sql, $arrQueryParams);
+  if ($row = mysql_fetch_assoc($res)) {
+    $sum = $row['total_sum'];
+  }
+  $result = array(
+    'sum' => $sum,
+    'sum_str' => sprintf($GLOBALS['locInvoicesTotal'], miscRound2Decim($sum))
+  );
+
+  echo json_encode($result);
 }

@@ -263,7 +263,7 @@ CREATE TABLE mlinvoice_state (
 
 SET NAMES 'utf8';
 
-INSERT INTO mlinvoice_state (id, data) VALUES ('version', '25');
+INSERT INTO mlinvoice_state (id, data) VALUES ('version', '26');
 
 INSERT INTO mlinvoice_invoice_state (id, name, order_no) VALUES (1, 'StateOpen', 5);
 INSERT INTO mlinvoice_invoice_state (id, name, order_no) VALUES (2, 'StateSent', 10);
@@ -308,6 +308,24 @@ INSERT INTO mlinvoice_print_template (id, name, filename, parameters, output_fil
 INSERT INTO mlinvoice_print_template (id, name, filename, parameters, output_filename, type, order_no, inactive) VALUES (20, 'PrintOrderConfirmationSwedish', 'invoice_printer_order_confirmation.php', 'receipt,sv-FI', 'orderbekraftelse_%d.pdf', 'invoice', 150, 1);
 INSERT INTO mlinvoice_print_template (id, name, filename, parameters, output_filename, type, order_no, inactive) VALUES (21, 'PrintOrderConfirmationEnglish', 'invoice_printer_order_confirmation.php', 'receipt,en', 'order_confirmation_%d.pdf', 'invoice', 160, 1);
 INSERT INTO mlinvoice_users (id, name, email, login, passwd, type_id) VALUES (1, 'Administrator', '', 'admin', md5('admin'), 2);
+
+-- Indexes for quick search results
+CREATE INDEX mlinvoice_company_name on mlinvoice_company(company_name);
+CREATE INDEX mlinvoice_company_id on mlinvoice_company(company_id);
+CREATE INDEX mlinvoice_company_deleted on mlinvoice_company(deleted);
+CREATE INDEX mlinvoice_invoice_no on mlinvoice_invoice(invoice_no);
+CREATE INDEX mlinvoice_invoice_ref_number on mlinvoice_invoice(ref_number);
+CREATE INDEX mlinvoice_invoice_name on mlinvoice_invoice(name);
+CREATE INDEX mlinvoice_invoice_deleted on mlinvoice_invoice(deleted);
+CREATE INDEX mlinvoice_base_name on mlinvoice_base(name);
+CREATE INDEX mlinvoice_base_deleted on mlinvoice_base(deleted);
+CREATE INDEX mlinvoice_product_name on mlinvoice_product(product_name);
+CREATE INDEX mlinvoice_product_code on mlinvoice_product(product_code);
+CREATE INDEX mlinvoice_product_deleted on mlinvoice_product(deleted);
+CREATE INDEX mlinvoice_product_order_no_deleted on mlinvoice_product(order_no, deleted);
+CREATE INDEX mlinvoice_users_name on mlinvoice_users(name);
+CREATE INDEX mlinvoice_users_deleted on mlinvoice_users(deleted);
+
 
 -- ***** The following rows just add some sample data *****
 INSERT INTO mlinvoice_base (id, name, contact_person, street_address, zip_code, city, phone, bank_name, bank_account, bank_iban, bank_swiftbic, www, email, company_id) VALUES (1, 'Testilaskuttaja', 'Taavi Testaaja', 'Testitie', '00730', 'HELSINKI', '+358 50 123456', 'Pankki', '123456-654321', 'FI12 3456 7890 1234 56', 'FIHHPANK', 'http://sourceforge.net/', 'emaijala@gmail.com', '123456-7');

@@ -25,7 +25,7 @@ Tämä ohjelma on vapaa. Lue oheinen LICENSE.
 
 $strTable = '';
 $strJoin = '';
-$strFilter = '';
+$strListFilter = '';
 $strGroupBy = '';
 $levelsAllowed = array(ROLE_USER, ROLE_BACKUPMGR);
 switch ( $strList ? $strList : $strFunc ) {
@@ -33,8 +33,9 @@ switch ( $strList ? $strList : $strFunc ) {
 /***********************************************************************
     LISTS
 ***********************************************************************/
+case 'company':
 case 'companies':
-   $strTable = '{prefix}company';
+  $strTable = '{prefix}company';
    $astrSearchFields =
     array(
         array("name" => "company_name", "type" => "TEXT"),
@@ -58,16 +59,20 @@ case 'companies':
    $strTitle = $GLOBALS['locClients'];
 break;
 
+case 'invoice':
 case 'archived_invoices':
 case 'invoices':
    $levelsAllowed[] = ROLE_READONLY;
 
-   $strFilter = ($strFunc == 'invoices') ? 'i.archived = 0' : 'i.archived = 1';
+   $strListFilter = ($strFunc == 'archived_invoices') ? 'i.archived = 1' : 'i.archived = 0';
    $strTable = '{prefix}invoice i';
    $strJoin =
      'LEFT OUTER JOIN {prefix}base b on i.base_id=b.id ' .
      'LEFT OUTER JOIN {prefix}company c on i.company_id=c.id ' .
      'LEFT OUTER JOIN {prefix}invoice_state s on i.state_id=s.id ';
+
+   $strCountJoin = $strJoin;
+
    if (getSetting('invoice_display_vatless_price_in_list')) {
      $strJoin .= 'LEFT OUTER JOIN (select ir.invoice_id, CASE WHEN ir.vat_included = 0 THEN ir.price * ir.pcs * (1 - IFNULL(ir.discount, 0) / 100) ELSE ir.price * ir.pcs * (1 - IFNULL(ir.discount, 0) / 100) / (1 + ir.vat / 100) END as row_total from {prefix}invoice_row ir where ir.deleted = 0) it ON (it.invoice_id=i.id)';
    } else {
@@ -77,7 +82,9 @@ case 'invoices':
     array(
         array("name" => "i.invoice_no", "type" => "TEXT"),
         array("name" => "i.ref_number", "type" => "TEXT"),
-        array("name" => "i.name", "type" => "TEXT")
+        array("name" => "i.name", "type" => "TEXT"),
+        array("name" => "b.name", "type" => "TEXT"),
+        array("name" => "c.company_name", "type" => "TEXT"),
     );
    $strPrimaryKey = "i.id";
    $strDeletedField = 'i.deleted';
@@ -156,8 +163,8 @@ case 'product':
    $astrShowFields =
     array(
         array("name" => "order_no", 'width' => 150, "type" => "TEXT", "header" => $GLOBALS['locOrderNr']),
-        array("name" => "product_code", 'width' => 150, "type" => "TEXT", "header" => $GLOBALS['locProductCode']),
-        array("name" => "product_name", 'width' => 200, "type" => "TEXT", "header" => $GLOBALS['locProductName']),
+        array("name" => "product_code", 'width' => 150, "type" => "TEXT", "header" => $GLOBALS['locProductCode'], 'select' => true),
+        array("name" => "product_name", 'width' => 200, "type" => "TEXT", "header" => $GLOBALS['locProductName'], 'select' => true),
         array("name" => "product_group", 'width' => 150, "type" => "TEXT", "header" => $GLOBALS['locProductGroup']),
         array("name" => "unit_price", 'width' => 100, "type" => "CURRENCY", "header" => $GLOBALS['locUnitPrice'], 'decimals' => getSetting('unit_price_decimals'))
     );

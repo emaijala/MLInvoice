@@ -34,7 +34,6 @@ function createFuncMenu($strFunc)
   $strFormName = '';
   $strExtSearchTerm = "";
   $blnShowSearch = FALSE;
-  $strSearchTerms = getRequest('searchterms', '');
 
   switch ($strFunc)
   {
@@ -144,19 +143,8 @@ function createFuncMenu($strFunc)
   }
   -->
   </script>
-  <form method="get" name="form_search">
-  <input type="hidden" name="func" value="<?php echo $strFunc?>">
   <div class="function_navi">
 <?php
-  if ($blnShowSearch)
-  {
-?>
-    <input type="hidden" name="changed" value="0">
-    <?php echo $strHiddenTerm?>
-    <input type="text" class="small" name="searchterms" value="<?php echo gpcAddSlashes($strSearchTerms)?>" title="<?php echo $GLOBALS['locEnterTermsHint']?>">
-    <a class="actionlink" href="#" onClick="self.document.forms[0].submit();"><?php echo $GLOBALS['locSearch']?></a>
-<?php
-  }
   foreach ($astrNaviLinks as $link)
   {
     if (sesAccessLevel($link["levels_allowed"]) || sesAdminAccess())
@@ -184,6 +172,5 @@ function createFuncMenu($strFunc)
   }
 ?>
   </div>
-  </form>
 <?php
 }

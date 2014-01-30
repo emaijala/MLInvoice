@@ -1,5 +1,9 @@
 <?php
 /*******************************************************************************
+MLInvoice: web-based invoicing application.
+Copyright (C) 2010-2012 Ere Maijala
+
+Portions based on:
 PkLasku : web-based invoicing software.
 Copyright (C) 2004-2008 Samu Reinikainen
 
@@ -8,6 +12,10 @@ This program is free software. See attached LICENSE.
 *******************************************************************************/
 
 /*******************************************************************************
+MLInvoice: web-pohjainen laskutusohjelma.
+Copyright (C) 2010-2012 Ere Maijala
+
+Perustuu osittain sovellukseen:
 PkLasku : web-pohjainen laskutusohjelmisto.
 Copyright (C) 2004-2008 Samu Reinikainen
 
@@ -20,63 +28,116 @@ require_once "miscfuncs.php";
 require_once "datefuncs.php";
 require_once "localize.php";
 
-function extractSearchTerm(&$searchTerms, &$field, &$operator, &$term, &$boolean)
+function createList($strFunc, $strList, $strTableName = '', $strTitleOverride = '', $prefilter = '', $invoiceTotal = false, $highlightOverdue = false)
 {
-  if (!preg_match('/([\w\.\_]+)\s*(=|!=|<|>|LIKE)\s*(.+)/', $searchTerms, $matches)) {
-    return false;
-  }
-  $field = $matches[1];
-  $operator = $matches[2];
-  $rest = $matches[3];
-  $term = '';
-  $inQuotes = false;
-  $escaped = false;
-  while ($rest != '')
-  {
-    $ch = substr($rest, 0, 1);
-    $rest = substr($rest, 1);
-    if ($escaped) {
-      $escaped = false;
-      $term .= $ch;
-      continue;
-    }
-    if ($ch == '\\') {
-      $escaped = true;
-      continue;
-    }
+  $strWhereClause = $prefilter ? $prefilter : getRequest('where', '');
 
-    if ($ch == "'") {
-      $inQuotes = !$inQuotes;
-      continue;
-    }
-    if ($ch == ' ' && !$inQuotes)
-      break;
-    $term .= $ch;
+  require "list_switch.php";
+
+  if (!$strList) {
+    $strList = $strFunc;
   }
-  if (substr($rest, 0, 4) == 'AND ')
+
+  if (!$strTable) {
+    return;
+  }
+
+  if (!$strTableName) {
+    $strTableName = "list_$strList";
+  }
+
+  if ($strTitleOverride) {
+    $strTitle = $strTitleOverride;
+  } else {
+    $strTitle = '';
+  }
+
+  $params = array(
+    'listfunc' => $strFunc,
+    'table' => $strList
+  );
+  if ($strWhereClause) {
+    $params['where'] = $strWhereClause;
+  }
+  if ($highlightOverdue) {
+    $params['highlight_overdue'] = 1;
+  }
+
+  $params = http_build_query($params);
+?>
+  <script type="text/javascript">
+
+  $(document).ready(function() {
+    $('#<?php echo $strTableName?>').dataTable( {
+      "oLanguage": {
+        <?php echo $GLOBALS['locTableTexts']?>
+      },
+      "bStateSave": true,
+      "bJQueryUI": true,
+      "iDisplayLength": <?php echo getSetting('default_list_rows')?>,
+      "sPaginationType": "full_numbers",
+      "aoColumnDefs": [
+<?php
+  foreach ($astrShowFields as $key => $field)
   {
-    $boolean = 'AND';
-    $searchTerms = substr($rest, 4);
+    $strWidth = isset($field['width']) ? ($field['width'] . 'px') : '';
+?>
+        { "aTargets": [ <?php echo ($key + 1)?> ], "sWidth": "<?php echo $strWidth?>" },
+<?php
   }
-  elseif (substr($rest, 0, 3) == 'OR ')
+?>
+        { "aTargets": [ 0 ], "bSearchable": false, "bVisible": false }
+      ],
+  		"aaSorting": [[ 1, "asc" ]],
+      "bProcessing": true,
+      "bServerSide": true,
+      "sAjaxSource": "json.php?func=get_list<?php echo "&$params"?>"
+    });
+    $(document).on('click', '#<?php echo $strTableName?> tbody tr', function(e) {
+      var data = $('#<?php echo $strTableName?>').dataTable().fnGetData(this);
+      document.location.href = data[0];
+    });
+<?php
+  if ($invoiceTotal) {
+?>
+    $.ajax({
+      url: "json.php?func=get_invoice_total_sum<?php echo "&$params"?>"
+    }).done(function(data) {
+      $('#<?php echo $strTableName?>_title').append(' ' + data['sum_str']);
+    });
+<?php
+  }
+?>
+  });
+  </script>
+
+  <div class="list_container">
+    <div id="<?php echo $strTableName?>_title" class="table_header"><?php echo $strTitle?></div>
+    <table id="<?php echo $strTableName?>" class="list">
+      <thead>
+        <tr>
+          <th>Link</th>
+<?php
+  foreach ($astrShowFields as $field)
   {
-    $boolean = 'OR';
-    $searchTerms = substr($rest, 3);
+    $strWidth = isset($field['width']) ? (' style="width: ' . $field['width'] . 'px"') : '';
+?>
+          <th<?php echo $strWidth?>><?php echo $field['header']?></th>
+<?php
   }
-  else
-  {
-    $boolean = '';
-    $searchTerms = '';
-  }
-  return $term != '';
+?>
+        </tr>
+      </thead>
+      <tbody>
+      </tbody>
+    </table>
+    <br>
+  </div>
+  <?php
 }
 
-function createList($strFunc, $strList)
+function createJSONList($strFunc, $strList, $startRow, $rowCount, $sort, $filter, $where, $requestId)
 {
-  $strWhereClause = getRequest('where', '');
-  $strSearchTerms = trim(getRequest('searchterms', ''));
-  $intID = getRequest('id', FALSE);
-
   require "list_switch.php";
 
   if (!sesAccessLevel($levelsAllowed) && !sesAdminAccess())
@@ -92,129 +153,102 @@ function createList($strFunc, $strList)
   if (!$strTable)
     return;
 
+  $strWhereClause = '';
+  $joinOp = 'WHERE';
   $arrQueryParams = array();
-  if ($strWhereClause) {
+  if ($where) {
     // Validate and build query parameters
     $boolean = '';
-    $where = '';
-    while (extractSearchTerm($strWhereClause, $field, $operator, $term, $nextBool))
+    while (extractSearchTerm($where, $field, $operator, $term, $nextBool))
     {
-      $where .= "$boolean $field $operator ?";
+      //echo ("bool: $boolean, field: $field, op: $operator, term: $term \n");
+      $strWhereClause .= "$boolean$field $operator ?";
       $arrQueryParams[] = str_replace("%-", "%", $term);
       if (!$nextBool)
         break;
       $boolean = " $nextBool";
     }
-    $strWhereClause = "WHERE ($where)";
-  }
-  elseif ($strSearchTerms == "*"  && !$intID) {
-      $strWhereClause = "WHERE " . $strPrimaryKey . " IS NOT NULL ";
-  }
-  elseif (!$strSearchTerms && !$intID) {
-      $strWhereClause = "WHERE " . $strPrimaryKey . " IS NOT NULL ";
-      $strOrderClause2 = " " . $strPrimaryKey . " DESC ";
-  }
-  else {
-      $astrTerms = explode(" ", $strSearchTerms);
-      $strWhereClause = "WHERE (";
-      for( $i = 0; $i < count($astrTerms); $i++ ) {
-          if( $astrTerms[$i] || $intID ) {
-              $strWhereClause .= '(';
-              for( $j = 0; $j < count($astrSearchFields); $j++ ) {
-                  if( $astrSearchFields[$j]['type'] == "TEXT" ) {
-                      $strWhereClause .= $astrSearchFields[$j]['name'] . " LIKE ? OR ";
-                      $arrQueryParams[] = '%' . $astrTerms[$i] . '%';
-                  }
-                  elseif( $astrSearchFields[$j]['type'] == "INT" && preg_match ("/^([0-9]+)$/", $astrTerms[$i]) ) {
-                      $strWhereClause .= $astrSearchFields[$j]['name'] . " = ?" . " OR ";
-                      $arrQueryParams[] = $astrTerms[$i];
-                  }
-                  elseif( $astrSearchFields[$j]['type'] == "PRIMARY" && preg_match ("/^([0-9]+)$/", $intID) ) {
-                      $strWhereClause =
-                          "WHERE ". $astrSearchFields[$j]['name']. " = ?     ";
-                      $arrQueryParams = array($intID);
-                      unset($astrSearchFields);
-                      break 2;
-                  }
-
-              }
-              $strWhereClause = substr( $strWhereClause, 0, -3) . ") AND ";
-          }
-      }
-      $strWhereClause = substr( $strWhereClause, 0, -4) . ')';
+    if ($strWhereClause) {
+      $strWhereClause = "WHERE ($strWhereClause)";
+      $joinOp = ' AND';
+    }
   }
 
-  if ($strFilter)
-  {
-    if ($strWhereClause)
-      $strWhereClause .= " AND ($strFilter)";
-    else
-      $strWhereClause = " WHERE ($strFilter)";
+  if ($filter) {
+    $strWhereClause .= "$joinOp (" . createWhereClause($astrSearchFields, $filter, $arrQueryParams) . ')';
+    $joinOp = ' AND';
   }
 
-  if (!getSetting('show_deleted_records'))
-  {
-    if ($strWhereClause)
-      $strWhereClause = "$strWhereClause AND $strDeletedField=0";
-    else
-      $strWhereClause = " WHERE $strDeletedField=0";
+  if (!getSetting('show_deleted_records')) {
+    $strWhereClause .= "$joinOp $strDeletedField=0";
+    $joinOp = ' AND';
   }
 
-  $strQuery = "SELECT $strPrimaryKey FROM $strTable $strWhereClause";
-
-  createHtmlList($strFunc, $strList, $strQuery, $arrQueryParams);
-}
-
-function createHtmlList($strFunc, $strList, $strIDQuery, &$arrQueryParams, $strTitleOverride = '', $strNoEntries = '', $strTableName = '')
-{
-  require 'list_switch.php';
-
-  if (!$strTableName)
-    $strTableName = "resultlist_$strMainForm";
-
-  if ($strTitleOverride)
-    $strTitle = $strTitleOverride;
-  else
-    $strTitle = '';
-  if (!$strNoEntries)
-    $strNoEntries = $GLOBALS['locNoEntries'];
-
-  $astrListValues = array(array());
-
-  $strSelectClause = "$strPrimaryKey,$strDeletedField";
-  foreach ($astrShowFields as $field)
-  {
-    $strSelectClause .= ',' . (isset($field['sql']) ? $field['sql'] : $field['name']);
-  }
-  $strQuery =
-    "SELECT $strSelectClause FROM $strTable $strJoin ".
-    "WHERE $strPrimaryKey IN ($strIDQuery) ";
   if ($strGroupBy) {
-    $strQuery .= " GROUP BY $strGroupBy";
+    $strGroupBy = " GROUP BY $strGroupBy";
   }
 
-  $intRes = mysql_param_query($strQuery, $arrQueryParams);
-  if (mysql_num_rows($intRes) == 0)
-  {
-?>
-  <div class="list_container">
-    <strong><?php echo $strTitle?></strong>
-    <br>
-    <br>
-    <?php echo $strNoEntries?>
-    <br>
-    <br>
-  </div>
-<?php
-    return;
+  if (!isset($strCountJoin)) {
+    $strCountJoin = $strJoin;
   }
 
-  // Only for invoice lists
-  $totalSum = 0;
+  // Total count
+  $fullQuery = "SELECT COUNT(*) AS cnt FROM $strTable $strCountJoin $strWhereClause";
+  $res = mysql_param_query($fullQuery, $arrQueryParams);
+  $row = mysql_fetch_assoc($res);
+  $totalCount = $filteredCount = $row['cnt'];
 
+  // Add Filter
+  if ($filter) {
+    $strWhereClause .= "$joinOp " . createWhereClause($astrSearchFields, $filter, $arrQueryParams);
+
+    // Filtered count
+    $fullQuery = "SELECT COUNT(*) as cnt FROM $strTable $strCountJoin $strWhereClause";
+    $res = mysql_param_query($fullQuery, $arrQueryParams);
+    $row = mysql_fetch_assoc($res);
+    $filteredCount = $row['cnt'];
+  }
+
+  // Add sort options
+  $orderBy = array();
+  foreach ($sort as $sortField) {
+    // Ignore invisible first column
+    $column = key($sortField) - 1;
+    if (isset($astrShowFields[$column])) {
+      $fieldName = $astrShowFields[$column]['name'];
+      $direction = current($sortField) === 'desc' ? 'DESC' : 'ASC';
+      if (substr($fieldName, 0, 1) == '.') {
+        $fieldName = substr($fieldName, 1);
+      }
+      // Special case for natural ordering of invoice number and reference number
+      if (in_array($fieldName, array('i.invoice_no', 'i.ref_number'))) {
+        $orderBy[] = "LENGTH($fieldName) $direction";
+      }
+      $orderBy[] = "$fieldName $direction";
+    }
+  }
+
+  // Build the final select clause
+  $strSelectClause = "$strPrimaryKey, $strDeletedField";
+  foreach ($astrShowFields as $field) {
+    $strSelectClause .= ', ' . (isset($field['sql']) ? $field['sql'] : $field['name']);
+  }
+
+  $fullQuery = "SELECT $strSelectClause FROM $strTable $strJoin $strWhereClause$strGroupBy";
+
+  if ($orderBy) {
+    $fullQuery .= ' ORDER BY ' . implode(', ', $orderBy);
+  }
+
+  if ($startRow >= 0 && $rowCount >= 0) {
+    $fullQuery .= " LIMIT $startRow, $rowCount";
+  }
+
+  $res = mysql_param_query($fullQuery, $arrQueryParams);
+
+  $astrListValues = array();
   $i = -1;
-  while ($row = mysql_fetch_prefixed_assoc($intRes))
-  {
+  while ($row = mysql_fetch_prefixed_assoc($res)) {
     ++$i;
     $astrPrimaryKeys[$i] = $row[$strPrimaryKey];
     $aboolDeleted[$i] = $row[$strDeletedField];
@@ -231,9 +265,6 @@ function createHtmlList($strFunc, $strList, $strIDQuery, &$arrQueryParams, $strT
       elseif ($field['type'] == 'CURRENCY')
       {
         $value = $row[$name];
-        if ($name == '.total_price') {
-          $totalSum += $value;
-        }
         $value = miscRound2Decim($value, isset($field['decimals']) ? $field['decimals'] : 2);
         $astrListValues[$i][$name] = $value;
       }
@@ -244,66 +275,19 @@ function createHtmlList($strFunc, $strList, $strIDQuery, &$arrQueryParams, $strT
     }
   }
 
-  if ($strList == 'invoices' || $strFunc == 'invoices') {
-    $strTitle .= ' ' . sprintf($GLOBALS['locInvoicesTotal'], miscRound2Decim($totalSum));
-  }
-  if ($strTitle) {
-    $strTitle = "<strong>$strTitle</strong><br><br>\n";
-  }
-
-?>
-  <script type="text/javascript">
-
-  $(document).ready(function() {
-    $('#<?php echo $strTableName?>').dataTable( {
-      "oLanguage": {
-        <?php echo $GLOBALS['locTableTexts']?>
-      },
-      "bStateSave": true,
-      "bJQueryUI": true,
-      "iDisplayLength": <?php echo getSetting('default_list_rows')?>,
-      "sPaginationType": "full_numbers",
-      "aoColumnDefs": [
-        { "aTargets": ["_all"], "sType": "html-multi", }
-      ]
-    }
-  );
-  });
-  </script>
-
-  <div class="list_container">
-    <?php echo $strTitle?>
-    <table id="<?php echo $strTableName?>" class="list">
-      <thead>
-        <tr>
-<?php
-  foreach ($astrShowFields as $field)
-  {
-    $strWidth = isset($field['width']) ? (' style="width: ' . $field['width'] . 'px"') : '';
-?>
-          <th <?php echo $strWidth?>><?php echo $field['header']?></th>
-<?php
-  }
-?>
-        </tr>
-      </thead>
-      <tbody>
-<?php
-  for ($i = 0; $i < count($astrListValues); $i++)
-  {
+  $records = array();
+  $highlight = getRequest('highlight_overdue', false);
+  for ($i = 0; $i < count($astrListValues); $i++) {
     $row = $astrListValues[$i];
-    $strLink = "?func=$strFunc&amp;list=$strList&amp;form=$strMainForm&amp;id=" . $astrPrimaryKeys[$i];
-    $deleted = $aboolDeleted[$i] ? ' deleted' : '';
-?>
-        <tr class="listrow">
-<?php
+    $strLink = "?func=$strFunc&list=$strList&form=$strMainForm&id=" . $astrPrimaryKeys[$i];
+    $resultValues = array($strLink);
+    $overdue = '';
     foreach ($astrShowFields as $field)
     {
       $name = $field['name'];
-      $overdue = false;
 
       // Special colouring for overdue invoices
-      if ($name == 'i.due_date' && $strTableName == 'resultlist_unpaid_invoices') {
+      if ($highlight && $name == 'i.due_date') {
         $rowDue = strDate2UnixTime($row['i.due_date']);
         if ($rowDue < mktime(0, 0, 0, date("m"), date("d") - 14, date("Y"))) {
           $overdue = ' overdue14';
@@ -319,22 +303,164 @@ function createHtmlList($strFunc, $strList, $strIDQuery, &$arrQueryParams, $strT
       } else {
         $value = trim($row[$name]) ? htmlspecialchars($row[$name]) : '&nbsp;';
       }
-?>
-          <td class="label<?php echo $deleted?>"><?php if ($overdue) echo "<div class=\"$overdue\">"?><a class="navilink" href="<?php echo $strLink?>"><?php echo $value?></a><?php if ($overdue) echo "</div>"?></td>
-<?php
+      $resultValues[] = $value;
     }
-?>
-        </tr>
+    $deleted = $aboolDeleted[$i] ? ' deleted' : '';
+    $class = "$overdue$deleted";
+    if ($class) {
+      $resultValues['DT_RowClass'] = $class;
+    }
 
-<?php
+    $records[] = $resultValues;
   }
-  $strLink = '?' . str_replace('&', '&amp;', $_SERVER['QUERY_STRING']) . "&amp;form=$strMainForm";
+
+  $results = array(
+    'sEcho' => $requestId,
+    'iTotalRecords' => $totalCount,
+		'iTotalDisplayRecords' => isset($filteredCount) ? $filteredCount : $totalCount,
+		'aaData' => $records
+  );
+  return json_encode($results);
+}
+
+function createJSONSelectList($strList, $startRow, $rowCount, $filter, $sort)
+{
+  require "list_switch.php";
+
+  if (!sesAccessLevel($levelsAllowed) && !sesAdminAccess())
+  {
 ?>
-      </tbody>
-    </table>
-    <br>
-<?php
-?>
+  <div class="form_container ui-widget-content">
+    <?php echo $GLOBALS['locNoAccess'] . "\n"?>
   </div>
 <?php
+    return;
+  }
+
+  if ($sort) {
+    if (!preg_match('/^[\w_,]+$/', $sort)) {
+      header('HTTP/1.1 400 Bad Request');
+      die('Invalid sort type');
+    }
+    $sortValid = 0;
+    $sortFields = explode(',', $sort);
+    foreach ($sortFields as $sortField) {
+      foreach ($astrShowFields as $field) {
+        if ($sortField === $field['name']) {
+          ++$sortValid;
+          break;
+        }
+      }
+    }
+    if ($sortValid != count($sortFields)) {
+      header('HTTP/1.1 400 Bad Request');
+      die('Invalid sort type');
+    }
+  } else {
+    foreach ($astrShowFields as $field) {
+      if ($field['name'] == 'order_no') {
+        $sort = 'order_no';
+      }
+    }
+  }
+
+  $arrQueryParams = array();
+
+  $strWhereClause = '';
+
+  if (!getSetting('show_deleted_records'))
+  {
+    $strWhereClause = " WHERE $strDeletedField=0";
+  }
+
+  if ($strGroupBy) {
+    $strGroupBy = " GROUP BY $strGroupBy";
+  }
+
+  // Add Filter
+  if ($filter) {
+    $strWhereClause .= ($strWhereClause ? ' AND ' : ' WHERE ') . createWhereClause($astrSearchFields, $filter, $arrQueryParams, true);
+  }
+
+  // Build the final select clause
+  $strSelectClause = "$strPrimaryKey, $strDeletedField";
+  foreach ($astrShowFields as $field) {
+    $strSelectClause .= ', ' . (isset($field['sql']) ? $field['sql'] : $field['name']);
+  }
+
+  $fullQuery = "SELECT $strSelectClause FROM $strTable $strWhereClause$strGroupBy";
+  if ($sort) {
+    $fullQuery .= " ORDER BY $sort";
+  }
+
+  if ($startRow >= 0 && $rowCount >= 0) {
+    $fullQuery .= " LIMIT $startRow, " . ($rowCount + 1);
+  }
+
+  $res = mysql_param_query($fullQuery, $arrQueryParams);
+
+  $astrListValues = array();
+  $i = -1;
+  $moreAvailable = false;
+  while ($row = mysql_fetch_prefixed_assoc($res)) {
+    ++$i;
+    if ($startRow >= 0 && $rowCount >= 0 && $i >= $rowCount) {
+      $moreAvailable = true;
+      break;
+    }
+    $astrPrimaryKeys[$i] = $row[$strPrimaryKey];
+    $aboolDeleted[$i] = $row[$strDeletedField];
+    foreach ($astrShowFields as $field)
+    {
+      $name = $field['name'];
+      if ($field['type'] == 'TEXT' || $field['type'] == 'INT')
+      {
+        $value = $row[$name];
+        if (isset($field['mappings']) && isset($field['mappings'][$value]))
+          $value = $field['mappings'][$value];
+        $astrListValues[$i][$name] = $value;
+      }
+      elseif ($field['type'] == 'CURRENCY')
+      {
+        $value = $row[$name];
+        $value = miscRound2Decim($value, isset($field['decimals']) ? $field['decimals'] : 2);
+        $astrListValues[$i][$name] = $value;
+      }
+      elseif ($field['type'] == 'INTDATE')
+      {
+        $astrListValues[$i][$name] = dateConvDBDate2Date($row[$name]);
+      }
+    }
+  }
+
+  $records = array();
+  for ($i = 0; $i < count($astrListValues); $i++) {
+    $row = $astrListValues[$i];
+    $resultValues = array();
+    foreach ($astrShowFields as $field)
+    {
+      if (!isset($field['select']) || !$field['select']) {
+        continue;
+      }
+      $name = $field['name'];
+
+      if (isset($field['translate']) && $field['translate'] && isset($GLOBALS["loc{$row[$name]}"])) {
+        $value = $GLOBALS["loc{$row[$name]}"];
+      } else {
+        $value = trim($row[$name]) ? htmlspecialchars($row[$name]) : '&nbsp;';
+      }
+      $resultValues[$name] = $value;
+    }
+
+    $records[] = array(
+      'id' => $astrPrimaryKeys[$i],
+      'text' => implode(' ', $resultValues)
+    );
+  }
+
+  $results = array(
+    'moreAvailable' => $moreAvailable,
+		'records' => $records
+  );
+  return json_encode($results);
 }
