@@ -302,7 +302,6 @@ function htmlFormElement($strName, $strType, $strValue, $strStyle, $strListQuery
     case 'SEARCHLIST':
       if ($strMode == "MODIFY")
       {
-        error_log("ATR: $astrAdditionalAttributes");
         $strFormElement = <<<EOT
 <input type="hidden" class="$strStyle" id="$strName" name="$strName"$astrAdditionalAttributes/>
 <script type="text/javascript">
