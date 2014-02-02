@@ -299,6 +299,22 @@ case 'get_selectlist':
   echo createJSONSelectList($table, $page * $pageLen, $pageLen, $filter, $sort);
   break;
 
+case 'update_invoice_row_dates':
+  if (!sesWriteAccess())
+  {
+    header('HTTP/1.1 403 Forbidden');
+    exit;
+  }
+  $invoiceId = getRequest('id', 0);
+  $date = getRequest('date', '');
+  if (!$date) {
+    header('HTTP/1.1 400 Bad Request');
+    die('date must be given');
+  }
+  header('Content-Type: application/json');
+  echo updateInvoiceRowDates($invoiceId, $date);
+  break;
+
 case 'noop':
   // Session keep-alive
   break;
@@ -493,4 +509,14 @@ function getInvoiceListTotal($where)
   );
 
   echo json_encode($result);
+}
+
+function updateInvoiceRowDates($invoiceId, $date)
+{
+  $date = dateConvDate2DBDate($date);
+  if ($date === false) {
+    return json_encode(array('status' => 'error', 'errors' => $GLOBALS['locErrInvalidValue']));
+  }
+  mysql_param_query('UPDATE {prefix}invoice_row SET row_date=? WHERE invoice_id=? AND deleted=0', array($date, $invoiceId));
+  return json_encode(array('status' => 'ok'));
 }

@@ -261,7 +261,7 @@ function createForm($strFunc, $strList, $strForm)
         echo "        </tr>\n";
       echo "      </table>\n      </form>\n";
       $haveChildForm = true;
-      createIForm($astrFormElements, $elem, isset($intKeyValue) ? $intKeyValue : 0, $blnNew);
+      createIForm($astrFormElements, $elem, isset($intKeyValue) ? $intKeyValue : 0, $blnNew, $strForm);
       break;
     }
     else
@@ -506,7 +506,7 @@ function popup_dialog(url, on_close, dialog_title, event, width, height)
   }
 }
 
-function createIForm($astrFormElements, $elem, $intKeyValue, $newRecord)
+function createIForm($astrFormElements, $elem, $intKeyValue, $newRecord, $strForm)
 {
 ?>
       <div class="iform <?php echo $elem['style']?> ui-corner-tl ui-corner-bl ui-corner-br ui-corner-tr ui-helper-clearfix" id="<?php echo $elem['name']?>"<?php echo $elem['elem_attributes'] ? ' ' . $elem['elem_attributes'] : ''?>>
@@ -838,6 +838,51 @@ function save_row(form_id)
   });
 }
 
+function update_row_dates(id)
+{
+  var buttons = new Object();
+  buttons["<?php echo $GLOBALS['locUpdateRowDates']?>"] = function() {
+    var date = $("#popup_date_edit_field").val();
+    if (date == '') {
+      alert('<?php echo $GLOBALS['locErrValueMissing'] ?>');
+      return;
+    }
+    var params = {
+      func: 'update_invoice_row_dates',
+      id: <?php echo $intKeyValue?>,
+      date: date
+    };
+    $.ajax({
+      'url': 'json.php',
+      'data': params,
+      'type': 'GET',
+      'dataType': 'json',
+      'contentType': 'application/json; charset=utf-8',
+      'success': function(data) {
+        if (data.status != 'ok') {
+          alert(data.errors);
+        } else {
+          $("#popup_date_edit").dialog('close');
+          init_rows();
+        }
+      },
+      'error': function(XMLHTTPReq, textStatus, errorThrown) {
+        if (textStatus == 'timeout')
+          errormsg('Timeout trying to update row dates');
+        else
+          errormsg('Error trying to update row dates: ' + XMLHTTPReq.status + ' - ' + XMLHTTPReq.statusText);
+        return false;
+      }
+    });
+  };
+  buttons["<?php echo $GLOBALS['locClose']?>"] = function() { $("#popup_date_edit").dialog('close'); };
+  $("#popup_date_edit").dialog({ modal: true, width: 420, height: 120, resizable: false,
+    buttons: buttons,
+    title: '<?php echo $GLOBALS['locUpdateAllRowDates'] ?>'
+  });
+
+}
+
 function delete_row(form_id)
 {
   var form = document.getElementById(form_id);
@@ -1011,10 +1056,23 @@ function popup_editor(event, title, id, copy_row)
 <?php
       }
     }
+    if ($strForm == 'invoice') {
+?>
+              <td class="button">
+                <a class="tinyactionlink add_row_button" href="#" onclick="save_row('iform'); return false;"><?php echo $GLOBALS['locAddRow']?></a>
+              </td>
+              <td class="button">
+                <a class="tinyactionlink update_row_dates" href="#" onclick="update_row_dates(); return false;"><?php echo $GLOBALS['locUpdateRowDates']?></a>
+              </td>
+<?php
+    } else {
 ?>
               <td class="button" colspan="2">
                 <a class="tinyactionlink add_row_button" href="#" onclick="save_row('iform'); return false;"><?php echo $GLOBALS['locAddRow']?></a>
               </td>
+<?php
+    }
+?>
             </tr>
           </tbody>
         </table>
@@ -1057,6 +1115,11 @@ function popup_editor(event, title, id, copy_row)
 ?>
           </tr>
         </table>
+        </form>
+      </div>
+      <div id="popup_date_edit" style="display: none; width: 300px; overflow: hidden">
+        <form method="post" name="form_date_popup" id="form_date_popup">
+          <input id="popup_date_edit_field" type="text" class="medium hasCalendar">
         </form>
       </div>
 <?php
