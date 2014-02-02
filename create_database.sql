@@ -263,7 +263,7 @@ CREATE TABLE mlinvoice_state (
 
 SET NAMES 'utf8';
 
-INSERT INTO mlinvoice_state (id, data) VALUES ('version', '26');
+INSERT INTO mlinvoice_state (id, data) VALUES ('version', '27');
 
 INSERT INTO mlinvoice_invoice_state (id, name, order_no) VALUES (1, 'StateOpen', 5);
 INSERT INTO mlinvoice_invoice_state (id, name, order_no) VALUES (2, 'StateSent', 10);
@@ -272,6 +272,7 @@ INSERT INTO mlinvoice_invoice_state (id, name, order_no) VALUES (4, 'StateAnnull
 INSERT INTO mlinvoice_invoice_state (id, name, order_no) VALUES (5, 'StateFirstReminder', 25);
 INSERT INTO mlinvoice_invoice_state (id, name, order_no) VALUES (6, 'StateSecondReminder', 30);
 INSERT INTO mlinvoice_invoice_state (id, name, order_no) VALUES (7, 'StateDebtCollection', 35);
+INSERT INTO mlinvoice_invoice_state (id, name, order_no) VALUES (8, 'StatePaidInCash', 17);
 
 INSERT INTO mlinvoice_row_type (id, name, order_no) VALUES (1, 'TypeHour', 5);
 INSERT INTO mlinvoice_row_type (id, name, order_no) VALUES (2, 'TypeDay', 10);

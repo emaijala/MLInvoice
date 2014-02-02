@@ -491,6 +491,13 @@ EOT
     ));
   }
 
+  if ($version < 27) {
+    $updates = array_merge($updates, array(
+      "INSERT INTO {prefix}invoice_state (name, order_no) VALUES ('StatePaidInCash', 17)",
+      "REPLACE INTO {prefix}state (id, data) VALUES ('version', '27')"
+    ));
+  }
+
   if (!empty($updates)) {
     foreach ($updates as $update) {
       $res = mysql_query_check($update, true);
