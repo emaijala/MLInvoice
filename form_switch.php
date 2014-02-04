@@ -209,7 +209,19 @@ case 'invoice':
   if (sesWriteAccess())
   {
     $companyOnChange = <<<EOS
-onchange = "$.getJSON('json.php?func=get_company', {id: $('#company_id').val() }, function(json) { if (json && json.default_ref_number) $('#ref_number').val(json.default_ref_number);});"
+onchange = "$.getJSON('json.php?func=get_company', {id: $('#company_id').val() }, function(json) {
+  if (json) {
+    if (json.default_ref_number) {
+      $('#ref_number').val(json.default_ref_number);
+    }
+    if (json.delivery_terms_id) {
+      $('#delivery_terms_id').val(json.delivery_terms_id);
+    }
+    if (json.delivery_method_id) {
+      $('#delivery_method_id').val(json.delivery_method_id);
+    }
+  }
+});"
 EOS;
 
     $getInvoiceNr = <<<EOS
