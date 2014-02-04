@@ -263,7 +263,7 @@ CREATE TABLE mlinvoice_state (
 
 SET NAMES 'utf8';
 
-INSERT INTO mlinvoice_state (id, data) VALUES ('version', '27');
+INSERT INTO mlinvoice_state (id, data) VALUES ('version', '28');
 
 INSERT INTO mlinvoice_invoice_state (id, name, order_no) VALUES (1, 'StateOpen', 5);
 INSERT INTO mlinvoice_invoice_state (id, name, order_no) VALUES (2, 'StateSent', 10);
@@ -308,6 +308,10 @@ INSERT INTO mlinvoice_print_template (id, name, filename, parameters, output_fil
 INSERT INTO mlinvoice_print_template (id, name, filename, parameters, output_filename, type, order_no, inactive) VALUES (19, 'PrintOrderConfirmationFinnish', 'invoice_printer_order_confirmation.php', 'receipt', 'tilausvahvistus_%d.pdf', 'invoice', 140, 1);
 INSERT INTO mlinvoice_print_template (id, name, filename, parameters, output_filename, type, order_no, inactive) VALUES (20, 'PrintOrderConfirmationSwedish', 'invoice_printer_order_confirmation.php', 'receipt,sv-FI', 'orderbekraftelse_%d.pdf', 'invoice', 150, 1);
 INSERT INTO mlinvoice_print_template (id, name, filename, parameters, output_filename, type, order_no, inactive) VALUES (21, 'PrintOrderConfirmationEnglish', 'invoice_printer_order_confirmation.php', 'receipt,en', 'order_confirmation_%d.pdf', 'invoice', 160, 1);
+INSERT INTO mlinvoice_print_template (id, name, filename, parameters, output_filename, type, order_no, inactive) VALUES (22, 'PrintOrderConfirmationEmailFinnish', 'invoice_printer_order_confirmation_email.php', 'receipt', 'tilausvahvistus_%d.pdf', 'invoice', 170, 1);
+INSERT INTO mlinvoice_print_template (id, name, filename, parameters, output_filename, type, order_no, inactive) VALUES (23, 'PrintOrderConfirmationEmailSwedish', 'invoice_printer_order_confirmation_email.php', 'receipt,sv-FI', 'orderbekraftelse_%d.pdf', 'invoice', 180, 1);
+INSERT INTO mlinvoice_print_template (id, name, filename, parameters, output_filename, type, order_no, inactive) VALUES (24, 'PrintOrderConfirmationEmailEnglish', 'invoice_printer_order_confirmation_email.php', 'receipt,en', 'order_confirmation_%d.pdf', 'invoice', 190, 1);
+
 INSERT INTO mlinvoice_users (id, name, email, login, passwd, type_id) VALUES (1, 'Administrator', '', 'admin', md5('admin'), 2);
 
 -- Indexes for quick search results
