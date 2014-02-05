@@ -2,7 +2,7 @@
 
 <xsl:stylesheet version="1.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
   <xsl:param name="stylesheet"/>
-  <xsl:output method="xml" version="1.0" encoding="iso-8859-1" indent="yes"/>
+  <xsl:output method="xml" version="1.0" encoding="iso-8859-15" indent="yes"/>
   <xsl:decimal-format name="euro" decimal-separator="," grouping-separator=""/>
   <xsl:template match="/invoicedata">
   <xsl:if test="$stylesheet!=''">
