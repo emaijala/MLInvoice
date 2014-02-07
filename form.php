@@ -67,6 +67,13 @@ function createForm($strFunc, $strList, $strForm)
     unset($_SESSION['formMessage']);
   }
 
+  $strErrorMessage = '';
+  if (isset($_SESSION['formErrorMessage']) && $_SESSION['formErrorMessage'])
+  {
+    $strErrorMessage = $GLOBALS['loc' . $_SESSION['formErrorMessage']];
+    unset($_SESSION['formErrorMessage']);
+  }
+
   // if NEW is clicked clear existing form data
   if ($blnNew)
   {
@@ -347,6 +354,12 @@ $(document).ready(function() {
   {
 ?>
   showmsg("<?php echo $strMessage?>");
+<?php
+  }
+  if ($strErrorMessage)
+  {
+?>
+  errormsg("<?php echo $strErrorMessage?>");
 <?php
   }
   if (sesWriteAccess())

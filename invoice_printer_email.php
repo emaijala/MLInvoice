@@ -120,7 +120,11 @@ class InvoicePrinterEmail extends InvoicePrinterBase
       // Mark invoice sent
       mysql_param_query('UPDATE {prefix}invoice SET state_id=2 WHERE id=?', array($this->invoiceId));
     }
-    $_SESSION['formMessage'] = $result ? 'EmailSent' : 'EmailFailed';
+    if ($result) {
+      $_SESSION['formMessage'] = 'EmailSent';
+    } else {
+      $_SESSION['formErrorMessage'] =  'EmailFailed';
+    }
     echo header('Location: ' . _PROTOCOL_ . $_SERVER['HTTP_HOST'] . dirname($_SERVER['PHP_SELF']) . '/index.php?func=' . sanitize(getRequest('func', 'open_invoices')) . "&list=invoices&form=invoice&id={$this->invoiceId}");
   }
 

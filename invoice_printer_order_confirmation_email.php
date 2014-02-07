@@ -116,7 +116,11 @@ class InvoicePrinterOrderConfirmationEmail extends InvoicePrinterOrderConfirmati
 
     $result = mail($this->mimeEncodeAddress($this->emailTo), $this->mimeEncodeHeaderValue($this->emailSubject), $messageBody, $this->headersToStr($headers), '-f ' . $this->extractAddress($this->emailFrom));
 
-    $_SESSION['formMessage'] = $result ? 'EmailSent' : 'EmailFailed';
+    if ($result) {
+      $_SESSION['formMessage'] = 'EmailSent';
+    } else {
+      $_SESSION['formErrorMessage'] =  'EmailFailed';
+    }
     echo header('Location: ' . _PROTOCOL_ . $_SERVER['HTTP_HOST'] . dirname($_SERVER['PHP_SELF']) . '/index.php?func=' . sanitize(getRequest('func', 'open_invoices')) . "&list=invoices&form=invoice&id={$this->invoiceId}");
   }
 
