@@ -17,29 +17,29 @@ class InvoicePrinterEmail extends InvoicePrinterBase
   {
     $senderData = $this->senderData;
     $recipientData = $this->recipientData;
-  
+
     $this->emailFrom = getRequest('email_from', isset($senderData['invoice_email_from']) ? $senderData['invoice_email_from'] : (isset($senderData['email']) ? $senderData['email'] : ''));
     $this->emailTo = getRequest('email_to', isset($recipientData['email']) ? $recipientData['email'] : '');
     $this->emailCC = getRequest('email_cc', '');
     $this->emailBCC = getRequest('email_bcc', isset($senderData['invoice_email_bcc']) ? $senderData['invoice_email_bcc'] : '');
     $this->emailSubject = $this->replacePlaceholders(getRequest('email_subject', isset($senderData['invoice_email_subject']) ? $senderData['invoice_email_subject'] : ''));
     $this->emailBody = $this->replacePlaceholders(getRequest('email_body', isset($senderData['invoice_email_body']) ? $senderData['invoice_email_body'] : ''));
-    
+
     $send = getRequest('email_send', '');
     if (!$send || !$this->emailFrom || !$this->emailTo || !$this->emailSubject || !$this->emailBody)
     {
       $this->showEmailForm($send);
       return;
     }
-    
+
     parent::printInvoice();
   }
-  
+
   protected function showEmailForm($submitted)
   {
     $senderData = $this->senderData;
     $recipientData = $this->recipientData;
-    
+
     echo htmlPageStart(_PAGE_TITLE_ . ' - ' . $GLOBALS['locSendEmail']);
 ?>
 <body>
@@ -80,10 +80,10 @@ class InvoicePrinterEmail extends InvoicePrinterBase
     mb_internal_encoding('UTF-8');
 
     $boundary = '-----' . md5(uniqid(time())) . '-----';
-    
-    // Note: According to https://bugs.php.net/bug.php?id=15841 the PHP documentation is wrong, 
+
+    // Note: According to https://bugs.php.net/bug.php?id=15841 the PHP documentation is wrong,
     // and CRLF should not be used except on Windows. PHP_EOL should work.
-    
+
     $headers = array(
       'Date' => date('r'),
       'From' => $this->emailFrom,
@@ -93,11 +93,15 @@ class InvoicePrinterEmail extends InvoicePrinterBase
       'Content-Type' => "multipart/mixed; boundary=\"${boundary}\"",
       'X-Mailer' => 'MLInvoice',
     );
-      
+
 
     $filename = $this->outputFileName ? $this->outputFileName : getSetting('invoice_pdf_filename');
-    $data = $pdf->Output(sprintf($filename, $invoiceData['invoice_no']), 'E');
-        
+    // Replace the %d style placeholder
+    $filename = sprintf($filename, $invoiceData['invoice_no']);
+    // Handle additional placeholders
+    $filename = $this->replacePlaceholders($filename);
+    $data = $pdf->Output($filename, 'E');
+
     $messageBody = 'This is a multipart message in mime format.' . PHP_EOL . PHP_EOL;
     $messageBody .= "--$boundary" . PHP_EOL;
     $messageBody .= 'Content-Type: text/plain; charset=UTF-8; format=flowed' . PHP_EOL;
@@ -108,9 +112,9 @@ class InvoicePrinterEmail extends InvoicePrinterBase
     $messageBody .= "--$boundary" . PHP_EOL;
     $messageBody .= str_replace("\r\n", PHP_EOL, $data);
     $messageBody .= PHP_EOL . "--$boundary--";
-  
+
     $result = mail($this->mimeEncodeAddress($this->emailTo), $this->mimeEncodeHeaderValue($this->emailSubject), $messageBody, $this->headersToStr($headers), '-f ' . $this->extractAddress($this->emailFrom));
-    
+
     if ($result && $invoiceData['state_id'] == 1)
     {
       // Mark invoice sent
@@ -119,11 +123,11 @@ class InvoicePrinterEmail extends InvoicePrinterBase
     $_SESSION['formMessage'] = $result ? 'EmailSent' : 'EmailFailed';
     echo header('Location: ' . _PROTOCOL_ . $_SERVER['HTTP_HOST'] . dirname($_SERVER['PHP_SELF']) . '/index.php?func=' . sanitize(getRequest('func', 'open_invoices')) . "&list=invoices&form=invoice&id={$this->invoiceId}");
   }
-  
+
   protected function getFlowedBody()
   {
     $body = cond_utf8_encode($this->emailBody);
-    
+
     $lines = array();
     foreach (explode(PHP_EOL, $body) as $paragraph)
     {
@@ -153,7 +157,7 @@ class InvoicePrinterEmail extends InvoicePrinterBase
     }
     return $result;
   }
-  
+
   protected function headersToStr(&$headers)
   {
     $result = '';
@@ -175,7 +179,7 @@ class InvoicePrinterEmail extends InvoicePrinterBase
       return $matches[1];
     return $address;
   }
-  
+
   protected function mimeEncodeAddress($address)
   {
     if (preg_match("/(.+) (<.+>)/", $address, $matches) == 1)
@@ -184,7 +188,7 @@ class InvoicePrinterEmail extends InvoicePrinterBase
       $address = $this->mimeEncodeHeaderValue($matches[1]) . $matches[2];
     return $address;
   }
-  
+
   protected function mimeEncodeHeaderValue($value)
   {
     return mb_encode_mimeheader(cond_utf8_encode($value), 'UTF-8', 'Q');
