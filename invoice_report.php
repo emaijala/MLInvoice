@@ -171,7 +171,7 @@ class InvoiceReport
 
     $dateRange = explode(' - ', getRequest('date', ''));
     $startDate = $dateRange[0];
-    $endDate = isset($dateRange[1]) ? $dateRange[1] : '';
+    $endDate = isset($dateRange[1]) ? $dateRange[1] : $startDate;
     if ($startDate) {
       $startDate = dateConvDate2DBDate($startDate);
     }
