@@ -193,7 +193,7 @@ class ProductReport
     else
       $strProductWhere = '';
 
-    $strProductQuery = 'SELECT p.product_name, ir.description, ' .
+    $strProductQuery = 'SELECT p.product_code, p.product_name, ir.description, ' .
       'CASE WHEN ir.vat_included = 0 THEN sum(ir.price * ir.pcs * (1 - IFNULL(ir.discount, 0) / 100)) ELSE sum(ir.price * ir.pcs * (1 - IFNULL(ir.discount, 0) / 100) / (1 + ir.vat / 100)) END as total_price, ' .
       'ir.vat, sum(ir.pcs) as pcs, t.name as unit ' .
       'FROM {prefix}invoice_row ir ' .
@@ -211,6 +211,7 @@ class ProductReport
     $intRes = mysql_param_query($strProductQuery, $arrParams);
     while ($row = mysql_fetch_assoc($intRes))
     {
+      $strCode = $row['product_code'];
       $strProduct = $row['product_name'];
       $strDescription = $row['description'];
       $intCount = $row['pcs'];
@@ -228,7 +229,7 @@ class ProductReport
       $intTotVAT += $intVAT;
       $intTotSumVAT += $intSumVAT;
 
-      $this->printRow($format, $strProduct, $strDescription, $intCount, $strUnit, $intSum, $intVATPercent, $intVAT, $intSumVAT);
+      $this->printRow($format, $strCode, $strProduct, $strDescription, $intCount, $strUnit, $intSum, $intVATPercent, $intVAT, $intSumVAT);
     }
     $this->printTotals($format, $intTotSum, $intTotVAT, $intTotSumVAT);
     $this->printFooter($format);
@@ -258,7 +259,8 @@ class ProductReport
       }
 
       $pdf->SetFont('Helvetica','B',8);
-      $pdf->Cell(50, 4, $GLOBALS['locProduct'], 0, 0, 'L');
+      $pdf->Cell(10, 4, $GLOBALS['locCode'], 0, 0, 'L');
+      $pdf->Cell(40, 4, $GLOBALS['locProduct'], 0, 0, 'L');
       $pdf->Cell(25, 4, $GLOBALS['locPCS'], 0, 0, 'R');
       $pdf->Cell(25, 4, $GLOBALS['locUnit'], 0, 0, 'R');
       $pdf->Cell(25, 4, $GLOBALS['locVATLess'], 0, 0, 'R');
@@ -272,6 +274,9 @@ class ProductReport
     <div class="report">
     <table>
     <tr>
+        <th class="label">
+            <?php echo $GLOBALS['locCode']?>
+        </th>
         <th class="label">
             <?php echo $GLOBALS['locProduct']?>
         </th>
@@ -297,7 +302,7 @@ class ProductReport
 <?php
   }
 
-  private function printRow($format, $strProduct, $strDescription, $intCount, $strUnit, $intSum, $intVATPercent, $intVAT, $intSumVAT)
+  private function printRow($format, $strCode, $strProduct, $strDescription, $intCount, $strUnit, $intSum, $intVATPercent, $intVAT, $intSumVAT)
   {
     if ($strDescription)
     {
@@ -316,16 +321,18 @@ class ProductReport
 
       $pdf = $this->pdf;
       $pdf->SetFont('Helvetica','',8);
+      $pdf->setY($pdf->getY() + 1);
+      $pdf->Cell(10, 3, $strCode, 0, 0, 'L');
       $nameX = $pdf->getX();
-      $pdf->setXY($nameX + 50, $pdf->getY() + 1);
-      $pdf->Cell(25, 4, miscRound2Decim($intCount), 0, 0, 'R');
-      $pdf->Cell(25, 4, $strUnit, 0, 0, 'R');
-      $pdf->Cell(25, 4, miscRound2Decim($intSum), 0, 0, 'R');
-      $pdf->Cell(15, 4, miscRound2Decim($intVATPercent, 1), 0, 0, 'R');
-      $pdf->Cell(25, 4, miscRound2Decim($intVAT), 0, 0, 'R');
-      $pdf->Cell(25, 4, miscRound2Decim($intSumVAT), 0, 0, 'R');
+      $pdf->setX($nameX + 40);
+      $pdf->Cell(25, 3, miscRound2Decim($intCount), 0, 0, 'R');
+      $pdf->Cell(25, 3, $strUnit, 0, 0, 'R');
+      $pdf->Cell(25, 3, miscRound2Decim($intSum), 0, 0, 'R');
+      $pdf->Cell(15, 3, miscRound2Decim($intVATPercent, 1), 0, 0, 'R');
+      $pdf->Cell(25, 3, miscRound2Decim($intVAT), 0, 0, 'R');
+      $pdf->Cell(25, 3, miscRound2Decim($intSumVAT), 0, 0, 'R');
       $pdf->setX($nameX);
-      $pdf->MultiCell(50, 4, $strProduct, 0, 'L');
+      $pdf->MultiCell(40, 3, $strProduct, 0, 'L');
       return;
     }
     if (!$strProduct)
@@ -334,6 +341,9 @@ class ProductReport
       $strProduct = htmlspecialchars($strProduct);
 ?>
     <tr>
+        <td class="input">
+            <?php echo $strCode?>
+        </td>
         <td class="input">
             <?php echo $strProduct?>
         </td>
@@ -366,19 +376,22 @@ class ProductReport
       $pdf = $this->pdf;
       $pdf->SetFont('Helvetica','B',8);
       $pdf->setY($pdf->getY() + 3);
-      $pdf->Cell(50, 4, $GLOBALS['locTotal'], 0, 0, 'L');
-      $pdf->Cell(25, 4, '', 0, 0, 'L');
-      $pdf->Cell(25, 4, '', 0, 0, 'L');
-      $pdf->Cell(25, 4, miscRound2Decim($intTotSum), 0, 0, 'R');
-      $pdf->Cell(15, 4, '', 0, 0, 'L');
-      $pdf->Cell(25, 4, miscRound2Decim($intTotVAT), 0, 0, 'R');
-      $pdf->Cell(25, 4, miscRound2Decim($intTotSumVAT), 0, 1, 'R');
+      $pdf->Cell(50, 3, $GLOBALS['locTotal'], 0, 0, 'L');
+      $pdf->Cell(25, 3, '', 0, 0, 'L');
+      $pdf->Cell(25, 3, '', 0, 0, 'L');
+      $pdf->Cell(25, 3, miscRound2Decim($intTotSum), 0, 0, 'R');
+      $pdf->Cell(15, 3, '', 0, 0, 'L');
+      $pdf->Cell(25, 3, miscRound2Decim($intTotVAT), 0, 0, 'R');
+      $pdf->Cell(25, 3, miscRound2Decim($intTotSumVAT), 0, 1, 'R');
       return;
     }
 ?>
     <tr>
         <td class="input total_sum">
             <?php echo $GLOBALS['locTotal']?>
+        </td>
+        <td class="input total_sum" style="text-align: right">
+            &nbsp;
         </td>
         <td class="input total_sum" style="text-align: right">
             &nbsp;
