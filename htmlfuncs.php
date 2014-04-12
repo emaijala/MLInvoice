@@ -302,6 +302,16 @@ function htmlFormElement($strName, $strType, $strValue, $strStyle, $strListQuery
     case 'SEARCHLIST':
       if ($strMode == "MODIFY")
       {
+        $showEmpty = <<<EOT
+      if (page == 1) {
+        records.unshift({id: '', text: '-'});
+      }
+
+EOT;
+        if (strstr($strStyle, ' noemptyvalue')) {
+          $strStyle = str_replace(' noemptyvalue', '', $strStyle);
+          $showEmpty = '';
+        }
         $strFormElement = <<<EOT
 <input type="hidden" class="$strStyle" id="$strName" name="$strName"$astrAdditionalAttributes/>
 <script type="text/javascript">
@@ -319,7 +329,9 @@ $("#$strName").select2({
       };
     },
     results: function (data, page) {
-      return {results: data.records, more: data.moreAvailable};
+      var records = data.records;
+$showEmpty
+      return {results: records, more: data.moreAvailable};
     }
   },
   dropdownCssClass: "bigdrop",
