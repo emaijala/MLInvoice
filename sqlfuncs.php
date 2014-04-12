@@ -507,6 +507,13 @@ EOT
     ));
   }
 
+  if ($version < 29) {
+    $updates = array_merge($updates, array(
+      'ALTER TABLE {prefix}session CHANGE COLUMN id id varchar(255)',
+      "REPLACE INTO {prefix}state (id, data) VALUES ('version', '29')"
+    ));
+  }
+
   if (!empty($updates)) {
     foreach ($updates as $update) {
       $res = mysql_query_check($update, true);

@@ -248,7 +248,7 @@ CREATE TABLE mlinvoice_print_template (
 ) ENGINE=INNODB CHARACTER SET utf8 COLLATE utf8_swedish_ci;
 
 CREATE TABLE mlinvoice_session (
-  id char(32) NOT NULL,
+  id char(255) NOT NULL,
   data longblob NULL,
   session_timestamp timestamp NOT NULL default CURRENT_TIMESTAMP,
   PRIMARY KEY (id),
@@ -263,7 +263,7 @@ CREATE TABLE mlinvoice_state (
 
 SET NAMES 'utf8';
 
-INSERT INTO mlinvoice_state (id, data) VALUES ('version', '28');
+INSERT INTO mlinvoice_state (id, data) VALUES ('version', '29');
 
 INSERT INTO mlinvoice_invoice_state (id, name, order_no) VALUES (1, 'StateOpen', 5);
 INSERT INTO mlinvoice_invoice_state (id, name, order_no) VALUES (2, 'StateSent', 10);
