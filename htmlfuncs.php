@@ -303,7 +303,7 @@ function htmlFormElement($strName, $strType, $strValue, $strStyle, $strListQuery
       if ($strMode == "MODIFY")
       {
         $showEmpty = <<<EOT
-      if (page == 1) {
+      if (page == 1 && data.filter == '') {
         records.unshift({id: '', text: '-'});
       }
 

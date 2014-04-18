@@ -447,7 +447,7 @@ function createJSONSelectList($strList, $startRow, $rowCount, $filter, $sort)
       if (isset($field['translate']) && $field['translate'] && isset($GLOBALS["loc{$row[$name]}"])) {
         $value = $GLOBALS["loc{$row[$name]}"];
       } else {
-        $value = trim($row[$name]) ? htmlspecialchars($row[$name]) : '&nbsp;';
+        $value = htmlspecialchars($row[$name]);
       }
       $resultValues[$name] = $value;
     }
@@ -460,7 +460,8 @@ function createJSONSelectList($strList, $startRow, $rowCount, $filter, $sort)
 
   $results = array(
     'moreAvailable' => $moreAvailable,
-		'records' => $records
+    'records' => $records,
+    'filter' => $filter
   );
   return json_encode($results);
 }
