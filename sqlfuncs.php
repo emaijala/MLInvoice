@@ -227,8 +227,10 @@ function mysql_fetch_prefixed_assoc($result)
 
 function create_db_dump()
 {
-  $in_tables = array('invoice_state', 'row_type', 'company_type', 'base', 'company', 'company_contact',
-    'product', 'session_type', 'users', 'invoice', 'invoice_row', 'quicksearch', 'settings', 'session', 'print_template', 'state');
+  $in_tables = array('invoice_state', 'row_type', 'company_type', 'base',
+    'delivery_terms', 'delivery_method', 'company', 'company_contact',
+    'product', 'session_type', 'users', 'invoice', 'invoice_row',
+    'quicksearch', 'settings', 'session', 'print_template', 'state');
 
   $filename = 'mlinvoice_backup_' . date('Ymd') . '.sql';
   header('Content-type: text/x-sql');
