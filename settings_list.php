@@ -50,7 +50,7 @@ function createSettingsList()
       {
         if (!$elem['allow_null'])
         {
-          $messages .= $GLOBALS['ErrValueMissing'] . ": '$label'<br>\n";
+          $messages .= $GLOBALS['locErrValueMissing'] . ": '$label'<br>\n";
           continue;
         }
         else
