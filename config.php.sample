@@ -51,6 +51,12 @@ define('_DB_VERBOSE_ERRORS_', true);
 // Merkistö: UTF-8 tai ISO-8859-15. UTF-8:n pitäisi toimia riippumatta siitä, mitä merkistöä tietokannassa on.
 define('_CHARSET_', 'UTF-8');
 
+// If the characters show up wrong, it's possible that the web server had been configured to force another character set.
+// In that case, try uncommenting the following line.
+// Jos merkit näkyvät väärin, on mahdollista, että web-palvelin on asetettu pakottamaan toinen merkistö käyttöön.
+// Tällaisessa tapauksessa voit yrittää ottaa kommenttimerkit pois seuraavan rivin alusta. 
+//header('Content-Type: text/html; charset=utf-8');
+
 // Page title
 // Sivujen otsikko
 define('_PAGE_TITLE_', 'MLInvoice');
