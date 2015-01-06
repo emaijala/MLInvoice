@@ -655,7 +655,7 @@ function select_preset()
 <?php
     foreach ($this->presets as $preset)
     {
-      echo "<option value=\"${preset['name']}\"$selected>" . $preset['name'] . "</option>\n";
+      echo "<option value=\"${preset['name']}\">" . $preset['name'] . "</option>\n";
     }
 ?>
         </select>
