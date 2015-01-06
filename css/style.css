@@ -167,10 +167,6 @@ th {
   vertical-align: top;
 }
 
-td.deleted a.navilink {
-  text-decoration: line-through;
-}
-
 .iform td.deleted {
   text-decoration: line-through;
 }

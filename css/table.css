@@ -115,6 +115,9 @@ tr.overdue14 td:nth-child(2) {
   background-color: #FF5566;
 }
 
+tr.deleted {
+	text-decoration: line-through;
+}
 
 
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
