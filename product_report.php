@@ -193,14 +193,14 @@ class ProductReport
     else
       $strProductWhere = '';
 
-    $strProductQuery = 'SELECT p.product_code, p.product_name, ir.description, ' .
+    $strProductQuery = 'SELECT p.id, p.product_code, p.product_name, ir.description, ' .
       'CASE WHEN ir.vat_included = 0 THEN sum(ir.price * ir.pcs * (1 - IFNULL(ir.discount, 0) / 100)) ELSE sum(ir.price * ir.pcs * (1 - IFNULL(ir.discount, 0) / 100) / (1 + ir.vat / 100)) END as total_price, ' .
       'ir.vat, sum(ir.pcs) as pcs, t.name as unit ' .
       'FROM {prefix}invoice_row ir ' .
       'LEFT OUTER JOIN {prefix}product p ON p.id = ir.product_id ' .
       'LEFT OUTER JOIN {prefix}row_type t ON t.id = ir.type_id ' .
       "WHERE ir.deleted=0 AND ir.invoice_id IN ($strQuery) $strProductWhere" .
-      'GROUP BY p.product_name, ir.description, ir.vat, t.name ' .
+      'GROUP BY p.id, ir.description, ir.vat, t.name ' .
       'ORDER BY p.product_name, ir.description';
 
     $this->printHeader($format, $startDate, $endDate);
