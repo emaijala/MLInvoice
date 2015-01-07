@@ -336,7 +336,8 @@ function printJSONRecord($table, $id = FALSE, $warnings = null)
     $where = 'WHERE t.id=?';
 
     if ($table == '{prefix}invoice_row') {
-      $select .= ", IFNULL(p.product_name, '') as product_id_text";
+      // Include product name and code
+      $select .= ", CASE WHEN LENGTH(p.product_code) = 0 THEN IFNULL(p.product_name, '') ELSE CONCAT_WS(' ', p.product_code, IFNULL(p.product_name, '')) END as product_id_text";
       $from .= ' LEFT OUTER JOIN {prefix}product p on (p.id = t.product_id)';
     }
 
@@ -357,8 +358,8 @@ function printJSONRecords($table, $parentIdCol, $sort)
   $from = "FROM {prefix}$table t";
 
   if ($table == 'invoice_row') {
-    // Include product name
-    $select .= ", IFNULL(p.product_name, '') as product_id_text";
+    // Include product name and code
+    $select .= ", CASE WHEN LENGTH(p.product_code) = 0 THEN IFNULL(p.product_name, '') ELSE CONCAT_WS(' ', p.product_code, IFNULL(p.product_name, '')) END as product_id_text";
     $from .= ' LEFT OUTER JOIN {prefix}product p on (p.id = t.product_id)';
   }
 
