@@ -74,9 +74,9 @@ case 'invoices':
    $strCountJoin = $strJoin;
 
    if (getSetting('invoice_display_vatless_price_in_list')) {
-     $strJoin .= 'LEFT OUTER JOIN (select ir.invoice_id, CASE WHEN ir.vat_included = 0 THEN ir.price * ir.pcs * (1 - IFNULL(ir.discount, 0) / 100) ELSE ir.price * ir.pcs * (1 - IFNULL(ir.discount, 0) / 100) / (1 + ir.vat / 100) END as row_total from {prefix}invoice_row ir where ir.deleted = 0) it ON (it.invoice_id=i.id)';
+     $strJoin .= 'LEFT OUTER JOIN (select ir.invoice_id, ROUND(CASE WHEN ir.vat_included = 0 THEN ir.price * ir.pcs * (1 - IFNULL(ir.discount, 0) / 100) ELSE ir.price * ir.pcs * (1 - IFNULL(ir.discount, 0) / 100) / (1 + ir.vat / 100) END, 2) as row_total from {prefix}invoice_row ir where ir.deleted = 0) it ON (it.invoice_id=i.id)';
    } else {
-     $strJoin .= 'LEFT OUTER JOIN (select ir.invoice_id, CASE WHEN ir.vat_included = 0 THEN ir.price * ir.pcs * (1 - IFNULL(ir.discount, 0) / 100) * (1 + ir.vat / 100) ELSE ir.price * ir.pcs * (1 - IFNULL(ir.discount, 0) / 100) END as row_total from {prefix}invoice_row ir where ir.deleted = 0) it ON (it.invoice_id=i.id)';
+     $strJoin .= 'LEFT OUTER JOIN (select ir.invoice_id, ROUND(CASE WHEN ir.vat_included = 0 THEN ir.price * ir.pcs * (1 - IFNULL(ir.discount, 0) / 100) * (1 + ir.vat / 100) ELSE ir.price * ir.pcs * (1 - IFNULL(ir.discount, 0) / 100) END, 2) as row_total from {prefix}invoice_row ir where ir.deleted = 0) it ON (it.invoice_id=i.id)';
    }
    $astrSearchFields =
     array(
