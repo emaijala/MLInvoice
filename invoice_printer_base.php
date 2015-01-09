@@ -879,6 +879,26 @@ abstract class InvoicePrinterBase
         case 'totalsumvat': $values[] = $this->_formatCurrency($this->totalSumVAT); break;
         case 'ref_number': $values[] = $this->refNumber; break; // formatted reference number
         case 'barcode': $values[] = $this->barcode; break;
+	      case 'printout_type':
+	      case 'printout_type_caps':
+			    if ($this->printStyle == 'dispatch') {
+			      $str = $GLOBALS['locPDFDispatchNote'];
+			    } elseif ($this->printStyle == 'receipt') {
+			      $str = $GLOBALS['locPDFReceipt'];
+			    } elseif ($this->printStyle == 'order_confirmation') {
+			      $str = $GLOBALS['locPDFOrderConfirmation'];
+			    } elseif ($this->invoiceData['state_id'] == 5) {
+			      $str = $GLOBALS['locPDFFirstReminder'];
+			    } elseif ($this->invoiceData['state_id'] == 6) {
+			      $str = $GLOBALS['locPDFSecondReminder'];
+			    } else {
+			      $str = $GLOBALS['locPDFInvoice'];
+			    }
+	      	if ($pcparts[1] == 'printout_type_caps') {
+	      		$str = ucwords($str);
+	      	}
+	      	$values[] = $str;
+	      	break;
         default:
           $value = isset($this->invoiceData[$pcparts[1]]) ? $this->invoiceData[$pcparts[1]] : '';
           if (substr($pcparts[1], -5) == '_date') {

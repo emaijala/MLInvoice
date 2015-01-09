@@ -6,7 +6,13 @@ require_once 'miscfuncs.php';
 
 class InvoicePrinterOrderConfirmation extends InvoicePrinterBase
 {
-  public function printInvoice()
+  public function init($invoiceId, $printParameters, $outputFileName, $senderData, $recipientData, $invoiceData, $invoiceRowData)
+  {
+  	parent::init($invoiceId, $printParameters, $outputFileName, $senderData, $recipientData, $invoiceData, $invoiceRowData);
+  	$this->printStyle = 'order_confirmation';
+  }
+
+	public function printInvoice()
   {
     $this->invoiceRowMaxY = 260;
     if ($this->senderData['bank_iban'] && $this->senderData['bank_swiftbic']) {
