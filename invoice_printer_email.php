@@ -94,12 +94,8 @@ class InvoicePrinterEmail extends InvoicePrinterBase
       'X-Mailer' => 'MLInvoice',
     );
 
-
     $filename = $this->outputFileName ? $this->outputFileName : getSetting('invoice_pdf_filename');
-    // Replace the %d style placeholder
-    $filename = sprintf($filename, $invoiceData['invoice_no']);
-    // Handle additional placeholders
-    $filename = $this->replacePlaceholders($filename);
+    $filename = $this->getPrintOutFileName($filename);
     $data = $pdf->Output($filename, 'E');
 
     $messageBody = 'This is a multipart message in mime format.' . PHP_EOL . PHP_EOL;

@@ -516,6 +516,15 @@ EOT
     ));
   }
 
+  if ($version < 30) {
+    $updates = array_merge($updates, array(
+      'ALTER TABLE {prefix}base ADD COLUMN payment_intermediator varchar(100) default NULL',
+      'ALTER TABLE {prefix}company ADD COLUMN payment_intermediator varchar(100) default NULL',
+      "INSERT INTO {prefix}print_template (name, filename, parameters, output_filename, type, order_no, inactive) VALUES ('PrintFinvoiceSOAP', 'invoice_printer_finvoice_soap.php', '', 'finvoice_%d.xml', 'invoice', 55, 1)",
+      "REPLACE INTO {prefix}state (id, data) VALUES ('version', '30')"
+    ));
+  }
+
   if (!empty($updates)) {
     foreach ($updates as $update) {
       $res = mysql_query_check($update, true);

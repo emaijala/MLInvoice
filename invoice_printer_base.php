@@ -837,11 +837,7 @@ abstract class InvoicePrinterBase
     $pdf = $this->pdf;
     $invoiceData = $this->invoiceData;
 
-    $filename = $this->outputFileName ? $this->outputFileName : getSetting('invoice_pdf_filename');
-    // Replace the %d style placeholder
-    $filename = sprintf($filename, $invoiceData['invoice_no']);
-    // Handle additional placeholders
-    $filename = $this->replacePlaceholders($filename);
+    $filename = $this->getPrintOutFileName();
     $pdf->Output($filename, 'I');
   }
 
@@ -903,5 +899,16 @@ abstract class InvoicePrinterBase
   protected function replacePlaceholders($string)
   {
     return preg_replace_callback('/\{\w+:\w+\}/', array($this, 'getPlaceholderData'), $string);
+  }
+
+  protected function getPrintOutFileName($filename = '')
+  {
+    // Replace the %d style placeholder
+    $filename = sprintf($filename ? $filename : $this->outputFileName, $this->invoiceData['invoice_no']);
+    error_log($filename);
+    error_log(print_r($this->recipientData, true));
+    // Handle additional placeholders
+    $filename = $this->replacePlaceholders($filename);
+  	return $filename;
   }
 }

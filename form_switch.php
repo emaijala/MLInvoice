@@ -63,13 +63,15 @@ case 'company':
     array(
       'name' => 'company_id', 'label' => $GLOBALS['locClientVATID'], 'type' => 'TEXT', 'style' => 'medium', 'position' => 1, 'allow_null' => true ),
     array(
-      'name' => 'org_unit_number', 'label' => $GLOBALS['locOrgUnitNumber'], 'type' => 'TEXT', 'style' => 'medium', 'position' => 2, 'allow_null' => true ),
+      'name' => 'email', 'label' => $GLOBALS['locEmail'], 'type' => 'TEXT', 'style' => 'medium', 'position' => 2, 'allow_null' => true ),
     array(
-      'name' => 'email', 'label' => $GLOBALS['locEmail'], 'type' => 'TEXT', 'style' => 'medium', 'position' => 1, 'allow_null' => true ),
+      'name' => 'customer_no', 'label' => $GLOBALS['locCustomerNr'], 'type' => 'INT', 'style' => 'medium', 'position' => 1, 'default' => $defaultCustomerNr, 'allow_null' => true ),
     array(
-      'name' => 'customer_no', 'label' => $GLOBALS['locCustomerNr'], 'type' => 'INT', 'style' => 'medium', 'position' => 2, 'default' => $defaultCustomerNr, 'allow_null' => true ),
+      'name' => 'default_ref_number', 'label' => $GLOBALS['locCustomerDefaultRefNr'], 'type' => 'TEXT', 'style' => 'medium', 'position' => 2, 'allow_null' => true ),
     array(
-      'name' => 'default_ref_number', 'label' => $GLOBALS['locCustomerDefaultRefNr'], 'type' => 'TEXT', 'style' => 'medium', 'position' => 1, 'allow_null' => true ),
+      'name' => 'org_unit_number', 'label' => $GLOBALS['locOrgUnitNumber'], 'type' => 'TEXT', 'style' => 'medium', 'position' => 1, 'allow_null' => true ),
+    array(
+      'name' => 'payment_intermediator', 'label' => $GLOBALS['locPaymentIntermediator'], 'type' => 'TEXT', 'style' => 'medium', 'position' => 2, 'allow_null' => true ),
     array(
       'name' => 'delivery_terms_id', 'label' => $GLOBALS['locDeliveryTerms'], 'type' => 'LIST', 'style' => 'medium', 'listquery' => 'SELECT id, name FROM {prefix}delivery_terms WHERE deleted=0 ORDER BY order_no;', 'position' => 1, 'default' => null, 'allow_null' => true ),
     array(
@@ -537,10 +539,12 @@ EOF;
     array(
       'name' => 'company_id', 'label' => $GLOBALS['locClientVATID'], 'type' => 'TEXT', 'style' => 'medium', 'position' => 2, 'allow_null' => true ),
     array(
+      'name' => 'vat_registered', 'label' => $GLOBALS['locVATRegistered'], 'title' => $GLOBALS['locVATRegisteredHint'], 'type' => 'CHECK', 'style' => 'short', 'position' => 1, 'allow_null' => true ),
+    array(
       'name' => 'org_unit_number', 'label' => $GLOBALS['locOrgUnitNumber'], 'type' => 'TEXT', 'style' => 'medium', 'position' => 1, 'allow_null' => true ),
-    array(
-      'name' => 'vat_registered', 'label' => $GLOBALS['locVATRegistered'], 'title' => $GLOBALS['locVATRegisteredHint'], 'type' => 'CHECK', 'style' => 'short', 'position' => 2, 'allow_null' => true ),
-    array(
+  	array(
+      'name' => 'payment_intermediator', 'label' => $GLOBALS['locPaymentIntermediator'], 'type' => 'TEXT', 'style' => 'medium', 'position' => 2, 'allow_null' => true ),
+  	array(
       'name' => 'contact_person', 'label' => $GLOBALS['locContactPerson'], 'type' => 'TEXT', 'style' => 'medium', 'position' => 1, 'allow_null' => true ),
     array(
       'name' => 'email', 'label' => $GLOBALS['locEmail'], 'type' => 'TEXT', 'style' => 'medium', 'position' => 2, 'allow_null' => true ),

@@ -10,9 +10,9 @@ class InvoicePrinterXslt extends InvoicePrinterBase
   {
     $xml = new SimpleXMLElement('<?xml version="1.0"?><invoicedata/>');
     $sender = $xml->addChild('sender');
-    $this->_arrayToXML($this->senderData, $sender);
+    $this->arrayToXML($this->senderData, $sender);
     $recipient = $xml->addChild('recipient');
-    $this->_arrayToXML($this->recipientData, $recipient);
+    $this->arrayToXML($this->recipientData, $recipient);
     $invoice = $xml->addChild('invoice');
     $invoiceData = $this->invoiceData;
     $invoiceData['totalsum'] = $this->totalSum;
@@ -21,21 +21,21 @@ class InvoicePrinterXslt extends InvoicePrinterBase
     $invoiceData['formatted_ref_number'] = $this->refNumber;
     $invoiceData['barcode'] = $this->barcode;
     $invoiceData['groupedvats'] = $this->groupedVATs;
-    $this->_arrayToXML($invoiceData, $invoice);
+    $this->arrayToXML($invoiceData, $invoice);
     $rows = $invoice->addChild('rows');
-    $this->_arrayToXML($this->invoiceRowData, $rows, 'row');
+    $this->arrayToXML($this->invoiceRowData, $rows, 'row');
 
     foreach ($this->invoiceRowData as &$data) {
       if (isset($GLOBALS["locPDF{$data['type']}"])) {
         $data['type'] = $GLOBALS["locPDF{$data['type']}"];
       }
     }
-    
+
     require 'settings_def.php';
     $settingsData = array();
-    foreach ($arrSettings as $key => $value) 
+    foreach ($arrSettings as $key => $value)
     {
-      if (substr($key, 0, 8) == 'invoice_' && $value['type'] != 'LABEL') 
+      if (substr($key, 0, 8) == 'invoice_' && $value['type'] != 'LABEL')
       {
         switch ($key)
         {
@@ -43,7 +43,7 @@ class InvoicePrinterXslt extends InvoicePrinterBase
           $settingsData[$key] = sprintf(getSetting('invoice_terms_of_payment'), getSetting('invoice_payment_days'));
           break;
         case 'invoice_pdf_filename':
-          $settingsData[$key] = sprintf(getSetting('invoice_pdf_filename'), $invoiceData['invoice_no']);
+          $settingsData[$key] = $this->getPrintOutFileName(getSetting('invoice_pdf_filename'));
           break;
         default:
           $settingsData[$key] = getSetting($key);
@@ -51,23 +51,31 @@ class InvoicePrinterXslt extends InvoicePrinterBase
       }
     }
     $settingsData['invoice_penalty_interest_desc'] = $GLOBALS['locPDFPenaltyInterestDesc'] . ': ' . miscRound2OptDecim(getSetting('invoice_penalty_interest'), 1) . ' %';
+    $settingsData['current_time_year'] = date('Y');
+    $settingsData['current_time_mon'] = date('m');
+    $settingsData['current_time_day'] = date('d');
+    $settingsData['current_time_hour'] = date('H');
+    $settingsData['current_time_min'] = date('i');
+    $settingsData['current_time_sec'] = date('s');
+    $settingsData['current_timestamp'] = date('c');
+    $settingsData['current_timestamp_utc'] = gmdate('Y-m-d\TH:i:s\Z');
     $settings = $xml->addChild('settings');
-    $this->_arrayToXML($settingsData, $settings);
-    
-    $xsltproc = new XSLTProcessor(); 
+    $this->arrayToXML($settingsData, $settings);
+
+    $xsltproc = new XSLTProcessor();
     $xsl = new DOMDocument();
     $xsl->load($xslt);
     $xsltproc->importStylesheet($xsl);
     $xsltproc->setParameter('', 'stylesheet', $this->printStyle);
     $domDoc = dom_import_simplexml($xml)->ownerDocument;
-    $this->_xml = $xsltproc->transformToXML($domDoc); 
-    
+    $this->xml = $xsltproc->transformToXML($domDoc);
+
     if ($xsd)
     {
       libxml_use_internal_errors(true);
       $xmlDoc = new DOMDocument;
-      $xmlDoc->loadXML($this->_xml);
-      if (!$xmlDoc->schemaValidate($xsd)) 
+      $xmlDoc->loadXML($this->xml);
+      if (!$xmlDoc->schemaValidate($xsd))
       {
         header("Content-Type: text/plain");
         echo "Result XML validation failed:\n\n";
@@ -83,12 +91,12 @@ class InvoicePrinterXslt extends InvoicePrinterBase
             break;
           default:
             $type = 'Error';
-          }        
+          }
           echo "$type {$error->code}({$error->level}) at {$error->line}:{$error->column}: {$error->message}\n";
         }
         echo "\n\nXML:\n\n";
         $lineno = 1;
-        foreach (explode("\n", $this->_xml) as $line) 
+        foreach (explode("\n", $this->xml) as $line)
         {
           echo "$lineno\t$line\n";
           ++$lineno;
@@ -97,29 +105,29 @@ class InvoicePrinterXslt extends InvoicePrinterBase
       }
     }
   }
- 
-  protected function _arrayToXML($array, &$xml, $subnodename = '') 
+
+  protected function arrayToXML($array, &$xml, $subnodename = '')
   {
-    foreach ($array as $key => $value) 
+    foreach ($array as $key => $value)
     {
-      if (is_array($value)) 
+      if (is_array($value))
       {
         if (!is_numeric($key))
         {
           $node = $xml->addChild($key);
-          $this->_arrayToXML($value, $node);
+          $this->arrayToXML($value, $node);
         }
         else
         {
           $node = $xml->addChild($subnodename);
-          $this->_arrayToXML($value, $node);
+          $this->arrayToXML($value, $node);
         }
       }
-      else 
+      else
       {
         if ($key != 'logo_filedata')
         {
-          $xml->addChild($key, $value);
+          $xml->addChild($key, str_replace('&', '&amp;', $value));
         }
         else
         {
