@@ -178,7 +178,7 @@ function createForm($strFunc, $strList, $strForm)
       $rowOpen = false;
   ?>
         <tr>
-          <td class="sublabel ui-widget-header ui-state-default ui-state-active" colspan="4">
+          <td class="sublabel ui-widget-header ui-state-default" colspan="4">
             <?php echo $elem['label']?>
           </td>
         </tr>

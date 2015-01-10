@@ -191,7 +191,8 @@ td.error {
 .sublabel {
   padding: 2px 2px 2px 2px;
   clear: both; 
-  margin-top: 10px;
+  margin-top: 20px;
+  margin-bottom: 8px;
 }
 td.reportsublabel {
   font-weight: bold;
