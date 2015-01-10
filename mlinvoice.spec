@@ -1,5 +1,5 @@
 Name:		mlinvoice
-Version:	1.9.0
+Version:	1.10.0
 Release:	1%{?dist}
 Summary:	MLInvoice - Web application to create Finnish invoices
 Group:		Applications/Internet
@@ -19,6 +19,7 @@ Requires:	php-pecl-json
 Requires:	php-mbstring
 Requires: php-xml
 Requires: php-xsl
+Requires: php-mysqli
 BuildArch:	noarch
 
 %description
@@ -67,6 +68,9 @@ EOM
 %{_datadir}/%{name}
 
 %changelog
+* Tue Mar 05 2013 Ere Maijala <ere@labs.fi> - 1.10.0-1
+- updated for version 1.10.0
+- added php-mysqli to requirements
 * Tue Mar 05 2013 Ere Maijala <ere@labs.fi> - 1.9.0-1
 - updated for version 1.9.0
 - added lang and select2 directories
