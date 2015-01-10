@@ -1,4 +1,20 @@
 <?php
+/*******************************************************************************
+MLInvoice: web-based invoicing application.
+Copyright (C) 2010-2015 Ere Maijala
+
+This program is free software. See attached LICENSE.
+
+*******************************************************************************/
+
+/*******************************************************************************
+MLInvoice: web-pohjainen laskutusohjelma.
+Copyright (C) 2010-2015 Ere Maijala
+
+Tämä ohjelma on vapaa. Lue oheinen LICENSE.
+
+*******************************************************************************/
+
 require_once 'tcpdf/tcpdf.php';
 
 class PDF extends TCPDF
@@ -11,7 +27,7 @@ class PDF extends TCPDF
   public $headerRightPos = 143;
   public $footerLeftPos = 4;
   public $footerRightPos = 143;
-  
+
   function Header()
   {
     if ($this->PageNo() == 1 && !$this->printHeaderOnFirstPage)
@@ -39,13 +55,13 @@ class PDF extends TCPDF
     $this->SetX($this->footerRightPos);
     $this->MultiCell(60, 5, $this->footerRight, 0, "R", 0, 0);
   }
-  
+
   protected function handlePageNum($str)
   {
     return sprintf($str, $this->PageNo());
   }
 
-  // Disable openssl_random_pseudo_bytes call as it's very slow on Windows  
+  // Disable openssl_random_pseudo_bytes call as it's very slow on Windows
   protected function getRandomSeed($seed='') {
     $seed .= microtime();
     //if (function_exists('openssl_random_pseudo_bytes')) {
@@ -79,4 +95,4 @@ class PDF extends TCPDF
     $seed .= microtime();
     return $seed;
   }
-} 
+}

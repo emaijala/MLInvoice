@@ -1,4 +1,27 @@
 <?php
+/*******************************************************************************
+MLInvoice: web-based invoicing application.
+Copyright (C) 2010-2015 Ere Maijala
+
+Portions based on:
+PkLasku : web-based invoicing software.
+Copyright (C) 2004-2008 Samu Reinikainen
+
+This program is free software. See attached LICENSE.
+
+*******************************************************************************/
+
+/*******************************************************************************
+MLInvoice: web-pohjainen laskutusohjelma.
+Copyright (C) 2010-2015 Ere Maijala
+
+Perustuu osittain sovellukseen:
+PkLasku : web-pohjainen laskutusohjelmisto.
+Copyright (C) 2004-2008 Samu Reinikainen
+
+Tämä ohjelma on vapaa. Lue oheinen LICENSE.
+
+*******************************************************************************/
 
 require_once 'localize_invoice_pdf.php';
 require_once 'settings.php';
