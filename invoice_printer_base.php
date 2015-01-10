@@ -925,8 +925,6 @@ abstract class InvoicePrinterBase
   {
     // Replace the %d style placeholder
     $filename = sprintf($filename ? $filename : $this->outputFileName, $this->invoiceData['invoice_no']);
-    error_log($filename);
-    error_log(print_r($this->recipientData, true));
     // Handle additional placeholders
     $filename = $this->replacePlaceholders($filename);
   	return $filename;

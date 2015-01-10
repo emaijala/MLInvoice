@@ -38,8 +38,8 @@ function getSetting($name)
   }
   else
   {
-    $res = mysql_param_query('SELECT value from {prefix}settings WHERE name=?', array($name));
-    if ($row = mysql_fetch_assoc($res)) 
+    $res = mysqli_param_query('SELECT value from {prefix}settings WHERE name=?', array($name));
+    if ($row = mysqli_fetch_assoc($res)) 
     {
       $settingsCache[$name] = $row['value'];
       return $settingsCache[$name];

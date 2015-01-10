@@ -318,9 +318,9 @@ class ImportFile
     if (!$this->table_valid($table)) {
       return array();
     }
-    $res = mysql_query_check("show fields from {prefix}$table");
+    $res = mysqli_query_check("show fields from {prefix}$table");
     $field_defs = array();
-    while ($row = mysql_fetch_assoc($res))
+    while ($row = mysqli_fetch_assoc($res))
     {
       $field_defs[$row['Field']] = $row;
     }
@@ -356,7 +356,6 @@ class ImportFile
       {
         $charset = 'UTF-16BE';
         $data = iconv('UTF-16BE', _CHARSET_, $data);
-        error_log('UTF-16BE');
       }
       elseif (ord($data[1]) == 0 && ord($data[2]) == 0)
       {
@@ -814,6 +813,8 @@ function select_preset()
 
   protected function process_import_row($table, $row, $dupMode, $dupCheckColumns, $mode, &$addedRecordId)
   {
+  	global $dblink;
+
     $result = '';
     $recordId = null;
     if ($dupMode != '' && count($dupCheckColumns) > 0)
@@ -826,8 +827,8 @@ function select_preset()
         $where .= " AND $dupCol=?";
         $params[] = $row[$dupCol];
       }
-      $res = mysql_param_query($query . $where, $params);
-      if ($dupRow = mysql_fetch_row($res))
+      $res = mysqli_param_query($query . $where, $params);
+      if ($dupRow = mysqli_fetch_row($res))
       {
         $id = $dupRow[0];
         $found_dup = true;
@@ -853,7 +854,7 @@ function select_preset()
           }
           $query .= "$columns WHERE id=?";
           $params[] = $id;
-          mysql_param_query($query, $params);
+          mysqli_param_query($query, $params);
         }
         return $result;
       }
@@ -878,8 +879,8 @@ function select_preset()
     $query .= "($columns) VALUES ($values)";
     if ($mode == 'import')
     {
-      mysql_param_query($query, $params);
-      $addedRecordId = mysql_insert_id();
+      mysqli_param_query($query, $params);
+      $addedRecordId = mysqli_insert_id($dblink);
     }
     else
       $addedRecordId = 'x';

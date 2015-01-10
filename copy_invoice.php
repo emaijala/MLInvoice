@@ -47,22 +47,22 @@ $boolRefund = getRequest('refund', FALSE);
 $strFunc = getRequest('func', '');
 $strList = getRequest('list', '');
 
-if ($intInvoiceId) 
+if ($intInvoiceId)
 {
   if ($boolRefund)
   {
     $strQuery = 'UPDATE {prefix}invoice ' .
       'SET state_id = 4 ' .
       'WHERE {prefix}invoice.id = ?';
-    mysql_param_query($strQuery, array($intInvoiceId));
+    mysqli_param_query($strQuery, array($intInvoiceId));
   }
 
-  $strQuery = 
+  $strQuery =
     'SELECT * '.
     'FROM {prefix}invoice '.
     'WHERE {prefix}invoice.id = ?';
-  $intRes = mysql_param_query($strQuery, array($intInvoiceId));
-  if ($row = mysql_fetch_assoc($intRes)) 
+  $intRes = mysqli_param_query($strQuery, array($intInvoiceId));
+  if ($row = mysqli_fetch_assoc($intRes))
   {
     $strname = $row['name'];
     $intCompanyId = $row['company_id'];
@@ -83,23 +83,23 @@ if ($intInvoiceId)
     <div class="form_container ui-widget-content">
       <?php echo $GLOBALS['locRecordNotFound'] . "\n"?>
     </div>
-  </div>    
+  </div>
 </body>
 </html>
 <?php
     return;
   }
-  
+
   $intDate = date("Ymd");
   $intDueDate = date("Ymd", mktime(0, 0, 0, date("m"), date("d") + getSetting('invoice_payment_days'), date("Y")));
-  
+
   switch ($intervalType) {
     // Month
-    case 2: 
+    case 2:
       $nextIntervalDate = date("Ymd",mktime(0, 0, 0, date("m") + 1, date("d"), date("Y")));
       break;
-    // Year 
-    case 3: 
+    // Year
+    case 3:
       $nextIntervalDate = date("Ymd",mktime(0, 0, 0, date("m"), date("d"), date("Y") + 1));
       break;
   }
@@ -108,24 +108,24 @@ if ($intInvoiceId)
     $strQuery = 'UPDATE {prefix}invoice ' .
       'SET interval_type = 0 ' .
       'WHERE {prefix}invoice.id = ?';
-    mysql_param_query($strQuery, array($intInvoiceId));
+    mysqli_param_query($strQuery, array($intInvoiceId));
   }
-  
+
   $intRefundedId = $boolRefund ? $intInvoiceId : null;
-  $strQuery = 
+  $strQuery =
       'INSERT INTO {prefix}invoice(name, company_id, invoice_date, due_date, payment_date, state_id, reference, base_id, refunded_invoice_id, info, internal_info, interval_type, next_interval_date) '.
       'VALUES (?, ?, ?, ?, NULL, 1, ?, ?, ?, ?, ?, ?, ?)';
-      
-  mysql_param_query($strQuery, array($strname, $intCompanyId, $intDate, $intDueDate, $strReference, $intBaseId, $intRefundedId, $info, $internalInfo, $intervalType, $nextIntervalDate));
-  $intNewId = mysql_insert_id();
-  if ($intNewId) 
-  {    
-    $strQuery = 
+
+  mysqli_param_query($strQuery, array($strname, $intCompanyId, $intDate, $intDueDate, $strReference, $intBaseId, $intRefundedId, $info, $internalInfo, $intervalType, $nextIntervalDate));
+  $intNewId = mysqli_insert_id($dblink);
+  if ($intNewId)
+  {
+    $strQuery =
         'SELECT * ' .
         'FROM {prefix}invoice_row ' .
         'WHERE deleted=0 AND invoice_id=?';
-    $intRes = mysql_param_query($strQuery, array($intInvoiceId));
-    while ($row = mysql_fetch_assoc($intRes)) 
+    $intRes = mysqli_param_query($strQuery, array($intInvoiceId));
+    while ($row = mysqli_fetch_assoc($intRes))
     {
       $intProductId = $row['product_id'];
       $strDescription = $row['description'];
@@ -143,15 +143,15 @@ if ($intInvoiceId)
         $intPcs = -$intPcs;
       else if ($intReminderRow)
         continue;
-      
+
       if (getSetting('invoice_update_row_dates_on_copy')) {
         $rowDate = $intDate;
       }
-      
-      $strQuery = 
+
+      $strQuery =
         'INSERT INTO {prefix}invoice_row(invoice_id, product_id, description, type_id, pcs, price, discount, row_date, vat, order_no, vat_included, reminder_row) '.
         'VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)';
-      mysql_param_query($strQuery, array($intNewId, $intProductId, $strDescription, $intTypeId, $intPcs, $intPrice, $intDiscount, $rowDate, $intVat, $intOrderNo, $boolVatIncluded, $intReminderRow));
+      mysqli_param_query($strQuery, array($intNewId, $intProductId, $strDescription, $intTypeId, $intPcs, $intPrice, $intDiscount, $rowDate, $intVat, $intOrderNo, $boolVatIncluded, $intReminderRow));
     }
   }
 }

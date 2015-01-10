@@ -166,8 +166,8 @@ Todo :
 function htmlSQLListBox($strName, $strQuery, $strSelected, $strStyle = '', $blnSubmitOnChange = FALSE, $astrAdditionalAttributes = '', $translate = false)
 {
   $astrValues = array();
-  $intRes = mysql_query_check( $strQuery );
-  while ($row = mysql_fetch_row($intRes))
+  $intRes = mysqli_query_check( $strQuery );
+  while ($row = mysqli_fetch_row($intRes))
   {
     $astrValues[$row[0]] = $row[1];
   }
@@ -185,8 +185,8 @@ function htmlSQLListBox($strName, $strQuery, $strSelected, $strStyle = '', $blnS
 // Get the value for the specified option
 function getSQLListBoxSelectedValue($strQuery, $strSelected)
 {
-  $intRes = mysql_query_check( $strQuery );
-  while ($row = mysql_fetch_row($intRes))
+  $intRes = mysqli_query_check( $strQuery );
+  while ($row = mysqli_fetch_row($intRes))
   {
     if ($row[0] == $strSelected)
       return $row[1];
@@ -277,7 +277,7 @@ function htmlFormElement($strName, $strType, $strValue, $strStyle, $strListQuery
 
     case 'RESULT':
       $strListQuery = str_replace("_ID_", $strValue, $strListQuery);
-      $strFormElement = htmlspecialchars(mysql_fetch_value(mysql_query_check($strListQuery))) . "\n";
+      $strFormElement = htmlspecialchars(mysqli_fetch_value(mysqli_query_check($strListQuery))) . "\n";
       break;
 
     case 'LIST':

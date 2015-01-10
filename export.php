@@ -45,10 +45,10 @@ class ExportData
       if (!table_valid($table))
         die('Invalid table name');
 
-      $res = mysql_query_check("show fields from {prefix}$table");
-      $field_count = mysql_num_rows($res);
+      $res = mysqli_query_check("show fields from {prefix}$table");
+      $field_count = mysqli_num_rows($res);
       $field_defs = array();
-      while ($row = mysql_fetch_assoc($res))
+      while ($row = mysqli_fetch_assoc($res))
       {
         $field_defs[$row['Field']] = $row;
       }
@@ -113,9 +113,9 @@ class ExportData
         elseif ($table == 'invoice_row')
           $query .= ' and invoice_id not in (select id from {prefix}invoice where deleted=1)';
       }
-      $res = mysql_query_check($query);
+      $res = mysqli_query_check($query);
       $first = true;
-      while ($row = mysql_fetch_assoc($res))
+      while ($row = mysqli_fetch_assoc($res))
       {
         $data = array();
         foreach ($columns as $column)
@@ -146,10 +146,10 @@ class ExportData
           if ($childRows && ($table == 'invoice' || $table == 'company'))
           {
             if ($table == 'invoice')
-              $cres = mysql_param_query('select * from {prefix}invoice_row where invoice_id=?', array($row['id']));
+              $cres = mysqli_param_query('select * from {prefix}invoice_row where invoice_id=?', array($row['id']));
             else
-              $cres = mysql_param_query('select * from {prefix}company_contact where company_id=?', array($row['id']));
-            while ($crow = mysql_fetch_assoc($cres))
+              $cres = mysqli_param_query('select * from {prefix}company_contact where company_id=?', array($row['id']));
+            while ($crow = mysqli_fetch_assoc($cres))
             {
               $str .= "    <invoice_row>\n";
               foreach ($crow as $column => $value)
@@ -172,10 +172,10 @@ class ExportData
               $childTable = 'company_contact';
             $data[$childTable] = array();
             if ($table == 'invoice')
-              $cres = mysql_param_query('select * from {prefix}invoice_row where invoice_id=?', array($row['id']));
+              $cres = mysqli_param_query('select * from {prefix}invoice_row where invoice_id=?', array($row['id']));
             else
-              $cres = mysql_param_query('select * from {prefix}company_contact where company_id=?', array($row['id']));
-            while ($crow = mysql_fetch_assoc($cres))
+              $cres = mysqli_param_query('select * from {prefix}company_contact where company_id=?', array($row['id']));
+            while ($crow = mysqli_fetch_assoc($cres))
             {
               $data[$childTable][] = $crow;
             }

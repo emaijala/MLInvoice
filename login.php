@@ -17,7 +17,7 @@ Tämä ohjelma on vapaa. Lue oheinen LICENSE.
 
 // buffered, so we can redirect later if necessary
 ini_set('implicit_flush', 'Off');
-ob_start(); 
+ob_start();
 
 require_once 'sqlfuncs.php';
 require_once 'miscfuncs.php';
@@ -28,7 +28,7 @@ require_once 'sessionfuncs.php';
 session_start();
 
 $strLogin = getPost('flogin', FALSE);
-$strPasswd = getPost('fpasswd', FALSE); 
+$strPasswd = getPost('fpasswd', FALSE);
 $strLogon = getPost('logon', '');
 $backlink = getRequest('backlink', '0');
 
@@ -63,7 +63,7 @@ switch(verifyDatabase())
 
 $strMessage = $GLOBALS['locWelcomeMessage'];
 
-if ($strLogon) 
+if ($strLogon)
 {
     if ($strLogin && $strPasswd)
     {
@@ -76,7 +76,7 @@ if ($strLogon)
               header('Location: ' . getSelfPath() . '/index.php');
             }
             exit;
-        case 'FAIL': 
+        case 'FAIL':
             $strMessage = $GLOBALS['locInvalidCredentials'];
             break;
         case 'TIMEOUT':
@@ -84,7 +84,7 @@ if ($strLogon)
             break;
         }
     }
-    else 
+    else
     {
         $strMessage = $GLOBALS['locMissingFields'];
     }
@@ -107,7 +107,7 @@ if (isset($upgradeMessage)) {
 </div>
 <br/>
 <?php
-} 
+}
 ?>
 
 <?php
@@ -121,25 +121,25 @@ if (isset($languages)) {
 <?php
   }
   echo '<br/>';
-} 
+}
 ?>
 <h1><?php echo $GLOBALS['locWelcome']?></h1>
 <p>
   <span id="loginmsg"><?php echo $strMessage?></span>
 </p>
 
-<script type="text/javascript">  
-function createHash() 
-{  
-  var pass_md5 = $.md5(document.getElementById('passwd').value);  
-  var key = document.getElementById('key').value;  
+<script type="text/javascript">
+function createHash()
+{
+  var pass_md5 = $.md5(document.getElementById('passwd').value);
+  var key = document.getElementById('key').value;
   document.getElementById('fpasswd').value = $.md5(key + pass_md5);
   document.getElementById('passwd').value = '';
   document.getElementById('key').value = '';
   var loginmsg = document.getElementById('loginmsg');
   loginmsg.childNodes.item(0).nodeValue = '<?php echo $GLOBALS['locLoggingIn']?>';
-}  
-</script>  
+}
+</script>
 
 <form action="login.php" method="post" name="login_form" onsubmit="createHash();">
   <input type="hidden" name="backlink" value="<?php echo $backlink?>">

@@ -41,9 +41,9 @@ $strQuery =
     'SELECT * FROM {prefix}quicksearch ' .
     'WHERE func=? AND user_id=? ' .  
     'ORDER BY name';
-$intRes = mysql_param_query($strQuery, array($strFunc, $_SESSION['sesUSERID']));
+$intRes = mysqli_param_query($strQuery, array($strFunc, $_SESSION['sesUSERID']));
 
-while ($row = mysql_fetch_assoc($intRes))
+while ($row = mysqli_fetch_assoc($intRes))
 {
     $intId = $row['id'];
     $blnDelete = getPost("delete_". $intId. "_x", FALSE) ? TRUE : FALSE;
@@ -51,7 +51,7 @@ while ($row = mysql_fetch_assoc($intRes))
         $strDelQuery =
             'DELETE FROM {prefix}quicksearch ' .
             'WHERE id=?';
-        $intDelRes = mysql_param_query($strDelQuery, array($intId));
+        $intDelRes = mysqli_param_query($strDelQuery, array($intId));
     }
 }
 
@@ -69,8 +69,8 @@ echo htmlPageStart( _PAGE_TITLE_ );
     </td>
 </tr>
 <?php
-$intRes = mysql_param_query($strQuery, array($strFunc, $_SESSION['sesUSERID']));
-while ($row = mysql_fetch_assoc($intRes)) 
+$intRes = mysqli_param_query($strQuery, array($strFunc, $_SESSION['sesUSERID']));
+while ($row = mysqli_fetch_assoc($intRes)) 
 {
   $intID = $row['id'];
   $strName = $row['name'];

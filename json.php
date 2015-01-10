@@ -133,10 +133,10 @@ case 'get_invoice_defaults':
   $invNr = getRequest('invoice_no', 0);
   if (!$invNr) {
     if (getSetting('invoice_numbering_per_base') && $baseId)
-      $res = mysql_param_query('SELECT max(cast(invoice_no as unsigned integer)) FROM {prefix}invoice WHERE deleted=0 AND id!=? AND base_id=?', array($invoiceId, $baseId));
+      $res = mysqli_param_query('SELECT max(cast(invoice_no as unsigned integer)) FROM {prefix}invoice WHERE deleted=0 AND id!=? AND base_id=?', array($invoiceId, $baseId));
     else
-      $res = mysql_param_query('SELECT max(cast(invoice_no as unsigned integer)) FROM {prefix}invoice WHERE deleted=0 AND id!=?', array($invoiceId));
-    $invNr = mysql_fetch_value($res) + 1;
+      $res = mysqli_param_query('SELECT max(cast(invoice_no as unsigned integer)) FROM {prefix}invoice WHERE deleted=0 AND id!=?', array($invoiceId));
+    $invNr = mysqli_fetch_value($res) + 1;
   }
   if ($invNr < 100)
     $invNr = 100; // min ref number length is 3 + check digit, make sure invoice number matches that
@@ -197,11 +197,11 @@ case 'get_table_columns':
 
   header('Content-Type: application/json');
   echo "{\"columns\":[";
-  $res = mysql_query_check("select * from {prefix}$table where 1=2");
-  $field_count = mysql_num_fields($res);
+  $res = mysqli_query_check("select * from {prefix}$table where 1=2");
+  $field_count = mysqli_num_fields($res);
   for ($i = 0; $i < $field_count; $i++)
   {
-    $field_def = mysql_fetch_field($res, $i);
+    $field_def = mysqli_fetch_field($res);
     if ($i == 0)
     {
       echo "\n";
@@ -342,8 +342,8 @@ function printJSONRecord($table, $id = FALSE, $warnings = null)
     }
 
     $query = "$select $from $where";
-    $res = mysql_param_query($query, array($id));
-    $row = mysql_fetch_assoc($res);
+    $res = mysqli_param_query($query, array($id));
+    $row = mysqli_fetch_assoc($res);
     if ($table == 'users')
       unset($row['password']);
     header('Content-Type: application/json');
@@ -384,11 +384,11 @@ function printJSONRecords($table, $parentIdCol, $sort)
   if ($sort) {
     $query .= " order by $sort";
   }
-  $res = mysql_param_query($query, $params);
+  $res = mysqli_param_query($query, $params);
   header('Content-Type: application/json');
   echo "{\"records\":[";
   $first = true;
-  while ($row = mysql_fetch_assoc($res))
+  while ($row = mysqli_fetch_assoc($res))
   {
     if ($first)
     {
@@ -458,7 +458,7 @@ function deleteRecord($table)
   if ($id)
   {
     $query = "UPDATE {prefix}$table SET deleted=1 WHERE id=?";
-    mysql_param_query($query, array($id));
+    mysqli_param_query($query, array($id));
     header('Content-Type: application/json');
     echo json_encode(array('status' => 'ok'));
   }
@@ -500,8 +500,8 @@ function getInvoiceListTotal($where)
   $sql = "SELECT sum(it.row_total) as total_sum from $strTable $strJoin $strWhereClause";
 
   $sum = 0;
-  $res = mysql_param_query($sql, $arrQueryParams);
-  if ($row = mysql_fetch_assoc($res)) {
+  $res = mysqli_param_query($sql, $arrQueryParams);
+  if ($row = mysqli_fetch_assoc($res)) {
     $sum = $row['total_sum'];
   }
   $result = array(
@@ -518,6 +518,6 @@ function updateInvoiceRowDates($invoiceId, $date)
   if ($date === false) {
     return json_encode(array('status' => 'error', 'errors' => $GLOBALS['locErrInvalidValue']));
   }
-  mysql_param_query('UPDATE {prefix}invoice_row SET row_date=? WHERE invoice_id=? AND deleted=0', array($date, $invoiceId));
+  mysqli_param_query('UPDATE {prefix}invoice_row SET row_date=? WHERE invoice_id=? AND deleted=0', array($date, $invoiceId));
   return json_encode(array('status' => 'ok'));
 }

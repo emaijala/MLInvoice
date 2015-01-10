@@ -69,7 +69,7 @@ function getFormDefaultValue($elem, $parentKey)
   elseif (strstr($elem['default'], 'ADD'))
   {
     $strQuery = str_replace("_PARENTID_", $parentKey, $elem['listquery']);
-    $intAdd = mysql_fetch_value(mysql_query_check($strQuery));
+    $intAdd = mysqli_fetch_value(mysqli_query_check($strQuery));
     return isset($intAdd) ? $intAdd : 0;
   }
   elseif ($elem['default'] === 'POST')
@@ -85,6 +85,8 @@ function getFormDefaultValue($elem, $parentKey)
 // Return false on conflict or a string of missing values if encountered. In these cases, the record is not saved.
 function saveFormData($table, &$primaryKey, &$formElements, &$values, &$warnings, $parentKeyName = '', $parentKey = FALSE)
 {
+	global $dblink;
+
   $missingValues = '';
   $strFields = '';
   $strInsert = '';
@@ -122,8 +124,8 @@ function saveFormData($table, &$primaryKey, &$formElements, &$values, &$warnings
         $query .= ' AND id!=?';
         $params[] = $primaryKey;
       }
-      $res = mysql_param_query($query, $params);
-      if (mysql_fetch_array($res)) {
+      $res = mysqli_param_query($query, $params);
+      if (mysqli_fetch_array($res)) {
         $warnings = sprintf($GLOBALS['locDuplicateValue'], $elem['label']);
         return false;
       }
@@ -177,14 +179,14 @@ function saveFormData($table, &$primaryKey, &$formElements, &$values, &$warnings
       $arrValues[] = $parentKey;
     }
     $strQuery = "INSERT INTO $table ($strFields) VALUES ($strInsert)";
-    mysql_param_query($strQuery, $arrValues);
-    $primaryKey = mysql_insert_id();
+    mysqli_param_query($strQuery, $arrValues);
+    $primaryKey = mysqli_insert_id($dblink);
   }
   else
   {
     $strQuery = "UPDATE $table SET $strUpdateFields, deleted=0 WHERE id=?";
     $arrValues[] = $primaryKey;
-    mysql_param_query($strQuery, $arrValues);
+    mysqli_param_query($strQuery, $arrValues);
   }
 
   // Special case for invoices - check for duplicate invoice numbers
@@ -197,8 +199,8 @@ function saveFormData($table, &$primaryKey, &$formElements, &$values, &$warnings
       $query .= ' AND base_id=?';
       $params[] = $values['base_id'];
     }
-    $res = mysql_param_query($query, $params);
-    if (mysql_fetch_assoc($res))
+    $res = mysqli_param_query($query, $params);
+    if (mysqli_fetch_assoc($res))
       $warnings = $GLOBALS['locInvoiceNumberAlreadyInUse'];
   }
 
@@ -211,8 +213,8 @@ function fetchRecord($table, $primaryKey, &$formElements, &$values)
 {
   $result = TRUE;
   $strQuery = "SELECT * FROM $table WHERE id=?";
-  $intRes = mysql_param_query($strQuery, array($primaryKey));
-  $row = mysql_fetch_assoc($intRes);
+  $intRes = mysqli_param_query($strQuery, array($primaryKey));
+  $row = mysqli_fetch_assoc($intRes);
   if (!$row)
     return 'notfound';
 

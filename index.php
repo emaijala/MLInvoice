@@ -28,6 +28,7 @@ require_once 'settings.php';
 require_once 'localize.php';
 require_once 'settings_list.php';
 require_once 'version.php';
+require_once 'sqlfuncs.php';
 
 sesVerifySession();
 

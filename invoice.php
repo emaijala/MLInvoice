@@ -39,8 +39,8 @@ $printTemplate = getRequest('template', 1);
 if (!$intInvoiceId)
   return;
 
-$res = mysql_param_query('SELECT filename, parameters, output_filename from {prefix}print_template WHERE id=?', array($printTemplate));
-if (!$row = mysql_fetch_row($res))
+$res = mysqli_param_query('SELECT filename, parameters, output_filename from {prefix}print_template WHERE id=?', array($printTemplate));
+if (!$row = mysqli_fetch_row($res))
   return;
 $printTemplateFile = $row[0];
 $printParameters = $row[1];
@@ -53,18 +53,18 @@ $strQuery =
   "LEFT OUTER JOIN {prefix}delivery_terms as delivery_terms ON delivery_terms.id = inv.delivery_terms_id ".
   "LEFT OUTER JOIN {prefix}delivery_method as delivery_method ON delivery_method.id = inv.delivery_method_id ".
   "WHERE inv.id=?";
-$intRes = mysql_param_query($strQuery, array($intInvoiceId));
-$invoiceData = mysql_fetch_assoc($intRes);
+$intRes = mysqli_param_query($strQuery, array($intInvoiceId));
+$invoiceData = mysqli_fetch_assoc($intRes);
 if (!$invoiceData)
   die('Could not find invoice data');
 
 $strQuery = 'SELECT * FROM {prefix}company WHERE id=?';
-$intRes = mysql_param_query($strQuery, array($invoiceData['company_id']));
-$recipientData = mysql_fetch_assoc($intRes);
+$intRes = mysqli_param_query($strQuery, array($invoiceData['company_id']));
+$recipientData = mysqli_fetch_assoc($intRes);
 
 $strQuery = 'SELECT * FROM {prefix}base WHERE id=?';
-$intRes = mysql_param_query($strQuery, array($invoiceData['base_id']));
-$senderData = mysql_fetch_assoc($intRes);
+$intRes = mysqli_param_query($strQuery, array($invoiceData['base_id']));
+$senderData = mysqli_fetch_assoc($intRes);
 if (!$senderData)
   die('Could not find invoice sender data');
 $senderData['vat_id'] = createVATID($senderData['company_id']);
@@ -75,15 +75,15 @@ $strQuery =
     "LEFT OUTER JOIN {prefix}row_type rt ON rt.id = ir.type_id ".
     "LEFT OUTER JOIN {prefix}product pr ON ir.product_id = pr.id ".
     "WHERE ir.invoice_id=? AND ir.deleted=0 ORDER BY ir.order_no, row_date, pr.product_name DESC, ir.description DESC";
-$intRes = mysql_param_query($strQuery, array($intInvoiceId));
+$intRes = mysqli_param_query($strQuery, array($intInvoiceId));
 $invoiceRowData = array();
-while ($row = mysql_fetch_assoc($intRes))
+while ($row = mysqli_fetch_assoc($intRes))
 {
   $invoiceRowData[] = $row;
 }
 
 if (sesWriteAccess()) {
-  mysql_param_query('UPDATE {prefix}invoice SET print_date=? where id=?', array(date('Ymd'), $intInvoiceId));
+  mysqli_param_query('UPDATE {prefix}invoice SET print_date=? where id=?', array(date('Ymd'), $intInvoiceId));
 }
 
 $printer = instantiateInvoicePrinter(trim($printTemplateFile));

@@ -26,8 +26,8 @@ function addReminderFees($intInvoiceId)
     'SELECT inv.due_date, inv.state_id, inv.print_date ' .
     'FROM {prefix}invoice inv ' .
     'WHERE inv.id = ?';
-  $intRes = mysql_param_query($strQuery, array($intInvoiceId));
-  if ($row = mysql_fetch_assoc($intRes)) 
+  $intRes = mysqli_param_query($strQuery, array($intInvoiceId));
+  if ($row = mysqli_fetch_assoc($intRes)) 
   {
      $intStateId = $row['state_id'];
      $strDueDate = dateConvDBDate2Date($row['due_date']);
@@ -54,24 +54,24 @@ function addReminderFees($intInvoiceId)
       $intStateId = 5;
     elseif ($intStateId == 5)
       $intStateId = 6;
-    mysql_param_query('UPDATE {prefix}invoice SET state_id=? where id=?', array($intStateId, $intInvoiceId));
+    mysqli_param_query('UPDATE {prefix}invoice SET state_id=? where id=?', array($intStateId, $intInvoiceId));
     
     // Add reminder fee
     if (getSetting('invoice_notification_fee'))
     {
       // Remove old fee from same day
-      mysql_param_query('UPDATE {prefix}invoice_row SET deleted=1 WHERE invoice_id=? AND reminder_row=2 AND row_date = ?', array($intInvoiceId, date('Ymd')));
+      mysqli_param_query('UPDATE {prefix}invoice_row SET deleted=1 WHERE invoice_id=? AND reminder_row=2 AND row_date = ?', array($intInvoiceId, date('Ymd')));
       
       $strQuery = 'INSERT INTO {prefix}invoice_row (invoice_id, description, pcs, price, row_date, vat, vat_included, order_no, reminder_row) ' .
         'VALUES (?, ?, 1, ?, ?, 0, 0, -2, 2)';
-      mysql_param_query($strQuery, array($intInvoiceId, $GLOBALS['locReminderFeeDesc'], getSetting('invoice_notification_fee'), date('Ymd')));
+      mysqli_param_query($strQuery, array($intInvoiceId, $GLOBALS['locReminderFeeDesc'], getSetting('invoice_notification_fee'), date('Ymd')));
     }
     // Add penalty interest
     $penaltyInterest = getSetting('invoice_penalty_interest');
     if ($penaltyInterest)
     {
       // Remove old penalty interest
-      mysql_param_query('UPDATE {prefix}invoice_row SET deleted=1 WHERE invoice_id=? AND reminder_row=1', array($intInvoiceId));
+      mysqli_param_query('UPDATE {prefix}invoice_row SET deleted=1 WHERE invoice_id=? AND reminder_row=1', array($intInvoiceId));
       
       // Add new interest
       $intTotSumVAT = 0;
@@ -79,8 +79,8 @@ function addReminderFees($intInvoiceId)
           'SELECT ir.pcs, ir.price, ir.discount, ir.vat, ir.vat_included, ir.reminder_row '.
           'FROM {prefix}invoice_row ir '.
           'WHERE ir.deleted=0 AND ir.invoice_id=?';
-      $intRes = mysql_param_query($strQuery, array($intInvoiceId));
-      while ($row = mysql_fetch_assoc($intRes))
+      $intRes = mysqli_param_query($strQuery, array($intInvoiceId));
+      while ($row = mysqli_fetch_assoc($intRes))
       {
         if ($row['reminder_row']) {
           continue;
@@ -92,7 +92,7 @@ function addReminderFees($intInvoiceId)
       
       $strQuery = 'INSERT INTO {prefix}invoice_row (invoice_id, description, pcs, price, discount, row_date, vat, vat_included, order_no, reminder_row) ' .
         'VALUES (?, ?, 1, ?, 0, ?, 0, 0, -1, 1)';
-      mysql_param_query($strQuery, array($intInvoiceId, $GLOBALS['locPenaltyInterestDesc'], $intPenalty, date('Ymd')));
+      mysqli_param_query($strQuery, array($intInvoiceId, $GLOBALS['locPenaltyInterestDesc'], $intPenalty, date('Ymd')));
     }
   }
   return $strAlert;  

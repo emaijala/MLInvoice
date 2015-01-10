@@ -105,7 +105,7 @@ function createForm($strFunc, $strList, $strForm)
   if ($blnDelete && $intKeyValue && !$readOnlyForm)
   {
     $strQuery = "UPDATE $strTable SET deleted=1 WHERE id=?";
-    mysql_param_query($strQuery, array($intKeyValue));
+    mysqli_param_query($strQuery, array($intKeyValue));
     unset($intKeyValue);
     unset($astrValues);
     $blnNew = TRUE;
@@ -578,9 +578,9 @@ function init_rows()
       continue;
     }
     echo '  var arr_' . $subElem['name'] . ' = {"0":"-"';
-    $res = mysql_query_check($subElem['listquery']);
+    $res = mysqli_query_check($subElem['listquery']);
     $translate = strstr($subElem['style'], ' translated');
-    while ($row = mysql_fetch_row($res))
+    while ($row = mysqli_fetch_row($res))
     {
       if ($translate && isset($GLOBALS["loc{$row[1]}"])) {
         $row[1] = $GLOBALS["loc{$row[1]}"];

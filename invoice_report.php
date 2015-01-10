@@ -116,9 +116,9 @@ class InvoiceReport
         "SELECT id, name ".
         "FROM {prefix}invoice_state WHERE deleted=0 ".
         "ORDER BY order_no";
-    $intRes = mysql_query_check($strQuery);
+    $intRes = mysqli_query_check($strQuery);
     $first = true;
-    while ($row = mysql_fetch_assoc($intRes))
+    while ($row = mysqli_fetch_assoc($intRes))
     {
       $intStateId = $row['id'];
       $strStateName = isset($GLOBALS['loc' . $row['name']]) ? $GLOBALS['loc' . $row['name']] : $row['name'];
@@ -234,8 +234,8 @@ class InvoiceReport
         "SELECT id, name ".
         "FROM {prefix}invoice_state WHERE deleted=0 ".
         "ORDER BY order_no";
-    $intRes = mysql_query_check($strQuery3);
-    while ($row = mysql_fetch_assoc($intRes))
+    $intRes = mysqli_query_check($strQuery3);
+    while ($row = mysqli_fetch_assoc($intRes))
     {
       $intStateId = $row['id'];
       $strStateName = $row['name'];
@@ -273,8 +273,8 @@ class InvoiceReport
     $groupTotSum = 0;
     $groupTotVAT = 0;
     $groupTotSumVAT = 0;
-    $intRes = mysql_param_query($strQuery, $arrParams);
-    while ($row = mysql_fetch_assoc($intRes))
+    $intRes = mysqli_param_query($strQuery, $arrParams);
+    while ($row = mysqli_fetch_assoc($intRes))
     {
       switch ($grouping) {
         case 'state':
@@ -303,11 +303,11 @@ class InvoiceReport
           "SELECT ir.description, ir.pcs, ir.price, ir.discount, ir.row_date, ir.vat, ir.vat_included ".
           "FROM {prefix}invoice_row ir ".
           "WHERE ir.invoice_id=? AND ir.deleted=0";
-      $intRes2 = mysql_param_query($strQuery, array($row['id']));
+      $intRes2 = mysqli_param_query($strQuery, array($row['id']));
       $intRowSum = 0;
       $intRowVAT = 0;
       $intRowSumVAT = 0;
-      while ($row2 = mysql_fetch_assoc($intRes2))
+      while ($row2 = mysqli_fetch_assoc($intRes2))
       {
         list($intSum, $intVAT, $intSumVAT) = calculateRowSum($row2['price'], $row2['pcs'], $row2['vat'], $row2['vat_included'], $row2['discount']);
 

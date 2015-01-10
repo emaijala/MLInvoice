@@ -88,9 +88,9 @@ class ProductReport
         "SELECT id, name ".
         "FROM {prefix}invoice_state WHERE deleted=0 ".
         "ORDER BY order_no";
-    $intRes = mysql_query_check($strQuery);
+    $intRes = mysqli_query_check($strQuery);
       $first = true;
-    while ($row = mysql_fetch_assoc($intRes))
+    while ($row = mysqli_fetch_assoc($intRes))
     {
       $intStateId = $row['id'];
       $strStateName = isset($GLOBALS['loc' . $row['name']]) ? $GLOBALS['loc' . $row['name']] : $row['name'];
@@ -165,8 +165,8 @@ class ProductReport
         "SELECT id, name ".
         "FROM {prefix}invoice_state WHERE deleted=0 ".
         "ORDER BY order_no";
-    $intRes = mysql_query_check($strQuery3);
-    while ($row = mysql_fetch_assoc($intRes))
+    $intRes = mysqli_query_check($strQuery3);
+    while ($row = mysqli_fetch_assoc($intRes))
     {
       $intStateId = $row['id'];
       $strStateName = $row['name'];
@@ -208,8 +208,8 @@ class ProductReport
     $intTotSum = 0;
     $intTotVAT = 0;
     $intTotSumVAT = 0;
-    $intRes = mysql_param_query($strProductQuery, $arrParams);
-    while ($row = mysql_fetch_assoc($intRes))
+    $intRes = mysqli_param_query($strProductQuery, $arrParams);
+    while ($row = mysqli_fetch_assoc($intRes))
     {
       $strCode = $row['product_code'];
       $strProduct = $row['product_name'];

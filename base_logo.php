@@ -33,7 +33,7 @@ $messages = '';
 
 if ($func == 'clear')
 {
-  mysql_param_query('UPDATE {prefix}base set logo_filename=null, logo_filesize=null, logo_filetype=null, logo_filedata=null WHERE id=?', array($baseId));
+  mysqli_param_query('UPDATE {prefix}base set logo_filename=null, logo_filesize=null, logo_filetype=null, logo_filedata=null WHERE id=?', array($baseId));
   $messages .= $GLOBALS['locBaseLogoErased'] . "<br>\n";
 }
 elseif ($func == 'upload')
@@ -57,7 +57,7 @@ elseif ($func == 'upload')
       $fsize = filesize($_FILES['logo']['tmp_name']);
       $data = fread($file, $fsize);
       fclose($file);
-      mysql_param_query('UPDATE {prefix}base set logo_filename=?, logo_filesize=?, logo_filetype=?, logo_filedata=? WHERE id=?', 
+      mysqli_param_query('UPDATE {prefix}base set logo_filename=?, logo_filesize=?, logo_filetype=?, logo_filedata=? WHERE id=?', 
         array($_FILES['logo']['name'], $fsize, $imageInfo['mime'], $data, $baseId));
       $messages .= $GLOBALS['locBaseLogoSaved'] . ' (' . fileSizeToHumanReadable($fsize) . ")<br>\n";
     }
@@ -65,8 +65,8 @@ elseif ($func == 'upload')
 } 
 elseif ($func == 'view')
 {
-  $res = mysql_param_query('SELECT logo_filename, logo_filesize, logo_filetype, logo_filedata FROM {prefix}base WHERE id=?', array($baseId));
-  if ($row = mysql_fetch_assoc($res))
+  $res = mysqli_param_query('SELECT logo_filename, logo_filesize, logo_filetype, logo_filedata FROM {prefix}base WHERE id=?', array($baseId));
+  if ($row = mysqli_fetch_assoc($res))
   {
     if (isset($row['logo_filename']) && isset($row['logo_filesize']) && isset($row['logo_filetype']) && isset($row['logo_filedata']))
     {
@@ -80,7 +80,7 @@ elseif ($func == 'view')
 }
 
 $maxUploadSize = getMaxUploadSize();
-$row = mysql_fetch_array(mysql_query_check('SELECT @@max_allowed_packet'));
+$row = mysqli_fetch_array(mysqli_query_check('SELECT @@max_allowed_packet'));
 $maxPacket = $row[0];
 
 if ($maxPacket < $maxUploadSize)

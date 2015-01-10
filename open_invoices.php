@@ -35,8 +35,8 @@ function createOpenInvoiceList()
 {
   $currentDate = date("Ymd");
 
-  $res = mysql_query_check("select count(*) as cnt from {prefix}invoice i where i.deleted = 0 AND i.interval_type > 0 AND i.next_interval_date <= $currentDate AND i.archived = 0");
-  $row = mysql_fetch_assoc($res);
+  $res = mysqli_query_check("select count(*) as cnt from {prefix}invoice i where i.deleted = 0 AND i.interval_type > 0 AND i.next_interval_date <= $currentDate AND i.archived = 0");
+  $row = mysqli_fetch_assoc($res);
   if ($row['cnt'] > 0) {
 	  createList('open_invoices', 'invoice', 'resultlist_repeating_invoices', $GLOBALS['locLabelInvoicesWithIntervalDue'],
 	    "i.interval_type > 0 AND i.next_interval_date <= $currentDate AND i.archived = 0", true);

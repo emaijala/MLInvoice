@@ -114,7 +114,7 @@ class InvoicePrinterEmail extends InvoicePrinterBase
     if ($result && $invoiceData['state_id'] == 1)
     {
       // Mark invoice sent
-      mysql_param_query('UPDATE {prefix}invoice SET state_id=2 WHERE id=?', array($this->invoiceId));
+      mysqli_param_query('UPDATE {prefix}invoice SET state_id=2 WHERE id=?', array($this->invoiceId));
     }
     if ($result) {
       $_SESSION['formMessage'] = 'EmailSent';
