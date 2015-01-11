@@ -110,7 +110,7 @@ function createSettingsList()
       if ($elemType == 'LABEL')
       {
 ?>
-        <div class="sublabel ui-widget-header ui-state-default ui-state-active"><?php echo $elem['label']?></div>
+        <div class="sublabel ui-widget-header ui-state-default"><?php echo $elem['label']?></div>
 <?php
         continue;
       }

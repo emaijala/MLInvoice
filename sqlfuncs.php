@@ -541,6 +541,14 @@ EOT
     ));
   }
 
+  if ($version < 31) {
+    $updates = array_merge($updates, array(
+      'ALTER TABLE {prefix}product ADD COLUMN ean_code1 varchar(13) default NULL',
+      'ALTER TABLE {prefix}product ADD COLUMN ean_code2 varchar(13) default NULL',
+      "REPLACE INTO {prefix}state (id, data) VALUES ('version', '31')"
+    ));
+  }
+
   if (!empty($updates)) {
     foreach ($updates as $update) {
       $res = mysqli_query_check($update, true);
