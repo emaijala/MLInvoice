@@ -133,17 +133,33 @@ CREATE TABLE mlinvoice_product (
   description varchar(255) NULL,
   product_code varchar(100) NULL,
   product_group varchar(100) NULL,
+  ean_code1 varchar(13) NULL,
+  ean_code2 varchar(13) NULL,
   internal_info text,
   unit_price decimal(15,5) NULL,
+  purchase_price decimal(15,5) NULL,
   type_id int(11) default NULL,
   vat_percent decimal(9,1) NOT NULL default 0,
   vat_included tinyint NOT NULL default 0,
   discount decimal(4,1) NULL,
   price_decimals decimal(1,0) NOT NULL default 2,
   order_no int(11) default NULL,
+  stock_balance int(11) default NULL,
   PRIMARY KEY (id),
   FOREIGN KEY (type_id) REFERENCES mlinvoice_row_type(id)
 ) ENGINE=INNODB CHARACTER SET utf8 COLLATE utf8_swedish_ci;
+
+CREATE TABLE mlinvoice_stock_balance_log (
+  id int(11) NOT NULL auto_increment,
+  time timestamp NOT NULL default CURRENT_TIMESTAMP,
+  user_id int(11) NOT NULL,
+  product_id int(11) NOT NULL,
+  stock_change int(11) NOT NULL,
+  description varchar(255) NOT NULL,
+  PRIMARY KEY (id),
+  FOREIGN KEY (user_id) REFERENCES mlinvoice_users(id),
+  FOREIGN KEY (product_id) REFERENCES mlinvoice_product(id)
+) ENGINE=INNODB CHARACTER SET utf8 COLLATE utf8_swedish_ci
 
 CREATE TABLE mlinvoice_invoice (
   id int(11) NOT NULL auto_increment,
@@ -265,7 +281,7 @@ CREATE TABLE mlinvoice_state (
 
 SET NAMES 'utf8';
 
-INSERT INTO mlinvoice_state (id, data) VALUES ('version', '30');
+INSERT INTO mlinvoice_state (id, data) VALUES ('version', '32');
 
 INSERT INTO mlinvoice_invoice_state (id, name, order_no) VALUES (1, 'StateOpen', 5);
 INSERT INTO mlinvoice_invoice_state (id, name, order_no) VALUES (2, 'StateSent', 10);

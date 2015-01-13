@@ -615,7 +615,36 @@ abstract class InvoicePrinterBase
         {
           $pdf->MultiCell($nameColWidth, 5, $description, 0, 'L');
         }
-      }
+
+	      if ($this->printStyle == 'dispatch' && getSetting('dispatch_note_show_ean_codes')
+	    			&& (!empty($row['ean_code1']) || !empty($row['ean_code2']))
+	    	) {
+		      $style = array(
+		        'position' => '',
+		        'align' => 'L',
+		        'stretch' => false,
+		        'fitwidth' => true,
+		        'cellfitalign' => '',
+		        'border' => false,
+		        'hpadding' => 'auto',
+		        'vpadding' => 'auto',
+		        'fgcolor' => array(0,0,0),
+		        'bgcolor' => false,
+		        'text' => true,
+		        'font' => 'helvetica',
+		        'fontsize' => 8,
+		        'stretchtext' => 4
+		      );
+          //
+          if (!empty($row['ean_code1'])) {
+            $pdf->write1DBarcode($row['ean_code1'], 'EAN13', $left, $pdf->getY(), 98, 15, 0.34, $style, 'T');
+          }
+	    	  if (!empty($row['ean_code2'])) {
+            $pdf->write1DBarcode($row['ean_code2'], 'EAN13', $left + 98, $pdf->getY(), 105, 15, 0.34, $style, 'T');
+          }
+          $pdf->SetY($pdf->GetY()+18);
+	    	}
+	    }
     }
     if ($this->printStyle != 'dispatch')
     {

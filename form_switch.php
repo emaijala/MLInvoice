@@ -129,22 +129,49 @@ case 'product':
   $astrSearchFields = array(
     array('name' => 'product_name', 'type' => 'TEXT')
   );
+
+  if (sesWriteAccess()) {
+    $locStockBalanceChange = $GLOBALS['locStockBalanceChange'];
+    $locStockBalanceChangeDescription = $GLOBALS['locStockBalanceChangeDescription'];
+    $locUpdateStockBalance = $GLOBALS['locUpdateStockBalance'];
+    $locSave = $GLOBALS['locSave'];
+    $locClose = $GLOBALS['locClose'];
+    $locTitle = $GLOBALS['locUpdateStockBalance'];
+    $locMissing = $GLOBALS['locErrValueMissing'];
+  	$popupHTML = <<<EOS
+<script type="text/javascript" src="js/update_stock_balance.js"></script>
+<div id="update_stock_balance" class="form_container ui-widget-content" style="display: none">
+  <div class="medium_label">$locStockBalanceChange</div> <div class="field"><input type='TEXT' id="stock_balance_change" class='short'></div>
+  <div class="medium_label">$locStockBalanceChangeDescription</div> <div class="field"><textarea id="stock_balance_change_desc" class="large"></textarea></div>
+  </div>
+EOS;
+
+    $updateStockBalanceCode = <<<EOS
+<a class="formbuttonlink" href="#" onclick="update_stock_balance({'save': '$locSave', 'close': '$locClose', 'title': '$locTitle', 'missing': '$locMissing: '})">$locUpdateStockBalance</a>
+
+EOS;
+  }
+
   $astrFormElements = array(
     array(
       'name' => 'order_no', 'label' => $GLOBALS['locOrderNr'], 'type' => 'INT', 'style' => 'short', 'position' => 1, 'allow_null' => true ),
     array(
-      'name' => 'product_code', 'label' => $GLOBALS['locProductCode'], 'type' => 'TEXT', 'style' => 'medium', 'position' => 1, 'allow_null' => true ),
+      'name' => 'product_code', 'label' => $GLOBALS['locProductCode'], 'type' => 'TEXT', 'style' => 'short', 'position' => 2, 'allow_null' => true ),
     array(
-      'name' => 'product_name', 'label' => $GLOBALS['locProductName'], 'type' => 'TEXT', 'style' => 'medium', 'position' => 2 ),
-    array(
-      'name' => 'description', 'label' => $GLOBALS['locProductDescription'], 'type' => 'TEXT', 'style' => 'long', 'position' => 1, 'allow_null' => true ),
+      'name' => 'product_name', 'label' => $GLOBALS['locProductName'], 'type' => 'TEXT', 'style' => 'medium', 'position' => 1 ),
     array(
       'name' => 'product_group', 'label' => $GLOBALS['locProductGroup'], 'type' => 'TEXT', 'style' => 'medium', 'position' => 2, 'allow_null' => true ),
+    array(
+      'name' => 'ean_code1', 'label' => $GLOBALS['locFirstEANCode'], 'type' => 'TEXT', 'style' => 'medium', 'position' => 1, 'allow_null' => true ),
+    array(
+      'name' => 'ean_code2', 'label' => $GLOBALS['locSecondEANCode'], 'type' => 'TEXT', 'style' => 'medium', 'position' => 2, 'allow_null' => true ),
+    array(
+      'name' => 'description', 'label' => $GLOBALS['locProductDescription'], 'type' => 'TEXT', 'style' => 'long', 'position' => 1, 'allow_null' => true ),
     array(
       'name' => 'internal_info', 'label' => $GLOBALS['locInternalInfo'], 'type' => 'AREA', 'style' => 'xlarge', 'position' => 0, 'allow_null' => true ),
     array(
       'name' => 'unit_price', 'label' => $GLOBALS['locUnitPrice'], 'type' => 'INT', 'style' => 'medium', 'position' => 1, 'decimals' => getSetting('unit_price_decimals'), 'allow_null' => true ),
-    array(
+  	array(
       'name' => 'type_id', 'label' => $GLOBALS['locUnit'], 'type' => 'LIST', 'style' => 'short translated', 'listquery' => 'SELECT id, name FROM {prefix}row_type WHERE deleted=0 ORDER BY order_no;', 'position' => 2, 'default' => 'POST' ),
     array(
       'name' => 'price_decimals', 'label' => $GLOBALS['locPriceInvoiceDecimals'], 'type' => 'INT', 'style' => 'short', 'position' => 1, 'default' => 2 ),
@@ -154,6 +181,10 @@ case 'product':
       'name' => 'vat_percent', 'label' => $GLOBALS['locVATPercent'], 'type' => 'INT', 'style' => 'short', 'position' => 1, 'default' => getSetting('invoice_default_vat_percent'), 'decimals' => 1 ),
     array(
       'name' => 'vat_included', 'label' => $GLOBALS['locVATIncluded'], 'type' => 'CHECK', 'style' => 'medium', 'position' => 2, 'default' => FALSE, 'allow_null' => true ),
+    array(
+      'name' => 'purchase_price', 'label' => $GLOBALS['locPurchasePrice'], 'type' => 'INT', 'style' => 'medium', 'position' => 1, 'decimals' => getSetting('unit_price_decimals'), 'allow_null' => true ),
+    array(
+      'name' => 'stock_balance', 'label' => $GLOBALS['locStockBalance'], 'type' => 'INT', 'style' => 'short', 'position' => 2, 'decimals' => 0, 'allow_null' => true, 'read_only' => true, 'attached_elem' => $updateStockBalanceCode ),
   );
 break;
 

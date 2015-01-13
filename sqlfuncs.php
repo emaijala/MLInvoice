@@ -245,8 +245,9 @@ function create_db_dump()
 {
   $in_tables = array('invoice_state', 'row_type', 'company_type', 'base',
     'delivery_terms', 'delivery_method', 'company', 'company_contact',
-    'product', 'session_type', 'users', 'invoice', 'invoice_row',
-    'quicksearch', 'settings', 'session', 'print_template', 'state');
+    'product', 'session_type', 'users', 'stock_balance_log', 'invoice',
+  	'invoice_row', 'quicksearch', 'settings', 'session', 'print_template',
+    'state');
 
   $filename = 'mlinvoice_backup_' . date('Ymd') . '.sql';
   header('Content-type: text/x-sql');
@@ -546,6 +547,28 @@ EOT
       'ALTER TABLE {prefix}product ADD COLUMN ean_code1 varchar(13) default NULL',
       'ALTER TABLE {prefix}product ADD COLUMN ean_code2 varchar(13) default NULL',
       "REPLACE INTO {prefix}state (id, data) VALUES ('version', '31')"
+    ));
+  }
+
+  if ($version < 32) {
+    $updates = array_merge($updates, array(
+      'ALTER TABLE {prefix}product ADD COLUMN purchase_price decimal(15,5) NULL',
+      'ALTER TABLE {prefix}product ADD COLUMN stock_balance int(11) default NULL',
+      <<<EOT
+CREATE TABLE {prefix}stock_balance_log (
+  id int(11) NOT NULL auto_increment,
+  time timestamp NOT NULL default CURRENT_TIMESTAMP,
+  user_id int(11) NOT NULL,
+  product_id int(11) NOT NULL,
+  stock_change int(11) NOT NULL,
+  description varchar(255) NOT NULL,
+  PRIMARY KEY (id),
+  FOREIGN KEY (user_id) REFERENCES {prefix}users(id),
+  FOREIGN KEY (product_id) REFERENCES {prefix}product(id)
+) ENGINE=INNODB CHARACTER SET utf8 COLLATE utf8_swedish_ci
+EOT
+     ,
+     "REPLACE INTO {prefix}state (id, data) VALUES ('version', '32')"
     ));
   }
 

@@ -93,21 +93,21 @@ class InvoiceReport
     <div class="field"><?php echo htmlFormElement('company', 'LIST', $intCompanyId, 'medium', 'SELECT id, company_name FROM {prefix}company WHERE deleted=0 ORDER BY company_name', 'MODIFY', false)?></div>
 
     <div class="medium_label"><?php echo $GLOBALS['locPrintFormat']?></div>
-    <div class="field"><input type="radio" name="format" value="html" checked="checked"><?php echo $GLOBALS['locPrintFormatHTML']?></input></div>
+    <div class="field"><input type="radio" name="format" value="html" checked="checked"><?php echo $GLOBALS['locPrintFormatHTML']?></div>
     <div class="medium_label"></div>
-    <div class="field"><input type="radio" name="format" value="pdf"><?php echo $GLOBALS['locPrintFormatPDF']?></input></div>
+    <div class="field"><input type="radio" name="format" value="pdf"><?php echo $GLOBALS['locPrintFormatPDF']?></div>
     <div class="medium_label"></div>
-    <div class="field"><input type="radio" name="format" value="pdfl"><?php echo $GLOBALS['locPrintFormatPDFLandscape']?></input></div>
+    <div class="field"><input type="radio" name="format" value="pdfl"><?php echo $GLOBALS['locPrintFormatPDFLandscape']?></div>
     <div class="field_sep"></div>
 
     <div class="medium_label"><?php echo $GLOBALS['locPrintGrouping']?></div>
-    <div class="field"><input type="radio" name="grouping" value="" checked="checked"><?php echo $GLOBALS['locPrintGroupingNone']?></input></div>
+    <div class="field"><input type="radio" name="grouping" value="" checked="checked"><?php echo $GLOBALS['locPrintGroupingNone']?></div>
     <div class="medium_label"></div>
-    <div class="field"><input type="radio" name="grouping" value="state"><?php echo $GLOBALS['locPrintGroupingState']?></input></div>
+    <div class="field"><input type="radio" name="grouping" value="state"><?php echo $GLOBALS['locPrintGroupingState']?></div>
     <div class="medium_label"></div>
-    <div class="field"><input type="radio" name="grouping" value="month"><?php echo $GLOBALS['locPrintGroupingMonth']?></input></div>
+    <div class="field"><input type="radio" name="grouping" value="month"><?php echo $GLOBALS['locPrintGroupingMonth']?></div>
     <div class="medium_label"></div>
-    <div class="field"><input type="radio" name="grouping" value="client"><?php echo $GLOBALS['locPrintGroupingClient']?></input></div>
+    <div class="field"><input type="radio" name="grouping" value="client"><?php echo $GLOBALS['locPrintGroupingClient']?></div>
     <div class="field_sep">&nbsp;</div>
 
     <div class="medium_label"><?php echo $GLOBALS['locPrintReportStates']?></div>

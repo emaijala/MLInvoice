@@ -70,7 +70,7 @@ if (!$senderData)
 $senderData['vat_id'] = createVATID($senderData['company_id']);
 
 $strQuery =
-    "SELECT pr.product_name, pr.product_code, pr.price_decimals, ir.description, ir.pcs, ir.price, IFNULL(ir.discount, 0) as discount, ir.row_date, ir.vat, ir.vat_included, ir.reminder_row, rt.name type ".
+    "SELECT pr.product_name, pr.product_code, pr.price_decimals, pr.ean_code1, pr.ean_code2, ir.description, ir.pcs, ir.price, IFNULL(ir.discount, 0) as discount, ir.row_date, ir.vat, ir.vat_included, ir.reminder_row, rt.name type ".
     "FROM {prefix}invoice_row ir ".
     "LEFT OUTER JOIN {prefix}row_type rt ON rt.id = ir.type_id ".
     "LEFT OUTER JOIN {prefix}product pr ON ir.product_id = pr.id ".

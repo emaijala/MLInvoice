@@ -315,7 +315,28 @@ case 'update_invoice_row_dates':
   echo updateInvoiceRowDates($invoiceId, $date);
   break;
 
-case 'noop':
+case 'update_stock_balance':
+  if (!sesWriteAccess())
+  {
+    header('HTTP/1.1 403 Forbidden');
+    exit;
+  }
+  $productId = getRequest('product_id', 0);
+  $change = getRequest('stock_balance_change', 0);
+  if (!$change) {
+    header('HTTP/1.1 400 Bad Request');
+    die('Balance change is required');
+  }
+  $desc = getRequest('stock_balance_change_desc', '');
+  if (!$desc) {
+    header('HTTP/1.1 400 Bad Request');
+    die('Description is required');
+  }
+  header('Content-Type: application/json');
+  echo updateStockBalance($productId, $change, $desc);
+  break;
+
+  case 'noop':
   // Session keep-alive
   break;
 
@@ -520,4 +541,20 @@ function updateInvoiceRowDates($invoiceId, $date)
   }
   mysqli_param_query('UPDATE {prefix}invoice_row SET row_date=? WHERE invoice_id=? AND deleted=0', array($date, $invoiceId));
   return json_encode(array('status' => 'ok'));
+}
+
+function updateStockBalance($productId, $change, $desc)
+{
+  $res = mysqli_param_query('SELECT stock_balance FROM {prefix}product WHERE id=?', array($productId));
+  $row = mysqli_fetch_row($res);
+  if ($row === null) {
+  	return json_encode(array('status' => 'error', 'errors' => $GLOBALS['locErrInvalidValue']));
+  }
+  $balance = $row[0];
+  $balance += $change;
+  mysqli_param_query('UPDATE {prefix}product SET stock_balance=? where id=?', array($balance, $productId));
+  mysqli_param_query('INSERT INTO {prefix}stock_balance_log (user_id, product_id, stock_change, description) VALUES (?, ?, ?, ?)',
+  	array($_SESSION['sesUSERID'], $productId, $change, $desc)
+  );
+  return json_encode(array('status' => 'ok', 'new_stock_balance' => $balance));
 }
