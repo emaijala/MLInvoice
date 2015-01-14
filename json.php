@@ -132,11 +132,12 @@ case 'get_invoice_defaults':
   $intervalType = getRequest('interval_type', 0);
   $invNr = getRequest('invoice_no', 0);
   if (!$invNr) {
-    if (getSetting('invoice_numbering_per_base') && $baseId)
-      $res = mysqli_param_query('SELECT max(cast(invoice_no as unsigned integer)) FROM {prefix}invoice WHERE deleted=0 AND id!=? AND base_id=?', array($invoiceId, $baseId));
-    else
-      $res = mysqli_param_query('SELECT max(cast(invoice_no as unsigned integer)) FROM {prefix}invoice WHERE deleted=0 AND id!=?', array($invoiceId));
-    $invNr = mysqli_fetch_value($res) + 1;
+  	$perYear = getSetting('invoice_numbering_per_year');
+  	$maxNr = get_max_invoice_number($invoiceId, getSetting('invoice_numbering_per_base') && $baseId ? $baseId : null, $perYear);
+  	if ($maxNr === null && $perYear) {
+  		$maxNr = get_max_invoice_number($invoiceId, getSetting('invoice_numbering_per_base') && $baseId ? $baseId : null, false);
+  	}
+  	$invNr = $maxNr + 1;
   }
   if ($invNr < 100)
     $invNr = 100; // min ref number length is 3 + check digit, make sure invoice number matches that
@@ -557,4 +558,20 @@ function updateStockBalance($productId, $change, $desc)
   	array($_SESSION['sesUSERID'], $productId, $change, $desc)
   );
   return json_encode(array('status' => 'ok', 'new_stock_balance' => $balance));
+}
+
+function get_max_invoice_number($invoiceId, $baseId, $perYear)
+{
+  if ($baseId !== null) {
+  	$sql = 'SELECT max(cast(invoice_no as unsigned integer)) FROM {prefix}invoice WHERE deleted=0 AND id!=? AND base_id=?';
+  	$params = array($invoiceId, $baseId);
+  } else {
+  	$sql = 'SELECT max(cast(invoice_no as unsigned integer)) FROM {prefix}invoice WHERE deleted=0 AND id!=?';
+  	$params = array($invoiceId);
+  }
+  if ($perYear) {
+  	$sql .= ' AND invoice_date >= ' . date('Y') . '0101';
+  }
+  $res = mysqli_param_query($sql, $params);
+  return mysqli_fetch_value($res);
 }
