@@ -628,10 +628,14 @@ EOF;
     array(
       'name' => 'invoice_email_bcc', 'label' => $GLOBALS['locBaseEmailBCC'], 'type' => 'TEXT', 'style' => 'medium', 'position' => 2, 'allow_null' => true ),
     array(
-      'name' => 'invoice_email_subject', 'label' => $GLOBALS['locBaseEmailSubject'], 'type' => 'TEXT', 'style' => 'long', 'position' => 0, 'allow_null' => true ),
+      'name' => 'invoice_email_subject', 'label' => $GLOBALS['locBaseReceiptEmailSubject'], 'type' => 'TEXT', 'style' => 'long', 'position' => 0, 'allow_null' => true ),
     array(
-      'name' => 'invoice_email_body', 'label' => $GLOBALS['locBaseEmailBody'], 'type' => 'AREA', 'style' => 'email email_body', 'position' => 0, 'allow_null' => true ),
+      'name' => 'invoice_email_body', 'label' => $GLOBALS['locBaseInvoiceEmailBody'], 'type' => 'AREA', 'style' => 'email email_body', 'position' => 0, 'allow_null' => true ),
     array(
+      'name' => 'receipt_email_subject', 'label' => $GLOBALS['locBaseReceiptEmailSubject'], 'type' => 'TEXT', 'style' => 'long', 'position' => 0, 'allow_null' => true ),
+  	array(
+      'name' => 'receipt_email_body', 'label' => $GLOBALS['locBaseReceiptEmailBody'], 'type' => 'AREA', 'style' => 'email email_body', 'position' => 0, 'allow_null' => true ),
+  	array(
       'name' => 'logosep', 'label' => $GLOBALS['locBaseLogoTitle'], 'type' => 'LABEL'),
     array(
       'name' => 'logo', 'label' => '', 'type' => 'IMAGE', 'style' => 'image', 'listquery' => 'base_logo.php?func=view&amp;id=_ID_', 'position' => 0, 'allow_null' => true ),

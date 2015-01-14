@@ -62,6 +62,8 @@ CREATE TABLE mlinvoice_base (
   invoice_email_bcc varchar(512) NULL,
   invoice_email_subject varchar(255) NULL,
   invoice_email_body text NULL,
+  receipt_email_subject varchar(255) NULL,
+  receipt_email_body text NULL,
   PRIMARY KEY (id)
 ) ENGINE=INNODB CHARACTER SET utf8 COLLATE utf8_swedish_ci;
 
@@ -281,7 +283,7 @@ CREATE TABLE mlinvoice_state (
 
 SET NAMES 'utf8';
 
-INSERT INTO mlinvoice_state (id, data) VALUES ('version', '32');
+INSERT INTO mlinvoice_state (id, data) VALUES ('version', '33');
 
 INSERT INTO mlinvoice_invoice_state (id, name, order_no) VALUES (1, 'StateOpen', 5);
 INSERT INTO mlinvoice_invoice_state (id, name, order_no) VALUES (2, 'StateSent', 10);

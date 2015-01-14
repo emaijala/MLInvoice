@@ -567,10 +567,19 @@ CREATE TABLE {prefix}stock_balance_log (
   FOREIGN KEY (product_id) REFERENCES {prefix}product(id)
 ) ENGINE=INNODB CHARACTER SET utf8 COLLATE utf8_swedish_ci
 EOT
-     ,
-     "REPLACE INTO {prefix}state (id, data) VALUES ('version', '32')"
+      ,
+      "REPLACE INTO {prefix}state (id, data) VALUES ('version', '32')"
     ));
   }
+
+  if ($version < 33) {
+    $updates = array_merge($updates, array(
+      'ALTER TABLE {prefix}base ADD COLUMN receipt_email_subject varchar(255) NULL',
+      'ALTER TABLE {prefix}base ADD COLUMN receipt_email_body text NULL',
+    	"REPLACE INTO {prefix}state (id, data) VALUES ('version', '33')"
+  	));
+  }
+
 
   if (!empty($updates)) {
     foreach ($updates as $update) {
