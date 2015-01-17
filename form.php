@@ -104,8 +104,7 @@ function createForm($strFunc, $strList, $strForm)
 
   if ($blnDelete && $intKeyValue && !$readOnlyForm)
   {
-    $strQuery = "UPDATE $strTable SET deleted=1 WHERE id=?";
-    mysqli_param_query($strQuery, array($intKeyValue));
+  	deleteRecord($strTable, $intKeyValue);
     unset($intKeyValue);
     unset($astrValues);
     $blnNew = TRUE;
@@ -301,13 +300,30 @@ function createForm($strFunc, $strList, $strForm)
       $prevPosition = 255;
     $prevColSpan = $intColspan;
   }
+
   if (!$haveChildForm)
   {
     if ($rowOpen)
       echo "        </tr>\n";
     echo "      </table>\n      </form>\n";
   }
+  if ($strForm == 'product') {
+    // Special case for product: show stock balance change log
 ?>
+      <div class="iform ui-corner-tl ui-corner-bl ui-corner-br ui-corner-tr ui-helper-clearfix" id="stock_balance_log">
+        <div class="ui-corner-tl ui-corner-tr fg-toolbar ui-toolbar ui-widget-header"><?php echo $GLOBALS['locStockBalanceUpdates']?></div>
+        <table id="stock_balance_change_log">
+          <tr>
+            <th class="medium"><?php echo $GLOBALS['locHeaderChangeLogDateTime']?></th>
+            <th class="medium"><?php echo $GLOBALS['locHeaderChangeLogUser']?></th>
+            <th class="small"><?php echo $GLOBALS['locHeaderChangeLogAmount']?></th>
+            <th class="long"><?php echo $GLOBALS['locHeaderChangeLogDescription']?></th>
+          </tr>
+<?php
+  }
+?>
+        </table>
+      </div>
     </div>
 
 <script type="text/javascript">
@@ -360,6 +376,11 @@ $(document).ready(function() {
   {
 ?>
   errormsg("<?php echo $strErrorMessage?>");
+<?php
+  }
+  if ($strForm == 'product') {
+?>
+  update_stock_balance_log();
 <?php
   }
   if (sesWriteAccess())

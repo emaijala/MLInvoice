@@ -26,6 +26,15 @@ function dateConvDBDate2Date($intDate, $format = '')
   return date($format ? $format : $GLOBALS['locDateFormat'], mktime(0, 0, 0, $mon, $day, $year));
 }
 
+// Convert database format to user-readable
+function dateConvDBTimestamp2DateTime($dateTime, $format = '')
+{
+  if (!$dateTime) {
+    return '';
+  }
+  return date($format ? $format : $GLOBALS['locDateTimeFormat'], strtotime($dateTime));
+}
+
 // Convert user-readable format to database
 function dateConvDate2DBDate($strDate)
 {

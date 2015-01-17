@@ -146,7 +146,7 @@ CREATE TABLE mlinvoice_product (
   discount decimal(4,1) NULL,
   price_decimals decimal(1,0) NOT NULL default 2,
   order_no int(11) default NULL,
-  stock_balance int(11) default NULL,
+  stock_balance decimal(11,2) default NULL,
   PRIMARY KEY (id),
   FOREIGN KEY (type_id) REFERENCES mlinvoice_row_type(id)
 ) ENGINE=INNODB CHARACTER SET utf8 COLLATE utf8_swedish_ci;
@@ -156,7 +156,7 @@ CREATE TABLE mlinvoice_stock_balance_log (
   time timestamp NOT NULL default CURRENT_TIMESTAMP,
   user_id int(11) NOT NULL,
   product_id int(11) NOT NULL,
-  stock_change int(11) NOT NULL,
+  stock_change decimal(11,2) NOT NULL,
   description varchar(255) NOT NULL,
   PRIMARY KEY (id),
   FOREIGN KEY (user_id) REFERENCES mlinvoice_users(id),
@@ -283,7 +283,7 @@ CREATE TABLE mlinvoice_state (
 
 SET NAMES 'utf8';
 
-INSERT INTO mlinvoice_state (id, data) VALUES ('version', '33');
+INSERT INTO mlinvoice_state (id, data) VALUES ('version', '34');
 
 INSERT INTO mlinvoice_invoice_state (id, name, order_no) VALUES (1, 'StateOpen', 5);
 INSERT INTO mlinvoice_invoice_state (id, name, order_no) VALUES (2, 'StateSent', 10);

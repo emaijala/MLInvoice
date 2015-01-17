@@ -141,6 +141,68 @@ function createWhereClause($astrSearchFields, $strSearchTerms, &$arrQueryParams,
   return $strWhereClause;
 }
 
+function updateProductStockBalance($invoiceRowId, $productId, $count)
+{
+  // Get old product stock balance
+	$oldProductId = false;
+	$oldCount = 0;
+	if (!empty($invoiceRowId)) {
+		// Fetch old product id
+    $res = mysqli_param_query(
+    	'SELECT product_id, pcs from {prefix}invoice_row WHERE id=? AND deleted=0',
+    	array($invoiceRowId),
+    	'exception'
+    );
+    list($oldProductId, $oldCount) = mysqli_fetch_array($res);
+	}
+
+	if ($oldProductId) {
+		// Add old balance to old product
+		mysqli_param_query(
+		  'UPDATE {prefix}product SET stock_balance=IFNULL(stock_balance, 0)+? WHERE id=?',
+		  array($oldCount, $oldProductId),
+		  'exception'
+		);
+	}
+	if (!empty($productId)) {
+		// Deduct from new product
+		mysqli_param_query(
+		  'UPDATE {prefix}product SET stock_balance=IFNULL(stock_balance, 0)-? WHERE id=?',
+		  array($count, $productId),
+		  'exception'
+		);
+	}
+}
+
+function deleteRecord($table, $id)
+{
+  mysqli_query_check('BEGIN');
+  try {
+  	// Special case for invoice_row - update product stock balance
+  	if ($table == '{prefix}invoice_row') {
+  		updateProductStockBalance($id, null, null);
+  	}
+
+  	// Special case for invoice - update all products in invoice rows
+  	if ($table == '{prefix}invoice') {
+      $res = mysqli_param_query(
+        'SELECT id FROM {prefix}invoice_row WHERE invoice_id=? AND deleted=0',
+        array($id),
+      	'exception'
+      );
+      while ($row = mysqli_fetch_assoc($res)) {
+        updateProductStockBalance($row['id'], null, null);
+      }
+  	}
+    $query = "UPDATE $table SET deleted=1 WHERE id=?";
+    mysqli_param_query($query, array($id), 'exception');
+  } catch (Exception $e) {
+    mysqli_query_check('ROLLBACK');
+    throw $e;
+  }
+  mysqli_query_check('COMMIT');
+}
+
 function mysqli_query_check($query, $noFail=false)
 {
 	global $dblink;
@@ -157,12 +219,16 @@ function mysqli_query_check($query, $noFail=false)
     if (strlen($query) > 1024)
       $query = substr($query, 0, 1024) . '[' . (strlen($query) - 1024) . ' more characters]';
     error_log("Query '$query' failed: ($intError) " . mysqli_error($dblink));
-    if (!$noFail)
+    if ($noFail !== true)
     {
       header('HTTP/1.1 500 Internal Server Error');
-      if (!defined('_DB_VERBOSE_ERRORS_') || !_DB_VERBOSE_ERRORS_)
-        die($GLOBALS['locDBError']);
-      die(htmlspecialchars("Query '$query' failed: ($intError) " . mysqli_error($dblink)));
+      $msg = (!defined('_DB_VERBOSE_ERRORS_') || !_DB_VERBOSE_ERRORS_)
+        ? $GLOBALS['locDBError']
+        : htmlspecialchars("Query '$query' failed: ($intError) " . mysqli_error($dblink));
+      if ($noFail == 'exception') {
+      	throw new Exception($msg);
+      }
+      die($msg);
     }
   }
   return $intRes;
@@ -178,7 +244,7 @@ function mysqli_param_query($query, $params=false, $noFail=false)
 	}
 
   if (!$params) {
-  	return mysqli_query_check($query);
+  	return mysqli_query_check($query, $noFail);
   }
   foreach ($params as &$v)
   {
@@ -580,6 +646,13 @@ EOT
   	));
   }
 
+  if ($version < 34) {
+    $updates = array_merge($updates, array(
+      'ALTER TABLE {prefix}product CHANGE COLUMN stock_balance stock_balance decimal(11,2) default NULL',
+      'ALTER TABLE {prefix}stock_balance_log CHANGE COLUMN stock_change stock_change decimal(11,2) default NULL',
+    	"REPLACE INTO {prefix}state (id, data) VALUES ('version', '34')"
+  	));
+  }
 
   if (!empty($updates)) {
     foreach ($updates as $update) {

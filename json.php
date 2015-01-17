@@ -84,7 +84,7 @@ case 'get_company_contacts':
   break;
 
 case 'delete_company_contact':
-  deleteRecord('company_contact');
+  deleteJSONRecord('company_contact');
   break;
 
 case 'put_company_contact':
@@ -108,7 +108,7 @@ case 'put_invoice_row':
   break;
 
 case 'delete_invoice_row':
-  deleteRecord('invoice_row');
+  deleteJSONRecord('invoice_row');
   break;
 
 case 'add_reminder_fees':
@@ -324,20 +324,33 @@ case 'update_stock_balance':
   }
   $productId = getRequest('product_id', 0);
   $change = getRequest('stock_balance_change', 0);
-  if (!$change) {
-    header('HTTP/1.1 400 Bad Request');
-    die('Balance change is required');
-  }
   $desc = getRequest('stock_balance_change_desc', '');
-  if (!$desc) {
-    header('HTTP/1.1 400 Bad Request');
-    die('Description is required');
-  }
   header('Content-Type: application/json');
   echo updateStockBalance($productId, $change, $desc);
   break;
 
-  case 'noop':
+case 'get_stock_balance_rows':
+  $productId = getRequest('product_id', 0);
+  if (!$productId) {
+    exit;
+  }
+  $res = mysqli_param_query('SELECT l.time, u.name, l.stock_change, l.description FROM {prefix}stock_balance_log l INNER JOIN {prefix}users u ON l.user_id=u.id WHERE product_id=? ORDER BY time DESC',
+    array($productId)
+  );
+  $html = '';
+  while ($row = mysqli_fetch_assoc($res)) {
+?>
+          <tr>
+            <td><?php echo dateConvDBTimestamp2DateTime($row['time'])?></td>
+            <td><?php echo $row['name']?></td>
+            <td><?php echo miscRound2Decim($row['stock_change'])?></td>
+            <td><?php echo $row['description']?></td>
+          </tr>
+<?php
+  }
+  break;
+
+case 'noop':
   // Session keep-alive
   break;
 
@@ -468,7 +481,7 @@ function saveJSONRecord($table, $parentKeyName)
   printJSONRecord($strTable, $id, $warnings);
 }
 
-function deleteRecord($table)
+function DeleteJSONRecord($table)
 {
   if (!sesWriteAccess())
   {
@@ -479,8 +492,7 @@ function deleteRecord($table)
   $id = getRequest('id', '');
   if ($id)
   {
-    $query = "UPDATE {prefix}$table SET deleted=1 WHERE id=?";
-    mysqli_param_query($query, array($id));
+    deleteRecord("{prefix}$table", $id);
     header('Content-Type: application/json');
     echo json_encode(array('status' => 'ok'));
   }
@@ -546,6 +558,18 @@ function updateInvoiceRowDates($invoiceId, $date)
 
 function updateStockBalance($productId, $change, $desc)
 {
+	$missing = array();
+  if (!$change) {
+    $missing[] = $GLOBALS['locStockBalanceChange'];
+  }
+  if (!$desc) {
+  	$missing[] = $GLOBALS['locStockBalanceChangeDescription'];
+  }
+
+  if ($missing) {
+    return json_encode(array('missing_fields' => $missing));
+  }
+
   $res = mysqli_param_query('SELECT stock_balance FROM {prefix}product WHERE id=?', array($productId));
   $row = mysqli_fetch_row($res);
   if ($row === null) {

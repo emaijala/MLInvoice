@@ -224,19 +224,19 @@ td.date_label {
 td.small_label {
   width: 100px;
 }
-td.small {
+th.small, td.small {
   width: 100px;
 }
 td.date {
   width: 75px;
 }
-td.medium {
+th.medium, td.medium {
   width: 160px;
 }
 td.medium_label {
   width: 160px;
 }
-td.long {
+th.long, td.long {
   width: 240px;
 }
 td.long_label {

@@ -62,20 +62,8 @@ if ($intInvoiceId)
     'FROM {prefix}invoice '.
     'WHERE {prefix}invoice.id = ?';
   $intRes = mysqli_param_query($strQuery, array($intInvoiceId));
-  if ($row = mysqli_fetch_assoc($intRes))
+  if (!($invoiceData = mysqli_fetch_assoc($intRes)))
   {
-    $strname = $row['name'];
-    $intCompanyId = $row['company_id'];
-    $intPaymentDate = $row['payment_date'];
-    $intRefNumber = $row['ref_number'];
-    $intStateId = $row['state_id'];
-    $strReference = $row['reference'];
-    $intBaseId = $row['base_id'];
-    $info = $row['info'];
-    $internalInfo = $row['internal_info'];
-    $intervalType = $row['interval_type'];
-    $nextIntervalDate = $row['next_interval_date'];
-  } else {
     echo htmlPageStart(_PAGE_TITLE_, getSetting('session_keepalive') ? array('js/keepalive.js') : null);
 ?>
 <body>
@@ -90,70 +78,79 @@ if ($intInvoiceId)
     return;
   }
 
-  $intDate = date("Ymd");
-  $intDueDate = date("Ymd", mktime(0, 0, 0, date("m"), date("d") + getSetting('invoice_payment_days'), date("Y")));
+  unset($invoiceData['id']);
+  $invoiceData['invoice_date'] = date("Ymd");
+  $invoiceData['due_date'] = date("Ymd", mktime(0, 0, 0, date("m"), date("d") + getSetting('invoice_payment_days'), date("Y")));
+  $invoiceData['payment_date'] = null;
+  $invoiceData['state_id'] = 1;
+  $invoiceData['refunded_invoice_id'] = $boolRefund ? $intInvoiceId : null;
+  if ($boolRefund) {
+    $invoiceData['interval_type'] = 0;
+  }
 
-  switch ($intervalType) {
+  switch ($invoiceData['interval_type']) {
     // Month
     case 2:
-      $nextIntervalDate = date("Ymd",mktime(0, 0, 0, date("m") + 1, date("d"), date("Y")));
+      $invoiceData['next_interval_date'] = date("Ymd",mktime(0, 0, 0, date("m") + 1, date("d"), date("Y")));
       break;
     // Year
     case 3:
-      $nextIntervalDate = date("Ymd",mktime(0, 0, 0, date("m"), date("d"), date("Y") + 1));
+      $invoiceData['next_interval_date'] = date("Ymd",mktime(0, 0, 0, date("m"), date("d"), date("Y") + 1));
       break;
   }
-  if ($intervalType > 0) {
-    // Reset interval type of the original invoice
-    $strQuery = 'UPDATE {prefix}invoice ' .
-      'SET interval_type = 0 ' .
-      'WHERE {prefix}invoice.id = ?';
-    mysqli_param_query($strQuery, array($intInvoiceId));
-  }
 
-  $intRefundedId = $boolRefund ? $intInvoiceId : null;
-  $strQuery =
-      'INSERT INTO {prefix}invoice(name, company_id, invoice_date, due_date, payment_date, state_id, reference, base_id, refunded_invoice_id, info, internal_info, interval_type, next_interval_date) '.
-      'VALUES (?, ?, ?, ?, NULL, 1, ?, ?, ?, ?, ?, ?, ?)';
+  mysqli_query_check('BEGIN');
 
-  mysqli_param_query($strQuery, array($strname, $intCompanyId, $intDate, $intDueDate, $strReference, $intBaseId, $intRefundedId, $info, $internalInfo, $intervalType, $nextIntervalDate));
-  $intNewId = mysqli_insert_id($dblink);
-  if ($intNewId)
-  {
+  try {
+    if ($invoiceData['interval_type'] > 0) {
+      // Reset interval type of the original invoice
+      $strQuery = 'UPDATE {prefix}invoice ' .
+        'SET interval_type = 0 ' .
+        'WHERE {prefix}invoice.id = ?';
+      mysqli_param_query($strQuery, array($intInvoiceId), 'exception');
+    }
+
     $strQuery =
-        'SELECT * ' .
-        'FROM {prefix}invoice_row ' .
-        'WHERE deleted=0 AND invoice_id=?';
-    $intRes = mysqli_param_query($strQuery, array($intInvoiceId));
+      'INSERT INTO {prefix}invoice(' . implode(', ', array_keys($invoiceData)) . ') '
+      . 'VALUES (' . str_repeat('?, ', count($invoiceData) - 1) . '?)';
+
+    mysqli_param_query($strQuery, $invoiceData, 'exception');
+    $intNewId = mysqli_insert_id($dblink);
+    if (!$intNewId) {
+    	die('Could not get ID of the new invoice');
+    }
+    $strQuery =
+      'SELECT * ' .
+      'FROM {prefix}invoice_row ' .
+      'WHERE deleted=0 AND invoice_id=?';
+    $intRes = mysqli_param_query($strQuery, array($intInvoiceId), 'exception');
     while ($row = mysqli_fetch_assoc($intRes))
     {
-      $intProductId = $row['product_id'];
-      $strDescription = $row['description'];
-      $rowDate = $row['row_date'];
-      $intTypeId = $row['type_id'];
-      $intPcs = $row['pcs'];
-      $intPrice = $row['price'];
-      $intDiscount = $row['discount'];
-      $intVat = $row['vat'];
-      $intOrderNo = $row['order_no'];
-      $boolVatIncluded = $row['vat_included'];
-      $intReminderRow = $row['reminder_row'];
-
-      if ($boolRefund)
-        $intPcs = -$intPcs;
-      else if ($intReminderRow)
+      if ($boolRefund) {
+      	$row['pcs'] = -$row['pcs'];
+      } else if ($row['reminder_row']) {
         continue;
+      }
+    	unset($row['id']);
+    	$row['invoice_id'] = $intNewId;
 
       if (getSetting('invoice_update_row_dates_on_copy')) {
-        $rowDate = $intDate;
+        $row['row_date'] = $intDate;
       }
-
+      // Update product stock balance
+      if ($row['product_id'] !== null) {
+        updateProductStockBalance(null, $row['product_id'], $row['pcs']);
+      }
       $strQuery =
-        'INSERT INTO {prefix}invoice_row(invoice_id, product_id, description, type_id, pcs, price, discount, row_date, vat, order_no, vat_included, reminder_row) '.
-        'VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)';
-      mysqli_param_query($strQuery, array($intNewId, $intProductId, $strDescription, $intTypeId, $intPcs, $intPrice, $intDiscount, $rowDate, $intVat, $intOrderNo, $boolVatIncluded, $intReminderRow));
+        'INSERT INTO {prefix}invoice_row(' . implode(', ', array_keys($row)) . ') '
+        . 'VALUES (' . str_repeat('?, ', count($row) - 1) . '?)';
+      mysqli_param_query($strQuery, $row, 'exception');
     }
+  } catch (Exception $e) {
+  	mysqli_param_query('ROLLBACK');
+  	die($e->message);
   }
+  mysqli_param_query('COMMIT');
 }
 
 header("Location: ". _PROTOCOL_ . $_SERVER['HTTP_HOST'] . dirname($_SERVER['PHP_SELF']) . "/index.php?func=$strFunc&list=$strList&form=invoice&id=$intNewId");

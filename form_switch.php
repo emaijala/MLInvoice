@@ -138,8 +138,9 @@ case 'product':
     $locClose = $GLOBALS['locClose'];
     $locTitle = $GLOBALS['locUpdateStockBalance'];
     $locMissing = $GLOBALS['locErrValueMissing'];
+    $locDecimalSeparator = $GLOBALS['locDecimalSeparator'];
   	$popupHTML = <<<EOS
-<script type="text/javascript" src="js/update_stock_balance.js"></script>
+<script type="text/javascript" src="js/stock_balance.js"></script>
 <div id="update_stock_balance" class="form_container ui-widget-content" style="display: none">
   <div class="medium_label">$locStockBalanceChange</div> <div class="field"><input type='TEXT' id="stock_balance_change" class='short'></div>
   <div class="medium_label">$locStockBalanceChangeDescription</div> <div class="field"><textarea id="stock_balance_change_desc" class="large"></textarea></div>
@@ -147,7 +148,7 @@ case 'product':
 EOS;
 
     $updateStockBalanceCode = <<<EOS
-<a class="formbuttonlink" href="#" onclick="update_stock_balance({'save': '$locSave', 'close': '$locClose', 'title': '$locTitle', 'missing': '$locMissing: '})">$locUpdateStockBalance</a>
+<a class="formbuttonlink" href="#" onclick="update_stock_balance({'save': '$locSave', 'close': '$locClose', 'title': '$locTitle', 'missing': '$locMissing: ', 'decimal_separator': '$locDecimalSeparator'})">$locUpdateStockBalance</a>
 
 EOS;
   }
@@ -184,7 +185,7 @@ EOS;
     array(
       'name' => 'purchase_price', 'label' => $GLOBALS['locPurchasePrice'], 'type' => 'INT', 'style' => 'medium', 'position' => 1, 'decimals' => getSetting('unit_price_decimals'), 'allow_null' => true ),
     array(
-      'name' => 'stock_balance', 'label' => $GLOBALS['locStockBalance'], 'type' => 'INT', 'style' => 'short', 'position' => 2, 'decimals' => 0, 'allow_null' => true, 'read_only' => true, 'attached_elem' => $updateStockBalanceCode ),
+      'name' => 'stock_balance', 'label' => $GLOBALS['locStockBalance'], 'type' => 'INT', 'style' => 'small', 'position' => 2, 'decimals' => 2, 'allow_null' => true, 'read_only' => true, 'attached_elem' => $updateStockBalanceCode ),
   );
 break;
 
