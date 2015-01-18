@@ -288,7 +288,7 @@ function createForm($strFunc, $strList, $strForm)
 <?php
       }
 ?>
-          <td class="field"<?php echo $strColspan?>>
+          <td class="field"<?php echo $strColspan ? " $strColspan" : ''?>>
             <?php echo htmlFormElement($elem['name'], $elem['type'], $value, $elem['style'], $elem['listquery'], $fieldMode, isset($elem['parent_key']) ? $elem['parent_key'] : '', '', array(), isset($elem['elem_attributes']) ? $elem['elem_attributes'] : '', isset($elem['options']) ? $elem['options'] : null);
       if (isset($elem['attached_elem'])) echo '            ' . $elem['attached_elem'] . "\n";
 ?>
@@ -401,13 +401,13 @@ $(document).ready(function() {
     $('#spinner').css('visibility', 'hidden');
   });
 
-  $('#admin_form').find('input[type="text"],input[type="checkbox"],select,textarea').change(function() { $('.save_button').addClass('ui-state-highlight'); });
+  $('#admin_form').find('input[type="text"],input[type="hidden"],input[type="checkbox"],select,textarea').change(function() { $('.save_button').addClass('ui-state-highlight'); });
 <?php
   if ($haveChildForm && !$blnNew)
   {
 ?>
   init_rows();
-  $('#iform').find('input[type="text"],input[type="checkbox"],select,textarea').change(function() { $('.add_row_button').addClass('ui-state-highlight'); });
+  $('#iform').find('input[type="text"],input[type="hidden"],input[type="checkbox"],select,textarea').change(function() { $('.add_row_button').addClass('ui-state-highlight'); });
 <?php
   }
   elseif (isset($newLocation))

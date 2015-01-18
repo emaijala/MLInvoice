@@ -312,30 +312,42 @@ EOT;
           $strStyle = str_replace(' noemptyvalue', '', $strStyle);
           $showEmpty = '';
         }
+        $strValue = htmlspecialchars($strValue);
         $strFormElement = <<<EOT
-<input type="hidden" class="$strStyle" id="$strName" name="$strName"$astrAdditionalAttributes/>
+<input type="hidden" class="$strStyle" id="$strName" name="$strName" value="$strValue"$astrAdditionalAttributes/>
 <script type="text/javascript">
-$("#$strName").select2({
-  placeholder: "",
-  ajax: {
-    url: "json.php?func=get_selectlist&$strListQuery",
-    dataType: 'json',
-    quietMillis: 200,
-    data: function (term, page) { // page is the one-based page number tracked by Select2
-      return {
-        q: term, //search term
-        pagelen: 50, // page size
-        page: page, // page number
-      };
+$(document).ready(function() {
+  $("#$strName").select2({
+    placeholder: "",
+    ajax: {
+      url: "json.php?func=get_selectlist&$strListQuery",
+      dataType: 'json',
+      quietMillis: 200,
+      data: function (term, page) { // page is the one-based page number tracked by Select2
+        return {
+          q: term, //search term
+          pagelen: 50, // page size
+          page: page, // page number
+        };
+      },
+      results: function (data, page) {
+        var records = data.records;
+  $showEmpty
+        return {results: records, more: data.moreAvailable};
+      }
     },
-    results: function (data, page) {
-      var records = data.records;
-$showEmpty
-      return {results: records, more: data.moreAvailable};
-    }
-  },
-  dropdownCssClass: "bigdrop",
-  escapeMarkup: function (m) { return m; }
+    initSelection: function(element, callback) {
+      var id = $(element).val();
+      if (id !== "") {
+        $.ajax("json.php?func=get_selectlist&$strListQuery&id=" + id, {
+          dataType: "json"
+        }).done(function(data) { callback(data.records[0]); });
+      }
+    },
+    dropdownCssClass: "bigdrop",
+    dropdownAutoWidth: true,
+    escapeMarkup: function (m) { return m; }
+  }).val($strValue);
 });
 </script>
 EOT;

@@ -473,3 +473,7 @@ img.image {
 	font-weight: bold;
 	margin-bottom: 1em;
 }
+
+.select2-results {
+	font-size: 120%;
+}

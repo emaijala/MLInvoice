@@ -114,6 +114,9 @@ function createWhereClause($astrSearchFields, $strSearchTerms, &$arrQueryParams,
   $strWhereClause = "(";
   $termPrefix = $leftAnchored ? '' : '%';
   for( $i = 0; $i < count($astrTerms); $i++ ) {
+      if ($i > 0) {
+          $termPrefix = '%';
+      }
       if ($astrTerms[$i]) {
           $strWhereClause .= '(';
           for( $j = 0; $j < count($astrSearchFields); $j++ ) {

@@ -295,9 +295,10 @@ case 'get_selectlist':
   $page = intval(getRequest('page', 1)) - 1;
   $filter = getRequest('q', '');
   $sort = getRequest('sort', '');
+  $id = getRequest('id', '');
 
   header('Content-Type: application/json');
-  echo createJSONSelectList($table, $page * $pageLen, $pageLen, $filter, $sort);
+  echo createJSONSelectList($table, $page * $pageLen, $pageLen, $filter, $sort, $id);
   break;
 
 case 'update_invoice_row_dates':

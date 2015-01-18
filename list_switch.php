@@ -46,8 +46,8 @@ case 'companies':
    $strDeletedField = 'deleted';
    $astrShowFields =
     array(
-        array("name" => "company_name", 'width' => 150, "type" => "TEXT", "header" => $GLOBALS['locClientName']),
-        array("name" => "company_id", 'width' => 100, "type" => "TEXT", "header" => $GLOBALS['locClientVATID']),
+        array("name" => "company_name", 'width' => 150, "type" => "TEXT", "header" => $GLOBALS['locClientName'], 'select' => true),
+        array("name" => "company_id", 'width' => 100, "type" => "TEXT", "header" => $GLOBALS['locClientVATID'], 'select' => true),
         array("name" => "inactive", 'width' => 100, "type" => "TEXT", "header" => $GLOBALS['locHeaderClientActive'],
           'mappings' => array('0' => $GLOBALS['locActive'], '1' => $GLOBALS['locInactive']) ),
         array("name" => "customer_no", 'width' => 100, "type" => "TEXT", "header" => $GLOBALS['locCustomerNr']),

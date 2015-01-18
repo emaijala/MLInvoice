@@ -360,11 +360,6 @@ EOS;
     }
   }
 
-  $companyListSelect = "SELECT id, IF(STRCMP(company_id,''), CONCAT(company_name, ' (', company_id, ')'), company_name) FROM {prefix}company WHERE deleted=0 AND (inactive=0";
-  if ($intInvoiceId && is_numeric($intInvoiceId))
-    $companyListSelect .= " OR id IN (SELECT company_id FROM {prefix}invoice i WHERE i.id=$intInvoiceId)";
-  $companyListSelect .= ') ORDER BY company_name, company_id';
-
   $intRes = mysqli_query_check('SELECT ID from {prefix}base WHERE deleted=0');
   if (mysqli_num_rows($intRes) == 1)
     $defaultBase = mysqli_fetch_value($intRes);
@@ -396,7 +391,7 @@ EOS;
     array(
       'name' => 'name', 'label' => $GLOBALS['locInvName'], 'type' => 'TEXT', 'style' => 'medium', 'position' => 2, 'allow_null' => true ),
     array(
-      'name' => 'company_id', 'label' => $GLOBALS['locPayer'], 'type' => 'LIST', 'style' => 'medium linked', 'listquery' => $companyListSelect, 'position' => 1, 'allow_null' => true, 'attached_elem' => $addCompanyCode, 'elem_attributes' => $companyOnChange ),
+      'name' => 'company_id', 'label' => $GLOBALS['locPayer'], 'type' => 'SEARCHLIST', 'style' => 'medium linked', 'listquery' => "table=company&sort=company_name,company_id", 'position' => 1, 'allow_null' => true, 'attached_elem' => $addCompanyCode, 'elem_attributes' => $companyOnChange  ),
     array(
       'name' => 'reference', 'label' => $GLOBALS['locClientsReference'], 'type' => 'TEXT', 'style' => 'medium', 'position' => 2, 'allow_null' => true ),
     array(

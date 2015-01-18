@@ -323,8 +323,9 @@ function createJSONList($strFunc, $strList, $startRow, $rowCount, $sort, $filter
   return json_encode($results);
 }
 
-function createJSONSelectList($strList, $startRow, $rowCount, $filter, $sort)
+function createJSONSelectList($strList, $startRow, $rowCount, $filter, $sort, $id = null)
 {
+  global $dblink;
   require "list_switch.php";
 
   if (!sesAccessLevel($levelsAllowed) && !sesAdminAccess())
@@ -368,7 +369,7 @@ function createJSONSelectList($strList, $startRow, $rowCount, $filter, $sort)
 
   $strWhereClause = '';
 
-  if (!getSetting('show_deleted_records'))
+  if (!getSetting('show_deleted_records') && empty($id))
   {
     $strWhereClause = " WHERE $strDeletedField=0";
   }
@@ -380,6 +381,10 @@ function createJSONSelectList($strList, $startRow, $rowCount, $filter, $sort)
   // Add Filter
   if ($filter) {
     $strWhereClause .= ($strWhereClause ? ' AND ' : ' WHERE ') . createWhereClause($astrSearchFields, $filter, $arrQueryParams, true);
+  }
+
+  if ($id) {
+    $strWhereClause .= ($strWhereClause ? ' AND ' : ' WHERE ') . 'id=' . mysqli_real_escape_string($dblink, $id);
   }
 
   // Build the final select clause
