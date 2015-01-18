@@ -299,9 +299,9 @@ EOS;
 
     if (getSetting('invoice_warn_if_noncurrent_date'))
     {
-      $invoicePrintChecks .= "var d = new Date(); var dt = document.getElementById('invoice_date').value.split('.'); if (parseInt(dt[0], 10) != d.getDate() || parseInt(dt[1], 10) != d.getMonth()+1 || parseInt(dt[2], 10) != d.getYear() + 1900) alert('" . $GLOBALS['locInvoiceDateNonCurrent'] . "'); ";
+      $invoicePrintChecks .= "var d = new Date(); var dt = document.getElementById('invoice_date').value.split('.'); if (parseInt(dt[0], 10) != d.getDate() || parseInt(dt[1], 10) != d.getMonth()+1 || parseInt(dt[2], 10) != d.getYear() + 1900) { if (!confirm('" . $GLOBALS['locInvoiceDateNonCurrent'] . "')) return false; } ";
     }
-    $invoicePrintChecks .= "var len = document.getElementById('ref_number').value.length; if (len > 0 && len < 4) alert('" . $GLOBALS['locInvoiceRefNumberTooShort'] . "'); ";
+    $invoicePrintChecks .= "var len = document.getElementById('ref_number').value.length; if (len > 0 && len < 4) { if (!confirm('" . $GLOBALS['locInvoiceRefNumberTooShort'] . "')) return false; } ";
 
     if (getSetting('invoice_add_number') || getSetting('invoice_add_reference_number'))
     {
@@ -314,7 +314,7 @@ EOS;
       $invoiceNumberUpdateSuffix = ' });';
     }
     if (!getSetting('invoice_add_number')) {
-      $invoiceNumberUpdatePrefix .= "invoice_no = document.getElementById('invoice_no'); if (invoice_no.value == '' || invoice_no.value == 0) alert('" . $GLOBALS['locInvoiceNumberNotDefined'] . "');";
+      $invoiceNumberUpdatePrefix .= "invoice_no = document.getElementById('invoice_no'); if (invoice_no.value == '' || invoice_no.value == 0) { if (!confirm('" . $GLOBALS['locInvoiceNumberNotDefined'] . "')) return false; }";
     }
   }
 
