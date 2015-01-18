@@ -166,7 +166,8 @@ case 'product':
         array("name" => "product_code", 'width' => 150, "type" => "TEXT", "header" => $GLOBALS['locProductCode'], 'select' => true),
         array("name" => "product_name", 'width' => 200, "type" => "TEXT", "header" => $GLOBALS['locProductName'], 'select' => true),
         array("name" => "product_group", 'width' => 150, "type" => "TEXT", "header" => $GLOBALS['locProductGroup']),
-        array("name" => "unit_price", 'width' => 100, "type" => "CURRENCY", "header" => $GLOBALS['locUnitPrice'], 'decimals' => getSetting('unit_price_decimals'))
+        array("name" => "unit_price", 'width' => 100, "type" => "CURRENCY", "header" => $GLOBALS['locUnitPrice'], 'decimals' => getSetting('unit_price_decimals')),
+        array("name" => "stock_balance", 'width' => 100, "type" => "CURRENCY", "header" => $GLOBALS['locStockBalance'], 'decimals' => 2)
     );
 
    $strMainForm = "product";

@@ -87,7 +87,8 @@ function createFuncMenu($strFunc)
   case "reports":
     $astrNaviLinks = array(
       array("href" => "form=invoice", "text" => $GLOBALS['locInvoiceReport'], "levels_allowed" => array(ROLE_READONLY, ROLE_USER, ROLE_BACKUPMGR)),
-      array("href" => "form=product", "text" => $GLOBALS['locProductReport'], "levels_allowed" => array(ROLE_READONLY, ROLE_USER, ROLE_BACKUPMGR))
+      array("href" => "form=product", "text" => $GLOBALS['locProductReport'], "levels_allowed" => array(ROLE_READONLY, ROLE_USER, ROLE_BACKUPMGR)),
+      array("href" => "form=product_stock", "text" => $GLOBALS['locProductStockReport'], "levels_allowed" => array(ROLE_READONLY, ROLE_USER, ROLE_BACKUPMGR))
     );
     break;
 
@@ -153,7 +154,20 @@ function createFuncMenu($strFunc)
         $strHref = "?func=$strFunc&amp;" . $link['href'];
       else
         $strHref = $link['href'];
-      $class = (strstr($_SERVER['QUERY_STRING'], $link['href'])) ? ' ui-state-highlight' : '';
+      $class = '';
+      if (strpos($link['href'], '?')) {
+        list(, $urlParams) = explode('?', $link['href'], 2);
+      } else {
+        $urlParams = $link['href'];
+      }
+      parse_str($urlParams, $linkParts);
+      if ((!isset($linkParts['func']) || getRequest('func', '') == $linkParts['func'])
+        && (!isset($linkParts['list']) || getRequest('list', '') == $linkParts['list'])
+        && (!isset($linkParts['form']) || getRequest('form', '') == $linkParts['form'])
+        && (!isset($linkParts['operation']) || getRequest('operation', '') == $linkParts['operation'])
+      ) {
+        $class = ' ui-state-highlight';
+      }
 ?>
     <a class="buttonlink<?php echo $class?>" href="<?php echo $strHref?>"><?php echo $link['text']?></a>
 <?php

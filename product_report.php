@@ -64,7 +64,7 @@ class ProductReport
 
     <div class="unlimited_label"><h1><?php echo $GLOBALS['locProductReport']?></h1></div>
 
-    <div class="medium_label"><?php echo $GLOBALS['locDateInterval']?></div>
+    <div class="medium_label"><?php echo $GLOBALS['locInvoiceDateInterval']?></div>
     <div class="field"><?php echo htmlFormElement('date', 'TEXT', "$dateRange" , 'medium hasDateRangePicker', '', 'MODIFY', FALSE)?></div>
 
     <div class="medium_label"><?php echo $GLOBALS['locBiller']?></div>
@@ -194,7 +194,7 @@ class ProductReport
       $strProductWhere = '';
 
     $strProductQuery = 'SELECT p.id, p.product_code, p.product_name, ir.description, ' .
-      'CASE WHEN ir.vat_included = 0 THEN sum(ir.price * ir.pcs * (1 - IFNULL(ir.discount, 0) / 100)) ELSE sum(ir.price * ir.pcs * (1 - IFNULL(ir.discount, 0) / 100) / (1 + ir.vat / 100)) END as total_price, ' .
+      'CASE WHEN ir.vat_included = 0 THEN sum(ROUND(ir.price * ir.pcs * (1 - IFNULL(ir.discount, 0) / 100), 2)) ELSE sum(ROUND(ir.price * ir.pcs * (1 - IFNULL(ir.discount, 0) / 100) / (1 + ir.vat / 100), 2)) END as total_price, ' .
       'ir.vat, sum(ir.pcs) as pcs, t.name as unit ' .
       'FROM {prefix}invoice_row ir ' .
       'LEFT OUTER JOIN {prefix}product p ON p.id = ir.product_id ' .

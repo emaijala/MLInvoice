@@ -180,13 +180,18 @@ else
     {
     case 'invoice':
       require_once 'invoice_report.php';
-      $invoiceReport = new InvoiceReport;
+      $invoiceReport = new InvoiceReport();
       $invoiceReport->createReport();
       break;
     case 'product':
       require_once 'product_report.php';
-      $productReport = new ProductReport;
+      $productReport = new ProductReport();
       $productReport->createReport();
+      break;
+    case 'product_stock':
+      require_once 'product_stock_report.php';
+      $productStockReport = new ProductStockReport();
+      $productStockReport->createReport();
       break;
     }
     break;
