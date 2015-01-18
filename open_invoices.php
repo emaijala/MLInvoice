@@ -42,9 +42,31 @@ function createOpenInvoiceList()
 	    "i.interval_type > 0 AND i.next_interval_date <= $currentDate AND i.archived = 0", true);
   }
 
-  createList('open_invoices', 'invoice', 'resultlist_open_invoices', $GLOBALS['locLabelOpenInvoices'],
-    'i.state_id=1 AND i.archived=0', true);
+  $open = '';
+  $res = mysqli_query_check('SELECT id FROM {prefix}invoice_state WHERE invoice_open=1');
+  while ($id = mysqli_fetch_value($res)) {
+    if ($open) {
+      $open .= ', ';
+    }
+    $open .= $id;
+  }
 
-  createList('open_invoices', 'invoice', 'resultlist_unpaid_invoices', $GLOBALS['locLabelUnpaidInvoices'],
-    'i.state_id IN (2, 5, 6, 7) AND i.archived=0', true, true);
+  $unpaid = '';
+  $res = mysqli_query_check('SELECT id FROM {prefix}invoice_state WHERE invoice_unpaid=1');
+  while ($id = mysqli_fetch_value($res)) {
+    if ($unpaid) {
+      $unpaid .= ', ';
+    }
+    $unpaid .= $id;
+  }
+
+  if ($open) {
+    createList('open_invoices', 'invoice', 'resultlist_open_invoices', $GLOBALS['locLabelOpenInvoices'],
+      "i.state_id IN ($open) AND i.archived=0", true);
+  }
+
+  if ($unpaid) {
+    createList('open_invoices', 'invoice', 'resultlist_unpaid_invoices', $GLOBALS['locLabelUnpaidInvoices'],
+      "i.state_id IN ($unpaid) AND i.archived=0", true, true);
+  }
 }

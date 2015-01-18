@@ -653,17 +653,18 @@ case 'invoice_state':
   $strTable = '{prefix}invoice_state';
   $strJSONType = 'invoice_state';
 
-  $intId = getRequest('id', FALSE);
-  if ($intId && $intId <= 7)
-  {
-    $readOnlyForm = true;
-  }
+  $intId = isset($id) ? $id : getRequest('id', FALSE);
+  $readOnly = ($intId && $intId <= 8);
   $astrFormElements = array(
     array(
-      'name' => 'name', 'label' => $GLOBALS['locStatus'], 'type' => 'TEXT', 'style' => 'medium', 'position' => 1 ),
+      'name' => 'name', 'label' => $GLOBALS['locStatus'], 'type' => 'TEXT', 'style' => 'medium', 'position' => 1, 'read_only' => $readOnly ),
     array(
-      'name' => 'order_no', 'label' => $GLOBALS['locOrderNr'], 'type' => 'INT', 'style' => 'short', 'position' => 2 )
-   );
+      'name' => 'order_no', 'label' => $GLOBALS['locOrderNr'], 'type' => 'INT', 'style' => 'short', 'position' => 2, 'read_only' => $readOnly ),
+    array(
+      'name' => 'invoice_open', 'label' => $GLOBALS['locShowInOpenInvoices'], 'type' => 'CHECK', 'style' => 'short', 'position' => 1 ),
+    array(
+      'name' => 'invoice_unpaid', 'label' => $GLOBALS['locShowInUnpaidInvoices'], 'type' => 'CHECK', 'style' => 'short', 'position' => 2 )
+  );
 break;
 
 case 'row_type':

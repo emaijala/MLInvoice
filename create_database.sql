@@ -3,6 +3,8 @@ CREATE TABLE mlinvoice_invoice_state (
   deleted tinyint NOT NULL default 0,
   name varchar(255) default NULL,
   order_no int(11) default NULL,
+  invoice_open tinyint NOT NULL default 0,
+  invoice_unpaid tinyint NOT NULL default 0,
   PRIMARY KEY (id)
 ) ENGINE=INNODB CHARACTER SET utf8 COLLATE utf8_swedish_ci;
 
@@ -151,18 +153,6 @@ CREATE TABLE mlinvoice_product (
   FOREIGN KEY (type_id) REFERENCES mlinvoice_row_type(id)
 ) ENGINE=INNODB CHARACTER SET utf8 COLLATE utf8_swedish_ci;
 
-CREATE TABLE mlinvoice_stock_balance_log (
-  id int(11) NOT NULL auto_increment,
-  time timestamp NOT NULL default CURRENT_TIMESTAMP,
-  user_id int(11) NOT NULL,
-  product_id int(11) NOT NULL,
-  stock_change decimal(11,2) NOT NULL,
-  description varchar(255) NOT NULL,
-  PRIMARY KEY (id),
-  FOREIGN KEY (user_id) REFERENCES mlinvoice_users(id),
-  FOREIGN KEY (product_id) REFERENCES mlinvoice_product(id)
-) ENGINE=INNODB CHARACTER SET utf8 COLLATE utf8_swedish_ci
-
 CREATE TABLE mlinvoice_invoice (
   id int(11) NOT NULL auto_increment,
   deleted tinyint NOT NULL default 0,
@@ -235,6 +225,18 @@ CREATE TABLE mlinvoice_users (
   FOREIGN KEY (type_id) REFERENCES mlinvoice_session_type(id)
 ) ENGINE=INNODB CHARACTER SET utf8 COLLATE utf8_swedish_ci;
 
+CREATE TABLE mlinvoice_stock_balance_log (
+  id int(11) NOT NULL auto_increment,
+  time timestamp NOT NULL default CURRENT_TIMESTAMP,
+  user_id int(11) NOT NULL,
+  product_id int(11) NOT NULL,
+  stock_change decimal(11,2) NOT NULL,
+  description varchar(255) NOT NULL,
+  PRIMARY KEY (id),
+  FOREIGN KEY (user_id) REFERENCES mlinvoice_users(id),
+  FOREIGN KEY (product_id) REFERENCES mlinvoice_product(id)
+) ENGINE=INNODB CHARACTER SET utf8 COLLATE utf8_swedish_ci;
+
 CREATE TABLE mlinvoice_quicksearch (
   id int(11) NOT NULL auto_increment,
   user_id int(11) NOT NULL,
@@ -283,16 +285,16 @@ CREATE TABLE mlinvoice_state (
 
 SET NAMES 'utf8';
 
-INSERT INTO mlinvoice_state (id, data) VALUES ('version', '34');
+INSERT INTO mlinvoice_state (id, data) VALUES ('version', '35');
 
-INSERT INTO mlinvoice_invoice_state (id, name, order_no) VALUES (1, 'StateOpen', 5);
-INSERT INTO mlinvoice_invoice_state (id, name, order_no) VALUES (2, 'StateSent', 10);
-INSERT INTO mlinvoice_invoice_state (id, name, order_no) VALUES (3, 'StatePaid', 15);
-INSERT INTO mlinvoice_invoice_state (id, name, order_no) VALUES (4, 'StateAnnulled', 20);
-INSERT INTO mlinvoice_invoice_state (id, name, order_no) VALUES (5, 'StateFirstReminder', 25);
-INSERT INTO mlinvoice_invoice_state (id, name, order_no) VALUES (6, 'StateSecondReminder', 30);
-INSERT INTO mlinvoice_invoice_state (id, name, order_no) VALUES (7, 'StateDebtCollection', 35);
-INSERT INTO mlinvoice_invoice_state (id, name, order_no) VALUES (8, 'StatePaidInCash', 17);
+INSERT INTO mlinvoice_invoice_state (id, name, order_no, invoice_open, invoice_unpaid) VALUES (1, 'StateOpen', 5, 1, 0);
+INSERT INTO mlinvoice_invoice_state (id, name, order_no, invoice_open, invoice_unpaid) VALUES (2, 'StateSent', 10, 0, 1);
+INSERT INTO mlinvoice_invoice_state (id, name, order_no, invoice_open, invoice_unpaid) VALUES (3, 'StatePaid', 15, 0, 0);
+INSERT INTO mlinvoice_invoice_state (id, name, order_no, invoice_open, invoice_unpaid) VALUES (4, 'StateAnnulled', 20, 0, 0);
+INSERT INTO mlinvoice_invoice_state (id, name, order_no, invoice_open, invoice_unpaid) VALUES (5, 'StateFirstReminder', 25, 0, 1);
+INSERT INTO mlinvoice_invoice_state (id, name, order_no, invoice_open, invoice_unpaid) VALUES (6, 'StateSecondReminder', 30, 0, 1);
+INSERT INTO mlinvoice_invoice_state (id, name, order_no, invoice_open, invoice_unpaid) VALUES (7, 'StateDebtCollection', 35, 0, 1);
+INSERT INTO mlinvoice_invoice_state (id, name, order_no, invoice_open, invoice_unpaid) VALUES (8, 'StatePaidInCash', 17, 0, 0);
 
 INSERT INTO mlinvoice_row_type (id, name, order_no) VALUES (1, 'TypeHour', 5);
 INSERT INTO mlinvoice_row_type (id, name, order_no) VALUES (2, 'TypeDay', 10);

@@ -657,6 +657,16 @@ EOT
   	));
   }
 
+  if ($version < 35) {
+    $updates = array_merge($updates, array(
+      'ALTER TABLE {prefix}invoice_state ADD COLUMN invoice_open tinyint NOT NULL default 0',
+      'ALTER TABLE {prefix}invoice_state ADD COLUMN invoice_unpaid tinyint NOT NULL default 0',
+      'UPDATE {prefix}invoice_state SET invoice_open=1 WHERE id IN (1)',
+      'UPDATE {prefix}invoice_state SET invoice_unpaid=1 WHERE id IN (2, 5, 6, 7)',
+      "REPLACE INTO {prefix}state (id, data) VALUES ('version', '35')"
+  	));
+  }
+
   if (!empty($updates)) {
     foreach ($updates as $update) {
       $res = mysqli_query_check($update, true);

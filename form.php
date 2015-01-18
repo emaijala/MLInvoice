@@ -165,11 +165,14 @@ function createForm($strFunc, $strList, $strForm)
   $prevPosition = false;
   $prevColSpan = 1;
   $rowOpen = false;
-  $fieldMode = sesWriteAccess() && !$readOnlyForm ? 'MODIFY' : 'READONLY';
+  $formFieldMode = sesWriteAccess() && !$readOnlyForm ? 'MODIFY' : 'READONLY';
   foreach ($astrFormElements as $elem)
   {
     if ($elem['type'] === false)
       continue;
+
+    $fieldMode = isset($elem['read_only']) && $elem['read_only'] ? 'READONLY' : $formFieldMode;
+
     if ($elem['type'] == "LABEL")
     {
       if ($rowOpen)
@@ -319,12 +322,13 @@ function createForm($strFunc, $strList, $strForm)
             <th class="small"><?php echo $GLOBALS['locHeaderChangeLogAmount']?></th>
             <th class="long"><?php echo $GLOBALS['locHeaderChangeLogDescription']?></th>
           </tr>
-<?php
-  }
-?>
         </table>
       </div>
     </div>
+<?php
+  }
+?>
+  </div>
 
 <script type="text/javascript">
 /* <![CDATA[ */

@@ -457,8 +457,8 @@ function saveJSONRecord($table, $parentKeyName)
   $strForm = $table;
   $strFunc = '';
   $strList = '';
-  require 'form_switch.php';
   $id = isset($data['id']) ? $data['id'] : false;
+  require 'form_switch.php';
   $new = $id ? false : true;
   unset($data['id']);
   $warnings = '';

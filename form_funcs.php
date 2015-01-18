@@ -101,7 +101,7 @@ function saveFormData($table, &$primaryKey, &$formElements, &$values, &$warnings
     $type = $elem['type'];
 
     if (in_array($type, array('', 'IFORM', 'RESULT', 'BUTTON', 'JSBUTTON', 'IMAGE', 'ROWSUM', 'NEWLINE', 'LABEL'))
-    		|| (isset($elem['readonly']) && $elem['readonly'])
+    		|| (isset($elem['read_only']) && $elem['read_only'])
    	) {
       continue;
     }
