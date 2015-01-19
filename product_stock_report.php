@@ -32,7 +32,7 @@ require_once "pdf.php";
 
 class ProductStockReport
 {
-  private $pdf = null;
+  protected $pdf = null;
 
   public function createReport()
   {
@@ -74,7 +74,7 @@ class ProductStockReport
 <?php
   }
 
-  private function printReport()
+  protected function printReport()
   {
     $intProductId = getRequest('product', FALSE);
     $format = getRequest('format', 'html');
@@ -98,15 +98,18 @@ class ProductStockReport
 
     $this->printHeader($format);
 
+    $stockValue = 0;
     $intRes = mysqli_param_query($strQuery, $arrParams);
     while ($row = mysqli_fetch_assoc($intRes))
     {
       $this->printRow($format, $row['product_code'], $row['product_name'], $row['purchase_price'], $row['unit_price'], $row['stock_balance']);
+      $stockValue += $row['stock_balance'] * $row['purchase_price'];
     }
+    $this->printTotals($format, $stockValue);
     $this->printFooter($format);
   }
 
-  private function printHeader($format)
+  protected function printHeader($format)
   {
     if ($format == 'pdf')
     {
@@ -159,7 +162,7 @@ class ProductStockReport
 <?php
   }
 
-  private function printRow($format, $strCode, $strProduct, $purchasePrice, $unitPrice, $stockBalance)
+  protected function printRow($format, $strCode, $strProduct, $purchasePrice, $unitPrice, $stockBalance)
   {
     if ($format == 'pdf')
     {
@@ -208,7 +211,44 @@ class ProductStockReport
 <?php
   }
 
-  private function printFooter($format)
+  protected function printTotals($format, $stockValue)
+  {
+    if ($format == 'pdf')
+    {
+      $pdf = $this->pdf;
+      if ($pdf->getY() > $pdf->getPageHeight() - 7 - 15)
+        $pdf->AddPage();
+      $pdf->SetFont('Helvetica','',8);
+      $pdf->setLineWidth(0.2);
+
+      $sumPos = 125;
+      $rowWidth = 150;
+
+      $pdf = $this->pdf;
+      $pdf->SetFont('Helvetica','B',8);
+      $pdf->line($pdf->getX() + $sumPos, $pdf->getY(), $pdf->getX() + $rowWidth, $pdf->getY());
+      $pdf->setY($pdf->getY() + 1);
+      $pdf->Cell($sumPos, 4, $GLOBALS['locTotal'], 0, 0, 'R');
+      $pdf->Cell(25, 4, miscRound2Decim($stockValue), 0, 1, 'R');
+      return;
+    }
+
+    $colSpan = 5;
+?>
+    <tr>
+    <?php if ($colSpan > 0) { ?>
+        <td class="input total_sum" colspan="<?php echo $colSpan?>" style="text-align: right">
+            <?php echo $GLOBALS['locTotal']?>
+        </td>
+    <?php } ?>
+        <td class="input total_sum" style="text-align: right">
+            &nbsp;<?php echo miscRound2Decim($stockValue)?>
+        </td>
+    </tr>
+<?php
+  }
+
+  protected function printFooter($format)
   {
     if ($format == 'pdf')
     {
