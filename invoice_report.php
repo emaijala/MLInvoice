@@ -58,8 +58,12 @@ class InvoiceReport
     $intBaseId = getRequest('base', false);
     $intCompanyId = getRequest('company', false);
     $invoiceDateRange = getRequest('date', '');
+    $invoiceRowDateRange = getRequest('row_date', '');
     $paymentDateRange = getRequest('payment_date', '');
     $fields = getRequest('fields[]', array());
+    $rowTypes = getRequest('row_types', 'all');
+    $format = getRequest('format', 'html');
+    $grouping = getRequest('grouping', '');
 ?>
 
   <script type="text/javascript">
@@ -78,10 +82,13 @@ class InvoiceReport
 
     <div class="unlimited_label"><strong><?php echo $GLOBALS['locInvoiceReport']?></strong></div>
 
-  <div style="float: left; clear: both">
+  <div style="float: left; clear: both; margin-right: 20px;">
 
     <div class="medium_label"><?php echo $GLOBALS['locInvoiceDateInterval']?></div>
     <div class="field"><?php echo htmlFormElement('date', 'TEXT', $invoiceDateRange, 'medium hasDateRangePicker', '', 'MODIFY', false)?></div>
+
+    <div class="medium_label"><?php echo $GLOBALS['locInvoiceRowDateInterval']?></div>
+    <div class="field"><?php echo htmlFormElement('row_date', 'TEXT', $invoiceRowDateRange, 'medium hasDateRangePicker', '', 'MODIFY', false)?></div>
 
     <div class="medium_label"><?php echo $GLOBALS['locPaymentDateInterval']?></div>
     <div class="field"><?php echo htmlFormElement('payment_date', 'TEXT', $paymentDateRange, 'medium hasDateRangePicker', '', 'MODIFY', false)?></div>
@@ -93,24 +100,34 @@ class InvoiceReport
     <div class="field"><?php echo htmlFormElement('company', 'LIST', $intCompanyId, 'medium', 'SELECT id, company_name FROM {prefix}company WHERE deleted=0 ORDER BY company_name', 'MODIFY', false)?></div>
 
     <div class="medium_label"><?php echo $GLOBALS['locPrintFormat']?></div>
-    <div class="field"><input type="radio" name="format" value="html" checked="checked"><?php echo $GLOBALS['locPrintFormatHTML']?></div>
+    <div class="field"><input type="radio" name="format" value="html"<?php if ($format == 'html') echo ' checked="checked"'?>><?php echo $GLOBALS['locPrintFormatHTML']?></div>
     <div class="medium_label"></div>
-    <div class="field"><input type="radio" name="format" value="pdf"><?php echo $GLOBALS['locPrintFormatPDF']?></div>
+    <div class="field"><input type="radio" name="format" value="pdf"<?php if ($format == 'pdf') echo ' checked="checked"'?>><?php echo $GLOBALS['locPrintFormatPDF']?></div>
     <div class="medium_label"></div>
-    <div class="field"><input type="radio" name="format" value="pdfl"><?php echo $GLOBALS['locPrintFormatPDFLandscape']?></div>
+    <div class="field"><input type="radio" name="format" value="pdfl"<?php if ($format == 'pdfl') echo ' checked="checked"'?>><?php echo $GLOBALS['locPrintFormatPDFLandscape']?></div>
+    <div class="field_sep"></div>
+
+    <div class="medium_label"><?php echo $GLOBALS['locInvoiceRowTypes']?></div>
+    <div class="field"><input type="radio" name="row_types" value="all"<?php if ($rowTypes == 'all') echo ' checked="checked"'?>><?php echo $GLOBALS['locPrintInvoiceRowTypeAll']?></div>
+    <div class="medium_label"></div>
+    <div class="field"><input type="radio" name="row_types" value="normal"<?php if ($rowTypes == 'normal') echo ' checked="checked"'?>><?php echo $GLOBALS['locPrintInvoiceRowTypeNormal']?></div>
+    <div class="medium_label"></div>
+    <div class="field"><input type="radio" name="row_types" value="reminder"<?php if ($rowTypes == 'reminder') echo ' checked="checked"'?>><?php echo $GLOBALS['locPrintInvoiceRowTypeReminder']?></div>
     <div class="field_sep"></div>
 
     <div class="medium_label"><?php echo $GLOBALS['locPrintGrouping']?></div>
-    <div class="field"><input type="radio" name="grouping" value="" checked="checked"><?php echo $GLOBALS['locPrintGroupingNone']?></div>
+    <div class="field"><input type="radio" name="grouping" value=""<?php if ($grouping == '') echo ' checked="checked"'?>><?php echo $GLOBALS['locPrintGroupingNone']?></div>
     <div class="medium_label"></div>
-    <div class="field"><input type="radio" name="grouping" value="state"><?php echo $GLOBALS['locPrintGroupingState']?></div>
+    <div class="field"><input type="radio" name="grouping" value="state"<?php if ($grouping == 'state') echo ' checked="checked"'?>><?php echo $GLOBALS['locPrintGroupingState']?></div>
     <div class="medium_label"></div>
-    <div class="field"><input type="radio" name="grouping" value="month"><?php echo $GLOBALS['locPrintGroupingMonth']?></div>
+    <div class="field"><input type="radio" name="grouping" value="month"<?php if ($grouping == 'month') echo ' checked="checked"'?>><?php echo $GLOBALS['locPrintGroupingMonth']?></div>
     <div class="medium_label"></div>
-    <div class="field"><input type="radio" name="grouping" value="client"><?php echo $GLOBALS['locPrintGroupingClient']?></div>
+    <div class="field"><input type="radio" name="grouping" value="client"<?php if ($grouping == 'client') echo ' checked="checked"'?>><?php echo $GLOBALS['locPrintGroupingClient']?></div>
     <div class="field_sep">&nbsp;</div>
 
-    <div class="medium_label"><?php echo $GLOBALS['locPrintReportStates']?></div>
+    </div>
+    <div style="float: left; margin-right: 20px;">
+      <div class="medium_label"><?php echo $GLOBALS['locPrintReportStates']?></div>
 <?php
     $strQuery =
         "SELECT id, name ".
@@ -134,7 +151,7 @@ class InvoiceReport
     }
 ?>
     </div>
-    <div style="float: left; margin-left: 40px">
+    <div style="float: left">
       <div class="medium_label"><?php echo $GLOBALS['locPrintFields']?></div>
 <?php
     $first = true;
@@ -163,11 +180,10 @@ class InvoiceReport
   {
     $intBaseId = getRequest('base', false);
     $intCompanyId = getRequest('company', false);
-    $startDate = getRequest('from', false);
-    $endDate = getRequest('until', false);
     $grouping = getRequest('grouping', '');
     $format = getRequest('format', 'html');
     $printFields = getRequest('fields', array());
+    $rowTypes = getRequest('row_types', 'all');
 
     $dateRange = explode(' - ', getRequest('date', ''));
     $startDate = $dateRange[0];
@@ -178,6 +194,17 @@ class InvoiceReport
     if ($endDate) {
       $endDate = dateConvDate2DBDate($endDate);
     }
+
+    $rowDateRange = explode(' - ', getRequest('row_date', ''));
+    $rowStartDate = $rowDateRange[0];
+    $rowEndDate = isset($rowDateRange[1]) ? $rowDateRange[1] : $rowStartDate;
+    if ($rowStartDate) {
+      $rowStartDate = dateConvDate2DBDate($rowStartDate);
+    }
+    if ($rowEndDate) {
+      $rowEndDate = dateConvDate2DBDate($rowEndDate);
+    }
+
     $paymentDateRange = explode(' - ', getRequest('payment_date', ''));
     $paymentStartDate = $paymentDateRange[0];
     $paymentEndDate = isset($paymentDateRange[1]) ? $paymentDateRange[1] : '';
@@ -290,25 +317,36 @@ class InvoiceReport
           $invoiceGroup = false;
       }
 
-      if ($grouping && $currentGroup !== false && $currentGroup != $invoiceGroup)
-      {
-        $this->printGroupSums($format, $printFields, $row, $groupTotSum, $groupTotVAT, $groupTotSumVAT);
-        $groupTotSum = 0;
-        $groupTotVAT = 0;
-        $groupTotSumVAT = 0;
-      }
-      $currentGroup = $invoiceGroup;
-
+      $rowParams = array($row['id']);
       $strQuery =
           "SELECT ir.description, ir.pcs, ir.price, ir.discount, ir.row_date, ir.vat, ir.vat_included ".
           "FROM {prefix}invoice_row ir ".
           "WHERE ir.invoice_id=? AND ir.deleted=0";
-      $intRes2 = mysqli_param_query($strQuery, array($row['id']));
+
+      if ($rowStartDate) {
+        $strQuery .= ' AND ir.row_date >= ?';
+        $rowParams[] = $rowStartDate;
+      }
+      if ($rowEndDate) {
+        $strQuery .= ' AND ir.row_date <= ?';
+        $rowParams[] = $rowEndDate;
+      }
+      if ($rowTypes != 'all') {
+        if ($rowTypes == 'normal') {
+          $strQuery .= ' AND ir.reminder_row = 0';
+        } else if ($rowTypes == 'reminder') {
+          $strQuery .= ' AND ir.reminder_row in (1, 2)';
+        }
+      }
+
+      $intRes2 = mysqli_param_query($strQuery, $rowParams);
       $intRowSum = 0;
       $intRowVAT = 0;
       $intRowSumVAT = 0;
+      $rows = false;
       while ($row2 = mysqli_fetch_assoc($intRes2))
       {
+        $rows = true;
         list($intSum, $intVAT, $intSumVAT) = calculateRowSum($row2['price'], $row2['pcs'], $row2['vat'], $row2['vat_included'], $row2['discount']);
 
         $intRowSum += $intSum;
@@ -319,6 +357,20 @@ class InvoiceReport
         $intTotVAT += $intVAT;
         $intTotSumVAT += $intSumVAT;
       }
+
+      if (!$rows) {
+        continue;
+      }
+
+      if ($grouping && $currentGroup !== false && $currentGroup != $invoiceGroup)
+      {
+        $this->printGroupSums($format, $printFields, $row, $groupTotSum, $groupTotVAT, $groupTotSumVAT);
+        $groupTotSum = 0;
+        $groupTotVAT = 0;
+        $groupTotSumVAT = 0;
+      }
+      $currentGroup = $invoiceGroup;
+
       $groupTotSum += $intRowSum;
       $groupTotVAT += $intRowVAT;
       $groupTotSumVAT += $intRowSumVAT;
