@@ -32,8 +32,11 @@ function init_db_connection()
 	global $dblink;
 
 	// Connect to database server
-	$dblink = mysqli_connect(_DB_SERVER_, _DB_USERNAME_, _DB_PASSWORD_)
-	   or die("Could not connect : " . mysqli_error());
+	$dblink = mysqli_connect(_DB_SERVER_, _DB_USERNAME_, _DB_PASSWORD_);
+
+  if (mysqli_connect_errno()) {
+    die('Could not connect to database: ' . mysqli_connect_error());
+  }
 
 	// Select database
 	mysqli_select_db($dblink, _DB_NAME_) or die("Could not select database: " . mysqli_error($dblink));
