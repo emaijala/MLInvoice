@@ -29,22 +29,23 @@ $dblink = null;
 
 function init_db_connection()
 {
-	global $dblink;
+  global $dblink;
 
-	// Connect to database server
-	$dblink = mysqli_connect(_DB_SERVER_, _DB_USERNAME_, _DB_PASSWORD_);
+  // Connect to database server
+  $dblink = mysqli_connect(_DB_SERVER_, _DB_USERNAME_, _DB_PASSWORD_);
 
   if (mysqli_connect_errno()) {
     die('Could not connect to database: ' . mysqli_connect_error());
   }
 
-	// Select database
-	mysqli_select_db($dblink, _DB_NAME_) or die("Could not select database: " . mysqli_error($dblink));
+  // Select database
+  mysqli_select_db($dblink, _DB_NAME_) or die("Could not select database: " . mysqli_error($dblink));
 
-	if (_CHARSET_ == 'UTF-8')
-	  mysqli_query_check('SET NAMES \'utf8\'');
+  if (_CHARSET_ == 'UTF-8') {
+    mysqli_query_check('SET NAMES \'utf8\'');
+  }
 
-	mysqli_query_check('SET AUTOCOMMIT=1');
+  mysqli_query_check('SET AUTOCOMMIT=1');
 }
 
 function extractSearchTerm(&$searchTerms, &$field, &$operator, &$term, &$boolean)
