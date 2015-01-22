@@ -616,8 +616,9 @@ abstract class InvoicePrinterBase
           $pdf->MultiCell($nameColWidth, 5, $description, 0, 'L');
         }
 
-	      if ($this->printStyle == 'dispatch' && getSetting('dispatch_note_show_ean_codes')
-	    			&& (!empty($row['ean_code1']) || !empty($row['ean_code2']))
+	      if ($this->printStyle == 'dispatch' && getSetting('dispatch_note_show_barcodes')
+	    			&& ((!empty($row['barcode1']) && !empty($row['barcode1_type']))
+	    			|| (!empty($row['barcode2']) && !empty($row['barcode2_type'])))
 	    	) {
 		      $style = array(
 		        'position' => '',
@@ -636,11 +637,11 @@ abstract class InvoicePrinterBase
 		        'stretchtext' => 4
 		      );
           //
-          if (!empty($row['ean_code1'])) {
-            $pdf->write1DBarcode($row['ean_code1'], 'EAN13', $left, $pdf->getY(), 98, 15, 0.34, $style, 'T');
+          if (!empty($row['barcode1']) && !empty($row['barcode1_type'])) {
+            $pdf->write1DBarcode($row['barcode1'], $row['barcode1_type'], $left, $pdf->getY(), 98, 15, 0.34, $style, 'T');
           }
-	    	  if (!empty($row['ean_code2'])) {
-            $pdf->write1DBarcode($row['ean_code2'], 'EAN13', $left + 98, $pdf->getY(), 105, 15, 0.34, $style, 'T');
+	    	  if (!empty($row['barcode2']) && !empty($row['barcode2_type'])) {
+            $pdf->write1DBarcode($row['barcode2'], $row['barcode2_type'], $left + 98, $pdf->getY(), 105, 15, 0.34, $style, 'T');
           }
           $pdf->SetY($pdf->GetY()+18);
 	    	}

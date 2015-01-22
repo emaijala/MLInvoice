@@ -38,8 +38,8 @@ class InvoicePrinterOrderConfirmationEmail extends InvoicePrinterOrderConfirmati
     $this->emailTo = getRequest('email_to', isset($recipientData['email']) ? $recipientData['email'] : '');
     $this->emailCC = getRequest('email_cc', '');
     $this->emailBCC = getRequest('email_bcc', isset($senderData['invoice_email_bcc']) ? $senderData['invoice_email_bcc'] : '');
-    $this->emailSubject = $this->replacePlaceholders(getRequest('email_subject', isset($senderData['invoice_email_subject']) ? $senderData['invoice_email_subject'] : ''));
-    $this->emailBody = $this->replacePlaceholders(getRequest('email_body', isset($senderData['invoice_email_body']) ? $senderData['invoice_email_body'] : ''));
+    $this->emailSubject = $this->replacePlaceholders(getRequest('email_subject', isset($senderData['order_confirmation_email_subject']) ? $senderData['order_confirmation_email_subject'] : ''));
+    $this->emailBody = $this->replacePlaceholders(getRequest('email_body', isset($senderData['order_confirmation_email_body']) ? $senderData['order_confirmation_email_body'] : ''));
 
     $send = getRequest('email_send', '');
     if (!$send || !$this->emailFrom || !$this->emailTo || !$this->emailSubject || !$this->emailBody)

@@ -671,6 +671,20 @@ EOT
   	));
   }
 
+  if ($version < 36) {
+    $updates = array_merge($updates, array(
+      'ALTER TABLE {prefix}product CHANGE COLUMN ean_code1 barcode1 varchar(255) default NULL',
+      'ALTER TABLE {prefix}product CHANGE COLUMN ean_code2 barcode2 varchar(255) default NULL',
+      'ALTER TABLE {prefix}product ADD COLUMN barcode1_type varchar(20) default NULL',
+      'ALTER TABLE {prefix}product ADD COLUMN barcode2_type varchar(20) default NULL',
+      "UPDATE {prefix}product SET barcode1_type='EAN13' WHERE barcode1 IS NOT NULL",
+      "UPDATE {prefix}product SET barcode2_type='EAN13' WHERE barcode2 IS NOT NULL",
+      'ALTER TABLE {prefix}base ADD COLUMN order_confirmation_email_subject varchar(255) NULL',
+      'ALTER TABLE {prefix}base ADD COLUMN order_confirmation_email_body text NULL',
+      "REPLACE INTO {prefix}state (id, data) VALUES ('version', '36')"
+    ));
+  }
+
   if (!empty($updates)) {
     foreach ($updates as $update) {
       $res = mysqli_query_check($update, true);

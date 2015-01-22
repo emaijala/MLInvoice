@@ -153,6 +153,8 @@ EOS;
 EOS;
   }
 
+  $barcodeTypeQuery = "SELECT 'EAN13', 'EAN13' UNION ALL SELECT 'C39', 'CODE 39' UNION ALL SELECT 'C39E', 'CODE 39 Extended' UNION ALL SELECT 'C128', 'CODE 128' UNION ALL SELECT 'C128A', 'CODE 128 A' UNION ALL SELECT 'C128B', 'CODE 128 B' UNION ALL SELECT 'C128C', 'CODE 128 C'";
+
   $astrFormElements = array(
     array(
       'name' => 'order_no', 'label' => $GLOBALS['locOrderNr'], 'type' => 'INT', 'style' => 'short', 'position' => 1, 'allow_null' => true ),
@@ -163,9 +165,13 @@ EOS;
     array(
       'name' => 'product_group', 'label' => $GLOBALS['locProductGroup'], 'type' => 'TEXT', 'style' => 'medium', 'position' => 2, 'allow_null' => true ),
     array(
-      'name' => 'ean_code1', 'label' => $GLOBALS['locFirstEANCode'], 'type' => 'TEXT', 'style' => 'medium', 'position' => 1, 'allow_null' => true ),
+      'name' => 'barcode1', 'label' => $GLOBALS['locFirstBarcode'], 'type' => 'TEXT', 'style' => 'medium', 'position' => 1, 'allow_null' => true ),
     array(
-      'name' => 'ean_code2', 'label' => $GLOBALS['locSecondEANCode'], 'type' => 'TEXT', 'style' => 'medium', 'position' => 2, 'allow_null' => true ),
+      'name' => 'barcode1_type', 'label' => $GLOBALS['locBarcodeType'], 'type' => 'LIST', 'style' => 'medium', 'position' => 2, 'listquery' => $barcodeTypeQuery, 'allow_null' => true ),
+    array(
+      'name' => 'barcode2', 'label' => $GLOBALS['locSecondBarcode'], 'type' => 'TEXT', 'style' => 'medium', 'position' => 1, 'allow_null' => true ),
+    array(
+      'name' => 'barcode2_type', 'label' => $GLOBALS['locBarcodeType'], 'type' => 'LIST', 'style' => 'medium', 'position' => 2, 'listquery' => $barcodeTypeQuery, 'allow_null' => true ),
     array(
       'name' => 'description', 'label' => $GLOBALS['locProductDescription'], 'type' => 'TEXT', 'style' => 'long', 'position' => 1, 'allow_null' => true ),
     array(
@@ -631,7 +637,11 @@ EOF;
       'name' => 'receipt_email_subject', 'label' => $GLOBALS['locBaseReceiptEmailSubject'], 'type' => 'TEXT', 'style' => 'long', 'position' => 0, 'allow_null' => true ),
   	array(
       'name' => 'receipt_email_body', 'label' => $GLOBALS['locBaseReceiptEmailBody'], 'type' => 'AREA', 'style' => 'email email_body', 'position' => 0, 'allow_null' => true ),
+    array(
+      'name' => 'order_confirmation_email_subject', 'label' => $GLOBALS['locBaseOrderConfirmationEmailSubject'], 'type' => 'TEXT', 'style' => 'long', 'position' => 0, 'allow_null' => true ),
   	array(
+      'name' => 'order_confirmation_email_body', 'label' => $GLOBALS['locBaseOrderConfirmationEmailBody'], 'type' => 'AREA', 'style' => 'email email_body', 'position' => 0, 'allow_null' => true ),
+    array(
       'name' => 'logosep', 'label' => $GLOBALS['locBaseLogoTitle'], 'type' => 'LABEL'),
     array(
       'name' => 'logo', 'label' => '', 'type' => 'IMAGE', 'style' => 'image', 'listquery' => 'base_logo.php?func=view&amp;id=_ID_', 'position' => 0, 'allow_null' => true ),

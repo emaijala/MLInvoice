@@ -70,5 +70,5 @@ $arrSettings = array(
 
 	'dispatch_note_sep' => array('label' => $GLOBALS['locSettingDispatchNotes'], 'type' => 'LABEL'),
 
-  'dispatch_note_show_ean_codes' => array('label' => $GLOBALS['locSettingDispatchNoteShowEANCodes'], 'type' => 'CHECK', 'style' => 'medium', 'position' => 1, 'default' => 0, 'allow_null' => TRUE ),
+  'dispatch_note_show_barcodes' => array('label' => $GLOBALS['locSettingDispatchNoteShowBarcodes'], 'type' => 'CHECK', 'style' => 'medium', 'position' => 1, 'default' => 0, 'allow_null' => TRUE ),
 );
