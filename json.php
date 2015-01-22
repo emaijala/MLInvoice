@@ -384,6 +384,9 @@ function printJSONRecord($table, $id = FALSE, $warnings = null)
       unset($row['password']);
     header('Content-Type: application/json');
     $row['warnings'] = $warnings;
+    if ($table == '{prefix}base') {
+      unset($row['logo_filedata']);
+    }
     echo json_encode($row);
   }
 }
