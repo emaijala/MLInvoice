@@ -398,7 +398,7 @@ abstract class InvoicePrinterBase
       }
     }
 
-    if ($invoiceData['reference'] && $this->printStyle != 'dispatch')
+    if ($invoiceData['reference'])
     {
       $pdf->SetX(115);
       $pdf->Cell(40, 5, $GLOBALS['locPDFYourReference'] . ': ', 0, 0, 'R');
