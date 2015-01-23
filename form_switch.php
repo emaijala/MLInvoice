@@ -249,19 +249,21 @@ case 'invoice':
   if (sesWriteAccess())
   {
     $companyOnChange = <<<EOS
-onchange = "$.getJSON('json.php?func=get_company', {id: $('#company_id').val() }, function(json) {
-  if (json) {
-    if (json.default_ref_number) {
-      $('#ref_number').val(json.default_ref_number);
-    }
-    if (json.delivery_terms_id) {
-      $('#delivery_terms_id').val(json.delivery_terms_id);
-    }
-    if (json.delivery_method_id) {
-      $('#delivery_method_id').val(json.delivery_method_id);
-    }
+  function() {
+    $.getJSON('json.php?func=get_company', {id: $('#company_id').val() }, function(json) {
+      if (json) {
+        if (json.default_ref_number) {
+          $('#ref_number').val(json.default_ref_number);
+        }
+        if (json.delivery_terms_id) {
+          $('#delivery_terms_id').val(json.delivery_terms_id);
+        }
+        if (json.delivery_method_id) {
+          $('#delivery_method_id').val(json.delivery_method_id);
+        }
+      }
+    });
   }
-});"
 EOS;
 
     $getInvoiceNr = <<<EOS
@@ -491,29 +493,32 @@ EOS;
   }
 
    $productOnChange = <<<EOS
-onchange = "var form_id = this.form.id; $.getJSON('json.php?func=get_product&amp;id=' + this.value, function(json) {
-  globals.selectedProduct = json;
-  if (!json || !json.id) return;
+  function() {
+    var form_id = this.form.id;
+    $.getJSON('json.php?func=get_product&id=' + this.value, function(json) {
+      globals.selectedProduct = json;
+      if (!json || !json.id) return;
 
-  if (json.description != '' || document.getElementById(form_id + '_description').value == (globals.defaultDescription != null ? globals.defaultDescription : ''))
-    document.getElementById(form_id + '_description').value = json.description;
-  globals.defaultDescription = json.description;
+      if (json.description != '' || document.getElementById(form_id + '_description').value == (globals.defaultDescription != null ? globals.defaultDescription : ''))
+        document.getElementById(form_id + '_description').value = json.description;
+      globals.defaultDescription = json.description;
 
-  var type_id = document.getElementById(form_id + '_type_id');
-  for (var i = 0; i < type_id.options.length; i++)
-  {
-    var item = type_id.options[i];
-    if (item.value == json.type_id)
-    {
-      item.selected = true;
-      break;
-    }
+      var type_id = document.getElementById(form_id + '_type_id');
+      for (var i = 0; i < type_id.options.length; i++)
+      {
+        var item = type_id.options[i];
+        if (item.value == json.type_id)
+        {
+          item.selected = true;
+          break;
+        }
+      }
+      document.getElementById(form_id + '_price').value = json.unit_price ? json.unit_price.replace('.', ',') : '';
+      document.getElementById(form_id + '_discount').value = json.discount ? json.discount.replace('.', ',') : '';
+      document.getElementById(form_id + '_vat').value = json.vat_percent ? json.vat_percent.replace('.', ',') : '';
+      document.getElementById(form_id + '_vat_included').checked = (json.vat_included && json.vat_included == 1) ? true : false;
+    });
   }
-  document.getElementById(form_id + '_price').value = json.unit_price ? json.unit_price.replace('.', ',') : '';
-  document.getElementById(form_id + '_discount').value = json.discount ? json.discount.replace('.', ',') : '';
-  document.getElementById(form_id + '_vat').value = json.vat_percent ? json.vat_percent.replace('.', ',') : '';
-  document.getElementById(form_id + '_vat_included').checked = (json.vat_included && json.vat_included == 1) ? true : false;
-});"
 EOS;
 
    $multiplierColumn = 'pcs';

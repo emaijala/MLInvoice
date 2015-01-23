@@ -90,7 +90,6 @@ $xUACompatible  <title>$strTitle</title>
   <script type="text/javascript" src="select2/select2.min.js"></script>$select2locale
   <script type="text/javascript">
 $(document).ready(function() {
-	$("select#company_id,select#iform_product_id").select2({ width:"element" });
   $.datepicker.setDefaults($datePickerOptions);
   $('a[class~="actionlink"]').button();
   $('a[class~="tinyactionlink"]').button();
@@ -314,7 +313,7 @@ EOT;
         }
         $strValue = htmlspecialchars($strValue);
         $strFormElement = <<<EOT
-<input type="hidden" class="$strStyle" id="$strName" name="$strName" value="$strValue"$astrAdditionalAttributes/>
+<input type="hidden" class="$strStyle" id="$strName" name="$strName" value="$strValue"/>
 <script type="text/javascript">
 $(document).ready(function() {
   $("#$strName").select2({
@@ -346,8 +345,9 @@ $(document).ready(function() {
     },
     dropdownCssClass: "bigdrop",
     dropdownAutoWidth: true,
-    escapeMarkup: function (m) { return m; }
-  }).val($strValue);
+    escapeMarkup: function (m) { return m; },
+    width: "element"
+  }).on("change", $astrAdditionalAttributes)
 });
 </script>
 EOT;
