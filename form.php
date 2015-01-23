@@ -532,7 +532,7 @@ function popup_dialog(url, on_close, dialog_title, event, width, height)
   $(document).ready(function() {
   var s = document.createElement("script");
     s.type = "text/javascript";
-    s.src  = "http://maps.googleapis.com/maps/api/js?sensor=false&libraries=places&callback=gmapsready";
+    s.src  = "//maps.googleapis.com/maps/api/js?sensor=false&libraries=places&callback=gmapsready";
     window.gmapsready = function(){
         initAddressAutocomplete("");
         initAddressAutocomplete("quick_");
