@@ -113,6 +113,8 @@ CREATE TABLE mlinvoice_company (
   inactive tinyint NOT NULL default 0,
   delivery_terms_id int(11) default NULL,
   delivery_method_id int(11) default NULL,
+  payment_days int(11) default NULL,
+  terms_of_payment varchar(255) NULL,
   PRIMARY KEY (id),
   FOREIGN KEY (type_id) REFERENCES mlinvoice_company_type(id),
   FOREIGN KEY (delivery_terms_id) REFERENCES mlinvoice_delivery_terms(id),
@@ -289,7 +291,7 @@ CREATE TABLE mlinvoice_state (
 
 SET NAMES 'utf8';
 
-INSERT INTO mlinvoice_state (id, data) VALUES ('version', '36');
+INSERT INTO mlinvoice_state (id, data) VALUES ('version', '37');
 
 INSERT INTO mlinvoice_invoice_state (id, name, order_no, invoice_open, invoice_unpaid) VALUES (1, 'StateOpen', 5, 1, 0);
 INSERT INTO mlinvoice_invoice_state (id, name, order_no, invoice_open, invoice_unpaid) VALUES (2, 'StateSent', 10, 0, 1);

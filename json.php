@@ -128,6 +128,7 @@ case 'add_reminder_fees':
 
 case 'get_invoice_defaults':
   $baseId = getRequest('base_id', 0);
+  $companyId = getRequest('company_id', 0);
   $invoiceId = getRequest('id', 0);
   $intervalType = getRequest('interval_type', 0);
   $invNr = getRequest('invoice_no', 0);
@@ -143,7 +144,7 @@ case 'get_invoice_defaults':
     $invNr = 100; // min ref number length is 3 + check digit, make sure invoice number matches that
   $refNr = $invNr . miscCalcCheckNo($invNr);
   $strDate = date($GLOBALS['locDateFormat']);
-  $strDueDate = date($GLOBALS['locDateFormat'], mktime(0, 0, 0, date("m"), date("d")+getSetting('invoice_payment_days'), date("Y")));
+  $strDueDate = date($GLOBALS['locDateFormat'], mktime(0, 0, 0, date("m"), date("d") + getPaymentDays($companyId), date("Y")));
   switch ($intervalType) {
     case 2:
       $nextIntervalDate = date($GLOBALS['locDateFormat'], mktime(0, 0, 0, date("m") + 1, date("d"), date("Y")));

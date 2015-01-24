@@ -181,6 +181,34 @@ function updateProductStockBalance($invoiceRowId, $productId, $count)
 	}
 }
 
+function getTermsOfPayment($companyId)
+{
+  if (!empty($companyId)) {
+    $res = mysqli_param_query('SELECT terms_of_payment FROM {prefix}company WHERE id = ?',
+      array($companyId)
+    );
+    $companyPaymentTerms = mysqli_fetch_value($res);
+    if (!empty($companyPaymentTerms)) {
+      return $companyPaymentTerms;
+    }
+  }
+  return getSetting('invoice_terms_of_payment');
+}
+
+function getPaymentDays($companyId)
+{
+  if (!empty($companyId)) {
+    $res = mysqli_param_query('SELECT payment_days FROM {prefix}company WHERE id = ?',
+      array($companyId)
+    );
+    $companyPaymentDays = mysqli_fetch_value($res);
+    if (!empty($companyPaymentDays)) {
+      return $companyPaymentDays;
+    }
+  }
+  return getSetting('invoice_payment_days');
+}
+
 function deleteRecord($table, $id)
 {
   mysqli_query_check('BEGIN');
@@ -682,6 +710,14 @@ EOT
       'ALTER TABLE {prefix}base ADD COLUMN order_confirmation_email_subject varchar(255) NULL',
       'ALTER TABLE {prefix}base ADD COLUMN order_confirmation_email_body text NULL',
       "REPLACE INTO {prefix}state (id, data) VALUES ('version', '36')"
+    ));
+  }
+
+  if ($version < 37) {
+    $updates = array_merge($updates, array(
+      'ALTER TABLE {prefix}company ADD COLUMN payment_days int(11) default NULL',
+      'ALTER TABLE {prefix}company ADD COLUMN terms_of_payment varchar(255) NULL',
+      "REPLACE INTO {prefix}state (id, data) VALUES ('version', '37')"
     ));
   }
 

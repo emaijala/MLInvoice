@@ -55,7 +55,7 @@ class InvoicePrinterXslt extends InvoicePrinterBase
         switch ($key)
         {
         case 'invoice_terms_of_payment':
-          $settingsData[$key] = sprintf(getSetting('invoice_terms_of_payment'), getSetting('invoice_payment_days'));
+          $settingsData[$key] = sprintf(getTermsOfPayment($invoiceData['company_id']), getPaymentDays($invoiceData['company_id']));
           break;
         case 'invoice_pdf_filename':
           $settingsData[$key] = $this->getPrintOutFileName(getSetting('invoice_pdf_filename'));

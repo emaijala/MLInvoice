@@ -77,6 +77,10 @@ case 'company':
     array(
       'name' => 'delivery_method_id', 'label' => $GLOBALS['locDeliveryMethod'], 'type' => 'LIST', 'style' => 'medium', 'listquery' => 'SELECT id, name FROM {prefix}delivery_method WHERE deleted=0 ORDER BY order_no;', 'position' => 2, 'default' => null, 'allow_null' => true ),
     array(
+      'name' => 'payment_days', 'label' => $GLOBALS['locPaymentDays'], 'type' => 'INT', 'style' => 'short', 'position' => 1, 'default' => null, 'allow_null' => true ),
+    array(
+      'name' => 'terms_of_payment', 'label' => $GLOBALS['locTermsOfPayment'], 'type' => 'TEXT', 'style' => 'medium', 'position' => 2, 'default' => null, 'allow_null' => true ),
+    array(
       'name' => 'street_address', 'label' => $GLOBALS['locStreetAddr'], 'type' => 'TEXT', 'style' => 'medium', 'position' => 1, 'allow_null' => true ),
     array(
       'name' => 'zip_code', 'label' => $GLOBALS['locZipCode'], 'type' => 'TEXT', 'style' => 'short', 'position' => 2, 'allow_null' => true ),
@@ -261,18 +265,23 @@ case 'invoice':
         if (json.delivery_method_id) {
           $('#delivery_method_id').val(json.delivery_method_id);
         }
+        if (json.payment_days) {
+          $.getJSON('json.php?func=get_invoice_defaults', {id: $('#record_id').val(), invoice_no: $('#invoice_no').val(), base_id: $('#base_id').val(), company_id: $('#company_id').val(), interval_type: $('#interval_type').val()}, function(json) {
+            $('#due_date').val(json.due_date);
+          });
+        }
       }
     });
   }
 EOS;
 
     $getInvoiceNr = <<<EOS
-$.getJSON('json.php?func=get_invoice_defaults', {id: $('#record_id').val(), invoice_no: $('#invoice_no').val(), base_id: $('#base_id').val(), interval_type: $('#interval_type').val()}, function(json) { $('#invoice_no').val(json.invoice_no); $('#ref_number').val(json.ref_no); $('.save_button').addClass('ui-state-highlight'); }); return false;
+$.getJSON('json.php?func=get_invoice_defaults', {id: $('#record_id').val(), invoice_no: $('#invoice_no').val(), base_id: $('#base_id').val(), company_id: $('#company_id').val(), interval_type: $('#interval_type').val()}, function(json) { $('#invoice_no').val(json.invoice_no); $('#ref_number').val(json.ref_no); $('.save_button').addClass('ui-state-highlight'); }); return false;
 EOS;
 
     $locUpdateDates = $GLOBALS['locUpdateDates'];
     $updateDates = <<<EOS
-<a class="formbuttonlink" href="#" onclick="$.getJSON('json.php?func=get_invoice_defaults', {id: $('#record_id').val(), invoice_no: $('#invoice_no').val(), base_id: $('#base_id').val(), interval_type: $('#interval_type').val()}, function(json) { $('#invoice_date').val(json.date); $('#due_date').val(json.due_date); $('#next_interval_date').val(json.next_interval_date); $('.save_button').addClass('ui-state-highlight'); }); return false;">$locUpdateDates</a>
+<a class="formbuttonlink" href="#" onclick="$.getJSON('json.php?func=get_invoice_defaults', {id: $('#record_id').val(), invoice_no: $('#invoice_no').val(), base_id: $('#base_id').val(), company_id: $('#company_id').val(), interval_type: $('#interval_type').val()}, function(json) { $('#invoice_date').val(json.date); $('#due_date').val(json.due_date); $('#next_interval_date').val(json.next_interval_date); $('.save_button').addClass('ui-state-highlight'); }); return false;">$locUpdateDates</a>
 EOS;
 
     $locNew = $GLOBALS['locNew'] . '...';
@@ -313,7 +322,7 @@ EOS;
 
     if (getSetting('invoice_add_number') || getSetting('invoice_add_reference_number'))
     {
-      $invoiceNumberUpdatePrefix = "$.getJSON('json.php?func=get_invoice_defaults&amp;id=' + document.getElementById('record_id').value + '&amp;base_id=' + document.getElementById('base_id').value + '&amp;invoice_no=' + document.getElementById('invoice_no').value, function(json) { ";
+      $invoiceNumberUpdatePrefix = "$.getJSON('json.php?func=get_invoice_defaults&amp;id=' + document.getElementById('record_id').value + '&amp;base_id=' + document.getElementById('base_id').value + '&amp;company_id=' + document.getElementById('company_id').value + '&amp;invoice_no=' + document.getElementById('invoice_no').value, function(json) { ";
       if (getSetting('invoice_add_number'))
         $invoiceNumberUpdatePrefix .= "var invoice_no = document.getElementById('invoice_no'); if (invoice_no.value == '' || invoice_no.value < 100) invoice_no.value = json.invoice_no; ";
       if (getSetting('invoice_add_reference_number'))

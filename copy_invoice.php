@@ -78,9 +78,11 @@ if ($intInvoiceId)
     return;
   }
 
+  $paymentDays = getPaymentDays($invoiceData['company_id']);
+
   unset($invoiceData['id']);
   $invoiceData['invoice_date'] = date("Ymd");
-  $invoiceData['due_date'] = date("Ymd", mktime(0, 0, 0, date("m"), date("d") + getSetting('invoice_payment_days'), date("Y")));
+  $invoiceData['due_date'] = date("Ymd", mktime(0, 0, 0, date("m"), date("d") + $paymentDays, date("Y")));
   $invoiceData['payment_date'] = null;
   $invoiceData['state_id'] = 1;
   $invoiceData['refunded_invoice_id'] = $boolRefund ? $intInvoiceId : null;

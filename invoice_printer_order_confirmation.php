@@ -82,9 +82,11 @@ class InvoicePrinterOrderConfirmation extends InvoicePrinterBase
     $pdf->SetX(115);
     $pdf->Cell(40, 5, $GLOBALS['locPDFTermsOfPayment'] . ': ', 0, 0, 'R');
     $paymentDays = round(dbDate2UnixTime($invoiceData['due_date']) / 3600 / 24 - dbDate2UnixTime($invoiceData['invoice_date']) / 3600 / 24);
-    if ($paymentDays < 0) //weird
-      $paymentDays = getSetting('invoice_payment_days');
-    $pdf->Cell(60, 5, sprintf(getSetting('invoice_terms_of_payment'), $paymentDays), 0, 1);
+    if ($paymentDays < 0) {
+      // This shouldn't happen, but try to be safe...
+      $paymentDays = getPaymentDate($invoiceData['company_id']);
+    }
+    $pdf->Cell(60, 5, sprintf(getTermsOfPayment($invoiceData['company_id']), $paymentDays), 0, 1);
 
     if ($invoiceData['reference']) {
       $pdf->SetX(115);
