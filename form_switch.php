@@ -644,7 +644,7 @@ EOF;
     array(
       'name' => 'invoice_email_bcc', 'label' => $GLOBALS['locBaseEmailBCC'], 'type' => 'TEXT', 'style' => 'medium', 'position' => 2, 'allow_null' => true ),
     array(
-      'name' => 'invoice_email_subject', 'label' => $GLOBALS['locBaseReceiptEmailSubject'], 'type' => 'TEXT', 'style' => 'long', 'position' => 0, 'allow_null' => true ),
+      'name' => 'invoice_email_subject', 'label' => $GLOBALS['locBaseInvoiceEmailSubject'], 'type' => 'TEXT', 'style' => 'long', 'position' => 0, 'allow_null' => true ),
     array(
       'name' => 'invoice_email_body', 'label' => $GLOBALS['locBaseInvoiceEmailBody'], 'type' => 'AREA', 'style' => 'email email_body', 'position' => 0, 'allow_null' => true ),
     array(
