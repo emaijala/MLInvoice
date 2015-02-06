@@ -294,9 +294,7 @@ function mysqli_param_query($query, $params=false, $noFail=false)
           $t .= ',';
         $v2 = mysqli_real_escape_string($dblink, $v2);
         if (!is_numeric($v2) || (strlen(trim($v2)) > 0 && substr(trim($v2), 0, 1) == '0')) {
-          if (substr(trim($v2), 0, 1 != '(')) {
-            $v2 = "'$v2'";
-          }
+          $v2 = "'$v2'";
         }
         $t .= $v2;
       }
@@ -306,9 +304,7 @@ function mysqli_param_query($query, $params=false, $noFail=false)
     {
       $v = mysqli_real_escape_string($dblink, $v);
       if (!is_numeric($v) || (strlen(trim($v)) > 1 && substr(trim($v), 0, 1) == '0')) {
-        if (substr(trim($v), 0, 1) != '(') {
-          $v = "'$v'";
-        }
+        $v = "'$v'";
       }
     }
   }

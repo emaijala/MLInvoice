@@ -140,6 +140,8 @@ function createJSONList($strFunc, $strList, $startRow, $rowCount, $sort, $filter
 {
   require "list_switch.php";
 
+  global $dblink;
+
   if (!sesAccessLevel($levelsAllowed) && !sesAdminAccess())
   {
 ?>
@@ -161,9 +163,12 @@ function createJSONList($strFunc, $strList, $startRow, $rowCount, $sort, $filter
     $boolean = '';
     while (extractSearchTerm($where, $field, $operator, $term, $nextBool))
     {
-      //echo ("bool: $boolean, field: $field, op: $operator, term: $term \n");
-      $strWhereClause .= "$boolean$field $operator ?";
-      $arrQueryParams[] = str_replace("%-", "%", $term);
+      if (strcasecmp($operator, 'IN') === 0) {
+        $strWhereClause .= "$boolean$field $operator " . mysqli_real_escape_string($dblink, $term);
+      } else {
+        $strWhereClause .= "$boolean$field $operator ?";
+        $arrQueryParams[] = str_replace("%-", "%", $term);
+      }
       if (!$nextBool)
         break;
       $boolean = " $nextBool";

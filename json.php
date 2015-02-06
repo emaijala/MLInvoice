@@ -505,6 +505,7 @@ function DeleteJSONRecord($table)
 
 function getInvoiceListTotal($where)
 {
+  global $dblink;
   $strFunc = 'invoices';
   $strList = 'invoice';
 
@@ -518,9 +519,12 @@ function getInvoiceListTotal($where)
     $boolean = '';
     while (extractSearchTerm($where, $field, $operator, $term, $nextBool))
     {
-      //echo ("bool: $boolean, field: $field, op: $operator, term: $term \n");
-      $strWhereClause .= "$boolean$field $operator ?";
-      $arrQueryParams[] = str_replace("%-", "%", $term);
+      if (strcasecmp($operator, 'IN') === 0) {
+        $strWhereClause .= "$boolean$field $operator " . mysqli_real_escape_string($dblink, $term);
+      } else {
+        $strWhereClause .= "$boolean$field $operator ?";
+        $arrQueryParams[] = str_replace("%-", "%", $term);
+      }
       if (!$nextBool)
         break;
       $boolean = " $nextBool";
