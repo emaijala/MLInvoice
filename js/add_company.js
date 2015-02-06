@@ -48,23 +48,13 @@ function save_company(translations)
 
 function init_company_list(selected_id)
 {
-  $.getJSON("json.php?func=get_companies", function(json) { 
-    var company_id = document.getElementById("company_id");
-    company_id.options.length = 0;
-    for (var i = 0; i < json.records.length; i++)
-    {
-      var record = json.records[i];
-      if (record.inactive == 1 && record.id != selected_id)
-        continue;
-      var option = document.createElement("option");
-      option.value = record.id;
-      option.text = record.company_name;
-      if (record.company_id)
-        option.text += " (" + record.company_id + ")";
-      if (record.id == selected_id)
-        option.selected = true;
-      company_id.options.add(option);
+  $.getJSON("json.php?func=get_company", {"id": selected_id}, function(record) { 
+    var text = record.company_name;
+    if (record.company_id) {
+      text += " (" + record.company_id + ")";
     }
-    $(company_id).trigger('change');
+    var company_id = $("#company_id");
+    company_id.select2('data', {"id": record.id, "text": text});
+    company_id.trigger('change');
   });
 }
