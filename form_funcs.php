@@ -236,6 +236,10 @@ function saveFormData($table, &$primaryKey, &$formElements, &$values, &$warnings
       $query .= ' AND base_id=?';
       $params[] = $values['base_id'];
     }
+    if (getSetting('invoice_numbering_per_year')) {
+    	$query .= ' AND invoice_date >= ' . date('Y') . '0101';
+    }
+
     $res = mysqli_param_query($query, $params);
     if (mysqli_fetch_assoc($res))
       $warnings = $GLOBALS['locInvoiceNumberAlreadyInUse'];

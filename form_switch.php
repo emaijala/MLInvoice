@@ -266,7 +266,7 @@ case 'invoice':
           $('#delivery_method_id').val(json.delivery_method_id);
         }
         if (json.payment_days) {
-          $.getJSON('json.php?func=get_invoice_defaults', {id: $('#record_id').val(), invoice_no: $('#invoice_no').val(), base_id: $('#base_id').val(), company_id: $('#company_id').val(), interval_type: $('#interval_type').val()}, function(json) {
+          $.getJSON('json.php?func=get_invoice_defaults', {id: $('#record_id').val(), invoice_no: $('#invoice_no').val(), invoice_date: $('#invoice_date').val(), base_id: $('#base_id').val(), company_id: $('#company_id').val(), interval_type: $('#interval_type').val()}, function(json) {
             $('#due_date').val(json.due_date);
           });
         }
@@ -276,12 +276,12 @@ case 'invoice':
 EOS;
 
     $getInvoiceNr = <<<EOS
-$.getJSON('json.php?func=get_invoice_defaults', {id: $('#record_id').val(), invoice_no: $('#invoice_no').val(), base_id: $('#base_id').val(), company_id: $('#company_id').val(), interval_type: $('#interval_type').val()}, function(json) { $('#invoice_no').val(json.invoice_no); $('#ref_number').val(json.ref_no); $('.save_button').addClass('ui-state-highlight'); }); return false;
+$.getJSON('json.php?func=get_invoice_defaults', {id: $('#record_id').val(), invoice_no: $('#invoice_no').val(), invoice_date: $('#invoice_date').val(), base_id: $('#base_id').val(), company_id: $('#company_id').val(), interval_type: $('#interval_type').val()}, function(json) { $('#invoice_no').val(json.invoice_no); $('#ref_number').val(json.ref_no); $('.save_button').addClass('ui-state-highlight'); }); return false;
 EOS;
 
     $locUpdateDates = $GLOBALS['locUpdateDates'];
     $updateDates = <<<EOS
-<a class="formbuttonlink" href="#" onclick="$.getJSON('json.php?func=get_invoice_defaults', {id: $('#record_id').val(), invoice_no: $('#invoice_no').val(), base_id: $('#base_id').val(), company_id: $('#company_id').val(), interval_type: $('#interval_type').val()}, function(json) { $('#invoice_date').val(json.date); $('#due_date').val(json.due_date); $('#next_interval_date').val(json.next_interval_date); $('.save_button').addClass('ui-state-highlight'); }); return false;">$locUpdateDates</a>
+<a class="formbuttonlink" href="#" onclick="$.getJSON('json.php?func=get_invoice_defaults', {id: $('#record_id').val(), invoice_no: $('#invoice_no').val(), invoice_date: $('#invoice_date').val(), base_id: $('#base_id').val(), company_id: $('#company_id').val(), interval_type: $('#interval_type').val()}, function(json) { $('#invoice_date').val(json.date); $('#due_date').val(json.due_date); $('#next_interval_date').val(json.next_interval_date); $('.save_button').addClass('ui-state-highlight'); }); return false;">$locUpdateDates</a>
 EOS;
 
     $locNew = $GLOBALS['locNew'] . '...';
@@ -322,7 +322,7 @@ EOS;
 
     if (getSetting('invoice_add_number') || getSetting('invoice_add_reference_number'))
     {
-      $invoiceNumberUpdatePrefix = "$.getJSON('json.php?func=get_invoice_defaults&amp;id=' + document.getElementById('record_id').value + '&amp;base_id=' + document.getElementById('base_id').value + '&amp;company_id=' + document.getElementById('company_id').value + '&amp;invoice_no=' + document.getElementById('invoice_no').value, function(json) { ";
+      $invoiceNumberUpdatePrefix = "$.getJSON('json.php?func=get_invoice_defaults', {id: $('#record_id').val(), invoice_no: $('#invoice_no').val(), invoice_date: $('#invoice_date').val(), base_id: $('#base_id').val(), company_id: $('#company_id').val(), interval_type: $('#interval_type').val()}, function(json) { ";
       if (getSetting('invoice_add_number'))
         $invoiceNumberUpdatePrefix .= "var invoice_no = document.getElementById('invoice_no'); if (invoice_no.value == '' || invoice_no.value < 100) invoice_no.value = json.invoice_no; ";
       if (getSetting('invoice_add_reference_number'))

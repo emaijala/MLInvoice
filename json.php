@@ -130,10 +130,31 @@ case 'get_invoice_defaults':
   $baseId = getRequest('base_id', 0);
   $companyId = getRequest('company_id', 0);
   $invoiceId = getRequest('id', 0);
+  $invoiceDate = getRequest('invoice_date', dateConvDBDate2Date(date('Y') . '0101'));
   $intervalType = getRequest('interval_type', 0);
   $invNr = getRequest('invoice_no', 0);
+  $perYear = getSetting('invoice_numbering_per_year');
+
+  // If the invoice already has an invoice number, verify that it's not in use in another invoice
+  if ($invNr) {
+    $query = 'SELECT ID FROM {prefix}invoice where deleted=0 AND id!=? AND invoice_no=?';
+    $params = array($invoiceId, $invNr);
+    if (getSetting('invoice_numbering_per_base') && $baseId)
+    {
+      $query .= ' AND base_id=?';
+      $params[] = $baseId;
+    }
+    if ($perYear) {
+    	$query .= ' AND invoice_date >= ' . dateConvDate2DBDate($invoiceDate);
+    }
+
+    $res = mysqli_param_query($query, $params);
+    if (mysqli_fetch_assoc($res)) {
+      $invNr = 0;
+    }
+  }
+
   if (!$invNr) {
-  	$perYear = getSetting('invoice_numbering_per_year');
   	$maxNr = get_max_invoice_number($invoiceId, getSetting('invoice_numbering_per_base') && $baseId ? $baseId : null, $perYear);
   	if ($maxNr === null && $perYear) {
   		$maxNr = get_max_invoice_number($invoiceId, getSetting('invoice_numbering_per_base') && $baseId ? $baseId : null, false);
