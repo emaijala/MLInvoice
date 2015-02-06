@@ -135,12 +135,35 @@ if ($strFunc == 'open_invoices' && !$strForm) {
     	});
     });
 
+    function compareVersionNumber(v1, v2)
+    {
+      v1 = v1.split('.');
+      v2 = v2.split('.');
+
+      while (v1.length < v2.length) {
+        v1.push(0);
+      }
+      while (v2.length < v1.length) {
+        v2.push(0);
+      }
+
+      for (i = 0; i < v1.length; i++)
+      {
+        if (v1[i] === v2[i]) {
+          continue;
+        }
+        return parseInt(v1[i]) > parseInt(v2[i]) ? 1 : -1;
+      }
+      return 0;
+    }
+
     function updateVersionMessage(data)
     {
     	var title = new String("<?php echo $GLOBALS['locUpdateAvailableTitle']?>").replace("{version}", data.version).replace("{date}", data.date);
-      if (data.version > "<?php echo $softwareVersion?>") {
+    	var result = compareVersionNumber(data.version, "<?php echo $softwareVersion?>");
+      if (result > 0) {
         $("<a/>").attr("href", data.url).attr("title", title).text("<?php echo $GLOBALS['locUpdateAvailable']?>").appendTo("#version");
-      } else if (data.version < "<?php echo $softwareVersion?>") {
+      } else if (result < 0) {
         $("<span/>").text("<?php echo $GLOBALS['locPrereleaseVersion']?>").appendTo("#version");
       }
       $.cookie("updateversion", $.toJSON(data), { expires: 1 });
