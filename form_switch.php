@@ -335,6 +335,23 @@ EOS;
     }
   }
 
+  $today = dateConvDBDate2Date(date('Ymd'));
+  $markPaidToday = <<<EOS
+$('#state_id').val(3); if (!$(this).is('#payment_date')) { $('#payment_date').val('$today'); }
+EOS;
+  if (getSetting('invoice_auto_archive')) {
+    $markPaidToday .= <<<EOS
+$('#archived').prop('checked', true);
+EOS;
+  }
+  $markPaidToday .= <<<EOS
+$('.save_button').addClass('ui-state-highlight'); return false;
+EOS;
+  $markPaidTodayButton = '<a class="formbuttonlink" href="#" onclick="' . $markPaidToday .'">' . $GLOBALS['locMarkAsPaidToday'] . '</a>';
+  $markPaidTodayEvent = <<<EOF
+if ($(this).val()) { $markPaidToday }
+EOF;
+
   // Print buttons
   $printButtons = array();
   $printButtons2 = array();
@@ -426,7 +443,7 @@ EOS;
     array(
       'name' => 'state_id', 'label' => $GLOBALS['locStatus'], 'type' => 'LIST', 'style' => 'medium translated', 'listquery' => 'SELECT id, name FROM {prefix}invoice_state WHERE deleted=0 ORDER BY order_no', 'position' => 1, 'default' => 1 ),
     array(
-      'name' => 'payment_date', 'label' => $GLOBALS['locPayDate'], 'type' => 'INTDATE', 'style' => 'date', 'position' => 2, 'allow_null' => true ),
+      'name' => 'payment_date', 'label' => $GLOBALS['locPayDate'], 'type' => 'INTDATE', 'style' => 'date', 'position' => 2, 'allow_null' => true, 'attached_elem' => $markPaidTodayButton, 'elem_attributes' => 'onchange="' . $markPaidTodayEvent . '"' ),
     array(
       'name' => 'delivery_terms_id', 'label' => $GLOBALS['locDeliveryTerms'], 'type' => 'LIST', 'style' => 'medium', 'listquery' => 'SELECT id, name FROM {prefix}delivery_terms WHERE deleted=0 ORDER BY order_no;', 'position' => 1, 'default' => null, 'allow_null' => true ),
     array(
