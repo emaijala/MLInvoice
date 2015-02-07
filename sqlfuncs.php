@@ -718,24 +718,20 @@ EOT
   }
 
   if (!empty($updates)) {
+    mysqli_query_check('BEGIN');
     foreach ($updates as $update) {
       $res = mysqli_query_check($update, true);
       if ($res === false) {
+        mysqli_query_check('ROLLBACK');
         error_log('Database upgrade query failed. Please execute the following queries manually: ');
-        $ok = true;
         foreach ($updates as $update2) {
-          if ($update === $update2) {
-            $ok = false;
-          }
-          if ($ok) {
-            continue;
-          }
           $update2 = str_replace('{prefix}', _DB_PREFIX_ . '_', $update2);
           error_log($update2);
         }
         return 'FAILED';
       }
     }
+    mysqli_query_check('COMMIT');
     return 'UPGRADED';
   }
   return 'OK';
