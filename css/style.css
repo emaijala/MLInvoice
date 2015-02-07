@@ -477,3 +477,15 @@ img.image {
 .select2-results {
 	font-size: 120%;
 }
+
+#column_table tr:nth-child(even) {
+  background: rgb(0, 0, 0) transparent;
+  background: rgba(0, 0, 0, 0.05);
+  cursor: pointer;
+}
+
+#column_table tr:nth-child(odd) {
+  background: rgb(0, 0, 0) transparent;
+  background: rgba(0, 0, 0, 0.0);
+  cursor: pointer;
+}

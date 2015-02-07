@@ -422,6 +422,9 @@ class ImportFile
           {
             if (!isset($enclosure_chars[$key]['count']))
               $enclosure_chars[$key]['count'] = 0;
+            if ($value['char'] === '') {
+              continue;
+            }
             if (substr($field, 0, strlen($value['char'])) == $value['char'] && substr($field, -strlen($value['char'])) == $value['char'])
               $enclosure_chars[$key]['count']++;
           }
@@ -572,11 +575,11 @@ function update_mapping_table()
         table.appendChild(tr);
       }
     }
-    add_mapping_columns();
+    add_mapping_columns(json.headings);
   });
 }
 
-function add_mapping_columns()
+function add_mapping_columns(headings)
 {
   var type = document.getElementById('format').value;
   if (type != 'csv')
@@ -605,6 +608,14 @@ function add_mapping_columns()
       var td = document.createElement('td');
       var clone = select.cloneNode(true);
       clone.id = "map_column" + i;
+      if (headings && headings[i]) {
+        $(clone).find('option').each(function() {
+          if (this.value == headings[i]) {
+            $(clone).val(headings[i]);
+            return false;
+          }
+        });
+      }
       td.appendChild(clone);
       tr.appendChild(td);
     }
@@ -807,8 +818,13 @@ function select_preset()
 
   protected function get_csv($handle, $delimiter, $enclosure, $charset, $line_ending)
   {
-    $str = fgets_charset($handle, $charset, $line_ending);
-    return str_getcsv($str, $delimiter, $enclosure);
+    $line = '';
+    do {
+      $str = fgets_charset($handle, $charset, $line_ending);
+      $line .= $str;
+      // We must be at EOF or have balanced number of enclosure characters to have a completed string
+    } while ($str !== '' && $enclosure !== '' && substr_count($line, $enclosure) % 2 !== 0);
+    return str_getcsv($line, $delimiter, $enclosure);
   }
 
   protected function process_import_row($table, $row, $dupMode, $dupCheckColumns, $mode, &$addedRecordId)
