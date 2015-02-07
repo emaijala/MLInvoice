@@ -82,10 +82,12 @@ if ($intInvoiceId)
 
   unset($invoiceData['id']);
   unset($invoiceData['invoice_no']);
-  unset($invoiceData['ref_number']);
-  if (!empty($invoiceData['company_id'])) {
-    $res = mysqli_param_query('SELECT default_ref_number FROM {prefix}company WHERE id=?', array($invoiceData['company_id']));
-    $invoiceData['ref_number'] = mysqli_fetch_value($res);
+  if (!$boolRefund) {
+    unset($invoiceData['ref_number']);
+    if (!empty($invoiceData['company_id'])) {
+      $res = mysqli_param_query('SELECT default_ref_number FROM {prefix}company WHERE id=?', array($invoiceData['company_id']));
+      $invoiceData['ref_number'] = mysqli_fetch_value($res);
+    }
   }
   $invoiceData['invoice_date'] = date("Ymd");
   $invoiceData['due_date'] = date("Ymd", mktime(0, 0, 0, date("m"), date("d") + $paymentDays, date("Y")));
