@@ -42,6 +42,14 @@ function createList($strFunc, $strList, $strTableName = '', $strTitleOverride = 
     return;
   }
 
+  if ($strListFilter) {
+    if ($strWhereClause) {
+      $strWhereClause .= " AND $strListFilter";
+    } else {
+      $strWhereClause = $strListFilter;
+    }
+  }
+
   if (!$strTableName) {
     $strTableName = "list_$strList";
   }

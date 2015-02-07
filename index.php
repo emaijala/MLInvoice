@@ -231,7 +231,7 @@ else
       if ($strFunc == 'open_invoices') {
         createOpenInvoiceList();
       } elseif ($strFunc == 'archived_invoices') {
-        createList('archived_invoices', 'invoice', 'archived_invoices', '', 'i.archived=1');
+        createList('archived_invoices', 'invoice', 'archived_invoices', '');
       } else {
         if ($strList == 'settings') {
           createSettingsList();
