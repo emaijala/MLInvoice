@@ -161,9 +161,9 @@ abstract class InvoicePrinterBase
 
     $this->recipientFullAddress = $recipientData['company_name'] . "\n" . $recipientData['street_address'] . "\n" . $recipientData['zip_code'] . ' ' . $recipientData['city'];
     $this->billingAddress = $recipientData['billing_address'];
-    if (!$this->billingAddress ||
-      (($invoiceData['state_id'] == 5 || $invoiceData['state_id'] == 6)
-       && !getSetting('invoice_send_reminder_to_invoicing_address'))
+    if (!$this->billingAddress || $this->printStyle != 'invoice'
+      || (($invoiceData['state_id'] == 5 || $invoiceData['state_id'] == 6)
+      && !getSetting('invoice_send_reminder_to_invoicing_address'))
     ) {
       $this->billingAddress = $this->recipientFullAddress;
     }
