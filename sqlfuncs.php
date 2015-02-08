@@ -723,11 +723,11 @@ EOT
       $res = mysqli_query_check($update, true);
       if ($res === false) {
         mysqli_query_check('ROLLBACK');
-        error_log('Database upgrade query failed. Please execute the following queries manually: ');
-        foreach ($updates as $update2) {
-          $update2 = str_replace('{prefix}', _DB_PREFIX_ . '_', $update2);
-          error_log($update2);
-        }
+        error_log("Database upgrade query failed. Please execute the following queries manually:"
+            . PHP_EOL . PHP_EOL
+            . implode(PHP_EOL, array_map(function($s) { return str_replace('{prefix}', _DB_PREFIX_ . '_', $s); }, $updates))
+            . PHP_EOL
+        );
         return 'FAILED';
       }
     }
