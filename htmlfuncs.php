@@ -312,6 +312,7 @@ EOT;
           $showEmpty = '';
         }
         $strValue = htmlspecialchars($strValue);
+        $onchange = $astrAdditionalAttributes ? ".on(\"change\", $astrAdditionalAttributes)" : '';
         $strFormElement = <<<EOT
 <input type="hidden" class="$strStyle" id="$strName" name="$strName" value="$strValue"/>
 <script type="text/javascript">
@@ -347,7 +348,7 @@ $(document).ready(function() {
     dropdownAutoWidth: true,
     escapeMarkup: function (m) { return m; },
     width: "element"
-  }).on("change", $astrAdditionalAttributes)
+  })$onchange
 });
 </script>
 EOT;
