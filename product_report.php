@@ -222,7 +222,7 @@ class ProductReport
       $intSum = $row['total_price'];
       $intVATPercent = $row['vat'];
 
-      $intVAT = $intSum * $intVATPercent / 100;
+      $intVAT = round($intSum * $intVATPercent / 100, 2);
       $intSumVAT = $intSum + $intVAT;
 
       $intTotSum += $intSum;
