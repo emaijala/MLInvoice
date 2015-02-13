@@ -474,8 +474,9 @@ img.image {
 	margin-bottom: 1em;
 }
 
-.select2-results {
-	font-size: 120%;
+.select2-search input, .select2-results {
+	font-size: 1.2em;
+	font-family: Verdana,Arial,sans-serif;
 }
 
 #column_table tr:nth-child(even) {

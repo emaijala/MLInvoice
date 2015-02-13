@@ -393,7 +393,8 @@ function createJSONSelectList($strList, $startRow, $rowCount, $filter, $sort, $i
 
   // Add Filter
   if ($filter) {
-    $strWhereClause .= ($strWhereClause ? ' AND ' : ' WHERE ') . createWhereClause($astrSearchFields, $filter, $arrQueryParams, true);
+    $strWhereClause .= ($strWhereClause ? ' AND ' : ' WHERE ')
+      . createWhereClause($astrSearchFields, $filter, $arrQueryParams, !getSetting('dynamic_select_search_in_middle'));
   }
 
   if ($id) {

@@ -31,6 +31,7 @@ $arrSettings = array(
   ),
   'check_updates' => array('label' => $GLOBALS['locSettingCheckForUpdates'], 'type' => 'CHECK', 'style' => 'medium', 'position' => 1, 'default' => 0, 'allow_null' => TRUE ),
   'address_autocomplete' => array('label' => $GLOBALS['locSettingAddressAutocomplete'], 'type' => 'CHECK', 'style' => 'medium', 'position' => 1, 'default' => 0, 'allow_null' => TRUE ),
+  'dynamic_select_search_in_middle' => array('label' => $GLOBALS['locSettingSearchInMiddleOfFields'], 'type' => 'CHECK', 'style' => 'medium', 'position' => 1, 'default' => 0, 'allow_null' => TRUE ),
 
   'invoice_sep' => array('label' => $GLOBALS['locSettingInvoices'], 'type' => 'LABEL'),
 
