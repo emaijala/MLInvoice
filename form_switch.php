@@ -348,9 +348,13 @@ EOS;
 $('.save_button').addClass('ui-state-highlight'); return false;
 EOS;
   $markPaidTodayButton = '<a class="formbuttonlink" href="#" onclick="' . $markPaidToday .'">' . $GLOBALS['locMarkAsPaidToday'] . '</a>';
-  $markPaidTodayEvent = <<<EOF
+  if (getSetting('invoice_mark_paid_when_payment_date_set')) {
+    $markPaidTodayEvent = <<<EOF
 if ($(this).val()) { $markPaidToday }
 EOF;
+  } else {
+    $markPaidTodayEvent = '';
+  }
 
   // Print buttons
   $printButtons = array();
