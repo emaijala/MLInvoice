@@ -419,9 +419,11 @@ function printJSONRecords($table, $parentIdCol, $sort)
   $from = "FROM {prefix}$table t";
 
   if ($table == 'invoice_row') {
-    // Include product name and code
+    // Include product name, product code and row type name
     $select .= ", CASE WHEN LENGTH(p.product_code) = 0 THEN IFNULL(p.product_name, '') ELSE CONCAT_WS(' ', p.product_code, IFNULL(p.product_name, '')) END as product_id_text";
     $from .= ' LEFT OUTER JOIN {prefix}product p on (p.id = t.product_id)';
+    $select .= ", rt.name as type_id_text";
+    $from .= ' LEFT OUTER JOIN {prefix}row_type rt on (rt.id = t.type_id)';
   }
 
   $where = '';
@@ -460,6 +462,11 @@ function printJSONRecords($table, $parentIdCol, $sort)
       echo ",\n";
     if ($table == 'users')
       unset($row['password']);
+    if ($table == 'invoice_row') {
+      if (!empty($row['type_id_text']) && isset($GLOBALS['loc' . $row['type_id_text']])) {
+        $row['type_id_text'] = $GLOBALS['loc' . $row['type_id_text']];
+      }
+    }
     echo json_encode($row);
   }
   echo "\n]}";
