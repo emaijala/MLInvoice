@@ -717,6 +717,13 @@ EOT
     ));
   }
 
+  if ($version < 38) {
+    $updates = array_merge($updates, array(
+      'UPDATE {prefix}invoice_row ir SET ir.row_date=(SELECT i.invoice_date FROM {prefix}invoice i where i.id=ir.invoice_id) WHERE ir.row_date IS NULL',
+      "REPLACE INTO {prefix}state (id, data) VALUES ('version', '38')"
+    ));
+  }
+
   if (!empty($updates)) {
     mysqli_query_check('BEGIN');
     foreach ($updates as $update) {

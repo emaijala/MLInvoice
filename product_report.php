@@ -201,7 +201,7 @@ class ProductReport
       'LEFT OUTER JOIN {prefix}row_type t ON t.id = ir.type_id ' .
       "WHERE ir.deleted=0 AND ir.invoice_id IN ($strQuery) $strProductWhere" .
       'GROUP BY p.id, ir.description, ir.vat, t.name ' .
-      'ORDER BY p.product_name, ir.description';
+      'ORDER BY p.product_name, p.id, ir.description';
 
     $this->printHeader($format, $startDate, $endDate);
 

@@ -129,6 +129,7 @@ if ($intInvoiceId)
     if (!$intNewId) {
     	die('Could not get ID of the new invoice');
     }
+    $newRowDate = date("Ymd");
     $strQuery =
       'SELECT * ' .
       'FROM {prefix}invoice_row ' .
@@ -145,7 +146,7 @@ if ($intInvoiceId)
     	$row['invoice_id'] = $intNewId;
 
       if (getSetting('invoice_update_row_dates_on_copy')) {
-        $row['row_date'] = $intDate;
+        $row['row_date'] = $newRowDate;
       }
       // Update product stock balance
       if ($row['product_id'] !== null) {
