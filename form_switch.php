@@ -163,7 +163,7 @@ EOS;
     array(
       'name' => 'order_no', 'label' => $GLOBALS['locOrderNr'], 'type' => 'INT', 'style' => 'short', 'position' => 1, 'allow_null' => true ),
     array(
-      'name' => 'product_code', 'label' => $GLOBALS['locProductCode'], 'type' => 'TEXT', 'style' => 'short', 'position' => 2, 'allow_null' => true ),
+      'name' => 'product_code', 'label' => $GLOBALS['locProductCode'], 'type' => 'TEXT', 'style' => 'medium', 'position' => 2, 'allow_null' => true ),
     array(
       'name' => 'product_name', 'label' => $GLOBALS['locProductName'], 'type' => 'TEXT', 'style' => 'medium', 'position' => 1 ),
     array(

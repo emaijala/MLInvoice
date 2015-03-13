@@ -280,7 +280,7 @@ class ProductReport
       }
 
       $pdf->SetFont('Helvetica','B',8);
-      $pdf->Cell(10, 4, $GLOBALS['locCode'], 0, 0, 'L');
+      $pdf->Cell(15, 4, $GLOBALS['locCode'], 0, 0, 'L');
       $pdf->Cell(40, 4, $GLOBALS['locProduct'], 0, 0, 'L');
       $pdf->Cell(25, 4, $GLOBALS['locPCS'], 0, 0, 'R');
       $pdf->Cell(25, 4, $GLOBALS['locUnit'], 0, 0, 'R');
@@ -347,8 +347,8 @@ class ProductReport
       $pdf = $this->pdf;
       $pdf->SetFont('Helvetica','',8);
       $pdf->setY($pdf->getY() + 1);
-      $pdf->Cell(10, 3, $strCode, 0, 0, 'L');
-      $nameX = $pdf->getX();
+      $cells = $pdf->MultiCell(16, 3, $strCode, 0, 'L', false, 0);
+      $nameX = 25;
       $pdf->setX($nameX + 40);
       $pdf->Cell(25, 3, miscRound2Decim($intCount), 0, 0, 'R');
       $pdf->Cell(25, 3, $strUnit, 0, 0, 'R');
@@ -357,7 +357,10 @@ class ProductReport
       $pdf->Cell(25, 3, miscRound2Decim($intVAT), 0, 0, 'R');
       $pdf->Cell(25, 3, miscRound2Decim($intSumVAT), 0, 0, 'R');
       $pdf->setX($nameX);
-      $pdf->MultiCell(40, 3, $strProduct, 0, 'L');
+      $cells2 = $pdf->MultiCell(40, 3, $strProduct, 0, 'L');
+      if ($cells > $cells2) {
+        $pdf->setY($pdf->getY() + ($cells - $cells2) * 3);
+      }
       return;
     }
     if (!$strProduct)
@@ -401,7 +404,7 @@ class ProductReport
       $pdf = $this->pdf;
       $pdf->SetFont('Helvetica','B',8);
       $pdf->setY($pdf->getY() + 3);
-      $pdf->Cell(50, 3, $GLOBALS['locTotal'], 0, 0, 'L');
+      $pdf->Cell(55, 3, $GLOBALS['locTotal'], 0, 0, 'L');
       $pdf->Cell(25, 3, '', 0, 0, 'L');
       $pdf->Cell(25, 3, '', 0, 0, 'L');
       $pdf->Cell(25, 3, miscRound2Decim($intTotSum), 0, 0, 'R');

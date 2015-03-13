@@ -127,7 +127,7 @@ class ProductStockReport
 
       $pdf->SetFont('Helvetica','B',8);
       $pdf->Cell(50, 10, date($GLOBALS['locDateFormat']), 0, 1, 'L');
-      $pdf->Cell(10, 4, $GLOBALS['locCode'], 0, 0, 'L');
+      $pdf->Cell(15, 4, $GLOBALS['locCode'], 0, 0, 'L');
       $pdf->Cell(40, 4, $GLOBALS['locProduct'], 0, 0, 'L');
       $pdf->Cell(25, 4, $GLOBALS['locUnitPrice'], 0, 0, 'R');
       $pdf->Cell(25, 4, $GLOBALS['locPurchasePrice'], 0, 0, 'R');
@@ -172,15 +172,18 @@ class ProductStockReport
       $pdf = $this->pdf;
       $pdf->SetFont('Helvetica','',8);
       $pdf->setY($pdf->getY() + 1);
-      $pdf->Cell(10, 3, $strCode, 0, 0, 'L');
-      $nameX = $pdf->getX();
+      $cells = $pdf->MultiCell(16, 3, $strCode, 0, 'L', false, 0);
+      $nameX = 25;
       $pdf->setX($nameX + 40);
       $pdf->Cell(25, 3, miscRound2Decim($unitPrice), 0, 0, 'R');
       $pdf->Cell(25, 3, miscRound2Decim($purchasePrice), 0, 0, 'R');
       $pdf->Cell(25, 3, miscRound2Decim($stockBalance), 0, 0, 'R');
       $pdf->Cell(25, 3, miscRound2Decim($stockBalance * $purchasePrice), 0, 0, 'R');
       $pdf->setX($nameX);
-      $pdf->MultiCell(40, 3, $strProduct, 0, 'L');
+      $cells2 = $pdf->MultiCell(40, 3, $strProduct, 0, 'L');
+      if ($cells > $cells2) {
+        $pdf->setY($pdf->getY() + ($cells - $cells2) * 3);
+      }
       return;
     }
     if (!$strProduct)
@@ -221,7 +224,7 @@ class ProductStockReport
       $pdf->SetFont('Helvetica','',8);
       $pdf->setLineWidth(0.2);
 
-      $sumPos = 125;
+      $sumPos = 130;
       $rowWidth = 150;
 
       $pdf = $this->pdf;
