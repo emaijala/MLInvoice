@@ -91,7 +91,7 @@ class InvoicePrinterOrderConfirmation extends InvoicePrinterBase
     if ($invoiceData['reference']) {
       $pdf->SetX(115);
       $pdf->Cell(40, 5, $GLOBALS['locPDFYourReference'] . ': ', 0, 0, 'R');
-      $pdf->Cell(60, 5, $invoiceData['reference'], 0, 1);
+      $pdf->MultiCell(50, 5, $invoiceData['reference'], 0, 'L');
     }
 
     if ($invoiceData['delivery_terms']) {
