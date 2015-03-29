@@ -61,6 +61,11 @@ if (!$invoiceData)
 $strQuery = 'SELECT * FROM {prefix}company WHERE id=?';
 $intRes = mysqli_param_query($strQuery, array($invoiceData['company_id']));
 $recipientData = mysqli_fetch_assoc($intRes);
+if (!empty($recipientData['company_id'])) {
+  $recipientData['vat_id'] = createVATID($recipientData['company_id']);
+} else {
+  $recipientData['vat_id'] = '';
+}
 
 $strQuery = 'SELECT * FROM {prefix}base WHERE id=?';
 $intRes = mysqli_param_query($strQuery, array($invoiceData['base_id']));

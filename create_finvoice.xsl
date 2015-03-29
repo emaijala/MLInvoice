@@ -75,6 +75,9 @@
   <BuyerPartyDetails>
     <BuyerPartyIdentifier><xsl:value-of select="company_id"/></BuyerPartyIdentifier>
     <BuyerOrganisationName><xsl:value-of select="company_name"/></BuyerOrganisationName>
+    <xsl:if test="vat_id!=''">
+      <BuyerOrganisationTaxCode><xsl:value-of select="vat_id"/></BuyerOrganisationTaxCode>
+    </xsl:if>
     <xsl:if test="street_address!='' and zip_code!='' and city !=''">
     <BuyerPostalAddressDetails>
       <BuyerStreetName><xsl:value-of select="street_address"/></BuyerStreetName>
