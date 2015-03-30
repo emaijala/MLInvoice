@@ -109,6 +109,7 @@ if ($intInvoiceId)
       break;
   }
 
+  mysqli_query_check('SET AUTOCOMMIT = 0');
   mysqli_query_check('BEGIN');
 
   try {
@@ -158,10 +159,12 @@ if ($intInvoiceId)
       mysqli_param_query($strQuery, $row, 'exception');
     }
   } catch (Exception $e) {
-  	mysqli_param_query('ROLLBACK');
-  	die($e->message);
+    mysqli_query_check('ROLLBACK');
+    mysqli_query_check('SET AUTOCOMMIT = 1');
+    die($e->message);
   }
-  mysqli_param_query('COMMIT');
+  mysqli_query_check('COMMIT');
+  mysqli_query_check('SET AUTOCOMMIT = 1');
 }
 
 header("Location: ". _PROTOCOL_ . $_SERVER['HTTP_HOST'] . dirname($_SERVER['PHP_SELF']) . "/index.php?func=$strFunc&list=$strList&form=invoice&id=$intNewId");

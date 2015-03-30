@@ -451,6 +451,28 @@ EOT
     mysqli_query_check("REPLACE INTO {prefix}state (id, data) VALUES ('version', '15')");
   }
 
+  // Convert any MyISAM tables to InnoDB
+  $res = mysqli_param_query('SELECT data FROM {prefix}state WHERE id=?', array('tableconversiondone'));
+  if (mysqli_num_rows($res) == 0) {
+    mysqli_query_check('SET AUTOCOMMIT = 0');
+    mysqli_query_check('BEGIN');
+    mysqli_query_check('SET FOREIGN_KEY_CHECKS = 0');
+    $res = mysqli_query_check("SHOW TABLE STATUS WHERE ENGINE='MyISAM'");
+    while ($row = mysqli_fetch_array($res)) {
+      $res2 = mysqli_query_check('ALTER TABLE `' . $row['Name'] . '` ENGINE=INNODB', true);
+      if ($res2 === false) {
+        mysqli_query_check('ROLLBACK');
+        mysqli_query_check('SET FOREIGN_KEY_CHECKS = 1');
+        error_log('Database upgrade query failed. Please convert the tables using MyISAM engine to InnoDB engine manually');
+        return 'FAILED';
+      }
+    }
+    mysqli_query_check("INSERT INTO {prefix}state (id, data) VALUES ('tableconversiondone', '1')");
+    mysqli_query_check('COMMIT');
+    mysqli_query_check('SET AUTOCOMMIT = 1');
+    mysqli_query_check('SET FOREIGN_KEY_CHECKS = 1');
+  }
+
   $res = mysqli_param_query('SELECT data FROM {prefix}state WHERE id=?', array('version'));
   $version = mysqli_fetch_value($res);
   $updates = array();
@@ -725,11 +747,13 @@ EOT
   }
 
   if (!empty($updates)) {
+    mysqli_query_check('SET AUTOCOMMIT = 0');
     mysqli_query_check('BEGIN');
     foreach ($updates as $update) {
       $res = mysqli_query_check($update, true);
       if ($res === false) {
         mysqli_query_check('ROLLBACK');
+        mysqli_query_check('SET AUTOCOMMIT = 1');
         error_log("Database upgrade query failed. Please execute the following queries manually:"
             . PHP_EOL . PHP_EOL
             . implode(PHP_EOL, array_map(function($s) { return str_replace('{prefix}', _DB_PREFIX_ . '_', $s); }, $updates))
@@ -739,6 +763,7 @@ EOT
       }
     }
     mysqli_query_check('COMMIT');
+    mysqli_query_check('SET AUTOCOMMIT = 1');
     return 'UPGRADED';
   }
   return 'OK';

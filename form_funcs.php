@@ -173,6 +173,7 @@ function saveFormData($table, &$primaryKey, &$formElements, &$values, &$warnings
   if ($missingValues)
     return $missingValues;
 
+  mysqli_query_check('SET AUTOCOMMIT = 0');
   mysqli_query_check('BEGIN');
   try {
     // Special case for invoice rows - update product stock balance
@@ -222,9 +223,11 @@ function saveFormData($table, &$primaryKey, &$formElements, &$values, &$warnings
     }
   } catch (Exception $e) {
     mysqli_query_check('ROLLBACK');
+    mysqli_query_check('SET AUTOCOMMIT = 1');
     die($e->getMessage());
   }
   mysqli_query_check('COMMIT');
+  mysqli_query_check('SET AUTOCOMMIT = 1');
 
   // Special case for invoices - check for duplicate invoice numbers
   if ($table == '{prefix}invoice' && isset($values['invoice_no']) && $values['invoice_no'])

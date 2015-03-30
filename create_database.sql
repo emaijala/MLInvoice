@@ -293,6 +293,8 @@ SET NAMES 'utf8';
 
 INSERT INTO mlinvoice_state (id, data) VALUES ('version', '37');
 
+INSERT INTO mlinvoice_state (id, data) VALUES ('tableconversiondone', '1');
+
 INSERT INTO mlinvoice_invoice_state (id, name, order_no, invoice_open, invoice_unpaid) VALUES (1, 'StateOpen', 5, 1, 0);
 INSERT INTO mlinvoice_invoice_state (id, name, order_no, invoice_open, invoice_unpaid) VALUES (2, 'StateSent', 10, 0, 1);
 INSERT INTO mlinvoice_invoice_state (id, name, order_no, invoice_open, invoice_unpaid) VALUES (3, 'StatePaid', 15, 0, 0);
