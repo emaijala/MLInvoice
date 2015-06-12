@@ -397,6 +397,11 @@ function createJSONSelectList($strList, $startRow, $rowCount, $filter, $sort, $i
       . createWhereClause($astrSearchFields, $filter, $arrQueryParams, !getSetting('dynamic_select_search_in_middle'));
   }
 
+  // Filter out inactive companies
+  if ($strList == 'company' || $strList == 'companies') {
+    $strWhereClause .= ($strWhereClause ? ' AND ' : ' WHERE ') . 'inactive=0';
+  }
+
   if ($id) {
     $strWhereClause .= ($strWhereClause ? ' AND ' : ' WHERE ') . 'id=' . mysqli_real_escape_string($dblink, $id);
   }
