@@ -93,6 +93,7 @@ if ($intInvoiceId)
   $invoiceData['due_date'] = date("Ymd", mktime(0, 0, 0, date("m"), date("d") + $paymentDays, date("Y")));
   $invoiceData['payment_date'] = null;
   $invoiceData['state_id'] = 1;
+  $invoiceData['archived'] = false;
   $invoiceData['refunded_invoice_id'] = $boolRefund ? $intInvoiceId : null;
   if ($boolRefund) {
     $invoiceData['interval_type'] = 0;
