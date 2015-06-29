@@ -383,7 +383,7 @@ abstract class InvoicePrinterBase
       $paymentDays = round(dbDate2UnixTime($invoiceData['due_date']) / 3600 / 24 - dbDate2UnixTime($invoiceData['invoice_date']) / 3600 / 24);
       if ($paymentDays < 0) {
         // This shouldn't happen, but try to be safe...
-        $paymentDays = getPaymentDate($invoiceData['company_id']);
+        $paymentDays = getPaymentDays($invoiceData['company_id']);
       }
       $pdf->Cell(60, 5, sprintf(getTermsOfPayment($invoiceData['company_id']), $paymentDays), 0, 1);
       $pdf->SetX(115);
