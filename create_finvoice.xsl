@@ -125,8 +125,8 @@
     <OriginCode>Original</OriginCode>
     <InvoiceNumber><xsl:value-of select="invoice_no"/></InvoiceNumber>
     <InvoiceDate Format="CCYYMMDD"><xsl:value-of select="invoice_date"/></InvoiceDate>
-    <xsl:if test="ref_number!=''">
-    <SellerReferenceIdentifier><xsl:value-of select="ref_number"/></SellerReferenceIdentifier>
+    <xsl:if test="ourreference!=''">
+    <SellerReferenceIdentifier><xsl:value-of select="ourreference"/></SellerReferenceIdentifier>
     </xsl:if>
     <xsl:if test="reference!=''">
     <OrderIdentifier><xsl:value-of select="reference"/></OrderIdentifier>
@@ -196,7 +196,9 @@
   <EpiDetails>
     <EpiIdentificationDetails>
       <EpiDate Format="CCYYMMDD"><xsl:value-of select="invoice_date"/></EpiDate>
-      <EpiReference>1</EpiReference> 
+      <xsl:if test="ref_number!=''">
+      <EpiReference><xsl:value-of select="ref_number"/></EpiReference>
+      </xsl:if>
     </EpiIdentificationDetails>
     <EpiPartyDetails>
       <EpiBfiPartyDetails>
