@@ -435,25 +435,27 @@ EOF;
     array(
       'name' => 'invoice_no', 'label' => $GLOBALS['locInvoiceNumber'], 'type' => 'INT', 'style' => 'medium hidezerovalue', 'position' => 1, 'default' => null, 'allow_null' => true ),
     array(
-      'name' => 'ref_number', 'label' => $GLOBALS['locReferenceNumber'], 'type' => 'TEXT', 'style' => 'medium hidezerovalue', 'position' => 2, 'default' => null, 'attached_elem' => $updateInvoiceNr, 'allow_null' => true ),
+      'name' => 'ourreference', 'label' => $GLOBALS['locOurReference'], 'type' => 'TEXT', 'style' => 'medium', 'position' => 2, 'allow_null' => true ),
     array(
       'name' => 'invoice_date', 'label' => $GLOBALS['locInvDate'], 'type' => 'INTDATE', 'style' => 'date', 'position' => 1, 'default' => 'DATE_NOW' ),
     array(
-      'name' => 'due_date', 'label' => $GLOBALS['locDueDate'], 'type' => 'INTDATE', 'style' => 'date', 'position' => 2, 'default' => 'DATE_NOW+' . getSetting('invoice_payment_days'), 'attached_elem' => $updateDates ),
+      'name' => 'ref_number', 'label' => $GLOBALS['locReferenceNumber'], 'type' => 'TEXT', 'style' => 'medium hidezerovalue', 'position' => 2, 'default' => null, 'attached_elem' => $updateInvoiceNr, 'allow_null' => true ),
     array(
       'name' => 'interval_type', 'label' => $GLOBALS['locInvoiceIntervalType'], 'type' => 'SELECT', 'style' => 'medium', 'position' => 1, 'options' => $intervalOptions, 'default' => '0', 'allow_null' => true ),
     array(
-      'name' => 'next_interval_date', 'label' => $GLOBALS['locInvoiceNextIntervalDate'], 'type' => 'INTDATE', 'style' => 'date', 'position' => 2, 'default' => '', 'allow_null' => true ),
+      'name' => 'due_date', 'label' => $GLOBALS['locDueDate'], 'type' => 'INTDATE', 'style' => 'date', 'position' => 2, 'default' => 'DATE_NOW+' . getSetting('invoice_payment_days'), 'attached_elem' => $updateDates ),
     array(
       'name' => 'state_id', 'label' => $GLOBALS['locStatus'], 'type' => 'LIST', 'style' => 'medium translated', 'listquery' => 'SELECT id, name FROM {prefix}invoice_state WHERE deleted=0 ORDER BY order_no', 'position' => 1, 'default' => 1 ),
     array(
-      'name' => 'payment_date', 'label' => $GLOBALS['locPayDate'], 'type' => 'INTDATE', 'style' => 'date', 'position' => 2, 'allow_null' => true, 'attached_elem' => $markPaidTodayButton, 'elem_attributes' => 'onchange="' . $markPaidTodayEvent . '"' ),
+      'name' => 'next_interval_date', 'label' => $GLOBALS['locInvoiceNextIntervalDate'], 'type' => 'INTDATE', 'style' => 'date', 'position' => 2, 'default' => '', 'allow_null' => true ),
     array(
       'name' => 'delivery_terms_id', 'label' => $GLOBALS['locDeliveryTerms'], 'type' => 'LIST', 'style' => 'medium', 'listquery' => 'SELECT id, name FROM {prefix}delivery_terms WHERE deleted=0 ORDER BY order_no;', 'position' => 1, 'default' => null, 'allow_null' => true ),
     array(
-      'name' => 'delivery_method_id', 'label' => $GLOBALS['locDeliveryMethod'], 'type' => 'LIST', 'style' => 'medium', 'listquery' => 'SELECT id, name FROM {prefix}delivery_method WHERE deleted=0 ORDER BY order_no;', 'position' => 2, 'default' => null, 'allow_null' => true ),
+      'name' => 'payment_date', 'label' => $GLOBALS['locPayDate'], 'type' => 'INTDATE', 'style' => 'date', 'position' => 2, 'allow_null' => true, 'attached_elem' => $markPaidTodayButton, 'elem_attributes' => 'onchange="' . $markPaidTodayEvent . '"' ),
     array(
       'name' => 'archived', 'label' => $GLOBALS['locArchived'], 'type' => 'CHECK', 'style' => 'medium', 'position' => 1, 'default' => 0, 'allow_null' => true ),
+    array(
+      'name' => 'delivery_method_id', 'label' => $GLOBALS['locDeliveryMethod'], 'type' => 'LIST', 'style' => 'medium', 'listquery' => 'SELECT id, name FROM {prefix}delivery_method WHERE deleted=0 ORDER BY order_no;', 'position' => 2, 'default' => null, 'allow_null' => true ),
     array(
       'name' => 'info', 'label' => $GLOBALS['locVisibleInfo'], 'type' => 'AREA', 'style' => 'medium', 'position' => 1, 'allow_null' => true ),
     array(
