@@ -406,6 +406,12 @@ abstract class InvoicePrinterBase
       $pdf->Cell(40, 5, $GLOBALS['locPDFYourReference'] . ': ', 0, 0, 'R');
       $pdf->MultiCell(50, 5, $invoiceData['reference'], 0, 'L');
     }
+    if ($invoiceData['ourreference'])
+    {
+      $pdf->SetX(115);
+      $pdf->Cell(40, 5, $GLOBALS['locPDFOurReference'] . ': ', 0, 0, 'R');
+      $pdf->MultiCell(50, 5, $invoiceData['ourreference'], 0, 'L');
+    }
     if (isset($invoiceData['info']) && $invoiceData['info'])
     {
       $pdf->SetX(115);
