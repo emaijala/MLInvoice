@@ -145,18 +145,21 @@ class ExportData
 
           if ($childRows && ($table == 'invoice' || $table == 'company'))
           {
-            if ($table == 'invoice')
+            if ($table == 'invoice') {
               $cres = mysqli_param_query('select * from {prefix}invoice_row where invoice_id=?', array($row['id']));
-            else
+              $tag = 'invoice_row';
+            } else {
               $cres = mysqli_param_query('select * from {prefix}company_contact where company_id=?', array($row['id']));
+              $tag = 'company_contact';
+            }
             while ($crow = mysqli_fetch_assoc($cres))
             {
-              $str .= "    <invoice_row>\n";
+              $str .= "    <$tag>\n";
               foreach ($crow as $column => $value)
               {
                 $str .= "      <$column>" . xml_encode($value) . "</$column>\n";
               }
-              $str .= "    </invoice_row>\n";
+              $str .= "    </$tag>\n";
             }
           }
           $str .= "  </$table>\n";
