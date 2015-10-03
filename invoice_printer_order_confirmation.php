@@ -126,27 +126,15 @@ class InvoicePrinterOrderConfirmation extends InvoicePrinterBase
     $pdf->printFooterOnFirstPage = true;
     $pdf->SetAutoPageBreak(true, 22);
 
-/*
- * +tuotekoodi,
- * +tuote,
- * +määrä,
- * +yksikkö,
- * +yksikköhinta,
- * +rivin yhteishinta,
- * +kokonaishinta tilaukselle (periaatteessa riittää alv 0% ja loppusummalle 0% ja 24%)
- * +maksuehto,
- * +toimitusehto,
- * +toimituspäivä,
- * +kuljetustapa,
- * +asiakkaan viite (osa näistä voisi olla lisätietorivillä, jos muuten hankala).
- * Mahdollinen vapaa teksti kenttä loppuun: (esim.) "Ellei toisin ole sovittu tässä kaupassa noudatetaan "Teknisen Kaupan yleiset myyntiehdot (TK Yleiset 2010)" -myyntiehtoja"
-  */
     $left = 10;
-    $nameColWidth = 110;
+    $nameColWidth = $this->discountedRows ? 98 : 110;
 
     $pdf->Cell($nameColWidth, 5, $GLOBALS['locPDFRowName'], 0, 0, 'L');
     $pdf->Cell(20, 5, $GLOBALS['locPDFOrderConfirmationRowDate'], 0, 0, 'L');
     $pdf->Cell(17, 5, $GLOBALS['locPDFRowPrice'], 0, 0, 'R');
+    if ($this->discountedRows) {
+      $pdf->Cell(12, 5, $GLOBALS['locPDFRowDiscount'], 0, 0, 'R');
+    }
     $pdf->Cell(20, 5, $GLOBALS['locPDFRowPieces'], 0, 0, 'R');
     $pdf->Cell(20, 5, $GLOBALS['locPDFRowTotal'], 0, 1, 'R');
     $pdf->Cell(20, 5, '', 0, 1, 'R'); // line feed
@@ -194,6 +182,9 @@ class InvoicePrinterOrderConfirmation extends InvoicePrinterBase
         $pdf->Cell(20, 5, $this->_formatDate($row['row_date']), 0, 0, 'L');
         $decimals = isset($row['price_decimals']) ? $row['price_decimals'] : 2;
         $pdf->Cell(17, 5, $this->_formatCurrency($row['price'], $decimals), 0, 0, 'R');
+        if ($this->discountedRows) {
+          $pdf->Cell(12, 5, (isset($row['discount']) && $row['discount'] != '0') ? $this->_formatCurrency($row['discount'], 2, true) : '', 0, 0, 'R');
+        }
         $pdf->Cell(13, 5, $this->_formatNumber($row['pcs'], 2, true), 0, 0, 'R');
         $pdf->Cell(7, 5, isset($GLOBALS["locPDF{$row['type']}"]) ? $GLOBALS["locPDF{$row['type']}"] : $row['type'], 0, 0, 'L');
         $pdf->Cell(20, 5, $this->_formatCurrency($rowSum), 0, 0, 'R');
