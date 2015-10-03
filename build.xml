@@ -8,10 +8,6 @@
     <include name="*.php" />
   </fileset>
 
-  <!-- Main Target -->
-  <target name="main" description="main target">
-  </target>
-
   <!-- Continuous Integration Tasks -->
   <target name="ci-tasks" description="continuous integration tasks">
     <!-- Call standard tasks -->
@@ -21,7 +17,12 @@
 
   <!-- PHP CodeSniffer -->
   <target name="phpcs">
-    <exec command="phpcs --standard=PEAR --extensions=php" escape="false" />
+    <foreach param="filename" target="run-phpcs">
+      <fileset refid="src.php"/>
+    </foreach>
+  </target>
+  <target name="run-phpcs">
+    <exec command="phpcs --standard=PEAR --extensions=php ${filename}" escape="false" />
   </target>
 
   <!-- php-cs-fixer (first task applies fixes, second task simply checks if they are needed) -->
