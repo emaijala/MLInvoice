@@ -44,7 +44,12 @@ function createList($strFunc, $strList, $strTableName = '', $strTitleOverride = 
 
   if ($strListFilter) {
     if ($strWhereClause) {
-      $strWhereClause .= " AND $strListFilter";
+      // Special case: don't apply archived filter for invoices if search terms
+      // already contain archived status
+      if ($strList != 'invoices' || strpos($strWhereClause, 'i.archived') === false
+      ) {
+        $strWhereClause .= " AND $strListFilter";
+      }
     } else {
       $strWhereClause = $strListFilter;
     }
