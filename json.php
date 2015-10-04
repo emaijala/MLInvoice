@@ -2,17 +2,17 @@
 /*******************************************************************************
  MLInvoice: web-based invoicing application.
  Copyright (C) 2010-2015 Ere Maijala
- 
+
  This program is free software. See attached LICENSE.
- 
+
  *******************************************************************************/
 
 /*******************************************************************************
  MLInvoice: web-pohjainen laskutusohjelma.
  Copyright (C) 2010-2015 Ere Maijala
- 
+
  Tämä ohjelma on vapaa. Lue oheinen LICENSE.
- 
+
  *******************************************************************************/
 ini_set('display_errors', 0);
 
@@ -114,7 +114,7 @@ case 'add_reminder_fees' :
     $errors = addReminderFees($invoiceId);
     if ($errors) {
         $ret = [
-            'status' => 'error', 
+            'status' => 'error',
             'errors' => $errors
         ];
     } else {
@@ -129,17 +129,17 @@ case 'get_invoice_defaults' :
     $baseId = getRequest('base_id', 0);
     $companyId = getRequest('company_id', 0);
     $invoiceId = getRequest('id', 0);
-    $invoiceDate = getRequest('invoice_date', 
+    $invoiceDate = getRequest('invoice_date',
         dateConvDBDate2Date(date('Y') . '0101'));
     $intervalType = getRequest('interval_type', 0);
     $invNr = getRequest('invoice_no', 0);
     $perYear = getSetting('invoice_numbering_per_year');
-    
+
     // If the invoice already has an invoice number, verify that it's not in use in another invoice
     if ($invNr) {
         $query = 'SELECT ID FROM {prefix}invoice where deleted=0 AND id!=? AND invoice_no=?';
         $params = [
-            $invoiceId, 
+            $invoiceId,
             $invNr
         ];
         if (getSetting('invoice_numbering_per_base') && $baseId) {
@@ -149,20 +149,20 @@ case 'get_invoice_defaults' :
         if ($perYear) {
             $query .= ' AND invoice_date >= ' . dateConvDate2DBDate($invoiceDate);
         }
-        
+
         $res = mysqli_param_query($query, $params);
         if (mysqli_fetch_assoc($res)) {
             $invNr = 0;
         }
     }
-    
+
     if (!$invNr) {
-        $maxNr = get_max_invoice_number($invoiceId, 
-            getSetting('invoice_numbering_per_base') && $baseId ? $baseId : null, 
+        $maxNr = get_max_invoice_number($invoiceId,
+            getSetting('invoice_numbering_per_base') && $baseId ? $baseId : null,
             $perYear);
         if ($maxNr === null && $perYear) {
-            $maxNr = get_max_invoice_number($invoiceId, 
-                getSetting('invoice_numbering_per_base') && $baseId ? $baseId : null, 
+            $maxNr = get_max_invoice_number($invoiceId,
+                getSetting('invoice_numbering_per_base') && $baseId ? $baseId : null,
                 false);
         }
         $invNr = $maxNr + 1;
@@ -171,25 +171,25 @@ case 'get_invoice_defaults' :
         $invNr = 100; // min ref number length is 3 + check digit, make sure invoice number matches that
     $refNr = $invNr . miscCalcCheckNo($invNr);
     $strDate = date($GLOBALS['locDateFormat']);
-    $strDueDate = date($GLOBALS['locDateFormat'], 
+    $strDueDate = date($GLOBALS['locDateFormat'],
         mktime(0, 0, 0, date('m'), date('d') + getPaymentDays($companyId), date('Y')));
     switch ($intervalType) {
     case 2 :
-        $nextIntervalDate = date($GLOBALS['locDateFormat'], 
+        $nextIntervalDate = date($GLOBALS['locDateFormat'],
             mktime(0, 0, 0, date('m') + 1, date('d'), date('Y')));
         break;
     case 3 :
-        $nextIntervalDate = date($GLOBALS['locDateFormat'], 
+        $nextIntervalDate = date($GLOBALS['locDateFormat'],
             mktime(0, 0, 0, date('m'), date('d'), date('Y') + 1));
         break;
     default :
         $nextIntervalDate = '';
     }
     $arrData = [
-        'invoice_no' => $invNr, 
-        'ref_no' => $refNr, 
-        'date' => $strDate, 
-        'due_date' => $strDueDate, 
+        'invoice_no' => $invNr,
+        'ref_no' => $refNr,
+        'date' => $strDate,
+        'due_date' => $strDueDate,
         'next_interval_date' => $nextIntervalDate
     ];
     header('Content-Type: application/json');
@@ -213,27 +213,27 @@ case 'get_table_columns' :
         echo json_encode(
             [
                 [
-                    'id' => 'date', 
+                    'id' => 'date',
                     'name' => $GLOBALS['locImportStatementPaymentDate']
-                ], 
+                ],
                 [
-                    'id' => 'amount', 
+                    'id' => 'amount',
                     'name' => $GLOBALS['locImportStatementAmount']
-                ], 
+                ],
                 [
-                    'id' => 'refnr', 
+                    'id' => 'refnr',
                     'name' => $GLOBALS['locImportStatementRefNr']
                 ]
             ]);
         echo "\n}";
         exit();
     }
-    
+
     if (!table_valid($table)) {
         header('HTTP/1.1 400 Bad Request');
         die('Invalid table name');
     }
-    
+
     header('Content-Type: application/json');
     echo '{"columns":[';
     $res = mysqli_query_check("select * from {prefix}$table where 1=2");
@@ -269,73 +269,76 @@ case 'get_import_preview' :
 
 case 'get_list' :
     require 'list.php';
-    
+
     $listFunc = getRequest('listfunc', '');
-    
+
     $strList = getRequest('table', '');
     if (!$strList) {
         header('HTTP/1.1 400 Bad Request');
         die('Table must be defined');
     }
-    
+
     include 'list_switch.php';
-    
+
     if (!$strTable) {
         header('HTTP/1.1 400 Bad Request');
         die('Invalid table name');
     }
-    
-    $startRow = intval(getRequest('iDisplayStart', -1));
-    $rowCount = intval(getRequest('iDisplayLength', -1));
+
+    $startRow = intval(getRequest('start', -1));
+    $rowCount = intval(getRequest('length', -1));
     $sort = [];
-    if (getRequest('iSortCol_0', 0)) {
-        for ($i = 0; $i < intval(getRequest('iSortingCols', 0)); $i ++) {
-            $sortColumn = intval(getRequest("iSortCol_$i", 0));
-            if (getRequest("bSortable_$i", 'false') == 'true') {
-                $sortDir = getRequest("sSortDir_$i", 'asc');
-                $sort[] = [
-                    $sortColumn => $sortDir === 'desc' ? 'desc' : 'asc'
-                ];
+    $columns = getRequest('columns', []);
+    if ($orderCols = getRequest('order', [])) {
+        for ($i = 0; $i < count($orderCols); $i ++) {
+            if (!isset($orderCols[$i]['column'])) {
+                continue;
             }
+            $sortColumn = $orderCols[$i]['column'];
+            $sortDir = $orderCols[$i]['dir'];
+            $sort[] = [
+                $sortColumn => $sortDir === 'desc' ? 'desc' : 'asc'
+            ];
         }
     }
-    $filter = getRequest('sSearch', '');
+    $search = getRequest('search', []);
+    $filter = empty($search['value']) ? '' : $search['value'];
     $where = getRequest('where', '');
-    
+
     header('Content-Type: application/json');
-    echo createJSONList($listFunc, $strList, $startRow, $rowCount, $sort, $filter, 
-        $where, intval(getRequest('sEcho', 1)));
+    echo createJSONList($listFunc, $strList, $startRow, $rowCount, $sort, $filter,
+        $where, intval(getRequest('draw', 1)));
     break;
 
 case 'get_invoice_total_sum' :
     $where = getRequest('where', '');
-    
+
     header('Content-Type: application/json');
     echo getInvoiceListTotal($where);
     break;
 
 case 'get_selectlist' :
     require 'list.php';
-    
+
     $table = getRequest('table', '');
     if (!$table) {
         header('HTTP/1.1 400 Bad Request (table)');
         exit();
     }
-    
+
     if (!table_valid($table)) {
         header('HTTP/1.1 400 Bad Request');
         die('Invalid table name');
     }
-    
+
     $pageLen = intval(getRequest('pagelen', 10));
     $page = intval(getRequest('page', 1)) - 1;
     $filter = getRequest('q', '');
     $sort = getRequest('sort', '');
     $id = getRequest('id', '');
-    
+
     header('Content-Type: application/json');
-    echo createJSONSelectList($table, $page * $pageLen, $pageLen, $filter, $sort, 
+    echo createJSONSelectList($table, $page * $pageLen, $pageLen, $filter, $sort,
         $id);
     break;
 
@@ -372,7 +375,7 @@ case 'get_stock_balance_rows' :
         exit();
     }
     $res = mysqli_param_query(
-        'SELECT l.time, u.name, l.stock_change, l.description FROM {prefix}stock_balance_log l INNER JOIN {prefix}users u ON l.user_id=u.id WHERE product_id=? ORDER BY time DESC', 
+        'SELECT l.time, u.name, l.stock_change, l.description FROM {prefix}stock_balance_log l INNER JOIN {prefix}users u ON l.user_id=u.id WHERE product_id=? ORDER BY time DESC',
         [
             $productId
         ]);
@@ -407,13 +410,13 @@ function printJSONRecord($table, $id = FALSE, $warnings = null)
         $select = 'SELECT t.*';
         $from = "FROM $table t";
         $where = 'WHERE t.id=?';
-        
+
         if ($table == '{prefix}invoice_row') {
             // Include product name and code
             $select .= ", CASE WHEN LENGTH(p.product_code) = 0 THEN IFNULL(p.product_name, '') ELSE CONCAT_WS(' ', p.product_code, IFNULL(p.product_name, '')) END as product_id_text";
             $from .= ' LEFT OUTER JOIN {prefix}product p on (p.id = t.product_id)';
         }
-        
+
         $query = "$select $from $where";
         $res = mysqli_param_query($query, [
             $id
@@ -434,7 +437,7 @@ function printJSONRecords($table, $parentIdCol, $sort)
 {
     $select = 'SELECT t.*';
     $from = "FROM {prefix}$table t";
-    
+
     if ($table == 'invoice_row') {
         // Include product name, product code and row type name
         $select .= ", CASE WHEN LENGTH(p.product_code) = 0 THEN IFNULL(p.product_name, '') ELSE CONCAT_WS(' ', p.product_code, IFNULL(p.product_name, '')) END as product_id_text";
@@ -442,7 +445,7 @@ function printJSONRecords($table, $parentIdCol, $sort)
         $select .= ', rt.name as type_id_text';
         $from .= ' LEFT OUTER JOIN {prefix}row_type rt on (rt.id = t.type_id)';
     }
-    
+
     $where = '';
     $params = [];
     $id = getRequest('parent_id', '');
@@ -457,7 +460,7 @@ function printJSONRecords($table, $parentIdCol, $sort)
             $where = ' WHERE t.deleted=0';
         }
     }
-    
+
     $query = "$select $from $where";
     if ($sort) {
         $query .= " order by $sort";
@@ -491,7 +494,7 @@ function saveJSONRecord($table, $parentKeyName)
         header('HTTP/1.1 403 Forbidden');
         exit();
     }
-    
+
     $data = json_decode(file_get_contents('php://input'), true);
     if (!$data) {
         header('HTTP/1.1 400 Bad Request');
@@ -505,7 +508,7 @@ function saveJSONRecord($table, $parentKeyName)
     $new = $id ? false : true;
     unset($data['id']);
     $warnings = '';
-    $res = saveFormData($strTable, $id, $astrFormElements, $data, $warnings, 
+    $res = saveFormData($strTable, $id, $astrFormElements, $data, $warnings,
         $parentKeyName, $parentKeyName ? $data[$parentKeyName] : FALSE);
     if ($res !== true) {
         if ($warnings) {
@@ -514,7 +517,7 @@ function saveJSONRecord($table, $parentKeyName)
         header('Content-Type: application/json');
         echo json_encode(
             [
-                'missing_fields' => $res, 
+                'missing_fields' => $res,
                 'warnings' => $warnings
             ]);
         return;
@@ -530,7 +533,7 @@ function DeleteJSONRecord($table)
         header('HTTP/1.1 403 Forbidden');
         exit();
     }
-    
+
     $id = getRequest('id', '');
     if ($id) {
         deleteRecord("{prefix}$table", $id);
@@ -546,9 +549,9 @@ function getInvoiceListTotal($where)
     global $dblink;
     $strFunc = 'invoices';
     $strList = 'invoice';
-    
+
     require 'list_switch.php';
-    
+
     $strWhereClause = '';
     $joinOp = 'WHERE';
     $arrQueryParams = [];
@@ -576,19 +579,19 @@ function getInvoiceListTotal($where)
         $strWhereClause .= "$joinOp $strDeletedField=0";
         $joinOp = ' AND';
     }
-    
+
     $sql = "SELECT sum(it.row_total) as total_sum from $strTable $strJoin $strWhereClause";
-    
+
     $sum = 0;
     $res = mysqli_param_query($sql, $arrQueryParams);
     if ($row = mysqli_fetch_assoc($res)) {
         $sum = $row['total_sum'];
     }
     $result = [
-        'sum' => $sum, 
+        'sum' => $sum,
         'sum_str' => sprintf($GLOBALS['locInvoicesTotal'], miscRound2Decim($sum))
     ];
-    
+
     echo json_encode($result);
 }
 
@@ -598,14 +601,14 @@ function updateInvoiceRowDates($invoiceId, $date)
     if ($date === false) {
         return json_encode(
             [
-                'status' => 'error', 
+                'status' => 'error',
                 'errors' => $GLOBALS['locErrInvalidValue']
             ]);
     }
     mysqli_param_query(
-        'UPDATE {prefix}invoice_row SET row_date=? WHERE invoice_id=? AND deleted=0', 
+        'UPDATE {prefix}invoice_row SET row_date=? WHERE invoice_id=? AND deleted=0',
         [
-            $date, 
+            $date,
             $invoiceId
         ]);
     return json_encode([
@@ -622,14 +625,14 @@ function updateStockBalance($productId, $change, $desc)
     if (!$desc) {
         $missing[] = $GLOBALS['locStockBalanceChangeDescription'];
     }
-    
+
     if ($missing) {
         return json_encode([
             'missing_fields' => $missing
         ]);
     }
-    
-    $res = mysqli_param_query('SELECT stock_balance FROM {prefix}product WHERE id=?', 
+
+    $res = mysqli_param_query('SELECT stock_balance FROM {prefix}product WHERE id=?',
         [
             $productId
         ]);
@@ -637,28 +640,28 @@ function updateStockBalance($productId, $change, $desc)
     if ($row === null) {
         return json_encode(
             [
-                'status' => 'error', 
+                'status' => 'error',
                 'errors' => $GLOBALS['locErrInvalidValue']
             ]);
     }
     $balance = $row[0];
     $balance += $change;
-    mysqli_param_query('UPDATE {prefix}product SET stock_balance=? where id=?', 
+    mysqli_param_query('UPDATE {prefix}product SET stock_balance=? where id=?',
         [
-            $balance, 
+            $balance,
             $productId
         ]);
     mysqli_param_query(
-        'INSERT INTO {prefix}stock_balance_log (user_id, product_id, stock_change, description) VALUES (?, ?, ?, ?)', 
+        'INSERT INTO {prefix}stock_balance_log (user_id, product_id, stock_change, description) VALUES (?, ?, ?, ?)',
         [
-            $_SESSION['sesUSERID'], 
-            $productId, 
-            $change, 
+            $_SESSION['sesUSERID'],
+            $productId,
+            $change,
             $desc
         ]);
     return json_encode(
         [
-            'status' => 'ok', 
+            'status' => 'ok',
             'new_stock_balance' => $balance
         ]);
 }
@@ -668,7 +671,7 @@ function get_max_invoice_number($invoiceId, $baseId, $perYear)
     if ($baseId !== null) {
         $sql = 'SELECT max(cast(invoice_no as unsigned integer)) FROM {prefix}invoice WHERE deleted=0 AND id!=? AND base_id=?';
         $params = [
-            $invoiceId, 
+            $invoiceId,
             $baseId
         ];
     } else {

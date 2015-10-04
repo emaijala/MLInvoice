@@ -2,46 +2,46 @@
 /*******************************************************************************
  MLInvoice: web-based invoicing application.
  Copyright (C) 2010-2015 Ere Maijala
- 
+
  Portions based on:
  PkLasku : web-based invoicing software.
  Copyright (C) 2004-2008 Samu Reinikainen
- 
+
  This program is free software. See attached LICENSE.
- 
+
  *******************************************************************************/
 
 /*******************************************************************************
  MLInvoice: web-pohjainen laskutusohjelma.
  Copyright (C) 2010-2015 Ere Maijala
- 
+
  Perustuu osittain sovellukseen:
  PkLasku : web-pohjainen laskutusohjelmisto.
  Copyright (C) 2004-2008 Samu Reinikainen
- 
+
  Tämä ohjelma on vapaa. Lue oheinen LICENSE.
- 
+
  *******************************************************************************/
 require_once "sqlfuncs.php";
 require_once "miscfuncs.php";
 require_once "datefuncs.php";
 require_once "localize.php";
 
-function createList($strFunc, $strList, $strTableName = '', $strTitleOverride = '', 
+function createList($strFunc, $strList, $strTableName = '', $strTitleOverride = '',
     $prefilter = '', $invoiceTotal = false, $highlightOverdue = false)
 {
     $strWhereClause = $prefilter ? $prefilter : getRequest('where', '');
-    
+
     require "list_switch.php";
-    
+
     if (!$strList) {
         $strList = $strFunc;
     }
-    
+
     if (!$strTable) {
         return;
     }
-    
+
     if ($strListFilter) {
         if ($strWhereClause) {
             // Special case: don't apply archived filter for invoices if search terms
@@ -54,19 +54,19 @@ function createList($strFunc, $strList, $strTableName = '', $strTitleOverride = 
             $strWhereClause = $strListFilter;
         }
     }
-    
+
     if (!$strTableName) {
         $strTableName = "list_$strList";
     }
-    
+
     if ($strTitleOverride) {
         $strTitle = $strTitleOverride;
     } else {
         $strTitle = '';
     }
-    
+
     $params = array(
-        'listfunc' => $strFunc, 
+        'listfunc' => $strFunc,
         'table' => $strList
     );
     if ($strWhereClause) {
@@ -75,35 +75,36 @@ function createList($strFunc, $strList, $strTableName = '', $strTitleOverride = 
     if ($highlightOverdue) {
         $params['highlight_overdue'] = 1;
     }
-    
+
     $params = http_build_query($params);
     ?>
 <script type="text/javascript">
 
   $(document).ready(function() {
     $('#<?php echo $strTableName?>').dataTable( {
-      "oLanguage": {
+      "language": {
         <?php echo $GLOBALS['locTableTexts']?>
       },
-      "bStateSave": true,
-      "bJQueryUI": true,
-      "iDisplayLength": <?php echo getSetting('default_list_rows')?>,
-      "sPaginationType": "full_numbers",
-      "aoColumnDefs": [
+      'stateSave': true,
+      'stateDuration': 0,
+      'jQueryUI': true,
+      'pageLength': <?php echo getSetting('default_list_rows')?>,
+      'pagingType': "full_numbers",
+      'columnDefs': [
 <?php
     foreach ($astrShowFields as $key => $field) {
         $strWidth = isset($field['width']) ? ($field['width'] . 'px') : '';
         ?>
-        { "aTargets": [ <?php echo ($key + 1)?> ], "sWidth": "<?php echo $strWidth?>" },
+        { 'targets': [ <?php echo ($key + 1)?> ], 'width': "<?php echo $strWidth?>" },
 <?php
     }
     ?>
-        { "aTargets": [ 0 ], "bSearchable": false, "bVisible": false }
+        { 'targets': [ 0 ], 'searchable': false, 'visible': false }
       ],
-  		"aaSorting": [[ 1, "asc" ]],
-      "bProcessing": true,
-      "bServerSide": true,
-      "sAjaxSource": "json.php?func=get_list<?php echo "&$params"?>"
+      'order': [[ 1, 'asc' ]],
+      'processing': true,
+      'serverSide': true,
+      'ajax': 'json.php?func=get_list<?php echo "&$params"?>'
     });
     $(document).on('click', '#<?php echo $strTableName?> tbody tr', function(e) {
       var data = $('#<?php echo $strTableName?>').dataTable().fnGetData(this);
@@ -148,13 +149,13 @@ function createList($strFunc, $strList, $strTableName = '', $strTitleOverride = 
 <?php
 }
 
-function createJSONList($strFunc, $strList, $startRow, $rowCount, $sort, $filter, 
+function createJSONList($strFunc, $strList, $startRow, $rowCount, $sort, $filter,
     $where, $requestId)
 {
     require "list_switch.php";
-    
+
     global $dblink;
-    
+
     if (!sesAccessLevel($levelsAllowed) && !sesAdminAccess()) {
         ?>
 <div class="form_container ui-widget-content">
@@ -163,10 +164,10 @@ function createJSONList($strFunc, $strList, $startRow, $rowCount, $sort, $filter
 <?php
         return;
     }
-    
+
     if (!$strTable)
         return;
-    
+
     $strWhereClause = '';
     $joinOp = 'WHERE';
     $arrQueryParams = array();
@@ -190,46 +191,46 @@ function createJSONList($strFunc, $strList, $startRow, $rowCount, $sort, $filter
             $joinOp = ' AND';
         }
     }
-    
+
     if ($filter) {
         $strWhereClause .= "$joinOp (" .
              createWhereClause($astrSearchFields, $filter, $arrQueryParams) . ')';
         $joinOp = ' AND';
     }
-    
+
     if (!getSetting('show_deleted_records')) {
         $strWhereClause .= "$joinOp $strDeletedField=0";
         $joinOp = ' AND';
     }
-    
+
     if ($strGroupBy) {
         $strGroupBy = " GROUP BY $strGroupBy";
     }
-    
+
     if (!isset($strCountJoin)) {
         $strCountJoin = $strJoin;
     }
-    
+
     // Total count
     $fullQuery = "SELECT COUNT(*) AS cnt FROM $strTable $strCountJoin $strWhereClause";
     $res = mysqli_param_query($fullQuery, $arrQueryParams);
     $row = mysqli_fetch_assoc($res);
     $totalCount = $filteredCount = $row['cnt'];
-    
+
     // Add Filter
     if ($filter) {
         $strWhereClause .= "$joinOp " .
              createWhereClause($astrSearchFields, $filter, $arrQueryParams);
-        
+
         // Filtered count
         $fullQuery = "SELECT COUNT(*) as cnt FROM $strTable $strCountJoin $strWhereClause";
         $res = mysqli_param_query($fullQuery, $arrQueryParams);
         $row = mysqli_fetch_assoc($res);
         $filteredCount = $row['cnt'];
     }
-    
+
     // Add sort options
-    $orderBy = array();
+    $orderBy = [];
     foreach ($sort as $sortField) {
         // Ignore invisible first column
         $column = key($sortField) - 1;
@@ -240,9 +241,9 @@ function createJSONList($strFunc, $strList, $startRow, $rowCount, $sort, $filter
                 $fieldName = substr($fieldName, 1);
             }
             // Special case for natural ordering of invoice number and reference number
-            if (in_array($fieldName, 
+            if (in_array($fieldName,
                 array(
-                    'i.invoice_no', 
+                    'i.invoice_no',
                     'i.ref_number'
                 ))) {
                 $orderBy[] = "LENGTH($fieldName) $direction";
@@ -250,26 +251,26 @@ function createJSONList($strFunc, $strList, $startRow, $rowCount, $sort, $filter
             $orderBy[] = "$fieldName $direction";
         }
     }
-    
+
     // Build the final select clause
     $strSelectClause = "$strPrimaryKey, $strDeletedField";
     foreach ($astrShowFields as $field) {
         $strSelectClause .= ', ' .
              (isset($field['sql']) ? $field['sql'] : $field['name']);
     }
-    
+
     $fullQuery = "SELECT $strSelectClause FROM $strTable $strJoin $strWhereClause$strGroupBy";
-    
+
     if ($orderBy) {
         $fullQuery .= ' ORDER BY ' . implode(', ', $orderBy);
     }
-    
+
     if ($startRow >= 0 && $rowCount >= 0) {
         $fullQuery .= " LIMIT $startRow, $rowCount";
     }
-    
+
     $res = mysqli_param_query($fullQuery, $arrQueryParams);
-    
+
     $astrListValues = array();
     $i = -1;
     while ($row = mysqli_fetch_prefixed_assoc($res)) {
@@ -285,7 +286,7 @@ function createJSONList($strFunc, $strList, $startRow, $rowCount, $sort, $filter
                 $astrListValues[$i][$name] = $value;
             } elseif ($field['type'] == 'CURRENCY') {
                 $value = $row[$name];
-                $value = miscRound2Decim($value, 
+                $value = miscRound2Decim($value,
                     isset($field['decimals']) ? $field['decimals'] : 2);
                 $astrListValues[$i][$name] = $value;
             } elseif ($field['type'] == 'INTDATE') {
@@ -293,20 +294,18 @@ function createJSONList($strFunc, $strList, $startRow, $rowCount, $sort, $filter
             }
         }
     }
-    
-    $records = array();
+
+    $records = [];
     $highlight = getRequest('highlight_overdue', false);
     for ($i = 0; $i < count($astrListValues); $i ++) {
         $row = $astrListValues[$i];
         $strLink = "?func=$strFunc&list=$strList&form=$strMainForm&id=" .
              $astrPrimaryKeys[$i];
-        $resultValues = array(
-            $strLink
-        );
+        $resultValues = [$strLink];
         $overdue = '';
         foreach ($astrShowFields as $field) {
             $name = $field['name'];
-            
+
             // Special colouring for overdue invoices
             if ($highlight && $name == 'i.due_date') {
                 $rowDue = strDate2UnixTime($row['i.due_date']);
@@ -319,7 +318,7 @@ function createJSONList($strFunc, $strList, $startRow, $rowCount, $sort, $filter
                     $overdue = ' overdue';
                 }
             }
-            
+
             if (isset($field['translate']) && $field['translate'] &&
                  isset($GLOBALS["loc{$row[$name]}"])) {
                 $value = $GLOBALS["loc{$row[$name]}"];
@@ -333,25 +332,25 @@ function createJSONList($strFunc, $strList, $startRow, $rowCount, $sort, $filter
         if ($class) {
             $resultValues['DT_RowClass'] = $class;
         }
-        
+
         $records[] = $resultValues;
     }
-    
-    $results = array(
-        'sEcho' => $requestId, 
-        'iTotalRecords' => $totalCount, 
-        'iTotalDisplayRecords' => isset($filteredCount) ? $filteredCount : $totalCount, 
-        'aaData' => $records
-    );
+
+    $results = [
+        'draw' => $requestId,
+        'recordsTotal' => $totalCount,
+        'recordsFiltered' => isset($filteredCount) ? $filteredCount : $totalCount,
+        'data' => $records
+    ];
     return json_encode($results);
 }
 
-function createJSONSelectList($strList, $startRow, $rowCount, $filter, $sort, 
+function createJSONSelectList($strList, $startRow, $rowCount, $filter, $sort,
     $id = null)
 {
     global $dblink;
     require "list_switch.php";
-    
+
     if (!sesAccessLevel($levelsAllowed) && !sesAdminAccess()) {
         ?>
 <div class="form_container ui-widget-content">
@@ -360,7 +359,7 @@ function createJSONSelectList($strList, $startRow, $rowCount, $filter, $sort,
 <?php
         return;
     }
-    
+
     if ($sort) {
         if (!preg_match('/^[\w_,]+$/', $sort)) {
             header('HTTP/1.1 400 Bad Request');
@@ -387,54 +386,54 @@ function createJSONSelectList($strList, $startRow, $rowCount, $filter, $sort,
             }
         }
     }
-    
+
     $arrQueryParams = array();
-    
+
     $strWhereClause = '';
-    
+
     if (!getSetting('show_deleted_records') && empty($id)) {
         $strWhereClause = " WHERE $strDeletedField=0";
     }
-    
+
     if ($strGroupBy) {
         $strGroupBy = " GROUP BY $strGroupBy";
     }
-    
+
     // Add Filter
     if ($filter) {
         $strWhereClause .= ($strWhereClause ? ' AND ' : ' WHERE ') . createWhereClause(
-            $astrSearchFields, $filter, $arrQueryParams, 
+            $astrSearchFields, $filter, $arrQueryParams,
             !getSetting('dynamic_select_search_in_middle'));
     }
-    
+
     // Filter out inactive companies
     if ($strList == 'company' || $strList == 'companies') {
         $strWhereClause .= ($strWhereClause ? ' AND ' : ' WHERE ') . 'inactive=0';
     }
-    
+
     if ($id) {
         $strWhereClause .= ($strWhereClause ? ' AND ' : ' WHERE ') . 'id=' .
              mysqli_real_escape_string($dblink, $id);
     }
-    
+
     // Build the final select clause
     $strSelectClause = "$strPrimaryKey, $strDeletedField";
     foreach ($astrShowFields as $field) {
         $strSelectClause .= ', ' .
              (isset($field['sql']) ? $field['sql'] : $field['name']);
     }
-    
+
     $fullQuery = "SELECT $strSelectClause FROM $strTable $strWhereClause$strGroupBy";
     if ($sort) {
         $fullQuery .= " ORDER BY $sort";
     }
-    
+
     if ($startRow >= 0 && $rowCount >= 0) {
         $fullQuery .= " LIMIT $startRow, " . ($rowCount + 1);
     }
-    
+
     $res = mysqli_param_query($fullQuery, $arrQueryParams);
-    
+
     $astrListValues = array();
     $i = -1;
     $moreAvailable = false;
@@ -455,7 +454,7 @@ function createJSONSelectList($strList, $startRow, $rowCount, $filter, $sort,
                 $astrListValues[$i][$name] = $value;
             } elseif ($field['type'] == 'CURRENCY') {
                 $value = $row[$name];
-                $value = miscRound2Decim($value, 
+                $value = miscRound2Decim($value,
                     isset($field['decimals']) ? $field['decimals'] : 2);
                 $astrListValues[$i][$name] = $value;
             } elseif ($field['type'] == 'INTDATE') {
@@ -463,7 +462,7 @@ function createJSONSelectList($strList, $startRow, $rowCount, $filter, $sort,
             }
         }
     }
-    
+
     $records = array();
     for ($i = 0; $i < count($astrListValues); $i ++) {
         $row = $astrListValues[$i];
@@ -473,7 +472,7 @@ function createJSONSelectList($strList, $startRow, $rowCount, $filter, $sort,
                 continue;
             }
             $name = $field['name'];
-            
+
             if (isset($field['translate']) && $field['translate'] &&
                  isset($GLOBALS["loc{$row[$name]}"])) {
                 $value = $GLOBALS["loc{$row[$name]}"];
@@ -482,16 +481,16 @@ function createJSONSelectList($strList, $startRow, $rowCount, $filter, $sort,
             }
             $resultValues[$name] = $value;
         }
-        
+
         $records[] = array(
-            'id' => $astrPrimaryKeys[$i], 
+            'id' => $astrPrimaryKeys[$i],
             'text' => implode(' ', $resultValues)
         );
     }
-    
+
     $results = array(
-        'moreAvailable' => $moreAvailable, 
-        'records' => $records, 
+        'moreAvailable' => $moreAvailable,
+        'records' => $records,
         'filter' => $filter
     );
     return json_encode($results);
