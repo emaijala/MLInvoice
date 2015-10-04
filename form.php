@@ -2,25 +2,25 @@
 /*******************************************************************************
  MLInvoice: web-based invoicing application.
  Copyright (C) 2010-2015 Ere Maijala
- 
+
  Portions based on:
  PkLasku : web-based invoicing software.
  Copyright (C) 2004-2008 Samu Reinikainen
- 
+
  This program is free software. See attached LICENSE.
- 
+
  *******************************************************************************/
 
 /*******************************************************************************
  MLInvoice: web-pohjainen laskutusohjelma.
  Copyright (C) 2010-2015 Ere Maijala
- 
+
  Perustuu osittain sovellukseen:
  PkLasku : web-pohjainen laskutusohjelmisto.
  Copyright (C) 2004-2008 Samu Reinikainen
- 
+
  Tämä ohjelma on vapaa. Lue oheinen LICENSE.
- 
+
  *******************************************************************************/
 require_once 'sqlfuncs.php';
 require_once 'miscfuncs.php';
@@ -31,7 +31,7 @@ require_once 'form_funcs.php';
 function createForm($strFunc, $strList, $strForm)
 {
     require 'form_switch.php';
-    
+
     if (!sesAccessLevel($levelsAllowed) && !sesAdminAccess()) {
         ?>
 <div class="form_container ui-widget-content">
@@ -40,14 +40,14 @@ function createForm($strFunc, $strList, $strForm)
 <?php
         return;
     }
-    
+
     $blnNew = getPostRequest('newact', FALSE);
     $blnCopy = getPostRequest('copyact', FALSE) ? TRUE : FALSE;
     $blnDelete = getPostRequest('deleteact', FALSE) ? TRUE : FALSE;
     $intKeyValue = getPostRequest('id', FALSE);
     if (!$intKeyValue)
         $blnNew = TRUE;
-    
+
     if (!sesWriteAccess() && ($blnNew || $blnCopy || $blnDelete)) {
         ?>
 <div class="form_container ui-widget-content">
@@ -56,19 +56,19 @@ function createForm($strFunc, $strList, $strForm)
 <?php
         return;
     }
-    
+
     $strMessage = '';
     if (isset($_SESSION['formMessage']) && $_SESSION['formMessage']) {
         $strMessage = $GLOBALS['loc' . $_SESSION['formMessage']];
         unset($_SESSION['formMessage']);
     }
-    
+
     $strErrorMessage = '';
     if (isset($_SESSION['formErrorMessage']) && $_SESSION['formErrorMessage']) {
         $strErrorMessage = $GLOBALS['loc' . $_SESSION['formErrorMessage']];
         unset($_SESSION['formErrorMessage']);
     }
-    
+
     // if NEW is clicked clear existing form data
     if ($blnNew) {
         unset($intKeyValue);
@@ -77,25 +77,25 @@ function createForm($strFunc, $strList, $strForm)
         unset($_REQUEST);
         $readOnlyForm = false;
     }
-    
-    $astrValues = getPostValues($astrFormElements, 
+
+    $astrValues = getPostValues($astrFormElements,
         isset($intKeyValue) ? $intKeyValue : FALSE);
-    
+
     $redirect = getRequest('redirect', null);
     if (isset($redirect)) {
         // Redirect after save
         foreach ($astrFormElements as $elem) {
             if ($elem['name'] == $redirect) {
                 if ($elem['style'] == 'redirect')
-                    $newLocation = str_replace('_ID_', $intKeyValue, 
+                    $newLocation = str_replace('_ID_', $intKeyValue,
                         $elem['listquery']);
                 elseif ($elem['style'] == 'openwindow')
-                    $openWindow = str_replace('_ID_', $intKeyValue, 
+                    $openWindow = str_replace('_ID_', $intKeyValue,
                         $elem['listquery']);
             }
         }
     }
-    
+
     if ($blnDelete && $intKeyValue && !$readOnlyForm) {
         deleteRecord($strTable, $intKeyValue);
         unset($intKeyValue);
@@ -116,7 +116,7 @@ function createForm($strFunc, $strList, $strForm)
 <?php
         return;
     }
-    
+
     if (isset($intKeyValue) && $intKeyValue) {
         $res = fetchRecord($strTable, $intKeyValue, $astrFormElements, $astrValues);
         if ($res === 'deleted')
@@ -126,7 +126,7 @@ function createForm($strFunc, $strList, $strForm)
             die();
         }
     }
-    
+
     if ($blnCopy) {
         unset($intKeyValue);
         unset($_POST);
@@ -163,9 +163,9 @@ function createForm($strFunc, $strList, $strForm)
     foreach ($astrFormElements as $elem) {
         if ($elem['type'] === false)
             continue;
-        
+
         $fieldMode = isset($elem['read_only']) && $elem['read_only'] ? 'READONLY' : $formFieldMode;
-        
+
         if ($elem['type'] == 'LABEL') {
             if ($rowOpen)
                 echo "        </tr>\n";
@@ -179,14 +179,14 @@ function createForm($strFunc, $strList, $strForm)
   <?php
             continue;
         }
-        
+
         if ($elem['position'] == 0 || $elem['position'] <= $prevPosition) {
             $prevPosition = 0;
             $prevColSpan = 1;
             echo "        </tr>\n";
             $rowOpen = false;
         }
-        
+
         if ($elem['type'] != 'IFORM') {
             if (!$rowOpen) {
                 $rowOpen = true;
@@ -197,7 +197,7 @@ function createForm($strFunc, $strList, $strForm)
                     echo "          <td class=\"label\">&nbsp;</td>\n";
                 }
             }
-            
+
             if ($elem['position'] == 0 && !strstr($elem['type'], 'HID_')) {
                 $strColspan = 'colspan="3"';
                 $intColspan = 3;
@@ -208,7 +208,7 @@ function createForm($strFunc, $strList, $strForm)
                 $intColspan = 2;
             }
         }
-        
+
         if ($blnNew && ($elem['type'] == 'BUTTON' || $elem['type'] == 'JSBUTTON' ||
              $elem['type'] == 'IMAGE')) {
             echo '          <td class="label">&nbsp;</td>';
@@ -217,11 +217,11 @@ function createForm($strFunc, $strList, $strForm)
             ?>
           <td class="button">
             <?php
-            
-            echo htmlFormElement($elem['name'], $elem['type'], 
-                $astrValues[$elem['name']], $elem['style'], $elem['listquery'], 
-                $fieldMode, $elem['parent_key'], $elem['label'], [], 
-                isset($elem['elem_attributes']) ? $elem['elem_attributes'] : '', 
+
+            echo htmlFormElement($elem['name'], $elem['type'],
+                $astrValues[$elem['name']], $elem['style'], $elem['listquery'],
+                $fieldMode, $elem['parent_key'], $elem['label'], [],
+                isset($elem['elem_attributes']) ? $elem['elem_attributes'] : '',
                 isset($elem['options']) ? $elem['options'] : null)?>
           </td>
 <?php
@@ -245,7 +245,7 @@ function createForm($strFunc, $strList, $strForm)
                 echo "        </tr>\n";
             echo "      </table>\n      </form>\n";
             $haveChildForm = true;
-            createIForm($astrFormElements, $elem, 
+            createIForm($astrFormElements, $elem,
                 isset($intKeyValue) ? $intKeyValue : 0, $blnNew, $strForm);
             break;
         } else {
@@ -267,11 +267,11 @@ function createForm($strFunc, $strList, $strForm)
           <td class="field"
 					<?php echo $strColspan ? " $strColspan" : ''?>>
             <?php
-            
-            echo htmlFormElement($elem['name'], $elem['type'], $value, 
-                $elem['style'], $elem['listquery'], $fieldMode, 
-                isset($elem['parent_key']) ? $elem['parent_key'] : '', '', [], 
-                isset($elem['elem_attributes']) ? $elem['elem_attributes'] : '', 
+
+            echo htmlFormElement($elem['name'], $elem['type'], $value,
+                $elem['style'], $elem['listquery'], $fieldMode,
+                isset($elem['parent_key']) ? $elem['parent_key'] : '', '', [],
+                isset($elem['elem_attributes']) ? $elem['elem_attributes'] : '',
                 isset($elem['options']) ? $elem['options'] : null);
             if (isset($elem['attached_elem']))
                 echo '            ' . $elem['attached_elem'] . "\n";
@@ -284,7 +284,7 @@ function createForm($strFunc, $strList, $strForm)
             $prevPosition = 255;
         $prevColSpan = $intColspan;
     }
-    
+
     if (!$haveChildForm) {
         if ($rowOpen)
             echo "        </tr>\n";
@@ -404,7 +404,7 @@ $(document).ready(function() {
 function init_rows_done()
 {
 <?php
-        
+
         if (isset($newLocation))
             echo "window.location='$newLocation';"?>
 }
@@ -419,17 +419,17 @@ function save_record(redirect_url, redir_style)
 
 <?php
     foreach ($astrFormElements as $elem) {
-        if ($elem['name'] && !in_array($elem['type'], 
+        if ($elem['name'] && !in_array($elem['type'],
             [
-                'HID_INT', 
-                'SECHID_INT', 
-                'BUTTON', 
-                'JSBUTTON', 
-                'LABEL', 
-                'IMAGE', 
-                'NEWLINE', 
-                'ROWSUM', 
-                'CHECK', 
+                'HID_INT',
+                'SECHID_INT',
+                'BUTTON',
+                'JSBUTTON',
+                'LABEL',
+                'IMAGE',
+                'NEWLINE',
+                'ROWSUM',
+                'CHECK',
                 'IFORM'
             ])) {
             ?>
@@ -512,7 +512,7 @@ function popup_dialog(url, on_close, dialog_title, event, width, height)
 <?php
     createFormButtons($blnNew, $copyLinkOverride, false, $readOnlyForm);
     echo "  </div>\n";
-    
+
     if ($addressAutocomplete && getSetting('address_autocomplete')) {
         ?>
   <script type="text/javascript">
@@ -612,19 +612,20 @@ function init_rows()
       var tr = $('<tr/>');
 <?php
     foreach ($subFormElements as $subElem) {
-        if (in_array($subElem['type'], 
+        if (in_array($subElem['type'],
             [
-                'HID_INT', 
-                'SECHID_INT', 
-                'BUTTON', 
+                'HID_INT',
+                'SECHID_INT',
+                'BUTTON',
                 'NEWLINE'
-            ])) {
+            ]
+        )) {
             continue;
         }
         $name = $subElem['name'];
         $class = $subElem['style'];
         if ($subElem['type'] == 'LIST' || $subElem['type'] == 'SEARCHLIST') {
-            echo "      if (record.${name} == null) record.${name} = 0; $('<td/>').addClass('$class' + (record.deleted == 1 ? ' deleted' : '')).text(record.${name}_text).appendTo(tr);\n";
+            echo "      if (record.${name}_text === null) record.${name}_text = ''; $('<td/>').addClass('$class' + (record.deleted == 1 ? ' deleted' : '')).text(record.${name}_text).appendTo(tr);\n";
         } elseif ($subElem['type'] == 'INT') {
             if (isset($subElem['decimals'])) {
                 echo "      $('<td/>').addClass('$class' + (record.deleted == 1 ? ' deleted' : '')).text(record.$name ? format_currency(record.$name, {$subElem['decimals']}) : '').appendTo(tr);\n";
@@ -761,14 +762,14 @@ function save_row(form_id)
   var obj = new Object();
 <?php
         foreach ($subFormElements as $subElem) {
-            if (!in_array($subElem['type'], 
+            if (!in_array($subElem['type'],
                 [
-                    'HID_INT', 
-                    'SECHID_INT', 
-                    'BUTTON', 
-                    'NEWLINE', 
-                    'ROWSUM', 
-                    'CHECK', 
+                    'HID_INT',
+                    'SECHID_INT',
+                    'BUTTON',
+                    'NEWLINE',
+                    'ROWSUM',
+                    'CHECK',
                     'INT'
                 ])) {
                 ?>
@@ -811,12 +812,12 @@ function save_row(form_id)
 <?php
 
         foreach ($subFormElements as $subElem) {
-            if (!in_array($subElem['type'], 
+            if (!in_array($subElem['type'],
                 [
-                    'HID_INT', 
-                    'SECHID_INT', 
-                    'BUTTON', 
-                    'NEWLINE', 
+                    'HID_INT',
+                    'SECHID_INT',
+                    'BUTTON',
+                    'NEWLINE',
                     'ROWSUM'
                 ])) {
                 if (isset($subElem['default']) && strstr($subElem['default'], 'ADD')) {
@@ -938,12 +939,12 @@ function popup_editor(event, title, id, copy_row)
       form.row_id.value = id;
 <?php
         foreach ($subFormElements as $subElem) {
-            if (in_array($subElem['type'], 
+            if (in_array($subElem['type'],
                 [
-                    'HID_INT', 
-                    'SECHID_INT', 
-                    'BUTTON', 
-                    'NEWLINE', 
+                    'HID_INT',
+                    'SECHID_INT',
+                    'BUTTON',
+                    'NEWLINE',
                     'ROWSUM'
                 ]))
                 continue;
@@ -1027,11 +1028,11 @@ function popup_editor(event, title, id, copy_row)
 							<tr>
 <?php
     foreach ($subFormElements as $subElem) {
-        if (!in_array($subElem['type'], 
+        if (!in_array($subElem['type'],
             [
-                'HID_INT', 
-                'SECHID_INT', 
-                'BUTTON', 
+                'HID_INT',
+                'SECHID_INT',
+                'BUTTON',
                 'NEWLINE'
             ])) {
             ?>
@@ -1050,12 +1051,12 @@ function popup_editor(event, title, id, copy_row)
             <tr id="form_row">
 <?php
         foreach ($subFormElements as $subElem) {
-            if (!in_array($subElem['type'], 
+            if (!in_array($subElem['type'],
                 [
-                    'HID_INT', 
-                    'SECHID_INT', 
-                    'BUTTON', 
-                    'NEWLINE', 
+                    'HID_INT',
+                    'SECHID_INT',
+                    'BUTTON',
+                    'NEWLINE',
                     'ROWSUM'
                 ])) {
                 $value = getFormDefaultValue($subElem, $intKeyValue);
@@ -1107,12 +1108,12 @@ function popup_editor(event, title, id, copy_row)
 							<tr>
 <?php
         foreach ($subFormElements as $elem) {
-            if (!in_array($elem['type'], 
+            if (!in_array($elem['type'],
                 [
-                    'HID_INT', 
-                    'SECHID_INT', 
-                    'BUTTON', 
-                    'NEWLINE', 
+                    'HID_INT',
+                    'SECHID_INT',
+                    'BUTTON',
+                    'NEWLINE',
                     'ROWSUM'
                 ])) {
                 ?>
@@ -1163,7 +1164,7 @@ function createFormButtons($boolNew, $copyLinkOverride, $spinner, $readOnlyForm)
 						onclick="save_record(); return false;"><?php echo $GLOBALS['locSave']?></a>
 <?php
     }
-    
+
     if (!$boolNew) {
         $copyCmd = $copyLinkOverride ? "window.location='$copyLinkOverride'; return false;" : "document.getElementById('admin_form').copyact.value=1; document.getElementById('admin_form').submit(); return false;";
         ?>      <a class="actionlink" href="#"
