@@ -2,17 +2,17 @@
 /*******************************************************************************
  MLInvoice: web-based invoicing application.
  Copyright (C) 2010-2015 Ere Maijala
- 
+
  This program is free software. See attached LICENSE.
- 
+
  *******************************************************************************/
 
 /*******************************************************************************
  MLInvoice: web-pohjainen laskutusohjelma.
  Copyright (C) 2010-2015 Ere Maijala
- 
+
  Tämä ohjelma on vapaa. Lue oheinen LICENSE.
- 
+
  *******************************************************************************/
 require_once 'localize.php';
 require_once 'miscfuncs.php';
@@ -35,13 +35,13 @@ class ImportFile
     public function launch()
     {
         $filetype = getRequest('filetype', '');
-        
+
         $error = '';
         if ($filetype == 'upload') {
             if ($_FILES['data']['error'] == UPLOAD_ERR_OK) {
                 $_SESSION['import_file'] = $_FILES['data']['tmp_name'] .
                      '-mlinvoice-import';
-                move_uploaded_file($_FILES['data']['tmp_name'], 
+                move_uploaded_file($_FILES['data']['tmp_name'],
                     $_SESSION['import_file']);
                 $this->show_setup_form();
                 return;
@@ -55,13 +55,13 @@ class ImportFile
             }
             $error = $GLOBALS['locErrImportFileNotFound'];
         }
-        
+
         $importMode = getRequest('import', '');
         if ($importMode == 'import' || $importMode == 'preview') {
             $this->import_file($importMode);
             return;
         }
-        
+
         unset($_SESSION['import_file']);
         $maxUploadSize = getMaxUploadSize();
         $maxFileSize = fileSizeToHumanReadable($maxUploadSize);
@@ -107,7 +107,7 @@ class ImportFile
         $enclosureChar = getRequest('enclosure_char', 'doublequote');
         $rowDelimiter = getRequest('row_delim', 'lf');
         $skipRows = getRequest('skip_rows', 0);
-        
+
         if (!$charset || !$table || !$format || !$fieldDelimiter || !$enclosureChar ||
              !$rowDelimiter) {
             header('HTTP/1.1 400 Bad Request');
@@ -117,9 +117,9 @@ class ImportFile
             header('HTTP/1.1 400 Bad Request');
             die('Invalid table name');
         }
-        
+
         header('Content-Type: application/json');
-        
+
         if ($format == 'csv') {
             $fp = fopen($_SESSION['import_file'], 'r');
             if (!$fp) {
@@ -133,11 +133,11 @@ class ImportFile
                     "Could not open import file '" + $_SESSION['import_file'] +
                          "' for reading");
             }
-            
+
             $field_delims = $this->get_field_delims();
             $enclosure_chars = $this->get_enclosure_chars();
             $row_delims = $this->get_row_delims();
-            
+
             if (!isset($field_delims[$fieldDelimiter]))
                 die('Invalid field delimiter');
             $fieldDelimiter = $field_delims[$fieldDelimiter]['char'];
@@ -147,24 +147,24 @@ class ImportFile
             if (!isset($row_delims[$rowDelimiter]))
                 die('Invalid field delimiter');
             $rowDelimiter = $row_delims[$rowDelimiter]['char'];
-            
+
             // Force enclosure char, otherwise fgetcsv would balk.
             if ($enclosureChar == '')
                 $enclosureChar = "\x01";
-            
+
             for ($i = 0; $i < $skipRows; $i ++) {
-                $this->get_csv($fp, $fieldDelimiter, $enclosureChar, $charset, 
+                $this->get_csv($fp, $fieldDelimiter, $enclosureChar, $charset,
                     $rowDelimiter);
             }
-            
+
             $errors = [];
-            $headings = $this->get_csv($fp, $fieldDelimiter, $enclosureChar, 
+            $headings = $this->get_csv($fp, $fieldDelimiter, $enclosureChar,
                 $charset, $rowDelimiter);
             if (!$headings)
                 $errors[] = 'Could not parse headings row from import file';
             $rows = [];
             for ($i = 0; $i < 10 && !feof($fp); $i ++) {
-                $row = $this->get_csv($fp, $fieldDelimiter, $enclosureChar, $charset, 
+                $row = $this->get_csv($fp, $fieldDelimiter, $enclosureChar, $charset,
                     $rowDelimiter);
                 if (!isset($row)) {
                     $errors[] = 'Could not read row from import file';
@@ -173,8 +173,8 @@ class ImportFile
                 $rows[] = $row;
             }
             $response = [
-                'errors' => $errors, 
-                'headings' => $headings, 
+                'errors' => $errors,
+                'headings' => $headings,
                 'rows' => $rows
             ];
             fclose($fp);
@@ -191,10 +191,10 @@ class ImportFile
                     "Could not open import file '" + $_SESSION['import_file'] +
                          "' for reading");
             }
-            
+
             if ($charset != _CHARSET_)
                 $data = iconv($charset, _CHARSET_, $data);
-            
+
             try {
                 $xml = new SimpleXMLElement($data);
             } catch (Exception $e) {
@@ -213,7 +213,7 @@ class ImportFile
                 if (++$recNum > 10)
                     break;
                 $record = get_object_vars($record);
-                
+
                 $row = [];
                 foreach ($record as $column => $value) {
                     if (!is_array($value) && !is_object($value)) {
@@ -225,8 +225,8 @@ class ImportFile
                 $rows[] = $row;
             }
             $response = [
-                'errors' => [], 
-                'headings' => $headings, 
+                'errors' => [],
+                'headings' => $headings,
                 'rows' => $rows
             ];
         } elseif ($format == 'json') {
@@ -243,10 +243,10 @@ class ImportFile
                          "' for reading");
                 exit();
             }
-            
+
             if ($charset != _CHARSET_)
                 $data = iconv($charset, _CHARSET_, $data);
-            
+
             $data = json_decode($data, true);
             if ($data === null) {
                 echo json_encode(
@@ -261,11 +261,11 @@ class ImportFile
             $recNum = 0;
             $headings = [];
             $rows = [];
-            
+
             foreach (reset($data) as $record) {
                 if (++$recNum > 10)
                     break;
-                
+
                 $row = [];
                 foreach ($record as $column => $value) {
                     if (is_array($value))
@@ -277,8 +277,8 @@ class ImportFile
                 $rows[] = $row;
             }
             $response = [
-                'errors' => [], 
-                'headings' => $headings, 
+                'errors' => [],
+                'headings' => $headings,
                 'rows' => $rows
             ];
         }
@@ -289,15 +289,15 @@ class ImportFile
     {
         return [
             'lf' => [
-                'char' => "\n", 
+                'char' => "\n",
                 'name' => 'LF'
-            ], 
+            ],
             'crlf' => [
-                'char' => "\r\n", 
+                'char' => "\r\n",
                 'name' => 'CR+LF'
-            ], 
+            ],
             'cr' => [
-                'char' => "\r", 
+                'char' => "\r",
                 'name' => 'CR'
             ]
         ];
@@ -307,23 +307,23 @@ class ImportFile
     {
         return [
             'comma' => [
-                'char' => ',', 
+                'char' => ',',
                 'name' => $GLOBALS['locImportExportFieldDelimiterComma']
-            ], 
+            ],
             'semicolon' => [
-                'char' => ';', 
+                'char' => ';',
                 'name' => $GLOBALS['locImportExportFieldDelimiterSemicolon']
-            ], 
+            ],
             'tab' => [
-                'char' => "\t", 
+                'char' => "\t",
                 'name' => $GLOBALS['locImportExportFieldDelimiterTab']
-            ], 
+            ],
             'pipe' => [
-                'char' => '|', 
+                'char' => '|',
                 'name' => $GLOBALS['locImportExportFieldDelimiterPipe']
-            ], 
+            ],
             'colon' => [
-                'char' => ':', 
+                'char' => ':',
                 'name' => $GLOBALS['locImportExportFieldDelimiterColon']
             ]
         ];
@@ -333,15 +333,15 @@ class ImportFile
     {
         return [
             'doublequote' => [
-                'char' => '"', 
+                'char' => '"',
                 'name' => $GLOBALS['locImportExportEnclosureDoubleQuote']
-            ], 
+            ],
             'singlequote' => [
-                'char' => '\'', 
+                'char' => '\'',
                 'name' => $GLOBALS['locImportExportEnclosureSingleQuote']
-            ], 
+            ],
             'none' => [
-                'char' => '', 
+                'char' => '',
                 'name' => $GLOBALS['locImportExportEnclosureNone']
             ]
         ];
@@ -350,16 +350,20 @@ class ImportFile
     public function get_date_formats()
     {
         return [
-            'd.m.Y', 
-            'd-m-Y', 
-            'd/m/Y', 
-            'Y.m.d', 
-            'Y-m-d', 
-            'Y/m/d', 
-            'm.d.Y', 
-            'm-d-Y', 
+            'd.m.Y',
+            'd-m-Y',
+            'd/m/Y',
+            'Y.m.d',
+            'Y-m-d',
+            'Y/m/d',
+            'm.d.Y',
+            'm-d-Y',
             'm/d/Y'
         ];
+    }
+
+    protected function add_custom_form_fields()
+    {
     }
 
     protected function get_field_defs($table)
@@ -380,14 +384,14 @@ class ImportFile
         $fp = fopen($_SESSION['import_file'], 'r');
         if (!$fp)
             die('Could not open import file for reading');
-        
+
         $data = fread($fp, 8192);
         $bytesRead = ftell($fp);
-        
+
         fclose($fp);
-        
+
         $charset = 'UTF-8';
-        
+
         if ($bytesRead > 3) {
             if (ord($data[0]) == 0xFE && ord($data[1]) == 0xFF) {
                 $charset = 'UTF-16BE';
@@ -403,14 +407,14 @@ class ImportFile
                 $data = iconv('UTF-16LE', _CHARSET_, $data);
             }
         }
-        
+
         if (strtolower(substr(ltrim($data), 0, 5)) == '<?xml') {
             $format = 'xml';
         } elseif (strtolower(substr(ltrim($data), 0, 1)) == '{') {
             $format = 'json';
         } else {
             $format = 'csv';
-            
+
             $row_delims = $this->get_row_delims();
             foreach ($row_delims as $key => $value) {
                 $row_delims[$key]['count'] = substr_count($data, $value['char']);
@@ -422,14 +426,14 @@ class ImportFile
                     $selected = $value;
             }
             $row_delim = $selected;
-            
+
             $field_delims = $this->get_field_delims();
             $rows = explode($row_delim['char'], $data);
             foreach ($rows as $row) {
                 foreach ($field_delims as $key => $value) {
                     if (!isset($field_delims[$key]['count']))
                         $field_delims[$key]['count'] = 0;
-                    $field_delims[$key]['count'] += substr_count($row, 
+                    $field_delims[$key]['count'] += substr_count($row,
                         $value['char']);
                 }
             }
@@ -439,7 +443,7 @@ class ImportFile
                     $selected = $value;
             }
             $field_delim = $selected;
-            
+
             $enclosure_chars = $this->get_enclosure_chars();
             foreach ($rows as $row) {
                 if ($charset == 'UTF-8' &&
@@ -455,7 +459,7 @@ class ImportFile
                             continue;
                         }
                         if (substr($field, 0, strlen($value['char'])) ==
-                             $value['char'] && substr($field, 
+                             $value['char'] && substr($field,
                                 -strlen($value['char'])) == $value['char'])
                             $enclosure_chars[$key]['count'] ++;
                     }
@@ -685,9 +689,8 @@ function select_preset()
 	<span id="imessage" style="display: none"></span> <span id="spinner"
 		style="visibility: hidden"><img src="images/spinner.gif" alt=""></span>
 	<form id="import_form" name="import_form" method="GET">
-		<input type="hidden" name="func"
-			value="<?php echo htmlentities(getRequest('func', ''))?>"> <input
-			type="hidden" name="operation" value="import">
+		<input type="hidden" name="func" value="<?php echo htmlentities(getRequest('func', ''))?>">
+	    <input type="hidden" name="operation" value="import">
 <?php if ($this->presets) { ?>
       <div class="medium_label"><?php echo $GLOBALS['locImportExportPreset']?></div>
 		<div class="field">
@@ -853,6 +856,8 @@ function select_preset()
 		<div id="columns" class="field"></div>
 <?php } ?>
 
+<?php $this->add_custom_form_fields(); ?>
+
       <div class="unlimited_label"><?php echo $GLOBALS['locImportColumnMapping']?></div>
 		<div class="column_mapping">
 			<div id="mapping_errors"></div>
@@ -869,7 +874,7 @@ function select_preset()
 <?php
     }
 
-    protected function get_csv($handle, $delimiter, $enclosure, $charset, 
+    protected function get_csv($handle, $delimiter, $enclosure, $charset,
         $line_ending)
     {
         $line = '';
@@ -882,11 +887,11 @@ function select_preset()
         return str_getcsv($line, $delimiter, $enclosure);
     }
 
-    protected function process_import_row($table, $row, $dupMode, $dupCheckColumns, 
+    protected function process_import_row($table, $row, $dupMode, $dupCheckColumns,
         $mode, &$addedRecordId)
     {
         global $dblink;
-        
+
         $result = '';
         $recordId = null;
         if ($dupMode != '' && count($dupCheckColumns) > 0) {
@@ -905,7 +910,7 @@ function select_preset()
                     $result = "Update existing row id $id in table $table";
                 else
                     $result = "Not updating existing row id $id in table $table";
-                
+
                 if ($mode == 'import' && $dupMode == 'update') {
                     // Update existing row
                     $query = "UPDATE {prefix}$table SET ";
@@ -952,7 +957,7 @@ function select_preset()
         return $result;
     }
 
-    protected function process_child_records($parentTable, $parentId, $childRecords, 
+    protected function process_child_records($parentTable, $parentId, $childRecords,
         $duplicateMode, $importMode, &$field_defs)
     {
         switch ($parentTable) {
@@ -969,11 +974,11 @@ function select_preset()
         foreach ($childRecords as $childColumns) {
             ++$childNum;
             $childColumns["${parentTable}_id"] = $parentId;
-            
+
             if (!isset($field_defs[$childTable])) {
                 $field_defs[$childTable] = $this->get_field_defs($childTable);
             }
-            
+
             foreach ($childColumns as $column => $value) {
                 if (!isset($field_defs[$childTable][$column]))
                     die(
@@ -982,7 +987,7 @@ function select_preset()
             }
             $childDupColumns = [];
             $addedChildRecordId = null;
-            $result = $this->process_import_row($childTable, $childColumns, 
+            $result = $this->process_import_row($childTable, $childColumns,
                 $duplicateMode, $childDupColumns, $importMode, $addedChildrecordId);
             echo "    &nbsp; Child Record $childNum: $result<br>\n";
         }
@@ -1000,15 +1005,15 @@ function select_preset()
         $duplicateCheckColumns = getRequest('column', []);
         $columnMappings = getRequest('map_column', []);
         $skipRows = getRequest('skip_rows', 0);
-        
+
         if (!$charset || !$format || !$fieldDelimiter || !$enclosureChar ||
              !$rowDelimiter) {
             die('Invalid parameters');
         }
-        
+
         if (!$this->table_valid($table))
             die('Invalid table name: ' . htmlspecialchars($table));
-        
+
         ?>
 <div class="form_container">
 	<h1><?php echo $GLOBALS['locImportResults']?></h1>
@@ -1016,9 +1021,9 @@ function select_preset()
         if ($importMode != 'import') {
             echo '<p>' . $GLOBALS['locImportSimulation'] . "</p>\n";
         }
-        
+
         $field_defs[$table] = $this->get_field_defs($table);
-        
+
         foreach ($duplicateCheckColumns as $key => $column) {
             if (!$column)
                 unset($duplicateCheckColumns[$key]);
@@ -1027,21 +1032,21 @@ function select_preset()
                     'Invalid duplicate check column name: ' .
                          htmlspecialchars($column));
         }
-        
+
         if ($format == 'csv') {
             $fp = fopen($_SESSION['import_file'], 'r');
             if (!$fp)
                 die('Could not open import file for reading');
-            
+
             foreach ($columnMappings as $key => $column) {
                 if ($column && !isset($field_defs[$table][$column]))
                     die('Invalid column name: ' . htmlspecialchars($column));
             }
-            
+
             $field_delims = $this->get_field_delims();
             $enclosure_chars = $this->get_enclosure_chars();
             $row_delims = $this->get_row_delims();
-            
+
             if (!isset($field_delims[$fieldDelimiter]))
                 die('Invalid field delimiter');
             $fieldDelimiter = $field_delims[$fieldDelimiter]['char'];
@@ -1051,27 +1056,27 @@ function select_preset()
             if (!isset($row_delims[$rowDelimiter]))
                 die('Invalid field delimiter');
             $rowDelimiter = $row_delims[$rowDelimiter]['char'];
-            
+
             // Force enclosure char, otherwise fgetcsv would balk.
             if ($enclosureChar == '')
                 $enclosureChar = "\x01";
-            
+
             $rowNum = 1;
             for ($i = 0; $i < $skipRows; $i ++) {
-                $this->get_csv($fp, $fieldDelimiter, $enclosureChar, $charset, 
+                $this->get_csv($fp, $fieldDelimiter, $enclosureChar, $charset,
                     $rowDelimiter);
                 ++$rowNum;
             }
-            
+
             $errors = [];
-            $headings = $this->get_csv($fp, $fieldDelimiter, $enclosureChar, 
+            $headings = $this->get_csv($fp, $fieldDelimiter, $enclosureChar,
                 $charset, $rowDelimiter);
             while (!feof($fp)) {
-                $row = $this->get_csv($fp, $fieldDelimiter, $enclosureChar, $charset, 
+                $row = $this->get_csv($fp, $fieldDelimiter, $enclosureChar, $charset,
                     $rowDelimiter);
                 if (!isset($row))
                     break;
-                
+
                 ++$rowNum;
                 $mapped_row = [];
                 $haveMappings = false;
@@ -1088,8 +1093,8 @@ function select_preset()
                     }
                 } else {
                     $addedRecordId = null;
-                    $result = $this->process_import_row($table, $mapped_row, 
-                        $duplicateMode, $duplicateCheckColumns, $importMode, 
+                    $result = $this->process_import_row($table, $mapped_row,
+                        $duplicateMode, $duplicateCheckColumns, $importMode,
                         $addedRecordId);
                     if ($result) {
                         echo $GLOBALS['locImportRow'] . " $rowNum: " .
@@ -1105,7 +1110,7 @@ function select_preset()
             $data = file_get_contents($_SESSION['import_file']);
             if ($charset != _CHARSET_)
                 $data = iconv($charset, _CHARSET_, $data);
-            
+
             try {
                 $xml = new SimpleXMLElement($data);
             } catch (Exception $e) {
@@ -1115,7 +1120,7 @@ function select_preset()
             $recNum = 0;
             foreach ($xml as $record) {
                 $record = get_object_vars($record);
-                
+
                 $childRecords = [];
                 $mapped_row = [];
                 foreach ($record as $column => $value) {
@@ -1133,18 +1138,18 @@ function select_preset()
                         $mapped_row[$column] = $value;
                     }
                 }
-                
+
                 ++$recNum;
                 $addedRecordId = null;
-                $result = $this->process_import_row($table, $mapped_row, 
-                    $duplicateMode, $duplicateCheckColumns, $importMode, 
+                $result = $this->process_import_row($table, $mapped_row,
+                    $duplicateMode, $duplicateCheckColumns, $importMode,
                     $addedRecordId);
                 if ($result) {
                     echo "    Record $recNum: $result<br>\n";
                 }
                 if (isset($addedRecordId)) // Updating not feasible || $duplicateMode == 'update')
 {
-                    $this->process_child_records($table, $addedRecordId, 
+                    $this->process_child_records($table, $addedRecordId,
                         $childRecords, $duplicateMode, $importMode, $field_defs);
                 }
                 ob_flush();
@@ -1163,10 +1168,10 @@ function select_preset()
                          "' for reading");
                 exit();
             }
-            
+
             if ($charset != _CHARSET_)
                 $data = iconv($charset, _CHARSET_, $data);
-            
+
             $data = json_decode($data, true);
             if ($data === null) {
                 echo json_encode(
@@ -1181,7 +1186,7 @@ function select_preset()
             $recNum = 0;
             $headings = [];
             $rows = [];
-            
+
             foreach (reset($data) as $record) {
                 $childRecords = [];
                 $mapped_row = [];
@@ -1200,18 +1205,18 @@ function select_preset()
                         $mapped_row[$column] = $value;
                     }
                 }
-                
+
                 ++$recNum;
                 $addedRecordId = null;
-                $result = $this->process_import_row($table, $mapped_row, 
-                    $duplicateMode, $duplicateCheckColumns, $importMode, 
+                $result = $this->process_import_row($table, $mapped_row,
+                    $duplicateMode, $duplicateCheckColumns, $importMode,
                     $addedRecordId);
                 if ($result) {
                     echo "    Record $recNum: $result<br>\n";
                 }
                 if (isset($addedRecordId)) // Updating not feasible || $duplicateMode == 'update')
 {
-                    process_child_records($table, $addedRecordId, $childRecords, 
+                    process_child_records($table, $addedRecordId, $childRecords,
                         $duplicateMode, $importMode, $field_defs);
                 }
                 ob_flush();

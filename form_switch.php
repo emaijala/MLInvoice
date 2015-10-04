@@ -662,7 +662,7 @@ if ([1, 2, 5, 6, 7].indexOf(parseInt($('#state_id').val())) !== -1) { $('#state_
 EOS;
     if (getSetting('invoice_auto_archive')) {
         $markPaidToday .= <<<EOS
-$('#archived').prop('checked', true);
+if ($('#interval_type').val() == 0) { $('#archived').prop('checked', true); }
 EOS;
     }
     $markPaidToday .= <<<EOS
