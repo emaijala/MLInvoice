@@ -33,21 +33,21 @@ class InvoicePrinterEmail extends InvoicePrinterBase
         $recipientData = $this->recipientData;
         
         if ($this->printStyle == 'receipt') {
-            $defaultSubject = isset($senderData ['receipt_email_subject']) ? $senderData ['receipt_email_subject'] : '';
-            $defaultBody = isset($senderData ['receipt_email_body']) ? $senderData ['receipt_email_body'] : '';
+            $defaultSubject = isset($senderData['receipt_email_subject']) ? $senderData['receipt_email_subject'] : '';
+            $defaultBody = isset($senderData['receipt_email_body']) ? $senderData['receipt_email_body'] : '';
         } else {
-            $defaultSubject = isset($senderData ['invoice_email_subject']) ? $senderData ['invoice_email_subject'] : '';
-            $defaultBody = isset($senderData ['invoice_email_body']) ? $senderData ['invoice_email_body'] : '';
+            $defaultSubject = isset($senderData['invoice_email_subject']) ? $senderData['invoice_email_subject'] : '';
+            $defaultBody = isset($senderData['invoice_email_body']) ? $senderData['invoice_email_body'] : '';
         }
         
         $this->emailFrom = getRequest('email_from', 
-            isset($senderData ['invoice_email_from']) ? $senderData ['invoice_email_from'] : (isset(
-                $senderData ['email']) ? $senderData ['email'] : ''));
+            isset($senderData['invoice_email_from']) ? $senderData['invoice_email_from'] : (isset(
+                $senderData['email']) ? $senderData['email'] : ''));
         $this->emailTo = getRequest('email_to', 
-            isset($recipientData ['email']) ? $recipientData ['email'] : '');
+            isset($recipientData['email']) ? $recipientData['email'] : '');
         $this->emailCC = getRequest('email_cc', '');
         $this->emailBCC = getRequest('email_bcc', 
-            isset($senderData ['invoice_email_bcc']) ? $senderData ['invoice_email_bcc'] : '');
+            isset($senderData['invoice_email_bcc']) ? $senderData['invoice_email_bcc'] : '');
         $this->emailSubject = $this->replacePlaceholders(
             getRequest('email_subject', $defaultSubject));
         $this->emailBody = $this->replacePlaceholders(
@@ -177,7 +177,7 @@ class InvoicePrinterEmail extends InvoicePrinterBase
             $this->headersToStr($headers), 
             '-f ' . $this->extractAddress($this->emailFrom));
         
-        if ($result && $invoiceData ['state_id'] == 1) {
+        if ($result && $invoiceData['state_id'] == 1) {
             // Mark invoice sent
             mysqli_param_query('UPDATE {prefix}invoice SET state_id=2 WHERE id=?', 
                 [
@@ -185,13 +185,13 @@ class InvoicePrinterEmail extends InvoicePrinterBase
                 ]);
         }
         if ($result) {
-            $_SESSION ['formMessage'] = 'EmailSent';
+            $_SESSION['formMessage'] = 'EmailSent';
         } else {
-            $_SESSION ['formErrorMessage'] = 'EmailFailed';
+            $_SESSION['formErrorMessage'] = 'EmailFailed';
         }
         echo header(
-            'Location: ' . _PROTOCOL_ . $_SERVER ['HTTP_HOST'] .
-                 dirname($_SERVER ['PHP_SELF']) . '/index.php?func=' .
+            'Location: ' . _PROTOCOL_ . $_SERVER['HTTP_HOST'] .
+                 dirname($_SERVER['PHP_SELF']) . '/index.php?func=' .
                  sanitize(getRequest('func', 'open_invoices')) .
                  "&list=invoices&form=invoice&id={$this->invoiceId}");
     }
@@ -205,7 +205,7 @@ class InvoicePrinterEmail extends InvoicePrinterBase
             $line = '';
             foreach (explode(' ', $paragraph) as $word) {
                 if (strlen($line) + strlen($word) > 66) {
-                    $lines [] = "$line ";
+                    $lines[] = "$line ";
                     $line = '';
                 }
                 if ($line)
@@ -217,7 +217,7 @@ class InvoicePrinterEmail extends InvoicePrinterBase
             }
             $line = rtrim($line);
             $line = preg_replace('/\s+' . PHP_EOL . '$/', PHP_EOL, $line);
-            $lines [] = rtrim($line, ' ');
+            $lines[] = rtrim($line, ' ');
         }
         $result = '';
         foreach ($lines as $line) {
@@ -232,12 +232,13 @@ class InvoicePrinterEmail extends InvoicePrinterBase
         foreach ($headers as $header => $value) {
             if (!$value)
                 continue;
-            if (in_array($header, [
-                'From', 
-                'To', 
-                'Cc', 
-                'Bcc'
-            ]))
+            if (in_array($header, 
+                [
+                    'From', 
+                    'To', 
+                    'Cc', 
+                    'Bcc'
+                ]))
                 $result .= "$header: " . $this->mimeEncodeAddress($value) . PHP_EOL;
             else
                 $result .= "$header: $value" . PHP_EOL;
@@ -248,16 +249,16 @@ class InvoicePrinterEmail extends InvoicePrinterBase
     protected function extractAddress($address)
     {
         if (preg_match('/<(.+)>/', $address, $matches) == 1)
-            return $matches [1];
+            return $matches[1];
         return $address;
     }
 
     protected function mimeEncodeAddress($address)
     {
         if (preg_match('/(.+) (<.+>)/', $address, $matches) == 1)
-            $address = $this->mimeEncodeHeaderValue($matches [1]) . ' ' . $matches [2];
+            $address = $this->mimeEncodeHeaderValue($matches[1]) . ' ' . $matches[2];
         elseif (preg_match('/(.+)(<.+>)/', $address, $matches) == 1)
-            $address = $this->mimeEncodeHeaderValue($matches [1]) . $matches [2];
+            $address = $this->mimeEncodeHeaderValue($matches[1]) . $matches[2];
         return $address;
     }
 

@@ -60,43 +60,43 @@ if ($strFields !== FALSE) {
 require 'form_switch.php';
 
 for ($j = 0; $j < count($astrSelectedFields); $j ++) {
-    $tmpDelete = getPost('delete_' . $astrSelectedFields [$j] . '_x', FALSE);
+    $tmpDelete = getPost('delete_' . $astrSelectedFields[$j] . '_x', FALSE);
     if ($tmpDelete) {
-        $astrSelectedFields [$j] = '';
+        $astrSelectedFields[$j] = '';
     }
 }
 
 $strFields = implode(',', $astrSelectedFields);
 
 for ($j = 0; $j < count($astrFormElements); $j ++) {
-    if ($astrFormElements [$j] ['type'] == 'RESULT' &&
-         $astrFormElements [$j] ['name'] != '') {
-        $astrFormElements [$j] ['type'] = 'TEXT';
+    if ($astrFormElements[$j]['type'] == 'RESULT' &&
+         $astrFormElements[$j]['name'] != '') {
+        $astrFormElements[$j]['type'] = 'TEXT';
     }
 }
 
 $listValues = [];
 for ($j = 0; $j < count($astrFormElements); $j ++) {
-    if ($astrFormElements [$j] ['type'] != '' &&
-         $astrFormElements [$j] ['type'] != 'LABEL' &&
-         $astrFormElements [$j] ['type'] != 'HIDINT' &&
-         $astrFormElements [$j] ['type'] != 'IFORM' &&
-         $astrFormElements [$j] ['type'] != 'BUTTON' &&
-         $astrFormElements [$j] ['type'] != 'JSBUTTON' &&
-         !in_array($astrFormElements [$j] ['name'], $astrSelectedFields, true)) {
-        $listValues [$astrFormElements [$j] ['name']] = str_replace('<br>', ' ', 
-            $astrFormElements [$j] ['label']);
+    if ($astrFormElements[$j]['type'] != '' &&
+         $astrFormElements[$j]['type'] != 'LABEL' &&
+         $astrFormElements[$j]['type'] != 'HIDINT' &&
+         $astrFormElements[$j]['type'] != 'IFORM' &&
+         $astrFormElements[$j]['type'] != 'BUTTON' &&
+         $astrFormElements[$j]['type'] != 'JSBUTTON' &&
+         !in_array($astrFormElements[$j]['name'], $astrSelectedFields, true)) {
+        $listValues[$astrFormElements[$j]['name']] = str_replace('<br>', ' ', 
+            $astrFormElements[$j]['label']);
     }
-    $strControlType = $astrFormElements [$j] ['type'];
-    $strControlName = $astrFormElements [$j] ['name'];
+    $strControlType = $astrFormElements[$j]['type'];
+    $strControlName = $astrFormElements[$j]['name'];
     
     if ($strControlType == 'IFORM' || $strControlType == 'BUTTON') {
-        $astrValues [$strControlName] = '';
+        $astrValues[$strControlName] = '';
     } elseif ($strControlType != 'LABEL') {
         if ($strControlType == 'INTDATE') {
-            $astrValues [$strControlName] = getPost($strControlName, '');
+            $astrValues[$strControlName] = getPost($strControlName, '');
         } else {
-            $astrValues [$strControlName] = getPost($strControlName, '');
+            $astrValues[$strControlName] = getPost($strControlName, '');
         }
     }
 }
@@ -113,8 +113,8 @@ $strOnLoad = '';
 if ($blnSearch || $blnSave) {
     $strWhereClause = '';
     for ($j = 0; $j < count($astrFormElements); $j ++) {
-        $elem = $astrFormElements [$j];
-        $name = $elem ['name'];
+        $elem = $astrFormElements[$j];
+        $name = $elem['name'];
         if (in_array($name, $astrSelectedFields, true)) {
             $strSearchOperator = getPost("operator_$name", '');
             if ($strSearchOperator)
@@ -122,23 +122,22 @@ if ($blnSearch || $blnSave) {
             $strSearchMatch = getPost("searchmatch_$name", '=');
             
             // do LIKE || NOT LIKE search to elements with text or varchar datatype
-            if ($elem ['type'] == 'TEXT' || $elem ['type'] == 'AREA') {
+            if ($elem['type'] == 'TEXT' || $elem['type'] == 'AREA') {
                 if ($strSearchMatch == '=') {
                     $strSearchMatch = 'LIKE';
                 } else {
                     $strSearchMatch = 'NOT LIKE';
                 }
-                $strSearchValue = "'%" . addcslashes($astrValues [$name], "'\\") .
-                     "%'";
-            } elseif ($astrFormElements [$j] ['type'] == 'INT' ||
-                 $astrFormElements [$j] ['type'] == 'LIST' ||
-                 $astrFormElements [$j] ['type'] == 'SELECT' ||
-                 $astrFormElements [$j] ['type'] == 'SEARCHLIST') {
-                $strSearchValue = $astrValues [$name];
-            } elseif ($astrFormElements [$j] ['type'] == 'CHECK') {
-                $strSearchValue = $astrValues [$name] ? 1 : 0;
-            } elseif ($astrFormElements [$j] ['type'] == 'INTDATE') {
-                $strSearchValue = dateConvDate2DBDate($astrValues [$name]);
+                $strSearchValue = "'%" . addcslashes($astrValues[$name], "'\\") . "%'";
+            } elseif ($astrFormElements[$j]['type'] == 'INT' ||
+                 $astrFormElements[$j]['type'] == 'LIST' ||
+                 $astrFormElements[$j]['type'] == 'SELECT' ||
+                 $astrFormElements[$j]['type'] == 'SEARCHLIST') {
+                $strSearchValue = $astrValues[$name];
+            } elseif ($astrFormElements[$j]['type'] == 'CHECK') {
+                $strSearchValue = $astrValues[$name] ? 1 : 0;
+            } elseif ($astrFormElements[$j]['type'] == 'INTDATE') {
+                $strSearchValue = dateConvDate2DBDate($astrValues[$name]);
             }
             if ($strSearchValue)
                 $strWhereClause .= "$strSearchOperator$strListTableAlias$name $strSearchMatch $strSearchValue";
@@ -156,7 +155,7 @@ if ($blnSearch || $blnSave) {
              'VALUES (?, ?, ?, ?)';
         $intRes = mysqli_param_query($strQuery, 
             [
-                $_SESSION ['sesUSERID'], 
+                $_SESSION['sesUSERID'], 
                 $strSearchName, 
                 $strFunc, 
                 $strWhereClause
@@ -191,6 +190,8 @@ $(function() {
 
 							
 							
+							
+							
 							</td>
 							<th class="sublabel">&nbsp;
 							
@@ -199,6 +200,8 @@ $(function() {
     <?php echo $GLOBALS['locSearchTerm']?>
 
 
+							
+							
 							
 							
 							</td>
@@ -210,17 +213,17 @@ $(function() {
 
 $fieldCount = 0;
 for ($j = 0; $j < count($astrFormElements); $j ++) {
-    if (in_array($astrFormElements [$j] ['name'], $astrSelectedFields, true)) {
-        $strSearchMatch = getPost('searchmatch_' . $astrFormElements [$j] ['name'], 
+    if (in_array($astrFormElements[$j]['name'], $astrSelectedFields, true)) {
+        $strSearchMatch = getPost('searchmatch_' . $astrFormElements[$j]['name'], 
             '=');
-        if ($astrFormElements [$j] ['style'] == 'xxlong') {
-            $astrFormElements [$j] ['style'] = 'long';
+        if ($astrFormElements[$j]['style'] == 'xxlong') {
+            $astrFormElements[$j]['style'] = 'long';
         }
         
         if (++$fieldCount > 1) {
             $strSelectedOperator = getPost(
-                'operator_' . $astrFormElements [$j] ['name'], 'AND');
-            $strOperator = htmlListBox('operator_' . $astrFormElements [$j] ['name'], 
+                'operator_' . $astrFormElements[$j]['name'], 'AND');
+            $strOperator = htmlListBox('operator_' . $astrFormElements[$j]['name'], 
                 [
                     'AND' => $GLOBALS['locSearchAND'], 
                     'OR' => $GLOBALS['locSearchOR']

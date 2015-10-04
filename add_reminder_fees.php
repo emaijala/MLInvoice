@@ -27,9 +27,9 @@ function addReminderFees($intInvoiceId)
         $intInvoiceId
     ]);
     if ($row = mysqli_fetch_assoc($intRes)) {
-        $intStateId = $row ['state_id'];
-        $strDueDate = dateConvDBDate2Date($row ['due_date']);
-        $strPrintDate = $row ['print_date'];
+        $intStateId = $row['state_id'];
+        $strDueDate = dateConvDBDate2Date($row['due_date']);
+        $strPrintDate = $row['print_date'];
     } else {
         return $GLOBALS['locRecordNotFound'];
     }
@@ -86,16 +86,16 @@ function addReminderFees($intInvoiceId)
             $strQuery = 'SELECT ir.pcs, ir.price, ir.discount, ir.vat, ir.vat_included, ir.reminder_row ' .
                  'FROM {prefix}invoice_row ir ' .
                  'WHERE ir.deleted=0 AND ir.invoice_id=?';
-            $intRes = mysqli_param_query($strQuery, [
-                $intInvoiceId
-            ]);
+            $intRes = mysqli_param_query($strQuery, 
+                [
+                    $intInvoiceId
+                ]);
             while ($row = mysqli_fetch_assoc($intRes)) {
-                if ($row ['reminder_row']) {
+                if ($row['reminder_row']) {
                     continue;
                 }
-                list ($rowSum, $rowVAT, $rowSumVAT) = calculateRowSum($row ['price'], 
-                    $row ['pcs'], $row ['vat'], $row ['vat_included'], 
-                    $row ['discount']);
+                list ($rowSum, $rowVAT, $rowSumVAT) = calculateRowSum($row['price'], 
+                    $row['pcs'], $row['vat'], $row['vat_included'], $row['discount']);
                 $intTotSumVAT += $rowSumVAT;
             }
             $intPenalty = $intTotSumVAT * $penaltyInterest / 100 * $intDaysOverdue /

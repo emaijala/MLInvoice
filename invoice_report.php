@@ -177,9 +177,9 @@ class InvoiceReport
         $intRes = mysqli_query_check($strQuery);
         $first = true;
         while ($row = mysqli_fetch_assoc($intRes)) {
-            $intStateId = $row ['id'];
-            $strStateName = isset($GLOBALS['loc' . $row ['name']]) ? $GLOBALS['loc' .
-                 $row ['name']] : $row ['name'];
+            $intStateId = $row['id'];
+            $strStateName = isset($GLOBALS['loc' . $row['name']]) ? $GLOBALS['loc' .
+                 $row['name']] : $row['name'];
             $tmpSelected = getRequest("stateid_$intStateId", TRUE) ? TRUE : false;
             $strChecked = $tmpSelected ? ' checked' : '';
             if (!$first) {
@@ -199,8 +199,8 @@ class InvoiceReport
 <?php
         $first = true;
         foreach ($this->fields as $field => $spec) {
-            $label = $GLOBALS[$spec ['label']];
-            $checked = $spec ['checked'] ? 'checked="checked"' : '';
+            $label = $GLOBALS[$spec['label']];
+            $checked = $spec['checked'] ? 'checked="checked"' : '';
             if (!$first) {
                 echo "      <div class=\"medium_label\"></div>\n";
             }
@@ -232,8 +232,8 @@ class InvoiceReport
         $rowTypes = getRequest('row_types', 'all');
         
         $dateRange = explode(' - ', getRequest('date', ''));
-        $startDate = $dateRange [0];
-        $endDate = isset($dateRange [1]) ? $dateRange [1] : $startDate;
+        $startDate = $dateRange[0];
+        $endDate = isset($dateRange[1]) ? $dateRange[1] : $startDate;
         if ($startDate) {
             $startDate = dateConvDate2DBDate($startDate);
         }
@@ -242,8 +242,8 @@ class InvoiceReport
         }
         
         $rowDateRange = explode(' - ', getRequest('row_date', ''));
-        $rowStartDate = $rowDateRange [0];
-        $rowEndDate = isset($rowDateRange [1]) ? $rowDateRange [1] : $rowStartDate;
+        $rowStartDate = $rowDateRange[0];
+        $rowEndDate = isset($rowDateRange[1]) ? $rowDateRange[1] : $rowStartDate;
         if ($rowStartDate) {
             $rowStartDate = dateConvDate2DBDate($rowStartDate);
         }
@@ -252,8 +252,8 @@ class InvoiceReport
         }
         
         $paymentDateRange = explode(' - ', getRequest('payment_date', ''));
-        $paymentStartDate = $paymentDateRange [0];
-        $paymentEndDate = isset($paymentDateRange [1]) ? $paymentDateRange [1] : '';
+        $paymentStartDate = $paymentDateRange[0];
+        $paymentEndDate = isset($paymentDateRange[1]) ? $paymentDateRange[1] : '';
         if ($paymentStartDate) {
             $paymentStartDate = dateConvDate2DBDate($paymentStartDate);
         }
@@ -271,28 +271,28 @@ class InvoiceReport
         
         if ($startDate) {
             $strQuery .= ' AND i.invoice_date >= ?';
-            $arrParams [] = $startDate;
+            $arrParams[] = $startDate;
         }
         if ($endDate) {
             $strQuery .= ' AND i.invoice_date <= ?';
-            $arrParams [] = $endDate;
+            $arrParams[] = $endDate;
         }
         if ($paymentStartDate) {
             $strQuery .= ' AND i.payment_date >= ?';
-            $arrParams [] = $paymentStartDate;
+            $arrParams[] = $paymentStartDate;
         }
         if ($paymentEndDate) {
             $strQuery .= ' AND i.payment_date <= ?';
-            $arrParams [] = $paymentEndDate;
+            $arrParams[] = $paymentEndDate;
         }
         if ($intBaseId) {
             $strQuery .= ' AND i.base_id = ?';
-            $arrParams [] = $intBaseId;
+            $arrParams[] = $intBaseId;
         }
         
         if ($intCompanyId) {
             $strQuery .= ' AND i.company_id = ?';
-            $arrParams [] = $intCompanyId;
+            $arrParams[] = $intCompanyId;
         }
         
         $strQuery2 = '';
@@ -300,13 +300,13 @@ class InvoiceReport
              'FROM {prefix}invoice_state WHERE deleted=0 ' . 'ORDER BY order_no';
         $intRes = mysqli_query_check($strQuery3);
         while ($row = mysqli_fetch_assoc($intRes)) {
-            $intStateId = $row ['id'];
-            $strStateName = $row ['name'];
+            $intStateId = $row['id'];
+            $strStateName = $row['name'];
             $strTemp = "stateid_$intStateId";
             $tmpSelected = getRequest($strTemp, false);
             if ($tmpSelected) {
                 $strQuery2 .= 'i.state_id = ? OR ';
-                $arrParams [] = $intStateId;
+                $arrParams[] = $intStateId;
             }
         }
         if ($strQuery2) {
@@ -338,20 +338,20 @@ class InvoiceReport
         while ($row = mysqli_fetch_assoc($intRes)) {
             switch ($grouping) {
             case 'state' :
-                $invoiceGroup = $row ['state'];
+                $invoiceGroup = $row['state'];
                 break;
             case 'month' :
-                $invoiceGroup = substr($row ['invoice_date'], 4, 2);
+                $invoiceGroup = substr($row['invoice_date'], 4, 2);
                 break;
             case 'client' :
-                $invoiceGroup = $row ['name'];
+                $invoiceGroup = $row['name'];
                 break;
             default :
                 $invoiceGroup = false;
             }
             
             $rowParams = [
-                $row ['id']
+                $row['id']
             ];
             $strQuery = 'SELECT ir.description, ir.pcs, ir.price, ir.discount, ir.row_date, ir.vat, ir.vat_included ' .
                  'FROM {prefix}invoice_row ir ' .
@@ -359,11 +359,11 @@ class InvoiceReport
             
             if ($rowStartDate) {
                 $strQuery .= ' AND ir.row_date >= ?';
-                $rowParams [] = $rowStartDate;
+                $rowParams[] = $rowStartDate;
             }
             if ($rowEndDate) {
                 $strQuery .= ' AND ir.row_date <= ?';
-                $rowParams [] = $rowEndDate;
+                $rowParams[] = $rowEndDate;
             }
             if ($rowTypes != 'all') {
                 if ($rowTypes == 'normal') {
@@ -381,8 +381,8 @@ class InvoiceReport
             while ($row2 = mysqli_fetch_assoc($intRes2)) {
                 $rows = true;
                 list ($intSum, $intVAT, $intSumVAT) = calculateRowSum(
-                    $row2 ['price'], $row2 ['pcs'], $row2 ['vat'], 
-                    $row2 ['vat_included'], $row2 ['discount']);
+                    $row2['price'], $row2['pcs'], $row2['vat'], 
+                    $row2['vat_included'], $row2['discount']);
                 
                 $intRowSum += $intSum;
                 $intRowVAT += $intVAT;
@@ -554,17 +554,17 @@ class InvoiceReport
             $pdf->SetFont('Helvetica', '', 8);
             $pdf->setY($pdf->getY() + 1);
             if (in_array('invoice_no', $printFields)) {
-                $pdf->Cell(18, 4, $row ['invoice_no'], 0, 0, 'L');
+                $pdf->Cell(18, 4, $row['invoice_no'], 0, 0, 'L');
             }
             if (in_array('invoice_date', $printFields)) {
-                $pdf->Cell(20, 4, dateConvDBDate2Date($row ['invoice_date']), 0, 0, 
+                $pdf->Cell(20, 4, dateConvDBDate2Date($row['invoice_date']), 0, 0, 
                     'L');
             }
             if (in_array('due_date', $printFields)) {
-                $pdf->Cell(20, 4, dateConvDBDate2Date($row ['due_date']), 0, 0, 'L');
+                $pdf->Cell(20, 4, dateConvDBDate2Date($row['due_date']), 0, 0, 'L');
             }
             if (in_array('payment_date', $printFields)) {
-                $pdf->Cell(20, 4, dateConvDBDate2Date($row ['payment_date']), 0, 0, 
+                $pdf->Cell(20, 4, dateConvDBDate2Date($row['payment_date']), 0, 0, 
                     'L');
             }
             if (in_array('company_name', $printFields)) {
@@ -573,11 +573,11 @@ class InvoiceReport
             }
             if (in_array('status', $printFields)) {
                 $pdf->Cell(20, 4, 
-                    isset($GLOBALS['loc' . $row ['state']]) ? $GLOBALS['loc' .
-                         $row ['state']] : $row ['state'], 0, 0, 'L');
+                    isset($GLOBALS['loc' . $row['state']]) ? $GLOBALS['loc' .
+                         $row['state']] : $row['state'], 0, 0, 'L');
             }
             if (in_array('ref_number', $printFields)) {
-                $pdf->Cell(25, 4, formatRefNumber($row ['ref_number']), 0, 0, 'L');
+                $pdf->Cell(25, 4, formatRefNumber($row['ref_number']), 0, 0, 'L');
             }
             if (in_array('sums', $printFields)) {
                 $pdf->Cell(25, 4, miscRound2Decim($intRowSum), 0, 0, 'R');
@@ -587,7 +587,7 @@ class InvoiceReport
             // Print company name last, as it can span multiple lines
             if (in_array('company_name', $printFields)) {
                 $pdf->setX($nameX);
-                $pdf->MultiCell(45, 4, $row ['name'], 0, 'L');
+                $pdf->MultiCell(45, 4, $row['name'], 0, 'L');
             }
             return;
         }

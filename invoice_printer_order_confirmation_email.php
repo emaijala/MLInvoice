@@ -34,19 +34,19 @@ class InvoicePrinterOrderConfirmationEmail extends InvoicePrinterOrderConfirmati
         $recipientData = $this->recipientData;
         
         $this->emailFrom = getRequest('email_from', 
-            isset($senderData ['invoice_email_from']) ? $senderData ['invoice_email_from'] : (isset(
-                $senderData ['email']) ? $senderData ['email'] : ''));
+            isset($senderData['invoice_email_from']) ? $senderData['invoice_email_from'] : (isset(
+                $senderData['email']) ? $senderData['email'] : ''));
         $this->emailTo = getRequest('email_to', 
-            isset($recipientData ['email']) ? $recipientData ['email'] : '');
+            isset($recipientData['email']) ? $recipientData['email'] : '');
         $this->emailCC = getRequest('email_cc', '');
         $this->emailBCC = getRequest('email_bcc', 
-            isset($senderData ['invoice_email_bcc']) ? $senderData ['invoice_email_bcc'] : '');
+            isset($senderData['invoice_email_bcc']) ? $senderData['invoice_email_bcc'] : '');
         $this->emailSubject = $this->replacePlaceholders(
             getRequest('email_subject', 
-                isset($senderData ['order_confirmation_email_subject']) ? $senderData ['order_confirmation_email_subject'] : ''));
+                isset($senderData['order_confirmation_email_subject']) ? $senderData['order_confirmation_email_subject'] : ''));
         $this->emailBody = $this->replacePlaceholders(
             getRequest('email_body', 
-                isset($senderData ['order_confirmation_email_body']) ? $senderData ['order_confirmation_email_body'] : ''));
+                isset($senderData['order_confirmation_email_body']) ? $senderData['order_confirmation_email_body'] : ''));
         
         $send = getRequest('email_send', '');
         if (!$send || !$this->emailFrom || !$this->emailTo || !$this->emailSubject ||
@@ -152,7 +152,7 @@ class InvoicePrinterOrderConfirmationEmail extends InvoicePrinterOrderConfirmati
         $filename = $this->outputFileName ? $this->outputFileName : getSetting(
             'invoice_pdf_filename');
         // Replace the %d style placeholder
-        $filename = sprintf($filename, $invoiceData ['invoice_no']);
+        $filename = sprintf($filename, $invoiceData['invoice_no']);
         // Handle additional placeholders
         $filename = $this->replacePlaceholders($filename);
         $data = $pdf->Output($filename, 'E');
@@ -176,13 +176,13 @@ class InvoicePrinterOrderConfirmationEmail extends InvoicePrinterOrderConfirmati
             '-f ' . $this->extractAddress($this->emailFrom));
         
         if ($result) {
-            $_SESSION ['formMessage'] = 'EmailSent';
+            $_SESSION['formMessage'] = 'EmailSent';
         } else {
-            $_SESSION ['formErrorMessage'] = 'EmailFailed';
+            $_SESSION['formErrorMessage'] = 'EmailFailed';
         }
         echo header(
-            'Location: ' . _PROTOCOL_ . $_SERVER ['HTTP_HOST'] .
-                 dirname($_SERVER ['PHP_SELF']) . '/index.php?func=' .
+            'Location: ' . _PROTOCOL_ . $_SERVER['HTTP_HOST'] .
+                 dirname($_SERVER['PHP_SELF']) . '/index.php?func=' .
                  sanitize(getRequest('func', 'open_invoices')) .
                  "&list=invoices&form=invoice&id={$this->invoiceId}");
     }
@@ -196,7 +196,7 @@ class InvoicePrinterOrderConfirmationEmail extends InvoicePrinterOrderConfirmati
             $line = '';
             foreach (explode(' ', $paragraph) as $word) {
                 if (strlen($line) + strlen($word) > 66) {
-                    $lines [] = "$line ";
+                    $lines[] = "$line ";
                     $line = '';
                 }
                 if ($line)
@@ -208,7 +208,7 @@ class InvoicePrinterOrderConfirmationEmail extends InvoicePrinterOrderConfirmati
             }
             $line = rtrim($line);
             $line = preg_replace('/\s+' . PHP_EOL . '$/', PHP_EOL, $line);
-            $lines [] = rtrim($line, ' ');
+            $lines[] = rtrim($line, ' ');
         }
         $result = '';
         foreach ($lines as $line) {
@@ -223,12 +223,13 @@ class InvoicePrinterOrderConfirmationEmail extends InvoicePrinterOrderConfirmati
         foreach ($headers as $header => $value) {
             if (!$value)
                 continue;
-            if (in_array($header, [
-                'From', 
-                'To', 
-                'Cc', 
-                'Bcc'
-            ]))
+            if (in_array($header, 
+                [
+                    'From', 
+                    'To', 
+                    'Cc', 
+                    'Bcc'
+                ]))
                 $result .= "$header: " . $this->mimeEncodeAddress($value) . PHP_EOL;
             else
                 $result .= "$header: $value" . PHP_EOL;
@@ -239,16 +240,16 @@ class InvoicePrinterOrderConfirmationEmail extends InvoicePrinterOrderConfirmati
     protected function extractAddress($address)
     {
         if (preg_match('/<(.+)>/', $address, $matches) == 1)
-            return $matches [1];
+            return $matches[1];
         return $address;
     }
 
     protected function mimeEncodeAddress($address)
     {
         if (preg_match('/(.+) (<.+>)/', $address, $matches) == 1)
-            $address = $this->mimeEncodeHeaderValue($matches [1]) . ' ' . $matches [2];
+            $address = $this->mimeEncodeHeaderValue($matches[1]) . ' ' . $matches[2];
         elseif (preg_match('/(.+)(<.+>)/', $address, $matches) == 1)
-            $address = $this->mimeEncodeHeaderValue($matches [1]) . $matches [2];
+            $address = $this->mimeEncodeHeaderValue($matches[1]) . $matches[2];
         return $address;
     }
 

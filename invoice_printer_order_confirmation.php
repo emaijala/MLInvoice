@@ -32,11 +32,11 @@ class InvoicePrinterOrderConfirmation extends InvoicePrinterBase
     public function printInvoice()
     {
         $this->invoiceRowMaxY = 260;
-        if ($this->senderData ['bank_iban'] && $this->senderData ['bank_swiftbic']) {
-            $bank = $this->senderData ['bank_iban'] . '/' .
-                 $this->senderData ['bank_swiftbic'];
+        if ($this->senderData['bank_iban'] && $this->senderData['bank_swiftbic']) {
+            $bank = $this->senderData['bank_iban'] . '/' .
+                 $this->senderData['bank_swiftbic'];
         } else {
-            $this->senderData ['bank_iban'] . $this->senderData ['bank_swiftbic'];
+            $this->senderData['bank_iban'] . $this->senderData['bank_swiftbic'];
         }
         $this->senderAddressLine .= "\n$bank";
         
@@ -62,61 +62,61 @@ class InvoicePrinterOrderConfirmation extends InvoicePrinterBase
         $pdf->Cell(40, 5, $GLOBALS['locPDFOrderConfirmationHeader'], 0, 1, 'R');
         $pdf->SetFont('Helvetica', '', 10);
         $pdf->SetXY(115, $pdf->GetY() + 5);
-        if ($recipientData ['customer_no'] != 0) {
+        if ($recipientData['customer_no'] != 0) {
             $pdf->Cell(40, 4, $GLOBALS['locPDFCustomerNumber'] . ': ', 0, 0, 'R');
-            $pdf->Cell(60, 4, $recipientData ['customer_no'], 0, 1);
+            $pdf->Cell(60, 4, $recipientData['customer_no'], 0, 1);
         }
-        if ($recipientData ['company_id']) {
+        if ($recipientData['company_id']) {
             $pdf->SetX(115);
             $pdf->Cell(40, 4, $GLOBALS['locPDFClientVATID'] . ': ', 0, 0, 'R');
-            $pdf->Cell(60, 4, $recipientData ['company_id'], 0, 1);
+            $pdf->Cell(60, 4, $recipientData['company_id'], 0, 1);
         }
         $pdf->SetX(115);
         $pdf->Cell(40, 4, $GLOBALS['locPDFOrderConfirmationNumber'] . ': ', 0, 0, 
             'R');
-        $pdf->Cell(60, 4, $invoiceData ['invoice_no'], 0, 1);
+        $pdf->Cell(60, 4, $invoiceData['invoice_no'], 0, 1);
         
         $pdf->SetX(115);
         $pdf->Cell(40, 4, $GLOBALS['locPDFOrderConfirmationDate'] . ': ', 0, 0, 'R');
-        $strInvoiceDate = $this->_formatDate($invoiceData ['invoice_date']);
+        $strInvoiceDate = $this->_formatDate($invoiceData['invoice_date']);
         $pdf->Cell(60, 4, $strInvoiceDate, 0, 1);
         
         $pdf->SetX(115);
         $pdf->Cell(40, 5, $GLOBALS['locPDFTermsOfPayment'] . ': ', 0, 0, 'R');
         $paymentDays = round(
-            dbDate2UnixTime($invoiceData ['due_date']) / 3600 / 24 -
-                 dbDate2UnixTime($invoiceData ['invoice_date']) / 3600 / 24);
+            dbDate2UnixTime($invoiceData['due_date']) / 3600 / 24 -
+                 dbDate2UnixTime($invoiceData['invoice_date']) / 3600 / 24);
         if ($paymentDays < 0) {
             // This shouldn't happen, but try to be safe...
-            $paymentDays = getPaymentDays($invoiceData ['company_id']);
+            $paymentDays = getPaymentDays($invoiceData['company_id']);
         }
         $pdf->Cell(60, 5, 
-            sprintf(getTermsOfPayment($invoiceData ['company_id']), $paymentDays), 0, 
+            sprintf(getTermsOfPayment($invoiceData['company_id']), $paymentDays), 0, 
             1);
         
-        if ($invoiceData ['reference']) {
+        if ($invoiceData['reference']) {
             $pdf->SetX(115);
             $pdf->Cell(40, 5, $GLOBALS['locPDFYourReference'] . ': ', 0, 0, 'R');
-            $pdf->MultiCell(50, 5, $invoiceData ['reference'], 0, 'L');
+            $pdf->MultiCell(50, 5, $invoiceData['reference'], 0, 'L');
         }
         
-        if ($invoiceData ['delivery_terms']) {
+        if ($invoiceData['delivery_terms']) {
             $pdf->SetX(115);
             $pdf->Cell(40, 4, $GLOBALS['locPDFDeliveryTerms'] . ': ', 0, 0, 'R');
-            $pdf->MultiCell(50, 4, $invoiceData ['delivery_terms'], 0, 'L', 0);
+            $pdf->MultiCell(50, 4, $invoiceData['delivery_terms'], 0, 'L', 0);
         }
         
-        if ($invoiceData ['delivery_method']) {
+        if ($invoiceData['delivery_method']) {
             $pdf->SetX(115);
             $pdf->Cell(40, 4, $GLOBALS['locPDFDeliveryMethod'] . ': ', 0, 0, 'R');
-            $pdf->MultiCell(50, 4, $invoiceData ['delivery_method'], 0, 'L', 0);
+            $pdf->MultiCell(50, 4, $invoiceData['delivery_method'], 0, 'L', 0);
         }
         
-        if (isset($invoiceData ['info']) && $invoiceData ['info']) {
+        if (isset($invoiceData['info']) && $invoiceData['info']) {
             $pdf->SetX(115);
             $pdf->Cell(40, 5, $GLOBALS['locPDFAdditionalInformation'] . ': ', 0, 0, 
                 'R');
-            $pdf->MultiCell(50, 4, $invoiceData ['info'], 0, 'L', 0);
+            $pdf->MultiCell(50, 4, $invoiceData['info'], 0, 'L', 0);
         }
     }
 
@@ -148,7 +148,7 @@ class InvoicePrinterOrderConfirmation extends InvoicePrinterBase
         foreach ($this->invoiceRowData as $row) {
             // Product / description
             $description = '';
-            switch ($row ['reminder_row']) {
+            switch ($row['reminder_row']) {
             case 1 :
                 $description = $GLOBALS['locPDFPenaltyInterestDesc'];
                 break;
@@ -156,44 +156,44 @@ class InvoicePrinterOrderConfirmation extends InvoicePrinterBase
                 $description = $GLOBALS['locPDFReminderFeeDesc'];
                 break;
             default :
-                if ($row ['product_name']) {
-                    if ($row ['description'])
-                        $description = $row ['product_name'] . ' (' .
-                             $row ['description'] . ')';
+                if ($row['product_name']) {
+                    if ($row['description'])
+                        $description = $row['product_name'] . ' (' .
+                             $row['description'] . ')';
                     else
-                        $description = $row ['product_name'];
+                        $description = $row['product_name'];
                     if (getSetting('invoice_display_product_codes') &&
-                         $row ['product_code']) {
-                        $description = $row ['product_code'] . ' ' . $description;
+                         $row['product_code']) {
+                        $description = $row['product_code'] . ' ' . $description;
                     }
                 } else
-                    $description = $row ['description'];
+                    $description = $row['description'];
             }
             
             // Sums
-            list ($rowSum, $rowVAT, $rowSumVAT) = calculateRowSum($row ['price'], 
-                $row ['pcs'], $row ['vat'], $row ['vat_included'], $row ['discount']);
-            if ($row ['vat_included'])
-                $row ['price'] /= (1 + $row ['vat'] / 100);
+            list ($rowSum, $rowVAT, $rowSumVAT) = calculateRowSum($row['price'], 
+                $row['pcs'], $row['vat'], $row['vat_included'], $row['discount']);
+            if ($row['vat_included'])
+                $row['price'] /= (1 + $row['vat'] / 100);
             
-            if ($row ['price'] == 0 && $row ['pcs'] == 0) {
+            if ($row['price'] == 0 && $row['pcs'] == 0) {
                 $pdf->SetX($left);
                 $pdf->MultiCell(0, 5, $description, 0, 'L');
             } else {
                 $pdf->SetX($nameColWidth + $left);
-                $pdf->Cell(20, 5, $this->_formatDate($row ['row_date']), 0, 0, 'L');
-                $decimals = isset($row ['price_decimals']) ? $row ['price_decimals'] : 2;
-                $pdf->Cell(17, 5, $this->_formatCurrency($row ['price'], $decimals), 
+                $pdf->Cell(20, 5, $this->_formatDate($row['row_date']), 0, 0, 'L');
+                $decimals = isset($row['price_decimals']) ? $row['price_decimals'] : 2;
+                $pdf->Cell(17, 5, $this->_formatCurrency($row['price'], $decimals), 
                     0, 0, 'R');
                 if ($this->discountedRows) {
                     $pdf->Cell(12, 5, 
-                        (isset($row ['discount']) && $row ['discount'] != '0') ? $this->_formatCurrency(
-                            $row ['discount'], 2, true) : '', 0, 0, 'R');
+                        (isset($row['discount']) && $row['discount'] != '0') ? $this->_formatCurrency(
+                            $row['discount'], 2, true) : '', 0, 0, 'R');
                 }
-                $pdf->Cell(13, 5, $this->_formatNumber($row ['pcs'], 2, true), 0, 0, 
+                $pdf->Cell(13, 5, $this->_formatNumber($row['pcs'], 2, true), 0, 0, 
                     'R');
                 $pdf->Cell(7, 5, 
-                    isset($GLOBALS["locPDF{$row['type']}"]) ? $GLOBALS["locPDF{$row['type']}"] : $row ['type'], 
+                    isset($GLOBALS["locPDF{$row['type']}"]) ? $GLOBALS["locPDF{$row['type']}"] : $row['type'], 
                     0, 0, 'L');
                 $pdf->Cell(20, 5, $this->_formatCurrency($rowSum), 0, 0, 'R');
                 $pdf->SetX($left);
@@ -201,7 +201,7 @@ class InvoicePrinterOrderConfirmation extends InvoicePrinterBase
             }
         }
         if ($this->printStyle != 'dispatch') {
-            if ($this->senderData ['vat_registered']) {
+            if ($this->senderData['vat_registered']) {
                 $pdf->SetFont('Helvetica', '', 10);
                 $pdf->SetY($pdf->GetY() + 10);
                 $pdf->Cell(162, 5, $GLOBALS['locPDFTotalExcludingVAT'] . ': ', 0, 0, 

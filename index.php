@@ -49,8 +49,8 @@ if (!$strFunc && $strForm)
 
 $title = getPageTitle($strFunc, $strList, $strForm);
 
-if ($strFunc == 'system' && getRequest('operation', '') == 'dbdump' &&
-     sesAccessLevel([
+if ($strFunc == 'system' && getRequest('operation', '') == 'dbdump' && sesAccessLevel(
+    [
         ROLE_BACKUPMGR, 
         ROLE_ADMIN
     ])) {
@@ -145,14 +145,14 @@ $astrMainButtons = [
 <?php
 foreach ($astrMainButtons as $button) {
     $strButton = '<li class="functionlink ui-state-default ui-corner-top';
-    if ($button ['action'] == $strFunc ||
-         ($button ['action'] == 'open_invoices' && $strFunc == 'invoices'))
+    if ($button['action'] == $strFunc ||
+         ($button['action'] == 'open_invoices' && $strFunc == 'invoices'))
         $strButton .= ' ui-tabs-selected ui-state-active';
-    $strButton .= '"><a class="functionlink" href="?func=' . $button ['action'] . '">';
-    $strButton .= $GLOBALS[$button ['title']] . '</a></li>';
+    $strButton .= '"><a class="functionlink" href="?func=' . $button['action'] . '">';
+    $strButton .= $GLOBALS[$button['title']] . '</a></li>';
     
-    if (!isset($button ['levels_allowed']) ||
-         sesAccessLevel($button ['levels_allowed']) || sesAdminAccess()) {
+    if (!isset($button['levels_allowed']) ||
+         sesAccessLevel($button['levels_allowed']) || sesAdminAccess()) {
         echo "      $strButton\n";
     }
 }
@@ -166,14 +166,14 @@ if ($strList && ($strFunc == 'settings' || $strFunc == 'system'))
     ++$level;
 if ($strForm)
     ++$level;
-$arrHistory = sesUpdateHistory($title, $_SERVER ['QUERY_STRING'], $level);
+$arrHistory = sesUpdateHistory($title, $_SERVER['QUERY_STRING'], $level);
 
 $strBreadcrumbs = '';
 foreach ($arrHistory as $arrHE) {
     if ($strBreadcrumbs)
         $strBreadcrumbs .= '&gt; ';
     $strBreadcrumbs .= '<a href="index.php?' .
-         str_replace('&', '&amp;', $arrHE ['url']) . '">' . $arrHE ['title'] .
+         str_replace('&', '&amp;', $arrHE['url']) . '">' . $arrHE['title'] .
          '</a>&nbsp;';
 }
 

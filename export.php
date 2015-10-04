@@ -47,13 +47,13 @@ class ExportData
             $field_count = mysqli_num_rows($res);
             $field_defs = [];
             while ($row = mysqli_fetch_assoc($res)) {
-                $field_defs [$row ['Field']] = $row;
+                $field_defs[$row['Field']] = $row;
             }
             
             foreach ($columns as $key => $column) {
                 if (!$column)
-                    unset($columns [$key]);
-                elseif (!isset($field_defs [$column]))
+                    unset($columns[$key]);
+                elseif (!isset($field_defs[$column]))
                     die('Invalid column name');
             }
             
@@ -65,15 +65,15 @@ class ExportData
                 $enclosure_chars = $this->importer->get_enclosure_chars();
                 $row_delims = $this->importer->get_row_delims();
                 
-                if (!isset($field_delims [$fieldDelimiter]))
+                if (!isset($field_delims[$fieldDelimiter]))
                     die('Invalid field delimiter');
-                $fieldDelimiter = $field_delims [$fieldDelimiter] ['char'];
-                if (!isset($enclosure_chars [$enclosureChar]))
+                $fieldDelimiter = $field_delims[$fieldDelimiter]['char'];
+                if (!isset($enclosure_chars[$enclosureChar]))
                     die('Invalid enclosure character');
-                $enclosureChar = $enclosure_chars [$enclosureChar] ['char'];
-                if (!isset($row_delims [$rowDelimiter]))
+                $enclosureChar = $enclosure_chars[$enclosureChar]['char'];
+                if (!isset($row_delims[$rowDelimiter]))
                     die('Invalid field delimiter');
-                $rowDelimiter = $row_delims [$rowDelimiter] ['char'];
+                $rowDelimiter = $row_delims[$rowDelimiter]['char'];
                 
                 header('Content-type: text/csv');
                 header("Content-Disposition: attachment; filename=\"$filename.csv\"");
@@ -115,14 +115,14 @@ class ExportData
             while ($row = mysqli_fetch_assoc($res)) {
                 $data = [];
                 foreach ($columns as $column) {
-                    $value = $row [$column];
+                    $value = $row[$column];
                     if (is_null($value))
-                        $data [$column] = '';
+                        $data[$column] = '';
                     if ($value &&
-                         substr($field_defs [$column] ['Type'], 0, 8) == 'longblob')
-                        $data [$column] = '0x' . bin2hex($value);
+                         substr($field_defs[$column]['Type'], 0, 8) == 'longblob')
+                        $data[$column] = '0x' . bin2hex($value);
                     else {
-                        $data [$column] = $value;
+                        $data[$column] = $value;
                     }
                 }
                 switch ($format) {
@@ -135,7 +135,7 @@ class ExportData
                 case 'xml' :
                     $str = "  <$table>\n";
                     foreach ($columns as $column) {
-                        $str .= "    <$column>" . xml_encode($data [$column]) .
+                        $str .= "    <$column>" . xml_encode($data[$column]) .
                              "</$column>\n";
                     }
                     
@@ -144,14 +144,14 @@ class ExportData
                             $cres = mysqli_param_query(
                                 'select * from {prefix}invoice_row where invoice_id=?', 
                                 [
-                                    $row ['id']
+                                    $row['id']
                                 ]);
                             $tag = 'invoice_row';
                         } else {
                             $cres = mysqli_param_query(
                                 'select * from {prefix}company_contact where company_id=?', 
                                 [
-                                    $row ['id']
+                                    $row['id']
                                 ]);
                             $tag = 'company_contact';
                         }
@@ -174,21 +174,21 @@ class ExportData
                             $childTable = 'invoice_row';
                         else
                             $childTable = 'company_contact';
-                        $data [$childTable] = [];
+                        $data[$childTable] = [];
                         if ($table == 'invoice')
                             $cres = mysqli_param_query(
                                 'select * from {prefix}invoice_row where invoice_id=?', 
                                 [
-                                    $row ['id']
+                                    $row['id']
                                 ]);
                         else
                             $cres = mysqli_param_query(
                                 'select * from {prefix}company_contact where company_id=?', 
                                 [
-                                    $row ['id']
+                                    $row['id']
                                 ]);
                         while ($crow = mysqli_fetch_assoc($cres)) {
-                            $data [$childTable] [] = $crow;
+                            $data[$childTable][] = $crow;
                         }
                     }
                     if ($first)
@@ -356,7 +356,7 @@ class ExportData
   <?php
         $field_delims = $this->importer->get_field_delims();
         foreach ($field_delims as $key => $delim) {
-            echo "<option value=\"$key\">" . $delim ['name'] . "</option>\n";
+            echo "<option value=\"$key\">" . $delim['name'] . "</option>\n";
         }
         ?>
           </select>
@@ -368,7 +368,7 @@ class ExportData
   <?php
         $enclosure_chars = $this->importer->get_enclosure_chars();
         foreach ($enclosure_chars as $key => $delim) {
-            echo "<option value=\"$key\">" . $delim ['name'] . "</option>\n";
+            echo "<option value=\"$key\">" . $delim['name'] . "</option>\n";
         }
         ?>
           </select>
@@ -380,7 +380,7 @@ class ExportData
   <?php
         $row_delims = $this->importer->get_row_delims();
         foreach ($row_delims as $key => $delim) {
-            echo "<option value=\"$key\">" . $delim ['name'] . "</option>\n";
+            echo "<option value=\"$key\">" . $delim['name'] . "</option>\n";
         }
         ?>
           </select>

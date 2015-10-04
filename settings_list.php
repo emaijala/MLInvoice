@@ -36,31 +36,33 @@ function createSettingsList()
     $blnSave = getPostRequest('saveact', FALSE) ? TRUE : FALSE;
     if ($blnSave) {
         foreach ($arrSettings as $name => $elem) {
-            $type = $elem ['type'];
-            $label = $elem ['label'];
+            $type = $elem['type'];
+            $label = $elem['label'];
             if ($type == 'LABEL')
                 continue;
             
             $newValue = getPost($name, NULL);
             if (!isset($newValue) || $newValue === '') {
-                if (!$elem ['allow_null']) {
+                if (!$elem['allow_null']) {
                     $messages .= $GLOBALS['locErrValueMissing'] . ": '$label'<br>\n";
                     continue;
                 } else {
                     $newValue = '';
                 }
             }
-            if (in_array($type, [
-                'CURRENCY', 
-                'PERCENT'
-            ]))
+            if (in_array($type, 
+                [
+                    'CURRENCY', 
+                    'PERCENT'
+                ]))
                 $newValue = str_replace($GLOBALS['locDecimalSeparator'], '.', 
                     $newValue);
-            if (in_array($type, [
-                'CURRENCY', 
-                'PERCENT', 
-                'INT'
-            ])) {
+            if (in_array($type, 
+                [
+                    'CURRENCY', 
+                    'PERCENT', 
+                    'INT'
+                ])) {
                 $newValue = trim($newValue);
                 if (!is_numeric($newValue)) {
                     $messages .= $GLOBALS['locErrInvalidValue'] . " '$label'<br>\n";
@@ -68,8 +70,8 @@ function createSettingsList()
                 }
             }
             
-            if (isset($elem ['session']) && $elem ['session'])
-                $_SESSION [$name] = $newValue;
+            if (isset($elem['session']) && $elem['session'])
+                $_SESSION[$name] = $newValue;
             mysqli_param_query('DELETE from {prefix}settings WHERE name=?', 
                 [
                     $name
@@ -112,7 +114,7 @@ function createSettingsList()
 		<form method="post" name="admin_form" id="admin_form">
 <?php
     foreach ($arrSettings as $name => $elem) {
-        $elemType = $elem ['type'];
+        $elemType = $elem['type'];
         if ($elemType == 'LABEL') {
             ?>
         <div class="sublabel ui-widget-header ui-state-default"><?php echo $elem['label']?></div>
@@ -121,19 +123,20 @@ function createSettingsList()
         }
         $value = getPost($name, NULL);
         if (!isset($value)) {
-            if (isset($elem ['session']) && $elem ['session']) {
-                $value = isset($_SESSION [$name]) ? $_SESSION [$name] : (isset(
-                    $elem ['default']) ? cond_utf8_decode($elem ['default']) : '');
+            if (isset($elem['session']) && $elem['session']) {
+                $value = isset($_SESSION[$name]) ? $_SESSION[$name] : (isset(
+                    $elem['default']) ? cond_utf8_decode($elem['default']) : '');
             } else {
                 $res = mysqli_param_query(
-                    'SELECT value from {prefix}settings WHERE name=?', [
+                    'SELECT value from {prefix}settings WHERE name=?', 
+                    [
                         $name
                     ]);
                 if ($row = mysqli_fetch_assoc($res))
-                    $value = $row ['value'];
+                    $value = $row['value'];
                 else
-                    $value = isset($elem ['default']) ? cond_utf8_decode(
-                        $elem ['default']) : '';
+                    $value = isset($elem['default']) ? cond_utf8_decode(
+                        $elem['default']) : '';
             }
             
             if ($elemType == 'CURRENCY')

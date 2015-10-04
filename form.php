@@ -58,15 +58,15 @@ function createForm($strFunc, $strList, $strForm)
     }
     
     $strMessage = '';
-    if (isset($_SESSION ['formMessage']) && $_SESSION ['formMessage']) {
-        $strMessage = $GLOBALS['loc' . $_SESSION ['formMessage']];
-        unset($_SESSION ['formMessage']);
+    if (isset($_SESSION['formMessage']) && $_SESSION['formMessage']) {
+        $strMessage = $GLOBALS['loc' . $_SESSION['formMessage']];
+        unset($_SESSION['formMessage']);
     }
     
     $strErrorMessage = '';
-    if (isset($_SESSION ['formErrorMessage']) && $_SESSION ['formErrorMessage']) {
-        $strErrorMessage = $GLOBALS['loc' . $_SESSION ['formErrorMessage']];
-        unset($_SESSION ['formErrorMessage']);
+    if (isset($_SESSION['formErrorMessage']) && $_SESSION['formErrorMessage']) {
+        $strErrorMessage = $GLOBALS['loc' . $_SESSION['formErrorMessage']];
+        unset($_SESSION['formErrorMessage']);
     }
     
     // if NEW is clicked clear existing form data
@@ -85,13 +85,13 @@ function createForm($strFunc, $strList, $strForm)
     if (isset($redirect)) {
         // Redirect after save
         foreach ($astrFormElements as $elem) {
-            if ($elem ['name'] == $redirect) {
-                if ($elem ['style'] == 'redirect')
+            if ($elem['name'] == $redirect) {
+                if ($elem['style'] == 'redirect')
                     $newLocation = str_replace('_ID_', $intKeyValue, 
-                        $elem ['listquery']);
-                elseif ($elem ['style'] == 'openwindow')
+                        $elem['listquery']);
+                elseif ($elem['style'] == 'openwindow')
                     $openWindow = str_replace('_ID_', $intKeyValue, 
-                        $elem ['listquery']);
+                        $elem['listquery']);
             }
         }
     }
@@ -102,11 +102,11 @@ function createForm($strFunc, $strList, $strForm)
         unset($astrValues);
         $blnNew = TRUE;
         if (getSetting('auto_close_after_delete')) {
-            $qs = preg_replace('/&form=\w*/', '', $_SERVER ['QUERY_STRING']);
+            $qs = preg_replace('/&form=\w*/', '', $_SERVER['QUERY_STRING']);
             $qs = preg_replace('/&id=\w*/', '', $qs);
             header(
-                'Location: ' . _PROTOCOL_ . $_SERVER ['HTTP_HOST'] .
-                     dirname($_SERVER ['PHP_SELF']) . "/index.php?$qs");
+                'Location: ' . _PROTOCOL_ . $_SERVER['HTTP_HOST'] .
+                     dirname($_SERVER['PHP_SELF']) . "/index.php?$qs");
             return;
         }
         ?>
@@ -161,12 +161,12 @@ function createForm($strFunc, $strList, $strForm)
     $rowOpen = false;
     $formFieldMode = sesWriteAccess() && !$readOnlyForm ? 'MODIFY' : 'READONLY';
     foreach ($astrFormElements as $elem) {
-        if ($elem ['type'] === false)
+        if ($elem['type'] === false)
             continue;
         
-        $fieldMode = isset($elem ['read_only']) && $elem ['read_only'] ? 'READONLY' : $formFieldMode;
+        $fieldMode = isset($elem['read_only']) && $elem['read_only'] ? 'READONLY' : $formFieldMode;
         
-        if ($elem ['type'] == 'LABEL') {
+        if ($elem['type'] == 'LABEL') {
             if ($rowOpen)
                 echo "        </tr>\n";
             $rowOpen = false;
@@ -180,28 +180,28 @@ function createForm($strFunc, $strList, $strForm)
             continue;
         }
         
-        if ($elem ['position'] == 0 || $elem ['position'] <= $prevPosition) {
+        if ($elem['position'] == 0 || $elem['position'] <= $prevPosition) {
             $prevPosition = 0;
             $prevColSpan = 1;
             echo "        </tr>\n";
             $rowOpen = false;
         }
         
-        if ($elem ['type'] != 'IFORM') {
+        if ($elem['type'] != 'IFORM') {
             if (!$rowOpen) {
                 $rowOpen = true;
                 echo "        <tr>\n";
             }
-            if ($prevPosition !== FALSE && $elem ['position'] > 0) {
-                for ($i = $prevPosition + $prevColSpan; $i < $elem ['position']; $i ++) {
+            if ($prevPosition !== FALSE && $elem['position'] > 0) {
+                for ($i = $prevPosition + $prevColSpan; $i < $elem['position']; $i ++) {
                     echo "          <td class=\"label\">&nbsp;</td>\n";
                 }
             }
             
-            if ($elem ['position'] == 0 && !strstr($elem ['type'], 'HID_')) {
+            if ($elem['position'] == 0 && !strstr($elem['type'], 'HID_')) {
                 $strColspan = 'colspan="3"';
                 $intColspan = 3;
-            } elseif ($elem ['position'] == 1 && !strstr($elem ['type'], 'HID_')) {
+            } elseif ($elem['position'] == 1 && !strstr($elem['type'], 'HID_')) {
                 $strColspan = '';
                 $intColspan = 2;
             } else {
@@ -209,38 +209,38 @@ function createForm($strFunc, $strList, $strForm)
             }
         }
         
-        if ($blnNew && ($elem ['type'] == 'BUTTON' || $elem ['type'] == 'JSBUTTON' ||
-             $elem ['type'] == 'IMAGE')) {
+        if ($blnNew && ($elem['type'] == 'BUTTON' || $elem['type'] == 'JSBUTTON' ||
+             $elem['type'] == 'IMAGE')) {
             echo '          <td class="label">&nbsp;</td>';
-        } elseif ($elem ['type'] == 'BUTTON' || $elem ['type'] == 'JSBUTTON') {
+        } elseif ($elem['type'] == 'BUTTON' || $elem['type'] == 'JSBUTTON') {
             $intColspan = 1;
             ?>
           <td class="button">
             <?php
             
-            echo htmlFormElement($elem ['name'], $elem ['type'], 
-                $astrValues [$elem ['name']], $elem ['style'], $elem ['listquery'], 
-                $fieldMode, $elem ['parent_key'], $elem ['label'], [], 
-                isset($elem ['elem_attributes']) ? $elem ['elem_attributes'] : '', 
-                isset($elem ['options']) ? $elem ['options'] : null)?>
+            echo htmlFormElement($elem['name'], $elem['type'], 
+                $astrValues[$elem['name']], $elem['style'], $elem['listquery'], 
+                $fieldMode, $elem['parent_key'], $elem['label'], [], 
+                isset($elem['elem_attributes']) ? $elem['elem_attributes'] : '', 
+                isset($elem['options']) ? $elem['options'] : null)?>
           </td>
 <?php
-        } elseif ($elem ['type'] == 'FILLER') {
+        } elseif ($elem['type'] == 'FILLER') {
             $intColspan = 1;
             ?>
           <td>&nbsp;</td>
 <?php
-        } elseif ($elem ['type'] == 'HID_INT' || strstr($elem ['type'], 'HID_')) {
+        } elseif ($elem['type'] == 'HID_INT' || strstr($elem['type'], 'HID_')) {
             ?>
           <?php echo htmlFormElement($elem['name'], $elem['type'], $astrValues[$elem['name']], $elem['style'], $elem['listquery'], $fieldMode, $elem['parent_key'],$elem['label'])?>
 <?php
-        } elseif ($elem ['type'] == 'IMAGE') {
+        } elseif ($elem['type'] == 'IMAGE') {
             ?>
           <td class="image" colspan="<?php echo $intColspan?>">
             <?php echo htmlFormElement($elem['name'], $elem['type'], $astrValues[$elem['name']], $elem['style'], $elem['listquery'], $fieldMode, $elem['parent_key'],$elem['label'], [], isset($elem['elem_attributes']) ? $elem['elem_attributes'] : '', isset($elem['options']) ? $elem['options'] : null)?>
           </td>
 <?php
-        } elseif ($elem ['type'] == 'IFORM') {
+        } elseif ($elem['type'] == 'IFORM') {
             if ($rowOpen)
                 echo "        </tr>\n";
             echo "      </table>\n      </form>\n";
@@ -249,10 +249,10 @@ function createForm($strFunc, $strList, $strForm)
                 isset($intKeyValue) ? $intKeyValue : 0, $blnNew, $strForm);
             break;
         } else {
-            $value = $astrValues [$elem ['name']];
-            if ($elem ['style'] == 'measurement')
+            $value = $astrValues[$elem['name']];
+            if ($elem['style'] == 'measurement')
                 $value = $value ? miscRound2Decim($value, 2) : '';
-            if ($elem ['type'] == 'AREA') {
+            if ($elem['type'] == 'AREA') {
                 ?>
           <td class="toplabel"><?php echo $elem['label']?></td>
 <?php
@@ -268,18 +268,18 @@ function createForm($strFunc, $strList, $strForm)
 					<?php echo $strColspan ? " $strColspan" : ''?>>
             <?php
             
-            echo htmlFormElement($elem ['name'], $elem ['type'], $value, 
-                $elem ['style'], $elem ['listquery'], $fieldMode, 
-                isset($elem ['parent_key']) ? $elem ['parent_key'] : '', '', [], 
-                isset($elem ['elem_attributes']) ? $elem ['elem_attributes'] : '', 
-                isset($elem ['options']) ? $elem ['options'] : null);
-            if (isset($elem ['attached_elem']))
-                echo '            ' . $elem ['attached_elem'] . "\n";
+            echo htmlFormElement($elem['name'], $elem['type'], $value, 
+                $elem['style'], $elem['listquery'], $fieldMode, 
+                isset($elem['parent_key']) ? $elem['parent_key'] : '', '', [], 
+                isset($elem['elem_attributes']) ? $elem['elem_attributes'] : '', 
+                isset($elem['options']) ? $elem['options'] : null);
+            if (isset($elem['attached_elem']))
+                echo '            ' . $elem['attached_elem'] . "\n";
             ?>
           </td>
 <?php
         }
-        $prevPosition = is_int($elem ['position']) ? $elem ['position'] : 0;
+        $prevPosition = is_int($elem['position']) ? $elem['position'] : 0;
         if ($prevPosition == 0)
             $prevPosition = 255;
         $prevColSpan = $intColspan;
@@ -419,7 +419,7 @@ function save_record(redirect_url, redir_style)
 
 <?php
     foreach ($astrFormElements as $elem) {
-        if ($elem ['name'] && !in_array($elem ['type'], 
+        if ($elem['name'] && !in_array($elem['type'], 
             [
                 'HID_INT', 
                 'SECHID_INT', 
@@ -435,7 +435,7 @@ function save_record(redirect_url, redir_style)
             ?>
   obj.<?php echo $elem['name']?> = form.<?php echo $elem['name']?>.value;
 <?php
-        } elseif ($elem ['type'] == 'CHECK') {
+        } elseif ($elem['type'] == 'CHECK') {
             ?>
   obj.<?php echo $elem['name']?> = form.<?php echo $elem['name']?>.checked ? 1 : 0;
 <?php
@@ -581,24 +581,24 @@ function round_number(num, dec)
 function init_rows()
 {
 <?php
-    $subFormElements = getFormElements($elem ['name']);
-    $rowSumColumns = getFormRowSumColumns($elem ['name']);
-    $strParentKey = getFormParentKey($elem ['name']);
-    $clearRowValuesAfterAdd = getFormClearRowValuesAfterAdd($elem ['name']);
-    $onAfterRowAdded = getFormOnAfterRowAdded($elem ['name']);
-    $formJSONType = getFormJSONType($elem ['name']);
+    $subFormElements = getFormElements($elem['name']);
+    $rowSumColumns = getFormRowSumColumns($elem['name']);
+    $strParentKey = getFormParentKey($elem['name']);
+    $clearRowValuesAfterAdd = getFormClearRowValuesAfterAdd($elem['name']);
+    $onAfterRowAdded = getFormOnAfterRowAdded($elem['name']);
+    $formJSONType = getFormJSONType($elem['name']);
     foreach ($subFormElements as $subElem) {
-        if ($subElem ['type'] != 'LIST') {
+        if ($subElem['type'] != 'LIST') {
             continue;
         }
-        echo '  var arr_' . $subElem ['name'] . ' = {"0":"-"';
-        $res = mysqli_query_check($subElem ['listquery']);
-        $translate = strstr($subElem ['style'], ' translated');
+        echo '  var arr_' . $subElem['name'] . ' = {"0":"-"';
+        $res = mysqli_query_check($subElem['listquery']);
+        $translate = strstr($subElem['style'], ' translated');
         while ($row = mysqli_fetch_row($res)) {
             if ($translate && isset($GLOBALS["loc{$row[1]}"])) {
-                $row [1] = $GLOBALS["loc{$row[1]}"];
+                $row[1] = $GLOBALS["loc{$row[1]}"];
             }
-            echo ',' . $row [0] . ':"' . addcslashes($row [1], '\"\/') . '"';
+            echo ',' . $row[0] . ':"' . addcslashes($row[1], '\"\/') . '"';
         }
         echo "};\n";
     }
@@ -612,30 +612,32 @@ function init_rows()
       var tr = $('<tr/>');
 <?php
     foreach ($subFormElements as $subElem) {
-        if (in_array($subElem ['type'], [
-            'HID_INT', 
-            'SECHID_INT', 
-            'BUTTON', 
-            'NEWLINE'
-        ]))
+        if (in_array($subElem['type'], 
+            [
+                'HID_INT', 
+                'SECHID_INT', 
+                'BUTTON', 
+                'NEWLINE'
+            ])) {
             continue;
-        $name = $subElem ['name'];
-        $class = $subElem ['style'];
-        if ($subElem ['type'] == 'LIST' || $subElem ['type'] == 'SEARCHLIST') {
+        }
+        $name = $subElem['name'];
+        $class = $subElem['style'];
+        if ($subElem['type'] == 'LIST' || $subElem['type'] == 'SEARCHLIST') {
             echo "      if (record.${name} == null) record.${name} = 0; $('<td/>').addClass('$class' + (record.deleted == 1 ? ' deleted' : '')).text(record.${name}_text).appendTo(tr);\n";
-        } elseif ($subElem ['type'] == 'INT') {
-            if (isset($subElem ['decimals'])) {
+        } elseif ($subElem['type'] == 'INT') {
+            if (isset($subElem['decimals'])) {
                 echo "      $('<td/>').addClass('$class' + (record.deleted == 1 ? ' deleted' : '')).text(record.$name ? format_currency(record.$name, {$subElem['decimals']}) : '').appendTo(tr);\n";
             } else {
                 echo "      $('<td/>').addClass('$class' + (record.deleted == 1 ? ' deleted' : '')).text(record.$name ? record.$name.replace('.', '{$GLOBALS['locDecimalSeparator']}') : '').appendTo(tr);\n";
             }
-        } elseif ($subElem ['type'] == 'INTDATE') {
+        } elseif ($subElem['type'] == 'INTDATE') {
             echo "      $('<td/>').addClass('$class' + (record.deleted == 1 ? ' deleted' : '')).text(record.$name.substr(6, 2) + '.' + record.$name.substr(4, 2) + '.' + record.$name.substr(0, 4)).appendTo(tr);\n";
-        } elseif ($subElem ['type'] == 'CHECK') {
+        } elseif ($subElem['type'] == 'CHECK') {
             echo "      $('<td/>').addClass('$class' + (record.deleted == 1 ? ' deleted' : '')).text(record.$name == 1 ? \"" .
                  $GLOBALS['locYesButton'] . '" : "' . $GLOBALS['locNoButton'] .
                  "\").appendTo(tr);\n";
-        } elseif ($subElem ['type'] == 'ROWSUM') {
+        } elseif ($subElem['type'] == 'ROWSUM') {
             ?>
       var items = record.<?php echo $rowSumColumns['multiplier']?>;
       var price = record.<?php echo $rowSumColumns['price']?>;
@@ -679,7 +681,7 @@ function init_rows()
       $(table).append(tr);
     }
 <?php
-    if (isset($rowSumColumns ['show_summary']) && $rowSumColumns ['show_summary']) {
+    if (isset($rowSumColumns['show_summary']) && $rowSumColumns['show_summary']) {
         ?>
     var totSum = 0;
     var totVAT = 0;
@@ -759,7 +761,7 @@ function save_row(form_id)
   var obj = new Object();
 <?php
         foreach ($subFormElements as $subElem) {
-            if (!in_array($subElem ['type'], 
+            if (!in_array($subElem['type'], 
                 [
                     'HID_INT', 
                     'SECHID_INT', 
@@ -772,11 +774,11 @@ function save_row(form_id)
                 ?>
   obj.<?php echo $subElem['name']?> = document.getElementById(form_id + '_<?php echo $subElem['name']?>').value;
 <?php
-            } elseif ($subElem ['type'] == 'CHECK') {
+            } elseif ($subElem['type'] == 'CHECK') {
                 ?>
   obj.<?php echo $subElem['name']?> = document.getElementById(form_id + '_<?php echo $subElem['name']?>').checked ? 1 : 0;
 <?php
-            } elseif ($subElem ['type'] == 'INT') {
+            } elseif ($subElem['type'] == 'INT') {
                 ?>
   obj.<?php echo $subElem['name']?> = document.getElementById(form_id + '_<?php echo $subElem['name']?>').value.replace('<?php echo $GLOBALS['locDecimalSeparator']?>', '.');
 <?php
@@ -809,7 +811,7 @@ function save_row(form_id)
 <?php
 
         foreach ($subFormElements as $subElem) {
-            if (!in_array($subElem ['type'], 
+            if (!in_array($subElem['type'], 
                 [
                     'HID_INT', 
                     'SECHID_INT', 
@@ -817,20 +819,19 @@ function save_row(form_id)
                     'NEWLINE', 
                     'ROWSUM'
                 ])) {
-                if (isset($subElem ['default']) && strstr($subElem ['default'], 
-                    'ADD')) {
+                if (isset($subElem['default']) && strstr($subElem['default'], 'ADD')) {
                     // The value is taken from whatever form was used but put into iform
                     ?>
           var fld = document.getElementById(form_id + '_<?php echo $subElem['name']?>');
           document.getElementById('iform_<?php echo $subElem['name']?>').value = parseInt(fld.value) + 5;
 <?php
-                } elseif ($clearRowValuesAfterAdd && $subElem ['type'] != 'INTDATE') {
-                    if ($subElem ['type'] == 'LIST' ||
-                         $subElem ['type'] == 'SEARCHLIST') {
+                } elseif ($clearRowValuesAfterAdd && $subElem['type'] != 'INTDATE') {
+                    if ($subElem['type'] == 'LIST' ||
+                         $subElem['type'] == 'SEARCHLIST') {
                         ?>
           document.getElementById('iform_<?php echo $subElem['name']?>').selectedIndex = 0;
 <?php
-                    } elseif ($subElem ['type'] == 'CHECK') {
+                    } elseif ($subElem['type'] == 'CHECK') {
                         ?>
           document.getElementById('iform_<?php echo $subElem['name']?>').checked = 0;
 <?php
@@ -937,7 +938,7 @@ function popup_editor(event, title, id, copy_row)
       form.row_id.value = id;
 <?php
         foreach ($subFormElements as $subElem) {
-            if (in_array($subElem ['type'], 
+            if (in_array($subElem['type'], 
                 [
                     'HID_INT', 
                     'SECHID_INT', 
@@ -946,8 +947,8 @@ function popup_editor(event, title, id, copy_row)
                     'ROWSUM'
                 ]))
                 continue;
-            $name = $subElem ['name'];
-            if ($subElem ['type'] == 'SEARCHLIST') {
+            $name = $subElem['name'];
+            if ($subElem['type'] == 'SEARCHLIST') {
                 ?>
     var item = {
       id: json.<?php echo $name?>,
@@ -955,7 +956,7 @@ function popup_editor(event, title, id, copy_row)
     };
     $('#<?php echo "iform_popup_$name"?>').select2('data', item);
 <?php
-            } elseif ($subElem ['type'] == 'LIST') {
+            } elseif ($subElem['type'] == 'LIST') {
                 ?>
     for (var i = 0; i < form.<?php echo "iform_popup_$name"?>.options.length; i++)
     {
@@ -967,9 +968,8 @@ function popup_editor(event, title, id, copy_row)
       }
     }
 <?php
-            } elseif ($subElem ['type'] == 'INT') {
-                if (isset($subElem ['default']) && strstr($subElem ['default'], 
-                    'ADD')) {
+            } elseif ($subElem['type'] == 'INT') {
+                if (isset($subElem['default']) && strstr($subElem['default'], 'ADD')) {
                     ?>
     var value;
     if (copy_row)
@@ -979,7 +979,7 @@ function popup_editor(event, title, id, copy_row)
     form.<?php echo "iform_popup_$name"?>.value = value;
 <?php
                 } else {
-                    if (isset($subElem ['decimals'])) {
+                    if (isset($subElem['decimals'])) {
                         ?>
     form.<?php echo "iform_popup_$name"?>.value = json.<?php echo $name?> ? format_currency(json.<?php echo $name?>, <?php echo $subElem['decimals']?>) : '';
 <?php
@@ -989,11 +989,11 @@ function popup_editor(event, title, id, copy_row)
 <?php
                     }
                 }
-            } elseif ($subElem ['type'] == 'INTDATE') {
+            } elseif ($subElem['type'] == 'INTDATE') {
                 ?>
     form.<?php echo "iform_popup_$name"?>.value = json.<?php echo $name?> ? json.<?php echo $name?>.substr(6, 2) + '.' + json.<?php echo $name?>.substr(4, 2) + '.' + json.<?php echo $name?>.substr(0, 4) : '';
 <?php
-            } elseif ($subElem ['type'] == 'CHECK') {
+            } elseif ($subElem['type'] == 'CHECK') {
                 ?>
     form.<?php echo "iform_popup_$name"?>.checked = json.<?php echo $name?> != 0 ? true : false;
 <?php
@@ -1027,12 +1027,13 @@ function popup_editor(event, title, id, copy_row)
 							<tr>
 <?php
     foreach ($subFormElements as $subElem) {
-        if (!in_array($subElem ['type'], [
-            'HID_INT', 
-            'SECHID_INT', 
-            'BUTTON', 
-            'NEWLINE'
-        ])) {
+        if (!in_array($subElem['type'], 
+            [
+                'HID_INT', 
+                'SECHID_INT', 
+                'BUTTON', 
+                'NEWLINE'
+            ])) {
             ?>
               <th
 									class="label ui-state-default <?php echo strtolower($subElem['style'])?>_label"><?php echo $subElem['label']?></th>
@@ -1049,7 +1050,7 @@ function popup_editor(event, title, id, copy_row)
             <tr id="form_row">
 <?php
         foreach ($subFormElements as $subElem) {
-            if (!in_array($subElem ['type'], 
+            if (!in_array($subElem['type'], 
                 [
                     'HID_INT', 
                     'SECHID_INT', 
@@ -1064,7 +1065,7 @@ function popup_editor(event, title, id, copy_row)
                 <?php echo htmlFormElement('iform_' . $subElem['name'], $subElem['type'], $value, $subElem['style'], $subElem['listquery'], 'MODIFY', 0, '', [], $subElem['elem_attributes'])?>
               </td>
 <?php
-            } elseif ($subElem ['type'] == 'ROWSUM') {
+            } elseif ($subElem['type'] == 'ROWSUM') {
                 ?>
               <td
 									class="label <?php echo strtolower($subElem['style'])?>_label">
@@ -1106,7 +1107,7 @@ function popup_editor(event, title, id, copy_row)
 							<tr>
 <?php
         foreach ($subFormElements as $elem) {
-            if (!in_array($elem ['type'], 
+            if (!in_array($elem['type'], 
                 [
                     'HID_INT', 
                     'SECHID_INT', 
@@ -1121,13 +1122,13 @@ function popup_editor(event, title, id, copy_row)
               <?php echo htmlFormElement('iform_popup_' . $elem['name'], $elem['type'], '', $elem['style'], $elem['listquery'], 'MODIFY', 0, '', [], $elem['elem_attributes'])?>
             </td>
 <?php
-            } elseif ($elem ['type'] == 'SECHID_INT') {
+            } elseif ($elem['type'] == 'SECHID_INT') {
                 ?>
             <input type="hidden"
 									name="<?php echo 'iform_popup_' . $elem['name']?>"
 									value="<?php echo gpcStripSlashes($astrValues[$elem['name']])?>">
 <?php
-            } elseif ($elem ['type'] == 'BUTTON') {
+            } elseif ($elem['type'] == 'BUTTON') {
                 ?>
             <td class="label">&nbsp;</td>
 <?php

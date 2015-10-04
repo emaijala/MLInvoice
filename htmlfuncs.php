@@ -53,13 +53,13 @@ function htmlPageStart($strTitle, $arrExtraScripts = null)
     header('Last-Modified: ' . gmdate('D, d M Y H:i:s') . ' GMT');
     
     $charset = (_CHARSET_ == 'UTF-8') ? 'UTF-8' : 'ISO-8859-15';
-    if (isset($_SERVER ['HTTP_USER_AGENT']) &&
-         strpos($_SERVER ['HTTP_USER_AGENT'], 'MSIE') !== false)
+    if (isset($_SERVER['HTTP_USER_AGENT']) &&
+         strpos($_SERVER['HTTP_USER_AGENT'], 'MSIE') !== false)
         $xUACompatible = "  <meta http-equiv=\"X-UA-Compatible\" content=\"IE=edge\">\n";
     else
         $xUACompatible = '';
     $theme = defined('_UI_THEME_LOCATION_') ? _UI_THEME_LOCATION_ : 'jquery/css/theme/jquery-ui-1.10.0.custom.min.css';
-    $lang = isset($_SESSION ['sesLANG']) ? $_SESSION ['sesLANG'] : 'fi-FI';
+    $lang = isset($_SESSION['sesLANG']) ? $_SESSION['sesLANG'] : 'fi-FI';
     $datePickerOptions = $GLOBALS['locDatePickerOptions'];
     $select2locale = '';
     if (file_exists("select2/select2_locale_$lang.js")) {
@@ -168,7 +168,7 @@ function htmlSQLListBox($strName, $strQuery, $strSelected, $strStyle = '',
     $astrValues = [];
     $intRes = mysqli_query_check($strQuery);
     while ($row = mysqli_fetch_row($intRes)) {
-        $astrValues [$row [0]] = $row [1];
+        $astrValues[$row[0]] = $row[1];
     }
     $showEmpty = TRUE;
     if (strstr($strStyle, ' noemptyvalue')) {
@@ -186,8 +186,8 @@ function getSQLListBoxSelectedValue($strQuery, $strSelected)
 {
     $intRes = mysqli_query_check($strQuery);
     while ($row = mysqli_fetch_row($intRes)) {
-        if ($row [0] == $strSelected)
-            return $row [1];
+        if ($row[0] == $strSelected)
+            return $row[1];
     }
     return '';
 }
@@ -195,8 +195,8 @@ function getSQLListBoxSelectedValue($strQuery, $strSelected)
 // Get the value for the specified option
 function getListBoxSelectedValue($options, $selected)
 {
-    if (isset($options [$selected]))
-        return $options [$selected];
+    if (isset($options[$selected]))
+        return $options[$selected];
     return '';
 }
 

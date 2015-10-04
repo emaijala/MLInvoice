@@ -505,7 +505,7 @@ EOS;
     break;
 
 case 'invoice' :
-    $levelsAllowed [] = ROLE_READONLY;
+    $levelsAllowed[] = ROLE_READONLY;
     $strTable = '{prefix}invoice';
     $strListTableAlias = 'i.'; // this is for the search function
     $strParentKey = 'invoice_id';
@@ -522,10 +522,11 @@ case 'invoice' :
     if ($intInvoiceId) {
         $strQuery = 'SELECT refunded_invoice_id ' . 'FROM {prefix}invoice ' .
              'WHERE id=?'; // ok to maintain links to deleted invoices too
-        $intRes = mysqli_param_query($strQuery, [
-            $intInvoiceId
-        ]);
-        $strBaseLink = '?' . preg_replace('/&id=\d*/', '', $_SERVER ['QUERY_STRING']);
+        $intRes = mysqli_param_query($strQuery, 
+            [
+                $intInvoiceId
+            ]);
+        $strBaseLink = '?' . preg_replace('/&id=\d*/', '', $_SERVER['QUERY_STRING']);
         $strBaseLink = preg_replace('/&/', '&amp;', $strBaseLink);
         if ($intRes) {
             $intRefundedInvoiceId = mysqli_fetch_value($intRes);
@@ -542,11 +543,12 @@ case 'invoice' :
         }
         $strQuery = 'SELECT id ' . 'FROM {prefix}invoice ' .
              'WHERE deleted=0 AND refunded_invoice_id=?';
-        $intRes = mysqli_param_query($strQuery, [
-            $intInvoiceId
-        ]);
+        $intRes = mysqli_param_query($strQuery, 
+            [
+                $intInvoiceId
+            ]);
         if ($intRes && ($row = mysqli_fetch_assoc($intRes))) {
-            $intRefundingInvoiceId = $row ['id'];
+            $intRefundingInvoiceId = $row['id'];
             if ($intRefundingInvoiceId)
                 $arrRefundingInvoice = [
                     'name' => 'get', 
@@ -685,14 +687,14 @@ EOF;
     $templateFirstCol = max(floor($templateCount / 2 + 1), 3);
     $rowNum = 0;
     while ($row = mysqli_fetch_assoc($res)) {
-        $templateId = $row ['id'];
-        $printStyle = $row ['new_window'] ? 'openwindow' : 'redirect';
+        $templateId = $row['id'];
+        $printStyle = $row['new_window'] ? 'openwindow' : 'redirect';
         
         if (sesWriteAccess()) {
             $printFunc = "${invoicePrintChecks}${invoiceNumberUpdatePrefix}save_record('invoice.php?id=_ID_&amp;template=$templateId&amp;func=$strFunc', '$printStyle'); ${invoiceNumberUpdateSuffix} return false;";
         } else {
             // Check if this print template is safe for read-only use
-            $printer = instantiateInvoicePrinter($row ['filename']);
+            $printer = instantiateInvoicePrinter($row['filename']);
             if (!$printer->getReadOnlySafe()) {
                 continue;
             }
@@ -705,7 +707,7 @@ EOF;
         
         $arr = [
             'name' => "print$templateId", 
-            'label' => isset($GLOBALS["loc{$row['name']}"]) ? $GLOBALS["loc{$row['name']}"] : $row ['name'], 
+            'label' => isset($GLOBALS["loc{$row['name']}"]) ? $GLOBALS["loc{$row['name']}"] : $row['name'], 
             'type' => 'JSBUTTON', 
             'style' => $printStyle, 
             'listquery' => $printFunc, 
@@ -713,10 +715,10 @@ EOF;
             'allow_null' => true
         ];
         if (++$rowNum > $templateFirstCol) {
-            $arr ['position'] = 4;
-            $printButtons2 [] = $arr;
+            $arr['position'] = 4;
+            $printButtons2[] = $arr;
         } else {
-            $printButtons [] = $arr;
+            $printButtons[] = $arr;
         }
     }
     
@@ -918,8 +920,8 @@ $astrFormElements = [
         'allow_null' => true
     ], 
     $arrRefundedInvoice, 
-    isset($printButtons [0]) ? $printButtons [0] : [], 
-    isset($printButtons2 [0]) ? $printButtons2 [0] : [], 
+    isset($printButtons[0]) ? $printButtons[0] : [], 
+    isset($printButtons2[0]) ? $printButtons2[0] : [], 
     !sesWriteAccess() ? [
         'name' => 'addreminderfees', 
         'label' => '', 
@@ -936,17 +938,17 @@ $astrFormElements = [
         'allow_null' => true
     ], 
     $arrRefundingInvoice, 
-    isset($printButtons [1]) ? $printButtons [1] : [], 
-    isset($printButtons2 [1]) ? $printButtons2 [1] : []
+    isset($printButtons[1]) ? $printButtons[1] : [], 
+    isset($printButtons2[1]) ? $printButtons2[1] : []
 ];
 
 for ($i = 2; $i < count($printButtons); $i ++) {
-    $astrFormElements [] = $printButtons [$i];
-    if (isset($printButtons2 [$i]))
-        $astrFormElements [] = $printButtons2 [$i];
+    $astrFormElements[] = $printButtons[$i];
+    if (isset($printButtons2[$i]))
+        $astrFormElements[] = $printButtons2[$i];
 }
 
-$astrFormElements [] = [
+$astrFormElements[] = [
     'name' => 'invoice_rows', 
     'label' => $GLOBALS['locInvRows'], 
     'type' => 'IFORM', 
@@ -1779,8 +1781,8 @@ $akeys = [
 ];
 foreach ($astrFormElements as &$element) {
 foreach ($akeys as $key) {
-    if (!isset($element [$key])) {
-        $element [$key] = false;
+    if (!isset($element[$key])) {
+        $element[$key] = false;
     }
 }
 }

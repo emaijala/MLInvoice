@@ -18,7 +18,7 @@ if (!session_id()) {
     session_start();
 }
 
-$language = isset($_SESSION ['sesLANG']) ? $_SESSION ['sesLANG'] : (defined(
+$language = isset($_SESSION['sesLANG']) ? $_SESSION['sesLANG'] : (defined(
     '_UI_LANGUAGE_') ? _UI_LANGUAGE_ : 'fi-FI');
 if (!file_exists("lang/$language.ini")) {
     $language = 'fi-FI';

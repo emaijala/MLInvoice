@@ -90,17 +90,16 @@ class ImportStatement extends ImportFile
     protected function process_import_row($table, $row, $dupMode, $dupCheckColumns, 
         $mode, &$addedRecordId)
     {
-        if (!isset($row ['date']) || !isset($row ['amount']) || !isset(
-            $row ['refnr'])) {
+        if (!isset($row['date']) || !isset($row['amount']) || !isset($row['refnr'])) {
             return $GLOBALS['locImportStatementFieldMissing'];
         }
         
-        $refnr = str_replace(' ', '', $row ['refnr']);
+        $refnr = str_replace(' ', '', $row['refnr']);
         $refnr = ltrim($refnr, '0');
         $date = date('Ymd', 
             DateTime::createFromFormat(getRequest('date_format', 'd.m.Y'), 
-                $row ['date'])->getTimestamp());
-        $amount = trim($row ['amount']);
+                $row['date'])->getTimestamp());
+        $amount = trim($row['amount']);
         if (substr($amount, 0, 1) == '-') {
             return;
         }
@@ -116,7 +115,7 @@ class ImportStatement extends ImportFile
         }
         $amount = floatval($amount);
         
-        if ($row ['refnr'] === '') {
+        if ($row['refnr'] === '') {
             return $GLOBALS['locImportStatementFieldMissing'];
         }
         
@@ -138,7 +137,7 @@ class ImportStatement extends ImportFile
         
         $row = mysqli_fetch_assoc($intRes);
         
-        if ($row ['state_id'] == 3) {
+        if ($row['state_id'] == 3) {
             return str_replace('{refnr}', $refnr, 
                 $GLOBALS['locImportStatementInvoiceAlreadyPaid']);
         }
@@ -146,13 +145,13 @@ class ImportStatement extends ImportFile
         $res2 = mysqli_param_query(
             'SELECT ir.price, ir.pcs, ir.vat, ir.vat_included, ir.discount from {prefix}invoice_row ir where ir.deleted = 0 AND ir.invoice_id = ?', 
             [
-                $row ['id']
+                $row['id']
             ]);
         $rowTotal = 0;
         while ($invoiceRow = mysqli_fetch_assoc($res2)) {
             list ($rowSum, $rowVAT, $rowSumVAT) = calculateRowSum(
-                $invoiceRow ['price'], $invoiceRow ['pcs'], $invoiceRow ['vat'], 
-                $invoiceRow ['vat_included'], $invoiceRow ['discount']);
+                $invoiceRow['price'], $invoiceRow['pcs'], $invoiceRow['vat'], 
+                $invoiceRow['vat_included'], $invoiceRow['discount']);
             $rowTotal += $rowSumVAT;
         }
         
@@ -170,14 +169,15 @@ class ImportStatement extends ImportFile
                 $sql .= ', archived=1';
             }
             $sql .= ' WHERE id = ?';
-            mysqli_param_query($sql, [
-                $date, 
-                $row ['id']
-            ]);
+            mysqli_param_query($sql, 
+                [
+                    $date, 
+                    $row['id']
+                ]);
         }
         $msg = str_replace('{amount}', miscRound2Decim($amount), 
             $GLOBALS['locImportStatementInvoiceMarkedAsPaid']);
-        $msg = str_replace('{id}', $row ['id'], $msg);
+        $msg = str_replace('{id}', $row['id'], $msg);
         $msg = str_replace('{date}', dateConvDBDate2Date($date), $msg);
         $msg = str_replace('{refnr}', $refnr, $msg);
         return $msg;

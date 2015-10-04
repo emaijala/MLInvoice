@@ -93,9 +93,9 @@ class ProductReport
         $intRes = mysqli_query_check($strQuery);
         $first = true;
         while ($row = mysqli_fetch_assoc($intRes)) {
-            $intStateId = $row ['id'];
-            $strStateName = isset($GLOBALS['loc' . $row ['name']]) ? $GLOBALS['loc' .
-                 $row ['name']] : $row ['name'];
+            $intStateId = $row['id'];
+            $strStateName = isset($GLOBALS['loc' . $row['name']]) ? $GLOBALS['loc' .
+                 $row['name']] : $row['name'];
             $tmpSelected = getRequest("stateid_$intStateId", TRUE) ? TRUE : false;
             $strChecked = $tmpSelected ? ' checked' : '';
             if (!$first) {
@@ -127,8 +127,8 @@ class ProductReport
         $format = getRequest('format', 'html');
         
         $dateRange = explode(' - ', getRequest('date', ''));
-        $startDate = $dateRange [0];
-        $endDate = isset($dateRange [1]) ? $dateRange [1] : $startDate;
+        $startDate = $dateRange[0];
+        $endDate = isset($dateRange[1]) ? $dateRange[1] : $startDate;
         
         if ($startDate) {
             $startDate = dateConvDate2DBDate($startDate);
@@ -143,19 +143,19 @@ class ProductReport
         
         if ($startDate) {
             $strQuery .= ' AND i.invoice_date >= ?';
-            $arrParams [] = $startDate;
+            $arrParams[] = $startDate;
         }
         if ($endDate) {
             $strQuery .= ' AND i.invoice_date <= ?';
-            $arrParams [] = $endDate;
+            $arrParams[] = $endDate;
         }
         if ($intBaseId) {
             $strQuery .= ' AND i.base_id = ?';
-            $arrParams [] = $intBaseId;
+            $arrParams[] = $intBaseId;
         }
         if ($intCompanyId) {
             $strQuery .= ' AND i.company_id = ?';
-            $arrParams [] = $intCompanyId;
+            $arrParams[] = $intCompanyId;
         }
         
         $strQuery2 = '';
@@ -163,13 +163,13 @@ class ProductReport
              'FROM {prefix}invoice_state WHERE deleted=0 ' . 'ORDER BY order_no';
         $intRes = mysqli_query_check($strQuery3);
         while ($row = mysqli_fetch_assoc($intRes)) {
-            $intStateId = $row ['id'];
-            $strStateName = $row ['name'];
+            $intStateId = $row['id'];
+            $strStateName = $row['name'];
             $strTemp = "stateid_$intStateId";
             $tmpSelected = getRequest($strTemp, FALSE) ? TRUE : FALSE;
             if ($tmpSelected) {
                 $strQuery2 .= ' i.state_id = ? OR ';
-                $arrParams [] = $intStateId;
+                $arrParams[] = $intStateId;
             }
         }
         if ($strQuery2) {
@@ -180,7 +180,7 @@ class ProductReport
         
         if ($intProductId) {
             $strProductWhere = 'AND ir.product_id = ? ';
-            $arrParams [] = $intProductId;
+            $arrParams[] = $intProductId;
         } else
             $strProductWhere = '';
         
@@ -204,15 +204,13 @@ class ProductReport
         $productSumVAT = 0;
         $intRes = mysqli_param_query($strProductQuery, $arrParams);
         while ($row = mysqli_fetch_assoc($intRes)) {
-            if ($prevRow !== false &&
-                 ($prevRow ['id'] != $row ['id'] ||
-                 $prevRow ['description'] != $row ['description'] ||
-                 $prevRow ['unit'] != $row ['unit'] ||
-                 $prevRow ['vat'] != $row ['vat'])) {
-                $this->printRow($format, $prevRow ['product_code'], 
-                    $prevRow ['product_name'], $prevRow ['description'], 
-                    $productCount, $prevRow ['unit'], $productSum, $prevRow ['vat'], 
-                    $productVAT, $productSumVAT);
+            if ($prevRow !== false && ($prevRow['id'] != $row['id'] ||
+                 $prevRow['description'] != $row['description'] ||
+                 $prevRow['unit'] != $row['unit'] || $prevRow['vat'] != $row['vat'])) {
+                $this->printRow($format, $prevRow['product_code'], 
+                    $prevRow['product_name'], $prevRow['description'], $productCount, 
+                    $prevRow['unit'], $productSum, $prevRow['vat'], $productVAT, 
+                    $productSumVAT);
                 $productCount = 0;
                 $productSum = 0;
                 $productVAT = 0;
@@ -220,9 +218,9 @@ class ProductReport
             }
             $prevRow = $row;
             
-            $productCount += $row ['pcs'];
-            list ($rowSum, $rowVAT, $rowSumVAT) = calculateRowSum($row ['price'], 
-                $row ['pcs'], $row ['vat'], $row ['vat_included'], $row ['discount']);
+            $productCount += $row['pcs'];
+            list ($rowSum, $rowVAT, $rowSumVAT) = calculateRowSum($row['price'], 
+                $row['pcs'], $row['vat'], $row['vat_included'], $row['discount']);
             
             $productSum += $rowSum;
             $productVAT += $rowVAT;
@@ -233,9 +231,9 @@ class ProductReport
             $totalSumVAT += $rowSumVAT;
         }
         if ($prevRow !== false) {
-            $this->printRow($format, $prevRow ['product_code'], 
-                $prevRow ['product_name'], $prevRow ['description'], $productCount, 
-                $prevRow ['unit'], $productSum, $prevRow ['vat'], $productVAT, 
+            $this->printRow($format, $prevRow['product_code'], 
+                $prevRow['product_name'], $prevRow['description'], $productCount, 
+                $prevRow['unit'], $productSum, $prevRow['vat'], $productVAT, 
                 $productSumVAT);
         }
         

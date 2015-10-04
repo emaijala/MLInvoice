@@ -79,41 +79,41 @@ if ($intInvoiceId) {
         return;
     }
     
-    $paymentDays = getPaymentDays($invoiceData ['company_id']);
+    $paymentDays = getPaymentDays($invoiceData['company_id']);
     
-    unset($invoiceData ['id']);
-    unset($invoiceData ['invoice_no']);
+    unset($invoiceData['id']);
+    unset($invoiceData['invoice_no']);
     if (!$boolRefund) {
-        unset($invoiceData ['ref_number']);
-        if (!empty($invoiceData ['company_id'])) {
+        unset($invoiceData['ref_number']);
+        if (!empty($invoiceData['company_id'])) {
             $res = mysqli_param_query(
                 'SELECT default_ref_number FROM {prefix}company WHERE id=?', 
                 [
-                    $invoiceData ['company_id']
+                    $invoiceData['company_id']
                 ]);
-            $invoiceData ['ref_number'] = mysqli_fetch_value($res);
+            $invoiceData['ref_number'] = mysqli_fetch_value($res);
         }
     }
-    $invoiceData ['invoice_date'] = date('Ymd');
-    $invoiceData ['due_date'] = date('Ymd', 
+    $invoiceData['invoice_date'] = date('Ymd');
+    $invoiceData['due_date'] = date('Ymd', 
         mktime(0, 0, 0, date('m'), date('d') + $paymentDays, date('Y')));
-    $invoiceData ['payment_date'] = null;
-    $invoiceData ['state_id'] = 1;
-    $invoiceData ['archived'] = false;
-    $invoiceData ['refunded_invoice_id'] = $boolRefund ? $intInvoiceId : null;
+    $invoiceData['payment_date'] = null;
+    $invoiceData['state_id'] = 1;
+    $invoiceData['archived'] = false;
+    $invoiceData['refunded_invoice_id'] = $boolRefund ? $intInvoiceId : null;
     if ($boolRefund) {
-        $invoiceData ['interval_type'] = 0;
+        $invoiceData['interval_type'] = 0;
     }
     
-    switch ($invoiceData ['interval_type']) {
+    switch ($invoiceData['interval_type']) {
     // Month
     case 2 :
-        $invoiceData ['next_interval_date'] = date('Ymd', 
+        $invoiceData['next_interval_date'] = date('Ymd', 
             mktime(0, 0, 0, date('m') + 1, date('d'), date('Y')));
         break;
     // Year
     case 3 :
-        $invoiceData ['next_interval_date'] = date('Ymd', 
+        $invoiceData['next_interval_date'] = date('Ymd', 
             mktime(0, 0, 0, date('m'), date('d'), date('Y') + 1));
         break;
     }
@@ -122,13 +122,14 @@ if ($intInvoiceId) {
     mysqli_query_check('BEGIN');
     
     try {
-        if ($invoiceData ['interval_type'] > 0) {
+        if ($invoiceData['interval_type'] > 0) {
             // Reset interval type of the original invoice
             $strQuery = 'UPDATE {prefix}invoice ' . 'SET interval_type = 0 ' .
                  'WHERE {prefix}invoice.id = ?';
-            mysqli_param_query($strQuery, [
-                $intInvoiceId
-            ], 'exception');
+            mysqli_param_query($strQuery, 
+                [
+                    $intInvoiceId
+                ], 'exception');
         }
         
         $strQuery = 'INSERT INTO {prefix}invoice(' .
@@ -143,24 +144,25 @@ if ($intInvoiceId) {
         $newRowDate = date('Ymd');
         $strQuery = 'SELECT * ' . 'FROM {prefix}invoice_row ' .
              'WHERE deleted=0 AND invoice_id=?';
-        $intRes = mysqli_param_query($strQuery, [
-            $intInvoiceId
-        ], 'exception');
+        $intRes = mysqli_param_query($strQuery, 
+            [
+                $intInvoiceId
+            ], 'exception');
         while ($row = mysqli_fetch_assoc($intRes)) {
             if ($boolRefund) {
-                $row ['pcs'] = -$row ['pcs'];
-            } else if ($row ['reminder_row']) {
+                $row['pcs'] = -$row['pcs'];
+            } else if ($row['reminder_row']) {
                 continue;
             }
-            unset($row ['id']);
-            $row ['invoice_id'] = $intNewId;
+            unset($row['id']);
+            $row['invoice_id'] = $intNewId;
             
             if (getSetting('invoice_update_row_dates_on_copy')) {
-                $row ['row_date'] = $newRowDate;
+                $row['row_date'] = $newRowDate;
             }
             // Update product stock balance
-            if ($row ['product_id'] !== null) {
-                updateProductStockBalance(null, $row ['product_id'], $row ['pcs']);
+            if ($row['product_id'] !== null) {
+                updateProductStockBalance(null, $row['product_id'], $row['pcs']);
             }
             $strQuery = 'INSERT INTO {prefix}invoice_row(' .
                  implode(', ', array_keys($row)) . ') ' . 'VALUES (' .
@@ -177,8 +179,8 @@ if ($intInvoiceId) {
 }
 
 header(
-    'Location: ' . _PROTOCOL_ . $_SERVER ['HTTP_HOST'] . dirname(
-        $_SERVER ['PHP_SELF']) .
+    'Location: ' . _PROTOCOL_ . $_SERVER['HTTP_HOST'] . dirname(
+        $_SERVER['PHP_SELF']) .
          "/index.php?func=$strFunc&list=$strList&form=invoice&id=$intNewId");
 
 ?>

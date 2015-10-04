@@ -36,15 +36,15 @@ if (defined('_UI_LANGUAGE_SELECTION_')) {
     $languages = [];
     foreach (explode('|', _UI_LANGUAGE_SELECTION_) as $lang) {
         $lang = explode('=', $lang, 2);
-        $languages [$lang [0]] = $lang [1];
+        $languages[$lang[0]] = $lang[1];
     }
     $language = getRequest('lang', '');
-    if ($language && isset($languages [$language])) {
-        $_SESSION ['sesLANG'] = $language;
+    if ($language && isset($languages[$language])) {
+        $_SESSION['sesLANG'] = $language;
     }
 }
-if (!isset($_SESSION ['sesLANG'])) {
-    $_SESSION ['sesLANG'] = defined('_UI_LANGUAGE_') ? _UI_LANGUAGE_ : 'fi-FI';
+if (!isset($_SESSION['sesLANG'])) {
+    $_SESSION['sesLANG'] = defined('_UI_LANGUAGE_') ? _UI_LANGUAGE_ : 'fi-FI';
 }
 
 require_once 'localize.php';
@@ -67,8 +67,8 @@ if ($strLogon) {
     if ($strLogin && $strPasswd) {
         switch (sesCreateSession($strLogin, $strPasswd)) {
         case 'OK' :
-            if ($backlink == '1' && isset($_SESSION ['BACKLINK'])) {
-                header('Location: ' . $_SESSION ['BACKLINK']);
+            if ($backlink == '1' && isset($_SESSION['BACKLINK'])) {
+                header('Location: ' . $_SESSION['BACKLINK']);
             } else {
                 header('Location: ' . getSelfPath() . '/index.php');
             }
@@ -111,7 +111,7 @@ if (isset($upgradeMessage)) {
 <?php
 if (isset($languages)) {
     foreach ($languages as $code => $name) {
-        if ($code == $_SESSION ['sesLANG']) {
+        if ($code == $_SESSION['sesLANG']) {
             continue;
         }
         ?>

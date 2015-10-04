@@ -93,7 +93,7 @@ class ProductStockReport
         
         if ($intProductId) {
             $strQuery .= ' AND id = ? ';
-            $arrParams [] = $intProductId;
+            $arrParams[] = $intProductId;
         }
         
         if ($purchasePrice) {
@@ -105,9 +105,9 @@ class ProductStockReport
         $stockValue = 0;
         $intRes = mysqli_param_query($strQuery, $arrParams);
         while ($row = mysqli_fetch_assoc($intRes)) {
-            $this->printRow($format, $row ['product_code'], $row ['product_name'], 
-                $row ['purchase_price'], $row ['unit_price'], $row ['stock_balance']);
-            $stockValue += $row ['stock_balance'] * $row ['purchase_price'];
+            $this->printRow($format, $row['product_code'], $row['product_name'], 
+                $row['purchase_price'], $row['unit_price'], $row['stock_balance']);
+            $stockValue += $row['stock_balance'] * $row['purchase_price'];
         }
         $this->printTotals($format, $stockValue);
         $this->printFooter($format);

@@ -38,13 +38,14 @@ if ($strFunc == 'open_invoices')
 
 $strQuery = 'SELECT * FROM {prefix}quicksearch ' . 'WHERE func=? AND user_id=? ' .
      'ORDER BY name';
-$intRes = mysqli_param_query($strQuery, [
-    $strFunc, 
-    $_SESSION ['sesUSERID']
-]);
+$intRes = mysqli_param_query($strQuery, 
+    [
+        $strFunc, 
+        $_SESSION['sesUSERID']
+    ]);
 
 while ($row = mysqli_fetch_assoc($intRes)) {
-    $intId = $row ['id'];
+    $intId = $row['id'];
     $blnDelete = getPost('delete_' . $intId . '_x', FALSE) ? TRUE : FALSE;
     if ($blnDelete && $intId) {
         $strDelQuery = 'DELETE FROM {prefix}quicksearch ' . 'WHERE id=?';
@@ -70,15 +71,16 @@ echo htmlPageStart(_PAGE_TITLE_);
 						</td>
 					</tr>
 <?php
-$intRes = mysqli_param_query($strQuery, [
-    $strFunc, 
-    $_SESSION ['sesUSERID']
-]);
+$intRes = mysqli_param_query($strQuery, 
+    [
+        $strFunc, 
+        $_SESSION['sesUSERID']
+    ]);
 while ($row = mysqli_fetch_assoc($intRes)) {
-    $intID = $row ['id'];
-    $strName = $row ['name'];
-    $strFunc = $row ['func'];
-    $strWhereClause = $row ['whereclause'];
+    $intID = $row['id'];
+    $strName = $row['name'];
+    $strFunc = $row['func'];
+    $strWhereClause = $row['whereclause'];
     $strLink = "index.php?func=$strFunc&where=$strWhereClause";
     $strOnClick = "opener.location.href='$strLink'";
     ?>

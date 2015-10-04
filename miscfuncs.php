@@ -200,17 +200,17 @@ function miscCalcCheckNo($intValue)
 
 function getPost($strKey, $varDefault)
 {
-    return isset($_POST [$strKey]) ? gpcStripSlashes($_POST [$strKey]) : $varDefault;
+    return isset($_POST[$strKey]) ? gpcStripSlashes($_POST[$strKey]) : $varDefault;
 }
 
 function getRequest($strKey, $varDefault)
 {
-    return isset($_REQUEST [$strKey]) ? gpcStripSlashes($_REQUEST [$strKey]) : $varDefault;
+    return isset($_REQUEST[$strKey]) ? gpcStripSlashes($_REQUEST[$strKey]) : $varDefault;
 }
 
 function getGet($strKey, $varDefault)
 {
-    return isset($_GET [$strKey]) ? gpcStripSlashes($_GET [$strKey]) : $varDefault;
+    return isset($_GET[$strKey]) ? gpcStripSlashes($_GET[$strKey]) : $varDefault;
 }
 
 function getPostRequest($strKey, $varDefault)
@@ -328,13 +328,14 @@ function getPageTitle($strFunc, $strList, $strForm)
 function phpIniValueToInteger($value)
 {
     $unit = strtoupper(substr($value, -1));
-    if (!in_array($unit, [
-        'P', 
-        'T', 
-        'G', 
-        'M', 
-        'K'
-    ]))
+    if (!in_array($unit, 
+        [
+            'P', 
+            'T', 
+            'G', 
+            'M', 
+            'K'
+        ]))
         return $value;
     $value = substr($value, 0, -1);
     switch ($unit) {
@@ -374,7 +375,7 @@ function fileSizeToHumanReadable($value)
         $value /= 1024;
         ++$idx;
     }
-    return round($value, 2) . ' ' . $suffixes [$idx];
+    return round($value, 2) . ' ' . $suffixes[$idx];
 }
 
 function xml_encode($str)
@@ -412,8 +413,8 @@ function fgets_charset($handle, $charset, $line_ending = "\n")
             if ($c1 === false || $c2 === false)
                 break;
             $str .= $c1 . $c2;
-            if (($be && ord($c1) == 0 && $c2 == $line_ending [$le_pos]) ||
-                 (!$be && ord($c2) == 0 && $c1 == $line_ending [$le_pos])) {
+            if (($be && ord($c1) == 0 && $c2 == $line_ending[$le_pos]) ||
+                 (!$be && ord($c2) == 0 && $c1 == $line_ending[$le_pos])) {
                 if (++$le_pos >= $le_len)
                     break;
             } else
@@ -429,7 +430,7 @@ function fgets_charset($handle, $charset, $line_ending = "\n")
             if ($c1 === false)
                 break;
             $str .= $c1;
-            if ($c1 == $line_ending [$le_pos]) {
+            if ($c1 == $line_ending[$le_pos]) {
                 if (++$le_pos >= $le_len)
                     break;
             } else
@@ -501,12 +502,12 @@ function createVATID($id)
 
 function getSelfPath()
 {
-    return _PROTOCOL_ . $_SERVER ['HTTP_HOST'] . getSelfDirectory();
+    return _PROTOCOL_ . $_SERVER['HTTP_HOST'] . getSelfDirectory();
 }
 
 function getSelfDirectory()
 {
-    $path = $_SERVER ['PHP_SELF'];
+    $path = $_SERVER['PHP_SELF'];
     $p = strrpos($path, '/');
     if ($p > 0) {
         $path = substr($path, 0, $p);

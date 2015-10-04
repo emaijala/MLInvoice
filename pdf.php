@@ -75,23 +75,23 @@ class PDF extends TCPDF
         $seed .= getmypid();
         $seed .= __FILE__;
         $seed .= $this->bufferlen;
-        if (isset($_SERVER ['REMOTE_ADDR'])) {
-            $seed .= $_SERVER ['REMOTE_ADDR'];
+        if (isset($_SERVER['REMOTE_ADDR'])) {
+            $seed .= $_SERVER['REMOTE_ADDR'];
         }
-        if (isset($_SERVER ['HTTP_USER_AGENT'])) {
-            $seed .= $_SERVER ['HTTP_USER_AGENT'];
+        if (isset($_SERVER['HTTP_USER_AGENT'])) {
+            $seed .= $_SERVER['HTTP_USER_AGENT'];
         }
-        if (isset($_SERVER ['HTTP_ACCEPT'])) {
-            $seed .= $_SERVER ['HTTP_ACCEPT'];
+        if (isset($_SERVER['HTTP_ACCEPT'])) {
+            $seed .= $_SERVER['HTTP_ACCEPT'];
         }
-        if (isset($_SERVER ['HTTP_ACCEPT_ENCODING'])) {
-            $seed .= $_SERVER ['HTTP_ACCEPT_ENCODING'];
+        if (isset($_SERVER['HTTP_ACCEPT_ENCODING'])) {
+            $seed .= $_SERVER['HTTP_ACCEPT_ENCODING'];
         }
-        if (isset($_SERVER ['HTTP_ACCEPT_LANGUAGE'])) {
-            $seed .= $_SERVER ['HTTP_ACCEPT_LANGUAGE'];
+        if (isset($_SERVER['HTTP_ACCEPT_LANGUAGE'])) {
+            $seed .= $_SERVER['HTTP_ACCEPT_LANGUAGE'];
         }
-        if (isset($_SERVER ['HTTP_ACCEPT_CHARSET'])) {
-            $seed .= $_SERVER ['HTTP_ACCEPT_CHARSET'];
+        if (isset($_SERVER['HTTP_ACCEPT_CHARSET'])) {
+            $seed .= $_SERVER['HTTP_ACCEPT_CHARSET'];
         }
         $seed .= rand();
         $seed .= uniqid('', true);

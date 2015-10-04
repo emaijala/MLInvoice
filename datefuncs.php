@@ -62,10 +62,10 @@ function dateConvDBTimestamp2DateTime($dateTime, $format = '')
 function dateConvDate2DBDate($strDate)
 {
     $arr = date_parse_from_format($GLOBALS['locDateFormat'], $strDate);
-    if ($arr ['error_count'] > 0) {
+    if ($arr['error_count'] > 0) {
         return false;
     }
-    return sprintf('%04d%02d%02d', $arr ['year'], $arr ['month'], $arr ['day']);
+    return sprintf('%04d%02d%02d', $arr['year'], $arr['month'], $arr['day']);
 }
 
 /**
@@ -78,7 +78,7 @@ function dateConvDate2DBDate($strDate)
 function strDate2UnixTime($strDate)
 {
     $arr = date_parse_from_format($GLOBALS['locDateFormat'], $strDate);
-    return mktime(0, 0, 0, $arr ['month'], $arr ['day'], $arr ['year']);
+    return mktime(0, 0, 0, $arr['month'], $arr['day'], $arr['year']);
 }
 
 /**

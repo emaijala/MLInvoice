@@ -30,52 +30,52 @@ class InvoicePrinterXslt extends InvoicePrinterBase
         $this->arrayToXML($this->recipientData, $recipient);
         $invoice = $xml->addChild('invoice');
         $invoiceData = $this->invoiceData;
-        $invoiceData ['totalsum'] = $this->totalSum;
-        $invoiceData ['totalvat'] = $this->totalVAT;
-        $invoiceData ['totalsumvat'] = $this->totalSumVAT;
-        $invoiceData ['formatted_ref_number'] = $this->refNumber;
-        $invoiceData ['barcode'] = $this->barcode;
-        $invoiceData ['groupedvats'] = $this->groupedVATs;
+        $invoiceData['totalsum'] = $this->totalSum;
+        $invoiceData['totalvat'] = $this->totalVAT;
+        $invoiceData['totalsumvat'] = $this->totalSumVAT;
+        $invoiceData['formatted_ref_number'] = $this->refNumber;
+        $invoiceData['barcode'] = $this->barcode;
+        $invoiceData['groupedvats'] = $this->groupedVATs;
         $this->arrayToXML($invoiceData, $invoice);
         $rows = $invoice->addChild('rows');
         $this->arrayToXML($this->invoiceRowData, $rows, 'row');
         
         foreach ($this->invoiceRowData as &$data) {
             if (isset($GLOBALS["locPDF{$data['type']}"])) {
-                $data ['type'] = $GLOBALS["locPDF{$data['type']}"];
+                $data['type'] = $GLOBALS["locPDF{$data['type']}"];
             }
         }
         
         require 'settings_def.php';
         $settingsData = [];
         foreach ($arrSettings as $key => $value) {
-            if (substr($key, 0, 8) == 'invoice_' && $value ['type'] != 'LABEL') {
+            if (substr($key, 0, 8) == 'invoice_' && $value['type'] != 'LABEL') {
                 switch ($key) {
                 case 'invoice_terms_of_payment' :
-                    $settingsData [$key] = sprintf(
-                        getTermsOfPayment($invoiceData ['company_id']), 
-                        getPaymentDays($invoiceData ['company_id']));
+                    $settingsData[$key] = sprintf(
+                        getTermsOfPayment($invoiceData['company_id']), 
+                        getPaymentDays($invoiceData['company_id']));
                     break;
                 case 'invoice_pdf_filename' :
-                    $settingsData [$key] = $this->getPrintOutFileName(
+                    $settingsData[$key] = $this->getPrintOutFileName(
                         getSetting('invoice_pdf_filename'));
                     break;
                 default :
-                    $settingsData [$key] = getSetting($key);
+                    $settingsData[$key] = getSetting($key);
                 }
             }
         }
-        $settingsData ['invoice_penalty_interest_desc'] = $GLOBALS['locPDFPenaltyInterestDesc'] .
+        $settingsData['invoice_penalty_interest_desc'] = $GLOBALS['locPDFPenaltyInterestDesc'] .
              ': ' . miscRound2OptDecim(getSetting('invoice_penalty_interest'), 1) .
              ' %';
-        $settingsData ['current_time_year'] = date('Y');
-        $settingsData ['current_time_mon'] = date('m');
-        $settingsData ['current_time_day'] = date('d');
-        $settingsData ['current_time_hour'] = date('H');
-        $settingsData ['current_time_min'] = date('i');
-        $settingsData ['current_time_sec'] = date('s');
-        $settingsData ['current_timestamp'] = date('c');
-        $settingsData ['current_timestamp_utc'] = gmdate('Y-m-d\TH:i:s\Z');
+        $settingsData['current_time_year'] = date('Y');
+        $settingsData['current_time_mon'] = date('m');
+        $settingsData['current_time_day'] = date('d');
+        $settingsData['current_time_hour'] = date('H');
+        $settingsData['current_time_min'] = date('i');
+        $settingsData['current_time_sec'] = date('s');
+        $settingsData['current_timestamp'] = date('c');
+        $settingsData['current_timestamp_utc'] = gmdate('Y-m-d\TH:i:s\Z');
         $settings = $xml->addChild('settings');
         $this->arrayToXML($settingsData, $settings);
         

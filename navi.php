@@ -211,7 +211,7 @@ function createFuncMenu($strFunc)
         $strFormName = 'invoice';
         $astrNaviLinks = [];
         if ($strFunc == 'open_invoices')
-            $astrNaviLinks [] = [
+            $astrNaviLinks[] = [
                 'href' => 'index.php?func=invoices', 
                 'text' => $GLOBALS['locDisplayAllInvoices'], 
                 'levels_allowed' => [
@@ -220,7 +220,7 @@ function createFuncMenu($strFunc)
                 ]
             ];
         else
-            $astrNaviLinks [] = [
+            $astrNaviLinks[] = [
                 'href' => 'index.php?func=open_invoices', 
                 'text' => $GLOBALS['locDisplayOpenInvoices'], 
                 'levels_allowed' => [
@@ -231,7 +231,7 @@ function createFuncMenu($strFunc)
         if ($strFunc != 'archived_invoices') {
             $strNewButton = '<a class="buttonlink" href="?func=invoices&amp;form=invoice">' .
                  $GLOBALS['locNewInvoice'] . '</a>';
-            $astrNaviLinks [] = [
+            $astrNaviLinks[] = [
                 'href' => 'index.php?func=import_statement', 
                 'text' => $GLOBALS['locImportAccountStatement'], 
                 'levels_allowed' => [
@@ -274,26 +274,26 @@ function createFuncMenu($strFunc)
 <div class="function_navi">
 <?php
     foreach ($astrNaviLinks as $link) {
-        if (sesAccessLevel($link ['levels_allowed']) || sesAdminAccess()) {
-            if (strchr($link ['href'], '?') === FALSE)
-                $strHref = "?func=$strFunc&amp;" . $link ['href'];
+        if (sesAccessLevel($link['levels_allowed']) || sesAdminAccess()) {
+            if (strchr($link['href'], '?') === FALSE)
+                $strHref = "?func=$strFunc&amp;" . $link['href'];
             else
-                $strHref = $link ['href'];
+                $strHref = $link['href'];
             $class = '';
-            if (strpos($link ['href'], '?')) {
-                list (, $urlParams) = explode('?', $link ['href'], 2);
+            if (strpos($link['href'], '?')) {
+                list (, $urlParams) = explode('?', $link['href'], 2);
             } else {
-                $urlParams = $link ['href'];
+                $urlParams = $link['href'];
             }
             parse_str($urlParams, $linkParts);
-            if ((!isset($linkParts ['func']) ||
-                 getRequest('func', '') == $linkParts ['func']) && (!isset(
-                    $linkParts ['list']) ||
-                 getRequest('list', '') == $linkParts ['list']) && (!isset(
-                    $linkParts ['form']) ||
-                 getRequest('form', '') == $linkParts ['form']) && (!isset(
-                    $linkParts ['operation']) ||
-                 getRequest('operation', '') == $linkParts ['operation'])) {
+            if ((!isset($linkParts['func']) ||
+                 getRequest('func', '') == $linkParts['func']) && (!isset(
+                    $linkParts['list']) ||
+                 getRequest('list', '') == $linkParts['list']) && (!isset(
+                    $linkParts['form']) ||
+                 getRequest('form', '') == $linkParts['form']) && (!isset(
+                    $linkParts['operation']) ||
+                 getRequest('operation', '') == $linkParts['operation'])) {
                 $class = ' ui-state-highlight';
             }
             ?>

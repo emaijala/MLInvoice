@@ -38,28 +38,29 @@ if ($func == 'clear') {
         ]);
     $messages .= $GLOBALS['locBaseLogoErased'] . "<br>\n";
 } elseif ($func == 'upload') {
-    if ($_FILES ['logo'] ['error'] != UPLOAD_ERR_OK) {
+    if ($_FILES['logo']['error'] != UPLOAD_ERR_OK) {
         $messages .= $GLOBALS['locErrFileUploadFailed'] . "<br>\n";
     } else {
-        $imageInfo = getimagesize($_FILES ['logo'] ['tmp_name']);
-        if (!$imageInfo || !in_array($imageInfo ['mime'], [
-            'image/jpeg', 
-            'image/png'
-        ])) {
+        $imageInfo = getimagesize($_FILES['logo']['tmp_name']);
+        if (!$imageInfo || !in_array($imageInfo['mime'], 
+            [
+                'image/jpeg', 
+                'image/png'
+            ])) {
             $messages .= $GLOBALS['locErrFileTypeInvalid'] . "<br>\n";
         } else {
-            $file = fopen($_FILES ['logo'] ['tmp_name'], 'rb');
+            $file = fopen($_FILES['logo']['tmp_name'], 'rb');
             if ($file === FALSE)
                 die('Could not process file upload - temp file missing');
-            $fsize = filesize($_FILES ['logo'] ['tmp_name']);
+            $fsize = filesize($_FILES['logo']['tmp_name']);
             $data = fread($file, $fsize);
             fclose($file);
             mysqli_param_query(
                 'UPDATE {prefix}base set logo_filename=?, logo_filesize=?, logo_filetype=?, logo_filedata=? WHERE id=?', 
                 [
-                    $_FILES ['logo'] ['name'], 
+                    $_FILES['logo']['name'], 
                     $fsize, 
-                    $imageInfo ['mime'], 
+                    $imageInfo['mime'], 
                     $data, 
                     $baseId
                 ]);
@@ -74,12 +75,12 @@ if ($func == 'clear') {
             $baseId
         ]);
     if ($row = mysqli_fetch_assoc($res)) {
-        if (isset($row ['logo_filename']) && isset($row ['logo_filesize']) &&
-             isset($row ['logo_filetype']) && isset($row ['logo_filedata'])) {
-            header('Content-length: ' . $row ['logo_filesize']);
-            header('Content-type: ' . $row ['logo_filetype']);
-            header('Content-Disposition: inline; filename=' . $row ['logo_filename']);
-            echo $row ['logo_filedata'];
+        if (isset($row['logo_filename']) && isset($row['logo_filesize']) &&
+             isset($row['logo_filetype']) && isset($row['logo_filedata'])) {
+            header('Content-length: ' . $row['logo_filesize']);
+            header('Content-type: ' . $row['logo_filetype']);
+            header('Content-Disposition: inline; filename=' . $row['logo_filename']);
+            echo $row['logo_filedata'];
         }
     }
     exit();
@@ -87,7 +88,7 @@ if ($func == 'clear') {
 
 $maxUploadSize = getMaxUploadSize();
 $row = mysqli_fetch_array(mysqli_query_check('SELECT @@max_allowed_packet'));
-$maxPacket = $row [0];
+$maxPacket = $row[0];
 
 if ($maxPacket < $maxUploadSize)
     $maxFileSize = fileSizeToHumanReadable($maxPacket) . ' ' .

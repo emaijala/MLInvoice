@@ -45,9 +45,9 @@ $res = mysqli_param_query(
     ]);
 if (!$row = mysqli_fetch_row($res))
     return;
-$printTemplateFile = $row [0];
-$printParameters = $row [1];
-$printOutputFileName = $row [2];
+$printTemplateFile = $row[0];
+$printParameters = $row[1];
+$printOutputFileName = $row[2];
 
 $strQuery = 'SELECT inv.*, ref.invoice_no as refunded_invoice_no, delivery_terms.name as delivery_terms, delivery_method.name as delivery_method ' .
      'FROM {prefix}invoice inv ' .
@@ -64,23 +64,23 @@ if (!$invoiceData)
 
 $strQuery = 'SELECT * FROM {prefix}company WHERE id=?';
 $intRes = mysqli_param_query($strQuery, [
-    $invoiceData ['company_id']
+    $invoiceData['company_id']
 ]);
 $recipientData = mysqli_fetch_assoc($intRes);
-if (!empty($recipientData ['company_id'])) {
-    $recipientData ['vat_id'] = createVATID($recipientData ['company_id']);
+if (!empty($recipientData['company_id'])) {
+    $recipientData['vat_id'] = createVATID($recipientData['company_id']);
 } else {
-    $recipientData ['vat_id'] = '';
+    $recipientData['vat_id'] = '';
 }
 
 $strQuery = 'SELECT * FROM {prefix}base WHERE id=?';
 $intRes = mysqli_param_query($strQuery, [
-    $invoiceData ['base_id']
+    $invoiceData['base_id']
 ]);
 $senderData = mysqli_fetch_assoc($intRes);
 if (!$senderData)
     die('Could not find invoice sender data');
-$senderData ['vat_id'] = createVATID($senderData ['company_id']);
+$senderData['vat_id'] = createVATID($senderData['company_id']);
 
 $strQuery = 'SELECT pr.product_name, pr.product_code, pr.price_decimals, pr.barcode1, pr.barcode1_type, pr.barcode2, pr.barcode2_type, ir.description, ir.pcs, ir.price, IFNULL(ir.discount, 0) as discount, ir.row_date, ir.vat, ir.vat_included, ir.reminder_row, rt.name type ' .
      'FROM {prefix}invoice_row ir ' .
@@ -92,7 +92,7 @@ $intRes = mysqli_param_query($strQuery, [
 ]);
 $invoiceRowData = [];
 while ($row = mysqli_fetch_assoc($intRes)) {
-    $invoiceRowData [] = $row;
+    $invoiceRowData[] = $row;
 }
 
 if (sesWriteAccess()) {

@@ -144,7 +144,7 @@ case 'get_invoice_defaults' :
         ];
         if (getSetting('invoice_numbering_per_base') && $baseId) {
             $query .= ' AND base_id=?';
-            $params [] = $baseId;
+            $params[] = $baseId;
         }
         if ($perYear) {
             $query .= ' AND invoice_date >= ' . dateConvDate2DBDate($invoiceDate);
@@ -293,7 +293,7 @@ case 'get_list' :
             $sortColumn = intval(getRequest("iSortCol_$i", 0));
             if (getRequest("bSortable_$i", 'false') == 'true') {
                 $sortDir = getRequest("sSortDir_$i", 'asc');
-                $sort [] = [
+                $sort[] = [
                     $sortColumn => $sortDir === 'desc' ? 'desc' : 'asc'
                 ];
             }
@@ -420,11 +420,11 @@ function printJSONRecord($table, $id = FALSE, $warnings = null)
         ]);
         $row = mysqli_fetch_assoc($res);
         if ($table == 'users')
-            unset($row ['password']);
+            unset($row['password']);
         header('Content-Type: application/json');
-        $row ['warnings'] = $warnings;
+        $row['warnings'] = $warnings;
         if ($table == '{prefix}base') {
-            unset($row ['logo_filedata']);
+            unset($row['logo_filedata']);
         }
         echo json_encode($row);
     }
@@ -448,7 +448,7 @@ function printJSONRecords($table, $parentIdCol, $sort)
     $id = getRequest('parent_id', '');
     if ($id && $parentIdCol) {
         $where .= " WHERE t.$parentIdCol=?";
-        $params [] = $id;
+        $params[] = $id;
     }
     if (!getSetting('show_deleted_records')) {
         if ($where) {
@@ -473,11 +473,11 @@ function printJSONRecords($table, $parentIdCol, $sort)
         } else
             echo ",\n";
         if ($table == 'users')
-            unset($row ['password']);
+            unset($row['password']);
         if ($table == 'invoice_row') {
-            if (!empty($row ['type_id_text']) &&
-                 isset($GLOBALS['loc' . $row ['type_id_text']])) {
-                $row ['type_id_text'] = $GLOBALS['loc' . $row ['type_id_text']];
+            if (!empty($row['type_id_text']) &&
+                 isset($GLOBALS['loc' . $row['type_id_text']])) {
+                $row['type_id_text'] = $GLOBALS['loc' . $row['type_id_text']];
             }
         }
         echo json_encode($row);
@@ -500,22 +500,23 @@ function saveJSONRecord($table, $parentKeyName)
     $strForm = $table;
     $strFunc = '';
     $strList = '';
-    $id = isset($data ['id']) ? $data ['id'] : false;
+    $id = isset($data['id']) ? $data['id'] : false;
     require 'form_switch.php';
     $new = $id ? false : true;
-    unset($data ['id']);
+    unset($data['id']);
     $warnings = '';
     $res = saveFormData($strTable, $id, $astrFormElements, $data, $warnings, 
-        $parentKeyName, $parentKeyName ? $data [$parentKeyName] : FALSE);
+        $parentKeyName, $parentKeyName ? $data[$parentKeyName] : FALSE);
     if ($res !== true) {
         if ($warnings) {
             header('HTTP/1.1 409 Conflict');
         }
         header('Content-Type: application/json');
-        echo json_encode([
-            'missing_fields' => $res, 
-            'warnings' => $warnings
-        ]);
+        echo json_encode(
+            [
+                'missing_fields' => $res, 
+                'warnings' => $warnings
+            ]);
         return;
     }
     if ($new)
@@ -560,7 +561,7 @@ function getInvoiceListTotal($where)
                      mysqli_real_escape_string($dblink, $term);
             } else {
                 $strWhereClause .= "$boolean$field $operator ?";
-                $arrQueryParams [] = str_replace('%-', '%', $term);
+                $arrQueryParams[] = str_replace('%-', '%', $term);
             }
             if (!$nextBool)
                 break;
@@ -581,7 +582,7 @@ function getInvoiceListTotal($where)
     $sum = 0;
     $res = mysqli_param_query($sql, $arrQueryParams);
     if ($row = mysqli_fetch_assoc($res)) {
-        $sum = $row ['total_sum'];
+        $sum = $row['total_sum'];
     }
     $result = [
         'sum' => $sum, 
@@ -616,10 +617,10 @@ function updateStockBalance($productId, $change, $desc)
 {
     $missing = [];
     if (!$change) {
-        $missing [] = $GLOBALS['locStockBalanceChange'];
+        $missing[] = $GLOBALS['locStockBalanceChange'];
     }
     if (!$desc) {
-        $missing [] = $GLOBALS['locStockBalanceChangeDescription'];
+        $missing[] = $GLOBALS['locStockBalanceChangeDescription'];
     }
     
     if ($missing) {
@@ -640,7 +641,7 @@ function updateStockBalance($productId, $change, $desc)
                 'errors' => $GLOBALS['locErrInvalidValue']
             ]);
     }
-    $balance = $row [0];
+    $balance = $row[0];
     $balance += $change;
     mysqli_param_query('UPDATE {prefix}product SET stock_balance=? where id=?', 
         [
@@ -650,15 +651,16 @@ function updateStockBalance($productId, $change, $desc)
     mysqli_param_query(
         'INSERT INTO {prefix}stock_balance_log (user_id, product_id, stock_change, description) VALUES (?, ?, ?, ?)', 
         [
-            $_SESSION ['sesUSERID'], 
+            $_SESSION['sesUSERID'], 
             $productId, 
             $change, 
             $desc
         ]);
-    return json_encode([
-        'status' => 'ok', 
-        'new_stock_balance' => $balance
-    ]);
+    return json_encode(
+        [
+            'status' => 'ok', 
+            'new_stock_balance' => $balance
+        ]);
 }
 
 function get_max_invoice_number($invoiceId, $baseId, $perYear)
