@@ -104,9 +104,12 @@ div.field {
   margin-bottom: 8px; 
 }
 
-div.report
-{
+div.report {
   margin: 10px;
+}
+
+div.report td, div.report th {
+  padding-right: 10px;	
 }
 
 table {

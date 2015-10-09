@@ -63,6 +63,10 @@ class InvoiceReport
         'sums' => [
             'label' => 'locSum',
             'checked' => true
+        ],
+        'vat_breakdown' => [
+            'label' => 'locVATBreakdown',
+            'checked' => true
         ]
     ];
     protected $pdf = null;
@@ -343,6 +347,7 @@ class InvoiceReport
         $groupTotSum = 0;
         $groupTotVAT = 0;
         $groupTotSumVAT = 0;
+        $totalsPerVAT = [];
         $intRes = mysqli_param_query($strQuery, $arrParams);
         while ($row = mysqli_fetch_assoc($intRes)) {
             switch ($grouping) {
@@ -412,6 +417,18 @@ class InvoiceReport
                 $intTotSum += $intSum;
                 $intTotVAT += $intVAT;
                 $intTotSumVAT += $intSumVAT;
+
+                if (!isset($totalsPerVAT[$row2['vat']])) {
+                    $totalsPerVAT[$row2['vat']] = [
+                        'sum' => $intSum,
+                        'VAT' => $intVAT,
+                        'sumVAT' => $intSumVAT
+                    ];
+                } else {
+                    $totalsPerVAT[$row2['vat']]['sum'] += $intSum;
+                    $totalsPerVAT[$row2['vat']]['VAT'] += $intVAT;
+                    $totalsPerVAT[$row2['vat']]['sumVAT'] += $intSumVAT;
+                }
             }
 
             if (!$rows) {
@@ -440,8 +457,9 @@ class InvoiceReport
                 $groupTotVAT, $groupTotSumVAT,
                 $grouping == 'vat' ? $GLOBALS['locVAT'] . ' ' . miscRound2Decim($currentGroup) : '');
         }
+        ksort($totalsPerVAT, SORT_NUMERIC);
         $this->printTotals($format, $printFields, $intTotSum, $intTotVAT,
-            $intTotSumVAT);
+            $intTotSumVAT, $totalsPerVAT);
         $this->printFooter($format, $printFields);
     }
 
@@ -785,15 +803,16 @@ class InvoiceReport
     }
 
     private function printTotals($format, $printFields, $intTotSum, $intTotVAT,
-        $intTotSumVAT)
+        $intTotSumVAT, $totalsPerVAT)
     {
         if (!in_array('sums', $printFields)) {
             return;
         }
         if ($format == 'pdf' || $format == 'pdfl') {
             $pdf = $this->pdf;
-            if ($pdf->getY() > $pdf->getPageHeight() - 7 - 15)
+            if ($pdf->getY() > $pdf->getPageHeight() - 7 - 15) {
                 $pdf->AddPage();
+            }
             $pdf->SetFont('Helvetica', '', 8);
             $pdf->setLineWidth(0.2);
 
@@ -832,6 +851,28 @@ class InvoiceReport
             $pdf->Cell(25, 4, miscRound2Decim($intTotSum), 0, 0, 'R');
             $pdf->Cell(25, 4, miscRound2Decim($intTotVAT), 0, 0, 'R');
             $pdf->Cell(25, 4, miscRound2Decim($intTotSumVAT), 0, 1, 'R');
+
+            if (in_array('vat_breakdown', $printFields)) {
+                if ($pdf->getY() > $pdf->getPageHeight() - 30) {
+                    $pdf->AddPage();
+                } else {
+                    $pdf->setY($pdf->getY() + 4);
+                }
+
+                $pdf->setY($pdf->getY() + 4);
+                $pdf->Cell(15, 4, $GLOBALS['locVATBreakdown'], 0, 0, 'R');
+                $pdf->Cell(25, 4, $GLOBALS['locVATLess'], 0, 0, 'R');
+                $pdf->Cell(25, 4, $GLOBALS['locVATPart'], 0, 0, 'R');
+                $pdf->Cell(25, 4, $GLOBALS['locWithVAT'], 0, 1, 'R');
+                $pdf->SetFont('Helvetica', '', 8);
+                foreach ($totalsPerVAT as $vat => $sums) {
+                    $pdf->Cell(15, 4, miscRound2OptDecim($vat) . '%', 0, 0, 'R');
+                    $pdf->Cell(25, 4, miscRound2Decim($sums['sum']), 0, 0, 'R');
+                    $pdf->Cell(25, 4, miscRound2Decim($sums['VAT']), 0, 0, 'R');
+                    $pdf->Cell(25, 4, miscRound2Decim($sums['sumVAT']), 0, 1, 'R');
+                }
+            }
+
             return;
         }
 
@@ -876,6 +917,28 @@ class InvoiceReport
         </td>
 		</tr>
 <?php
+        if (in_array('vat_breakdown', $printFields)) {
+?>
+    </table>
+    <table>
+        <tr>
+            <th class="label" style="text-align: right"><?php echo $GLOBALS['locVATBreakdown']?></th>
+            <th class="label" style="text-align: right"><?php echo $GLOBALS['locVATLess']?></th>
+            <th class="label" style="text-align: right"><?php echo $GLOBALS['locVATPart']?></th>
+            <th class="label" style="text-align: right"><?php echo $GLOBALS['locWithVAT']?></th>
+        </tr>
+<?php
+            foreach ($totalsPerVAT as $vat => $sums) {
+?>
+        <tr>
+            <td class="input" style="text-align: right"><?php echo miscRound2OptDecim($vat)?>%</td>
+            <td class="input" style="text-align: right"><?php echo miscRound2Decim($sums['sum'])?></td>
+            <td class="input" style="text-align: right"><?php echo miscRound2Decim($sums['VAT'])?></td>
+            <td class="input" style="text-align: right"><?php echo miscRound2Decim($sums['sumVAT'])?></td>
+        </tr>
+<?php
+             }
+        }
     }
 
     private function printFooter($format, $printFields)
