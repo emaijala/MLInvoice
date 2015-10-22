@@ -2,17 +2,17 @@
 /*******************************************************************************
  MLInvoice: web-based invoicing application.
  Copyright (C) 2010-2015 Ere Maijala
- 
+
  This program is free software. See attached LICENSE.
- 
+
  *******************************************************************************/
 
 /*******************************************************************************
  MLInvoice: web-pohjainen laskutusohjelma.
  Copyright (C) 2010-2015 Ere Maijala
- 
+
  Tämä ohjelma on vapaa. Lue oheinen LICENSE.
- 
+
  *******************************************************************************/
 require_once 'invoice_printer_base.php';
 require_once 'htmlfuncs.php';
@@ -33,19 +33,22 @@ class InvoicePrinterXslt extends InvoicePrinterBase
         $invoiceData['totalsum'] = $this->totalSum;
         $invoiceData['totalvat'] = $this->totalVAT;
         $invoiceData['totalsumvat'] = $this->totalSumVAT;
+        $invoiceData['paidsum'] = $invoiceData['invoice_unpaid']
+            ? $this->partialPayments : $this->totalSumVAT;
         $invoiceData['formatted_ref_number'] = $this->refNumber;
         $invoiceData['barcode'] = $this->barcode;
         $invoiceData['groupedvats'] = $this->groupedVATs;
         $this->arrayToXML($invoiceData, $invoice);
-        $rows = $invoice->addChild('rows');
-        $this->arrayToXML($this->invoiceRowData, $rows, 'row');
-        
-        foreach ($this->invoiceRowData as &$data) {
+
+        foreach ($this->invoiceRowData as  &$data) {
             if (isset($GLOBALS["locPDF{$data['type']}"])) {
                 $data['type'] = $GLOBALS["locPDF{$data['type']}"];
             }
         }
-        
+
+        $rows = $invoice->addChild('rows');
+        $this->arrayToXML($this->invoiceRowData, $rows, 'row');
+
         require 'settings_def.php';
         $settingsData = [];
         foreach ($arrSettings as $key => $value) {
@@ -53,7 +56,7 @@ class InvoicePrinterXslt extends InvoicePrinterBase
                 switch ($key) {
                 case 'invoice_terms_of_payment' :
                     $settingsData[$key] = sprintf(
-                        getTermsOfPayment($invoiceData['company_id']), 
+                        getTermsOfPayment($invoiceData['company_id']),
                         getPaymentDays($invoiceData['company_id']));
                     break;
                 case 'invoice_pdf_filename' :
@@ -78,7 +81,7 @@ class InvoicePrinterXslt extends InvoicePrinterBase
         $settingsData['current_timestamp_utc'] = gmdate('Y-m-d\TH:i:s\Z');
         $settings = $xml->addChild('settings');
         $this->arrayToXML($settingsData, $settings);
-        
+
         $xsltproc = new XSLTProcessor();
         $xsl = new DOMDocument();
         $xsl->load($xslt);
@@ -86,7 +89,7 @@ class InvoicePrinterXslt extends InvoicePrinterBase
         $xsltproc->setParameter('', 'stylesheet', $this->printStyle);
         $domDoc = dom_import_simplexml($xml)->ownerDocument;
         $this->xml = $xsltproc->transformToXML($domDoc);
-        
+
         if ($xsd) {
             libxml_use_internal_errors(true);
             $xmlDoc = new DOMDocument();

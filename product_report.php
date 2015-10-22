@@ -2,25 +2,25 @@
 /*******************************************************************************
  MLInvoice: web-based invoicing application.
  Copyright (C) 2010-2015 Ere Maijala
- 
+
  Portions based on:
  PkLasku : web-based invoicing software.
  Copyright (C) 2004-2008 Samu Reinikainen
- 
+
  This program is free software. See attached LICENSE.
- 
+
  *******************************************************************************/
 
 /*******************************************************************************
  MLInvoice: web-pohjainen laskutusohjelma.
  Copyright (C) 2010-2015 Ere Maijala
- 
+
  Perustuu osittain sovellukseen:
  PkLasku : web-pohjainen laskutusohjelmisto.
  Copyright (C) 2004-2008 Samu Reinikainen
- 
+
  Tämä ohjelma on vapaa. Lue oheinen LICENSE.
- 
+
  *******************************************************************************/
 require_once 'htmlfuncs.php';
 require_once 'sqlfuncs.php';
@@ -36,12 +36,12 @@ class ProductReport
     public function createReport()
     {
         $strReport = getRequest('report', '');
-        
+
         if ($strReport) {
             $this->printReport();
             return;
         }
-        
+
         $intBaseId = getRequest('base', FALSE);
         $intCompanyId = getRequest('company', FALSE);
         $intProductId = getRequest('product', FALSE);
@@ -125,22 +125,22 @@ class ProductReport
         $intCompanyId = getRequest('company', FALSE);
         $intProductId = getRequest('product', FALSE);
         $format = getRequest('format', 'html');
-        
+
         $dateRange = explode(' - ', getRequest('date', ''));
         $startDate = $dateRange[0];
         $endDate = isset($dateRange[1]) ? $dateRange[1] : $startDate;
-        
+
         if ($startDate) {
             $startDate = dateConvDate2DBDate($startDate);
         }
         if ($endDate) {
             $endDate = dateConvDate2DBDate($endDate);
         }
-        
+
         $arrParams = [];
-        
+
         $strQuery = 'SELECT i.id ' . 'FROM {prefix}invoice i ' . 'WHERE i.deleted=0';
-        
+
         if ($startDate) {
             $strQuery .= ' AND i.invoice_date >= ?';
             $arrParams[] = $startDate;
@@ -157,7 +157,7 @@ class ProductReport
             $strQuery .= ' AND i.company_id = ?';
             $arrParams[] = $intCompanyId;
         }
-        
+
         $strQuery2 = '';
         $strQuery3 = 'SELECT id, name ' .
              'FROM {prefix}invoice_state WHERE deleted=0 ' . 'ORDER BY order_no';
@@ -175,25 +175,25 @@ class ProductReport
         if ($strQuery2) {
             $strQuery2 = ' AND (' . substr($strQuery2, 0, -3) . ')';
         }
-        
+
         $strQuery .= "$strQuery2 ORDER BY invoice_no";
-        
+
         if ($intProductId) {
             $strProductWhere = 'AND ir.product_id = ? ';
             $arrParams[] = $intProductId;
         } else
             $strProductWhere = '';
-        
+
         $strProductQuery = 'SELECT p.id, p.product_code, p.product_name, ir.description, ' .
              'ir.vat, ir.pcs, t.name as unit, ir.price, ir.vat_included, ir.discount ' .
              'FROM {prefix}invoice_row ir ' .
              'LEFT OUTER JOIN {prefix}product p ON p.id = ir.product_id ' .
              'LEFT OUTER JOIN {prefix}row_type t ON t.id = ir.type_id ' .
-             "WHERE ir.deleted=0 AND ir.invoice_id IN ($strQuery) $strProductWhere" .
+             "WHERE ir.deleted = 0 AND ir.partial_payment = 0 AND ir.invoice_id IN ($strQuery) $strProductWhere" .
              'ORDER BY p.id, ir.description, t.name, ir.vat';
-        
+
         $this->printHeader($format, $startDate, $endDate);
-        
+
         $totalSum = 0;
         $totalVAT = 0;
         $totalSumVAT = 0;
@@ -207,9 +207,9 @@ class ProductReport
             if ($prevRow !== false && ($prevRow['id'] != $row['id'] ||
                  $prevRow['description'] != $row['description'] ||
                  $prevRow['unit'] != $row['unit'] || $prevRow['vat'] != $row['vat'])) {
-                $this->printRow($format, $prevRow['product_code'], 
-                    $prevRow['product_name'], $prevRow['description'], $productCount, 
-                    $prevRow['unit'], $productSum, $prevRow['vat'], $productVAT, 
+                $this->printRow($format, $prevRow['product_code'],
+                    $prevRow['product_name'], $prevRow['description'], $productCount,
+                    $prevRow['unit'], $productSum, $prevRow['vat'], $productVAT,
                     $productSumVAT);
                 $productCount = 0;
                 $productSum = 0;
@@ -217,26 +217,26 @@ class ProductReport
                 $productSumVAT = 0;
             }
             $prevRow = $row;
-            
+
             $productCount += $row['pcs'];
-            list ($rowSum, $rowVAT, $rowSumVAT) = calculateRowSum($row['price'], 
+            list ($rowSum, $rowVAT, $rowSumVAT) = calculateRowSum($row['price'],
                 $row['pcs'], $row['vat'], $row['vat_included'], $row['discount']);
-            
+
             $productSum += $rowSum;
             $productVAT += $rowVAT;
             $productSumVAT += $rowSumVAT;
-            
+
             $totalSum += $rowSum;
             $totalVAT += $rowVAT;
             $totalSumVAT += $rowSumVAT;
         }
         if ($prevRow !== false) {
-            $this->printRow($format, $prevRow['product_code'], 
-                $prevRow['product_name'], $prevRow['description'], $productCount, 
-                $prevRow['unit'], $productSum, $prevRow['vat'], $productVAT, 
+            $this->printRow($format, $prevRow['product_code'],
+                $prevRow['product_name'], $prevRow['description'], $productCount,
+                $prevRow['unit'], $productSum, $prevRow['vat'], $productVAT,
                 $productSumVAT);
         }
-        
+
         $this->printTotals($format, $totalSum, $totalVAT, $totalSumVAT);
         $this->printFooter($format);
     }
@@ -251,19 +251,19 @@ class ProductReport
             $pdf->printHeaderOnFirstPage = true;
             $pdf->AddPage();
             $pdf->SetAutoPageBreak(TRUE, 15);
-            
+
             $pdf->setY(10);
             $pdf->SetFont('Helvetica', 'B', 12);
             $pdf->Cell(100, 15, $GLOBALS['locProductReport'], 0, 1, 'L');
-            
+
             if ($startDate || $endDate) {
                 $pdf->SetFont('Helvetica', '', 8);
                 $pdf->Cell(25, 15, $GLOBALS['locDateInterval'], 0, 0, 'L');
-                $pdf->Cell(50, 15, 
+                $pdf->Cell(50, 15,
                     dateConvDBDate2Date($startDate) . ' - ' .
                          dateConvDBDate2Date($endDate), 0, 1, 'L');
             }
-            
+
             $pdf->SetFont('Helvetica', 'B', 8);
             $pdf->Cell(15, 4, $GLOBALS['locCode'], 0, 0, 'L');
             $pdf->Cell(40, 4, $GLOBALS['locProduct'], 0, 0, 'L');
@@ -308,7 +308,7 @@ class ProductReport
 <?php
     }
 
-    private function printRow($format, $strCode, $strProduct, $strDescription, 
+    private function printRow($format, $strCode, $strProduct, $strDescription,
         $intCount, $strUnit, $intSum, $intVATPercent, $intVAT, $intSumVAT)
     {
         if ($strDescription) {
@@ -319,15 +319,15 @@ class ProductReport
             else
                 $strProduct = $strDescription;
         }
-        
+
         if ($strUnit && isset($GLOBALS["loc$strUnit"])) {
             $strUnit = $GLOBALS["loc$strUnit"];
         }
-        
+
         if ($format == 'pdf') {
             if (!$strProduct)
                 $strProduct = '-';
-            
+
             $pdf = $this->pdf;
             $pdf->SetFont('Helvetica', '', 8);
             $pdf->setY($pdf->getY() + 1);

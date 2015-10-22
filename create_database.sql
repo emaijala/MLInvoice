@@ -202,6 +202,7 @@ CREATE TABLE mlinvoice_invoice_row (
   vat_included tinyint NOT NULL default 0,
   order_no int(11) default NULL,
   reminder_row tinyint NOT NULL default 0,
+  partial_payment tinyint NOT NULL default 0,
   discount decimal(4,1) NULL,
   PRIMARY KEY (id),
   FOREIGN KEY (invoice_id) REFERENCES mlinvoice_invoice(id) ON DELETE CASCADE,
@@ -295,7 +296,7 @@ INSERT INTO mlinvoice_state (id, data) VALUES ('version', '37');
 
 INSERT INTO mlinvoice_state (id, data) VALUES ('tableconversiondone', '1');
 
-INSERT INTO mlinvoice_invoice_state (id, name, order_no, invoice_open, invoice_unpaid) VALUES (1, 'StateOpen', 5, 1, 0);
+INSERT INTO mlinvoice_invoice_state (id, name, order_no, invoice_open, invoice_unpaid) VALUES (1, 'StateOpen', 5, 1, 1);
 INSERT INTO mlinvoice_invoice_state (id, name, order_no, invoice_open, invoice_unpaid) VALUES (2, 'StateSent', 10, 0, 1);
 INSERT INTO mlinvoice_invoice_state (id, name, order_no, invoice_open, invoice_unpaid) VALUES (3, 'StatePaid', 15, 0, 0);
 INSERT INTO mlinvoice_invoice_state (id, name, order_no, invoice_open, invoice_unpaid) VALUES (4, 'StateAnnulled', 20, 0, 0);

@@ -2,17 +2,17 @@
 /*******************************************************************************
  MLInvoice: web-based invoicing application.
  Copyright (C) 2010-2015 Ere Maijala
- 
+
  This program is free software. See attached LICENSE.
- 
+
  *******************************************************************************/
 
 /*******************************************************************************
  MLInvoice: web-pohjainen laskutusohjelma.
  Copyright (C) 2010-2015 Ere Maijala
- 
+
  Tämä ohjelma on vapaa. Lue oheinen LICENSE.
- 
+
  *******************************************************************************/
 require_once 'invoice_printer_base.php';
 require_once 'htmlfuncs.php';
@@ -21,10 +21,10 @@ require_once 'miscfuncs.php';
 class InvoicePrinterOrderConfirmation extends InvoicePrinterBase
 {
 
-    public function init($invoiceId, $printParameters, $outputFileName, $senderData, 
+    public function init($invoiceId, $printParameters, $outputFileName, $senderData,
         $recipientData, $invoiceData, $invoiceRowData)
     {
-        parent::init($invoiceId, $printParameters, $outputFileName, $senderData, 
+        parent::init($invoiceId, $printParameters, $outputFileName, $senderData,
             $recipientData, $invoiceData, $invoiceRowData);
         $this->printStyle = 'order_confirmation';
     }
@@ -39,7 +39,7 @@ class InvoicePrinterOrderConfirmation extends InvoicePrinterBase
             $this->senderData['bank_iban'] . $this->senderData['bank_swiftbic'];
         }
         $this->senderAddressLine .= "\n$bank";
-        
+
         parent::printInvoice();
     }
 
@@ -55,7 +55,7 @@ class InvoicePrinterOrderConfirmation extends InvoicePrinterBase
         $senderData = $this->senderData;
         $invoiceData = $this->invoiceData;
         $recipientData = $this->recipientData;
-        
+
         // Invoice info headers
         $pdf->SetXY(115, 10);
         $pdf->SetFont('Helvetica', 'B', 12);
@@ -72,17 +72,17 @@ class InvoicePrinterOrderConfirmation extends InvoicePrinterBase
             $pdf->Cell(60, 4, $recipientData['company_id'], 0, 1);
         }
         $pdf->SetX(115);
-        $pdf->Cell(40, 4, $GLOBALS['locPDFOrderConfirmationNumber'] . ': ', 0, 0, 
+        $pdf->Cell(40, 4, $GLOBALS['locPDFOrderConfirmationNumber'] . ': ', 0, 0,
             'R');
         $pdf->Cell(60, 4, $invoiceData['invoice_no'], 0, 1);
-        
+
         $pdf->SetX(115);
         $pdf->Cell(40, 4, $GLOBALS['locPDFOrderConfirmationDate'] . ': ', 0, 0, 'R');
         $strInvoiceDate = $this->_formatDate($invoiceData['invoice_date']);
         $pdf->Cell(60, 4, $strInvoiceDate, 0, 1);
-        
+
         $pdf->SetX(115);
-        $pdf->Cell(40, 5, $GLOBALS['locPDFTermsOfPayment'] . ': ', 0, 0, 'R');
+        $pdf->Cell(40, 4, $GLOBALS['locPDFTermsOfPayment'] . ': ', 0, 0, 'R');
         $paymentDays = round(
             dbDate2UnixTime($invoiceData['due_date']) / 3600 / 24 -
                  dbDate2UnixTime($invoiceData['invoice_date']) / 3600 / 24);
@@ -90,31 +90,31 @@ class InvoicePrinterOrderConfirmation extends InvoicePrinterBase
             // This shouldn't happen, but try to be safe...
             $paymentDays = getPaymentDays($invoiceData['company_id']);
         }
-        $pdf->Cell(60, 5, 
-            sprintf(getTermsOfPayment($invoiceData['company_id']), $paymentDays), 0, 
+        $pdf->Cell(60, 4,
+            sprintf(getTermsOfPayment($invoiceData['company_id']), $paymentDays), 0,
             1);
-        
+
         if ($invoiceData['reference']) {
             $pdf->SetX(115);
-            $pdf->Cell(40, 5, $GLOBALS['locPDFYourReference'] . ': ', 0, 0, 'R');
-            $pdf->MultiCell(50, 5, $invoiceData['reference'], 0, 'L');
+            $pdf->Cell(40, 4, $GLOBALS['locPDFYourReference'] . ': ', 0, 0, 'R');
+            $pdf->MultiCell(50, 4, $invoiceData['reference'], 0, 'L');
         }
-        
+
         if ($invoiceData['delivery_terms']) {
             $pdf->SetX(115);
             $pdf->Cell(40, 4, $GLOBALS['locPDFDeliveryTerms'] . ': ', 0, 0, 'R');
             $pdf->MultiCell(50, 4, $invoiceData['delivery_terms'], 0, 'L', 0);
         }
-        
+
         if ($invoiceData['delivery_method']) {
             $pdf->SetX(115);
             $pdf->Cell(40, 4, $GLOBALS['locPDFDeliveryMethod'] . ': ', 0, 0, 'R');
             $pdf->MultiCell(50, 4, $invoiceData['delivery_method'], 0, 'L', 0);
         }
-        
+
         if (isset($invoiceData['info']) && $invoiceData['info']) {
             $pdf->SetX(115);
-            $pdf->Cell(40, 5, $GLOBALS['locPDFAdditionalInformation'] . ': ', 0, 0, 
+            $pdf->Cell(40, 4, $GLOBALS['locPDFAdditionalInformation'] . ': ', 0, 0,
                 'R');
             $pdf->MultiCell(50, 4, $invoiceData['info'], 0, 'L', 0);
         }
@@ -128,13 +128,13 @@ class InvoicePrinterOrderConfirmation extends InvoicePrinterBase
     {
         $pdf = $this->pdf;
         $invoiceData = $this->invoiceData;
-        
+
         $pdf->printFooterOnFirstPage = true;
         $pdf->SetAutoPageBreak(true, 22);
-        
+
         $left = 10;
         $nameColWidth = $this->discountedRows ? 98 : 110;
-        
+
         $pdf->Cell($nameColWidth, 5, $GLOBALS['locPDFRowName'], 0, 0, 'L');
         $pdf->Cell(20, 5, $GLOBALS['locPDFOrderConfirmationRowDate'], 0, 0, 'L');
         $pdf->Cell(17, 5, $GLOBALS['locPDFRowPrice'], 0, 0, 'R');
@@ -144,7 +144,7 @@ class InvoicePrinterOrderConfirmation extends InvoicePrinterBase
         $pdf->Cell(20, 5, $GLOBALS['locPDFRowPieces'], 0, 0, 'R');
         $pdf->Cell(20, 5, $GLOBALS['locPDFRowTotal'], 0, 1, 'R');
         $pdf->Cell(20, 5, '', 0, 1, 'R'); // line feed
-        
+
         foreach ($this->invoiceRowData as $row) {
             // Product / description
             $description = '';
@@ -169,13 +169,13 @@ class InvoicePrinterOrderConfirmation extends InvoicePrinterBase
                 } else
                     $description = $row['description'];
             }
-            
+
             // Sums
-            list ($rowSum, $rowVAT, $rowSumVAT) = calculateRowSum($row['price'], 
+            list ($rowSum, $rowVAT, $rowSumVAT) = calculateRowSum($row['price'],
                 $row['pcs'], $row['vat'], $row['vat_included'], $row['discount']);
             if ($row['vat_included'])
                 $row['price'] /= (1 + $row['vat'] / 100);
-            
+
             if ($row['price'] == 0 && $row['pcs'] == 0) {
                 $pdf->SetX($left);
                 $pdf->MultiCell(0, 5, $description, 0, 'L');
@@ -183,17 +183,17 @@ class InvoicePrinterOrderConfirmation extends InvoicePrinterBase
                 $pdf->SetX($nameColWidth + $left);
                 $pdf->Cell(20, 5, $this->_formatDate($row['row_date']), 0, 0, 'L');
                 $decimals = isset($row['price_decimals']) ? $row['price_decimals'] : 2;
-                $pdf->Cell(17, 5, $this->_formatCurrency($row['price'], $decimals), 
+                $pdf->Cell(17, 5, $this->_formatCurrency($row['price'], $decimals),
                     0, 0, 'R');
                 if ($this->discountedRows) {
-                    $pdf->Cell(12, 5, 
+                    $pdf->Cell(12, 5,
                         (isset($row['discount']) && $row['discount'] != '0') ? $this->_formatCurrency(
                             $row['discount'], 2, true) : '', 0, 0, 'R');
                 }
-                $pdf->Cell(13, 5, $this->_formatNumber($row['pcs'], 2, true), 0, 0, 
+                $pdf->Cell(13, 5, $this->_formatNumber($row['pcs'], 2, true), 0, 0,
                     'R');
-                $pdf->Cell(7, 5, 
-                    isset($GLOBALS["locPDF{$row['type']}"]) ? $GLOBALS["locPDF{$row['type']}"] : $row['type'], 
+                $pdf->Cell(7, 5,
+                    isset($GLOBALS["locPDF{$row['type']}"]) ? $GLOBALS["locPDF{$row['type']}"] : $row['type'],
                     0, 0, 'L');
                 $pdf->Cell(20, 5, $this->_formatCurrency($rowSum), 0, 0, 'R');
                 $pdf->SetX($left);
@@ -204,23 +204,23 @@ class InvoicePrinterOrderConfirmation extends InvoicePrinterBase
             if ($this->senderData['vat_registered']) {
                 $pdf->SetFont('Helvetica', '', 10);
                 $pdf->SetY($pdf->GetY() + 10);
-                $pdf->Cell(162, 5, $GLOBALS['locPDFTotalExcludingVAT'] . ': ', 0, 0, 
+                $pdf->Cell(162, 5, $GLOBALS['locPDFTotalExcludingVAT'] . ': ', 0, 0,
                     'R');
                 $pdf->SetX(187 - $left);
                 $pdf->Cell(20, 5, $this->_formatCurrency($this->totalSum), 0, 0, 'R');
-                
+
                 $pdf->SetFont('Helvetica', '', 10);
                 $pdf->SetY($pdf->GetY() + 5);
                 $pdf->Cell(162, 5, $GLOBALS['locPDFTotalVAT'] . ': ', 0, 0, 'R');
                 $pdf->SetX(187 - $left);
                 $pdf->Cell(20, 5, $this->_formatCurrency($this->totalVAT), 0, 0, 'R');
-                
+
                 $pdf->SetFont('Helvetica', 'B', 10);
                 $pdf->SetY($pdf->GetY() + 5);
-                $pdf->Cell(162, 5, $GLOBALS['locPDFTotalIncludingVAT'] . ': ', 0, 0, 
+                $pdf->Cell(162, 5, $GLOBALS['locPDFTotalIncludingVAT'] . ': ', 0, 0,
                     'R');
                 $pdf->SetX(187 - $left);
-                $pdf->Cell(20, 5, $this->_formatCurrency($this->totalSumVAT), 0, 1, 
+                $pdf->Cell(20, 5, $this->_formatCurrency($this->totalSumVAT), 0, 1,
                     'R');
                 $pdf->SetFont('Helvetica', '', 10);
             } else {
@@ -228,12 +228,12 @@ class InvoicePrinterOrderConfirmation extends InvoicePrinterBase
                 $pdf->SetY($pdf->GetY() + 5);
                 $pdf->Cell(162, 5, $GLOBALS['locPDFTotalPrice'] . ': ', 0, 0, 'R');
                 $pdf->SetX(187 - $left);
-                $pdf->Cell(20, 5, $this->_formatCurrency($this->totalSumVAT), 0, 1, 
+                $pdf->Cell(20, 5, $this->_formatCurrency($this->totalSumVAT), 0, 1,
                     'R');
                 $pdf->SetFont('Helvetica', '', 10);
             }
         }
-        
+
         $terms = getSetting('order_confirmation_terms');
         if ($terms) {
             $pdf->SetY($pdf->GetY() + 10);

@@ -582,7 +582,6 @@ function init_rows()
 {
 <?php
     $subFormElements = getFormElements($elem['name']);
-    $rowSumColumns = getFormRowSumColumns($elem['name']);
     $strParentKey = getFormParentKey($elem['name']);
     $clearRowValuesAfterAdd = getFormClearRowValuesAfterAdd($elem['name']);
     $onAfterRowAdded = getFormOnAfterRowAdded($elem['name']);
@@ -640,11 +639,11 @@ function init_rows()
                  "\").appendTo(tr);\n";
         } elseif ($subElem['type'] == 'ROWSUM') {
             ?>
-      var items = record.<?php echo $rowSumColumns['multiplier']?>;
-      var price = record.<?php echo $rowSumColumns['price']?>;
-      var discount = record.<?php echo $rowSumColumns['discount']?> || 0;
-      var VATPercent = record.<?php echo $rowSumColumns['vat']?>;
-      var VATIncluded = record.<?php echo $rowSumColumns['vat_included']?>;
+      var items = record.pcs;
+      var price = record.price;
+      var discount = record.discount || 0;
+      var VATPercent = record.vat;
+      var VATIncluded = record.vat_included;
 
       price *= (1 - discount / 100);
       var sum = 0;
@@ -682,20 +681,26 @@ function init_rows()
       $(table).append(tr);
     }
 <?php
-    if (isset($rowSumColumns['show_summary']) && $rowSumColumns['show_summary']) {
+    if ($elem['name'] == 'invoice_rows') {
         ?>
     var totSum = 0;
     var totVAT = 0;
     var totSumVAT = 0;
+    var partialPayments = 0;
     for (var i = 0; i < json.records.length; i++)
     {
       var record = json.records[i];
 
-      var items = record.<?php echo $rowSumColumns['multiplier']?>;
-      var price = record.<?php echo $rowSumColumns['price']?>;
-      var discount = record.<?php echo $rowSumColumns['discount']?> || 0;
-      var VATPercent = record.<?php echo $rowSumColumns['vat']?>;
-      var VATIncluded = record.<?php echo $rowSumColumns['vat_included']?>;
+      if (record.partial_payment == 1) {
+          partialPayments += parseInt(record.price);
+          continue;
+      }
+
+      var items = record.pcs;
+      var price = record.price;
+      var discount = record.discount;
+      var VATPercent = record.vat;
+      var VATIncluded = record.vat_included;
 
       price *= (1 - discount / 100);
       var sum = 0;
@@ -731,6 +736,11 @@ function init_rows()
     var tr = $('<tr/>').addClass('summary');
     $('<td/>').addClass('input').attr('colspan', '10').attr('align', 'right').text('<?php echo $GLOBALS['locTotalIncludingVAT']?>').appendTo(tr);
     $('<td/>').addClass('input').attr('align', 'right').text(format_currency(totSumVAT, 2)).appendTo(tr);
+    $(table).append(tr);
+
+    var tr = $('<tr/>').addClass('summary');
+    $('<td/>').addClass('input').attr('colspan', '10').attr('align', 'right').text('<?php echo $GLOBALS['locTotalToPay']?>').appendTo(tr);
+    $('<td/>').addClass('input').attr('align', 'right').text(format_currency(totSumVAT + partialPayments, 2)).appendTo(tr);
     $(table).append(tr);
 
 <?php

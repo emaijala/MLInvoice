@@ -621,7 +621,6 @@ EOS;
 EOS;
 
         $popupHTML = <<<EOS
-<script type="text/javascript" src="js/add_company.js"></script>
 <div id="quick_add_company" class="form_container ui-widget-content" style="display: none">
   <div class="medium_label">$locClientName</div> <div class="field"><input type='TEXT' id="quick_name" class='medium'></div>
   <div class="medium_label">$locEmail</div> <div class="field"><input type='TEXT' id="quick_email" class='medium'></div>
@@ -630,7 +629,21 @@ EOS;
   <div class="medium_label">$locZip</div> <div class="field"><input type='TEXT' id="quick_zip_code" class='medium'></div>
   <div class="medium_label">$locCity</div> <div class="field"><input type='TEXT' id="quick_city" class='medium'></div>
   <div class="medium_label">$locCountry</div> <div class="field"><input type='TEXT' id="quick_country" class='medium'></div>
-  </div>
+</div>
+
+EOS;
+
+        $addPartialPaymentCode = <<<EOS
+add_partial_payment({'save': '$locSave', 'close': '$locClose', 'title': '{$GLOBALS['locPartialPayment']}', 'missing': '$locMissing: ', 'partial_payment': '{$GLOBALS['locPartialPayment']}'}); return false;
+
+EOS;
+
+        $popupHTML .= <<<EOS
+<div id="add_partial_payment" class="form_container ui-widget-content" style="display: none">
+  <div class="medium_label">{$GLOBALS['locPaymentAmount']}</div> <div class="field"><input type='TEXT' id="add_partial_payment_amount" class='medium'></div>
+  <div class="medium_label">{$GLOBALS['locPayDate']}</div> <div class="field"><input type='TEXT' id="add_partial_payment_date" class='date hasCalendar'></div>
+</div>
+
 EOS;
 
         if (getSetting('invoice_warn_if_noncurrent_date')) {
@@ -939,7 +952,22 @@ $astrFormElements = [
     ],
     $arrRefundingInvoice,
     isset($printButtons[1]) ? $printButtons[1] : [],
-    isset($printButtons2[1]) ? $printButtons2[1] : []
+    isset($printButtons2[1]) ? $printButtons2[1] : [],
+    !sesWriteAccess() ? [
+        'name' => 'addpartialpayment',
+        'label' => '',
+        'type' => 'FILLER',
+        'position' => 1
+    ] : [
+        'name' => 'addpartialpayment',
+        'label' => $GLOBALS['locAddPartialPayment'],
+        'type' => 'JSBUTTON',
+        'style' => 'redirect',
+        'listquery' => $addPartialPaymentCode,
+        'position' => 1,
+        'default' => FALSE,
+        'allow_null' => true
+    ],
 ];
 
 for ($i = 2; $i < count($printButtons); $i ++) {
@@ -1026,13 +1054,6 @@ $productOnChange = <<<EOS
     });
   }
 EOS;
-
-$multiplierColumn = 'pcs';
-$priceColumn = 'price';
-$discountColumn = 'discount';
-$VATColumn = 'vat';
-$VATIncludedColumn = 'vat_included';
-$showPriceSummary = true;
 
 $astrFormElements = [
     [
@@ -1130,6 +1151,15 @@ $astrFormElements = [
         'listquery' => 'SELECT max(order_no)+5 FROM {prefix}invoice_row WHERE deleted=0 AND invoice_id=_PARENTID_',
         'position' => 0,
         'default' => 'ADD+5',
+        'allow_null' => true
+    ],
+    [
+        'name' => 'partial_payment',
+        'label' => $GLOBALS['locPartialPayment'],
+        'type' => 'HID_INT',
+        'style' => 'xshort',
+        'position' => 0,
+        'default' => 0,
         'allow_null' => true
     ],
     [
