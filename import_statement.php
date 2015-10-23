@@ -76,13 +76,17 @@ class ImportStatement extends ImportFile
     protected function add_custom_form_fields()
     {
 ?>
-      <div class="medium_label"><?php echo $GLOBALS['locMarkPaidInvoicesArchived']?></div>
+      <div class="medium_label"><?php echo $GLOBALS['locImportStatementMarkPaidInvoicesArchived']?></div>
       <div class="field">
         <input type="checkbox" id="archive" name="archive" value="1" <?=getSetting('invoice_auto_archive') ? 'checked="checked"' : '' ?>>
       </div>
       <div class="medium_label"><?php echo $GLOBALS['locBiller']?></div>
       <div class="field">
         <?=htmlSQLListBox('base_id', 'SELECT id, name FROM {prefix}base WHERE deleted=0', '', 'medium') ?>
+      </div>
+      <div class="medium_label"><?php echo $GLOBALS['locImportStatementAcceptPartialPayments']?></div>
+      <div class="field">
+        <input type="checkbox" id="partial_payments" name="partial_payments" value="1">
       </div>
 <?php
     }
@@ -162,24 +166,64 @@ class ImportStatement extends ImportFile
         }
 
         $res2 = mysqli_param_query(
-            'SELECT ir.price, ir.pcs, ir.vat, ir.vat_included, ir.discount from {prefix}invoice_row ir where ir.deleted = 0 AND ir.invoice_id = ?',
+            'SELECT ir.price, ir.pcs, ir.vat, ir.vat_included, ir.discount, ir.partial_payment from {prefix}invoice_row ir where ir.deleted = 0 AND ir.invoice_id = ?',
             [
                 $row['id']
             ]);
         $rowTotal = 0;
+        $partialPayments = 0;
         while ($invoiceRow = mysqli_fetch_assoc($res2)) {
+            if ($invoiceRow['partial_payment']) {
+                $partialPayments += $invoiceRow['price'];
+            }
             list ($rowSum, $rowVAT, $rowSumVAT) = calculateRowSum(
                 $invoiceRow['price'], $invoiceRow['pcs'], $invoiceRow['vat'],
                 $invoiceRow['vat_included'], $invoiceRow['discount']);
             $rowTotal += $rowSumVAT;
         }
+        $totalToPay = $rowTotal + $partialPayments;
 
-        if (miscRound2Decim($rowTotal) != miscRound2Decim($amount)) {
-            $msg = str_replace('{statementAmount}', miscRound2Decim($amount),
-                $GLOBALS['locImportStatementAmountMismatch']);
-            $msg = str_replace('{invoiceAmount}', miscRound2Decim($rowTotal), $msg);
-            $msg = str_replace('{refnr}', $refnr, $msg);
-            return $msg;
+        if (miscRound2Decim($totalToPay) != miscRound2Decim($amount)) {
+            if (getRequest('partial_payments', false)
+                && miscRound2Decim($totalToPay) > miscRound2Decim($amount)
+            ) {
+                if ($mode == 'import') {
+                    $sql = <<<EOT
+INSERT INTO {prefix}invoice_row
+    (invoice_id, description, pcs, price, row_date, order_no, partial_payment)
+    VALUES (?, ?, 0, ?, ?, 100000, 1)
+EOT;
+
+                    mysqli_param_query(
+                        $sql,
+                        [
+                            $row['id'],
+                            $GLOBALS['locPartialPayment'],
+                            -$amount,
+                            $date
+                        ]
+                    );
+                }
+
+                $msg = str_replace('{statementAmount}', miscRound2Decim($amount),
+                    $GLOBALS['locImportStatementPartialPayment']);
+                $msg = str_replace(
+                    '{invoiceAmount}', miscRound2Decim($totalToPay), $msg
+                );
+                $msg = str_replace('{id}', $row['id'], $msg);
+                $msg = str_replace('{date}', dateConvDBDate2Date($date), $msg);
+                $msg = str_replace('{refnr}', $refnr, $msg);
+
+                return $msg;
+            } else {
+                $msg = str_replace('{statementAmount}', miscRound2Decim($amount),
+                    $GLOBALS['locImportStatementAmountMismatch']);
+                $msg = str_replace(
+                    '{invoiceAmount}', miscRound2Decim($totalToPay), $msg
+                );
+                $msg = str_replace('{refnr}', $refnr, $msg);
+                return $msg;
+            }
         }
 
         $archive = $row['interval_type'] == 0 && getRequest('archive', '');
