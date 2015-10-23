@@ -527,6 +527,9 @@ abstract class InvoicePrinterBase
             $pdf->Cell(20, 5, '', 0, 1, 'R'); // line feed
         }
 
+        $descMaxHeight = getSetting('invoice_row_description_first_line_only', false)
+            ? 5 : 0;
+
         $pdf->SetY($pdf->GetY() + 5);
         foreach ($this->invoiceRowData as $row) {
             if (!$this->separateStatement && $this->printStyle == 'invoice' &&
@@ -577,7 +580,7 @@ abstract class InvoicePrinterBase
 
             if ($row['price'] == 0 && $row['pcs'] == 0) {
                 $pdf->SetX($left);
-                $pdf->MultiCell(0, 5, $description, 0, 'L');
+                $pdf->MultiCell(0, 5, $description, 0, 'L', false, 1, '', '', true, 0, false, true, $descMaxHeight);
             } else {
                 if ($showDate) {
                     $pdf->SetX($nameColWidth - 20 + $left);
@@ -612,9 +615,9 @@ abstract class InvoicePrinterBase
                 }
                 $pdf->SetX($left);
                 if ($showDate) {
-                    $pdf->MultiCell($nameColWidth - 20, 5, $description, 0, 'L');
+                    $pdf->MultiCell($nameColWidth - 20, 5, $description, 0, 'L', false, 1, '', '', true, 0, false, true, $descMaxHeight);
                 } else {
-                    $pdf->MultiCell($nameColWidth, 5, $description, 0, 'L');
+                    $pdf->MultiCell($nameColWidth, 5, $description, 0, 'L', false, 1, '', '', true, 0, false, true, $descMaxHeight);
                 }
 
                 if ($this->printStyle == 'dispatch' &&
