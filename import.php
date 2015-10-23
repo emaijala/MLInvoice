@@ -892,6 +892,23 @@ function select_preset()
     {
         global $dblink;
 
+        $sep = getRequest('decimal_separator', ',');
+        if ($sep != '.') {
+            $fieldDefs = getFormElements($table);
+            foreach ($row as $key => &$value) {
+                foreach ($fieldDefs as $fieldDef) {
+                    if ($fieldDef['name'] === $key) {
+                        if ($fieldDef['type'] == 'INT'
+                            && in_array($fieldDef['style'], ['percent', 'currency'])
+                        ) {
+                            $value = str_replace($sep, '.', $value);
+                        }
+                        break;
+                    }
+                }
+            }
+        }
+
         $result = '';
         $recordId = null;
         if ($dupMode != '' && count($dupCheckColumns) > 0) {
