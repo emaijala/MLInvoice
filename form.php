@@ -693,7 +693,7 @@ function init_rows()
       var record = json.records[i];
 
       if (record.partial_payment == 1) {
-          partialPayments += parseInt(record.price);
+          partialPayments += parseFloat(record.price);
           continue;
       }
 
@@ -954,6 +954,7 @@ function popup_editor(event, title, id, copy_row)
                 [
                     'HID_INT',
                     'SECHID_INT',
+                    'CONST_HID_INT',
                     'BUTTON',
                     'NEWLINE',
                     'ROWSUM'
@@ -1042,6 +1043,7 @@ function popup_editor(event, title, id, copy_row)
         if (!in_array($subElem['type'],
             [
                 'HID_INT',
+                'CONST_HID_INT',
                 'SECHID_INT',
                 'BUTTON',
                 'NEWLINE'
@@ -1065,6 +1067,7 @@ function popup_editor(event, title, id, copy_row)
             if (!in_array($subElem['type'],
                 [
                     'HID_INT',
+                    'CONST_HID_INT',
                     'SECHID_INT',
                     'BUTTON',
                     'NEWLINE',
@@ -1122,6 +1125,7 @@ function popup_editor(event, title, id, copy_row)
             if (!in_array($elem['type'],
                 [
                     'HID_INT',
+                    'CONST_HID_INT',
                     'SECHID_INT',
                     'BUTTON',
                     'NEWLINE',

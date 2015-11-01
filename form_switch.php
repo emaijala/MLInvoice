@@ -634,7 +634,7 @@ EOS;
 EOS;
 
         $addPartialPaymentCode = <<<EOS
-add_partial_payment({'save': '$locSave', 'close': '$locClose', 'title': '{$GLOBALS['locPartialPayment']}', 'missing': '$locMissing: ', 'partial_payment': '{$GLOBALS['locPartialPayment']}'}); return false;
+add_partial_payment({'save': '$locSave', 'close': '$locClose', 'title': '{$GLOBALS['locPartialPayment']}', 'missing': '$locMissing: ', 'partial_payment': '{$GLOBALS['locPartialPayment']}', 'decimal_separator': '{$GLOBALS['locDecimalSeparator']}'}); return false;
 
 EOS;
 

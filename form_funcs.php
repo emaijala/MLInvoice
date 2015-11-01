@@ -119,8 +119,15 @@ function saveFormData($table, &$primaryKey, &$formElements, &$values, &$warnings
             $missingValues .= $elem['label'];
             continue;
         }
-        $value = isset($values[$name]) ? $values[$name] : getFormDefaultValue($elem,
-            $parentKey);
+
+        if (isset($values[$name])) {
+            $value = $values[$name];
+        } else {
+            if (isset($primaryKey) && $primaryKey != 0) {
+                continue;
+            }
+            $value = getFormDefaultValue($elem, $parentKey);
+        }
 
         if ($type == 'PASSWD' && !$value)
             continue; // Don't save empty password

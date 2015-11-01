@@ -174,7 +174,7 @@ function save_partial_payment(translations)
   obj.invoice_id = $('#record_id').val(); 
   obj.description = translations['partial_payment'];
   obj.row_date = $('#add_partial_payment_date').val();
-  obj.price = -$('#add_partial_payment_amount').val();
+  obj.price = -parseFloat($('#add_partial_payment_amount').val().replace(translations['decimal_separator'], '.'));
   obj.pcs = 0;
   obj.vat = 0;
   obj.vat_included = 0;
