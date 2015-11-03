@@ -2,32 +2,32 @@
 /*******************************************************************************
  MLInvoice: web-based invoicing application.
  Copyright (C) 2010-2015 Ere Maijala
- 
+
  Portions based on:
  PkLasku : web-based invoicing software.
  Copyright (C) 2004-2008 Samu Reinikainen
- 
+
  This program is free software. See attached LICENSE.
- 
+
  *******************************************************************************/
 
 /*******************************************************************************
  MLInvoice: web-pohjainen laskutusohjelma.
  Copyright (C) 2010-2015 Ere Maijala
- 
+
  Perustuu osittain sovellukseen:
  PkLasku : web-pohjainen laskutusohjelmisto.
  Copyright (C) 2004-2008 Samu Reinikainen
- 
+
  Tämä ohjelma on vapaa. Lue oheinen LICENSE.
- 
+
  *******************************************************************************/
 $strTable = '';
 $strJoin = '';
 $strListFilter = '';
 $strGroupBy = '';
 $levelsAllowed = [
-    ROLE_USER, 
+    ROLE_USER,
     ROLE_BACKUPMGR
 ];
 switch ($strList ? $strList : $strFunc) {
@@ -40,67 +40,67 @@ case 'companies' :
     $strTable = '{prefix}company';
     $astrSearchFields = [
         [
-            'name' => 'company_name', 
+            'name' => 'company_name',
             'type' => 'TEXT'
-        ], 
+        ],
         [
-            'name' => 'company_id', 
+            'name' => 'company_id',
             'type' => 'TEXT'
         ]
     ];
     $astrHiddenSearchField = [
-        'name' => 'type_id', 
+        'name' => 'type_id',
         'type' => 'INT'
     ];
     $strPrimaryKey = 'id';
     $strDeletedField = 'deleted';
     $astrShowFields = [
         [
-            'name' => 'company_name', 
-            'width' => 150, 
-            'type' => 'TEXT', 
-            'header' => $GLOBALS['locClientName'], 
+            'name' => 'company_name',
+            'width' => 150,
+            'type' => 'TEXT',
+            'header' => $GLOBALS['locClientName'],
             'select' => true
-        ], 
+        ],
         [
-            'name' => 'company_id', 
-            'width' => 100, 
-            'type' => 'TEXT', 
-            'header' => $GLOBALS['locClientVATID'], 
+            'name' => 'company_id',
+            'width' => 100,
+            'type' => 'TEXT',
+            'header' => $GLOBALS['locClientVATID'],
             'select' => true
-        ], 
+        ],
         [
-            'name' => 'inactive', 
-            'width' => 100, 
-            'type' => 'TEXT', 
-            'header' => $GLOBALS['locHeaderClientActive'], 
+            'name' => 'inactive',
+            'width' => 100,
+            'type' => 'TEXT',
+            'header' => $GLOBALS['locHeaderClientActive'],
             'mappings' => [
-                '0' => $GLOBALS['locActive'], 
+                '0' => $GLOBALS['locActive'],
                 '1' => $GLOBALS['locInactive']
             ]
-        ], 
+        ],
         [
-            'name' => 'customer_no', 
-            'width' => 100, 
-            'type' => 'TEXT', 
+            'name' => 'customer_no',
+            'width' => 100,
+            'type' => 'TEXT',
             'header' => $GLOBALS['locCustomerNr']
-        ], 
+        ],
         [
-            'name' => 'email', 
-            'width' => 150, 
-            'type' => 'TEXT', 
+            'name' => 'email',
+            'width' => 150,
+            'type' => 'TEXT',
             'header' => $GLOBALS['locEmail']
-        ], 
+        ],
         [
-            'name' => 'phone', 
-            'width' => 100, 
-            'type' => 'TEXT', 
+            'name' => 'phone',
+            'width' => 100,
+            'type' => 'TEXT',
             'header' => $GLOBALS['locPhone']
-        ], 
+        ],
         [
-            'name' => 'gsm', 
-            'width' => 100, 
-            'type' => 'TEXT', 
+            'name' => 'gsm',
+            'width' => 100,
+            'type' => 'TEXT',
             'header' => $GLOBALS['locGSM']
         ]
     ];
@@ -112,15 +112,15 @@ case 'invoice' :
 case 'archived_invoices' :
 case 'invoices' :
     $levelsAllowed[] = ROLE_READONLY;
-    
+
     $strListFilter = ($strFunc == 'archived_invoices') ? 'i.archived = 1' : 'i.archived = 0';
     $strTable = '{prefix}invoice i';
     $strJoin = 'LEFT OUTER JOIN {prefix}base b on i.base_id=b.id ' .
          'LEFT OUTER JOIN {prefix}company c on i.company_id=c.id ' .
          'LEFT OUTER JOIN {prefix}invoice_state s on i.state_id=s.id ';
-    
+
     $strCountJoin = $strJoin;
-    
+
     if (getSetting('invoice_display_vatless_price_in_list')) {
         $strJoin .= <<<EOT
 LEFT OUTER JOIN (
@@ -137,9 +137,13 @@ EOT;
         $strJoin .= <<<EOT
 LEFT OUTER JOIN (
   SELECT ir.invoice_id, ROUND(
-    CASE WHEN ir.vat_included = 0
-      THEN ROUND(ir.price * (1 - IFNULL(ir.discount, 0) / 100) * ir.pcs, 2) * (1 + ir.vat / 100)
-      ELSE ir.price * (1 - IFNULL(ir.discount, 0) / 100) * ir.pcs
+    CASE WHEN ir.partial_payment = 0 THEN
+      CASE WHEN ir.vat_included = 0
+        THEN ROUND(ir.price * (1 - IFNULL(ir.discount, 0) / 100) * ir.pcs, 2) * (1 + ir.vat / 100)
+        ELSE ir.price * (1 - IFNULL(ir.discount, 0) / 100) * ir.pcs
+      END
+    ELSE
+      ir.price
     END, 2) as row_total
   FROM {prefix}invoice_row ir
   WHERE ir.deleted = 0) it
@@ -148,23 +152,23 @@ EOT;
     }
     $astrSearchFields = [
         [
-            'name' => 'i.invoice_no', 
+            'name' => 'i.invoice_no',
             'type' => 'TEXT'
-        ], 
+        ],
         [
-            'name' => 'i.ref_number', 
+            'name' => 'i.ref_number',
             'type' => 'TEXT'
-        ], 
+        ],
         [
-            'name' => 'i.name', 
+            'name' => 'i.name',
             'type' => 'TEXT'
-        ], 
+        ],
         [
-            'name' => 'b.name', 
+            'name' => 'b.name',
             'type' => 'TEXT'
-        ], 
+        ],
         [
-            'name' => 'c.company_name', 
+            'name' => 'c.company_name',
             'type' => 'TEXT'
         ]
     ];
@@ -172,72 +176,72 @@ EOT;
     $strDeletedField = 'i.deleted';
     $astrShowFields = [
         [
-            'name' => 'i.invoice_date', 
-            'width' => 80, 
-            'type' => 'INTDATE', 
-            'order' => 'DESC', 
+            'name' => 'i.invoice_date',
+            'width' => 80,
+            'type' => 'INTDATE',
+            'order' => 'DESC',
             'header' => $GLOBALS['locHeaderInvoiceDate']
-        ], 
+        ],
         [
-            'name' => 'i.due_date', 
-            'width' => 80, 
-            'type' => 'INTDATE', 
-            'order' => 'DESC', 
+            'name' => 'i.due_date',
+            'width' => 80,
+            'type' => 'INTDATE',
+            'order' => 'DESC',
             'header' => $GLOBALS['locHeaderInvoiceDueDate']
-        ], 
+        ],
         [
-            'name' => 'i.invoice_no', 
-            'width' => 80, 
-            'type' => 'TEXT', 
+            'name' => 'i.invoice_no',
+            'width' => 80,
+            'type' => 'TEXT',
             'header' => $GLOBALS['locHeaderInvoiceNr']
-        ], 
+        ],
         [
-            'name' => 'b.name', 
-            'width' => 150, 
-            'type' => 'TEXT', 
+            'name' => 'b.name',
+            'width' => 150,
+            'type' => 'TEXT',
             'header' => $GLOBALS['locHeaderInvoiceBase']
-        ], 
+        ],
         [
-            'name' => 'c.company_name', 
-            'width' => 150, 
-            'type' => 'TEXT', 
+            'name' => 'c.company_name',
+            'width' => 150,
+            'type' => 'TEXT',
             'header' => $GLOBALS['locHeaderInvoiceClient']
-        ], 
+        ],
         [
-            'name' => 'i.name', 
-            'width' => 100, 
-            'type' => 'TEXT', 
+            'name' => 'i.name',
+            'width' => 100,
+            'type' => 'TEXT',
             'header' => $GLOBALS['locHeaderInvoiceName']
-        ], 
+        ],
         [
-            'name' => 's.name', 
-            'width' => 120, 
-            'type' => 'TEXT', 
-            'header' => $GLOBALS['locHeaderInvoiceState'], 
+            'name' => 's.name',
+            'width' => 120,
+            'type' => 'TEXT',
+            'header' => $GLOBALS['locHeaderInvoiceState'],
             'translate' => true
-        ], 
+        ],
         [
-            'name' => 'i.ref_number', 
-            'width' => 100, 
-            'type' => 'TEXT', 
+            'name' => 'i.ref_number',
+            'width' => 100,
+            'type' => 'TEXT',
             'header' => $GLOBALS['locHeaderInvoiceReference']
-        ], 
+        ],
         [
-            'name' => '.total_price', 
-            'sql' => 'SUM(it.row_total) as total_price', 
-            'width' => 80, 
-            'type' => 'CURRENCY', 
+            'name' => '.total_price',
+            'sql' => 'SUM(it.row_total) as total_price',
+            'width' => 80,
+            'type' => 'CURRENCY',
             'header' => $GLOBALS['locHeaderInvoiceTotal']
         ]
     ];
     if (($strList ? $strList : $strFunc) == 'archived_invoices') {
-        array_splice($astrShowFields, 2, 0, 
+        array_splice($astrShowFields, 2, 0,
             [
                 [
-                    'name' => 'i.payment_date', 
-                    'width' => 80, 
-                    'type' => 'INTDATE', 
-                    'order' => 'DESC', 
+                    'name' => 'i.payment_date',
+                    'width' => 80,
+                    'type' => 'INTDATE',
+                    'order' => 'DESC',
                     'header' => $GLOBALS['locHeaderInvoicePaymentDate']
                 ]
             ]);
@@ -254,7 +258,7 @@ case 'base' :
     $strTable = '{prefix}base';
     $astrSearchFields = [
         [
-            'name' => 'name', 
+            'name' => 'name',
             'type' => 'TEXT'
         ]
     ];
@@ -262,27 +266,27 @@ case 'base' :
     $strDeletedField = 'deleted';
     $astrShowFields = [
         [
-            'name' => 'name', 
-            'width' => 200, 
-            'type' => 'TEXT', 
+            'name' => 'name',
+            'width' => 200,
+            'type' => 'TEXT',
             'header' => $GLOBALS['locBaseName']
-        ], 
+        ],
         [
-            'name' => 'company_id', 
-            'width' => 100, 
-            'type' => 'TEXT', 
+            'name' => 'company_id',
+            'width' => 100,
+            'type' => 'TEXT',
             'header' => $GLOBALS['locClientVATID']
-        ], 
+        ],
         [
-            'name' => 'contact_person', 
-            'width' => 150, 
-            'type' => 'TEXT', 
+            'name' => 'contact_person',
+            'width' => 150,
+            'type' => 'TEXT',
             'header' => $GLOBALS['locContactPerson']
-        ], 
+        ],
         [
-            'name' => 'email', 
-            'width' => 150, 
-            'type' => 'TEXT', 
+            'name' => 'email',
+            'width' => 150,
+            'type' => 'TEXT',
             'header' => $GLOBALS['locEmail']
         ]
     ];
@@ -295,7 +299,7 @@ case 'invoice_state' :
     $strTable = '{prefix}invoice_state';
     $astrSearchFields = [
         [
-            'name' => "name'", 
+            'name' => "name'",
             'type' => 'TEXT'
         ]
     ];
@@ -303,16 +307,16 @@ case 'invoice_state' :
     $strDeletedField = 'deleted';
     $astrShowFields = [
         [
-            'name' => 'order_no', 
-            'width' => 150, 
-            'type' => 'TEXT', 
+            'name' => 'order_no',
+            'width' => 150,
+            'type' => 'TEXT',
             'header' => $GLOBALS['locOrderNr']
-        ], 
+        ],
         [
-            'name' => 'name', 
-            'width' => 450, 
-            'type' => 'TEXT', 
-            'header' => $GLOBALS['locStatus'], 
+            'name' => 'name',
+            'width' => 450,
+            'type' => 'TEXT',
+            'header' => $GLOBALS['locStatus'],
             'translate' => true
         ]
     ];
@@ -325,11 +329,11 @@ case 'product' :
     $strTable = '{prefix}product';
     $astrSearchFields = [
         [
-            'name' => 'product_name', 
+            'name' => 'product_name',
             'type' => 'TEXT'
-        ], 
+        ],
         [
-            'name' => 'product_code', 
+            'name' => 'product_code',
             'type' => 'TEXT'
         ]
     ];
@@ -337,47 +341,47 @@ case 'product' :
     $strDeletedField = 'deleted';
     $astrShowFields = [
         [
-            'name' => 'order_no', 
-            'width' => 150, 
-            'type' => 'TEXT', 
+            'name' => 'order_no',
+            'width' => 150,
+            'type' => 'TEXT',
             'header' => $GLOBALS['locOrderNr']
-        ], 
+        ],
         [
-            'name' => 'product_code', 
-            'width' => 150, 
-            'type' => 'TEXT', 
-            'header' => $GLOBALS['locProductCode'], 
+            'name' => 'product_code',
+            'width' => 150,
+            'type' => 'TEXT',
+            'header' => $GLOBALS['locProductCode'],
             'select' => true
-        ], 
+        ],
         [
-            'name' => 'product_name', 
-            'width' => 200, 
-            'type' => 'TEXT', 
-            'header' => $GLOBALS['locProductName'], 
+            'name' => 'product_name',
+            'width' => 200,
+            'type' => 'TEXT',
+            'header' => $GLOBALS['locProductName'],
             'select' => true
-        ], 
+        ],
         [
-            'name' => 'product_group', 
-            'width' => 150, 
-            'type' => 'TEXT', 
+            'name' => 'product_group',
+            'width' => 150,
+            'type' => 'TEXT',
             'header' => $GLOBALS['locProductGroup']
-        ], 
+        ],
         [
-            'name' => 'unit_price', 
-            'width' => 100, 
-            'type' => 'CURRENCY', 
-            'header' => $GLOBALS['locUnitPrice'], 
+            'name' => 'unit_price',
+            'width' => 100,
+            'type' => 'CURRENCY',
+            'header' => $GLOBALS['locUnitPrice'],
             'decimals' => getSetting('unit_price_decimals')
-        ], 
+        ],
         [
-            'name' => 'stock_balance', 
-            'width' => 100, 
-            'type' => 'CURRENCY', 
-            'header' => $GLOBALS['locStockBalance'], 
+            'name' => 'stock_balance',
+            'width' => 100,
+            'type' => 'CURRENCY',
+            'header' => $GLOBALS['locStockBalance'],
             'decimals' => 2
         ]
     ];
-    
+
     $strMainForm = 'product';
     $strTitle = $GLOBALS['locProducts'];
     break;
@@ -386,7 +390,7 @@ case 'row_type' :
     $strTable = '{prefix}row_type';
     $astrSearchFields = [
         [
-            'name' => 'name', 
+            'name' => 'name',
             'type' => 'TEXT'
         ]
     ];
@@ -394,16 +398,16 @@ case 'row_type' :
     $strDeletedField = 'deleted';
     $astrShowFields = [
         [
-            'name' => 'order_no', 
-            'width' => 150, 
-            'type' => 'TEXT', 
+            'name' => 'order_no',
+            'width' => 150,
+            'type' => 'TEXT',
             'header' => $GLOBALS['locOrderNr']
-        ], 
+        ],
         [
-            'name' => 'name', 
-            'width' => 450, 
-            'type' => 'TEXT', 
-            'header' => $GLOBALS['locRowType'], 
+            'name' => 'name',
+            'width' => 450,
+            'type' => 'TEXT',
+            'header' => $GLOBALS['locRowType'],
             'translate' => true
         ]
     ];
@@ -415,7 +419,7 @@ case 'delivery_terms' :
     $strTable = '{prefix}delivery_terms';
     $astrSearchFields = [
         [
-            'name' => 'name', 
+            'name' => 'name',
             'type' => 'TEXT'
         ]
     ];
@@ -423,15 +427,15 @@ case 'delivery_terms' :
     $strDeletedField = 'deleted';
     $astrShowFields = [
         [
-            'name' => 'order_no', 
-            'width' => 150, 
-            'type' => 'TEXT', 
+            'name' => 'order_no',
+            'width' => 150,
+            'type' => 'TEXT',
             'header' => $GLOBALS['locOrderNr']
-        ], 
+        ],
         [
-            'name' => 'name', 
-            'width' => 450, 
-            'type' => 'TEXT', 
+            'name' => 'name',
+            'width' => 450,
+            'type' => 'TEXT',
             'header' => $GLOBALS['locDeliveryTerms']
         ]
     ];
@@ -443,7 +447,7 @@ case 'delivery_method' :
     $strTable = '{prefix}delivery_method';
     $astrSearchFields = [
         [
-            'name' => 'name', 
+            'name' => 'name',
             'type' => 'TEXT'
         ]
     ];
@@ -451,15 +455,15 @@ case 'delivery_method' :
     $strDeletedField = 'deleted';
     $astrShowFields = [
         [
-            'name' => 'order_no', 
-            'width' => 150, 
-            'type' => 'TEXT', 
+            'name' => 'order_no',
+            'width' => 150,
+            'type' => 'TEXT',
             'header' => $GLOBALS['locOrderNr']
-        ], 
+        ],
         [
-            'name' => 'name', 
-            'width' => 450, 
-            'type' => 'TEXT', 
+            'name' => 'name',
+            'width' => 450,
+            'type' => 'TEXT',
             'header' => $GLOBALS['locDeliveryMethod']
         ]
     ];
@@ -471,7 +475,7 @@ case 'print_template' :
     $strTable = '{prefix}print_template';
     $astrSearchFields = [
         [
-            'name' => 'name', 
+            'name' => 'name',
             'type' => 'TEXT'
         ]
     ];
@@ -479,47 +483,47 @@ case 'print_template' :
     $strDeletedField = 'deleted';
     $astrShowFields = [
         [
-            'name' => 'order_no', 
-            'width' => 150, 
-            'type' => 'TEXT', 
+            'name' => 'order_no',
+            'width' => 150,
+            'type' => 'TEXT',
             'header' => $GLOBALS['locOrderNr']
-        ], 
+        ],
         [
-            'name' => 'type', 
-            'width' => 150, 
-            'type' => 'TEXT', 
-            'header' => $GLOBALS['locPrintTemplateType'], 
+            'name' => 'type',
+            'width' => 150,
+            'type' => 'TEXT',
+            'header' => $GLOBALS['locPrintTemplateType'],
             'mappings' => [
                 'invoice' => $GLOBALS['locPrintTemplateTypeInvoice']
             ]
-        ], 
+        ],
         [
-            'name' => 'name', 
-            'width' => 200, 
-            'type' => 'TEXT', 
-            'header' => $GLOBALS['locPrintTemplateName'], 
+            'name' => 'name',
+            'width' => 200,
+            'type' => 'TEXT',
+            'header' => $GLOBALS['locPrintTemplateName'],
             'translate' => true
-        ], 
+        ],
         [
-            'name' => 'inactive', 
-            'width' => 100, 
-            'type' => 'TEXT', 
-            'header' => $GLOBALS['locHeaderPrintTemplateActive'], 
+            'name' => 'inactive',
+            'width' => 100,
+            'type' => 'TEXT',
+            'header' => $GLOBALS['locHeaderPrintTemplateActive'],
             'mappings' => [
-                '0' => $GLOBALS['locActive'], 
+                '0' => $GLOBALS['locActive'],
                 '1' => $GLOBALS['locInactive']
             ]
-        ], 
+        ],
         [
-            'name' => 'filename', 
-            'width' => 200, 
-            'type' => 'TEXT', 
+            'name' => 'filename',
+            'width' => 200,
+            'type' => 'TEXT',
             'header' => $GLOBALS['locPrintTemplateFileName']
-        ], 
+        ],
         [
-            'name' => 'parameters', 
-            'width' => 150, 
-            'type' => 'TEXT', 
+            'name' => 'parameters',
+            'width' => 150,
+            'type' => 'TEXT',
             'header' => $GLOBALS['locPrintTemplateParameters']
         ]
     ];
@@ -537,7 +541,7 @@ case 'session_type' :
     $strTable = '{prefix}session_type';
     $astrSearchFields = [
         [
-            'name' => 'name', 
+            'name' => 'name',
             'type' => 'TEXT'
         ]
     ];
@@ -545,16 +549,16 @@ case 'session_type' :
     $strDeletedField = 'deleted';
     $astrShowFields = [
         [
-            'name' => 'order_no', 
-            'width' => 150, 
-            'type' => 'TEXT', 
+            'name' => 'order_no',
+            'width' => 150,
+            'type' => 'TEXT',
             'header' => $GLOBALS['locOrderNr']
-        ], 
+        ],
         [
-            'name' => 'name', 
-            'width' => 450, 
-            'type' => 'TEXT', 
-            'header' => $GLOBALS['locSessionType'], 
+            'name' => 'name',
+            'width' => 450,
+            'type' => 'TEXT',
+            'header' => $GLOBALS['locSessionType'],
             'translate' => true
         ]
     ];
@@ -569,7 +573,7 @@ case 'user' :
     $strTable = '{prefix}users';
     $astrSearchFields = [
         [
-            'name' => 'name', 
+            'name' => 'name',
             'type' => 'TEXT'
         ]
     ];
@@ -577,15 +581,15 @@ case 'user' :
     $strDeletedField = 'deleted';
     $astrShowFields = [
         [
-            'name' => 'name', 
-            'width' => 350, 
-            'type' => 'TEXT', 
+            'name' => 'name',
+            'width' => 350,
+            'type' => 'TEXT',
             'header' => $GLOBALS['locUserName']
-        ], 
+        ],
         [
-            'name' => 'login', 
-            'width' => 250, 
-            'type' => 'TEXT', 
+            'name' => 'login',
+            'width' => 250,
+            'type' => 'TEXT',
             'header' => $GLOBALS['locLoginName']
         ]
     ];
