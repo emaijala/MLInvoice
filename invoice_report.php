@@ -271,7 +271,7 @@ class InvoiceReport
 
         $arrParams = [];
 
-        $strQuery = 'SELECT i.id, i.invoice_no, i.invoice_date, i.due_date, i.payment_date, i.ref_number, i.ref_number, c.company_name AS name, c.billing_address, ist.name as state' .
+        $strQuery = 'SELECT i.id, i.invoice_no, i.invoice_date, i.due_date, i.payment_date, i.ref_number, i.ref_number, c.company_name AS name, c.billing_address, ist.name as state, ist.invoice_unpaid as unpaid' .
             ($grouping == 'vat' ? ', ir.vat' : '') .
             ' FROM {prefix}invoice i' .
             ($grouping == 'vat' ? ' INNER JOIN {prefix}invoice_row ir ON ir.invoice_id = i.id' : '') .
@@ -343,10 +343,12 @@ class InvoiceReport
         $intTotSum = 0;
         $intTotVAT = 0;
         $intTotSumVAT = 0;
+        $intTotalToPay = 0;
         $currentGroup = false;
         $groupTotSum = 0;
         $groupTotVAT = 0;
         $groupTotSumVAT = 0;
+        $groupTotalToPay = 0;
         $totalsPerVAT = [];
         $intRes = mysqli_param_query($strQuery, $arrParams);
         while ($row = mysqli_fetch_assoc($intRes)) {
@@ -370,7 +372,7 @@ class InvoiceReport
             $rowParams = [
                 $row['id']
             ];
-            $strQuery = 'SELECT ir.description, ir.pcs, ir.price, ir.discount, ir.row_date, ir.vat, ir.vat_included ' .
+            $strQuery = 'SELECT ir.description, ir.pcs, ir.price, ir.discount, ir.row_date, ir.vat, ir.vat_included, ir.partial_payment ' .
                  'FROM {prefix}invoice_row ir ' .
                  'WHERE ir.invoice_id=? AND ir.deleted=0';
 
@@ -403,9 +405,16 @@ class InvoiceReport
             $intRowSum = 0;
             $intRowVAT = 0;
             $intRowSumVAT = 0;
+            $rowPayments = 0;
             $rows = false;
             while ($row2 = mysqli_fetch_assoc($intRes2)) {
                 $rows = true;
+
+                if ($row2['partial_payment']) {
+                    $rowPayments -= $row2['price'];
+                    continue;
+                }
+
                 list ($intSum, $intVAT, $intSumVAT) = calculateRowSum(
                     $row2['price'], $row2['pcs'], $row2['vat'],
                     $row2['vat_included'], $row2['discount']);
@@ -413,10 +422,6 @@ class InvoiceReport
                 $intRowSum += $intSum;
                 $intRowVAT += $intVAT;
                 $intRowSumVAT += $intSumVAT;
-
-                $intTotSum += $intSum;
-                $intTotVAT += $intVAT;
-                $intTotSumVAT += $intSumVAT;
 
                 if (!isset($totalsPerVAT[$row2['vat']])) {
                     $totalsPerVAT[$row2['vat']] = [
@@ -435,31 +440,44 @@ class InvoiceReport
                 continue;
             }
 
+            $intTotSum += $intRowSum;
+            $intTotVAT += $intRowVAT;
+            $intTotSumVAT += $intRowSumVAT;
+
+            if ($row['unpaid']) {
+                $intTotalToPay += $intRowSumVAT - $rowPayments;
+            } else {
+                $rowPayments = $intRowSumVAT;
+            }
+
             if ($grouping && $currentGroup !== false && $currentGroup != $invoiceGroup) {
                 $this->printGroupSums($format, $printFields, $row, $groupTotSum,
-                    $groupTotVAT, $groupTotSumVAT,
+                    $groupTotVAT, $groupTotSumVAT, $groupTotalToPay,
                     $grouping == 'vat' ? $GLOBALS['locVAT'] . ' ' . miscRound2Decim($currentGroup) : '');
                 $groupTotSum = 0;
                 $groupTotVAT = 0;
                 $groupTotSumVAT = 0;
+                $groupTotalToPay = 0;
             }
             $currentGroup = $invoiceGroup;
 
             $groupTotSum += $intRowSum;
             $groupTotVAT += $intRowVAT;
             $groupTotSumVAT += $intRowSumVAT;
+            $groupTotalToPay += $intRowSumVAT - $rowPayments;
 
             $this->printRow($format, $printFields, $row, $intRowSum, $intRowVAT,
-                $intRowSumVAT);
+                $intRowSumVAT, $intRowSumVAT - $rowPayments);
         }
         if ($grouping) {
             $this->printGroupSums($format, $printFields, $row, $groupTotSum,
-                $groupTotVAT, $groupTotSumVAT,
-                $grouping == 'vat' ? $GLOBALS['locVAT'] . ' ' . miscRound2Decim($currentGroup) : '');
+                $groupTotVAT, $groupTotSumVAT, $groupTotalToPay,
+                $grouping == 'vat' ? $GLOBALS['locVAT'] . ' '
+                    . miscRound2Decim($currentGroup) : '');
         }
         ksort($totalsPerVAT, SORT_NUMERIC);
         $this->printTotals($format, $printFields, $intTotSum, $intTotVAT,
-            $intTotSumVAT, $totalsPerVAT);
+            $intTotSumVAT, $intTotalToPay, $totalsPerVAT);
         $this->printFooter($format, $printFields);
     }
 
@@ -502,18 +520,19 @@ class InvoiceReport
                 $pdf->Cell(20, 4, $GLOBALS['locPaymentDate'], 0, 0, 'L');
             }
             if (in_array('company_name', $printFields)) {
-                $pdf->Cell(45, 4, $GLOBALS['locPayer'], 0, 0, 'L');
+                $pdf->Cell(40, 4, $GLOBALS['locPayer'], 0, 0, 'L');
             }
             if (in_array('status', $printFields)) {
-                $pdf->Cell(20, 4, $GLOBALS['locInvoiceState'], 0, 0, 'L');
+                $pdf->Cell(15, 4, $GLOBALS['locInvoiceState'], 0, 0, 'L');
             }
             if (in_array('ref_number', $printFields)) {
                 $pdf->Cell(25, 4, $GLOBALS['locReferenceNumber'], 0, 0, 'L');
             }
             if (in_array('sums', $printFields)) {
-                $pdf->Cell(25, 4, $GLOBALS['locVATLess'], 0, 0, 'R');
-                $pdf->Cell(25, 4, $GLOBALS['locVATPart'], 0, 0, 'R');
-                $pdf->Cell(25, 4, $GLOBALS['locWithVAT'], 0, 1, 'R');
+                $pdf->Cell(20, 4, $GLOBALS['locVATLess'], 0, 0, 'R');
+                $pdf->Cell(20, 4, $GLOBALS['locVATPart'], 0, 0, 'R');
+                $pdf->Cell(20, 4, $GLOBALS['locWithVAT'], 0, 0, 'R');
+                $pdf->Cell(20, 4, $GLOBALS['locTotalToPay'], 0, 1, 'R');
             }
 
             $this->pdf = $pdf;
@@ -576,19 +595,22 @@ class InvoiceReport
         <th class="label" style="text-align: right">
             <?php echo $GLOBALS['locVATLess']?>
         </th>
-			<th class="label" style="text-align: right">
+		<th class="label" style="text-align: right">
             <?php echo $GLOBALS['locVATPart']?>
         </th>
-			<th class="label" style="text-align: right">
+		<th class="label" style="text-align: right">
             <?php echo $GLOBALS['locWithVAT']?>
         </th>
-      <?php } ?>
+		<th class="label" style="text-align: right">
+            <?php echo $GLOBALS['locTotalToPay']?>
+        </th>
+        <?php } ?>
     </tr>
 <?php
     }
 
     private function printRow($format, $printFields, $row, $intRowSum, $intRowVAT,
-        $intRowSumVAT)
+        $intRowSumVAT, $rowTotalToPay)
     {
         if ($format == 'pdf' || $format == 'pdfl') {
             $pdf = $this->pdf;
@@ -610,10 +632,10 @@ class InvoiceReport
             }
             if (in_array('company_name', $printFields)) {
                 $nameX = $pdf->getX();
-                $pdf->setX($nameX + 45);
+                $pdf->setX($nameX + 40);
             }
             if (in_array('status', $printFields)) {
-                $pdf->Cell(20, 4,
+                $pdf->Cell(15, 4,
                     isset($GLOBALS['loc' . $row['state']]) ? $GLOBALS['loc' .
                          $row['state']] : $row['state'], 0, 0, 'L');
             }
@@ -621,14 +643,15 @@ class InvoiceReport
                 $pdf->Cell(25, 4, formatRefNumber($row['ref_number']), 0, 0, 'L');
             }
             if (in_array('sums', $printFields)) {
-                $pdf->Cell(25, 4, miscRound2Decim($intRowSum), 0, 0, 'R');
-                $pdf->Cell(25, 4, miscRound2Decim($intRowVAT), 0, 0, 'R');
-                $pdf->Cell(25, 4, miscRound2Decim($intRowSumVAT), 0, 0, 'R');
+                $pdf->Cell(20, 4, miscRound2Decim($intRowSum), 0, 0, 'R');
+                $pdf->Cell(20, 4, miscRound2Decim($intRowVAT), 0, 0, 'R');
+                $pdf->Cell(20, 4, miscRound2Decim($intRowSumVAT), 0, 0, 'R');
+                $pdf->Cell(20, 4, miscRound2Decim($rowTotalToPay), 0, 0, 'R');
             }
             // Print company name last, as it can span multiple lines
             if (in_array('company_name', $printFields)) {
                 $pdf->setX($nameX);
-                $pdf->MultiCell(45, 4, $row['name'], 0, 'L');
+                $pdf->MultiCell(40, 4, $row['name'], 0, 'L');
             }
             return;
         }
@@ -693,13 +716,16 @@ class InvoiceReport
 			<td class="input" style="text-align: right">
             <?php echo miscRound2Decim($intRowSumVAT)?>
         </td>
-      <?php } ?>
+			<td class="input" style="text-align: right">
+            <?php echo miscRound2Decim($rowTotalToPay)?>
+        </td>
+        <?php } ?>
       </tr>
 <?php
     }
 
     private function printGroupSums($format, $printFields, $row, $groupTotSum,
-        $groupTotVAT, $groupTotSumVAT, $groupTitle)
+        $groupTotVAT, $groupTotSumVAT, $groupTotalToPay, $groupTitle)
     {
         if (!in_array('sums', $printFields)) {
             return;
@@ -725,16 +751,16 @@ class InvoiceReport
                 $rowWidth += 20;
             }
             if (in_array('company_name', $printFields)) {
-                $rowWidth += 45;
+                $rowWidth += 40;
             }
             if (in_array('status', $printFields)) {
-                $rowWidth += 20;
+                $rowWidth += 15;
             }
             if (in_array('ref_number', $printFields)) {
                 $rowWidth += 25;
             }
             $sumPos = $rowWidth;
-            $rowWidth += 75;
+            $rowWidth += 80;
             if ($groupTitle) {
                 $sumPos -= 25;
             }
@@ -745,9 +771,10 @@ class InvoiceReport
             if ($groupTitle) {
                 $pdf->Cell(25, 4, $groupTitle, 0, 0, 'R');
             }
-            $pdf->Cell(25, 4, miscRound2Decim($groupTotSum), 0, 0, 'R');
-            $pdf->Cell(25, 4, miscRound2Decim($groupTotVAT), 0, 0, 'R');
-            $pdf->Cell(25, 4, miscRound2Decim($groupTotSumVAT), 0, 1, 'R');
+            $pdf->Cell(20, 4, miscRound2Decim($groupTotSum), 0, 0, 'R');
+            $pdf->Cell(20, 4, miscRound2Decim($groupTotVAT), 0, 0, 'R');
+            $pdf->Cell(20, 4, miscRound2Decim($groupTotSumVAT), 0, 0, 'R');
+            $pdf->Cell(20, 4, miscRound2Decim($groupTotalToPay), 0, 1, 'R');
             $pdf->setY($pdf->getY() + 2);
             return;
         }
@@ -792,18 +819,21 @@ class InvoiceReport
         <td class="input row_sum" style="text-align: right">
             &nbsp;<?php echo miscRound2Decim($groupTotSum)?>
         </td>
-			<td class="input row_sum" style="text-align: right">
+	    <td class="input row_sum" style="text-align: right">
             &nbsp;<?php echo miscRound2Decim($groupTotVAT)?>
         </td>
-			<td class="input row_sum" style="text-align: right">
+		<td class="input row_sum" style="text-align: right">
             &nbsp;<?php echo miscRound2Decim($groupTotSumVAT)?>
         </td>
-		</tr>
+		<td class="input row_sum" style="text-align: right">
+            &nbsp;<?php echo miscRound2Decim($groupTotalToPay)?>
+        </td>
+        </tr>
 <?php
     }
 
     private function printTotals($format, $printFields, $intTotSum, $intTotVAT,
-        $intTotSumVAT, $totalsPerVAT)
+        $intTotSumVAT, $totalToPay, $totalsPerVAT)
     {
         if (!in_array('sums', $printFields)) {
             return;
@@ -831,16 +861,16 @@ class InvoiceReport
                 $rowWidth += 20;
             }
             if (in_array('company_name', $printFields)) {
-                $rowWidth += 45;
+                $rowWidth += 40;
             }
             if (in_array('status', $printFields)) {
-                $rowWidth += 20;
+                $rowWidth += 15;
             }
             if (in_array('ref_number', $printFields)) {
                 $rowWidth += 25;
             }
             $sumPos = $rowWidth;
-            $rowWidth += 75;
+            $rowWidth += 80;
 
             $pdf = $this->pdf;
             $pdf->SetFont('Helvetica', 'B', 8);
@@ -848,9 +878,10 @@ class InvoiceReport
                 $pdf->getX() + $rowWidth, $pdf->getY());
             $pdf->setY($pdf->getY() + 1);
             $pdf->Cell($sumPos, 4, $GLOBALS['locTotal'], 0, 0, 'R');
-            $pdf->Cell(25, 4, miscRound2Decim($intTotSum), 0, 0, 'R');
-            $pdf->Cell(25, 4, miscRound2Decim($intTotVAT), 0, 0, 'R');
-            $pdf->Cell(25, 4, miscRound2Decim($intTotSumVAT), 0, 1, 'R');
+            $pdf->Cell(20, 4, miscRound2Decim($intTotSum), 0, 0, 'R');
+            $pdf->Cell(20, 4, miscRound2Decim($intTotVAT), 0, 0, 'R');
+            $pdf->Cell(20, 4, miscRound2Decim($intTotSumVAT), 0, 0, 'R');
+            $pdf->Cell(20, 4, miscRound2Decim($totalToPay), 0, 1, 'R');
 
             if (in_array('vat_breakdown', $printFields)) {
                 if ($pdf->getY() > $pdf->getPageHeight() - 30) {
@@ -909,13 +940,16 @@ class InvoiceReport
         <td class="input total_sum" style="text-align: right">
             &nbsp;<?php echo miscRound2Decim($intTotSum)?>
         </td>
-			<td class="input total_sum" style="text-align: right">
+        <td class="input total_sum" style="text-align: right">
             &nbsp;<?php echo miscRound2Decim($intTotVAT)?>
         </td>
-			<td class="input total_sum" style="text-align: right">
+        <td class="input total_sum" style="text-align: right">
             &nbsp;<?php echo miscRound2Decim($intTotSumVAT)?>
         </td>
-		</tr>
+        <td class="input total_sum" style="text-align: right">
+            &nbsp;<?php echo miscRound2Decim($totalToPay)?>
+        </td>
+    </tr>
 <?php
         if (in_array('vat_breakdown', $printFields)) {
 ?>
