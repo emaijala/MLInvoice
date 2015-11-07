@@ -1555,14 +1555,14 @@ $astrFormElements = [
     ],
     [
         'name' => 'invoice_open',
-        'label' => $GLOBALS['locShowInOpenInvoices'],
+        'label' => $GLOBALS['locInvoiceStatusOpen'],
         'type' => 'CHECK',
         'style' => 'short',
         'position' => 1
     ],
     [
         'name' => 'invoice_unpaid',
-        'label' => $GLOBALS['locShowInUnpaidInvoices'],
+        'label' => $GLOBALS['locInvoiceStatusUnpaid'],
         'type' => 'CHECK',
         'style' => 'short',
         'position' => 2
