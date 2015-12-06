@@ -148,7 +148,7 @@ foreach ($astrMainButtons as $button) {
     if ($button['action'] == $strFunc ||
          ($button['action'] == 'open_invoices' && $strFunc == 'invoices'))
         $strButton .= ' ui-tabs-selected ui-state-active';
-    $strButton .= '"><a class="functionlink" href="?func=' . $button['action'] . '">';
+    $strButton .= '"><a class="ui-tabs-anchor functionlink" href="?func=' . $button['action'] . '">';
     $strButton .= $GLOBALS[$button['title']] . '</a></li>';
     
     if (!isset($button['levels_allowed']) ||
