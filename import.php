@@ -57,7 +57,9 @@ class ImportFile
         }
 
         $importMode = getRequest('import', '');
-        if ($importMode == 'import' || $importMode == 'preview') {
+        if ($importMode == 'import' || $importMode == 'preview'
+            && isset($_SESSION['import_file'])
+        ) {
             $this->import_file($importMode);
             return;
         }
