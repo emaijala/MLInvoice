@@ -137,8 +137,9 @@ class ImportStatement extends ImportFile
             return $GLOBALS['locImportStatementFieldMissing'];
         }
 
-        $sql = 'SELECT i.* FROM {prefix}invoice i' .
-            ' WHERE i.Deleted=0 AND REPLACE(i.ref_number, " ", "") = ?';
+        $sql = 'SELECT i.*, ist.invoice_unpaid FROM {prefix}invoice i'
+            . ' LEFT OUTER JOIN {prefix}invoice_state ist ON (i.state_id = ist.id)'
+            . ' WHERE i.Deleted=0 AND REPLACE(i.ref_number, " ", "") = ?';
         $params = [$refnr];
 
         $baseId = getRequest('base_id', '');
@@ -160,7 +161,7 @@ class ImportStatement extends ImportFile
 
         $row = mysqli_fetch_assoc($intRes);
 
-        if ($row['state_id'] == 3) {
+        if (!$row['invoice_unpaid']) {
             return str_replace('{refnr}', $refnr,
                 $GLOBALS['locImportStatementInvoiceAlreadyPaid']);
         }
