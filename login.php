@@ -2,30 +2,32 @@
 /*******************************************************************************
  MLInvoice: web-based invoicing application.
  Copyright (C) 2010-2015 Ere Maijala
- 
+
  This program is free software. See attached LICENSE.
- 
+
  *******************************************************************************/
 
 /*******************************************************************************
  MLInvoice: web-pohjainen laskutusohjelma.
  Copyright (C) 2010-2015 Ere Maijala
- 
+
  Tämä ohjelma on vapaa. Lue oheinen LICENSE.
- 
+
  *******************************************************************************/
 
 // buffered, so we can redirect later if necessary
 ini_set('implicit_flush', 'Off');
 ob_start();
 
+require_once 'sessionfuncs.php';
 require_once 'sqlfuncs.php';
 require_once 'miscfuncs.php';
 require_once 'config.php';
 require_once 'htmlfuncs.php';
-require_once 'sessionfuncs.php';
 
-session_start();
+if (!session_id()) {
+    session_start();
+}
 
 $strLogin = getPost('flogin', FALSE);
 $strPasswd = getPost('fpasswd', FALSE);

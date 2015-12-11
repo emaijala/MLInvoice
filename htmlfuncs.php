@@ -24,11 +24,8 @@
 
  *******************************************************************************/
 
-/********************************************************************
- Includefile : htmlfuncs.php
- Functions to create various html elements
+require_once 'list.php';
 
- ********************************************************************/
 function htmlPageStart($strTitle, $arrExtraScripts = null)
 {
     /********************************************************************
@@ -193,6 +190,16 @@ function getSQLListBoxSelectedValue($strQuery, $strSelected)
 }
 
 // Get the value for the specified option
+function getSearchListSelectedValue($strQuery, $strSelected)
+{
+    parse_str($strQuery, $params);
+    $result = json_decode(
+        createJSONSelectList($params['table'], 0, 1, '', '', $strSelected), true
+    );
+    return isset($result['records'][0]['text']) ? $result['records'][0]['text'] : '';
+}
+
+// Get the value for the specified option
 function getListBoxSelectedValue($options, $selected)
 {
     if (isset($options[$selected]))
@@ -354,7 +361,7 @@ EOT;
             $strFormElement = "<input type=\"text\" class=\"$strStyle\" " .
                  "id=\"$strName\" name=\"$strName\" value=\"" .
                  htmlspecialchars(
-                    getSQLListBoxSelectedValue($strListQuery, $strValue, $translate)) .
+                    getSearchListSelectedValue($strListQuery, $strValue, false)) .
                  "\"$astrAdditionalAttributes$readOnly>\n";
         }
         break;

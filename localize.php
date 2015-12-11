@@ -2,18 +2,21 @@
 /*******************************************************************************
  MLInvoice: web-based invoicing application.
  Copyright (C) 2010-2015 Ere Maijala
- 
+
  This program is free software. See attached LICENSE.
- 
+
  *******************************************************************************/
 
 /*******************************************************************************
  MLInvoice: web-pohjainen laskutusohjelma.
  Copyright (C) 2010-2015 Ere Maijala
- 
+
  Tämä ohjelma on vapaa. Lue oheinen LICENSE.
- 
+
  *******************************************************************************/
+
+require_once 'sessionfuncs.php';
+
 if (!session_id()) {
     session_start();
 }
@@ -25,7 +28,7 @@ if (!file_exists("lang/$language.ini")) {
 }
 $languageStrings = parse_ini_file("lang/$language.ini");
 if (file_exists("lang/$language.local.ini")) {
-    $languageStrings = array_merge($languageStrings, 
+    $languageStrings = array_merge($languageStrings,
         parse_ini_file("lang/$language.local.ini"));
 }
 foreach ($languageStrings as $key => $value) {

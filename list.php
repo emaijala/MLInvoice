@@ -351,7 +351,7 @@ function createJSONSelectList($strList, $startRow, $rowCount, $filter, $sort,
     global $dblink;
     require "list_switch.php";
 
-    if (!sesAccessLevel($levelsAllowed) && !sesAdminAccess()) {
+    if (empty($id) && !sesAccessLevel($levelsAllowed) && !sesAdminAccess()) {
         ?>
 <div class="form_container ui-widget-content">
     <?php echo $GLOBALS['locNoAccess'] . "\n"?>
@@ -407,7 +407,7 @@ function createJSONSelectList($strList, $startRow, $rowCount, $filter, $sort,
     }
 
     // Filter out inactive companies
-    if ($strList == 'company' || $strList == 'companies') {
+    if ($strList == 'company' || $strList == 'companies' && empty($id)) {
         $strWhereClause .= ($strWhereClause ? ' AND ' : ' WHERE ') . 'inactive=0';
     }
 

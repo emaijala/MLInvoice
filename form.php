@@ -27,6 +27,7 @@ require_once 'miscfuncs.php';
 require_once 'datefuncs.php';
 require_once 'localize.php';
 require_once 'form_funcs.php';
+require_once 'sessionfuncs.php';
 
 function createForm($strFunc, $strList, $strForm)
 {
@@ -1168,8 +1169,12 @@ function popup_editor(event, title, id, copy_row)
 
 function createFormButtons($boolNew, $copyLinkOverride, $spinner, $readOnlyForm)
 {
-    if (!sesWriteAccess())
+    if (!sesWriteAccess()) {
+?>
+    <div class="form_buttons"></div>
+<?php
         return;
+    }
     ?>
     <div class="form_buttons">
 <?php

@@ -669,26 +669,31 @@ EOS;
         }
     }
 
-    $today = dateConvDBDate2Date(date('Ymd'));
-    $markPaidToday = <<<EOS
+    if (sesWriteAccess()) {
+        $today = dateConvDBDate2Date(date('Ymd'));
+        $markPaidToday = <<<EOS
 if ([1, 2, 5, 6, 7].indexOf(parseInt($('#state_id').val())) !== -1) { $('#state_id').val(3); } if (!$(this).is('#payment_date')) { $('#payment_date').val('$today'); }
 EOS;
-    if (getSetting('invoice_auto_archive')) {
-        $markPaidToday .= <<<EOS
+        if (getSetting('invoice_auto_archive')) {
+            $markPaidToday .= <<<EOS
 if ($('#interval_type').val() == 0) { $('#archived').prop('checked', true); }
 EOS;
-    }
-    $markPaidToday .= <<<EOS
+        }
+        $markPaidToday .= <<<EOS
 $('.save_button').addClass('ui-state-highlight'); return false;
 EOS;
-    $markPaidTodayButton = '<a class="formbuttonlink" href="#" onclick="' .
-         $markPaidToday . '">' . $GLOBALS['locMarkAsPaidToday'] . '</a>';
-    if (getSetting('invoice_mark_paid_when_payment_date_set')) {
-        $markPaidTodayEvent = <<<EOF
+        $markPaidTodayButton = '<a class="formbuttonlink" href="#" onclick="' .
+             $markPaidToday . '">' . $GLOBALS['locMarkAsPaidToday'] . '</a>';
+        if (getSetting('invoice_mark_paid_when_payment_date_set')) {
+            $markPaidTodayEvent = <<<EOF
 if ($(this).val()) { $markPaidToday }
 EOF;
+        } else {
+            $markPaidTodayEvent = '';
+        }
     } else {
         $markPaidTodayEvent = '';
+        $markPaidTodayButton = '';
     }
 
     // Print buttons
