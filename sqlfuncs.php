@@ -124,313 +124,315 @@ function createWhereClause($astrSearchFields, $strSearchTerms, &$arrQueryParams,
                     $strWhereClause .= $astrSearchFields[$j]['name'] . ' LIKE ? OR ';
                     $arrQueryParams[] = $termPrefix . $astrTerms[$i] . '%';
                 } elseif ($astrSearchFields[$j]['type'] == 'INT' &&
-                     preg_match('/^([0-9]+)$/', $astrTerms[$i])) {
+                     preg_match('/^([0-9]+)$/', $astrTerms[$i])
+                ) {
                     $strWhereClause .= $astrSearchFields[$j]['name'] . ' = ?' . ' OR ';
                     $arrQueryParams[] = $astrTerms[$i];
                 } elseif ($astrSearchFields[$j]['type'] == 'PRIMARY' &&
-                     preg_match('/^([0-9]+)$/', $intID)) {
+                     preg_match('/^([0-9]+)$/', $intID)
+                ) {
                     $strWhereClause = 'WHERE ' . $astrSearchFields[$j]['name'] .
                      ' = ?     ';
-                $arrQueryParams = [
-                    $intID
-                ];
-                unset($astrSearchFields);
-                break 2;
+                    $arrQueryParams = [
+                        $intID
+                    ];
+                    unset($astrSearchFields);
+                    break 2;
+                }
             }
+            $strWhereClause = substr($strWhereClause, 0, -3) . ') AND ';
         }
-        $strWhereClause = substr($strWhereClause, 0, -3) . ') AND ';
     }
-}
-$strWhereClause = substr($strWhereClause, 0, -4) . ')';
-return $strWhereClause;
+    $strWhereClause = substr($strWhereClause, 0, -4) . ')';
+    return $strWhereClause;
 }
 
 function updateProductStockBalance($invoiceRowId, $productId, $count)
 {
-// Get old product stock balance
-$oldProductId = false;
-$oldCount = 0;
-if (!empty($invoiceRowId)) {
-    // Fetch old product id
-    $res = mysqli_param_query(
-        'SELECT product_id, pcs from {prefix}invoice_row WHERE id=? AND deleted=0',
-        [
-            $invoiceRowId
-        ], 'exception');
-    list ($oldProductId, $oldCount) = mysqli_fetch_array($res);
-}
+    // Get old product stock balance
+    $oldProductId = false;
+    $oldCount = 0;
+    if (!empty($invoiceRowId)) {
+        // Fetch old product id
+        $res = mysqli_param_query(
+            'SELECT product_id, pcs from {prefix}invoice_row WHERE id=? AND deleted=0',
+            [
+                $invoiceRowId
+            ], 'exception');
+        list ($oldProductId, $oldCount) = mysqli_fetch_array($res);
+    }
 
-if ($oldProductId) {
-    // Add old balance to old product
-    mysqli_param_query(
-        'UPDATE {prefix}product SET stock_balance=IFNULL(stock_balance, 0)+? WHERE id=?',
-        [
-            $oldCount,
-            $oldProductId
-        ], 'exception');
-}
-if (!empty($productId)) {
-    // Deduct from new product
-    mysqli_param_query(
-        'UPDATE {prefix}product SET stock_balance=IFNULL(stock_balance, 0)-? WHERE id=?',
-        [
-            $count,
-            $productId
-        ], 'exception');
-}
+    if ($oldProductId) {
+        // Add old balance to old product
+        mysqli_param_query(
+            'UPDATE {prefix}product SET stock_balance=IFNULL(stock_balance, 0)+? WHERE id=?',
+            [
+                $oldCount,
+                $oldProductId
+            ], 'exception');
+    }
+    if (!empty($productId)) {
+        // Deduct from new product
+        mysqli_param_query(
+            'UPDATE {prefix}product SET stock_balance=IFNULL(stock_balance, 0)-? WHERE id=?',
+            [
+                $count,
+                $productId
+            ], 'exception');
+    }
 }
 
 function getTermsOfPayment($companyId)
 {
-if (!empty($companyId)) {
-    $res = mysqli_param_query(
-        'SELECT terms_of_payment FROM {prefix}company WHERE id = ?',
-        [
-            $companyId
-        ]);
-    $companyPaymentTerms = mysqli_fetch_value($res);
-    if (!empty($companyPaymentTerms)) {
-        return $companyPaymentTerms;
+    if (!empty($companyId)) {
+        $res = mysqli_param_query(
+            'SELECT terms_of_payment FROM {prefix}company WHERE id = ?',
+            [
+                $companyId
+            ]);
+        $companyPaymentTerms = mysqli_fetch_value($res);
+        if (!empty($companyPaymentTerms)) {
+            return $companyPaymentTerms;
+        }
     }
-}
-return getSetting('invoice_terms_of_payment');
+    return getSetting('invoice_terms_of_payment');
 }
 
 function getPaymentDays($companyId)
 {
-if (!empty($companyId)) {
-    $res = mysqli_param_query(
-        'SELECT payment_days FROM {prefix}company WHERE id = ?',
-        [
-            $companyId
-        ]);
-    $companyPaymentDays = mysqli_fetch_value($res);
-    if (!empty($companyPaymentDays)) {
-        return $companyPaymentDays;
+    if (!empty($companyId)) {
+        $res = mysqli_param_query(
+            'SELECT payment_days FROM {prefix}company WHERE id = ?',
+            [
+                $companyId
+            ]);
+        $companyPaymentDays = mysqli_fetch_value($res);
+        if (!empty($companyPaymentDays)) {
+            return $companyPaymentDays;
+        }
     }
-}
-return getSetting('invoice_payment_days');
+    return getSetting('invoice_payment_days');
 }
 
 function deleteRecord($table, $id)
 {
-mysqli_query_check('BEGIN');
-try {
-    // Special case for invoice_row - update product stock balance
-    if ($table == '{prefix}invoice_row') {
-        updateProductStockBalance($id, null, null);
-    }
-
-    // Special case for invoice - update all products in invoice rows
-    if ($table == '{prefix}invoice') {
-        $res = mysqli_param_query(
-            'SELECT id FROM {prefix}invoice_row WHERE invoice_id=? AND deleted=0',
-            [
-                $id
-            ], 'exception');
-        while ($row = mysqli_fetch_assoc($res)) {
-            updateProductStockBalance($row['id'], null, null);
+    mysqli_query_check('BEGIN');
+    try {
+        // Special case for invoice_row - update product stock balance
+        if ($table == '{prefix}invoice_row') {
+            updateProductStockBalance($id, null, null);
         }
+
+        // Special case for invoice - update all products in invoice rows
+        if ($table == '{prefix}invoice') {
+            $res = mysqli_param_query(
+                'SELECT id FROM {prefix}invoice_row WHERE invoice_id=? AND deleted=0',
+                [
+                    $id
+                ], 'exception');
+            while ($row = mysqli_fetch_assoc($res)) {
+                updateProductStockBalance($row['id'], null, null);
+            }
+        }
+        $query = "UPDATE $table SET deleted=1 WHERE id=?";
+        mysqli_param_query($query, [
+            $id
+        ], 'exception');
+    } catch (Exception $e) {
+        mysqli_query_check('ROLLBACK');
+        throw $e;
     }
-    $query = "UPDATE $table SET deleted=1 WHERE id=?";
-    mysqli_param_query($query, [
-        $id
-    ], 'exception');
-} catch (Exception $e) {
-    mysqli_query_check('ROLLBACK');
-    throw $e;
-}
-mysqli_query_check('COMMIT');
+    mysqli_query_check('COMMIT');
 }
 
 function mysqli_query_check($query, $noFail = false)
 {
-global $dblink;
+    global $dblink;
 
-$query = str_replace('{prefix}', _DB_PREFIX_ . '_', $query);
-$startTime = microtime(true);
-$intRes = mysqli_query($dblink, $query);
-if (defined('_SQL_DEBUG_')) {
-    error_log('QUERY [' . round(microtime(true) - $startTime, 4) . "s]: $query");
-}
-if ($intRes === FALSE) {
-    $intError = mysqli_errno($dblink);
-    if (strlen($query) > 1024)
-        $query = substr($query, 0, 1024) . '[' . (strlen($query) - 1024) .
-             ' more characters]';
-    error_log("Query '$query' failed: ($intError) " . mysqli_error($dblink));
-    if ($noFail !== true) {
-        header('HTTP/1.1 500 Internal Server Error');
-        $msg = (!defined('_DB_VERBOSE_ERRORS_') || !_DB_VERBOSE_ERRORS_) ? $GLOBALS['locDBError'] : htmlspecialchars(
-            "Query '$query' failed: ($intError) " . mysqli_error($dblink));
-        if ($noFail == 'exception') {
-            throw new Exception($msg);
-        }
-        die($msg);
+    $query = str_replace('{prefix}', _DB_PREFIX_ . '_', $query);
+    $startTime = microtime(true);
+    $intRes = mysqli_query($dblink, $query);
+    if (defined('_SQL_DEBUG_')) {
+        error_log('QUERY [' . round(microtime(true) - $startTime, 4) . "s]: $query");
     }
-}
-return $intRes;
+    if ($intRes === FALSE) {
+        $intError = mysqli_errno($dblink);
+        if (strlen($query) > 1024)
+            $query = substr($query, 0, 1024) . '[' . (strlen($query) - 1024) .
+                 ' more characters]';
+        error_log("Query '$query' failed: ($intError) " . mysqli_error($dblink));
+        if ($noFail !== true) {
+            header('HTTP/1.1 500 Internal Server Error');
+            $msg = (!defined('_DB_VERBOSE_ERRORS_') || !_DB_VERBOSE_ERRORS_) ? $GLOBALS['locDBError'] : htmlspecialchars(
+                "Query '$query' failed: ($intError) " . mysqli_error($dblink));
+            if ($noFail == 'exception') {
+                throw new Exception($msg);
+            }
+            die($msg);
+        }
+    }
+    return $intRes;
 }
 
 function mysqli_param_query($query, $params = false, $noFail = false)
 {
-global $dblink;
+    global $dblink;
 
-if (!$dblink) {
-    // We may need a reinit for e.g. session closure
-    init_db_connection();
-}
+    if (!$dblink) {
+        // We may need a reinit for e.g. session closure
+        init_db_connection();
+    }
 
-if (!$params) {
-    return mysqli_query_check($query, $noFail);
-}
-foreach ($params as &$v) {
-    if (is_null($v))
-        $v = 'NULL';
-    elseif (is_array($v)) {
-        $t = '';
-        foreach ($v as $v2) {
-            if ($t)
-                $t .= ',';
-            $v2 = mysqli_real_escape_string($dblink, $v2);
-            if (!is_numeric($v2) ||
-                 (strlen(trim($v2)) > 0 && substr(trim($v2), 0, 1) == '0')) {
-                $v2 = "'$v2'";
+    if (!$params) {
+        return mysqli_query_check($query, $noFail);
+    }
+    foreach ($params as &$v) {
+        if (is_null($v))
+            $v = 'NULL';
+        elseif (is_array($v)) {
+            $t = '';
+            foreach ($v as $v2) {
+                if ($t)
+                    $t .= ',';
+                $v2 = mysqli_real_escape_string($dblink, $v2);
+                if (!is_numeric($v2) ||
+                     (strlen(trim($v2)) > 0 && substr(trim($v2), 0, 1) == '0')) {
+                    $v2 = "'$v2'";
+                }
+                $t .= $v2;
             }
-            $t .= $v2;
-        }
-        $v = $t;
-    } else {
-        $v = mysqli_real_escape_string($dblink, $v);
-        if (!is_numeric($v) || (strlen(trim($v)) > 1 && substr(trim($v), 0, 1) == '0')) {
-            $v = "'$v'";
+            $v = $t;
+        } else {
+            $v = mysqli_real_escape_string($dblink, $v);
+            if (!is_numeric($v) || (strlen(trim($v)) > 1 && substr(trim($v), 0, 1) == '0')) {
+                $v = "'$v'";
+            }
         }
     }
-}
-$sql_query = vsprintf(str_replace('?', '%s', $query), $params);
-return mysqli_query_check($sql_query, $noFail);
+    $sql_query = vsprintf(str_replace('?', '%s', $query), $params);
+    return mysqli_query_check($sql_query, $noFail);
 }
 
 function mysqli_fetch_value($result)
 {
-$row = mysqli_fetch_row($result);
-return $row[0];
+    $row = mysqli_fetch_row($result);
+    return $row[0];
 }
 
 function mysqli_fetch_prefixed_assoc($result)
 {
-if (!($row = mysqli_fetch_row($result)))
-    return null;
+    if (!($row = mysqli_fetch_row($result)))
+        return null;
 
-$assoc = [];
-$columns = mysqli_num_fields($result);
-for ($i = 0; $i < $columns; $i ++) {
-    $fieldInfo = mysqli_fetch_field_direct($result, $i);
-    $table = $fieldInfo->table;
-    $field = $fieldInfo->name;
-    if (substr($table, 0, strlen(_DB_PREFIX_) + 1) == _DB_PREFIX_ . '_')
-        $assoc[$field] = $row[$i];
-    else
-        $assoc["$table.$field"] = $row[$i];
-}
-return $assoc;
+    $assoc = [];
+    $columns = mysqli_num_fields($result);
+    for ($i = 0; $i < $columns; $i ++) {
+        $fieldInfo = mysqli_fetch_field_direct($result, $i);
+        $table = $fieldInfo->table;
+        $field = $fieldInfo->name;
+        if (substr($table, 0, strlen(_DB_PREFIX_) + 1) == _DB_PREFIX_ . '_')
+            $assoc[$field] = $row[$i];
+        else
+            $assoc["$table.$field"] = $row[$i];
+    }
+    return $assoc;
 }
 
 function create_db_dump()
 {
-$in_tables = [
-    'invoice_state',
-    'row_type',
-    'company_type',
-    'base',
-    'delivery_terms',
-    'delivery_method',
-    'company',
-    'company_contact',
-    'product',
-    'session_type',
-    'users',
-    'stock_balance_log',
-    'invoice',
-    'invoice_row',
-    'quicksearch',
-    'settings',
-    'session',
-    'print_template',
-    'state'
-];
+    $in_tables = [
+        'invoice_state',
+        'row_type',
+        'company_type',
+        'base',
+        'delivery_terms',
+        'delivery_method',
+        'company',
+        'company_contact',
+        'product',
+        'session_type',
+        'users',
+        'stock_balance_log',
+        'invoice',
+        'invoice_row',
+        'quicksearch',
+        'settings',
+        'session',
+        'print_template',
+        'state'
+    ];
 
-$filename = 'mlinvoice_backup_' . date('Ymd') . '.sql';
-header('Content-type: text/x-sql');
-header("Content-Disposition: attachment; filename=\"$filename\"");
+    $filename = 'mlinvoice_backup_' . date('Ymd') . '.sql';
+    header('Content-type: text/x-sql');
+    header("Content-Disposition: attachment; filename=\"$filename\"");
 
-if (_CHARSET_ == 'UTF-8')
-    echo ("SET NAMES 'utf8';\n\n");
+    if (_CHARSET_ == 'UTF-8')
+        echo ("SET NAMES 'utf8';\n\n");
 
-$tables = [];
-foreach ($in_tables as $table) {
-    $tables[] = _DB_PREFIX_ . "_$table";
-}
-
-$res = mysqli_query_check("SHOW TABLES LIKE '" . _DB_PREFIX_ . "_%'");
-while ($row = mysqli_fetch_row($res)) {
-    if (!in_array($row[0], $tables)) {
-        error_log("Adding unlisted table $row[0] to export");
-        $tables[] = $row[0];
+    $tables = [];
+    foreach ($in_tables as $table) {
+        $tables[] = _DB_PREFIX_ . "_$table";
     }
-}
-foreach ($tables as $table) {
-    $res = mysqli_query_check("show create table $table");
-    $row = mysqli_fetch_assoc($res);
-    if (!$row)
-        die("Could not read table definition for table $table");
-    echo $row['Create Table'] . ";\n\n";
 
-    $res = mysqli_query_check("show fields from $table");
-    $field_count = mysqli_num_rows($res);
-    $field_defs = [];
-    $columns = '';
-    while ($row = mysqli_fetch_assoc($res)) {
-        $field_defs[] = $row;
-        if ($columns)
-            $columns .= ', ';
-        $columns .= $row['Field'];
-    }
-    // Don't dump current sessions
-    if ($table == _DB_PREFIX_ . '_session')
-        continue;
-
-    $res = mysqli_query_check("select * from $table");
+    $res = mysqli_query_check("SHOW TABLES LIKE '" . _DB_PREFIX_ . "_%'");
     while ($row = mysqli_fetch_row($res)) {
-        echo "INSERT INTO `$table` ($columns) VALUES (";
-        for ($i = 0; $i < $field_count; $i ++) {
-            if ($i > 0)
-                echo ', ';
-            $value = $row[$i];
-            $type = $field_defs[$i]['Type'];
-            if (is_null($value))
-                echo 'null';
-            elseif (substr($type, 0, 3) == 'int' || substr($type, 0, 7) == 'decimal')
-                echo $value;
-            elseif ($value && ($type == 'longblob' || strpos($value, "\n")))
-                echo '0x' . bin2hex($value);
-            else
-                echo '\'' . addslashes($value) . '\'';
+        if (!in_array($row[0], $tables)) {
+            error_log("Adding unlisted table $row[0] to export");
+            $tables[] = $row[0];
         }
-        echo ");\n";
     }
-    echo "\n";
-}
+    foreach ($tables as $table) {
+        $res = mysqli_query_check("show create table $table");
+        $row = mysqli_fetch_assoc($res);
+        if (!$row)
+            die("Could not read table definition for table $table");
+        echo $row['Create Table'] . ";\n\n";
+
+        $res = mysqli_query_check("show fields from $table");
+        $field_count = mysqli_num_rows($res);
+        $field_defs = [];
+        $columns = '';
+        while ($row = mysqli_fetch_assoc($res)) {
+            $field_defs[] = $row;
+            if ($columns)
+                $columns .= ', ';
+            $columns .= $row['Field'];
+        }
+        // Don't dump current sessions
+        if ($table == _DB_PREFIX_ . '_session')
+            continue;
+
+        $res = mysqli_query_check("select * from $table");
+        while ($row = mysqli_fetch_row($res)) {
+            echo "INSERT INTO `$table` ($columns) VALUES (";
+            for ($i = 0; $i < $field_count; $i ++) {
+                if ($i > 0)
+                    echo ', ';
+                $value = $row[$i];
+                $type = $field_defs[$i]['Type'];
+                if (is_null($value))
+                    echo 'null';
+                elseif (substr($type, 0, 3) == 'int' || substr($type, 0, 7) == 'decimal')
+                    echo $value;
+                elseif ($value && ($type == 'longblob' || strpos($value, "\n")))
+                    echo '0x' . bin2hex($value);
+                else
+                    echo '\'' . addslashes($value) . '\'';
+            }
+            echo ");\n";
+        }
+        echo "\n";
+    }
 }
 
 function table_valid($table)
 {
-$tables = [];
-$res = mysqli_query_check('SHOW TABLES');
-while ($row = mysqli_fetch_row($res)) {
-    $tables[] = $row[0];
-}
-return in_array(_DB_PREFIX_ . "_$table", $tables);
+    $tables = [];
+    $res = mysqli_query_check('SHOW TABLES');
+    while ($row = mysqli_fetch_row($res)) {
+        $tables[] = $row[0];
+    }
+    return in_array(_DB_PREFIX_ . "_$table", $tables);
 }
 
 /**
@@ -829,4 +831,3 @@ EOT
 
 // Open database connection whenever this script is included
 init_db_connection();
-
