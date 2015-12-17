@@ -423,6 +423,24 @@ function createJSONSelectList($strList, $startRow, $rowCount, $filter, $sort,
              (isset($field['sql']) ? $field['sql'] : $field['name']);
     }
 
+    // Sort any exact matches first
+    if ($astrSearchFields && $filter) {
+        $fields = [];
+        foreach ($astrSearchFields as $searchField) {
+            if (in_array($searchField['type'], ['TEXT', 'INT', 'PRIMARY'])) {
+                $fields[] = $searchField['name'];
+            }
+        }
+        $fieldList = implode(',', $fields);
+        $exactSort = "IF(? IN ($fieldList, CONCAT_WS(' ', $fieldList)), 0, 1)";
+        $arrQueryParams[] = $filter;
+        if ($sort) {
+            $sort = "$exactSort, $sort";
+        } else {
+            $sort = $exactSort;
+        }
+    }
+
     $fullQuery = "SELECT $strSelectClause FROM $strTable $strWhereClause$strGroupBy";
     if ($sort) {
         $fullQuery .= " ORDER BY $sort";

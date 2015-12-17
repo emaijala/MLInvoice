@@ -329,11 +329,11 @@ case 'product' :
     $strTable = '{prefix}product';
     $astrSearchFields = [
         [
-            'name' => 'product_name',
+            'name' => 'product_code',
             'type' => 'TEXT'
         ],
         [
-            'name' => 'product_code',
+            'name' => 'product_name',
             'type' => 'TEXT'
         ]
     ];

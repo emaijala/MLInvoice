@@ -132,10 +132,8 @@ function createWhereClause($astrSearchFields, $strSearchTerms, &$arrQueryParams,
                      preg_match('/^([0-9]+)$/', $intID)
                 ) {
                     $strWhereClause = 'WHERE ' . $astrSearchFields[$j]['name'] .
-                     ' = ?     ';
-                    $arrQueryParams = [
-                        $intID
-                    ];
+                        ' = ?     ';
+                    $arrQueryParams = [$intID];
                     unset($astrSearchFields);
                     break 2;
                 }
