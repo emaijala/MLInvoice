@@ -14,4 +14,4 @@
  Tämä ohjelma on vapaa. Lue oheinen LICENSE.
 
  *******************************************************************************/
-$softwareVersion = '1.12.0';
+$softwareVersion = '1.12.1';
