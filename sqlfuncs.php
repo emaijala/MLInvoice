@@ -786,11 +786,16 @@ EOT
     }
 
     if ($version < 39) {
-        $updates = array_merge($updates,
-            [
-                'ALTER TABLE {prefix}invoice_row ADD COLUMN partial_payment tinyint NOT NULL default 0',
-                "REPLACE INTO {prefix}state (id, data) VALUES ('version', '39')"
-            ]);
+        // Check for a bug in database creation script in v1.12.0 and v1.12.1
+        $res = mysqli_param_query("SELECT count(*) FROM information_schema.columns WHERE table_schema = '" . _DB_NAME_ . "' AND table_name   = '{prefix}invoice_row' AND column_name = 'partial_payment'");
+        $count = mysqli_fetch_value($res);
+        if ($count == 0) {
+            $updates = array_merge($updates,
+                [
+                    'ALTER TABLE {prefix}invoice_row ADD COLUMN partial_payment tinyint NOT NULL default 0',
+                    "REPLACE INTO {prefix}state (id, data) VALUES ('version', '39')"
+                ]);
+        }
     }
 
     if ($version < 40) {
@@ -809,14 +814,10 @@ EOT
             if ($res === false) {
                 mysqli_query_check('ROLLBACK');
                 mysqli_query_check('SET AUTOCOMMIT = 1');
-                error_log(
-                    'Database upgrade query failed. Please execute the following queries manually:' .
-                         PHP_EOL . PHP_EOL . implode(PHP_EOL,
-                            array_map(
-                                function ($s)
-                                {
-                                    return str_replace('{prefix}', _DB_PREFIX_ . '_', $s);
-                            }, $updates)) . PHP_EOL);
+                error_log('Database upgrade query failed. Please execute the following queries manually:');
+                foreach ($updates as $s) {
+                    error_log(str_replace('{prefix}', _DB_PREFIX_ . '_', $s) . ';');
+                }
                 return 'FAILED';
             }
         }
