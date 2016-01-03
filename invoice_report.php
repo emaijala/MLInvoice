@@ -323,19 +323,19 @@ class InvoiceReport
             $strQuery2 = ' AND (' . substr($strQuery2, 0, -4) . ')';
         }
 
-        $strQuery .= "$strQuery2 ORDER BY ";
+        $strQuery .= $strQuery2;
         switch ($grouping) {
         case 'state':
-            $strQuery .= 'state_id, invoice_date, invoice_no';
+            $strQuery .= ' ORDER BY state_id, invoice_date, invoice_no';
             break;
         case 'client':
-            $strQuery .= 'name, invoice_date, invoice_no';
+            $strQuery .= ' ORDER BY name, invoice_date, invoice_no';
             break;
         case 'vat':
-            $strQuery .= 'vat, invoice_date, invoice_no';
+            $strQuery .= ' GROUP BY i.id, ir.vat ORDER BY vat, invoice_date, invoice_no';
             break;
         default :
-            $strQuery .= 'invoice_date, invoice_no';
+            $strQuery .= ' ORDER BY invoice_date, invoice_no';
         }
 
         $this->printHeader($format, $printFields, $startDate, $endDate);
