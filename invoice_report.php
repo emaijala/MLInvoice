@@ -128,52 +128,52 @@ class InvoiceReport
 
 			<div class="medium_label"><?php echo $GLOBALS['locPrintFormat']?></div>
 			<div class="field">
-				<input type="radio" name="format" value="html"
-					<?php if ($format == 'html') echo ' checked="checked"'?>><?php echo $GLOBALS['locPrintFormatHTML']?></div>
+				<input type="radio" id="format-html" name="format" value="html"
+					<?php if ($format == 'html') echo ' checked="checked"'?>><label for="format-html"><?php echo $GLOBALS['locPrintFormatHTML']?></label></div>
 			<div class="medium_label"></div>
 			<div class="field">
-				<input type="radio" name="format" value="pdf"
-					<?php if ($format == 'pdf') echo ' checked="checked"'?>><?php echo $GLOBALS['locPrintFormatPDF']?></div>
+				<input type="radio" id="format-pdf" name="format" value="pdf"
+					<?php if ($format == 'pdf') echo ' checked="checked"'?>><label for="format-pdf"><?php echo $GLOBALS['locPrintFormatPDF']?></label></div>
 			<div class="medium_label"></div>
 			<div class="field">
-				<input type="radio" name="format" value="pdfl"
-					<?php if ($format == 'pdfl') echo ' checked="checked"'?>><?php echo $GLOBALS['locPrintFormatPDFLandscape']?></div>
+				<input type="radio" id="format-pdfl" name="format" value="pdfl"
+					<?php if ($format == 'pdfl') echo ' checked="checked"'?>><label for="format-pdfl"><?php echo $GLOBALS['locPrintFormatPDFLandscape']?></label></div>
 			<div class="field_sep"></div>
 
 			<div class="medium_label"><?php echo $GLOBALS['locInvoiceRowTypes']?></div>
 			<div class="field">
-				<input type="radio" name="row_types" value="all"
-					<?php if ($rowTypes == 'all') echo ' checked="checked"'?>><?php echo $GLOBALS['locPrintInvoiceRowTypeAll']?></div>
+				<input type="radio" id="row-type-all" name="row_types" value="all"
+					<?php if ($rowTypes == 'all') echo ' checked="checked"'?>><label for="row-type-all"><?php echo $GLOBALS['locPrintInvoiceRowTypeAll']?></label></div>
 			<div class="medium_label"></div>
 			<div class="field">
-				<input type="radio" name="row_types" value="normal"
-					<?php if ($rowTypes == 'normal') echo ' checked="checked"'?>><?php echo $GLOBALS['locPrintInvoiceRowTypeNormal']?></div>
+				<input type="radio" id="row-type-normal" name="row_types" value="normal"
+					<?php if ($rowTypes == 'normal') echo ' checked="checked"'?>><label for="row-type-normal"><?php echo $GLOBALS['locPrintInvoiceRowTypeNormal']?></label></div>
 			<div class="medium_label"></div>
 			<div class="field">
-				<input type="radio" name="row_types" value="reminder"
-					<?php if ($rowTypes == 'reminder') echo ' checked="checked"'?>><?php echo $GLOBALS['locPrintInvoiceRowTypeReminder']?></div>
+				<input type="radio" id="row-type-reminder" name="row_types" value="reminder"
+					<?php if ($rowTypes == 'reminder') echo ' checked="checked"'?>><label for="row-type-reminder"><?php echo $GLOBALS['locPrintInvoiceRowTypeReminder']?></label></div>
 			<div class="field_sep"></div>
 
 			<div class="medium_label"><?php echo $GLOBALS['locPrintGrouping']?></div>
 			<div class="field">
-				<input type="radio" name="grouping" value=""
-					<?php if ($grouping == '') echo ' checked="checked"'?>><?php echo $GLOBALS['locPrintGroupingNone']?></div>
+				<input type="radio" id="grouping-none" name="grouping" value=""
+					<?php if ($grouping == '') echo ' checked="checked"'?>><label for="grouping-none"><?php echo $GLOBALS['locPrintGroupingNone']?></label></div>
 			<div class="medium_label"></div>
 			<div class="field">
-				<input type="radio" name="grouping" value="state"
-					<?php if ($grouping == 'state') echo ' checked="checked"'?>><?php echo $GLOBALS['locPrintGroupingState']?></div>
+				<input type="radio" id="grouping-state" name="grouping" value="state"
+					<?php if ($grouping == 'state') echo ' checked="checked"'?>><label for="grouping-state"><?php echo $GLOBALS['locPrintGroupingState']?></label></div>
 			<div class="medium_label"></div>
 			<div class="field">
-				<input type="radio" name="grouping" value="month"
-					<?php if ($grouping == 'month') echo ' checked="checked"'?>><?php echo $GLOBALS['locPrintGroupingMonth']?></div>
+				<input type="radio" id="grouping-month" name="grouping" value="month"
+					<?php if ($grouping == 'month') echo ' checked="checked"'?>><label for="grouping-month"><?php echo $GLOBALS['locPrintGroupingMonth']?></label></div>
 			<div class="medium_label"></div>
 			<div class="field">
-				<input type="radio" name="grouping" value="client"
-					<?php if ($grouping == 'client') echo ' checked="checked"'?>><?php echo $GLOBALS['locPrintGroupingClient']?></div>
+				<input type="radio" id="grouping-client" name="grouping" value="client"
+					<?php if ($grouping == 'client') echo ' checked="checked"'?>><label for="grouping-client"><?php echo $GLOBALS['locPrintGroupingClient']?></label></div>
 			<div class="medium_label"></div>
 			<div class="field">
-				<input type="radio" name="grouping" value="vat"
-					<?php if ($grouping == 'vat') echo ' checked="checked"'?>><?php echo $GLOBALS['locPrintGroupingVAT']?></div>
+				<input type="radio" id="grouping-vat" name="grouping" value="vat"
+					<?php if ($grouping == 'vat') echo ' checked="checked"'?>><label for="grouping-vat"><?php echo $GLOBALS['locPrintGroupingVAT']?></label></div>
 			<div class="field_sep">&nbsp;</div>
 
 		</div>
@@ -196,8 +196,8 @@ class InvoiceReport
             $first = false;
             ?>
       <div class="field">
-				<input type="checkbox" name="stateid_<?php echo $intStateId?>"
-					value="1" <?php echo $strChecked?>> <?php echo htmlspecialchars($strStateName)?></div>
+				<input type="checkbox" id="state-<?php echo $intStateId?>" name="stateid_<?php echo $intStateId?>"
+					value="1" <?php echo $strChecked?>> <label for="state-<?php echo $intStateId?>"><?php echo htmlspecialchars($strStateName)?></label></div>
 <?php
         }
         ?>
@@ -214,8 +214,8 @@ class InvoiceReport
             }
             ?>
         <div class="field">
-				<input type="checkbox" name="fields[]" value="<?php echo $field?>"
-					<?php echo $checked?>> <?php echo $label?></div>
+				<input type="checkbox" id="field-<?php echo $field?>" name="fields[]" value="<?php echo $field?>"
+					<?php echo $checked?>> <label for="field-<?php echo $field?>"><?php echo $label?></label></div>
 <?php
             $first = false;
         }

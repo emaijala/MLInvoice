@@ -78,11 +78,11 @@ class ProductReport
 
 		<div class="medium_label"><?php echo $GLOBALS['locPrintFormat']?></div>
 		<div class="field">
-			<input type="radio" name="format" value="html" checked="checked"><?php echo $GLOBALS['locPrintFormatHTML']?></input>
+			<input type="radio" id="format-html" name="format" value="html" checked="checked"><label for="format-html"><?php echo $GLOBALS['locPrintFormatHTML']?></label>
 		</div>
 		<div class="medium_label"></div>
 		<div class="field">
-			<input type="radio" name="format" value="pdf"><?php echo $GLOBALS['locPrintFormatPDF']?></input>
+			<input type="radio" id="format-pdf" name="format" value="pdf"><label for="format-pdf"><?php echo $GLOBALS['locPrintFormatPDF']?></label>
 		</div>
 		<div class="field_sep"></div>
 
@@ -104,8 +104,8 @@ class ProductReport
             $first = false;
             ?>
     <div class="field">
-			<input type="checkbox" name="stateid_<?php echo $intStateId?>"
-				value="1" <?php echo $strChecked?>> <?php echo htmlspecialchars($strStateName)?></div>
+			<input type="checkbox" id="state-<?php echo $intStateId?>" name="stateid_<?php echo $intStateId?>"
+				value="1" <?php echo $strChecked?>> <label for="state-<?php echo $intStateId?>"><?php echo htmlspecialchars($strStateName)?></label></div>
 <?php
         }
         ?>
