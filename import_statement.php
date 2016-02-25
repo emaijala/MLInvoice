@@ -1,7 +1,7 @@
 <?php
 /*******************************************************************************
  MLInvoice: web-based invoicing application.
- Copyright (C) 2010-2015 Ere Maijala
+ Copyright (C) 2010-2016 Ere Maijala
 
  This program is free software. See attached LICENSE.
 
@@ -29,6 +29,7 @@ class ImportStatement extends ImportFile
         $this->dateFormat = true;
         $this->decimalSeparator = true;
         $this->ignoreEmptyRows = true;
+        $this->requireDuplicateCheck = false;
         $this->presets = [
             [
                 'name' => 'Osuuspankki',

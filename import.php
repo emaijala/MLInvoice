@@ -1,7 +1,7 @@
 <?php
 /*******************************************************************************
  MLInvoice: web-based invoicing application.
- Copyright (C) 2010-2015 Ere Maijala
+ Copyright (C) 2010-2016 Ere Maijala
 
  This program is free software. See attached LICENSE.
 
@@ -27,6 +27,7 @@ class ImportFile
     protected $decimalSeparator = false;
     protected $ignoreEmptyRows = false;
     protected $presets = [];
+    protected $requireDuplicateCheck = true;
 
     public function __construct()
     {
@@ -423,9 +424,11 @@ class ImportFile
             }
             $selected = reset($row_delims);
             foreach ($row_delims as $key => $value) {
-                if ($value['count'] > 0 && $value['count'] >= $selected['count'] &&
-                     strlen($value['char']) >= strlen($selected['char']))
+                if ($value['count'] > 0 && $value['count'] >= $selected['count']
+                    && strlen($value['char']) >= strlen($selected['char'])
+                ) {
                     $selected = $value;
+                }
             }
             $row_delim = $selected;
 
@@ -433,44 +436,52 @@ class ImportFile
             $rows = explode($row_delim['char'], $data);
             foreach ($rows as $row) {
                 foreach ($field_delims as $key => $value) {
-                    if (!isset($field_delims[$key]['count']))
+                    if (!isset($field_delims[$key]['count'])) {
                         $field_delims[$key]['count'] = 0;
-                    $field_delims[$key]['count'] += substr_count($row,
-                        $value['char']);
+                    }
+                    $field_delims[$key]['count']
+                        += substr_count($row, $value['char']);
                 }
             }
             $selected = reset($field_delims);
             foreach ($field_delims as $key => $value) {
-                if ($value['count'] > 0 && $value['count'] >= $selected['count'])
+                if ($value['count'] > 0 && $value['count'] >= $selected['count']) {
                     $selected = $value;
+                }
             }
             $field_delim = $selected;
 
             $enclosure_chars = $this->get_enclosure_chars();
             foreach ($rows as $row) {
-                if ($charset == 'UTF-8' &&
-                     try_iconv($charset, _CHARSET_, $row) === false) {
-                    if (try_iconv('ISO-8859-1', _CHARSET_, $row) !== false)
+                if ($charset == 'UTF-8'
+                    && try_iconv($charset, _CHARSET_, $row) === false
+                ) {
+                    if (try_iconv('ISO-8859-1', _CHARSET_, $row) !== false) {
                         $charset = 'ISO-8859-1';
+                    }
                 }
                 foreach (explode($field_delim['char'], $row) as $field) {
                     foreach ($enclosure_chars as $key => $value) {
-                        if (!isset($enclosure_chars[$key]['count']))
+                        if (!isset($enclosure_chars[$key]['count'])) {
                             $enclosure_chars[$key]['count'] = 0;
-                        if ($value['char'] === '') {
+                        }
+                        $char = $value['char'];
+                        if ($char === '') {
                             continue;
                         }
-                        if (substr($field, 0, strlen($value['char'])) ==
-                             $value['char'] && substr($field,
-                                -strlen($value['char'])) == $value['char'])
-                            $enclosure_chars[$key]['count'] ++;
+                        if (substr($field, 0, strlen($char)) == $char
+                            && substr($field, -strlen($char)) == $char
+                        ) {
+                            $enclosure_chars[$key]['count']++;
+                        }
                     }
                 }
             }
             $selected = $enclosure_chars['none'];
             foreach ($enclosure_chars as $key => $value) {
-                if ($value['count'] > 0 && $value['count'] >= $selected['count'])
+                if ($value['count'] > 0 && $value['count'] >= $selected['count']) {
                     $selected = $value;
+                }
             }
             $enclosure_char = $selected;
         }
@@ -535,7 +546,7 @@ function add_column()
     select.name = "column[]";
     select.onchange = update_columns;
     var option = document.createElement("option");
-    option.value = "";
+    option.value = '';
     option.text = "<?php echo $GLOBALS['locImportColumnUnused']?>";
     select.options.add(option);
     for (var i = 0; i < json.columns.length; i++)
@@ -547,6 +558,10 @@ function add_column()
     }
     columns.appendChild(document.createTextNode(' '));
     columns.appendChild(select);
+    if (g_column_id == 1) {
+    	$(select).find('option[value="id"]').attr('selected', 'selected');
+    	$(select).change();
+    }
   });
 }
 
@@ -909,6 +924,7 @@ function select_preset()
                     }
                 }
             }
+            unset($value);
         }
 
         $result = '';
@@ -925,10 +941,11 @@ function select_preset()
             if ($dupRow = mysqli_fetch_row($res)) {
                 $id = $dupRow[0];
                 $found_dup = true;
-                if ($dupMode == 'update')
+                if ($dupMode == 'update') {
                     $result = "Update existing row id $id in table $table";
-                else
+                } else {
                     $result = "Not updating existing row id $id in table $table";
+                }
 
                 if ($mode == 'import' && $dupMode == 'update') {
                     // Update existing row
@@ -936,10 +953,12 @@ function select_preset()
                     $columns = '';
                     $params = [];
                     foreach ($row as $key => $value) {
-                        if ($key == 'id')
+                        if ($key == 'id') {
                             continue;
-                        if ($columns)
+                        }
+                        if ($columns) {
                             $columns .= ', ';
+                        }
                         $columns .= "$key=?";
                         $params[] = $value;
                     }
@@ -1025,18 +1044,21 @@ function select_preset()
         $columnMappings = getRequest('map_column', []);
         $skipRows = getRequest('skip_rows', 0);
 
-        if (!$charset || !$format || !$fieldDelimiter || !$enclosureChar ||
-             !$rowDelimiter) {
+        if (!$charset || !$format || !$fieldDelimiter || !$enclosureChar
+            || !$rowDelimiter
+        ) {
             die('Invalid parameters');
         }
 
-        if (!$this->table_valid($table))
+        if (!$this->table_valid($table)) {
             die('Invalid table name: ' . htmlspecialchars($table));
+        }
 
-        ?>
+?>
 <div class="form_container">
 	<h1><?php echo $GLOBALS['locImportResults']?></h1>
 <?php
+
         if ($importMode != 'import') {
             echo '<p>' . $GLOBALS['locImportSimulation'] . "</p>\n";
         }
@@ -1044,57 +1066,73 @@ function select_preset()
         $field_defs[$table] = $this->get_field_defs($table);
 
         foreach ($duplicateCheckColumns as $key => $column) {
-            if (!$column)
+            if (empty($column)) {
                 unset($duplicateCheckColumns[$key]);
-            elseif (!isset($field_defs[$table][$column]))
+            } elseif (!isset($field_defs[$table][$column])) {
                 die(
-                    'Invalid duplicate check column name: ' .
-                         htmlspecialchars($column));
+                    'Invalid duplicate check column name: '
+                    . htmlspecialchars($column)
+                );
+            }
+        }
+
+        if ($this->requireDuplicateCheck && empty($duplicateCheckColumns)) {
+            die('At least one duplicate check column is required');
         }
 
         if ($format == 'csv') {
             $fp = fopen($_SESSION['import_file'], 'r');
-            if (!$fp)
+            if (!$fp) {
                 die('Could not open import file for reading');
+            }
 
             foreach ($columnMappings as $key => $column) {
-                if ($column && !isset($field_defs[$table][$column]))
+                if ($column && !isset($field_defs[$table][$column])) {
                     die('Invalid column name: ' . htmlspecialchars($column));
+                }
             }
 
             $field_delims = $this->get_field_delims();
             $enclosure_chars = $this->get_enclosure_chars();
             $row_delims = $this->get_row_delims();
 
-            if (!isset($field_delims[$fieldDelimiter]))
+            if (!isset($field_delims[$fieldDelimiter])) {
                 die('Invalid field delimiter');
+            }
             $fieldDelimiter = $field_delims[$fieldDelimiter]['char'];
-            if (!isset($enclosure_chars[$enclosureChar]))
+            if (!isset($enclosure_chars[$enclosureChar])) {
                 die('Invalid enclosure character');
+            }
             $enclosureChar = $enclosure_chars[$enclosureChar]['char'];
-            if (!isset($row_delims[$rowDelimiter]))
+            if (!isset($row_delims[$rowDelimiter])) {
                 die('Invalid field delimiter');
+            }
             $rowDelimiter = $row_delims[$rowDelimiter]['char'];
 
             // Force enclosure char, otherwise fgetcsv would balk.
-            if ($enclosureChar == '')
+            if ($enclosureChar == '') {
                 $enclosureChar = "\x01";
+            }
 
             $rowNum = 1;
             for ($i = 0; $i < $skipRows; $i ++) {
-                $this->get_csv($fp, $fieldDelimiter, $enclosureChar, $charset,
-                    $rowDelimiter);
+                $this->get_csv(
+                    $fp, $fieldDelimiter, $enclosureChar, $charset, $rowDelimiter
+                );
                 ++$rowNum;
             }
 
             $errors = [];
-            $headings = $this->get_csv($fp, $fieldDelimiter, $enclosureChar,
-                $charset, $rowDelimiter);
+            $headings = $this->get_csv(
+                $fp, $fieldDelimiter, $enclosureChar, $charset, $rowDelimiter
+            );
             while (!feof($fp)) {
-                $row = $this->get_csv($fp, $fieldDelimiter, $enclosureChar, $charset,
-                    $rowDelimiter);
-                if (!isset($row))
+                $row = $this->get_csv(
+                    $fp, $fieldDelimiter, $enclosureChar, $charset, $rowDelimiter
+                );
+                if (!isset($row)) {
                     break;
+                }
 
                 ++$rowNum;
                 $mapped_row = [];
@@ -1112,9 +1150,10 @@ function select_preset()
                     }
                 } else {
                     $addedRecordId = null;
-                    $result = $this->process_import_row($table, $mapped_row,
-                        $duplicateMode, $duplicateCheckColumns, $importMode,
-                        $addedRecordId);
+                    $result = $this->process_import_row(
+                        $table, $mapped_row, $duplicateMode, $duplicateCheckColumns,
+                        $importMode, $addedRecordId
+                    );
                     if ($result) {
                         echo $GLOBALS['locImportRow'] . " $rowNum: " .
                              htmlspecialchars($result) . "<br>\n";
@@ -1123,12 +1162,16 @@ function select_preset()
                 ob_flush();
             }
             fclose($fp);
-            if ($_SESSION['import_file'] != _IMPORT_FILE_ && $importMode == 'import')
+            if ($_SESSION['import_file'] != _IMPORT_FILE_
+                && $importMode == 'import'
+            ) {
                 unlink($_SESSION['import_file']);
+            }
         } elseif ($format == 'xml') {
             $data = file_get_contents($_SESSION['import_file']);
-            if ($charset != _CHARSET_)
+            if ($charset != _CHARSET_) {
                 $data = iconv($charset, _CHARSET_, $data);
+            }
 
             try {
                 $xml = new SimpleXMLElement($data);
@@ -1147,29 +1190,34 @@ function select_preset()
                         foreach ($value as $subRecord) {
                             $childRecords[] = get_object_vars($subRecord);
                         }
-                    } elseif (is_object($value))
+                    } elseif (is_object($value)) {
                         $childRecords[] = get_object_vars($value);
-                    else {
-                        if (!isset($field_defs[$table][$column]))
+                    } else {
+                        if (!isset($field_defs[$table][$column])) {
                             die(
-                                "Invalid column name: $table." .
-                                     htmlspecialchars($column));
+                                "Invalid column name: $table."
+                                . htmlspecialchars($column)
+                            );
+                        }
                         $mapped_row[$column] = $value;
                     }
                 }
 
                 ++$recNum;
                 $addedRecordId = null;
-                $result = $this->process_import_row($table, $mapped_row,
-                    $duplicateMode, $duplicateCheckColumns, $importMode,
-                    $addedRecordId);
+                $result = $this->process_import_row(
+                    $table, $mapped_row, $duplicateMode, $duplicateCheckColumns,
+                    $importMode, $addedRecordId
+                );
                 if ($result) {
                     echo "    Record $recNum: $result<br>\n";
                 }
-                if (isset($addedRecordId)) // Updating not feasible || $duplicateMode == 'update')
-{
-                    $this->process_child_records($table, $addedRecordId,
-                        $childRecords, $duplicateMode, $importMode, $field_defs);
+                // Updating not feasible || $duplicateMode == 'update')
+                if (isset($addedRecordId)) {
+                    $this->process_child_records(
+                        $table, $addedRecordId, $childRecords, $duplicateMode,
+                        $importMode, $field_defs
+                    );
                 }
                 ob_flush();
             }
@@ -1181,15 +1229,18 @@ function select_preset()
                         'errors' => [
                             'Could not open import file for reading'
                         ]
-                    ]);
+                    ]
+                );
                 error_log(
-                    "Could not open import file '" + $_SESSION['import_file'] +
-                         "' for reading");
+                    "Could not open import file '" + $_SESSION['import_file']
+                         + "' for reading"
+                );
                 exit();
             }
 
-            if ($charset != _CHARSET_)
+            if ($charset != _CHARSET_) {
                 $data = iconv($charset, _CHARSET_, $data);
+            }
 
             $data = json_decode($data, true);
             if ($data === null) {
@@ -1198,7 +1249,8 @@ function select_preset()
                         'errors' => [
                             'Could not decode JSON'
                         ]
-                    ]);
+                    ]
+                );
                 error_log('JSON parsing failed');
                 exit();
             }
@@ -1214,29 +1266,34 @@ function select_preset()
                         foreach ($value as $subRecord) {
                             $childRecords[] = $subRecord;
                         }
-                    } elseif (is_object($value))
+                    } elseif (is_object($value)) {
                         $childRecords[] = get_object_vars($value);
-                    else {
-                        if (!isset($field_defs[$table][$column]))
+                    } else {
+                        if (!isset($field_defs[$table][$column])) {
                             die(
                                 "Invalid column name: $table." .
-                                     htmlspecialchars($column));
+                                     htmlspecialchars($column)
+                            );
+                        }
                         $mapped_row[$column] = $value;
                     }
                 }
 
                 ++$recNum;
                 $addedRecordId = null;
-                $result = $this->process_import_row($table, $mapped_row,
-                    $duplicateMode, $duplicateCheckColumns, $importMode,
-                    $addedRecordId);
+                $result = $this->process_import_row(
+                    $table, $mapped_row, $duplicateMode, $duplicateCheckColumns,
+                    $importMode, $addedRecordId
+                );
                 if ($result) {
                     echo "    Record $recNum: $result<br>\n";
                 }
-                if (isset($addedRecordId)) // Updating not feasible || $duplicateMode == 'update')
-{
-                    process_child_records($table, $addedRecordId, $childRecords,
-                        $duplicateMode, $importMode, $field_defs);
+                // Updating not feasible || $duplicateMode == 'update')
+                if (isset($addedRecordId)) {
+                    process_child_records(
+                        $table, $addedRecordId, $childRecords, $duplicateMode,
+                        $importMode, $field_defs
+                    );
                 }
                 ob_flush();
             }
