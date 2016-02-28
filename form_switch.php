@@ -1520,14 +1520,6 @@ $astrFormElements = [
         'style' => 'measurement',
         'position' => 1,
         'allow_null' => true
-    ],
-    [
-        'name' => 'logo_bottom_margin',
-        'label' => $GLOBALS['locBaseLogoBottomMargin'],
-        'type' => 'INT',
-        'style' => 'measurement',
-        'position' => 2,
-        'allow_null' => true
     ]
 ];
 break;
