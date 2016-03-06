@@ -806,6 +806,14 @@ EOT
             ]);
     }
 
+    if ($version < 41) {
+        $updates = array_merge($updates,
+            [
+                'ALTER TABLE {prefix}base ADD COLUMN invoice_default_info text NULL',
+                "REPLACE INTO {prefix}state (id, data) VALUES ('version', '41')"
+            ]);
+    }
+
     if (!empty($updates)) {
         mysqli_query_check('SET AUTOCOMMIT = 0');
         mysqli_query_check('BEGIN');

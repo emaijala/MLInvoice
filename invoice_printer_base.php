@@ -833,7 +833,7 @@ abstract class InvoicePrinterBase
         $pdf->SetXY($intStartX, $intStartY + 22);
         $pdf->Cell(19, 5, $GLOBALS['locPDFFormRecipient2'], 0, 1, 'R');
         $pdf->SetFont('Helvetica', '', 10);
-        $pdf->SetXY($intStartX + 21, $intStartY + 18);
+        $pdf->SetXY($intStartX + 21, $intStartY + 17);
         $pdf->MultiCell(100, 4, $this->senderAddress, 0, 1);
 
         // payer
@@ -859,16 +859,28 @@ abstract class InvoicePrinterBase
 
         // info
         $pdf->SetFont('Helvetica', '', 10);
-        $pdf->SetXY($intStartX + 112.4, $intStartY + 20);
-        $pdf->Cell(70, 5,
+        $pdf->SetXY($intStartX + 112.4, $intStartY + 18);
+        $pdf->Cell(
+            70, 5,
             sprintf($GLOBALS['locPDFFormInvoiceNumber'], $invoiceData['invoice_no']),
-            0, 1, 'L');
+            0, 1, 'L'
+        );
+        $pdf->SetXY($intStartX + 112.4, $intStartY + 25);
+        if (getSetting('invoice_show_info_in_form')
+            && $this->invoiceData['info']
+        ) {
+            $pdf->MultiCell(
+                70, 4, $this->invoiceData['info'], 0, 'L', 0, 1, '', '', true, 0,
+                false, true, $this->refNumber ? 20 : 30
+            );
+        }
         if ($this->refNumber) {
-            $pdf->SetXY($intStartX + 112.4, $intStartY + 30);
+            $pdf->SetXY($intStartX + 112.4, $pdf->getY() + 3);
             $pdf->Cell(70, 5, $GLOBALS['locPDFFormRefNumberMandatory1'], 0, 1, 'L');
-            $pdf->SetXY($intStartX + 112.4, $intStartY + 35);
+            $pdf->SetX($intStartX + 112.4);
             $pdf->Cell(70, 5, $GLOBALS['locPDFFormRefNumberMandatory2'], 0, 1, 'L');
         }
+
         // terms
         $pdf->SetFont('Helvetica', '', 5);
         $pdf->SetXY($intStartX + 133, $intStartY + 85);
@@ -877,8 +889,9 @@ abstract class InvoicePrinterBase
         $pdf->MultiCell(70, 2, $GLOBALS['locPDFFormClearingTerms2'], 0, 1);
         $pdf->SetFont('Helvetica', '', 6);
         $pdf->SetXY($intStartX + 133, $intStartY + 95);
-        $pdf->Cell($intMaxX + 1 - 133 - $intStartX, 5, $GLOBALS['locPDFFormBank'], 0,
-            1, 'R');
+        $pdf->Cell(
+            $intMaxX + 1 - 133 - $intStartX, 5, $GLOBALS['locPDFFormBank'], 0, 1, 'R'
+        );
 
         $pdf->SetFont('Helvetica', '', 7);
         // refnr

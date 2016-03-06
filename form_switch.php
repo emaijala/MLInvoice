@@ -565,12 +565,24 @@ case 'invoice' :
     $invoicePrintChecks = '';
     $invoiceNumberUpdatePrefix = '';
     $invoiceNumberUpdateSuffix = '';
+    $baseOnChange = '';
     $companyOnChange = '';
     $getInvoiceNr = '';
     $updateDates = '';
     $addCompanyCode = '';
 
     if (sesWriteAccess()) {
+        $baseOnChange = <<<EOS
+  onchange="$.getJSON('json.php?func=get_base', {id: $('#base_id').val() }, function(json) {
+      if (json) {
+        if (json.invoice_default_info && $('#info').val() == '') {
+          $('#info').val(json.invoice_default_info);
+        }
+      }
+    });
+  "
+EOS;
+
         $companyOnChange = <<<EOS
   function() {
     $.getJSON('json.php?func=get_company', {id: $('#company_id').val() }, function(json) {
@@ -773,7 +785,8 @@ $astrFormElements = [
         'style' => 'medium linked',
         'listquery' => 'SELECT id, name FROM {prefix}base WHERE deleted=0',
         'position' => 1,
-        'default' => $defaultBase
+        'default' => $defaultBase,
+        'elem_attributes' => $baseOnChange
     ],
     [
         'name' => 'name',
@@ -1403,6 +1416,14 @@ $astrFormElements = [
         'type' => 'TEXT',
         'style' => 'medium',
         'position' => 2,
+        'allow_null' => true
+    ],
+    [
+        'name' => 'invoice_default_info',
+        'label' => $GLOBALS['locInvoiceDefaultInfo'],
+        'type' => 'AREA',
+        'style' => 'medium',
+        'position' => 1,
         'allow_null' => true
     ],
     [

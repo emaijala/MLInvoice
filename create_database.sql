@@ -68,6 +68,7 @@ CREATE TABLE mlinvoice_base (
   receipt_email_body text NULL,
   order_confirmation_email_subject varchar(255) NULL,
   order_confirmation_email_body text NULL,
+  invoice_default_info text NULL,
   PRIMARY KEY (id)
 ) ENGINE=INNODB CHARACTER SET utf8 COLLATE utf8_swedish_ci;
 
@@ -292,7 +293,7 @@ CREATE TABLE mlinvoice_state (
 
 SET NAMES 'utf8';
 
-INSERT INTO mlinvoice_state (id, data) VALUES ('version', '40');
+INSERT INTO mlinvoice_state (id, data) VALUES ('version', '41');
 
 INSERT INTO mlinvoice_state (id, data) VALUES ('tableconversiondone', '1');
 

@@ -193,6 +193,15 @@ $arrSettings = [
         'default' => 0,
         'allow_null' => true
     ],
+    'invoice_show_info_in_form' => [
+        'label' => $GLOBALS['locSettingInvoiceShowInfoInForm'],
+        'type' => 'CHECK',
+        'style' => 'medium',
+        'position' => 1,
+        'default' => 0,
+        'allow_null' => true
+    ],
+
     'invoice_warn_if_noncurrent_date' => [
         'label' => $GLOBALS['locSettingInvoiceWarnIfNonCurrentDate'],
         'type' => 'CHECK',
