@@ -25,7 +25,6 @@
 require_once "sqlfuncs.php";
 require_once "miscfuncs.php";
 require_once "datefuncs.php";
-require_once "localize.php";
 
 function createList($strFunc, $strList, $strTableName = '', $strTitleOverride = '',
     $prefilter = '', $invoiceTotal = false, $highlightOverdue = false)
