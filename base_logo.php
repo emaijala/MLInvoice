@@ -2,17 +2,17 @@
 /*******************************************************************************
  MLInvoice: web-based invoicing application.
  Copyright (C) 2010-2015 Ere Maijala
- 
+
  This program is free software. See attached LICENSE.
- 
+
  *******************************************************************************/
 
 /*******************************************************************************
  MLInvoice: web-pohjainen laskutusohjelma.
  Copyright (C) 2010-2015 Ere Maijala
- 
+
  Tämä ohjelma on vapaa. Lue oheinen LICENSE.
- 
+
  *******************************************************************************/
 require_once 'sqlfuncs.php';
 require_once 'miscfuncs.php';
@@ -32,7 +32,7 @@ $messages = '';
 
 if ($func == 'clear') {
     mysqli_param_query(
-        'UPDATE {prefix}base set logo_filename=null, logo_filesize=null, logo_filetype=null, logo_filedata=null WHERE id=?', 
+        'UPDATE {prefix}base set logo_filename=null, logo_filesize=null, logo_filetype=null, logo_filedata=null WHERE id=?',
         [
             $baseId
         ]);
@@ -42,9 +42,9 @@ if ($func == 'clear') {
         $messages .= $GLOBALS['locErrFileUploadFailed'] . "<br>\n";
     } else {
         $imageInfo = getimagesize($_FILES['logo']['tmp_name']);
-        if (!$imageInfo || !in_array($imageInfo['mime'], 
+        if (!$imageInfo || !in_array($imageInfo['mime'],
             [
-                'image/jpeg', 
+                'image/jpeg',
                 'image/png'
             ])) {
             $messages .= $GLOBALS['locErrFileTypeInvalid'] . "<br>\n";
@@ -56,12 +56,12 @@ if ($func == 'clear') {
             $data = fread($file, $fsize);
             fclose($file);
             mysqli_param_query(
-                'UPDATE {prefix}base set logo_filename=?, logo_filesize=?, logo_filetype=?, logo_filedata=? WHERE id=?', 
+                'UPDATE {prefix}base set logo_filename=?, logo_filesize=?, logo_filetype=?, logo_filedata=? WHERE id=?',
                 [
-                    $_FILES['logo']['name'], 
-                    $fsize, 
-                    $imageInfo['mime'], 
-                    $data, 
+                    $_FILES['logo']['name'],
+                    $fsize,
+                    $imageInfo['mime'],
+                    $data,
                     $baseId
                 ]);
             $messages .= $GLOBALS['locBaseLogoSaved'] . ' (' .
@@ -70,7 +70,7 @@ if ($func == 'clear') {
     }
 } elseif ($func == 'view') {
     $res = mysqli_param_query(
-        'SELECT logo_filename, logo_filesize, logo_filetype, logo_filedata FROM {prefix}base WHERE id=?', 
+        'SELECT logo_filename, logo_filesize, logo_filetype, logo_filedata FROM {prefix}base WHERE id=?',
         [
             $baseId
         ]);
@@ -98,10 +98,10 @@ else
 
 echo htmlPageStart(_PAGE_TITLE_);
 ?>
-<div class="form">
+<div class="form_container ui-widget-content">
 	<div class="message"><?php echo $messages?></div>
 
-	<div class="form_container ui-widget-content">
+    <div class="form ui-widget">
 		<div style="margin-bottom: 10px">
 			<img class="image" src="?func=view&amp;id=<?php echo $baseId?>">
 		</div>
@@ -109,7 +109,7 @@ echo htmlPageStart(_PAGE_TITLE_);
 			action="base_logo.php" method="POST">
 			<input type="hidden" name="func" value="upload"> <input type="hidden"
 				name="id" value="<?php echo $baseId?>">
-			<div class="label" style="clear: both; margin-top: 10px"><?php printf($GLOBALS['locBaseLogo'], $maxFileSize)?></div>
+			<div class="label" style="clear: both; margin-top: 10px; margin-bottom: 10px"><?php printf($GLOBALS['locBaseLogo'], $maxFileSize)?></div>
 			<div class="long">
 				<input name="logo" type="file">
 			</div>
@@ -127,7 +127,7 @@ echo htmlPageStart(_PAGE_TITLE_);
 					value="<?php echo $GLOBALS['locBaseEraseLogo']?>">
 			</div>
 		</form>
-	</div>
+    </div>
 </div>
 </body>
 </html>

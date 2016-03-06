@@ -495,8 +495,8 @@ function save_record(redirect_url, redir_style)
 
 function popup_dialog(url, on_close, dialog_title, event, width, height)
 {
+  $("#popup_dlg").find("#popup_dlg_iframe").html('');
   $("#popup_dlg").dialog({ modal: true, width: width, height: height, resizable: true,
-    position: [50, 50],
     buttons: {
       "<?php echo $GLOBALS['locClose']?>": function() { $("#popup_dlg").dialog('close'); }
     },
