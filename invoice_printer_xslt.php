@@ -20,6 +20,12 @@ require_once 'miscfuncs.php';
 
 class InvoicePrinterXslt extends InvoicePrinterBase
 {
+    /**
+     * XSLT parameters
+     *
+     * @var array
+     */
+    protected $xsltParams = [];
 
     protected function transform($xslt, $xsd = '')
     {
@@ -49,7 +55,7 @@ class InvoicePrinterXslt extends InvoicePrinterBase
         $rows = $invoice->addChild('rows');
         $this->arrayToXML($this->invoiceRowData, $rows, 'row');
 
-        require 'settings_def.php';
+        include 'settings_def.php';
         $settingsData = [];
         foreach ($arrSettings as $key => $value) {
             if (substr($key, 0, 8) == 'invoice_' && $value['type'] != 'LABEL') {
@@ -57,11 +63,13 @@ class InvoicePrinterXslt extends InvoicePrinterBase
                 case 'invoice_terms_of_payment' :
                     $settingsData[$key] = sprintf(
                         getTermsOfPayment($invoiceData['company_id']),
-                        getPaymentDays($invoiceData['company_id']));
+                        getPaymentDays($invoiceData['company_id'])
+                    );
                     break;
                 case 'invoice_pdf_filename' :
                     $settingsData[$key] = $this->getPrintOutFileName(
-                        getSetting('invoice_pdf_filename'));
+                        getSetting('invoice_pdf_filename')
+                    );
                     break;
                 default :
                     $settingsData[$key] = getSetting($key);
@@ -87,6 +95,9 @@ class InvoicePrinterXslt extends InvoicePrinterBase
         $xsl->load($xslt);
         $xsltproc->importStylesheet($xsl);
         $xsltproc->setParameter('', 'stylesheet', $this->printStyle);
+        foreach ($this->xsltParams as $param => $value) {
+            $xsltproc->setParameter('', $param, $value);
+        }
         $domDoc = dom_import_simplexml($xml)->ownerDocument;
         $this->xml = $xsltproc->transformToXML($domDoc);
 

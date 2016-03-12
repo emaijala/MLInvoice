@@ -2,7 +2,7 @@
 
 <xsl:stylesheet version="1.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
   <xsl:param name="stylesheet"/>
-  <xsl:output method="xml" version="1.0" encoding="iso-8859-15" indent="yes"/>
+  <xsl:output method="xml" version="1.0" encoding="ISO-8859-15" indent="yes"/>
   <xsl:decimal-format name="euro" decimal-separator="," grouping-separator=""/>
   <xsl:template match="/invoicedata">
   <xsl:if test="$stylesheet!=''">
@@ -10,6 +10,22 @@
   </xsl:if>
 
 <Finvoice Version="1.3" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="Finvoice.xsd">
+  <xsl:if test="$printTransmissionDetails">
+    <MessageTransmissionDetails>
+        <MessageSenderDetails>
+            <FromIdentifier><xsl:value-of select="sender/org_unit_number"/></FromIdentifier>
+            <FromIntermediator><xsl:value-of select="sender/payment_intermediator"/></FromIntermediator>
+        </MessageSenderDetails>
+        <MessageReceiverDetails>
+            <ToIdentifier><xsl:value-of select="recipient/org_unit_number"/></ToIdentifier>
+            <ToIntermediator><xsl:value-of select="recipient/payment_intermediator"/></ToIntermediator>
+        </MessageReceiverDetails>
+        <MessageDetails>
+            <MessageIdentifier><xsl:value-of select="invoice/invoice_no"/></MessageIdentifier>
+            <MessageTimeStamp><xsl:value-of select="settings/current_timestamp_utc"/></MessageTimeStamp>
+        </MessageDetails>
+    </MessageTransmissionDetails>
+  </xsl:if>
     <xsl:apply-templates select="sender"/>
     <xsl:apply-templates select="recipient"/>
     <xsl:apply-templates select="invoice"/>
