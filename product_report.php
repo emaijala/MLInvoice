@@ -65,7 +65,7 @@ class ProductReport
         </div>
 
         <div class="medium_label"><?php echo $GLOBALS['locInvoiceDateInterval']?></div>
-        <div class="field"><?php echo htmlFormElement('date', 'TEXT', "$dateRange" , 'medium hasDateRangePicker', '', 'MODIFY', FALSE)?></div>
+        <div class="field"><?php echo htmlFormElement('date', 'TEXT', "$dateRange", 'medium hasDateRangePicker', '', 'MODIFY', FALSE)?></div>
 
         <div class="medium_label"><?php echo $GLOBALS['locBiller']?></div>
         <div class="field"><?php echo htmlFormElement('base', 'LIST', $intBaseId, 'medium', 'SELECT id, name FROM {prefix}base WHERE deleted=0 ORDER BY name', 'MODIFY', FALSE)?></div>
@@ -78,11 +78,18 @@ class ProductReport
 
         <div class="medium_label"><?php echo $GLOBALS['locPrintFormat']?></div>
         <div class="field">
-            <input type="radio" id="format-html" name="format" value="html" checked="checked"><label for="format-html"><?php echo $GLOBALS['locPrintFormatHTML']?></label>
+            <input type="radio" id="format-table" name="format" value="table" checked="checked">
+            <label for="format-table"><?php echo $GLOBALS['locPrintFormatTable']?></label>
         </div>
         <div class="medium_label"></div>
         <div class="field">
-            <input type="radio" id="format-pdf" name="format" value="pdf"><label for="format-pdf"><?php echo $GLOBALS['locPrintFormatPDF']?></label>
+            <input type="radio" id="format-html" name="format" value="html">
+            <label for="format-html"><?php echo $GLOBALS['locPrintFormatHTML']?></label>
+        </div>
+        <div class="medium_label"></div>
+        <div class="field">
+            <input type="radio" id="format-pdf" name="format" value="pdf">
+            <label for="format-pdf"><?php echo $GLOBALS['locPrintFormatPDF']?></label>
         </div>
         <div class="field_sep"></div>
 
@@ -278,33 +285,36 @@ class ProductReport
         }
         ?>
 <div class="report">
-    <table>
+    <table class="report-table<?php echo $format == 'table' ? ' datatable' : '' ?>">
+      <thead>
         <tr>
             <th class="label">
             <?php echo $GLOBALS['locCode']?>
-        </th>
+            </th>
             <th class="label">
             <?php echo $GLOBALS['locProduct']?>
-        </th>
+            </th>
             <th class="label" style="text-align: right">
             <?php echo $GLOBALS['locPCS']?>
-        </th>
+            </th>
             <th class="label" style="text-align: right">
             <?php echo $GLOBALS['locUnit']?>
-        </th>
+            </th>
             <th class="label" style="text-align: right">
             <?php echo $GLOBALS['locVATLess']?>
-        </th>
+            </th>
             <th class="label" style="text-align: right">
-            <?php echo $GLOBALS['locVATPercent']?>
-        </th>
+            <?php echo str_replace(' ', '&nbsp;', $GLOBALS['locVATPercent'])?>
+            </th>
             <th class="label" style="text-align: right">
             <?php echo $GLOBALS['locVATPart']?>
-        </th>
+            </th>
             <th class="label" style="text-align: right">
             <?php echo $GLOBALS['locWithVAT']?>
-        </th>
+            </th>
         </tr>
+      </thead>
+      <tbody>
 <?php
     }
 
@@ -396,6 +406,11 @@ class ProductReport
             $pdf->Cell(25, 3, miscRound2Decim($intTotSumVAT), 0, 1, 'R');
             return;
         }
+
+        if ($format != 'html') {
+            return;
+        }
+
         ?>
     <tr>
             <td class="input total_sum">
@@ -426,8 +441,69 @@ class ProductReport
             return;
         }
         ?>
+      </tbody>
+      <tfoot>
+        <tr>
+          <td></td>
+          <td></td>
+          <td></td>
+          <td></td>
+          <td></td>
+          <td></td>
+          <td></td>
+          <td></td>
+      </tfoot>
     </table>
 </div>
+        <?php
+        if ($format == 'table') {
+        ?>
+<script type="text/javascript">
+var table = $('.report-table.datatable').DataTable({
+    'language': {
+        <?php echo $GLOBALS['locTableTexts']?>
+    },
+    'pageLength': 50,
+    'jQueryUI': true,
+    'pagingType': 'full_numbers',
+    'footerCallback': function (row, data, start, end, display) {
+        var api = this.api(), data;
+
+        $([4, 6, 7]).each(function(i, column) {
+            // Total over all pages
+            var total = api
+                .column(column)
+                .data()
+                .reduce(function (a, b) {
+                    return intVal(a) + intVal(b);
+                }, 0);
+
+
+            // Total over this page
+            var pageTotal = api
+                .column(column, { page: 'current'})
+                .data()
+                .reduce(function (a, b) {
+                    return intVal(a) + intVal(b);
+                }, 0);
+
+            // Update footer
+            pageTotal = format_currency(pageTotal/100, 2, '<?php echo $GLOBALS['locDecimalSeparator']?>', '<?php echo $GLOBALS['locThousandSeparator']?>');
+            total = format_currency(total/100, 2, '<?php echo $GLOBALS['locDecimalSeparator']?>', '<?php echo $GLOBALS['locThousandSeparator']?>');
+            $(api.column(column).footer()).html('<div style="float: right"><?php echo $GLOBALS['locVisiblePage'] ?>&nbsp;' + pageTotal + '</div><br><div style="float: right"><?php echo $GLOBALS['locTotal'] ?>&nbsp;' + total + '</div>');
+        });
+    }
+});
+
+var buttons = new $.fn.dataTable.Buttons(table, {
+    buttons: [
+        'copy', 'csv', 'excel', 'pdf'
+    ]
+});
+
+table.buttons().container().appendTo($('.fg-toolbar', table.table().container()));
+</script>
 <?php
+        }
     }
 }

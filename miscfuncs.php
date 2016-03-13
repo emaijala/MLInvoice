@@ -3,25 +3,25 @@
 /*******************************************************************************
  MLInvoice: web-based invoicing application.
  Copyright (C) 2010-2015 Ere Maijala
- 
+
  Portions based on:
  PkLasku : web-based invoicing software.
  Copyright (C) 2004-2008 Samu Reinikainen
- 
+
  This program is free software. See attached LICENSE.
- 
+
  *******************************************************************************/
 
 /*******************************************************************************
  MLInvoice: web-pohjainen laskutusohjelma.
  Copyright (C) 2010-2015 Ere Maijala
- 
+
  Perustuu osittain sovellukseen:
  PkLasku : web-pohjainen laskutusohjelmisto.
  Copyright (C) 2004-2008 Samu Reinikainen
- 
+
  Tämä ohjelma on vapaa. Lue oheinen LICENSE.
- 
+
  *******************************************************************************/
 function gpcAddSlashes($strString)
 {
@@ -51,15 +51,15 @@ function cond_utf8_encode($str)
     return $str;
 }
 
-function miscRound2Decim($value, $decimals = 2, $decimalSeparator = null, 
+function miscRound2Decim($value, $decimals = 2, $decimalSeparator = null,
     $thousandSeparator = null)
 {
-    return number_format($value, $decimals, 
-        isset($decimalSeparator) ? $decimalSeparator : $GLOBALS['locDecimalSeparator'], 
+    return number_format($value, $decimals,
+        isset($decimalSeparator) ? $decimalSeparator : $GLOBALS['locDecimalSeparator'],
         isset($thousandSeparator) ? $thousandSeparator : $GLOBALS['locThousandSeparator']);
 }
 
-function miscRound2OptDecim($value, $decimals = 2, $decimalSeparator = null, 
+function miscRound2OptDecim($value, $decimals = 2, $decimalSeparator = null,
     $thousandSeparator = null)
 {
     if ($value == floor($value)) {
@@ -71,130 +71,130 @@ function miscRound2OptDecim($value, $decimals = 2, $decimalSeparator = null,
 function miscCalcCheckNo($intValue)
 {
     $astrWeight = [
-        '1', 
-        '3', 
-        '7', 
-        '1', 
-        '3', 
-        '7', 
-        '1', 
-        '3', 
-        '7', 
-        '1', 
-        '3', 
-        '7', 
-        '1', 
-        '3', 
-        '7', 
-        '1', 
-        '3', 
-        '7', 
-        '1', 
-        '3', 
-        '7', 
-        '1', 
-        '3', 
-        '7', 
-        '1', 
-        '3', 
-        '7', 
-        '1', 
-        '3', 
-        '7', 
-        '1', 
-        '3', 
-        '7', 
-        '1', 
-        '3', 
-        '7', 
-        '1', 
-        '3', 
-        '7', 
-        '1', 
-        '3', 
-        '7', 
-        '1', 
-        '3', 
-        '7', 
-        '1', 
-        '3', 
-        '7', 
-        '1', 
-        '3', 
-        '7', 
-        '1', 
-        '3', 
-        '7', 
-        '1', 
-        '3', 
-        '7', 
-        '1', 
-        '3', 
-        '7', 
-        '1', 
-        '3', 
-        '7', 
-        '1', 
-        '3', 
-        '7', 
-        '1', 
-        '3', 
-        '7', 
-        '1', 
-        '3', 
-        '7', 
-        '1', 
-        '3', 
-        '7', 
-        '1', 
-        '3', 
-        '7', 
-        '1', 
-        '3', 
-        '7', 
-        '1', 
-        '3', 
-        '7', 
-        '1', 
-        '3', 
-        '7', 
-        '1', 
-        '3', 
-        '7', 
-        '1', 
-        '3', 
-        '7', 
-        '1', 
-        '3', 
-        '7', 
-        '1', 
-        '3', 
-        '7', 
-        '1', 
-        '3', 
-        '7', 
-        '1', 
-        '3', 
-        '7', 
-        '1', 
-        '3', 
-        '7', 
-        '1', 
-        '3', 
-        '7', 
-        '1', 
-        '3', 
+        '1',
+        '3',
+        '7',
+        '1',
+        '3',
+        '7',
+        '1',
+        '3',
+        '7',
+        '1',
+        '3',
+        '7',
+        '1',
+        '3',
+        '7',
+        '1',
+        '3',
+        '7',
+        '1',
+        '3',
+        '7',
+        '1',
+        '3',
+        '7',
+        '1',
+        '3',
+        '7',
+        '1',
+        '3',
+        '7',
+        '1',
+        '3',
+        '7',
+        '1',
+        '3',
+        '7',
+        '1',
+        '3',
+        '7',
+        '1',
+        '3',
+        '7',
+        '1',
+        '3',
+        '7',
+        '1',
+        '3',
+        '7',
+        '1',
+        '3',
+        '7',
+        '1',
+        '3',
+        '7',
+        '1',
+        '3',
+        '7',
+        '1',
+        '3',
+        '7',
+        '1',
+        '3',
+        '7',
+        '1',
+        '3',
+        '7',
+        '1',
+        '3',
+        '7',
+        '1',
+        '3',
+        '7',
+        '1',
+        '3',
+        '7',
+        '1',
+        '3',
+        '7',
+        '1',
+        '3',
+        '7',
+        '1',
+        '3',
+        '7',
+        '1',
+        '3',
+        '7',
+        '1',
+        '3',
+        '7',
+        '1',
+        '3',
+        '7',
+        '1',
+        '3',
+        '7',
+        '1',
+        '3',
+        '7',
+        '1',
+        '3',
+        '7',
+        '1',
+        '3',
+        '7',
+        '1',
+        '3',
+        '7',
+        '1',
+        '3',
+        '7',
+        '1',
+        '3',
         '7'
     ];
     $astrTmp = array_reverse(
         explode('.', substr(chunk_split($intValue, 1, '.'), 0, -1)));
-    
+
     $intSum = 0;
     foreach ($astrTmp as $value) {
         $intSum += $value * array_pop($astrWeight);
     }
     $intCheckNo = ceil($intSum / 10) * 10 - $intSum;
-    
+
     return $intCheckNo;
 }
 
@@ -251,6 +251,8 @@ function getPageTitle($strFunc, $strList, $strForm)
             return $GLOBALS['locInvoiceReport'];
         case 'product' :
             return $GLOBALS['locProductReport'];
+        case 'product_stock' :
+            return $GLOBALS['locProductStockReport'];
         default :
             return $GLOBALS['locReports'];
         }
@@ -328,12 +330,12 @@ function getPageTitle($strFunc, $strList, $strForm)
 function phpIniValueToInteger($value)
 {
     $unit = strtoupper(substr($value, -1));
-    if (!in_array($unit, 
+    if (!in_array($unit,
         [
-            'P', 
-            'T', 
-            'G', 
-            'M', 
+            'P',
+            'T',
+            'G',
+            'M',
             'K'
         ]))
         return $value;
@@ -355,21 +357,21 @@ function phpIniValueToInteger($value)
 
 function getMaxUploadSize()
 {
-    return min(phpIniValueToInteger(ini_get('post_max_size')), 
+    return min(phpIniValueToInteger(ini_get('post_max_size')),
         phpIniValueToInteger(ini_get('upload_max_filesize')));
 }
 
 function fileSizeToHumanReadable($value)
 {
     $suffixes = [
-        'B', 
-        'KB', 
-        'MB', 
-        'GB', 
-        'TB', 
+        'B',
+        'KB',
+        'MB',
+        'GB',
+        'TB',
         'PB'
     ];
-    
+
     $idx = 0;
     while ($idx < count($suffixes) - 1 && $value / 1024 > 0.9) {
         $value /= 1024;
@@ -474,7 +476,7 @@ function calculateRowSum($price, $count, $VAT, $VATIncluded, $discount)
 {
     if (isset($discount))
         $price *= (1 - $discount / 100);
-    
+
     if ($VATIncluded) {
         $rowSumVAT = round($count * $price, 2);
         $rowSum = round(($rowSumVAT / (1 + $VAT / 100)), 2);
@@ -485,8 +487,8 @@ function calculateRowSum($price, $count, $VAT, $VATIncluded, $discount)
         $rowSumVAT = $rowSum + $rowVAT;
     }
     return [
-        $rowSum, 
-        $rowVAT, 
+        $rowSum,
+        $rowVAT,
         $rowSumVAT
     ];
 }
@@ -524,7 +526,7 @@ function instantiateInvoicePrinter($printTemplateFile)
     $className = str_replace('_', ' ', $className);
     $className = ucwords($className);
     $className = str_replace(' ', '', $className);
-    
+
     require_once $printTemplateFile;
     return new $className();
 }

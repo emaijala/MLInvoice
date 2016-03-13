@@ -553,32 +553,6 @@ function createIForm($astrFormElements, $elem, $intKeyValue, $newRecord, $strFor
 <script type="text/javascript">
 /* <![CDATA[ */
 
-function format_currency(value, decimals)
-{
-  var s = parseFloat(value).toFixed(decimals).replace('.', '<?php echo $GLOBALS['locDecimalSeparator']?>');
-<?php
-    if ($GLOBALS['locThousandSeparator']) {
-        ?>
-  var parts = s.split('<?php echo $GLOBALS['locDecimalSeparator']?>');
-  var regexp = /(\d+)(\d{3})<?php echo $GLOBALS['locDecimalSeparator']?>?/;
-    while (regexp.test(parts[0])) {
-        parts[0] = parts[0].replace(regexp, '$1' + '<?php echo $GLOBALS['locThousandSeparator']?>' + '$2');
-    }
-    s = parts[0];
-    if (parts.length > 1) {
-        s += '<?php echo $GLOBALS['locDecimalSeparator']?>' + parts[1];
-    }
-<?php
-    }
-    ?>
-  return s;
-}
-
-function round_number(num, dec)
-{
-  return Math.round(num * Math.pow(10, dec)) / Math.pow(10, dec);
-}
-
 function init_rows()
 {
 <?php
@@ -628,7 +602,7 @@ function init_rows()
             echo "      if (record.${name}_text === null) record.${name}_text = ''; $('<td/>').addClass('$class' + (record.deleted == 1 ? ' deleted' : '')).text(record.${name}_text).appendTo(tr);\n";
         } elseif ($subElem['type'] == 'INT') {
             if (isset($subElem['decimals'])) {
-                echo "      $('<td/>').addClass('$class' + (record.deleted == 1 ? ' deleted' : '')).text(record.$name ? format_currency(record.$name, {$subElem['decimals']}) : '').appendTo(tr);\n";
+                echo "      $('<td/>').addClass('$class' + (record.deleted == 1 ? ' deleted' : '')).text(record.$name ? format_currency(record.$name, {$subElem['decimals']}, '{$GLOBALS['locDecimalSeparator']}', '{$GLOBALS['locThousandSeparator']}') : '').appendTo(tr);\n";
             } else {
                 echo "      $('<td/>').addClass('$class' + (record.deleted == 1 ? ' deleted' : '')).text(record.$name ? record.$name.replace('.', '{$GLOBALS['locDecimalSeparator']}') : '').appendTo(tr);\n";
             }
@@ -663,9 +637,9 @@ function init_rows()
         VAT = round_number(sum * (VATPercent / 100), 2);
         sumVAT = sum + VAT;
       }
-      sum = format_currency(sum, <?php echo isset($subElem['decimals']) ? $subElem['decimals'] : 2?>);
-      VAT = format_currency(VAT, <?php echo isset($subElem['decimals']) ? $subElem['decimals'] : 2?>);
-      sumVAT = format_currency(sumVAT, <?php echo isset($subElem['decimals']) ? $subElem['decimals'] : 2?>);
+      sum = format_currency(sum, <?php echo isset($subElem['decimals']) ? $subElem['decimals'] : 2?>, '<?php echo $GLOBALS['locDecimalSeparator']?>', '<?php echo $GLOBALS['locThousandSeparator']?>');
+      VAT = format_currency(VAT, <?php echo isset($subElem['decimals']) ? $subElem['decimals'] : 2?>, '<?php echo $GLOBALS['locDecimalSeparator']?>', '<?php echo $GLOBALS['locThousandSeparator']?>');
+      sumVAT = format_currency(sumVAT, <?php echo isset($subElem['decimals']) ? $subElem['decimals'] : 2?>, '<?php echo $GLOBALS['locDecimalSeparator']?>', '<?php echo $GLOBALS['locThousandSeparator']?>');
       var title = '<?php echo $GLOBALS['locVATLess'] . ': '?>' + sum + ' &ndash; ' + '<?php echo $GLOBALS['locVATPart'] . ': '?>' + VAT;
       $('<td/>').addClass('<?php echo $class?>' + (record.deleted == 1 ? ' deleted' : '')).append('<span title="' + title + '">' + sumVAT + '<\/span>').appendTo(tr);
 <?php
@@ -727,22 +701,22 @@ function init_rows()
     }
     var tr = $('<tr/>').addClass('summary');
     $('<td/>').addClass('input').attr('colspan', '10').attr('align', 'right').text('<?php echo $GLOBALS['locTotalExcludingVAT']?>').appendTo(tr);
-    $('<td/>').addClass('input').attr('align', 'right').text(format_currency(totSum, 2)).appendTo(tr);
+    $('<td/>').addClass('input').attr('align', 'right').text(format_currency(totSum, 2, '<?php echo $GLOBALS['locDecimalSeparator']?>', '<?php echo $GLOBALS['locThousandSeparator']?>')).appendTo(tr);
     $(table).append(tr);
 
     tr = $('<tr/>').addClass('summary');
     $('<td/>').addClass('input').attr('colspan', '10').attr('align', 'right').text('<?php echo $GLOBALS['locTotalVAT']?>').appendTo(tr);
-    $('<td/>').addClass('input').attr('align', 'right').text(format_currency(totVAT, 2)).appendTo(tr);
+    $('<td/>').addClass('input').attr('align', 'right').text(format_currency(totVAT, 2, '<?php echo $GLOBALS['locDecimalSeparator']?>', '<?php echo $GLOBALS['locThousandSeparator']?>')).appendTo(tr);
     $(table).append(tr);
 
     var tr = $('<tr/>').addClass('summary');
     $('<td/>').addClass('input').attr('colspan', '10').attr('align', 'right').text('<?php echo $GLOBALS['locTotalIncludingVAT']?>').appendTo(tr);
-    $('<td/>').addClass('input').attr('align', 'right').text(format_currency(totSumVAT, 2)).appendTo(tr);
+    $('<td/>').addClass('input').attr('align', 'right').text(format_currency(totSumVAT, 2, '<?php echo $GLOBALS['locDecimalSeparator']?>', '<?php echo $GLOBALS['locThousandSeparator']?>')).appendTo(tr);
     $(table).append(tr);
 
     var tr = $('<tr/>').addClass('summary');
     $('<td/>').addClass('input').attr('colspan', '10').attr('align', 'right').text('<?php echo $GLOBALS['locTotalToPay']?>').appendTo(tr);
-    $('<td/>').addClass('input').attr('align', 'right').text(format_currency(totSumVAT + partialPayments, 2)).appendTo(tr);
+    $('<td/>').addClass('input').attr('align', 'right').text(format_currency(totSumVAT + partialPayments, 2, '<?php echo $GLOBALS['locDecimalSeparator']?>', '<?php echo $GLOBALS['locThousandSeparator']?>')).appendTo(tr);
     $(table).append(tr);
 
 <?php
@@ -995,7 +969,7 @@ function popup_editor(event, title, id, copy_row)
                 } else {
                     if (isset($subElem['decimals'])) {
                         ?>
-    form.<?php echo "iform_popup_$name"?>.value = json.<?php echo $name?> ? format_currency(json.<?php echo $name?>, <?php echo $subElem['decimals']?>) : '';
+    form.<?php echo "iform_popup_$name"?>.value = json.<?php echo $name?> ? format_currency(json.<?php echo $name?>, <?php echo $subElem['decimals']?>, '<?php echo $GLOBALS['locDecimalSeparator']?>', '<?php echo $GLOBALS['locThousandSeparator']?>') : '';
 <?php
                     } else {
                         ?>

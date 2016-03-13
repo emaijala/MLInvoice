@@ -2,17 +2,17 @@
 /*******************************************************************************
  MLInvoice: web-based invoicing application.
  Copyright (C) 2010-2015 Ere Maijala
- 
+
  This program is free software. See attached LICENSE.
- 
+
  *******************************************************************************/
 
 /*******************************************************************************
  MLInvoice: web-pohjainen laskutusohjelma.
  Copyright (C) 2010-2015 Ere Maijala
- 
+
  Tämä ohjelma on vapaa. Lue oheinen LICENSE.
- 
+
  *******************************************************************************/
 
 // buffered, so we can redirect later if necessary
@@ -49,88 +49,101 @@ if (!$strFunc && $strForm)
 
 $title = getPageTitle($strFunc, $strList, $strForm);
 
-if ($strFunc == 'system' && getRequest('operation', '') == 'dbdump' && sesAccessLevel(
-    [
-        ROLE_BACKUPMGR, 
-        ROLE_ADMIN
-    ])) {
+if ($strFunc == 'system' && getRequest('operation', '') == 'dbdump'
+    && sesAccessLevel(
+        [
+            ROLE_BACKUPMGR,
+            ROLE_ADMIN
+        ]
+    )
+) {
     create_db_dump();
     exit();
 }
 
-echo htmlPageStart(_PAGE_TITLE_ . " - $title", 
-    getSetting('session_keepalive') ? [
-        'js/keepalive.js'
-    ] : null);
+$extraJs = [];
+if (getSetting('session_keepalive')) {
+    $extraJs[] = 'js/keepalive.js';
+}
+
+if ($strFunc == 'reports') {
+    $extraJs[] = 'datatables/dataTables.buttons.min.js';
+    $extraJs[] = 'datatables/buttons.html5.min.js';
+    $extraJs[] = 'js/jszip.min.js';
+    $extraJs[] = 'js/pdfmake.min.js';
+    $extraJs[] = 'js/vfs_fonts.js';
+}
+
+echo htmlPageStart(_PAGE_TITLE_ . " - $title", $extraJs);
 
 $normalMenuRights = [
-    ROLE_READONLY, 
-    ROLE_USER, 
+    ROLE_READONLY,
+    ROLE_USER,
     ROLE_BACKUPMGR
 ];
 $astrMainButtons = [
     [
-        'name' => 'invoice', 
-        'title' => 'locShowInvoiceNavi', 
-        'action' => 'open_invoices', 
+        'name' => 'invoice',
+        'title' => 'locShowInvoiceNavi',
+        'action' => 'open_invoices',
         'levels_allowed' => [
-            ROLE_READONLY, 
-            ROLE_USER, 
+            ROLE_READONLY,
+            ROLE_USER,
             ROLE_BACKUPMGR
         ]
-    ], 
+    ],
     [
-        'name' => 'archive', 
-        'title' => 'locShowArchiveNavi', 
-        'action' => 'archived_invoices', 
+        'name' => 'archive',
+        'title' => 'locShowArchiveNavi',
+        'action' => 'archived_invoices',
         'levels_allowed' => [
-            ROLE_READONLY, 
-            ROLE_USER, 
+            ROLE_READONLY,
+            ROLE_USER,
             ROLE_BACKUPMGR
         ]
-    ], 
+    ],
     [
-        'name' => 'company', 
-        'title' => 'locShowClientNavi', 
-        'action' => 'companies', 
+        'name' => 'company',
+        'title' => 'locShowClientNavi',
+        'action' => 'companies',
         'levels_allowed' => [
-            ROLE_USER, 
+            ROLE_USER,
             ROLE_BACKUPMGR
         ]
-    ], 
+    ],
     [
-        'name' => 'reports', 
-        'title' => 'locShowReportNavi', 
-        'action' => 'reports', 
+        'name' => 'reports',
+        'title' => 'locShowReportNavi',
+        'action' => 'reports',
         'levels_allowed' => [
-            ROLE_READONLY, 
-            ROLE_USER, 
+            ROLE_READONLY,
+            ROLE_USER,
             ROLE_BACKUPMGR
         ]
-    ], 
+    ],
     [
-        'name' => 'settings', 
-        'title' => 'locShowSettingsNavi', 
-        'action' => 'settings', 
-        'action' => 'settings', 
+        'name' => 'settings',
+        'title' => 'locShowSettingsNavi',
+        'action' => 'settings',
+        'action' => 'settings',
         'levels_allowed' => [
-            ROLE_USER, 
+            ROLE_USER,
             ROLE_BACKUPMGR
         ]
-    ], 
+    ],
     [
-        'name' => 'system', 
-        'title' => 'locShowSystemNavi', 
-        'action' => 'system', 
+        'name' => 'system',
+        'title' => 'locShowSystemNavi',
+        'action' => 'system',
         'levels_allowed' => [
-            ROLE_BACKUPMGR, 
+            ROLE_BACKUPMGR,
             ROLE_ADMIN
         ]
-    ], 
+    ],
     [
-        'name' => 'logout', 
-        'title' => 'locLogout', 
-        'action' => 'logout', 
+        'name' => 'logout',
+        'title' => 'locLogout',
+        'action' => 'logout',
         'levels_allowed' => null
     ]
 ];
@@ -150,7 +163,7 @@ foreach ($astrMainButtons as $button) {
         $strButton .= ' ui-tabs-selected ui-state-active';
     $strButton .= '"><a class="ui-tabs-anchor functionlink" href="?func=' . $button['action'] . '">';
     $strButton .= $GLOBALS[$button['title']] . '</a></li>';
-    
+
     if (!isset($button['levels_allowed']) ||
          sesAccessLevel($button['levels_allowed']) || sesAdminAccess()) {
         echo "      $strButton\n";

@@ -65,7 +65,12 @@ class ProductStockReport
 
         <div class="medium_label"><?php echo $GLOBALS['locPrintFormat']?></div>
         <div class="field">
-            <input type="radio" id="format-html" name="format" value="html" checked="checked"><label for="format-html"><?php echo $GLOBALS['locPrintFormatHTML']?></label>
+            <input type="radio" id="format-table" name="format" value="table" checked="checked">
+            <label for="format-table"><?php echo $GLOBALS['locPrintFormatTable']?></label>
+        </div>
+        <div class="medium_label"></div>
+        <div class="field">
+            <input type="radio" id="format-html" name="format" value="html"><label for="format-html"><?php echo $GLOBALS['locPrintFormatHTML']?></label>
         </div>
         <div class="medium_label"></div>
         <div class="field">
@@ -141,7 +146,8 @@ class ProductStockReport
         }
         ?>
 <div class="report">
-    <table>
+    <table class="report-table<?php echo $format == 'table' ? ' datatable' : '' ?>">
+      <thead>
         <tr>
             <th class="label">
             <?php echo $GLOBALS['locCode']?>
@@ -162,6 +168,8 @@ class ProductStockReport
             <?php echo $GLOBALS['locStockValue']?>
         </th>
         </tr>
+      </thead>
+      <tbody>
 <?php
     }
 
@@ -232,11 +240,17 @@ class ProductStockReport
 
             $pdf = $this->pdf;
             $pdf->SetFont('Helvetica', 'B', 8);
-            $pdf->line($pdf->getX() + $sumPos, $pdf->getY(),
-                $pdf->getX() + $rowWidth, $pdf->getY());
+            $pdf->line(
+                $pdf->getX() + $sumPos, $pdf->getY(),
+                $pdf->getX() + $rowWidth, $pdf->getY()
+            );
             $pdf->setY($pdf->getY() + 1);
             $pdf->Cell($sumPos, 4, $GLOBALS['locTotal'], 0, 0, 'R');
             $pdf->Cell(25, 4, miscRound2Decim($stockValue), 0, 1, 'R');
+            return;
+        }
+
+        if ($format != 'html') {
             return;
         }
 
@@ -264,8 +278,68 @@ class ProductStockReport
             return;
         }
         ?>
+      </tbody>
+      <tfoot>
+        <tr>
+          <td></td>
+          <td></td>
+          <td></td>
+          <td></td>
+          <td></td>
+          <td></td>
+        </tr>
+      </tfoot>
     </table>
 </div>
+        <?php
+        if ($format == 'table') {
+        ?>
+<script type="text/javascript">
+var table = $('.report-table.datatable').DataTable({
+    'language': {
+        <?php echo $GLOBALS['locTableTexts']?>
+    },
+    'pageLength': 50,
+    'jQueryUI': true,
+    'pagingType': 'full_numbers',
+    'footerCallback': function (row, data, start, end, display) {
+        var api = this.api(), data;
+
+        $([5]).each(function(i, column) {
+            // Total over all pages
+            var total = api
+                .column(column)
+                .data()
+                .reduce(function (a, b) {
+                    return intVal(a) + intVal(b);
+                }, 0);
+
+
+            // Total over this page
+            var pageTotal = api
+                .column(column, { page: 'current'})
+                .data()
+                .reduce(function (a, b) {
+                    return intVal(a) + intVal(b);
+                }, 0);
+
+            // Update footer
+            pageTotal = format_currency(pageTotal/100, 2, '<?php echo $GLOBALS['locDecimalSeparator']?>', '<?php echo $GLOBALS['locThousandSeparator']?>');
+            total = format_currency(total/100, 2, '<?php echo $GLOBALS['locDecimalSeparator']?>', '<?php echo $GLOBALS['locThousandSeparator']?>');
+            $(api.column(column).footer()).html('<div style="float: right"><?php echo $GLOBALS['locVisiblePage'] ?>&nbsp;' + pageTotal + '</div><br><div style="float: right"><?php echo $GLOBALS['locTotal'] ?>&nbsp;' + total + '</div>');
+        });
+    }
+});
+
+var buttons = new $.fn.dataTable.Buttons(table, {
+    buttons: [
+        'copy', 'csv', 'excel', 'pdf'
+    ]
+});
+
+table.buttons().container().appendTo($('.fg-toolbar', table.table().container()));
+</script>
 <?php
+        }
     }
 }

@@ -96,89 +96,105 @@ class InvoiceReport
     $('input[class~="hasDateRangePicker"]').each(function() {
       $(this).daterangepicker(<?php echo $GLOBALS['locDateRangePickerOptions']?>);
     });
+
+    $('input[name=format]').click(function() {
+      if ($('input[name=format]:checked').val() == 'table') {
+        $('input[name=grouping]').attr('disabled', 'disabled');
+      } else {
+          $('input[name=grouping]').removeAttr('disabled');
+      }
+    });
   });
   </script>
 
 <div class="form_container ui-widget-content ui-helper-clearfix">
-	<form method="get" id="params" name="params">
-		<input name="func" type="hidden" value="reports"> <input name="form"
-			type="hidden" value="invoice"> <input name="report" type="hidden"
-			value="1">
+    <form method="get" id="params" name="params">
+        <input name="func" type="hidden" value="reports"> <input name="form"
+            type="hidden" value="invoice"> <input name="report" type="hidden"
+            value="1">
 
-		<div class="unlimited_label">
-			<strong><?php echo $GLOBALS['locInvoiceReport']?></strong>
-		</div>
+        <div class="unlimited_label">
+            <strong><?php echo $GLOBALS['locInvoiceReport']?></strong>
+        </div>
 
-		<div style="float: left; clear: both; margin-right: 20px;">
+        <div style="float: left; clear: both; margin-right: 20px;">
 
-			<div class="medium_label"><?php echo $GLOBALS['locInvoiceDateInterval']?></div>
-			<div class="field"><?php echo htmlFormElement('date', 'TEXT', $invoiceDateRange, 'medium hasDateRangePicker', '', 'MODIFY', false)?></div>
+            <div class="medium_label"><?php echo $GLOBALS['locInvoiceDateInterval']?></div>
+            <div class="field"><?php echo htmlFormElement('date', 'TEXT', $invoiceDateRange, 'medium hasDateRangePicker', '', 'MODIFY', false)?></div>
 
-			<div class="medium_label"><?php echo $GLOBALS['locInvoiceRowDateInterval']?></div>
-			<div class="field"><?php echo htmlFormElement('row_date', 'TEXT', $invoiceRowDateRange, 'medium hasDateRangePicker', '', 'MODIFY', false)?></div>
+            <div class="medium_label"><?php echo $GLOBALS['locInvoiceRowDateInterval']?></div>
+            <div class="field"><?php echo htmlFormElement('row_date', 'TEXT', $invoiceRowDateRange, 'medium hasDateRangePicker', '', 'MODIFY', false)?></div>
 
-			<div class="medium_label"><?php echo $GLOBALS['locPaymentDateInterval']?></div>
-			<div class="field"><?php echo htmlFormElement('payment_date', 'TEXT', $paymentDateRange, 'medium hasDateRangePicker', '', 'MODIFY', false)?></div>
+            <div class="medium_label"><?php echo $GLOBALS['locPaymentDateInterval']?></div>
+            <div class="field"><?php echo htmlFormElement('payment_date', 'TEXT', $paymentDateRange, 'medium hasDateRangePicker', '', 'MODIFY', false)?></div>
 
-			<div class="medium_label"><?php echo $GLOBALS['locBiller']?></div>
-			<div class="field"><?php echo htmlFormElement('base', 'LIST', $intBaseId, 'medium', 'SELECT id, name FROM {prefix}base WHERE deleted=0 ORDER BY name', 'MODIFY', false)?></div>
+            <div class="medium_label"><?php echo $GLOBALS['locBiller']?></div>
+            <div class="field"><?php echo htmlFormElement('base', 'LIST', $intBaseId, 'medium', 'SELECT id, name FROM {prefix}base WHERE deleted=0 ORDER BY name', 'MODIFY', false)?></div>
 
-			<div class="medium_label"><?php echo $GLOBALS['locClient']?></div>
-			<div class="field"><?php echo htmlFormElement('company', 'LIST', $intCompanyId, 'medium', 'SELECT id, company_name FROM {prefix}company WHERE deleted=0 ORDER BY company_name', 'MODIFY', false)?></div>
+            <div class="medium_label"><?php echo $GLOBALS['locClient']?></div>
+            <div class="field"><?php echo htmlFormElement('company', 'LIST', $intCompanyId, 'medium', 'SELECT id, company_name FROM {prefix}company WHERE deleted=0 ORDER BY company_name', 'MODIFY', false)?></div>
 
-			<div class="medium_label"><?php echo $GLOBALS['locPrintFormat']?></div>
-			<div class="field">
-				<input type="radio" id="format-html" name="format" value="html"
-					<?php if ($format == 'html') echo ' checked="checked"'?>><label for="format-html"><?php echo $GLOBALS['locPrintFormatHTML']?></label></div>
-			<div class="medium_label"></div>
-			<div class="field">
-				<input type="radio" id="format-pdf" name="format" value="pdf"
-					<?php if ($format == 'pdf') echo ' checked="checked"'?>><label for="format-pdf"><?php echo $GLOBALS['locPrintFormatPDF']?></label></div>
-			<div class="medium_label"></div>
-			<div class="field">
-				<input type="radio" id="format-pdfl" name="format" value="pdfl"
-					<?php if ($format == 'pdfl') echo ' checked="checked"'?>><label for="format-pdfl"><?php echo $GLOBALS['locPrintFormatPDFLandscape']?></label></div>
-			<div class="field_sep"></div>
+            <div class="medium_label"><?php echo $GLOBALS['locPrintFormat']?></div>
+            <div class="field">
+                <input type="radio" id="format-html" name="format" value="html" <?php if ($format == 'html') echo ' checked="checked"'?>>
+                <label for="format-html"><?php echo $GLOBALS['locPrintFormatHTML']?></label>
+            </div>
+            <div class="medium_label"></div>
+            <div class="field">
+                <input type="radio" id="format-table" name="format" value="table" <?php if ($format == 'table') echo ' checked="checked"'?>>
+                <label for="format-table"><?php echo $GLOBALS['locPrintFormatTable']?></label>
+            </div>
+            <div class="medium_label"></div>
+            <div class="field">
+                <input type="radio" id="format-pdf" name="format" value="pdf" <?php if ($format == 'pdf') echo ' checked="checked"'?>>
+                <label for="format-pdf"><?php echo $GLOBALS['locPrintFormatPDF']?></label>
+            </div>
+            <div class="medium_label"></div>
+            <div class="field">
+                <input type="radio" id="format-pdfl" name="format" value="pdfl" <?php if ($format == 'pdfl') echo ' checked="checked"'?>>
+                <label for="format-pdfl"><?php echo $GLOBALS['locPrintFormatPDFLandscape']?></label>
+            </div>
+            <div class="field_sep"></div>
 
-			<div class="medium_label"><?php echo $GLOBALS['locInvoiceRowTypes']?></div>
-			<div class="field">
-				<input type="radio" id="row-type-all" name="row_types" value="all"
-					<?php if ($rowTypes == 'all') echo ' checked="checked"'?>><label for="row-type-all"><?php echo $GLOBALS['locPrintInvoiceRowTypeAll']?></label></div>
-			<div class="medium_label"></div>
-			<div class="field">
-				<input type="radio" id="row-type-normal" name="row_types" value="normal"
-					<?php if ($rowTypes == 'normal') echo ' checked="checked"'?>><label for="row-type-normal"><?php echo $GLOBALS['locPrintInvoiceRowTypeNormal']?></label></div>
-			<div class="medium_label"></div>
-			<div class="field">
-				<input type="radio" id="row-type-reminder" name="row_types" value="reminder"
-					<?php if ($rowTypes == 'reminder') echo ' checked="checked"'?>><label for="row-type-reminder"><?php echo $GLOBALS['locPrintInvoiceRowTypeReminder']?></label></div>
-			<div class="field_sep"></div>
+            <div class="medium_label"><?php echo $GLOBALS['locInvoiceRowTypes']?></div>
+            <div class="field">
+                <input type="radio" id="row-type-all" name="row_types" value="all"
+                    <?php if ($rowTypes == 'all') echo ' checked="checked"'?>><label for="row-type-all"><?php echo $GLOBALS['locPrintInvoiceRowTypeAll']?></label></div>
+            <div class="medium_label"></div>
+            <div class="field">
+                <input type="radio" id="row-type-normal" name="row_types" value="normal"
+                    <?php if ($rowTypes == 'normal') echo ' checked="checked"'?>><label for="row-type-normal"><?php echo $GLOBALS['locPrintInvoiceRowTypeNormal']?></label></div>
+            <div class="medium_label"></div>
+            <div class="field">
+                <input type="radio" id="row-type-reminder" name="row_types" value="reminder"
+                    <?php if ($rowTypes == 'reminder') echo ' checked="checked"'?>><label for="row-type-reminder"><?php echo $GLOBALS['locPrintInvoiceRowTypeReminder']?></label></div>
+            <div class="field_sep"></div>
 
-			<div class="medium_label"><?php echo $GLOBALS['locPrintGrouping']?></div>
-			<div class="field">
-				<input type="radio" id="grouping-none" name="grouping" value=""
-					<?php if ($grouping == '') echo ' checked="checked"'?>><label for="grouping-none"><?php echo $GLOBALS['locPrintGroupingNone']?></label></div>
-			<div class="medium_label"></div>
-			<div class="field">
-				<input type="radio" id="grouping-state" name="grouping" value="state"
-					<?php if ($grouping == 'state') echo ' checked="checked"'?>><label for="grouping-state"><?php echo $GLOBALS['locPrintGroupingState']?></label></div>
-			<div class="medium_label"></div>
-			<div class="field">
-				<input type="radio" id="grouping-month" name="grouping" value="month"
-					<?php if ($grouping == 'month') echo ' checked="checked"'?>><label for="grouping-month"><?php echo $GLOBALS['locPrintGroupingMonth']?></label></div>
-			<div class="medium_label"></div>
-			<div class="field">
-				<input type="radio" id="grouping-client" name="grouping" value="client"
-					<?php if ($grouping == 'client') echo ' checked="checked"'?>><label for="grouping-client"><?php echo $GLOBALS['locPrintGroupingClient']?></label></div>
-			<div class="medium_label"></div>
-			<div class="field">
-				<input type="radio" id="grouping-vat" name="grouping" value="vat"
-					<?php if ($grouping == 'vat') echo ' checked="checked"'?>><label for="grouping-vat"><?php echo $GLOBALS['locPrintGroupingVAT']?></label></div>
-			<div class="field_sep">&nbsp;</div>
+            <div class="medium_label"><?php echo $GLOBALS['locPrintGrouping']?></div>
+            <div class="field">
+                <input type="radio" id="grouping-none" name="grouping" value=""
+                    <?php if ($grouping == '') echo ' checked="checked"'?>><label for="grouping-none"><?php echo $GLOBALS['locPrintGroupingNone']?></label></div>
+            <div class="medium_label"></div>
+            <div class="field">
+                <input type="radio" id="grouping-state" name="grouping" value="state"
+                    <?php if ($grouping == 'state') echo ' checked="checked"'?>><label for="grouping-state"><?php echo $GLOBALS['locPrintGroupingState']?></label></div>
+            <div class="medium_label"></div>
+            <div class="field">
+                <input type="radio" id="grouping-month" name="grouping" value="month"
+                    <?php if ($grouping == 'month') echo ' checked="checked"'?>><label for="grouping-month"><?php echo $GLOBALS['locPrintGroupingMonth']?></label></div>
+            <div class="medium_label"></div>
+            <div class="field">
+                <input type="radio" id="grouping-client" name="grouping" value="client"
+                    <?php if ($grouping == 'client') echo ' checked="checked"'?>><label for="grouping-client"><?php echo $GLOBALS['locPrintGroupingClient']?></label></div>
+            <div class="medium_label"></div>
+            <div class="field">
+                <input type="radio" id="grouping-vat" name="grouping" value="vat"
+                    <?php if ($grouping == 'vat') echo ' checked="checked"'?>><label for="grouping-vat"><?php echo $GLOBALS['locPrintGroupingVAT']?></label></div>
+            <div class="field_sep">&nbsp;</div>
 
-		</div>
-		<div style="float: left; margin-right: 20px;">
-			<div class="medium_label"><?php echo $GLOBALS['locPrintReportStates']?></div>
+        </div>
+        <div style="float: left; margin-right: 20px;">
+            <div class="medium_label"><?php echo $GLOBALS['locPrintReportStates']?></div>
 <?php
         $strQuery = 'SELECT id, name ' . 'FROM {prefix}invoice_state WHERE deleted=0 ' .
              'ORDER BY order_no';
@@ -540,8 +556,9 @@ class InvoiceReport
         }
         ?>
 <div class="report">
-	<table>
-		<tr>
+    <table class="report-table<?php echo $format == 'table' ? ' datatable' : '' ?>">
+      <thead>
+        <tr>
       <?php if (in_array('invoice_no', $printFields)) {?>
         <th class="label">
             <?php echo $GLOBALS['locInvoiceNumber']?>
@@ -606,6 +623,8 @@ class InvoiceReport
         </th>
         <?php } ?>
     </tr>
+    </thead>
+    <tbody>
 <?php
     }
 
@@ -779,6 +798,10 @@ class InvoiceReport
             return;
         }
 
+        if ($format != 'html') {
+            return;
+        }
+
         $colSpan = 0;
         if (in_array('invoice_no', $printFields)) {
             ++$colSpan;
@@ -907,28 +930,11 @@ class InvoiceReport
             return;
         }
 
-        $colSpan = 0;
-        if (in_array('invoice_no', $printFields)) {
-            ++$colSpan;
+        if ($format != 'html') {
+            return;
         }
-        if (in_array('invoice_date', $printFields)) {
-            ++$colSpan;
-        }
-        if (in_array('due_date', $printFields)) {
-            ++$colSpan;
-        }
-        if (in_array('payment_date', $printFields)) {
-            ++$colSpan;
-        }
-        if (in_array('company_name', $printFields)) {
-            ++$colSpan;
-        }
-        if (in_array('status', $printFields)) {
-            ++$colSpan;
-        }
-        if (in_array('ref_number', $printFields)) {
-            ++$colSpan;
-        }
+
+        $colSpan = $this->getSumStartCol($printFields);
         ?>
     <tr>
     <?php if ($colSpan > 0) { ?>
@@ -982,9 +988,98 @@ class InvoiceReport
             $pdf->Output('report.pdf', 'I');
             return;
         }
+        $sumStartCol = $this->getSumStartCol($printFields);
         ?>
+        </tbody>
+        <tfoot>
+          <tr>
+            <?php
+            for ($i = 0; $i < $sumStartCol + 4; $i++) {
+                echo "<td></td>\n";
+            }
+            ?>
+          </tr>
+        </tfoot>
     </table>
 </div>
+        <?php
+        if ($format == 'table') {
+            $sumColumns = [$sumStartCol, $sumStartCol + 1, $sumStartCol + 2, $sumStartCol + 3];
+        ?>
+<script type="text/javascript">
+var table = $('.report-table.datatable').DataTable({
+    'language': {
+        <?php echo $GLOBALS['locTableTexts']?>
+    },
+    'pageLength': 50,
+    'jQueryUI': true,
+    'pagingType': 'full_numbers',
+    'footerCallback': function (row, data, start, end, display) {
+        var api = this.api(), data;
+
+        $([<?php echo implode(', ', $sumColumns)?>]).each(function(i, column) {
+            // Total over all pages
+            var total = api
+                .column(column)
+                .data()
+                .reduce(function (a, b) {
+                    return intVal(a) + intVal(b);
+                }, 0);
+
+
+            // Total over this page
+            var pageTotal = api
+                .column(column, { page: 'current'})
+                .data()
+                .reduce(function (a, b) {
+                    return intVal(a) + intVal(b);
+                }, 0);
+
+            // Update footer
+            pageTotal = format_currency(pageTotal/100, 2, '<?php echo $GLOBALS['locDecimalSeparator']?>', '<?php echo $GLOBALS['locThousandSeparator']?>');
+            total = format_currency(total/100, 2, '<?php echo $GLOBALS['locDecimalSeparator']?>', '<?php echo $GLOBALS['locThousandSeparator']?>');
+            $(api.column(column).footer()).html('<div style="float: right"><?php echo $GLOBALS['locVisiblePage'] ?>&nbsp;' + pageTotal + '</div><br><div style="float: right"><?php echo $GLOBALS['locTotal'] ?>&nbsp;' + total + '</div>');
+        });
+    }
+});
+
+var buttons = new $.fn.dataTable.Buttons(table, {
+    buttons: [
+        'copy', 'csv', 'excel', 'pdf'
+    ]
+});
+
+table.buttons().container().appendTo($('.fg-toolbar', table.table().container()));
+</script>
 <?php
+        }
+    }
+
+    protected function getSumStartCol($printFields)
+    {
+        $startCol = 0;
+        if (in_array('invoice_no', $printFields)) {
+            ++$startCol;
+        }
+        if (in_array('invoice_date', $printFields)) {
+            ++$startCol;
+        }
+        if (in_array('due_date', $printFields)) {
+            ++$startCol;
+        }
+        if (in_array('payment_date', $printFields)) {
+            ++$startCol;
+        }
+        if (in_array('company_name', $printFields)) {
+            ++$startCol;
+        }
+        if (in_array('status', $printFields)) {
+            ++$startCol;
+        }
+        if (in_array('ref_number', $printFields)) {
+            ++$startCol;
+        }
+
+        return $startCol;
     }
 }
