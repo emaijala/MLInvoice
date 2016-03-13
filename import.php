@@ -18,6 +18,15 @@ require_once 'localize.php';
 require_once 'miscfuncs.php';
 require_once 'settings.php';
 
+/**
+ * Base class for import functions
+ *
+ * @category MLInvoice
+ * @package  MLInvoice\Import
+ * @author   Ere Maijala <ere@labs.fi>
+ * @license  https://opensource.org/licenses/GPL-2.0 GNU Public License 2.0
+ * @link     http://github.com/emaijala/MLInvoice
+ */
 class ImportFile
 {
     protected $tableName = '';
@@ -29,6 +38,58 @@ class ImportFile
     protected $presets = [];
     protected $requireDuplicateCheck = true;
 
+    /**
+     * Settings for fixed width file import (format=fixed). Keyed array:
+     *
+     * [
+     *     ['name' => 'heading', 'len' => 7, 'filter' => [3, 'ok']],
+     *     ['name' => 'heading2', 'len' => 10]
+     * ]
+     *
+     * @var array
+     */
+    protected $fixedWidthSettings = [];
+
+    /**
+     * Name of the fixed-width format
+     *
+     * @var string
+     */
+    protected $fixedWidthName = 'Fixed';
+
+    /**
+     * Available character sets
+     */
+    protected $charsets = [
+		'UTF-8',
+        'ISO-8859-1',
+		'ISO-8859-15',
+		'Windows-1251',
+		'UTF-16',
+		'UTF-16LE',
+		'UTF-16BE'
+    ];
+
+    /**
+     * Available date formats
+     */
+    protected $dateFormats = [
+        'd.m.Y',
+        'd-m-Y',
+        'd/m/Y',
+        'Y.m.d',
+        'Y-m-d',
+        'Y/m/d',
+        'm.d.Y',
+        'm-d-Y',
+        'm/d/Y',
+        'ymd'
+    ];
+
+
+    /**
+     * Constructor
+     */
     public function __construct()
     {
     }
@@ -122,6 +183,7 @@ class ImportFile
         }
 
         header('Content-Type: application/json');
+        $response = [];
 
         if ($format == 'csv') {
             $fp = fopen($_SESSION['import_file'], 'r');
@@ -284,6 +346,46 @@ class ImportFile
                 'headings' => $headings,
                 'rows' => $rows
             ];
+        } elseif ($format == 'fixed') {
+            $data = file_get_contents($_SESSION['import_file']);
+
+            if ($charset != _CHARSET_) {
+                $data = iconv($charset, _CHARSET_, $data);
+            }
+            $recNum = 0;
+            $rows = [];
+            foreach (explode("\n", $data) as $line) {
+                if (++$recNum > 10) {
+                    break;
+                }
+                $line = trim($line, "\r");
+                $pos = 0;
+                $row = [];
+                foreach ($this->fixedWidthSettings as $column) {
+                    $value = substr($line, $pos, $column['len']);
+                    if (!empty($column['filter'])
+                        && !in_array($value, $column['filter'])
+                    ) {
+                        // Ignore line
+                        continue 2;
+                    }
+                    $row[] = $value;
+                    $pos += $column['len'];
+                }
+                $rows[] = $row;
+            }
+            $headings = array_map(
+                function ($row) {
+                    return $row['name'];
+                },
+                $this->fixedWidthSettings
+            );
+
+            $response = [
+                'errors' => [],
+                'headings' => $headings,
+                'rows' => $rows
+            ];
         }
         echo json_encode($response);
     }
@@ -350,21 +452,6 @@ class ImportFile
         ];
     }
 
-    public function get_date_formats()
-    {
-        return [
-            'd.m.Y',
-            'd-m-Y',
-            'd/m/Y',
-            'Y.m.d',
-            'Y-m-d',
-            'Y/m/d',
-            'm.d.Y',
-            'm-d-Y',
-            'm/d/Y'
-        ];
-    }
-
     protected function add_custom_form_fields()
     {
     }
@@ -394,6 +481,8 @@ class ImportFile
         fclose($fp);
 
         $charset = 'UTF-8';
+        $dateFormat = $this->dateFormats[0];
+        $decimalSeparator = $GLOBALS['locDecimalSeparator'];
 
         if ($bytesRead > 3) {
             if (ord($data[0]) == 0xFE && ord($data[1]) == 0xFF) {
@@ -415,6 +504,9 @@ class ImportFile
             $format = 'xml';
         } elseif (strtolower(substr(ltrim($data), 0, 1)) == '{') {
             $format = 'json';
+        } elseif ($this->fixedWidthSettings && $this->getDelimiterCount($data) == 0
+        ) {
+            $format = 'fixed';
         } else {
             $format = 'csv';
 
@@ -567,7 +659,7 @@ function add_column()
 
 function settings_changed()
 {
-  $("#preset").val(0);
+  $("#preset").val('');
 }
 
 function update_mapping_table()
@@ -633,7 +725,7 @@ function update_mapping_table()
 function add_mapping_columns(headings)
 {
   var type = document.getElementById('format').value;
-  if (type != 'csv')
+  if (type != 'csv' && type != 'fixed')
     return;
   var table = document.getElementById("sel_table").value;
   $.getJSON("json.php?func=get_table_columns&table=" + table, function(json) {
@@ -694,6 +786,7 @@ function select_preset()
       $.each(preset['values'], function(element, value) {
         $('#' + element).val(value);
       });
+      update_field_states();
       update_mapping_table();
     }
   });
@@ -703,54 +796,62 @@ function select_preset()
 
 <div class="form_container">
 	<h1><?php echo $GLOBALS['locImportFileParameters']?></h1>
-	<span id="imessage" style="display: none"></span> <span id="spinner"
-		style="visibility: hidden"><img src="images/spinner.gif" alt=""></span>
+    <span id="imessage" style="display: none"></span> <span id="spinner"
+	   style="visibility: hidden"><img src="images/spinner.gif" alt=""></span>
 	<form id="import_form" name="import_form" method="GET">
-		<input type="hidden" name="func" value="<?php echo htmlentities(getRequest('func', ''))?>">
-	    <input type="hidden" name="operation" value="import">
-<?php if ($this->presets) { ?>
-      <div class="medium_label"><?php echo $GLOBALS['locImportExportPreset']?></div>
+        <input type="hidden" name="func" value="<?php echo htmlentities(getRequest('func', ''))?>">
+        <input type="hidden" name="operation" value="import">
+    <?php
+    if ($this->presets) {
+        $presets = $this->presets;
+        $selectedPreset = null;
+        array_unshift($presets, ['name' => $GLOBALS['locImportExportPresetNone'], 'value' => '']);
+        foreach ($presets as $preset) {
+            if (isset($preset['default_for']) && $format == $preset['default_for']) {
+                $selectedPreset = $preset;
+                if (isset($preset['selections']['charset'])) {
+                    $charset = $this->charsets[$preset['selections']['charset']];
+                }
+                if (isset($preset['selections']['date_format'])) {
+                    $dateFormat = $this->dateFormats[$preset['selections']['date_format']];
+                }
+                if (isset($preset['values']['decimal_separator'])) {
+                    $decimalSeparator = $preset['values']['decimal_separator'];
+                }
+                break;
+            }
+        }
+    ?>
+        <div class="medium_label"><?php echo $GLOBALS['locImportExportPreset']?></div>
 		<div class="field">
 			<select id="preset" name="preset" onchange="select_preset()">
-				<option value="" selected="selected"><?php echo $GLOBALS['locImportExportPresetNone']?></option>
-<?php
+            <?php
             foreach ($this->presets as $preset) {
-                echo "<option value=\"${preset['name']}\">" . $preset['name'] .
-                     "</option>\n";
+                echo "<option value=\"${preset['value']}\""
+                    . ($selectedPreset['value'] == $preset['value'] ? ' selected="selected"' : '')
+                    . '>' . $preset['name'] . "</option>\n";
             }
             ?>
         </select>
-		</div>
-<?php } ?>
+    </div>
+    <?php
+    }
+    ?>
 
-      <div class="medium_label"><?php echo $GLOBALS['locImportExportCharacterSet']?></div>
+    <div class="medium_label"><?php echo $GLOBALS['locImportExportCharacterSet']?></div>
 		<div class="field">
-			<select id="charset" name="charset"
-				onchange="settings_changed(); update_mapping_table()">
-				<option value="UTF-8"
-					<?php if ($charset == 'UTF-8') echo ' selected="selected"'?>>UTF-8</option>
-				<option value="ISO-8859-1"
-					<?php if ($charset == 'ISO-8859-1') echo ' selected="selected"'?>>ISO-8859-1</option>
-				<option value="ISO-8859-15"
-					<?php if ($charset == 'ISO-8859-15') echo ' selected="selected"'?>>ISO-8859-15</option>
-				<option value="Windows-1251"
-					<?php if ($charset == 'Windows-1251') echo ' selected="selected"'?>>Windows-1251</option>
-				<option value="UTF-16"
-					<?php if ($charset == 'UTF-16') echo ' selected="selected"'?>>UTF-16</option>
-				<option value="UTF-16LE"
-					<?php if ($charset == 'UTF-16LE') echo ' selected="selected"'?>>UTF-16
-					LE</option>
-				<option value="UTF-16BE"
-					<?php if ($charset == 'UTF-16BE') echo ' selected="selected"'?>>UTF-16
-					BE</option>
+			<select id="charset" name="charset" onchange="settings_changed(); update_mapping_table()">
+            <?php foreach ($this->charsets as $value) { ?>
+                <option value="<?php echo $value ?>"<?php if ($value == $charset) echo ' selected="selected"'?>><?php echo $value ?></option>
+            <?php } ?>
 			</select>
 		</div>
-<?php
+        <?php
         if ($this->tableName) {
             ?>
       <input id="sel_table" name="table" type="hidden"
 			value="<?php echo htmlentities($this->tableName)?>"></input>
-<?php
+        <?php
         } else {
             ?>
       <div class="medium_label"><?php echo $GLOBALS['locImportExportTable']?></div>
@@ -767,7 +868,7 @@ function select_preset()
 				<option value="invoice_state"><?php echo $GLOBALS['locImportExportTableInvoiceStates']?></option>
 			</select>
 		</div>
-<?php
+        <?php
         }
         ?>
 
@@ -775,12 +876,15 @@ function select_preset()
 		<div class="field">
 			<select id="format" name="format"
 				onchange="update_field_states(); reset_columns(); settings_changed(); update_mapping_table()">
-				<option value="csv"
-					<?php if ($format == 'csv') echo ' selected="selected"'?>>CSV</option>
-				<option value="xml"
-					<?php if ($format == 'xml') echo ' selected="selected"'?>>XML</option>
-				<option value="json"
-					<?php if ($format == 'json') echo ' selected="selected"'?>>JSON</option>
+				<option value="csv"<?php if ($format == 'csv') echo ' selected="selected"'?>>CSV</option>
+				<option value="xml"<?php if ($format == 'xml') echo ' selected="selected"'?>>XML</option>
+				<option value="json"<?php if ($format == 'json') echo ' selected="selected"'?>>JSON</option>
+        <?php
+        if ($this->fixedWidthSettings) { ?>
+				<option value="fixed"<?php if ($format == 'fixed') echo ' selected="selected"'?>><?php echo $this->fixedWidthName ?></option>
+        <?php
+        }
+        ?>
 			</select>
 		</div>
 
@@ -788,7 +892,7 @@ function select_preset()
 		<div class="field">
 			<select id="field_delim" name="field_delim"
 				onchange="settings_changed(); update_mapping_table()">
-<?php
+        <?php
         $field_delims = $this->get_field_delims();
         foreach ($field_delims as $key => $delim) {
             $selected = (isset($field_delim) && $field_delim['name'] ==
@@ -803,7 +907,7 @@ function select_preset()
 		<div class="field">
 			<select id="enclosure_char" name="enclosure_char"
 				onchange="settings_changed(); update_mapping_table()">
-<?php
+        <?php
         $enclosure_chars = $this->get_enclosure_chars();
         foreach ($enclosure_chars as $key => $delim) {
             $selected = (isset($enclosure_char) &&
@@ -818,7 +922,7 @@ function select_preset()
 		<div class="field">
 			<select id="row_delim" name="row_delim"
 				onchange="settings_changed(); update_mapping_table()">
-<?php
+        <?php
         $row_delims = $this->get_row_delims();
         foreach ($row_delims as $key => $delim) {
             $selected = (isset($row_delim) && $row_delim['name'] == $delim['name']) ? ' selected="selected"' : '';
@@ -828,28 +932,29 @@ function select_preset()
         </select>
 		</div>
 
-<?php if ($this->dateFormat) {?>
-      <div class="medium_label"><?php echo $GLOBALS['locImportExportDateFormat']?></div>
+        <?php
+        if ($this->dateFormat) {?>
+        <div class="medium_label"><?php echo $GLOBALS['locImportExportDateFormat']?></div>
 		<div class="field">
 			<select id="date_format" name="date_format"
 				onchange="settings_changed()">
-<?php
-            $selected = ' selected="selected"';
-            foreach ($this->get_date_formats() as $fmt) {
-                ?>
-          <option value="<?php echo $fmt?>" <?php echo $selected?>><?php echo $fmt?></option>
-<?php
-                $selected = '';
+            <?php
+            foreach ($this->dateFormats as $fmt) {
+            ?>
+          <option value="<?php echo $fmt?>" <?php if ($fmt == $dateFormat) echo 'selected="selected"' ?>><?php echo $fmt?></option>
+            <?php
             }
             ?>
           </select>
 		</div>
-<?php } ?>
+        <?php
+        }
+        ?>
 
       <div class="medium_label"><?php echo $GLOBALS['locImportDecimalSeparator']?></div>
 		<div class="field">
 			<input id="decimal_separator" name="decimal_separator" maxlength="1"
-				value="<?php echo htmlentities($GLOBALS['locDecimalSeparator'])?>"
+				value="<?php echo htmlentities($decimalSeparator)?>"
 				onchange="settings_changed()"></input>
 		</div>
 
@@ -1018,15 +1123,19 @@ function select_preset()
             }
 
             foreach ($childColumns as $column => $value) {
-                if (!isset($field_defs[$childTable][$column]))
+                if (!isset($field_defs[$childTable][$column])) {
                     die(
                         "Invalid column name: $childTable." .
-                             htmlspecialchars($column));
+                        htmlspecialchars($column)
+                    );
+                }
             }
             $childDupColumns = [];
             $addedChildRecordId = null;
-            $result = $this->process_import_row($childTable, $childColumns,
-                $duplicateMode, $childDupColumns, $importMode, $addedChildrecordId);
+            $result = $this->process_import_row(
+                $childTable, $childColumns, $duplicateMode, $childDupColumns,
+                $importMode, $addedChildrecordId
+            );
             echo "    &nbsp; Child Record $childNum: $result<br>\n";
         }
     }
@@ -1297,7 +1406,59 @@ function select_preset()
                 }
                 ob_flush();
             }
+        } elseif ($format == 'fixed') {
+            $data = file_get_contents($_SESSION['import_file']);
+
+            if ($charset != _CHARSET_) {
+                $data = iconv($charset, _CHARSET_, $data);
+            }
+
+            $rowNum = 0;
+            foreach (explode("\n", $data) as $line) {
+                $line = trim($line, "\r");
+                $pos = 0;
+                $row = [];
+                foreach ($this->fixedWidthSettings as $column) {
+                    $value = substr($line, $pos, $column['len']);
+                    if (!empty($column['filter'])
+                        && !in_array($value, $column['filter'])
+                    ) {
+                        // Ignore line
+                        continue 2;
+                    }
+                    $row[] = $value;
+                    $pos += $column['len'];
+                }
+
+                ++$rowNum;
+                $mapped_row = [];
+                $haveMappings = false;
+                for ($i = 0; $i < count($row); $i ++) {
+                    if ($columnMappings[$i]) {
+                        $haveMappings = true;
+                        $mapped_row[$columnMappings[$i]] = $row[$i];
+                    }
+                }
+                if (!$haveMappings) {
+                    if (!$this->ignoreEmptyRows) {
+                        echo "    Row $rowNum: " .
+                             $GLOBALS['locImportNoMappedColumns'] . "<br>\n";
+                    }
+                } else {
+                    $addedRecordId = null;
+                    $result = $this->process_import_row(
+                        $table, $mapped_row, $duplicateMode, $duplicateCheckColumns,
+                        $importMode, $addedRecordId
+                    );
+                    if ($result) {
+                        echo $GLOBALS['locImportRow'] . " $rowNum: " .
+                             htmlspecialchars($result) . "<br>\n";
+                    }
+                }
+                ob_flush();
+            }
         }
+
         echo '    ' . $GLOBALS['locImportDone'] . "\n";
         ?>
     </div>
@@ -1308,4 +1469,21 @@ function select_preset()
     {
         return table_valid($table);
     }
+
+    /**
+     * Return the count of field delimiters in the given data piece
+     *
+     * @param string $data Data
+     *
+     * @return int
+     */
+    protected function getDelimiterCount($data)
+    {
+        $count = 0;
+        foreach ($this->get_field_delims() as $key => $value) {
+            $count += substr_count($data, $value['char']);
+        }
+        return $count;
+    }
+
 }

@@ -223,8 +223,13 @@ case 'get_table_columns' :
                 [
                     'id' => 'refnr',
                     'name' => $GLOBALS['locImportStatementRefNr']
+                ],
+                [
+                    'id' => 'correction',
+                    'name' => $GLOBALS['locImportStatementCorrectionRow']
                 ]
-            ]);
+            ]
+        );
         echo "\n}";
         exit();
     }

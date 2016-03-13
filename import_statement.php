@@ -16,9 +16,20 @@
  *******************************************************************************/
 require_once 'import.php';
 
+/**
+ * Account statement import
+ *
+ * @category MLInvoice
+ * @package  MLInvoice\Import
+ * @author   Ere Maijala <ere@labs.fi>
+ * @license  https://opensource.org/licenses/GPL-2.0 GNU Public License 2.0
+ * @link     http://github.com/emaijala/MLInvoice
+ */
 class ImportStatement extends ImportFile
 {
-
+    /**
+     * Constructor
+     */
     public function __construct()
     {
         parent::__construct();
@@ -33,6 +44,7 @@ class ImportStatement extends ImportFile
         $this->presets = [
             [
                 'name' => 'Osuuspankki',
+                'value' => 'Osuuspankki',
                 'selections' => [
                     'charset' => 1,
                     'format' => 0,
@@ -53,6 +65,7 @@ class ImportStatement extends ImportFile
             ],
             [
                 'name' => 'Nordea',
+                'value' => 'Nordea',
                 'selections' => [
                     'charset' => 0,
                     'format' => 0,
@@ -70,8 +83,45 @@ class ImportStatement extends ImportFile
                     'decimal_separator' => ',',
                     'skip_rows' => '1'
                 ]
+            ],
+            [
+                'name' => 'KTL',
+                'value' => 'KTL',
+                'default_for' => 'fixed',
+                'selections' => [
+                    'charset' => 1,
+                    'format' => 3,
+                    'date_format' => 9
+                ],
+                'mappings' => [
+                    'map_column3' => 1,
+                    'map_column5' => 3,
+                    'map_column9' => 2,
+                    'map_column10' => 4
+                ],
+                'values' => [
+                    'decimal_separator' => '',
+                    'skip_rows' => '0'
+                ]
             ]
         ];
+
+        $this->fixedWidthSettings = [
+            ['name' => 'record_id', 'len' => 1, 'filter' => [3]],
+            ['name' => 'account_nr', 'len' => 14],
+            ['name' => 'entry_date', 'len' => 6],
+            ['name' => 'date', 'len' => 6],
+            ['name' => 'archival_id', 'len' => 16],
+            ['name' => 'refnr', 'len' => 20],
+            ['name' => 'payer', 'len' => 12],
+            ['name' => 'currency', 'len' => 1, 'filter' => [1]],
+            ['name' => 'name_source', 'len' => 1],
+            ['name' => 'amount', 'len' => 10],
+            ['name' => 'correction', 'len' => 1],
+            ['name' => 'relaying_method', 'len' => 1],
+            ['name' => 'response_code', 'len' => 1]
+        ];
+        $this->fixedWidthName = 'KTL';
     }
 
     protected function add_custom_form_fields()
@@ -97,7 +147,8 @@ class ImportStatement extends ImportFile
         return [
             'date' => true,
             'amount' => true,
-            'refnr' => true
+            'refnr' => true,
+            'correction' => true
         ];
     }
 
@@ -107,17 +158,20 @@ class ImportStatement extends ImportFile
     }
 
     protected function process_import_row($table, $row, $dupMode, $dupCheckColumns,
-        $mode, &$addedRecordId)
-    {
+        $mode, &$addedRecordId
+    ) {
         if (!isset($row['date']) || !isset($row['amount']) || !isset($row['refnr'])) {
             return $GLOBALS['locImportStatementFieldMissing'];
         }
 
         $refnr = str_replace(' ', '', $row['refnr']);
         $refnr = ltrim($refnr, '0');
-        $date = date('Ymd',
-            DateTime::createFromFormat(getRequest('date_format', 'd.m.Y'),
-                $row['date'])->getTimestamp());
+        $date = date(
+            'Ymd',
+            DateTime::createFromFormat(
+                getRequest('date_format', 'd.m.Y'), $row['date']
+            )->getTimestamp()
+        );
         $amount = trim($row['amount']);
         if (substr($amount, 0, 1) == '-') {
             return;
@@ -125,17 +179,31 @@ class ImportStatement extends ImportFile
         if (substr($amount, 0, 1) == '+') {
             $amount = substr($amount, 1);
         }
+
         $sep = getRequest('decimal_separator', ',');
         if ($sep == ' ' || $sep == ',') {
             $amount = str_replace('.', '', $amount);
             $amount = str_replace($sep, '.', $amount);
         } elseif ($sep == '.') {
             $amount = str_replace(',', '', $amount);
+        } elseif ($sep == '') {
+            $amount /= 100;
         }
         $amount = floatval($amount);
 
-        if ($row['refnr'] === '') {
+        if ($refnr === '') {
             return $GLOBALS['locImportStatementFieldMissing'];
+        }
+
+        $format = getRequest('format', '');
+        if ($format == 'fixed' && isset($row['correction']) && $row['correction']) {
+            $msg = str_replace(
+                '{refnr}', $refnr, $GLOBALS['locImportStatementNoCorrections']
+            );
+            $msg = str_replace(
+                '{statementAmount}', miscRound2Decim($amount), $msg
+            );
+            return $msg;
         }
 
         $sql = 'SELECT i.*, ist.invoice_unpaid FROM {prefix}invoice i'
@@ -152,26 +220,31 @@ class ImportStatement extends ImportFile
         $intRes = mysqli_param_query($sql, $params);
         $count = mysqli_num_rows($intRes);
         if ($count == 0) {
-            return str_replace('{refnr}', $refnr,
-                $GLOBALS['locImportStatementInvoiceNotFound']);
+            return str_replace(
+                '{refnr}', $refnr, $GLOBALS['locImportStatementInvoiceNotFound']
+            );
         }
         if ($count > 1) {
-            return str_replace('{refnr}', $refnr,
-                $GLOBALS['locImportStatementMultipleInvoicesFound']);
+            return str_replace(
+                '{refnr}', $refnr,
+                $GLOBALS['locImportStatementMultipleInvoicesFound']
+            );
         }
 
         $row = mysqli_fetch_assoc($intRes);
 
         if (!$row['invoice_unpaid']) {
-            return str_replace('{refnr}', $refnr,
-                $GLOBALS['locImportStatementInvoiceAlreadyPaid']);
+            return str_replace(
+                '{refnr}', $refnr, $GLOBALS['locImportStatementInvoiceAlreadyPaid']
+            );
         }
 
         $res2 = mysqli_param_query(
             'SELECT ir.price, ir.pcs, ir.vat, ir.vat_included, ir.discount, ir.partial_payment from {prefix}invoice_row ir where ir.deleted = 0 AND ir.invoice_id = ?',
             [
                 $row['id']
-            ]);
+            ]
+        );
         $rowTotal = 0;
         $partialPayments = 0;
         while ($invoiceRow = mysqli_fetch_assoc($res2)) {
@@ -180,7 +253,8 @@ class ImportStatement extends ImportFile
             }
             list ($rowSum, $rowVAT, $rowSumVAT) = calculateRowSum(
                 $invoiceRow['price'], $invoiceRow['pcs'], $invoiceRow['vat'],
-                $invoiceRow['vat_included'], $invoiceRow['discount']);
+                $invoiceRow['vat_included'], $invoiceRow['discount']
+            );
             $rowTotal += $rowSumVAT;
         }
         $totalToPay = $rowTotal + $partialPayments;
@@ -207,8 +281,10 @@ EOT;
                     );
                 }
 
-                $msg = str_replace('{statementAmount}', miscRound2Decim($amount),
-                    $GLOBALS['locImportStatementPartialPayment']);
+                $msg = str_replace(
+                    '{statementAmount}', miscRound2Decim($amount),
+                    $GLOBALS['locImportStatementPartialPayment']
+                );
                 $msg = str_replace(
                     '{invoiceAmount}', miscRound2Decim($totalToPay), $msg
                 );
@@ -218,8 +294,10 @@ EOT;
 
                 return $msg;
             } else {
-                $msg = str_replace('{statementAmount}', miscRound2Decim($amount),
-                    $GLOBALS['locImportStatementAmountMismatch']);
+                $msg = str_replace(
+                    '{statementAmount}', miscRound2Decim($amount),
+                    $GLOBALS['locImportStatementAmountMismatch']
+                );
                 $msg = str_replace(
                     '{invoiceAmount}', miscRound2Decim($totalToPay), $msg
                 );
@@ -236,13 +314,16 @@ EOT;
                 $sql .= ', archived=1';
             }
             $sql .= ' WHERE id = ?';
-            mysqli_param_query($sql,
+            mysqli_param_query(
+                $sql,
                 [
                     $date,
                     $row['id']
-                ]);
+                ]
+            );
         }
-        $msg = str_replace('{amount}', miscRound2Decim($amount),
+        $msg = str_replace(
+            '{amount}', miscRound2Decim($amount),
             $archive
                 ? $GLOBALS['locImportStatementInvoiceMarkedAsPaidAndArchived']
                 : $GLOBALS['locImportStatementInvoiceMarkedAsPaid']
