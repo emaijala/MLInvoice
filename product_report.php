@@ -55,38 +55,38 @@ class ProductReport
   </script>
 
 <div class="form_container ui-widget-content ui-helper-clearfix">
-	<form method="get" id="params" name="params">
-		<input name="func" type="hidden" value="reports"> <input name="form"
-			type="hidden" value="product"> <input name="report" type="hidden"
-			value="1">
+    <form method="get" id="params" name="params">
+        <input name="func" type="hidden" value="reports"> <input name="form"
+            type="hidden" value="product"> <input name="report" type="hidden"
+            value="1">
 
-		<div class="unlimited_label">
-			<h1><?php echo $GLOBALS['locProductReport']?></h1>
-		</div>
+        <div class="unlimited_label">
+            <h1><?php echo $GLOBALS['locProductReport']?></h1>
+        </div>
 
-		<div class="medium_label"><?php echo $GLOBALS['locInvoiceDateInterval']?></div>
-		<div class="field"><?php echo htmlFormElement('date', 'TEXT', "$dateRange" , 'medium hasDateRangePicker', '', 'MODIFY', FALSE)?></div>
+        <div class="medium_label"><?php echo $GLOBALS['locInvoiceDateInterval']?></div>
+        <div class="field"><?php echo htmlFormElement('date', 'TEXT', "$dateRange" , 'medium hasDateRangePicker', '', 'MODIFY', FALSE)?></div>
 
-		<div class="medium_label"><?php echo $GLOBALS['locBiller']?></div>
-		<div class="field"><?php echo htmlFormElement('base', 'LIST', $intBaseId, 'medium', 'SELECT id, name FROM {prefix}base WHERE deleted=0 ORDER BY name', 'MODIFY', FALSE)?></div>
+        <div class="medium_label"><?php echo $GLOBALS['locBiller']?></div>
+        <div class="field"><?php echo htmlFormElement('base', 'LIST', $intBaseId, 'medium', 'SELECT id, name FROM {prefix}base WHERE deleted=0 ORDER BY name', 'MODIFY', FALSE)?></div>
 
-		<div class="medium_label"><?php echo $GLOBALS['locClient']?></div>
-		<div class="field"><?php echo htmlFormElement('company', 'LIST', $intCompanyId, 'medium', 'SELECT id, company_name FROM {prefix}company WHERE deleted=0 ORDER BY company_name', 'MODIFY', FALSE)?></div>
+        <div class="medium_label"><?php echo $GLOBALS['locClient']?></div>
+        <div class="field"><?php echo htmlFormElement('company', 'LIST', $intCompanyId, 'medium', 'SELECT id, company_name FROM {prefix}company WHERE deleted=0 ORDER BY company_name', 'MODIFY', FALSE)?></div>
 
-		<div class="medium_label"><?php echo $GLOBALS['locProduct']?></div>
-		<div class="field"><?php echo htmlFormElement('product', 'LIST', $intProductId, 'medium', 'SELECT id, product_name FROM {prefix}product WHERE deleted=0 ORDER BY product_name', 'MODIFY', FALSE)?></div>
+        <div class="medium_label"><?php echo $GLOBALS['locProduct']?></div>
+        <div class="field"><?php echo htmlFormElement('product', 'LIST', $intProductId, 'medium', 'SELECT id, product_name FROM {prefix}product WHERE deleted=0 ORDER BY product_name', 'MODIFY', FALSE)?></div>
 
-		<div class="medium_label"><?php echo $GLOBALS['locPrintFormat']?></div>
-		<div class="field">
-			<input type="radio" id="format-html" name="format" value="html" checked="checked"><label for="format-html"><?php echo $GLOBALS['locPrintFormatHTML']?></label>
-		</div>
-		<div class="medium_label"></div>
-		<div class="field">
-			<input type="radio" id="format-pdf" name="format" value="pdf"><label for="format-pdf"><?php echo $GLOBALS['locPrintFormatPDF']?></label>
-		</div>
-		<div class="field_sep"></div>
+        <div class="medium_label"><?php echo $GLOBALS['locPrintFormat']?></div>
+        <div class="field">
+            <input type="radio" id="format-html" name="format" value="html" checked="checked"><label for="format-html"><?php echo $GLOBALS['locPrintFormatHTML']?></label>
+        </div>
+        <div class="medium_label"></div>
+        <div class="field">
+            <input type="radio" id="format-pdf" name="format" value="pdf"><label for="format-pdf"><?php echo $GLOBALS['locPrintFormatPDF']?></label>
+        </div>
+        <div class="field_sep"></div>
 
-		<div class="medium_label"><?php echo $GLOBALS['locPrintReportStates']?></div>
+        <div class="medium_label"><?php echo $GLOBALS['locPrintReportStates']?></div>
 <?php
         $strQuery = 'SELECT id, name ' . 'FROM {prefix}invoice_state WHERE deleted=0 ' .
              'ORDER BY order_no';
@@ -104,16 +104,16 @@ class ProductReport
             $first = false;
             ?>
     <div class="field">
-			<input type="checkbox" id="state-<?php echo $intStateId?>" name="stateid_<?php echo $intStateId?>"
-				value="1" <?php echo $strChecked?>> <label for="state-<?php echo $intStateId?>"><?php echo htmlspecialchars($strStateName)?></label></div>
+            <input type="checkbox" id="state-<?php echo $intStateId?>" name="stateid_<?php echo $intStateId?>"
+                value="1" <?php echo $strChecked?>> <label for="state-<?php echo $intStateId?>"><?php echo htmlspecialchars($strStateName)?></label></div>
 <?php
         }
         ?>
     <div class="medium_label">
-			<a class="actionlink" href="#"
-				onclick="document.getElementById('params').submit(); return false;"><?php echo $GLOBALS['locCreateReport']?></a>
-		</div>
-	</form>
+            <a class="actionlink" href="#"
+                onclick="document.getElementById('params').submit(); return false;"><?php echo $GLOBALS['locCreateReport']?></a>
+        </div>
+    </form>
 </div>
 <?php
     }
@@ -278,33 +278,33 @@ class ProductReport
         }
         ?>
 <div class="report">
-	<table>
-		<tr>
-			<th class="label">
+    <table>
+        <tr>
+            <th class="label">
             <?php echo $GLOBALS['locCode']?>
         </th>
-			<th class="label">
+            <th class="label">
             <?php echo $GLOBALS['locProduct']?>
         </th>
-			<th class="label" style="text-align: right">
+            <th class="label" style="text-align: right">
             <?php echo $GLOBALS['locPCS']?>
         </th>
-			<th class="label" style="text-align: right">
+            <th class="label" style="text-align: right">
             <?php echo $GLOBALS['locUnit']?>
         </th>
-			<th class="label" style="text-align: right">
+            <th class="label" style="text-align: right">
             <?php echo $GLOBALS['locVATLess']?>
         </th>
-			<th class="label" style="text-align: right">
+            <th class="label" style="text-align: right">
             <?php echo $GLOBALS['locVATPercent']?>
         </th>
-			<th class="label" style="text-align: right">
+            <th class="label" style="text-align: right">
             <?php echo $GLOBALS['locVATPart']?>
         </th>
-			<th class="label" style="text-align: right">
+            <th class="label" style="text-align: right">
             <?php echo $GLOBALS['locWithVAT']?>
         </th>
-		</tr>
+        </tr>
 <?php
     }
 
@@ -353,31 +353,31 @@ class ProductReport
             $strProduct = htmlspecialchars($strProduct);
         ?>
     <tr>
-			<td class="input">
+            <td class="input">
             <?php echo $strCode?>
         </td>
-			<td class="input">
+            <td class="input">
             <?php echo $strProduct?>
         </td>
-			<td class="input" style="text-align: right">
+            <td class="input" style="text-align: right">
             <?php echo miscRound2Decim($intCount)?>
         </td>
-			<td class="input" style="text-align: left">
+            <td class="input" style="text-align: left">
             <?php echo htmlspecialchars($strUnit)?>
         </td>
-			<td class="input" style="text-align: right">
+            <td class="input" style="text-align: right">
             <?php echo miscRound2Decim($intSum)?>
         </td>
-			<td class="input" style="text-align: right">
+            <td class="input" style="text-align: right">
             <?php echo miscRound2Decim($intVATPercent, 1)?>
         </td>
-			<td class="input" style="text-align: right">
+            <td class="input" style="text-align: right">
             <?php echo miscRound2Decim($intVAT)?>
         </td>
-			<td class="input" style="text-align: right">
+            <td class="input" style="text-align: right">
             <?php echo miscRound2Decim($intSumVAT)?>
         </td>
-		</tr>
+        </tr>
 <?php
     }
 
@@ -398,23 +398,23 @@ class ProductReport
         }
         ?>
     <tr>
-			<td class="input total_sum">
+            <td class="input total_sum">
             <?php echo $GLOBALS['locTotal']?>
         </td>
-			<td class="input total_sum" style="text-align: right">&nbsp;</td>
-			<td class="input total_sum" style="text-align: right">&nbsp;</td>
-			<td class="input total_sum" style="text-align: right">&nbsp;</td>
-			<td class="input total_sum" style="text-align: right">
+            <td class="input total_sum" style="text-align: right">&nbsp;</td>
+            <td class="input total_sum" style="text-align: right">&nbsp;</td>
+            <td class="input total_sum" style="text-align: right">&nbsp;</td>
+            <td class="input total_sum" style="text-align: right">
             <?php echo miscRound2Decim($intTotSum)?>
         </td>
-			<td class="input total_sum" style="text-align: right">&nbsp;</td>
-			<td class="input total_sum" style="text-align: right">
+            <td class="input total_sum" style="text-align: right">&nbsp;</td>
+            <td class="input total_sum" style="text-align: right">
             <?php echo miscRound2Decim($intTotVAT)?>
         </td>
-			<td class="input total_sum" style="text-align: right">
+            <td class="input total_sum" style="text-align: right">
             <?php echo miscRound2Decim($intTotSumVAT)?>
         </td>
-		</tr>
+        </tr>
 <?php
     }
 

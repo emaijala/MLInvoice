@@ -66,61 +66,61 @@ class InvoicePrinterOrderConfirmationEmail extends InvoicePrinterOrderConfirmati
         echo htmlPageStart(_PAGE_TITLE_ . ' - ' . $GLOBALS['locSendEmail']);
         ?>
 <body>
-	<div class="pagewrapper ui-widget ui-widget-content">
+    <div class="pagewrapper ui-widget ui-widget-content">
 
-		<div id="email_form_container" class="form_container">
-			<h1><?php echo $GLOBALS['locSendEmail']?></h1>
+        <div id="email_form_container" class="form_container">
+            <h1><?php echo $GLOBALS['locSendEmail']?></h1>
 <?php if ($submitted) echo '<div class="ui-state-error-text">' . $GLOBALS['locEmailFillRequiredFields'] . "<br><br></div>\n";?>
   <form method="POST" id="email_form">
-				<input type="hidden" name="id"
-					value="<?php echo htmlspecialchars(getRequest('id', ''))?>"> <input
-					type="hidden" name="template"
-					value="<?php echo htmlspecialchars(getRequest('template', ''))?>">
-				<input type="hidden" name="email_send" value="1"> <input
-					type="hidden" name="func"
-					value="<?php echo htmlspecialchars(getRequest('func', ''))?>">
-				<div class="medium_label"><?php echo $GLOBALS['locEmailFrom']?></div>
-				<div class="field">
-					<input type="text" id="email_from" name="email_from" class="medium"
-						value="<?php echo htmlspecialchars($this->emailFrom)?>">
-				</div>
-				<div class="medium_label"><?php echo $GLOBALS['locEmailTo']?></div>
-				<div class="field">
-					<input type="text" id="email_to" name="email_to" class="medium"
-						value="<?php echo htmlspecialchars($this->emailTo)?>">
-				</div>
-				<div class="medium_label"><?php echo $GLOBALS['locEmailCC']?></div>
-				<div class="field">
-					<input type="text" id="email_cc" name="email_cc" class="medium"
-						value="<?php echo htmlspecialchars($this->emailCC)?>">
-				</div>
-				<div class="medium_label"><?php echo $GLOBALS['locEmailBCC']?></div>
-				<div class="field">
-					<input type="text" id="email_bcc" name="email_bcc" class="medium"
-						value="<?php echo htmlspecialchars($this->emailBCC)?>">
-				</div>
-				<div class="medium_label"><?php echo $GLOBALS['locEmailSubject']?></div>
-				<div class="field">
-					<input type="text" id="email_subject" name="email_subject"
-						class="medium"
-						value="<?php echo htmlspecialchars($this->emailSubject)?>">
-				</div>
-				<div class="medium_label"><?php echo $GLOBALS['locEmailBody']?></div>
-				<div class="field">
-					<textarea id="emailBody" name="email_body" class="email_body"
-						cols="80" rows="24"><?php echo htmlspecialchars($this->emailBody)?></textarea>
-				</div>
-				<div class="form_buttons" style="clear: both">
-					<a class="actionlink"
-						onclick="document.getElementById('email_form').submit(); return false;"
-						href="#"><?php echo $GLOBALS['locSend']?></a> <a
-						class="actionlink"
-						onclick="if (window.opener) window.close(); else history.back(); return false;"
-						href="#"><?php echo $GLOBALS['locCancel']?></a>
-				</div>
-			</form>
-		</div>
-	</div>
+                <input type="hidden" name="id"
+                    value="<?php echo htmlspecialchars(getRequest('id', ''))?>"> <input
+                    type="hidden" name="template"
+                    value="<?php echo htmlspecialchars(getRequest('template', ''))?>">
+                <input type="hidden" name="email_send" value="1"> <input
+                    type="hidden" name="func"
+                    value="<?php echo htmlspecialchars(getRequest('func', ''))?>">
+                <div class="medium_label"><?php echo $GLOBALS['locEmailFrom']?></div>
+                <div class="field">
+                    <input type="text" id="email_from" name="email_from" class="medium"
+                        value="<?php echo htmlspecialchars($this->emailFrom)?>">
+                </div>
+                <div class="medium_label"><?php echo $GLOBALS['locEmailTo']?></div>
+                <div class="field">
+                    <input type="text" id="email_to" name="email_to" class="medium"
+                        value="<?php echo htmlspecialchars($this->emailTo)?>">
+                </div>
+                <div class="medium_label"><?php echo $GLOBALS['locEmailCC']?></div>
+                <div class="field">
+                    <input type="text" id="email_cc" name="email_cc" class="medium"
+                        value="<?php echo htmlspecialchars($this->emailCC)?>">
+                </div>
+                <div class="medium_label"><?php echo $GLOBALS['locEmailBCC']?></div>
+                <div class="field">
+                    <input type="text" id="email_bcc" name="email_bcc" class="medium"
+                        value="<?php echo htmlspecialchars($this->emailBCC)?>">
+                </div>
+                <div class="medium_label"><?php echo $GLOBALS['locEmailSubject']?></div>
+                <div class="field">
+                    <input type="text" id="email_subject" name="email_subject"
+                        class="medium"
+                        value="<?php echo htmlspecialchars($this->emailSubject)?>">
+                </div>
+                <div class="medium_label"><?php echo $GLOBALS['locEmailBody']?></div>
+                <div class="field">
+                    <textarea id="emailBody" name="email_body" class="email_body"
+                        cols="80" rows="24"><?php echo htmlspecialchars($this->emailBody)?></textarea>
+                </div>
+                <div class="form_buttons" style="clear: both">
+                    <a class="actionlink"
+                        onclick="document.getElementById('email_form').submit(); return false;"
+                        href="#"><?php echo $GLOBALS['locSend']?></a> <a
+                        class="actionlink"
+                        onclick="if (window.opener) window.close(); else history.back(); return false;"
+                        href="#"><?php echo $GLOBALS['locCancel']?></a>
+                </div>
+            </form>
+        </div>
+    </div>
 </body>
 </html>
 <?php

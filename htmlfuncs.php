@@ -74,6 +74,7 @@ $xUACompatible  <title>$strTitle</title>
   <link rel="shortcut icon" href="favicon.ico" type="image/x-icon">
   <link rel="stylesheet" type="text/css" href="$theme">
   <link rel="stylesheet" type="text/css" href="jquery/css/ui.daterangepicker.css">
+  <link rel="stylesheet" type="text/css" href="datatables/buttons.dataTables.min.css">
   <link href="select2/select2.css" rel="stylesheet" />
   <link rel="stylesheet" type="text/css" href="css/style.css">
   <script type="text/javascript" src="jquery/js/jquery-1.10.2.min.js"></script>
@@ -81,6 +82,7 @@ $xUACompatible  <title>$strTitle</title>
   <script type="text/javascript" src="jquery/js/jquery.cookie.js"></script>
   <script type="text/javascript" src="jquery/js/jquery-ui.min.js"></script>
   <script type="text/javascript" src="datatables/datatables.min.js"></script>
+  <script type="text/javascript" src="datatables/dataTables.buttons.min.js"></script>
   <script type="text/javascript" src="jquery/js/jquery.floatingmessage.js"></script>
   <script type="text/javascript" src="js/date.js"></script>
   <script type="text/javascript" src="js/date-$lang.js"></script>

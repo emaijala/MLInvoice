@@ -137,9 +137,9 @@ function createForm($strFunc, $strList, $strForm)
     ?>
 
 <div id="popup_dlg"
-	style="display: none; width: 900px; overflow: hidden">
-	<iframe id="popup_dlg_iframe" src="about:blank"
-		style="width: 100%; height: 100%; overflow: hidden; border: 0"></iframe>
+    style="display: none; width: 900px; overflow: hidden">
+    <iframe id="popup_dlg_iframe" src="about:blank"
+        style="width: 100%; height: 100%; overflow: hidden; border: 0"></iframe>
 </div>
 <?php if (isset($popupHTML)) echo $popupHTML;?>
 
@@ -147,14 +147,14 @@ function createForm($strFunc, $strList, $strForm)
 
 <?php createFormButtons($blnNew, $copyLinkOverride, true, $readOnlyForm)?>
     <div class="form">
-		<form method="post" name="admin_form" id="admin_form">
-			<input type="hidden" name="copyact" value="0"> <input type="hidden"
-				name="newact" value="<?php echo $blnNew ? 1 : 0?>"> <input
-				type="hidden" name="deleteact" value="0"> <input type="hidden"
-				name="redirect" id="redirect" value=""> <input type="hidden"
-				id="record_id" name="id"
-				value="<?php echo (isset($intKeyValue) && $intKeyValue) ? $intKeyValue : '' ?>">
-			<table>
+        <form method="post" name="admin_form" id="admin_form">
+            <input type="hidden" name="copyact" value="0"> <input type="hidden"
+                name="newact" value="<?php echo $blnNew ? 1 : 0?>"> <input
+                type="hidden" name="deleteact" value="0"> <input type="hidden"
+                name="redirect" id="redirect" value=""> <input type="hidden"
+                id="record_id" name="id"
+                value="<?php echo (isset($intKeyValue) && $intKeyValue) ? $intKeyValue : '' ?>">
+            <table>
 <?php
     $haveChildForm = false;
     $prevPosition = false;
@@ -173,10 +173,10 @@ function createForm($strFunc, $strList, $strForm)
             $rowOpen = false;
             ?>
         <tr>
-					<td class="sublabel ui-widget-header ui-state-default" colspan="4">
+                    <td class="sublabel ui-widget-header ui-state-default" colspan="4">
             <?php echo $elem['label']?>
           </td>
-				</tr>
+                </tr>
   <?php
             continue;
         }
@@ -260,13 +260,13 @@ function createForm($strFunc, $strList, $strForm)
             } else {
                 ?>
           <td id="<?php echo htmlentities($elem['name']) . '_label' ?>"
-					class="label"
-					<?php if (isset($elem['title'])) echo ' title="' . $elem['title'] . '"'?>><?php echo $elem['label']?></td>
+                    class="label"
+                    <?php if (isset($elem['title'])) echo ' title="' . $elem['title'] . '"'?>><?php echo $elem['label']?></td>
 <?php
             }
             ?>
           <td class="field"
-					<?php echo $strColspan ? " $strColspan" : ''?>>
+                    <?php echo $strColspan ? " $strColspan" : ''?>>
             <?php
 
             echo htmlFormElement($elem['name'], $elem['type'], $value,
@@ -295,26 +295,26 @@ function createForm($strFunc, $strList, $strForm)
         // Special case for product: show stock balance change log
         ?>
       <div
-					class="iform ui-corner-tl ui-corner-bl ui-corner-br ui-corner-tr ui-helper-clearfix"
-					id="stock_balance_log">
-					<div
-						class="ui-corner-tl ui-corner-tr fg-toolbar ui-toolbar ui-widget-header"><?php echo $GLOBALS['locStockBalanceUpdates']?></div>
-					<table id="stock_balance_change_log">
-						<tr>
-							<th class="medium"><?php echo $GLOBALS['locHeaderChangeLogDateTime']?></th>
-							<th class="medium"><?php echo $GLOBALS['locHeaderChangeLogUser']?></th>
-							<th class="small"><?php echo $GLOBALS['locHeaderChangeLogAmount']?></th>
-							<th class="long"><?php echo $GLOBALS['locHeaderChangeLogDescription']?></th>
-						</tr>
-					</table>
-				</div>
-				</div>
+                    class="iform ui-corner-tl ui-corner-bl ui-corner-br ui-corner-tr ui-helper-clearfix"
+                    id="stock_balance_log">
+                    <div
+                        class="ui-corner-tl ui-corner-tr fg-toolbar ui-toolbar ui-widget-header"><?php echo $GLOBALS['locStockBalanceUpdates']?></div>
+                    <table id="stock_balance_change_log">
+                        <tr>
+                            <th class="medium"><?php echo $GLOBALS['locHeaderChangeLogDateTime']?></th>
+                            <th class="medium"><?php echo $GLOBALS['locHeaderChangeLogUser']?></th>
+                            <th class="small"><?php echo $GLOBALS['locHeaderChangeLogAmount']?></th>
+                            <th class="long"><?php echo $GLOBALS['locHeaderChangeLogDescription']?></th>
+                        </tr>
+                    </table>
+                </div>
+                </div>
 <?php
     }
     ?>
   </div>
 
-				<script type="text/javascript">
+                <script type="text/javascript">
 /* <![CDATA[ */
 var globals = {};
 
@@ -536,16 +536,16 @@ function createIForm($astrFormElements, $elem, $intKeyValue, $newRecord, $strFor
 {
     ?>
       <div
-					class="iform <?php echo $elem['style']?> ui-corner-tl ui-corner-bl ui-corner-br ui-corner-tr ui-helper-clearfix"
-					id="<?php echo $elem['name']?>"
-					<?php echo $elem['elem_attributes'] ? ' ' . $elem['elem_attributes'] : ''?>>
-					<div
-						class="ui-corner-tl ui-corner-tr fg-toolbar ui-toolbar ui-widget-header"><?php echo $elem['label']?></div>
+                    class="iform <?php echo $elem['style']?> ui-corner-tl ui-corner-bl ui-corner-br ui-corner-tr ui-helper-clearfix"
+                    id="<?php echo $elem['name']?>"
+                    <?php echo $elem['elem_attributes'] ? ' ' . $elem['elem_attributes'] : ''?>>
+                    <div
+                        class="ui-corner-tl ui-corner-tr fg-toolbar ui-toolbar ui-widget-header"><?php echo $elem['label']?></div>
 <?php
     if ($newRecord) {
         ?>
         <div id="inewmessage" class="new_message"><?php echo $GLOBALS['locSaveRecordToAddRows']?></div>
-				</div>
+                </div>
 <?php
         return;
     }
@@ -561,13 +561,13 @@ function format_currency(value, decimals)
         ?>
   var parts = s.split('<?php echo $GLOBALS['locDecimalSeparator']?>');
   var regexp = /(\d+)(\d{3})<?php echo $GLOBALS['locDecimalSeparator']?>?/;
-	while (regexp.test(parts[0])) {
-		parts[0] = parts[0].replace(regexp, '$1' + '<?php echo $GLOBALS['locThousandSeparator']?>' + '$2');
-	}
-	s = parts[0];
-	if (parts.length > 1) {
-		s += '<?php echo $GLOBALS['locDecimalSeparator']?>' + parts[1];
-	}
+    while (regexp.test(parts[0])) {
+        parts[0] = parts[0].replace(regexp, '$1' + '<?php echo $GLOBALS['locThousandSeparator']?>' + '$2');
+    }
+    s = parts[0];
+    if (parts.length > 1) {
+        s += '<?php echo $GLOBALS['locDecimalSeparator']?>' + parts[1];
+    }
 <?php
     }
     ?>
@@ -1035,10 +1035,10 @@ function popup_editor(event, title, id, copy_row)
     ?>
 /* ]]> */
 </script>
-				<form method="post" name="iform" id="iform">
-					<table class="iform" id="itable">
-						<thead>
-							<tr>
+                <form method="post" name="iform" id="iform">
+                    <table class="iform" id="itable">
+                        <thead>
+                            <tr>
 <?php
     foreach ($subFormElements as $subElem) {
         if (!in_array($subElem['type'],
@@ -1051,14 +1051,14 @@ function popup_editor(event, title, id, copy_row)
             ])) {
             ?>
               <th
-									class="label ui-state-default <?php echo strtolower($subElem['style'])?>_label"><?php echo $subElem['label']?></th>
+                                    class="label ui-state-default <?php echo strtolower($subElem['style'])?>_label"><?php echo $subElem['label']?></th>
 <?php
         }
     }
     ?>
             </tr>
-						</thead>
-						<tbody>
+                        </thead>
+                        <tbody>
 <?php
     if (sesWriteAccess()) {
         ?>
@@ -1077,50 +1077,50 @@ function popup_editor(event, title, id, copy_row)
                 $value = getFormDefaultValue($subElem, $intKeyValue);
                 ?>
               <td
-									class="label <?php echo strtolower($subElem['style'])?>_label">
+                                    class="label <?php echo strtolower($subElem['style'])?>_label">
                 <?php echo htmlFormElement('iform_' . $subElem['name'], $subElem['type'], $value, $subElem['style'], $subElem['listquery'], 'MODIFY', 0, '', [], $subElem['elem_attributes'])?>
               </td>
 <?php
             } elseif ($subElem['type'] == 'ROWSUM') {
                 ?>
               <td
-									class="label <?php echo strtolower($subElem['style'])?>_label">
-									&nbsp;</td>
+                                    class="label <?php echo strtolower($subElem['style'])?>_label">
+                                    &nbsp;</td>
 <?php
             }
         }
         if ($strForm == 'invoice') {
             ?>
               <td class="button"><a
-									class="tinyactionlink add_row_button" href="#"
-									onclick="save_row('iform'); return false;"><?php echo $GLOBALS['locAddRow']?></a>
-								</td>
-								<td class="button"><a class="tinyactionlink update_row_dates"
-									href="#" onclick="update_row_dates(); return false;"><?php echo $GLOBALS['locUpdateRowDates']?></a>
-								</td>
+                                    class="tinyactionlink add_row_button" href="#"
+                                    onclick="save_row('iform'); return false;"><?php echo $GLOBALS['locAddRow']?></a>
+                                </td>
+                                <td class="button"><a class="tinyactionlink update_row_dates"
+                                    href="#" onclick="update_row_dates(); return false;"><?php echo $GLOBALS['locUpdateRowDates']?></a>
+                                </td>
 <?php
         } else {
             ?>
               <td class="button" colspan="2"><a
-									class="tinyactionlink add_row_button" href="#"
-									onclick="save_row('iform'); return false;"><?php echo $GLOBALS['locAddRow']?></a>
-								</td>
+                                    class="tinyactionlink add_row_button" href="#"
+                                    onclick="save_row('iform'); return false;"><?php echo $GLOBALS['locAddRow']?></a>
+                                </td>
 <?php
         }
         ?>
             </tr>
-						</tbody>
-					</table>
-				</form>
-				</div>
-				<div id="popup_edit"
-					style="display: none; width: 900px; overflow: hidden">
-					<form method="post" name="iform_popup" id="iform_popup">
-						<input type="hidden" name="row_id" value=""> <input type="hidden"
-							name="<?php echo $strParentKey?>"
-							value="<?php echo $intKeyValue?>">
-						<table class="iform">
-							<tr>
+                        </tbody>
+                    </table>
+                </form>
+                </div>
+                <div id="popup_edit"
+                    style="display: none; width: 900px; overflow: hidden">
+                    <form method="post" name="iform_popup" id="iform_popup">
+                        <input type="hidden" name="row_id" value=""> <input type="hidden"
+                            name="<?php echo $strParentKey?>"
+                            value="<?php echo $intKeyValue?>">
+                        <table class="iform">
+                            <tr>
 <?php
         foreach ($subFormElements as $elem) {
             if (!in_array($elem['type'],
@@ -1134,7 +1134,7 @@ function popup_editor(event, title, id, copy_row)
                 ])) {
                 ?>
             <td
-									class="label <?php echo strtolower($elem['style'])?>_label">
+                                    class="label <?php echo strtolower($elem['style'])?>_label">
               <?php echo $elem['label']?><br>
               <?php echo htmlFormElement('iform_popup_' . $elem['name'], $elem['type'], '', $elem['style'], $elem['listquery'], 'MODIFY', 0, '', [], $elem['elem_attributes'])?>
             </td>
@@ -1142,8 +1142,8 @@ function popup_editor(event, title, id, copy_row)
             } elseif ($elem['type'] == 'SECHID_INT') {
                 ?>
             <input type="hidden"
-									name="<?php echo 'iform_popup_' . $elem['name']?>"
-									value="<?php echo gpcStripSlashes($astrValues[$elem['name']])?>">
+                                    name="<?php echo 'iform_popup_' . $elem['name']?>"
+                                    value="<?php echo gpcStripSlashes($astrValues[$elem['name']])?>">
 <?php
             } elseif ($elem['type'] == 'BUTTON') {
                 ?>
@@ -1154,16 +1154,16 @@ function popup_editor(event, title, id, copy_row)
     }
     ?>
           </tr>
-						</table>
-					</form>
-				</div>
-				<div id="popup_date_edit"
-					style="display: none; width: 300px; overflow: hidden">
-					<form method="post" name="form_date_popup" id="form_date_popup">
-						<input id="popup_date_edit_field" type="text"
-							class="medium hasCalendar">
-					</form>
-				</div>
+                        </table>
+                    </form>
+                </div>
+                <div id="popup_date_edit"
+                    style="display: none; width: 300px; overflow: hidden">
+                    <form method="post" name="form_date_popup" id="form_date_popup">
+                        <input id="popup_date_edit_field" type="text"
+                            class="medium hasCalendar">
+                    </form>
+                </div>
 <?php
 }
 
@@ -1181,21 +1181,21 @@ function createFormButtons($boolNew, $copyLinkOverride, $spinner, $readOnlyForm)
     if (!$readOnlyForm) {
         ?>
       <a class="actionlink save_button" href="#"
-						onclick="save_record(); return false;"><?php echo $GLOBALS['locSave']?></a>
+                        onclick="save_record(); return false;"><?php echo $GLOBALS['locSave']?></a>
 <?php
     }
 
     if (!$boolNew) {
         $copyCmd = $copyLinkOverride ? "window.location='$copyLinkOverride'; return false;" : "document.getElementById('admin_form').copyact.value=1; document.getElementById('admin_form').submit(); return false;";
         ?>      <a class="actionlink" href="#"
-						onclick="<?php echo $copyCmd?>"><?php echo $GLOBALS['locCopy']?></a>
-					<a class="actionlink" href="#"
-						onclick="document.getElementById('admin_form').newact.value=1; document.getElementById('admin_form').submit(); return false;"><?php echo $GLOBALS['locNew']?></a>
+                        onclick="<?php echo $copyCmd?>"><?php echo $GLOBALS['locCopy']?></a>
+                    <a class="actionlink" href="#"
+                        onclick="document.getElementById('admin_form').newact.value=1; document.getElementById('admin_form').submit(); return false;"><?php echo $GLOBALS['locNew']?></a>
 <?php
         if (!$readOnlyForm) {
             ?>
       <a class="actionlink" href="#"
-						onclick="if(confirm('<?php echo $GLOBALS['locConfirmDelete']?>')==true) {  document.getElementById('admin_form').deleteact.value=1; document.getElementById('admin_form').submit(); return false;} else{ return false; }"><?php echo $GLOBALS['locDelete']?></a>
+                        onclick="if(confirm('<?php echo $GLOBALS['locConfirmDelete']?>')==true) {  document.getElementById('admin_form').deleteact.value=1; document.getElementById('admin_form').submit(); return false;} else{ return false; }"><?php echo $GLOBALS['locDelete']?></a>
 <?php
         }
     }

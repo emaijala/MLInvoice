@@ -43,19 +43,19 @@ echo htmlPageStart(_PAGE_TITLE_);
 ?>
 
 <body>
-	<div class="pagewrapper ui-widget ui-widget-content">
-		<div style="padding: 30px;">
+    <div class="pagewrapper ui-widget ui-widget-content">
+        <div style="padding: 30px;">
 
-			<h1><?php echo $GLOBALS['locThankYou']?></h1>
-			<p>
+            <h1><?php echo $GLOBALS['locThankYou']?></h1>
+            <p>
 <?php echo $GLOBALS['locSessionClosed']?>
 </p>
 
-			<p>
-				<a href="login.php"><?php echo $GLOBALS['locBackToLogin']?></a>
-			</p>
+            <p>
+                <a href="login.php"><?php echo $GLOBALS['locBackToLogin']?></a>
+            </p>
 
-		</div>
-	</div>
+        </div>
+    </div>
 </body>
 </html>

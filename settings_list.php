@@ -111,7 +111,7 @@ function createSettingsList()
 
     <?php createSettingsListButtons()?>
     <div class="form">
-		<form method="post" name="admin_form" id="admin_form">
+        <form method="post" name="admin_form" id="admin_form">
 <?php
     foreach ($arrSettings as $name => $elem) {
         $elemType = $elem['type'];
@@ -151,14 +151,14 @@ function createSettingsList()
       <div class="field" style="clear: both">
         <?php echo htmlFormElement($name, $elemType, $value, $elem['style'], '', 'MODIFY', '', '', [], isset($elem['elem_attributes']) ? $elem['elem_attributes'] : '', isset($elem['options']) ? $elem['options'] : null)?>
         <label for="<?php echo $name?>"><?php echo $elem['label']?></label>
-			</div>
+            </div>
 <?php
         } else {
             ?>
       <div class="label" style="clear: both">
-				<label for="<?php echo $name?>"><?php echo $elem['label']?></label>
-			</div>
-			<div class="field" style="clear: both">
+                <label for="<?php echo $name?>"><?php echo $elem['label']?></label>
+            </div>
+            <div class="field" style="clear: both">
         <?php echo htmlFormElement($name, $elemType, $value, $elem['style'], '', 'MODIFY', '', '', [], isset($elem['elem_attributes']) ? $elem['elem_attributes'] : '', isset($elem['options']) ? $elem['options'] : null)?>
       </div>
 <?php
@@ -168,7 +168,7 @@ function createSettingsList()
     <input type="hidden" name="saveact" value="0">
     <?php createSettingsListButtons()?>
     </form>
-	</div>
+    </div>
 </div>
 <?php
 }
@@ -177,8 +177,8 @@ function createSettingsListButtons()
 {
     ?>
 <div class="form_buttons" style="clear: both">
-	<a class="actionlink save_button" href="#"
-		onclick="document.getElementById('admin_form').saveact.value=1; document.getElementById('admin_form').submit(); return false;"><?php echo $GLOBALS['locSave']?></a>
+    <a class="actionlink save_button" href="#"
+        onclick="document.getElementById('admin_form').saveact.value=1; document.getElementById('admin_form').submit(); return false;"><?php echo $GLOBALS['locSave']?></a>
 </div>
 <?php
 }

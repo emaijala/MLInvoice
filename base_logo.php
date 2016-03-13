@@ -99,34 +99,34 @@ else
 echo htmlPageStart(_PAGE_TITLE_);
 ?>
 <div class="form_container ui-widget-content">
-	<div class="message"><?php echo $messages?></div>
+    <div class="message"><?php echo $messages?></div>
 
     <div class="form ui-widget">
-		<div style="margin-bottom: 10px">
-			<img class="image" src="?func=view&amp;id=<?php echo $baseId?>">
-		</div>
-		<form id="form_upload" enctype="multipart/form-data"
-			action="base_logo.php" method="POST">
-			<input type="hidden" name="func" value="upload"> <input type="hidden"
-				name="id" value="<?php echo $baseId?>">
-			<div class="label" style="clear: both; margin-top: 10px; margin-bottom: 10px"><?php printf($GLOBALS['locBaseLogo'], $maxFileSize)?></div>
-			<div class="long">
-				<input name="logo" type="file">
-			</div>
-			<div class="form_buttons" style="clear: both">
-				<input type="submit"
-					value="<?php echo $GLOBALS['locBaseSaveLogo']?>">
-			</div>
-		</form>
-		<form id="form_erase" enctype="multipart/form-data"
-			action="base_logo.php" method="POST">
-			<input type="hidden" name="func" value="clear"> <input type="hidden"
-				name="id" value="<?php echo $baseId?>">
-			<div class="form_buttons" style="clear: both">
-				<input type="submit"
-					value="<?php echo $GLOBALS['locBaseEraseLogo']?>">
-			</div>
-		</form>
+        <div style="margin-bottom: 10px">
+            <img class="image" src="?func=view&amp;id=<?php echo $baseId?>">
+        </div>
+        <form id="form_upload" enctype="multipart/form-data"
+            action="base_logo.php" method="POST">
+            <input type="hidden" name="func" value="upload"> <input type="hidden"
+                name="id" value="<?php echo $baseId?>">
+            <div class="label" style="clear: both; margin-top: 10px; margin-bottom: 10px"><?php printf($GLOBALS['locBaseLogo'], $maxFileSize)?></div>
+            <div class="long">
+                <input name="logo" type="file">
+            </div>
+            <div class="form_buttons" style="clear: both">
+                <input type="submit"
+                    value="<?php echo $GLOBALS['locBaseSaveLogo']?>">
+            </div>
+        </form>
+        <form id="form_erase" enctype="multipart/form-data"
+            action="base_logo.php" method="POST">
+            <input type="hidden" name="func" value="clear"> <input type="hidden"
+                name="id" value="<?php echo $baseId?>">
+            <div class="form_buttons" style="clear: both">
+                <input type="submit"
+                    value="<?php echo $GLOBALS['locBaseEraseLogo']?>">
+            </div>
+        </form>
     </div>
 </div>
 </body>

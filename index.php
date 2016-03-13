@@ -138,10 +138,10 @@ $astrMainButtons = [
 ?>
 
 <body>
-	<div class="pagewrapper ui-widget-content">
-		<div class="ui-widget">
-			<div id="maintabs" class="navi ui-widget-header ui-tabs">
-				<ul class="ui-tabs-nav ui-helper-clearfix ui-corner-all">
+    <div class="pagewrapper ui-widget-content">
+        <div class="ui-widget">
+            <div id="maintabs" class="navi ui-widget-header ui-tabs">
+                <ul class="ui-tabs-nav ui-helper-clearfix ui-corner-all">
 <?php
 foreach ($astrMainButtons as $button) {
     $strButton = '<li class="functionlink ui-state-default ui-corner-top';
@@ -158,7 +158,7 @@ foreach ($astrMainButtons as $button) {
 }
 ?>
     </ul>
-			</div>
+            </div>
 <?php
 
 $level = 1;
@@ -196,9 +196,9 @@ if ($strFunc == 'open_invoices' && !$strForm) {
         updateVersionMessage($.parseJSON($.cookie("updateversion")));
         return;
       }
-    	$.getJSON('http://www.labs.fi/mlinvoice_version.php?callback=?', function(data) {
+        $.getJSON('http://www.labs.fi/mlinvoice_version.php?callback=?', function(data) {
         updateVersionMessage(data);
-    	});
+        });
     });
 
     function compareVersionNumber(v1, v2)
@@ -225,8 +225,8 @@ if ($strFunc == 'open_invoices' && !$strForm) {
 
     function updateVersionMessage(data)
     {
-    	var title = new String("<?php echo $GLOBALS['locUpdateAvailableTitle']?>").replace("{version}", data.version).replace("{date}", data.date);
-    	var result = compareVersionNumber(data.version, "<?php echo $softwareVersion?>");
+        var title = new String("<?php echo $GLOBALS['locUpdateAvailableTitle']?>").replace("{version}", data.version).replace("{date}", data.date);
+        var result = compareVersionNumber(data.version, "<?php echo $softwareVersion?>");
       if (result > 0) {
         $("<a/>").attr("href", data.url).attr("title", title).text("<?php echo $GLOBALS['locUpdateAvailable']?>").appendTo("#version");
       } else if (result < 0) {
@@ -300,6 +300,6 @@ if ($strFunc == 'system' && getRequest('operation', '') == 'export' &&
 }
 ?>
 </div>
-	</div>
+    </div>
 </body>
 </html>

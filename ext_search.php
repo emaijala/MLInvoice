@@ -168,47 +168,47 @@ if ($blnSearch || $blnSave) {
 echo htmlPageStart(_PAGE_TITLE_);
 ?>
 <body onload="<?php echo $strOnLoad?>">
-	<script type="text/javascript">
+    <script type="text/javascript">
 <!--
 $(function() {
   $('input[class~="hasCalendar"]').datepicker();
 });
 -->
 </script>
-	<div class="form_container ui-widget-content">
-		<div class="form ui-widget">
-			<form method="post"
-				action="ext_search.php?func=<?php echo $strFunc?>&amp;form=<?php echo $strForm?>"
-				target="_self" name="search_form">
-				<input type="hidden" name="fields" value="<?php echo $strFields?>">
-				<table>
-					<thead>
-						<tr>
-							<th class="sublabel">
+    <div class="form_container ui-widget-content">
+        <div class="form ui-widget">
+            <form method="post"
+                action="ext_search.php?func=<?php echo $strFunc?>&amp;form=<?php echo $strForm?>"
+                target="_self" name="search_form">
+                <input type="hidden" name="fields" value="<?php echo $strFields?>">
+                <table>
+                    <thead>
+                        <tr>
+                            <th class="sublabel">
     <?php echo $GLOBALS['locSearchField']?>
 
 
-							
-							
-							
-							
-							</td>
-							<th class="sublabel">&nbsp;
-							
-							</td>
-							<th class="sublabel">
+                            
+                            
+                            
+                            
+                            </td>
+                            <th class="sublabel">&nbsp;
+                            
+                            </td>
+                            <th class="sublabel">
     <?php echo $GLOBALS['locSearchTerm']?>
 
 
-							
-							
-							
-							
-							</td>
-							<td></td>
-						</tr>
-					</thead>
-					<tbody>
+                            
+                            
+                            
+                            
+                            </td>
+                            <td></td>
+                        </tr>
+                    </thead>
+                    <tbody>
 <?php
 
 $fieldCount = 0;
@@ -230,84 +230,84 @@ for ($j = 0; $j < count($astrFormElements); $j ++) {
                 ], $strSelectedOperator);
             ?>
 <tr>
-							<td colspan="4">
+                            <td colspan="4">
     <?php echo $strOperator?>
   </td>
-						</tr>
+                        </tr>
 <?php
         }
         ?>
 <tr class="search_row">
-							<td class="label">
+                            <td class="label">
     <?php echo $astrFormElements[$j]['label']?>
   </td>
-							<td class="field">
+                            <td class="field">
     <?php echo htmlListBox('searchmatch_' . $astrFormElements[$j]['name'], $comparisonValues, $strSearchMatch, '', 0)?>
   </td>
-							<td class="field">
+                            <td class="field">
     <?php echo htmlFormElement($astrFormElements[$j]['name'], $astrFormElements[$j]['type'], $astrValues[$astrFormElements[$j]['name']], $astrFormElements[$j]['style'], $astrFormElements[$j]['listquery'], 'MODIFY', $astrFormElements[$j]['parent_key'], '', [], '', isset($astrFormElements[$j]['options']) ? $astrFormElements[$j]['options'] : NULL)?>
   </td>
-							<td><input type="hidden"
-								name="delete_<?php echo $astrFormElements[$j]['name']?>_x"
-								value="0"> <a class="tinyactionlink" href="#"
-								title="<?php echo $GLOBALS['locDelRow']?>"
-								onclick="self.document.forms[0].delete_<?php echo $astrFormElements[$j]['name']?>_x.value=1; self.document.forms[0].submit(); return false;">
-									X </a></td>
-						</tr>
+                            <td><input type="hidden"
+                                name="delete_<?php echo $astrFormElements[$j]['name']?>_x"
+                                value="0"> <a class="tinyactionlink" href="#"
+                                title="<?php echo $GLOBALS['locDelRow']?>"
+                                onclick="self.document.forms[0].delete_<?php echo $astrFormElements[$j]['name']?>_x.value=1; self.document.forms[0].submit(); return false;">
+                                    X </a></td>
+                        </tr>
 <?php
     }
 }
 
 ?>
 <tr>
-							<td class="label">
+                            <td class="label">
   <?php echo $GLOBALS['locSelectSearchField']?>
   </td>
-							<td class="field" colspan="3">
+                            <td class="field" colspan="3">
   <?php echo $strListBox?>
   </td>
-						</tr>
-						<tr>
-							<td colspan="4"
-								style="text-align: center; padding-top: 8px; padding-bottom: 8px">
-								<input type="hidden" name="search_x" value="0"> <a
-								class="actionlink" href="#"
-								onclick="self.document.forms[0].search_x.value=1; self.document.forms[0].submit(); return false;"><?php echo $GLOBALS['locSearch']?></a>
-								<a class="actionlink" href="#"
-								onclick="self.close(); return false;"><?php echo $GLOBALS['locClose']?></a>
-							</td>
-						</tr>
-						<tr>
-							<td class="sublabel" colspan="4">
+                        </tr>
+                        <tr>
+                            <td colspan="4"
+                                style="text-align: center; padding-top: 8px; padding-bottom: 8px">
+                                <input type="hidden" name="search_x" value="0"> <a
+                                class="actionlink" href="#"
+                                onclick="self.document.forms[0].search_x.value=1; self.document.forms[0].submit(); return false;"><?php echo $GLOBALS['locSearch']?></a>
+                                <a class="actionlink" href="#"
+                                onclick="self.close(); return false;"><?php echo $GLOBALS['locClose']?></a>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="sublabel" colspan="4">
   <?php echo $GLOBALS['locSearchSave']?>
   </td>
-						</tr>
+                        </tr>
 <?php
 if ($blnSave && $strSearchName) {
     ?>
 <tr>
-							<td colspan="4">
+                            <td colspan="4">
     <?php echo $GLOBALS['locSearchSaved']?>
   </td>
-						</tr>
+                        </tr>
 <?php
 }
 ?>
 <tr>
-							<td class="label">
+                            <td class="label">
   <?php echo $GLOBALS['locSearchName']?>
   </td>
-							<td class="field"><input class="medium" type="text"
-								name="searchname" value="<?php echo $strSearchName?>"></td>
-							<td><input type="hidden" name="save_x" value="0"> <a
-								class="actionlink" href="#"
-								onclick="self.document.forms[0].save_x.value=1; self.document.forms[0].submit(); return false;"><?php echo $GLOBALS['locSaveSearch']?></a>
-							</td>
-						</tr>
-					</tbody>
-				</table>
-			</form>
-		</div>
-	</div>
+                            <td class="field"><input class="medium" type="text"
+                                name="searchname" value="<?php echo $strSearchName?>"></td>
+                            <td><input type="hidden" name="save_x" value="0"> <a
+                                class="actionlink" href="#"
+                                onclick="self.document.forms[0].save_x.value=1; self.document.forms[0].submit(); return false;"><?php echo $GLOBALS['locSaveSearch']?></a>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </form>
+        </div>
+    </div>
 </body>
 </html>

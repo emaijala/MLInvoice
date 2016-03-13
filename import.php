@@ -61,13 +61,13 @@ class ImportFile
      * Available character sets
      */
     protected $charsets = [
-		'UTF-8',
+        'UTF-8',
         'ISO-8859-1',
-		'ISO-8859-15',
-		'Windows-1251',
-		'UTF-16',
-		'UTF-16LE',
-		'UTF-16BE'
+        'ISO-8859-15',
+        'Windows-1251',
+        'UTF-16',
+        'UTF-16LE',
+        'UTF-16BE'
     ];
 
     /**
@@ -134,30 +134,30 @@ class ImportFile
 <div class="form_container">
     <?php if ($error) echo "<div class=\"error\">$error</div>\n"?>
     <h1><?php echo $GLOBALS['locImportFileSelection']?></h1>
-	<span id="imessage" style="display: none"></span> <span id="spinner"
-		style="visibility: hidden"><img src="images/spinner.gif" alt=""></span>
-	<form id="form_import" enctype="multipart/form-data" method="POST">
-		<input type="hidden" name="func"
-			value="<?php echo htmlentities(getRequest('func', ''))?>"> <input
-			type="hidden" name="operation" value="import">
-		<div class="label"
-			style="clear: both; margin-top: 10px; margin-bottom: 4px">
-			<input type="radio" id="ft_upload" name="filetype" value="upload"
-				checked="checked"><label for="ft_upload"><?php printf($GLOBALS['locImportUploadFile'], $maxFileSize)?></label>
-		</div>
-		<div class="long">
-			<input name="data" type="file">
-		</div>
+    <span id="imessage" style="display: none"></span> <span id="spinner"
+        style="visibility: hidden"><img src="images/spinner.gif" alt=""></span>
+    <form id="form_import" enctype="multipart/form-data" method="POST">
+        <input type="hidden" name="func"
+            value="<?php echo htmlentities(getRequest('func', ''))?>"> <input
+            type="hidden" name="operation" value="import">
+        <div class="label"
+            style="clear: both; margin-top: 10px; margin-bottom: 4px">
+            <input type="radio" id="ft_upload" name="filetype" value="upload"
+                checked="checked"><label for="ft_upload"><?php printf($GLOBALS['locImportUploadFile'], $maxFileSize)?></label>
+        </div>
+        <div class="long">
+            <input name="data" type="file">
+        </div>
 <?php if ($this->allowServerFile) {?>
       <div class="label" style="clear: both; margin-top: 10px">
-			<input type="radio" id="ft_server" name="filetype"
-				value="server_file"><label for="ft_server"><?php echo $GLOBALS['locImportUseServerFile']?></label>
-		</div>
+            <input type="radio" id="ft_server" name="filetype"
+                value="server_file"><label for="ft_server"><?php echo $GLOBALS['locImportUseServerFile']?></label>
+        </div>
 <?php }?>
       <div class="form_buttons" style="clear: both">
-			<input type="submit" value="<?php echo $GLOBALS['locImportNext']?>">
-		</div>
-	</form>
+            <input type="submit" value="<?php echo $GLOBALS['locImportNext']?>">
+        </div>
+    </form>
 </div>
 <?php
     }
@@ -651,8 +651,8 @@ function add_column()
     columns.appendChild(document.createTextNode(' '));
     columns.appendChild(select);
     if (g_column_id == 1) {
-    	$(select).find('option[value="id"]').attr('selected', 'selected');
-    	$(select).change();
+        $(select).find('option[value="id"]').attr('selected', 'selected');
+        $(select).change();
     }
   });
 }
@@ -795,10 +795,10 @@ function select_preset()
 </script>
 
 <div class="form_container">
-	<h1><?php echo $GLOBALS['locImportFileParameters']?></h1>
+    <h1><?php echo $GLOBALS['locImportFileParameters']?></h1>
     <span id="imessage" style="display: none"></span> <span id="spinner"
-	   style="visibility: hidden"><img src="images/spinner.gif" alt=""></span>
-	<form id="import_form" name="import_form" method="GET">
+       style="visibility: hidden"><img src="images/spinner.gif" alt=""></span>
+    <form id="import_form" name="import_form" method="GET">
         <input type="hidden" name="func" value="<?php echo htmlentities(getRequest('func', ''))?>">
         <input type="hidden" name="operation" value="import">
     <?php
@@ -823,8 +823,8 @@ function select_preset()
         }
     ?>
         <div class="medium_label"><?php echo $GLOBALS['locImportExportPreset']?></div>
-		<div class="field">
-			<select id="preset" name="preset" onchange="select_preset()">
+        <div class="field">
+            <select id="preset" name="preset" onchange="select_preset()">
             <?php
             foreach ($this->presets as $preset) {
                 echo "<option value=\"${preset['value']}\""
@@ -839,59 +839,59 @@ function select_preset()
     ?>
 
     <div class="medium_label"><?php echo $GLOBALS['locImportExportCharacterSet']?></div>
-		<div class="field">
-			<select id="charset" name="charset" onchange="settings_changed(); update_mapping_table()">
+        <div class="field">
+            <select id="charset" name="charset" onchange="settings_changed(); update_mapping_table()">
             <?php foreach ($this->charsets as $value) { ?>
                 <option value="<?php echo $value ?>"<?php if ($value == $charset) echo ' selected="selected"'?>><?php echo $value ?></option>
             <?php } ?>
-			</select>
-		</div>
+            </select>
+        </div>
         <?php
         if ($this->tableName) {
             ?>
       <input id="sel_table" name="table" type="hidden"
-			value="<?php echo htmlentities($this->tableName)?>"></input>
+            value="<?php echo htmlentities($this->tableName)?>"></input>
         <?php
         } else {
             ?>
       <div class="medium_label"><?php echo $GLOBALS['locImportExportTable']?></div>
-		<div class="field">
-			<select id="sel_table" name="table"
-				onchange="reset_columns(); settings_changed(); update_mapping_table()">
-				<option value="company"><?php echo $GLOBALS['locImportExportTableCompanies']?></option>
-				<option value="company_contact"><?php echo $GLOBALS['locImportExportTableCompanyContacts']?></option>
-				<option value="base"><?php echo $GLOBALS['locImportExportTableBases']?></option>
-				<option value="invoice"><?php echo $GLOBALS['locImportExportTableInvoices']?></option>
-				<option value="invoice_row"><?php echo $GLOBALS['locImportExportTableInvoiceRows']?></option>
-				<option value="product"><?php echo $GLOBALS['locImportExportTableProducts']?></option>
-				<option value="row_type"><?php echo $GLOBALS['locImportExportTableRowTypes']?></option>
-				<option value="invoice_state"><?php echo $GLOBALS['locImportExportTableInvoiceStates']?></option>
-			</select>
-		</div>
+        <div class="field">
+            <select id="sel_table" name="table"
+                onchange="reset_columns(); settings_changed(); update_mapping_table()">
+                <option value="company"><?php echo $GLOBALS['locImportExportTableCompanies']?></option>
+                <option value="company_contact"><?php echo $GLOBALS['locImportExportTableCompanyContacts']?></option>
+                <option value="base"><?php echo $GLOBALS['locImportExportTableBases']?></option>
+                <option value="invoice"><?php echo $GLOBALS['locImportExportTableInvoices']?></option>
+                <option value="invoice_row"><?php echo $GLOBALS['locImportExportTableInvoiceRows']?></option>
+                <option value="product"><?php echo $GLOBALS['locImportExportTableProducts']?></option>
+                <option value="row_type"><?php echo $GLOBALS['locImportExportTableRowTypes']?></option>
+                <option value="invoice_state"><?php echo $GLOBALS['locImportExportTableInvoiceStates']?></option>
+            </select>
+        </div>
         <?php
         }
         ?>
 
       <div class="medium_label"><?php echo $GLOBALS['locImportExportFormat']?></div>
-		<div class="field">
-			<select id="format" name="format"
-				onchange="update_field_states(); reset_columns(); settings_changed(); update_mapping_table()">
-				<option value="csv"<?php if ($format == 'csv') echo ' selected="selected"'?>>CSV</option>
-				<option value="xml"<?php if ($format == 'xml') echo ' selected="selected"'?>>XML</option>
-				<option value="json"<?php if ($format == 'json') echo ' selected="selected"'?>>JSON</option>
+        <div class="field">
+            <select id="format" name="format"
+                onchange="update_field_states(); reset_columns(); settings_changed(); update_mapping_table()">
+                <option value="csv"<?php if ($format == 'csv') echo ' selected="selected"'?>>CSV</option>
+                <option value="xml"<?php if ($format == 'xml') echo ' selected="selected"'?>>XML</option>
+                <option value="json"<?php if ($format == 'json') echo ' selected="selected"'?>>JSON</option>
         <?php
         if ($this->fixedWidthSettings) { ?>
-				<option value="fixed"<?php if ($format == 'fixed') echo ' selected="selected"'?>><?php echo $this->fixedWidthName ?></option>
+                <option value="fixed"<?php if ($format == 'fixed') echo ' selected="selected"'?>><?php echo $this->fixedWidthName ?></option>
         <?php
         }
         ?>
-			</select>
-		</div>
+            </select>
+        </div>
 
-		<div class="medium_label"><?php echo $GLOBALS['locImportExportFieldDelimiter']?></div>
-		<div class="field">
-			<select id="field_delim" name="field_delim"
-				onchange="settings_changed(); update_mapping_table()">
+        <div class="medium_label"><?php echo $GLOBALS['locImportExportFieldDelimiter']?></div>
+        <div class="field">
+            <select id="field_delim" name="field_delim"
+                onchange="settings_changed(); update_mapping_table()">
         <?php
         $field_delims = $this->get_field_delims();
         foreach ($field_delims as $key => $delim) {
@@ -901,12 +901,12 @@ function select_preset()
         }
         ?>
         </select>
-		</div>
+        </div>
 
-		<div class="medium_label"><?php echo $GLOBALS['locImportExportEnclosureCharacter']?></div>
-		<div class="field">
-			<select id="enclosure_char" name="enclosure_char"
-				onchange="settings_changed(); update_mapping_table()">
+        <div class="medium_label"><?php echo $GLOBALS['locImportExportEnclosureCharacter']?></div>
+        <div class="field">
+            <select id="enclosure_char" name="enclosure_char"
+                onchange="settings_changed(); update_mapping_table()">
         <?php
         $enclosure_chars = $this->get_enclosure_chars();
         foreach ($enclosure_chars as $key => $delim) {
@@ -916,12 +916,12 @@ function select_preset()
         }
         ?>
         </select>
-		</div>
+        </div>
 
-		<div class="medium_label"><?php echo $GLOBALS['locImportExportRowDelimiter']?></div>
-		<div class="field">
-			<select id="row_delim" name="row_delim"
-				onchange="settings_changed(); update_mapping_table()">
+        <div class="medium_label"><?php echo $GLOBALS['locImportExportRowDelimiter']?></div>
+        <div class="field">
+            <select id="row_delim" name="row_delim"
+                onchange="settings_changed(); update_mapping_table()">
         <?php
         $row_delims = $this->get_row_delims();
         foreach ($row_delims as $key => $delim) {
@@ -930,14 +930,14 @@ function select_preset()
         }
         ?>
         </select>
-		</div>
+        </div>
 
         <?php
         if ($this->dateFormat) {?>
         <div class="medium_label"><?php echo $GLOBALS['locImportExportDateFormat']?></div>
-		<div class="field">
-			<select id="date_format" name="date_format"
-				onchange="settings_changed()">
+        <div class="field">
+            <select id="date_format" name="date_format"
+                onchange="settings_changed()">
             <?php
             foreach ($this->dateFormats as $fmt) {
             ?>
@@ -946,52 +946,52 @@ function select_preset()
             }
             ?>
           </select>
-		</div>
+        </div>
         <?php
         }
         ?>
 
       <div class="medium_label"><?php echo $GLOBALS['locImportDecimalSeparator']?></div>
-		<div class="field">
-			<input id="decimal_separator" name="decimal_separator" maxlength="1"
-				value="<?php echo htmlentities($decimalSeparator)?>"
-				onchange="settings_changed()"></input>
-		</div>
+        <div class="field">
+            <input id="decimal_separator" name="decimal_separator" maxlength="1"
+                value="<?php echo htmlentities($decimalSeparator)?>"
+                onchange="settings_changed()"></input>
+        </div>
 
-		<div class="medium_label"><?php echo $GLOBALS['locImportSkipRows']?></div>
-		<div class="field">
-			<input id="skip_rows" name="skip_rows"
-				onchange="settings_changed(); update_mapping_table()" value="0"></input>
-		</div>
+        <div class="medium_label"><?php echo $GLOBALS['locImportSkipRows']?></div>
+        <div class="field">
+            <input id="skip_rows" name="skip_rows"
+                onchange="settings_changed(); update_mapping_table()" value="0"></input>
+        </div>
 
 <?php if ($this->duplicateControl) { ?>
       <div class="medium_label"><?php echo $GLOBALS['locImportExistingRowHandling']?></div>
-		<div class="field">
-			<select id="duplicate_processing" name="duplicate_processing"
-				onchange="settings_changed()">
-				<option value="ignore" selected="selected"><?php echo $GLOBALS['locImportExistingRowIgnore']?></option>
-				<option value="update"><?php echo $GLOBALS['locImportExistingRowUpdate']?></option>
-			</select>
-		</div>
+        <div class="field">
+            <select id="duplicate_processing" name="duplicate_processing"
+                onchange="settings_changed()">
+                <option value="ignore" selected="selected"><?php echo $GLOBALS['locImportExistingRowIgnore']?></option>
+                <option value="update"><?php echo $GLOBALS['locImportExistingRowUpdate']?></option>
+            </select>
+        </div>
 
-		<div class="medium_label"><?php echo $GLOBALS['locImportIdentificationColumns']?></div>
-		<div id="columns" class="field"></div>
+        <div class="medium_label"><?php echo $GLOBALS['locImportIdentificationColumns']?></div>
+        <div id="columns" class="field"></div>
 <?php } ?>
 
 <?php $this->add_custom_form_fields(); ?>
 
       <div class="unlimited_label"><?php echo $GLOBALS['locImportColumnMapping']?></div>
-		<div class="column_mapping">
-			<div id="mapping_errors"></div>
-			<table id="column_table">
-			</table>
-		</div>
+        <div class="column_mapping">
+            <div id="mapping_errors"></div>
+            <table id="column_table">
+            </table>
+        </div>
 
-		<div class="form_buttons" style="clear: both">
-			<button name="import" type="submit" value="preview"><?php echo $GLOBALS['locImportButtonPreview']?></button>
-			<button name="import" type="submit" value="import"><?php echo $GLOBALS['locImportButtonImport']?></button>
-		</div>
-	</form>
+        <div class="form_buttons" style="clear: both">
+            <button name="import" type="submit" value="preview"><?php echo $GLOBALS['locImportButtonPreview']?></button>
+            <button name="import" type="submit" value="import"><?php echo $GLOBALS['locImportButtonImport']?></button>
+        </div>
+    </form>
 </div>
 <?php
     }
@@ -1165,7 +1165,7 @@ function select_preset()
 
 ?>
 <div class="form_container">
-	<h1><?php echo $GLOBALS['locImportResults']?></h1>
+    <h1><?php echo $GLOBALS['locImportResults']?></h1>
 <?php
 
         if ($importMode != 'import') {

@@ -307,52 +307,52 @@ class ExportData
   </script>
 
 <div class="form_container">
-	<h1><?php echo $GLOBALS['locExport']?></h1>
-	<span id="imessage" style="display: none"></span> <span id="spinner"
-		style="visibility: hidden"><img src="images/spinner.gif" alt=""></span>
-	<form id="export_form" name="export_form" method="GET">
-		<input type="hidden" name="func" value="system"> <input type="hidden"
-			name="operation" value="export">
+    <h1><?php echo $GLOBALS['locExport']?></h1>
+    <span id="imessage" style="display: none"></span> <span id="spinner"
+        style="visibility: hidden"><img src="images/spinner.gif" alt=""></span>
+    <form id="export_form" name="export_form" method="GET">
+        <input type="hidden" name="func" value="system"> <input type="hidden"
+            name="operation" value="export">
 
-		<div class="medium_label"><?php echo $GLOBALS['locImportExportCharacterSet']?></div>
-		<div class="field">
-			<select id="charset" name="charset">
-				<option value="UTF-8">UTF-8</option>
-				<option value="ISO-8859-1">ISO-8859-1</option>
-				<option value="ISO-8859-15">ISO-8859-15</option>
-				<option value="Windows-1251">Windows-1251</option>
-				<option value="UTF-16">UTF-16</option>
-				<option value="UTF-16LE">UTF-16 LE</option>
-				<option value="UTF-16BE">UTF-16 BE</option>
-			</select>
-		</div>
+        <div class="medium_label"><?php echo $GLOBALS['locImportExportCharacterSet']?></div>
+        <div class="field">
+            <select id="charset" name="charset">
+                <option value="UTF-8">UTF-8</option>
+                <option value="ISO-8859-1">ISO-8859-1</option>
+                <option value="ISO-8859-15">ISO-8859-15</option>
+                <option value="Windows-1251">Windows-1251</option>
+                <option value="UTF-16">UTF-16</option>
+                <option value="UTF-16LE">UTF-16 LE</option>
+                <option value="UTF-16BE">UTF-16 BE</option>
+            </select>
+        </div>
 
-		<div class="medium_label"><?php echo $GLOBALS['locImportExportTable']?></div>
-		<div class="field">
-			<select id="sel_table" name="table" onchange="reset_columns()">
-				<option value="company"><?php echo $GLOBALS['locImportExportTableCompanies']?></option>
-				<option value="company_contact"><?php echo $GLOBALS['locImportExportTableCompanyContacts']?></option>
-				<option value="base"><?php echo $GLOBALS['locImportExportTableBases']?></option>
-				<option value="invoice"><?php echo $GLOBALS['locImportExportTableInvoices']?></option>
-				<option value="invoice_row"><?php echo $GLOBALS['locImportExportTableInvoiceRows']?></option>
-				<option value="product"><?php echo $GLOBALS['locImportExportTableProducts']?></option>
-				<option value="row_type"><?php echo $GLOBALS['locImportExportTableRowTypes']?></option>
-				<option value="invoice_state"><?php echo $GLOBALS['locImportExportTableInvoiceStates']?></option>
-			</select>
-		</div>
+        <div class="medium_label"><?php echo $GLOBALS['locImportExportTable']?></div>
+        <div class="field">
+            <select id="sel_table" name="table" onchange="reset_columns()">
+                <option value="company"><?php echo $GLOBALS['locImportExportTableCompanies']?></option>
+                <option value="company_contact"><?php echo $GLOBALS['locImportExportTableCompanyContacts']?></option>
+                <option value="base"><?php echo $GLOBALS['locImportExportTableBases']?></option>
+                <option value="invoice"><?php echo $GLOBALS['locImportExportTableInvoices']?></option>
+                <option value="invoice_row"><?php echo $GLOBALS['locImportExportTableInvoiceRows']?></option>
+                <option value="product"><?php echo $GLOBALS['locImportExportTableProducts']?></option>
+                <option value="row_type"><?php echo $GLOBALS['locImportExportTableRowTypes']?></option>
+                <option value="invoice_state"><?php echo $GLOBALS['locImportExportTableInvoiceStates']?></option>
+            </select>
+        </div>
 
-		<div class="medium_label"><?php echo $GLOBALS['locImportExportFormat']?></div>
-		<div class="field">
-			<select id="format" name="format" onchange="update_field_states()">
-				<option value="csv">CSV</option>
-				<option value="xml">XML</option>
-				<option value="json">JSON</option>
-			</select>
-		</div>
+        <div class="medium_label"><?php echo $GLOBALS['locImportExportFormat']?></div>
+        <div class="field">
+            <select id="format" name="format" onchange="update_field_states()">
+                <option value="csv">CSV</option>
+                <option value="xml">XML</option>
+                <option value="json">JSON</option>
+            </select>
+        </div>
 
-		<div class="medium_label"><?php echo $GLOBALS['locImportExportFieldDelimiter']?></div>
-		<div class="field">
-			<select id="field_delim" name="field_delim">
+        <div class="medium_label"><?php echo $GLOBALS['locImportExportFieldDelimiter']?></div>
+        <div class="field">
+            <select id="field_delim" name="field_delim">
   <?php
         $field_delims = $this->importer->get_field_delims();
         foreach ($field_delims as $key => $delim) {
@@ -360,11 +360,11 @@ class ExportData
         }
         ?>
           </select>
-		</div>
+        </div>
 
-		<div class="medium_label"><?php echo $GLOBALS['locImportExportEnclosureCharacter']?></div>
-		<div class="field">
-			<select id="enclosure_char" name="enclosure_char">
+        <div class="medium_label"><?php echo $GLOBALS['locImportExportEnclosureCharacter']?></div>
+        <div class="field">
+            <select id="enclosure_char" name="enclosure_char">
   <?php
         $enclosure_chars = $this->importer->get_enclosure_chars();
         foreach ($enclosure_chars as $key => $delim) {
@@ -372,11 +372,11 @@ class ExportData
         }
         ?>
           </select>
-		</div>
+        </div>
 
-		<div class="medium_label"><?php echo $GLOBALS['locImportExportRowDelimiter']?></div>
-		<div class="field">
-			<select id="row_delim" name="row_delim">
+        <div class="medium_label"><?php echo $GLOBALS['locImportExportRowDelimiter']?></div>
+        <div class="field">
+            <select id="row_delim" name="row_delim">
   <?php
         $row_delims = $this->importer->get_row_delims();
         foreach ($row_delims as $key => $delim) {
@@ -384,30 +384,30 @@ class ExportData
         }
         ?>
           </select>
-		</div>
+        </div>
 
-		<div class="medium_label"><?php echo $GLOBALS['locExportIncludeChildRows']?></div>
-		<div class="field">
-			<input id="child_rows" name="child_rows" type="checkbox"
-				checked="checked">
-		</div>
+        <div class="medium_label"><?php echo $GLOBALS['locExportIncludeChildRows']?></div>
+        <div class="field">
+            <input id="child_rows" name="child_rows" type="checkbox"
+                checked="checked">
+        </div>
 
-		<div class="medium_label"><?php echo $GLOBALS['locExportIncludeDeletedRecords']?></div>
-		<div class="field">
-			<input id="deleted" name="deleted" type="checkbox">
-		</div>
+        <div class="medium_label"><?php echo $GLOBALS['locExportIncludeDeletedRecords']?></div>
+        <div class="field">
+            <input id="deleted" name="deleted" type="checkbox">
+        </div>
 
-		<div class="medium_label"><?php echo $GLOBALS['locExportColumns']?> <input
-				type="button"
-				value="<?php echo $GLOBALS['locExportAddAllColumns']?>"
-				onclick="add_all_columns()">
-		</div>
-		<div id="columns" class="field"></div>
+        <div class="medium_label"><?php echo $GLOBALS['locExportColumns']?> <input
+                type="button"
+                value="<?php echo $GLOBALS['locExportAddAllColumns']?>"
+                onclick="add_all_columns()">
+        </div>
+        <div id="columns" class="field"></div>
 
-		<div class="form_buttons" style="clear: both">
-			<input type="submit" value="<?php echo $GLOBALS['locExportDo']?>">
-		</div>
-	</form>
+        <div class="form_buttons" style="clear: both">
+            <input type="submit" value="<?php echo $GLOBALS['locExportDo']?>">
+        </div>
+    </form>
 </div>
 <?php
     }

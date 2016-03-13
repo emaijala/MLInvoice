@@ -32,11 +32,11 @@ if (!sesWriteAccess()) {
         ] : null);
     ?>
 <body>
-	<div class="ui-widget">
-		<div class="form_container ui-widget-content">
+    <div class="ui-widget">
+        <div class="form_container ui-widget-content">
       <?php echo $GLOBALS['locNoAccess'] . "\n"?>
     </div>
-	</div>
+    </div>
 </body>
 </html>
 <?php
@@ -68,11 +68,11 @@ if ($intInvoiceId) {
             ] : null);
         ?>
 <body>
-	<div class="ui-widget">
-		<div class="form_container ui-widget-content">
+    <div class="ui-widget">
+        <div class="form_container ui-widget-content">
       <?php echo $GLOBALS['locRecordNotFound'] . "\n"?>
     </div>
-	</div>
+    </div>
 </body>
 </html>
 <?php

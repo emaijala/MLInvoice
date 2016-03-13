@@ -124,11 +124,11 @@ function createList($strFunc, $strList, $strTableName = '', $strTitleOverride = 
   </script>
 
 <div class="list_container">
-	<div id="<?php echo $strTableName?>_title" class="table_header"><?php echo $strTitle?></div>
-	<table id="<?php echo $strTableName?>" class="list">
-		<thead>
-			<tr>
-				<th>Link</th>
+    <div id="<?php echo $strTableName?>_title" class="table_header"><?php echo $strTitle?></div>
+    <table id="<?php echo $strTableName?>" class="list">
+        <thead>
+            <tr>
+                <th>Link</th>
 <?php
     foreach ($astrShowFields as $field) {
         $strWidth = isset($field['width']) ? (' style="width: ' . $field['width'] .
@@ -139,11 +139,11 @@ function createList($strFunc, $strList, $strTableName = '', $strTitleOverride = 
     }
     ?>
         </tr>
-		</thead>
-		<tbody>
-		</tbody>
-	</table>
-	<br>
+        </thead>
+        <tbody>
+        </tbody>
+    </table>
+    <br>
 </div>
 <?php
 }

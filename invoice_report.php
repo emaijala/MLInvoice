@@ -196,14 +196,14 @@ class InvoiceReport
             $first = false;
             ?>
       <div class="field">
-				<input type="checkbox" id="state-<?php echo $intStateId?>" name="stateid_<?php echo $intStateId?>"
-					value="1" <?php echo $strChecked?>> <label for="state-<?php echo $intStateId?>"><?php echo htmlspecialchars($strStateName)?></label></div>
+                <input type="checkbox" id="state-<?php echo $intStateId?>" name="stateid_<?php echo $intStateId?>"
+                    value="1" <?php echo $strChecked?>> <label for="state-<?php echo $intStateId?>"><?php echo htmlspecialchars($strStateName)?></label></div>
 <?php
         }
         ?>
     </div>
-		<div style="float: left">
-			<div class="medium_label"><?php echo $GLOBALS['locPrintFields']?></div>
+        <div style="float: left">
+            <div class="medium_label"><?php echo $GLOBALS['locPrintFields']?></div>
 <?php
         $first = true;
         foreach ($this->fields as $field => $spec) {
@@ -214,18 +214,18 @@ class InvoiceReport
             }
             ?>
         <div class="field">
-				<input type="checkbox" id="field-<?php echo $field?>" name="fields[]" value="<?php echo $field?>"
-					<?php echo $checked?>> <label for="field-<?php echo $field?>"><?php echo $label?></label></div>
+                <input type="checkbox" id="field-<?php echo $field?>" name="fields[]" value="<?php echo $field?>"
+                    <?php echo $checked?>> <label for="field-<?php echo $field?>"><?php echo $label?></label></div>
 <?php
             $first = false;
         }
         ?>
     </div>
-		<div class="medium_label">
-			<a class="actionlink" href="#"
-				onclick="document.getElementById('params').submit(); return false;"><?php echo $GLOBALS['locCreateReport']?></a>
-		</div>
-	</form>
+        <div class="medium_label">
+            <a class="actionlink" href="#"
+                onclick="document.getElementById('params').submit(); return false;"><?php echo $GLOBALS['locCreateReport']?></a>
+        </div>
+    </form>
 </div>
 <?php
     }
@@ -595,13 +595,13 @@ class InvoiceReport
         <th class="label" style="text-align: right">
             <?php echo $GLOBALS['locVATLess']?>
         </th>
-		<th class="label" style="text-align: right">
+        <th class="label" style="text-align: right">
             <?php echo $GLOBALS['locVATPart']?>
         </th>
-		<th class="label" style="text-align: right">
+        <th class="label" style="text-align: right">
             <?php echo $GLOBALS['locWithVAT']?>
         </th>
-		<th class="label" style="text-align: right">
+        <th class="label" style="text-align: right">
             <?php echo $GLOBALS['locTotalToPay']?>
         </th>
         <?php } ?>
@@ -710,13 +710,13 @@ class InvoiceReport
         <td class="input" style="text-align: right">
             <?php echo miscRound2Decim($intRowSum)?>
         </td>
-			<td class="input" style="text-align: right">
+            <td class="input" style="text-align: right">
             <?php echo miscRound2Decim($intRowVAT)?>
         </td>
-			<td class="input" style="text-align: right">
+            <td class="input" style="text-align: right">
             <?php echo miscRound2Decim($intRowSumVAT)?>
         </td>
-			<td class="input" style="text-align: right">
+            <td class="input" style="text-align: right">
             <?php echo miscRound2Decim($rowTotalToPay)?>
         </td>
         <?php } ?>
@@ -819,13 +819,13 @@ class InvoiceReport
         <td class="input row_sum" style="text-align: right">
             &nbsp;<?php echo miscRound2Decim($groupTotSum)?>
         </td>
-	    <td class="input row_sum" style="text-align: right">
+        <td class="input row_sum" style="text-align: right">
             &nbsp;<?php echo miscRound2Decim($groupTotVAT)?>
         </td>
-		<td class="input row_sum" style="text-align: right">
+        <td class="input row_sum" style="text-align: right">
             &nbsp;<?php echo miscRound2Decim($groupTotSumVAT)?>
         </td>
-		<td class="input row_sum" style="text-align: right">
+        <td class="input row_sum" style="text-align: right">
             &nbsp;<?php echo miscRound2Decim($groupTotalToPay)?>
         </td>
         </tr>
@@ -933,7 +933,7 @@ class InvoiceReport
     <tr>
     <?php if ($colSpan > 0) { ?>
         <td class="input total_sum" colspan="<?php echo $colSpan?>"
-				style="text-align: right">
+                style="text-align: right">
             <?php echo $GLOBALS['locTotal']?>
         </td>
     <?php } ?>

@@ -298,16 +298,16 @@ function createFuncMenu($strFunc)
             }
             ?>
     <a class="buttonlink<?php echo $class?>"
-		href="<?php echo $strHref?>"><?php echo $link['text']?></a>
+        href="<?php echo $strHref?>"><?php echo $link['text']?></a>
 <?php
         }
     }
     if ($blnShowSearch) {
         ?>
     <a class="buttonlink" href="#"
-		onClick="openSearchWindow('ext', event); return false;"><?php echo $GLOBALS['locExtSearch']?></a>
-	<a class="buttonlink" href="#"
-		onClick="openSearchWindow('quick', event); return false;"><?php echo $GLOBALS['locQuickSearch']?></a>
+        onClick="openSearchWindow('ext', event); return false;"><?php echo $GLOBALS['locExtSearch']?></a>
+    <a class="buttonlink" href="#"
+        onClick="openSearchWindow('quick', event); return false;"><?php echo $GLOBALS['locQuickSearch']?></a>
 <?php
     }
     if (sesWriteAccess()) {

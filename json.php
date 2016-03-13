@@ -388,10 +388,10 @@ case 'get_stock_balance_rows' :
     while ($row = mysqli_fetch_assoc($res)) {
         ?>
 <tr>
-	<td><?php echo dateConvDBTimestamp2DateTime($row['time'])?></td>
-	<td><?php echo $row['name']?></td>
-	<td><?php echo miscRound2Decim($row['stock_change'])?></td>
-	<td><?php echo $row['description']?></td>
+    <td><?php echo dateConvDBTimestamp2DateTime($row['time'])?></td>
+    <td><?php echo $row['name']?></td>
+    <td><?php echo miscRound2Decim($row['stock_change'])?></td>
+    <td><?php echo $row['description']?></td>
 </tr>
 <?php
     }

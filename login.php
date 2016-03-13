@@ -95,17 +95,17 @@ echo htmlPageStart(_PAGE_TITLE_, [
 ?>
 
 <body onload="document.getElementById('flogin').focus();">
-	<div class="pagewrapper ui-widget ui-widget-content">
-		<div class="form" style="padding: 30px;">
+    <div class="pagewrapper ui-widget ui-widget-content">
+        <div class="form" style="padding: 30px;">
 
 <?php
 if (isset($upgradeMessage)) {
     ?>
 <div
-				class="message ui-widget <?php echo isset($upgradeFailed) ? 'ui-state-error' : 'ui-state-highlight'?>">
+                class="message ui-widget <?php echo isset($upgradeFailed) ? 'ui-state-error' : 'ui-state-highlight'?>">
   <?php echo $upgradeMessage?>
 </div>
-			<br />
+            <br />
 <?php
 }
 ?>
@@ -124,11 +124,11 @@ if (isset($languages)) {
 }
 ?>
 <h1><?php echo $GLOBALS['locWelcome']?></h1>
-			<p>
-				<span id="loginmsg"><?php echo $strMessage?></span>
-			</p>
+            <p>
+                <span id="loginmsg"><?php echo $strMessage?></span>
+            </p>
 
-			<script type="text/javascript">
+            <script type="text/javascript">
 function createHash()
 {
   var pass_md5 = $.md5(document.getElementById('passwd').value);
@@ -141,26 +141,26 @@ function createHash()
 }
 </script>
 
-			<form action="login.php" method="post" name="login_form"
-				onsubmit="createHash();">
-				<input type="hidden" name="backlink" value="<?php echo $backlink?>">
-				<input type="hidden" name="fpasswd" id="fpasswd" value=""> <input
-					type="hidden" name="key" id="key" value="<?php echo $key?>">
-				<p>
-					<span style="width: 100px; display: inline-block;"><?php echo $GLOBALS['locUserID']?></span>
-					<input class="medium" name="flogin" id="flogin" type="text"
-						value="">
-				</p>
-				<p>
-					<span style="width: 100px; display: inline-block;"><?php echo $GLOBALS['locPassword']?></span>
-					<input class="medium" name="passwd" id="passwd" type="password"
-						value="">
-				</p>
-				<input type="submit" name="logon"
-					value="<?php echo $GLOBALS['locLogin']?>">
-			</form>
+            <form action="login.php" method="post" name="login_form"
+                onsubmit="createHash();">
+                <input type="hidden" name="backlink" value="<?php echo $backlink?>">
+                <input type="hidden" name="fpasswd" id="fpasswd" value=""> <input
+                    type="hidden" name="key" id="key" value="<?php echo $key?>">
+                <p>
+                    <span style="width: 100px; display: inline-block;"><?php echo $GLOBALS['locUserID']?></span>
+                    <input class="medium" name="flogin" id="flogin" type="text"
+                        value="">
+                </p>
+                <p>
+                    <span style="width: 100px; display: inline-block;"><?php echo $GLOBALS['locPassword']?></span>
+                    <input class="medium" name="passwd" id="passwd" type="password"
+                        value="">
+                </p>
+                <input type="submit" name="logon"
+                    value="<?php echo $GLOBALS['locLogin']?>">
+            </form>
 
-		</div>
-	</div>
+        </div>
+    </div>
 </body>
 </html>
