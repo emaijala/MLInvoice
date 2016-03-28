@@ -9,7 +9,7 @@
   <xsl:text disable-output-escaping="yes">&lt;?xml-stylesheet type="text/xsl" href="</xsl:text><xsl:value-of select="$stylesheet"/><xsl:text disable-output-escaping="yes">"?&gt;&#10;</xsl:text>
   </xsl:if>
 
-<Finvoice Version="1.3" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="Finvoice.xsd">
+<Finvoice Version="2.01" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="Finvoice.xsd">
   <xsl:if test="$printTransmissionDetails">
     <MessageTransmissionDetails>
         <MessageSenderDetails>
