@@ -93,7 +93,6 @@ function sesEndSession()
 {
     session_destroy();
     unset($_SESSION);
-    session_regenerate_id(true);
     return true;
 }
 
@@ -187,10 +186,12 @@ function db_session_open($savePath, $sessionID)
 {
     // Some distributions have gc disabled, need to do it manually
     db_session_gc(get_cfg_var('session.gc_maxlifetime'));
+    return true;
 }
 
 function db_session_close()
 {
+    return true;
 }
 
 function db_session_read($sessionID)
