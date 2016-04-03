@@ -1,5 +1,5 @@
 Name:		mlinvoice
-Version:	1.12.1
+Version:	1.13.0
 Release:	1%{?dist}
 Summary:	MLInvoice - Web application to create Finnish invoices
 Group:		Applications/Internet
@@ -12,7 +12,6 @@ Obsoletes: vllasku
 BuildRequires:	httpd
 Requires:	httpd
 Requires:	php
-Requires:	php-mysql
 %if 0%{?el5}
 Requires:	php-pecl-json
 %endif
@@ -68,6 +67,9 @@ EOM
 %{_datadir}/%{name}
 
 %changelog
+* Sun Apr 3 2016 Ere Maijala <ere@labs.fi> - 1.13.0-1
+- updated for version 1.13.0
+- removed php-mysql from dependencies since only php-mysqli is used 
 * Thu Dec 31 2015 Ere Maijala <ere@labs.fi> - 1.12.2-1
 - updated for version 1.12.1
 * Wed Dec 23 2015 Ere Maijala <ere@labs.fi> - 1.12.1-1
