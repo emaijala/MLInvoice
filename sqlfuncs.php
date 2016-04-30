@@ -300,6 +300,8 @@ function mysqli_param_query($query, $params = false, $noFail = false)
                 $t .= $v2;
             }
             $v = $t;
+        } elseif (is_bool($v)) {
+            $v = $v ? '1' : '0';
         } else {
             $v = mysqli_real_escape_string($dblink, $v);
             if (!is_numeric($v) || (strlen(trim($v)) > 1 && substr(trim($v), 0, 1) == '0')) {
