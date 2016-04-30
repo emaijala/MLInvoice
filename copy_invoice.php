@@ -2,17 +2,17 @@
 /*******************************************************************************
  MLInvoice: web-based invoicing application.
  Copyright (C) 2010-2015 Ere Maijala
- 
+
  This program is free software. See attached LICENSE.
- 
+
  *******************************************************************************/
 
 /*******************************************************************************
  MLInvoice: web-pohjainen laskutusohjelma.
  Copyright (C) 2010-2015 Ere Maijala
- 
+
  Tämä ohjelma on vapaa. Lue oheinen LICENSE.
- 
+
  *******************************************************************************/
 require_once 'htmlfuncs.php';
 require_once 'sqlfuncs.php';
@@ -26,15 +26,17 @@ require_once 'miscfuncs.php';
 require_once 'settings.php';
 
 if (!sesWriteAccess()) {
-    echo htmlPageStart(_PAGE_TITLE_, 
+    echo htmlPageStart(
+        _PAGE_TITLE_,
         getSetting('session_keepalive') ? [
             'js/keepalive.js'
-        ] : null);
-    ?>
+        ] : null
+    );
+?>
 <body>
     <div class="ui-widget">
         <div class="form_container ui-widget-content">
-      <?php echo $GLOBALS['locNoAccess'] . "\n"?>
+        <?php echo $GLOBALS['locNoAccess'] . "\n"?>
     </div>
     </div>
 </body>
@@ -43,34 +45,33 @@ if (!sesWriteAccess()) {
     return;
 }
 
-$intInvoiceId = getRequest('id', FALSE);
-$boolRefund = getRequest('refund', FALSE);
+$intInvoiceId = getRequest('id', false);
+$boolRefund = getRequest('refund', false);
 $strFunc = getRequest('func', '');
 $strList = getRequest('list', '');
 
 if ($intInvoiceId) {
     if ($boolRefund) {
-        $strQuery = 'UPDATE {prefix}invoice ' . 'SET state_id = 4 ' .
-             'WHERE {prefix}invoice.id = ?';
-        mysqli_param_query($strQuery, [
-            $intInvoiceId
-        ]);
+        $strQuery = 'UPDATE {prefix}invoice ' . 'SET state_id = 4 '
+             . 'WHERE {prefix}invoice.id = ?';
+        mysqli_param_query($strQuery, [$intInvoiceId]);
     }
-    
-    $strQuery = 'SELECT * ' . 'FROM {prefix}invoice ' . 'WHERE {prefix}invoice.id = ?';
-    $intRes = mysqli_param_query($strQuery, [
-        $intInvoiceId
-    ]);
+
+    $strQuery = 'SELECT * ' . 'FROM {prefix}invoice '
+        . 'WHERE {prefix}invoice.id = ?';
+    $intRes = mysqli_param_query($strQuery, [$intInvoiceId]);
     if (!($invoiceData = mysqli_fetch_assoc($intRes))) {
-        echo htmlPageStart(_PAGE_TITLE_, 
+        echo htmlPageStart(
+            _PAGE_TITLE_,
             getSetting('session_keepalive') ? [
                 'js/keepalive.js'
-            ] : null);
-        ?>
+            ] : null
+        );
+?>
 <body>
     <div class="ui-widget">
         <div class="form_container ui-widget-content">
-      <?php echo $GLOBALS['locRecordNotFound'] . "\n"?>
+        <?php echo $GLOBALS['locRecordNotFound'] . "\n"?>
     </div>
     </div>
 </body>
@@ -78,25 +79,27 @@ if ($intInvoiceId) {
 <?php
         return;
     }
-    
+
     $paymentDays = getPaymentDays($invoiceData['company_id']);
-    
+
     unset($invoiceData['id']);
     unset($invoiceData['invoice_no']);
     if (!$boolRefund) {
         unset($invoiceData['ref_number']);
         if (!empty($invoiceData['company_id'])) {
             $res = mysqli_param_query(
-                'SELECT default_ref_number FROM {prefix}company WHERE id=?', 
+                'SELECT default_ref_number FROM {prefix}company WHERE id=?',
                 [
                     $invoiceData['company_id']
-                ]);
+                ]
+            );
             $invoiceData['ref_number'] = mysqli_fetch_value($res);
         }
     }
     $invoiceData['invoice_date'] = date('Ymd');
-    $invoiceData['due_date'] = date('Ymd', 
-        mktime(0, 0, 0, date('m'), date('d') + $paymentDays, date('Y')));
+    $invoiceData['due_date'] = date(
+        'Ymd', mktime(0, 0, 0, date('m'), date('d') + $paymentDays, date('Y'))
+    );
     $invoiceData['payment_date'] = null;
     $invoiceData['state_id'] = 1;
     $invoiceData['archived'] = false;
@@ -104,38 +107,57 @@ if ($intInvoiceId) {
     if ($boolRefund) {
         $invoiceData['interval_type'] = 0;
     }
-    
+
     switch ($invoiceData['interval_type']) {
     // Month
-    case 2 :
-        $invoiceData['next_interval_date'] = date('Ymd', 
-            mktime(0, 0, 0, date('m') + 1, date('d'), date('Y')));
+    case 2:
+        $invoiceData['next_interval_date'] = date(
+            'Ymd', mktime(0, 0, 0, date('m') + 1, date('d'), date('Y'))
+        );
         break;
     // Year
-    case 3 :
-        $invoiceData['next_interval_date'] = date('Ymd', 
-            mktime(0, 0, 0, date('m'), date('d'), date('Y') + 1));
+    case 3:
+        $invoiceData['next_interval_date'] = date(
+            'Ymd', mktime(0, 0, 0, date('m'), date('d'), date('Y') + 1)
+        );
+        break;
+    // 2 to 6 months
+    case 4:
+    case 5:
+    case 6:
+    case 7:
+    case 8:
+        $invoiceData['next_interval_date'] = date(
+            'Ymd',
+            mktime(
+                0, 0, 0, date('m') + $invoiceData['interval_type'] - 2,
+                date('d'), date('Y')
+            )
+        );
         break;
     }
-    
+
     mysqli_query_check('SET AUTOCOMMIT = 0');
     mysqli_query_check('BEGIN');
-    
+
     try {
         if ($invoiceData['interval_type'] > 0) {
             // Reset interval type of the original invoice
             $strQuery = 'UPDATE {prefix}invoice ' . 'SET interval_type = 0 ' .
                  'WHERE {prefix}invoice.id = ?';
-            mysqli_param_query($strQuery, 
+            mysqli_param_query(
+                $strQuery,
                 [
                     $intInvoiceId
-                ], 'exception');
+                ],
+                'exception'
+            );
         }
-        
+
         $strQuery = 'INSERT INTO {prefix}invoice(' .
              implode(', ', array_keys($invoiceData)) . ') ' . 'VALUES (' .
              str_repeat('?, ', count($invoiceData) - 1) . '?)';
-        
+
         mysqli_param_query($strQuery, $invoiceData, 'exception');
         $intNewId = mysqli_insert_id($dblink);
         if (!$intNewId) {
@@ -144,10 +166,13 @@ if ($intInvoiceId) {
         $newRowDate = date('Ymd');
         $strQuery = 'SELECT * ' . 'FROM {prefix}invoice_row ' .
              'WHERE deleted=0 AND invoice_id=?';
-        $intRes = mysqli_param_query($strQuery, 
+        $intRes = mysqli_param_query(
+            $strQuery,
             [
                 $intInvoiceId
-            ], 'exception');
+            ],
+            'exception'
+        );
         while ($row = mysqli_fetch_assoc($intRes)) {
             if ($boolRefund) {
                 $row['pcs'] = -$row['pcs'];
@@ -156,7 +181,7 @@ if ($intInvoiceId) {
             }
             unset($row['id']);
             $row['invoice_id'] = $intNewId;
-            
+
             if (getSetting('invoice_update_row_dates_on_copy')) {
                 $row['row_date'] = $newRowDate;
             }
@@ -172,15 +197,16 @@ if ($intInvoiceId) {
     } catch (Exception $e) {
         mysqli_query_check('ROLLBACK');
         mysqli_query_check('SET AUTOCOMMIT = 1');
-        die($e->message);
+        die($e->getMessage());
     }
     mysqli_query_check('COMMIT');
     mysqli_query_check('SET AUTOCOMMIT = 1');
 }
 
 header(
-    'Location: ' . _PROTOCOL_ . $_SERVER['HTTP_HOST'] . dirname(
-        $_SERVER['PHP_SELF']) .
-         "/index.php?func=$strFunc&list=$strList&form=invoice&id=$intNewId");
+    'Location: ' . _PROTOCOL_ . $_SERVER['HTTP_HOST']
+    . dirname($_SERVER['PHP_SELF'])
+    . "/index.php?func=$strFunc&list=$strList&form=invoice&id=$intNewId"
+);
 
 ?>

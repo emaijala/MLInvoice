@@ -776,6 +776,10 @@ $intervalOptions = [
     '2' => $GLOBALS['locInvoiceIntervalMonth'],
     '3' => $GLOBALS['locInvoiceIntervalYear']
 ];
+for ($i = 4; $i <= 8; $i++) {
+    $intervalOptions[(string)$i]
+        = sprintf($GLOBALS['locInvoiceIntervalMonths'], $i - 2);
+}
 
 $astrFormElements = [
     [

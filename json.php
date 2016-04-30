@@ -129,8 +129,9 @@ case 'get_invoice_defaults' :
     $baseId = getRequest('base_id', 0);
     $companyId = getRequest('company_id', 0);
     $invoiceId = getRequest('id', 0);
-    $invoiceDate = getRequest('invoice_date',
-        dateConvDBDate2Date(date('Y') . '0101'));
+    $invoiceDate = getRequest(
+        'invoice_date', dateConvDBDate2Date(date('Y') . '0101')
+    );
     $intervalType = getRequest('interval_type', 0);
     $invNr = getRequest('invoice_no', 0);
     $perYear = getSetting('invoice_numbering_per_year');
@@ -174,13 +175,27 @@ case 'get_invoice_defaults' :
     $strDueDate = date($GLOBALS['locDateFormat'],
         mktime(0, 0, 0, date('m'), date('d') + getPaymentDays($companyId), date('Y')));
     switch ($intervalType) {
-    case 2 :
-        $nextIntervalDate = date($GLOBALS['locDateFormat'],
-            mktime(0, 0, 0, date('m') + 1, date('d'), date('Y')));
+    case 2:
+        $nextIntervalDate = date(
+            $GLOBALS['locDateFormat'],
+            mktime(0, 0, 0, date('m') + 1, date('d'), date('Y'))
+        );
         break;
-    case 3 :
-        $nextIntervalDate = date($GLOBALS['locDateFormat'],
-            mktime(0, 0, 0, date('m'), date('d'), date('Y') + 1));
+    case 3:
+        $nextIntervalDate = date(
+            $GLOBALS['locDateFormat'],
+            mktime(0, 0, 0, date('m'), date('d'), date('Y') + 1)
+        );
+        break;
+    case 4:
+    case 5:
+    case 6:
+    case 7:
+    case 8:
+        $nextIntervalDate = date(
+            $GLOBALS['locDateFormat'],
+            mktime(0, 0, 0, date('m') + $intervalType - 2, date('d'), date('Y'))
+        );
         break;
     default :
         $nextIntervalDate = '';
