@@ -321,7 +321,7 @@ abstract class InvoicePrinterBase
         $pdf->SetFont('Helvetica', '', 12);
         if ($recipientData['email'] && getSetting('invoice_show_recipient_email')) {
             $pdf->SetY($pdf->GetY() + 4);
-            $pdf->setX($this->recipientAddressXO);
+            $pdf->setX($this->recipientAddressX);
             $pdf->Cell(120, 6, $recipientData['email'], 0, 1);
         }
 
