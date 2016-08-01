@@ -2,17 +2,17 @@
 /*******************************************************************************
  MLInvoice: web-based invoicing application.
  Copyright (C) 2010-2015 Ere Maijala
- 
+
  This program is free software. See attached LICENSE.
- 
+
  *******************************************************************************/
 
 /*******************************************************************************
  MLInvoice: web-pohjainen laskutusohjelma.
  Copyright (C) 2010-2015 Ere Maijala
- 
+
  Tämä ohjelma on vapaa. Lue oheinen LICENSE.
- 
+
  *******************************************************************************/
 require_once 'localize.php';
 require_once 'miscfuncs.php';
@@ -38,25 +38,25 @@ class ExportData
         $columns = getRequest('column', '');
         $childRows = getRequest('child_rows', '');
         $deletedRecords = getRequest('deleted', false);
-        
+
         if ($table && $format && $columns) {
             if (!table_valid($table))
                 die('Invalid table name');
-            
+
             $res = mysqli_query_check("show fields from {prefix}$table");
             $field_count = mysqli_num_rows($res);
             $field_defs = [];
             while ($row = mysqli_fetch_assoc($res)) {
                 $field_defs[$row['Field']] = $row;
             }
-            
+
             foreach ($columns as $key => $column) {
                 if (!$column)
                     unset($columns[$key]);
                 elseif (!isset($field_defs[$column]))
                     die('Invalid column name');
             }
-            
+
             ob_clean();
             $filename = isset($GLOBALS["locTable_$table"]) ? $GLOBALS["locTable_$table"] : $table;
             switch ($format) {
@@ -64,7 +64,7 @@ class ExportData
                 $field_delims = $this->importer->get_field_delims();
                 $enclosure_chars = $this->importer->get_enclosure_chars();
                 $row_delims = $this->importer->get_row_delims();
-                
+
                 if (!isset($field_delims[$fieldDelimiter]))
                     die('Invalid field delimiter');
                 $fieldDelimiter = $field_delims[$fieldDelimiter]['char'];
@@ -74,7 +74,7 @@ class ExportData
                 if (!isset($row_delims[$rowDelimiter]))
                     die('Invalid field delimiter');
                 $rowDelimiter = $row_delims[$rowDelimiter]['char'];
-                
+
                 header('Content-type: text/csv');
                 header("Content-Disposition: attachment; filename=\"$filename.csv\"");
                 if ($charset == 'UTF-16')
@@ -83,7 +83,7 @@ class ExportData
                     $this->str_putcsv($columns, $fieldDelimiter, $enclosureChar) .
                          $rowDelimiter, $charset);
                 break;
-            
+
             case 'xml' :
                 header('Content-type: text/xml');
                 header("Content-Disposition: attachment; filename=\"$filename.xml\"");
@@ -91,7 +91,7 @@ class ExportData
                     echo iconv($charset, 'UTF-16', ''); // output BOM
                 $this->output_str("<?xml version=\"1.0\"?>\n<records>\n", $charset);
                 break;
-            
+
             case 'json' :
                 header('Content-type: application/json');
                 header(
@@ -101,7 +101,7 @@ class ExportData
                 echo "{\"$table\":[\n";
                 break;
             }
-            
+
             $query = "select * from {prefix}$table";
             if (!$deletedRecords) {
                 $query .= ' where deleted=0';
@@ -131,25 +131,25 @@ class ExportData
                         $this->str_putcsv($data, $fieldDelimiter, $enclosureChar) .
                              $rowDelimiter, $charset);
                     break;
-                
+
                 case 'xml' :
                     $str = "  <$table>\n";
                     foreach ($columns as $column) {
                         $str .= "    <$column>" . xml_encode($data[$column]) .
                              "</$column>\n";
                     }
-                    
+
                     if ($childRows && ($table == 'invoice' || $table == 'company')) {
                         if ($table == 'invoice') {
                             $cres = mysqli_param_query(
-                                'select * from {prefix}invoice_row where invoice_id=?', 
+                                'select * from {prefix}invoice_row where invoice_id=?',
                                 [
                                     $row['id']
                                 ]);
                             $tag = 'invoice_row';
                         } else {
                             $cres = mysqli_param_query(
-                                'select * from {prefix}company_contact where company_id=?', 
+                                'select * from {prefix}company_contact where company_id=?',
                                 [
                                     $row['id']
                                 ]);
@@ -167,7 +167,7 @@ class ExportData
                     $str .= "  </$table>\n";
                     $this->output_str($str, $charset);
                     break;
-                
+
                 case 'json' :
                     if ($childRows && ($table == 'invoice' || $table == 'company')) {
                         if ($table == 'invoice')
@@ -177,13 +177,13 @@ class ExportData
                         $data[$childTable] = [];
                         if ($table == 'invoice')
                             $cres = mysqli_param_query(
-                                'select * from {prefix}invoice_row where invoice_id=?', 
+                                'select * from {prefix}invoice_row where invoice_id=?',
                                 [
                                     $row['id']
                                 ]);
                         else
                             $cres = mysqli_param_query(
-                                'select * from {prefix}company_contact where company_id=?', 
+                                'select * from {prefix}company_contact where company_id=?',
                                 [
                                     $row['id']
                                 ]);
@@ -209,7 +209,7 @@ class ExportData
             }
             exit();
         }
-        
+
         ?>
 <script type="text/javascript">
 
@@ -424,7 +424,7 @@ class ExportData
         return rtrim($data, "\n");
     }
 
-    protected function output_str($str, $charset)
+    protected function output_str($str, $charset = '')
     {
         if ($charset && $charset != _CHARSET_) {
             $str = iconv(_CHARSET_, $charset, $str);
