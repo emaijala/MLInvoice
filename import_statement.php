@@ -41,6 +41,7 @@ class ImportStatement extends ImportFile
         $this->decimalSeparator = true;
         $this->ignoreEmptyRows = true;
         $this->requireDuplicateCheck = false;
+        $this->mappingsForXml = true;
         $this->presets = [
             [
                 'name' => 'Osuuspankki',
@@ -103,6 +104,25 @@ class ImportStatement extends ImportFile
                     'decimal_separator' => '',
                     'skip_rows' => '0'
                 ]
+            ],
+            [
+                'name' => 'camt.054.001.02',
+                'value' => 'camt.054.001.02',
+                'default_for' => 'xml',
+                'selections' => [
+                    'charset' => 1,
+                    'format' => 3,
+                    'date_format' => 4
+                ],
+                'mappings' => [
+                    'map_column1' => 1,
+                    'map_column2' => 2,
+                    'map_column3' => 3
+                ],
+                'values' => [
+                    'decimal_separator' => '.',
+                    'skip_rows' => '0'
+                ]
             ]
         ];
 
@@ -122,6 +142,93 @@ class ImportStatement extends ImportFile
             ['name' => 'response_code', 'len' => 1]
         ];
         $this->fixedWidthName = 'KTL';
+    }
+
+    protected function get_xml_preview_data($xml, &$headings, &$rows, &$errors)
+    {
+        $headings = ['booking date', 'value date', 'amount', 'refnr'];
+        $rows = [];
+        $errors = [];
+        $recNum = 0;
+        if (!empty($xml->BkToCstmrDbtCdtNtfctn->Ntfctn)) {
+            foreach ($xml->BkToCstmrDbtCdtNtfctn->Ntfctn as $notification) {
+                foreach ($notification->Ntry as $entry) {
+                    if (++$recNum > 10) {
+                        break 2;
+                    }
+                    if ($entry->Sts != 'BOOK' || $entry->CdtDbtInd != 'CRDT') {
+                        continue;
+                    }
+                    $transaction = $entry->NtryDtls->TxDtls;
+                    $rows[] = [
+                        (string)$entry->BookgDt->Dt,
+                        (string)$entry->ValDt->Dt,
+                        (string)$transaction->AmtDtls->TxAmt->Amt,
+                        (string)$transaction->RmtInf->Strd->CdtrRefInf->Ref
+                    ];
+                }
+                if (empty($rows)) {
+                    $errors[] = "No entries with status 'BOOK' and type 'CRDT'"
+                        . ' found';
+                }
+            }
+        } else {
+            $errors[] = 'No notifications found in file';
+        }
+    }
+
+    protected function import_xml($xml, $table, $field_defs, $columnMappings,
+        $duplicateMode, $duplicateCheckColumns, $importMode, &$errors
+    ) {
+        $errors = [];
+        $recNum = 0;
+        if (!empty($xml->BkToCstmrDbtCdtNtfctn->Ntfctn)) {
+            foreach ($xml->BkToCstmrDbtCdtNtfctn->Ntfctn as $notification) {
+                foreach ($notification->Ntry as $entry) {
+                    if ($entry->Sts != 'BOOK' || $entry->CdtDbtInd != 'CRDT') {
+                        continue;
+                    }
+                    ++$recNum;
+                    $transaction = $entry->NtryDtls->TxDtls;
+                    $row = [
+                        (string)$entry->BookgDt->Dt,
+                        (string)$entry->ValDt->Dt,
+                        (string)$transaction->AmtDtls->TxAmt->Amt,
+                        (string)$transaction->RmtInf->Strd->CdtrRefInf->Ref
+                    ];
+
+                    $mapped_row = [];
+                    $haveMappings = false;
+                    for ($i = 0; $i < count($row); $i++) {
+                        if ($columnMappings[$i]) {
+                            $haveMappings = true;
+                            $mapped_row[$columnMappings[$i]] = $row[$i];
+                        }
+                    }
+                    if (!$haveMappings) {
+                        if (!$this->ignoreEmptyRows) {
+                            echo "    Row $rowNum: " .
+                                 $GLOBALS['locImportNoMappedColumns'] . "<br>\n";
+                        }
+                    } else {
+                        $result = $this->process_import_row(
+                            $table, $mapped_row, $duplicateMode,
+                            $duplicateCheckColumns, $importMode, $addedRecordId
+                        );
+                        if ($result) {
+                            echo "    Record $recNum: $result<br>\n";
+                            ob_flush();
+                        }
+                    }
+                }
+                if ($recNum == 0) {
+                    $errors[] = "No entries with status 'BOOK' and type 'CRDT'"
+                        . ' found';
+                }
+            }
+        } else {
+            $errors[] = 'No notifications found in file';
+        }
     }
 
     protected function add_custom_form_fields()

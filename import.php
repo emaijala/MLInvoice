@@ -37,6 +37,7 @@ class ImportFile
     protected $ignoreEmptyRows = false;
     protected $presets = [];
     protected $requireDuplicateCheck = true;
+    protected $mappingsForXml = false;
 
     /**
      * Settings for fixed width file import (format=fixed). Keyed array:
@@ -271,26 +272,9 @@ class ImportFile
                     ]);
                 die('XML parsing failed: ' . htmlspecialchars($e->getMessage()));
             }
-            $recNum = 0;
-            $headings = [];
-            $rows = [];
-            foreach ($xml as $record) {
-                if (++$recNum > 10)
-                    break;
-                $record = get_object_vars($record);
-
-                $row = [];
-                foreach ($record as $column => $value) {
-                    if (!is_array($value) && !is_object($value)) {
-                        if ($recNum == 1)
-                            $headings[] = $column;
-                        $row[] = $value;
-                    }
-                }
-                $rows[] = $row;
-            }
+            $this->get_xml_preview_data($xml, $headings, $rows, $errors);
             $response = [
-                'errors' => [],
+                'errors' => $errors,
                 'headings' => $headings,
                 'rows' => $rows
             ];
@@ -467,6 +451,31 @@ class ImportFile
             $field_defs[$row['Field']] = $row;
         }
         return $field_defs;
+    }
+
+    protected function get_xml_preview_data($xml, &$headings, &$rows, &$errors)
+    {
+        $headings = [];
+        $rows = [];
+        $errors = [];
+        $recNum = 0;
+        foreach ($xml as $record) {
+            if (++$recNum > 10) {
+                break;
+            }
+            $record = get_object_vars($record);
+
+            $row = [];
+            foreach ($record as $column => $value) {
+                if (!is_array($value) && !is_object($value)) {
+                    if ($recNum == 1) {
+                        $headings[] = $column;
+                    }
+                    $row[] = $value;
+                }
+            }
+            $rows[] = $row;
+        }
     }
 
     protected function show_setup_form()
@@ -725,7 +734,7 @@ function update_mapping_table()
 function add_mapping_columns(headings)
 {
   var type = document.getElementById('format').value;
-  if (type != 'csv' && type != 'fixed')
+  if (type != 'csv' && type != 'fixed'<?php echo $this->mappingsForXml ? " && type != 'xml'" : '' ?>)
     return;
   var table = document.getElementById("sel_table").value;
   $.getJSON("json.php?func=get_table_columns&table=" + table, function(json) {
@@ -1015,22 +1024,33 @@ function select_preset()
         global $dblink;
 
         $sep = getRequest('decimal_separator', ',');
-        if ($sep != '.') {
-            $fieldDefs = getFormElements($table);
-            foreach ($row as $key => &$value) {
-                foreach ($fieldDefs as $fieldDef) {
-                    if ($fieldDef['name'] === $key) {
-                        if ($fieldDef['type'] == 'INT'
-                            && in_array($fieldDef['style'], ['percent', 'currency'])
-                        ) {
-                            $value = str_replace($sep, '.', $value);
-                        }
-                        break;
+        $fieldDefs = getFormElements($table);
+        // Add type_id for company so that it's handled properly even though it's not
+        // currently used.
+        if ($table == 'company') {
+            $fieldDefs[] = [
+                'name' => 'type_id',
+                'type' => 'INT',
+                'style' => 'short'
+            ];
+        }
+        foreach ($row as $key => &$value) {
+            foreach ($fieldDefs as $fieldDef) {
+                if ($fieldDef['name'] === $key) {
+                    if ($fieldDef['type'] == 'INT' && $sep != '.'
+                        && in_array($fieldDef['style'], ['percent', 'currency'])
+                    ) {
+                        $value = str_replace($sep, '.', $value);
                     }
+                    if ($value === '' && in_array($fieldDef['type'], ['INT', 'LIST'])
+                    ) {
+                        $value = null;
+                    }
+                    break;
                 }
             }
-            unset($value);
         }
+        unset($value);
 
         $result = '';
         $recordId = null;
@@ -1040,7 +1060,7 @@ function select_preset()
             $params = [];
             foreach ($dupCheckColumns as $dupCol) {
                 $where .= " AND $dupCol=?";
-                $params[] = $row[$dupCol];
+                $params[] = isset($row[$dupCol]) ? $row[$dupCol] : '';
             }
             $res = mysqli_param_query($query . $where, $params);
             if ($dupRow = mysqli_fetch_row($res)) {
@@ -1287,49 +1307,10 @@ function select_preset()
             } catch (Exception $e) {
                 die('XML parsing failed: ' . htmlspecialchars($e->getMessage()));
             }
-            $errors = [];
-            $recNum = 0;
-            foreach ($xml as $record) {
-                $record = get_object_vars($record);
-
-                $childRecords = [];
-                $mapped_row = [];
-                foreach ($record as $column => $value) {
-                    if (is_array($value)) {
-                        foreach ($value as $subRecord) {
-                            $childRecords[] = get_object_vars($subRecord);
-                        }
-                    } elseif (is_object($value)) {
-                        $childRecords[] = get_object_vars($value);
-                    } else {
-                        if (!isset($field_defs[$table][$column])) {
-                            die(
-                                "Invalid column name: $table."
-                                . htmlspecialchars($column)
-                            );
-                        }
-                        $mapped_row[$column] = $value;
-                    }
-                }
-
-                ++$recNum;
-                $addedRecordId = null;
-                $result = $this->process_import_row(
-                    $table, $mapped_row, $duplicateMode, $duplicateCheckColumns,
-                    $importMode, $addedRecordId
-                );
-                if ($result) {
-                    echo "    Record $recNum: $result<br>\n";
-                }
-                // Updating not feasible || $duplicateMode == 'update')
-                if (isset($addedRecordId)) {
-                    $this->process_child_records(
-                        $table, $addedRecordId, $childRecords, $duplicateMode,
-                        $importMode, $field_defs
-                    );
-                }
-                ob_flush();
-            }
+            $this->import_xml(
+                $xml, $table, $field_defs, $columnMappings, $duplicateMode,
+                $duplicateCheckColumns, $importMode, $errors
+            );
         } elseif ($format == 'json') {
             $data = file_get_contents($_SESSION['import_file']);
             if ($data === false) {
@@ -1463,6 +1444,52 @@ function select_preset()
         ?>
     </div>
 <?php
+    }
+
+    protected function import_xml($xml, $table, $field_defs, $columnMappings,
+        $duplicateMode, $duplicateCheckColumns, $importMode, &$errors
+    ) {
+        $errors = [];
+        $recNum = 0;
+        foreach ($xml as $record) {
+            $record = get_object_vars($record);
+
+            $childRecords = [];
+            $mapped_row = [];
+            foreach ($record as $column => $value) {
+                if (count($value) > 1) {
+                    foreach ($value as $subRecord) {
+                        $childRecords[] = get_object_vars($subRecord);
+                    }
+                } else {
+                    if (!isset($field_defs[$table][$column])) {
+                        die(
+                            "Invalid column name: $table."
+                            . htmlspecialchars($column)
+                        );
+                    }
+                    $mapped_row[$column] = (string)$value;
+                }
+            }
+
+            ++$recNum;
+            $addedRecordId = null;
+            $result = $this->process_import_row(
+                $table, $mapped_row, $duplicateMode, $duplicateCheckColumns,
+                $importMode, $addedRecordId
+            );
+            if ($result) {
+                echo "    Record $recNum: $result<br>\n";
+            }
+            // Updating not feasible || $duplicateMode == 'update')
+            if (isset($addedRecordId)) {
+                $this->process_child_records(
+                    $table, $addedRecordId, $childRecords, $duplicateMode,
+                    $importMode, $field_defs
+                );
+            }
+            ob_flush();
+        }
     }
 
     protected function table_valid($table)
