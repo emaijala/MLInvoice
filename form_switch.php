@@ -1154,7 +1154,7 @@ $astrFormElements = [
         'position' => 0,
         'default' => str_replace('.', $GLOBALS['locDecimalSeparator'],
             getSetting('invoice_default_vat_percent')),
-        'allow_null' => true
+        'allow_null' => false
     ],
     [
         'name' => 'vat_included',

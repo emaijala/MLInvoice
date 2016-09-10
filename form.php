@@ -805,7 +805,8 @@ function save_row(form_id)
                     'BUTTON',
                     'NEWLINE',
                     'ROWSUM'
-                ])) {
+                ])
+            ) {
                 if (isset($subElem['default']) && strstr($subElem['default'], 'ADD')) {
                     // The value is taken from whatever form was used but put into iform
                     ?>
@@ -813,24 +814,27 @@ function save_row(form_id)
           document.getElementById('iform_<?php echo $subElem['name']?>').value = parseInt(fld.value) + 5;
 <?php
                 } elseif ($clearRowValuesAfterAdd && $subElem['type'] != 'INTDATE') {
-                    if ($subElem['type'] == 'LIST' ||
-                         $subElem['type'] == 'SEARCHLIST') {
-                        ?>
-          document.getElementById('iform_<?php echo $subElem['name']?>').selectedIndex = 0;
+                    if ($subElem['type'] == 'LIST') {
+?>
+          document.getElementById('iform_<?php echo $subElem['name']?>').selectedIndex = -1;
+<?php
+                    } elseif ($subElem['type'] == 'SEARCHLIST') {
+?>
+          $('#iform_<?php echo $subElem['name']?>').select2('val', '');
 <?php
                     } elseif ($subElem['type'] == 'CHECK') {
-                        ?>
+?>
           document.getElementById('iform_<?php echo $subElem['name']?>').checked = 0;
 <?php
                     } else {
-                        ?>
+?>
           document.getElementById('iform_<?php echo $subElem['name']?>').value = '';
 <?php
                     }
                 }
             }
         }
-        ?>
+?>
         }
       }
     },
