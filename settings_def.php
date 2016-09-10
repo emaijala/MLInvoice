@@ -291,6 +291,19 @@ $arrSettings = [
         'default' => 5,
         'allow_null' => false
     ],
+    'invoice_clear_row_values_after_add' => [
+        'label' => $GLOBALS['locSettingInvoiceClearRowValuesAfterAdd'],
+        'type' => 'SELECT',
+        'style' => 'long noemptyvalue',
+        'position' => 1,
+        'default' => 0,
+        'allow_null' => true,
+        'options' => [
+            0 => $GLOBALS['locSettingInvoiceKeepRowValues'],
+            1 => $GLOBALS['locSettingInvoiceClearRowValues'],
+            2 => $GLOBALS['locSettingInvoiceUseProductDefaults']
+        ]
+    ],
     'invoice_pdf_filename' => [
         'label' => $GLOBALS['locSettingInvoicePDFFilename'],
         'type' => 'TEXT',
@@ -330,19 +343,6 @@ $arrSettings = [
         'position' => 1,
         'default' => 0,
         'allow_null' => true
-    ],
-    'invoice_clear_row_values_after_add' => [
-        'label' => $GLOBALS['locSettingInvoiceClearRowValuesAfterAdd'],
-        'type' => 'SELECT',
-        'style' => 'long noemptyvalue',
-        'position' => 1,
-        'default' => 0,
-        'allow_null' => true,
-        'options' => [
-            0 => $GLOBALS['locSettingInvoiceKeepRowValues'],
-            1 => $GLOBALS['locSettingInvoiceClearRowValues'],
-            2 => $GLOBALS['locSettingInvoiceUseProductDefaults']
-        ]
     ],
 
     'order_confirmation_sep' => [
