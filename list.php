@@ -75,35 +75,38 @@ function createList($strFunc, $strList, $strTableName = '', $strTitleOverride = 
         $params['highlight_overdue'] = 1;
     }
 
-    $params = http_build_query($params);
     ?>
 <script type="text/javascript">
 
   $(document).ready(function() {
     $('#<?php echo $strTableName?>').dataTable( {
-      "language": {
+      language: {
         <?php echo $GLOBALS['locTableTexts']?>
       },
-      'stateSave': true,
-      'stateDuration': 0,
-      'jQueryUI': true,
-      'pageLength': <?php echo getSetting('default_list_rows')?>,
-      'pagingType': "full_numbers",
-      'columnDefs': [
+      stateSave: true,
+      stateDuration: 0,
+      jQueryUI: true,
+      pageLength: <?php echo getSetting('default_list_rows')?>,
+      pagingType: "full_numbers",
+      columnDefs: [
 <?php
     foreach ($astrShowFields as $key => $field) {
         $strWidth = isset($field['width']) ? ($field['width'] . 'px') : '';
         ?>
-        { 'targets': [ <?php echo ($key + 1)?> ], 'width': "<?php echo $strWidth?>" },
+        { targets: [ <?php echo ($key + 1)?> ], 'width': "<?php echo $strWidth?>" },
 <?php
     }
     ?>
-        { 'targets': [ 0 ], 'searchable': false, 'visible': false }
+        { targets: [ 0 ], 'searchable': false, 'visible': false }
       ],
-      'order': [[ 1, 'asc' ]],
-      'processing': true,
-      'serverSide': true,
-      'ajax': 'json.php?func=get_list<?php echo "&$params"?>'
+      order: [[ 1, 'asc' ]],
+      processing: true,
+      serverSide: true,
+      ajax: {
+        url: 'json.php?func=get_list',
+        data: <?php echo json_encode($params) ?>,
+        type: 'POST'
+      }
     });
     $(document).on('click', '#<?php echo $strTableName?> tbody tr', function(e) {
       var data = $('#<?php echo $strTableName?>').dataTable().fnGetData(this);
@@ -113,7 +116,9 @@ function createList($strFunc, $strList, $strTableName = '', $strTitleOverride = 
     if ($invoiceTotal) {
         ?>
     $.ajax({
-      url: "json.php?func=get_invoice_total_sum<?php echo "&$params"?>"
+      url: 'json.php?func=get_invoice_total_sum',
+      data: <?php echo json_encode($params) ?>,
+      type: 'POST'
     }).done(function(data) {
       $('#<?php echo $strTableName?>_title').append(' ' + data['sum_str']);
     });
