@@ -28,11 +28,10 @@ require_once 'miscfuncs.php';
 require_once 'datefuncs.php';
 require_once 'localize.php';
 require_once 'pdf.php';
+require_once 'abstract_report.php';
 
-class ProductReport
+class ProductReport extends AbstractReport
 {
-    private $pdf = null;
-
     public function createReport()
     {
         $strReport = getRequest('report', '');
@@ -263,13 +262,9 @@ class ProductReport
             $pdf->SetFont('Helvetica', 'B', 12);
             $pdf->Cell(100, 15, $GLOBALS['locProductReport'], 0, 1, 'L');
 
-            if ($startDate || $endDate) {
-                $pdf->SetFont('Helvetica', '', 8);
-                $pdf->Cell(25, 15, $GLOBALS['locDateInterval'], 0, 0, 'L');
-                $pdf->Cell(50, 15,
-                    dateConvDBDate2Date($startDate) . ' - ' .
-                         dateConvDBDate2Date($endDate), 0, 1, 'L');
-            }
+            $pdf->SetFont('Helvetica', '', 8);
+            $pdf->MultiCell(180, 5, $this->getParamsStr(false), 0, 'L');
+            $pdf->setY($pdf->getY() + 5);
 
             $pdf->SetFont('Helvetica', 'B', 8);
             $pdf->Cell(15, 4, $GLOBALS['locCode'], 0, 0, 'L');
@@ -284,7 +279,13 @@ class ProductReport
             return;
         }
         ?>
-<div class="report">
+  <div class="report">
+    <table class="report-table">
+      <tr>
+        <td><?php echo $this->getParamsStr(true) ?></td>
+      </tr>
+    </table>
+
     <table class="report-table<?php echo $format == 'table' ? ' datatable' : '' ?>">
       <thead>
         <tr>
@@ -454,7 +455,7 @@ class ProductReport
           <td></td>
       </tfoot>
     </table>
-</div>
+  </div>
         <?php
         if ($format == 'table') {
         ?>

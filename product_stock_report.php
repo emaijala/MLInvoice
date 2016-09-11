@@ -28,11 +28,10 @@ require_once 'miscfuncs.php';
 require_once 'datefuncs.php';
 require_once 'localize.php';
 require_once 'pdf.php';
+require_once 'abstract_report.php';
 
-class ProductStockReport
+class ProductStockReport extends AbstractReport
 {
-    protected $pdf = null;
-
     public function createReport()
     {
         $strReport = getRequest('report', '');
@@ -131,10 +130,18 @@ class ProductStockReport
 
             $pdf->setY(10);
             $pdf->SetFont('Helvetica', 'B', 12);
-            $pdf->Cell(100, 5, $GLOBALS['locProductStockReport'], 0, 1, 'L');
+            $pdf->Cell(100, 10, $GLOBALS['locProductStockReport'], 0, 1, 'L');
 
             $pdf->SetFont('Helvetica', 'B', 8);
             $pdf->Cell(50, 10, date($GLOBALS['locDateFormat']), 0, 1, 'L');
+
+            if ($params = $this->getParamsStr(false)) {
+                $pdf->SetFont('Helvetica', '', 8);
+                $pdf->MultiCell(180, 5, $params, 0, 'L');
+                $pdf->setY($pdf->getY() + 5);
+            }
+
+            $pdf->SetFont('Helvetica', 'B', 8);
             $pdf->Cell(15, 4, $GLOBALS['locCode'], 0, 0, 'L');
             $pdf->Cell(40, 4, $GLOBALS['locProduct'], 0, 0, 'L');
             $pdf->Cell(25, 4, $GLOBALS['locUnitPrice'], 0, 0, 'R');
@@ -145,28 +152,34 @@ class ProductStockReport
             return;
         }
         ?>
-<div class="report">
+  <div class="report">
+    <table class="report-table">
+      <tr>
+        <td><?php echo $this->getParamsStr(true) ?></td>
+      </tr>
+    </table>
+
     <table class="report-table<?php echo $format == 'table' ? ' datatable' : '' ?>">
       <thead>
         <tr>
-            <th class="label">
+          <th class="label">
             <?php echo $GLOBALS['locCode']?>
-        </th>
-            <th class="label">
+          </th>
+          <th class="label">
             <?php echo $GLOBALS['locProduct']?>
-        </th>
-            <th class="label" style="text-align: right">
+          </th>
+          <th class="label" style="text-align: right">
             <?php echo $GLOBALS['locUnitPrice']?>
-        </th>
-            <th class="label" style="text-align: right">
+          </th>
+          <th class="label" style="text-align: right">
             <?php echo $GLOBALS['locPurchasePrice']?>
-        </th>
-            <th class="label" style="text-align: right">
+          </th>
+          <th class="label" style="text-align: right">
             <?php echo $GLOBALS['locStockBalance']?>
-        </th>
-            <th class="label" style="text-align: right">
+          </th>
+          <th class="label" style="text-align: right">
             <?php echo $GLOBALS['locStockValue']?>
-        </th>
+          </th>
         </tr>
       </thead>
       <tbody>
@@ -203,26 +216,26 @@ class ProductStockReport
         else
             $strProduct = htmlspecialchars($strProduct);
         ?>
-    <tr>
-            <td class="input">
+      <tr>
+        <td class="input">
             <?php echo $strCode?>
         </td>
-            <td class="input">
+        <td class="input">
             <?php echo $strProduct?>
         </td>
-            <td class="input" style="text-align: right">
+        <td class="input" style="text-align: right">
             <?php echo miscRound2Decim($unitPrice)?>
         </td>
-            <td class="input" style="text-align: right">
+        <td class="input" style="text-align: right">
             <?php echo miscRound2Decim($purchasePrice)?>
         </td>
-            <td class="input" style="text-align: right">
+        <td class="input" style="text-align: right">
             <?php echo miscRound2Decim($stockBalance)?>
         </td>
-            <td class="input" style="text-align: right">
+        <td class="input" style="text-align: right">
             <?php echo miscRound2Decim($stockBalance * $purchasePrice)?>
         </td>
-        </tr>
+      </tr>
 <?php
     }
 
@@ -240,10 +253,6 @@ class ProductStockReport
 
             $pdf = $this->pdf;
             $pdf->SetFont('Helvetica', 'B', 8);
-            $pdf->line(
-                $pdf->getX() + $sumPos, $pdf->getY(),
-                $pdf->getX() + $rowWidth, $pdf->getY()
-            );
             $pdf->setY($pdf->getY() + 1);
             $pdf->Cell($sumPos, 4, $GLOBALS['locTotal'], 0, 0, 'R');
             $pdf->Cell(25, 4, miscRound2Decim($stockValue), 0, 1, 'R');
@@ -256,7 +265,7 @@ class ProductStockReport
 
         $colSpan = 5;
         ?>
-    <tr>
+      <tr>
     <?php if ($colSpan > 0) { ?>
         <td class="input total_sum" colspan="<?php echo $colSpan?>"
                 style="text-align: right">
@@ -266,7 +275,7 @@ class ProductStockReport
         <td class="input total_sum" style="text-align: right">
             &nbsp;<?php echo miscRound2Decim($stockValue)?>
         </td>
-        </tr>
+      </tr>
 <?php
     }
 
@@ -290,7 +299,7 @@ class ProductStockReport
         </tr>
       </tfoot>
     </table>
-</div>
+  </div>
         <?php
         if ($format == 'table') {
         ?>

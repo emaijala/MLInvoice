@@ -28,8 +28,9 @@ require_once 'miscfuncs.php';
 require_once 'datefuncs.php';
 require_once 'localize.php';
 require_once 'pdf.php';
+require_once 'abstract_report.php';
 
-class InvoiceReport
+class InvoiceReport extends AbstractReport
 {
     protected $fields = [
         'invoice_no' => [
@@ -503,6 +504,10 @@ class InvoiceReport
             ob_end_clean();
             $pdf = new PDF($format == 'pdf' ? 'P' : 'L', 'mm', 'A4',
                 _CHARSET_ == 'UTF-8', _CHARSET_, false);
+            $pdf->SetFillColor(255,255,255);
+            if ($format == 'pdfl') {
+                $pdf->headerRightPos = 223;
+            }
             $pdf->setTopMargin(20);
             $pdf->headerRight = $GLOBALS['locReportPage'];
             $pdf->printHeaderOnFirstPage = true;
@@ -513,13 +518,9 @@ class InvoiceReport
             $pdf->SetFont('Helvetica', 'B', 12);
             $pdf->Cell(100, 15, $GLOBALS['locInvoiceReport'], 0, 1, 'L');
 
-            if ($startDate || $endDate) {
-                $pdf->SetFont('Helvetica', '', 8);
-                $pdf->Cell(25, 15, $GLOBALS['locDateInterval'], 0, 0, 'L');
-                $pdf->Cell(50, 15,
-                    dateConvDBDate2Date($startDate) . ' - ' .
-                         dateConvDBDate2Date($endDate), 0, 1, 'L');
-            }
+            $pdf->SetFont('Helvetica', '', 8);
+            $pdf->MultiCell(180, 5, $this->getParamsStr(false), 0, 'L');
+            $pdf->setY($pdf->getY() + 5);
 
             $pdf->SetFont('Helvetica', 'B', 8);
 
@@ -539,10 +540,10 @@ class InvoiceReport
                 $pdf->Cell(40, 4, $GLOBALS['locPayer'], 0, 0, 'L');
             }
             if (in_array('status', $printFields)) {
-                $pdf->Cell(15, 4, $GLOBALS['locInvoiceState'], 0, 0, 'L');
+                $pdf->Cell(20, 4, $GLOBALS['locInvoiceState'], 0, 0, 'L');
             }
             if (in_array('ref_number', $printFields)) {
-                $pdf->Cell(25, 4, $GLOBALS['locReferenceNumber'], 0, 0, 'L');
+                $pdf->Cell(20, 4, $GLOBALS['locReferenceNumber'], 0, 0, 'L');
             }
             if (in_array('sums', $printFields)) {
                 $pdf->Cell(20, 4, $GLOBALS['locVATLess'], 0, 0, 'R');
@@ -555,7 +556,13 @@ class InvoiceReport
             return;
         }
         ?>
-<div class="report">
+  <div class="report">
+    <table class="report-table">
+      <tr>
+        <td><?php echo $this->getParamsStr(true) ?></td>
+      </tr>
+    </table>
+
     <table class="report-table<?php echo $format == 'table' ? ' datatable' : '' ?>">
       <thead>
         <tr>
@@ -654,12 +661,12 @@ class InvoiceReport
                 $pdf->setX($nameX + 40);
             }
             if (in_array('status', $printFields)) {
-                $pdf->Cell(15, 4,
+                $pdf->Cell(20, 4,
                     isset($GLOBALS['loc' . $row['state']]) ? $GLOBALS['loc' .
                          $row['state']] : $row['state'], 0, 0, 'L');
             }
             if (in_array('ref_number', $printFields)) {
-                $pdf->Cell(25, 4, formatRefNumber($row['ref_number']), 0, 0, 'L');
+                $pdf->Cell(20, 4, formatRefNumber($row['ref_number']), 0, 0, 'L', true);
             }
             if (in_array('sums', $printFields)) {
                 $pdf->Cell(20, 4, miscRound2Decim($intRowSum), 0, 0, 'R');
@@ -914,13 +921,13 @@ class InvoiceReport
                 }
 
                 $pdf->setY($pdf->getY() + 4);
-                $pdf->Cell(15, 4, $GLOBALS['locVATBreakdown'], 0, 0, 'R');
+                $pdf->Cell(20, 4, $GLOBALS['locVATBreakdown'], 0, 0, 'R');
                 $pdf->Cell(25, 4, $GLOBALS['locVATLess'], 0, 0, 'R');
                 $pdf->Cell(25, 4, $GLOBALS['locVATPart'], 0, 0, 'R');
                 $pdf->Cell(25, 4, $GLOBALS['locWithVAT'], 0, 1, 'R');
                 $pdf->SetFont('Helvetica', '', 8);
                 foreach ($totalsPerVAT as $vat => $sums) {
-                    $pdf->Cell(15, 4, miscRound2OptDecim($vat) . '%', 0, 0, 'R');
+                    $pdf->Cell(20, 4, miscRound2OptDecim($vat) . '%', 0, 0, 'R');
                     $pdf->Cell(25, 4, miscRound2Decim($sums['sum']), 0, 0, 'R');
                     $pdf->Cell(25, 4, miscRound2Decim($sums['VAT']), 0, 0, 'R');
                     $pdf->Cell(25, 4, miscRound2Decim($sums['sumVAT']), 0, 1, 'R');
@@ -1001,7 +1008,7 @@ class InvoiceReport
           </tr>
         </tfoot>
     </table>
-</div>
+  </div>
         <?php
         if ($format == 'table') {
             $sumColumns = [$sumStartCol, $sumStartCol + 1, $sumStartCol + 2, $sumStartCol + 3];
