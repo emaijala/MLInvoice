@@ -79,11 +79,16 @@ if ($intInvoiceId) {
         if (!empty($invoiceData['company_id'])) {
             $res = mysqli_param_query(
                 'SELECT default_ref_number FROM {prefix}company WHERE id=?',
-                [
-                    $invoiceData['company_id']
-                ]
+                [$invoiceData['company_id']]
             );
             $invoiceData['ref_number'] = mysqli_fetch_value($res);
+        }
+        if (!empty($invoiceData['base_id'])) {
+            $res = mysqli_param_query(
+                'SELECT invoice_default_info FROM {prefix}base WHERE id=?',
+                [$invoiceData['base_id']]
+            );
+            $invoiceData['info'] = mysqli_fetch_value($res);
         }
     }
     $invoiceData['invoice_date'] = date('Ymd');
