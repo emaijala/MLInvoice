@@ -470,7 +470,7 @@ EOT
         mysqli_query_check('SET AUTOCOMMIT = 0');
         mysqli_query_check('BEGIN');
         mysqli_query_check('SET FOREIGN_KEY_CHECKS = 0');
-        $res = mysqli_query_check("SHOW TABLE STATUS WHERE ENGINE='MyISAM'");
+        $res = mysqli_query_check("SHOW TABLE STATUS WHERE Name like '" . _DB_PREFIX_ . "_%' AND ENGINE='MyISAM'");
         while ($row = mysqli_fetch_array($res)) {
             $res2 = mysqli_query_check(
                 'ALTER TABLE `' . $row['Name'] . '` ENGINE=INNODB', true);
