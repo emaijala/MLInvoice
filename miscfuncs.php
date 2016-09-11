@@ -510,7 +510,7 @@ function getSelfPath()
 function getSelfDirectory()
 {
     $path = $_SERVER['PHP_SELF'];
-    $p = strrpos($path, '/');
+    $p = strrpos($path, DIRECTORY_SEPARATOR);
     if ($p > 0) {
         $path = substr($path, 0, $p);
     } else {
@@ -537,4 +537,17 @@ function formatRefNumber($refNumber)
         return strtoupper(trim(chunk_split($refNumber, 4, ' ')));
     }
     return trim(strrev(chunk_split(strrev($refNumber), 5, ' ')));
+}
+
+function addFileTimestamp($filename)
+{
+    if (!file_exists($filename)) {
+        return $filename;
+    }
+    $mtime = filemtime($filename);
+    if (false !== $mtime) {
+        $filename .= strstr($filename, '?') ? '&_=' : '?_=';
+        $filename .= $mtime;
+    }
+    return $filename;
 }

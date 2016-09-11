@@ -38,9 +38,9 @@ if ($strFunc == 'open_invoices')
 
 $strQuery = 'SELECT * FROM {prefix}quicksearch ' . 'WHERE func=? AND user_id=? ' .
      'ORDER BY name';
-$intRes = mysqli_param_query($strQuery, 
+$intRes = mysqli_param_query($strQuery,
     [
-        $strFunc, 
+        $strFunc,
         $_SESSION['sesUSERID']
     ]);
 
@@ -55,7 +55,7 @@ while ($row = mysqli_fetch_assoc($intRes)) {
     }
 }
 
-echo htmlPageStart(_PAGE_TITLE_);
+echo htmlPageStart();
 ?>
 
 <body>
@@ -71,9 +71,9 @@ echo htmlPageStart(_PAGE_TITLE_);
                         </td>
                     </tr>
 <?php
-$intRes = mysqli_param_query($strQuery, 
+$intRes = mysqli_param_query($strQuery,
     [
-        $strFunc, 
+        $strFunc,
         $_SESSION['sesUSERID']
     ]);
 while ($row = mysqli_fetch_assoc($intRes)) {
@@ -100,7 +100,7 @@ if (!isset($intID)) {
     ?>
 <tr>
                         <td class="label">
-        <?php echo $GLOBALS['locNoQuickSearches']?> 
+        <?php echo $GLOBALS['locNoQuickSearches']?>
     </td>
                     </tr>
 <?php

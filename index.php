@@ -62,10 +62,6 @@ if ($strFunc == 'system' && getRequest('operation', '') == 'dbdump'
 }
 
 $extraJs = [];
-if (getSetting('session_keepalive')) {
-    $extraJs[] = 'js/keepalive.js';
-}
-
 if ($strFunc == 'reports') {
     $extraJs[] = 'datatables/dataTables.buttons.min.js';
     $extraJs[] = 'datatables/buttons.html5.min.js';
@@ -74,7 +70,7 @@ if ($strFunc == 'reports') {
     $extraJs[] = 'js/vfs_fonts.js';
 }
 
-echo htmlPageStart(_PAGE_TITLE_ . " - $title", $extraJs);
+echo htmlPageStart($title, $extraJs);
 
 $normalMenuRights = [
     ROLE_READONLY,

@@ -89,9 +89,7 @@ if ($strLogon) {
 
 $key = sesCreateKey();
 
-echo htmlPageStart(_PAGE_TITLE_, [
-    'jquery/js/jquery.md5.js'
-]);
+echo htmlPageStart('', ['jquery/js/jquery.md5.js']);
 ?>
 
 <body onload="document.getElementById('flogin').focus();">

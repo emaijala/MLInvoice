@@ -84,12 +84,12 @@ for ($j = 0; $j < count($astrFormElements); $j ++) {
          $astrFormElements[$j]['type'] != 'BUTTON' &&
          $astrFormElements[$j]['type'] != 'JSBUTTON' &&
          !in_array($astrFormElements[$j]['name'], $astrSelectedFields, true)) {
-        $listValues[$astrFormElements[$j]['name']] = str_replace('<br>', ' ', 
+        $listValues[$astrFormElements[$j]['name']] = str_replace('<br>', ' ',
             $astrFormElements[$j]['label']);
     }
     $strControlType = $astrFormElements[$j]['type'];
     $strControlName = $astrFormElements[$j]['name'];
-    
+
     if ($strControlType == 'IFORM' || $strControlType == 'BUTTON') {
         $astrValues[$strControlName] = '';
     } elseif ($strControlType != 'LABEL') {
@@ -103,9 +103,9 @@ for ($j = 0; $j < count($astrFormElements); $j ++) {
 $strListBox = htmlListBox('searchfield', $listValues, false, '', true);
 
 $comparisonValues = [
-    '=' => $GLOBALS['locSearchEqual'], 
-    '!=' => $GLOBALS['locSearchNotEqual'], 
-    '<' => $GLOBALS['locSearchLessThan'], 
+    '=' => $GLOBALS['locSearchEqual'],
+    '!=' => $GLOBALS['locSearchNotEqual'],
+    '<' => $GLOBALS['locSearchLessThan'],
     '>' => $GLOBALS['locSearchGreaterThan']
 ];
 
@@ -120,7 +120,7 @@ if ($blnSearch || $blnSave) {
             if ($strSearchOperator)
                 $strSearchOperator = " $strSearchOperator ";
             $strSearchMatch = getPost("searchmatch_$name", '=');
-            
+
             // do LIKE || NOT LIKE search to elements with text or varchar datatype
             if ($elem['type'] == 'TEXT' || $elem['type'] == 'AREA') {
                 if ($strSearchMatch == '=') {
@@ -143,21 +143,21 @@ if ($blnSearch || $blnSave) {
                 $strWhereClause .= "$strSearchOperator$strListTableAlias$name $strSearchMatch $strSearchValue";
         }
     }
-    
+
     $strWhereClause = urlencode($strWhereClause);
     if ($blnSearch) {
         $strLink = "index.php?func=$strFunc&where=$strWhereClause";
         $strOnLoad = "opener.location.href='$strLink'";
     }
-    
+
     if ($blnSave && $strSearchName) {
         $strQuery = 'INSERT INTO {prefix}quicksearch(user_id, name, func, whereclause) ' .
              'VALUES (?, ?, ?, ?)';
-        $intRes = mysqli_param_query($strQuery, 
+        $intRes = mysqli_param_query($strQuery,
             [
-                $_SESSION['sesUSERID'], 
-                $strSearchName, 
-                $strFunc, 
+                $_SESSION['sesUSERID'],
+                $strSearchName,
+                $strFunc,
                 $strWhereClause
             ]);
     } elseif ($blnSave && !$strSearchName) {
@@ -165,7 +165,7 @@ if ($blnSearch || $blnSave) {
     }
 }
 
-echo htmlPageStart(_PAGE_TITLE_);
+echo htmlPageStart();
 ?>
 <body onload="<?php echo $strOnLoad?>">
     <script type="text/javascript">
@@ -188,22 +188,22 @@ $(function() {
     <?php echo $GLOBALS['locSearchField']?>
 
 
-                            
-                            
-                            
-                            
+
+
+
+
                             </td>
                             <th class="sublabel">&nbsp;
-                            
+
                             </td>
                             <th class="sublabel">
     <?php echo $GLOBALS['locSearchTerm']?>
 
 
-                            
-                            
-                            
-                            
+
+
+
+
                             </td>
                             <td></td>
                         </tr>
@@ -214,18 +214,18 @@ $(function() {
 $fieldCount = 0;
 for ($j = 0; $j < count($astrFormElements); $j ++) {
     if (in_array($astrFormElements[$j]['name'], $astrSelectedFields, true)) {
-        $strSearchMatch = getPost('searchmatch_' . $astrFormElements[$j]['name'], 
+        $strSearchMatch = getPost('searchmatch_' . $astrFormElements[$j]['name'],
             '=');
         if ($astrFormElements[$j]['style'] == 'xxlong') {
             $astrFormElements[$j]['style'] = 'long';
         }
-        
+
         if (++$fieldCount > 1) {
             $strSelectedOperator = getPost(
                 'operator_' . $astrFormElements[$j]['name'], 'AND');
-            $strOperator = htmlListBox('operator_' . $astrFormElements[$j]['name'], 
+            $strOperator = htmlListBox('operator_' . $astrFormElements[$j]['name'],
                 [
-                    'AND' => $GLOBALS['locSearchAND'], 
+                    'AND' => $GLOBALS['locSearchAND'],
                     'OR' => $GLOBALS['locSearchOR']
                 ], $strSelectedOperator);
             ?>

@@ -96,7 +96,7 @@ if ($maxPacket < $maxUploadSize)
 else
     $maxFileSize = fileSizeToHumanReadable($maxUploadSize);
 
-echo htmlPageStart(_PAGE_TITLE_);
+echo htmlPageStart();
 ?>
 <div class="form_container ui-widget-content">
     <div class="message"><?php echo $messages?></div>

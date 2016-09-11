@@ -32,29 +32,29 @@ class InvoicePrinterOrderConfirmationEmail extends InvoicePrinterOrderConfirmati
     {
         $senderData = $this->senderData;
         $recipientData = $this->recipientData;
-        
-        $this->emailFrom = getRequest('email_from', 
+
+        $this->emailFrom = getRequest('email_from',
             isset($senderData['invoice_email_from']) ? $senderData['invoice_email_from'] : (isset(
                 $senderData['email']) ? $senderData['email'] : ''));
-        $this->emailTo = getRequest('email_to', 
+        $this->emailTo = getRequest('email_to',
             isset($recipientData['email']) ? $recipientData['email'] : '');
         $this->emailCC = getRequest('email_cc', '');
-        $this->emailBCC = getRequest('email_bcc', 
+        $this->emailBCC = getRequest('email_bcc',
             isset($senderData['invoice_email_bcc']) ? $senderData['invoice_email_bcc'] : '');
         $this->emailSubject = $this->replacePlaceholders(
-            getRequest('email_subject', 
+            getRequest('email_subject',
                 isset($senderData['order_confirmation_email_subject']) ? $senderData['order_confirmation_email_subject'] : ''));
         $this->emailBody = $this->replacePlaceholders(
-            getRequest('email_body', 
+            getRequest('email_body',
                 isset($senderData['order_confirmation_email_body']) ? $senderData['order_confirmation_email_body'] : ''));
-        
+
         $send = getRequest('email_send', '');
         if (!$send || !$this->emailFrom || !$this->emailTo || !$this->emailSubject ||
              !$this->emailBody) {
             $this->showEmailForm($send);
             return;
         }
-        
+
         parent::printInvoice();
     }
 
@@ -62,8 +62,8 @@ class InvoicePrinterOrderConfirmationEmail extends InvoicePrinterOrderConfirmati
     {
         $senderData = $this->senderData;
         $recipientData = $this->recipientData;
-        
-        echo htmlPageStart(_PAGE_TITLE_ . ' - ' . $GLOBALS['locSendEmail']);
+
+        echo htmlPageStart($GLOBALS['locSendEmail']);
         ?>
 <body>
     <div class="pagewrapper ui-widget ui-widget-content">
@@ -131,24 +131,24 @@ class InvoicePrinterOrderConfirmationEmail extends InvoicePrinterOrderConfirmati
         $pdf = $this->pdf;
         $senderData = $this->senderData;
         $invoiceData = $this->invoiceData;
-        
+
         mb_internal_encoding('UTF-8');
-        
+
         $boundary = '-----' . md5(uniqid(time())) . '-----';
-        
+
         // Note: According to https://bugs.php.net/bug.php?id=15841 the PHP documentation is wrong,
         // and CRLF should not be used except on Windows. PHP_EOL should work.
-        
+
         $headers = [
-            'Date' => date('r'), 
-            'From' => $this->emailFrom, 
-            'Cc' => $this->emailCC, 
-            'Bcc' => $this->emailBCC, 
-            'Mime-Version' => '1.0', 
-            'Content-Type' => "multipart/mixed; boundary=\"${boundary}\"", 
+            'Date' => date('r'),
+            'From' => $this->emailFrom,
+            'Cc' => $this->emailCC,
+            'Bcc' => $this->emailBCC,
+            'Mime-Version' => '1.0',
+            'Content-Type' => "multipart/mixed; boundary=\"${boundary}\"",
             'X-Mailer' => 'MLInvoice'
         ];
-        
+
         $filename = $this->outputFileName ? $this->outputFileName : getSetting(
             'invoice_pdf_filename');
         // Replace the %d style placeholder
@@ -156,7 +156,7 @@ class InvoicePrinterOrderConfirmationEmail extends InvoicePrinterOrderConfirmati
         // Handle additional placeholders
         $filename = $this->replacePlaceholders($filename);
         $data = $pdf->Output($filename, 'E');
-        
+
         $messageBody = 'This is a multipart message in mime format.' . PHP_EOL .
              PHP_EOL;
         $messageBody .= "--$boundary" . PHP_EOL;
@@ -165,16 +165,16 @@ class InvoicePrinterOrderConfirmationEmail extends InvoicePrinterOrderConfirmati
         $messageBody .= 'Content-Transfer-Encoding: 8bit' . PHP_EOL;
         $messageBody .= 'Content-Disposition: inline' . PHP_EOL . PHP_EOL;
         $messageBody .= $this->getFlowedBody() . PHP_EOL;
-        
+
         $messageBody .= "--$boundary" . PHP_EOL;
         $messageBody .= str_replace("\r\n", PHP_EOL, $data);
         $messageBody .= PHP_EOL . "--$boundary--";
-        
-        $result = mail($this->mimeEncodeAddress($this->emailTo), 
-            $this->mimeEncodeHeaderValue($this->emailSubject), $messageBody, 
-            $this->headersToStr($headers), 
+
+        $result = mail($this->mimeEncodeAddress($this->emailTo),
+            $this->mimeEncodeHeaderValue($this->emailSubject), $messageBody,
+            $this->headersToStr($headers),
             '-f ' . $this->extractAddress($this->emailFrom));
-        
+
         if ($result) {
             $_SESSION['formMessage'] = 'EmailSent';
         } else {
@@ -190,7 +190,7 @@ class InvoicePrinterOrderConfirmationEmail extends InvoicePrinterOrderConfirmati
     protected function getFlowedBody()
     {
         $body = cond_utf8_encode($this->emailBody);
-        
+
         $lines = [];
         foreach (explode(PHP_EOL, $body) as $paragraph) {
             $line = '';
@@ -223,11 +223,11 @@ class InvoicePrinterOrderConfirmationEmail extends InvoicePrinterOrderConfirmati
         foreach ($headers as $header => $value) {
             if (!$value)
                 continue;
-            if (in_array($header, 
+            if (in_array($header,
                 [
-                    'From', 
-                    'To', 
-                    'Cc', 
+                    'From',
+                    'To',
+                    'Cc',
                     'Bcc'
                 ]))
                 $result .= "$header: " . $this->mimeEncodeAddress($value) . PHP_EOL;

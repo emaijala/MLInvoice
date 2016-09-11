@@ -38,7 +38,7 @@ require_once 'localize.php';
 
 sesEndSession();
 
-echo htmlPageStart(_PAGE_TITLE_);
+echo htmlPageStart();
 
 ?>
 

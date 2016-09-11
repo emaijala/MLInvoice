@@ -26,20 +26,8 @@
 
 require_once 'list.php';
 
-function htmlPageStart($strTitle, $arrExtraScripts = null)
+function htmlPageStart($strTitle = '', $arrExtraScripts = [])
 {
-    /********************************************************************
-     Function : htmlPageStart
-     create Html-pagestart
-
-     Args :
-     $strTitle (string): pages title
-
-     Return : $strHtmlStart (string): page startpart
-
-     Todo : This could be more generic...
-     ********************************************************************/
-
     // These are to prevent browser & proxy caching
     // HTTP/1.1
     header('Cache-Control: no-store, no-cache, must-revalidate');
@@ -58,36 +46,62 @@ function htmlPageStart($strTitle, $arrExtraScripts = null)
     $theme = defined('_UI_THEME_LOCATION_') ? _UI_THEME_LOCATION_ : 'jquery/css/theme/jquery-ui.min.css';
     $lang = isset($_SESSION['sesLANG']) ? $_SESSION['sesLANG'] : 'fi-FI';
     $datePickerOptions = $GLOBALS['locDatePickerOptions'];
-    $select2locale = '';
-    if (file_exists("select2/select2_locale_$lang.js")) {
-        $select2locale = <<<EOT
 
-  <script type="text/javascript" src="select2/select2_locale_$lang.js"></script>
-EOT;
+    $scripts = [
+        'jquery/js/jquery-1.10.2.min.js',
+        'jquery/js/jquery.json-2.3.min.js',
+        'jquery/js/jquery.cookie.js',
+        'jquery/js/jquery-ui.min.js',
+        'datatables/jquery.dataTables.min.js',
+        'jquery/js/jquery.floatingmessage.js',
+        'js/date.js',
+        "js/date-$lang.js",
+        'jquery/js/jquery.daterangepicker.js',
+        'js/functions.js',
+        'select2/select2.min.js'
+    ];
+
+    if (file_exists("select2/select2_locale_$lang.js")) {
+        $scripts[] = "select2/select2_locale_$lang.js";
     }
+    if (getSetting('session_keepalive')) {
+        $scripts[] = 'js/keepalive.js';
+    }
+
+    $scripts = array_merge($scripts, $arrExtraScripts);
+    foreach ($scripts as &$script) {
+        $script = '  <script type="text/javascript" src="'
+            . addFileTimestamp($script) . '"></script>';
+    }
+    $scriptLinks = implode("\n", $scripts);
+
+    $css = [
+        $theme,
+        'jquery/css/ui.daterangepicker.css',
+        'datatables/buttons.dataTables.min.css',
+        'select2/select2.css',
+        'css/style.css'
+    ];
+
+    foreach ($css as &$style) {
+        $style = '  <link rel="stylesheet" type="text/css" href="'
+            . addFileTimestamp($style) . '">';
+    }
+    $cssLinks = implode("\n", $css);
+
+    $favicon = addFileTimestamp('favicon.ico');
+
+    $strTitle = $strTitle ? _PAGE_TITLE_ . " - $strTitle" : _PAGE_TITLE_;
+
     $strHtmlStart = <<<EOT
 <!DOCTYPE html>
 <html>
 <head>
   <meta http-equiv="Content-Type" content="text/html; charset=$charset">
 $xUACompatible  <title>$strTitle</title>
-  <link rel="shortcut icon" href="favicon.ico" type="image/x-icon">
-  <link rel="stylesheet" type="text/css" href="$theme">
-  <link rel="stylesheet" type="text/css" href="jquery/css/ui.daterangepicker.css">
-  <link rel="stylesheet" type="text/css" href="datatables/buttons.dataTables.min.css">
-  <link href="select2/select2.css" rel="stylesheet" />
-  <link rel="stylesheet" type="text/css" href="css/style.css">
-  <script type="text/javascript" src="jquery/js/jquery-1.10.2.min.js"></script>
-  <script type="text/javascript" src="jquery/js/jquery.json-2.3.min.js"></script>
-  <script type="text/javascript" src="jquery/js/jquery.cookie.js"></script>
-  <script type="text/javascript" src="jquery/js/jquery-ui.min.js"></script>
-  <script type="text/javascript" src="datatables/jquery.dataTables.min.js"></script>
-  <script type="text/javascript" src="jquery/js/jquery.floatingmessage.js"></script>
-  <script type="text/javascript" src="js/date.js"></script>
-  <script type="text/javascript" src="js/date-$lang.js"></script>
-  <script type="text/javascript" src="jquery/js/jquery.daterangepicker.js"></script>
-  <script type="text/javascript" src="js/functions.js"></script>
-  <script type="text/javascript" src="select2/select2.min.js"></script>$select2locale
+  <link rel="shortcut icon" href="$favicon" type="image/x-icon">
+$cssLinks
+$scriptLinks
   <script type="text/javascript">
 $(document).ready(function() {
   $.datepicker.setDefaults($datePickerOptions);
@@ -105,15 +119,8 @@ $(document).ready(function() {
   );
 });
   </script>
-
+</head>
 EOT;
-
-    if (isset($arrExtraScripts)) {
-        foreach ($arrExtraScripts as $script) {
-            $strHtmlStart .= "  <script type=\"text/javascript\" src=\"$script\"></script>\n";
-        }
-    }
-    $strHtmlStart .= "</head>\n";
 
     return $strHtmlStart;
 }

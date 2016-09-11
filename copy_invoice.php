@@ -26,12 +26,7 @@ require_once 'miscfuncs.php';
 require_once 'settings.php';
 
 if (!sesWriteAccess()) {
-    echo htmlPageStart(
-        _PAGE_TITLE_,
-        getSetting('session_keepalive') ? [
-            'js/keepalive.js'
-        ] : null
-    );
+    echo htmlPageStart();
 ?>
 <body>
     <div class="ui-widget">
@@ -61,12 +56,7 @@ if ($intInvoiceId) {
         . 'WHERE {prefix}invoice.id = ?';
     $intRes = mysqli_param_query($strQuery, [$intInvoiceId]);
     if (!($invoiceData = mysqli_fetch_assoc($intRes))) {
-        echo htmlPageStart(
-            _PAGE_TITLE_,
-            getSetting('session_keepalive') ? [
-                'js/keepalive.js'
-            ] : null
-        );
+        echo htmlPageStart();
 ?>
 <body>
     <div class="ui-widget">
