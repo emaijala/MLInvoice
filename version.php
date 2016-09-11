@@ -9,7 +9,7 @@
 
 /*******************************************************************************
  MLInvoice: web-pohjainen laskutusohjelma.
- Copyright (C) 2010-2015 Ere Maijala
+ Copyright (C) 2010-2016 Ere Maijala
 
  Tämä ohjelma on vapaa. Lue oheinen LICENSE.
 

@@ -1,26 +1,26 @@
 <?php
 /*******************************************************************************
  MLInvoice: web-based invoicing application.
- Copyright (C) 2010-2015 Ere Maijala
- 
+ Copyright (C) 2010-2016 Ere Maijala
+
  Portions based on:
  PkLasku : web-based invoicing software.
  Copyright (C) 2004-2008 Samu Reinikainen
- 
+
  This program is free software. See attached LICENSE.
- 
+
  *******************************************************************************/
 
 /*******************************************************************************
  MLInvoice: web-pohjainen laskutusohjelma.
- Copyright (C) 2010-2015 Ere Maijala
- 
+ Copyright (C) 2010-2016 Ere Maijala
+
  Perustuu osittain sovellukseen:
  PkLasku : web-pohjainen laskutusohjelmisto.
  Copyright (C) 2004-2008 Samu Reinikainen
- 
+
  Tämä ohjelma on vapaa. Lue oheinen LICENSE.
- 
+
  *******************************************************************************/
 require_once 'htmlfuncs.php';
 require_once 'sqlfuncs.php';
