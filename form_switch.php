@@ -787,7 +787,7 @@ $astrFormElements = [
         'label' => $GLOBALS['locBiller'],
         'type' => 'LIST',
         'style' => 'medium linked',
-        'listquery' => 'SELECT id, name FROM {prefix}base WHERE deleted=0',
+        'listquery' => 'SELECT id, name FROM {prefix}base WHERE deleted=0 ORDER BY name, id',
         'position' => 1,
         'default' => $defaultBase,
         'elem_attributes' => $baseOnChange
