@@ -25,6 +25,7 @@
  *******************************************************************************/
 
 require_once 'list.php';
+require_once 'settings.php';
 
 function htmlPageStart($strTitle = '', $arrExtraScripts = [])
 {
