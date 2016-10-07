@@ -86,6 +86,28 @@ class ImportStatement extends ImportFile
                 ]
             ],
             [
+                'name' => 'Saastopankki',
+                'value' => 'Saastopankki',
+                'selections' => [
+                    'charset' => 1,
+                    'format' => 0,
+                    'field_delim' => 1,
+                    'enclosure_char' => 0,
+                    'row_delim' => 0,
+                    'date_format' => 0
+                ],
+                'mappings' => [
+                    'map_column0' => 1,
+                    'map_column4' => 2,
+                    'map_column3' => 3
+                ],
+                'values' => [
+                    'decimal_separator' => ',',
+                    'skip_rows' => '0'
+                ],
+            ],
+            [
+
                 'name' => 'KTL',
                 'value' => 'KTL',
                 'default_for' => 'fixed',
@@ -271,7 +293,8 @@ class ImportStatement extends ImportFile
             return $GLOBALS['locImportStatementFieldMissing'];
         }
 
-        $refnr = str_replace(' ', '', $row['refnr']);
+        $refnr = str_replace("'", '', $row['refnr']);
+        $refnr = str_replace(' ', '', $refnr);
         $refnr = ltrim($refnr, '0');
         $date = date(
             'Ymd',
