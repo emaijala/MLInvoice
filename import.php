@@ -589,7 +589,7 @@ class ImportFile
         ?>
 <script type="text/javascript">
 
-g_presets = <?php echo json_encode($this->presets) . ';'?>
+g_presets = <?php echo json_encode($this->presets, JSON_UNESCAPED_UNICODE) . ';'?>
 
 $(document).ready(function() {
   $('#imessage').ajaxStart(function() {
@@ -771,7 +771,7 @@ function add_mapping_columns(headings)
       td.appendChild(clone);
       tr.appendChild(td);
     }
-    var name = $("#preset").val();
+    var name = $("#preset option:selected").text();
     $.each(g_presets, function(index, preset) {
       if (preset['name'] == name) {
         $.each(preset['mappings'], function(element, value) {
@@ -785,7 +785,7 @@ function add_mapping_columns(headings)
 
 function select_preset()
 {
-  var name = $("#preset").val();
+  var name = $("#preset option:selected").text();
   $.each(g_presets, function(index, preset) {
     if (preset['name'] == name) {
       $.each(preset['selections'], function(element, value) {

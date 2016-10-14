@@ -86,7 +86,7 @@ class ImportStatement extends ImportFile
                 ]
             ],
             [
-                'name' => 'Saastopankki',
+                'name' => 'Säästöpankki',
                 'value' => 'Saastopankki',
                 'selections' => [
                     'charset' => 1,
@@ -293,8 +293,7 @@ class ImportStatement extends ImportFile
             return $GLOBALS['locImportStatementFieldMissing'];
         }
 
-        $refnr = str_replace("'", '', $row['refnr']);
-        $refnr = str_replace(' ', '', $refnr);
+        $refnr = str_replace([' ', "'"], '', $row['refnr']);
         $refnr = ltrim($refnr, '0');
         $date = date(
             'Ymd',
