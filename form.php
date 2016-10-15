@@ -413,7 +413,7 @@ function init_rows_done()
     }
     ?>
 
-function save_record(redirect_url, redir_style)
+function save_record(redirect_url, redir_style, on_print)
 {
   var form = document.getElementById('admin_form');
   var obj = new Object();
@@ -444,6 +444,9 @@ function save_record(redirect_url, redir_style)
     }
     ?>
   obj.id = form.id.value;
+  if (typeof on_print !== 'undefined') {
+    obj.onPrint = on_print;
+  }
   $.ajax({
     'url': "json.php?func=put_<?php echo $strJSONType?>",
     'type': 'POST',
@@ -451,29 +454,31 @@ function save_record(redirect_url, redir_style)
     'data': $.toJSON(obj),
     'contentType': 'application/json; charset=utf-8',
     'success': function(data) {
-      if (data.warnings)
+      if (data.warnings) {
         alert(data.warnings);
-      if (data.missing_fields)
-      {
-        errormsg('<?php echo $GLOBALS['locErrValueMissing']?>: ' + data.missing_fields);
       }
-      else
-      {
+      if (data.missing_fields) {
+        errormsg('<?php echo $GLOBALS['locErrValueMissing']?>: ' + data.missing_fields);
+      } else {
+        <?php if ($strJSONType == 'invoice'): ?>
+          if (typeof on_print !== 'undefined' && on_print) {
+            $('input#invoice_no').val(data.invoice_no);
+            $('input#ref_number').val(data.ref_number);
+          }
+        <?php endif; ?>
         $('.save_button').removeClass('ui-state-highlight');
         showmsg('<?php echo $GLOBALS['locRecordSaved']?>', 2000);
-        if (redirect_url)
-        {
-          if (redir_style == 'openwindow')
+        if (redirect_url) {
+          if (redir_style == 'openwindow') {
             window.open(redirect_url);
-          else
+          } else {
             window.location = redirect_url;
+          }
         }
-        if (!obj.id)
-        {
+        if (!obj.id) {
           obj.id = data.id;
           form.id.value = obj.id;
-          if (!redirect_url || redir_style == 'openwindow')
-          {
+          if (!redirect_url || redir_style == 'openwindow') {
             var newloc = new String(window.location).split('#', 1)[0];
             window.location = newloc + '&id=' + obj.id;
           }
@@ -484,10 +489,11 @@ function save_record(redirect_url, redir_style)
       if (XMLHTTPReq.status == 409) {
         errormsg(jQuery.parseJSON(XMLHTTPReq.responseText).warnings);
       }
-      else if (textStatus == 'timeout')
+      else if (textStatus == 'timeout') {
         errormsg('Timeout trying to save data');
-      else
+      } else {
         errormsg('Error trying to save data: ' + XMLHTTPReq.status + ' - ' + XMLHTTPReq.statusText);
+      }
       return false;
     }
   });

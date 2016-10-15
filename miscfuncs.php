@@ -551,3 +551,81 @@ function addFileTimestamp($filename)
     }
     return $filename;
 }
+
+function getInvoiceDefaults($invoiceId, $baseId, $companyId, $invoiceDate,
+    $intervalType, $invoiceNumber
+) {
+    $perYear = getSetting('invoice_numbering_per_year');
+
+    // If the invoice already has an invoice number, verify that it's not in use in another invoice
+    if ($invoiceNumber) {
+        $query = 'SELECT ID FROM {prefix}invoice where deleted=0 AND id!=? AND invoice_no=?';
+        $params = [
+            $invoiceId,
+            $invoiceNumber
+        ];
+        if (getSetting('invoice_numbering_per_base') && $baseId) {
+            $query .= ' AND base_id=?';
+            $params[] = $baseId;
+        }
+        if ($perYear) {
+            $query .= ' AND invoice_date >= ' . dateConvDate2DBDate($invoiceDate);
+        }
+
+        $res = mysqli_param_query($query, $params);
+        if (mysqli_fetch_assoc($res)) {
+            $invoiceNumber = 0;
+        }
+    }
+
+    if (!$invoiceNumber) {
+        $maxNr = get_max_invoice_number($invoiceId,
+            getSetting('invoice_numbering_per_base') && $baseId ? $baseId : null,
+            $perYear);
+        if ($maxNr === null && $perYear) {
+            $maxNr = get_max_invoice_number($invoiceId,
+                getSetting('invoice_numbering_per_base') && $baseId ? $baseId : null,
+                false);
+        }
+        $invoiceNumber = $maxNr + 1;
+    }
+    if ($invoiceNumber < 100)
+        $invoiceNumber = 100; // min ref number length is 3 + check digit, make sure invoice number matches that
+    $refNr = $invoiceNumber . miscCalcCheckNo($invoiceNumber);
+    $strDate = date($GLOBALS['locDateFormat']);
+    $strDueDate = date($GLOBALS['locDateFormat'],
+        mktime(0, 0, 0, date('m'), date('d') + getPaymentDays($companyId), date('Y')));
+    switch ($intervalType) {
+    case 2:
+        $nextIntervalDate = date(
+            $GLOBALS['locDateFormat'],
+            mktime(0, 0, 0, date('m') + 1, date('d'), date('Y'))
+        );
+        break;
+    case 3:
+        $nextIntervalDate = date(
+            $GLOBALS['locDateFormat'],
+            mktime(0, 0, 0, date('m'), date('d'), date('Y') + 1)
+        );
+        break;
+    case 4:
+    case 5:
+    case 6:
+    case 7:
+    case 8:
+        $nextIntervalDate = date(
+            $GLOBALS['locDateFormat'],
+            mktime(0, 0, 0, date('m') + $intervalType - 2, date('d'), date('Y'))
+        );
+        break;
+    default :
+        $nextIntervalDate = '';
+    }
+    return [
+        'invoice_no' => $invoiceNumber,
+        'ref_no' => $refNr,
+        'date' => $strDate,
+        'due_date' => $strDueDate,
+        'next_interval_date' => $nextIntervalDate
+    ];
+}

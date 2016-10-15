@@ -80,7 +80,7 @@ function getFormDefaultValue($elem, $parentKey)
 // Return true on success.
 // Return false on conflict or a string of missing values if encountered. In these cases, the record is not saved.
 function saveFormData($table, &$primaryKey, &$formElements, &$values, &$warnings,
-    $parentKeyName = '', $parentKey = FALSE)
+    $parentKeyName = '', $parentKey = false, $onPrint = false)
 {
     global $dblink;
 
@@ -261,7 +261,50 @@ function saveFormData($table, &$primaryKey, &$formElements, &$values, &$warnings
             $warnings = $GLOBALS['locInvoiceNumberAlreadyInUse'];
     }
 
-    return TRUE;
+    // Special case for invoices - check, according to settings, that the invoice has
+    // an invoice number and a reference number
+    if ($table == '{prefix}invoice' && $onPrint &&
+        (getSetting('invoice_add_number')
+        || getSetting('invoice_add_reference_number'))
+    ) {
+        mysqli_query_check(
+            'LOCK TABLES {prefix}invoice WRITE, {prefix}settings READ'
+            . ', {prefix}company READ'
+        );
+        $res = mysqli_param_query(
+            'SELECT invoice_no, ref_number, base_id, company_id, invoice_date,'
+            . "interval_type FROM $table WHERE id=?",
+            [$primaryKey]
+        );
+        $data = mysqli_fetch_assoc($res);
+        $needInvNo = getSetting('invoice_add_number');
+        $needRefNo = getSetting('invoice_add_reference_number');
+        if (($needInvNo && empty($data['invoice_no']))
+            || ($needRefNo && empty($data['ref_number']))
+        ) {
+            $defaults = getInvoiceDefaults(
+                $primaryKey, $data['base_id'], $data['company_id'],
+                $data['invoice_date'], $data['interval_type'], $data['invoice_no']
+            );
+            $sql = "UPDATE {prefix}invoice SET";
+            $updateStrings = [];
+            $params = [];
+            if ($needInvNo && empty($data['invoice_no'])) {
+                $updateStrings[] = 'invoice_no=?';
+                $params[] = $defaults['invoice_no'];
+            }
+            if ($needRefNo && empty($data['ref_number'])) {
+                $updateStrings[] = 'ref_number=?';
+                $params[] = $defaults['ref_no'];
+            }
+            $sql .= ' ' . implode(', ', $updateStrings) . ' WHERE id=?';
+            $params[] = $primaryKey;
+            mysqli_param_query($sql, $params);
+        }
+        mysqli_query_check('UNLOCK TABLES');
+    }
+
+    return true;
 }
 
 // Fetch a record. Values in $values, may modify $formElements.

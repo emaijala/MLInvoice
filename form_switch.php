@@ -665,18 +665,8 @@ EOS;
         $invoicePrintChecks .= "var len = document.getElementById('ref_number').value.length; if (len > 0 && len < 4) { if (!confirm('" .
              $GLOBALS['locInvoiceRefNumberTooShort'] . "')) return false; } ";
 
-        if (getSetting('invoice_add_number') ||
-             getSetting('invoice_add_reference_number')) {
-            $invoiceNumberUpdatePrefix = "$.getJSON('json.php?func=get_invoice_defaults', {id: $('#record_id').val(), invoice_no: $('#invoice_no').val(), invoice_date: $('#invoice_date').val(), base_id: $('#base_id').val(), company_id: $('#company_id').val(), interval_type: $('#interval_type').val()}, function(json) { ";
-            if (getSetting('invoice_add_number'))
-                $invoiceNumberUpdatePrefix .= "var invoice_no = document.getElementById('invoice_no'); if (invoice_no.value == '' || invoice_no.value < 100) invoice_no.value = json.invoice_no; ";
-            if (getSetting('invoice_add_reference_number'))
-                $invoiceNumberUpdatePrefix .= "var ref_number = document.getElementById('ref_number'); if (ref_number.value == '' || ref_number.value == 0) ref_number.value = json.ref_no; ";
-            $invoiceNumberUpdatePrefix .= "$('.save_button').addClass('ui-state-highlight'); ";
-            $invoiceNumberUpdateSuffix = ' });';
-        }
         if (!getSetting('invoice_add_number')) {
-            $invoiceNumberUpdatePrefix .= "invoice_no = document.getElementById('invoice_no'); if (invoice_no.value == '' || invoice_no.value == 0) { if (!confirm('" .
+            $invoiceNumberUpdatePrefix = "invoice_no = document.getElementById('invoice_no'); if (invoice_no.value == '' || invoice_no.value == 0) { if (!confirm('" .
                  $GLOBALS['locInvoiceNumberNotDefined'] . "')) return false; }";
         }
     }
@@ -721,7 +711,7 @@ EOF;
         $printStyle = $row['new_window'] ? 'openwindow' : 'redirect';
 
         if (sesWriteAccess()) {
-            $printFunc = "${invoicePrintChecks}${invoiceNumberUpdatePrefix}save_record('invoice.php?id=_ID_&amp;template=$templateId&amp;func=$strFunc', '$printStyle'); ${invoiceNumberUpdateSuffix} return false;";
+            $printFunc = "${invoicePrintChecks}${invoiceNumberUpdatePrefix}save_record('invoice.php?id=_ID_&amp;template=$templateId&amp;func=$strFunc', '$printStyle', true); ${invoiceNumberUpdateSuffix} return false;";
         } else {
             // Check if this print template is safe for read-only use
             $printer = instantiateInvoicePrinter($row['filename']);
