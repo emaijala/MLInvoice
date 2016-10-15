@@ -771,9 +771,9 @@ function add_mapping_columns(headings)
       td.appendChild(clone);
       tr.appendChild(td);
     }
-    var name = $("#preset option:selected").text();
+    var value = $("#preset").val();
     $.each(g_presets, function(index, preset) {
-      if (preset['name'] == name) {
+      if (preset['value'] == value) {
         $.each(preset['mappings'], function(element, value) {
           var elem = $('#' + element).get(0);
           if (elem) elem.selectedIndex = value;
@@ -785,9 +785,9 @@ function add_mapping_columns(headings)
 
 function select_preset()
 {
-  var name = $("#preset option:selected").text();
+  var value = $("#preset").val();
   $.each(g_presets, function(index, preset) {
-    if (preset['name'] == name) {
+    if (preset['value'] == value) {
       $.each(preset['selections'], function(element, value) {
         var elem = $('#' + element).get(0);
         if (elem) elem.selectedIndex = value;
