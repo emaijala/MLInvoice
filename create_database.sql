@@ -5,7 +5,8 @@ CREATE TABLE mlinvoice_invoice_state (
   order_no int(11) default NULL,
   invoice_open tinyint NOT NULL default 0,
   invoice_unpaid tinyint NOT NULL default 0,
-  invoice_offered tinyint NOT NULL default 0,
+  invoice_offer tinyint NOT NULL default 0,
+  invoice_offer_sent tinyint NOT NULL default 0,
   PRIMARY KEY (id)
 ) ENGINE=INNODB CHARACTER SET utf8 COLLATE utf8_swedish_ci;
 
@@ -308,8 +309,9 @@ INSERT INTO mlinvoice_invoice_state (id, name, order_no, invoice_open, invoice_u
 INSERT INTO mlinvoice_invoice_state (id, name, order_no, invoice_open, invoice_unpaid) VALUES (6, 'StateSecondReminder', 30, 0, 1);
 INSERT INTO mlinvoice_invoice_state (id, name, order_no, invoice_open, invoice_unpaid) VALUES (7, 'StateDebtCollection', 35, 0, 1);
 INSERT INTO mlinvoice_invoice_state (id, name, order_no, invoice_open, invoice_unpaid) VALUES (8, 'StatePaidInCash', 17, 0, 0);
-INSERT INTO mlinvoice_invoice_state (id, name, order_no, invoice_open, invoice_unpaid, invoice_offered) VALUES (9, 'StateOffered', 40, 1, 0, 1);
-INSERT INTO mlinvoice_invoice_state (id, name, order_no, invoice_open, invoice_unpaid, invoice_offered) VALUES (10, 'StateUnrealizedOffer', 45, 0, 0, 1);
+INSERT INTO mlinvoice_invoice_state (id, name, order_no, invoice_open, invoice_unpaid, invoice_offer) VALUES (9, 'StateOfferOpen', 40, 1, 0, 1);
+INSERT INTO mlinvoice_invoice_state (id, name, order_no, invoice_open, invoice_unpaid, invoice_offer, invoice_offer_sent) VALUES (10, 'StateOfferSent', 45, 1, 0, 1, 1);
+INSERT INTO mlinvoice_invoice_state (id, name, order_no, invoice_open, invoice_unpaid, invoice_offer, invoice_offer_sent) VALUES (11, 'StateOfferUnrealised', 50, 0, 0, 1, 1);
 
 INSERT INTO mlinvoice_row_type (id, name, order_no) VALUES (1, 'TypeHour', 5);
 INSERT INTO mlinvoice_row_type (id, name, order_no) VALUES (2, 'TypeDay', 10);

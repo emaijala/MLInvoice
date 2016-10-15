@@ -845,9 +845,11 @@ EOT
     if ($version < 42) {
         $updates = array_merge($updates,
             [
-                'ALTER TABLE {prefix}invoice_state ADD COLUMN invoice_offered tinyint NOT NULL default 0',
-                "INSERT INTO {prefix}invoice_state (name, order_no, invoice_open, invoice_unpaid, invoice_offered) VALUES ('StateOffered', 40, 1, 0, 1)",
-                "INSERT INTO {prefix}invoice_state (name, order_no, invoice_open, invoice_unpaid, invoice_offered) VALUES ('StateUnrealisedOffer', 45, 0, 0, 1)",
+                'ALTER TABLE {prefix}invoice_state ADD COLUMN invoice_offer tinyint NOT NULL default 0',
+                'ALTER TABLE {prefix}invoice_state ADD COLUMN invoice_offer_sent tinyint NOT NULL default 0',
+                "INSERT INTO {prefix}invoice_state (name, order_no, invoice_open, invoice_unpaid, invoice_offer) VALUES ('StateOfferOpen', 40, 1, 0, 1)",
+                "INSERT INTO {prefix}invoice_state (name, order_no, invoice_open, invoice_unpaid, invoice_offer, invoice_offer_sent) VALUES ('StateOfferSent', 45, 1, 0, 1, 1)",
+                "INSERT INTO {prefix}invoice_state (name, order_no, invoice_open, invoice_unpaid, invoice_offer, invoice_offer_sent) VALUES ('StateOfferUnrealised', 50, 0, 0, 1, 1)",
                 "INSERT INTO {prefix}print_template (name, filename, parameters, output_filename, type, order_no, inactive) VALUES ('PrintOfferFinnish', 'invoice_printer_offer.php', 'offer', 'tarjous_%d.pdf', 'invoice', 200, 1)",
                 "INSERT INTO {prefix}print_template (name, filename, parameters, output_filename, type, order_no, inactive) VALUES ('PrintOfferSwedish', 'invoice_printer_offer.php', 'offer,sv-FI', 'anbud_%d.pdf', 'invoice', 210, 1)",
                 "INSERT INTO {prefix}print_template (name, filename, parameters, output_filename, type, order_no, inactive) VALUES ('PrintOfferEnglish', 'invoice_printer_offer.php', 'offer,en', 'offer_%d.pdf', 'invoice', 220, 1)",

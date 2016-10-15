@@ -1596,8 +1596,8 @@ $astrFormElements = [
         'position' => 2
     ],
     [
-        'name' => 'invoice_offered',
-        'label' => $GLOBALS['locInvoiceStatusOffered'],
+        'name' => 'invoice_offer',
+        'label' => $GLOBALS['locInvoiceStatusOffer'],
         'type' => 'CHECK',
         'style' => 'short',
         'position' => 1

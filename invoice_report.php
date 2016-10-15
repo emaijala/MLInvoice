@@ -197,7 +197,7 @@ class InvoiceReport extends AbstractReport
         <div style="float: left; margin-right: 20px;">
             <div class="medium_label"><?php echo $GLOBALS['locPrintReportStates']?></div>
 <?php
-        $strQuery = 'SELECT id, name, invoice_offered FROM {prefix}invoice_state WHERE deleted=0 ' .
+        $strQuery = 'SELECT id, name, invoice_offer FROM {prefix}invoice_state WHERE deleted=0 ' .
              'ORDER BY order_no';
         $intRes = mysqli_query_check($strQuery);
         $first = true;
@@ -205,7 +205,7 @@ class InvoiceReport extends AbstractReport
             $intStateId = $row['id'];
             $strStateName = isset($GLOBALS['loc' . $row['name']]) ? $GLOBALS['loc' .
                  $row['name']] : $row['name'];
-            $strChecked = getRequest("stateid_$intStateId", $row['invoice_offered'] ? false : true) ? ' checked' : '';
+            $strChecked = getRequest("stateid_$intStateId", $row['invoice_offer'] ? false : true) ? ' checked' : '';
             if (!$first) {
                 echo "      <div class=\"medium_label\"></div>\n";
             }

@@ -35,18 +35,26 @@ class InvoicePrinterOfferEmail extends InvoicePrinterOffer
 
     protected function emailPostProcess($success)
     {
-        if ($success && $this->invoiceData['state_id'] == 1) {
-            $res = mysqli_query_check(
-                'SELECT id FROM {prefix}invoice_state WHERE invoice_open=1'
-                . ' AND invoice_offered=1 ORDER BY order_no'
+        if ($success) {
+            $res = mysqli_param_query(
+                'SELECT invoice_open FROM {prefix}invoice_state WHERE id=?',
+                [$this->invoiceData['state_id']]
             );
-            $stateId = mysqli_fetch_value($res);
-            // Mark invoice offered
-            if (null !== $stateId) {
-                mysqli_param_query(
-                    'UPDATE {prefix}invoice SET state_id=? WHERE id=?',
-                    [$stateId, $this->invoiceId]
+            $open = mysqli_fetch_value($res);
+            if ($open) {
+                $res = mysqli_query_check(
+                    'SELECT id FROM {prefix}invoice_state WHERE invoice_open=1'
+                    . ' AND invoice_offer=1 AND invoice_offer_sent=1'
+                    . ' ORDER BY order_no'
                 );
+                $stateId = mysqli_fetch_value($res);
+                // Mark invoice offered
+                if (null !== $stateId) {
+                    mysqli_param_query(
+                        'UPDATE {prefix}invoice SET state_id=? WHERE id=?',
+                        [$stateId, $this->invoiceId]
+                    );
+                }
             }
         }
     }
