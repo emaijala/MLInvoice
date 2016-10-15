@@ -1490,6 +1490,22 @@ $astrFormElements = [
         'allow_null' => true
     ],
     [
+        'name' => 'offer_email_subject',
+        'label' => $GLOBALS['locBaseOfferEmailSubject'],
+        'type' => 'TEXT',
+        'style' => 'long',
+        'position' => 0,
+        'allow_null' => true
+    ],
+    [
+        'name' => 'offer_email_body',
+        'label' => $GLOBALS['locBaseOfferEmailBody'],
+        'type' => 'AREA',
+        'style' => 'email email_body',
+        'position' => 0,
+        'allow_null' => true
+    ],
+    [
         'name' => 'logosep',
         'label' => $GLOBALS['locBaseLogoTitle'],
         'type' => 'LABEL'

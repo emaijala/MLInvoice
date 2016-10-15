@@ -1014,6 +1014,8 @@ abstract class InvoicePrinterBase
                         $str = $GLOBALS['locPDFDispatchNote'];
                     } elseif ($this->printStyle == 'receipt') {
                         $str = $GLOBALS['locPDFReceipt'];
+                    } elseif ($this->printStyle == 'ofer') {
+                        $str = $GLOBALS['locPDFOffer'];
                     } elseif ($this->printStyle == 'order_confirmation') {
                         $str = $GLOBALS['locPDFOrderConfirmation'];
                     } elseif ($this->invoiceData['state_id'] == 5) {

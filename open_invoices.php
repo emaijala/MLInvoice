@@ -46,7 +46,7 @@ function createOpenInvoiceList()
 
     $open = '';
     $res = mysqli_query_check(
-        'SELECT id FROM {prefix}invoice_state WHERE invoice_open=1');
+        'SELECT id FROM {prefix}invoice_state WHERE invoice_open=1 AND invoice_offered=0');
     while ($id = mysqli_fetch_value($res)) {
         if ($open) {
             $open .= ', ';
@@ -56,7 +56,7 @@ function createOpenInvoiceList()
 
     $unpaid = '';
     $res = mysqli_query_check(
-        'SELECT id FROM {prefix}invoice_state WHERE invoice_open=0 AND invoice_unpaid=1');
+        'SELECT id FROM {prefix}invoice_state WHERE invoice_open=0 AND invoice_unpaid=1 AND invoice_offered=0');
     while ($id = mysqli_fetch_value($res)) {
         if ($unpaid) {
             $unpaid .= ', ';
@@ -64,15 +64,34 @@ function createOpenInvoiceList()
         $unpaid .= $id;
     }
 
+    $offered = '';
+    $res = mysqli_query_check(
+        'SELECT id FROM {prefix}invoice_state WHERE invoice_offered=1');
+    while ($id = mysqli_fetch_value($res)) {
+        if ($offered) {
+            $offered .= ', ';
+        }
+        $offered .= $id;
+    }
+
     if ($open) {
         createList('open_invoices', 'invoice', 'resultlist_open_invoices',
             $GLOBALS['locLabelOpenInvoices'],
-            "i.state_id IN ($open) AND i.archived=0", true);
+            "i.state_id IN ($open) AND i.archived=0", true
+        );
     }
 
     if ($unpaid) {
         createList('open_invoices', 'invoice', 'resultlist_unpaid_invoices',
             $GLOBALS['locLabelUnpaidInvoices'],
-            "i.state_id IN ($unpaid) AND i.archived=0", true, true);
+            "i.state_id IN ($unpaid) AND i.archived=0", true, true
+        );
+    }
+
+    if ($offered) {
+        createList('open_invoices', 'invoice', 'resultlist_offered',
+            $GLOBALS['locLabelOffers'],
+            "i.state_id IN ($offered) AND i.archived=0", true
+        );
     }
 }

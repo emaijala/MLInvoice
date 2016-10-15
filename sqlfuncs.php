@@ -316,7 +316,7 @@ function mysqli_param_query($query, $params = false, $noFail = false)
 function mysqli_fetch_value($result)
 {
     $row = mysqli_fetch_row($result);
-    return $row[0];
+    return isset($row[0]) ? $row[0] : null;
 }
 
 function mysqli_fetch_prefixed_assoc($result)
@@ -501,7 +501,8 @@ EOT
                 'ALTER TABLE {prefix}invoice ADD COLUMN interval_type int(11) NOT NULL default 0',
                 'ALTER TABLE {prefix}invoice ADD COLUMN next_interval_date int(11) default NULL',
                 "REPLACE INTO {prefix}state (id, data) VALUES ('version', '16')"
-            ]);
+            ]
+        );
     }
     if ($version < 17) {
         $updates = array_merge($updates,
@@ -536,7 +537,8 @@ EOT
                 "UPDATE {prefix}row_type set name='TypeKilometer' where name='km'",
                 "UPDATE {prefix}row_type set name='TypeKilogram' where name='kg'",
                 "REPLACE INTO {prefix}state (id, data) VALUES ('version', '17')"
-            ]);
+            ]
+        );
     }
     if ($version < 18) {
         $updates = array_merge($updates,
@@ -544,7 +546,8 @@ EOT
                 'ALTER TABLE {prefix}base ADD COLUMN country varchar(255) default NULL',
                 'ALTER TABLE {prefix}company ADD COLUMN country varchar(255) default NULL',
                 "REPLACE INTO {prefix}state (id, data) VALUES ('version', '18')"
-            ]);
+            ]
+        );
     }
     if ($version < 19) {
         $updates = array_merge($updates,
@@ -554,7 +557,8 @@ EOT
                 "UPDATE {prefix}session_type set name='SessionTypeBackupUser' where name='Käyttäjä - varmuuskopioija'",
                 "UPDATE {prefix}session_type set name='SessionTypeReadOnly' where name='Vain laskujen ja raporttien tarkastelu'",
                 "REPLACE INTO {prefix}state (id, data) VALUES ('version', '19')"
-            ]);
+            ]
+        );
     }
     if ($version < 20) {
         $updates = array_merge($updates,
@@ -564,7 +568,8 @@ EOT
                 'ALTER TABLE {prefix}product CHANGE COLUMN discount discount decimal(4,1) NULL',
                 'ALTER TABLE {prefix}invoice_row CHANGE COLUMN discount discount decimal(4,1) NULL',
                 "REPLACE INTO {prefix}state (id, data) VALUES ('version', '20')"
-            ]);
+            ]
+        );
     }
     if ($version < 21) {
         $updates = array_merge($updates,
@@ -572,7 +577,8 @@ EOT
                 "INSERT INTO {prefix}print_template (name, filename, parameters, output_filename, type, order_no, inactive) VALUES ('PrintInvoiceSwedish', 'invoice_printer.php', 'invoice,sv-FI,Y', 'faktura_%d.pdf', 'invoice', 90, 1)",
                 "INSERT INTO {prefix}print_template (name, filename, parameters, output_filename, type, order_no, inactive) VALUES ('PrintInvoiceSwedishFormless', 'invoice_printer_formless.php', 'invoice,sv-FI,N', 'faktura_%d.pdf', 'invoice', 100, 1)",
                 "REPLACE INTO {prefix}state (id, data) VALUES ('version', '21')"
-            ]);
+            ]
+        );
     }
     if ($version < 22) {
         $updates = array_merge($updates,
@@ -581,7 +587,8 @@ EOT
                 "INSERT INTO {prefix}print_template (name, filename, parameters, output_filename, type, order_no, inactive) VALUES ('PrintEmailReceiptSwedish', 'invoice_printer_email.php', 'receipt,sv-FI', 'kvitto_%d.pdf', 'invoice', 120, 1)",
                 "INSERT INTO {prefix}print_template (name, filename, parameters, output_filename, type, order_no, inactive) VALUES ('PrintEmailReceiptEnglish', 'invoice_printer_email.php', 'receipt,en', 'receipt_%d.pdf', 'invoice', 130, 1)",
                 "REPLACE INTO {prefix}state (id, data) VALUES ('version', '22')"
-            ]);
+            ]
+        );
     }
     if ($version < 23) {
         $updates = array_merge($updates,
@@ -590,7 +597,8 @@ EOT
                 'ALTER TABLE {prefix}users CHANGE COLUMN name name varchar(255)',
                 'ALTER TABLE {prefix}users CHANGE COLUMN login login varchar(255)',
                 "REPLACE INTO {prefix}state (id, data) VALUES ('version', '23')"
-            ]);
+            ]
+        );
     }
     if ($version < 24) {
         $updates = array_merge($updates,
@@ -599,7 +607,8 @@ EOT
                 "INSERT INTO {prefix}print_template (name, filename, parameters, output_filename, type, order_no, inactive) VALUES ('PrintOrderConfirmationSwedish', 'invoice_printer_order_confirmation.php', 'receipt,sv-FI', 'orderbekraftelse_%d.pdf', 'invoice', 150, 1)",
                 "INSERT INTO {prefix}print_template (name, filename, parameters, output_filename, type, order_no, inactive) VALUES ('PrintOrderConfirmationEnglish', 'invoice_printer_order_confirmation.php', 'receipt,en', 'order_confirmation_%d.pdf', 'invoice', 160, 1)",
                 "REPLACE INTO {prefix}state (id, data) VALUES ('version', '24')"
-            ]);
+            ]
+        );
     }
     if ($version < 25) {
         $updates = array_merge($updates,
@@ -633,7 +642,8 @@ EOT
                 'ALTER TABLE {prefix}company ADD COLUMN delivery_method_id int(11) default NULL',
                 'ALTER TABLE {prefix}company ADD CONSTRAINT FOREIGN KEY (delivery_method_id) REFERENCES {prefix}delivery_method(id)',
                 "REPLACE INTO {prefix}state (id, data) VALUES ('version', '25')"
-            ]);
+            ]
+        );
     }
 
     if ($version < 26) {
@@ -655,7 +665,8 @@ EOT
                 'CREATE INDEX {prefix}users_name on {prefix}users(name)',
                 'CREATE INDEX {prefix}users_deleted on {prefix}users(deleted)',
                 "REPLACE INTO {prefix}state (id, data) VALUES ('version', '26')"
-            ]);
+            ]
+        );
     }
 
     if ($version < 27) {
@@ -663,7 +674,8 @@ EOT
             [
                 "INSERT INTO {prefix}invoice_state (name, order_no) VALUES ('StatePaidInCash', 17)",
                 "REPLACE INTO {prefix}state (id, data) VALUES ('version', '27')"
-            ]);
+            ]
+        );
     }
 
     if ($version < 28) {
@@ -673,7 +685,8 @@ EOT
                 "INSERT INTO {prefix}print_template (name, filename, parameters, output_filename, type, order_no, inactive) VALUES ('PrintOrderConfirmationEmailSwedish', 'invoice_printer_order_confirmation_email.php', 'receipt,sv-FI', 'orderbekraftelse_%d.pdf', 'invoice', 180, 1)",
                 "INSERT INTO {prefix}print_template (name, filename, parameters, output_filename, type, order_no, inactive) VALUES ('PrintOrderConfirmationEmailEnglish', 'invoice_printer_order_confirmation_email.php', 'receipt,en', 'order_confirmation_%d.pdf', 'invoice', 190, 1)",
                 "REPLACE INTO {prefix}state (id, data) VALUES ('version', '28')"
-            ]);
+            ]
+        );
     }
 
     if ($version < 29) {
@@ -681,7 +694,8 @@ EOT
             [
                 'ALTER TABLE {prefix}session CHANGE COLUMN id id varchar(255)',
                 "REPLACE INTO {prefix}state (id, data) VALUES ('version', '29')"
-            ]);
+            ]
+        );
     }
 
     if ($version < 30) {
@@ -691,7 +705,8 @@ EOT
                 'ALTER TABLE {prefix}company ADD COLUMN payment_intermediator varchar(100) default NULL',
                 "INSERT INTO {prefix}print_template (name, filename, parameters, output_filename, type, order_no, inactive) VALUES ('PrintFinvoiceSOAP', 'invoice_printer_finvoice_soap.php', '', 'finvoice_%d.xml', 'invoice', 55, 1)",
                 "REPLACE INTO {prefix}state (id, data) VALUES ('version', '30')"
-            ]);
+            ]
+        );
     }
 
     if ($version < 31) {
@@ -700,7 +715,8 @@ EOT
                 'ALTER TABLE {prefix}product ADD COLUMN ean_code1 varchar(13) default NULL',
                 'ALTER TABLE {prefix}product ADD COLUMN ean_code2 varchar(13) default NULL',
                 "REPLACE INTO {prefix}state (id, data) VALUES ('version', '31')"
-            ]);
+            ]
+        );
     }
 
     if ($version < 32) {
@@ -723,7 +739,8 @@ CREATE TABLE {prefix}stock_balance_log (
 EOT
     ,
                 "REPLACE INTO {prefix}state (id, data) VALUES ('version', '32')"
-            ]);
+            ]
+        );
     }
 
     if ($version < 33) {
@@ -732,7 +749,8 @@ EOT
                 'ALTER TABLE {prefix}base ADD COLUMN receipt_email_subject varchar(255) NULL',
                 'ALTER TABLE {prefix}base ADD COLUMN receipt_email_body text NULL',
                 "REPLACE INTO {prefix}state (id, data) VALUES ('version', '33')"
-            ]);
+            ]
+        );
     }
 
     if ($version < 34) {
@@ -741,7 +759,8 @@ EOT
                 'ALTER TABLE {prefix}product CHANGE COLUMN stock_balance stock_balance decimal(11,2) default NULL',
                 'ALTER TABLE {prefix}stock_balance_log CHANGE COLUMN stock_change stock_change decimal(11,2) default NULL',
                 "REPLACE INTO {prefix}state (id, data) VALUES ('version', '34')"
-            ]);
+            ]
+        );
     }
 
     if ($version < 35) {
@@ -752,7 +771,8 @@ EOT
                 'UPDATE {prefix}invoice_state SET invoice_open=1 WHERE id IN (1)',
                 'UPDATE {prefix}invoice_state SET invoice_unpaid=1 WHERE id IN (2, 5, 6, 7)',
                 "REPLACE INTO {prefix}state (id, data) VALUES ('version', '35')"
-            ]);
+            ]
+        );
     }
 
     if ($version < 36) {
@@ -767,7 +787,8 @@ EOT
                 'ALTER TABLE {prefix}base ADD COLUMN order_confirmation_email_subject varchar(255) NULL',
                 'ALTER TABLE {prefix}base ADD COLUMN order_confirmation_email_body text NULL',
                 "REPLACE INTO {prefix}state (id, data) VALUES ('version', '36')"
-            ]);
+            ]
+        );
     }
 
     if ($version < 37) {
@@ -776,7 +797,8 @@ EOT
                 'ALTER TABLE {prefix}company ADD COLUMN payment_days int(11) default NULL',
                 'ALTER TABLE {prefix}company ADD COLUMN terms_of_payment varchar(255) NULL',
                 "REPLACE INTO {prefix}state (id, data) VALUES ('version', '37')"
-            ]);
+            ]
+        );
     }
 
     if ($version < 38) {
@@ -784,7 +806,8 @@ EOT
             [
                 'UPDATE {prefix}invoice_row ir SET ir.row_date=(SELECT i.invoice_date FROM {prefix}invoice i where i.id=ir.invoice_id) WHERE ir.row_date IS NULL',
                 "REPLACE INTO {prefix}state (id, data) VALUES ('version', '38')"
-            ]);
+            ]
+        );
     }
 
     if ($version < 39) {
@@ -796,7 +819,8 @@ EOT
                 [
                     'ALTER TABLE {prefix}invoice_row ADD COLUMN partial_payment tinyint NOT NULL default 0',
                     "REPLACE INTO {prefix}state (id, data) VALUES ('version', '39')"
-                ]);
+                ]
+            );
         }
     }
 
@@ -805,7 +829,8 @@ EOT
             [
                 'UPDATE {prefix}invoice_state SET invoice_unpaid=1 WHERE id=1',
                 "REPLACE INTO {prefix}state (id, data) VALUES ('version', '40')"
-            ]);
+            ]
+        );
     }
 
     if ($version < 41) {
@@ -813,7 +838,27 @@ EOT
             [
                 'ALTER TABLE {prefix}base ADD COLUMN invoice_default_info text NULL',
                 "REPLACE INTO {prefix}state (id, data) VALUES ('version', '41')"
-            ]);
+            ]
+        );
+    }
+
+    if ($version < 42) {
+        $updates = array_merge($updates,
+            [
+                'ALTER TABLE {prefix}invoice_state ADD COLUMN invoice_offered tinyint NOT NULL default 0',
+                "INSERT INTO {prefix}invoice_state (name, order_no, invoice_open, invoice_unpaid, invoice_offered) VALUES ('StateOffered', 40, 1, 0, 1)",
+                "INSERT INTO {prefix}invoice_state (name, order_no, invoice_open, invoice_unpaid, invoice_offered) VALUES ('StateUnrealisedOffer', 45, 0, 0, 1)",
+                "INSERT INTO {prefix}print_template (name, filename, parameters, output_filename, type, order_no, inactive) VALUES ('PrintOfferFinnish', 'invoice_printer_offer.php', 'offer', 'tarjous_%d.pdf', 'invoice', 200, 1)",
+                "INSERT INTO {prefix}print_template (name, filename, parameters, output_filename, type, order_no, inactive) VALUES ('PrintOfferSwedish', 'invoice_printer_offer.php', 'offer,sv-FI', 'anbud_%d.pdf', 'invoice', 210, 1)",
+                "INSERT INTO {prefix}print_template (name, filename, parameters, output_filename, type, order_no, inactive) VALUES ('PrintOfferEnglish', 'invoice_printer_offer.php', 'offer,en', 'offer_%d.pdf', 'invoice', 220, 1)",
+                "INSERT INTO {prefix}print_template (name, filename, parameters, output_filename, type, order_no, inactive) VALUES ('PrintOfferEmailFinnish', 'invoice_printer_offer_email.php', 'offer', 'tarjous_%d.pdf', 'invoice', 230, 1)",
+                "INSERT INTO {prefix}print_template (name, filename, parameters, output_filename, type, order_no, inactive) VALUES ('PrintOfferEmailSwedish', 'invoice_printer_offer_email.php', 'offer,sv-FI', 'anbud_%d.pdf', 'invoice', 240, 1)",
+                "INSERT INTO {prefix}print_template (name, filename, parameters, output_filename, type, order_no, inactive) VALUES ('PrintOfferEmailEnglish', 'invoice_printer_offer_email.php', 'offer,en', 'offer_%d.pdf', 'invoice', 250, 1)",
+                'ALTER TABLE {prefix}base ADD COLUMN offer_email_subject varchar(255) NULL',
+                'ALTER TABLE {prefix}base ADD COLUMN offer_email_body text NULL',
+                "REPLACE INTO {prefix}state (id, data) VALUES ('version', '42')"
+            ]
+        );
     }
 
     if (!empty($updates)) {
@@ -826,7 +871,7 @@ EOT
                 mysqli_query_check('SET AUTOCOMMIT = 1');
                 error_log('Database upgrade query failed. Please execute the following queries manually:');
                 foreach ($updates as $s) {
-                    error_log(str_replace('{prefix}', _DB_PREFIX_ . '_', $s) . ';');
+                    error_log('  ' . str_replace('{prefix}', _DB_PREFIX_ . '_', $s) . ';');
                 }
                 return 'FAILED';
             }

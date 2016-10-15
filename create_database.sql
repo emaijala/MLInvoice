@@ -5,6 +5,7 @@ CREATE TABLE mlinvoice_invoice_state (
   order_no int(11) default NULL,
   invoice_open tinyint NOT NULL default 0,
   invoice_unpaid tinyint NOT NULL default 0,
+  invoice_offered tinyint NOT NULL default 0,
   PRIMARY KEY (id)
 ) ENGINE=INNODB CHARACTER SET utf8 COLLATE utf8_swedish_ci;
 
@@ -68,6 +69,8 @@ CREATE TABLE mlinvoice_base (
   receipt_email_body text NULL,
   order_confirmation_email_subject varchar(255) NULL,
   order_confirmation_email_body text NULL,
+  offer_email_subject varchar(255) NULL,
+  offer_email_body text NULL,
   invoice_default_info text NULL,
   PRIMARY KEY (id)
 ) ENGINE=INNODB CHARACTER SET utf8 COLLATE utf8_swedish_ci;
@@ -293,7 +296,7 @@ CREATE TABLE mlinvoice_state (
 
 SET NAMES 'utf8';
 
-INSERT INTO mlinvoice_state (id, data) VALUES ('version', '41');
+INSERT INTO mlinvoice_state (id, data) VALUES ('version', '42');
 
 INSERT INTO mlinvoice_state (id, data) VALUES ('tableconversiondone', '1');
 
@@ -305,6 +308,8 @@ INSERT INTO mlinvoice_invoice_state (id, name, order_no, invoice_open, invoice_u
 INSERT INTO mlinvoice_invoice_state (id, name, order_no, invoice_open, invoice_unpaid) VALUES (6, 'StateSecondReminder', 30, 0, 1);
 INSERT INTO mlinvoice_invoice_state (id, name, order_no, invoice_open, invoice_unpaid) VALUES (7, 'StateDebtCollection', 35, 0, 1);
 INSERT INTO mlinvoice_invoice_state (id, name, order_no, invoice_open, invoice_unpaid) VALUES (8, 'StatePaidInCash', 17, 0, 0);
+INSERT INTO mlinvoice_invoice_state (id, name, order_no, invoice_open, invoice_unpaid, invoice_offered) VALUES (9, 'StateOffered', 40, 1, 0, 1);
+INSERT INTO mlinvoice_invoice_state (id, name, order_no, invoice_open, invoice_unpaid, invoice_offered) VALUES (10, 'StateUnrealizedOffer', 45, 0, 0, 1);
 
 INSERT INTO mlinvoice_row_type (id, name, order_no) VALUES (1, 'TypeHour', 5);
 INSERT INTO mlinvoice_row_type (id, name, order_no) VALUES (2, 'TypeDay', 10);
@@ -344,6 +349,12 @@ INSERT INTO mlinvoice_print_template (id, name, filename, parameters, output_fil
 INSERT INTO mlinvoice_print_template (id, name, filename, parameters, output_filename, type, order_no, inactive) VALUES (23, 'PrintOrderConfirmationEmailSwedish', 'invoice_printer_order_confirmation_email.php', 'receipt,sv-FI', 'orderbekraftelse_%d.pdf', 'invoice', 180, 1);
 INSERT INTO mlinvoice_print_template (id, name, filename, parameters, output_filename, type, order_no, inactive) VALUES (24, 'PrintOrderConfirmationEmailEnglish', 'invoice_printer_order_confirmation_email.php', 'receipt,en', 'order_confirmation_%d.pdf', 'invoice', 190, 1);
 INSERT INTO mlinvoice_print_template (id, name, filename, parameters, output_filename, type, order_no, inactive) VALUES (25, 'PrintFinvoiceSOAP', 'invoice_printer_finvoice_soap.php', '', 'finvoice_%d.xml', 'invoice', 55, 1);
+INSERT INTO mlinvoice_print_template (id, name, filename, parameters, output_filename, type, order_no, inactive) VALUES (26, 'PrintOfferFinnish', 'invoice_printer_offer.php', 'offer', 'tarjous_%d.pdf', 'invoice', 200, 1);
+INSERT INTO mlinvoice_print_template (id, name, filename, parameters, output_filename, type, order_no, inactive) VALUES (27, 'PrintOfferSwedish', 'invoice_printer_offer.php', 'offer,sv-FI', 'anbud_%d.pdf', 'invoice', 210, 1);
+INSERT INTO mlinvoice_print_template (id, name, filename, parameters, output_filename, type, order_no, inactive) VALUES (28, 'PrintOfferEnglish', 'invoice_printer_offer.php', 'offer,en', 'offer_%d.pdf', 'invoice', 220, 1);
+INSERT INTO mlinvoice_print_template (id, name, filename, parameters, output_filename, type, order_no, inactive) VALUES (29, 'PrintOfferEmailFinnish', 'invoice_printer_offer_email.php', 'offer', 'tarjous_%d.pdf', 'invoice', 230, 1);
+INSERT INTO mlinvoice_print_template (id, name, filename, parameters, output_filename, type, order_no, inactive) VALUES (30, 'PrintOfferEmailSwedish', 'invoice_printer_offer_email.php', 'offer,sv-FI', 'anbud_%d.pdf', 'invoice', 240, 1);
+INSERT INTO mlinvoice_print_template (id, name, filename, parameters, output_filename, type, order_no, inactive) VALUES (31, 'PrintOfferEmailEnglish', 'invoice_printer_offer_email.php', 'offer,en', 'offer_%d.pdf', 'invoice', 250, 1);
 
 INSERT INTO mlinvoice_users (id, name, email, login, passwd, type_id) VALUES (1, 'Administrator', '', 'admin', md5('admin'), 2);
 
