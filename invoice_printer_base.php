@@ -659,6 +659,11 @@ abstract class InvoicePrinterBase
             }
         }
         if ($this->printStyle != 'dispatch') {
+            if ($this->invoiceData['invoice_unpaid']) {
+                $unpaidAmount = $this->totalSumVAT - $this->partialPayments;
+            } else {
+                $unpaidAmount = 0;
+            }
             if ($this->senderData['vat_registered']) {
                 $pdf->SetFont('Helvetica', '', 10);
                 $pdf->SetY($pdf->GetY() + 10);
@@ -684,13 +689,7 @@ abstract class InvoicePrinterBase
                 $pdf->SetY($pdf->GetY() + 5);
                 $pdf->Cell(162, 5, $GLOBALS['locPDFTotalToPay'] . ': ', 0, 0, 'R');
                 $pdf->SetX(187 - $left);
-                $pdf->Cell(
-                    20, 5,
-                    $this->_formatCurrency(
-                        $this->totalSumVAT - $this->partialPayments
-                    ),
-                    0, 1, 'R'
-                );
+                $pdf->Cell(20, 5, $this->_formatCurrency($unpaidAmount), 0, 1, 'R');
             } else {
                 $pdf->SetY($pdf->GetY() + 5);
                 $pdf->Cell(162, 5, $GLOBALS['locPDFTotalPrice'] . ': ', 0, 0, 'R');
@@ -702,12 +701,7 @@ abstract class InvoicePrinterBase
                 $pdf->SetY($pdf->GetY() + 5);
                 $pdf->Cell(162, 5, $GLOBALS['locPDFTotalToPay'] . ': ', 0, 0, 'R');
                 $pdf->SetX(187 - $left);
-                $pdf->Cell(
-                    20, 5,
-                    $this->_formatCurrency(
-                        $this->totalSumVAT - $this->partialPayments
-                    ), 0, 1, 'R'
-                );
+                $pdf->Cell(20, 5, $this->_formatCurrency($unpaidAmount), 0, 1, 'R');
             }
         }
     }
