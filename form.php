@@ -134,7 +134,7 @@ function createForm($strFunc, $strList, $strForm)
         $blnNew = TRUE;
         $readOnlyForm = false;
     }
-    ?>
+?>
 
 <div id="popup_dlg"
     style="display: none; width: 900px; overflow: hidden">
@@ -145,7 +145,19 @@ function createForm($strFunc, $strList, $strForm)
 
 <div class="form_container">
 
-<?php createFormButtons($blnNew, $copyLinkOverride, true, $readOnlyForm)?>
+<?php
+    createFormButtons($blnNew, $copyLinkOverride, true, $readOnlyForm);
+
+    if ($strForm == 'invoice' && $astrValues['next_interval_date']
+        && strDate2UnixTime($astrValues['next_interval_date']) <= time()
+    ) {
+?>
+    <div class="ui-widget ui-button ui-button-text-only ui-state-highlight">
+      <span class="ui-button-text"><?php echo $GLOBALS['locCreateCopyForNextInvoice']?></span>
+    </div>
+<?php
+    }
+?>
     <div class="form">
         <form method="post" name="admin_form" id="admin_form">
             <input type="hidden" name="copyact" value="0"> <input type="hidden"
@@ -295,28 +307,36 @@ function createForm($strFunc, $strList, $strForm)
         // Special case for product: show stock balance change log
         ?>
       <div
-                    class="iform ui-corner-tl ui-corner-bl ui-corner-br ui-corner-tr ui-helper-clearfix"
-                    id="stock_balance_log">
-                    <div
-                        class="ui-corner-tl ui-corner-tr fg-toolbar ui-toolbar ui-widget-header"><?php echo $GLOBALS['locStockBalanceUpdates']?></div>
-                    <table id="stock_balance_change_log">
-                        <tr>
-                            <th class="medium"><?php echo $GLOBALS['locHeaderChangeLogDateTime']?></th>
-                            <th class="medium"><?php echo $GLOBALS['locHeaderChangeLogUser']?></th>
-                            <th class="small"><?php echo $GLOBALS['locHeaderChangeLogAmount']?></th>
-                            <th class="long"><?php echo $GLOBALS['locHeaderChangeLogDescription']?></th>
-                        </tr>
-                    </table>
-                </div>
-                </div>
+        class="iform ui-corner-tl ui-corner-bl ui-corner-br ui-corner-tr ui-helper-clearfix"
+        id="stock_balance_log">
+        <div class="ui-corner-tl ui-corner-tr fg-toolbar ui-toolbar ui-widget-header"><?php echo $GLOBALS['locStockBalanceUpdates']?></div>
+          <table id="stock_balance_change_log">
+            <tr>
+              <th class="medium"><?php echo $GLOBALS['locHeaderChangeLogDateTime']?></th>
+              <th class="medium"><?php echo $GLOBALS['locHeaderChangeLogUser']?></th>
+              <th class="small"><?php echo $GLOBALS['locHeaderChangeLogAmount']?></th>
+              <th class="long"><?php echo $GLOBALS['locHeaderChangeLogDescription']?></th>
+            </tr>
+          </table>
+        </div>
+      </div>
 <?php
     }
-    ?>
+?>
   </div>
 
-                <script type="text/javascript">
+  <script type="text/javascript">
 /* <![CDATA[ */
-var globals = {};
+var globals = {
+    nonOpenModificationWarning: '<?php echo $GLOBALS['locNonOpenInvoiceModificationWarning']?>'
+<?php
+    if ($strForm == 'invoice' && !empty($intKeyValue)) {
+        $res = mysqli_param_query('SELECT invoice_open FROM {prefix}invoice_state WHERE id=?', [$astrValues['state_id']]);
+        $open = mysqli_fetch_value($res);
+        echo '    , invoiceOpenStatus: ' . ($open ? 'true' : 'false') . "\n";
+    }
+?>
+};
 
 $(window).bind('beforeunload', function(e) {
   if ($('.save_button').hasClass('ui-state-highlight') || $('.add_row_button').hasClass('ui-state-highlight'))
@@ -352,16 +372,30 @@ function errormsg(msg, timeout)
   });
 }
 
+function startChanging()
+{
+<?php
+    if ($strForm == 'invoice') {
+?>
+      if (typeof globals.invoiceOpenStatus !== 'undefined' && !globals.invoiceOpenStatus && typeof globals.warningShown === 'undefined') {
+        errormsg(globals.nonOpenModificationWarning, 0);
+        globals.warningShown = true;
+      }
+<?php
+    }
+?>
+}
+
 $(document).ready(function() {
 <?php
     if ($strMessage) {
-        ?>
-  showmsg("<?php echo $strMessage?>");
+?>
+      showmsg("<?php echo $strMessage?>");
 <?php
     }
     if ($strErrorMessage) {
-        ?>
-  errormsg("<?php echo $strErrorMessage?>");
+?>
+      errormsg("<?php echo $strErrorMessage?>");
 <?php
     }
     if ($strForm == 'product') {
@@ -386,12 +420,14 @@ $(document).ready(function() {
     $('#spinner').css('visibility', 'hidden');
   });
 
-  $('#admin_form').find('input[type="text"],input[type="hidden"],input[type="checkbox"],select,textarea').change(function() { $('.save_button').addClass('ui-state-highlight'); });
+  $('#admin_form').find('input[type="text"],input[type="hidden"],input[type="checkbox"],select,textarea').change(function(e) { $('.save_button').addClass('ui-state-highlight'); });
+  $('#admin_form').find('input[type="text"],input[type="hidden"],input[type="checkbox"],select,textarea').one('change', startChanging);
 <?php
     if ($haveChildForm && !$blnNew) {
         ?>
   init_rows();
   $('#iform').find('input[type="text"],input[type="hidden"],input[type="checkbox"],select,textarea').change(function() { $('.add_row_button').addClass('ui-state-highlight'); });
+  $('#iform').find('input[type="text"],input[type="hidden"],input[type="checkbox"],select,textarea').one('change', startChanging);
 <?php
     } elseif (isset($newLocation))
         echo "window.location='$newLocation';";
