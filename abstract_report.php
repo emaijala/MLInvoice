@@ -70,7 +70,7 @@ abstract class AbstractReport
             ],
         ];
         $params = [];
-        foreach ($_REQUEST as $key => $value) {
+        foreach (array_merge($_GET, $_POST) as $key => $value) {
             if (empty($value)
                 || in_array($key, ['func', 'form', 'report', 'format', 'fields'])
                 || strncmp($key, 'stateid_', 8) == 0
