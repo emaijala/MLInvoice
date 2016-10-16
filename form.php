@@ -894,6 +894,7 @@ function save_row(form_id)
 
 function update_row_dates(id)
 {
+  startChanging();
   var buttons = new Object();
   buttons["<?php echo $GLOBALS['locUpdateRowDates']?>"] = function() {
     var date = $("#popup_date_edit_field").val();
@@ -963,6 +964,7 @@ function delete_row(form_id)
 
 function popup_editor(event, title, id, copy_row)
 {
+  startChanging();
   $.getJSON('json.php?func=get_<?php echo $formJSONType?>&id=' + id, function(json) {
     if (!json.id) return;
     var form = document.getElementById('iform_popup');
