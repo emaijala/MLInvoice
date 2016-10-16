@@ -422,7 +422,7 @@ $(document).ready(function() {
   });
 
   $('#admin_form').find('input[type="text"],input[type="hidden"],input[type="checkbox"],select:not(.dropdownmenu),textarea').change(function(e) { $('.save_button').addClass('ui-state-highlight'); });
-  $('#admin_form').find('input[type="text"],input[type="hidden"],input[type="checkbox"],select:not(.dropdownmenu),textarea').one('change', startChanging);
+  $('#admin_form').find('input[type="text"]:not([name="payment_date"]),input[type="hidden"],input[type="checkbox"]:not([name="archived"]),select:not(.dropdownmenu),textarea').one('change', startChanging);
 <?php
     if ($haveChildForm && !$blnNew) {
         ?>
