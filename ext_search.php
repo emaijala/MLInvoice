@@ -78,12 +78,13 @@ for ($j = 0; $j < count($astrFormElements); $j ++) {
 $listValues = [];
 for ($j = 0; $j < count($astrFormElements); $j ++) {
     if ($astrFormElements[$j]['type'] != '' &&
-         $astrFormElements[$j]['type'] != 'LABEL' &&
-         $astrFormElements[$j]['type'] != 'HIDINT' &&
-         $astrFormElements[$j]['type'] != 'IFORM' &&
-         $astrFormElements[$j]['type'] != 'BUTTON' &&
-         $astrFormElements[$j]['type'] != 'JSBUTTON' &&
-         !in_array($astrFormElements[$j]['name'], $astrSelectedFields, true)) {
+        $astrFormElements[$j]['type'] != 'LABEL' &&
+        $astrFormElements[$j]['type'] != 'HIDINT' &&
+        $astrFormElements[$j]['type'] != 'IFORM' &&
+        $astrFormElements[$j]['type'] != 'BUTTON' &&
+        $astrFormElements[$j]['type'] != 'JSBUTTON' &&
+        $astrFormElements[$j]['type'] != 'DROPDOWNMENU' &&
+        !in_array($astrFormElements[$j]['name'], $astrSelectedFields, true)) {
         $listValues[$astrFormElements[$j]['name']] = str_replace('<br>', ' ',
             $astrFormElements[$j]['label']);
     }

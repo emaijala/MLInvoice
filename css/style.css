@@ -183,6 +183,10 @@ td.button {
   padding: 2px 0px;
 }
 
+td.button .dropdownmenu.ui-widget-content {
+  border: 0
+}
+
 td.field {
   padding-right: 16px;
 }

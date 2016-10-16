@@ -704,7 +704,7 @@ EOF;
     $res = mysqli_query_check(
         'SELECT * FROM {prefix}print_template WHERE deleted=0 and type=\'invoice\' and inactive=0 ORDER BY order_no');
     $templateCount = mysqli_num_rows($res);
-    $templateFirstCol = max(floor($templateCount / 2 + 1), 3);
+    $templateFirstCol = 3;
     $rowNum = 0;
     while ($row = mysqli_fetch_assoc($res)) {
         $templateId = $row['id'];
@@ -740,6 +740,17 @@ EOF;
         } else {
             $printButtons[] = $arr;
         }
+    }
+
+    if (count($printButtons2) > 3) {
+         $printButtons2[2] = [
+             'name' => 'printmenu',
+             'label' => $GLOBALS['locPrintOther'],
+             'type' => 'DROPDOWNMENU',
+             'style' => '',
+             'position' => 4,
+             'options' => array_splice($printButtons2, 2)
+         ];
     }
 
     $intRes = mysqli_query_check('SELECT ID from {prefix}base WHERE deleted=0');

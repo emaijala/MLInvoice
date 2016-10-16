@@ -222,10 +222,11 @@ function createForm($strFunc, $strList, $strForm)
             }
         }
 
-        if ($blnNew && ($elem['type'] == 'BUTTON' || $elem['type'] == 'JSBUTTON' ||
-             $elem['type'] == 'IMAGE')) {
+        if ($blnNew
+            && in_array($elem['type'], ['BUTTON', 'JSBUTTON', 'IMAGE', 'DROPDOWNMENU'])
+        ) {
             echo '          <td class="label">&nbsp;</td>';
-        } elseif ($elem['type'] == 'BUTTON' || $elem['type'] == 'JSBUTTON') {
+        } elseif (in_array($elem['type'], ['BUTTON', 'JSBUTTON', 'DROPDOWNMENU'])) {
             $intColspan = 1;
             ?>
           <td class="button">
@@ -420,14 +421,14 @@ $(document).ready(function() {
     $('#spinner').css('visibility', 'hidden');
   });
 
-  $('#admin_form').find('input[type="text"],input[type="hidden"],input[type="checkbox"],select,textarea').change(function(e) { $('.save_button').addClass('ui-state-highlight'); });
-  $('#admin_form').find('input[type="text"],input[type="hidden"],input[type="checkbox"],select,textarea').one('change', startChanging);
+  $('#admin_form').find('input[type="text"],input[type="hidden"],input[type="checkbox"],select:not(.dropdownmenu),textarea').change(function(e) { $('.save_button').addClass('ui-state-highlight'); });
+  $('#admin_form').find('input[type="text"],input[type="hidden"],input[type="checkbox"],select:not(.dropdownmenu),textarea').one('change', startChanging);
 <?php
     if ($haveChildForm && !$blnNew) {
         ?>
   init_rows();
-  $('#iform').find('input[type="text"],input[type="hidden"],input[type="checkbox"],select,textarea').change(function() { $('.add_row_button').addClass('ui-state-highlight'); });
-  $('#iform').find('input[type="text"],input[type="hidden"],input[type="checkbox"],select,textarea').one('change', startChanging);
+  $('#iform').find('input[type="text"],input[type="hidden"],input[type="checkbox"],select:not(.dropdownmenu),textarea').change(function() { $('.add_row_button').addClass('ui-state-highlight'); });
+  $('#iform').find('input[type="text"],input[type="hidden"],input[type="checkbox"],select:not(.dropdownmenu),textarea').one('change', startChanging);
 <?php
     } elseif (isset($newLocation))
         echo "window.location='$newLocation';";
@@ -462,6 +463,7 @@ function save_record(redirect_url, redir_style, on_print)
                 'SECHID_INT',
                 'BUTTON',
                 'JSBUTTON',
+                'DROPDOWNMENU',
                 'LABEL',
                 'IMAGE',
                 'NEWLINE',

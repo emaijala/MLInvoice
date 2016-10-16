@@ -31,6 +31,7 @@ function getPostValues(&$formElements, $primaryKey, $parentKey = FALSE)
                 'RESULT',
                 'BUTTON',
                 'JSBUTTON',
+                'DROPDOWNMENU',
                 'IMAGE',
                 'ROWSUM',
                 'NEWLINE',
@@ -103,6 +104,7 @@ function saveFormData($table, &$primaryKey, &$formElements, &$values, &$warnings
                 'RESULT',
                 'BUTTON',
                 'JSBUTTON',
+                'DROPDOWNMENU',
                 'IMAGE',
                 'ROWSUM',
                 'NEWLINE',
@@ -327,8 +329,11 @@ function fetchRecord($table, $primaryKey, &$formElements, &$values)
         $type = $elem['type'];
         $name = $elem['name'];
 
-        if (!$type || $type == 'LABEL' || $type == 'FILLER')
+        if (!$type || $type == 'LABEL' || $type == 'FILLER'
+            || $type == 'DROPDOWNMENU'
+        ) {
             continue;
+        }
 
         switch ($type) {
         case 'IFORM' :

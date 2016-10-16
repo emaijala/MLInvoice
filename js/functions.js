@@ -9,7 +9,7 @@ $(document).ready(function() {
       $("#base_id_label").html('<a href="index.php?func=settings&list=base&form=base&id=' + $(this).val() + '">' + baseIdLabelText + "</a>");
     }
   }).trigger('change');
-  
+
   // Link from company label
   var companyIdLabelText = $("#company_id_label").text();
   $("#company_id.linked").change(function() {
@@ -19,10 +19,14 @@ $(document).ready(function() {
       $("#company_id_label").html('<a href="index.php?func=companies&list=&form=company&id=' + $(this).val() + '">' + companyIdLabelText + "</a>");
     }
   }).trigger('change');
-  
+
+  // Init menus
+  $('.dropdownmenu').menu({
+
+  }).find('li:first').addClass('formbuttonlink ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only');
 });
 
-function sort_multi(a,b) 
+function sort_multi(a,b)
 {
   a = a.replace( /<.*?>/g, "" );
   b = b.replace( /<.*?>/g, "" );
@@ -46,7 +50,7 @@ function sort_multi(a,b)
   b = b.toLowerCase();
   return ((a < b) ? -1 : ((a > b) ?  1 : 0));
 };
- 
+
 jQuery.fn.dataTableExt.oSort['html-multi-asc']  = function(a,b) {
   return sort_multi(a, b);
 };
@@ -64,21 +68,21 @@ function initAddressAutocomplete(prefix)
 {
   var input = document.getElementById(prefix + "street_address");
   if (input == null) {
-	return;  
+	return;
   }
   $(input).attr("placeholder", "");
   $(input).blur(function() {
 	var val = $(input).val();
 	setTimeout(function() {
-      $(input).val(val); 
-    }, 0); 
+      $(input).val(val);
+    }, 0);
   });
-  
+
   var options = {
     types: ["geocode"]
   };
   autocomplete = new google.maps.places.Autocomplete(input, options);
-  
+
   google.maps.event.addListener(autocomplete, "place_changed", function() {
 	var place = autocomplete.getPlace();
 	setTimeout(function() {
@@ -98,13 +102,13 @@ function initAddressAutocomplete(prefix)
 
 function add_company(translations)
 {
-  var buttons = new Object();   
+  var buttons = new Object();
   buttons[translations["save"]] = function() { save_company(translations); };
   buttons[translations["close"]] = function() { $("#quick_add_company").dialog("close"); };
   $("#quick_add_company").dialog({ modal: true, width: 420, height: 320, resizable: false, zIndex: 900,
     buttons: buttons,
     title: translations["title"],
-  });  
+  });
 }
 
 function save_company(translations)
@@ -141,12 +145,12 @@ function save_company(translations)
         alert("Error trying to save company: " + XMLHTTPReq.status + " - " + XMLHTTPReq.statusText);
       return false;
     }
-  });    
+  });
 }
 
 function init_company_list(selected_id)
 {
-  $.getJSON("json.php?func=get_company", {"id": selected_id}, function(record) { 
+  $.getJSON("json.php?func=get_company", {"id": selected_id}, function(record) {
     var text = record.company_name;
     if (record.company_id) {
       text += " (" + record.company_id + ")";
@@ -159,19 +163,19 @@ function init_company_list(selected_id)
 
 function add_partial_payment(translations)
 {
-  var buttons = new Object();   
+  var buttons = new Object();
   buttons[translations["save"]] = function() { save_partial_payment(translations); };
   buttons[translations["close"]] = function() { $("#add_partial_payment").dialog("close"); };
   $("#add_partial_payment").dialog({ modal: true, width: 420, height: 160, resizable: false, zIndex: 900,
     buttons: buttons,
     title: translations["title"],
-  });  
+  });
 }
 
 function save_partial_payment(translations)
 {
   var obj = new Object();
-  obj.invoice_id = $('#record_id').val(); 
+  obj.invoice_id = $('#record_id').val();
   obj.description = translations['partial_payment'];
   obj.row_date = $('#add_partial_payment_date').val();
   obj.price = -parseFloat($('#add_partial_payment_amount').val().replace(translations['decimal_separator'], '.'));
@@ -204,7 +208,7 @@ function save_partial_payment(translations)
         alert("Error trying to add a partial payment: " + XMLHTTPReq.status + " - " + XMLHTTPReq.statusText);
       return false;
     }
-  });    
+  });
 }
 
 function format_currency(value, decimals, decimalSep, thousandSep)

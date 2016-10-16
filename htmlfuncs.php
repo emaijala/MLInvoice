@@ -49,7 +49,7 @@ function htmlPageStart($strTitle = '', $arrExtraScripts = [])
     $datePickerOptions = $GLOBALS['locDatePickerOptions'];
 
     $scripts = [
-        'jquery/js/jquery-1.10.2.min.js',
+        'jquery/js/jquery-2.2.4.min.js',
         'jquery/js/jquery.json-2.3.min.js',
         'jquery/js/jquery.cookie.js',
         'jquery/js/jquery-ui.min.js',
@@ -228,7 +228,7 @@ function htmlFormElement($strName, $strType, $strValue, $strStyle, $strListQuery
     $disabled = $strMode == 'MODIFY' ? '' : ' disabled="disabled"';
 
     switch ($strType) {
-    case 'TEXT' :
+    case 'TEXT':
         if (strstr($strStyle, 'hasDateRangePicker')) {
             $autocomplete = ' autocomplete="off"';
         } else {
@@ -240,24 +240,24 @@ function htmlFormElement($strName, $strType, $strValue, $strStyle, $strListQuery
              htmlspecialchars($strValue) . "\"$astrAdditionalAttributes$readOnly>\n";
         break;
 
-    case 'PASSWD' :
+    case 'PASSWD':
         $strFormElement = "<input type=\"password\" class=\"$strStyle\" " .
              "id=\"$strName\" name=\"$strName\" value=\"\"$astrAdditionalAttributes$readOnly>\n";
         break;
 
-    case 'CHECK' :
+    case 'CHECK':
         $strValue = $strValue ? 'checked' : '';
         $strFormElement = "<input type=\"checkbox\" id=\"$strName\" name=\"$strName\" value=\"1\" " .
              htmlspecialchars($strValue) . "$astrAdditionalAttributes$disabled>\n";
         break;
 
-    case 'RADIO' :
+    case 'RADIO':
         $strChecked = $strValue ? 'checked' : '';
         $strFormElement = "<input type=\"radio\" id=\"$strName\" name=\"$strName\" value=\"" .
              htmlspecialchars($strValue) . "\"$astrAdditionalAttributes$disabled>\n";
         break;
 
-    case 'INT' :
+    case 'INT':
         $hideZero = FALSE;
         if (strstr($strStyle, ' hidezerovalue')) {
             $strStyle = str_replace(' hidezerovalue', '', $strStyle);
@@ -270,31 +270,31 @@ function htmlFormElement($strName, $strType, $strValue, $strStyle, $strListQuery
              htmlspecialchars($strValue) . "\"$astrAdditionalAttributes$readOnly>\n";
         break;
 
-    case 'INTDATE' :
+    case 'INTDATE':
         $strFormElement = "<input type=\"text\" class=\"$strStyle hasCalendar\" " .
              "id=\"$strName\" name=\"$strName\" value=\"" .
              htmlspecialchars($strValue) . "\"$astrAdditionalAttributes$readOnly>\n";
         break;
 
-    case 'HID_INT' :
+    case 'HID_INT':
         $strFormElement = '<input type="hidden" ' .
              "id=\"$strName\" name=\"$strName\" value=\"" .
              htmlspecialchars($strValue) . "\">\n";
         break;
 
-    case 'AREA' :
+    case 'AREA':
         $strFormElement = '<textarea rows="24" cols="80" class="' . $strStyle . '" ' .
              'id="' . $strName . '" name="' . $strName .
              "\"$astrAdditionalAttributes$readOnly>" . $strValue . "</textarea>\n";
         break;
 
-    case 'RESULT' :
+    case 'RESULT':
         $strListQuery = str_replace('_ID_', $strValue, $strListQuery);
         $strFormElement = htmlspecialchars(
             mysqli_fetch_value(mysqli_query_check($strListQuery))) . "\n";
         break;
 
-    case 'LIST' :
+    case 'LIST':
         $translate = false;
         if (strstr($strStyle, ' translated')) {
             $translate = true;
@@ -313,7 +313,7 @@ function htmlFormElement($strName, $strType, $strValue, $strStyle, $strListQuery
         }
         break;
 
-    case 'SEARCHLIST' :
+    case 'SEARCHLIST':
         if ($strMode == 'MODIFY') {
             $showEmpty = <<<EOT
       if (page == 1 && data.filter == '') {
@@ -374,7 +374,7 @@ EOT;
                  "\"$astrAdditionalAttributes$readOnly>\n";
         }
         break;
-    case 'SELECT' :
+    case 'SELECT':
         $translate = false;
         if (strstr($strStyle, ' translated')) {
             $translate = true;
@@ -391,7 +391,7 @@ EOT;
         }
         break;
 
-    case 'BUTTON' :
+    case 'BUTTON':
         $strListQuery = str_replace('_ID_', $strValue, $strListQuery);
         switch ($strStyle) {
         case 'custom' :
@@ -400,17 +400,17 @@ EOT;
             $strOnClick = '';
             break;
 
-        case 'redirect' :
+        case 'redirect':
             $strHref = '#';
             $strOnClick = "onclick=\"save_record('$strListQuery', 'redirect'); return false;\"";
             break;
 
-        case 'openwindow' :
+        case 'openwindow':
             $strHref = '#';
             $strOnClick = "onclick=\"save_record('$strListQuery', 'openwindow'); return false;\"";
             break;
 
-        default :
+        default:
             switch ($strStyle) {
             case 'tiny' :
                 $strHW = 'height=1,width=1,';
@@ -444,7 +444,7 @@ EOT;
              htmlspecialchars($strTitle) . "</a>\n";
         break;
 
-    case 'JSBUTTON' :
+    case 'JSBUTTON':
         if (strstr($strListQuery, '_ID_') && !$strValue) {
             $strFormElement = $GLOBALS['locSaveFirst'];
         } else {
@@ -456,7 +456,29 @@ EOT;
         }
         break;
 
-    case 'IMAGE' :
+    case 'DROPDOWNMENU':
+        if (strstr($strListQuery, '_ID_') && !$strValue) {
+            $strFormElement = $GLOBALS['locSaveFirst'];
+        } else {
+            $menuTitle = htmlspecialchars($strTitle);
+            $menuItems = '';
+            foreach ($options as $option) {
+                $strListQuery = str_replace('_ID_', $strValue, $option['listquery']);
+                $menuItems .= '<li onClick="' . $strListQuery . '"><div>' . $option['label'] . '</div></li>';
+            }
+            $strFormElement = <<<EOT
+<ul class="dropdownmenu" $astrAdditionalAttributes>
+  <li>$menuTitle
+    <ul>
+      $menuItems
+    </ul>
+  </li>
+</ul>
+EOT;
+        }
+        break;
+
+    case 'IMAGE':
         $strListQuery = str_replace('_ID_', $strValue, $strListQuery);
         $strFormElement = "<img class=\"$strStyle\" src=\"$strListQuery\" title=\"" .
              htmlspecialchars($strTitle) . "\"></div>\n";
