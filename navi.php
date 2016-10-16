@@ -2,25 +2,25 @@
 /*******************************************************************************
  MLInvoice: web-based invoicing application.
  Copyright (C) 2010-2016 Ere Maijala
- 
+
  Portions based on:
  PkLasku : web-based invoicing software.
  Copyright (C) 2004-2008 Samu Reinikainen
- 
+
  This program is free software. See attached LICENSE.
- 
+
  *******************************************************************************/
 
 /*******************************************************************************
  MLInvoice: web-pohjainen laskutusohjelma.
  Copyright (C) 2010-2016 Ere Maijala
- 
+
  Perustuu osittain sovellukseen:
  PkLasku : web-pohjainen laskutusohjelmisto.
  Copyright (C) 2004-2008 Samu Reinikainen
- 
+
  Tämä ohjelma on vapaa. Lue oheinen LICENSE.
- 
+
  *******************************************************************************/
 require_once 'sqlfuncs.php';
 require_once 'sessionfuncs.php';
@@ -33,70 +33,70 @@ function createFuncMenu($strFunc)
     $strFormName = '';
     $strExtSearchTerm = '';
     $blnShowSearch = FALSE;
-    
+
     switch ($strFunc) {
     case 'system' :
         $astrNaviLinks = [
             [
-                'href' => 'list=user', 
-                'text' => $GLOBALS['locUsers'], 
+                'href' => 'list=user',
+                'text' => $GLOBALS['locUsers'],
                 'levels_allowed' => [
                     ROLE_ADMIN
                 ]
-            ], 
+            ],
             [
-                'href' => 'list=invoice_state', 
-                'text' => $GLOBALS['locInvoiceStates'], 
+                'href' => 'list=invoice_state',
+                'text' => $GLOBALS['locInvoiceStates'],
                 'levels_allowed' => [
                     ROLE_ADMIN
                 ]
-            ], 
+            ],
             [
-                'href' => 'list=row_type', 
-                'text' => $GLOBALS['locRowTypes'], 
+                'href' => 'list=row_type',
+                'text' => $GLOBALS['locRowTypes'],
                 'levels_allowed' => [
                     ROLE_ADMIN
                 ]
-            ], 
+            ],
             [
-                'href' => 'list=delivery_terms', 
-                'text' => $GLOBALS['locDeliveryTerms'], 
+                'href' => 'list=delivery_terms',
+                'text' => $GLOBALS['locDeliveryTerms'],
                 'levels_allowed' => [
                     ROLE_ADMIN
                 ]
-            ], 
+            ],
             [
-                'href' => 'list=delivery_method', 
-                'text' => $GLOBALS['locDeliveryMethods'], 
+                'href' => 'list=delivery_method',
+                'text' => $GLOBALS['locDeliveryMethods'],
                 'levels_allowed' => [
                     ROLE_ADMIN
                 ]
-            ], 
+            ],
             [
-                'href' => 'list=print_template', 
-                'text' => $GLOBALS['locPrintTemplates'], 
+                'href' => 'list=print_template',
+                'text' => $GLOBALS['locPrintTemplates'],
                 'levels_allowed' => [
                     ROLE_ADMIN
                 ]
-            ], 
+            ],
             [
-                'href' => 'operation=dbdump', 
-                'text' => $GLOBALS['locBackupDatabase'], 
+                'href' => 'operation=dbdump',
+                'text' => $GLOBALS['locBackupDatabase'],
                 'levels_allowed' => [
-                    ROLE_BACKUPMGR, 
+                    ROLE_BACKUPMGR,
                     ROLE_ADMIN
                 ]
-            ], 
+            ],
             [
-                'href' => 'operation=import', 
-                'text' => $GLOBALS['locImportData'], 
+                'href' => 'operation=import',
+                'text' => $GLOBALS['locImportData'],
                 'levels_allowed' => [
                     ROLE_ADMIN
                 ]
-            ], 
+            ],
             [
-                'href' => 'operation=export', 
-                'text' => $GLOBALS['locExportData'], 
+                'href' => 'operation=export',
+                'text' => $GLOBALS['locExportData'],
                 'levels_allowed' => [
                     ROLE_ADMIN
                 ]
@@ -122,30 +122,30 @@ function createFuncMenu($strFunc)
         if ($strNewText)
             $strNewButton = "<br/><br/><a class=\"buttonlink new_button\" href=\"?func=system&amp;list=$strList&amp;form=$strList\">$strNewText</a>";
         break;
-    
+
     case 'settings' :
         $astrNaviLinks = [
             [
-                'href' => 'list=settings', 
-                'text' => $GLOBALS['locGeneralSettings'], 
+                'href' => 'list=settings',
+                'text' => $GLOBALS['locGeneralSettings'],
                 'levels_allowed' => [
-                    ROLE_USER, 
+                    ROLE_USER,
                     ROLE_BACKUPMGR
                 ]
-            ], 
+            ],
             [
-                'href' => 'list=base', 
-                'text' => $GLOBALS['locBases'], 
+                'href' => 'list=base',
+                'text' => $GLOBALS['locBases'],
                 'levels_allowed' => [
-                    ROLE_USER, 
+                    ROLE_USER,
                     ROLE_BACKUPMGR
                 ]
-            ], 
+            ],
             [
-                'href' => 'list=product', 
-                'text' => $GLOBALS['locProducts'], 
+                'href' => 'list=product',
+                'text' => $GLOBALS['locProducts'],
                 'levels_allowed' => [
-                    ROLE_USER, 
+                    ROLE_USER,
                     ROLE_BACKUPMGR
                 ]
             ]
@@ -163,39 +163,48 @@ function createFuncMenu($strFunc)
         if ($strNewText)
             $strNewButton = "<br/><br/><a class=\"buttonlink\" href=\"?func=settings&amp;list=$strList&amp;form=$strList\">$strNewText</a>";
         break;
-    
+
     case 'reports' :
         $astrNaviLinks = [
             [
-                'href' => 'form=invoice', 
-                'text' => $GLOBALS['locInvoiceReport'], 
+                'href' => 'form=invoice',
+                'text' => $GLOBALS['locInvoiceReport'],
                 'levels_allowed' => [
-                    ROLE_READONLY, 
-                    ROLE_USER, 
+                    ROLE_READONLY,
+                    ROLE_USER,
                     ROLE_BACKUPMGR
                 ]
-            ], 
+            ],
             [
-                'href' => 'form=product', 
-                'text' => $GLOBALS['locProductReport'], 
+                'href' => 'form=product',
+                'text' => $GLOBALS['locProductReport'],
                 'levels_allowed' => [
-                    ROLE_READONLY, 
-                    ROLE_USER, 
+                    ROLE_READONLY,
+                    ROLE_USER,
                     ROLE_BACKUPMGR
                 ]
-            ], 
+            ],
             [
-                'href' => 'form=product_stock', 
-                'text' => $GLOBALS['locProductStockReport'], 
+                'href' => 'form=product_stock',
+                'text' => $GLOBALS['locProductStockReport'],
                 'levels_allowed' => [
-                    ROLE_READONLY, 
-                    ROLE_USER, 
+                    ROLE_READONLY,
+                    ROLE_USER,
+                    ROLE_BACKUPMGR
+                ]
+            ],
+            [
+                'href' => 'form=accounting',
+                'text' => $GLOBALS['locAccountingReport'],
+                'levels_allowed' => [
+                    ROLE_READONLY,
+                    ROLE_USER,
                     ROLE_BACKUPMGR
                 ]
             ]
         ];
         break;
-    
+
     case 'companies' :
         $blnShowSearch = TRUE;
         $strOpenForm = 'company';
@@ -205,26 +214,26 @@ function createFuncMenu($strFunc)
         $strNewButton = '<a class="buttonlink" href="?func=companies&amp;form=company">' .
              $GLOBALS['locNewClient'] . '</a>';
         break;
-    
+
     default :
         $blnShowSearch = TRUE;
         $strFormName = 'invoice';
         $astrNaviLinks = [];
         if ($strFunc == 'open_invoices')
             $astrNaviLinks[] = [
-                'href' => 'index.php?func=invoices', 
-                'text' => $GLOBALS['locDisplayAllInvoices'], 
+                'href' => 'index.php?func=invoices',
+                'text' => $GLOBALS['locDisplayAllInvoices'],
                 'levels_allowed' => [
-                    ROLE_USER, 
+                    ROLE_USER,
                     ROLE_BACKUPMGR
                 ]
             ];
         else
             $astrNaviLinks[] = [
-                'href' => 'index.php?func=open_invoices', 
-                'text' => $GLOBALS['locDisplayOpenInvoices'], 
+                'href' => 'index.php?func=open_invoices',
+                'text' => $GLOBALS['locDisplayOpenInvoices'],
                 'levels_allowed' => [
-                    ROLE_USER, 
+                    ROLE_USER,
                     ROLE_BACKUPMGR
                 ]
             ];
@@ -232,10 +241,10 @@ function createFuncMenu($strFunc)
             $strNewButton = '<a class="buttonlink" href="?func=invoices&amp;form=invoice">' .
                  $GLOBALS['locNewInvoice'] . '</a>';
             $astrNaviLinks[] = [
-                'href' => 'index.php?func=import_statement', 
-                'text' => $GLOBALS['locImportAccountStatement'], 
+                'href' => 'index.php?func=import_statement',
+                'text' => $GLOBALS['locImportAccountStatement'],
                 'levels_allowed' => [
-                    ROLE_USER, 
+                    ROLE_USER,
                     ROLE_BACKUPMGR
                 ]
             ];
@@ -243,7 +252,7 @@ function createFuncMenu($strFunc)
         $strFunc = 'invoices';
         break;
     }
-    
+
     ?>
 <script type="text/javascript">
   <!--

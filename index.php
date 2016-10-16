@@ -284,6 +284,11 @@ if ($strFunc == 'system' && getRequest('operation', '') == 'export' &&
             $productStockReport = new ProductStockReport();
             $productStockReport->createReport();
             break;
+        case 'accounting' :
+            require_once 'accounting_report.php';
+            $accountingReport = new AccountingReport();
+            $accountingReport->createReport();
+            break;
         }
         break;
     default :

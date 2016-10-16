@@ -282,6 +282,13 @@ class ProductReport extends AbstractReport
   <div class="report">
     <table class="report-table">
       <tr>
+        <td>
+          <div class="unlimited_label">
+            <strong><?php echo $GLOBALS['locProductReport']?></strong>
+          </div>
+        </td>
+      </tr>
+      <tr>
         <td><?php echo $this->getParamsStr(true) ?></td>
       </tr>
     </table>

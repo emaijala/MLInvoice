@@ -70,7 +70,8 @@ class InvoiceReport extends AbstractReport
             'checked' => true
         ]
     ];
-    protected $pdf = null;
+
+    protected $reportName = 'locInvoiceReport';
 
     public function createReport()
     {
@@ -81,11 +82,6 @@ class InvoiceReport extends AbstractReport
             return;
         }
 
-        $intBaseId = getRequest('base', false);
-        $intCompanyId = getRequest('company', false);
-        $invoiceDateRange = getRequest('date', '');
-        $invoiceRowDateRange = getRequest('row_date', '');
-        $paymentDateRange = getRequest('payment_date', '');
         $fields = getRequest('fields[]', []);
         $rowTypes = getRequest('row_types', 'all');
         $format = getRequest('format', 'html');
@@ -111,30 +107,17 @@ class InvoiceReport extends AbstractReport
 <div class="form_container ui-widget-content ui-helper-clearfix">
     <form method="get" id="params" name="params">
         <input name="func" type="hidden" value="reports"> <input name="form"
-            type="hidden" value="invoice"> <input name="report" type="hidden"
+            type="hidden" value="<?php echo getRequest('form', 'invoice') ?>"> <input name="report" type="hidden"
             value="1">
 
         <div class="unlimited_label">
-            <strong><?php echo $GLOBALS['locInvoiceReport']?></strong>
+            <strong><?php echo $GLOBALS[$this->reportName]?></strong>
         </div>
 
         <div style="float: left; clear: both; margin-right: 20px;">
-
-            <div class="medium_label"><?php echo $GLOBALS['locInvoiceDateInterval']?></div>
-            <div class="field"><?php echo htmlFormElement('date', 'TEXT', $invoiceDateRange, 'medium hasDateRangePicker', '', 'MODIFY', false)?></div>
-
-            <div class="medium_label"><?php echo $GLOBALS['locInvoiceRowDateInterval']?></div>
-            <div class="field"><?php echo htmlFormElement('row_date', 'TEXT', $invoiceRowDateRange, 'medium hasDateRangePicker', '', 'MODIFY', false)?></div>
-
-            <div class="medium_label"><?php echo $GLOBALS['locPaymentDateInterval']?></div>
-            <div class="field"><?php echo htmlFormElement('payment_date', 'TEXT', $paymentDateRange, 'medium hasDateRangePicker', '', 'MODIFY', false)?></div>
-
-            <div class="medium_label"><?php echo $GLOBALS['locBiller']?></div>
-            <div class="field"><?php echo htmlFormElement('base', 'LIST', $intBaseId, 'medium', 'SELECT id, name FROM {prefix}base WHERE deleted=0 ORDER BY name', 'MODIFY', false)?></div>
-
-            <div class="medium_label"><?php echo $GLOBALS['locClient']?></div>
-            <div class="field"><?php echo htmlFormElement('company', 'LIST', $intCompanyId, 'medium', 'SELECT id, company_name FROM {prefix}company WHERE deleted=0 ORDER BY company_name', 'MODIFY', false)?></div>
-
+<?php
+        $this->addLimitSelection();
+?>
             <div class="medium_label"><?php echo $GLOBALS['locPrintFormat']?></div>
             <div class="field">
                 <input type="radio" id="format-html" name="format" value="html" <?php if ($format == 'html') echo ' checked="checked"'?>>
@@ -194,30 +177,9 @@ class InvoiceReport extends AbstractReport
             <div class="field_sep">&nbsp;</div>
 
         </div>
-        <div style="float: left; margin-right: 20px;">
-            <div class="medium_label"><?php echo $GLOBALS['locPrintReportStates']?></div>
 <?php
-        $strQuery = 'SELECT id, name, invoice_offer FROM {prefix}invoice_state WHERE deleted=0 ' .
-             'ORDER BY order_no';
-        $intRes = mysqli_query_check($strQuery);
-        $first = true;
-        while ($row = mysqli_fetch_assoc($intRes)) {
-            $intStateId = $row['id'];
-            $strStateName = isset($GLOBALS['loc' . $row['name']]) ? $GLOBALS['loc' .
-                 $row['name']] : $row['name'];
-            $strChecked = getRequest("stateid_$intStateId", $row['invoice_offer'] ? false : true) ? ' checked' : '';
-            if (!$first) {
-                echo "      <div class=\"medium_label\"></div>\n";
-            }
-            $first = false;
-            ?>
-      <div class="field">
-                <input type="checkbox" id="state-<?php echo $intStateId?>" name="stateid_<?php echo $intStateId?>"
-                    value="1" <?php echo $strChecked?>> <label for="state-<?php echo $intStateId?>"><?php echo htmlspecialchars($strStateName)?></label></div>
-<?php
-        }
-        ?>
-    </div>
+        $this->addInvoiceStateSelection();
+?>
         <div style="float: left">
             <div class="medium_label"><?php echo $GLOBALS['locPrintFields']?></div>
 <?php
@@ -246,46 +208,110 @@ class InvoiceReport extends AbstractReport
 <?php
     }
 
-    private function printReport()
+    protected function addLimitSelection()
     {
         $intBaseId = getRequest('base', false);
         $intCompanyId = getRequest('company', false);
-        $grouping = getRequest('grouping', '');
-        $format = getRequest('format', 'html');
-        $printFields = getRequest('fields', []);
-        $rowTypes = getRequest('row_types', 'all');
+        $invoiceDateRange = getRequest('date', '');
+        $invoiceRowDateRange = getRequest('row_date', '');
+        $paymentDateRange = getRequest('payment_date', '');
+?>
+            <div class="medium_label"><?php echo $GLOBALS['locInvoiceDateInterval']?></div>
+            <div class="field"><?php echo htmlFormElement('date', 'TEXT', $invoiceDateRange, 'medium hasDateRangePicker', '', 'MODIFY', false)?></div>
+
+            <div class="medium_label"><?php echo $GLOBALS['locInvoiceRowDateInterval']?></div>
+            <div class="field"><?php echo htmlFormElement('row_date', 'TEXT', $invoiceRowDateRange, 'medium hasDateRangePicker', '', 'MODIFY', false)?></div>
+
+            <div class="medium_label"><?php echo $GLOBALS['locPaymentDateInterval']?></div>
+            <div class="field"><?php echo htmlFormElement('payment_date', 'TEXT', $paymentDateRange, 'medium hasDateRangePicker', '', 'MODIFY', false)?></div>
+
+            <div class="medium_label"><?php echo $GLOBALS['locBiller']?></div>
+            <div class="field"><?php echo htmlFormElement('base', 'LIST', $intBaseId, 'medium', 'SELECT id, name FROM {prefix}base WHERE deleted=0 ORDER BY name', 'MODIFY', false)?></div>
+
+            <div class="medium_label"><?php echo $GLOBALS['locClient']?></div>
+            <div class="field"><?php echo htmlFormElement('company', 'LIST', $intCompanyId, 'medium', 'SELECT id, company_name FROM {prefix}company WHERE deleted=0 ORDER BY company_name', 'MODIFY', false)?></div>
+<?php
+    }
+
+    protected function addInvoiceStateSelection()
+    {
+?>
+        <div style="float: left; margin-right: 20px;">
+            <div class="medium_label"><?php echo $GLOBALS['locPrintReportStates']?></div>
+<?php
+        $strQuery = 'SELECT id, name, invoice_offer FROM {prefix}invoice_state WHERE deleted=0 ' .
+             'ORDER BY order_no';
+        $intRes = mysqli_query_check($strQuery);
+        $first = true;
+        while ($row = mysqli_fetch_assoc($intRes)) {
+            $intStateId = $row['id'];
+            $strStateName = isset($GLOBALS['loc' . $row['name']]) ? $GLOBALS['loc' .
+                 $row['name']] : $row['name'];
+            $strChecked = getRequest("stateid_$intStateId", $row['invoice_offer'] ? false : true) ? ' checked' : '';
+            if (!$first) {
+                echo "      <div class=\"medium_label\"></div>\n";
+            }
+            $first = false;
+            ?>
+      <div class="field">
+                <input type="checkbox" id="state-<?php echo $intStateId?>" name="stateid_<?php echo $intStateId?>"
+                    value="1" <?php echo $strChecked?>> <label for="state-<?php echo $intStateId?>"><?php echo htmlspecialchars($strStateName)?></label></div>
+<?php
+        }
+?>
+        </div>
+<?php
+    }
+
+    protected function createLimitQuery()
+    {
+        $strQuery = '';
+        $arrParams = [];
+
+        $intBaseId = getRequest('base', false);
+        if ($intBaseId) {
+            $strQuery .= ' AND i.base_id = ?';
+            $arrParams[] = $intBaseId;
+        }
+        $intCompanyId = getRequest('company', false);
+        if ($intCompanyId) {
+            $strQuery .= ' AND i.company_id = ?';
+            $arrParams[] = $intCompanyId;
+        }
 
         $dateRange = explode(' - ', getRequest('date', ''));
         $startDate = $dateRange[0];
         $endDate = isset($dateRange[1]) ? $dateRange[1] : $startDate;
         if ($startDate) {
-            $startDate = dateConvDate2DBDate($startDate);
+            $strQuery .= ' AND i.invoice_date >= ?';
+            $arrParams[] = dateConvDate2DBDate($startDate);
         }
         if ($endDate) {
-            $endDate = dateConvDate2DBDate($endDate);
-        }
-
-        $rowDateRange = explode(' - ', getRequest('row_date', ''));
-        $rowStartDate = $rowDateRange[0];
-        $rowEndDate = isset($rowDateRange[1]) ? $rowDateRange[1] : $rowStartDate;
-        if ($rowStartDate) {
-            $rowStartDate = dateConvDate2DBDate($rowStartDate);
-        }
-        if ($rowEndDate) {
-            $rowEndDate = dateConvDate2DBDate($rowEndDate);
+            $strQuery .= ' AND i.invoice_date <= ?';
+            $arrParams[] = dateConvDate2DBDate($endDate);
         }
 
         $paymentDateRange = explode(' - ', getRequest('payment_date', ''));
         $paymentStartDate = $paymentDateRange[0];
         $paymentEndDate = isset($paymentDateRange[1]) ? $paymentDateRange[1] : '';
         if ($paymentStartDate) {
-            $paymentStartDate = dateConvDate2DBDate($paymentStartDate);
+            $strQuery .= ' AND i.payment_date >= ?';
+            $arrParams[] = dateConvDate2DBDate($paymentStartDate);
         }
         if ($paymentEndDate) {
-            $paymentEndDate = dateConvDate2DBDate($paymentEndDate);
+            $strQuery .= ' AND i.payment_date <= ?';
+            $arrParams[] = dateConvDate2DBDate($paymentEndDate);
         }
 
-        $arrParams = [];
+        return [$strQuery, $arrParams];
+    }
+
+    protected function printReport()
+    {
+        $grouping = getRequest('grouping', '');
+        $format = getRequest('format', 'html');
+        $printFields = getRequest('fields', []);
+        $rowTypes = getRequest('row_types', 'all');
 
         $strQuery = 'SELECT i.id, i.invoice_no, i.invoice_date, i.due_date, i.payment_date, i.ref_number, i.ref_number, c.company_name AS name, c.billing_address, ist.name as state, ist.invoice_unpaid as unpaid' .
             ($grouping == 'vat' ? ', ir.vat' : '') .
@@ -295,31 +321,9 @@ class InvoiceReport extends AbstractReport
             ' LEFT OUTER JOIN {prefix}invoice_state ist ON i.state_id = ist.id' .
             ' WHERE i.deleted=0';
 
-        if ($startDate) {
-            $strQuery .= ' AND i.invoice_date >= ?';
-            $arrParams[] = $startDate;
-        }
-        if ($endDate) {
-            $strQuery .= ' AND i.invoice_date <= ?';
-            $arrParams[] = $endDate;
-        }
-        if ($paymentStartDate) {
-            $strQuery .= ' AND i.payment_date >= ?';
-            $arrParams[] = $paymentStartDate;
-        }
-        if ($paymentEndDate) {
-            $strQuery .= ' AND i.payment_date <= ?';
-            $arrParams[] = $paymentEndDate;
-        }
-        if ($intBaseId) {
-            $strQuery .= ' AND i.base_id = ?';
-            $arrParams[] = $intBaseId;
-        }
+        list($limitQuery, $arrParams) = $this->createLimitQuery();
 
-        if ($intCompanyId) {
-            $strQuery .= ' AND i.company_id = ?';
-            $arrParams[] = $intCompanyId;
-        }
+        $strQuery .= " $limitQuery";
 
         $strQuery2 = '';
         $strQuery3 = 'SELECT id, name ' .
@@ -354,7 +358,17 @@ class InvoiceReport extends AbstractReport
             $strQuery .= ' ORDER BY invoice_date, invoice_no';
         }
 
-        $this->printHeader($format, $printFields, $startDate, $endDate);
+        $rowDateRange = explode(' - ', getRequest('row_date', ''));
+        $rowStartDate = $rowDateRange[0];
+        $rowEndDate = isset($rowDateRange[1]) ? $rowDateRange[1] : $rowStartDate;
+        if ($rowStartDate) {
+            $rowStartDate = dateConvDate2DBDate($rowStartDate);
+        }
+        if ($rowEndDate) {
+            $rowEndDate = dateConvDate2DBDate($rowEndDate);
+        }
+
+        $this->printHeader($format, $printFields);
 
         $intTotSum = 0;
         $intTotVAT = 0;
@@ -497,7 +511,7 @@ class InvoiceReport extends AbstractReport
         $this->printFooter($format, $printFields);
     }
 
-    private function printHeader($format, $printFields, $startDate, $endDate)
+    private function printHeader($format, $printFields)
     {
         if ($format == 'pdf' || $format == 'pdfl') {
             ob_end_clean();
@@ -515,7 +529,7 @@ class InvoiceReport extends AbstractReport
 
             $pdf->setY(10);
             $pdf->SetFont('Helvetica', 'B', 12);
-            $pdf->Cell(100, 15, $GLOBALS['locInvoiceReport'], 0, 1, 'L');
+            $pdf->Cell(100, 15, $GLOBALS[$this->reportName], 0, 1, 'L');
 
             $pdf->SetFont('Helvetica', '', 8);
             $pdf->MultiCell(180, 5, $this->getParamsStr(false), 0, 'L');
@@ -558,7 +572,16 @@ class InvoiceReport extends AbstractReport
   <div class="report">
     <table class="report-table">
       <tr>
-        <td><?php echo $this->getParamsStr(true) ?></td>
+        <td>
+          <div class="unlimited_label">
+            <strong><?php echo $GLOBALS[$this->reportName]?></strong>
+          </div>
+        </td>
+      </tr>
+      <tr>
+        <td>
+          <?php echo $this->getParamsStr(true) ?>
+        </td>
       </tr>
     </table>
 

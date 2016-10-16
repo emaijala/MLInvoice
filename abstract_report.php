@@ -36,6 +36,7 @@ abstract class AbstractReport
     {
         $mappings = [
             'date' => ['name' => 'locInvoiceDateInterval'],
+            'accounting_date' => ['name' => 'locDateInterval'],
             'row_date' => ['name' => 'locInvoiceRowDateInterval'],
             'payment_date' => ['name' => 'locPaymentDateInterval'],
             'base' => [
