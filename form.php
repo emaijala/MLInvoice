@@ -389,7 +389,9 @@ function startChanging()
 }
 $(document).ready(function() {
 <?php
-    if (getSetting('invoice_show_dispatch_dates') && isset($_GET['id'])
+    if (getSetting('invoice_show_dispatch_dates')
+        && in_array($_GET['list'], ['invoice', 'invoices'])
+        && isset($_GET['id'])
         && is_numeric($_GET['id'])) {
 ?>
   $.getJSON('json.php?func=get_invoice_dates&parent_id=<?php echo isset($intKeyValue) ? $intKeyValue : "no" ?>', function( json ) {
