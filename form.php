@@ -258,6 +258,7 @@ function createForm($strFunc, $strList, $strForm)
             if ($rowOpen)
                 echo "        </tr>\n";
             echo "      </table>\n      </form>\n";
+            echo '<div id="dispatch_date_buttons"></div>';
             $haveChildForm = true;
             createIForm($astrFormElements, $elem,
                 isset($intKeyValue) ? $intKeyValue : 0, $blnNew, $strForm);
@@ -386,12 +387,22 @@ function startChanging()
     }
 ?>
 }
-
 $(document).ready(function() {
 <?php
-    if ($strMessage) {
+    if (getSetting('invoice_show_dispatch_dates') && isset($_GET['id'])
+        && is_numeric($_GET['id'])) {
 ?>
-      showmsg("<?php echo $strMessage?>");
+  $.getJSON('json.php?func=get_invoice_dates&parent_id=<?php echo isset($intKeyValue) ? $intKeyValue : "no" ?>', function( json ) {
+        for(var i in json.records) {
+            var d = json.records[i];
+            $('#dispatch_date_buttons').append('<a class="formbuttonlink ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only" href="invoice.php?id=<?php echo $_GET['id']; ?>&template=2&func=open_invoices&date='+ d.row_date +'"><span class="ui-button-text"><?php echo $GLOBALS['locSettingDispatchNotes']; ?> '+ d.row_date +'</span></a>');
+        }
+    });
+<?php } ?>
+<?php
+  if ($strMessage) {
+?>
+  showmsg("<?php echo $strMessage?>");
 <?php
     }
     if ($strErrorMessage) {

@@ -34,6 +34,14 @@ require_once 'miscfuncs.php';
 
 $intInvoiceId = getRequest('id', FALSE);
 $printTemplate = getRequest('template', 1);
+$receiptDate = getRequest('date', FALSE);
+
+$date = " ";
+if (is_numeric($receiptDate) && $receiptDate > 9999999 &&
+    $receiptDate < 100000000) {
+    $receiptDate = $receiptDate;
+    $date = " AND row_date=$receiptDate ";
+}
 
 if (!$intInvoiceId)
     return;
@@ -87,7 +95,7 @@ $strQuery = 'SELECT pr.product_name, pr.product_code, pr.price_decimals, pr.barc
      'FROM {prefix}invoice_row ir ' .
      'LEFT OUTER JOIN {prefix}row_type rt ON rt.id = ir.type_id ' .
      'LEFT OUTER JOIN {prefix}product pr ON ir.product_id = pr.id ' .
-     'WHERE ir.invoice_id=? AND ir.deleted=0 ORDER BY ir.order_no, row_date, pr.product_name DESC, ir.description DESC';
+     "WHERE ir.invoice_id=? $date AND ir.deleted=0 ORDER BY ir.order_no, row_date, pr.product_name DESC, ir.description DESC";
 $intRes = mysqli_param_query($strQuery, [
     $intInvoiceId
 ]);
@@ -106,5 +114,5 @@ if (sesWriteAccess()) {
 
 $printer = instantiateInvoicePrinter(trim($printTemplateFile));
 $printer->init($intInvoiceId, $printParameters, $printOutputFileName, $senderData,
-    $recipientData, $invoiceData, $invoiceRowData);
+    $recipientData, $invoiceData, $invoiceRowData, $receiptDate);
 $printer->printInvoice();
