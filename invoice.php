@@ -40,9 +40,8 @@ if (!$intInvoiceId)
 
 $res = mysqli_param_query(
     'SELECT filename, parameters, output_filename from {prefix}print_template WHERE id=?',
-    [
-        $printTemplate
-    ]);
+    [$printTemplate]
+);
 if (!$row = mysqli_fetch_row($res))
     return;
 $printTemplateFile = $row[0];
@@ -56,17 +55,13 @@ $strQuery = 'SELECT inv.*, ref.invoice_no as refunded_invoice_no, delivery_terms
      'LEFT OUTER JOIN {prefix}delivery_method as delivery_method ON delivery_method.id = inv.delivery_method_id ' .
      'LEFT OUTER JOIN {prefix}invoice_state as invoice_state ON invoice_state.id = inv.state_id ' .
      'WHERE inv.id=?';
-$intRes = mysqli_param_query($strQuery, [
-    $intInvoiceId
-]);
+$intRes = mysqli_param_query($strQuery, [$intInvoiceId]);
 $invoiceData = mysqli_fetch_assoc($intRes);
 if (!$invoiceData)
     die('Could not find invoice data');
 
 $strQuery = 'SELECT * FROM {prefix}company WHERE id=?';
-$intRes = mysqli_param_query($strQuery, [
-    $invoiceData['company_id']
-]);
+$intRes = mysqli_param_query($strQuery, [$invoiceData['company_id']]);
 $recipientData = mysqli_fetch_assoc($intRes);
 if (!empty($recipientData['company_id'])) {
     $recipientData['vat_id'] = createVATID($recipientData['company_id']);
@@ -74,10 +69,15 @@ if (!empty($recipientData['company_id'])) {
     $recipientData['vat_id'] = '';
 }
 
+$recipientContactData = [];
+$strQuery = 'SELECT * FROM {prefix}company_contact WHERE company_id=? AND deleted=0';
+$intRes = mysqli_param_query($strQuery, [$invoiceData['company_id']]);
+while ($contact = mysqli_fetch_assoc($intRes)) {
+    $recipientContactData[] = $contact;
+}
+
 $strQuery = 'SELECT * FROM {prefix}base WHERE id=?';
-$intRes = mysqli_param_query($strQuery, [
-    $invoiceData['base_id']
-]);
+$intRes = mysqli_param_query($strQuery, [$invoiceData['base_id']]);
 $senderData = mysqli_fetch_assoc($intRes);
 if (!$senderData)
     die('Could not find invoice sender data');
@@ -88,9 +88,7 @@ $strQuery = 'SELECT pr.product_name, pr.product_code, pr.price_decimals, pr.barc
      'LEFT OUTER JOIN {prefix}row_type rt ON rt.id = ir.type_id ' .
      'LEFT OUTER JOIN {prefix}product pr ON ir.product_id = pr.id ' .
      'WHERE ir.invoice_id=? AND ir.deleted=0 ORDER BY ir.order_no, row_date, pr.product_name DESC, ir.description DESC';
-$intRes = mysqli_param_query($strQuery, [
-    $intInvoiceId
-]);
+$intRes = mysqli_param_query($strQuery, [$intInvoiceId]);
 $invoiceRowData = [];
 while ($row = mysqli_fetch_assoc($intRes)) {
     $invoiceRowData[] = $row;
@@ -106,5 +104,5 @@ if (sesWriteAccess()) {
 
 $printer = instantiateInvoicePrinter(trim($printTemplateFile));
 $printer->init($intInvoiceId, $printParameters, $printOutputFileName, $senderData,
-    $recipientData, $invoiceData, $invoiceRowData);
+    $recipientData, $invoiceData, $invoiceRowData, $recipientContactData);
 $printer->printInvoice();

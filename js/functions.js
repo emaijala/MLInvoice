@@ -2,29 +2,40 @@ $(document).ready(function() {
 
   // Link from base label
   var baseIdLabelText = $("#base_id_label").text();
-  $("#base_id.linked").change(function() {
-    if ($(this).val() == "") {
-      $("#base_id_label").text(baseIdLabelText);
-    } else {
-      $("#base_id_label").html('<a href="index.php?func=settings&list=base&form=base&id=' + $(this).val() + '">' + baseIdLabelText + "</a>");
-    }
-  }).trigger('change');
+  $('#base_id.linked').change(setup_base_link);
+  setup_base_link($('#base_id.linked'));
+  $('#base_id').change(update_base_defaults);
+
+  $('#state_id').change(update_base_defaults);
 
   // Link from company label
   var companyIdLabelText = $("#company_id_label").text();
-  $("#company_id.linked").change(function() {
-    if ($(this).val() == "") {
-      $("#company_id_label").text(companyIdLabelText);
-    } else {
-      $("#company_id_label").html('<a href="index.php?func=companies&list=&form=company&id=' + $(this).val() + '">' + companyIdLabelText + "</a>");
-    }
-  }).trigger('change');
+  $('#company_id.linked').change(setup_company_link);
+  setup_company_link($('#company_id.linked'));
 
   // Init menus
-  $('.dropdownmenu').menu({
-
-  }).find('li:first').addClass('formbuttonlink ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only');
+  $('.dropdownmenu').menu({}).find('li:first').addClass('formbuttonlink ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only');
 });
+
+function setup_base_link()
+{
+  base_id = $('#base_id.linked');
+  if (base_id.val() == '') {
+    $('#base_id_label').text($('#base_id_label').text());
+  } else {
+    $('#base_id_label').html('<a href="index.php?func=settings&list=base&form=base&id=' + base_id.val() + '">' + $('#base_id_label').text() + '</a>');
+  }
+}
+
+function setup_company_link()
+{
+  company_id = $('#company_id.linked');
+  if (company_id.val() == '') {
+    $('#company_id_label').text($('#company_id_label').text());
+  } else {
+    $('#company_id_label').html('<a href="index.php?func=companies&list=&form=company&id=' + company_id.val() + '">' + $('#company_id_label').text() + '</a>');
+  }
+}
 
 function sort_multi(a,b)
 {
@@ -57,11 +68,6 @@ jQuery.fn.dataTableExt.oSort['html-multi-asc']  = function(a,b) {
 
 jQuery.fn.dataTableExt.oSort['html-multi-desc'] = function(a,b) {
   return -sort_multi(a, b);
-};
-
-var input = document.getElementById('addr');
-var options = {
-  types: ['geocode']
 };
 
 function initAddressAutocomplete(prefix)
@@ -217,13 +223,13 @@ function format_currency(value, decimals, decimalSep, thousandSep)
   if (thousandSep) {
     var parts = s.split(decimalSep);
     var regexp = new RegExp('(\d+)(\d{3})' + decimalSep + '?');
-      while (regexp.test(parts[0])) {
-        parts[0] = parts[0].replace(regexp, '$1' + thousandSep + '$2');
-      }
-      s = parts[0];
-      if (parts.length > 1) {
-        s += decimalSep + parts[1];
-      }
+    while (regexp.test(parts[0])) {
+      parts[0] = parts[0].replace(regexp, '$1' + thousandSep + '$2');
+    }
+    s = parts[0];
+    if (parts.length > 1) {
+      s += decimalSep + parts[1];
+    }
   }
   return s;
 }
@@ -231,6 +237,64 @@ function format_currency(value, decimals, decimalSep, thousandSep)
 function round_number(num, dec)
 {
   return Math.round(num * Math.pow(10, dec)) / Math.pow(10, dec);
+}
+
+function update_base_defaults()
+{
+  var baseId = $('#base_id').val();
+  if (baseId == '') {
+    return;
+  }
+
+  $.ajax({
+    'url': 'json.php?func=get_base',
+    'data': {
+      'id': baseId
+    },
+    'type': 'GET',
+    'success': function(data) {
+      var state = $('#state_id').val();
+      $.ajax({
+        'url': 'json.php?func=get_invoice_state',
+        'data': {
+          'id': state
+        },
+        'type': 'GET',
+        'success': function(state_data) {
+          if (state_data.invoice_open == 0) {
+            return;
+          }
+          var prefix = state_data.invoice_offer == 1 ? 'offer' : 'invoice';
+          if (data[prefix + '_default_foreword']) {
+            var old = $('#foreword').val();
+            if (old == '' || old == data.invoice_default_foreword || old == data.offer_default_foreword) {
+              $('#foreword').val(data[prefix + '_default_foreword']);
+            }
+          }
+          if (data[prefix + '_default_afterword']) {
+            var old = $('#afterword').val();
+            if (old == '' || old == data.invoice_default_afterword || old == data.offer_default_afterword) {
+              $('#afterword').val(data[prefix + '_default_afterword']);
+            }
+          }
+          if (data.invoice_default_info && $('#info').val() == '') {
+            $('#info').val(data.invoice_default_info);
+          }
+        },
+        'error': ajaxErrorHandler
+      });
+    },
+    'error': ajaxErrorHandler
+  });
+}
+
+function ajaxErrorHandler(XMLHTTPReq, textStatus, errorThrown)
+{
+  if (textStatus == 'timeout') {
+    alert('Timeout trying to fetch a record from the server');
+  } else {
+    alert('Error trying to fetch a record from the server: ' + XMLHTTPReq.status + ' - ' + XMLHTTPReq.statusText);
+  }
 }
 
 // Remove the formatting to get integer data for summation

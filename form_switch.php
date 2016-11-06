@@ -262,6 +262,22 @@ case 'company_contacts' :
     $clearRowValuesAfterAdd = true;
     $astrFormElements = [
         [
+            'name' => 'contact_type',
+            'label' => $GLOBALS['locContactType'],
+            'type' => 'LIST',
+            'style' => 'medium',
+            'listquery' => [
+                'invoice' => 'contactTypeInvoice',
+                'dispatch' => 'contactTypeDispatchNote',
+                'receipt' => 'contactTypeReceipt',
+                'order_confirmation' => 'contactTypeOrderConfirmation',
+                'reminder' => 'contactTypeReminder',
+                'offer' => 'contactTypeOffer'
+            ],
+            'position' => 0,
+            'allow_null' => true
+        ],
+        [
             'name' => 'id',
             'label' => '',
             'type' => 'HID_INT',
@@ -344,7 +360,15 @@ EOS;
 EOS;
     }
 
-    $barcodeTypeQuery = "SELECT 'EAN13', 'EAN13' UNION ALL SELECT 'C39', 'CODE 39' UNION ALL SELECT 'C39E', 'CODE 39 Extended' UNION ALL SELECT 'C128', 'CODE 128' UNION ALL SELECT 'C128A', 'CODE 128 A' UNION ALL SELECT 'C128B', 'CODE 128 B' UNION ALL SELECT 'C128C', 'CODE 128 C'";
+    $barcodeTypes = [
+        'EAN13' => 'EAN13',
+        'C39' => 'CODE 39',
+        'C39E' => 'CODE 39 Extended',
+        'C128' => 'CODE 128',
+        'C128A' => 'CODE 128 A',
+        'C128B' => 'CODE 128 B',
+        'C128C' => 'CODE 128 C'
+    ];
 
     $astrFormElements = [
         [
@@ -392,7 +416,7 @@ EOS;
             'type' => 'LIST',
             'style' => 'medium',
             'position' => 2,
-            'listquery' => $barcodeTypeQuery,
+            'listquery' => $barcodeTypes,
             'allow_null' => true
         ],
         [
@@ -409,7 +433,7 @@ EOS;
             'type' => 'LIST',
             'style' => 'medium',
             'position' => 2,
-            'listquery' => $barcodeTypeQuery,
+            'listquery' => $barcodeTypes,
             'allow_null' => true
         ],
         [
@@ -565,24 +589,12 @@ case 'invoice' :
     $invoicePrintChecks = '';
     $invoiceNumberUpdatePrefix = '';
     $invoiceNumberUpdateSuffix = '';
-    $baseOnChange = '';
     $companyOnChange = '';
     $getInvoiceNr = '';
     $updateDates = '';
     $addCompanyCode = '';
 
     if (sesWriteAccess()) {
-        $baseOnChange = <<<EOS
-  onchange="$.getJSON('json.php?func=get_base', {id: $('#base_id').val() }, function(json) {
-      if (json) {
-        if (json.invoice_default_info && $('#info').val() == '') {
-          $('#info').val(json.invoice_default_info);
-        }
-      }
-    });
-  "
-EOS;
-
         $companyOnChange = <<<EOS
   function() {
     $.getJSON('json.php?func=get_company', {id: $('#company_id').val() }, function(json) {
@@ -790,8 +802,7 @@ $astrFormElements = [
         'style' => 'medium linked',
         'listquery' => 'SELECT id, name FROM {prefix}base WHERE deleted=0 ORDER BY name, id',
         'position' => 1,
-        'default' => $defaultBase,
-        'elem_attributes' => $baseOnChange
+        'default' => $defaultBase
     ],
     [
         'name' => 'name',
@@ -927,7 +938,7 @@ $astrFormElements = [
         'name' => 'info',
         'label' => $GLOBALS['locVisibleInfo'],
         'type' => 'AREA',
-        'style' => 'medium',
+        'style' => 'large',
         'position' => 1,
         'allow_null' => true
     ],
@@ -935,7 +946,23 @@ $astrFormElements = [
         'name' => 'internal_info',
         'label' => $GLOBALS['locInternalInfo'],
         'type' => 'AREA',
-        'style' => 'medium',
+        'style' => 'large',
+        'position' => 2,
+        'allow_null' => true
+    ],
+    [
+        'name' => 'foreword',
+        'label' => $GLOBALS['locForeword'],
+        'type' => 'AREA',
+        'style' => 'large',
+        'position' => 1,
+        'allow_null' => true
+    ],
+    [
+        'name' => 'afterword',
+        'label' => $GLOBALS['locAfterword'],
+        'type' => 'AREA',
+        'style' => 'large',
         'position' => 2,
         'allow_null' => true
     ],
@@ -1429,6 +1456,38 @@ $astrFormElements = [
         'type' => 'AREA',
         'style' => 'medium',
         'position' => 1,
+        'allow_null' => true
+    ],
+    [
+        'name' => 'invoice_default_foreword',
+        'label' => $GLOBALS['locInvoiceDefaultForeword'],
+        'type' => 'AREA',
+        'style' => 'large',
+        'position' => 1,
+        'allow_null' => true
+    ],
+    [
+        'name' => 'invoice_default_afterword',
+        'label' => $GLOBALS['locInvoiceDefaultAfterword'],
+        'type' => 'AREA',
+        'style' => 'large',
+        'position' => 2,
+        'allow_null' => true
+    ],
+    [
+        'name' => 'offer_default_foreword',
+        'label' => $GLOBALS['locOfferDefaultForeword'],
+        'type' => 'AREA',
+        'style' => 'large',
+        'position' => 1,
+        'allow_null' => true
+    ],
+    [
+        'name' => 'offer_default_afterword',
+        'label' => $GLOBALS['locOfferDefaultAfterword'],
+        'type' => 'AREA',
+        'style' => 'large',
+        'position' => 2,
         'allow_null' => true
     ],
     [

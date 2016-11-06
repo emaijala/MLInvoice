@@ -73,6 +73,10 @@ CREATE TABLE mlinvoice_base (
   offer_email_subject varchar(255) NULL,
   offer_email_body text NULL,
   invoice_default_info text NULL,
+  invoice_default_foreword text NULL,
+  invoice_default_afterword text NULL,
+  offer_default_foreword text NULL,
+  offer_default_afterword text NULL,
   PRIMARY KEY (id)
 ) ENGINE=INNODB CHARACTER SET utf8 COLLATE utf8_swedish_ci;
 
@@ -135,6 +139,7 @@ CREATE TABLE mlinvoice_company_contact (
   email varchar(50) default NULL,
   phone varchar(30) default NULL,
   gsm varchar(30) default NULL,
+  contact_type varchar(100) default NULL,
   PRIMARY KEY (id),
   FOREIGN KEY (company_id) REFERENCES mlinvoice_company(id)
 ) ENGINE=INNODB CHARACTER SET utf8 COLLATE utf8_swedish_ci;
@@ -186,6 +191,8 @@ CREATE TABLE mlinvoice_invoice (
   next_interval_date int(11) default NULL,
   delivery_terms_id int(11) default NULL,
   delivery_method_id int(11) default NULL,
+  foreword text default NULL,
+  afterword text default NULL,
   PRIMARY KEY (id),
   FOREIGN KEY (company_id) REFERENCES mlinvoice_company(id),
   FOREIGN KEY (state_id) REFERENCES mlinvoice_invoice_state(id),
@@ -297,7 +304,7 @@ CREATE TABLE mlinvoice_state (
 
 SET NAMES 'utf8';
 
-INSERT INTO mlinvoice_state (id, data) VALUES ('version', '42');
+INSERT INTO mlinvoice_state (id, data) VALUES ('version', '43');
 
 INSERT INTO mlinvoice_state (id, data) VALUES ('tableconversiondone', '1');
 
@@ -312,6 +319,7 @@ INSERT INTO mlinvoice_invoice_state (id, name, order_no, invoice_open, invoice_u
 INSERT INTO mlinvoice_invoice_state (id, name, order_no, invoice_open, invoice_unpaid, invoice_offer) VALUES (9, 'StateOfferOpen', 40, 1, 0, 1);
 INSERT INTO mlinvoice_invoice_state (id, name, order_no, invoice_open, invoice_unpaid, invoice_offer, invoice_offer_sent) VALUES (10, 'StateOfferSent', 45, 1, 0, 1, 1);
 INSERT INTO mlinvoice_invoice_state (id, name, order_no, invoice_open, invoice_unpaid, invoice_offer, invoice_offer_sent) VALUES (11, 'StateOfferUnrealised', 50, 0, 0, 1, 1);
+INSERT INTO mlinvoice_invoice_state (id, name, order_no, invoice_open, invoice_unpaid, invoice_offer, invoice_offer_sent) VALUES (12, 'StateOfferRealised', 55, 0, 0, 1, 1);
 
 INSERT INTO mlinvoice_row_type (id, name, order_no) VALUES (1, 'TypeHour', 5);
 INSERT INTO mlinvoice_row_type (id, name, order_no) VALUES (2, 'TypeDay', 10);

@@ -33,6 +33,7 @@ abstract class InvoicePrinterBase
     protected $printLanguage = 'fi';
     protected $senderData = null;
     protected $recipientData = null;
+    protected $recipientContactData = null;
     protected $invoiceData = null;
     protected $invoiceRowData = null;
     protected $separateStatement = false;
@@ -68,7 +69,7 @@ abstract class InvoicePrinterBase
     }
 
     public function init($invoiceId, $printParameters, $outputFileName, $senderData,
-        $recipientData, $invoiceData, $invoiceRowData)
+        $recipientData, $invoiceData, $invoiceRowData, $recipientContactData)
     {
         $this->invoiceId = $invoiceId;
         $parameters = explode(',', $printParameters);
@@ -80,6 +81,7 @@ abstract class InvoicePrinterBase
         $this->recipientData = $recipientData;
         $this->invoiceData = $invoiceData;
         $this->invoiceRowData = $invoiceRowData;
+        $this->recipientContactData = $recipientContactData;
 
         initInvoicePDFLocalizations($this->printLanguage);
 
@@ -1014,7 +1016,7 @@ abstract class InvoicePrinterBase
                         $str = $GLOBALS['locPDFDispatchNote'];
                     } elseif ($this->printStyle == 'receipt') {
                         $str = $GLOBALS['locPDFReceipt'];
-                    } elseif ($this->printStyle == 'ofer') {
+                    } elseif ($this->printStyle == 'offer') {
                         $str = $GLOBALS['locPDFOffer'];
                     } elseif ($this->printStyle == 'order_confirmation') {
                         $str = $GLOBALS['locPDFOrderConfirmation'];

@@ -863,6 +863,22 @@ EOT
         );
     }
 
+    if ($version < 43) {
+        $updates = array_merge($updates,
+            [
+                'ALTER TABLE {prefix}company_contact ADD COLUMN contact_type VARCHAR(100) NULL',
+                "INSERT INTO {prefix}invoice_state (name, order_no, invoice_open, invoice_unpaid, invoice_offer, invoice_offer_sent) VALUES ('StateOfferRealised', 55, 0, 0, 1, 1)",
+                'ALTER TABLE {prefix}base ADD COLUMN invoice_default_foreword text NULL',
+                'ALTER TABLE {prefix}base ADD COLUMN invoice_default_afterword text NULL',
+                'ALTER TABLE {prefix}base ADD COLUMN offer_default_foreword text NULL',
+                'ALTER TABLE {prefix}base ADD COLUMN offer_default_afterword text NULL',
+                'ALTER TABLE {prefix}invoice ADD COLUMN foreword text NULL',
+                'ALTER TABLE {prefix}invoice ADD COLUMN afterword text NULL',
+                "REPLACE INTO {prefix}state (id, data) VALUES ('version', '43')"
+            ]
+        );
+    }
+
     if (!empty($updates)) {
         mysqli_query_check('SET AUTOCOMMIT = 0');
         mysqli_query_check('BEGIN');

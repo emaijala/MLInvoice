@@ -302,8 +302,14 @@ function htmlFormElement($strName, $strType, $strValue, $strStyle, $strListQuery
         }
 
         if ($strMode == 'MODIFY') {
-            $strFormElement = htmlSQLListBox($strName, $strListQuery, $strValue,
-                $strStyle, false, $astrAdditionalAttributes, $translate);
+            if (is_array($strListQuery)) {
+                $strFormElement = htmlListBox($strName, $strListQuery, $strValue,
+                    $strStyle, false, $astrAdditionalAttributes, $translate);
+
+            } else {
+                $strFormElement = htmlSQLListBox($strName, $strListQuery, $strValue,
+                    $strStyle, false, $astrAdditionalAttributes, $translate);
+            }
         } else {
             $strFormElement = "<input type=\"text\" class=\"$strStyle\" " .
                  "id=\"$strName\" name=\"$strName\" value=\"" .

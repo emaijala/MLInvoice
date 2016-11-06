@@ -22,10 +22,10 @@ class InvoicePrinterOrderConfirmation extends InvoicePrinterBase
 {
 
     public function init($invoiceId, $printParameters, $outputFileName, $senderData,
-        $recipientData, $invoiceData, $invoiceRowData)
+        $recipientData, $invoiceData, $invoiceRowData, $recipientContactData)
     {
         parent::init($invoiceId, $printParameters, $outputFileName, $senderData,
-            $recipientData, $invoiceData, $invoiceRowData);
+            $recipientData, $invoiceData, $invoiceRowData, $recipientContactData);
         $this->printStyle = 'order_confirmation';
     }
 

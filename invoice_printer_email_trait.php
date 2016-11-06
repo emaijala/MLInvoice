@@ -31,12 +31,33 @@ trait InvoicePrinterEmailTrait
     {
         $senderData = $this->senderData;
         $recipientData = $this->recipientData;
+        $invoiceData = $this->invoiceData;
+
+        $defaultRecipient = isset($recipientData['email']) ? $recipientData['email'] : '';
+        $type = $this->printStyle ? $this->printStyle : 'invoice';
+        if ($type == 'invoice' && in_array($invoiceData['state_id'], [5, 6])) {
+            $type = 'reminder';
+        }
+        $recipients = [];
+        foreach ($recipientData['contacts'] as $contact) {
+            if ($contact['contact_type'] == $type && !empty($contact['email'])) {
+                if (!empty($contact['contact_person'])) {
+                    $email = str_replace(',', ' ', $contact['contact_person'])
+                        . ' <' . $contact['email'] . '>';
+                } else {
+                    $email = $contact['email'];
+                }
+                $recipients[] = $email;
+            }
+        }
+        if ($recipients) {
+            $defaultRecipient = implode(', ', $recipients);
+        }
 
         $this->emailFrom = getRequest('email_from',
             isset($senderData['invoice_email_from']) ? $senderData['invoice_email_from'] : (isset(
                 $senderData['email']) ? $senderData['email'] : ''));
-        $this->emailTo = getRequest('email_to',
-            isset($recipientData['email']) ? $recipientData['email'] : '');
+        $this->emailTo = getRequest('email_to', $defaultRecipient);
         $this->emailCC = getRequest('email_cc', '');
         $this->emailBCC = getRequest('email_bcc',
             isset($senderData['invoice_email_bcc']) ? $senderData['invoice_email_bcc'] : '');

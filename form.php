@@ -609,21 +609,29 @@ function init_rows()
         if ($subElem['type'] != 'LIST') {
             continue;
         }
-        echo '  var arr_' . $subElem['name'] . ' = {"0":"-"';
-        $res = mysqli_query_check($subElem['listquery']);
-        $translate = strstr($subElem['style'], ' translated');
-        while ($row = mysqli_fetch_row($res)) {
-            if ($translate && isset($GLOBALS["loc{$row[1]}"])) {
-                $row[1] = $GLOBALS["loc{$row[1]}"];
+        if (is_array($subElem['listquery'])) {
+            $values = $subElem['listquery'];
+        } else {
+            $res = mysqli_query_check($subElem['listquery']);
+            $values = [];
+            while ($row = mysqli_fetch_row($res)) {
+                $values[$row[0]] = $row[1];
             }
-            echo ',' . $row[0] . ':"' . addcslashes($row[1], '\"\/') . '"';
+        }
+        $translate = strstr($subElem['style'], ' translated');
+        echo '  var arr_' . $subElem['name'] . ' = {"0":"-"';
+        foreach ($values as $key => $value) {
+            if ($translate && isset($GLOBALS["loc$value"])) {
+                $value = $GLOBALS["loc$value"];
+            }
+            echo ',' . $key . ':"' . addcslashes($value, '\"\/') . '"';
         }
         echo "};\n";
     }
     ?>
   $.getJSON('json.php?func=get_<?php echo $elem['name']?>&parent_id=<?php echo $intKeyValue?>', function(json) {
     $('#itable > tbody > tr[id!=form_row]').remove();
-    var table = document.getElementById('itable');
+    var table = $('#itable');
     for (var i = 0; i < json.records.length; i++)
     {
       var record = json.records[i];
@@ -643,7 +651,7 @@ function init_rows()
         $name = $subElem['name'];
         $class = $subElem['style'];
         if ($subElem['type'] == 'LIST' || $subElem['type'] == 'SEARCHLIST') {
-            echo "      if (record.${name}_text === null) record.${name}_text = ''; $('<td/>').addClass('$class' + (record.deleted == 1 ? ' deleted' : '')).text(record.${name}_text).appendTo(tr);\n";
+            echo "      if (record.${name}_text === null || typeof record.${name}_text === 'undefined') record.${name}_text = (typeof arr_" . $subElem['name'] . "[record.${name}] !== 'undefined') ? arr_" . $subElem['name'] . "[record.${name}] : ''; $('<td/>').addClass('$class' + (record.deleted == 1 ? ' deleted' : '')).text(record.${name}_text).appendTo(tr);\n";
         } elseif ($subElem['type'] == 'INT') {
             if (isset($subElem['decimals'])) {
                 echo "      $('<td/>').addClass('$class' + (record.deleted == 1 ? ' deleted' : '')).text(record.$name ? format_currency(record.$name, {$subElem['decimals']}, '{$GLOBALS['locDecimalSeparator']}', '{$GLOBALS['locThousandSeparator']}') : '').appendTo(tr);\n";
@@ -698,7 +706,7 @@ function init_rows()
 <?php
     }
     ?>
-      $(table).append(tr);
+      table.append(tr);
     }
 <?php
     if ($elem['name'] == 'invoice_rows') {
