@@ -298,11 +298,16 @@ function ajaxErrorHandler(XMLHTTPReq, textStatus, errorThrown)
 }
 
 // Remove the formatting to get integer data for summation
-var intVal = function (i) {
+function intVal(i) {
     if (typeof i === 'string') {
         return i.replace(/[.,]/g, '') * 1;
     } else if (typeof i === 'number') {
         return i * 1;
     }
     return 0;
-};
+}
+
+function formatDate(dateString)
+{
+    return dateString.substr(6, 2) + '.' + dateString.substr(4, 2) + '.' + dateString.substr(0, 4);
+}

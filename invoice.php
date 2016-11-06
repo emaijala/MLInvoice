@@ -32,8 +32,14 @@ require_once 'pdf.php';
 require_once 'datefuncs.php';
 require_once 'miscfuncs.php';
 
-$intInvoiceId = getRequest('id', FALSE);
+$intInvoiceId = getRequest('id', false);
 $printTemplate = getRequest('template', 1);
+$dateOverride = getRequest('date', false);
+if (!is_string($dateOverride) || !ctype_digit($dateOverride)
+    || strlen($dateOverride) != 8
+) {
+    $dateOverride = false;
+}
 
 if (!$intInvoiceId)
     return;
@@ -83,12 +89,20 @@ if (!$senderData)
     die('Could not find invoice sender data');
 $senderData['vat_id'] = createVATID($senderData['company_id']);
 
+$queryParams = [$intInvoiceId];
+$where = 'ir.invoice_id=? AND ir.deleted=0';
+if ($dateOverride) {
+    $where .= ' AND row_date=?';
+    $queryParams[] = $dateOverride;
+}
+
 $strQuery = 'SELECT pr.product_name, pr.product_code, pr.price_decimals, pr.barcode1, pr.barcode1_type, pr.barcode2, pr.barcode2_type, ir.description, ir.pcs, ir.price, IFNULL(ir.discount, 0) as discount, ir.row_date, ir.vat, ir.vat_included, ir.reminder_row, ir.partial_payment, rt.name type ' .
      'FROM {prefix}invoice_row ir ' .
      'LEFT OUTER JOIN {prefix}row_type rt ON rt.id = ir.type_id ' .
      'LEFT OUTER JOIN {prefix}product pr ON ir.product_id = pr.id ' .
-     'WHERE ir.invoice_id=? AND ir.deleted=0 ORDER BY ir.order_no, row_date, pr.product_name DESC, ir.description DESC';
-$intRes = mysqli_param_query($strQuery, [$intInvoiceId]);
+     "WHERE $where ORDER BY ir.order_no, row_date, pr.product_name DESC, ir.description DESC";
+$intRes = mysqli_param_query($strQuery, $queryParams);
+
 $invoiceRowData = [];
 while ($row = mysqli_fetch_assoc($intRes)) {
     $invoiceRowData[] = $row;
@@ -103,6 +117,9 @@ if (sesWriteAccess()) {
 }
 
 $printer = instantiateInvoicePrinter(trim($printTemplateFile));
-$printer->init($intInvoiceId, $printParameters, $printOutputFileName, $senderData,
-    $recipientData, $invoiceData, $invoiceRowData, $recipientContactData);
+$printer->init(
+    $intInvoiceId, $printParameters, $printOutputFileName, $senderData,
+    $recipientData, $invoiceData, $invoiceRowData, $recipientContactData,
+    $dateOverride
+);
 $printer->printInvoice();

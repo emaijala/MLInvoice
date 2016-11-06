@@ -258,6 +258,7 @@ function createForm($strFunc, $strList, $strForm)
             if ($rowOpen)
                 echo "        </tr>\n";
             echo "      </table>\n      </form>\n";
+            echo '<div id="dispatch_date_buttons"></div>';
             $haveChildForm = true;
             createIForm($astrFormElements, $elem,
                 isset($intKeyValue) ? $intKeyValue : 0, $blnNew, $strForm);
@@ -386,12 +387,24 @@ function startChanging()
     }
 ?>
 }
-
 $(document).ready(function() {
 <?php
-    if ($strMessage) {
+    if (getSetting('invoice_show_dispatch_dates')
+        && in_array($strList, ['invoice', 'invoices'])
+        && isset($intKeyValue)
+    ) {
 ?>
-      showmsg("<?php echo $strMessage?>");
+  $.getJSON('json.php?func=get_invoice_row_dates&id=<?php echo $intKeyValue ?>', function(json) {
+        for (var i in json.records) {
+            var d = json.records[i];
+            $('#dispatch_date_buttons').append('<a class="formbuttonlink ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only" href="invoice.php?id=<?php echo $intKeyValue ?>&template=2&func=open_invoices&date='+ d.row_date +'"><span class="ui-button-text"><?php echo $GLOBALS['locSettingDispatchNotes'] ?> '+ formatDate(d.row_date) + '</span></a> ');
+        }
+    });
+<?php } ?>
+<?php
+  if ($strMessage) {
+?>
+  showmsg("<?php echo $strMessage?>");
 <?php
     }
     if ($strErrorMessage) {
@@ -1037,7 +1050,7 @@ function popup_editor(event, title, id, copy_row)
                 }
             } elseif ($subElem['type'] == 'INTDATE') {
                 ?>
-    form.<?php echo "iform_popup_$name"?>.value = json.<?php echo $name?> ? json.<?php echo $name?>.substr(6, 2) + '.' + json.<?php echo $name?>.substr(4, 2) + '.' + json.<?php echo $name?>.substr(0, 4) : '';
+    form.<?php echo "iform_popup_$name"?>.value = json.<?php echo $name?> ? formatDate(json.<?php echo $name?>) : '';
 <?php
             } elseif ($subElem['type'] == 'CHECK') {
                 ?>

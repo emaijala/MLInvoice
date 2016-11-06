@@ -177,6 +177,14 @@ $arrSettings = [
         'default' => 1,
         'allow_null' => true
     ],
+    'invoice_show_dispatch_dates' => [
+        'label' => $GLOBALS['locSettingInvoiceShowDispatchDates'],
+        'type' => 'CHECK',
+        'style' => 'medium',
+        'position' => 1,
+        'default' => 0,
+        'allow_null' => true
+    ],
     'invoice_row_description_first_line_only' => [
         'label' => $GLOBALS['locSettingInvoiceRowDescriptionFirstLineOnly'],
         'type' => 'CHECK',

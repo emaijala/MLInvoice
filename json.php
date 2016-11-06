@@ -133,7 +133,7 @@ case 'get_invoice_defaults' :
         'invoice_date', dateConvDBDate2Date(date('Y') . '0101')
     );
     $intervalType = getRequest('interval_type', 0);
-    $invNr = getRequest('invoice_no', 0);
+    $invoiceNumber = getRequest('invoice_no', 0);
 
     $defaults = getInvoiceDefaults(
         $invoiceId, $baseId, $companyId, $invoiceDate, $intervalType, $invoiceNumber
@@ -342,6 +342,15 @@ case 'get_stock_balance_rows' :
 </tr>
 <?php
     }
+    break;
+
+case 'get_invoice_row_dates':
+    $id = getRequest('id', '');
+    if (!$id) {
+        header('HTTP/1.1 400 Bad Request');
+        die('date must be given');
+    }
+    printInvoiceRowDates($id);
     break;
 
 case 'noop' :
@@ -645,3 +654,31 @@ function get_max_invoice_number($invoiceId, $baseId, $perYear)
     $res = mysqli_param_query($sql, $params);
     return mysqli_fetch_value($res);
 }
+
+function printInvoiceRowDates($invoiceId)
+{
+    $query = 'SELECT distinct row_date FROM {prefix}invoice_row';
+    $where .= " WHERE invoice_id=?";
+    $params = [$invoiceId];
+    if (!getSetting('show_deleted_records')) {
+        $where .= " AND deleted=0";
+    }
+    $query .= "$where order by row_date";
+
+    $res = mysqli_param_query($query, $params);
+    header('Content-Type: application/json');
+    echo "{\"records\":[";
+    $first = true;
+    while ($row = mysqli_fetch_assoc($res)) {
+        if ($first) {
+            echo "\n";
+            $first = false;
+        } else {
+            echo ",\n";
+        }
+        echo json_encode($row);
+    }
+    echo "\n]}";
+}
+
+

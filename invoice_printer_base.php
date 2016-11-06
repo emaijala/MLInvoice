@@ -58,6 +58,7 @@ abstract class InvoicePrinterBase
     protected $recipientAddressX = 0;
     protected $recipientAddressY = 0;
     protected $partialPayments = 0;
+    protected $dateOverride = false;
 
     public function __construct()
     {
@@ -69,8 +70,10 @@ abstract class InvoicePrinterBase
     }
 
     public function init($invoiceId, $printParameters, $outputFileName, $senderData,
-        $recipientData, $invoiceData, $invoiceRowData, $recipientContactData)
-    {
+        $recipientData, $invoiceData, $invoiceRowData, $recipientContactData,
+        $dateOverride
+    ) {
+        $this->dateOverride = $dateOverride;
         $this->invoiceId = $invoiceId;
         $parameters = explode(',', $printParameters);
         $this->printStyle = $parameters[0];
@@ -372,7 +375,9 @@ abstract class InvoicePrinterBase
         $pdf->Cell(60, 4, $invoiceData['invoice_no'], 0, 1);
         $pdf->SetX(115);
         $pdf->Cell(40, 4, $GLOBALS["locPDF${locStr}Date"] . ': ', 0, 0, 'R');
-        $strInvoiceDate = $this->_formatDate($invoiceData['invoice_date']);
+        $strInvoiceDate = ($this->dateOverride)
+            ? $this->_formatDate($this->dateOverride)
+            : $this->_formatDate($invoiceData['invoice_date']);
         $strDueDate = $this->_formatDate($invoiceData['due_date']);
         $pdf->Cell(60, 4, $strInvoiceDate, 0, 1);
         if ($this->printStyle == 'invoice') {
