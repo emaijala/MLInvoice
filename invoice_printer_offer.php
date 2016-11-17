@@ -22,10 +22,13 @@ class InvoicePrinterOffer extends InvoicePrinterBase
 {
 
     public function init($invoiceId, $printParameters, $outputFileName, $senderData,
-        $recipientData, $invoiceData, $invoiceRowData, $recipientContactData)
+        $recipientData, $invoiceData, $invoiceRowData, $recipientContactData,
+        $dateOverride)
     {
         parent::init($invoiceId, $printParameters, $outputFileName, $senderData,
-            $recipientData, $invoiceData, $invoiceRowData, $recipientContactData);
+            $recipientData, $invoiceData, $invoiceRowData, $recipientContactData,
+            $dateOverride
+        );
         $this->printStyle = 'offer';
     }
 

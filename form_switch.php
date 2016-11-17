@@ -36,6 +36,7 @@ $clearRowValuesAfterAdd = false;
 $onAfterRowAdded = '';
 $readOnlyForm = false;
 $addressAutocomplete = false;
+$formDataAttrs = [];
 
 switch ($strForm) {
 
@@ -586,9 +587,6 @@ case 'invoice' :
         }
     }
 
-    $invoicePrintChecks = '';
-    $invoiceNumberUpdatePrefix = '';
-    $invoiceNumberUpdateSuffix = '';
     $companyOnChange = '';
     $getInvoiceNr = '';
     $updateDates = '';
@@ -671,15 +669,11 @@ EOS;
 EOS;
 
         if (getSetting('invoice_warn_if_noncurrent_date')) {
-            $invoicePrintChecks .= "var d = new Date(); var dt = document.getElementById('invoice_date').value.split('.'); if (parseInt(dt[0], 10) != d.getDate() || parseInt(dt[1], 10) != d.getMonth()+1 || parseInt(dt[2], 10) != d.getYear() + 1900) { if (!confirm('" .
-                 $GLOBALS['locInvoiceDateNonCurrent'] . "')) return false; } ";
+            $formDataAttrs[] = 'check-invoice-date';
         }
-        $invoicePrintChecks .= "var len = document.getElementById('ref_number').value.length; if (len > 0 && len < 4) { if (!confirm('" .
-             $GLOBALS['locInvoiceRefNumberTooShort'] . "')) return false; } ";
 
         if (!getSetting('invoice_add_number')) {
-            $invoiceNumberUpdatePrefix = "invoice_no = document.getElementById('invoice_no'); if (invoice_no.value == '' || invoice_no.value == 0) { if (!confirm('" .
-                 $GLOBALS['locInvoiceNumberNotDefined'] . "')) return false; }";
+            $formDataAttrs[] = 'check-invoice-number';
         }
     }
 
@@ -723,7 +717,7 @@ EOF;
         $printStyle = $row['new_window'] ? 'openwindow' : 'redirect';
 
         if (sesWriteAccess()) {
-            $printFunc = "${invoicePrintChecks}${invoiceNumberUpdatePrefix}save_record('invoice.php?id=_ID_&amp;template=$templateId&amp;func=$strFunc', '$printStyle', true); ${invoiceNumberUpdateSuffix} return false;";
+            $printFunc = "MLInvoice.printInvoice('$templateId', '$strFunc', '$printStyle'); return false;";
         } else {
             // Check if this print template is safe for read-only use
             $printer = instantiateInvoicePrinter($row['filename']);

@@ -59,6 +59,8 @@ abstract class InvoicePrinterBase
     protected $recipientAddressY = 0;
     protected $partialPayments = 0;
     protected $dateOverride = false;
+    protected $allowSeparateStatement = true;
+    protected $autoPageBreak = false;
 
     public function __construct()
     {
@@ -236,8 +238,12 @@ abstract class InvoicePrinterBase
 
         $this->senderAddressX = 10 + getSetting('invoice_address_x_offset', 0);
         $this->senderAddressY = 20 + getSetting('invoice_address_y_offset', 0);
-        $this->recipientAddressX = 10 + getSetting('invoice_recipient_address_x_offset', 0);
-        $this->recipientAddressY = 40 + getSetting('invoice_recipient_address_y_offset', 0);
+        $this->recipientAddressX = 10 +
+            getSetting('invoice_recipient_address_x_offset', 0);
+        $this->recipientAddressY = 40 +
+            getSetting('invoice_recipient_address_y_offset', 0);
+
+        $this->autoPageBreak = $this->printStyle != 'invoice' ? 22 : 0;
     }
 
     public function printInvoice()
@@ -252,17 +258,32 @@ abstract class InvoicePrinterBase
 
         $this->printSeparatorLine();
 
+        $this->printForeword();
+
+        $savePdf = clone($this->pdf);
         if (!$this->separateStatement) {
             $this->printRows();
         } else {
             $this->printSeparateStatementMessage();
         }
+        $this->printAfterword();
 
-        if ($this->printStyle == 'invoice')
+        if ($this->printStyle == 'invoice') {
+            if (!$this->separateStatement && $this->allowSeparateStatement) {
+                if ($this->pdf->getY() > $this->invoiceRowMaxY) {
+                    $this->pdf = $savePdf;
+                    $this->separateStatement = true;
+                    $this->printSeparateStatementMessage();
+                    $this->printAfterword();
+                }
+            }
             $this->printForm();
+        }
 
-        if ($this->separateStatement)
+        if ($this->separateStatement) {
             $this->printRows();
+        }
+
 
         $this->printOut();
     }
@@ -271,7 +292,9 @@ abstract class InvoicePrinterBase
     {
         $pdf = new PDF('P', 'mm', 'A4', _CHARSET_ == 'UTF-8', _CHARSET_, false);
         $pdf->AddPage();
-        $pdf->SetAutoPageBreak(FALSE);
+        $pdf->SetAutoPageBreak(
+            $this->autoPageBreak ? true : false, $this->autoPageBreak
+        );
         $pdf->footerLeft = $this->senderAddressLine;
         $pdf->footerCenter = $this->senderContactInfo;
         $pdf->footerRight = $this->senderData['www'] . "\n" .
@@ -296,7 +319,10 @@ abstract class InvoicePrinterBase
                 $senderData['logo_left'], $senderData['logo_top'],
                 $senderData['logo_width'], 0, '', '', 'N', false, 300, '', false,
                 false, 0, true);
-        } else {
+        }
+        if (!isset($senderData['logo_filedata'])
+            || getSetting('invoice_print_senders_logo_and_address')
+        ) {
             $address = $senderData['street_address'] . "\n" . $senderData['zip_code'] .
                  ' ' . $senderData['city'] . "\n" . $senderData['country'];
             $pdf->SetTextColor(125);
@@ -346,19 +372,10 @@ abstract class InvoicePrinterBase
         else
             $locStr = 'Invoice';
 
-            // Invoice info headers
+        // Invoice info headers
         $pdf->SetXY(115, 10);
         $pdf->SetFont('Helvetica', 'B', 12);
-        if ($this->printStyle == 'dispatch')
-            $pdf->Cell(40, 5, $GLOBALS['locPDFDispatchNoteHeader'], 0, 1, 'R');
-        elseif ($this->printStyle == 'receipt')
-            $pdf->Cell(40, 5, $GLOBALS['locPDFReceiptHeader'], 0, 1, 'R');
-        elseif ($invoiceData['state_id'] == 5)
-            $pdf->Cell(40, 5, $GLOBALS['locPDFFirstReminderHeader'], 0, 1, 'R');
-        elseif ($invoiceData['state_id'] == 6)
-            $pdf->Cell(40, 5, $GLOBALS['locPDFSecondReminderHeader'], 0, 1, 'R');
-        else
-            $pdf->Cell(40, 5, $GLOBALS['locPDFInvoiceHeader'], 0, 1, 'R');
+        $pdf->Cell(40, 5, $this->getHeaderTitle(), 0, 1, 'R');
         $pdf->SetFont('Helvetica', '', 10);
         $pdf->SetXY(115, $pdf->GetY() + 5);
         if ($recipientData['customer_no'] != 0) {
@@ -456,11 +473,38 @@ abstract class InvoicePrinterBase
         $pdf->SetY($pdf->GetY() + 5);
     }
 
+    protected function printForeword()
+    {
+        if (empty($this->invoiceData['foreword'])) {
+            return;
+        }
+
+        $pdf = $this->pdf;
+
+        $pdf->SetTextColor(0);
+        $pdf->SetFont('Helvetica', '', 10);
+        $pdf->MultiCell(180, 5, $this->invoiceData['foreword'], 0, 'L', 0);
+        $pdf->setY($pdf->getY() + 5);
+    }
+
+    protected function printAfterword()
+    {
+        if (empty($this->invoiceData['afterword'])) {
+            return;
+        }
+
+        $pdf = $this->pdf;
+
+        $pdf->SetTextColor(0);
+        $pdf->SetFont('Helvetica', '', 10);
+        $pdf->SetY($pdf->GetY() + 5);
+        $pdf->MultiCell(180, 5, $this->invoiceData['afterword'], 0, 'L', 0);
+    }
+
     protected function printSeparateStatementMessage()
     {
         $pdf = $this->pdf;
         $pdf->SetFont('Helvetica', 'B', 20);
-        $pdf->SetXY(20, $pdf->GetY() + 40);
         $pdf->MultiCell(180, 5, $GLOBALS['locPDFSeeSeparateStatement'], 0, 'L', 0);
     }
 
@@ -474,7 +518,7 @@ abstract class InvoicePrinterBase
             $pdf->SetAutoPageBreak(TRUE, 22);
 
             $pdf->SetFont('Helvetica', 'B', 20);
-            $pdf->SetXY(4, $pdf->GetY());
+            $pdf->SetXY(10, $pdf->GetY());
             $pdf->Cell(80, 5, $GLOBALS['locPDFInvoiceStatement'], 0, 0, 'L');
             $pdf->SetFont('Helvetica', '', 10);
             $pdf->SetX(115);
@@ -486,12 +530,16 @@ abstract class InvoicePrinterBase
             else
                 $locStr = 'Invoice';
 
-            $pdf->Cell(40, 5, $GLOBALS["locPDF${locStr}Number"] . ': ', 0, 0, 'R');
-            $pdf->Cell(60, 5, $invoiceData['invoice_no'], 0, 1);
+            $pdf->Cell(
+                82, 5,
+                $GLOBALS["locPDF${locStr}Number"] . ': '
+                . $invoiceData['invoice_no'],
+                0, 0, 'R'
+            );
             $pdf->SetXY(7, $pdf->GetY() + 10);
         } elseif ($this->printStyle != 'invoice') {
             $pdf->printFooterOnFirstPage = true;
-            $pdf->SetAutoPageBreak(TRUE, $this->printStyle == 'receipt' ? 32 : 22);
+            $pdf->SetAutoPageBreak(true, 22);
         }
 
         if ($this->printStyle == 'dispatch')
@@ -538,8 +586,10 @@ abstract class InvoicePrinterBase
 
         $pdf->SetY($pdf->GetY() + 5);
         foreach ($this->invoiceRowData as $row) {
-            if (!$this->separateStatement && $this->printStyle == 'invoice' &&
-                 $pdf->GetY() > $this->invoiceRowMaxY) {
+            if (!$this->separateStatement && $this->printStyle == 'invoice'
+                && $this->allowSeparateStatement
+                && $pdf->GetY() > $this->invoiceRowMaxY
+            ) {
                 $this->separateStatement = true;
                 $this->printInvoice();
                 exit();
@@ -1074,5 +1124,19 @@ abstract class InvoicePrinterBase
         // Handle additional placeholders
         $filename = $this->replacePlaceholders($filename);
         return $filename;
+    }
+
+    protected function getHeaderTitle()
+    {
+        if ($this->printStyle == 'dispatch') {
+            return $GLOBALS['locPDFDispatchNoteHeader'];
+        } elseif ($this->printStyle == 'receipt') {
+            return $GLOBALS['locPDFReceiptHeader'];
+        } elseif ($this->invoiceData['state_id'] == 5) {
+            return $GLOBALS['locPDFFirstReminderHeader'];
+        } elseif ($this->invoiceData['state_id'] == 6) {
+            return $GLOBALS['locPDFSecondReminderHeader'];
+        }
+        return $GLOBALS['locPDFInvoiceHeader'];
     }
 }

@@ -157,9 +157,12 @@ function createForm($strFunc, $strList, $strForm)
     </div>
 <?php
     }
+    if (!sesWriteAccess() || $readOnlyForm) {
+        $formDataAttrs[] = 'read-only';
+    }
 ?>
     <div class="form">
-        <form method="post" name="admin_form" id="admin_form">
+        <form method="post" name="admin_form" id="admin_form"<?php echo empty($formDataAttrs) ? '' : ' ' . implode(' ', array_map(function($s) { return "data-$s"; }, $formDataAttrs)) ?>>
             <input type="hidden" name="copyact" value="0"> <input type="hidden"
                 name="newact" value="<?php echo $blnNew ? 1 : 0?>"> <input
                 type="hidden" name="deleteact" value="0"> <input type="hidden"
@@ -388,19 +391,6 @@ function startChanging()
 ?>
 }
 $(document).ready(function() {
-<?php
-    if (getSetting('invoice_show_dispatch_dates')
-        && in_array($strList, ['invoice', 'invoices'])
-        && isset($intKeyValue)
-    ) {
-?>
-  $.getJSON('json.php?func=get_invoice_row_dates&id=<?php echo $intKeyValue ?>', function(json) {
-        for (var i in json.records) {
-            var d = json.records[i];
-            $('#dispatch_date_buttons').append('<a class="formbuttonlink ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only" href="invoice.php?id=<?php echo $intKeyValue ?>&template=2&func=open_invoices&date='+ d.row_date +'"><span class="ui-button-text"><?php echo $GLOBALS['locSettingDispatchNotes'] ?> '+ formatDate(d.row_date) + '</span></a> ');
-        }
-    });
-<?php } ?>
 <?php
   if ($strMessage) {
 ?>
@@ -663,23 +653,26 @@ function init_rows()
         }
         $name = $subElem['name'];
         $class = $subElem['style'];
+        echo "      var td = $('<td/>').addClass('$class' + (record.deleted == 1 ? ' deleted' : ''));\n";
+        echo "      td.attr('data-field', '$name');\n";
         if ($subElem['type'] == 'LIST' || $subElem['type'] == 'SEARCHLIST') {
-            echo "      if (record.${name}_text === null || typeof record.${name}_text === 'undefined') record.${name}_text = (typeof arr_" . $subElem['name'] . "[record.${name}] !== 'undefined') ? arr_" . $subElem['name'] . "[record.${name}] : ''; $('<td/>').addClass('$class' + (record.deleted == 1 ? ' deleted' : '')).text(record.${name}_text).appendTo(tr);\n";
+            echo "      if (record.${name}_text === null || typeof record.${name}_text === 'undefined') record.${name}_text = (typeof arr_" . $subElem['name'] . "[record.${name}] !== 'undefined') ? arr_" . $subElem['name'] . "[record.${name}] : '';\n";
+            echo "      td.text(record.${name}_text).appendTo(tr);\n";
         } elseif ($subElem['type'] == 'INT') {
             if (isset($subElem['decimals'])) {
-                echo "      $('<td/>').addClass('$class' + (record.deleted == 1 ? ' deleted' : '')).text(record.$name ? format_currency(record.$name, {$subElem['decimals']}, '{$GLOBALS['locDecimalSeparator']}', '{$GLOBALS['locThousandSeparator']}') : '').appendTo(tr);\n";
+                echo "      td.text(record.$name ? format_currency(record.$name, {$subElem['decimals']}, '{$GLOBALS['locDecimalSeparator']}', '{$GLOBALS['locThousandSeparator']}') : '').appendTo(tr);\n";
             } else {
-                echo "      $('<td/>').addClass('$class' + (record.deleted == 1 ? ' deleted' : '')).text(record.$name ? record.$name.replace('.', '{$GLOBALS['locDecimalSeparator']}') : '').appendTo(tr);\n";
+                echo "      td.text(record.$name ? record.$name.replace('.', '{$GLOBALS['locDecimalSeparator']}') : '').appendTo(tr);\n";
             }
         } elseif ($subElem['type'] == 'INTDATE') {
             echo "      if (record.$name === null) record.$name = '';\n";
-            echo "      $('<td/>').addClass('$class' + (record.deleted == 1 ? ' deleted' : '')).text(record.$name.substr(6, 2) + '.' + record.$name.substr(4, 2) + '.' + record.$name.substr(0, 4)).appendTo(tr);\n";
+            echo "      td.text(formatDate(record.$name)).appendTo(tr);\n";
         } elseif ($subElem['type'] == 'CHECK') {
-            echo "      $('<td/>').addClass('$class' + (record.deleted == 1 ? ' deleted' : '')).text(record.$name == 1 ? \"" .
-                 $GLOBALS['locYesButton'] . '" : "' . $GLOBALS['locNoButton'] .
-                 "\").appendTo(tr);\n";
+            echo "      td.text(record.$name == 1 ? \"" .
+                $GLOBALS['locYesButton'] . '" : "' . $GLOBALS['locNoButton'] .
+                "\").appendTo(tr);\n";
         } elseif ($subElem['type'] == 'ROWSUM') {
-            ?>
+?>
       var items = record.pcs;
       var price = record.price;
       var discount = record.discount || 0;
@@ -706,7 +699,7 @@ function init_rows()
       VAT = format_currency(VAT, <?php echo isset($subElem['decimals']) ? $subElem['decimals'] : 2?>, '<?php echo $GLOBALS['locDecimalSeparator']?>', '<?php echo $GLOBALS['locThousandSeparator']?>');
       sumVAT = format_currency(sumVAT, <?php echo isset($subElem['decimals']) ? $subElem['decimals'] : 2?>, '<?php echo $GLOBALS['locDecimalSeparator']?>', '<?php echo $GLOBALS['locThousandSeparator']?>');
       var title = '<?php echo $GLOBALS['locVATLess'] . ': '?>' + sum + ' &ndash; ' + '<?php echo $GLOBALS['locVATPart'] . ': '?>' + VAT;
-      $('<td/>').addClass('<?php echo $class?>' + (record.deleted == 1 ? ' deleted' : '')).append('<span title="' + title + '">' + sumVAT + '<\/span>').appendTo(tr);
+      var td = $('<td/>').addClass('<?php echo $class?>' + (record.deleted == 1 ? ' deleted' : '')).append('<span title="' + title + '">' + sumVAT + '<\/span>').appendTo(tr);
 <?php
         } else {
             echo "      $('<td/>').addClass('$class' + (record.deleted == 1 ? ' deleted' : '')).text(record.$name ? record.$name : '').appendTo(tr);\n";
@@ -723,7 +716,7 @@ function init_rows()
     }
 <?php
     if ($elem['name'] == 'invoice_rows') {
-        ?>
+?>
     var totSum = 0;
     var totVAT = 0;
     var totSumVAT = 0;
@@ -786,7 +779,7 @@ function init_rows()
 
 <?php
     }
-    ?>
+?>
     $('a[class~="row_edit_button"]').click(function(event) {
       var row_id = $(this).attr('class').match(/rec(\d+)/)[1];
       popup_editor(event, '<?php echo $GLOBALS['locRowModification']?>', row_id, false);
@@ -802,6 +795,16 @@ function init_rows()
     $('a[class~="tinyactionlink"]').button();
 
     init_rows_done();
+<?php
+    if (getSetting('invoice_show_dispatch_dates')
+        && $elem['name'] == 'invoice_rows'
+        && isset($intKeyValue)
+    ) {
+?>
+    MLInvoice.updateDispatchByDateButtons();
+<?php
+    }
+?>
   });
 }
 <?php

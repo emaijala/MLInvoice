@@ -26,6 +26,7 @@
 
 require_once 'list.php';
 require_once 'settings.php';
+require_once 'sqlfuncs.php';
 
 function htmlPageStart($strTitle = '', $arrExtraScripts = [])
 {
@@ -58,6 +59,7 @@ function htmlPageStart($strTitle = '', $arrExtraScripts = [])
         'js/date.js',
         "js/date-$lang.js",
         'jquery/js/jquery.daterangepicker.js',
+        'js/mlinvoice.js',
         'js/functions.js',
         'select2/select2.min.js'
     ];
@@ -94,6 +96,27 @@ function htmlPageStart($strTitle = '', $arrExtraScripts = [])
 
     $strTitle = $strTitle ? _PAGE_TITLE_ . " - $strTitle" : _PAGE_TITLE_;
 
+    $translations = [
+        'InvoiceDateNonCurrent',
+        'InvoiceRefNumberTooShort',
+        'InvoiceNumberNotDefined',
+        'SettingDispatchNotes'
+    ];
+
+    $jsTranslations = [];
+    foreach ($translations as $translation) {
+        $jsTranslations[$translation] = $GLOBALS["loc$translation"];
+    }
+    $jsTranslations = json_encode($jsTranslations);
+
+    $dispatchNotePrintStyle = 'none';
+    $res = mysqli_query_check('SELECT * FROM {prefix}print_template WHERE id=2');
+    if ($row = mysqli_fetch_assoc($res)) {
+        if (!$row['deleted'] && !$row['inactive']) {
+            $dispatchNotePrintStyle = $row['new_window'] ? 'openwindow' : 'redirect';
+        }
+    }
+
     $strHtmlStart = <<<EOT
 <!DOCTYPE html>
 <html>
@@ -104,6 +127,8 @@ $xUACompatible  <title>$strTitle</title>
 $cssLinks
 $scriptLinks
   <script type="text/javascript">
+MLInvoice.addTranslations($jsTranslations);
+MLInvoice.setDispatchNotePrintStyle('$dispatchNotePrintStyle');
 $(document).ready(function() {
   $.datepicker.setDefaults($datePickerOptions);
   $('a[class~="actionlink"]').button();

@@ -39,7 +39,7 @@ trait InvoicePrinterEmailTrait
             $type = 'reminder';
         }
         $recipients = [];
-        foreach ($recipientData['contacts'] as $contact) {
+        foreach ($this->recipientContactData as $contact) {
             if ($contact['contact_type'] == $type && !empty($contact['email'])) {
                 if (!empty($contact['contact_person'])) {
                     $email = str_replace(',', ' ', $contact['contact_person'])
