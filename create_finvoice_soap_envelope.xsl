@@ -2,7 +2,7 @@
 
 <xsl:stylesheet version="1.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
   <xsl:param name="stylesheet"/>
-  <xsl:output method="xml" version="1.0" encoding="ISO-8859-15" indent="yes"/>
+  <xsl:output method="xml" version="1.0" encoding="ISO-8859-15" indent="yes" omit-xml-declaration="yes"/>
   <xsl:template match="/invoicedata">
 
 <SOAP-ENV:Envelope xmlns:SOAP-ENV="http://schemas.xmlsoap.org/soap/envelope/" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:eb="http://www.oasis-open.org/committees/ebxml-msg/schema/msg-header-2_0.xsd">
