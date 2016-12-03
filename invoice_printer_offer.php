@@ -84,6 +84,15 @@ class InvoicePrinterOffer extends InvoicePrinterBase
         $strInvoiceDate = $this->_formatDate($invoiceData['invoice_date']);
         $pdf->Cell(60, 4, $strInvoiceDate, 0, 1);
 
+        $strDueDate = $this->_formatDate($invoiceData['due_date']);
+        if (!empty($GLOBALS['locPDFValidUntilSuffix'])) {
+            $strDueDate .= ' ' . $GLOBALS['locPDFValidUntilSuffix'];
+        }
+        $pdf->SetX(115);
+        $pdf->Cell(40, 4, $GLOBALS['locPDFValidUntil'] . ': ', 0, 0, 'R');
+
+        $pdf->Cell(60, 4, $strDueDate, 0, 1);
+
         if ($invoiceData['reference']) {
             $pdf->SetX(115);
             $pdf->Cell(40, 4, $GLOBALS['locPDFYourReference'] . ': ', 0, 0, 'R');
@@ -123,10 +132,9 @@ class InvoicePrinterOffer extends InvoicePrinterBase
         $pdf->SetAutoPageBreak(true, 22);
 
         $left = 10;
-        $nameColWidth = $this->discountedRows ? 98 : 110;
+        $nameColWidth = $this->discountedRows ? 118 : 130;
 
         $pdf->Cell($nameColWidth, 5, $GLOBALS['locPDFRowName'], 0, 0, 'L');
-        $pdf->Cell(20, 5, $GLOBALS['locPDFOfferRowDate'], 0, 0, 'L');
         $pdf->Cell(17, 5, $GLOBALS['locPDFRowPrice'], 0, 0, 'R');
         if ($this->discountedRows) {
             $pdf->Cell(12, 5, $GLOBALS['locPDFRowDiscount'], 0, 0, 'R');
@@ -171,7 +179,6 @@ class InvoicePrinterOffer extends InvoicePrinterBase
                 $pdf->MultiCell(0, 5, $description, 0, 'L');
             } else {
                 $pdf->SetX($nameColWidth + $left);
-                $pdf->Cell(20, 5, $this->_formatDate($row['row_date']), 0, 0, 'L');
                 $decimals = isset($row['price_decimals']) ? $row['price_decimals'] : 2;
                 $pdf->Cell(17, 5, $this->_formatCurrency($row['price'], $decimals),
                     0, 0, 'R');
@@ -190,38 +197,36 @@ class InvoicePrinterOffer extends InvoicePrinterBase
                 $pdf->MultiCell($nameColWidth, 5, $description, 0, 'L');
             }
         }
-        if ($this->printStyle != 'dispatch') {
-            if ($this->senderData['vat_registered']) {
-                $pdf->SetFont('Helvetica', '', 10);
-                $pdf->SetY($pdf->GetY() + 10);
-                $pdf->Cell(162, 5, $GLOBALS['locPDFTotalExcludingVAT'] . ': ', 0, 0,
-                    'R');
-                $pdf->SetX(187 - $left);
-                $pdf->Cell(20, 5, $this->_formatCurrency($this->totalSum), 0, 0, 'R');
+        if ($this->senderData['vat_registered']) {
+            $pdf->SetFont('Helvetica', '', 10);
+            $pdf->SetY($pdf->GetY() + 10);
+            $pdf->Cell(162, 5, $GLOBALS['locPDFTotalExcludingVAT'] . ': ', 0, 0,
+                'R');
+            $pdf->SetX(187 - $left);
+            $pdf->Cell(20, 5, $this->_formatCurrency($this->totalSum), 0, 0, 'R');
 
-                $pdf->SetFont('Helvetica', '', 10);
-                $pdf->SetY($pdf->GetY() + 5);
-                $pdf->Cell(162, 5, $GLOBALS['locPDFTotalVAT'] . ': ', 0, 0, 'R');
-                $pdf->SetX(187 - $left);
-                $pdf->Cell(20, 5, $this->_formatCurrency($this->totalVAT), 0, 0, 'R');
+            $pdf->SetFont('Helvetica', '', 10);
+            $pdf->SetY($pdf->GetY() + 5);
+            $pdf->Cell(162, 5, $GLOBALS['locPDFTotalVAT'] . ': ', 0, 0, 'R');
+            $pdf->SetX(187 - $left);
+            $pdf->Cell(20, 5, $this->_formatCurrency($this->totalVAT), 0, 0, 'R');
 
-                $pdf->SetFont('Helvetica', 'B', 10);
-                $pdf->SetY($pdf->GetY() + 5);
-                $pdf->Cell(162, 5, $GLOBALS['locPDFTotalIncludingVAT'] . ': ', 0, 0,
-                    'R');
-                $pdf->SetX(187 - $left);
-                $pdf->Cell(20, 5, $this->_formatCurrency($this->totalSumVAT), 0, 1,
-                    'R');
-                $pdf->SetFont('Helvetica', '', 10);
-            } else {
-                $pdf->SetFont('Helvetica', 'B', 10);
-                $pdf->SetY($pdf->GetY() + 5);
-                $pdf->Cell(162, 5, $GLOBALS['locPDFTotalPrice'] . ': ', 0, 0, 'R');
-                $pdf->SetX(187 - $left);
-                $pdf->Cell(20, 5, $this->_formatCurrency($this->totalSumVAT), 0, 1,
-                    'R');
-                $pdf->SetFont('Helvetica', '', 10);
-            }
+            $pdf->SetFont('Helvetica', 'B', 10);
+            $pdf->SetY($pdf->GetY() + 5);
+            $pdf->Cell(162, 5, $GLOBALS['locPDFTotalIncludingVAT'] . ': ', 0, 0,
+                'R');
+            $pdf->SetX(187 - $left);
+            $pdf->Cell(20, 5, $this->_formatCurrency($this->totalSumVAT), 0, 1,
+                'R');
+            $pdf->SetFont('Helvetica', '', 10);
+        } else {
+            $pdf->SetFont('Helvetica', 'B', 10);
+            $pdf->SetY($pdf->GetY() + 5);
+            $pdf->Cell(162, 5, $GLOBALS['locPDFTotalPrice'] . ': ', 0, 0, 'R');
+            $pdf->SetX(187 - $left);
+            $pdf->Cell(20, 5, $this->_formatCurrency($this->totalSumVAT), 0, 1,
+                'R');
+            $pdf->SetFont('Helvetica', '', 10);
         }
     }
 }
