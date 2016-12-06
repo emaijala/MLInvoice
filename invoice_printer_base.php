@@ -355,6 +355,12 @@ abstract class InvoicePrinterBase
             $pdf->setX($this->recipientAddressX);
             $pdf->Cell(120, 6, $recipientData['email'], 0, 1);
         }
+        if ($this->printStyle == 'dispatch') {
+            $pdf->SetY($pdf->GetY() + 4);
+            $pdf->SetFont('Helvetica', '', 7);
+            $pdf->MultiCell(150, 0, getSetting('dispatch_note_terms'), 0, 1);
+            $pdf->SetFont('Helvetica', '', 10);
+        }
 
         $this->recipientMaxY = $pdf->GetY();
     }
@@ -378,7 +384,13 @@ abstract class InvoicePrinterBase
         $pdf->Cell(40, 5, $this->getHeaderTitle(), 0, 1, 'R');
         $pdf->SetFont('Helvetica', '', 10);
         $pdf->SetXY(115, $pdf->GetY() + 5);
+        if (getSetting('dispatch_note_show_client_name')) {
+            $pdf->SetX(115);
+            $pdf->Cell(40, 5, $GLOBALS['locClientName'], 0, 0, 'R');
+            $pdf->Cell(60, 5, $recipientData['company_name'], 0, 1);
+        }
         if ($recipientData['customer_no'] != 0) {
+            $pdf->SetX(115);
             $pdf->Cell(40, 4, $GLOBALS['locPDFCustomerNumber'] . ': ', 0, 0, 'R');
             $pdf->Cell(60, 4, $recipientData['customer_no'], 0, 1);
         }

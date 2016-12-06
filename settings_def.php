@@ -379,5 +379,24 @@ $arrSettings = [
         'position' => 1,
         'default' => 0,
         'allow_null' => true
-    ]
+    ],
+
+    'dispatch_note_show_client_name' => [
+        'label' => $GLOBALS['locSettingDispatchNoteShowClientName'],
+        'type' => 'CHECK',
+        'style' => 'medium',
+        'position' => 1,
+        'default' => 0,
+        'allow_null' => true
+    ],
+
+    'dispatch_note_terms' => [
+        'label' => $GLOBALS['locSettingDispatchNotesTerms'],
+        'type' => 'AREA',
+        'style' => 'xlarge',
+        'position' => 1,
+        'default' => '',
+        'allow_null' => true
+    ],
+
 ];
