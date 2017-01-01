@@ -153,6 +153,14 @@ $arrSettings = [
         'default' => 1,
         'allow_null' => true
     ],
+    'invoice_print_senders_logo_and_address' => [
+        'label' => $GLOBALS['locSettingInvoiceShowSendersLogoAndAddress'],
+        'type' => 'CHECK',
+        'style' => 'medium',
+        'position' => 1,
+        'default' => 0,
+        'allow_null' => true
+    ],
     'invoice_show_recipient_contact_person' => [
         'label' => $GLOBALS['locSettingInvoiceShowRecipientContactPerson'],
         'type' => 'CHECK',
