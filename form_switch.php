@@ -900,6 +900,24 @@ $astrFormElements = [
         'elem_attributes' => 'onchange="' . $markPaidTodayEvent . '"'
     ],
     [
+        'name' => 'archived',
+        'label' => $GLOBALS['locArchived'],
+        'type' => 'CHECK',
+        'style' => 'medium',
+        'position' => 1,
+        'default' => 0,
+        'allow_null' => true
+    ],
+    [
+        'name' => 'delivery_time',
+        'label' => $GLOBALS['locDeliveryTime'],
+        'type' => 'TEXT',
+        'style' => 'medium hidezerovalue',
+        'position' => 2,
+        'default' => null,
+        'allow_null' => true
+    ],
+    [
         'name' => 'delivery_terms_id',
         'label' => $GLOBALS['locDeliveryTerms'],
         'type' => 'LIST',
@@ -917,15 +935,6 @@ $astrFormElements = [
         'listquery' => 'SELECT id, name FROM {prefix}delivery_method WHERE deleted=0 ORDER BY order_no;',
         'position' => 2,
         'default' => null,
-        'allow_null' => true
-    ],
-    [
-        'name' => 'archived',
-        'label' => $GLOBALS['locArchived'],
-        'type' => 'CHECK',
-        'style' => 'medium',
-        'position' => 1,
-        'default' => 0,
         'allow_null' => true
     ],
     [

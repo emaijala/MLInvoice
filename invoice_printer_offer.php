@@ -110,6 +110,11 @@ class InvoicePrinterOffer extends InvoicePrinterBase
             $pdf->Cell(40, 4, $GLOBALS['locPDFDeliveryMethod'] . ': ', 0, 0, 'R');
             $pdf->MultiCell(50, 4, $invoiceData['delivery_method'], 0, 'L', 0);
         }
+        if ($invoiceData['delivery_time']) {
+            $pdf->SetX(115);
+            $pdf->Cell(40, 4, $GLOBALS['locPDFDeliveryTime'] . ': ', 0, 0, 'R');
+            $pdf->MultiCell(50, 4, $invoiceData['delivery_time'], 0, 'L', 0);
+        }
 
         if (isset($invoiceData['info']) && $invoiceData['info']) {
             $pdf->SetX(115);
@@ -133,6 +138,9 @@ class InvoicePrinterOffer extends InvoicePrinterBase
 
         $left = 10;
         $nameColWidth = $this->discountedRows ? 118 : 130;
+        if ($this->senderData['vat_registered']) {
+            $nameColWidth -= 50;
+        }
 
         $pdf->Cell($nameColWidth, 5, $GLOBALS['locPDFRowName'], 0, 0, 'L');
         $pdf->Cell(17, 5, $GLOBALS['locPDFRowPrice'], 0, 0, 'R');
@@ -140,10 +148,17 @@ class InvoicePrinterOffer extends InvoicePrinterBase
             $pdf->Cell(12, 5, $GLOBALS['locPDFRowDiscount'], 0, 0, 'R');
         }
         $pdf->Cell(20, 5, $GLOBALS['locPDFRowPieces'], 0, 0, 'R');
+        if ($this->senderData['vat_registered']) {
+            $pdf->MultiCell(20, 5, $GLOBALS['locPDFRowTotalVATLess'], 0, 'R', 0,
+                0);
+            $pdf->Cell(15, 5, $GLOBALS['locPDFRowVATPercent'], 0, 0, 'R');
+            $pdf->Cell(15, 5, $GLOBALS['locPDFRowTax'], 0, 0, 'R');
+        }
         $pdf->Cell(20, 5, $GLOBALS['locPDFRowTotal'], 0, 1, 'R');
         $pdf->Cell(20, 5, '', 0, 1, 'R'); // line feed
 
         foreach ($this->invoiceRowData as $row) {
+            $partial = $row['partial_payment'];
             // Product / description
             $description = '';
             switch ($row['reminder_row']) {
@@ -192,7 +207,14 @@ class InvoicePrinterOffer extends InvoicePrinterBase
                 $pdf->Cell(7, 5,
                     isset($GLOBALS["locPDF{$row['type']}"]) ? $GLOBALS["locPDF{$row['type']}"] : $row['type'],
                     0, 0, 'L');
-                $pdf->Cell(20, 5, $this->_formatCurrency($rowSum), 0, 0, 'R');
+                if ($this->senderData['vat_registered']) {
+                    $pdf->Cell(20, 5, $partial ? '' : $this->_formatCurrency($rowSum), 0, 0, 'R');
+                    $pdf->Cell(11, 5,
+                        $partial ? '' : $this->_formatNumber($row['vat'], 1, true), 0, 0, 'R');
+                    $pdf->Cell(4, 5, '', 0, 0, 'R');
+                    $pdf->Cell(15, 5, $partial ? '' : $this->_formatCurrency($rowVAT), 0, 0, 'R');
+                }
+                $pdf->Cell(20, 5, $this->_formatCurrency($rowSumVAT), 0, 0, 'R');
                 $pdf->SetX($left);
                 $pdf->MultiCell($nameColWidth, 5, $description, 0, 'L');
             }

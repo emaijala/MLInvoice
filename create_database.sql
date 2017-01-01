@@ -193,6 +193,7 @@ CREATE TABLE mlinvoice_invoice (
   delivery_method_id int(11) default NULL,
   foreword text default NULL,
   afterword text default NULL,
+  delivery_time varchar(100) default NULL,
   PRIMARY KEY (id),
   FOREIGN KEY (company_id) REFERENCES mlinvoice_company(id),
   FOREIGN KEY (state_id) REFERENCES mlinvoice_invoice_state(id),
@@ -304,7 +305,7 @@ CREATE TABLE mlinvoice_state (
 
 SET NAMES 'utf8';
 
-INSERT INTO mlinvoice_state (id, data) VALUES ('version', '43');
+INSERT INTO mlinvoice_state (id, data) VALUES ('version', '44');
 
 INSERT INTO mlinvoice_state (id, data) VALUES ('tableconversiondone', '1');
 
@@ -393,11 +394,11 @@ INSERT INTO mlinvoice_company (id, inside_info, type_id, company_name, contact_p
 
 INSERT INTO mlinvoice_company_contact (id, company_id, contact_person, person_title, email, phone, gsm) VALUES (1, 1, 'Ere Maijala', 'Päällikkö', 'info@labs', '-', '050-123 4567');
 
-INSERT INTO mlinvoice_invoice 
-  (id, name, company_id, invoice_no, invoice_date, due_date, payment_date, ref_number, state_id, reference, base_id) 
+INSERT INTO mlinvoice_invoice
+  (id, name, company_id, invoice_no, invoice_date, due_date, payment_date, ref_number, state_id, reference, base_id)
   VALUES (1, 'Testi', 1, '100', 20121230, 20130113, NULL, '', 1, '', 1);
 
-INSERT INTO mlinvoice_invoice_row (id, invoice_id, description, type_id, pcs, price, row_date, vat, order_no) 
+INSERT INTO mlinvoice_invoice_row (id, invoice_id, description, type_id, pcs, price, row_date, vat, order_no)
   VALUES (1, 1, 'Testirivi 1', 3, 12.00, 150.00, 20121219, 24, 5);
 
 

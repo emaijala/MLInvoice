@@ -879,6 +879,15 @@ EOT
         );
     }
 
+    if ($version < 44) {
+        $updates = array_merge($updates,
+            [
+                'ALTER TABLE {prefix}invoice ADD COLUMN delivery_time varchar(100) default NULL',
+                "REPLACE INTO {prefix}state (id, data) VALUES ('version', '44')"
+            ]
+        );
+    }
+
     if (!empty($updates)) {
         mysqli_query_check('SET AUTOCOMMIT = 0');
         mysqli_query_check('BEGIN');
