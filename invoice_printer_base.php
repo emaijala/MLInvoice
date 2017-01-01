@@ -345,14 +345,14 @@ abstract class InvoicePrinterBase
         $pdf->SetFont('Helvetica', '', 12);
         $pdf->SetY($this->recipientAddressY);
         $pdf->setX($this->recipientAddressX);
+        $pdf->Cell(120, 5, $this->recipientName, 0, 1);
         $contact = $this->getContactPerson();
         if (!empty($contact['contact_person'])
             && getSetting('invoice_show_recipient_contact_person')
         ) {
+            $pdf->setX($this->recipientAddressX);
             $pdf->Cell(120, 5, $contact['contact_person'], 0, 1);
         }
-        $pdf->Cell(120, 5, $this->recipientName, 0, 1);
-        $pdf->setX($this->recipientAddressX);
         $pdf->MultiCell(120, 5, $this->recipientAddress, 0, 1);
         if ($recipientData['email'] && getSetting('invoice_show_recipient_email')) {
             $pdf->SetY($pdf->GetY() + 4);
