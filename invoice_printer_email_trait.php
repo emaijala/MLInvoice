@@ -34,13 +34,10 @@ trait InvoicePrinterEmailTrait
         $invoiceData = $this->invoiceData;
 
         $defaultRecipient = isset($recipientData['email']) ? $recipientData['email'] : '';
-        $type = $this->printStyle ? $this->printStyle : 'invoice';
-        if ($type == 'invoice' && in_array($invoiceData['state_id'], [5, 6])) {
-            $type = 'reminder';
-        }
         $recipients = [];
-        foreach ($this->recipientContactData as $contact) {
-            if ($contact['contact_type'] == $type && !empty($contact['email'])) {
+        $contacts = $this->getContactPersons();
+        foreach ($contacts as $contact) {
+            if ($contact && !empty($contact['email'])) {
                 if (!empty($contact['contact_person'])) {
                     $email = str_replace(',', ' ', $contact['contact_person'])
                         . ' <' . $contact['email'] . '>';

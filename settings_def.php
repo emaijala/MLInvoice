@@ -153,6 +153,14 @@ $arrSettings = [
         'default' => 1,
         'allow_null' => true
     ],
+    'invoice_show_recipient_contact_person' => [
+        'label' => $GLOBALS['locSettingInvoiceShowRecipientContactPerson'],
+        'type' => 'CHECK',
+        'style' => 'medium',
+        'position' => 1,
+        'default' => 1,
+        'allow_null' => true
+    ],
     'invoice_show_recipient_email' => [
         'label' => $GLOBALS['locSettingInvoiceShowRecipientEmail'],
         'type' => 'CHECK',

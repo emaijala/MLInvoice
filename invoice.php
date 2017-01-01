@@ -76,7 +76,8 @@ if (!empty($recipientData['company_id'])) {
 }
 
 $recipientContactData = [];
-$strQuery = 'SELECT * FROM {prefix}company_contact WHERE company_id=? AND deleted=0';
+$strQuery = 'SELECT * FROM {prefix}company_contact WHERE company_id=? AND deleted=0'
+    . ' ORDER BY id';
 $intRes = mysqli_param_query($strQuery, [$invoiceData['company_id']]);
 while ($contact = mysqli_fetch_assoc($intRes)) {
     $recipientContactData[] = $contact;

@@ -268,12 +268,12 @@ case 'company_contacts' :
             'type' => 'LIST',
             'style' => 'medium',
             'listquery' => [
-                'invoice' => 'contactTypeInvoice',
-                'dispatch' => 'contactTypeDispatchNote',
-                'receipt' => 'contactTypeReceipt',
-                'order_confirmation' => 'contactTypeOrderConfirmation',
-                'reminder' => 'contactTypeReminder',
-                'offer' => 'contactTypeOffer'
+                'invoice' => $GLOBALS['locContactTypeInvoice'],
+                'dispatch' => $GLOBALS['locContactTypeDispatchNote'],
+                'receipt' => $GLOBALS['locContactTypeReceipt'],
+                'order_confirmation' => $GLOBALS['locContactTypeOrderConfirmation'],
+                'reminder' => $GLOBALS['locContactTypeReminder'],
+                'offer' => $GLOBALS['locContactTypeOffer']
             ],
             'position' => 0,
             'allow_null' => true

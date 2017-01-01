@@ -342,18 +342,22 @@ abstract class InvoicePrinterBase
         $recipientData = $this->recipientData;
 
         $pdf->SetTextColor(0);
-        $pdf->SetFont('Helvetica', 'B', 12);
+        $pdf->SetFont('Helvetica', '', 12);
         $pdf->SetY($this->recipientAddressY);
         $pdf->setX($this->recipientAddressX);
+        $contact = $this->getContactPerson();
+        if (!empty($contact['contact_person'])
+            && getSetting('invoice_show_recipient_contact_person')
+        ) {
+            $pdf->Cell(120, 5, $contact['contact_person'], 0, 1);
+        }
         $pdf->Cell(120, 5, $this->recipientName, 0, 1);
-        $pdf->SetFont('Helvetica', '', 12);
         $pdf->setX($this->recipientAddressX);
         $pdf->MultiCell(120, 5, $this->recipientAddress, 0, 1);
-        $pdf->SetFont('Helvetica', '', 12);
         if ($recipientData['email'] && getSetting('invoice_show_recipient_email')) {
             $pdf->SetY($pdf->GetY() + 4);
             $pdf->setX($this->recipientAddressX);
-            $pdf->Cell(120, 6, $recipientData['email'], 0, 1);
+            $pdf->Cell(120, 5, $recipientData['email'], 0, 1);
         }
 
         $this->recipientMaxY = $pdf->GetY();
@@ -481,9 +485,10 @@ abstract class InvoicePrinterBase
 
         $pdf = $this->pdf;
 
+        $foreword = $this->replacePlaceholders($this->invoiceData['foreword']);
         $pdf->SetTextColor(0);
         $pdf->SetFont('Helvetica', '', 10);
-        $pdf->MultiCell(180, 5, $this->invoiceData['foreword'], 0, 'L', 0);
+        $pdf->MultiCell(180, 5, $foreword, 0, 'L', 0);
         $pdf->setY($pdf->getY() + 5);
     }
 
@@ -495,10 +500,11 @@ abstract class InvoicePrinterBase
 
         $pdf = $this->pdf;
 
+        $afterword = $this->replacePlaceholders($this->invoiceData['afterword']);
         $pdf->SetTextColor(0);
         $pdf->SetFont('Helvetica', '', 10);
         $pdf->SetY($pdf->GetY() + 5);
-        $pdf->MultiCell(180, 5, $this->invoiceData['afterword'], 0, 'L', 0);
+        $pdf->MultiCell(180, 5, $afterword, 0, 'L', 0);
     }
 
     protected function printSeparateStatementMessage()
@@ -1039,13 +1045,13 @@ abstract class InvoicePrinterBase
             $placeholder = substr(substr($placeholder, 0, -1), 1);
             $pcparts = explode(':', $placeholder);
             switch ($pcparts[0]) {
-            case 'sender' :
+            case 'sender':
                 $values[] = isset($this->senderData[$pcparts[1]]) ? $this->senderData[$pcparts[1]] : '';
                 break;
-            case 'recipient' :
+            case 'recipient':
                 $values[] = isset($this->recipientData[$pcparts[1]]) ? $this->recipientData[$pcparts[1]] : '';
                 break;
-            case 'invoice' :
+            case 'invoice':
                 switch ($pcparts[1]) {
                 case 'totalsum' :
                     $values[] = $this->_formatCurrency($this->totalSum);
@@ -1095,8 +1101,28 @@ abstract class InvoicePrinterBase
                     $values[] = $value;
                 }
                 break;
-            case 'config' :
+            case 'config':
                 $values[] = getSetting($pcparts[1]);
+                break;
+            case 'contact':
+                $contact = $this->getContactPerson();
+                if (!empty($contact[$pcparts[1]])) {
+                    $values[] = $contact[$pcparts[1]];
+                }
+                break;
+            case 'contacts':
+                $contacts = $this->getContactPersons();
+                $contactVals = [];
+                foreach ($contacts as $contact) {
+                    if (!empty($contact[$pcparts[1]])) {
+                        $contactVals[] = $contact[$pcparts[1]];
+                    }
+                }
+                if ($contactVals) {
+                    $values[] = implode(
+                        isset($pcparts[2]) ? $pcparts[2] : ' ', $contactVals
+                    );
+                }
                 break;
             default :
                 error_log(
@@ -1104,12 +1130,12 @@ abstract class InvoicePrinterBase
                 $values[] = '';
             }
         }
-        return implode('', $values);
+        return implode(' ', $values);
     }
 
     protected function replacePlaceholders($string)
     {
-        return preg_replace_callback('/\{\w+:\w+\}/',
+        return preg_replace_callback('/\{\w+:\w+(:.+?)?\}/',
             [
                 $this,
                 'getPlaceholderData'
@@ -1138,5 +1164,36 @@ abstract class InvoicePrinterBase
             return $GLOBALS['locPDFSecondReminderHeader'];
         }
         return $GLOBALS['locPDFInvoiceHeader'];
+    }
+
+    /**
+     * Get first contact person for the printout style
+     *
+     * @return array
+     */
+    protected function getContactPerson()
+    {
+        $contacts = $this->getContactPersons();
+        return $contacts ? $contacts[0] : [];
+    }
+
+    /**
+     * Get all contact persons for the printout style
+     *
+     * @return array
+     */
+    protected function getContactPersons()
+    {
+        $results = [];
+        $type = $this->printStyle ? $this->printStyle : 'invoice';
+        if ($type == 'invoice' && in_array($this->invoiceData['state_id'], [5, 6])) {
+            $type = 'reminder';
+        }
+        foreach ($this->recipientContactData as $contact) {
+            if ($contact['contact_type'] == $type) {
+                $results[] = $contact;
+            }
+        }
+        return $results;
     }
 }
