@@ -268,6 +268,10 @@ class ImportStatement extends ImportFile
       <div class="field">
         <input type="checkbox" id="partial_payments" name="partial_payments" value="1">
       </div>
+      <div class="medium_label"><?php echo $GLOBALS['locImportStatementIgnorePaid']?></div>
+      <div class="field">
+        <input type="checkbox" id="ignore_paid" name="ignore_paid" value="1">
+      </div>
 <?php
     }
 
@@ -344,6 +348,11 @@ class ImportStatement extends ImportFile
         if ($baseId) {
             $sql .= ' AND i.base_id = ?';
             $params[] = $baseId;
+        }
+
+        $ignorePaid = getRequest('ignore_paid', '');
+        if ($ignorePaid) {
+            $sql .= ' AND ist.invoice_unpaid = 1';
         }
 
         $intRes = mysqli_param_query($sql, $params);
