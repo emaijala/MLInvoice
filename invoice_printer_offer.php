@@ -99,6 +99,19 @@ class InvoicePrinterOffer extends InvoicePrinterBase
             $pdf->MultiCell(50, 4, $invoiceData['reference'], 0, 'L');
         }
 
+        $pdf->SetX(115);
+        $pdf->Cell(40, 4, $GLOBALS['locPDFTermsOfPayment'] . ': ', 0, 0, 'R');
+        $paymentDays = round(
+            dbDate2UnixTime($invoiceData['due_date']) / 3600 / 24 -
+                    dbDate2UnixTime($invoiceData['invoice_date']) / 3600 / 24);
+        if ($paymentDays < 0) {
+            // This shouldn't happen, but try to be safe...
+            $paymentDays = getPaymentDays($invoiceData['company_id']);
+        }
+        $pdf->Cell(60, 4,
+            sprintf(getTermsOfPayment($invoiceData['company_id']), $paymentDays),
+            0, 1);
+
         if ($invoiceData['delivery_terms']) {
             $pdf->SetX(115);
             $pdf->Cell(40, 4, $GLOBALS['locPDFDeliveryTerms'] . ': ', 0, 0, 'R');
