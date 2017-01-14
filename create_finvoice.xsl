@@ -1,5 +1,17 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<!--
+ This file is licensed under the MIT license.
+
+ Copyright 2011-2017 Ere Maijala
+
+ Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
+
+ The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+-->
+
 <xsl:stylesheet version="1.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
   <xsl:param name="stylesheet"/>
   <xsl:output method="xml" version="1.0" encoding="ISO-8859-15" indent="yes"/>
@@ -31,7 +43,7 @@
     <xsl:apply-templates select="invoice"/>
 </Finvoice>
   </xsl:template>
-  
+
   <xsl:template match="sender">
   <SellerPartyDetails>
     <SellerPartyIdentifier><xsl:value-of select="company_id"/></SellerPartyIdentifier>
@@ -69,19 +81,19 @@
       <xsl:if test="bank_iban!=''">
     <SellerAccountDetails>
       <SellerAccountID IdentificationSchemeName="IBAN"><xsl:call-template name="string-replace-all"><xsl:with-param name="text" select="bank_iban" /><xsl:with-param name="replace" select="' '" /><xsl:with-param name="by" select="''"/></xsl:call-template></SellerAccountID>
-      <SellerBic IdentificationSchemeName="BIC"><xsl:value-of select="bank_swiftbic"/></SellerBic>  
+      <SellerBic IdentificationSchemeName="BIC"><xsl:value-of select="bank_swiftbic"/></SellerBic>
     </SellerAccountDetails>
       </xsl:if>
       <xsl:if test="bank_iban2!=''">
     <SellerAccountDetails>
       <SellerAccountID IdentificationSchemeName="IBAN"><xsl:call-template name="string-replace-all"><xsl:with-param name="text" select="bank_iban2" /><xsl:with-param name="replace" select="' '" /><xsl:with-param name="by" select="''"/></xsl:call-template></SellerAccountID>
-      <SellerBic IdentificationSchemeName="BIC"><xsl:value-of select="bank_swiftbic2"/></SellerBic>  
+      <SellerBic IdentificationSchemeName="BIC"><xsl:value-of select="bank_swiftbic2"/></SellerBic>
     </SellerAccountDetails>
       </xsl:if>
       <xsl:if test="bank_iban3!=''">
     <SellerAccountDetails>
       <SellerAccountID IdentificationSchemeName="IBAN"><xsl:call-template name="string-replace-all"><xsl:with-param name="text" select="bank_iban3" /><xsl:with-param name="replace" select="' '" /><xsl:with-param name="by" select="''"/></xsl:call-template></SellerAccountID>
-      <SellerBic IdentificationSchemeName="BIC"><xsl:value-of select="bank_swiftbic3"/></SellerBic>  
+      <SellerBic IdentificationSchemeName="BIC"><xsl:value-of select="bank_swiftbic3"/></SellerBic>
     </SellerAccountDetails>
       </xsl:if>
   </SellerInformationDetails>
@@ -117,7 +129,7 @@
   </BuyerCommunicationDetails>
     </xsl:if>
   </xsl:template>
-  
+
   <xsl:template match="invoice">
   <InvoiceDetails>
     <xsl:choose>
@@ -222,7 +234,7 @@
   <EpiDetails>
     <EpiIdentificationDetails>
       <EpiDate Format="CCYYMMDD"><xsl:value-of select="invoice_date"/></EpiDate>
-      <EpiReference>1</EpiReference> 
+      <EpiReference>1</EpiReference>
     </EpiIdentificationDetails>
     <EpiPartyDetails>
       <EpiBfiPartyDetails>
@@ -243,14 +255,14 @@
     <xsl:otherwise>
       <EpiRemittanceInfoIdentifier IdentificationSchemeName="SPY"><xsl:value-of select="format-number(ref_number, '00000000000000000000')"/></EpiRemittanceInfoIdentifier>
     </xsl:otherwise>
-  </xsl:choose>    
+  </xsl:choose>
       <EpiInstructedAmount AmountCurrencyIdentifier="EUR"><xsl:value-of select="format-number(totalsumvat - paidsum, '0,00', 'euro')"/></EpiInstructedAmount>
       <EpiCharge ChargeOption="SHA">SHA</EpiCharge>
       <EpiDateOptionDate Format="CCYYMMDD"><xsl:value-of select="due_date"/></EpiDateOptionDate>
     </EpiPaymentInstructionDetails>
   </EpiDetails>
   </xsl:template>
-  
+
   <xsl:template name="string-replace-all">
     <xsl:param name="text" />
     <xsl:param name="replace" />
@@ -271,5 +283,5 @@
       </xsl:otherwise>
     </xsl:choose>
   </xsl:template>
-  
+
 </xsl:stylesheet>
