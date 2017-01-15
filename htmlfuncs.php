@@ -100,7 +100,9 @@ function htmlPageStart($strTitle = '', $arrExtraScripts = [])
         'InvoiceDateNonCurrent',
         'InvoiceRefNumberTooShort',
         'InvoiceNumberNotDefined',
-        'SettingDispatchNotes'
+        'SettingDispatchNotes',
+        'SearchYTJPrompt',
+        'NoYTJResultsFound'
     ];
 
     $jsTranslations = [];

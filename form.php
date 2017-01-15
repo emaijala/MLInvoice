@@ -1247,6 +1247,11 @@ function createFormButtons($boolNew, $copyLinkOverride, $spinner, $readOnlyForm)
 <?php
         }
     }
+    if (!$readOnlyForm) {
+?>
+        <a class="actionlink ytj_search_button" href="#"><?php echo $GLOBALS['locSearchYTJ']?></a>
+<?php
+    }
     if ($spinner)
         echo '     <span id="spinner" style="visibility: hidden"><img src="images/spinner.gif" alt=""></span>' .
              "\n";

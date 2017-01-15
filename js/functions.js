@@ -19,7 +19,7 @@ $(document).ready(function() {
 
 function setup_base_link()
 {
-  base_id = $('#base_id.linked');
+  var base_id = $('#base_id.linked');
   if (base_id.val() == '') {
     $('#base_id_label').text($('#base_id_label').text());
   } else {
@@ -29,7 +29,10 @@ function setup_base_link()
 
 function setup_company_link()
 {
-  company_id = $('#company_id.linked');
+  var company_id = $('#company_id.linked');
+  if (company_id.length == 0) {
+    return;
+  }
   if (company_id.val() == '') {
     $('#company_id_label').text($('#company_id_label').text());
   } else {
