@@ -531,6 +531,46 @@ case 'print_template' :
     $strTitle = $GLOBALS['locPrintTemplates'];
     break;
 
+case 'default_value' :
+    $strTable = '{prefix}default_value';
+    $astrSearchFields = [
+        [
+            'name' => 'name',
+            'type' => 'TEXT'
+        ],
+        [
+            'name' => 'contents',
+            'type' => 'TEXT'
+        ],
+    ];
+    $strPrimaryKey = 'id';
+    $strDeletedField = 'deleted';
+    $astrShowFields = [
+        [
+            'name' => 'order_no',
+            'width' => 150,
+            'type' => 'TEXT',
+            'header' => $GLOBALS['locOrderNr']
+        ],
+        [
+            'name' => 'type',
+            'width' => 150,
+            'type' => 'TEXT',
+            'header' => $GLOBALS['locDefaultValueType'],
+            'translate' => true
+        ],
+        [
+            'name' => 'name',
+            'width' => 450,
+            'type' => 'TEXT',
+            'header' => $GLOBALS['locName'],
+            'select' => true
+        ]
+    ];
+    $strMainForm = 'default_value';
+    $strTitle = $GLOBALS['locDefaultValues'];
+    break;
+
 /***********************************************************************
  SYSTEM
  ***********************************************************************/

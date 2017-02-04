@@ -37,6 +37,12 @@ $onAfterRowAdded = '';
 $readOnlyForm = false;
 $addressAutocomplete = false;
 $formDataAttrs = [];
+if (!isset($strFunc)) {
+    $strFunc = '';
+}
+if (!isset($strList)) {
+    $strList = '';
+}
 
 switch ($strForm) {
 
@@ -943,6 +949,7 @@ $astrFormElements = [
         'type' => 'AREA',
         'style' => 'large',
         'position' => 1,
+        'attached_elem' => '<span class="select-default-text" data-type="info" data-target="info"/>',
         'allow_null' => true
     ],
     [
@@ -959,6 +966,7 @@ $astrFormElements = [
         'type' => 'AREA',
         'style' => 'large',
         'position' => 1,
+        'attached_elem' => '<span class="select-default-text" data-type="foreword" data-target="foreword"/>',
         'allow_null' => true
     ],
     [
@@ -967,6 +975,7 @@ $astrFormElements = [
         'type' => 'AREA',
         'style' => 'large',
         'position' => 2,
+        'attached_elem' => '<span class="select-default-text" data-type="afterword" data-target="afterword"/>',
         'allow_null' => true
     ],
 
@@ -1791,6 +1800,50 @@ $astrFormElements = [
 ];
 break;
 
+case 'default_value' :
+$levelsAllowed = [
+    ROLE_ADMIN
+];
+$strTable = '{prefix}default_value';
+$strJSONType = 'default_value';
+
+$astrFormElements = [
+    [
+        'name' => 'type',
+        'label' => $GLOBALS['locDefaultValueType'],
+        'type' => 'LIST',
+        'style' => 'medium',
+        'listquery' => [
+            'info' => $GLOBALS['locInfo'],
+            'foreword' => $GLOBALS['locForeword'],
+            'afterword' => $GLOBALS['locAfterword']
+        ],
+        'position' => 1
+    ],
+    [
+        'name' => 'name',
+        'label' => $GLOBALS['locName'],
+        'type' => 'TEXT',
+        'style' => 'medium',
+        'position' => 1
+    ],
+    [
+        'name' => 'order_no',
+        'label' => $GLOBALS['locOrderNr'],
+        'type' => 'INT',
+        'style' => 'short',
+        'position' => 2
+    ],
+    [
+        'name' => 'content',
+        'label' => $GLOBALS['locContent'],
+        'type' => 'AREA',
+        'style' => 'xlarge',
+        'position' => 0
+    ]
+];
+break;
+
 case 'user' :
 $levelsAllowed = [
     ROLE_ADMIN
@@ -1845,7 +1898,7 @@ $astrFormElements = [
         'style' => 'medium',
         'listquery' => "SELECT 'invoice' as id, '" .
              $GLOBALS['locPrintTemplateTypeInvoice'] . "' as name",
-            'position' => 1
+        'position' => 1
     ],
     [
         'name' => 'order_no',

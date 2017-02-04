@@ -209,8 +209,57 @@ var MLInvoice = (function MLInvoice() {
         });
     };
 
+    var _setupDefaultTextSelection = function _setupDefaultTextSelection() {
+        $('.select-default-text').each(function () {
+            var target = $(this).data('target');
+            var select = $('<input type="hidden" class="select-default-text"/>').appendTo($(this));
+            select.select2({
+                placeholder: '',
+                ajax: {
+                    url: 'json.php',
+                    dataType: 'json',
+                    quietMillis: 200,
+                    data: function (term, page) { // page is the one-based page number tracked by Select2
+                        return {
+                            func: 'get_selectlist',
+                            table: 'default_value',
+                            q: term,
+                            type: $(this).parent().data('type'),
+                            pagelen: 50, // page size
+                            page: page, // page number
+                        };
+                    },
+                    results: function (data, page) {
+                        var records = data.records;
+                        return {results: records, more: data.moreAvailable};
+                    }
+                },
+                dropdownCssClass: 'bigdrop',
+                dropdownAutoWidth: true,
+                escapeMarkup: function (m) { return m; },
+                width: 'element'
+            });
+            select.on('change', function() {
+                jQuery.ajax(
+                {
+                    url: 'json.php',
+                    data: {
+                        func: 'get_default_value',
+                        id: select.select2('val')
+                    }
+                }
+                ).done(function(data) {
+                    $('#' + target).text(data.content);
+                }).fail(function(jqXHR, textStatus) {
+                    window.alert('Request failed: ' + jqXHR.status + ' - ' + textStatus);
+                });
+            });
+        });
+    };
+
     var init = function init() {
         _setupYtjSearch();
+        _setupDefaultTextSelection();
     };
 
     return {

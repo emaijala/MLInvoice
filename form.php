@@ -146,7 +146,7 @@ function createForm($strFunc, $strList, $strForm)
 <div class="form_container">
 
 <?php
-    createFormButtons($blnNew, $copyLinkOverride, true, $readOnlyForm);
+    createFormButtons($strForm, $blnNew, $copyLinkOverride, true, $readOnlyForm);
 
     if ($strForm == 'invoice' && $astrValues['next_interval_date']
         && strDate2UnixTime($astrValues['next_interval_date']) <= time()
@@ -424,7 +424,9 @@ $(document).ready(function() {
     $('#spinner').css('visibility', 'hidden');
   });
 
-  $('#admin_form').find('input[type="text"],input[type="hidden"],input[type="checkbox"],select:not(.dropdownmenu),textarea').change(function(e) { $('.save_button').addClass('ui-state-highlight'); });
+  $('#admin_form').find('input[type="text"],input[type="hidden"]:not(.select-default-text),input[type="checkbox"],select:not(.dropdownmenu),textarea').change(function(e) {
+    $('.save_button').addClass('ui-state-highlight');
+  });
   $('#admin_form').find('input[type="text"]:not([name="payment_date"]),input[type="hidden"],input[type="checkbox"]:not([name="archived"]),select:not(.dropdownmenu),textarea').one('change', startChanging);
 <?php
     if ($haveChildForm && !$blnNew) {
@@ -558,7 +560,7 @@ function popup_dialog(url, on_close, dialog_title, event, width, height)
 </script>
 
 <?php
-    createFormButtons($blnNew, $copyLinkOverride, false, $readOnlyForm);
+    createFormButtons($strForm, $blnNew, $copyLinkOverride, false, $readOnlyForm);
     echo "  </div>\n";
 
     if ($addressAutocomplete && getSetting('address_autocomplete')) {
@@ -1215,7 +1217,7 @@ function popup_editor(event, title, id, copy_row)
 <?php
 }
 
-function createFormButtons($boolNew, $copyLinkOverride, $spinner, $readOnlyForm)
+function createFormButtons($form, $new, $copyLinkOverride, $spinner, $readOnlyForm)
 {
     if (!sesWriteAccess()) {
 ?>
@@ -1233,7 +1235,7 @@ function createFormButtons($boolNew, $copyLinkOverride, $spinner, $readOnlyForm)
 <?php
     }
 
-    if (!$boolNew) {
+    if (!$new) {
         $copyCmd = $copyLinkOverride ? "window.location='$copyLinkOverride'; return false;" : "document.getElementById('admin_form').copyact.value=1; document.getElementById('admin_form').submit(); return false;";
         ?>      <a class="actionlink" href="#"
                         onclick="<?php echo $copyCmd?>"><?php echo $GLOBALS['locCopy']?></a>
@@ -1247,7 +1249,7 @@ function createFormButtons($boolNew, $copyLinkOverride, $spinner, $readOnlyForm)
 <?php
         }
     }
-    if (!$readOnlyForm) {
+    if (!$readOnlyForm && $form === 'company') {
 ?>
         <a class="actionlink ytj_search_button" href="#"><?php echo $GLOBALS['locSearchYTJ']?></a>
 <?php

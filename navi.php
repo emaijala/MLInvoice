@@ -148,16 +148,27 @@ function createFuncMenu($strFunc)
                     ROLE_USER,
                     ROLE_BACKUPMGR
                 ]
+            ],
+            [
+                'href' => 'list=default_value',
+                'text' => $GLOBALS['locDefaultValues'],
+                'levels_allowed' => [
+                    ROLE_USER,
+                    ROLE_BACKUPMGR
+                ]
             ]
         ];
         $strNewText = '';
         $strList = getRequest('list', '');
         switch ($strList) {
-        case 'base' :
+        case 'base':
             $strNewText = $GLOBALS['locNewBase'];
             break;
-        case 'product' :
+        case 'product':
             $strNewText = $GLOBALS['locNewProduct'];
+            break;
+        case 'default_value':
+            $strNewText = $GLOBALS['locNewDefaultValue'];
             break;
         }
         if ($strNewText)

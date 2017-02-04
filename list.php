@@ -405,9 +405,22 @@ function createJSONSelectList($strList, $startRow, $rowCount, $filter, $sort,
 
     // Add Filter
     if ($filter) {
-        $strWhereClause .= ($strWhereClause ? ' AND ' : ' WHERE ') . createWhereClause(
-            $astrSearchFields, $filter, $arrQueryParams,
-            !getSetting('dynamic_select_search_in_middle'));
+        // For default_value there can be also the type in the filter
+        if ($strList == 'default_value' && is_array($filter)) {
+            if (count($filter) > 1) {
+                $strWhereClause .= ($strWhereClause ? ' AND ' : ' WHERE ')
+                    . 'type=?';
+                $arrQueryParams[] = $filter[1];
+            }
+            $filter = $filter[0];
+        }
+        if ($filter) {
+            $strWhereClause .= ($strWhereClause ? ' AND ' : ' WHERE ')
+                . createWhereClause(
+                    $astrSearchFields, $filter, $arrQueryParams,
+                    !getSetting('dynamic_select_search_in_middle')
+                );
+        }
     }
 
     // Filter out inactive companies

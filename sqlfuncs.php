@@ -888,6 +888,26 @@ EOT
         );
     }
 
+    if ($version < 45) {
+        $updates = array_merge($updates,
+            [
+<<<EOT
+CREATE TABLE {prefix}default_value (
+  id int(11) NOT NULL auto_increment,
+  deleted tinyint NOT NULL default 0,
+  name varchar(255) default NULL,
+  order_no int(11) default NULL,
+  type varchar(100) NULL,
+  content text NULL,
+  PRIMARY KEY (id)
+) ENGINE=INNODB CHARACTER SET utf8 COLLATE utf8_swedish_ci;
+EOT
+                ,
+                "REPLACE INTO {prefix}state (id, data) VALUES ('version', '45')"
+            ]
+        );
+    }
+
     if (!empty($updates)) {
         mysqli_query_check('SET AUTOCOMMIT = 0');
         mysqli_query_check('BEGIN');

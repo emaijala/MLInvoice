@@ -28,43 +28,50 @@ sesVerifySession(FALSE);
 $strFunc = getRequest('func', '');
 
 switch ($strFunc) {
-case 'get_company' :
-case 'get_company_contact' :
-case 'get_product' :
-case 'get_invoice' :
-case 'get_invoice_row' :
-case 'get_base' :
-case 'get_print_template' :
-case 'get_invoice_state' :
-case 'get_row_type' :
-case 'get_print_template' :
-case 'get_company' :
-case 'get_session_type' :
-case 'get_delivery_terms' :
-case 'get_delivery_method' :
+case 'get_company':
+case 'get_company_contact':
+case 'get_product':
+case 'get_invoice':
+case 'get_invoice_row':
+case 'get_base':
+case 'get_print_template':
+case 'get_invoice_state':
+case 'get_row_type':
+case 'get_print_template':
+case 'get_company':
+case 'get_session_type':
+case 'get_delivery_terms':
+case 'get_delivery_method':
+case 'get_default_value':
     printJSONRecord(substr($strFunc, 4));
     break;
-case 'get_user' :
+case 'get_user':
     printJSONRecord('users');
     break;
 
-case 'put_company' :
-case 'put_product' :
-case 'put_invoice' :
-case 'put_base' :
-case 'put_print_template' :
-case 'put_invoice_state' :
-case 'put_row_type' :
-case 'put_print_template' :
-case 'put_user' :
-case 'put_session_type' :
-case 'put_delivery_terms' :
-case 'put_delivery_method' :
+case 'put_company':
+case 'put_product':
+case 'put_invoice':
+case 'put_base':
+case 'put_print_template':
+case 'put_invoice_state':
+case 'put_row_type':
+case 'put_print_template':
+case 'put_user':
+case 'put_session_type':
+case 'put_delivery_terms':
+case 'put_delivery_method':
+case 'put_default_value':
     saveJSONRecord(substr($strFunc, 4), '');
     break;
 
-case 'session_type' :
-case 'user' :
+case 'delete_invoice_row':
+case 'delete_default_value':
+    deleteJSONRecord(substr($strFunc, 7));
+    break;
+
+case 'session_type':
+case 'user':
     if (!sesAdminAccess()) {
         header('HTTP/1.1 403 Forbidden');
         exit();
@@ -72,7 +79,7 @@ case 'user' :
     saveJSONRecord(substr($strFunc, 4), '');
     break;
 
-case 'get_companies' :
+case 'get_companies':
     printJSONRecords('company', '', 'company_name');
     break;
 
@@ -102,10 +109,6 @@ case 'get_invoice_rows' :
 
 case 'put_invoice_row' :
     saveJSONRecord('invoice_row', 'invoice_id');
-    break;
-
-case 'delete_invoice_row' :
-    deleteJSONRecord('invoice_row');
     break;
 
 case 'add_reminder_fees' :
@@ -288,6 +291,11 @@ case 'get_selectlist' :
     $filter = getRequest('q', '');
     $sort = getRequest('sort', '');
     $id = getRequest('id', '');
+    $type = getRequest('type', '');
+
+    if ($type) {
+        $filter = [$filter, $type];
+    }
 
     header('Content-Type: application/json');
     echo createJSONSelectList($table, $page * $pageLen, $pageLen, $filter, $sort,
@@ -374,6 +382,10 @@ function printJSONRecord($table, $id = FALSE, $warnings = null)
             $id
         ]);
         $row = mysqli_fetch_assoc($res);
+        if (null === $row) {
+            header('HTTP/1.1 404 Not Found');
+            return;
+        }
         if ($table == 'users')
             unset($row['password']);
         header('Content-Type: application/json');
