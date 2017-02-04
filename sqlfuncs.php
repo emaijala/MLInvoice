@@ -180,22 +180,6 @@ function updateProductStockBalance($invoiceRowId, $productId, $count)
     }
 }
 
-function getTermsOfPayment($companyId)
-{
-    if (!empty($companyId)) {
-        $res = mysqli_param_query(
-            'SELECT terms_of_payment FROM {prefix}company WHERE id = ?',
-            [
-                $companyId
-            ]);
-        $companyPaymentTerms = mysqli_fetch_value($res);
-        if (!empty($companyPaymentTerms)) {
-            return $companyPaymentTerms;
-        }
-    }
-    return getSetting('invoice_terms_of_payment');
-}
-
 function getPaymentDays($companyId)
 {
     if (!empty($companyId)) {
@@ -907,6 +891,17 @@ EOT
             ]
         );
     }
+
+    if ($version < 46) {
+        $updates = array_merge($updates,
+            [
+                'ALTER TABLE {prefix}base ADD COLUMN terms_of_payment varchar(255) NULL',
+                'ALTER TABLE {prefix}base ADD COLUMN period_for_complaints varchar(255) NULL',
+                "REPLACE INTO {prefix}state (id, data) VALUES ('version', '46')"
+            ]
+        );
+    }
+
 
     if (!empty($updates)) {
         mysqli_query_check('SET AUTOCOMMIT = 0');

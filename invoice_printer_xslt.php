@@ -61,8 +61,7 @@ class InvoicePrinterXslt extends InvoicePrinterBase
             if (substr($key, 0, 8) == 'invoice_' && $value['type'] != 'LABEL') {
                 switch ($key) {
                 case 'invoice_terms_of_payment' :
-                    $settingsData[$key] = sprintf(
-                        getTermsOfPayment($invoiceData['company_id']),
+                    $settingsData[$key] = $this->getTermsOfPayment(
                         getPaymentDays($invoiceData['company_id'])
                     );
                     break;

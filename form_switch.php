@@ -1463,6 +1463,11 @@ $astrFormElements = [
         'allow_null' => true
     ],
     [
+        'name' => 'invoicesep',
+        'label' => $GLOBALS['locBaseInvoiceTexts'],
+        'type' => 'LABEL'
+    ],
+    [
         'name' => 'invoice_default_info',
         'label' => $GLOBALS['locInvoiceDefaultInfo'],
         'type' => 'AREA',
@@ -1498,6 +1503,22 @@ $astrFormElements = [
         'name' => 'offer_default_afterword',
         'label' => $GLOBALS['locOfferDefaultAfterword'],
         'type' => 'AREA',
+        'style' => 'large',
+        'position' => 2,
+        'allow_null' => true
+    ],
+    [
+        'name' => 'terms_of_payment',
+        'label' => $GLOBALS['locSettingInvoiceTermsOfPayment'],
+        'type' => 'TEXT',
+        'style' => 'large',
+        'position' => 1,
+        'allow_null' => true
+    ],
+    [
+        'name' => 'period_for_complaints',
+        'label' => $GLOBALS['locSettingInvoicePeriodForComplaints'],
+        'type' => 'TEXT',
         'style' => 'large',
         'position' => 2,
         'allow_null' => true

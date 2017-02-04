@@ -414,13 +414,11 @@ abstract class InvoicePrinterBase
                 // This shouldn't happen, but try to be safe...
                 $paymentDays = getPaymentDays($invoiceData['company_id']);
             }
-            $pdf->Cell(60, 4,
-                sprintf(getTermsOfPayment($invoiceData['company_id']), $paymentDays),
-                0, 1);
+            $pdf->Cell(60, 4, $this->getTermsOfPayment($paymentDays), 0, 1);
             $pdf->SetX(115);
             $pdf->Cell(40, 4, $GLOBALS['locPDFPeriodForComplaints'] . ': ', 0, 0,
                 'R');
-            $pdf->Cell(60, 4, getSetting('invoice_period_for_complaints'), 0, 1);
+            $pdf->Cell(60, 4, $this->getPeriodForComplaints(), 0, 1);
             $pdf->SetX(115);
             $pdf->Cell(40, 4, $GLOBALS['locPDFPenaltyInterest'] . ': ', 0, 0, 'R');
             $pdf->Cell(60, 4,
@@ -1195,5 +1193,37 @@ abstract class InvoicePrinterBase
             }
         }
         return $results;
+    }
+
+    /**
+     * Get terms of payment string for the invoice
+     *
+     * @param int $paymentDays Payment days
+     *
+     * @return string
+     */
+    protected function getTermsOfPayment($paymentDays)
+    {
+        if (!empty($this->recipientData['terms_of_payment'])) {
+            $result = $this->recipientData['terms_of_payment'];
+        } elseif (!empty($this->senderData['terms_of_payment'])) {
+            $result = $this->senderData['terms_of_payment'];
+        } else {
+            $result = getSetting('invoice_terms_of_payment');
+        }
+        return sprintf($result, $paymentDays);
+    }
+
+    /**
+     * Get period for complaints for the invoice
+     *
+     * @return string
+     */
+    protected function getPeriodForComplaints()
+    {
+        if (!empty($this->senderData['period_for_complaints'])) {
+            return $this->senderData['period_for_complaints'];
+        }
+        return getSetting('invoice_period_for_complaints');
     }
 }

@@ -93,9 +93,7 @@ class InvoicePrinterFormless extends InvoicePrinterBase
                 // This shouldn't happen, but try to be safe...
                 $paymentDays = getPaymentDays($invoiceData['company_id']);
             }
-            $pdf->Cell(60, 5,
-                sprintf(getTermsOfPayment($invoiceData['company_id']), $paymentDays),
-                0, 1);
+            $pdf->Cell(60, 5, $this->getTermsOfPayment($paymentDays), 0, 1);
             $pdf->SetX(115);
             $pdf->Cell(40, 5, $GLOBALS['locPDFPeriodForComplaints'] . ': ', 0, 0,
                 'R');

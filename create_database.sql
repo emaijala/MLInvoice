@@ -77,6 +77,8 @@ CREATE TABLE mlinvoice_base (
   invoice_default_afterword text NULL,
   offer_default_foreword text NULL,
   offer_default_afterword text NULL,
+  terms_of_payment varchar(255) NULL,
+  period_for_complaints varchar(255) NULL,
   PRIMARY KEY (id)
 ) ENGINE=INNODB CHARACTER SET utf8 COLLATE utf8_swedish_ci;
 
@@ -315,7 +317,7 @@ CREATE TABLE mlinvoice_default_value (
 
 SET NAMES 'utf8';
 
-INSERT INTO mlinvoice_state (id, data) VALUES ('version', '45');
+INSERT INTO mlinvoice_state (id, data) VALUES ('version', '46');
 
 INSERT INTO mlinvoice_state (id, data) VALUES ('tableconversiondone', '1');
 

@@ -108,9 +108,7 @@ class InvoicePrinterOffer extends InvoicePrinterBase
             // This shouldn't happen, but try to be safe...
             $paymentDays = getPaymentDays($invoiceData['company_id']);
         }
-        $pdf->Cell(60, 4,
-            sprintf(getTermsOfPayment($invoiceData['company_id']), $paymentDays),
-            0, 1);
+        $pdf->Cell(60, 4, $this->getTermsOfPayment($paymentDays), 0, 1);
 
         if ($invoiceData['delivery_terms']) {
             $pdf->SetX(115);
