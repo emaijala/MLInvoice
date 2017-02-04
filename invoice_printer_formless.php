@@ -97,7 +97,7 @@ class InvoicePrinterFormless extends InvoicePrinterBase
             $pdf->SetX(115);
             $pdf->Cell(40, 5, $GLOBALS['locPDFPeriodForComplaints'] . ': ', 0, 0,
                 'R');
-            $pdf->Cell(60, 5, getSetting('invoice_period_for_complaints'), 0, 1);
+            $pdf->Cell(60, 5, $this->getPeriodForComplaints(), 0, 1);
             $pdf->SetX(115);
             $pdf->Cell(40, 5, $GLOBALS['locPDFPenaltyInterest'] . ': ', 0, 0, 'R');
             $pdf->Cell(60, 5,
