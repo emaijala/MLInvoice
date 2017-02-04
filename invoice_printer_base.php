@@ -201,8 +201,8 @@ abstract class InvoicePrinterBase
         if ($paymentAmount > 0) {
             $tmpRefNumber = str_replace(' ', '', $this->refNumber);
             $IBAN = str_replace(' ', '', substr($senderData['bank_iban'], 2));
-            if (intval($tmpRefNumber) == 0 || (strncmp($tmpRefNumber, 'RF', 2) == 0 &&
-                 intval(substr($tmpRefNumber, 2) == 0))) {
+            if (ctype_digit($tmpRefNumber) == 0 || (strncmp($tmpRefNumber, 'RF', 2) == 0 &&
+                 ctype_digit(substr($tmpRefNumber, 2) == 0))) {
                 error_log(
                     'Empty or invalid reference number "' . $tmpRefNumber .
                      '", barcode not created');
