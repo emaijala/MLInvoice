@@ -44,7 +44,7 @@ function save_stock_balance(translations)
 
 function update_stock_balance_log()
 {
-  $("#stock_balance_change_log > tr").slice(0).remove();
+  $("#stock_balance_change_log  > tbody > tr").slice(1).remove();
   $.ajax({
     "url": "json.php?func=get_stock_balance_rows",
     "type": "POST",
