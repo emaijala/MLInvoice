@@ -1073,7 +1073,7 @@ function popup_editor(event, title, id, copy_row)
     if (!copy_row)
       buttons["<?php echo $GLOBALS['locDelete']?>"] = function() { if(confirm('<?php echo $GLOBALS['locConfirmDelete']?>')==true) { delete_row('iform_popup'); } return false; };
     buttons["<?php echo $GLOBALS['locClose']?>"] = function() { $("#popup_edit").dialog('close'); };
-    $("#popup_edit").dialog({ modal: true, width: 840, height: 150, resizable: false,
+    $("#popup_edit").dialog({ modal: true, width: 980, height: 150, resizable: false,
       buttons: buttons,
       title: title,
     });

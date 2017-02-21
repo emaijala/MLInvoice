@@ -331,7 +331,7 @@ function htmlFormElement($strName, $strType, $strValue, $strStyle, $strListQuery
         if ($strMode == 'MODIFY') {
             if (is_array($strListQuery)) {
                 $strFormElement = htmlListBox($strName, $strListQuery, $strValue,
-                    $strStyle, false, $astrAdditionalAttributes, $translate);
+                    $strStyle, false, true, $astrAdditionalAttributes, $translate);
 
             } else {
                 $strFormElement = htmlSQLListBox($strName, $strListQuery, $strValue,
