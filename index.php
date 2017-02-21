@@ -19,6 +19,7 @@
 ini_set('implicit_flush', 'Off');
 ob_start();
 
+require_once 'vendor/autoload.php';
 require_once 'sessionfuncs.php';
 require_once 'navi.php';
 require_once 'list.php';

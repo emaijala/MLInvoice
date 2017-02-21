@@ -1,0 +1,17 @@
+{
+    "name": "emaijala/MLInvoice",
+    "description": "Free web-based invoicing primarily for Finnish companies",
+    "authors": [
+        {
+            "name": "Ere Maijala",
+            "email": "ere@labs.fi"
+        }
+    ],
+    "license": "GPL-2.0",
+    "require": {
+        "swiftmailer/swiftmailer": "^5.4.6"
+    },
+    "require-dev": {
+        "squizlabs/php_codesniffer": "^2.8"
+    }
+}

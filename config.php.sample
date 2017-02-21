@@ -20,7 +20,7 @@ Tämä ohjelma on vapaa. Lue oheinen LICENSE.
 //define('_UI_LANGUAGE_', 'en-US');
 
 // Uncomment below to display language selection list in login screen.
-// Poista kommentit allaolevasta, jotta kirjautumissivulla näytetään kielen valinta.  
+// Poista kommentit allaolevasta, jotta kirjautumissivulla näytetään kielen valinta.
 //define('_UI_LANGUAGE_SELECTION_', 'en-US=In English|fi-FI=Suomeksi|sv-FI=På svenska');
 
 // Database server address
@@ -54,7 +54,7 @@ define('_CHARSET_', 'UTF-8');
 // If the characters show up wrong, it's possible that the web server had been configured to force another character set.
 // In that case, try uncommenting the following line.
 // Jos merkit näkyvät väärin, on mahdollista, että web-palvelin on asetettu pakottamaan toinen merkistö käyttöön.
-// Tällaisessa tapauksessa voit yrittää ottaa kommenttimerkit pois seuraavan rivin alusta. 
+// Tällaisessa tapauksessa voit yrittää ottaa kommenttimerkit pois seuraavan rivin alusta.
 //header('Content-Type: text/html; charset=utf-8');
 
 // Page title
@@ -82,6 +82,39 @@ define('_SESSION_RESTRICT_PATH_', true);
 // Time zone to use. Typically set in PHP settings, but can be configured locally here too for MLInvoice.
 // Aikavyöhyke. Määritelty tyypillisesti PHP-asetuksissa, mutta voidaan määritellä tässä MLInvoicea varten.
 //date_default_timezone_set('Europe/Helsinki');
+
+// Mail settings. By default the PHP mail() command is used, but an sendmail or an external SMTP server can be used by changing these settings.
+// Sähköpostiasetukset. Oletuksena käytetään PHP:n mail()-komentoa, mutta muokkaamalla näitä asetuksia voidaan käyttää sendmail-komentoa tai ulkoista SMTP-palvelinta.
+// See http://swiftmailer.org/docs/sending.html for more information on the settings for the mail component.
+// See http://php.net/manual/en/context.php for more information on the stream_context_options settings.
+
+$GLOBALS['mlinvoice_mail_settings'] = [
+
+    // Method to use for sending email:
+    // 'mail'     - Use PHP's mail() command (default)
+    // 'sendmail' - Use sendmail command
+    // 'smtp'     - Use an SMTP server
+    'send_method' => 'mail',
+
+    // Settings to use with send_method 'sendmail'
+    'sendmail' => [
+        'command' => '/usr/sbin/sendmail -bs',
+    ],
+
+    // Settings to use with send_method 'smtp'
+    'smtp' => [
+        'host' => 'smtp.gmail.com',     // Host name
+        'port' => 587,                  // Port
+        'security' => 'tls',            // 'ssl' for secure connection, 'tls' for STARTTLS
+        'username' => '???@gmail.com',  // User name for authentication (if needed)
+        'password' => 'xyz',            // Password for authentication (if needed)
+        'stream_context_options' =>  [  // SSL stream context options. See http://php.net/manual/en/context.php for more information.
+            'ssl' => [
+                //'capath' => '/path/to/my/trusted/ca/folder'
+            ]
+        ]
+    ]
+];
 
 // N.B.! Other settings can be found in the UI (Settings -> General Settings)
 // HUOM! Muut asetukset löytyvät käyttöliittymästä kohdasta Asetukset - Yleiset asetukset

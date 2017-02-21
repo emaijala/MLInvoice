@@ -26,6 +26,7 @@ require_once 'sessionfuncs.php';
 
 sesVerifySession();
 
+require_once 'vendor/autoload.php';
 require_once 'sqlfuncs.php';
 require_once 'localize.php';
 require_once 'pdf.php';

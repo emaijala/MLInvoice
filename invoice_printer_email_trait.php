@@ -65,8 +65,11 @@ trait InvoicePrinterEmailTrait
 
         $send = getRequest('email_send', '');
         if (!$send || !$this->emailFrom || !$this->emailTo || !$this->emailSubject ||
-             !$this->emailBody) {
-            $this->showEmailForm($send);
+             !$this->emailBody
+        ) {
+            $this->showEmailForm(
+                $send ? $GLOBALS['locEmailFillRequiredFields'] : ''
+            );
             return;
         }
 
@@ -91,7 +94,7 @@ trait InvoicePrinterEmailTrait
         return isset($this->senderData[$key]) ? $this->senderData[$key] : '';
     }
 
-    protected function showEmailForm($submitted)
+    protected function showEmailForm($errorMsg = '')
     {
         $senderData = $this->senderData;
         $recipientData = $this->recipientData;
@@ -103,7 +106,7 @@ trait InvoicePrinterEmailTrait
 
         <div id="email_form_container" class="form_container">
             <h1><?php echo $GLOBALS['locSendEmail']?></h1>
-<?php if ($submitted) echo '<div class="ui-state-error-text">' . $GLOBALS['locEmailFillRequiredFields'] . "<br><br></div>\n";?>
+<?php if ($errorMsg) echo '<div class="ui-state-error-text">' . $errorMsg . "<br><br></div>\n";?>
   <form method="POST" id="email_form">
                 <input type="hidden" name="id"
                     value="<?php echo htmlspecialchars(getRequest('id', ''))?>"> <input
@@ -167,57 +170,80 @@ trait InvoicePrinterEmailTrait
 
         mb_internal_encoding('UTF-8');
 
-        $boundary = '-----' . md5(uniqid(time())) . '-----';
-
-        // Note: According to https://bugs.php.net/bug.php?id=15841 the PHP documentation is wrong,
-        // and CRLF should not be used except on Windows. PHP_EOL should work.
-
-        $headers = [
-            'Date' => date('r'),
-            'From' => $this->emailFrom,
-            'Cc' => $this->emailCC,
-            'Bcc' => $this->emailBCC,
-            'Mime-Version' => '1.0',
-            'Content-Type' => "multipart/mixed; boundary=\"${boundary}\"",
-            'X-Mailer' => 'MLInvoice'
-        ];
-
         $filename = $this->outputFileName ? $this->outputFileName : getSetting(
             'invoice_pdf_filename');
         $filename = $this->getPrintOutFileName($filename);
-        $data = $pdf->Output($filename, 'E');
+        $data = $pdf->Output($filename, 'S');
 
-        $messageBody = 'This is a multipart message in mime format.' . PHP_EOL .
-             PHP_EOL;
-        $messageBody .= "--$boundary" . PHP_EOL;
-        $messageBody .= 'Content-Type: text/plain; charset=UTF-8; format=flowed' .
-             PHP_EOL;
-        $messageBody .= 'Content-Transfer-Encoding: 8bit' . PHP_EOL;
-        $messageBody .= 'Content-Disposition: inline' . PHP_EOL . PHP_EOL;
-        $messageBody .= $this->getFlowedBody() . PHP_EOL;
+        $message = Swift_Message::newInstance(
+            $this->emailSubject,
+            'This is a multipart message in mime format.' . PHP_EOL
+        );
 
-        $messageBody .= "--$boundary" . PHP_EOL;
-        $messageBody .= str_replace("\r\n", PHP_EOL, $data);
-        $messageBody .= PHP_EOL . "--$boundary--";
+        $message->setSubject($this->emailSubject);
+        $message->setFrom($this->extractNameAndAddress($this->emailFrom));
+        $message->setTo($this->extractAddresses($this->emailTo));
+        $message->setCc($this->extractAddresses($this->emailCC));
+        $message->setBcc($this->extractAddresses($this->emailBCC));
+        $message->addPart(
+            $this->getFlowedBody(), 'text/plain; charset=UTF-8; format="flowed"'
+        );
 
-        $result = mail($this->mimeEncodeAddress($this->emailTo),
-            $this->mimeEncodeHeaderValue($this->emailSubject), $messageBody,
-            $this->headersToStr($headers),
-            '-f ' . $this->extractAddress($this->emailFrom));
+        $attachment = Swift_Attachment::newInstance(
+            $data, $filename, 'application/pdf'
+        );
+        $message->attach($attachment);
 
-        if (method_exists($this, 'emailPostProcess')) {
-            $this->emailPostProcess($result);
+        $headers = $message->getHeaders();
+        $headers->addTextHeader('X-Mailer', 'MLInvoice');
+
+        $settings = isset($GLOBALS['mlinvoice_mail_settings'])
+            ? $GLOBALS['mlinvoice_mail_settings'] : [];
+
+        if (!isset($settings['send_method']) || 'mail' === $settings['send_method']
+        ) {
+            $transport = Swift_MailTransport::newInstance();
+        } elseif ('sendmail' === $settings['send_method']) {
+            $command = empty($settings['sendmail']['command'])
+                ? '/usr/sbin/sendmail -bs'
+                : $settings['sendmail']['command'];
+            $transport = Swift_SendmailTransport::newInstance($command);
+        } elseif ('smtp' === $settings['send_method']) {
+            $smtp = empty($settings['smtp']) ? [] : $settings['smtp'];
+            $transport = Swift_SmtpTransport::newInstance(
+                $smtp['host'], $smtp['port'], $smtp['security']
+            );
+            if (!empty($smtp['username'])) {
+                $transport->setUsername($smtp['username']);
+            }
+            if (!empty($smtp['password'])) {
+                $transport->setPassword($smtp['password']);
+            }
+            if (!empty($smtp['stream_context_options'])) {
+                $transport->setStreamOptions($smtp['stream_context_options']);
+            }
         }
-        if ($result) {
-            $_SESSION['formMessage'] = 'EmailSent';
-        } else {
-            $_SESSION['formErrorMessage'] = 'EmailFailed';
+        $mailer = Swift_Mailer::newInstance($transport);
+
+        try {
+            $result = $mailer->send($message);
+            if (!$result) {
+                $this->showEmailForm($GLOBALS['locEmailFailed']);
+                return;
+            }
+        } catch (Exception $e) {
+            $this->showEmailForm(
+                $GLOBALS['locEmailFailed'] . ': ' . $e->getMessage()
+            );
+            return;
         }
-        echo header(
+        $_SESSION['formMessage'] = 'EmailSent';
+        header(
             'Location: ' . _PROTOCOL_ . $_SERVER['HTTP_HOST'] .
                  dirname($_SERVER['PHP_SELF']) . '/index.php?func=' .
                  sanitize(getRequest('func', 'open_invoices')) .
-                 "&list=invoices&form=invoice&id={$this->invoiceId}");
+                 "&list=invoices&form=invoice&id={$this->invoiceId}"
+        );
     }
 
     protected function getFlowedBody()
@@ -250,44 +276,46 @@ trait InvoicePrinterEmailTrait
         return $result;
     }
 
-    protected function headersToStr(&$headers)
-    {
-        $result = '';
-        foreach ($headers as $header => $value) {
-            if (!$value)
-                continue;
-            if (in_array($header,
-                [
-                    'From',
-                    'To',
-                    'Cc',
-                    'Bcc'
-                ]))
-                $result .= "$header: " . $this->mimeEncodeAddress($value) . PHP_EOL;
-            else
-                $result .= "$header: $value" . PHP_EOL;
-        }
-        return $result;
-    }
-
     protected function extractAddress($address)
     {
-        if (preg_match('/<(.+)>/', $address, $matches) == 1)
+        if (preg_match('/<(.+)>/', $address, $matches)) {
             return $matches[1];
+        }
         return $address;
     }
 
-    protected function mimeEncodeAddress($address)
+    protected function extractName($address)
     {
-        if (preg_match('/(.+) (<.+>)/', $address, $matches) == 1)
-            $address = $this->mimeEncodeHeaderValue($matches[1]) . ' ' . $matches[2];
-        elseif (preg_match('/(.+)(<.+>)/', $address, $matches) == 1)
-            $address = $this->mimeEncodeHeaderValue($matches[1]) . $matches[2];
-        return $address;
+        if (preg_match('/(.+)\s*<.+>/', $address, $matches)) {
+            return $matches[1];
+        }
+        return '';
     }
 
-    protected function mimeEncodeHeaderValue($value)
+    protected function extractNameAndAddress($address)
     {
-        return mb_encode_mimeheader(cond_utf8_encode($value), 'UTF-8', 'Q');
+        $name = $this->extractName($address);
+        $address = $this->extractAddress($address);
+        return $name === '' ? $address : [$address => $name];
+    }
+
+    protected function extractAddresses($addresses)
+    {
+        $result = [];
+        if ($addresses) {
+            if (is_string($addresses)) {
+                $addresses = array_map('trim', str_getcsv($addresses));
+            }
+            foreach ($addresses as $idx => $address) {
+                $name = $this->extractName($address);
+                $addr = $this->extractAddress($address);
+                if ($name) {
+                    $result[$addr] = $name;
+                } else {
+                    $result[$idx] = $addr;
+                }
+            }
+        }
+        return $result;
     }
 }
