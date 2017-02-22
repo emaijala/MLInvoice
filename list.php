@@ -449,8 +449,9 @@ function createJSONSelectList($strList, $startRow, $rowCount, $filter, $sort,
             }
         }
         $fieldList = implode(',', $fields);
-        $exactSort = "IF(? IN ($fieldList, CONCAT_WS(' ', $fieldList)), 0, 1)";
-        $arrQueryParams[] = $filter;
+        $escapedFilter = mysqli_real_escape_string($dblink, $filter);
+        $exactSort = "IF('$escapedFilter' IN ($fieldList, "
+            . "CONCAT_WS(' ', $fieldList)), 0, 1)";
         if ($sort) {
             $sort = "$exactSort, $sort";
         } else {
