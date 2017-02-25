@@ -2,19 +2,18 @@
 /*******************************************************************************
  MLInvoice: web-based invoicing application.
  Copyright (C) 2010-2016 Ere Maijala
- 
+
  This program is free software. See attached LICENSE.
- 
+
  *******************************************************************************/
 
 /*******************************************************************************
  MLInvoice: web-pohjainen laskutusohjelma.
  Copyright (C) 2010-2016 Ere Maijala
- 
+
  Tämä ohjelma on vapaa. Lue oheinen LICENSE.
- 
+
  *******************************************************************************/
-require_once 'tcpdf/tcpdf.php';
 
 class PDF extends TCPDF
 {
@@ -34,13 +33,13 @@ class PDF extends TCPDF
         $this->SetY(10);
         $this->SetFont('Helvetica', '', 7);
         $this->SetX($this->headerLeftPos);
-        $this->MultiCell(120, 5, $this->handlePageNum($this->headerLeft), 0, 'L', 0, 
+        $this->MultiCell(120, 5, $this->handlePageNum($this->headerLeft), 0, 'L', 0,
             0);
         $this->SetX(75);
-        $this->MultiCell(65, 5, $this->handlePageNum($this->headerCenter), 0, 'C', 0, 
+        $this->MultiCell(65, 5, $this->handlePageNum($this->headerCenter), 0, 'C', 0,
             0);
         $this->SetX($this->headerRightPos);
-        $this->MultiCell(60, 5, $this->handlePageNum($this->headerRight), 0, 'R', 0, 
+        $this->MultiCell(60, 5, $this->handlePageNum($this->headerRight), 0, 'R', 0,
             0);
     }
 
@@ -62,7 +61,7 @@ class PDF extends TCPDF
     {
         return sprintf($str, $this->PageNo());
     }
-    
+
     // Disable openssl_random_pseudo_bytes call as it's very slow on Windows
     protected function getRandomSeed($seed = '')
     {
