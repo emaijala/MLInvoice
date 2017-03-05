@@ -350,8 +350,11 @@ function create_db_dump()
     header('Content-type: text/x-sql');
     header("Content-Disposition: attachment; filename=\"$filename\"");
 
-    if (_CHARSET_ == 'UTF-8')
+    if (_CHARSET_ == 'UTF-8') {
         echo ("SET NAMES 'utf8';\n\n");
+    }
+
+    echo "SET FOREIGN_KEY_CHECKS=0;\n\n";
 
     $tables = [];
     foreach ($in_tables as $table) {
@@ -368,8 +371,9 @@ function create_db_dump()
     foreach ($tables as $table) {
         $res = mysqli_query_check("show create table $table");
         $row = mysqli_fetch_assoc($res);
-        if (!$row)
+        if (!$row) {
             die("Could not read table definition for table $table");
+        }
         echo $row['Create Table'] . ";\n\n";
 
         $res = mysqli_query_check("show fields from $table");
@@ -383,30 +387,37 @@ function create_db_dump()
             $columns .= $row['Field'];
         }
         // Don't dump current sessions
-        if ($table == _DB_PREFIX_ . '_session')
+        if ($table == _DB_PREFIX_ . '_session') {
             continue;
+        }
 
         $res = mysqli_query_check("select * from $table");
         while ($row = mysqli_fetch_row($res)) {
             echo "INSERT INTO `$table` ($columns) VALUES (";
             for ($i = 0; $i < $field_count; $i ++) {
-                if ($i > 0)
+                if ($i > 0) {
                     echo ', ';
+                }
                 $value = $row[$i];
                 $type = $field_defs[$i]['Type'];
-                if (is_null($value))
+                if (is_null($value)) {
                     echo 'null';
-                elseif (substr($type, 0, 3) == 'int' || substr($type, 0, 7) == 'decimal')
+                } elseif (substr($type, 0, 3) == 'int'
+                    || substr($type, 0, 7) == 'decimal'
+                ) {
                     echo $value;
-                elseif ($value && ($type == 'longblob' || strpos($value, "\n")))
+                } elseif ($value && ($type == 'longblob' || strpos($value, "\n"))) {
                     echo '0x' . bin2hex($value);
-                else
+                }
+                else {
                     echo '\'' . addslashes($value) . '\'';
+                }
             }
             echo ");\n";
         }
         echo "\n";
     }
+    echo "\nSET FOREIGN_KEY_CHECKS=1;\n";
 }
 
 function table_valid($table)
