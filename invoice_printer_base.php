@@ -353,6 +353,7 @@ abstract class InvoicePrinterBase
             $pdf->setX($this->recipientAddressX);
             $pdf->Cell(120, 5, $contact['contact_person'], 0, 1);
         }
+        $pdf->setX($this->recipientAddressX);
         $pdf->MultiCell(120, 5, $this->recipientAddress, 0, 1);
         if ($recipientData['email'] && getSetting('invoice_show_recipient_email')) {
             $pdf->SetY($pdf->GetY() + 4);
