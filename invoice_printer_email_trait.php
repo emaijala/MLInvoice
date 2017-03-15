@@ -237,6 +237,9 @@ trait InvoicePrinterEmailTrait
             );
             return;
         }
+        if (is_callable([$this, 'emailSent'])) {
+            $this->emailSent();
+        }
         $_SESSION['formMessage'] = 'EmailSent';
         header(
             'Location: ' . _PROTOCOL_ . $_SERVER['HTTP_HOST'] .

@@ -21,9 +21,9 @@ class InvoicePrinterEmail extends InvoicePrinterBase
 {
     use InvoicePrinterEmailTrait;
 
-    protected function emailPostProcess($success)
+    protected function emailSent()
     {
-        if ($success && $this->invoiceData['state_id'] == 1) {
+        if ($this->invoiceData['state_id'] == 1) {
             // Mark invoice sent
             mysqli_param_query('UPDATE {prefix}invoice SET state_id=2 WHERE id=?',
                 [
