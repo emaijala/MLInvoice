@@ -115,7 +115,7 @@ var MLInvoice = (function MLInvoice() {
             // Try business ID first
             jQuery.ajax(
             {
-                url: 'http://avoindata.prh.fi/bis/v1',
+                url: 'https://avoindata.prh.fi/bis/v1',
                 data: {
                 maxResults: 1,
                 businessId: term
@@ -131,7 +131,7 @@ var MLInvoice = (function MLInvoice() {
                 // Try company name second
                 jQuery.ajax(
                 {
-                    url: 'http://avoindata.prh.fi/bis/v1',
+                    url: 'https://avoindata.prh.fi/bis/v1',
                     data: {
                     maxResults: 1,
                     name: term
