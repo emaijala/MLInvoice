@@ -52,7 +52,7 @@ abstract class InvoicePrinterBase
     protected $discountedRows = false;
     protected $groupedVATs = [];
     protected $recipientMaxY = 0;
-    protected $invoiceRowMaxY = 150;
+    protected $invoiceRowMaxY = 185;
     protected $senderAddressX = 0;
     protected $senderAddressY = 0;
     protected $recipientAddressX = 0;
@@ -728,7 +728,7 @@ abstract class InvoicePrinterBase
             }
             if ($this->senderData['vat_registered']) {
                 $pdf->SetFont('Helvetica', '', 10);
-                $pdf->SetY($pdf->GetY() + 10);
+                $pdf->SetY($pdf->GetY() + 6);
                 $pdf->Cell(162, 5, $GLOBALS['locPDFTotalExcludingVAT'] . ': ', 0, 0,
                     'R');
                 $pdf->SetX(187 - $left);
