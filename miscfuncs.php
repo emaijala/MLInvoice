@@ -198,22 +198,22 @@ function miscCalcCheckNo($intValue)
     return $intCheckNo;
 }
 
-function getPost($strKey, $varDefault)
+function getPost($strKey, $varDefault = null)
 {
     return isset($_POST[$strKey]) ? gpcStripSlashes($_POST[$strKey]) : $varDefault;
 }
 
-function getRequest($strKey, $varDefault)
+function getRequest($strKey, $varDefault = null)
 {
     return isset($_REQUEST[$strKey]) ? gpcStripSlashes($_REQUEST[$strKey]) : $varDefault;
 }
 
-function getGet($strKey, $varDefault)
+function getGet($strKey, $varDefault = null)
 {
     return isset($_GET[$strKey]) ? gpcStripSlashes($_GET[$strKey]) : $varDefault;
 }
 
-function getPostRequest($strKey, $varDefault)
+function getPostRequest($strKey, $varDefault = null)
 {
     return getPost($strKey, getRequest($strKey, $varDefault));
 }
@@ -222,10 +222,16 @@ function getPageTitle($strFunc, $strList, $strForm)
 {
     switch ($strFunc) {
     case 'open_invoices' :
-        if ($strForm)
+        if ($strForm) {
+            if (getRequest('offer')
+                || (($invId = getRequest('id')) && isOffer($invId))
+            ) {
+                return $GLOBALS['locOffer'];
+            }
             return $GLOBALS['locInvoice'];
-        else
+        } else {
             return $GLOBALS['locOpenAndUnpaidInvoices'];
+        }
         break;
     case 'invoices' :
         if ($strForm)

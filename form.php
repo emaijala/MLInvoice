@@ -148,7 +148,7 @@ function createForm($strFunc, $strList, $strForm)
 <?php
     createFormButtons($strForm, $blnNew, $copyLinkOverride, true, $readOnlyForm);
 
-    if ($strForm == 'invoice' && $astrValues['next_interval_date']
+    if ($strForm == 'invoice' && !empty($astrValues['next_interval_date'])
         && strDate2UnixTime($astrValues['next_interval_date']) <= time()
     ) {
 ?>
@@ -474,7 +474,8 @@ function save_record(redirect_url, redir_style, on_print)
                 'NEWLINE',
                 'ROWSUM',
                 'CHECK',
-                'IFORM'
+                'IFORM',
+                'FILLER'
             ])) {
             ?>
   obj.<?php echo $elem['name']?> = form.<?php echo $elem['name']?>.value;

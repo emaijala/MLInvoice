@@ -542,6 +542,8 @@ case 'invoice' :
     $strParentKey = 'invoice_id';
     $strJSONType = 'invoice';
     $addressAutocomplete = true;
+    $defaultState = 1;
+    $isOffer = false;
 
     $arrRefundedInvoice = [
         'allow_null' => true
@@ -551,6 +553,7 @@ case 'invoice' :
     ];
     $intInvoiceId = getRequest('id', 0);
     if ($intInvoiceId) {
+        $isOffer = isOffer($intInvoiceId);
         $strQuery = 'SELECT refunded_invoice_id ' . 'FROM {prefix}invoice ' .
              'WHERE id=?'; // ok to maintain links to deleted invoices too
         $intRes = mysqli_param_query($strQuery,
@@ -591,41 +594,20 @@ case 'invoice' :
                     'allow_null' => true
                 ];
         }
+    } else {
+        if (getRequest('offer', false)) {
+            $defaultState = getInitialOfferState();
+            $isOffer = true;
+        }
     }
 
     $companyOnChange = '';
     $getInvoiceNr = '';
     $updateDates = '';
     $addCompanyCode = '';
+    $addPartialPaymentCode = '';
 
     if (sesWriteAccess()) {
-        $companyOnChange = <<<EOS
-  function() {
-    $.getJSON('json.php?func=get_company', {id: $('#company_id').val() }, function(json) {
-      if (json) {
-        if (json.default_ref_number) {
-          $('#ref_number').val(json.default_ref_number);
-        }
-        if (json.delivery_terms_id) {
-          $('#delivery_terms_id').val(json.delivery_terms_id);
-        }
-        if (json.delivery_method_id) {
-          $('#delivery_method_id').val(json.delivery_method_id);
-        }
-        if (json.payment_days) {
-          $.getJSON('json.php?func=get_invoice_defaults', {id: $('#record_id').val(), invoice_no: $('#invoice_no').val(), invoice_date: $('#invoice_date').val(), base_id: $('#base_id').val(), company_id: $('#company_id').val(), interval_type: $('#interval_type').val()}, function(json) {
-            $('#due_date').val(json.due_date);
-          });
-        }
-      }
-    });
-  }
-EOS;
-
-        $getInvoiceNr = <<<EOS
-$.getJSON('json.php?func=get_invoice_defaults', {id: $('#record_id').val(), invoice_no: $('#invoice_no').val(), invoice_date: $('#invoice_date').val(), base_id: $('#base_id').val(), company_id: $('#company_id').val(), interval_type: $('#interval_type').val()}, function(json) { $('#invoice_no').val(json.invoice_no); $('#ref_number').val(json.ref_no); $('.save_button').addClass('ui-state-highlight'); }); return false;
-EOS;
-
         $locUpdateDates = $GLOBALS['locUpdateDates'];
         $updateDates = <<<EOS
 <a class="formbuttonlink" href="#" onclick="$.getJSON('json.php?func=get_invoice_defaults', {id: $('#record_id').val(), invoice_no: $('#invoice_no').val(), invoice_date: $('#invoice_date').val(), base_id: $('#base_id').val(), company_id: $('#company_id').val(), interval_type: $('#interval_type').val()}, function(json) { $('#invoice_date').val(json.date); $('#due_date').val(json.due_date); $('#next_interval_date').val(json.next_interval_date); $('.save_button').addClass('ui-state-highlight'); }); return false;">$locUpdateDates</a>
@@ -661,12 +643,40 @@ EOS;
 
 EOS;
 
-        $addPartialPaymentCode = <<<EOS
+        if (!$isOffer) {
+            $companyOnChange = <<<EOS
+  function() {
+    $.getJSON('json.php?func=get_company', {id: $('#company_id').val() }, function(json) {
+      if (json) {
+        if (json.default_ref_number) {
+          $('#ref_number').val(json.default_ref_number);
+        }
+        if (json.delivery_terms_id) {
+          $('#delivery_terms_id').val(json.delivery_terms_id);
+        }
+        if (json.delivery_method_id) {
+          $('#delivery_method_id').val(json.delivery_method_id);
+        }
+        if (json.payment_days) {
+          $.getJSON('json.php?func=get_invoice_defaults', {id: $('#record_id').val(), invoice_no: $('#invoice_no').val(), invoice_date: $('#invoice_date').val(), base_id: $('#base_id').val(), company_id: $('#company_id').val(), interval_type: $('#interval_type').val()}, function(json) {
+            $('#due_date').val(json.due_date);
+          });
+        }
+      }
+    });
+  }
+EOS;
+
+            $getInvoiceNr = <<<EOS
+$.getJSON('json.php?func=get_invoice_defaults', {id: $('#record_id').val(), invoice_no: $('#invoice_no').val(), invoice_date: $('#invoice_date').val(), base_id: $('#base_id').val(), company_id: $('#company_id').val(), interval_type: $('#interval_type').val()}, function(json) { $('#invoice_no').val(json.invoice_no); $('#ref_number').val(json.ref_no); $('.save_button').addClass('ui-state-highlight'); }); return false;
+EOS;
+
+            $addPartialPaymentCode = <<<EOS
 add_partial_payment({'save': '$locSave', 'close': '$locClose', 'title': '{$GLOBALS['locPartialPayment']}', 'missing': '$locMissing: ', 'partial_payment': '{$GLOBALS['locPartialPayment']}', 'decimal_separator': '{$GLOBALS['locDecimalSeparator']}'}); return false;
 
 EOS;
 
-        $popupHTML .= <<<EOS
+            $popupHTML .= <<<EOS
 <div id="add_partial_payment" class="form_container ui-widget-content" style="display: none">
   <div class="medium_label">{$GLOBALS['locPaymentAmount']}</div> <div class="field"><input type='TEXT' id="add_partial_payment_amount" class='medium'></div>
   <div class="medium_label">{$GLOBALS['locPayDate']}</div> <div class="field"><input type='TEXT' id="add_partial_payment_date" class='date hasCalendar'></div>
@@ -674,16 +684,17 @@ EOS;
 
 EOS;
 
-        if (getSetting('invoice_warn_if_noncurrent_date')) {
-            $formDataAttrs[] = 'check-invoice-date';
-        }
+            if (getSetting('invoice_warn_if_noncurrent_date')) {
+                $formDataAttrs[] = 'check-invoice-date';
+            }
 
-        if (!getSetting('invoice_add_number')) {
-            $formDataAttrs[] = 'check-invoice-number';
+            if (!getSetting('invoice_add_number')) {
+                $formDataAttrs[] = 'check-invoice-number';
+            }
         }
     }
 
-    if (sesWriteAccess()) {
+    if (sesWriteAccess() && !$isOffer) {
         $today = dateConvDBDate2Date(date('Ymd'));
         $markPaidToday = <<<EOS
 if ([1, 2, 5, 6, 7].indexOf(parseInt($('#state_id').val())) !== -1) { $('#state_id').val(3); } if (!$(this).is('#payment_date')) { $('#payment_date').val('$today'); }
@@ -713,8 +724,10 @@ EOF;
     // Print buttons
     $printButtons = [];
     $printButtons2 = [];
-    $res = mysqli_query_check(
-        'SELECT * FROM {prefix}print_template WHERE deleted=0 and type=\'invoice\' and inactive=0 ORDER BY order_no');
+    $res = mysqli_param_query(
+        'SELECT * FROM {prefix}print_template WHERE deleted=0 and type=? and inactive=0 ORDER BY order_no',
+        [$isOffer ? 'offer' : 'invoice']
+    );
     $templateCount = mysqli_num_rows($res);
     $templateFirstCol = 3;
     $rowNum = 0;
@@ -774,279 +787,299 @@ EOF;
     $copyLinkOverride = "copy_invoice.php?func=$strFunc&amp;list=$strList&amp;id=$intInvoiceId";
 
     $updateInvoiceNr = null;
-    if (sesWriteAccess()) {
-        if (!getSetting('invoice_add_number') ||
-             !getSetting('invoice_add_reference_number')) {
+    if (sesWriteAccess() && !$isOffer) {
+        if (!getSetting('invoice_add_number')
+            || !getSetting('invoice_add_reference_number')
+        ) {
             $updateInvoiceNr = '<a class="formbuttonlink" href="#" onclick="' .
-             $getInvoiceNr . '">' . $GLOBALS['locGetInvoiceNr'] . '</a>';
+            $getInvoiceNr . '">' . $GLOBALS['locGetInvoiceNr'] . '</a>';
+        }
     }
-}
 
-$addReminderFees = "$.getJSON('json.php?func=add_reminder_fees&amp;id=' + document.getElementById('record_id').value, function(json) { if (json.errors) { $('#errormsg').text(json.errors).show() } else { showmsg('{$GLOBALS['locReminderFeesAdded']}'); } init_rows(); }); return false;";
+    $addReminderFees = "$.getJSON('json.php?func=add_reminder_fees&amp;id=' + document.getElementById('record_id').value, function(json) { if (json.errors) { $('#errormsg').text(json.errors).show() } else { showmsg('{$GLOBALS['locReminderFeesAdded']}'); } init_rows(); }); return false;";
 
-$intervalOptions = [
-    '0' => $GLOBALS['locInvoiceIntervalNone'],
-    '2' => $GLOBALS['locInvoiceIntervalMonth'],
-    '3' => $GLOBALS['locInvoiceIntervalYear']
-];
-for ($i = 4; $i <= 8; $i++) {
-    $intervalOptions[(string)$i]
-        = sprintf($GLOBALS['locInvoiceIntervalMonths'], $i - 2);
-}
+    $intervalOptions = [
+        '0' => $GLOBALS['locInvoiceIntervalNone'],
+        '2' => $GLOBALS['locInvoiceIntervalMonth'],
+        '3' => $GLOBALS['locInvoiceIntervalYear']
+    ];
+    for ($i = 4; $i <= 8; $i++) {
+        $intervalOptions[(string)$i]
+            = sprintf($GLOBALS['locInvoiceIntervalMonths'], $i - 2);
+    }
 
-$astrFormElements = [
-    [
-        'name' => 'base_id',
-        'label' => $GLOBALS['locBiller'],
-        'type' => 'LIST',
-        'style' => 'medium linked',
-        'listquery' => 'SELECT id, name FROM {prefix}base WHERE deleted=0 ORDER BY name, id',
-        'position' => 1,
-        'default' => $defaultBase
-    ],
-    [
-        'name' => 'name',
-        'label' => $GLOBALS['locInvName'],
-        'type' => 'TEXT',
-        'style' => 'medium',
-        'position' => 2,
-        'allow_null' => true
-    ],
-    [
-        'name' => 'company_id',
-        'label' => $GLOBALS['locPayer'],
-        'type' => 'SEARCHLIST',
-        'style' => 'medium linked',
-        'listquery' => 'table=company&sort=company_name,company_id',
-        'position' => 1,
+    $stateQuery = 'SELECT id, name FROM {prefix}invoice_state WHERE deleted=0 AND ';
+    $stateQuery .= $isOffer ? 'invoice_offer=1' : 'invoice_offer!=1';
+    $stateQuery .= ' ORDER BY order_no';
+
+    $astrFormElements = [
+        [
+            'name' => 'base_id',
+            'label' => $GLOBALS['locBiller'],
+            'type' => 'LIST',
+            'style' => 'long linked',
+            'listquery' => 'SELECT id, name FROM {prefix}base WHERE deleted=0 ORDER BY name, id',
+            'position' => 1,
+            'default' => $defaultBase
+        ],
+        [
+            'name' => 'name',
+            'label' => $isOffer ? $GLOBALS['locOfferName'] : $GLOBALS['locInvName'],
+            'type' => 'TEXT',
+            'style' => 'medium',
+            'position' => 2,
+            'allow_null' => true
+        ],
+        [
+            'name' => 'company_id',
+            'label' => $GLOBALS['locPayer'],
+            'type' => 'SEARCHLIST',
+            'style' => 'long linked',
+            'listquery' => 'table=company&sort=company_name,company_id',
+            'position' => 1,
+            'allow_null' => true,
+            'attached_elem' => $addCompanyCode,
+            'elem_attributes' => $companyOnChange
+        ],
+        $isOffer ? [] : [
+            'name' => 'reference',
+            'label' => $GLOBALS['locClientsReference'],
+            'type' => 'TEXT',
+            'style' => 'medium',
+            'position' => 2,
+            'allow_null' => true
+        ],
+        $isOffer ? [] : [
+            'name' => 'invoice_no',
+            'label' => $GLOBALS['locInvoiceNumber'],
+            'type' => 'INT',
+            'style' => 'medium hidezerovalue',
+            'position' => 1,
+            'default' => null,
+            'allow_null' => true
+        ],
+        $isOffer ? [] : [
+            'name' => 'ref_number',
+            'label' => $GLOBALS['locReferenceNumber'],
+            'type' => 'TEXT',
+            'style' => 'medium hidezerovalue',
+            'position' => 2,
+            'default' => null,
+            'attached_elem' => $updateInvoiceNr,
+            'allow_null' => true
+        ],
+        [
+            'name' => 'invoice_date',
+            'label' => $GLOBALS['locInvDate'],
+            'type' => 'INTDATE',
+            'style' => 'date',
+            'position' => 1,
+            'default' => 'DATE_NOW'
+        ],
+        [
+            'name' => 'due_date',
+            'label' => $GLOBALS['locDueDate'],
+            'type' => 'INTDATE',
+            'style' => 'date',
+            'position' => 2,
+            'default' => 'DATE_NOW+' . getSetting('invoice_payment_days'),
+            'attached_elem' => $updateDates
+        ],
+        $isOffer ? [] : [
+            'name' => 'interval_type',
+            'label' => $GLOBALS['locInvoiceIntervalType'],
+            'type' => 'SELECT',
+            'style' => 'medium',
+            'position' => 1,
+            'options' => $intervalOptions,
+            'default' => '0',
+            'allow_null' => true
+        ],
+        $isOffer ? [] : [
+            'name' => 'next_interval_date',
+            'label' => $GLOBALS['locInvoiceNextIntervalDate'],
+            'type' => 'INTDATE',
+            'style' => 'date',
+            'position' => 2,
+            'default' => '',
+            'allow_null' => true
+        ],
+        [
+            'name' => 'state_id',
+            'label' => $GLOBALS['locStatus'],
+            'type' => 'LIST',
+            'style' => 'long translated noemptyvalue',
+            'listquery' => $stateQuery,
+            'position' => 1,
+            'default' => $defaultState
+        ],
+        $isOffer ? [] : [
+            'name' => 'payment_date',
+            'label' => $GLOBALS['locPayDate'],
+            'type' => 'INTDATE',
+            'style' => 'date',
+            'position' => 2,
+            'allow_null' => true,
+            'attached_elem' => $markPaidTodayButton,
+            'elem_attributes' => 'onchange="' . $markPaidTodayEvent . '"'
+        ],
+        [
+            'name' => 'archived',
+            'label' => $GLOBALS['locArchived'],
+            'type' => 'CHECK',
+            'style' => 'medium',
+            'position' => 1,
+            'default' => 0,
+            'allow_null' => true
+        ],
+        $isOffer ? [
+            'name' => 'delivery_time',
+            'label' => $GLOBALS['locDeliveryTime'],
+            'type' => 'TEXT',
+            'style' => 'medium hidezerovalue',
+            'position' => 2,
+            'default' => null,
+            'allow_null' => true
+        ] : [],
+        [
+            'name' => 'delivery_terms_id',
+            'label' => $GLOBALS['locDeliveryTerms'],
+            'type' => 'LIST',
+            'style' => 'long',
+            'listquery' => 'SELECT id, name FROM {prefix}delivery_terms WHERE deleted=0 ORDER BY order_no;',
+            'position' => 1,
+            'default' => null,
+            'allow_null' => true
+        ],
+        [
+            'name' => 'delivery_method_id',
+            'label' => $GLOBALS['locDeliveryMethod'],
+            'type' => 'LIST',
+            'style' => 'medium',
+            'listquery' => 'SELECT id, name FROM {prefix}delivery_method WHERE deleted=0 ORDER BY order_no;',
+            'position' => 2,
+            'default' => null,
+            'allow_null' => true
+        ],
+        [
+            'name' => 'info',
+            'label' => $GLOBALS['locVisibleInfo'],
+            'type' => 'AREA',
+            'style' => 'large',
+            'position' => 1,
+            'attached_elem' => '<span class="select-default-text" data-type="info" data-target="info"/>',
+            'allow_null' => true
+        ],
+        [
+            'name' => 'internal_info',
+            'label' => $GLOBALS['locInternalInfo'],
+            'type' => 'AREA',
+            'style' => 'large',
+            'position' => 2,
+            'allow_null' => true
+        ],
+        [
+            'name' => 'foreword',
+            'label' => $GLOBALS['locForeword'],
+            'type' => 'AREA',
+            'style' => 'large',
+            'position' => 1,
+            'attached_elem' => '<span class="select-default-text" data-type="foreword" data-target="foreword"/>',
+            'allow_null' => true
+        ],
+        [
+            'name' => 'afterword',
+            'label' => $GLOBALS['locAfterword'],
+            'type' => 'AREA',
+            'style' => 'large',
+            'position' => 2,
+            'attached_elem' => '<span class="select-default-text" data-type="afterword" data-target="afterword"/>',
+            'allow_null' => true
+        ],
+
+        !sesWriteAccess() || $isOffer ? [
+            'name' => 'refundinvoice',
+            'label' => '',
+            'type' => 'FILLER',
+            'position' => 1
+        ] : [
+            'name' => 'refundinvoice',
+            'label' => $GLOBALS['locRefundInvoice'],
+            'type' => 'BUTTON',
+            'style' => 'redirect',
+            'listquery' => "copy_invoice.php?func=$strFunc&list=$strList&id=_ID_&refund=1",
+            'position' => 1,
+            'default' => FALSE,
+            'allow_null' => true
+        ],
+        !sesWriteAccess() || !$isOffer ? [
+            'name' => 'copyasinvoice',
+            'label' => '',
+            'type' => 'FILLER',
+            'position' => 1
+        ] : [
+            'name' => 'copyasinvoice',
+            'label' => $GLOBALS['locCopyAsInvoice'],
+            'type' => 'BUTTON',
+            'style' => 'redirect',
+            'listquery' => "copy_invoice.php?func=$strFunc&list=$strList&id=_ID_&invoice=1",
+            'position' => 1,
+            'default' => FALSE,
+            'allow_null' => true
+        ],
+        $arrRefundedInvoice,
+        isset($printButtons[0]) ? $printButtons[0] : [],
+        isset($printButtons2[0]) ? $printButtons2[0] : [],
+        !sesWriteAccess() || $isOffer ? [
+            'name' => 'addreminderfees',
+            'label' => '',
+            'type' => 'FILLER',
+            'position' => 1
+        ] : [
+            'name' => 'addreminderfees',
+            'label' => $GLOBALS['locAddReminderFees'],
+            'type' => 'JSBUTTON',
+            'style' => 'redirect',
+            'listquery' => $addReminderFees,
+            'position' => 1,
+            'default' => FALSE,
+            'allow_null' => true
+        ],
+        $arrRefundingInvoice,
+        isset($printButtons[1]) ? $printButtons[1] : [],
+        isset($printButtons2[1]) ? $printButtons2[1] : [],
+        !sesWriteAccess() || $isOffer ? [
+            'name' => 'addpartialpayment',
+            'label' => '',
+            'type' => 'FILLER',
+            'position' => 1
+        ] : [
+            'name' => 'addpartialpayment',
+            'label' => $GLOBALS['locAddPartialPayment'],
+            'type' => 'JSBUTTON',
+            'style' => 'redirect',
+            'listquery' => $addPartialPaymentCode,
+            'position' => 1,
+            'default' => FALSE,
+            'allow_null' => true
+        ],
+    ];
+
+    for ($i = 2; $i < count($printButtons); $i ++) {
+        $astrFormElements[] = $printButtons[$i];
+        if (isset($printButtons2[$i]))
+            $astrFormElements[] = $printButtons2[$i];
+    }
+
+    $astrFormElements[] = [
+        'name' => 'invoice_rows',
+        'label' => $GLOBALS['locInvRows'],
+        'type' => 'IFORM',
+        'style' => 'xfull',
+        'position' => 0,
         'allow_null' => true,
-        'attached_elem' => $addCompanyCode,
-        'elem_attributes' => $companyOnChange
-    ],
-    [
-        'name' => 'reference',
-        'label' => $GLOBALS['locClientsReference'],
-        'type' => 'TEXT',
-        'style' => 'medium',
-        'position' => 2,
-        'allow_null' => true
-    ],
-    [
-        'name' => 'invoice_no',
-        'label' => $GLOBALS['locInvoiceNumber'],
-        'type' => 'INT',
-        'style' => 'medium hidezerovalue',
-        'position' => 1,
-        'default' => null,
-        'allow_null' => true
-    ],
-    [
-        'name' => 'ref_number',
-        'label' => $GLOBALS['locReferenceNumber'],
-        'type' => 'TEXT',
-        'style' => 'medium hidezerovalue',
-        'position' => 2,
-        'default' => null,
-        'attached_elem' => $updateInvoiceNr,
-        'allow_null' => true
-    ],
-    [
-        'name' => 'invoice_date',
-        'label' => $GLOBALS['locInvDate'],
-        'type' => 'INTDATE',
-        'style' => 'date',
-        'position' => 1,
-        'default' => 'DATE_NOW'
-    ],
-    [
-        'name' => 'due_date',
-        'label' => $GLOBALS['locDueDate'],
-        'type' => 'INTDATE',
-        'style' => 'date',
-        'position' => 2,
-        'default' => 'DATE_NOW+' . getSetting('invoice_payment_days'),
-        'attached_elem' => $updateDates
-    ],
-    [
-        'name' => 'interval_type',
-        'label' => $GLOBALS['locInvoiceIntervalType'],
-        'type' => 'SELECT',
-        'style' => 'medium',
-        'position' => 1,
-        'options' => $intervalOptions,
-        'default' => '0',
-        'allow_null' => true
-    ],
-    [
-        'name' => 'next_interval_date',
-        'label' => $GLOBALS['locInvoiceNextIntervalDate'],
-        'type' => 'INTDATE',
-        'style' => 'date',
-        'position' => 2,
-        'default' => '',
-        'allow_null' => true
-    ],
-    [
-        'name' => 'state_id',
-        'label' => $GLOBALS['locStatus'],
-        'type' => 'LIST',
-        'style' => 'medium translated',
-        'listquery' => 'SELECT id, name FROM {prefix}invoice_state WHERE deleted=0 ORDER BY order_no',
-        'position' => 1,
-        'default' => 1
-    ],
-    [
-        'name' => 'payment_date',
-        'label' => $GLOBALS['locPayDate'],
-        'type' => 'INTDATE',
-        'style' => 'date',
-        'position' => 2,
-        'allow_null' => true,
-        'attached_elem' => $markPaidTodayButton,
-        'elem_attributes' => 'onchange="' . $markPaidTodayEvent . '"'
-    ],
-    [
-        'name' => 'archived',
-        'label' => $GLOBALS['locArchived'],
-        'type' => 'CHECK',
-        'style' => 'medium',
-        'position' => 1,
-        'default' => 0,
-        'allow_null' => true
-    ],
-    [
-        'name' => 'delivery_time',
-        'label' => $GLOBALS['locDeliveryTime'],
-        'type' => 'TEXT',
-        'style' => 'medium hidezerovalue',
-        'position' => 2,
-        'default' => null,
-        'allow_null' => true
-    ],
-    [
-        'name' => 'delivery_terms_id',
-        'label' => $GLOBALS['locDeliveryTerms'],
-        'type' => 'LIST',
-        'style' => 'medium',
-        'listquery' => 'SELECT id, name FROM {prefix}delivery_terms WHERE deleted=0 ORDER BY order_no;',
-        'position' => 1,
-        'default' => null,
-        'allow_null' => true
-    ],
-    [
-        'name' => 'delivery_method_id',
-        'label' => $GLOBALS['locDeliveryMethod'],
-        'type' => 'LIST',
-        'style' => 'medium',
-        'listquery' => 'SELECT id, name FROM {prefix}delivery_method WHERE deleted=0 ORDER BY order_no;',
-        'position' => 2,
-        'default' => null,
-        'allow_null' => true
-    ],
-    [
-        'name' => 'info',
-        'label' => $GLOBALS['locVisibleInfo'],
-        'type' => 'AREA',
-        'style' => 'large',
-        'position' => 1,
-        'attached_elem' => '<span class="select-default-text" data-type="info" data-target="info"/>',
-        'allow_null' => true
-    ],
-    [
-        'name' => 'internal_info',
-        'label' => $GLOBALS['locInternalInfo'],
-        'type' => 'AREA',
-        'style' => 'large',
-        'position' => 2,
-        'allow_null' => true
-    ],
-    [
-        'name' => 'foreword',
-        'label' => $GLOBALS['locForeword'],
-        'type' => 'AREA',
-        'style' => 'large',
-        'position' => 1,
-        'attached_elem' => '<span class="select-default-text" data-type="foreword" data-target="foreword"/>',
-        'allow_null' => true
-    ],
-    [
-        'name' => 'afterword',
-        'label' => $GLOBALS['locAfterword'],
-        'type' => 'AREA',
-        'style' => 'large',
-        'position' => 2,
-        'attached_elem' => '<span class="select-default-text" data-type="afterword" data-target="afterword"/>',
-        'allow_null' => true
-    ],
-
-    !sesWriteAccess() ? [
-        'name' => 'refundinvoice',
-        'label' => '',
-        'type' => 'FILLER',
-        'position' => 1
-    ] : [
-        'name' => 'refundinvoice',
-        'label' => $GLOBALS['locRefundInvoice'],
-        'type' => 'BUTTON',
-        'style' => 'redirect',
-        'listquery' => "copy_invoice.php?func=$strFunc&list=$strList&id=_ID_&refund=1",
-        'position' => 1,
-        'default' => FALSE,
-        'allow_null' => true
-    ],
-    $arrRefundedInvoice,
-    isset($printButtons[0]) ? $printButtons[0] : [],
-    isset($printButtons2[0]) ? $printButtons2[0] : [],
-    !sesWriteAccess() ? [
-        'name' => 'addreminderfees',
-        'label' => '',
-        'type' => 'FILLER',
-        'position' => 1
-    ] : [
-        'name' => 'addreminderfees',
-        'label' => $GLOBALS['locAddReminderFees'],
-        'type' => 'JSBUTTON',
-        'style' => 'redirect',
-        'listquery' => $addReminderFees,
-        'position' => 1,
-        'default' => FALSE,
-        'allow_null' => true
-    ],
-    $arrRefundingInvoice,
-    isset($printButtons[1]) ? $printButtons[1] : [],
-    isset($printButtons2[1]) ? $printButtons2[1] : [],
-    !sesWriteAccess() ? [
-        'name' => 'addpartialpayment',
-        'label' => '',
-        'type' => 'FILLER',
-        'position' => 1
-    ] : [
-        'name' => 'addpartialpayment',
-        'label' => $GLOBALS['locAddPartialPayment'],
-        'type' => 'JSBUTTON',
-        'style' => 'redirect',
-        'listquery' => $addPartialPaymentCode,
-        'position' => 1,
-        'default' => FALSE,
-        'allow_null' => true
-    ],
-];
-
-for ($i = 2; $i < count($printButtons); $i ++) {
-    $astrFormElements[] = $printButtons[$i];
-    if (isset($printButtons2[$i]))
-        $astrFormElements[] = $printButtons2[$i];
-}
-
-$astrFormElements[] = [
-    'name' => 'invoice_rows',
-    'label' => $GLOBALS['locInvRows'],
-    'type' => 'IFORM',
-    'style' => 'xfull',
-    'position' => 0,
-    'allow_null' => true,
-    'parent_key' => 'invoice_id'
-];
+        'parent_key' => 'invoice_id'
+    ];
 break;
 
 case 'invoice_row' :
@@ -1916,9 +1949,11 @@ $astrFormElements = [
         'name' => 'type',
         'label' => $GLOBALS['locPrintTemplateType'],
         'type' => 'LIST',
-        'style' => 'medium',
-        'listquery' => "SELECT 'invoice' as id, '" .
-             $GLOBALS['locPrintTemplateTypeInvoice'] . "' as name",
+        'style' => 'medium noemptyvalue',
+        'listquery' => [
+            'invoice' => $GLOBALS['locPrintTemplateTypeInvoice'],
+            'offer' => $GLOBALS['locPrintTemplateTypeOffer']
+        ],
         'position' => 1
     ],
     [

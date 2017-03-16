@@ -193,10 +193,21 @@ function saveFormData($table, &$primaryKey, &$formElements, &$values, &$warnings
     mysqli_query_check('BEGIN');
     try {
         // Special case for invoice rows - update product stock balance
-        if ($table == '{prefix}invoice_row') {
-            updateProductStockBalance(isset($primaryKey) ? $primaryKey : null,
+        if (isset($values['invoice_id'])) {
+            $invoiceId = $values['invoice_id'];
+        } else {
+            $res = mysqli_param_query(
+                'SELECT invoice_id FROM {prefix}invoice_row WHERE id=?',
+                [$primaryKey]
+            );
+            $invoiceId = mysqli_fetch_value($res);
+        }
+        if ($table == '{prefix}invoice_row' && !isOffer($invoiceId)) {
+            updateProductStockBalance(
+                isset($primaryKey) ? $primaryKey : null,
                 isset($values['product_id']) ? $values['product_id'] : null,
-                $values['pcs']);
+                $values['pcs']
+            );
         }
 
         if (!isset($primaryKey) || !$primaryKey) {
@@ -211,21 +222,20 @@ function saveFormData($table, &$primaryKey, &$formElements, &$values, &$warnings
         } else {
             // Special case for invoice - update product stock balance for all
             // invoice rows if the invoice was previously deleted
-            if ($table == '{prefix}invoice') {
+            if ($table == '{prefix}invoice' && !isOffer($primaryKey)) {
                 $res = mysqli_param_query(
                     'SELECT deleted FROM {prefix}invoice WHERE id=?',
-                    [
-                        $primaryKey
-                    ]);
+                    [$primaryKey]
+                );
                 if (mysqli_fetch_value($res)) {
                     $res = mysqli_param_query(
                         'SELECT product_id, pcs FROM {prefix}invoice_row WHERE invoice_id=? AND deleted=0',
-                        [
-                            $primaryKey
-                        ]);
+                        [$primaryKey]
+                    );
                     while ($row = mysqli_fetch_assoc($res)) {
-                        updateProductStockBalance(null, $row['product_id'],
-                            $row['pcs']);
+                        updateProductStockBalance(
+                            null, $row['product_id'], $row['pcs']
+                        );
                     }
                 }
             }
@@ -243,8 +253,9 @@ function saveFormData($table, &$primaryKey, &$formElements, &$values, &$warnings
     mysqli_query_check('SET AUTOCOMMIT = 1');
 
     // Special case for invoices - check for duplicate invoice numbers
-    if ($table == '{prefix}invoice' && isset($values['invoice_no']) &&
-         $values['invoice_no']) {
+    if ($table == '{prefix}invoice' && isset($values['invoice_no'])
+        && !isOffer($primaryKey)
+    ) {
         $query = 'SELECT ID FROM {prefix}invoice where deleted=0 AND id!=? AND invoice_no=?';
         $params = [
             $primaryKey,
@@ -265,8 +276,8 @@ function saveFormData($table, &$primaryKey, &$formElements, &$values, &$warnings
 
     // Special case for invoices - check, according to settings, that the invoice has
     // an invoice number and a reference number
-    if ($table == '{prefix}invoice' && $onPrint &&
-        (getSetting('invoice_add_number')
+    if ($table == '{prefix}invoice' && $onPrint && !isOffer($primaryKey)
+        && (getSetting('invoice_add_number')
         || getSetting('invoice_add_reference_number'))
     ) {
         mysqli_query_check(

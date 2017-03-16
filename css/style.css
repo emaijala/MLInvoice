@@ -359,6 +359,9 @@ select.small {
 select.medium, div.medium {
   width: 160px;
 }
+select.long {
+  width: 240px;
+}
 
 textarea {
   padding: 0px 0px 0px 0px;

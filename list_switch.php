@@ -108,9 +108,10 @@ case 'companies' :
     $strTitle = $GLOBALS['locClients'];
     break;
 
-case 'invoice' :
-case 'archived_invoices' :
-case 'invoices' :
+case 'invoice':
+case 'archived_invoices':
+case 'invoices':
+case 'offer':
     $levelsAllowed[] = ROLE_READONLY;
 
     $strListFilter = ($strFunc == 'archived_invoices') ? 'i.archived = 1' : 'i.archived = 0';
@@ -152,7 +153,7 @@ EOT;
     }
     $astrSearchFields = [
         [
-            'name' => 'i.invoice_no',
+            'name' => $strList === 'offer' ? 'i.id' : 'i.invoice_no',
             'type' => 'TEXT'
         ],
         [
@@ -190,7 +191,7 @@ EOT;
             'header' => $GLOBALS['locHeaderInvoiceDueDate']
         ],
         [
-            'name' => 'i.invoice_no',
+            'name' => $strList === 'offer' ? 'i.id' : 'i.invoice_no',
             'width' => 80,
             'type' => 'TEXT',
             'header' => $GLOBALS['locHeaderInvoiceNr']
@@ -494,7 +495,8 @@ case 'print_template' :
             'type' => 'TEXT',
             'header' => $GLOBALS['locPrintTemplateType'],
             'mappings' => [
-                'invoice' => $GLOBALS['locPrintTemplateTypeInvoice']
+                'invoice' => $GLOBALS['locPrintTemplateTypeInvoice'],
+                'offer' => $GLOBALS['locPrintTemplateTypeOffer']
             ]
         ],
         [

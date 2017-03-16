@@ -1,6 +1,7 @@
 var MLInvoice = (function MLInvoice() {
     var _translations = {};
     var _dispatchNotePrintStyle = 'none';
+    var _offerStatuses = [];
 
     var addTranslation = function addTranslation(key, value) {
         _translations[key] = value;
@@ -22,16 +23,14 @@ var MLInvoice = (function MLInvoice() {
         _dispatchNotePrintStyle = style;
     }
 
+    var setOfferStatuses = function setOfferStatuses(statuses) {
+        _offerStatuses = statuses;
+    }
+
     var printInvoice = function printInvoice(template, func, printStyle, date) {
+        var offer = _offerStatuses.indexOf($('#state_id').val()) !== -1;
+
         var form = $('#admin_form');
-
-        var len = $('#ref_number').val().length;
-        if (len > 0 && len < 4) {
-            if (!confirm(translate('InvoiceRefNumberTooShort'))) {
-                return false;
-            }
-        }
-
         if (typeof form.data('checkInvoiceDate') !== 'undefined') {
             var d = new Date();
             var dt = $('#invoice_date').val().split('.');
@@ -42,11 +41,20 @@ var MLInvoice = (function MLInvoice() {
             }
         }
 
-        if (typeof form.data('checkInvoiceNumber') !== 'undefined') {
-            var invoiceNo = $('#invoice_no').val();
-            if (invoiceNo == '' || invoiceNo == 0) {
-                if (!confirm(translate('InvoiceNumberNotDefined'))) {
+        if (!offer) {
+            var len = $('#ref_number').val().length;
+            if (len > 0 && len < 4) {
+                if (!confirm(translate('InvoiceRefNumberTooShort'))) {
                     return false;
+                }
+            }
+
+            if (typeof form.data('checkInvoiceNumber') !== 'undefined') {
+                var invoiceNo = $('#invoice_no').val();
+                if (invoiceNo == '' || invoiceNo == 0) {
+                    if (!confirm(translate('InvoiceNumberNotDefined'))) {
+                        return false;
+                    }
                 }
             }
         }
@@ -74,7 +82,7 @@ var MLInvoice = (function MLInvoice() {
     }
 
     var updateDispatchByDateButtons = function updateDispatchDateButtons() {
-        if (_dispatchNotePrintStyle == 'none') {
+        if (_dispatchNotePrintStyle == 'none' || _offerStatuses.indexOf($('#state_id').val()) !== -1) {
             return;
         }
         var container = $('#dispatch_date_buttons');
@@ -267,6 +275,7 @@ var MLInvoice = (function MLInvoice() {
         addTranslation: addTranslation,
         addTranslations: addTranslations,
         setDispatchNotePrintStyle: setDispatchNotePrintStyle,
+        setOfferStatuses: setOfferStatuses,
         translate: translate,
         printInvoice: printInvoice,
         updateDispatchByDateButtons: updateDispatchByDateButtons

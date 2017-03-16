@@ -44,6 +44,7 @@ $intInvoiceId = getRequest('id', false);
 $boolRefund = getRequest('refund', false);
 $strFunc = getRequest('func', '');
 $strList = getRequest('list', '');
+$isOffer = !getRequest('invoice', false) && isOffer($intInvoiceId);
 
 if ($intInvoiceId) {
     if ($boolRefund) {
@@ -96,7 +97,11 @@ if ($intInvoiceId) {
         'Ymd', mktime(0, 0, 0, date('m'), date('d') + $paymentDays, date('Y'))
     );
     $invoiceData['payment_date'] = null;
-    $invoiceData['state_id'] = 1;
+    if ($isOffer) {
+        $invoiceData['state_id'] = getInitialOfferState();
+    } else {
+        $invoiceData['state_id'] = 1;
+    }
     $invoiceData['archived'] = false;
     $invoiceData['refunded_invoice_id'] = $boolRefund ? $intInvoiceId : null;
     if ($boolRefund) {
@@ -140,13 +145,7 @@ if ($intInvoiceId) {
             // Reset interval type of the original invoice
             $strQuery = 'UPDATE {prefix}invoice ' . 'SET interval_type = 0 ' .
                  'WHERE {prefix}invoice.id = ?';
-            mysqli_param_query(
-                $strQuery,
-                [
-                    $intInvoiceId
-                ],
-                'exception'
-            );
+            mysqli_param_query($strQuery, [$intInvoiceId], 'exception');
         }
 
         $strQuery = 'INSERT INTO {prefix}invoice(' .
@@ -161,13 +160,7 @@ if ($intInvoiceId) {
         $newRowDate = date('Ymd');
         $strQuery = 'SELECT * ' . 'FROM {prefix}invoice_row ' .
              'WHERE deleted=0 AND invoice_id=?';
-        $intRes = mysqli_param_query(
-            $strQuery,
-            [
-                $intInvoiceId
-            ],
-            'exception'
-        );
+        $intRes = mysqli_param_query($strQuery, [$intInvoiceId], 'exception');
         while ($row = mysqli_fetch_assoc($intRes)) {
             if ($boolRefund) {
                 $row['pcs'] = -$row['pcs'];
@@ -181,7 +174,7 @@ if ($intInvoiceId) {
                 $row['row_date'] = $newRowDate;
             }
             // Update product stock balance
-            if ($row['product_id'] !== null) {
+            if (!$isOffer && $row['product_id'] !== null) {
                 updateProductStockBalance(null, $row['product_id'], $row['pcs']);
             }
             $strQuery = 'INSERT INTO {prefix}invoice_row(' .

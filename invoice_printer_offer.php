@@ -75,9 +75,8 @@ class InvoicePrinterOffer extends InvoicePrinterBase
             $pdf->Cell(60, 4, $recipientData['company_id'], 0, 1);
         }
         $pdf->SetX(115);
-        $pdf->Cell(40, 4, $GLOBALS['locPDFOfferNumber'] . ': ', 0, 0,
-            'R');
-        $pdf->Cell(60, 4, $invoiceData['invoice_no'], 0, 1);
+        $pdf->Cell(40, 4, $GLOBALS['locPDFOfferNumber'] . ': ', 0, 0, 'R');
+        $pdf->Cell(60, 4, $invoiceData['id'], 0, 1);
 
         $pdf->SetX(115);
         $pdf->Cell(40, 4, $GLOBALS['locPDFOfferDate'] . ': ', 0, 0, 'R');

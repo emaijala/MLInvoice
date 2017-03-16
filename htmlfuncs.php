@@ -119,6 +119,14 @@ function htmlPageStart($strTitle = '', $arrExtraScripts = [])
         }
     }
 
+    $res = mysqli_query_check(
+        'SELECT id FROM {prefix}invoice_state WHERE invoice_offer=1'
+    );
+    while ($row = mysqli_fetch_assoc($res)) {
+        $offerStatuses[] = $row['id'];
+    }
+    $offerStatuses = json_encode($offerStatuses);
+
     $strHtmlStart = <<<EOT
 <!DOCTYPE html>
 <html>
@@ -131,6 +139,7 @@ $scriptLinks
   <script type="text/javascript">
 MLInvoice.addTranslations($jsTranslations);
 MLInvoice.setDispatchNotePrintStyle('$dispatchNotePrintStyle');
+MLInvoice.setOfferStatuses($offerStatuses);
 $(document).ready(function() {
   $.datepicker.setDefaults($datePickerOptions);
   $('a[class~="actionlink"]').button();
@@ -330,8 +339,15 @@ function htmlFormElement($strName, $strType, $strValue, $strStyle, $strListQuery
 
         if ($strMode == 'MODIFY') {
             if (is_array($strListQuery)) {
-                $strFormElement = htmlListBox($strName, $strListQuery, $strValue,
-                    $strStyle, false, true, $astrAdditionalAttributes, $translate);
+                $showEmpty = true;
+                if (strstr($strStyle, ' noemptyvalue')) {
+                    $showEmpty = false;
+                    $strStyle = str_replace(' noemptyvalue', '', $strStyle);
+                }
+                $strFormElement = htmlListBox(
+                    $strName, $strListQuery, $strValue, $strStyle, false, $showEmpty,
+                    $astrAdditionalAttributes, $translate
+                );
 
             } else {
                 $strFormElement = htmlSQLListBox($strName, $strListQuery, $strValue,

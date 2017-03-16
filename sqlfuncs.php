@@ -185,9 +185,8 @@ function getPaymentDays($companyId)
     if (!empty($companyId)) {
         $res = mysqli_param_query(
             'SELECT payment_days FROM {prefix}company WHERE id = ?',
-            [
-                $companyId
-            ]);
+            [$companyId]
+        );
         $companyPaymentDays = mysqli_fetch_value($res);
         if (!empty($companyPaymentDays)) {
             return $companyPaymentDays;
@@ -196,30 +195,60 @@ function getPaymentDays($companyId)
     return getSetting('invoice_payment_days');
 }
 
+function isOffer($invoiceId)
+{
+    $res = mysqli_param_query(
+        'SELECT id FROM {prefix}invoice_state WHERE invoice_offer=1 AND id IN ('
+        . 'SELECT state_id FROM {prefix}invoice WHERE id=?)',
+        [$invoiceId]
+    );
+    return mysqli_fetch_value($res) ? true : false;
+}
+
+function isRowOfOffer($invoiceRowId)
+{
+    $res = mysqli_param_query(
+        'SELECT id FROM {prefix}invoice_state WHERE invoice_offer=1 AND id IN ('
+        . 'SELECT state_id FROM {prefix}invoice i'
+        . ' INNER JOIN {prefix}invoice_row ir ON i.id = ir.invoice_id'
+        . ' WHERE ir.id=?)',
+        [$invoiceRowId]
+    );
+    return mysqli_fetch_value($res) ? true : false;
+}
+
+function getInitialOfferState()
+{
+    $res = mysqli_query_check(
+        'SELECT id FROM {prefix}invoice_state'
+        . ' WHERE invoice_open=1 AND invoice_offer=1 AND invoice_offer_sent=0'
+        . ' ORDER BY order_no'
+    );
+    return mysqli_fetch_value($res) ?: 1;
+}
+
 function deleteRecord($table, $id)
 {
     mysqli_query_check('BEGIN');
     try {
         // Special case for invoice_row - update product stock balance
-        if ($table == '{prefix}invoice_row') {
+        if ($table == '{prefix}invoice_row' && !isRowOfOffer($id)) {
             updateProductStockBalance($id, null, null);
         }
 
         // Special case for invoice - update all products in invoice rows
-        if ($table == '{prefix}invoice') {
+        if ($table == '{prefix}invoice' && !isOffer($id)) {
             $res = mysqli_param_query(
                 'SELECT id FROM {prefix}invoice_row WHERE invoice_id=? AND deleted=0',
-                [
-                    $id
-                ], 'exception');
+                [$id],
+                'exception'
+            );
             while ($row = mysqli_fetch_assoc($res)) {
                 updateProductStockBalance($row['id'], null, null);
             }
         }
         $query = "UPDATE $table SET deleted=1 WHERE id=?";
-        mysqli_param_query($query, [
-            $id
-        ], 'exception');
+        mysqli_param_query($query, [$id], 'exception');
     } catch (Exception $e) {
         mysqli_query_check('ROLLBACK');
         throw $e;
@@ -845,12 +874,12 @@ EOT
                 "INSERT INTO {prefix}invoice_state (name, order_no, invoice_open, invoice_unpaid, invoice_offer) VALUES ('StateOfferOpen', 40, 1, 0, 1)",
                 "INSERT INTO {prefix}invoice_state (name, order_no, invoice_open, invoice_unpaid, invoice_offer, invoice_offer_sent) VALUES ('StateOfferSent', 45, 1, 0, 1, 1)",
                 "INSERT INTO {prefix}invoice_state (name, order_no, invoice_open, invoice_unpaid, invoice_offer, invoice_offer_sent) VALUES ('StateOfferUnrealised', 50, 0, 0, 1, 1)",
-                "INSERT INTO {prefix}print_template (name, filename, parameters, output_filename, type, order_no, inactive) VALUES ('PrintOfferFinnish', 'invoice_printer_offer.php', 'offer', 'tarjous_%d.pdf', 'invoice', 200, 1)",
-                "INSERT INTO {prefix}print_template (name, filename, parameters, output_filename, type, order_no, inactive) VALUES ('PrintOfferSwedish', 'invoice_printer_offer.php', 'offer,sv-FI', 'anbud_%d.pdf', 'invoice', 210, 1)",
-                "INSERT INTO {prefix}print_template (name, filename, parameters, output_filename, type, order_no, inactive) VALUES ('PrintOfferEnglish', 'invoice_printer_offer.php', 'offer,en', 'offer_%d.pdf', 'invoice', 220, 1)",
-                "INSERT INTO {prefix}print_template (name, filename, parameters, output_filename, type, order_no, inactive) VALUES ('PrintOfferEmailFinnish', 'invoice_printer_offer_email.php', 'offer', 'tarjous_%d.pdf', 'invoice', 230, 1)",
-                "INSERT INTO {prefix}print_template (name, filename, parameters, output_filename, type, order_no, inactive) VALUES ('PrintOfferEmailSwedish', 'invoice_printer_offer_email.php', 'offer,sv-FI', 'anbud_%d.pdf', 'invoice', 240, 1)",
-                "INSERT INTO {prefix}print_template (name, filename, parameters, output_filename, type, order_no, inactive) VALUES ('PrintOfferEmailEnglish', 'invoice_printer_offer_email.php', 'offer,en', 'offer_%d.pdf', 'invoice', 250, 1)",
+                "INSERT INTO {prefix}print_template (name, filename, parameters, output_filename, type, order_no, inactive) VALUES ('PrintOfferFinnish', 'invoice_printer_offer.php', 'offer', 'tarjous_%d.pdf', 'offer', 200, 1)",
+                "INSERT INTO {prefix}print_template (name, filename, parameters, output_filename, type, order_no, inactive) VALUES ('PrintOfferSwedish', 'invoice_printer_offer.php', 'offer,sv-FI', 'anbud_%d.pdf', 'offer', 210, 1)",
+                "INSERT INTO {prefix}print_template (name, filename, parameters, output_filename, type, order_no, inactive) VALUES ('PrintOfferEnglish', 'invoice_printer_offer.php', 'offer,en', 'offer_%d.pdf', 'offer', 220, 1)",
+                "INSERT INTO {prefix}print_template (name, filename, parameters, output_filename, type, order_no, inactive) VALUES ('PrintOfferEmailFinnish', 'invoice_printer_offer_email.php', 'offer', 'tarjous_%d.pdf', 'offer', 230, 1)",
+                "INSERT INTO {prefix}print_template (name, filename, parameters, output_filename, type, order_no, inactive) VALUES ('PrintOfferEmailSwedish', 'invoice_printer_offer_email.php', 'offer,sv-FI', 'anbud_%d.pdf', 'offer', 240, 1)",
+                "INSERT INTO {prefix}print_template (name, filename, parameters, output_filename, type, order_no, inactive) VALUES ('PrintOfferEmailEnglish', 'invoice_printer_offer_email.php', 'offer,en', 'offer_%d.pdf', 'offer', 250, 1)",
                 'ALTER TABLE {prefix}base ADD COLUMN offer_email_subject varchar(255) NULL',
                 'ALTER TABLE {prefix}base ADD COLUMN offer_email_body text NULL',
                 "REPLACE INTO {prefix}state (id, data) VALUES ('version', '42')"
@@ -913,6 +942,14 @@ EOT
         );
     }
 
+    if ($version < 47) {
+        $updates = array_merge($updates,
+            [
+                "UPDATE {prefix}print_template SET type='offer' WHERE filename LIKE 'invoice_printer_offer%'",
+                "REPLACE INTO {prefix}state (id, data) VALUES ('version', '47')"
+            ]
+        );
+    }
 
     if (!empty($updates)) {
         mysqli_query_check('SET AUTOCOMMIT = 0');

@@ -1,7 +1,7 @@
 <?php
 /*******************************************************************************
  MLInvoice: web-based invoicing application.
- Copyright (C) 2010-2016 Ere Maijala
+ Copyright (C) 2010-2017 Ere Maijala
 
  Portions based on:
  PkLasku : web-based invoicing software.
@@ -13,7 +13,7 @@
 
 /*******************************************************************************
  MLInvoice: web-pohjainen laskutusohjelma.
- Copyright (C) 2010-2016 Ere Maijala
+ Copyright (C) 2010-2017 Ere Maijala
 
  Perustuu osittain sovellukseen:
  PkLasku : web-pohjainen laskutusohjelmisto.
@@ -230,7 +230,7 @@ function createFuncMenu($strFunc)
         $blnShowSearch = TRUE;
         $strFormName = 'invoice';
         $astrNaviLinks = [];
-        if ($strFunc == 'open_invoices')
+        if ($strFunc == 'open_invoices') {
             $astrNaviLinks[] = [
                 'href' => 'index.php?func=invoices',
                 'text' => $GLOBALS['locDisplayAllInvoices'],
@@ -239,7 +239,7 @@ function createFuncMenu($strFunc)
                     ROLE_BACKUPMGR
                 ]
             ];
-        else
+        } else {
             $astrNaviLinks[] = [
                 'href' => 'index.php?func=open_invoices',
                 'text' => $GLOBALS['locDisplayOpenInvoices'],
@@ -248,9 +248,12 @@ function createFuncMenu($strFunc)
                     ROLE_BACKUPMGR
                 ]
             ];
+        }
         if ($strFunc != 'archived_invoices') {
             $strNewButton = '<a class="buttonlink" href="?func=invoices&amp;form=invoice">' .
                  $GLOBALS['locNewInvoice'] . '</a>';
+            $strNewButton .= ' <a class="buttonlink" href="?func=invoices&amp;form=invoice&amp;offer=1">' .
+                 $GLOBALS['locNewOffer'] . '</a>';
             $astrNaviLinks[] = [
                 'href' => 'index.php?func=import_statement',
                 'text' => $GLOBALS['locImportAccountStatement'],

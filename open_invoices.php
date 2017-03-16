@@ -89,7 +89,7 @@ function createOpenInvoiceList()
     }
 
     if ($offers) {
-        createList('open_invoices', 'invoice', 'resultlist_offers',
+        createList('open_invoices', 'offer', 'resultlist_offers',
             $GLOBALS['locLabelOffers'],
             "i.state_id IN ($offers) AND i.archived=0", true
         );
