@@ -323,16 +323,17 @@ abstract class InvoicePrinterBase
         if (!isset($senderData['logo_filedata'])
             || getSetting('invoice_print_senders_logo_and_address')
         ) {
+            $width = getSetting('invoice_address_max_width');
             $address = $senderData['street_address'] . "\n" . $senderData['zip_code'] .
                  ' ' . $senderData['city'] . "\n" . $senderData['country'];
             $pdf->SetTextColor(125);
             $pdf->SetFont('Helvetica', 'B', 10);
             $pdf->SetY($this->senderAddressY);
             $pdf->setX($this->senderAddressX);
-            $pdf->Cell(120, 5, $senderData['name'], 0, 1);
+            $pdf->MultiCell($width, 5, $senderData['name'], 0, 'L');
             $pdf->SetFont('Helvetica', '', 10);
             $pdf->setX($this->senderAddressX);
-            $pdf->MultiCell(120, 5, $address, 0, 1);
+            $pdf->MultiCell($width, 5, $address, 0, 'L');
         }
     }
 
@@ -341,24 +342,25 @@ abstract class InvoicePrinterBase
         $pdf = $this->pdf;
         $recipientData = $this->recipientData;
 
+        $width = getSetting('invoice_address_max_width');
         $pdf->SetTextColor(0);
         $pdf->SetFont('Helvetica', '', 12);
         $pdf->SetY($this->recipientAddressY);
         $pdf->setX($this->recipientAddressX);
-        $pdf->Cell(120, 5, $this->recipientName, 0, 1);
+        $pdf->MultiCell($width, 5, $this->recipientName, 0, 'L');
         $contact = $this->getContactPerson();
         if (!empty($contact['contact_person'])
             && getSetting('invoice_show_recipient_contact_person')
         ) {
             $pdf->setX($this->recipientAddressX);
-            $pdf->Cell(120, 5, $contact['contact_person'], 0, 1);
+            $pdf->MultiCell($width, 5, $contact['contact_person'], 0, 'L');
         }
         $pdf->setX($this->recipientAddressX);
-        $pdf->MultiCell(120, 5, $this->recipientAddress, 0, 1);
+        $pdf->MultiCell($width, 5, $this->recipientAddress, 0, 'L');
         if ($recipientData['email'] && getSetting('invoice_show_recipient_email')) {
             $pdf->SetY($pdf->GetY() + 4);
             $pdf->setX($this->recipientAddressX);
-            $pdf->Cell(120, 5, $recipientData['email'], 0, 1);
+            $pdf->MultiCell($width, 5, $recipientData['email'], 0, 'L');
         }
 
         $this->recipientMaxY = $pdf->GetY();

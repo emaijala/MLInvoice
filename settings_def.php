@@ -368,6 +368,14 @@ $arrSettings = [
         'default' => 0,
         'allow_null' => true
     ],
+    'invoice_address_max_width' => [
+        'label' => $GLOBALS['locSettingInvoiceAddressMaxWidth'],
+        'type' => 'INT',
+        'style' => 'currency',
+        'position' => 1,
+        'default' => 85,
+        'allow_null' => true
+    ],
 
     'order_confirmation_sep' => [
         'label' => $GLOBALS['locSettingOrderConfirmations'],
