@@ -1,5 +1,5 @@
 Name:		mlinvoice
-Version:	1.14.0
+Version:	1.14.1
 Release:	1%{?dist}
 Summary:	MLInvoice - Web application to create Finnish invoices
 Group:		Applications/Internet
@@ -50,7 +50,7 @@ EOM
 %{__install} -d -m755 $RPM_BUILD_ROOT%{_datadir}/%{name}
 
 %{__install} -m644 *.php *.ico *.xsl *.xsd config.php.sample $RPM_BUILD_ROOT%{_datadir}/%{name}
-%{__cp} -a css datatables images jquery js lang select2 tcpdf $RPM_BUILD_ROOT%{_datadir}/%{name}
+%{__cp} -a css datatables images jquery js lang select2 vendor $RPM_BUILD_ROOT%{_datadir}/%{name}
 
 %{__mv} $RPM_BUILD_ROOT%{_datadir}/%{name}/config.php.sample \
 	$RPM_BUILD_ROOT%{_sysconfdir}/%{name}/config.php
@@ -67,6 +67,10 @@ EOM
 %{_datadir}/%{name}
 
 %changelog
+* Sat Mar 18 2017 Ere Maijala <ere@labs.fi> - 1.14.1-1
+- updated for version 1.14.1
+- removed copying of tcpdf directory
+- added copying of vendor directory
 * Sun Mar 5 2017 Ere Maijala <ere@labs.fi> - 1.14.0-1
 - updated for version 1.14.0
 * Sun Apr 3 2016 Ere Maijala <ere@labs.fi> - 1.13.0-1
