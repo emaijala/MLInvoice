@@ -75,6 +75,20 @@ abstract class InvoicePrinterBase
         $recipientData, $invoiceData, $invoiceRowData, $recipientContactData,
         $dateOverride
     ) {
+        if (empty($recipientData)) {
+            $recipientData = [
+                'company_name' => '',
+                'company_id' => '',
+                'vat_id' => '',
+                'customer_no' => '',
+                'street_address' => '',
+                'zip_code' => '',
+                'city' => '',
+                'billing_address' => '',
+                'email' => ''
+            ];
+        }
+
         $this->dateOverride = $dateOverride;
         $this->invoiceId = $invoiceId;
         $parameters = explode(',', $printParameters);
