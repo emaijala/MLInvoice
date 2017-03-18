@@ -42,15 +42,17 @@ if (!is_string($dateOverride) || !ctype_digit($dateOverride)
     $dateOverride = false;
 }
 
-if (!$intInvoiceId)
-    return;
+if (!$intInvoiceId) {
+    die('Id missing');
+}
 
 $res = mysqli_param_query(
     'SELECT filename, parameters, output_filename from {prefix}print_template WHERE id=?',
     [$printTemplate]
 );
-if (!$row = mysqli_fetch_row($res))
-    return;
+if (!$row = mysqli_fetch_row($res)) {
+    die('Could not find print template');
+}
 $printTemplateFile = $row[0];
 $printParameters = $row[1];
 $printOutputFileName = $row[2];
@@ -64,16 +66,23 @@ $strQuery = 'SELECT inv.*, ref.invoice_no as refunded_invoice_no, delivery_terms
      'WHERE inv.id=?';
 $intRes = mysqli_param_query($strQuery, [$intInvoiceId]);
 $invoiceData = mysqli_fetch_assoc($intRes);
-if (!$invoiceData)
+if (!$invoiceData) {
     die('Could not find invoice data');
+}
+
+if (isOffer($intInvoiceId)) {
+    $invoiceData['invoice_no'] = $intInvoiceId;
+}
 
 $strQuery = 'SELECT * FROM {prefix}company WHERE id=?';
 $intRes = mysqli_param_query($strQuery, [$invoiceData['company_id']]);
 $recipientData = mysqli_fetch_assoc($intRes);
-if (!empty($recipientData['company_id'])) {
-    $recipientData['vat_id'] = createVATID($recipientData['company_id']);
-} else {
-    $recipientData['vat_id'] = '';
+if (!empty($recipientData)) {
+    if (!empty($recipientData['company_id'])) {
+        $recipientData['vat_id'] = createVATID($recipientData['company_id']);
+    } else {
+        $recipientData['vat_id'] = '';
+    }
 }
 
 $recipientContactData = [];
