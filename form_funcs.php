@@ -297,7 +297,8 @@ function saveFormData($table, &$primaryKey, &$formElements, &$values, &$warnings
         ) {
             $defaults = getInvoiceDefaults(
                 $primaryKey, $data['base_id'], $data['company_id'],
-                $data['invoice_date'], $data['interval_type'], $data['invoice_no']
+                dateConvDBDate2Date($data['invoice_date']), $data['interval_type'],
+                $data['invoice_no']
             );
             $sql = "UPDATE {prefix}invoice SET";
             $updateStrings = [];
