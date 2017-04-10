@@ -51,21 +51,31 @@ trait InvoicePrinterEmailTrait
             $defaultRecipient = implode(', ', $recipients);
         }
 
-        $this->emailFrom = getRequest('email_from',
-            isset($senderData['invoice_email_from']) ? $senderData['invoice_email_from'] : (isset(
-                $senderData['email']) ? $senderData['email'] : ''));
+        $this->emailFrom = getRequest('email_from', '');
+        if (!$this->emailFrom) {
+            if (!empty($senderData['invoice_email_from'])) {
+                $this->emailFrom = $senderData['invoice_email_from'];
+            } elseif (!empty($senderData['email'])) {
+                $this->emailFrom = $senderData['email'];
+            }
+        }
         $this->emailTo = getRequest('email_to', $defaultRecipient);
         $this->emailCC = getRequest('email_cc', '');
-        $this->emailBCC = getRequest('email_bcc',
-            isset($senderData['invoice_email_bcc']) ? $senderData['invoice_email_bcc'] : '');
+        $this->emailBCC = getRequest(
+            'email_bcc',
+            isset($senderData['invoice_email_bcc'])
+            ? $senderData['invoice_email_bcc'] : ''
+        );
         $this->emailSubject = $this->replacePlaceholders(
-            getRequest('email_subject', $this->getDefaultSubject()));
+            getRequest('email_subject', $this->getDefaultSubject())
+        );
         $this->emailBody = $this->replacePlaceholders(
-            getRequest('email_body', $this->getDefaultBody()));
+            getRequest('email_body', $this->getDefaultBody())
+        );
 
         $send = getRequest('email_send', '');
-        if (!$send || !$this->emailFrom || !$this->emailTo || !$this->emailSubject ||
-             !$this->emailBody
+        if (!$send || !$this->emailFrom || !$this->emailTo || !$this->emailSubject
+            || !$this->emailBody
         ) {
             $this->showEmailForm(
                 $send ? $GLOBALS['locEmailFillRequiredFields'] : ''
