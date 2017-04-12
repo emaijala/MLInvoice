@@ -180,24 +180,21 @@ trait InvoicePrinterEmailTrait
 
         mb_internal_encoding('UTF-8');
 
-        $filename = $this->outputFileName ? $this->outputFileName : getSetting(
-            'invoice_pdf_filename');
+        $filename = $this->outputFileName ? $this->outputFileName
+            : getSetting('invoice_pdf_filename');
         $filename = $this->getPrintOutFileName($filename);
         $data = $pdf->Output($filename, 'S');
 
         $message = Swift_Message::newInstance(
             $this->emailSubject,
-            'This is a multipart message in mime format.' . PHP_EOL
+            $this->getFlowedBody(),
+            'text/plain; format="flowed"'
         );
 
-        $message->setSubject($this->emailSubject);
         $message->setFrom($this->extractNameAndAddress($this->emailFrom));
         $message->setTo($this->extractAddresses($this->emailTo));
         $message->setCc($this->extractAddresses($this->emailCC));
         $message->setBcc($this->extractAddresses($this->emailBCC));
-        $message->addPart(
-            $this->getFlowedBody(), 'text/plain; charset=UTF-8; format="flowed"'
-        );
 
         $attachment = Swift_Attachment::newInstance(
             $data, $filename, 'application/pdf'
