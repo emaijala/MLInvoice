@@ -29,6 +29,21 @@ class InvoicePrinterXslt extends InvoicePrinterBase
 
     protected function transform($xslt, $xsd = '')
     {
+        if (!class_exists('XSLTProcessor')) {
+            die(
+                <<<EOT
+<p>This printout requires the PHP XSL extension, more specifically the XSLTProcessor
+class, which seems to be missing. Please install the XSL extension or request
+your server administrator to do it.</p>
+<p>Many Linux distributions offer the XSL extension in a separate package that can be
+installed with a package manager. E.g. in Ubuntu the package might be php5-xsl,
+php7.0-xsl or php7.1-xsl depending on the PHP version.</p>
+<p>More information about the XSL extension is available in the
+<a href="http://php.net/manual/en/book.xsl.php" target="_blank">PHP Manual</a>.
+EOT
+            );
+        }
+
         $xml = new SimpleXMLElement('<?xml version="1.0"?><invoicedata/>');
         $sender = $xml->addChild('sender');
         $this->arrayToXML($this->senderData, $sender);
