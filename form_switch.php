@@ -878,7 +878,8 @@ EOF;
         ],
         [
             'name' => 'due_date',
-            'label' => $GLOBALS['locDueDate'],
+            'label' => $isOffer ? $GLOBALS['locValidUntilDate']
+                : $GLOBALS['locDueDate'],
             'type' => 'INTDATE',
             'style' => 'date',
             'position' => 2,
