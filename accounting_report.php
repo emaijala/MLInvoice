@@ -29,6 +29,7 @@ class AccountingReport extends InvoiceReport
     public function __construct()
     {
         $this->reportName = 'locAccountingReport';
+        $this->description = $GLOBALS['locAccountingReportDescription'];
     }
 
     protected function addLimitSelection()

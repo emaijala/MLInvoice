@@ -73,6 +73,8 @@ class InvoiceReport extends AbstractReport
 
     protected $reportName = 'locInvoiceReport';
 
+    protected $description = '';
+
     public function createReport()
     {
         $strReport = getRequest('report', '');
@@ -113,7 +115,11 @@ class InvoiceReport extends AbstractReport
         <div class="unlimited_label">
             <strong><?php echo $GLOBALS[$this->reportName]?></strong>
         </div>
-
+<?php if (!empty($this->description)) { ?>
+        <div class="unlimited_label">
+            <p><?php echo $this->description ?></p>
+        </div>
+<?php } ?>
         <div style="float: left; clear: both; margin-right: 20px;">
 <?php
         $this->addLimitSelection();
