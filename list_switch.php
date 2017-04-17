@@ -362,6 +362,13 @@ case 'product' :
             'select' => true
         ],
         [
+            'name' => 'description',
+            'width' => 200,
+            'type' => 'TEXT',
+            'header' => $GLOBALS['locProductDescription'],
+            'select' => true
+        ],
+        [
             'name' => 'product_group',
             'width' => 150,
             'type' => 'TEXT',

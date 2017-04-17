@@ -509,8 +509,9 @@ function createJSONSelectList($strList, $startRow, $rowCount, $filter, $sort,
             }
             $name = $field['name'];
 
-            if (isset($field['translate']) && $field['translate'] &&
-                 isset($GLOBALS["loc{$row[$name]}"])) {
+            if (isset($field['translate']) && $field['translate']
+                && isset($GLOBALS["loc{$row[$name]}"])
+            ) {
                 $value = $GLOBALS["loc{$row[$name]}"];
             } else {
                 $value = htmlspecialchars($row[$name]);
@@ -520,6 +521,7 @@ function createJSONSelectList($strList, $startRow, $rowCount, $filter, $sort,
 
         $records[] = array(
             'id' => $astrPrimaryKeys[$i],
+            'description' => 'product' === $strList ? array_pop($resultValues) : '',
             'text' => implode(' ', $resultValues)
         );
     }

@@ -407,6 +407,14 @@ $(document).ready(function() {
         }).done(function(data) { callback(data.records[0]); });
       }
     },
+    formatResult: function (object, container, query) {
+      var text = object.text;
+      console.log(text);
+      if (object.description) {
+        text += '<div class="select-description">' + object.description + '</div>';
+      }
+      return text;
+    },
     dropdownCssClass: "bigdrop",
     dropdownAutoWidth: true,
     escapeMarkup: function (m) { return m; },

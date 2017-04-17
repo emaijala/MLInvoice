@@ -505,3 +505,14 @@ img.image {
   vertical-align: top;
   width: 20px;
 }
+
+.select-description {
+  font-style: italic;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  overflow: hidden;
+}
+
+.bigdrop {
+  max-width: 80em;
+}
