@@ -409,7 +409,6 @@ $(document).ready(function() {
     },
     formatResult: function (object, container, query) {
       var text = object.text;
-      console.log(text);
       if (object.description) {
         text += '<div class="select-description">' + object.description + '</div>';
       }
