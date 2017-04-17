@@ -2,12 +2,14 @@ var MLInvoice = (function MLInvoice() {
     var _translations = {};
     var _dispatchNotePrintStyle = 'none';
     var _offerStatuses = [];
+    var _selectedProduct = null;
+    var _defaultDescription = null;
 
-    var addTranslation = function addTranslation(key, value) {
+    function addTranslation(key, value) {
         _translations[key] = value;
     };
 
-    var addTranslations = function addTranslations(translations) {
+    function addTranslations(translations) {
         for (var item in translations) {
             if (typeof translations[item] === 'string') {
                 addTranslation(item, translations[item]);
@@ -19,15 +21,15 @@ var MLInvoice = (function MLInvoice() {
         return _translations[key] || key;
     };
 
-    var setDispatchNotePrintStyle = function setDispatchNotePrintStyle(style) {
+    function setDispatchNotePrintStyle(style) {
         _dispatchNotePrintStyle = style;
     }
 
-    var setOfferStatuses = function setOfferStatuses(statuses) {
+    function setOfferStatuses(statuses) {
         _offerStatuses = statuses;
     }
 
-    var printInvoice = function printInvoice(template, func, printStyle, date) {
+    function printInvoice(template, func, printStyle, date) {
         var offer = _offerStatuses.indexOf($('#state_id').val()) !== -1;
 
         var form = $('#admin_form');
@@ -76,12 +78,79 @@ var MLInvoice = (function MLInvoice() {
         return false;
     };
 
-    function _parseDate(dateString)
-    {
-        return dateString.substr(6, 4) + dateString.substr(3, 2) + dateString.substr(0, 2);
-    }
+    function _onChangeCompany() {
+        $.getJSON('json.php?func=get_company', {id: $('#company_id').val() }, function(json) {
+        if (json) {
+            if (json.default_ref_number) {
+                $('#ref_number').val(json.default_ref_number);
+            }
+            if (json.delivery_terms_id) {
+                $('#delivery_terms_id').val(json.delivery_terms_id);
+            }
+            if (json.delivery_method_id) {
+                $('#delivery_method_id').val(json.delivery_method_id);
+            }
+            if (json.payment_days) {
+                $.getJSON('json.php?func=get_invoice_defaults', {id: $('#record_id').val(), invoice_no: $('#invoice_no').val(), invoice_date: $('#invoice_date').val(), base_id: $('#base_id').val(), company_id: $('#company_id').val(), interval_type: $('#interval_type').val()}, function(json) {
+                    $('#due_date').val(json.due_date);
+                });
+            }
+        }
+        });
+    };
 
-    var updateDispatchByDateButtons = function updateDispatchDateButtons() {
+    function _onChangeProduct() {
+        var form_id = this.form.id;
+        $.getJSON('json.php?func=get_product&id=' + this.value, function(json) {
+            _selectedProduct = json;
+            if (!json || !json.id) return;
+
+            if (json.description != '' || document.getElementById(form_id + '_description').value == (null !== _defaultDescription ? _defaultDescription : '')) {
+                document.getElementById(form_id + '_description').value = json.description;
+            }
+            _defaultDescription = json.description;
+
+            var type_id = document.getElementById(form_id + '_type_id');
+            for (var i = 0; i < type_id.options.length; i++) {
+                var item = type_id.options[i];
+                if (item.value == json.type_id) {
+                    item.selected = true;
+                    break;
+                }
+            }
+            document.getElementById(form_id + '_price').value = json.unit_price ? json.unit_price.replace('.', ',') : '';
+            document.getElementById(form_id + '_discount').value = json.discount ? json.discount.replace('.', ',') : '';
+            document.getElementById(form_id + '_vat').value = json.vat_percent ? json.vat_percent.replace('.', ',') : '';
+            document.getElementById(form_id + '_vat_included').checked = (json.vat_included && json.vat_included == 1) ? true : false;
+        });
+    };
+
+    function getSelectedProductDefaults(form_id) {
+        if (null === _selectedProduct) {
+            return;
+        }
+        document.getElementById(form_id + '_description').value = _selectedProduct.description;
+        _defaultDescription = _selectedProduct.description;
+
+        var type_id = document.getElementById(form_id + '_type_id');
+        for (var i = 0; i < type_id.options.length; i++) {
+            var item = type_id.options[i];
+            if (item.value == _selectedProduct.type_id) {
+                item.selected = true;
+                break;
+            }
+        }
+        document.getElementById(form_id + '_price').value = _selectedProduct.unit_price.replace('.', ',');
+        document.getElementById(form_id + '_discount').value = _selectedProduct.discount.replace('.', ',');
+        document.getElementById(form_id + '_vat').value = _selectedProduct.vat_percent.replace('.', ',');
+        document.getElementById(form_id + '_vat_included').checked = _selectedProduct.vat_included == 1 ? true : false;
+    };
+
+    function _parseDate(dateString) {
+        return dateString.substr(6, 4) + dateString.substr(3, 2) + dateString.substr(0, 2);
+    };
+
+    function updateDispatchByDateButtons() {
         if (_dispatchNotePrintStyle == 'none' || _offerStatuses.indexOf($('#state_id').val()) !== -1) {
             return;
         }
@@ -110,7 +179,7 @@ var MLInvoice = (function MLInvoice() {
         }
     }
 
-    var _setupYtjSearch = function setupYtjSearch() {
+    function _setupYtjSearch() {
         var button = $('a.ytj_search_button');
         if (button.length == 0) {
             return;
@@ -164,7 +233,7 @@ var MLInvoice = (function MLInvoice() {
         });
     };
 
-    var _fillCompanyForm = function _fillCompanyForm(data) {
+    function _fillCompanyForm(data) {
         $('#company_id').val(data.businessId).change();
         $('#company_name').val(data.name);
         $.each(data.addresses, function(idx, address) {
@@ -217,7 +286,7 @@ var MLInvoice = (function MLInvoice() {
         });
     };
 
-    var _setupDefaultTextSelection = function _setupDefaultTextSelection() {
+    function _setupDefaultTextSelection() {
         $('.select-default-text').each(function () {
             var target = $(this).data('target');
             var select = $('<input type="hidden" class="select-default-text"/>').appendTo($(this));
@@ -265,9 +334,67 @@ var MLInvoice = (function MLInvoice() {
         });
     };
 
-    var init = function init() {
+    function _setupSelect2() {
+        var callbacks = {
+            _onChangeCompany: _onChangeCompany,
+            _onChangeProduct: _onChangeProduct
+        };
+        $('.select2').each(function () {
+            var field = $(this);
+            var query = field.data('query');
+            var showEmpty = field.data('showEmpty');
+            var onChange = field.data('onChange');
+            var select2 = field.select2({
+                placeholder: '',
+                ajax: {
+                    url: 'json.php?func=get_selectlist&' + query,
+                    dataType: 'json',
+                    quietMillis: 200,
+                    data: function (term, page) {
+                        return {
+                            q: term,
+                            pagelen: 50,
+                            page: page
+                        };
+                    },
+                    results: function (data, page) {
+                        var records = data.records;
+                        if (showEmpty && page == 1 && data.filter == '') {
+                            records.unshift({id: '', text: '-'});
+                        }
+                        return {results: records, more: data.moreAvailable};
+                    }
+                },
+                initSelection: function(element, callback) {
+                    var id = $(element).val();
+                    if (id !== '') {
+                        $.ajax('json.php?func=get_selectlist&' + query + '&id=' + id, {
+                            dataType: "json"
+                        }).done(function(data) { callback(data.records[0]); });
+                    }
+                },
+                formatResult: function (object) {
+                    var text = object.text;
+                    if (object.description) {
+                        text += '<div class="select-description">' + object.description + '</div>';
+                    }
+                    return text;
+                },
+                dropdownCssClass: 'bigdrop',
+                dropdownAutoWidth: true,
+                escapeMarkup: function (m) { return m; },
+                width: 'element'
+            });
+            if (onChange &&  'function' === typeof callbacks[onChange]) {
+                select2.change(callbacks[onChange]);
+            }
+        });
+    };
+
+    function init() {
         _setupYtjSearch();
         _setupDefaultTextSelection();
+        _setupSelect2();
     };
 
     return {
@@ -278,7 +405,8 @@ var MLInvoice = (function MLInvoice() {
         setOfferStatuses: setOfferStatuses,
         translate: translate,
         printInvoice: printInvoice,
-        updateDispatchByDateButtons: updateDispatchByDateButtons
+        updateDispatchByDateButtons: updateDispatchByDateButtons,
+        getSelectedProductDefaults: getSelectedProductDefaults
     }
 })();
 

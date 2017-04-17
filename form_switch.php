@@ -1,7 +1,7 @@
 <?php
 /*******************************************************************************
  MLInvoice: web-based invoicing application.
- Copyright (C) 2010-2016 Ere Maijala
+ Copyright (C) 2010-2017 Ere Maijala
 
  Portions based on:
  PkLasku : web-based invoicing software.
@@ -13,7 +13,7 @@
 
 /*******************************************************************************
  MLInvoice: web-pohjainen laskutusohjelma.
- Copyright (C) 2010-2016 Ere Maijala
+ Copyright (C) 2010-2017 Ere Maijala
 
  Perustuu osittain sovellukseen:
  PkLasku : web-pohjainen laskutusohjelmisto.
@@ -644,28 +644,7 @@ EOS;
 EOS;
 
         if (!$isOffer) {
-            $companyOnChange = <<<EOS
-  function() {
-    $.getJSON('json.php?func=get_company', {id: $('#company_id').val() }, function(json) {
-      if (json) {
-        if (json.default_ref_number) {
-          $('#ref_number').val(json.default_ref_number);
-        }
-        if (json.delivery_terms_id) {
-          $('#delivery_terms_id').val(json.delivery_terms_id);
-        }
-        if (json.delivery_method_id) {
-          $('#delivery_method_id').val(json.delivery_method_id);
-        }
-        if (json.payment_days) {
-          $.getJSON('json.php?func=get_invoice_defaults', {id: $('#record_id').val(), invoice_no: $('#invoice_no').val(), invoice_date: $('#invoice_date').val(), base_id: $('#base_id').val(), company_id: $('#company_id').val(), interval_type: $('#interval_type').val()}, function(json) {
-            $('#due_date').val(json.due_date);
-          });
-        }
-      }
-    });
-  }
-EOS;
+            $companyOnChange = '_onChangeCompany';
 
             $getInvoiceNr = <<<EOS
 $.getJSON('json.php?func=get_invoice_defaults', {id: $('#record_id').val(), invoice_no: $('#invoice_no').val(), invoice_date: $('#invoice_date').val(), base_id: $('#base_id').val(), company_id: $('#company_id').val(), interval_type: $('#interval_type').val()}, function(json) { $('#invoice_no').val(json.invoice_no); $('#ref_number').val(json.ref_no); $('.save_button').addClass('ui-state-highlight'); }); return false;
@@ -1097,59 +1076,8 @@ case 1 :
     $clearRowValuesAfterAdd = true;
     break;
 case 2 :
-    $onAfterRowAdded = <<<EOS
-  if (globals.selectedProduct)
-  {
-    var prod = globals.selectedProduct;
-    document.getElementById(form_id + '_description').value = prod.description;
-    globals.defaultDescription = prod.description;
-
-    var type_id = document.getElementById(form_id + '_type_id');
-    for (var i = 0; i < type_id.options.length; i++)
-    {
-      var item = type_id.options[i];
-      if (item.value == prod.type_id)
-      {
-        item.selected = true;
-        break;
-      }
-    }
-    document.getElementById(form_id + '_price').value = prod.unit_price.replace('.', ',');
-    document.getElementById(form_id + '_discount').value = prod.discount.replace('.', ',');
-    document.getElementById(form_id + '_vat').value = prod.vat_percent.replace('.', ',');
-    document.getElementById(form_id + '_vat_included').checked = prod.vat_included == 1 ? true : false;
-  }
-EOS;
+    $onAfterRowAdded = 'MLInvoice.getSelectedProductDefaults(form_id);';
 }
-
-$productOnChange = <<<EOS
-  function() {
-    var form_id = this.form.id;
-    $.getJSON('json.php?func=get_product&id=' + this.value, function(json) {
-      globals.selectedProduct = json;
-      if (!json || !json.id) return;
-
-      if (json.description != '' || document.getElementById(form_id + '_description').value == (globals.defaultDescription != null ? globals.defaultDescription : ''))
-        document.getElementById(form_id + '_description').value = json.description;
-      globals.defaultDescription = json.description;
-
-      var type_id = document.getElementById(form_id + '_type_id');
-      for (var i = 0; i < type_id.options.length; i++)
-      {
-        var item = type_id.options[i];
-        if (item.value == json.type_id)
-        {
-          item.selected = true;
-          break;
-        }
-      }
-      document.getElementById(form_id + '_price').value = json.unit_price ? json.unit_price.replace('.', ',') : '';
-      document.getElementById(form_id + '_discount').value = json.discount ? json.discount.replace('.', ',') : '';
-      document.getElementById(form_id + '_vat').value = json.vat_percent ? json.vat_percent.replace('.', ',') : '';
-      document.getElementById(form_id + '_vat_included').checked = (json.vat_included && json.vat_included == 1) ? true : false;
-    });
-  }
-EOS;
 
 $astrFormElements = [
     [
@@ -1167,7 +1095,7 @@ $astrFormElements = [
         'listquery' => 'table=product&sort=order_no,product_code,product_name',
         'position' => 0,
         'allow_null' => true,
-        'elem_attributes' => $productOnChange
+        'elem_attributes' => '_onChangeProduct'
     ],
     [
         'name' => 'description',

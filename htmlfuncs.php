@@ -2,7 +2,7 @@
 
 /*******************************************************************************
  MLInvoice: web-based invoicing application.
- Copyright (C) 2010-2016 Ere Maijala
+ Copyright (C) 2010-2017 Ere Maijala
 
  Portions based on:
  PkLasku : web-based invoicing software.
@@ -14,7 +14,7 @@
 
 /*******************************************************************************
  MLInvoice: web-pohjainen laskutusohjelma.
- Copyright (C) 2010-2016 Ere Maijala
+ Copyright (C) 2010-2017 Ere Maijala
 
  Perustuu osittain sovellukseen:
  PkLasku : web-pohjainen laskutusohjelmisto.
@@ -364,63 +364,16 @@ function htmlFormElement($strName, $strType, $strValue, $strStyle, $strListQuery
 
     case 'SEARCHLIST':
         if ($strMode == 'MODIFY') {
-            $showEmpty = <<<EOT
-      if (page == 1 && data.filter == '') {
-        records.unshift({id: '', text: '-'});
-      }
-
-EOT;
+            $showEmpty = '1';
             if (strstr($strStyle, ' noemptyvalue')) {
                 $strStyle = str_replace(' noemptyvalue', '', $strStyle);
-                $showEmpty = '';
+                $showEmpty = '0';
             }
             $strValue = htmlspecialchars($strValue);
-            $onchange = $astrAdditionalAttributes ? ".on(\"change\", $astrAdditionalAttributes)" : '';
+            $onChange = $astrAdditionalAttributes ? trim($astrAdditionalAttributes) : '';
+            $encodedQuery = htmlspecialchars($strListQuery);
             $strFormElement = <<<EOT
-<input type="hidden" class="$strStyle" id="$strName" name="$strName" value="$strValue"/>
-<script type="text/javascript">
-$(document).ready(function() {
-  $("#$strName").select2({
-    placeholder: "",
-    ajax: {
-      url: "json.php?func=get_selectlist&$strListQuery",
-      dataType: 'json',
-      quietMillis: 200,
-      data: function (term, page) { // page is the one-based page number tracked by Select2
-        return {
-          q: term, //search term
-          pagelen: 50, // page size
-          page: page, // page number
-        };
-      },
-      results: function (data, page) {
-        var records = data.records;
-  $showEmpty
-        return {results: records, more: data.moreAvailable};
-      }
-    },
-    initSelection: function(element, callback) {
-      var id = $(element).val();
-      if (id !== "") {
-        $.ajax("json.php?func=get_selectlist&$strListQuery&id=" + id, {
-          dataType: "json"
-        }).done(function(data) { callback(data.records[0]); });
-      }
-    },
-    formatResult: function (object, container, query) {
-      var text = object.text;
-      if (object.description) {
-        text += '<div class="select-description">' + object.description + '</div>';
-      }
-      return text;
-    },
-    dropdownCssClass: "bigdrop",
-    dropdownAutoWidth: true,
-    escapeMarkup: function (m) { return m; },
-    width: "element"
-  })$onchange
-});
-</script>
+<input type="hidden" class="$strStyle select2" id="$strName" name="$strName" value="$strValue" data-query="$encodedQuery" data-show-empty="$showEmpty" data-on-change="$onChange"/>
 EOT;
         } else {
             $strFormElement = "<input type=\"text\" class=\"$strStyle\" " .
