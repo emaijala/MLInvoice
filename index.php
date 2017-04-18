@@ -206,8 +206,8 @@ if ($strFunc == 'open_invoices' && !$strForm) {
         updateVersionMessage($.parseJSON($.cookie("updateversion")));
         return;
       }
-        $.getJSON('http://www.labs.fi/mlinvoice_version.php?callback=?', function(data) {
-        updateVersionMessage(data);
+        $.getJSON('https://www.labs.fi/mlinvoice_version.php?callback=?', function(data) {
+          updateVersionMessage(data);
         });
     });
 
