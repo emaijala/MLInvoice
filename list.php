@@ -79,6 +79,22 @@ function createList($strFunc, $strList, $strTableName = '', $strTitleOverride = 
 <script type="text/javascript">
 
   $(document).ready(function() {
+<?php
+if ($invoiceTotal) {
+?>
+    $('#<?php echo $strTableName?>').one('xhr.dt', function() {
+      $.ajax({
+        url: 'json.php?func=get_invoice_total_sum',
+        data: <?php echo json_encode($params) ?>,
+        type: 'POST'
+      }).done(function(data) {
+        $('#<?php echo $strTableName?>_title').append(' ' + data['sum_str']);
+      });
+    });
+<?php
+}
+?>
+
     $('#<?php echo $strTableName?>').dataTable( {
       language: {
         <?php echo $GLOBALS['locTableTexts']?>
@@ -112,19 +128,6 @@ function createList($strFunc, $strList, $strTableName = '', $strTitleOverride = 
       var data = $('#<?php echo $strTableName?>').dataTable().fnGetData(this);
       document.location.href = data[0];
     });
-<?php
-    if ($invoiceTotal) {
-        ?>
-    $.ajax({
-      url: 'json.php?func=get_invoice_total_sum',
-      data: <?php echo json_encode($params) ?>,
-      type: 'POST'
-    }).done(function(data) {
-      $('#<?php echo $strTableName?>_title').append(' ' + data['sum_str']);
-    });
-<?php
-    }
-    ?>
   });
   </script>
 
