@@ -50,8 +50,13 @@ function init_db_connection()
 
 function extractSearchTerm(&$searchTerms, &$field, &$operator, &$term, &$boolean)
 {
-    if (!preg_match('/^([\w\.\_]+)\s*(=|!=|<=?|>=?|LIKE)\s*(.+)/', $searchTerms,
-        $matches)) {
+    if (true
+        && !preg_match(
+            '/^([\w\.\_]+)\s*(=|!=|<=?|>=?|LIKE)\s*(.+)/',
+            $searchTerms,
+            $matches
+        )
+    ) {
         if (!preg_match('/^([\w\.\_]+)\s+(IN)\s+(.+)/', $searchTerms, $matches)) {
             return false;
         }
@@ -123,13 +128,13 @@ function createWhereClause($astrSearchFields, $strSearchTerms, &$arrQueryParams,
                 if ($astrSearchFields[$j]['type'] == 'TEXT') {
                     $strWhereClause .= $astrSearchFields[$j]['name'] . ' LIKE ? OR ';
                     $arrQueryParams[] = $termPrefix . $astrTerms[$i] . '%';
-                } elseif ($astrSearchFields[$j]['type'] == 'INT' &&
-                     preg_match('/^([0-9]+)$/', $astrTerms[$i])
+                } elseif ($astrSearchFields[$j]['type'] == 'INT'
+                    && preg_match('/^([0-9]+)$/', $astrTerms[$i])
                 ) {
                     $strWhereClause .= $astrSearchFields[$j]['name'] . ' = ?' . ' OR ';
                     $arrQueryParams[] = $astrTerms[$i];
-                } elseif ($astrSearchFields[$j]['type'] == 'PRIMARY' &&
-                     preg_match('/^([0-9]+)$/', $intID)
+                } elseif ($astrSearchFields[$j]['type'] == 'PRIMARY'
+                    && preg_match('/^([0-9]+)$/', $intID)
                 ) {
                     $strWhereClause = 'WHERE ' . $astrSearchFields[$j]['name'] .
                         ' = ?     ';
@@ -154,9 +159,9 @@ function updateProductStockBalance($invoiceRowId, $productId, $count)
         // Fetch old product id
         $res = mysqli_param_query(
             'SELECT product_id, pcs from {prefix}invoice_row WHERE id=? AND deleted=0',
-            [
-                $invoiceRowId
-            ], 'exception');
+            [$invoiceRowId],
+            'exception'
+        );
         list ($oldProductId, $oldCount) = mysqli_fetch_array($res);
     }
 
@@ -164,10 +169,9 @@ function updateProductStockBalance($invoiceRowId, $productId, $count)
         // Add old balance to old product
         mysqli_param_query(
             'UPDATE {prefix}product SET stock_balance=IFNULL(stock_balance, 0)+? WHERE id=?',
-            [
-                $oldCount,
-                $oldProductId
-            ], 'exception');
+            [$oldCount, $oldProductId],
+            'exception'
+        );
     }
     if (!empty($productId)) {
         // Deduct from new product
@@ -176,7 +180,9 @@ function updateProductStockBalance($invoiceRowId, $productId, $count)
             [
                 $count,
                 $productId
-            ], 'exception');
+            ],
+            'exception'
+        );
     }
 }
 
@@ -274,8 +280,11 @@ function mysqli_query_check($query, $noFail = false)
         error_log("Query '$query' failed: ($intError) " . mysqli_error($dblink));
         if ($noFail !== true) {
             header('HTTP/1.1 500 Internal Server Error');
-            $msg = (!defined('_DB_VERBOSE_ERRORS_') || !_DB_VERBOSE_ERRORS_) ? $GLOBALS['locDBError'] : htmlspecialchars(
-                "Query '$query' failed: ($intError) " . mysqli_error($dblink));
+            $msg = (!defined('_DB_VERBOSE_ERRORS_') || !_DB_VERBOSE_ERRORS_)
+                ? $GLOBALS['locDBError']
+                : htmlspecialchars(
+                    "Query '$query' failed: ($intError) " . mysqli_error($dblink)
+                );
             if ($noFail == 'exception') {
                 throw new Exception($msg);
             }
@@ -306,8 +315,9 @@ function mysqli_param_query($query, $params = false, $noFail = false)
                 if ($t)
                     $t .= ',';
                 $v2 = mysqli_real_escape_string($dblink, $v2);
-                if (!is_numeric($v2) ||
-                     (strlen(trim($v2)) > 0 && substr(trim($v2), 0, 1) == '0')) {
+                if (!is_numeric($v2)
+                    || (strlen(trim($v2)) > 0 && substr(trim($v2), 0, 1) == '0')
+                ) {
                     $v2 = "'$v2'";
                 }
                 $t .= $v2;
@@ -470,26 +480,28 @@ function verifyDatabase()
     $res = mysqli_query_check("SHOW TABLES LIKE '{prefix}state'");
     if (mysqli_num_rows($res) == 0) {
         $res = mysqli_query_check(
-<<<EOT
+            <<<EOT
 CREATE TABLE {prefix}state (
   id char(32) NOT NULL,
   data varchar(100) NULL,
   PRIMARY KEY (id)
 ) ENGINE=INNODB CHARACTER SET utf8 COLLATE utf8_swedish_ci;
 EOT
-    , true);
+            ,
+            true
+        );
         if ($res === false) {
             return 'FAILED';
         }
         mysqli_query_check(
-            "REPLACE INTO {prefix}state (id, data) VALUES ('version', '15')");
+            "REPLACE INTO {prefix}state (id, data) VALUES ('version', '15')"
+        );
     }
 
     // Convert any MyISAM tables to InnoDB
-    $res = mysqli_param_query('SELECT data FROM {prefix}state WHERE id=?',
-        [
-            'tableconversiondone'
-        ]);
+    $res = mysqli_param_query(
+        'SELECT data FROM {prefix}state WHERE id=?', ['tableconversiondone']
+    );
     if (mysqli_num_rows($res) == 0) {
         mysqli_query_check('SET AUTOCOMMIT = 0');
         mysqli_query_check('BEGIN');
@@ -497,29 +509,35 @@ EOT
         $res = mysqli_query_check("SHOW TABLE STATUS WHERE Name like '" . _DB_PREFIX_ . "_%' AND ENGINE='MyISAM'");
         while ($row = mysqli_fetch_array($res)) {
             $res2 = mysqli_query_check(
-                'ALTER TABLE `' . $row['Name'] . '` ENGINE=INNODB', true);
+                'ALTER TABLE `' . $row['Name'] . '` ENGINE=INNODB', true
+            );
             if ($res2 === false) {
                 mysqli_query_check('ROLLBACK');
                 mysqli_query_check('SET FOREIGN_KEY_CHECKS = 1');
                 error_log(
-                    'Database upgrade query failed. Please convert the tables using MyISAM engine to InnoDB engine manually');
+                    'Database upgrade query failed. Please convert the tables using'
+                    . ' MyISAM engine to InnoDB engine manually'
+                );
                 return 'FAILED';
             }
         }
         mysqli_query_check(
-            "INSERT INTO {prefix}state (id, data) VALUES ('tableconversiondone', '1')");
+            'INSERT INTO {prefix}state (id, data) VALUES'
+            . " ('tableconversiondone', '1')"
+        );
         mysqli_query_check('COMMIT');
         mysqli_query_check('SET AUTOCOMMIT = 1');
         mysqli_query_check('SET FOREIGN_KEY_CHECKS = 1');
     }
 
-    $res = mysqli_param_query('SELECT data FROM {prefix}state WHERE id=?', [
-        'version'
-    ]);
+    $res = mysqli_param_query(
+        'SELECT data FROM {prefix}state WHERE id=?', ['version']
+    );
     $version = mysqli_fetch_value($res);
     $updates = [];
     if ($version < 16) {
-        $updates = array_merge($updates,
+        $updates = array_merge(
+            $updates,
             [
                 'ALTER TABLE {prefix}invoice ADD CONSTRAINT FOREIGN KEY (base_id) REFERENCES {prefix}base(id)',
                 'ALTER TABLE {prefix}invoice ADD COLUMN interval_type int(11) NOT NULL default 0',
@@ -529,7 +547,8 @@ EOT
         );
     }
     if ($version < 17) {
-        $updates = array_merge($updates,
+        $updates = array_merge(
+            $updates,
             [
                 'ALTER TABLE {prefix}invoice_state CHANGE COLUMN name name varchar(255)',
                 "UPDATE {prefix}invoice_state set name='StateOpen' where id=1",
@@ -565,7 +584,8 @@ EOT
         );
     }
     if ($version < 18) {
-        $updates = array_merge($updates,
+        $updates = array_merge(
+            $updates,
             [
                 'ALTER TABLE {prefix}base ADD COLUMN country varchar(255) default NULL',
                 'ALTER TABLE {prefix}company ADD COLUMN country varchar(255) default NULL',
@@ -574,7 +594,8 @@ EOT
         );
     }
     if ($version < 19) {
-        $updates = array_merge($updates,
+        $updates = array_merge(
+            $updates,
             [
                 "UPDATE {prefix}session_type set name='SessionTypeUser' where name='Käyttäjä'",
                 "UPDATE {prefix}session_type set name='SessionTypeAdmin' where name='Ylläpitäjä'",
@@ -585,7 +606,8 @@ EOT
         );
     }
     if ($version < 20) {
-        $updates = array_merge($updates,
+        $updates = array_merge(
+            $updates,
             [
                 'ALTER TABLE {prefix}product CHANGE COLUMN unit_price unit_price decimal(15,5)',
                 'ALTER TABLE {prefix}invoice_row CHANGE COLUMN price price decimal(15,5)',
@@ -596,7 +618,8 @@ EOT
         );
     }
     if ($version < 21) {
-        $updates = array_merge($updates,
+        $updates = array_merge(
+            $updates,
             [
                 "INSERT INTO {prefix}print_template (name, filename, parameters, output_filename, type, order_no, inactive) VALUES ('PrintInvoiceSwedish', 'invoice_printer.php', 'invoice,sv-FI,Y', 'faktura_%d.pdf', 'invoice', 90, 1)",
                 "INSERT INTO {prefix}print_template (name, filename, parameters, output_filename, type, order_no, inactive) VALUES ('PrintInvoiceSwedishFormless', 'invoice_printer_formless.php', 'invoice,sv-FI,N', 'faktura_%d.pdf', 'invoice', 100, 1)",
@@ -605,7 +628,8 @@ EOT
         );
     }
     if ($version < 22) {
-        $updates = array_merge($updates,
+        $updates = array_merge(
+            $updates,
             [
                 "INSERT INTO {prefix}print_template (name, filename, parameters, output_filename, type, order_no, inactive) VALUES ('PrintEmailReceiptFinnish', 'invoice_printer_email.php', 'receipt', 'kuitti_%d.pdf', 'invoice', 110, 1)",
                 "INSERT INTO {prefix}print_template (name, filename, parameters, output_filename, type, order_no, inactive) VALUES ('PrintEmailReceiptSwedish', 'invoice_printer_email.php', 'receipt,sv-FI', 'kvitto_%d.pdf', 'invoice', 120, 1)",
@@ -615,7 +639,8 @@ EOT
         );
     }
     if ($version < 23) {
-        $updates = array_merge($updates,
+        $updates = array_merge(
+            $updates,
             [
                 'ALTER TABLE {prefix}product ADD COLUMN order_no int(11) default NULL',
                 'ALTER TABLE {prefix}users CHANGE COLUMN name name varchar(255)',
@@ -625,7 +650,8 @@ EOT
         );
     }
     if ($version < 24) {
-        $updates = array_merge($updates,
+        $updates = array_merge(
+            $updates,
             [
                 "INSERT INTO {prefix}print_template (name, filename, parameters, output_filename, type, order_no, inactive) VALUES ('PrintOrderConfirmationFinnish', 'invoice_printer_order_confirmation.php', 'receipt', 'tilausvahvistus_%d.pdf', 'invoice', 140, 1)",
                 "INSERT INTO {prefix}print_template (name, filename, parameters, output_filename, type, order_no, inactive) VALUES ('PrintOrderConfirmationSwedish', 'invoice_printer_order_confirmation.php', 'receipt,sv-FI', 'orderbekraftelse_%d.pdf', 'invoice', 150, 1)",
@@ -635,9 +661,10 @@ EOT
         );
     }
     if ($version < 25) {
-        $updates = array_merge($updates,
+        $updates = array_merge(
+            $updates,
             [
-<<<EOT
+                <<<EOT
 CREATE TABLE {prefix}delivery_terms (
   id int(11) NOT NULL auto_increment,
   deleted tinyint NOT NULL default 0,
@@ -646,8 +673,8 @@ CREATE TABLE {prefix}delivery_terms (
   PRIMARY KEY (id)
 ) ENGINE=INNODB CHARACTER SET utf8 COLLATE utf8_swedish_ci
 EOT
-    ,
-<<<EOT
+                ,
+                <<<EOT
 CREATE TABLE {prefix}delivery_method (
   id int(11) NOT NULL auto_increment,
   deleted tinyint NOT NULL default 0,
@@ -656,7 +683,7 @@ CREATE TABLE {prefix}delivery_method (
   PRIMARY KEY (id)
 ) ENGINE=INNODB CHARACTER SET utf8 COLLATE utf8_swedish_ci
 EOT
-    ,
+                ,
                 'ALTER TABLE {prefix}invoice ADD COLUMN delivery_terms_id int(11) default NULL',
                 'ALTER TABLE {prefix}invoice ADD CONSTRAINT FOREIGN KEY (delivery_terms_id) REFERENCES {prefix}delivery_terms(id)',
                 'ALTER TABLE {prefix}invoice ADD COLUMN delivery_method_id int(11) default NULL',
@@ -671,7 +698,8 @@ EOT
     }
 
     if ($version < 26) {
-        $updates = array_merge($updates,
+        $updates = array_merge(
+            $updates,
             [
                 'CREATE INDEX {prefix}company_name on {prefix}company(company_name)',
                 'CREATE INDEX {prefix}company_id on {prefix}company(company_id)',
@@ -694,7 +722,8 @@ EOT
     }
 
     if ($version < 27) {
-        $updates = array_merge($updates,
+        $updates = array_merge(
+            $updates,
             [
                 "INSERT INTO {prefix}invoice_state (name, order_no) VALUES ('StatePaidInCash', 17)",
                 "REPLACE INTO {prefix}state (id, data) VALUES ('version', '27')"
@@ -703,7 +732,8 @@ EOT
     }
 
     if ($version < 28) {
-        $updates = array_merge($updates,
+        $updates = array_merge(
+            $updates,
             [
                 "INSERT INTO {prefix}print_template (name, filename, parameters, output_filename, type, order_no, inactive) VALUES ('PrintOrderConfirmationEmailFinnish', 'invoice_printer_order_confirmation_email.php', 'receipt', 'tilausvahvistus_%d.pdf', 'invoice', 170, 1)",
                 "INSERT INTO {prefix}print_template (name, filename, parameters, output_filename, type, order_no, inactive) VALUES ('PrintOrderConfirmationEmailSwedish', 'invoice_printer_order_confirmation_email.php', 'receipt,sv-FI', 'orderbekraftelse_%d.pdf', 'invoice', 180, 1)",
@@ -714,7 +744,8 @@ EOT
     }
 
     if ($version < 29) {
-        $updates = array_merge($updates,
+        $updates = array_merge(
+            $updates,
             [
                 'ALTER TABLE {prefix}session CHANGE COLUMN id id varchar(255)',
                 "REPLACE INTO {prefix}state (id, data) VALUES ('version', '29')"
@@ -723,7 +754,8 @@ EOT
     }
 
     if ($version < 30) {
-        $updates = array_merge($updates,
+        $updates = array_merge(
+            $updates,
             [
                 'ALTER TABLE {prefix}base ADD COLUMN payment_intermediator varchar(100) default NULL',
                 'ALTER TABLE {prefix}company ADD COLUMN payment_intermediator varchar(100) default NULL',
@@ -734,7 +766,8 @@ EOT
     }
 
     if ($version < 31) {
-        $updates = array_merge($updates,
+        $updates = array_merge(
+            $updates,
             [
                 'ALTER TABLE {prefix}product ADD COLUMN ean_code1 varchar(13) default NULL',
                 'ALTER TABLE {prefix}product ADD COLUMN ean_code2 varchar(13) default NULL',
@@ -744,11 +777,12 @@ EOT
     }
 
     if ($version < 32) {
-        $updates = array_merge($updates,
+        $updates = array_merge(
+            $updates,
             [
                 'ALTER TABLE {prefix}product ADD COLUMN purchase_price decimal(15,5) NULL',
                 'ALTER TABLE {prefix}product ADD COLUMN stock_balance int(11) default NULL',
-<<<EOT
+                <<<EOT
 CREATE TABLE {prefix}stock_balance_log (
   id int(11) NOT NULL auto_increment,
   time timestamp NOT NULL default CURRENT_TIMESTAMP,
@@ -761,14 +795,15 @@ CREATE TABLE {prefix}stock_balance_log (
   FOREIGN KEY (product_id) REFERENCES {prefix}product(id)
 ) ENGINE=INNODB CHARACTER SET utf8 COLLATE utf8_swedish_ci
 EOT
-    ,
+                ,
                 "REPLACE INTO {prefix}state (id, data) VALUES ('version', '32')"
             ]
         );
     }
 
     if ($version < 33) {
-        $updates = array_merge($updates,
+        $updates = array_merge(
+            $updates,
             [
                 'ALTER TABLE {prefix}base ADD COLUMN receipt_email_subject varchar(255) NULL',
                 'ALTER TABLE {prefix}base ADD COLUMN receipt_email_body text NULL',
@@ -778,7 +813,8 @@ EOT
     }
 
     if ($version < 34) {
-        $updates = array_merge($updates,
+        $updates = array_merge(
+            $updates,
             [
                 'ALTER TABLE {prefix}product CHANGE COLUMN stock_balance stock_balance decimal(11,2) default NULL',
                 'ALTER TABLE {prefix}stock_balance_log CHANGE COLUMN stock_change stock_change decimal(11,2) default NULL',
@@ -788,7 +824,8 @@ EOT
     }
 
     if ($version < 35) {
-        $updates = array_merge($updates,
+        $updates = array_merge(
+            $updates,
             [
                 'ALTER TABLE {prefix}invoice_state ADD COLUMN invoice_open tinyint NOT NULL default 0',
                 'ALTER TABLE {prefix}invoice_state ADD COLUMN invoice_unpaid tinyint NOT NULL default 0',
@@ -800,7 +837,8 @@ EOT
     }
 
     if ($version < 36) {
-        $updates = array_merge($updates,
+        $updates = array_merge(
+            $updates,
             [
                 'ALTER TABLE {prefix}product CHANGE COLUMN ean_code1 barcode1 varchar(255) default NULL',
                 'ALTER TABLE {prefix}product CHANGE COLUMN ean_code2 barcode2 varchar(255) default NULL',
@@ -816,7 +854,8 @@ EOT
     }
 
     if ($version < 37) {
-        $updates = array_merge($updates,
+        $updates = array_merge(
+            $updates,
             [
                 'ALTER TABLE {prefix}company ADD COLUMN payment_days int(11) default NULL',
                 'ALTER TABLE {prefix}company ADD COLUMN terms_of_payment varchar(255) NULL',
@@ -826,7 +865,8 @@ EOT
     }
 
     if ($version < 38) {
-        $updates = array_merge($updates,
+        $updates = array_merge(
+            $updates,
             [
                 'UPDATE {prefix}invoice_row ir SET ir.row_date=(SELECT i.invoice_date FROM {prefix}invoice i where i.id=ir.invoice_id) WHERE ir.row_date IS NULL',
                 "REPLACE INTO {prefix}state (id, data) VALUES ('version', '38')"
@@ -839,7 +879,8 @@ EOT
         $res = mysqli_param_query("SELECT count(*) FROM information_schema.columns WHERE table_schema = '" . _DB_NAME_ . "' AND table_name   = '{prefix}invoice_row' AND column_name = 'partial_payment'");
         $count = mysqli_fetch_value($res);
         if ($count == 0) {
-            $updates = array_merge($updates,
+            $updates = array_merge(
+                $updates,
                 [
                     'ALTER TABLE {prefix}invoice_row ADD COLUMN partial_payment tinyint NOT NULL default 0',
                     "REPLACE INTO {prefix}state (id, data) VALUES ('version', '39')"
@@ -849,7 +890,8 @@ EOT
     }
 
     if ($version < 40) {
-        $updates = array_merge($updates,
+        $updates = array_merge(
+            $updates,
             [
                 'UPDATE {prefix}invoice_state SET invoice_unpaid=1 WHERE id=1',
                 "REPLACE INTO {prefix}state (id, data) VALUES ('version', '40')"
@@ -858,7 +900,8 @@ EOT
     }
 
     if ($version < 41) {
-        $updates = array_merge($updates,
+        $updates = array_merge(
+            $updates,
             [
                 'ALTER TABLE {prefix}base ADD COLUMN invoice_default_info text NULL',
                 "REPLACE INTO {prefix}state (id, data) VALUES ('version', '41')"
@@ -867,7 +910,8 @@ EOT
     }
 
     if ($version < 42) {
-        $updates = array_merge($updates,
+        $updates = array_merge(
+            $updates,
             [
                 'ALTER TABLE {prefix}invoice_state ADD COLUMN invoice_offer tinyint NOT NULL default 0',
                 'ALTER TABLE {prefix}invoice_state ADD COLUMN invoice_offer_sent tinyint NOT NULL default 0',
@@ -888,7 +932,8 @@ EOT
     }
 
     if ($version < 43) {
-        $updates = array_merge($updates,
+        $updates = array_merge(
+            $updates,
             [
                 'ALTER TABLE {prefix}company_contact ADD COLUMN contact_type VARCHAR(100) NULL',
                 "INSERT INTO {prefix}invoice_state (name, order_no, invoice_open, invoice_unpaid, invoice_offer, invoice_offer_sent) VALUES ('StateOfferRealised', 55, 0, 0, 1, 1)",
@@ -904,7 +949,8 @@ EOT
     }
 
     if ($version < 44) {
-        $updates = array_merge($updates,
+        $updates = array_merge(
+            $updates,
             [
                 'ALTER TABLE {prefix}invoice ADD COLUMN delivery_time varchar(100) default NULL',
                 "REPLACE INTO {prefix}state (id, data) VALUES ('version', '44')"
@@ -913,9 +959,10 @@ EOT
     }
 
     if ($version < 45) {
-        $updates = array_merge($updates,
+        $updates = array_merge(
+            $updates,
             [
-<<<EOT
+                <<<EOT
 CREATE TABLE {prefix}default_value (
   id int(11) NOT NULL auto_increment,
   deleted tinyint NOT NULL default 0,
@@ -933,7 +980,8 @@ EOT
     }
 
     if ($version < 46) {
-        $updates = array_merge($updates,
+        $updates = array_merge(
+            $updates,
             [
                 'ALTER TABLE {prefix}base ADD COLUMN terms_of_payment varchar(255) NULL',
                 'ALTER TABLE {prefix}base ADD COLUMN period_for_complaints varchar(255) NULL',
@@ -943,7 +991,8 @@ EOT
     }
 
     if ($version < 47) {
-        $updates = array_merge($updates,
+        $updates = array_merge(
+            $updates,
             [
                 "UPDATE {prefix}print_template SET type='offer' WHERE filename LIKE 'invoice_printer_offer%'",
                 "REPLACE INTO {prefix}state (id, data) VALUES ('version', '47')"
