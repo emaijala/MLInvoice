@@ -375,9 +375,9 @@ var MLInvoice = (function MLInvoice() {
                 },
                 formatResult: function (object) {
                     var text = object.text;
-                    if (object.description) {
-                        text += '<div class="select-description">' + object.description + '</div>';
-                    }
+                    $(object.descriptions).each(function () {
+                        text += '<div class="select-description">' + this + '</div>';
+                    });
                     return text;
                 },
                 dropdownCssClass: 'bigdrop',
