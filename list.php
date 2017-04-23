@@ -31,7 +31,7 @@ function createList($strFunc, $strList, $strTableName = '', $strTitleOverride = 
 {
     $strWhereClause = $prefilter ? $prefilter : getRequest('where', '');
 
-    require "list_switch.php";
+    include 'list_switch.php';
 
     if (!$strList) {
         $strList = $strFunc;
@@ -45,8 +45,9 @@ function createList($strFunc, $strList, $strTableName = '', $strTitleOverride = 
         if ($strWhereClause) {
             // Special case: don't apply archived filter for invoices if search terms
             // already contain archived status
-            if ($strList != 'invoices' ||
-                 strpos($strWhereClause, 'i.archived') === false) {
+            if ($strList != 'invoices'
+                || strpos($strWhereClause, 'i.archived') === false
+            ) {
                 $strWhereClause .= " AND $strListFilter";
             }
         } else {
@@ -64,10 +65,10 @@ function createList($strFunc, $strList, $strTableName = '', $strTitleOverride = 
         $strTitle = '';
     }
 
-    $params = array(
+    $params = [
         'listfunc' => $strFunc,
         'table' => $strList
-    );
+    ];
     if ($strWhereClause) {
         $params['where'] = $strWhereClause;
     }
@@ -106,13 +107,18 @@ if ($invoiceTotal) {
       pagingType: "full_numbers",
       columnDefs: [
 <?php
-    foreach ($astrShowFields as $key => $field) {
-        $strWidth = isset($field['width']) ? ($field['width'] . 'px') : '';
-        ?>
-        { targets: [ <?php echo ($key + 1)?> ], 'width': "<?php echo $strWidth?>" },
-<?php
+$i = 0;
+foreach ($astrShowFields as $key => $field) {
+    if ('HIDDEN' === $field['type']) {
+        continue;
     }
-    ?>
+    ++$i;
+    $strWidth = isset($field['width']) ? ($field['width'] . 'px') : '';
+?>
+        { targets: [ <?php echo $i?> ], 'width': "<?php echo $strWidth?>" },
+<?php
+}
+?>
         { targets: [ 0 ], 'searchable': false, 'visible': false }
       ],
       order: [[ 1, 'asc' ]],
@@ -138,14 +144,17 @@ if ($invoiceTotal) {
             <tr>
                 <th>Link</th>
 <?php
-    foreach ($astrShowFields as $field) {
-        $strWidth = isset($field['width']) ? (' style="width: ' . $field['width'] .
-             'px"') : '';
-        ?>
-          <th <?php echo $strWidth?>><?php echo $field['header']?></th>
-<?php
+foreach ($astrShowFields as $field) {
+    if ('HIDDEN' === $field['type']) {
+        continue;
     }
-    ?>
+    $strWidth = isset($field['width'])
+        ? (' style="width: ' . $field['width'] . 'px"') : '';
+?>
+                <th<?php echo $strWidth?>><?php echo $field['header']?></th>
+<?php
+}
+?>
         </tr>
         </thead>
         <tbody>
@@ -157,9 +166,9 @@ if ($invoiceTotal) {
 }
 
 function createJSONList($strFunc, $strList, $startRow, $rowCount, $sort, $filter,
-    $where, $requestId)
-{
-    require "list_switch.php";
+    $where, $requestId
+) {
+    include "list_switch.php";
 
     global $dblink;
 
@@ -177,7 +186,7 @@ function createJSONList($strFunc, $strList, $startRow, $rowCount, $sort, $filter
 
     $strWhereClause = '';
     $joinOp = 'WHERE';
-    $arrQueryParams = array();
+    $arrQueryParams = [];
     if ($where) {
         // Validate and build query parameters
         $boolean = '';
@@ -248,11 +257,7 @@ function createJSONList($strFunc, $strList, $startRow, $rowCount, $sort, $filter
                 $fieldName = substr($fieldName, 1);
             }
             // Special case for natural ordering of invoice number and reference number
-            if (in_array($fieldName,
-                array(
-                    'i.invoice_no',
-                    'i.ref_number'
-                ))) {
+            if (in_array($fieldName, ['i.invoice_no', 'i.ref_number'])) {
                 $orderBy[] = "LENGTH($fieldName) $direction";
             }
             $orderBy[] = "$fieldName $direction";
@@ -266,7 +271,8 @@ function createJSONList($strFunc, $strList, $startRow, $rowCount, $sort, $filter
              (isset($field['sql']) ? $field['sql'] : $field['name']);
     }
 
-    $fullQuery = "SELECT $strSelectClause FROM $strTable $strJoin $strWhereClause$strGroupBy";
+    $fullQuery = "SELECT $strSelectClause FROM $strTable $strJoin"
+        . " $strWhereClause$strGroupBy";
 
     if ($orderBy) {
         $fullQuery .= ' ORDER BY ' . implode(', ', $orderBy);
@@ -278,7 +284,7 @@ function createJSONList($strFunc, $strList, $startRow, $rowCount, $sort, $filter
 
     $res = mysqli_param_query($fullQuery, $arrQueryParams);
 
-    $astrListValues = array();
+    $astrListValues = [];
     $i = -1;
     while ($row = mysqli_fetch_prefixed_assoc($res)) {
         ++$i;
@@ -293,8 +299,9 @@ function createJSONList($strFunc, $strList, $startRow, $rowCount, $sort, $filter
                 $astrListValues[$i][$name] = $value;
             } elseif ($field['type'] == 'CURRENCY') {
                 $value = $row[$name];
-                $value = miscRound2Decim($value,
-                    isset($field['decimals']) ? $field['decimals'] : 2);
+                $value = miscRound2Decim(
+                    $value, isset($field['decimals']) ? $field['decimals'] : 2
+                );
                 $astrListValues[$i][$name] = $value;
             } elseif ($field['type'] == 'INTDATE') {
                 $astrListValues[$i][$name] = dateConvDBDate2Date($row[$name]);
@@ -316,18 +323,22 @@ function createJSONList($strFunc, $strList, $startRow, $rowCount, $sort, $filter
             // Special colouring for overdue invoices
             if ($highlight && $name == 'i.due_date') {
                 $rowDue = strDate2UnixTime($row['i.due_date']);
-                if ($rowDue < mktime(0, 0, 0, date("m"), date("d") - 14, date("Y"))) {
+                if ($rowDue < mktime(0, 0, 0, date("m"), date("d") - 14, date("Y"))
+                ) {
                     $overdue = ' overdue14';
-                } elseif ($rowDue <
-                     mktime(0, 0, 0, date("m"), date("d") - 7, date("Y"))) {
+                } elseif (true
+                    && $rowDue < mktime(0, 0, 0, date("m"), date("d") - 7, date("Y"))
+                ) {
                     $overdue = ' overdue7';
-                } elseif ($rowDue < mktime(0, 0, 0, date("m"), date("d"), date("Y"))) {
+                } elseif ($rowDue < mktime(0, 0, 0, date("m"), date("d"), date("Y"))
+                ) {
                     $overdue = ' overdue';
                 }
             }
 
-            if (isset($field['translate']) && $field['translate'] &&
-                 isset($GLOBALS["loc{$row[$name]}"])) {
+            if (isset($field['translate']) && $field['translate']
+                && isset($GLOBALS["loc{$row[$name]}"])
+            ) {
                 $value = $GLOBALS["loc{$row[$name]}"];
             } else {
                 $value = trim($row[$name]) ? htmlspecialchars($row[$name]) : '&nbsp;';
@@ -353,10 +364,10 @@ function createJSONList($strFunc, $strList, $startRow, $rowCount, $sort, $filter
 }
 
 function createJSONSelectList($strList, $startRow, $rowCount, $filter, $sort,
-    $id = null)
-{
+    $id = null
+) {
     global $dblink;
-    require "list_switch.php";
+    include "list_switch.php";
 
     if (empty($id) && !sesAccessLevel($levelsAllowed) && !sesAdminAccess()) {
         ?>
@@ -394,7 +405,7 @@ function createJSONSelectList($strList, $startRow, $rowCount, $filter, $sort,
         }
     }
 
-    $arrQueryParams = array();
+    $arrQueryParams = [];
 
     $strWhereClause = '';
 
@@ -473,7 +484,7 @@ function createJSONSelectList($strList, $startRow, $rowCount, $filter, $sort,
 
     $res = mysqli_param_query($fullQuery, $arrQueryParams);
 
-    $astrListValues = array();
+    $astrListValues = [];
     $i = -1;
     $moreAvailable = false;
     while ($row = mysqli_fetch_prefixed_assoc($res)) {
@@ -486,15 +497,19 @@ function createJSONSelectList($strList, $startRow, $rowCount, $filter, $sort,
         $aboolDeleted[$i] = $row[$strDeletedField];
         foreach ($astrShowFields as $field) {
             $name = $field['name'];
-            if ($field['type'] == 'TEXT' || $field['type'] == 'INT') {
+            if ($field['type'] == 'TEXT' || $field['type'] == 'INT'
+                || $field['type'] == 'HIDDEN'
+            ) {
                 $value = $row[$name];
-                if (isset($field['mappings']) && isset($field['mappings'][$value]))
+                if (isset($field['mappings']) && isset($field['mappings'][$value])) {
                     $value = $field['mappings'][$value];
+                }
                 $astrListValues[$i][$name] = $value;
             } elseif ($field['type'] == 'CURRENCY') {
                 $value = $row[$name];
-                $value = miscRound2Decim($value,
-                    isset($field['decimals']) ? $field['decimals'] : 2);
+                $value = miscRound2Decim(
+                    $value, isset($field['decimals']) ? $field['decimals'] : 2
+                );
                 $astrListValues[$i][$name] = $value;
             } elseif ($field['type'] == 'INTDATE') {
                 $astrListValues[$i][$name] = dateConvDBDate2Date($row[$name]);
@@ -502,15 +517,38 @@ function createJSONSelectList($strList, $startRow, $rowCount, $filter, $sort,
         }
     }
 
-    $records = array();
+    $records = [];
     for ($i = 0; $i < count($astrListValues); $i ++) {
         $row = $astrListValues[$i];
-        $resultValues = array();
+        $resultValues = [];
+        $descriptions = [];
+        $desc2 = [];
         foreach ($astrShowFields as $field) {
             if (!isset($field['select']) || !$field['select']) {
                 continue;
             }
             $name = $field['name'];
+
+            if ('product' === $strList) {
+                switch ($name) {
+                case 'description':
+                    if (!empty($row[$name])) {
+                        $descriptions[] = $row[$name];
+                    }
+                    continue 2;
+                case 'vendor':
+                    if (!empty($row[$name])) {
+                        $desc2[] = $GLOBALS['locProductVendor'] . ': ' . $row[$name];
+                    }
+                    continue 2;
+                case 'vendors_code':
+                    if (!empty($row[$name])) {
+                        $desc2[] = $GLOBALS['locProductVendorsCode'] . ': '
+                            . $row[$name];
+                    }
+                    continue 2;
+                }
+            }
 
             if (isset($field['translate']) && $field['translate']
                 && isset($GLOBALS["loc{$row[$name]}"])
@@ -521,18 +559,21 @@ function createJSONSelectList($strList, $startRow, $rowCount, $filter, $sort,
             }
             $resultValues[$name] = $value;
         }
+        if ($desc2) {
+            $descriptions[] = implode(', ', $desc2);
+        }
 
-        $records[] = array(
+        $records[] = [
             'id' => $astrPrimaryKeys[$i],
-            'description' => 'product' === $strList ? array_pop($resultValues) : '',
+            'descriptions' => $descriptions,
             'text' => implode(' ', $resultValues)
-        );
+        ];
     }
 
-    $results = array(
+    $results = [
         'moreAvailable' => $moreAvailable,
         'records' => $records,
         'filter' => $filter
-    );
+    ];
     return json_encode($results);
 }

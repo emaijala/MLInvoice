@@ -375,6 +375,20 @@ case 'product' :
             'header' => $GLOBALS['locProductGroup']
         ],
         [
+            'name' => 'vendor',
+            'width' => 0,
+            'type' => 'HIDDEN',
+            'header' => '',
+            'select' => true
+        ],
+        [
+            'name' => 'vendors_code',
+            'width' => 0,
+            'type' => 'HIDDEN',
+            'header' => '',
+            'select' => true
+        ],
+        [
             'name' => 'unit_price',
             'width' => 100,
             'type' => 'CURRENCY',

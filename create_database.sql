@@ -167,6 +167,8 @@ CREATE TABLE mlinvoice_product (
   price_decimals decimal(1,0) NOT NULL default 2,
   order_no int(11) default NULL,
   stock_balance decimal(11,2) default NULL,
+  vendor varchar(255) NULL,
+  vendors_code varchar(100) NULL,
   PRIMARY KEY (id),
   FOREIGN KEY (type_id) REFERENCES mlinvoice_row_type(id)
 ) ENGINE=INNODB CHARACTER SET utf8 COLLATE utf8_swedish_ci;

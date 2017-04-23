@@ -410,6 +410,22 @@ EOS;
             'allow_null' => true
         ],
         [
+            'name' => 'vendor',
+            'label' => $GLOBALS['locProductVendor'],
+            'type' => 'TEXT',
+            'style' => 'medium',
+            'position' => 1,
+            'allow_null' => true
+        ],
+        [
+            'name' => 'vendors_code',
+            'label' => $GLOBALS['locProductVendorsCode'],
+            'type' => 'TEXT',
+            'style' => 'medium',
+            'position' => 2,
+            'allow_null' => true
+        ],
+        [
             'name' => 'barcode1',
             'label' => $GLOBALS['locFirstBarcode'],
             'type' => 'TEXT',

@@ -1000,6 +1000,17 @@ EOT
         );
     }
 
+    if ($version < 48) {
+        $updates = array_merge(
+            $updates,
+            [
+                'ALTER TABLE {prefix}product ADD COLUMN vendor varchar(255) NULL',
+                'ALTER TABLE {prefix}product ADD COLUMN vendors_code varchar(100) NULL',
+                "REPLACE INTO {prefix}state (id, data) VALUES ('version', '48')"
+            ]
+        );
+    }
+
     if (!empty($updates)) {
         mysqli_query_check('SET AUTOCOMMIT = 0');
         mysqli_query_check('BEGIN');
