@@ -1,7 +1,7 @@
 <?php
 /*******************************************************************************
  MLInvoice: web-based invoicing application.
- Copyright (C) 2010-2016 Ere Maijala
+ Copyright (C) 2010-2017 Ere Maijala
 
  Portions based on:
  PkLasku : web-based invoicing software.
@@ -13,7 +13,7 @@
 
 /*******************************************************************************
  MLInvoice: web-pohjainen laskutusohjelma.
- Copyright (C) 2010-2016 Ere Maijala
+ Copyright (C) 2010-2017 Ere Maijala
 
  Perustuu osittain sovellukseen:
  PkLasku : web-pohjainen laskutusohjelmisto.
@@ -704,6 +704,10 @@ function init_rows()
       var title = '<?php echo $GLOBALS['locVATLess'] . ': '?>' + sum + ' &ndash; ' + '<?php echo $GLOBALS['locVATPart'] . ': '?>' + VAT;
       var td = $('<td/>').addClass('<?php echo $class?>' + (record.deleted == 1 ? ' deleted' : '')).append('<span title="' + title + '">' + sumVAT + '<\/span>').appendTo(tr);
 <?php
+        } elseif ($subElem['type'] == 'TAGS') {
+            echo "      var val = record.$name ? record.$name : '';\n";
+            echo "      val = val.replace(new RegExp(/,/, 'g'), ', ');\n";
+            echo "      $('<td/>').addClass('$class' + (record.deleted == 1 ? ' deleted' : '')).text(val).appendTo(tr);\n";
         } else {
             echo "      $('<td/>').addClass('$class' + (record.deleted == 1 ? ' deleted' : '')).text(record.$name ? record.$name : '').appendTo(tr);\n";
         }
@@ -1035,7 +1039,7 @@ function popup_editor(event, title, id, copy_row)
 <?php
             } elseif ($subElem['type'] == 'INT') {
                 if (isset($subElem['default']) && strstr($subElem['default'], 'ADD')) {
-                    ?>
+?>
     var value;
     if (copy_row)
       value = document.getElementById('<?php echo "iform_$name"?>').value;
@@ -1045,36 +1049,44 @@ function popup_editor(event, title, id, copy_row)
 <?php
                 } else {
                     if (isset($subElem['decimals'])) {
-                        ?>
+?>
     form.<?php echo "iform_popup_$name"?>.value = json.<?php echo $name?> ? format_currency(json.<?php echo $name?>, <?php echo $subElem['decimals']?>, '<?php echo $GLOBALS['locDecimalSeparator']?>', '<?php echo $GLOBALS['locThousandSeparator']?>') : '';
 <?php
                     } else {
-                        ?>
+?>
     form.<?php echo "iform_popup_$name"?>.value = json.<?php echo $name?> ? json.<?php echo $name?>.replace('.', '<?php echo $GLOBALS['locDecimalSeparator']?>') : '';
 <?php
                     }
                 }
             } elseif ($subElem['type'] == 'INTDATE') {
-                ?>
+?>
     form.<?php echo "iform_popup_$name"?>.value = json.<?php echo $name?> ? formatDate(json.<?php echo $name?>) : '';
 <?php
             } elseif ($subElem['type'] == 'CHECK') {
-                ?>
+?>
     form.<?php echo "iform_popup_$name"?>.checked = json.<?php echo $name?> != 0 ? true : false;
 <?php
+            } elseif ($subElem['type'] == 'TAGS') {
+?>
+    var items = [];
+    $(json.<?php echo $name?>.split(',')).each(function () {
+        items.push({id: this, text: this});
+    });
+    $('#<?php echo "iform_popup_$name"?>').select2('data', items);
+<?php
             } else {
-                ?>
+?>
     form.<?php echo "iform_popup_$name"?>.value = json.<?php echo $name?>;
 <?php
             }
         }
-        ?>
+?>
     var buttons = new Object();
     buttons["<?php echo $GLOBALS['locSave']?>"] = function() { save_row('iform_popup'); };
     if (!copy_row)
       buttons["<?php echo $GLOBALS['locDelete']?>"] = function() { if(confirm('<?php echo $GLOBALS['locConfirmDelete']?>')==true) { delete_row('iform_popup'); } return false; };
     buttons["<?php echo $GLOBALS['locClose']?>"] = function() { $("#popup_edit").dialog('close'); };
-    $("#popup_edit").dialog({ modal: true, width: 980, height: 150, resizable: false,
+    $("#popup_edit").dialog({ modal: true, width: 980, height: 180, resizable: true,
       buttons: buttons,
       title: title,
     });

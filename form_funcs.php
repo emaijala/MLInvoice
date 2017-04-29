@@ -1,7 +1,7 @@
 <?php
 /*******************************************************************************
  MLInvoice: web-based invoicing application.
- Copyright (C) 2010-2016 Ere Maijala
+ Copyright (C) 2010-2017 Ere Maijala
 
  This program is free software. See attached LICENSE.
 
@@ -9,7 +9,7 @@
 
 /*******************************************************************************
  MLInvoice: web-pohjainen laskutusohjelma.
- Copyright (C) 2010-2016 Ere Maijala
+ Copyright (C) 2010-2017 Ere Maijala
 
  Tämä ohjelma on vapaa. Lue oheinen LICENSE.
 
@@ -24,29 +24,34 @@ function getPostValues(&$formElements, $primaryKey, $parentKey = FALSE)
     $values = [];
 
     foreach ($formElements as $elem) {
-        if (in_array($elem['type'],
-            [
-                '',
-                'IFORM',
-                'RESULT',
-                'BUTTON',
-                'JSBUTTON',
-                'DROPDOWNMENU',
-                'IMAGE',
-                'ROWSUM',
-                'NEWLINE',
-                'LABEL'
-            ])) {
-            $values[$elem['name']] = isset($primaryKey) ? $primaryKey : FALSE;
+        if (true
+            && in_array(
+                $elem['type'],
+                [
+                    '',
+                    'IFORM',
+                    'RESULT',
+                    'BUTTON',
+                    'JSBUTTON',
+                    'DROPDOWNMENU',
+                    'IMAGE',
+                    'ROWSUM',
+                    'NEWLINE',
+                    'LABEL'
+                ]
+            )
+        ) {
+            $values[$elem['name']] = isset($primaryKey) ? $primaryKey : false;
         } else {
-            $values[$elem['name']] = getPostRequest($elem['name'], FALSE);
-            if (isset($elem['default']) && ($values[$elem['name']] === FALSE ||
-                 ($elem['type'] == 'INT' && $values[$elem['name']] === ''))) {
+            $values[$elem['name']] = getPostRequest($elem['name'], false);
+            if (isset($elem['default']) && ($values[$elem['name']] === false
+                || ($elem['type'] == 'INT' && $values[$elem['name']] === ''))
+            ) {
                 $values[$elem['name']] = getFormDefaultValue($elem, $parentKey);
             } elseif ($elem['type'] == 'INT') {
-                $values[$elem['name']] = str_replace(',', '.',
-                    $values[$elem['name']]);
-            } elseif ($elem['type'] == 'LIST' && $values[$elem['name']] === FALSE) {
+                $values[$elem['name']]
+                    = str_replace(',', '.', $values[$elem['name']]);
+            } elseif ($elem['type'] == 'LIST' && $values[$elem['name']] === false) {
                 $values[$elem['name']] = '';
             }
         }
@@ -64,8 +69,10 @@ function getFormDefaultValue($elem, $parentKey)
         return date($GLOBALS['locDateFormat']);
     } elseif (strstr($elem['default'], 'DATE_NOW+')) {
         $atmpValues = explode('+', $elem['default']);
-        return date($GLOBALS['locDateFormat'],
-            mktime(0, 0, 0, date('m'), date('d') + $atmpValues[1], date('Y')));
+        return date(
+            $GLOBALS['locDateFormat'],
+            mktime(0, 0, 0, date('m'), date('d') + $atmpValues[1], date('Y'))
+        );
     } elseif (strstr($elem['default'], 'ADD')) {
         $strQuery = str_replace('_PARENTID_', $parentKey, $elem['listquery']);
         $intAdd = mysqli_fetch_value(mysqli_query_check($strQuery));
@@ -81,8 +88,8 @@ function getFormDefaultValue($elem, $parentKey)
 // Return true on success.
 // Return false on conflict or a string of missing values if encountered. In these cases, the record is not saved.
 function saveFormData($table, &$primaryKey, &$formElements, &$values, &$warnings,
-    $parentKeyName = '', $parentKey = false, $onPrint = false)
-{
+    $parentKeyName = '', $parentKey = false, $onPrint = false
+) {
     global $dblink;
 
     $missingValues = '';
@@ -91,25 +98,32 @@ function saveFormData($table, &$primaryKey, &$formElements, &$values, &$warnings
     $strUpdateFields = '';
     $arrValues = [];
 
-    if (!isset($primaryKey) || !$primaryKey)
+    if (!isset($primaryKey) || !$primaryKey) {
         unset($values['id']);
+    }
 
     foreach ($formElements as $elem) {
         $type = $elem['type'];
 
-        if (in_array($type,
-            [
-                '',
-                'IFORM',
-                'RESULT',
-                'BUTTON',
-                'JSBUTTON',
-                'DROPDOWNMENU',
-                'IMAGE',
-                'ROWSUM',
-                'NEWLINE',
-                'LABEL'
-            ]) || (isset($elem['read_only']) && $elem['read_only'])) {
+        if (true
+            && in_array(
+                $type,
+                [
+                    '',
+                    'IFORM',
+                    'RESULT',
+                    'BUTTON',
+                    'JSBUTTON',
+                    'DROPDOWNMENU',
+                    'IMAGE',
+                    'ROWSUM',
+                    'NEWLINE',
+                    'LABEL',
+                    'TAGS'
+                ]
+            )
+            || (isset($elem['read_only']) && $elem['read_only'])
+        ) {
             continue;
         }
 
@@ -158,26 +172,28 @@ function saveFormData($table, &$primaryKey, &$formElements, &$values, &$warnings
         $strFields .= $name;
         $fieldPlaceholder = '?';
         switch ($type) {
-        case 'PASSWD' :
+        case 'PASSWD':
             $fieldPlaceholder = 'md5(?)';
             $arrValues[] = $values[$name];
             break;
-        case 'INT' :
-        case 'HID_INT' :
-        case 'SECHID_INT' :
-            $arrValues[] = ($value !== '' && $value !== false) ? str_replace(',',
-                '.', $value) : ($elem['allow_null'] ? NULL : 0);
+        case 'INT':
+        case 'HID_INT':
+        case 'SECHID_INT':
+            $arrValues[] = ($value !== '' && $value !== false)
+                ? str_replace(',', '.', $value)
+                : ($elem['allow_null'] ? null : 0);
             break;
-        case 'LIST' :
-        case 'SEARCHLIST' :
-            $arrValues[] = isset($values[$name]) ? ($value !== '' ? str_replace(',',
-                '.', $value) : NULL) : NULL;
+        case 'LIST':
+        case 'SEARCHLIST':
+            $arrValues[] = isset($values[$name])
+                ? ($value !== '' ? str_replace(',', '.', $value) : null)
+                : null;
             break;
-        case 'CHECK' :
+        case 'CHECK':
             $arrValues[] = $value ? 1 : 0;
             break;
-        case 'INTDATE' :
-            $arrValues[] = $value ? dateConvDate2DBDate($value) : NULL;
+        case 'INTDATE':
+            $arrValues[] = $value ? dateConvDate2DBDate($value) : null;
             break;
         default :
             $arrValues[] = $value;
@@ -186,8 +202,9 @@ function saveFormData($table, &$primaryKey, &$formElements, &$values, &$warnings
         $strUpdateFields .= "$name=$fieldPlaceholder";
     }
 
-    if ($missingValues)
+    if ($missingValues) {
         return $missingValues;
+    }
 
     mysqli_query_check('SET AUTOCOMMIT = 0');
     mysqli_query_check('BEGIN');
@@ -243,6 +260,19 @@ function saveFormData($table, &$primaryKey, &$formElements, &$values, &$warnings
             $strQuery = "UPDATE $table SET $strUpdateFields, deleted=0 WHERE id=?";
             $arrValues[] = $primaryKey;
             mysqli_param_query($strQuery, $arrValues, 'exception');
+        }
+        if ($table === '{prefix}company') {
+            saveTags(
+                'company',
+                $primaryKey,
+                !empty($values['tags']) ? $values['tags'] : ''
+            );
+        } elseif ($table === '{prefix}company_contact') {
+            saveTags(
+                'contact',
+                $primaryKey,
+                !empty($values['tags']) ? $values['tags'] : ''
+            );
         }
     } catch (Exception $e) {
         mysqli_query_check('ROLLBACK');
@@ -325,17 +355,17 @@ function saveFormData($table, &$primaryKey, &$formElements, &$values, &$warnings
 // Returns TRUE on success, 'deleted' for deleted records and 'notfound' if record is not found.
 function fetchRecord($table, $primaryKey, &$formElements, &$values)
 {
-    $result = TRUE;
+    $result = true;
     $strQuery = "SELECT * FROM $table WHERE id=?";
-    $intRes = mysqli_param_query($strQuery, [
-        $primaryKey
-    ]);
+    $intRes = mysqli_param_query($strQuery, [$primaryKey]);
     $row = mysqli_fetch_assoc($intRes);
-    if (!$row)
+    if (!$row) {
         return 'notfound';
+    }
 
-    if ($row['deleted'])
+    if ($row['deleted']) {
         $result = 'deleted';
+    }
 
     foreach ($formElements as $elem) {
         $type = $elem['type'];
@@ -348,36 +378,46 @@ function fetchRecord($table, $primaryKey, &$formElements, &$values)
         }
 
         switch ($type) {
-        case 'IFORM' :
-        case 'RESULT' :
+        case 'IFORM':
+        case 'RESULT':
             $values[$name] = $primaryKey;
             break;
-        case 'BUTTON' :
-        case 'JSBUTTON' :
-        case 'IMAGE' :
+        case 'BUTTON':
+        case 'JSBUTTON':
+        case 'IMAGE':
             if (strstr($elem['listquery'], '=_ID_')) {
                 $values[$name] = $primaryKey;
             } else {
                 $tmpListQuery = $elem['listquery'];
                 $strReplName = substr($tmpListQuery, strpos($tmpListQuery, '_'));
                 $strReplName = strtolower(
-                    substr($strReplName, 1, strrpos($strReplName, '_') - 1));
+                    substr($strReplName, 1, strrpos($strReplName, '_') - 1)
+                );
                 $values[$name] = isset($values[$strReplName]) ? $values[$strReplName] : '';
-                $elem['listquery'] = str_replace(strtoupper($strReplName), 'ID',
-                    $elem['listquery']);
+                $elem['listquery'] = str_replace(
+                    strtoupper($strReplName), 'ID', $elem['listquery']
+                );
             }
             break;
-        case 'INTDATE' :
+        case 'INTDATE':
             $values[$name] = dateConvDBDate2Date($row[$name]);
             break;
-        case 'INT' :
+        case 'INT':
             if (isset($elem['decimals'])) {
                 $values[$name] = miscRound2Decim($row[$name], $elem['decimals']);
             } else {
                 $values[$name] = $row[$name];
             }
             break;
-        default :
+        case 'TAGS':
+            $values[$name] = '';
+            if ('{prefix}company' === $table) {
+                $values[$name] = getTags('company', $primaryKey);
+            } elseif ('{prefix}company_contact' === $table) {
+                $values[$name] = getTags('contact', $primaryKey);
+            }
+            break;
+        default:
             $values[$name] = $row[$name];
         }
     }
@@ -387,34 +427,34 @@ function fetchRecord($table, $primaryKey, &$formElements, &$values)
 function getFormElements($form)
 {
     $strForm = $form;
-    require 'form_switch.php';
+    include 'form_switch.php';
     return $astrFormElements;
 }
 
 function getFormParentKey($form)
 {
     $strForm = $form;
-    require 'form_switch.php';
+    include 'form_switch.php';
     return $strParentKey;
 }
 
 function getFormJSONType($form)
 {
     $strForm = $form;
-    require 'form_switch.php';
+    include 'form_switch.php';
     return $strJSONType;
 }
 
 function getFormClearRowValuesAfterAdd($form)
 {
     $strForm = $form;
-    require 'form_switch.php';
+    include 'form_switch.php';
     return $clearRowValuesAfterAdd;
 }
 
 function getFormOnAfterRowAdded($form)
 {
     $strForm = $form;
-    require 'form_switch.php';
+    include 'form_switch.php';
     return $onAfterRowAdded;
 }

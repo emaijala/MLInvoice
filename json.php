@@ -362,8 +362,9 @@ default :
 
 function printJSONRecord($table, $id = false, $warnings = null)
 {
-    if ($id === false)
+    if ($id === false) {
         $id = getRequest('id', '');
+    }
     if ($id) {
         if (substr($table, 0, 8) != '{prefix}') {
             $table = "{prefix}$table";
@@ -388,6 +389,14 @@ function printJSONRecord($table, $id = false, $warnings = null)
         if ($table == 'users') {
             unset($row['password']);
         }
+
+        // Fetch tags
+        if ($table == '{prefix}company') {
+            $row['tags'] = getTags('company', $id);
+        } elseif ($table == '{prefix}company_contact') {
+            $row['tags'] = getTags('contact', $id);
+        }
+
         header('Content-Type: application/json');
         $row['warnings'] = $warnings;
         if ($table == '{prefix}base') {
@@ -450,6 +459,13 @@ function printJSONRecords($table, $parentIdCol, $sort)
                 $row['type_id_text'] = $GLOBALS['loc' . $row['type_id_text']];
             }
         }
+        // Fetch tags
+        if ($table == 'company') {
+            $row['tags'] = getTags('company', $row['id']);
+        } elseif ($table == 'company_contact') {
+            $row['tags'] = getTags('contact', $row['id']);
+        }
+
         echo json_encode($row);
     }
     echo "\n]}";
@@ -494,6 +510,7 @@ function saveJSONRecord($table, $parentKeyName)
         echo json_encode(['missing_fields' => $res, 'warnings' => $warnings]);
         return;
     }
+
     if ($new) {
         header('HTTP/1.1 201 Created');
     }

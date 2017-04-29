@@ -250,6 +250,16 @@ case 'company' :
             'allow_null' => true
         ],
         [
+            'name' => 'tags',
+            'label' => $GLOBALS['locTags'],
+            'type' => 'TAGS',
+            'style' => 'noemptyvalue long',
+            'listquery' => 'table=company_tag&sort=tag',
+            'position' => 0,
+            'default' => null,
+            'allow_null' => true
+        ],
+        [
             'name' => 'company_contacts',
             'label' => $GLOBALS['locContacts'],
             'type' => 'IFORM',
@@ -302,7 +312,7 @@ case 'company_contacts' :
             'name' => 'person_title',
             'label' => $GLOBALS['locPersonTitle'],
             'type' => 'TEXT',
-            'style' => 'small',
+            'style' => 'short',
             'listquery' => '',
             'position' => 0,
             'allow_null' => true
@@ -311,7 +321,7 @@ case 'company_contacts' :
             'name' => 'phone',
             'label' => $GLOBALS['locPhone'],
             'type' => 'TEXT',
-            'style' => 'medium',
+            'style' => 'small',
             'position' => 0,
             'allow_null' => true
         ],
@@ -319,7 +329,7 @@ case 'company_contacts' :
             'name' => 'gsm',
             'label' => $GLOBALS['locGSM'],
             'type' => 'TEXT',
-            'style' => 'medium',
+            'style' => 'small',
             'position' => 0,
             'allow_null' => true
         ],
@@ -329,6 +339,16 @@ case 'company_contacts' :
             'type' => 'TEXT',
             'style' => 'medium',
             'position' => 0,
+            'allow_null' => true
+        ],
+        [
+            'name' => 'tags',
+            'label' => $GLOBALS['locTags'],
+            'type' => 'TAGS',
+            'style' => 'noemptyvalue medium',
+            'listquery' => 'table=contact_tag&sort=tag',
+            'position' => 0,
+            'default' => null,
             'allow_null' => true
         ]
     ];

@@ -146,6 +146,36 @@ CREATE TABLE mlinvoice_company_contact (
   FOREIGN KEY (company_id) REFERENCES mlinvoice_company(id)
 ) ENGINE=INNODB CHARACTER SET utf8 COLLATE utf8_swedish_ci;
 
+CREATE TABLE mlinvoice_company_tag (
+  id int(11) NOT NULL auto_increment,
+  tag varchar(100) default NULL,
+  PRIMARY KEY (id)
+) ENGINE=INNODB CHARACTER SET utf8 COLLATE utf8_swedish_ci;
+
+CREATE TABLE mlinvoice_company_tag_link (
+  id int(11) NOT NULL auto_increment,
+  tag_id int(11) NOT NULL,
+  company_id int(11) NOT NULL,
+  PRIMARY KEY (id),
+  FOREIGN KEY (tag_id) REFERENCES mlinvoice_company_tag(id),
+  FOREIGN KEY (company_id) REFERENCES mlinvoice_company(id)
+) ENGINE=INNODB CHARACTER SET utf8 COLLATE utf8_swedish_ci;
+
+CREATE TABLE mlinvoice_contact_tag (
+  id int(11) NOT NULL auto_increment,
+  tag varchar(100) default NULL,
+  PRIMARY KEY (id)
+) ENGINE=INNODB CHARACTER SET utf8 COLLATE utf8_swedish_ci;
+
+CREATE TABLE mlinvoice_contact_tag_link (
+  id int(11) NOT NULL auto_increment,
+  tag_id int(11) NOT NULL,
+  contact_id int(11) NOT NULL,
+  PRIMARY KEY (id),
+  FOREIGN KEY (tag_id) REFERENCES mlinvoice_contact_tag(id),
+  FOREIGN KEY (contact_id) REFERENCES mlinvoice_company_contact(id)
+) ENGINE=INNODB CHARACTER SET utf8 COLLATE utf8_swedish_ci;
+
 CREATE TABLE mlinvoice_product (
   id int(11) NOT NULL auto_increment,
   deleted tinyint NOT NULL default 0,
@@ -319,7 +349,7 @@ CREATE TABLE mlinvoice_default_value (
 
 SET NAMES 'utf8';
 
-INSERT INTO mlinvoice_state (id, data) VALUES ('version', '47');
+INSERT INTO mlinvoice_state (id, data) VALUES ('version', '49');
 
 INSERT INTO mlinvoice_state (id, data) VALUES ('tableconversiondone', '1');
 

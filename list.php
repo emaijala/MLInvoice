@@ -409,7 +409,9 @@ function createJSONSelectList($strList, $startRow, $rowCount, $filter, $sort,
 
     $strWhereClause = '';
 
-    if (!getSetting('show_deleted_records') && empty($id)) {
+    if (!getSetting('show_deleted_records') && empty($id)
+        && !empty($strDeletedField)
+    ) {
         $strWhereClause = " WHERE $strDeletedField=0";
     }
 
@@ -448,7 +450,8 @@ function createJSONSelectList($strList, $startRow, $rowCount, $filter, $sort,
     }
 
     // Build the final select clause
-    $strSelectClause = "$strPrimaryKey, $strDeletedField";
+    $strSelectClause = !empty($strDeletedField) ? "$strPrimaryKey, $strDeletedField"
+        : $strPrimaryKey;
     foreach ($astrShowFields as $field) {
         $strSelectClause .= ', ' .
              (isset($field['sql']) ? $field['sql'] : $field['name']);
@@ -555,7 +558,7 @@ function createJSONSelectList($strList, $startRow, $rowCount, $filter, $sort,
             ) {
                 $value = $GLOBALS["loc{$row[$name]}"];
             } else {
-                $value = htmlspecialchars($row[$name]);
+                $value = $row[$name];
             }
             $resultValues[$name] = $value;
         }

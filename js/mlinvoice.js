@@ -341,10 +341,11 @@ var MLInvoice = (function MLInvoice() {
         };
         $('.select2').each(function () {
             var field = $(this);
+            var tags = field.hasClass('tags');
             var query = field.data('query');
             var showEmpty = field.data('showEmpty');
             var onChange = field.data('onChange');
-            var select2 = field.select2({
+            var options = {
                 placeholder: '',
                 ajax: {
                     url: 'json.php?func=get_selectlist&' + query,
@@ -358,7 +359,18 @@ var MLInvoice = (function MLInvoice() {
                         };
                     },
                     results: function (data, page) {
-                        var records = data.records;
+                        var records = [];
+                        if (tags) {
+                            $(data.records).each(function () {
+                                records.push({
+                                    id: this.text,
+                                    text: this.text,
+                                    descriptions: []
+                                });
+                            });
+                        } else {
+                            records = data.records;
+                        }
                         if (showEmpty && page == 1 && data.filter == '') {
                             records.unshift({id: '', text: '-'});
                         }
@@ -374,18 +386,55 @@ var MLInvoice = (function MLInvoice() {
                     }
                 },
                 formatResult: function (object) {
-                    var text = object.text;
+                    var text = $('<div/>').text(object.text).html();
                     $(object.descriptions).each(function () {
-                        text += '<div class="select-description">' + this + '</div>';
+                        var desc = $('<div/>').text(this).html();
+                        text += '<div class="select-description">' + desc + '</div>';
                     });
                     return text;
                 },
                 dropdownCssClass: 'bigdrop',
                 dropdownAutoWidth: true,
-                escapeMarkup: function (m) { return m; },
                 width: 'element'
-            });
-            if (onChange &&  'function' === typeof callbacks[onChange]) {
+            };
+
+            if (tags) {
+                $.extend(options, {
+                    tags: true,
+                    tokenSeparators: [','],
+                    createSearchChoice: function (term) {
+                        return {
+                            id: $.trim(term),
+                            text: $.trim(term) + ' (+)'
+                        };
+                    },
+                    initSelection: function (element, callback) {
+                        var data = [];
+                        var tags = element.val();
+                        if (!tags) {
+                            return data;
+                        }
+                        $(tags.split(',')).each(function () {
+                            var val = $.trim(this);
+                            if ('' !== val) {
+                                data.push({
+                                    id: this,
+                                    text: this
+                                });
+                            }
+                        });
+                        callback(data);
+                    },
+                    formatSelection: function (object) {
+                        var text = object.text;
+                        text = text.replace(/ \(\+\)$/, '');
+                        return $('<div/>').text(text).html();
+                    }
+                });
+            }
+
+            var select2 = field.select2(options);
+            if (onChange && 'function' === typeof callbacks[onChange]) {
                 select2.change(callbacks[onChange]);
             }
         });

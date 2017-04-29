@@ -399,6 +399,26 @@ EOT;
                  "\"$astrAdditionalAttributes$readOnly>\n";
         }
         break;
+    case 'TAGS':
+        if ($strMode == 'MODIFY') {
+            $showEmpty = '1';
+            if (strstr($strStyle, 'noemptyvalue ')) {
+                $strStyle = str_replace('noemptyvalue ', '', $strStyle);
+                $showEmpty = '0';
+            }
+            $strValue = htmlspecialchars($strValue);
+            $onChange = $astrAdditionalAttributes ? trim($astrAdditionalAttributes) : '';
+            $encodedQuery = htmlspecialchars($strListQuery);
+            $strFormElement = <<<EOT
+<input type="hidden" class="$strStyle select2 tags" id="$strName" name="$strName" value="$strValue" data-query="$encodedQuery" data-show-empty="$showEmpty" data-on-change="$onChange"/>
+EOT;
+        } else {
+            $strFormElement = "<input type=\"text\" class=\"$strStyle\" " .
+                 "id=\"$strName\" name=\"$strName\" value=\"" .
+                 htmlspecialchars($strValue) .
+                 "\"$astrAdditionalAttributes$readOnly>\n";
+        }
+        break;
 
     case 'BUTTON':
         $strListQuery = str_replace('_ID_', $strValue, $strListQuery);

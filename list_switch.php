@@ -594,6 +594,68 @@ case 'default_value' :
     $strTitle = $GLOBALS['locDefaultValues'];
     break;
 
+case 'company_tag' :
+    $strTable = '{prefix}company_tag';
+    $astrSearchFields = [
+        [
+            'name' => 'tag',
+            'type' => 'TEXT'
+        ]
+    ];
+    $strPrimaryKey = 'id';
+    $astrShowFields = [
+        [
+            'name' => 'tag',
+            'width' => 450,
+            'type' => 'TEXT',
+            'header' => '',
+            'select' => true
+        ]
+    ];
+    $strMainForm = 'company';
+    break;
+
+case 'contact_tag' :
+    $strTable = '{prefix}contact_tag';
+    $astrSearchFields = [
+        [
+            'name' => 'tag',
+            'type' => 'TEXT'
+        ]
+    ];
+    $strPrimaryKey = 'id';
+    $astrShowFields = [
+        [
+            'name' => 'tag',
+            'width' => 450,
+            'type' => 'TEXT',
+            'header' => '',
+            'select' => true
+        ]
+    ];
+    break;
+
+case 'company_tag' :
+    $strTable = '{prefix}company_tag';
+    $astrSearchFields = [
+        [
+            'name' => 'tag',
+            'type' => 'TEXT'
+        ]
+    ];
+    $strPrimaryKey = 'id';
+    $astrShowFields = [
+        [
+            'name' => 'tag',
+            'width' => 450,
+            'type' => 'TEXT',
+            'header' => '',
+            'select' => true
+        ]
+    ];
+    $strMainForm = 'company';
+    break;
+
 /***********************************************************************
  SYSTEM
  ***********************************************************************/

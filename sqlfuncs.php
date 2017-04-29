@@ -233,6 +233,87 @@ function getInitialOfferState()
     return mysqli_fetch_value($res) ?: 1;
 }
 
+/**
+ * Get tags for a record
+ *
+ * @param string $type Record type (company, contact)
+ * @param int    $id   Record ID
+ *
+ * @return string Comma-separated list of tags
+ */
+function getTags($type, $id)
+{
+    $tags = [];
+    $res = mysqli_param_query(
+        <<<EOT
+SELECT tag FROM {prefix}${type}_tag WHERE id IN (
+    SELECT tag_id FROM {prefix}${type}_tag_link WHERE ${type}_id=?
+)
+EOT
+        ,
+        [$id]
+    );
+    while ($tagRow = mysqli_fetch_array($res)) {
+        $tags[] = $tagRow[0];
+    }
+    return implode(',', $tags);
+}
+
+/**
+ * Save tags for a record
+ *
+ * @param string $type Record type (company, contact)
+ * @param int    $id   Record ID
+ * @param string $tags Comma-separated list of tags
+ *
+ * @return void
+ */
+function saveTags($type, $id, $tags)
+{
+    global $dblink;
+
+    // Delete tag links
+    mysqli_param_query(
+        "DELETE FROM {prefix}${type}_tag_link WHERE ${type}_id=?",
+        [$id],
+        'exception'
+    );
+    if ($tags) {
+        // Save tags
+        foreach (explode(',', $tags) as $tag) {
+            $res = mysqli_param_query(
+                "SELECT id FROM {prefix}${type}_tag WHERE tag=?",
+                [$tag]
+            );
+            $tagId = mysqli_fetch_value($res);
+            if (null === $tagId) {
+                mysqli_param_query(
+                    "INSERT INTO {prefix}${type}_tag (tag) VALUES (?)",
+                    [$tag],
+                    'exception'
+                );
+                $tagId = mysqli_insert_id($dblink);
+            }
+            mysqli_param_query(
+                "INSERT INTO {prefix}${type}_tag_link (tag_id, ${type}_id)"
+                . ' VALUES (?, ?)',
+                [$tagId, $id],
+                'exception'
+            );
+        }
+    }
+    // Delete any orphaned tags
+    mysqli_param_query(
+        <<<EOT
+DELETE FROM {prefix}${type}_tag WHERE id NOT IN
+    (SELECT tag_id FROM {prefix}${type}_tag_link)
+EOT
+        ,
+        [],
+        'exception'
+    );
+}
+
 function deleteRecord($table, $id)
 {
     mysqli_query_check('BEGIN');
@@ -1007,6 +1088,50 @@ EOT
                 'ALTER TABLE {prefix}product ADD COLUMN vendor varchar(255) NULL',
                 'ALTER TABLE {prefix}product ADD COLUMN vendors_code varchar(100) NULL',
                 "REPLACE INTO {prefix}state (id, data) VALUES ('version', '48')"
+            ]
+        );
+    }
+
+    if ($version < 49) {
+        $updates = array_merge(
+            $updates,
+            [
+                <<<EOT
+CREATE TABLE {prefix}company_tag (
+  id int(11) NOT NULL auto_increment,
+  tag varchar(100) default NULL,
+  PRIMARY KEY (id)
+) ENGINE=INNODB CHARACTER SET utf8 COLLATE utf8_swedish_ci
+EOT
+                , <<<EOT
+CREATE TABLE {prefix}company_tag_link (
+  id int(11) NOT NULL auto_increment,
+  tag_id int(11) NOT NULL,
+  company_id int(11) NOT NULL,
+  PRIMARY KEY (id),
+  FOREIGN KEY (tag_id) REFERENCES {prefix}company_tag(id),
+  FOREIGN KEY (company_id) REFERENCES {prefix}company(id)
+) ENGINE=INNODB CHARACTER SET utf8 COLLATE utf8_swedish_ci
+EOT
+                , <<<EOT
+CREATE TABLE {prefix}contact_tag (
+  id int(11) NOT NULL auto_increment,
+  tag varchar(100) default NULL,
+  PRIMARY KEY (id)
+) ENGINE=INNODB CHARACTER SET utf8 COLLATE utf8_swedish_ci;
+EOT
+                , <<<EOT
+CREATE TABLE {prefix}contact_tag_link (
+  id int(11) NOT NULL auto_increment,
+  tag_id int(11) NOT NULL,
+  contact_id int(11) NOT NULL,
+  PRIMARY KEY (id),
+  FOREIGN KEY (tag_id) REFERENCES {prefix}contact_tag(id),
+  FOREIGN KEY (contact_id) REFERENCES {prefix}company_contact(id)
+) ENGINE=INNODB CHARACTER SET utf8 COLLATE utf8_swedish_ci;
+EOT
+                ,
+                "REPLACE INTO {prefix}state (id, data) VALUES ('version', '49')"
             ]
         );
     }
