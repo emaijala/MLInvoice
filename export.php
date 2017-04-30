@@ -1,7 +1,7 @@
 <?php
 /*******************************************************************************
  MLInvoice: web-based invoicing application.
- Copyright (C) 2010-2016 Ere Maijala
+ Copyright (C) 2010-2017 Ere Maijala
 
  This program is free software. See attached LICENSE.
 
@@ -9,7 +9,7 @@
 
 /*******************************************************************************
  MLInvoice: web-pohjainen laskutusohjelma.
- Copyright (C) 2010-2016 Ere Maijala
+ Copyright (C) 2010-2017 Ere Maijala
 
  Tämä ohjelma on vapaa. Lue oheinen LICENSE.
 
@@ -40,8 +40,9 @@ class ExportData
         $deletedRecords = getRequest('deleted', false);
 
         if ($table && $format && $columns) {
-            if (!table_valid($table))
+            if (!table_valid($table)) {
                 die('Invalid table name');
+            }
 
             $res = mysqli_query_check("show fields from {prefix}$table");
             $field_count = mysqli_num_rows($res);
@@ -49,87 +50,116 @@ class ExportData
             while ($row = mysqli_fetch_assoc($res)) {
                 $field_defs[$row['Field']] = $row;
             }
+            if ('company' === $table || 'company_contact' === $table) {
+                $field_defs['tags'] = ['Type' => 'text'];
+            }
 
             foreach ($columns as $key => $column) {
-                if (!$column)
+                if (!$column) {
                     unset($columns[$key]);
-                elseif (!isset($field_defs[$column]))
+                } elseif (!isset($field_defs[$column])) {
                     die('Invalid column name');
+                }
             }
 
             ob_clean();
-            $filename = isset($GLOBALS["locTable_$table"]) ? $GLOBALS["locTable_$table"] : $table;
+            $filename = isset($GLOBALS["locTable_$table"])
+                ? $GLOBALS["locTable_$table"] : $table;
             switch ($format) {
             case 'csv' :
                 $field_delims = $this->importer->get_field_delims();
                 $enclosure_chars = $this->importer->get_enclosure_chars();
                 $row_delims = $this->importer->get_row_delims();
 
-                if (!isset($field_delims[$fieldDelimiter]))
+                if (!isset($field_delims[$fieldDelimiter])) {
                     die('Invalid field delimiter');
+                }
                 $fieldDelimiter = $field_delims[$fieldDelimiter]['char'];
-                if (!isset($enclosure_chars[$enclosureChar]))
+                if (!isset($enclosure_chars[$enclosureChar])) {
                     die('Invalid enclosure character');
+                }
                 $enclosureChar = $enclosure_chars[$enclosureChar]['char'];
-                if (!isset($row_delims[$rowDelimiter]))
+                if (!isset($row_delims[$rowDelimiter])) {
                     die('Invalid field delimiter');
+                }
                 $rowDelimiter = $row_delims[$rowDelimiter]['char'];
 
                 header('Content-type: text/csv');
                 header("Content-Disposition: attachment; filename=\"$filename.csv\"");
-                if ($charset == 'UTF-16')
+                if ($charset == 'UTF-16') {
                     echo iconv($charset, 'UTF-16', ''); // output BOM
+                }
                 $this->output_str(
-                    $this->str_putcsv($columns, $fieldDelimiter, $enclosureChar) .
-                         $rowDelimiter, $charset);
+                    $this->str_putcsv($columns, $fieldDelimiter, $enclosureChar)
+                    . $rowDelimiter,
+                    $charset
+                );
                 break;
 
             case 'xml' :
                 header('Content-type: text/xml');
                 header("Content-Disposition: attachment; filename=\"$filename.xml\"");
-                if ($charset == 'UTF-16')
+                if ($charset == 'UTF-16') {
                     echo iconv($charset, 'UTF-16', ''); // output BOM
+                }
                 $this->output_str("<?xml version=\"1.0\"?>\n<records>\n", $charset);
                 break;
 
             case 'json' :
                 header('Content-type: application/json');
                 header(
-                    "Content-Disposition: attachment; filename=\"$filename.json\"");
-                if ($charset == 'UTF-16')
+                    "Content-Disposition: attachment; filename=\"$filename.json\""
+                );
+                if ($charset == 'UTF-16') {
                     echo iconv($charset, 'UTF-16', ''); // output BOM
+                }
                 echo "{\"$table\":[\n";
                 break;
             }
 
             $query = "select * from {prefix}$table";
             if (!$deletedRecords) {
-                $query .= ' where deleted=0';
-                if ($table == 'company_contact')
-                    $query .= ' and company_id not in (select id from {prefix}company where deleted=1)';
-                elseif ($table == 'invoice_row')
-                    $query .= ' and invoice_id not in (select id from {prefix}invoice where deleted=1)';
+                if (isset($field_defs['deleted'])) {
+                    $query .= ' where deleted=0';
+                }
+                if ($table == 'company_contact') {
+                    $query .= ' and company_id not in (select id from'
+                        . ' {prefix}company where deleted=1)';
+                } elseif ($table == 'invoice_row') {
+                    $query .= ' and invoice_id not in (select id from'
+                        . ' {prefix}invoice where deleted=1)';
+                }
             }
             $res = mysqli_query_check($query);
             $first = true;
             while ($row = mysqli_fetch_assoc($res)) {
+                if (in_array($table, ['company', 'company_contact'])
+                    && in_array('tags', $columns)
+                ) {
+                    $type = $table === 'company' ? 'company' : 'contact';
+                    $row['tags'] = getTags($type, $row['id']);
+                }
                 $data = [];
                 foreach ($columns as $column) {
                     $value = $row[$column];
-                    if (is_null($value))
+                    if (is_null($value)) {
                         $data[$column] = '';
-                    if ($value &&
-                         substr($field_defs[$column]['Type'], 0, 8) == 'longblob')
+                    }
+                    if ($value
+                        && substr($field_defs[$column]['Type'], 0, 8) == 'longblob'
+                    ) {
                         $data[$column] = '0x' . bin2hex($value);
-                    else {
+                    } else {
                         $data[$column] = $value;
                     }
                 }
                 switch ($format) {
                 case 'csv' :
                     $this->output_str(
-                        $this->str_putcsv($data, $fieldDelimiter, $enclosureChar) .
-                             $rowDelimiter, $charset);
+                        $this->str_putcsv($data, $fieldDelimiter, $enclosureChar)
+                        . $rowDelimiter,
+                        $charset
+                    );
                     break;
 
                 case 'xml' :
@@ -138,30 +168,24 @@ class ExportData
                         $str .= "    <$column>" . xml_encode($data[$column]) .
                              "</$column>\n";
                     }
+                    if ($childRows) {
+                        $children = $this->getChildRows($table, $row['id']);
+                        foreach ($children as $tag => $crows) {
+                            if (is_array($crows)) {
+                                foreach ($crows as $crow) {
+                                    $str .= "    <$tag>\n";
+                                    foreach ($crow as $column => $value) {
+                                        $str .= "      <$column>"
+                                            . xml_encode($value)
+                                            . "</$column>\n";
+                                    }
+                                    $str .= "    </$tag>\n";
+                                }
+                            } else {
+                                $str .= "    <$tag>" . xml_encode($crows)
+                                    . "</$tag>\n";
 
-                    if ($childRows && ($table == 'invoice' || $table == 'company')) {
-                        if ($table == 'invoice') {
-                            $cres = mysqli_param_query(
-                                'select * from {prefix}invoice_row where invoice_id=?',
-                                [
-                                    $row['id']
-                                ]);
-                            $tag = 'invoice_row';
-                        } else {
-                            $cres = mysqli_param_query(
-                                'select * from {prefix}company_contact where company_id=?',
-                                [
-                                    $row['id']
-                                ]);
-                            $tag = 'company_contact';
-                        }
-                        while ($crow = mysqli_fetch_assoc($cres)) {
-                            $str .= "    <$tag>\n";
-                            foreach ($crow as $column => $value) {
-                                $str .= "      <$column>" . xml_encode($value) .
-                                     "</$column>\n";
                             }
-                            $str .= "    </$tag>\n";
                         }
                     }
                     $str .= "  </$table>\n";
@@ -169,32 +193,17 @@ class ExportData
                     break;
 
                 case 'json' :
-                    if ($childRows && ($table == 'invoice' || $table == 'company')) {
-                        if ($table == 'invoice')
-                            $childTable = 'invoice_row';
-                        else
-                            $childTable = 'company_contact';
-                        $data[$childTable] = [];
-                        if ($table == 'invoice')
-                            $cres = mysqli_param_query(
-                                'select * from {prefix}invoice_row where invoice_id=?',
-                                [
-                                    $row['id']
-                                ]);
-                        else
-                            $cres = mysqli_param_query(
-                                'select * from {prefix}company_contact where company_id=?',
-                                [
-                                    $row['id']
-                                ]);
-                        while ($crow = mysqli_fetch_assoc($cres)) {
-                            $data[$childTable][] = $crow;
+                    if ($childRows) {
+                        $children = $this->getChildRows($table, $row['id']);
+                        foreach ($children as $tag => $crows) {
+                            $data[$tag] = $crows;
                         }
                     }
-                    if ($first)
+                    if ($first) {
                         $first = false;
-                    else
+                    } else {
                         echo (",\n");
+                    }
                     $this->output_str(json_encode($data), $charset);
                     break;
                 }
@@ -338,6 +347,10 @@ class ExportData
                 <option value="product"><?php echo $GLOBALS['locImportExportTableProducts']?></option>
                 <option value="row_type"><?php echo $GLOBALS['locImportExportTableRowTypes']?></option>
                 <option value="invoice_state"><?php echo $GLOBALS['locImportExportTableInvoiceStates']?></option>
+                <option value="delivery_terms"><?php echo $GLOBALS['locImportExportTableDeliveryTerms']?></option>
+                <option value="delivery_method"><?php echo $GLOBALS['locImportExportTableDeliveryMethods']?></option>
+                <option value="stock_balance_log"><?php echo $GLOBALS['locImportExportTableStockBalanceLog']?></option>
+                <option value="default_value"><?php echo $GLOBALS['locImportExportTableDefaultValues']?></option>
             </select>
         </div>
 
@@ -353,7 +366,7 @@ class ExportData
         <div class="medium_label"><?php echo $GLOBALS['locImportExportFieldDelimiter']?></div>
         <div class="field">
             <select id="field_delim" name="field_delim">
-  <?php
+        <?php
         $field_delims = $this->importer->get_field_delims();
         foreach ($field_delims as $key => $delim) {
             echo "<option value=\"$key\">" . $delim['name'] . "</option>\n";
@@ -365,7 +378,7 @@ class ExportData
         <div class="medium_label"><?php echo $GLOBALS['locImportExportEnclosureCharacter']?></div>
         <div class="field">
             <select id="enclosure_char" name="enclosure_char">
-  <?php
+        <?php
         $enclosure_chars = $this->importer->get_enclosure_chars();
         foreach ($enclosure_chars as $key => $delim) {
             echo "<option value=\"$key\">" . $delim['name'] . "</option>\n";
@@ -377,7 +390,7 @@ class ExportData
         <div class="medium_label"><?php echo $GLOBALS['locImportExportRowDelimiter']?></div>
         <div class="field">
             <select id="row_delim" name="row_delim">
-  <?php
+        <?php
         $row_delims = $this->importer->get_row_delims();
         foreach ($row_delims as $key => $delim) {
             echo "<option value=\"$key\">" . $delim['name'] . "</option>\n";
@@ -409,7 +422,7 @@ class ExportData
         </div>
     </form>
 </div>
-<?php
+    <?php
     }
 
     protected function str_putcsv($data, $delimiter = ',', $enclosure = '"')
@@ -418,8 +431,9 @@ class ExportData
         fputcsv($fp, $data, $delimiter, $enclosure);
         rewind($fp);
         $data = '';
-        while (!feof($fp))
+        while (!feof($fp)) {
             $data .= fread($fp, 1024);
+        }
         fclose($fp);
         return rtrim($data, "\n");
     }
@@ -429,9 +443,44 @@ class ExportData
         if ($charset && $charset != _CHARSET_) {
             $str = iconv(_CHARSET_, $charset, $str);
             // No need for BOM here, this is just a simple string
-            if (substr($str, 0, 2) == "\xFE\xFF" || substr($str, 0, 2) == "\xFF\xFE")
+            if (substr($str, 0, 2) == "\xFE\xFF" || substr($str, 0, 2) == "\xFF\xFE"
+            ) {
                 $str = substr($str, 2);
+            }
         }
         echo $str;
+    }
+
+    protected function getChildRows($table, $parentId)
+    {
+        $children = [];
+        if ($table == 'invoice') {
+            $children['invoice_row'] = [
+                'sql' => 'select * from {prefix}invoice_row where invoice_id=?',
+                'params' => [$parentId]
+            ];
+        } elseif ($table == 'company') {
+            $children['company_contact'] = [
+                'sql' => <<<EOT
+select ct.*, (
+  select GROUP_CONCAT(t.tag) from {prefix}contact_tag t where t.id in
+    (select tl.tag_id from {prefix}contact_tag_link tl where tl.contact_id=ct.id)
+  ) tags from {prefix}company_contact ct
+  where ct.company_id=?
+EOT
+                ,
+                'params' => [$parentId]
+            ];
+        }
+        $result = [];
+        foreach ($children as $tag => $settings) {
+            $cres = mysqli_param_query(
+                $settings['sql'], $settings['params']
+            );
+            while ($crow = mysqli_fetch_assoc($cres)) {
+                $result[$tag][] = $crow;
+            }
+        }
+        return $result;
     }
 }
