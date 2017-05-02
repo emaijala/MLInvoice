@@ -410,7 +410,7 @@ if (!function_exists('str_getcsv')) {
 
 function fgets_charset($handle, $charset, $line_ending = "\n")
 {
-    if (substr($charset, 0, 6) == 'UTF-16') {
+    if (strncmp($charset, 'UTF-16', 6) == 0) {
         $be = $charset == 'UTF-16' || $charset == 'UTF-16BE';
         $str = '';
         $le_pos = 0;
@@ -418,15 +418,18 @@ function fgets_charset($handle, $charset, $line_ending = "\n")
         while (!feof($handle)) {
             $c1 = fgetc($handle);
             $c2 = fgetc($handle);
-            if ($c1 === false || $c2 === false)
+            if ($c1 === false || $c2 === false) {
                 break;
+            }
             $str .= $c1 . $c2;
-            if (($be && ord($c1) == 0 && $c2 == $line_ending[$le_pos]) ||
-                 (!$be && ord($c2) == 0 && $c1 == $line_ending[$le_pos])) {
+            if (($be && ord($c1) == 0 && $c2 == $line_ending[$le_pos])
+                || (!$be && ord($c2) == 0 && $c1 == $line_ending[$le_pos])
+            ) {
                 if (++$le_pos >= $le_len)
                     break;
-            } else
+            } else {
                 $le_pos = 0;
+            }
         }
         $str = iconv($charset, _CHARSET_, $str);
     } else {
@@ -435,22 +438,27 @@ function fgets_charset($handle, $charset, $line_ending = "\n")
         $le_len = strlen($line_ending);
         while (!feof($handle)) {
             $c1 = fgetc($handle);
-            if ($c1 === false)
+            if ($c1 === false) {
                 break;
+            }
             $str .= $c1;
             if ($c1 == $line_ending[$le_pos]) {
-                if (++$le_pos >= $le_len)
+                if (++$le_pos >= $le_len) {
                     break;
-            } else
+                }
+            } else {
                 $le_pos = 0;
+            }
         }
         $conv_str = iconv($charset, _CHARSET_, $str);
-        if ($str && !$conv_str)
+        if ($str && !$conv_str) {
             error_log(
-                "Conversion from '$charset' to '" . _CHARSET_ .
-                     "' failed for string '$str'");
-        else
+                "Conversion from '$charset' to '" . _CHARSET_
+                . "' failed for string '$str'"
+            );
+        } else {
             $str = $conv_str;
+        }
     }
     return $str;
 }

@@ -360,7 +360,9 @@ function mysqli_query_check($query, $noFail = false)
                  ' more characters]';
         error_log("Query '$query' failed: ($intError) " . mysqli_error($dblink));
         if ($noFail !== true) {
-            header('HTTP/1.1 500 Internal Server Error');
+            if (!headers_sent()) {
+                header('HTTP/1.1 500 Internal Server Error');
+            }
             $msg = (!defined('_DB_VERBOSE_ERRORS_') || !_DB_VERBOSE_ERRORS_)
                 ? $GLOBALS['locDBError']
                 : htmlspecialchars(

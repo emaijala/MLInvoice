@@ -1,7 +1,7 @@
 <?php
 /*******************************************************************************
  MLInvoice: web-based invoicing application.
- Copyright (C) 2010-2016 Ere Maijala
+ Copyright (C) 2010-2017 Ere Maijala
 
  This program is free software. See attached LICENSE.
 
@@ -9,7 +9,7 @@
 
 /*******************************************************************************
  MLInvoice: web-pohjainen laskutusohjelma.
- Copyright (C) 2010-2016 Ere Maijala
+ Copyright (C) 2010-2017 Ere Maijala
 
  Tämä ohjelma on vapaa. Lue oheinen LICENSE.
 
@@ -199,8 +199,9 @@ class ImportStatement extends ImportFile
         }
     }
 
-    protected function import_xml($xml, $table, $field_defs, $columnMappings,
-        $duplicateMode, $duplicateCheckColumns, $importMode, &$errors
+    protected function import_xml($xml, $table, $fieldDefs, $columnMappings,
+        $duplicateMode, $duplicateCheckColumns, $importMode, $decimalSeparator,
+        &$errors
     ) {
         $errors = [];
         $recNum = 0;
@@ -235,7 +236,8 @@ class ImportStatement extends ImportFile
                     } else {
                         $result = $this->process_import_row(
                             $table, $mapped_row, $duplicateMode,
-                            $duplicateCheckColumns, $importMode, $addedRecordId
+                            $duplicateCheckColumns, $importMode, $decimalSeparator,
+                            $fieldDefs[$table], $addedRecordId
                         );
                         if ($result) {
                             echo "    Record $recNum: $result<br>\n";
@@ -291,7 +293,7 @@ class ImportStatement extends ImportFile
     }
 
     protected function process_import_row($table, $row, $dupMode, $dupCheckColumns,
-        $mode, &$addedRecordId
+        $mode, $decimalSeparator, $fieldDefs, &$addedRecordId
     ) {
         if (!isset($row['date']) || !isset($row['amount']) || !isset($row['refnr'])) {
             return $GLOBALS['locImportStatementFieldMissing'];
@@ -313,13 +315,12 @@ class ImportStatement extends ImportFile
             $amount = substr($amount, 1);
         }
 
-        $sep = getRequest('decimal_separator', ',');
-        if ($sep == ' ' || $sep == ',') {
+        if ($decimalSeparator == ' ' || $decimalSeparator == ',') {
             $amount = str_replace('.', '', $amount);
-            $amount = str_replace($sep, '.', $amount);
-        } elseif ($sep == '.') {
+            $amount = str_replace($decimalSeparator, '.', $amount);
+        } elseif ($decimalSeparator == '.') {
             $amount = str_replace(',', '', $amount);
-        } elseif ($sep == '') {
+        } elseif ($decimalSeparator == '') {
             $amount /= 100;
         }
         $amount = floatval($amount);

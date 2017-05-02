@@ -121,7 +121,7 @@ class ImportFile
         }
 
         $importMode = getRequest('import', '');
-        if ($importMode == 'import' || $importMode == 'preview'
+        if (($importMode == 'import' || $importMode == 'preview')
             && isset($_SESSION['import_file'])
         ) {
             $this->import_file($importMode);
@@ -244,9 +244,12 @@ class ImportFile
                 $row = $this->get_csv(
                     $fp, $fieldDelimiter, $enclosureChar, $charset, $rowDelimiter
                 );
-                if (!isset($row)) {
+                if (null === $row) {
                     $errors[] = 'Could not read row from import file';
                     break;
+                }
+                if ([] === $row) {
+                    continue;
                 }
                 $rows[] = $row;
             }
@@ -353,6 +356,7 @@ class ImportFile
                         && !in_array($value, $column['filter'])
                     ) {
                         // Ignore line
+                        --$recNum;
                         continue 2;
                     }
                     $row[] = $value;
@@ -448,14 +452,14 @@ class ImportFile
             return [];
         }
         $res = mysqli_query_check("show fields from {prefix}$table");
-        $field_defs = [];
+        $fieldDefs = [];
         while ($row = mysqli_fetch_assoc($res)) {
-            $field_defs[$row['Field']] = $row;
+            $fieldDefs[$row['Field']] = $row;
         }
         if ('company' === $table || 'company_contact' === $table) {
-            $field_defs['tags'] = ['Type' => 'text'];
+            $fieldDefs['tags'] = ['Type' => 'text'];
         }
-        return $field_defs;
+        return $fieldDefs;
     }
 
     protected function get_xml_preview_data($xml, &$headings, &$rows, &$errors)
@@ -1026,40 +1030,32 @@ function select_preset()
             $line .= $str;
             // We must be at EOF or have balanced number of enclosure characters to
             // have a completed string
-        } while ($str !== '' && $enclosure !== '' &&
-             substr_count($line, $enclosure) % 2 !== 0);
-        return str_getcsv($line, $delimiter, $enclosure);
+        } while ($str !== '' && $enclosure !== ''
+             && substr_count($line, $enclosure) % 2 !== 0
+        );
+        return '' === $line ? [] : str_getcsv($line, $delimiter, $enclosure);
     }
 
     protected function process_import_row($table, $row, $dupMode, $dupCheckColumns,
-        $mode, &$addedRecordId
+        $mode, $decimalSeparator, $fieldDefs, &$addedRecordId
     ) {
         global $dblink;
 
-        $sep = getRequest('decimal_separator', ',');
-        $fieldDefs = getFormElements($table);
-        // Add type_id for company so that it's handled properly even though it's not
-        // currently used.
-        if ($table == 'company') {
-            $fieldDefs[] = [
-                'name' => 'type_id',
-                'type' => 'INT',
-                'style' => 'short'
-            ];
-        }
         foreach ($row as $key => &$value) {
-            foreach ($fieldDefs as $fieldDef) {
-                if ($fieldDef['name'] === $key) {
-                    if ($fieldDef['type'] == 'INT' && $sep != '.'
-                        && in_array($fieldDef['style'], ['percent', 'currency'])
-                    ) {
-                        $value = str_replace($sep, '.', $value);
-                    }
-                    if ($value === '' && in_array($fieldDef['type'], ['INT', 'LIST'])
-                    ) {
-                        $value = null;
-                    }
-                    break;
+            if (isset($fieldDefs[$key])) {
+                $fieldDef = $fieldDefs[$key];
+                list($type) = explode('(', $fieldDef['Type'], 2);
+                if ($decimalSeparator != '.'
+                    && in_array($type, ['decimal', 'numeric', 'float', 'double'])
+                ) {
+                    $value = str_replace($decimalSeparator, '.', $value);
+                }
+                if ('' === $value
+                    && in_array(
+                        $type, ['int', 'decimal', 'numeric', 'float', 'double']
+                    )
+                ) {
+                    $value = null;
                 }
             }
         }
@@ -1067,47 +1063,52 @@ function select_preset()
 
         $result = '';
         $recordId = null;
-        if ($dupMode != '' && count($dupCheckColumns) > 0) {
+        if ('' != $dupMode && $dupCheckColumns) {
             $query = "select id from {prefix}$table where Deleted=0";
             $where = '';
             $params = [];
             foreach ($dupCheckColumns as $dupCol) {
+                if (!isset($row[$dupCol])) {
+                    continue;
+                }
                 $where .= " AND $dupCol=?";
-                $params[] = isset($row[$dupCol]) ? $row[$dupCol] : '';
+                $params[] = $row[$dupCol];
             }
-            $res = mysqli_param_query($query . $where, $params);
-            if ($dupRow = mysqli_fetch_row($res)) {
-                $id = $dupRow[0];
-                $found_dup = true;
-                if ($dupMode == 'update') {
-                    $result = "Update existing row id $id in table $table";
-                } else {
-                    $result = "Not updating existing row id $id in table $table";
-                }
+            if ($params) {
+                $res = mysqli_param_query($query . $where, $params);
+                if ($dupRow = mysqli_fetch_row($res)) {
+                    $id = $dupRow[0];
+                    $found_dup = true;
+                    if ($dupMode == 'update') {
+                        $result = "Update existing row id $id in table $table";
+                    } else {
+                        $result = "Not updating existing row id $id in table $table";
+                    }
 
-                if ($mode == 'import' && $dupMode == 'update') {
-                    // Update existing row
-                    $query = "UPDATE {prefix}$table SET ";
-                    $columns = [];
-                    $params = [];
-                    foreach ($row as $key => $value) {
-                        if ('id' === $key || 'tags' === $key) {
-                            continue;
+                    if ($mode == 'import' && $dupMode == 'update') {
+                        // Update existing row
+                        $query = "UPDATE {prefix}$table SET ";
+                        $columns = [];
+                        $params = [];
+                        foreach ($row as $key => $value) {
+                            if ('id' === $key || 'tags' === $key) {
+                                continue;
+                            }
+                            $columns[] = "$key=?";
+                            $params[] = $value;
                         }
-                        $columns[] = "$key=?";
-                        $params[] = $value;
+                        $query .= implode(',', $columns) . ' WHERE id=?';
+                        $params[] = $id;
+                        mysqli_param_query($query, $params);
+                        if (in_array($table, ['company', 'company_contact'])
+                            && isset($row['tags'])
+                        ) {
+                            $type = $table === 'company' ? 'company' : 'contact';
+                            saveTags($type, $id, $row['tags']);
+                        }
                     }
-                    $query .= implode(',', $columns) . ' WHERE id=?';
-                    $params[] = $id;
-                    mysqli_param_query($query, $params);
-                    if (in_array($table, ['company', 'company_contact'])
-                        && isset($row['tags'])
-                    ) {
-                        $type = $table === 'company' ? 'company' : 'contact';
-                        saveTags($type, $id, $row['tags']);
-                    }
+                    return $result;
                 }
-                return $result;
             }
         }
         // Add new row
@@ -1142,7 +1143,7 @@ function select_preset()
     }
 
     protected function process_child_records($parentTable, $parentId, $childRecords,
-        $duplicateMode, $importMode, &$field_defs
+        $duplicateMode, $importMode, $decimalSeparator, &$fieldDefs
     ) {
         switch ($parentTable) {
         case 'invoice' :
@@ -1159,12 +1160,12 @@ function select_preset()
             ++$childNum;
             $childColumns["${parentTable}_id"] = $parentId;
 
-            if (!isset($field_defs[$childTable])) {
-                $field_defs[$childTable] = $this->get_field_defs($childTable);
+            if (!isset($fieldDefs[$childTable])) {
+                $fieldDefs[$childTable] = $this->get_field_defs($childTable);
             }
 
             foreach ($childColumns as $column => $value) {
-                if (!isset($field_defs[$childTable][$column])) {
+                if (!isset($fieldDefs[$childTable][$column])) {
                     die(
                         "Invalid column name: $childTable." .
                         htmlspecialchars($column)
@@ -1175,7 +1176,8 @@ function select_preset()
             $addedChildRecordId = null;
             $result = $this->process_import_row(
                 $childTable, $childColumns, $duplicateMode, $childDupColumns,
-                $importMode, $addedChildrecordId
+                $importMode, $decimalSeparator, $fieldDefs[$childTable],
+                $addedChildrecordId
             );
             echo "    &nbsp; Child Record $childNum: $result<br>\n";
         }
@@ -1183,6 +1185,12 @@ function select_preset()
 
     protected function import_file($importMode)
     {
+        // Try to disable maximum execution time
+        set_time_limit(0);
+
+        // Disable output buffering
+        ob_end_flush();
+
         $charset = getRequest('charset', 'UTF-8');
         $table = getRequest('table', '');
         $format = getRequest('format', '');
@@ -1193,6 +1201,7 @@ function select_preset()
         $duplicateCheckColumns = getRequest('column', []);
         $columnMappings = getRequest('map_column', []);
         $skipRows = getRequest('skip_rows', 0);
+        $decimalSeparator = getRequest('decimal_separator', ',');
 
         if (!$charset || !$format || !$fieldDelimiter || !$enclosureChar
             || !$rowDelimiter
@@ -1213,12 +1222,21 @@ function select_preset()
             echo '<p>' . $GLOBALS['locImportSimulation'] . "</p>\n";
         }
 
-        $field_defs[$table] = $this->get_field_defs($table);
+        $fieldDefs[$table] = $this->get_field_defs($table);
+        // Add type_id for company so that it's handled properly even though it's not
+        // currently used.
+        if ($table == 'company') {
+            $fieldDefs[] = [
+                'name' => 'type_id',
+                'type' => 'INT',
+                'style' => 'short'
+            ];
+        }
 
         foreach ($duplicateCheckColumns as $key => $column) {
             if (empty($column)) {
                 unset($duplicateCheckColumns[$key]);
-            } elseif (!isset($field_defs[$table][$column])) {
+            } elseif (!isset($fieldDefs[$table][$column])) {
                 die(
                     'Invalid duplicate check column name: '
                     . htmlspecialchars($column)
@@ -1237,7 +1255,7 @@ function select_preset()
             }
 
             foreach ($columnMappings as $key => $column) {
-                if ($column && !isset($field_defs[$table][$column])) {
+                if ($column && !isset($fieldDefs[$table][$column])) {
                     die('Invalid column name: ' . htmlspecialchars($column));
                 }
             }
@@ -1280,14 +1298,14 @@ function select_preset()
                 $row = $this->get_csv(
                     $fp, $fieldDelimiter, $enclosureChar, $charset, $rowDelimiter
                 );
-                if (!isset($row)) {
+                if (empty($row)) {
                     break;
                 }
 
                 ++$rowNum;
                 $mapped_row = [];
                 $haveMappings = false;
-                for ($i = 0; $i < count($row); $i ++) {
+                for ($i = 0; $i < count($row); $i++) {
                     if ($columnMappings[$i]) {
                         $haveMappings = true;
                         $mapped_row[$columnMappings[$i]] = $row[$i];
@@ -1302,14 +1320,14 @@ function select_preset()
                     $addedRecordId = null;
                     $result = $this->process_import_row(
                         $table, $mapped_row, $duplicateMode, $duplicateCheckColumns,
-                        $importMode, $addedRecordId
+                        $importMode, $decimalSeparator, $fieldDefs[$table],
+                        $addedRecordId
                     );
                     if ($result) {
                         echo $GLOBALS['locImportRow'] . " $rowNum: " .
                              htmlspecialchars($result) . "<br>\n";
                     }
                 }
-                ob_flush();
             }
             fclose($fp);
             if ($_SESSION['import_file'] != _IMPORT_FILE_
@@ -1329,8 +1347,8 @@ function select_preset()
                 die('XML parsing failed: ' . htmlspecialchars($e->getMessage()));
             }
             $this->import_xml(
-                $xml, $table, $field_defs, $columnMappings, $duplicateMode,
-                $duplicateCheckColumns, $importMode, $errors
+                $xml, $table, $fieldDefs, $columnMappings, $duplicateMode,
+                $duplicateCheckColumns, $importMode, $decimalSeparator, $errors
             );
         } elseif ($format == 'json') {
             $data = file_get_contents($_SESSION['import_file']);
@@ -1380,7 +1398,7 @@ function select_preset()
                     } elseif (is_object($value)) {
                         $childRecords[] = get_object_vars($value);
                     } else {
-                        if (!isset($field_defs[$table][$column])) {
+                        if (!isset($fieldDefs[$table][$column])) {
                             die(
                                 "Invalid column name: $table." .
                                      htmlspecialchars($column)
@@ -1394,7 +1412,8 @@ function select_preset()
                 $addedRecordId = null;
                 $result = $this->process_import_row(
                     $table, $mapped_row, $duplicateMode, $duplicateCheckColumns,
-                    $importMode, $addedRecordId
+                    $importMode, $decimalSeparator, $fieldDefs[$table],
+                    $addedRecordId
                 );
                 if ($result) {
                     echo "    Record $recNum: $result<br>\n";
@@ -1403,10 +1422,9 @@ function select_preset()
                 if (isset($addedRecordId)) {
                     $this->process_child_records(
                         $table, $addedRecordId, $childRecords, $duplicateMode,
-                        $importMode, $field_defs
+                        $importMode, $decimalSeparator, $fieldDefs
                     );
                 }
-                ob_flush();
             }
         } elseif ($format == 'fixed') {
             $data = file_get_contents($_SESSION['import_file']);
@@ -1450,14 +1468,14 @@ function select_preset()
                     $addedRecordId = null;
                     $result = $this->process_import_row(
                         $table, $mapped_row, $duplicateMode, $duplicateCheckColumns,
-                        $importMode, $addedRecordId
+                        $importMode, $decimalSeparator, $fieldDefs[$table],
+                        $addedRecordId
                     );
                     if ($result) {
                         echo $GLOBALS['locImportRow'] . " $rowNum: " .
                              htmlspecialchars($result) . "<br>\n";
                     }
                 }
-                ob_flush();
             }
         }
 
@@ -1467,8 +1485,9 @@ function select_preset()
 <?php
     }
 
-    protected function import_xml($xml, $table, $field_defs, $columnMappings,
-        $duplicateMode, $duplicateCheckColumns, $importMode, &$errors
+    protected function import_xml($xml, $table, $fieldDefs, $columnMappings,
+        $duplicateMode, $duplicateCheckColumns, $importMode, $decimalSeparator,
+        &$errors
     ) {
         $errors = [];
         $recNum = 0;
@@ -1483,7 +1502,7 @@ function select_preset()
                         $childRecords[] = get_object_vars($subRecord);
                     }
                 } else {
-                    if (!isset($field_defs[$table][$column])) {
+                    if (!isset($fieldDefs[$table][$column])) {
                         die(
                             "Invalid column name: $table."
                             . htmlspecialchars($column)
@@ -1497,7 +1516,7 @@ function select_preset()
             $addedRecordId = null;
             $result = $this->process_import_row(
                 $table, $mapped_row, $duplicateMode, $duplicateCheckColumns,
-                $importMode, $addedRecordId
+                $importMode, $decimalSeparator, $fieldDefs[$table], $addedRecordId
             );
             if ($result) {
                 echo "    Record $recNum: $result<br>\n";
@@ -1506,10 +1525,9 @@ function select_preset()
             if (isset($addedRecordId)) {
                 $this->process_child_records(
                     $table, $addedRecordId, $childRecords, $duplicateMode,
-                    $importMode, $field_defs
+                    $importMode, $decimalSeparator, $fieldDefs
                 );
             }
-            ob_flush();
         }
     }
 
