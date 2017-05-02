@@ -16,6 +16,12 @@
  *******************************************************************************/
 ini_set('display_errors', 0);
 
+require_once 'config.php';
+
+if (defined('_PROFILING_') && is_callable('tideways_enable')) {
+    tideways_enable(TIDEWAYS_FLAGS_CPU + TIDEWAYS_FLAGS_MEMORY);
+}
+
 require_once 'sqlfuncs.php';
 require_once 'miscfuncs.php';
 require_once 'sessionfuncs.php';
@@ -74,7 +80,7 @@ case 'session_type':
 case 'user':
     if (!sesAdminAccess()) {
         header('HTTP/1.1 403 Forbidden');
-        exit();
+        break;
     }
     saveJSONRecord(substr($strFunc, 4), '');
     break;
@@ -144,12 +150,12 @@ case 'get_invoice_defaults' :
 case 'get_table_columns' :
     if (!sesAdminAccess()) {
         header('HTTP/1.1 403 Forbidden');
-        exit();
+        break;
     }
     $table = getRequest('table', '');
     if (!$table) {
         header('HTTP/1.1 400 Bad Request');
-        exit();
+        break;
     }
     // account_statement is a pseudo table for account statement "import"
     if ($table == 'account_statement') {
@@ -176,7 +182,7 @@ case 'get_table_columns' :
             ]
         );
         echo "\n}";
-        exit();
+        break;
     }
 
     if (!table_valid($table)) {
@@ -207,7 +213,7 @@ case 'get_table_columns' :
 case 'get_import_preview' :
     if (!sesAdminAccess()) {
         header('HTTP/1.1 403 Forbidden');
-        exit();
+        break;
     }
     $table = getRequest('table', '');
     if ($table == 'account_statement') {
@@ -278,7 +284,7 @@ case 'get_selectlist' :
     $table = getRequest('table', '');
     if (!$table) {
         header('HTTP/1.1 400 Bad Request (table)');
-        exit();
+        break;
     }
 
     if (!table_valid($table)) {
@@ -306,7 +312,7 @@ case 'get_selectlist' :
 case 'update_invoice_row_dates' :
     if (!sesWriteAccess()) {
         header('HTTP/1.1 403 Forbidden');
-        exit();
+        break;
     }
     $invoiceId = getRequest('id', 0);
     $date = getRequest('date', '');
@@ -321,7 +327,7 @@ case 'update_invoice_row_dates' :
 case 'update_stock_balance' :
     if (!sesWriteAccess()) {
         header('HTTP/1.1 403 Forbidden');
-        exit();
+        break;
     }
     $productId = getRequest('product_id', 0);
     $change = getRequest('stock_balance_change', 0);
@@ -333,7 +339,7 @@ case 'update_stock_balance' :
 case 'get_stock_balance_rows' :
     $productId = getRequest('product_id', 0);
     if (!$productId) {
-        exit();
+        break;
     }
     $res = mysqli_param_query(
         <<<EOT
@@ -362,6 +368,14 @@ case 'noop' :
 
 default :
     header('HTTP/1.1 404 Not Found');
+}
+
+if (defined('_PROFILING_') && is_callable('tideways_disable')) {
+    $data = tideways_disable();
+    file_put_contents(
+        sys_get_temp_dir() . '/' . uniqid() . '.mlinvoice-json.xhprof',
+        serialize($data)
+    );
 }
 
 function printJSONRecord($table, $id = false, $warnings = null)
@@ -479,7 +493,7 @@ function saveJSONRecord($table, $parentKeyName)
 {
     if (!sesWriteAccess()) {
         header('HTTP/1.1 403 Forbidden');
-        exit();
+        return;
     }
 
     $data = json_decode(file_get_contents('php://input'), true);
@@ -525,7 +539,7 @@ function DeleteJSONRecord($table)
 {
     if (!sesWriteAccess()) {
         header('HTTP/1.1 403 Forbidden');
-        exit();
+        return;
     }
 
     $id = getRequest('id', '');

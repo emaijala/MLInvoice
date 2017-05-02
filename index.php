@@ -1,7 +1,7 @@
 <?php
 /*******************************************************************************
  MLInvoice: web-based invoicing application.
- Copyright (C) 2010-2016 Ere Maijala
+ Copyright (C) 2010-2017 Ere Maijala
 
  This program is free software. See attached LICENSE.
 
@@ -9,7 +9,7 @@
 
 /*******************************************************************************
  MLInvoice: web-pohjainen laskutusohjelma.
- Copyright (C) 2010-2016 Ere Maijala
+ Copyright (C) 2010-2017 Ere Maijala
 
  Tämä ohjelma on vapaa. Lue oheinen LICENSE.
 
@@ -18,6 +18,12 @@
 // buffered, so we can redirect later if necessary
 ini_set('implicit_flush', 'Off');
 ob_start();
+
+require_once 'config.php';
+
+if (defined('_PROFILING_') && is_callable('tideways_enable')) {
+    tideways_enable(TIDEWAYS_FLAGS_CPU + TIDEWAYS_FLAGS_MEMORY);
+}
 
 require_once 'vendor/autoload.php';
 require_once 'sessionfuncs.php';
@@ -318,3 +324,12 @@ if ($strFunc == 'system' && getRequest('operation', '') == 'export' &&
     </div>
 </body>
 </html>
+
+<?php
+if (defined('_PROFILING_') && is_callable('tideways_disable')) {
+    $data = tideways_disable();
+    file_put_contents(
+        sys_get_temp_dir() . '/' . uniqid() . '.mlinvoice-index.xhprof',
+        serialize($data)
+    );
+}

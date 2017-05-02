@@ -1,7 +1,7 @@
 <?php
 /*******************************************************************************
 MLInvoice: web-based invoicing application.
-Copyright (C) 2010-2015 Ere Maijala
+Copyright (C) 2010-2017 Ere Maijala
 
 This program is free software. See attached LICENSE.
 
@@ -9,7 +9,7 @@ This program is free software. See attached LICENSE.
 
 /*******************************************************************************
 MLInvoice: web-pohjainen laskutusohjelma.
-Copyright (C) 2010-2015 Ere Maijala
+Copyright (C) 2010-2017 Ere Maijala
 
 Tämä ohjelma on vapaa. Lue oheinen LICENSE.
 
@@ -115,6 +115,14 @@ $GLOBALS['mlinvoice_mail_settings'] = [
         ]
     ]
 ];
+
+// Uncomment the following line to enable SQL debugging. Note that the debugging
+// information that's written into PHP's error log may include credentials etc.
+//define('_SQL_DEBUG_', true);
+
+// Uncomment the following line to enable profiling with Tideways.
+// See https://tideways.io/profiler/xhprof-for-php7-php5.6 for more information.
+//define('_PROFILING_', true);
 
 // N.B.! Other settings can be found in the UI (Settings -> General Settings)
 // HUOM! Muut asetukset löytyvät käyttöliittymästä kohdasta Asetukset - Yleiset asetukset
