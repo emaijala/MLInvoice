@@ -49,21 +49,21 @@ if (!isset($_SESSION['sesLANG'])) {
     $_SESSION['sesLANG'] = defined('_UI_LANGUAGE_') ? _UI_LANGUAGE_ : 'fi-FI';
 }
 
-require_once 'localize.php';
+require_once 'translator.php';
 
 switch (verifyDatabase()) {
 case 'OK' :
     break;
 case 'UPGRADED' :
-    $upgradeMessage = $GLOBALS['locDatabaseUpgraded'];
+    $upgradeMessage = Translator::translate('DatabaseUpgraded');
     break;
 case 'FAILED' :
     $upgradeFailed = true;
-    $upgradeMessage = $GLOBALS['locDatabaseUpgradeFailed'];
+    $upgradeMessage = Translator::translate('DatabaseUpgradeFailed');
     break;
 }
 
-$strMessage = $GLOBALS['locWelcomeMessage'];
+$strMessage = Translator::translate('WelcomeMessage');
 
 if ($strLogon) {
     if ($strLogin && $strPasswd) {
@@ -76,14 +76,14 @@ if ($strLogon) {
             }
             exit();
         case 'FAIL' :
-            $strMessage = $GLOBALS['locInvalidCredentials'];
+            $strMessage = Translator::translate('InvalidCredentials');
             break;
         case 'TIMEOUT' :
-            $strMessage = $GLOBALS['locLoginTimeout'];
+            $strMessage = Translator::translate('LoginTimeout');
             break;
         }
     } else {
-        $strMessage = $GLOBALS['locMissingFields'];
+        $strMessage = Translator::translate('MissingFields');
     }
 }
 
@@ -121,7 +121,7 @@ if (isset($languages)) {
     echo '<br/>';
 }
 ?>
-<h1><?php echo $GLOBALS['locWelcome']?></h1>
+<h1><?php echo Translator::translate('Welcome')?></h1>
             <p>
                 <span id="loginmsg"><?php echo $strMessage?></span>
             </p>
@@ -135,7 +135,7 @@ function createHash()
   document.getElementById('passwd').value = '';
   document.getElementById('key').value = '';
   var loginmsg = document.getElementById('loginmsg');
-  loginmsg.childNodes.item(0).nodeValue = '<?php echo $GLOBALS['locLoggingIn']?>';
+  loginmsg.childNodes.item(0).nodeValue = '<?php echo Translator::translate('LoggingIn')?>';
 }
 </script>
 
@@ -145,17 +145,17 @@ function createHash()
                 <input type="hidden" name="fpasswd" id="fpasswd" value=""> <input
                     type="hidden" name="key" id="key" value="<?php echo $key?>">
                 <p>
-                    <span style="width: 100px; display: inline-block;"><?php echo $GLOBALS['locUserID']?></span>
+                    <span style="width: 100px; display: inline-block;"><?php echo Translator::translate('UserID')?></span>
                     <input class="medium" name="flogin" id="flogin" type="text"
                         value="">
                 </p>
                 <p>
-                    <span style="width: 100px; display: inline-block;"><?php echo $GLOBALS['locPassword']?></span>
+                    <span style="width: 100px; display: inline-block;"><?php echo Translator::translate('Password')?></span>
                     <input class="medium" name="passwd" id="passwd" type="password"
                         value="">
                 </p>
                 <input type="submit" name="logon"
-                    value="<?php echo $GLOBALS['locLogin']?>">
+                    value="<?php echo Translator::translate('Login')?>">
             </form>
 
         </div>

@@ -30,7 +30,7 @@ require_once 'datefuncs.php';
 
 sesVerifySession();
 
-require_once 'localize.php';
+require_once 'translator.php';
 
 $strFunc = getRequest('func', '');
 if ($strFunc == 'open_invoices')
@@ -67,7 +67,7 @@ echo htmlPageStart();
                 <table style="width: 100%">
                     <tr>
                         <td class="sublabel" colspan="4">
-    <?php echo $GLOBALS['locLabelQuickSearch']?><br> <br>
+    <?php echo Translator::translate('LabelQuickSearch')?><br> <br>
                         </td>
                     </tr>
 <?php
@@ -90,7 +90,7 @@ while ($row = mysqli_fetch_assoc($intRes)) {
                         </td>
                         <td><input type="hidden" name="delete_<?php echo $intID?>_x"
                             value="0"> <a class="tinyactionlink" href="#"
-                            title="<?php echo $GLOBALS['locDelRow']?>"
+                            title="<?php echo Translator::translate('DelRow')?>"
                             onclick="self.document.forms[0].delete_<?php echo $intID?>_x.value=1; self.document.forms[0].submit(); return false;">
                                 X </a></td>
                     </tr>
@@ -100,7 +100,7 @@ if (!isset($intID)) {
     ?>
 <tr>
                         <td class="label">
-        <?php echo $GLOBALS['locNoQuickSearches']?>
+        <?php echo Translator::translate('NoQuickSearches')?>
     </td>
                     </tr>
 <?php
@@ -112,7 +112,7 @@ if (!isset($intID)) {
                     <table>
                         <tr>
                             <td><a class="actionlink" href="#"
-                                onclick="self.close(); return false;"><?php echo $GLOBALS['locClose']?></a>
+                                onclick="self.close(); return false;"><?php echo Translator::translate('Close')?></a>
                             </td>
                         </tr>
                     </table>

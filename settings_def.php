@@ -1,7 +1,7 @@
 <?php
 /*******************************************************************************
  MLInvoice: web-based invoicing application.
- Copyright (C) 2010-2016 Ere Maijala
+ Copyright (C) 2010-2017 Ere Maijala
 
  This program is free software. See attached LICENSE.
 
@@ -9,19 +9,19 @@
 
 /*******************************************************************************
  MLInvoice: web-pohjainen laskutusohjelma.
- Copyright (C) 2010-2016 Ere Maijala
+ Copyright (C) 2010-2017 Ere Maijala
 
  Tämä ohjelma on vapaa. Lue oheinen LICENSE.
 
  *******************************************************************************/
 $arrSettings = [
     'start_sep' => [
-        'label' => $GLOBALS['locSettings'],
+        'label' => 'Settings',
         'type' => 'LABEL'
     ],
 
     'auto_close_after_delete' => [
-        'label' => $GLOBALS['locSettingAutoCloseFormAfterDelete'],
+        'label' => 'SettingAutoCloseFormAfterDelete',
         'type' => 'CHECK',
         'style' => 'medium',
         'position' => 1,
@@ -29,7 +29,7 @@ $arrSettings = [
         'allow_null' => true
     ],
     'add_customer_number' => [
-        'label' => $GLOBALS['locSettingAddCustomerNumber'],
+        'label' => 'SettingAddCustomerNumber',
         'type' => 'CHECK',
         'style' => 'medium',
         'position' => 1,
@@ -37,7 +37,7 @@ $arrSettings = [
         'allow_null' => true
     ],
     'show_deleted_records' => [
-        'label' => $GLOBALS['locSettingShowDeletedRecords'],
+        'label' => 'SettingShowDeletedRecords',
         'type' => 'CHECK',
         'style' => 'medium',
         'session' => 1,
@@ -46,7 +46,7 @@ $arrSettings = [
         'allow_null' => true
     ],
     'session_keepalive' => [
-        'label' => $GLOBALS['locSettingSessionKeepalive'],
+        'label' => 'SettingSessionKeepalive',
         'type' => 'CHECK',
         'style' => 'medium',
         'position' => 1,
@@ -54,7 +54,7 @@ $arrSettings = [
         'allow_null' => true
     ],
     'unit_price_decimals' => [
-        'label' => $GLOBALS['locSettingUnitPriceDecimals'],
+        'label' => 'SettingUnitPriceDecimals',
         'type' => 'INT',
         'style' => 'currency',
         'position' => 1,
@@ -62,7 +62,7 @@ $arrSettings = [
         'allow_null' => true
     ],
     'default_list_rows' => [
-        'label' => $GLOBALS['locSettingDefaultListRows'],
+        'label' => 'SettingDefaultListRows',
         'type' => 'SELECT',
         'style' => 'long noemptyvalue',
         'position' => 1,
@@ -76,7 +76,7 @@ $arrSettings = [
         ]
     ],
     'check_updates' => [
-        'label' => $GLOBALS['locSettingCheckForUpdates'],
+        'label' => 'SettingCheckForUpdates',
         'type' => 'CHECK',
         'style' => 'medium',
         'position' => 1,
@@ -84,7 +84,7 @@ $arrSettings = [
         'allow_null' => true
     ],
     'address_autocomplete' => [
-        'label' => $GLOBALS['locSettingAddressAutocomplete'],
+        'label' => 'SettingAddressAutocomplete',
         'type' => 'CHECK',
         'style' => 'medium',
         'position' => 1,
@@ -92,7 +92,7 @@ $arrSettings = [
         'allow_null' => true
     ],
     'dynamic_select_search_in_middle' => [
-        'label' => $GLOBALS['locSettingSearchInMiddleOfFields'],
+        'label' => 'SettingSearchInMiddleOfFields',
         'type' => 'CHECK',
         'style' => 'medium',
         'position' => 1,
@@ -101,12 +101,12 @@ $arrSettings = [
     ],
 
     'invoice_sep' => [
-        'label' => $GLOBALS['locSettingInvoices'],
+        'label' => 'SettingInvoices',
         'type' => 'LABEL'
     ],
 
     'invoice_add_number' => [
-        'label' => $GLOBALS['locSettingInvoiceAddNumber'],
+        'label' => 'SettingInvoiceAddNumber',
         'type' => 'CHECK',
         'style' => 'medium',
         'position' => 1,
@@ -114,7 +114,7 @@ $arrSettings = [
         'allow_null' => true
     ],
     'invoice_numbering_per_base' => [
-        'label' => $GLOBALS['locSettingInvoiceNumberingPerBase'],
+        'label' => 'SettingInvoiceNumberingPerBase',
         'type' => 'CHECK',
         'style' => 'medium',
         'position' => 1,
@@ -122,7 +122,7 @@ $arrSettings = [
         'allow_null' => true
     ],
     'invoice_numbering_per_year' => [
-        'label' => $GLOBALS['locSettingInvoiceNumberingPerYear'],
+        'label' => 'SettingInvoiceNumberingPerYear',
         'type' => 'CHECK',
         'style' => 'medium',
         'position' => 1,
@@ -130,7 +130,7 @@ $arrSettings = [
         'allow_null' => true
     ],
     'invoice_update_row_dates_on_copy' => [
-        'label' => $GLOBALS['locSettingInvoiceUpdateRowDateOnCopy'],
+        'label' => 'SettingInvoiceUpdateRowDateOnCopy',
         'type' => 'CHECK',
         'style' => 'medium',
         'position' => 1,
@@ -138,7 +138,7 @@ $arrSettings = [
         'allow_null' => true
     ],
     'invoice_add_reference_number' => [
-        'label' => $GLOBALS['locSettingInvoiceAddReferenceNumber'],
+        'label' => 'SettingInvoiceAddReferenceNumber',
         'type' => 'CHECK',
         'style' => 'medium',
         'position' => 1,
@@ -146,7 +146,7 @@ $arrSettings = [
         'allow_null' => true
     ],
     'invoice_show_barcode' => [
-        'label' => $GLOBALS['locSettingInvoiceShowBarcode'],
+        'label' => 'SettingInvoiceShowBarcode',
         'type' => 'CHECK',
         'style' => 'medium',
         'position' => 1,
@@ -154,7 +154,7 @@ $arrSettings = [
         'allow_null' => true
     ],
     'invoice_print_senders_logo_and_address' => [
-        'label' => $GLOBALS['locSettingInvoiceShowSendersLogoAndAddress'],
+        'label' => 'SettingInvoiceShowSendersLogoAndAddress',
         'type' => 'CHECK',
         'style' => 'medium',
         'position' => 1,
@@ -162,7 +162,7 @@ $arrSettings = [
         'allow_null' => true
     ],
     'invoice_show_recipient_contact_person' => [
-        'label' => $GLOBALS['locSettingInvoiceShowRecipientContactPerson'],
+        'label' => 'SettingInvoiceShowRecipientContactPerson',
         'type' => 'CHECK',
         'style' => 'medium',
         'position' => 1,
@@ -170,7 +170,7 @@ $arrSettings = [
         'allow_null' => true
     ],
     'invoice_show_recipient_email' => [
-        'label' => $GLOBALS['locSettingInvoiceShowRecipientEmail'],
+        'label' => 'SettingInvoiceShowRecipientEmail',
         'type' => 'CHECK',
         'style' => 'medium',
         'position' => 1,
@@ -178,7 +178,7 @@ $arrSettings = [
         'allow_null' => true
     ],
     'invoice_display_product_codes' => [
-        'label' => $GLOBALS['locSettingInvoiceDisplayProductCodes'],
+        'label' => 'SettingInvoiceDisplayProductCodes',
         'type' => 'CHECK',
         'style' => 'medium',
         'position' => 1,
@@ -186,7 +186,7 @@ $arrSettings = [
         'allow_null' => true
     ],
     'invoice_show_row_date' => [
-        'label' => $GLOBALS['locSettingInvoiceShowRowDate'],
+        'label' => 'SettingInvoiceShowRowDate',
         'type' => 'CHECK',
         'style' => 'medium',
         'position' => 1,
@@ -194,7 +194,7 @@ $arrSettings = [
         'allow_null' => true
     ],
     'invoice_show_dispatch_dates' => [
-        'label' => $GLOBALS['locSettingInvoiceShowDispatchDates'],
+        'label' => 'SettingInvoiceShowDispatchDates',
         'type' => 'CHECK',
         'style' => 'medium',
         'position' => 1,
@@ -202,7 +202,7 @@ $arrSettings = [
         'allow_null' => true
     ],
     'invoice_row_description_first_line_only' => [
-        'label' => $GLOBALS['locSettingInvoiceRowDescriptionFirstLineOnly'],
+        'label' => 'SettingInvoiceRowDescriptionFirstLineOnly',
         'type' => 'CHECK',
         'style' => 'medium',
         'position' => 1,
@@ -210,7 +210,7 @@ $arrSettings = [
         'allow_null' => true
     ],
     'invoice_separate_statement' => [
-        'label' => $GLOBALS['locSettingInvoiceSeparateStatement'],
+        'label' => 'SettingInvoiceSeparateStatement',
         'type' => 'CHECK',
         'style' => 'medium',
         'position' => 1,
@@ -218,7 +218,7 @@ $arrSettings = [
         'allow_null' => true
     ],
     'invoice_show_info_in_form' => [
-        'label' => $GLOBALS['locSettingInvoiceShowInfoInForm'],
+        'label' => 'SettingInvoiceShowInfoInForm',
         'type' => 'CHECK',
         'style' => 'medium',
         'position' => 1,
@@ -227,7 +227,7 @@ $arrSettings = [
     ],
 
     'invoice_warn_if_noncurrent_date' => [
-        'label' => $GLOBALS['locSettingInvoiceWarnIfNonCurrentDate'],
+        'label' => 'SettingInvoiceWarnIfNonCurrentDate',
         'type' => 'CHECK',
         'style' => 'medium',
         'position' => 1,
@@ -235,7 +235,7 @@ $arrSettings = [
         'allow_null' => true
     ],
     'invoice_send_reminder_to_invoicing_address' => [
-        'label' => $GLOBALS['locSettingInvoiceSendReminderToInvoicingAddress'],
+        'label' => 'SettingInvoiceSendReminderToInvoicingAddress',
         'type' => 'CHECK',
         'style' => 'medium',
         'position' => 1,
@@ -243,7 +243,7 @@ $arrSettings = [
         'allow_null' => true
     ],
     'invoice_display_vatless_price_in_list' => [
-        'label' => $GLOBALS['locSettingInvoiceDisplayVATLessPriceInList'],
+        'label' => 'SettingInvoiceDisplayVATLessPriceInList',
         'type' => 'CHECK',
         'style' => 'medium',
         'position' => 1,
@@ -251,7 +251,7 @@ $arrSettings = [
         'allow_null' => true
     ],
     'invoice_mark_paid_when_payment_date_set' => [
-        'label' => $GLOBALS['locSettingInvoiceMarkPaidWhenPaymentDateIsSet'],
+        'label' => 'SettingInvoiceMarkPaidWhenPaymentDateIsSet',
         'type' => 'CHECK',
         'style' => 'medium',
         'position' => 1,
@@ -259,7 +259,7 @@ $arrSettings = [
         'allow_null' => true
     ],
     'invoice_auto_archive' => [
-        'label' => $GLOBALS['locSettingInvoiceAutoArchive'],
+        'label' => 'SettingInvoiceAutoArchive',
         'type' => 'CHECK',
         'style' => 'medium',
         'position' => 1,
@@ -268,7 +268,7 @@ $arrSettings = [
     ],
 
     'invoice_default_vat_percent' => [
-        'label' => $GLOBALS['locSettingInvoiceDefaultVATPercent'],
+        'label' => 'SettingInvoiceDefaultVATPercent',
         'type' => 'PERCENT',
         'style' => 'percent',
         'position' => 1,
@@ -276,7 +276,7 @@ $arrSettings = [
         'allow_null' => false
     ],
     'invoice_payment_days' => [
-        'label' => $GLOBALS['locSettingInvoicePaymentDays'],
+        'label' => 'SettingInvoicePaymentDays',
         'type' => 'INT',
         'style' => 'tiny',
         'position' => 1,
@@ -284,7 +284,7 @@ $arrSettings = [
         'allow_null' => false
     ],
     'invoice_terms_of_payment' => [
-        'label' => $GLOBALS['locSettingInvoiceTermsOfPayment'],
+        'label' => 'SettingInvoiceTermsOfPayment',
         'type' => 'TEXT',
         'style' => 'medium',
         'position' => 1,
@@ -292,7 +292,7 @@ $arrSettings = [
         'allow_null' => false
     ],
     'invoice_period_for_complaints' => [
-        'label' => $GLOBALS['locSettingInvoicePeriodForComplaints'],
+        'label' => 'SettingInvoicePeriodForComplaints',
         'type' => 'TEXT',
         'style' => 'medium',
         'position' => 1,
@@ -300,7 +300,7 @@ $arrSettings = [
         'allow_null' => false
     ],
     'invoice_penalty_interest' => [
-        'label' => $GLOBALS['locSettingInvoicePenaltyInterestPercent'],
+        'label' => 'SettingInvoicePenaltyInterestPercent',
         'type' => 'PERCENT',
         'style' => 'percent',
         'position' => 1,
@@ -308,7 +308,7 @@ $arrSettings = [
         'allow_null' => false
     ],
     'invoice_notification_fee' => [
-        'label' => $GLOBALS['locSettingInvoiceNotificationFee'],
+        'label' => 'SettingInvoiceNotificationFee',
         'type' => 'CURRENCY',
         'style' => 'currency',
         'position' => 1,
@@ -316,20 +316,20 @@ $arrSettings = [
         'allow_null' => false
     ],
     'invoice_clear_row_values_after_add' => [
-        'label' => $GLOBALS['locSettingInvoiceClearRowValuesAfterAdd'],
+        'label' => 'SettingInvoiceClearRowValuesAfterAdd',
         'type' => 'SELECT',
         'style' => 'long noemptyvalue',
         'position' => 1,
         'default' => 0,
         'allow_null' => true,
         'options' => [
-            0 => $GLOBALS['locSettingInvoiceKeepRowValues'],
-            1 => $GLOBALS['locSettingInvoiceClearRowValues'],
-            2 => $GLOBALS['locSettingInvoiceUseProductDefaults']
+            0 => 'SettingInvoiceKeepRowValues',
+            1 => 'SettingInvoiceClearRowValues',
+            2 => 'SettingInvoiceUseProductDefaults'
         ]
     ],
     'invoice_pdf_filename' => [
-        'label' => $GLOBALS['locSettingInvoicePDFFilename'],
+        'label' => 'SettingInvoicePDFFilename',
         'type' => 'TEXT',
         'style' => 'medium',
         'position' => 1,
@@ -337,7 +337,7 @@ $arrSettings = [
         'allow_null' => false
     ],
     'invoice_address_x_offset' => [
-        'label' => $GLOBALS['locSettingInvoiceSenderAddressXOffset'],
+        'label' => 'SettingInvoiceSenderAddressXOffset',
         'type' => 'INT',
         'style' => 'currency',
         'position' => 1,
@@ -345,7 +345,7 @@ $arrSettings = [
         'allow_null' => true
     ],
     'invoice_address_y_offset' => [
-        'label' => $GLOBALS['locSettingInvoiceSenderAddressYOffset'],
+        'label' => 'SettingInvoiceSenderAddressYOffset',
         'type' => 'INT',
         'style' => 'currency',
         'position' => 1,
@@ -353,7 +353,7 @@ $arrSettings = [
         'allow_null' => true
     ],
     'invoice_recipient_address_x_offset' => [
-        'label' => $GLOBALS['locSettingInvoiceRecipientAddressXOffset'],
+        'label' => 'SettingInvoiceRecipientAddressXOffset',
         'type' => 'INT',
         'style' => 'currency',
         'position' => 1,
@@ -361,7 +361,7 @@ $arrSettings = [
         'allow_null' => true
     ],
     'invoice_recipient_address_y_offset' => [
-        'label' => $GLOBALS['locSettingInvoiceRecipientAddressYOffset'],
+        'label' => 'SettingInvoiceRecipientAddressYOffset',
         'type' => 'INT',
         'style' => 'currency',
         'position' => 1,
@@ -369,7 +369,7 @@ $arrSettings = [
         'allow_null' => true
     ],
     'invoice_address_max_width' => [
-        'label' => $GLOBALS['locSettingInvoiceAddressMaxWidth'],
+        'label' => 'SettingInvoiceAddressMaxWidth',
         'type' => 'INT',
         'style' => 'currency',
         'position' => 1,
@@ -378,12 +378,12 @@ $arrSettings = [
     ],
 
     'order_confirmation_sep' => [
-        'label' => $GLOBALS['locSettingOrderConfirmations'],
+        'label' => 'SettingOrderConfirmations',
         'type' => 'LABEL'
     ],
 
     'order_confirmation_terms' => [
-        'label' => $GLOBALS['locSettingOrderConfirmationTerms'],
+        'label' => 'SettingOrderConfirmationTerms',
         'type' => 'AREA',
         'style' => 'xlarge',
         'position' => 1,
@@ -392,12 +392,12 @@ $arrSettings = [
     ],
 
     'dispatch_note_sep' => [
-        'label' => $GLOBALS['locSettingDispatchNotes'],
+        'label' => 'SettingDispatchNotes',
         'type' => 'LABEL'
     ],
 
     'dispatch_note_show_barcodes' => [
-        'label' => $GLOBALS['locSettingDispatchNoteShowBarcodes'],
+        'label' => 'SettingDispatchNoteShowBarcodes',
         'type' => 'CHECK',
         'style' => 'medium',
         'position' => 1,

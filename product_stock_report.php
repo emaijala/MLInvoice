@@ -26,7 +26,7 @@ require_once 'htmlfuncs.php';
 require_once 'sqlfuncs.php';
 require_once 'miscfuncs.php';
 require_once 'datefuncs.php';
-require_once 'localize.php';
+require_once 'translator.php';
 require_once 'pdf.php';
 require_once 'abstract_report.php';
 
@@ -51,34 +51,34 @@ class ProductStockReport extends AbstractReport
             type="hidden" value="1">
 
         <div class="unlimited_label">
-            <h1><?php echo $GLOBALS['locProductStockReport']?></h1>
+            <h1><?php echo Translator::translate('ProductStockReport')?></h1>
         </div>
 
-        <div class="medium_label"><?php echo $GLOBALS['locProduct']?></div>
+        <div class="medium_label"><?php echo Translator::translate('Product')?></div>
         <div class="field"><?php echo htmlFormElement('product', 'LIST', $intProductId, 'medium', 'SELECT id, product_name FROM {prefix}product WHERE deleted=0 ORDER BY product_name', 'MODIFY', FALSE)?></div>
         <div class="field_sep"></div>
         <div class="medium_label"></div>
         <div class="field">
-            <input type="checkbox" id="purchase-price" name="purchase_price" value="1"> <label for="purchase-price"><?php echo $GLOBALS['locOnlyProductsWithPurchasePrice']?></label>
+            <input type="checkbox" id="purchase-price" name="purchase_price" value="1"> <label for="purchase-price"><?php echo Translator::translate('OnlyProductsWithPurchasePrice')?></label>
         </div>
 
-        <div class="medium_label"><?php echo $GLOBALS['locPrintFormat']?></div>
+        <div class="medium_label"><?php echo Translator::translate('PrintFormat')?></div>
         <div class="field">
             <input type="radio" id="format-table" name="format" value="table" checked="checked">
-            <label for="format-table"><?php echo $GLOBALS['locPrintFormatTable']?></label>
+            <label for="format-table"><?php echo Translator::translate('PrintFormatTable')?></label>
         </div>
         <div class="medium_label"></div>
         <div class="field">
-            <input type="radio" id="format-html" name="format" value="html"><label for="format-html"><?php echo $GLOBALS['locPrintFormatHTML']?></label>
+            <input type="radio" id="format-html" name="format" value="html"><label for="format-html"><?php echo Translator::translate('PrintFormatHTML')?></label>
         </div>
         <div class="medium_label"></div>
         <div class="field">
-            <input type="radio" id="format-pdf" name="format" value="pdf"><label for="format-pdf"><?php echo $GLOBALS['locPrintFormatPDF']?></label>
+            <input type="radio" id="format-pdf" name="format" value="pdf"><label for="format-pdf"><?php echo Translator::translate('PrintFormatPDF')?></label>
         </div>
         <div class="field_sep"></div>
 
         <div class="medium_label">
-            <a class="actionlink" href="#" onclick="document.getElementById('params').submit(); return false;"><?php echo $GLOBALS['locCreateReport']?></a>
+            <a class="actionlink" href="#" onclick="document.getElementById('params').submit(); return false;"><?php echo Translator::translate('CreateReport')?></a>
         </div>
     </form>
 </div>
@@ -123,17 +123,17 @@ class ProductStockReport extends AbstractReport
             ob_end_clean();
             $pdf = new PDF('P', 'mm', 'A4', _CHARSET_ == 'UTF-8', _CHARSET_, false);
             $pdf->setTopMargin(20);
-            $pdf->headerRight = $GLOBALS['locReportPage'];
+            $pdf->headerRight = Translator::translate('ReportPage');
             $pdf->printHeaderOnFirstPage = true;
             $pdf->AddPage();
             $pdf->SetAutoPageBreak(TRUE, 15);
 
             $pdf->setY(10);
             $pdf->SetFont('Helvetica', 'B', 12);
-            $pdf->Cell(100, 10, $GLOBALS['locProductStockReport'], 0, 1, 'L');
+            $pdf->Cell(100, 10, Translator::translate('ProductStockReport'), 0, 1, 'L');
 
             $pdf->SetFont('Helvetica', 'B', 8);
-            $pdf->Cell(50, 10, date($GLOBALS['locDateFormat']), 0, 1, 'L');
+            $pdf->Cell(50, 10, date(Translator::translate('DateFormat')), 0, 1, 'L');
 
             if ($params = $this->getParamsStr(false)) {
                 $pdf->SetFont('Helvetica', '', 8);
@@ -142,12 +142,12 @@ class ProductStockReport extends AbstractReport
             }
 
             $pdf->SetFont('Helvetica', 'B', 8);
-            $pdf->Cell(15, 4, $GLOBALS['locCode'], 0, 0, 'L');
-            $pdf->Cell(40, 4, $GLOBALS['locProduct'], 0, 0, 'L');
-            $pdf->Cell(25, 4, $GLOBALS['locUnitPrice'], 0, 0, 'R');
-            $pdf->Cell(25, 4, $GLOBALS['locPurchasePrice'], 0, 0, 'R');
-            $pdf->Cell(25, 4, $GLOBALS['locStockBalance'], 0, 0, 'R');
-            $pdf->Cell(25, 4, $GLOBALS['locStockValue'], 0, 1, 'R');
+            $pdf->Cell(15, 4, Translator::translate('Code'), 0, 0, 'L');
+            $pdf->Cell(40, 4, Translator::translate('Product'), 0, 0, 'L');
+            $pdf->Cell(25, 4, Translator::translate('UnitPrice'), 0, 0, 'R');
+            $pdf->Cell(25, 4, Translator::translate('PurchasePrice'), 0, 0, 'R');
+            $pdf->Cell(25, 4, Translator::translate('StockBalance'), 0, 0, 'R');
+            $pdf->Cell(25, 4, Translator::translate('StockValue'), 0, 1, 'R');
             $this->pdf = $pdf;
             return;
         }
@@ -157,7 +157,7 @@ class ProductStockReport extends AbstractReport
       <tr>
         <td>
           <div class="unlimited_label">
-            <strong><?php echo $GLOBALS['locProductStockReport']?></strong>
+            <strong><?php echo Translator::translate('ProductStockReport')?></strong>
           </div>
         </td>
       </tr>
@@ -170,22 +170,22 @@ class ProductStockReport extends AbstractReport
       <thead>
         <tr>
           <th class="label">
-            <?php echo $GLOBALS['locCode']?>
+            <?php echo Translator::translate('Code')?>
           </th>
           <th class="label">
-            <?php echo $GLOBALS['locProduct']?>
+            <?php echo Translator::translate('Product')?>
           </th>
           <th class="label" style="text-align: right">
-            <?php echo $GLOBALS['locUnitPrice']?>
+            <?php echo Translator::translate('UnitPrice')?>
           </th>
           <th class="label" style="text-align: right">
-            <?php echo $GLOBALS['locPurchasePrice']?>
+            <?php echo Translator::translate('PurchasePrice')?>
           </th>
           <th class="label" style="text-align: right">
-            <?php echo $GLOBALS['locStockBalance']?>
+            <?php echo Translator::translate('StockBalance')?>
           </th>
           <th class="label" style="text-align: right">
-            <?php echo $GLOBALS['locStockValue']?>
+            <?php echo Translator::translate('StockValue')?>
           </th>
         </tr>
       </thead>
@@ -261,7 +261,7 @@ class ProductStockReport extends AbstractReport
             $pdf = $this->pdf;
             $pdf->SetFont('Helvetica', 'B', 8);
             $pdf->setY($pdf->getY() + 1);
-            $pdf->Cell($sumPos, 4, $GLOBALS['locTotal'], 0, 0, 'R');
+            $pdf->Cell($sumPos, 4, Translator::translate('Total'), 0, 0, 'R');
             $pdf->Cell(25, 4, miscRound2Decim($stockValue), 0, 1, 'R');
             return;
         }
@@ -276,7 +276,7 @@ class ProductStockReport extends AbstractReport
     <?php if ($colSpan > 0) { ?>
         <td class="input total_sum" colspan="<?php echo $colSpan?>"
                 style="text-align: right">
-            <?php echo $GLOBALS['locTotal']?>
+            <?php echo Translator::translate('Total')?>
         </td>
     <?php } ?>
         <td class="input total_sum" style="text-align: right">
@@ -313,7 +313,7 @@ class ProductStockReport extends AbstractReport
 <script type="text/javascript">
 var table = $('.report-table.datatable').DataTable({
     'language': {
-        <?php echo $GLOBALS['locTableTexts']?>
+        <?php echo Translator::translate('TableTexts')?>
     },
     'pageLength': 50,
     'jQueryUI': true,
@@ -340,9 +340,9 @@ var table = $('.report-table.datatable').DataTable({
                 }, 0);
 
             // Update footer
-            pageTotal = format_currency(pageTotal/100, 2, '<?php echo $GLOBALS['locDecimalSeparator']?>', '<?php echo $GLOBALS['locThousandSeparator']?>');
-            total = format_currency(total/100, 2, '<?php echo $GLOBALS['locDecimalSeparator']?>', '<?php echo $GLOBALS['locThousandSeparator']?>');
-            $(api.column(column).footer()).html('<div style="float: right"><?php echo $GLOBALS['locVisiblePage'] ?>&nbsp;' + pageTotal + '</div><br><div style="float: right"><?php echo $GLOBALS['locTotal'] ?>&nbsp;' + total + '</div>');
+            pageTotal = MLInvoice.formatCurrency(pageTotal/100);
+            total = MLInvoice.formatCurrency(total/100);
+            $(api.column(column).footer()).html('<div style="float: right"><?php echo Translator::translate('VisiblePage') ?>&nbsp;' + pageTotal + '</div><br><div style="float: right"><?php echo Translator::translate('Total') ?>&nbsp;' + total + '</div>');
         });
     }
 });

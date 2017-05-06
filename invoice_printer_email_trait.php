@@ -78,7 +78,7 @@ trait InvoicePrinterEmailTrait
             || !$this->emailBody
         ) {
             $this->showEmailForm(
-                $send ? $GLOBALS['locEmailFillRequiredFields'] : ''
+                $send ? Translator::translate('EmailFillRequiredFields') : ''
             );
             return;
         }
@@ -109,13 +109,13 @@ trait InvoicePrinterEmailTrait
         $senderData = $this->senderData;
         $recipientData = $this->recipientData;
 
-        echo htmlPageStart($GLOBALS['locSendEmail']);
+        echo htmlPageStart(Translator::translate('SendEmail'));
         ?>
 <body>
     <div class="pagewrapper ui-widget ui-widget-content">
 
         <div id="email_form_container" class="form_container">
-            <h1><?php echo $GLOBALS['locSendEmail']?></h1>
+            <h1><?php echo Translator::translate('SendEmail')?></h1>
 <?php if ($errorMsg) echo '<div class="ui-state-error-text">' . $errorMsg . "<br><br></div>\n";?>
   <form method="POST" id="email_form">
                 <input type="hidden" name="id"
@@ -125,33 +125,33 @@ trait InvoicePrinterEmailTrait
                 <input type="hidden" name="email_send" value="1"> <input
                     type="hidden" name="func"
                     value="<?php echo htmlspecialchars(getRequest('func', ''))?>">
-                <div class="medium_label"><?php echo $GLOBALS['locEmailFrom']?></div>
+                <div class="medium_label"><?php echo Translator::translate('EmailFrom')?></div>
                 <div class="field">
                     <input type="text" id="email_from" name="email_from" class="medium"
                         value="<?php echo htmlspecialchars($this->emailFrom)?>">
                 </div>
-                <div class="medium_label"><?php echo $GLOBALS['locEmailTo']?></div>
+                <div class="medium_label"><?php echo Translator::translate('EmailTo')?></div>
                 <div class="field">
                     <input type="text" id="email_to" name="email_to" class="medium"
                         value="<?php echo htmlspecialchars($this->emailTo)?>">
                 </div>
-                <div class="medium_label"><?php echo $GLOBALS['locEmailCC']?></div>
+                <div class="medium_label"><?php echo Translator::translate('EmailCC')?></div>
                 <div class="field">
                     <input type="text" id="email_cc" name="email_cc" class="medium"
                         value="<?php echo htmlspecialchars($this->emailCC)?>">
                 </div>
-                <div class="medium_label"><?php echo $GLOBALS['locEmailBCC']?></div>
+                <div class="medium_label"><?php echo Translator::translate('EmailBCC')?></div>
                 <div class="field">
                     <input type="text" id="email_bcc" name="email_bcc" class="medium"
                         value="<?php echo htmlspecialchars($this->emailBCC)?>">
                 </div>
-                <div class="medium_label"><?php echo $GLOBALS['locEmailSubject']?></div>
+                <div class="medium_label"><?php echo Translator::translate('EmailSubject')?></div>
                 <div class="field">
                     <input type="text" id="email_subject" name="email_subject"
                         class="medium"
                         value="<?php echo htmlspecialchars($this->emailSubject)?>">
                 </div>
-                <div class="medium_label"><?php echo $GLOBALS['locEmailBody']?></div>
+                <div class="medium_label"><?php echo Translator::translate('EmailBody')?></div>
                 <div class="field">
                     <textarea id="emailBody" name="email_body" class="email_body"
                         cols="80" rows="24"><?php echo htmlspecialchars($this->emailBody)?></textarea>
@@ -159,10 +159,10 @@ trait InvoicePrinterEmailTrait
                 <div class="form_buttons" style="clear: both">
                     <a class="actionlink"
                         onclick="document.getElementById('email_form').submit(); return false;"
-                        href="#"><?php echo $GLOBALS['locSend']?></a> <a
+                        href="#"><?php echo Translator::translate('Send')?></a> <a
                         class="actionlink"
                         onclick="if (window.opener) window.close(); else history.back(); return false;"
-                        href="#"><?php echo $GLOBALS['locCancel']?></a>
+                        href="#"><?php echo Translator::translate('Cancel')?></a>
                 </div>
             </form>
         </div>
@@ -235,12 +235,12 @@ trait InvoicePrinterEmailTrait
         try {
             $result = $mailer->send($message);
             if (!$result) {
-                $this->showEmailForm($GLOBALS['locEmailFailed']);
+                $this->showEmailForm(Translator::translate('EmailFailed'));
                 return;
             }
         } catch (Exception $e) {
             $this->showEmailForm(
-                $GLOBALS['locEmailFailed'] . ': ' . $e->getMessage()
+                Translator::translate('EmailFailed') . ': ' . $e->getMessage()
             );
             return;
         }

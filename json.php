@@ -26,7 +26,7 @@ require_once 'sqlfuncs.php';
 require_once 'miscfuncs.php';
 require_once 'sessionfuncs.php';
 require_once 'form_funcs.php';
-require_once 'localize.php';
+require_once 'translator.php';
 require_once 'settings.php';
 
 sesVerifySession(false);
@@ -165,19 +165,19 @@ case 'get_table_columns' :
             [
                 [
                     'id' => 'date',
-                    'name' => $GLOBALS['locImportStatementPaymentDate']
+                    'name' => Translator::translate('ImportStatementPaymentDate')
                 ],
                 [
                     'id' => 'amount',
-                    'name' => $GLOBALS['locImportStatementAmount']
+                    'name' => Translator::translate('ImportStatementAmount')
                 ],
                 [
                     'id' => 'refnr',
-                    'name' => $GLOBALS['locImportStatementRefNr']
+                    'name' => Translator::translate('ImportStatementRefNr')
                 ],
                 [
                     'id' => 'correction',
-                    'name' => $GLOBALS['locImportStatementCorrectionRow']
+                    'name' => Translator::translate('ImportStatementCorrectionRow')
                 ]
             ]
         );
@@ -471,11 +471,7 @@ function printJSONRecords($table, $parentIdCol, $sort)
             unset($row['password']);
         }
         if ($table == 'invoice_row') {
-            if (!empty($row['type_id_text'])
-                && isset($GLOBALS['loc' . $row['type_id_text']])
-            ) {
-                $row['type_id_text'] = $GLOBALS['loc' . $row['type_id_text']];
-            }
+            $row['type_id_text'] = Translator::translate($row['type_id_text']);
         }
         // Fetch tags
         if ($table == 'company') {
@@ -596,7 +592,7 @@ function getInvoiceListTotal($where)
     }
     $result = [
         'sum' => $sum,
-        'sum_str' => sprintf($GLOBALS['locInvoicesTotal'], miscRound2Decim($sum))
+        'sum_rounded' => miscRound2Decim($sum, 2, '.', '')
     ];
 
     echo json_encode($result);
@@ -607,7 +603,7 @@ function updateInvoiceRowDates($invoiceId, $date)
     $date = dateConvDate2DBDate($date);
     if ($date === false) {
         return json_encode(
-            ['status' => 'error', 'errors' => $GLOBALS['locErrInvalidValue']]
+            ['status' => 'error', 'errors' => Translator::translate('ErrInvalidValue')]
         );
     }
     mysqli_param_query(
@@ -621,10 +617,10 @@ function updateStockBalance($productId, $change, $desc)
 {
     $missing = [];
     if (!$change) {
-        $missing[] = $GLOBALS['locStockBalanceChange'];
+        $missing[] = Translator::translate('StockBalanceChange');
     }
     if (!$desc) {
-        $missing[] = $GLOBALS['locStockBalanceChangeDescription'];
+        $missing[] = Translator::translate('StockBalanceChangeDescription');
     }
 
     if ($missing) {
@@ -638,7 +634,7 @@ function updateStockBalance($productId, $change, $desc)
     $row = mysqli_fetch_row($res);
     if ($row === null) {
         return json_encode(
-            ['status' => 'error', 'errors' => $GLOBALS['locErrInvalidValue']]
+            ['status' => 'error', 'errors' => Translator::translate('ErrInvalidValue')]
         );
     }
     $balance = $row[0];

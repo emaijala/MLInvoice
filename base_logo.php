@@ -17,7 +17,7 @@
 require_once 'sqlfuncs.php';
 require_once 'miscfuncs.php';
 require_once 'sessionfuncs.php';
-require_once 'localize.php';
+require_once 'translator.php';
 require_once 'htmlfuncs.php';
 
 sesVerifySession();
@@ -36,10 +36,10 @@ if ($func == 'clear') {
         [
             $baseId
         ]);
-    $messages .= $GLOBALS['locBaseLogoErased'] . "<br>\n";
+    $messages .= Translator::translate('BaseLogoErased') . "<br>\n";
 } elseif ($func == 'upload') {
     if ($_FILES['logo']['error'] != UPLOAD_ERR_OK) {
-        $messages .= $GLOBALS['locErrFileUploadFailed'] . "<br>\n";
+        $messages .= Translator::translate('ErrFileUploadFailed') . "<br>\n";
     } else {
         $imageInfo = getimagesize($_FILES['logo']['tmp_name']);
         if (!$imageInfo || !in_array($imageInfo['mime'],
@@ -47,7 +47,7 @@ if ($func == 'clear') {
                 'image/jpeg',
                 'image/png'
             ])) {
-            $messages .= $GLOBALS['locErrFileTypeInvalid'] . "<br>\n";
+            $messages .= Translator::translate('ErrFileTypeInvalid') . "<br>\n";
         } else {
             $file = fopen($_FILES['logo']['tmp_name'], 'rb');
             if ($file === FALSE)
@@ -64,7 +64,7 @@ if ($func == 'clear') {
                     $data,
                     $baseId
                 ]);
-            $messages .= $GLOBALS['locBaseLogoSaved'] . ' (' .
+            $messages .= Translator::translate('BaseLogoSaved') . ' (' .
                  fileSizeToHumanReadable($fsize) . ")<br>\n";
         }
     }
@@ -92,7 +92,7 @@ $maxPacket = $row[0];
 
 if ($maxPacket < $maxUploadSize)
     $maxFileSize = fileSizeToHumanReadable($maxPacket) . ' ' .
-         $GLOBALS['locBaseLogoSizeDBLimited'];
+         Translator::translate('BaseLogoSizeDBLimited');
 else
     $maxFileSize = fileSizeToHumanReadable($maxUploadSize);
 
@@ -109,13 +109,13 @@ echo htmlPageStart();
             action="base_logo.php" method="POST">
             <input type="hidden" name="func" value="upload"> <input type="hidden"
                 name="id" value="<?php echo $baseId?>">
-            <div class="label" style="clear: both; margin-top: 10px; margin-bottom: 10px"><?php printf($GLOBALS['locBaseLogo'], $maxFileSize)?></div>
+            <div class="label" style="clear: both; margin-top: 10px; margin-bottom: 10px"><?php printf(Translator::translate('BaseLogo'), $maxFileSize)?></div>
             <div class="long">
                 <input name="logo" type="file">
             </div>
             <div class="form_buttons" style="clear: both">
                 <input type="submit"
-                    value="<?php echo $GLOBALS['locBaseSaveLogo']?>">
+                    value="<?php echo Translator::translate('BaseSaveLogo')?>">
             </div>
         </form>
         <form id="form_erase" enctype="multipart/form-data"
@@ -124,7 +124,7 @@ echo htmlPageStart();
                 name="id" value="<?php echo $baseId?>">
             <div class="form_buttons" style="clear: both">
                 <input type="submit"
-                    value="<?php echo $GLOBALS['locBaseEraseLogo']?>">
+                    value="<?php echo Translator::translate('BaseEraseLogo')?>">
             </div>
         </form>
     </div>

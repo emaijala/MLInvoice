@@ -47,7 +47,7 @@ function htmlPageStart($strTitle = '', $arrExtraScripts = [])
         $xUACompatible = '';
     $theme = defined('_UI_THEME_LOCATION_') ? _UI_THEME_LOCATION_ : 'jquery/css/theme/jquery-ui.min.css';
     $lang = isset($_SESSION['sesLANG']) ? $_SESSION['sesLANG'] : 'fi-FI';
-    $datePickerOptions = $GLOBALS['locDatePickerOptions'];
+    $datePickerOptions = Translator::translate('DatePickerOptions');
 
     $scripts = [
         'jquery/js/jquery-2.2.4.min.js',
@@ -97,17 +97,28 @@ function htmlPageStart($strTitle = '', $arrExtraScripts = [])
     $strTitle = $strTitle ? _PAGE_TITLE_ . " - $strTitle" : _PAGE_TITLE_;
 
     $translations = [
+        'DecimalSeparator',
         'InvoiceDateNonCurrent',
-        'InvoiceRefNumberTooShort',
         'InvoiceNumberNotDefined',
-        'SettingDispatchNotes',
+        'InvoiceRefNumberTooShort',
+        'InvoicesTotal',
+        'NoYTJResultsFound',
         'SearchYTJPrompt',
-        'NoYTJResultsFound'
+        'SettingDispatchNotes',
+        'ThousandSeparator'
     ];
+
+    $res = mysqli_query_check('SELECT name FROM {prefix}invoice_state WHERE deleted=0');
+    while ($row = mysqli_fetch_value($res)) {
+        $translations[] = $row;
+    }
 
     $jsTranslations = [];
     foreach ($translations as $translation) {
-        $jsTranslations[$translation] = $GLOBALS["loc$translation"];
+        $translated = Translator::translate($translation);
+        if ($translated != $translation) {
+            $jsTranslations[$translation] = $translated;
+        }
     }
     $jsTranslations = json_encode($jsTranslations);
 
@@ -193,8 +204,8 @@ function htmlListBox($strName, $astrValues, $strSelected, $strStyle = '',
 
     foreach ($astrValues as $value => $desc) {
         $strSelect = $strSelected == $value ? ' selected' : '';
-        if ($translate && isset($GLOBALS["loc$desc"])) {
-            $desc = $GLOBALS["loc$desc"];
+        if ($translate) {
+            $desc = Translator::translate($desc);
         }
         $strListBox .= '<option value="' . htmlspecialchars($value) . "\"$strSelect>" .
              htmlspecialchars($desc) . "</option>\n";
@@ -475,7 +486,7 @@ EOT;
 
     case 'JSBUTTON':
         if (strstr($strListQuery, '_ID_') && !$strValue) {
-            $strFormElement = $GLOBALS['locSaveFirst'];
+            $strFormElement = Translator::translate('SaveFirst');
         } else {
             if ($strValue)
                 $strListQuery = str_replace('_ID_', $strValue, $strListQuery);
@@ -487,7 +498,7 @@ EOT;
 
     case 'DROPDOWNMENU':
         if (strstr($strListQuery, '_ID_') && !$strValue) {
-            $strFormElement = $GLOBALS['locSaveFirst'];
+            $strFormElement = Translator::translate('SaveFirst');
         } else {
             $menuTitle = htmlspecialchars($strTitle);
             $menuItems = '';

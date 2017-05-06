@@ -17,8 +17,14 @@ var MLInvoice = (function MLInvoice() {
         }
     };
 
-    var translate = function translate(key) {
-        return _translations[key] || key;
+    var translate = function translate(key, placeholders) {
+        var translated = _translations[key] || key;
+        if (typeof placeholders === 'object') {
+            $.each(placeholders, function(key, value) {
+                translated = translated.replace(new RegExp(key, 'g'), value);
+            });
+        }
+        return translated;
     };
 
     function setDispatchNotePrintStyle(style) {
@@ -440,6 +446,27 @@ var MLInvoice = (function MLInvoice() {
         });
     };
 
+    function formatCurrency(value, decimals) {
+        if (typeof decimals === 'undefined') {
+            decimals = 2;
+        }
+        var decimalSep = translate('DecimalSeparator');
+        var thousandSep = translate('ThousandSeparator');
+        var s = parseFloat(value).toFixed(decimals).replace('.', decimalSep);
+        if (thousandSep) {
+            var parts = s.split(decimalSep);
+            var regexp = new RegExp('(\d+)(\d{3})' + decimalSep + '?');
+            while (regexp.test(parts[0])) {
+                parts[0] = parts[0].replace(regexp, '$1' + thousandSep + '$2');
+            }
+            s = parts[0];
+            if (parts.length > 1) {
+                s += decimalSep + parts[1];
+            }
+        }
+        return s;
+    }
+
     function init() {
         _setupYtjSearch();
         _setupDefaultTextSelection();
@@ -455,7 +482,8 @@ var MLInvoice = (function MLInvoice() {
         translate: translate,
         printInvoice: printInvoice,
         updateDispatchByDateButtons: updateDispatchByDateButtons,
-        getSelectedProductDefaults: getSelectedProductDefaults
+        getSelectedProductDefaults: getSelectedProductDefaults,
+        formatCurrency: formatCurrency
     }
 })();
 

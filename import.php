@@ -14,7 +14,7 @@
  Tämä ohjelma on vapaa. Lue oheinen LICENSE.
 
  *******************************************************************************/
-require_once 'localize.php';
+require_once 'translator.php';
 require_once 'miscfuncs.php';
 require_once 'settings.php';
 
@@ -110,14 +110,14 @@ class ImportFile
                 $this->show_setup_form();
                 return;
             }
-            $error = $GLOBALS['locErrFileUploadFailed'];
+            $error = Translator::translate('ErrFileUploadFailed');
         } elseif ($this->allowServerFile && $filetype == 'server_file') {
             if (_IMPORT_FILE_ && file_exists(_IMPORT_FILE_)) {
                 $_SESSION['import_file'] = _IMPORT_FILE_;
                 $this->show_setup_form();
                 return;
             }
-            $error = $GLOBALS['locErrImportFileNotFound'];
+            $error = Translator::translate('ErrImportFileNotFound');
         }
 
         $importMode = getRequest('import', '');
@@ -139,7 +139,7 @@ class ImportFile
         echo "<div class=\"error\">$error</div>\n";
     }
     ?>
-    <h1><?php echo $GLOBALS['locImportFileSelection']?></h1>
+    <h1><?php echo Translator::translate('ImportFileSelection')?></h1>
     <span id="imessage" style="display: none"></span> <span id="spinner"
         style="visibility: hidden"><img src="images/spinner.gif" alt=""></span>
     <form id="form_import" enctype="multipart/form-data" method="POST">
@@ -149,7 +149,7 @@ class ImportFile
         <div class="label"
             style="clear: both; margin-top: 10px; margin-bottom: 4px">
             <input type="radio" id="ft_upload" name="filetype" value="upload"
-                checked="checked"><label for="ft_upload"><?php printf($GLOBALS['locImportUploadFile'], $maxFileSize)?></label>
+                checked="checked"><label for="ft_upload"><?php printf(Translator::translate('ImportUploadFile'), $maxFileSize)?></label>
         </div>
         <div class="long">
             <input name="data" type="file">
@@ -157,11 +157,11 @@ class ImportFile
 <?php if ($this->allowServerFile) {?>
       <div class="label" style="clear: both; margin-top: 10px">
             <input type="radio" id="ft_server" name="filetype"
-                value="server_file"><label for="ft_server"><?php echo $GLOBALS['locImportUseServerFile']?></label>
+                value="server_file"><label for="ft_server"><?php echo Translator::translate('ImportUseServerFile')?></label>
         </div>
 <?php }?>
       <div class="form_buttons" style="clear: both">
-            <input type="submit" value="<?php echo $GLOBALS['locImportNext']?>">
+            <input type="submit" value="<?php echo Translator::translate('ImportNext')?>">
         </div>
     </form>
 </div>
@@ -403,23 +403,23 @@ class ImportFile
         return [
             'comma' => [
                 'char' => ',',
-                'name' => $GLOBALS['locImportExportFieldDelimiterComma']
+                'name' => Translator::translate('ImportExportFieldDelimiterComma')
             ],
             'semicolon' => [
                 'char' => ';',
-                'name' => $GLOBALS['locImportExportFieldDelimiterSemicolon']
+                'name' => Translator::translate('ImportExportFieldDelimiterSemicolon')
             ],
             'tab' => [
                 'char' => "\t",
-                'name' => $GLOBALS['locImportExportFieldDelimiterTab']
+                'name' => Translator::translate('ImportExportFieldDelimiterTab')
             ],
             'pipe' => [
                 'char' => '|',
-                'name' => $GLOBALS['locImportExportFieldDelimiterPipe']
+                'name' => Translator::translate('ImportExportFieldDelimiterPipe')
             ],
             'colon' => [
                 'char' => ':',
-                'name' => $GLOBALS['locImportExportFieldDelimiterColon']
+                'name' => Translator::translate('ImportExportFieldDelimiterColon')
             ]
         ];
     }
@@ -429,15 +429,15 @@ class ImportFile
         return [
             'doublequote' => [
                 'char' => '"',
-                'name' => $GLOBALS['locImportExportEnclosureDoubleQuote']
+                'name' => Translator::translate('ImportExportEnclosureDoubleQuote')
             ],
             'singlequote' => [
                 'char' => '\'',
-                'name' => $GLOBALS['locImportExportEnclosureSingleQuote']
+                'name' => Translator::translate('ImportExportEnclosureSingleQuote')
             ],
             'none' => [
                 'char' => '',
-                'name' => $GLOBALS['locImportExportEnclosureNone']
+                'name' => Translator::translate('ImportExportEnclosureNone')
             ]
         ];
     }
@@ -501,7 +501,7 @@ class ImportFile
 
         $charset = 'UTF-8';
         $dateFormat = $this->dateFormats[0];
-        $decimalSeparator = $GLOBALS['locDecimalSeparator'];
+        $decimalSeparator = Translator::translate('DecimalSeparator');
 
         if ($bytesRead > 3) {
             if (ord($data[0]) == 0xFE && ord($data[1]) == 0xFF) {
@@ -658,7 +658,7 @@ function add_column()
     select.onchange = update_columns;
     var option = document.createElement("option");
     option.value = '';
-    option.text = "<?php echo $GLOBALS['locImportColumnUnused']?>";
+    option.text = "<?php echo Translator::translate('ImportColumnUnused')?>";
     select.options.add(option);
     for (var i = 0; i < json.columns.length; i++)
     {
@@ -754,7 +754,7 @@ function add_mapping_columns(headings)
     select.onchange = "settings_changed()";
     var option = document.createElement("option");
     option.value = "";
-    option.text = "<?php echo $GLOBALS['locImportExportColumnNone']?>";
+    option.text = "<?php echo Translator::translate('ImportExportColumnNone')?>";
     select.options.add(option);
     for (var i = 0; i < json.columns.length; i++)
     {
@@ -814,7 +814,7 @@ function select_preset()
 </script>
 
 <div class="form_container">
-    <h1><?php echo $GLOBALS['locImportFileParameters']?></h1>
+    <h1><?php echo Translator::translate('ImportFileParameters')?></h1>
     <span id="imessage" style="display: none"></span> <span id="spinner"
        style="visibility: hidden"><img src="images/spinner.gif" alt=""></span>
     <form id="import_form" name="import_form" method="GET">
@@ -824,7 +824,7 @@ function select_preset()
     if ($this->presets) {
         $presets = $this->presets;
         $selectedPreset = null;
-        array_unshift($presets, ['name' => $GLOBALS['locImportExportPresetNone'], 'value' => '']);
+        array_unshift($presets, ['name' => Translator::translate('ImportExportPresetNone'), 'value' => '']);
         foreach ($presets as $preset) {
             if (isset($preset['default_for']) && $format == $preset['default_for']) {
                 $selectedPreset = $preset;
@@ -841,7 +841,7 @@ function select_preset()
             }
         }
         ?>
-        <div class="medium_label"><?php echo $GLOBALS['locImportExportPreset']?></div>
+        <div class="medium_label"><?php echo Translator::translate('ImportExportPreset')?></div>
         <div class="field">
             <select id="preset" name="preset" onchange="select_preset()">
             <?php
@@ -857,7 +857,7 @@ function select_preset()
     }
     ?>
 
-        <div class="medium_label"><?php echo $GLOBALS['locImportExportCharacterSet']?></div>
+        <div class="medium_label"><?php echo Translator::translate('ImportExportCharacterSet')?></div>
         <div class="field">
             <select id="charset" name="charset"
                 onchange="settings_changed(); update_mapping_table()">
@@ -873,29 +873,29 @@ function select_preset()
         <?php
         } else {
         ?>
-        <div class="medium_label"><?php echo $GLOBALS['locImportExportTable']?></div>
+        <div class="medium_label"><?php echo Translator::translate('ImportExportTable')?></div>
         <div class="field">
             <select id="sel_table" name="table"
                 onchange="reset_columns(); settings_changed(); update_mapping_table()">
-                <option value="company"><?php echo $GLOBALS['locImportExportTableCompanies']?></option>
-                <option value="company_contact"><?php echo $GLOBALS['locImportExportTableCompanyContacts']?></option>
-                <option value="base"><?php echo $GLOBALS['locImportExportTableBases']?></option>
-                <option value="invoice"><?php echo $GLOBALS['locImportExportTableInvoices']?></option>
-                <option value="invoice_row"><?php echo $GLOBALS['locImportExportTableInvoiceRows']?></option>
-                <option value="product"><?php echo $GLOBALS['locImportExportTableProducts']?></option>
-                <option value="row_type"><?php echo $GLOBALS['locImportExportTableRowTypes']?></option>
-                <option value="invoice_state"><?php echo $GLOBALS['locImportExportTableInvoiceStates']?></option>
-                <option value="delivery_terms"><?php echo $GLOBALS['locImportExportTableDeliveryTerms']?></option>
-                <option value="delivery_method"><?php echo $GLOBALS['locImportExportTableDeliveryMethods']?></option>
-                <option value="stock_balance_log"><?php echo $GLOBALS['locImportExportTableStockBalanceLog']?></option>
-                <option value="default_value"><?php echo $GLOBALS['locImportExportTableDefaultValues']?></option>
+                <option value="company"><?php echo Translator::translate('ImportExportTableCompanies')?></option>
+                <option value="company_contact"><?php echo Translator::translate('ImportExportTableCompanyContacts')?></option>
+                <option value="base"><?php echo Translator::translate('ImportExportTableBases')?></option>
+                <option value="invoice"><?php echo Translator::translate('ImportExportTableInvoices')?></option>
+                <option value="invoice_row"><?php echo Translator::translate('ImportExportTableInvoiceRows')?></option>
+                <option value="product"><?php echo Translator::translate('ImportExportTableProducts')?></option>
+                <option value="row_type"><?php echo Translator::translate('ImportExportTableRowTypes')?></option>
+                <option value="invoice_state"><?php echo Translator::translate('ImportExportTableInvoiceStates')?></option>
+                <option value="delivery_terms"><?php echo Translator::translate('ImportExportTableDeliveryTerms')?></option>
+                <option value="delivery_method"><?php echo Translator::translate('ImportExportTableDeliveryMethods')?></option>
+                <option value="stock_balance_log"><?php echo Translator::translate('ImportExportTableStockBalanceLog')?></option>
+                <option value="default_value"><?php echo Translator::translate('ImportExportTableDefaultValues')?></option>
             </select>
         </div>
         <?php
         }
         ?>
 
-        <div class="medium_label"><?php echo $GLOBALS['locImportExportFormat']?></div>
+        <div class="medium_label"><?php echo Translator::translate('ImportExportFormat')?></div>
         <div class="field">
             <select id="format" name="format"
                 onchange="update_field_states(); reset_columns(); settings_changed(); update_mapping_table()">
@@ -912,7 +912,7 @@ function select_preset()
             </select>
         </div>
 
-        <div class="medium_label"><?php echo $GLOBALS['locImportExportFieldDelimiter']?></div>
+        <div class="medium_label"><?php echo Translator::translate('ImportExportFieldDelimiter')?></div>
         <div class="field">
             <select id="field_delim" name="field_delim"
                 onchange="settings_changed(); update_mapping_table()">
@@ -927,7 +927,7 @@ function select_preset()
             </select>
         </div>
 
-        <div class="medium_label"><?php echo $GLOBALS['locImportExportEnclosureCharacter']?></div>
+        <div class="medium_label"><?php echo Translator::translate('ImportExportEnclosureCharacter')?></div>
         <div class="field">
             <select id="enclosure_char" name="enclosure_char"
                 onchange="settings_changed(); update_mapping_table()">
@@ -942,7 +942,7 @@ function select_preset()
             </select>
         </div>
 
-        <div class="medium_label"><?php echo $GLOBALS['locImportExportRowDelimiter']?></div>
+        <div class="medium_label"><?php echo Translator::translate('ImportExportRowDelimiter')?></div>
         <div class="field">
             <select id="row_delim" name="row_delim"
                 onchange="settings_changed(); update_mapping_table()">
@@ -959,7 +959,7 @@ function select_preset()
         <?php
         if ($this->dateFormat) {
         ?>
-        <div class="medium_label"><?php echo $GLOBALS['locImportExportDateFormat']?></div>
+        <div class="medium_label"><?php echo Translator::translate('ImportExportDateFormat')?></div>
         <div class="field">
             <select id="date_format" name="date_format" onchange="settings_changed()">
             <?php
@@ -975,14 +975,14 @@ function select_preset()
         }
         ?>
 
-        <div class="medium_label"><?php echo $GLOBALS['locImportDecimalSeparator']?></div>
+        <div class="medium_label"><?php echo Translator::translate('ImportDecimalSeparator')?></div>
         <div class="field">
             <input id="decimal_separator" name="decimal_separator" maxlength="1"
                 value="<?php echo htmlentities($decimalSeparator)?>"
                 onchange="settings_changed()"></input>
         </div>
 
-        <div class="medium_label"><?php echo $GLOBALS['locImportSkipRows']?></div>
+        <div class="medium_label"><?php echo Translator::translate('ImportSkipRows')?></div>
         <div class="field">
             <input id="skip_rows" name="skip_rows"
                 onchange="settings_changed(); update_mapping_table()" value="0">
@@ -990,22 +990,22 @@ function select_preset()
         </div>
 
 <?php if ($this->duplicateControl) { ?>
-      <div class="medium_label"><?php echo $GLOBALS['locImportExistingRowHandling']?></div>
+      <div class="medium_label"><?php echo Translator::translate('ImportExistingRowHandling')?></div>
         <div class="field">
             <select id="duplicate_processing" name="duplicate_processing"
                 onchange="settings_changed()">
-                <option value="ignore" selected="selected"><?php echo $GLOBALS['locImportExistingRowIgnore']?></option>
-                <option value="update"><?php echo $GLOBALS['locImportExistingRowUpdate']?></option>
+                <option value="ignore" selected="selected"><?php echo Translator::translate('ImportExistingRowIgnore')?></option>
+                <option value="update"><?php echo Translator::translate('ImportExistingRowUpdate')?></option>
             </select>
         </div>
 
-        <div class="medium_label"><?php echo $GLOBALS['locImportIdentificationColumns']?></div>
+        <div class="medium_label"><?php echo Translator::translate('ImportIdentificationColumns')?></div>
         <div id="columns" class="field"></div>
 <?php } ?>
 
 <?php $this->add_custom_form_fields(); ?>
 
-        <div class="unlimited_label"><?php echo $GLOBALS['locImportColumnMapping']?></div>
+        <div class="unlimited_label"><?php echo Translator::translate('ImportColumnMapping')?></div>
         <div class="column_mapping">
             <div id="mapping_errors"></div>
             <table id="column_table">
@@ -1013,8 +1013,8 @@ function select_preset()
         </div>
 
         <div class="form_buttons" style="clear: both">
-            <button name="import" type="submit" value="preview"><?php echo $GLOBALS['locImportButtonPreview']?></button>
-            <button name="import" type="submit" value="import"><?php echo $GLOBALS['locImportButtonImport']?></button>
+            <button name="import" type="submit" value="preview"><?php echo Translator::translate('ImportButtonPreview')?></button>
+            <button name="import" type="submit" value="import"><?php echo Translator::translate('ImportButtonImport')?></button>
         </div>
     </form>
 </div>
@@ -1215,11 +1215,11 @@ function select_preset()
 
         ?>
 <div class="form_container">
-    <h1><?php echo $GLOBALS['locImportResults']?></h1>
+    <h1><?php echo Translator::translate('ImportResults')?></h1>
         <?php
 
         if ($importMode != 'import') {
-            echo '<p>' . $GLOBALS['locImportSimulation'] . "</p>\n";
+            echo '<p>' . Translator::translate('ImportSimulation') . "</p>\n";
         }
 
         $fieldDefs[$table] = $this->get_field_defs($table);
@@ -1314,7 +1314,7 @@ function select_preset()
                 if (!$haveMappings) {
                     if (!$this->ignoreEmptyRows) {
                         echo "    Row $rowNum: " .
-                             $GLOBALS['locImportNoMappedColumns'] . "<br>\n";
+                             Translator::translate('ImportNoMappedColumns') . "<br>\n";
                     }
                 } else {
                     $addedRecordId = null;
@@ -1324,7 +1324,7 @@ function select_preset()
                         $addedRecordId
                     );
                     if ($result) {
-                        echo $GLOBALS['locImportRow'] . " $rowNum: " .
+                        echo Translator::translate('ImportRow') . " $rowNum: " .
                              htmlspecialchars($result) . "<br>\n";
                     }
                 }
@@ -1462,7 +1462,7 @@ function select_preset()
                 if (!$haveMappings) {
                     if (!$this->ignoreEmptyRows) {
                         echo "    Row $rowNum: " .
-                             $GLOBALS['locImportNoMappedColumns'] . "<br>\n";
+                             Translator::translate('ImportNoMappedColumns') . "<br>\n";
                     }
                 } else {
                     $addedRecordId = null;
@@ -1472,14 +1472,14 @@ function select_preset()
                         $addedRecordId
                     );
                     if ($result) {
-                        echo $GLOBALS['locImportRow'] . " $rowNum: " .
+                        echo Translator::translate('ImportRow') . " $rowNum: " .
                              htmlspecialchars($result) . "<br>\n";
                     }
                 }
             }
         }
 
-        echo '    ' . $GLOBALS['locImportDone'] . "\n";
+        echo '    ' . Translator::translate('ImportDone') . "\n";
         ?>
     </div>
 <?php

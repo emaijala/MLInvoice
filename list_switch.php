@@ -1,7 +1,7 @@
 <?php
 /*******************************************************************************
  MLInvoice: web-based invoicing application.
- Copyright (C) 2010-2016 Ere Maijala
+ Copyright (C) 2010-2017 Ere Maijala
 
  Portions based on:
  PkLasku : web-based invoicing software.
@@ -13,7 +13,7 @@
 
 /*******************************************************************************
  MLInvoice: web-pohjainen laskutusohjelma.
- Copyright (C) 2010-2016 Ere Maijala
+ Copyright (C) 2010-2017 Ere Maijala
 
  Perustuu osittain sovellukseen:
  PkLasku : web-pohjainen laskutusohjelmisto.
@@ -59,53 +59,53 @@ case 'companies' :
             'name' => 'company_name',
             'width' => 150,
             'type' => 'TEXT',
-            'header' => $GLOBALS['locClientName'],
+            'header' => 'ClientName',
             'select' => true
         ],
         [
             'name' => 'company_id',
             'width' => 100,
             'type' => 'TEXT',
-            'header' => $GLOBALS['locClientVATID'],
+            'header' => 'ClientVATID',
             'select' => true
         ],
         [
             'name' => 'inactive',
             'width' => 100,
             'type' => 'TEXT',
-            'header' => $GLOBALS['locHeaderClientActive'],
+            'header' => 'HeaderClientActive',
             'mappings' => [
-                '0' => $GLOBALS['locActive'],
-                '1' => $GLOBALS['locInactive']
+                '0' => 'Active',
+                '1' => 'Inactive'
             ]
         ],
         [
             'name' => 'customer_no',
             'width' => 100,
             'type' => 'TEXT',
-            'header' => $GLOBALS['locCustomerNr']
+            'header' => 'CustomerNr'
         ],
         [
             'name' => 'email',
             'width' => 150,
             'type' => 'TEXT',
-            'header' => $GLOBALS['locEmail']
+            'header' => 'Email'
         ],
         [
             'name' => 'phone',
             'width' => 100,
             'type' => 'TEXT',
-            'header' => $GLOBALS['locPhone']
+            'header' => 'Phone'
         ],
         [
             'name' => 'gsm',
             'width' => 100,
             'type' => 'TEXT',
-            'header' => $GLOBALS['locGSM']
+            'header' => 'GSM'
         ]
     ];
     $strMainForm = 'company';
-    $strTitle = $GLOBALS['locClients'];
+    $strTitle = 'Clients';
     break;
 
 case 'invoice':
@@ -181,75 +181,77 @@ EOT;
             'width' => 80,
             'type' => 'INTDATE',
             'order' => 'DESC',
-            'header' => $GLOBALS['locHeaderInvoiceDate']
+            'header' => 'HeaderInvoiceDate'
         ],
         [
             'name' => 'i.due_date',
             'width' => 80,
             'type' => 'INTDATE',
             'order' => 'DESC',
-            'header' => $GLOBALS['locHeaderInvoiceDueDate']
+            'header' => 'HeaderInvoiceDueDate'
         ],
         [
             'name' => $strList === 'offer' ? 'i.id' : 'i.invoice_no',
             'width' => 80,
             'type' => 'TEXT',
-            'header' => $GLOBALS['locHeaderInvoiceNr']
+            'header' => 'HeaderInvoiceNr'
         ],
         [
             'name' => 'b.name',
             'width' => 150,
             'type' => 'TEXT',
-            'header' => $GLOBALS['locHeaderInvoiceBase']
+            'header' => 'HeaderInvoiceBase'
         ],
         [
             'name' => 'c.company_name',
             'width' => 150,
             'type' => 'TEXT',
-            'header' => $GLOBALS['locHeaderInvoiceClient']
+            'header' => 'HeaderInvoiceClient'
         ],
         [
             'name' => 'i.name',
             'width' => 100,
             'type' => 'TEXT',
-            'header' => $GLOBALS['locHeaderInvoiceName']
+            'header' => 'HeaderInvoiceName'
         ],
         [
             'name' => 's.name',
             'width' => 120,
             'type' => 'TEXT',
-            'header' => $GLOBALS['locHeaderInvoiceState'],
+            'header' => 'HeaderInvoiceState',
             'translate' => true
         ],
         [
             'name' => 'i.ref_number',
             'width' => 100,
             'type' => 'TEXT',
-            'header' => $GLOBALS['locHeaderInvoiceReference']
+            'header' => 'HeaderInvoiceReference'
         ],
         [
             'name' => '.total_price',
             'sql' => 'SUM(it.row_total) as total_price',
             'width' => 80,
             'type' => 'CURRENCY',
-            'header' => $GLOBALS['locHeaderInvoiceTotal']
+            'header' => 'HeaderInvoiceTotal'
         ]
     ];
     if (($strList ? $strList : $strFunc) == 'archived_invoices') {
-        array_splice($astrShowFields, 2, 0,
+        array_splice(
+            $astrShowFields, 2, 0,
             [
                 [
                     'name' => 'i.payment_date',
                     'width' => 80,
                     'type' => 'INTDATE',
                     'order' => 'DESC',
-                    'header' => $GLOBALS['locHeaderInvoicePaymentDate']
+                    'header' => 'HeaderInvoicePaymentDate'
                 ]
-            ]);
+            ]
+        );
     }
     $strGroupBy = 'i.id, i.deleted, i.invoice_date, i.due_date, i.invoice_no, b.name, c.company_name, i.name, s.name, i.ref_number';
     $strMainForm = 'invoice';
-    $strTitle = $GLOBALS['locInvoices'];
+    $strTitle = 'Invoices';
     break;
 
 /***********************************************************************
@@ -270,30 +272,30 @@ case 'base' :
             'name' => 'name',
             'width' => 200,
             'type' => 'TEXT',
-            'header' => $GLOBALS['locBaseName']
+            'header' => 'BaseName'
         ],
         [
             'name' => 'company_id',
             'width' => 100,
             'type' => 'TEXT',
-            'header' => $GLOBALS['locClientVATID']
+            'header' => 'ClientVATID'
         ],
         [
             'name' => 'contact_person',
             'width' => 150,
             'type' => 'TEXT',
-            'header' => $GLOBALS['locContactPerson']
+            'header' => 'ContactPerson'
         ],
         [
             'name' => 'email',
             'width' => 150,
             'type' => 'TEXT',
-            'header' => $GLOBALS['locEmail']
+            'header' => 'Email'
         ]
     ];
     // array('name');
     $strMainForm = 'base';
-    $strTitle = $GLOBALS['locBases'];
+    $strTitle = 'Bases';
     break;
 
 case 'invoice_state' :
@@ -311,19 +313,19 @@ case 'invoice_state' :
             'name' => 'order_no',
             'width' => 150,
             'type' => 'TEXT',
-            'header' => $GLOBALS['locOrderNr']
+            'header' => 'OrderNr'
         ],
         [
             'name' => 'name',
             'width' => 450,
             'type' => 'TEXT',
-            'header' => $GLOBALS['locStatus'],
+            'header' => 'Status',
             'translate' => true
         ]
     ];
     // array('order_no','name');
     $strMainForm = 'invoice_state';
-    $strTitle = $GLOBALS['locInvoiceStates'];
+    $strTitle = 'InvoiceStates';
     break;
 
 case 'product' :
@@ -345,34 +347,34 @@ case 'product' :
             'name' => 'order_no',
             'width' => 150,
             'type' => 'TEXT',
-            'header' => $GLOBALS['locOrderNr']
+            'header' => 'OrderNr'
         ],
         [
             'name' => 'product_code',
             'width' => 150,
             'type' => 'TEXT',
-            'header' => $GLOBALS['locProductCode'],
+            'header' => 'ProductCode',
             'select' => true
         ],
         [
             'name' => 'product_name',
             'width' => 200,
             'type' => 'TEXT',
-            'header' => $GLOBALS['locProductName'],
+            'header' => 'ProductName',
             'select' => true
         ],
         [
             'name' => 'description',
             'width' => 200,
             'type' => 'TEXT',
-            'header' => $GLOBALS['locProductDescription'],
+            'header' => 'ProductDescription',
             'select' => true
         ],
         [
             'name' => 'product_group',
             'width' => 150,
             'type' => 'TEXT',
-            'header' => $GLOBALS['locProductGroup']
+            'header' => 'ProductGroup'
         ],
         [
             'name' => 'vendor',
@@ -392,20 +394,20 @@ case 'product' :
             'name' => 'unit_price',
             'width' => 100,
             'type' => 'CURRENCY',
-            'header' => $GLOBALS['locUnitPrice'],
+            'header' => 'UnitPrice',
             'decimals' => getSetting('unit_price_decimals')
         ],
         [
             'name' => 'stock_balance',
             'width' => 100,
             'type' => 'CURRENCY',
-            'header' => $GLOBALS['locStockBalance'],
+            'header' => 'StockBalance',
             'decimals' => 2
         ]
     ];
 
     $strMainForm = 'product';
-    $strTitle = $GLOBALS['locProducts'];
+    $strTitle = 'Products';
     break;
 
 case 'row_type' :
@@ -423,18 +425,18 @@ case 'row_type' :
             'name' => 'order_no',
             'width' => 150,
             'type' => 'TEXT',
-            'header' => $GLOBALS['locOrderNr']
+            'header' => 'OrderNr'
         ],
         [
             'name' => 'name',
             'width' => 450,
             'type' => 'TEXT',
-            'header' => $GLOBALS['locRowType'],
+            'header' => 'RowType',
             'translate' => true
         ]
     ];
     $strMainForm = 'row_type';
-    $strTitle = $GLOBALS['locRowTypes'];
+    $strTitle = 'RowTypes';
     break;
 
 case 'delivery_terms' :
@@ -452,17 +454,17 @@ case 'delivery_terms' :
             'name' => 'order_no',
             'width' => 150,
             'type' => 'TEXT',
-            'header' => $GLOBALS['locOrderNr']
+            'header' => 'OrderNr'
         ],
         [
             'name' => 'name',
             'width' => 450,
             'type' => 'TEXT',
-            'header' => $GLOBALS['locDeliveryTerms']
+            'header' => 'DeliveryTerms'
         ]
     ];
     $strMainForm = 'delivery_terms';
-    $strTitle = $GLOBALS['locDeliveryTerms'];
+    $strTitle = 'DeliveryTerms';
     break;
 
 case 'delivery_method' :
@@ -480,17 +482,17 @@ case 'delivery_method' :
             'name' => 'order_no',
             'width' => 150,
             'type' => 'TEXT',
-            'header' => $GLOBALS['locOrderNr']
+            'header' => 'OrderNr'
         ],
         [
             'name' => 'name',
             'width' => 450,
             'type' => 'TEXT',
-            'header' => $GLOBALS['locDeliveryMethod']
+            'header' => 'DeliveryMethod'
         ]
     ];
     $strMainForm = 'delivery_method';
-    $strTitle = $GLOBALS['locDeliveryMethod'];
+    $strTitle = 'DeliveryMethod';
     break;
 
 case 'print_template' :
@@ -508,50 +510,50 @@ case 'print_template' :
             'name' => 'order_no',
             'width' => 150,
             'type' => 'TEXT',
-            'header' => $GLOBALS['locOrderNr']
+            'header' => 'OrderNr'
         ],
         [
             'name' => 'type',
             'width' => 150,
             'type' => 'TEXT',
-            'header' => $GLOBALS['locPrintTemplateType'],
+            'header' => 'PrintTemplateType',
             'mappings' => [
-                'invoice' => $GLOBALS['locPrintTemplateTypeInvoice'],
-                'offer' => $GLOBALS['locPrintTemplateTypeOffer']
+                'invoice' => 'PrintTemplateTypeInvoice',
+                'offer' => 'PrintTemplateTypeOffer'
             ]
         ],
         [
             'name' => 'name',
             'width' => 200,
             'type' => 'TEXT',
-            'header' => $GLOBALS['locPrintTemplateName'],
+            'header' => 'PrintTemplateName',
             'translate' => true
         ],
         [
             'name' => 'inactive',
             'width' => 100,
             'type' => 'TEXT',
-            'header' => $GLOBALS['locHeaderPrintTemplateActive'],
+            'header' => 'HeaderPrintTemplateActive',
             'mappings' => [
-                '0' => $GLOBALS['locActive'],
-                '1' => $GLOBALS['locInactive']
+                '0' => 'Active',
+                '1' => 'Inactive'
             ]
         ],
         [
             'name' => 'filename',
             'width' => 200,
             'type' => 'TEXT',
-            'header' => $GLOBALS['locPrintTemplateFileName']
+            'header' => 'PrintTemplateFileName'
         ],
         [
             'name' => 'parameters',
             'width' => 150,
             'type' => 'TEXT',
-            'header' => $GLOBALS['locPrintTemplateParameters']
+            'header' => 'PrintTemplateParameters'
         ]
     ];
     $strMainForm = 'print_template';
-    $strTitle = $GLOBALS['locPrintTemplates'];
+    $strTitle = 'PrintTemplates';
     break;
 
 case 'default_value' :
@@ -573,25 +575,30 @@ case 'default_value' :
             'name' => 'order_no',
             'width' => 150,
             'type' => 'TEXT',
-            'header' => $GLOBALS['locOrderNr']
+            'header' => 'OrderNr'
         ],
         [
             'name' => 'type',
             'width' => 150,
             'type' => 'TEXT',
-            'header' => $GLOBALS['locDefaultValueType'],
-            'translate' => true
+            'header' => 'DefaultValueType',
+            'mappings' => [
+                'info' => 'Info',
+                'foreword' => 'Foreword',
+                'afterword' => 'Afterword'
+            ]
+
         ],
         [
             'name' => 'name',
             'width' => 450,
             'type' => 'TEXT',
-            'header' => $GLOBALS['locName'],
+            'header' => 'Name',
             'select' => true
         ]
     ];
     $strMainForm = 'default_value';
-    $strTitle = $GLOBALS['locDefaultValues'];
+    $strTitle = 'DefaultValues';
     break;
 
 case 'company_tag' :
@@ -677,18 +684,18 @@ case 'session_type' :
             'name' => 'order_no',
             'width' => 150,
             'type' => 'TEXT',
-            'header' => $GLOBALS['locOrderNr']
+            'header' => 'OrderNr'
         ],
         [
             'name' => 'name',
             'width' => 450,
             'type' => 'TEXT',
-            'header' => $GLOBALS['locSessionType'],
+            'header' => 'SessionType',
             'translate' => true
         ]
     ];
     $strMainForm = 'session_type';
-    $strTitle = $GLOBALS['locSessionTypes'];
+    $strTitle = 'SessionTypes';
     break;
 
 case 'user' :
@@ -709,17 +716,17 @@ case 'user' :
             'name' => 'name',
             'width' => 350,
             'type' => 'TEXT',
-            'header' => $GLOBALS['locUserName']
+            'header' => 'UserName'
         ],
         [
             'name' => 'login',
             'width' => 250,
             'type' => 'TEXT',
-            'header' => $GLOBALS['locLoginName']
+            'header' => 'LoginName'
         ]
     ];
     $strMainForm = 'user';
-    $strTitle = $GLOBALS['locUsers'];
+    $strTitle = 'Users';
     break;
 
 default :

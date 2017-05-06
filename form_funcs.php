@@ -66,11 +66,11 @@ function getFormDefaultValue($elem, $parentKey)
         return false;
     }
     if ($elem['default'] === 'DATE_NOW') {
-        return date($GLOBALS['locDateFormat']);
+        return date(Translator::translate('DateFormat'));
     } elseif (strstr($elem['default'], 'DATE_NOW+')) {
         $atmpValues = explode('+', $elem['default']);
         return date(
-            $GLOBALS['locDateFormat'],
+            Translator::translate('DateFormat'),
             mktime(0, 0, 0, date('m'), date('d') + $atmpValues[1], date('Y'))
         );
     } elseif (strstr($elem['default'], 'ADD')) {
@@ -159,7 +159,7 @@ function saveFormData($table, &$primaryKey, &$formElements, &$values, &$warnings
             }
             $res = mysqli_param_query($query, $params);
             if (mysqli_fetch_array($res)) {
-                $warnings = sprintf($GLOBALS['locDuplicateValue'], $elem['label']);
+                $warnings = sprintf(Translator::translate('DuplicateValue'), $elem['label']);
                 return false;
             }
         }
@@ -301,7 +301,7 @@ function saveFormData($table, &$primaryKey, &$formElements, &$values, &$warnings
 
         $res = mysqli_param_query($query, $params);
         if (mysqli_fetch_assoc($res))
-            $warnings = $GLOBALS['locInvoiceNumberAlreadyInUse'];
+            $warnings = Translator::translate('InvoiceNumberAlreadyInUse');
     }
 
     // Special case for invoices - check, according to settings, that the invoice has

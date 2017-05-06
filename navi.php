@@ -39,49 +39,49 @@ function createFuncMenu($strFunc)
         $astrNaviLinks = [
             [
                 'href' => 'list=user',
-                'text' => $GLOBALS['locUsers'],
+                'text' => Translator::translate('Users'),
                 'levels_allowed' => [
                     ROLE_ADMIN
                 ]
             ],
             [
                 'href' => 'list=invoice_state',
-                'text' => $GLOBALS['locInvoiceStates'],
+                'text' => Translator::translate('InvoiceStates'),
                 'levels_allowed' => [
                     ROLE_ADMIN
                 ]
             ],
             [
                 'href' => 'list=row_type',
-                'text' => $GLOBALS['locRowTypes'],
+                'text' => Translator::translate('RowTypes'),
                 'levels_allowed' => [
                     ROLE_ADMIN
                 ]
             ],
             [
                 'href' => 'list=delivery_terms',
-                'text' => $GLOBALS['locDeliveryTerms'],
+                'text' => Translator::translate('DeliveryTerms'),
                 'levels_allowed' => [
                     ROLE_ADMIN
                 ]
             ],
             [
                 'href' => 'list=delivery_method',
-                'text' => $GLOBALS['locDeliveryMethods'],
+                'text' => Translator::translate('DeliveryMethods'),
                 'levels_allowed' => [
                     ROLE_ADMIN
                 ]
             ],
             [
                 'href' => 'list=print_template',
-                'text' => $GLOBALS['locPrintTemplates'],
+                'text' => Translator::translate('PrintTemplates'),
                 'levels_allowed' => [
                     ROLE_ADMIN
                 ]
             ],
             [
                 'href' => 'operation=dbdump',
-                'text' => $GLOBALS['locBackupDatabase'],
+                'text' => Translator::translate('BackupDatabase'),
                 'levels_allowed' => [
                     ROLE_BACKUPMGR,
                     ROLE_ADMIN
@@ -89,14 +89,14 @@ function createFuncMenu($strFunc)
             ],
             [
                 'href' => 'operation=import',
-                'text' => $GLOBALS['locImportData'],
+                'text' => Translator::translate('ImportData'),
                 'levels_allowed' => [
                     ROLE_ADMIN
                 ]
             ],
             [
                 'href' => 'operation=export',
-                'text' => $GLOBALS['locExportData'],
+                'text' => Translator::translate('ExportData'),
                 'levels_allowed' => [
                     ROLE_ADMIN
                 ]
@@ -106,17 +106,17 @@ function createFuncMenu($strFunc)
         $strList = getRequest('list', '');
         switch ($strList) {
         case 'user' :
-            $strNewText = $GLOBALS['locNewUser'];
+            $strNewText = Translator::translate('NewUser');
             break;
         case 'session_type' :
-            $strNewText = $GLOBALS['locNewSessionType'];
+            $strNewText = Translator::translate('NewSessionType');
             break;
         case 'invoice_state' :
         case 'row_type' :
         case 'delivery_terms' :
         case 'delivery_method' :
         case 'print_template' :
-            $strNewText = $GLOBALS['locAddNew'];
+            $strNewText = Translator::translate('AddNew');
             break;
         }
         if ($strNewText)
@@ -127,7 +127,7 @@ function createFuncMenu($strFunc)
         $astrNaviLinks = [
             [
                 'href' => 'list=settings',
-                'text' => $GLOBALS['locGeneralSettings'],
+                'text' => Translator::translate('GeneralSettings'),
                 'levels_allowed' => [
                     ROLE_USER,
                     ROLE_BACKUPMGR
@@ -135,7 +135,7 @@ function createFuncMenu($strFunc)
             ],
             [
                 'href' => 'list=base',
-                'text' => $GLOBALS['locBases'],
+                'text' => Translator::translate('Bases'),
                 'levels_allowed' => [
                     ROLE_USER,
                     ROLE_BACKUPMGR
@@ -143,7 +143,7 @@ function createFuncMenu($strFunc)
             ],
             [
                 'href' => 'list=product',
-                'text' => $GLOBALS['locProducts'],
+                'text' => Translator::translate('Products'),
                 'levels_allowed' => [
                     ROLE_USER,
                     ROLE_BACKUPMGR
@@ -151,7 +151,7 @@ function createFuncMenu($strFunc)
             ],
             [
                 'href' => 'list=default_value',
-                'text' => $GLOBALS['locDefaultValues'],
+                'text' => Translator::translate('DefaultValues'),
                 'levels_allowed' => [
                     ROLE_USER,
                     ROLE_BACKUPMGR
@@ -162,13 +162,13 @@ function createFuncMenu($strFunc)
         $strList = getRequest('list', '');
         switch ($strList) {
         case 'base':
-            $strNewText = $GLOBALS['locNewBase'];
+            $strNewText = Translator::translate('NewBase');
             break;
         case 'product':
-            $strNewText = $GLOBALS['locNewProduct'];
+            $strNewText = Translator::translate('NewProduct');
             break;
         case 'default_value':
-            $strNewText = $GLOBALS['locNewDefaultValue'];
+            $strNewText = Translator::translate('NewDefaultValue');
             break;
         }
         if ($strNewText)
@@ -179,7 +179,7 @@ function createFuncMenu($strFunc)
         $astrNaviLinks = [
             [
                 'href' => 'form=invoice',
-                'text' => $GLOBALS['locInvoiceReport'],
+                'text' => Translator::translate('InvoiceReport'),
                 'levels_allowed' => [
                     ROLE_READONLY,
                     ROLE_USER,
@@ -188,7 +188,7 @@ function createFuncMenu($strFunc)
             ],
             [
                 'href' => 'form=product',
-                'text' => $GLOBALS['locProductReport'],
+                'text' => Translator::translate('ProductReport'),
                 'levels_allowed' => [
                     ROLE_READONLY,
                     ROLE_USER,
@@ -197,7 +197,7 @@ function createFuncMenu($strFunc)
             ],
             [
                 'href' => 'form=product_stock',
-                'text' => $GLOBALS['locProductStockReport'],
+                'text' => Translator::translate('ProductStockReport'),
                 'levels_allowed' => [
                     ROLE_READONLY,
                     ROLE_USER,
@@ -206,7 +206,7 @@ function createFuncMenu($strFunc)
             ],
             [
                 'href' => 'form=accounting',
-                'text' => $GLOBALS['locAccountingReport'],
+                'text' => Translator::translate('AccountingReport'),
                 'levels_allowed' => [
                     ROLE_READONLY,
                     ROLE_USER,
@@ -223,7 +223,7 @@ function createFuncMenu($strFunc)
         $strFormSwitch = 'company';
         $astrNaviLinks = [];
         $strNewButton = '<a class="buttonlink" href="?func=companies&amp;form=company">' .
-             $GLOBALS['locNewClient'] . '</a>';
+             Translator::translate('NewClient') . '</a>';
         break;
 
     default :
@@ -233,7 +233,7 @@ function createFuncMenu($strFunc)
         if ($strFunc == 'open_invoices') {
             $astrNaviLinks[] = [
                 'href' => 'index.php?func=invoices',
-                'text' => $GLOBALS['locDisplayAllInvoices'],
+                'text' => Translator::translate('DisplayAllInvoices'),
                 'levels_allowed' => [
                     ROLE_USER,
                     ROLE_BACKUPMGR
@@ -242,7 +242,7 @@ function createFuncMenu($strFunc)
         } else {
             $astrNaviLinks[] = [
                 'href' => 'index.php?func=open_invoices',
-                'text' => $GLOBALS['locDisplayOpenInvoices'],
+                'text' => Translator::translate('DisplayOpenInvoices'),
                 'levels_allowed' => [
                     ROLE_USER,
                     ROLE_BACKUPMGR
@@ -251,12 +251,12 @@ function createFuncMenu($strFunc)
         }
         if ($strFunc != 'archived_invoices') {
             $strNewButton = '<a class="buttonlink" href="?func=invoices&amp;form=invoice">' .
-                 $GLOBALS['locNewInvoice'] . '</a>';
+                 Translator::translate('NewInvoice') . '</a>';
             $strNewButton .= ' <a class="buttonlink" href="?func=invoices&amp;form=invoice&amp;offer=1">' .
-                 $GLOBALS['locNewOffer'] . '</a>';
+                 Translator::translate('NewOffer') . '</a>';
             $astrNaviLinks[] = [
                 'href' => 'index.php?func=import_statement',
-                'text' => $GLOBALS['locImportAccountStatement'],
+                'text' => Translator::translate('ImportAccountStatement'),
                 'levels_allowed' => [
                     ROLE_USER,
                     ROLE_BACKUPMGR
@@ -328,9 +328,9 @@ function createFuncMenu($strFunc)
     if ($blnShowSearch) {
         ?>
     <a class="buttonlink" href="#"
-        onClick="openSearchWindow('ext', event); return false;"><?php echo $GLOBALS['locExtSearch']?></a>
+        onClick="openSearchWindow('ext', event); return false;"><?php echo Translator::translate('ExtSearch')?></a>
     <a class="buttonlink" href="#"
-        onClick="openSearchWindow('quick', event); return false;"><?php echo $GLOBALS['locQuickSearch']?></a>
+        onClick="openSearchWindow('quick', event); return false;"><?php echo Translator::translate('QuickSearch')?></a>
 <?php
     }
     if (sesWriteAccess()) {

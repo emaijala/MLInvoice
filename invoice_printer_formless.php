@@ -64,28 +64,28 @@ class InvoicePrinterFormless extends InvoicePrinterBase
         $pdf->SetFont('Helvetica', '', 10);
         $pdf->SetXY(115, $pdf->GetY() + 5);
         if ($recipientData['customer_no'] != 0) {
-            $pdf->Cell(40, 5, $GLOBALS['locPDFCustomerNumber'] . ': ', 0, 0, 'R');
+            $pdf->Cell(40, 5, Translator::translate('invoice::CustomerNumber') . ': ', 0, 0, 'R');
             $pdf->Cell(60, 5, $recipientData['customer_no'], 0, 1);
         }
         if ($recipientData['company_id']) {
             $pdf->SetX(115);
-            $pdf->Cell(40, 5, $GLOBALS['locPDFClientVATID'] . ': ', 0, 0, 'R');
+            $pdf->Cell(40, 5, Translator::translate('invoice::ClientVATID') . ': ', 0, 0, 'R');
             $pdf->Cell(60, 5, $recipientData['company_id'], 0, 1);
         }
         $pdf->SetX(115);
-        $pdf->Cell(40, 5, $GLOBALS["locPDF${locStr}Number"] . ': ', 0, 0, 'R');
+        $pdf->Cell(40, 5, Translator::translate("invoice::${locStr}Number") . ': ', 0, 0, 'R');
         $pdf->Cell(60, 5, $invoiceData['invoice_no'], 0, 1);
         $pdf->SetX(115);
-        $pdf->Cell(40, 5, $GLOBALS["locPDF${locStr}Date"] . ': ', 0, 0, 'R');
+        $pdf->Cell(40, 5, Translator::translate("invoice::${locStr}Date") . ': ', 0, 0, 'R');
         $strInvoiceDate = $this->_formatDate($invoiceData['invoice_date']);
         $strDueDate = $this->_formatDate($invoiceData['due_date']);
         $pdf->Cell(60, 5, $strInvoiceDate, 0, 1);
         if ($this->printStyle == 'invoice') {
             $pdf->SetX(115);
-            $pdf->Cell(40, 5, $GLOBALS['locPDFDueDate'] . ': ', 0, 0, 'R');
+            $pdf->Cell(40, 5, Translator::translate('invoice::DueDate') . ': ', 0, 0, 'R');
             $pdf->Cell(60, 5, $strDueDate, 0, 1);
             $pdf->SetX(115);
-            $pdf->Cell(40, 5, $GLOBALS['locPDFTermsOfPayment'] . ': ', 0, 0, 'R');
+            $pdf->Cell(40, 5, Translator::translate('invoice::TermsOfPayment') . ': ', 0, 0, 'R');
             $paymentDays = round(
                 dbDate2UnixTime($invoiceData['due_date']) / 3600 / 24 -
                      dbDate2UnixTime($invoiceData['invoice_date']) / 3600 / 24);
@@ -95,36 +95,36 @@ class InvoicePrinterFormless extends InvoicePrinterBase
             }
             $pdf->Cell(60, 5, $this->getTermsOfPayment($paymentDays), 0, 1);
             $pdf->SetX(115);
-            $pdf->Cell(40, 5, $GLOBALS['locPDFPeriodForComplaints'] . ': ', 0, 0,
+            $pdf->Cell(40, 5, Translator::translate('invoice::PeriodForComplaints') . ': ', 0, 0,
                 'R');
             $pdf->Cell(60, 5, $this->getPeriodForComplaints(), 0, 1);
             $pdf->SetX(115);
-            $pdf->Cell(40, 5, $GLOBALS['locPDFPenaltyInterest'] . ': ', 0, 0, 'R');
+            $pdf->Cell(40, 5, Translator::translate('invoice::PenaltyInterest') . ': ', 0, 0, 'R');
             $pdf->Cell(60, 5,
                 $this->_formatNumber(getSetting('invoice_penalty_interest'), 1, true) .
                      ' %', 0, 1);
             $pdf->SetX(115);
-            $pdf->Cell(40, 5, $GLOBALS['locPDFRecipientBankAccount'] . ': ', 0, 0,
+            $pdf->Cell(40, 5, Translator::translate('invoice::RecipientBankAccount') . ': ', 0, 0,
                 'R');
             $pdf->Cell(60, 5, $senderData['bank_iban'], 0, 1);
             $pdf->SetX(115);
-            $pdf->Cell(40, 5, $GLOBALS['locPDFRecipientBankBIC'] . ': ', 0, 0, 'R');
+            $pdf->Cell(40, 5, Translator::translate('invoice::RecipientBankBIC') . ': ', 0, 0, 'R');
             $pdf->Cell(60, 5, $senderData['bank_swiftbic'], 0, 1);
             $pdf->SetX(115);
             if ($this->refNumber) {
-                $pdf->Cell(40, 5, $GLOBALS['locPDFInvoiceRefNr'] . ': ', 0, 0, 'R');
+                $pdf->Cell(40, 5, Translator::translate('invoice::InvoiceRefNr') . ': ', 0, 0, 'R');
                 $pdf->Cell(60, 5, $this->refNumber, 0, 1);
             }
         }
 
         if ($invoiceData['reference'] && $this->printStyle != 'dispatch') {
             $pdf->SetX(115);
-            $pdf->Cell(40, 5, $GLOBALS['locPDFYourReference'] . ': ', 0, 0, 'R');
+            $pdf->Cell(40, 5, Translator::translate('invoice::YourReference') . ': ', 0, 0, 'R');
             $pdf->Cell(60, 5, $invoiceData['reference'], 0, 1);
         }
         if (isset($invoiceData['info']) && $invoiceData['info']) {
             $pdf->SetX(115);
-            $pdf->Cell(40, 5, $GLOBALS['locPDFAdditionalInformation'] . ': ', 0, 0,
+            $pdf->Cell(40, 5, Translator::translate('invoice::AdditionalInformation') . ': ', 0, 0,
                 'R');
             $pdf->MultiCell(50, 5, $invoiceData['info'], 0, 'L', 0);
         }
@@ -133,20 +133,20 @@ class InvoicePrinterFormless extends InvoicePrinterBase
             if ($invoiceData['refunded_invoice_no']) {
                 $pdf->SetX(115);
                 $pdf->Cell(40, 5,
-                    sprintf($GLOBALS['locPDFRefundsInvoice'],
+                    sprintf(Translator::translate('invoice::RefundsInvoice'),
                         $invoiceData['refunded_invoice_no']), 0, 1, 'R');
             }
 
             if ($invoiceData['state_id'] == 5) {
                 $pdf->SetX(108);
                 $pdf->SetFont('Helvetica', 'B', 10);
-                $pdf->MultiCell(98, 5, $GLOBALS['locPDFFirstReminderNote'], 0, 'L',
+                $pdf->MultiCell(98, 5, Translator::translate('invoice::FirstReminderNote'), 0, 'L',
                     0);
                 $pdf->SetFont('Helvetica', '', 10);
             } elseif ($invoiceData['state_id'] == 6) {
                 $pdf->SetX(108);
                 $pdf->SetFont('Helvetica', 'B', 10);
-                $pdf->MultiCell(98, 5, $GLOBALS['locPDFSecondReminderNote'], 0, 'L',
+                $pdf->MultiCell(98, 5, Translator::translate('invoice::SecondReminderNote'), 0, 'L',
                     0);
                 $pdf->SetFont('Helvetica', '', 10);
             }

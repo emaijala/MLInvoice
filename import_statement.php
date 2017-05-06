@@ -231,7 +231,7 @@ class ImportStatement extends ImportFile
                     if (!$haveMappings) {
                         if (!$this->ignoreEmptyRows) {
                             echo "    Row $rowNum: " .
-                                 $GLOBALS['locImportNoMappedColumns'] . "<br>\n";
+                                 Translator::translate('ImportNoMappedColumns') . "<br>\n";
                         }
                     } else {
                         $result = $this->process_import_row(
@@ -258,19 +258,19 @@ class ImportStatement extends ImportFile
     protected function add_custom_form_fields()
     {
 ?>
-      <div class="medium_label"><?php echo $GLOBALS['locImportStatementMarkPaidInvoicesArchived']?></div>
+      <div class="medium_label"><?php echo Translator::translate('ImportStatementMarkPaidInvoicesArchived')?></div>
       <div class="field">
         <input type="checkbox" id="archive" name="archive" value="1" <?=getSetting('invoice_auto_archive') ? 'checked="checked"' : '' ?>>
       </div>
-      <div class="medium_label"><?php echo $GLOBALS['locBiller']?></div>
+      <div class="medium_label"><?php echo Translator::translate('Biller')?></div>
       <div class="field">
         <?=htmlSQLListBox('base_id', 'SELECT id, name FROM {prefix}base WHERE deleted=0', '', 'medium') ?>
       </div>
-      <div class="medium_label"><?php echo $GLOBALS['locImportStatementAcceptPartialPayments']?></div>
+      <div class="medium_label"><?php echo Translator::translate('ImportStatementAcceptPartialPayments')?></div>
       <div class="field">
         <input type="checkbox" id="partial_payments" name="partial_payments" value="1">
       </div>
-      <div class="medium_label"><?php echo $GLOBALS['locImportStatementIgnorePaid']?></div>
+      <div class="medium_label"><?php echo Translator::translate('ImportStatementIgnorePaid')?></div>
       <div class="field">
         <input type="checkbox" id="ignore_paid" name="ignore_paid" value="1">
       </div>
@@ -296,7 +296,7 @@ class ImportStatement extends ImportFile
         $mode, $decimalSeparator, $fieldDefs, &$addedRecordId
     ) {
         if (!isset($row['date']) || !isset($row['amount']) || !isset($row['refnr'])) {
-            return $GLOBALS['locImportStatementFieldMissing'];
+            return Translator::translate('ImportStatementFieldMissing');
         }
 
         $refnr = str_replace([' ', "'"], '', $row['refnr']);
@@ -326,13 +326,13 @@ class ImportStatement extends ImportFile
         $amount = floatval($amount);
 
         if ($refnr === '') {
-            return $GLOBALS['locImportStatementFieldMissing'];
+            return Translator::translate('ImportStatementFieldMissing');
         }
 
         $format = getRequest('format', '');
         if ($format == 'fixed' && isset($row['correction']) && $row['correction']) {
             $msg = str_replace(
-                '{refnr}', $refnr, $GLOBALS['locImportStatementNoCorrections']
+                '{refnr}', $refnr, Translator::translate('ImportStatementNoCorrections')
             );
             $msg = str_replace(
                 '{statementAmount}', miscRound2Decim($amount), $msg
@@ -360,13 +360,13 @@ class ImportStatement extends ImportFile
         $count = mysqli_num_rows($intRes);
         if ($count == 0) {
             return str_replace(
-                '{refnr}', $refnr, $GLOBALS['locImportStatementInvoiceNotFound']
+                '{refnr}', $refnr, Translator::translate('ImportStatementInvoiceNotFound')
             );
         }
         if ($count > 1) {
             return str_replace(
                 '{refnr}', $refnr,
-                $GLOBALS['locImportStatementMultipleInvoicesFound']
+                Translator::translate('ImportStatementMultipleInvoicesFound')
             );
         }
 
@@ -374,7 +374,7 @@ class ImportStatement extends ImportFile
 
         if (!$row['invoice_unpaid']) {
             return str_replace(
-                '{refnr}', $refnr, $GLOBALS['locImportStatementInvoiceAlreadyPaid']
+                '{refnr}', $refnr, Translator::translate('ImportStatementInvoiceAlreadyPaid')
             );
         }
 
@@ -413,7 +413,7 @@ EOT;
                         $sql,
                         [
                             $row['id'],
-                            $GLOBALS['locPartialPayment'],
+                            Translator::translate('PartialPayment'),
                             -$amount,
                             $date
                         ]
@@ -422,7 +422,7 @@ EOT;
 
                 $msg = str_replace(
                     '{statementAmount}', miscRound2Decim($amount),
-                    $GLOBALS['locImportStatementPartialPayment']
+                    Translator::translate('ImportStatementPartialPayment')
                 );
                 $msg = str_replace(
                     '{invoiceAmount}', miscRound2Decim($totalToPay), $msg
@@ -435,7 +435,7 @@ EOT;
             } else {
                 $msg = str_replace(
                     '{statementAmount}', miscRound2Decim($amount),
-                    $GLOBALS['locImportStatementAmountMismatch']
+                    Translator::translate('ImportStatementAmountMismatch')
                 );
                 $msg = str_replace(
                     '{invoiceAmount}', miscRound2Decim($totalToPay), $msg
@@ -464,8 +464,8 @@ EOT;
         $msg = str_replace(
             '{amount}', miscRound2Decim($amount),
             $archive
-                ? $GLOBALS['locImportStatementInvoiceMarkedAsPaidAndArchived']
-                : $GLOBALS['locImportStatementInvoiceMarkedAsPaid']
+                ? Translator::translate('ImportStatementInvoiceMarkedAsPaidAndArchived')
+                : Translator::translate('ImportStatementInvoiceMarkedAsPaid')
         );
         $msg = str_replace('{id}', $row['id'], $msg);
         $msg = str_replace('{date}', dateConvDBDate2Date($date), $msg);

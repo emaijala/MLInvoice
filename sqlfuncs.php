@@ -364,7 +364,7 @@ function mysqli_query_check($query, $noFail = false)
                 header('HTTP/1.1 500 Internal Server Error');
             }
             $msg = (!defined('_DB_VERBOSE_ERRORS_') || !_DB_VERBOSE_ERRORS_)
-                ? $GLOBALS['locDBError']
+                ? Translator::translate('DBError')
                 : htmlspecialchars(
                     "Query '$query' failed: ($intError) " . mysqli_error($dblink)
                 );

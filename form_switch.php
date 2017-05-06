@@ -68,14 +68,14 @@ case 'company' :
     $astrFormElements = [
         [
             'name' => 'company_name',
-            'label' => $GLOBALS['locClientName'],
+            'label' => Translator::translate('ClientName'),
             'type' => 'TEXT',
             'style' => 'medium',
             'position' => 1
         ],
         [
             'name' => 'inactive',
-            'label' => $GLOBALS['locClientInactive'],
+            'label' => Translator::translate('ClientInactive'),
             'type' => 'CHECK',
             'style' => 'medium',
             'position' => 2,
@@ -84,7 +84,7 @@ case 'company' :
         ],
         [
             'name' => 'company_id',
-            'label' => $GLOBALS['locClientVATID'],
+            'label' => Translator::translate('ClientVATID'),
             'type' => 'TEXT',
             'style' => 'medium',
             'position' => 1,
@@ -92,7 +92,7 @@ case 'company' :
         ],
         [
             'name' => 'email',
-            'label' => $GLOBALS['locEmail'],
+            'label' => Translator::translate('Email'),
             'type' => 'TEXT',
             'style' => 'medium',
             'position' => 2,
@@ -100,7 +100,7 @@ case 'company' :
         ],
         [
             'name' => 'customer_no',
-            'label' => $GLOBALS['locCustomerNr'],
+            'label' => Translator::translate('CustomerNr'),
             'type' => 'INT',
             'style' => 'medium',
             'position' => 1,
@@ -109,7 +109,7 @@ case 'company' :
         ],
         [
             'name' => 'default_ref_number',
-            'label' => $GLOBALS['locCustomerDefaultRefNr'],
+            'label' => Translator::translate('CustomerDefaultRefNr'),
             'type' => 'TEXT',
             'style' => 'medium',
             'position' => 2,
@@ -117,7 +117,7 @@ case 'company' :
         ],
         [
             'name' => 'org_unit_number',
-            'label' => $GLOBALS['locOrgUnitNumber'],
+            'label' => Translator::translate('OrgUnitNumber'),
             'type' => 'TEXT',
             'style' => 'medium',
             'position' => 1,
@@ -125,7 +125,7 @@ case 'company' :
         ],
         [
             'name' => 'payment_intermediator',
-            'label' => $GLOBALS['locPaymentIntermediator'],
+            'label' => Translator::translate('PaymentIntermediator'),
             'type' => 'TEXT',
             'style' => 'medium',
             'position' => 2,
@@ -133,7 +133,7 @@ case 'company' :
         ],
         [
             'name' => 'delivery_terms_id',
-            'label' => $GLOBALS['locDeliveryTerms'],
+            'label' => Translator::translate('DeliveryTerms'),
             'type' => 'LIST',
             'style' => 'medium',
             'listquery' => 'SELECT id, name FROM {prefix}delivery_terms WHERE deleted=0 ORDER BY order_no;',
@@ -143,7 +143,7 @@ case 'company' :
         ],
         [
             'name' => 'delivery_method_id',
-            'label' => $GLOBALS['locDeliveryMethod'],
+            'label' => Translator::translate('DeliveryMethod'),
             'type' => 'LIST',
             'style' => 'medium',
             'listquery' => 'SELECT id, name FROM {prefix}delivery_method WHERE deleted=0 ORDER BY order_no;',
@@ -153,7 +153,7 @@ case 'company' :
         ],
         [
             'name' => 'payment_days',
-            'label' => $GLOBALS['locPaymentDays'],
+            'label' => Translator::translate('PaymentDays'),
             'type' => 'INT',
             'style' => 'short',
             'position' => 1,
@@ -162,7 +162,7 @@ case 'company' :
         ],
         [
             'name' => 'terms_of_payment',
-            'label' => $GLOBALS['locTermsOfPayment'],
+            'label' => Translator::translate('TermsOfPayment'),
             'type' => 'TEXT',
             'style' => 'medium',
             'position' => 2,
@@ -171,7 +171,7 @@ case 'company' :
         ],
         [
             'name' => 'street_address',
-            'label' => $GLOBALS['locStreetAddr'],
+            'label' => Translator::translate('StreetAddr'),
             'type' => 'TEXT',
             'style' => 'medium',
             'position' => 1,
@@ -179,7 +179,7 @@ case 'company' :
         ],
         [
             'name' => 'zip_code',
-            'label' => $GLOBALS['locZipCode'],
+            'label' => Translator::translate('ZipCode'),
             'type' => 'TEXT',
             'style' => 'short',
             'position' => 2,
@@ -187,7 +187,7 @@ case 'company' :
         ],
         [
             'name' => 'city',
-            'label' => $GLOBALS['locCity'],
+            'label' => Translator::translate('City'),
             'type' => 'TEXT',
             'style' => 'medium',
             'position' => 1,
@@ -195,7 +195,7 @@ case 'company' :
         ],
         [
             'name' => 'country',
-            'label' => $GLOBALS['locCountry'],
+            'label' => Translator::translate('Country'),
             'type' => 'TEXT',
             'style' => 'medium',
             'position' => 2,
@@ -203,7 +203,7 @@ case 'company' :
         ],
         [
             'name' => 'phone',
-            'label' => $GLOBALS['locPhone'],
+            'label' => Translator::translate('Phone'),
             'type' => 'TEXT',
             'style' => 'medium',
             'position' => 1,
@@ -211,7 +211,7 @@ case 'company' :
         ],
         [
             'name' => 'fax',
-            'label' => $GLOBALS['locFAX'],
+            'label' => Translator::translate('FAX'),
             'type' => 'TEXT',
             'style' => 'medium',
             'position' => 2,
@@ -219,7 +219,7 @@ case 'company' :
         ],
         [
             'name' => 'gsm',
-            'label' => $GLOBALS['locGSM'],
+            'label' => Translator::translate('GSM'),
             'type' => 'TEXT',
             'style' => 'medium',
             'position' => 1,
@@ -227,7 +227,7 @@ case 'company' :
         ],
         [
             'name' => 'www',
-            'label' => $GLOBALS['locWWW'],
+            'label' => Translator::translate('WWW'),
             'type' => 'TEXT',
             'style' => 'medium',
             'position' => 2,
@@ -235,7 +235,7 @@ case 'company' :
         ],
         [
             'name' => 'billing_address',
-            'label' => $GLOBALS['locBillAddr'],
+            'label' => Translator::translate('BillAddr'),
             'type' => 'AREA',
             'style' => 'medium',
             'position' => 1,
@@ -243,7 +243,7 @@ case 'company' :
         ],
         [
             'name' => 'info',
-            'label' => $GLOBALS['locInfo'],
+            'label' => Translator::translate('Info'),
             'type' => 'AREA',
             'style' => 'medium',
             'position' => 2,
@@ -251,7 +251,7 @@ case 'company' :
         ],
         [
             'name' => 'tags',
-            'label' => $GLOBALS['locTags'],
+            'label' => Translator::translate('Tags'),
             'type' => 'TAGS',
             'style' => 'noemptyvalue long',
             'listquery' => 'table=company_tag&sort=tag',
@@ -261,7 +261,7 @@ case 'company' :
         ],
         [
             'name' => 'company_contacts',
-            'label' => $GLOBALS['locContacts'],
+            'label' => Translator::translate('Contacts'),
             'type' => 'IFORM',
             'style' => 'full',
             'position' => 0,
@@ -280,16 +280,16 @@ case 'company_contacts' :
     $astrFormElements = [
         [
             'name' => 'contact_type',
-            'label' => $GLOBALS['locContactType'],
+            'label' => Translator::translate('ContactType'),
             'type' => 'LIST',
             'style' => 'medium',
             'listquery' => [
-                'invoice' => $GLOBALS['locContactTypeInvoice'],
-                'dispatch' => $GLOBALS['locContactTypeDispatchNote'],
-                'receipt' => $GLOBALS['locContactTypeReceipt'],
-                'order_confirmation' => $GLOBALS['locContactTypeOrderConfirmation'],
-                'reminder' => $GLOBALS['locContactTypeReminder'],
-                'offer' => $GLOBALS['locContactTypeOffer']
+                'invoice' => Translator::translate('ContactTypeInvoice'),
+                'dispatch' => Translator::translate('ContactTypeDispatchNote'),
+                'receipt' => Translator::translate('ContactTypeReceipt'),
+                'order_confirmation' => Translator::translate('ContactTypeOrderConfirmation'),
+                'reminder' => Translator::translate('ContactTypeReminder'),
+                'offer' => Translator::translate('ContactTypeOffer')
             ],
             'position' => 0,
             'allow_null' => true
@@ -303,14 +303,14 @@ case 'company_contacts' :
         ],
         [
             'name' => 'contact_person',
-            'label' => $GLOBALS['locContactPerson'],
+            'label' => Translator::translate('ContactPerson'),
             'type' => 'TEXT',
             'style' => 'medium',
             'position' => 0
         ],
         [
             'name' => 'person_title',
-            'label' => $GLOBALS['locPersonTitle'],
+            'label' => Translator::translate('PersonTitle'),
             'type' => 'TEXT',
             'style' => 'short',
             'listquery' => '',
@@ -319,7 +319,7 @@ case 'company_contacts' :
         ],
         [
             'name' => 'phone',
-            'label' => $GLOBALS['locPhone'],
+            'label' => Translator::translate('Phone'),
             'type' => 'TEXT',
             'style' => 'small',
             'position' => 0,
@@ -327,7 +327,7 @@ case 'company_contacts' :
         ],
         [
             'name' => 'gsm',
-            'label' => $GLOBALS['locGSM'],
+            'label' => Translator::translate('GSM'),
             'type' => 'TEXT',
             'style' => 'small',
             'position' => 0,
@@ -335,7 +335,7 @@ case 'company_contacts' :
         ],
         [
             'name' => 'email',
-            'label' => $GLOBALS['locEmail'],
+            'label' => Translator::translate('Email'),
             'type' => 'TEXT',
             'style' => 'medium',
             'position' => 0,
@@ -343,7 +343,7 @@ case 'company_contacts' :
         ],
         [
             'name' => 'tags',
-            'label' => $GLOBALS['locTags'],
+            'label' => Translator::translate('Tags'),
             'type' => 'TAGS',
             'style' => 'noemptyvalue medium',
             'listquery' => 'table=contact_tag&sort=tag',
@@ -365,14 +365,14 @@ case 'product' :
     ];
 
     if (sesWriteAccess()) {
-        $locStockBalanceChange = $GLOBALS['locStockBalanceChange'];
-        $locStockBalanceChangeDescription = $GLOBALS['locStockBalanceChangeDescription'];
-        $locUpdateStockBalance = $GLOBALS['locUpdateStockBalance'];
-        $locSave = $GLOBALS['locSave'];
-        $locClose = $GLOBALS['locClose'];
-        $locTitle = $GLOBALS['locUpdateStockBalance'];
-        $locMissing = $GLOBALS['locErrValueMissing'];
-        $locDecimalSeparator = $GLOBALS['locDecimalSeparator'];
+        $locStockBalanceChange = Translator::translate('StockBalanceChange');
+        $locStockBalanceChangeDescription = Translator::translate('StockBalanceChangeDescription');
+        $locUpdateStockBalance = Translator::translate('UpdateStockBalance');
+        $locSave = Translator::translate('Save');
+        $locClose = Translator::translate('Close');
+        $locTitle = Translator::translate('UpdateStockBalance');
+        $locMissing = Translator::translate('ErrValueMissing');
+        $locDecimalSeparator = Translator::translate('DecimalSeparator');
         $popupHTML = <<<EOS
 <script type="text/javascript" src="js/stock_balance.js"></script>
 <div id="update_stock_balance" class="form_container ui-widget-content" style="display: none">
@@ -400,7 +400,7 @@ EOS;
     $astrFormElements = [
         [
             'name' => 'order_no',
-            'label' => $GLOBALS['locOrderNr'],
+            'label' => Translator::translate('OrderNr'),
             'type' => 'INT',
             'style' => 'short',
             'position' => 1,
@@ -408,7 +408,7 @@ EOS;
         ],
         [
             'name' => 'product_code',
-            'label' => $GLOBALS['locProductCode'],
+            'label' => Translator::translate('ProductCode'),
             'type' => 'TEXT',
             'style' => 'medium',
             'position' => 2,
@@ -416,14 +416,14 @@ EOS;
         ],
         [
             'name' => 'product_name',
-            'label' => $GLOBALS['locProductName'],
+            'label' => Translator::translate('ProductName'),
             'type' => 'TEXT',
             'style' => 'medium',
             'position' => 1
         ],
         [
             'name' => 'product_group',
-            'label' => $GLOBALS['locProductGroup'],
+            'label' => Translator::translate('ProductGroup'),
             'type' => 'TEXT',
             'style' => 'medium',
             'position' => 2,
@@ -431,7 +431,7 @@ EOS;
         ],
         [
             'name' => 'vendor',
-            'label' => $GLOBALS['locProductVendor'],
+            'label' => Translator::translate('ProductVendor'),
             'type' => 'TEXT',
             'style' => 'medium',
             'position' => 1,
@@ -439,7 +439,7 @@ EOS;
         ],
         [
             'name' => 'vendors_code',
-            'label' => $GLOBALS['locProductVendorsCode'],
+            'label' => Translator::translate('ProductVendorsCode'),
             'type' => 'TEXT',
             'style' => 'medium',
             'position' => 2,
@@ -447,7 +447,7 @@ EOS;
         ],
         [
             'name' => 'barcode1',
-            'label' => $GLOBALS['locFirstBarcode'],
+            'label' => Translator::translate('FirstBarcode'),
             'type' => 'TEXT',
             'style' => 'medium',
             'position' => 1,
@@ -455,7 +455,7 @@ EOS;
         ],
         [
             'name' => 'barcode1_type',
-            'label' => $GLOBALS['locBarcodeType'],
+            'label' => Translator::translate('BarcodeType'),
             'type' => 'LIST',
             'style' => 'medium',
             'position' => 2,
@@ -464,7 +464,7 @@ EOS;
         ],
         [
             'name' => 'barcode2',
-            'label' => $GLOBALS['locSecondBarcode'],
+            'label' => Translator::translate('SecondBarcode'),
             'type' => 'TEXT',
             'style' => 'medium',
             'position' => 1,
@@ -472,7 +472,7 @@ EOS;
         ],
         [
             'name' => 'barcode2_type',
-            'label' => $GLOBALS['locBarcodeType'],
+            'label' => Translator::translate('BarcodeType'),
             'type' => 'LIST',
             'style' => 'medium',
             'position' => 2,
@@ -481,7 +481,7 @@ EOS;
         ],
         [
             'name' => 'description',
-            'label' => $GLOBALS['locProductDescription'],
+            'label' => Translator::translate('ProductDescription'),
             'type' => 'TEXT',
             'style' => 'long',
             'position' => 1,
@@ -489,7 +489,7 @@ EOS;
         ],
         [
             'name' => 'internal_info',
-            'label' => $GLOBALS['locInternalInfo'],
+            'label' => Translator::translate('InternalInfo'),
             'type' => 'AREA',
             'style' => 'xlarge',
             'position' => 0,
@@ -497,7 +497,7 @@ EOS;
         ],
         [
             'name' => 'unit_price',
-            'label' => $GLOBALS['locUnitPrice'],
+            'label' => Translator::translate('UnitPrice'),
             'type' => 'INT',
             'style' => 'medium',
             'position' => 1,
@@ -506,7 +506,7 @@ EOS;
         ],
         [
             'name' => 'type_id',
-            'label' => $GLOBALS['locUnit'],
+            'label' => Translator::translate('Unit'),
             'type' => 'LIST',
             'style' => 'short translated',
             'listquery' => 'SELECT id, name FROM {prefix}row_type WHERE deleted=0 ORDER BY order_no;',
@@ -515,7 +515,7 @@ EOS;
         ],
         [
             'name' => 'price_decimals',
-            'label' => $GLOBALS['locPriceInvoiceDecimals'],
+            'label' => Translator::translate('PriceInvoiceDecimals'),
             'type' => 'INT',
             'style' => 'short',
             'position' => 1,
@@ -523,7 +523,7 @@ EOS;
         ],
         [
             'name' => 'discount',
-            'label' => $GLOBALS['locDiscountPercent'],
+            'label' => Translator::translate('DiscountPercent'),
             'type' => 'INT',
             'style' => 'percent',
             'position' => 2,
@@ -532,7 +532,7 @@ EOS;
         ],
         [
             'name' => 'vat_percent',
-            'label' => $GLOBALS['locVATPercent'],
+            'label' => Translator::translate('VATPercent'),
             'type' => 'INT',
             'style' => 'short',
             'position' => 1,
@@ -541,7 +541,7 @@ EOS;
         ],
         [
             'name' => 'vat_included',
-            'label' => $GLOBALS['locVATIncluded'],
+            'label' => Translator::translate('VATIncluded'),
             'type' => 'CHECK',
             'style' => 'medium',
             'position' => 2,
@@ -550,7 +550,7 @@ EOS;
         ],
         [
             'name' => 'purchase_price',
-            'label' => $GLOBALS['locPurchasePrice'],
+            'label' => Translator::translate('PurchasePrice'),
             'type' => 'INT',
             'style' => 'medium',
             'position' => 1,
@@ -559,7 +559,7 @@ EOS;
         ],
         [
             'name' => 'stock_balance',
-            'label' => $GLOBALS['locStockBalance'],
+            'label' => Translator::translate('StockBalance'),
             'type' => 'INT',
             'style' => 'small',
             'position' => 2,
@@ -603,7 +603,7 @@ case 'invoice' :
             if ($intRefundedInvoiceId)
                 $arrRefundedInvoice = [
                     'name' => 'get',
-                    'label' => $GLOBALS['locShowRefundedInvoice'],
+                    'label' => Translator::translate('ShowRefundedInvoice'),
                     'type' => 'BUTTON',
                     'style' => 'custom',
                     'listquery' => "$strBaseLink&amp;id=$intRefundedInvoiceId",
@@ -622,7 +622,7 @@ case 'invoice' :
             if ($intRefundingInvoiceId)
                 $arrRefundingInvoice = [
                     'name' => 'get',
-                    'label' => $GLOBALS['locShowRefundingInvoice'],
+                    'label' => Translator::translate('ShowRefundingInvoice'),
                     'type' => 'BUTTON',
                     'style' => 'custom',
                     'listquery' => "'$strBaseLink&amp;id=$intRefundingInvoiceId",
@@ -644,23 +644,23 @@ case 'invoice' :
     $addPartialPaymentCode = '';
 
     if (sesWriteAccess()) {
-        $locUpdateDates = $GLOBALS['locUpdateDates'];
+        $locUpdateDates = Translator::translate('UpdateDates');
         $updateDates = <<<EOS
 <a class="formbuttonlink" href="#" onclick="$.getJSON('json.php?func=get_invoice_defaults', {id: $('#record_id').val(), invoice_no: $('#invoice_no').val(), invoice_date: $('#invoice_date').val(), base_id: $('#base_id').val(), company_id: $('#company_id').val(), interval_type: $('#interval_type').val()}, function(json) { $('#invoice_date').val(json.date); $('#due_date').val(json.due_date); $('#next_interval_date').val(json.next_interval_date); $('.save_button').addClass('ui-state-highlight'); }); return false;">$locUpdateDates</a>
 EOS;
 
-        $locNew = $GLOBALS['locNew'] . '...';
-        $locClientName = $GLOBALS['locClientName'];
-        $locEmail = $GLOBALS['locEmail'];
-        $locPhone = $GLOBALS['locPhone'];
-        $locAddress = $GLOBALS['locStreetAddr'];
-        $locZip = $GLOBALS['locZipCode'];
-        $locCity = $GLOBALS['locCity'];
-        $locCountry = $GLOBALS['locCountry'];
-        $locSave = $GLOBALS['locSave'];
-        $locClose = $GLOBALS['locClose'];
-        $locTitle = $GLOBALS['locNewClient'];
-        $locMissing = $GLOBALS['locErrValueMissing'];
+        $locNew = Translator::translate('New') . '...';
+        $locClientName = Translator::translate('ClientName');
+        $locEmail = Translator::translate('Email');
+        $locPhone = Translator::translate('Phone');
+        $locAddress = Translator::translate('StreetAddr');
+        $locZip = Translator::translate('ZipCode');
+        $locCity = Translator::translate('City');
+        $locCountry = Translator::translate('Country');
+        $locSave = Translator::translate('Save');
+        $locClose = Translator::translate('Close');
+        $locTitle = Translator::translate('NewClient');
+        $locMissing = Translator::translate('ErrValueMissing');
         $addCompanyCode = <<<EOS
 <a class="formbuttonlink" href="#" onclick="add_company({'save': '$locSave', 'close': '$locClose', 'title': '$locTitle', 'missing': '$locMissing: '})">$locNew</a>
 
@@ -687,14 +687,14 @@ $.getJSON('json.php?func=get_invoice_defaults', {id: $('#record_id').val(), invo
 EOS;
 
             $addPartialPaymentCode = <<<EOS
-add_partial_payment({'save': '$locSave', 'close': '$locClose', 'title': '{$GLOBALS['locPartialPayment']}', 'missing': '$locMissing: ', 'partial_payment': '{$GLOBALS['locPartialPayment']}', 'decimal_separator': '{$GLOBALS['locDecimalSeparator']}'}); return false;
+add_partial_payment({'save': '$locSave', 'close': '$locClose', 'title': '{Translator::translate('PartialPayment')}', 'missing': '$locMissing: ', 'partial_payment': '{Translator::translate('PartialPayment')}', 'decimal_separator': '{Translator::translate('DecimalSeparator')}'}); return false;
 
 EOS;
 
             $popupHTML .= <<<EOS
 <div id="add_partial_payment" class="form_container ui-widget-content" style="display: none">
-  <div class="medium_label">{$GLOBALS['locPaymentAmount']}</div> <div class="field"><input type='TEXT' id="add_partial_payment_amount" class='medium'></div>
-  <div class="medium_label">{$GLOBALS['locPayDate']}</div> <div class="field"><input type='TEXT' id="add_partial_payment_date" class='date hasCalendar'></div>
+  <div class="medium_label">{Translator::translate('PaymentAmount')}</div> <div class="field"><input type='TEXT' id="add_partial_payment_amount" class='medium'></div>
+  <div class="medium_label">{Translator::translate('PayDate')}</div> <div class="field"><input type='TEXT' id="add_partial_payment_date" class='date hasCalendar'></div>
 </div>
 
 EOS;
@@ -723,7 +723,7 @@ EOS;
 $('.save_button').addClass('ui-state-highlight'); return false;
 EOS;
         $markPaidTodayButton = '<a class="formbuttonlink" href="#" onclick="' .
-             $markPaidToday . '">' . $GLOBALS['locMarkAsPaidToday'] . '</a>';
+             $markPaidToday . '">' . Translator::translate('MarkAsPaidToday') . '</a>';
         if (getSetting('invoice_mark_paid_when_payment_date_set')) {
             $markPaidTodayEvent = <<<EOF
 if ($(this).val()) { $markPaidToday }
@@ -767,7 +767,7 @@ EOF;
 
         $arr = [
             'name' => "print$templateId",
-            'label' => isset($GLOBALS["loc{$row['name']}"]) ? $GLOBALS["loc{$row['name']}"] : $row['name'],
+            'label' => Translator::translate($row['name']),
             'type' => 'JSBUTTON',
             'style' => $printStyle,
             'listquery' => $printFunc,
@@ -785,7 +785,7 @@ EOF;
     if (count($printButtons2) > 3) {
          $printButtons2[2] = [
              'name' => 'printmenu',
-             'label' => $GLOBALS['locPrintOther'],
+             'label' => Translator::translate('PrintOther'),
              'type' => 'DROPDOWNMENU',
              'style' => '',
              'position' => 4,
@@ -807,20 +807,20 @@ EOF;
             || !getSetting('invoice_add_reference_number')
         ) {
             $updateInvoiceNr = '<a class="formbuttonlink" href="#" onclick="' .
-            $getInvoiceNr . '">' . $GLOBALS['locGetInvoiceNr'] . '</a>';
+            $getInvoiceNr . '">' . Translator::translate('GetInvoiceNr') . '</a>';
         }
     }
 
-    $addReminderFees = "$.getJSON('json.php?func=add_reminder_fees&amp;id=' + document.getElementById('record_id').value, function(json) { if (json.errors) { $('#errormsg').text(json.errors).show() } else { showmsg('{$GLOBALS['locReminderFeesAdded']}'); } init_rows(); }); return false;";
+    $addReminderFees = "$.getJSON('json.php?func=add_reminder_fees&amp;id=' + document.getElementById('record_id').value, function(json) { if (json.errors) { $('#errormsg').text(json.errors).show() } else { showmsg('{Translator::translate('ReminderFeesAdded')}'); } init_rows(); }); return false;";
 
     $intervalOptions = [
-        '0' => $GLOBALS['locInvoiceIntervalNone'],
-        '2' => $GLOBALS['locInvoiceIntervalMonth'],
-        '3' => $GLOBALS['locInvoiceIntervalYear']
+        '0' => Translator::translate('InvoiceIntervalNone'),
+        '2' => Translator::translate('InvoiceIntervalMonth'),
+        '3' => Translator::translate('InvoiceIntervalYear')
     ];
     for ($i = 4; $i <= 8; $i++) {
         $intervalOptions[(string)$i]
-            = sprintf($GLOBALS['locInvoiceIntervalMonths'], $i - 2);
+            = sprintf(Translator::translate('InvoiceIntervalMonths'), $i - 2);
     }
 
     $stateQuery = 'SELECT id, name FROM {prefix}invoice_state WHERE deleted=0 AND ';
@@ -830,7 +830,7 @@ EOF;
     $astrFormElements = [
         [
             'name' => 'base_id',
-            'label' => $GLOBALS['locBiller'],
+            'label' => Translator::translate('Biller'),
             'type' => 'LIST',
             'style' => 'long linked',
             'listquery' => 'SELECT id, name FROM {prefix}base WHERE deleted=0 ORDER BY name, id',
@@ -839,7 +839,7 @@ EOF;
         ],
         [
             'name' => 'name',
-            'label' => $isOffer ? $GLOBALS['locOfferName'] : $GLOBALS['locInvName'],
+            'label' => $isOffer ? Translator::translate('OfferName') : Translator::translate('InvName'),
             'type' => 'TEXT',
             'style' => 'medium',
             'position' => 2,
@@ -847,7 +847,7 @@ EOF;
         ],
         [
             'name' => 'company_id',
-            'label' => $GLOBALS['locPayer'],
+            'label' => Translator::translate('Payer'),
             'type' => 'SEARCHLIST',
             'style' => 'long linked',
             'listquery' => 'table=company&sort=company_name,company_id',
@@ -858,7 +858,7 @@ EOF;
         ],
         $isOffer ? [] : [
             'name' => 'reference',
-            'label' => $GLOBALS['locClientsReference'],
+            'label' => Translator::translate('ClientsReference'),
             'type' => 'TEXT',
             'style' => 'medium',
             'position' => 2,
@@ -866,7 +866,7 @@ EOF;
         ],
         $isOffer ? [] : [
             'name' => 'invoice_no',
-            'label' => $GLOBALS['locInvoiceNumber'],
+            'label' => Translator::translate('InvoiceNumber'),
             'type' => 'INT',
             'style' => 'medium hidezerovalue',
             'position' => 1,
@@ -875,7 +875,7 @@ EOF;
         ],
         $isOffer ? [] : [
             'name' => 'ref_number',
-            'label' => $GLOBALS['locReferenceNumber'],
+            'label' => Translator::translate('ReferenceNumber'),
             'type' => 'TEXT',
             'style' => 'medium hidezerovalue',
             'position' => 2,
@@ -885,7 +885,7 @@ EOF;
         ],
         [
             'name' => 'invoice_date',
-            'label' => $GLOBALS['locInvDate'],
+            'label' => Translator::translate('InvDate'),
             'type' => 'INTDATE',
             'style' => 'date',
             'position' => 1,
@@ -893,8 +893,8 @@ EOF;
         ],
         [
             'name' => 'due_date',
-            'label' => $isOffer ? $GLOBALS['locValidUntilDate']
-                : $GLOBALS['locDueDate'],
+            'label' => $isOffer ? Translator::translate('ValidUntilDate')
+                : Translator::translate('DueDate'),
             'type' => 'INTDATE',
             'style' => 'date',
             'position' => 2,
@@ -903,7 +903,7 @@ EOF;
         ],
         $isOffer ? [] : [
             'name' => 'interval_type',
-            'label' => $GLOBALS['locInvoiceIntervalType'],
+            'label' => Translator::translate('InvoiceIntervalType'),
             'type' => 'SELECT',
             'style' => 'medium',
             'position' => 1,
@@ -913,7 +913,7 @@ EOF;
         ],
         $isOffer ? [] : [
             'name' => 'next_interval_date',
-            'label' => $GLOBALS['locInvoiceNextIntervalDate'],
+            'label' => Translator::translate('InvoiceNextIntervalDate'),
             'type' => 'INTDATE',
             'style' => 'date',
             'position' => 2,
@@ -922,7 +922,7 @@ EOF;
         ],
         [
             'name' => 'state_id',
-            'label' => $GLOBALS['locStatus'],
+            'label' => Translator::translate('Status'),
             'type' => 'LIST',
             'style' => 'long translated noemptyvalue',
             'listquery' => $stateQuery,
@@ -931,7 +931,7 @@ EOF;
         ],
         $isOffer ? [] : [
             'name' => 'payment_date',
-            'label' => $GLOBALS['locPayDate'],
+            'label' => Translator::translate('PayDate'),
             'type' => 'INTDATE',
             'style' => 'date',
             'position' => 2,
@@ -941,7 +941,7 @@ EOF;
         ],
         [
             'name' => 'archived',
-            'label' => $GLOBALS['locArchived'],
+            'label' => Translator::translate('Archived'),
             'type' => 'CHECK',
             'style' => 'medium',
             'position' => 1,
@@ -950,7 +950,7 @@ EOF;
         ],
         $isOffer ? [
             'name' => 'delivery_time',
-            'label' => $GLOBALS['locDeliveryTime'],
+            'label' => Translator::translate('DeliveryTime'),
             'type' => 'TEXT',
             'style' => 'medium hidezerovalue',
             'position' => 2,
@@ -959,7 +959,7 @@ EOF;
         ] : [],
         [
             'name' => 'delivery_terms_id',
-            'label' => $GLOBALS['locDeliveryTerms'],
+            'label' => Translator::translate('DeliveryTerms'),
             'type' => 'LIST',
             'style' => 'long',
             'listquery' => 'SELECT id, name FROM {prefix}delivery_terms WHERE deleted=0 ORDER BY order_no;',
@@ -969,7 +969,7 @@ EOF;
         ],
         [
             'name' => 'delivery_method_id',
-            'label' => $GLOBALS['locDeliveryMethod'],
+            'label' => Translator::translate('DeliveryMethod'),
             'type' => 'LIST',
             'style' => 'medium',
             'listquery' => 'SELECT id, name FROM {prefix}delivery_method WHERE deleted=0 ORDER BY order_no;',
@@ -979,7 +979,7 @@ EOF;
         ],
         [
             'name' => 'info',
-            'label' => $GLOBALS['locVisibleInfo'],
+            'label' => Translator::translate('VisibleInfo'),
             'type' => 'AREA',
             'style' => 'large',
             'position' => 1,
@@ -988,7 +988,7 @@ EOF;
         ],
         [
             'name' => 'internal_info',
-            'label' => $GLOBALS['locInternalInfo'],
+            'label' => Translator::translate('InternalInfo'),
             'type' => 'AREA',
             'style' => 'large',
             'position' => 2,
@@ -996,7 +996,7 @@ EOF;
         ],
         [
             'name' => 'foreword',
-            'label' => $GLOBALS['locForeword'],
+            'label' => Translator::translate('Foreword'),
             'type' => 'AREA',
             'style' => 'large',
             'position' => 1,
@@ -1005,7 +1005,7 @@ EOF;
         ],
         [
             'name' => 'afterword',
-            'label' => $GLOBALS['locAfterword'],
+            'label' => Translator::translate('Afterword'),
             'type' => 'AREA',
             'style' => 'large',
             'position' => 2,
@@ -1020,7 +1020,7 @@ EOF;
             'position' => 1
         ] : [
             'name' => 'refundinvoice',
-            'label' => $GLOBALS['locRefundInvoice'],
+            'label' => Translator::translate('RefundInvoice'),
             'type' => 'BUTTON',
             'style' => 'redirect',
             'listquery' => "copy_invoice.php?func=$strFunc&list=$strList&id=_ID_&refund=1",
@@ -1035,7 +1035,7 @@ EOF;
             'position' => 1
         ] : [
             'name' => 'copyasinvoice',
-            'label' => $GLOBALS['locCopyAsInvoice'],
+            'label' => Translator::translate('CopyAsInvoice'),
             'type' => 'BUTTON',
             'style' => 'redirect',
             'listquery' => "copy_invoice.php?func=$strFunc&list=$strList&id=_ID_&invoice=1",
@@ -1053,7 +1053,7 @@ EOF;
             'position' => 1
         ] : [
             'name' => 'addreminderfees',
-            'label' => $GLOBALS['locAddReminderFees'],
+            'label' => Translator::translate('AddReminderFees'),
             'type' => 'JSBUTTON',
             'style' => 'redirect',
             'listquery' => $addReminderFees,
@@ -1071,7 +1071,7 @@ EOF;
             'position' => 1
         ] : [
             'name' => 'addpartialpayment',
-            'label' => $GLOBALS['locAddPartialPayment'],
+            'label' => Translator::translate('AddPartialPayment'),
             'type' => 'JSBUTTON',
             'style' => 'redirect',
             'listquery' => $addPartialPaymentCode,
@@ -1089,7 +1089,7 @@ EOF;
 
     $astrFormElements[] = [
         'name' => 'invoice_rows',
-        'label' => $GLOBALS['locInvRows'],
+        'label' => Translator::translate('InvRows'),
         'type' => 'IFORM',
         'style' => 'xfull',
         'position' => 0,
@@ -1125,7 +1125,7 @@ $astrFormElements = [
     ],
     [
         'name' => 'product_id',
-        'label' => $GLOBALS['locProductName'],
+        'label' => Translator::translate('ProductName'),
         'type' => 'SEARCHLIST',
         'style' => 'medium',
         'listquery' => 'table=product&sort=order_no,product_code,product_name',
@@ -1135,7 +1135,7 @@ $astrFormElements = [
     ],
     [
         'name' => 'description',
-        'label' => $GLOBALS['locRowDesc'],
+        'label' => Translator::translate('RowDesc'),
         'type' => 'TEXT',
         'style' => 'medium',
         'position' => 0,
@@ -1143,7 +1143,7 @@ $astrFormElements = [
     ],
     [
         'name' => 'row_date',
-        'label' => $GLOBALS['locDate'],
+        'label' => Translator::translate('Date'),
         'type' => 'INTDATE',
         'style' => 'date',
         'position' => 0,
@@ -1151,14 +1151,14 @@ $astrFormElements = [
     ],
     [
         'name' => 'pcs',
-        'label' => $GLOBALS['locPCS'],
+        'label' => Translator::translate('PCS'),
         'type' => 'INT',
         'style' => 'count',
         'position' => 0
     ],
     [
         'name' => 'type_id',
-        'label' => $GLOBALS['locUnit'],
+        'label' => Translator::translate('Unit'),
         'type' => 'LIST',
         'style' => 'short translated',
         'listquery' => 'SELECT id, name FROM {prefix}row_type WHERE deleted=0 ORDER BY order_no',
@@ -1168,7 +1168,7 @@ $astrFormElements = [
     ],
     [
         'name' => 'price',
-        'label' => $GLOBALS['locPrice'],
+        'label' => Translator::translate('Price'),
         'type' => 'INT',
         'style' => 'currency',
         'position' => 0,
@@ -1177,7 +1177,7 @@ $astrFormElements = [
     ],
     [
         'name' => 'discount',
-        'label' => $GLOBALS['locDiscount'],
+        'label' => Translator::translate('Discount'),
         'type' => 'INT',
         'style' => 'percent',
         'position' => 0,
@@ -1186,17 +1186,17 @@ $astrFormElements = [
     ],
     [
         'name' => 'vat',
-        'label' => $GLOBALS['locVAT'],
+        'label' => Translator::translate('VAT'),
         'type' => 'INT',
         'style' => 'percent',
         'position' => 0,
-        'default' => str_replace('.', $GLOBALS['locDecimalSeparator'],
+        'default' => str_replace('.', Translator::translate('DecimalSeparator'),
             getSetting('invoice_default_vat_percent')),
         'allow_null' => false
     ],
     [
         'name' => 'vat_included',
-        'label' => $GLOBALS['locVATInc'],
+        'label' => Translator::translate('VATInc'),
         'type' => 'CHECK',
         'style' => 'xshort',
         'position' => 0,
@@ -1205,7 +1205,7 @@ $astrFormElements = [
     ],
     [
         'name' => 'order_no',
-        'label' => $GLOBALS['locRowNr'],
+        'label' => Translator::translate('RowNr'),
         'type' => 'INT',
         'style' => 'tiny',
         'listquery' => 'SELECT max(order_no)+5 FROM {prefix}invoice_row WHERE deleted=0 AND invoice_id=_PARENTID_',
@@ -1215,7 +1215,7 @@ $astrFormElements = [
     ],
     [
         'name' => 'partial_payment',
-        'label' => $GLOBALS['locPartialPayment'],
+        'label' => Translator::translate('PartialPayment'),
         'type' => 'HID_INT',
         'style' => 'xshort',
         'position' => 0,
@@ -1224,7 +1224,7 @@ $astrFormElements = [
     ],
     [
         'name' => 'row_sum',
-        'label' => $GLOBALS['locRowTotal'],
+        'label' => Translator::translate('RowTotal'),
         'type' => 'ROWSUM',
         'style' => 'currency',
         'position' => 0,
@@ -1243,7 +1243,7 @@ $strTable = '{prefix}base';
 $strJSONType = 'base';
 $addressAutocomplete = true;
 
-$title = $GLOBALS['locBaseLogoTitle'];
+$title = Translator::translate('BaseLogoTitle');
 $openPopJS = <<<EOF
 popup_dialog('base_logo.php?func=edit&amp;id=_ID_', '$(\\'img\\').attr(\\'src\\', \\'base_logo.php?func=view&id=_ID_\\')', '$title', event, 600, 400); return false;
 EOF;
@@ -1251,14 +1251,14 @@ EOF;
 $astrFormElements = [
     [
         'name' => 'name',
-        'label' => $GLOBALS['locBaseName'],
+        'label' => Translator::translate('BaseName'),
         'type' => 'TEXT',
         'style' => 'medium',
         'position' => 1
     ],
     [
         'name' => 'company_id',
-        'label' => $GLOBALS['locClientVATID'],
+        'label' => Translator::translate('ClientVATID'),
         'type' => 'TEXT',
         'style' => 'medium',
         'position' => 2,
@@ -1266,8 +1266,8 @@ $astrFormElements = [
     ],
     [
         'name' => 'vat_registered',
-        'label' => $GLOBALS['locVATRegistered'],
-        'title' => $GLOBALS['locVATRegisteredHint'],
+        'label' => Translator::translate('VATRegistered'),
+        'title' => Translator::translate('VATRegisteredHint'),
         'type' => 'CHECK',
         'style' => 'short',
         'position' => 1,
@@ -1275,7 +1275,7 @@ $astrFormElements = [
     ],
     [
         'name' => 'org_unit_number',
-        'label' => $GLOBALS['locOrgUnitNumber'],
+        'label' => Translator::translate('OrgUnitNumber'),
         'type' => 'TEXT',
         'style' => 'medium',
         'position' => 1,
@@ -1283,7 +1283,7 @@ $astrFormElements = [
     ],
     [
         'name' => 'payment_intermediator',
-        'label' => $GLOBALS['locPaymentIntermediator'],
+        'label' => Translator::translate('PaymentIntermediator'),
         'type' => 'TEXT',
         'style' => 'medium',
         'position' => 2,
@@ -1291,7 +1291,7 @@ $astrFormElements = [
     ],
     [
         'name' => 'contact_person',
-        'label' => $GLOBALS['locContactPerson'],
+        'label' => Translator::translate('ContactPerson'),
         'type' => 'TEXT',
         'style' => 'medium',
         'position' => 1,
@@ -1299,7 +1299,7 @@ $astrFormElements = [
     ],
     [
         'name' => 'email',
-        'label' => $GLOBALS['locEmail'],
+        'label' => Translator::translate('Email'),
         'type' => 'TEXT',
         'style' => 'medium',
         'position' => 2,
@@ -1307,7 +1307,7 @@ $astrFormElements = [
     ],
     [
         'name' => 'street_address',
-        'label' => $GLOBALS['locStreetAddr'],
+        'label' => Translator::translate('StreetAddr'),
         'type' => 'TEXT',
         'style' => 'medium',
         'position' => 1,
@@ -1315,7 +1315,7 @@ $astrFormElements = [
     ],
     [
         'name' => 'zip_code',
-        'label' => $GLOBALS['locZipCode'],
+        'label' => Translator::translate('ZipCode'),
         'type' => 'TEXT',
         'style' => 'short',
         'position' => 2,
@@ -1323,7 +1323,7 @@ $astrFormElements = [
     ],
     [
         'name' => 'city',
-        'label' => $GLOBALS['locCity'],
+        'label' => Translator::translate('City'),
         'type' => 'TEXT',
         'style' => 'medium',
         'position' => 1,
@@ -1331,7 +1331,7 @@ $astrFormElements = [
     ],
     [
         'name' => 'country',
-        'label' => $GLOBALS['locCountry'],
+        'label' => Translator::translate('Country'),
         'type' => 'TEXT',
         'style' => 'medium',
         'position' => 2,
@@ -1339,7 +1339,7 @@ $astrFormElements = [
     ],
     [
         'name' => 'phone',
-        'label' => $GLOBALS['locPhone'],
+        'label' => Translator::translate('Phone'),
         'type' => 'TEXT',
         'style' => 'medium',
         'position' => 1,
@@ -1347,7 +1347,7 @@ $astrFormElements = [
     ],
     [
         'name' => 'www',
-        'label' => $GLOBALS['locWWW'],
+        'label' => Translator::translate('WWW'),
         'type' => 'TEXT',
         'style' => 'medium',
         'position' => 2,
@@ -1355,45 +1355,45 @@ $astrFormElements = [
     ],
     [
         'name' => 'banksep1',
-        'label' => $GLOBALS['locFirstBank'],
+        'label' => Translator::translate('FirstBank'),
         'type' => 'LABEL'
     ],
     [
         'name' => 'bank_name',
-        'label' => $GLOBALS['locBank'],
+        'label' => Translator::translate('Bank'),
         'type' => 'TEXT',
         'style' => 'medium',
         'position' => 1
     ],
     [
         'name' => 'bank_account',
-        'label' => $GLOBALS['locAccount'],
+        'label' => Translator::translate('Account'),
         'type' => 'TEXT',
         'style' => 'medium',
         'position' => 2
     ],
     [
         'name' => 'bank_iban',
-        'label' => $GLOBALS['locAccountIBAN'],
+        'label' => Translator::translate('AccountIBAN'),
         'type' => 'TEXT',
         'style' => 'medium',
         'position' => 1
     ],
     [
         'name' => 'bank_swiftbic',
-        'label' => $GLOBALS['locSWIFTBIC'],
+        'label' => Translator::translate('SWIFTBIC'),
         'type' => 'TEXT',
         'style' => 'medium',
         'position' => 2
     ],
     [
         'name' => 'banksep2',
-        'label' => $GLOBALS['locSecondBank'],
+        'label' => Translator::translate('SecondBank'),
         'type' => 'LABEL'
     ],
     [
         'name' => 'bank_name2',
-        'label' => $GLOBALS['locBank'],
+        'label' => Translator::translate('Bank'),
         'type' => 'TEXT',
         'style' => 'medium',
         'position' => 1,
@@ -1401,7 +1401,7 @@ $astrFormElements = [
     ],
     [
         'name' => 'bank_account2',
-        'label' => $GLOBALS['locAccount'],
+        'label' => Translator::translate('Account'),
         'type' => 'TEXT',
         'style' => 'medium',
         'position' => 2,
@@ -1409,7 +1409,7 @@ $astrFormElements = [
     ],
     [
         'name' => 'bank_iban2',
-        'label' => $GLOBALS['locAccountIBAN'],
+        'label' => Translator::translate('AccountIBAN'),
         'type' => 'TEXT',
         'style' => 'medium',
         'position' => 1,
@@ -1417,7 +1417,7 @@ $astrFormElements = [
     ],
     [
         'name' => 'bank_swiftbic2',
-        'label' => $GLOBALS['locSWIFTBIC'],
+        'label' => Translator::translate('SWIFTBIC'),
         'type' => 'TEXT',
         'style' => 'medium',
         'position' => 2,
@@ -1425,12 +1425,12 @@ $astrFormElements = [
     ],
     [
         'name' => 'banksep3',
-        'label' => $GLOBALS['locThirdBank'],
+        'label' => Translator::translate('ThirdBank'),
         'type' => 'LABEL'
     ],
     [
         'name' => 'bank_name3',
-        'label' => $GLOBALS['locBank'],
+        'label' => Translator::translate('Bank'),
         'type' => 'TEXT',
         'style' => 'medium',
         'position' => 1,
@@ -1438,7 +1438,7 @@ $astrFormElements = [
     ],
     [
         'name' => 'bank_account3',
-        'label' => $GLOBALS['locAccount'],
+        'label' => Translator::translate('Account'),
         'type' => 'TEXT',
         'style' => 'medium',
         'position' => 2,
@@ -1446,7 +1446,7 @@ $astrFormElements = [
     ],
     [
         'name' => 'bank_iban3',
-        'label' => $GLOBALS['locAccountIBAN'],
+        'label' => Translator::translate('AccountIBAN'),
         'type' => 'TEXT',
         'style' => 'medium',
         'position' => 1,
@@ -1454,7 +1454,7 @@ $astrFormElements = [
     ],
     [
         'name' => 'bank_swiftbic3',
-        'label' => $GLOBALS['locSWIFTBIC'],
+        'label' => Translator::translate('SWIFTBIC'),
         'type' => 'TEXT',
         'style' => 'medium',
         'position' => 2,
@@ -1462,12 +1462,12 @@ $astrFormElements = [
     ],
     [
         'name' => 'invoicesep',
-        'label' => $GLOBALS['locBaseInvoiceTexts'],
+        'label' => Translator::translate('BaseInvoiceTexts'),
         'type' => 'LABEL'
     ],
     [
         'name' => 'invoice_default_info',
-        'label' => $GLOBALS['locInvoiceDefaultInfo'],
+        'label' => Translator::translate('InvoiceDefaultInfo'),
         'type' => 'AREA',
         'style' => 'medium',
         'position' => 1,
@@ -1475,7 +1475,7 @@ $astrFormElements = [
     ],
     [
         'name' => 'invoice_default_foreword',
-        'label' => $GLOBALS['locInvoiceDefaultForeword'],
+        'label' => Translator::translate('InvoiceDefaultForeword'),
         'type' => 'AREA',
         'style' => 'large',
         'position' => 1,
@@ -1483,7 +1483,7 @@ $astrFormElements = [
     ],
     [
         'name' => 'invoice_default_afterword',
-        'label' => $GLOBALS['locInvoiceDefaultAfterword'],
+        'label' => Translator::translate('InvoiceDefaultAfterword'),
         'type' => 'AREA',
         'style' => 'large',
         'position' => 2,
@@ -1491,7 +1491,7 @@ $astrFormElements = [
     ],
     [
         'name' => 'offer_default_foreword',
-        'label' => $GLOBALS['locOfferDefaultForeword'],
+        'label' => Translator::translate('OfferDefaultForeword'),
         'type' => 'AREA',
         'style' => 'large',
         'position' => 1,
@@ -1499,7 +1499,7 @@ $astrFormElements = [
     ],
     [
         'name' => 'offer_default_afterword',
-        'label' => $GLOBALS['locOfferDefaultAfterword'],
+        'label' => Translator::translate('OfferDefaultAfterword'),
         'type' => 'AREA',
         'style' => 'large',
         'position' => 2,
@@ -1507,7 +1507,7 @@ $astrFormElements = [
     ],
     [
         'name' => 'terms_of_payment',
-        'label' => $GLOBALS['locSettingInvoiceTermsOfPayment'],
+        'label' => Translator::translate('SettingInvoiceTermsOfPayment'),
         'type' => 'TEXT',
         'style' => 'large',
         'position' => 1,
@@ -1515,7 +1515,7 @@ $astrFormElements = [
     ],
     [
         'name' => 'period_for_complaints',
-        'label' => $GLOBALS['locSettingInvoicePeriodForComplaints'],
+        'label' => Translator::translate('SettingInvoicePeriodForComplaints'),
         'type' => 'TEXT',
         'style' => 'large',
         'position' => 2,
@@ -1523,12 +1523,12 @@ $astrFormElements = [
     ],
     [
         'name' => 'emailsep',
-        'label' => $GLOBALS['locBaseEmailTitle'],
+        'label' => Translator::translate('BaseEmailTitle'),
         'type' => 'LABEL'
     ],
     [
         'name' => 'invoice_email_from',
-        'label' => $GLOBALS['locBaseEmailFrom'],
+        'label' => Translator::translate('BaseEmailFrom'),
         'type' => 'TEXT',
         'style' => 'medium',
         'position' => 1,
@@ -1536,7 +1536,7 @@ $astrFormElements = [
     ],
     [
         'name' => 'invoice_email_bcc',
-        'label' => $GLOBALS['locBaseEmailBCC'],
+        'label' => Translator::translate('BaseEmailBCC'),
         'type' => 'TEXT',
         'style' => 'medium',
         'position' => 2,
@@ -1544,7 +1544,7 @@ $astrFormElements = [
     ],
     [
         'name' => 'invoice_email_subject',
-        'label' => $GLOBALS['locBaseInvoiceEmailSubject'],
+        'label' => Translator::translate('BaseInvoiceEmailSubject'),
         'type' => 'TEXT',
         'style' => 'long',
         'position' => 0,
@@ -1552,7 +1552,7 @@ $astrFormElements = [
     ],
     [
         'name' => 'invoice_email_body',
-        'label' => $GLOBALS['locBaseInvoiceEmailBody'],
+        'label' => Translator::translate('BaseInvoiceEmailBody'),
         'type' => 'AREA',
         'style' => 'email email_body',
         'position' => 0,
@@ -1560,7 +1560,7 @@ $astrFormElements = [
     ],
     [
         'name' => 'receipt_email_subject',
-        'label' => $GLOBALS['locBaseReceiptEmailSubject'],
+        'label' => Translator::translate('BaseReceiptEmailSubject'),
         'type' => 'TEXT',
         'style' => 'long',
         'position' => 0,
@@ -1568,7 +1568,7 @@ $astrFormElements = [
     ],
     [
         'name' => 'receipt_email_body',
-        'label' => $GLOBALS['locBaseReceiptEmailBody'],
+        'label' => Translator::translate('BaseReceiptEmailBody'),
         'type' => 'AREA',
         'style' => 'email email_body',
         'position' => 0,
@@ -1576,7 +1576,7 @@ $astrFormElements = [
     ],
     [
         'name' => 'order_confirmation_email_subject',
-        'label' => $GLOBALS['locBaseOrderConfirmationEmailSubject'],
+        'label' => Translator::translate('BaseOrderConfirmationEmailSubject'),
         'type' => 'TEXT',
         'style' => 'long',
         'position' => 0,
@@ -1584,7 +1584,7 @@ $astrFormElements = [
     ],
     [
         'name' => 'order_confirmation_email_body',
-        'label' => $GLOBALS['locBaseOrderConfirmationEmailBody'],
+        'label' => Translator::translate('BaseOrderConfirmationEmailBody'),
         'type' => 'AREA',
         'style' => 'email email_body',
         'position' => 0,
@@ -1592,7 +1592,7 @@ $astrFormElements = [
     ],
     [
         'name' => 'offer_email_subject',
-        'label' => $GLOBALS['locBaseOfferEmailSubject'],
+        'label' => Translator::translate('BaseOfferEmailSubject'),
         'type' => 'TEXT',
         'style' => 'long',
         'position' => 0,
@@ -1600,7 +1600,7 @@ $astrFormElements = [
     ],
     [
         'name' => 'offer_email_body',
-        'label' => $GLOBALS['locBaseOfferEmailBody'],
+        'label' => Translator::translate('BaseOfferEmailBody'),
         'type' => 'AREA',
         'style' => 'email email_body',
         'position' => 0,
@@ -1608,7 +1608,7 @@ $astrFormElements = [
     ],
     [
         'name' => 'logosep',
-        'label' => $GLOBALS['locBaseLogoTitle'],
+        'label' => Translator::translate('BaseLogoTitle'),
         'type' => 'LABEL'
     ],
     [
@@ -1622,7 +1622,7 @@ $astrFormElements = [
     ],
     [
         'name' => 'edit_logo',
-        'label' => $GLOBALS['locBaseChangeImage'],
+        'label' => Translator::translate('BaseChangeImage'),
         'type' => 'JSBUTTON',
         'style' => 'medium',
         'listquery' => $openPopJS,
@@ -1631,7 +1631,7 @@ $astrFormElements = [
     ],
     [
         'name' => 'logo_left',
-        'label' => $GLOBALS['locBaseLogoLeft'],
+        'label' => Translator::translate('BaseLogoLeft'),
         'type' => 'INT',
         'style' => 'measurement',
         'position' => 1,
@@ -1639,7 +1639,7 @@ $astrFormElements = [
     ],
     [
         'name' => 'logo_top',
-        'label' => $GLOBALS['locBaseLogoTop'],
+        'label' => Translator::translate('BaseLogoTop'),
         'type' => 'INT',
         'style' => 'measurement',
         'position' => 2,
@@ -1647,7 +1647,7 @@ $astrFormElements = [
     ],
     [
         'name' => 'logo_width',
-        'label' => $GLOBALS['locBaseLogoWidth'],
+        'label' => Translator::translate('BaseLogoWidth'),
         'type' => 'INT',
         'style' => 'measurement',
         'position' => 1,
@@ -1668,7 +1668,7 @@ $readOnly = ($intId && $intId <= 8);
 $astrFormElements = [
     [
         'name' => 'name',
-        'label' => $GLOBALS['locStatus'],
+        'label' => Translator::translate('Status'),
         'type' => 'TEXT',
         'style' => 'medium',
         'position' => 1,
@@ -1676,7 +1676,7 @@ $astrFormElements = [
     ],
     [
         'name' => 'order_no',
-        'label' => $GLOBALS['locOrderNr'],
+        'label' => Translator::translate('OrderNr'),
         'type' => 'INT',
         'style' => 'short',
         'position' => 2,
@@ -1684,21 +1684,21 @@ $astrFormElements = [
     ],
     [
         'name' => 'invoice_open',
-        'label' => $GLOBALS['locInvoiceStatusOpen'],
+        'label' => Translator::translate('InvoiceStatusOpen'),
         'type' => 'CHECK',
         'style' => 'short',
         'position' => 1
     ],
     [
         'name' => 'invoice_unpaid',
-        'label' => $GLOBALS['locInvoiceStatusUnpaid'],
+        'label' => Translator::translate('InvoiceStatusUnpaid'),
         'type' => 'CHECK',
         'style' => 'short',
         'position' => 2
     ],
     [
         'name' => 'invoice_offer',
-        'label' => $GLOBALS['locInvoiceStatusOffer'],
+        'label' => Translator::translate('InvoiceStatusOffer'),
         'type' => 'CHECK',
         'style' => 'short',
         'position' => 1
@@ -1717,14 +1717,14 @@ $strJSONType = 'row_type';
 $astrFormElements = [
     [
         'name' => 'name',
-        'label' => $GLOBALS['locRowType'],
+        'label' => Translator::translate('RowType'),
         'type' => 'TEXT',
         'style' => 'medium',
         'position' => 1
     ],
     [
         'name' => 'order_no',
-        'label' => $GLOBALS['locOrderNr'],
+        'label' => Translator::translate('OrderNr'),
         'type' => 'INT',
         'style' => 'short',
         'position' => 2
@@ -1746,21 +1746,21 @@ if ($intId && $intId <= 4) {
 $astrFormElements = [
     [
         'name' => 'name',
-        'label' => $GLOBALS['locSessionType'],
+        'label' => Translator::translate('SessionType'),
         'type' => 'TEXT',
         'style' => 'medium',
         'position' => 1
     ],
     [
         'name' => 'order_no',
-        'label' => $GLOBALS['locOrderNr'],
+        'label' => Translator::translate('OrderNr'),
         'type' => 'INT',
         'style' => 'short',
         'position' => 2
     ],
     [
         'name' => 'access_level',
-        'label' => $GLOBALS['locAccessLevel'],
+        'label' => Translator::translate('AccessLevel'),
         'type' => 'INT',
         'style' => 'short',
         'position' => 1,
@@ -1779,14 +1779,14 @@ $strJSONType = 'delivery_terms';
 $astrFormElements = [
     [
         'name' => 'name',
-        'label' => $GLOBALS['locDeliveryTerms'],
+        'label' => Translator::translate('DeliveryTerms'),
         'type' => 'TEXT',
         'style' => 'medium',
         'position' => 1
     ],
     [
         'name' => 'order_no',
-        'label' => $GLOBALS['locOrderNr'],
+        'label' => Translator::translate('OrderNr'),
         'type' => 'INT',
         'style' => 'short',
         'position' => 2
@@ -1804,14 +1804,14 @@ $strJSONType = 'delivery_method';
 $astrFormElements = [
     [
         'name' => 'name',
-        'label' => $GLOBALS['locDeliveryMethod'],
+        'label' => Translator::translate('DeliveryMethod'),
         'type' => 'TEXT',
         'style' => 'medium',
         'position' => 1
     ],
     [
         'name' => 'order_no',
-        'label' => $GLOBALS['locOrderNr'],
+        'label' => Translator::translate('OrderNr'),
         'type' => 'INT',
         'style' => 'short',
         'position' => 2
@@ -1829,33 +1829,33 @@ $strJSONType = 'default_value';
 $astrFormElements = [
     [
         'name' => 'type',
-        'label' => $GLOBALS['locDefaultValueType'],
+        'label' => Translator::translate('DefaultValueType'),
         'type' => 'LIST',
         'style' => 'medium',
         'listquery' => [
-            'info' => $GLOBALS['locInfo'],
-            'foreword' => $GLOBALS['locForeword'],
-            'afterword' => $GLOBALS['locAfterword']
+            'info' => Translator::translate('Info'),
+            'foreword' => Translator::translate('Foreword'),
+            'afterword' => Translator::translate('Afterword')
         ],
         'position' => 1
     ],
     [
         'name' => 'name',
-        'label' => $GLOBALS['locName'],
+        'label' => Translator::translate('Name'),
         'type' => 'TEXT',
         'style' => 'medium',
         'position' => 1
     ],
     [
         'name' => 'order_no',
-        'label' => $GLOBALS['locOrderNr'],
+        'label' => Translator::translate('OrderNr'),
         'type' => 'INT',
         'style' => 'short',
         'position' => 2
     ],
     [
         'name' => 'content',
-        'label' => $GLOBALS['locContent'],
+        'label' => Translator::translate('Content'),
         'type' => 'AREA',
         'style' => 'xlarge',
         'position' => 0
@@ -1872,14 +1872,14 @@ $strJSONType = 'user';
 $astrFormElements = [
     [
         'name' => 'name',
-        'label' => $GLOBALS['locUserName'],
+        'label' => Translator::translate('UserName'),
         'type' => 'TEXT',
         'style' => 'medium',
         'position' => 1
     ],
     [
         'name' => 'login',
-        'label' => $GLOBALS['locLoginName'],
+        'label' => Translator::translate('LoginName'),
         'type' => 'TEXT',
         'style' => 'medium',
         'position' => 1,
@@ -1887,7 +1887,7 @@ $astrFormElements = [
     ],
     [
         'name' => 'passwd',
-        'label' => $GLOBALS['locPassword'],
+        'label' => Translator::translate('Password'),
         'type' => 'PASSWD',
         'style' => 'medium',
         'position' => 2,
@@ -1895,7 +1895,7 @@ $astrFormElements = [
     ],
     [
         'name' => 'type_id',
-        'label' => $GLOBALS['locType'],
+        'label' => Translator::translate('Type'),
         'type' => 'LIST',
         'style' => 'medium translated',
         'listquery' => 'SELECT id, name FROM {prefix}session_type WHERE deleted=0 ORDER BY order_no',
@@ -1912,32 +1912,32 @@ $elem_attributes = '';
 $astrFormElements = [
     [
         'name' => 'type',
-        'label' => $GLOBALS['locPrintTemplateType'],
+        'label' => Translator::translate('PrintTemplateType'),
         'type' => 'LIST',
         'style' => 'medium noemptyvalue',
         'listquery' => [
-            'invoice' => $GLOBALS['locPrintTemplateTypeInvoice'],
-            'offer' => $GLOBALS['locPrintTemplateTypeOffer']
+            'invoice' => Translator::translate('PrintTemplateTypeInvoice'),
+            'offer' => Translator::translate('PrintTemplateTypeOffer')
         ],
         'position' => 1
     ],
     [
         'name' => 'order_no',
-        'label' => $GLOBALS['locOrderNr'],
+        'label' => Translator::translate('OrderNr'),
         'type' => 'INT',
         'style' => 'short',
         'position' => 2
     ],
     [
         'name' => 'name',
-        'label' => $GLOBALS['locPrintTemplateName'],
+        'label' => Translator::translate('PrintTemplateName'),
         'type' => 'TEXT',
         'style' => 'medium',
         'position' => 1
     ],
     [
         'name' => 'filename',
-        'label' => $GLOBALS['locPrintTemplateFileName'],
+        'label' => Translator::translate('PrintTemplateFileName'),
         'type' => 'TEXT',
         'style' => 'medium',
         'position' => 2,
@@ -1945,7 +1945,7 @@ $astrFormElements = [
     ],
     [
         'name' => 'parameters',
-        'label' => $GLOBALS['locPrintTemplateParameters'],
+        'label' => Translator::translate('PrintTemplateParameters'),
         'type' => 'TEXT',
         'style' => 'medium',
         'position' => 1,
@@ -1953,7 +1953,7 @@ $astrFormElements = [
     ],
     [
         'name' => 'output_filename',
-        'label' => $GLOBALS['locPrintTemplateOutputFileName'],
+        'label' => Translator::translate('PrintTemplateOutputFileName'),
         'type' => 'TEXT',
         'style' => 'medium',
         'position' => 2,
@@ -1961,7 +1961,7 @@ $astrFormElements = [
     ],
     [
         'name' => 'new_window',
-        'label' => $GLOBALS['locPrintTemplateOpenInNewWindow'],
+        'label' => Translator::translate('PrintTemplateOpenInNewWindow'),
         'type' => 'CHECK',
         'style' => 'medium',
         'position' => 1,
@@ -1969,7 +1969,7 @@ $astrFormElements = [
     ],
     [
         'name' => 'inactive',
-        'label' => $GLOBALS['locPrintTemplateInactive'],
+        'label' => Translator::translate('PrintTemplateInactive'),
         'type' => 'CHECK',
         'style' => 'medium',
         'position' => 2,

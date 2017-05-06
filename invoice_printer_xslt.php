@@ -62,9 +62,7 @@ EOT
         $this->arrayToXML($invoiceData, $invoice);
 
         foreach ($this->invoiceRowData as  &$data) {
-            if (isset($GLOBALS["locPDF{$data['type']}"])) {
-                $data['type'] = $GLOBALS["locPDF{$data['type']}"];
-            }
+            $data['type'] = Translator::translate("invoice::{$data['type']}");
         }
 
         $rows = $invoice->addChild('rows');
@@ -90,9 +88,10 @@ EOT
                 }
             }
         }
-        $settingsData['invoice_penalty_interest_desc'] = $GLOBALS['locPDFPenaltyInterestDesc'] .
-             ': ' . miscRound2OptDecim(getSetting('invoice_penalty_interest'), 1) .
-             ' %';
+        $settingsData['invoice_penalty_interest_desc']
+            = Translator::translate('invoice::PenaltyInterestDesc')
+            . ': ' . miscRound2OptDecim(getSetting('invoice_penalty_interest'), 1)
+            . ' %';
         $settingsData['current_time_year'] = date('Y');
         $settingsData['current_time_mon'] = date('m');
         $settingsData['current_time_day'] = date('d');

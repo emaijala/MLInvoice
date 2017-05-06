@@ -62,67 +62,67 @@ class InvoicePrinterOffer extends InvoicePrinterBase
         // Invoice info headers
         $pdf->SetXY(115, 10);
         $pdf->SetFont('Helvetica', 'B', 12);
-        $pdf->Cell(40, 5, $GLOBALS['locPDFOfferHeader'], 0, 1, 'R');
+        $pdf->Cell(40, 5, Translator::translate('invoice::OfferHeader'), 0, 1, 'R');
         $pdf->SetFont('Helvetica', '', 10);
         $pdf->SetXY(115, $pdf->GetY() + 5);
         if ($recipientData['customer_no'] != 0) {
-            $pdf->Cell(40, 4, $GLOBALS['locPDFCustomerNumber'] . ': ', 0, 0, 'R');
+            $pdf->Cell(40, 4, Translator::translate('invoice::CustomerNumber') . ': ', 0, 0, 'R');
             $pdf->Cell(60, 4, $recipientData['customer_no'], 0, 1);
         }
         if ($recipientData['company_id']) {
             $pdf->SetX(115);
-            $pdf->Cell(40, 4, $GLOBALS['locPDFClientVATID'] . ': ', 0, 0, 'R');
+            $pdf->Cell(40, 4, Translator::translate('invoice::ClientVATID') . ': ', 0, 0, 'R');
             $pdf->Cell(60, 4, $recipientData['company_id'], 0, 1);
         }
         $pdf->SetX(115);
-        $pdf->Cell(40, 4, $GLOBALS['locPDFOfferNumber'] . ': ', 0, 0, 'R');
+        $pdf->Cell(40, 4, Translator::translate('invoice::OfferNumber') . ': ', 0, 0, 'R');
         $pdf->Cell(60, 4, $invoiceData['id'], 0, 1);
 
         $pdf->SetX(115);
-        $pdf->Cell(40, 4, $GLOBALS['locPDFOfferDate'] . ': ', 0, 0, 'R');
+        $pdf->Cell(40, 4, Translator::translate('invoice::OfferDate') . ': ', 0, 0, 'R');
         $strInvoiceDate = $this->_formatDate($invoiceData['invoice_date']);
         $pdf->Cell(60, 4, $strInvoiceDate, 0, 1);
 
         $strDueDate = $this->_formatDate($invoiceData['due_date']);
-        if (!empty($GLOBALS['locPDFValidUntilSuffix'])) {
-            $strDueDate .= ' ' . $GLOBALS['locPDFValidUntilSuffix'];
+        if (!empty(Translator::translate('invoice::ValidUntilSuffix'))) {
+            $strDueDate .= ' ' . Translator::translate('invoice::ValidUntilSuffix');
         }
         $pdf->SetX(115);
-        $pdf->Cell(40, 4, $GLOBALS['locPDFValidUntil'] . ': ', 0, 0, 'R');
+        $pdf->Cell(40, 4, Translator::translate('invoice::ValidUntil') . ': ', 0, 0, 'R');
 
         $pdf->Cell(60, 4, $strDueDate, 0, 1);
 
         if ($invoiceData['reference']) {
             $pdf->SetX(115);
-            $pdf->Cell(40, 4, $GLOBALS['locPDFYourReference'] . ': ', 0, 0, 'R');
+            $pdf->Cell(40, 4, Translator::translate('invoice::YourReference') . ': ', 0, 0, 'R');
             $pdf->MultiCell(50, 4, $invoiceData['reference'], 0, 'L');
         }
 
         $pdf->SetX(115);
-        $pdf->Cell(40, 4, $GLOBALS['locPDFTermsOfPayment'] . ': ', 0, 0, 'R');
+        $pdf->Cell(40, 4, Translator::translate('invoice::TermsOfPayment') . ': ', 0, 0, 'R');
         $paymentDays = getPaymentDays($invoiceData['company_id']);
         $pdf->Cell(60, 4, $this->getTermsOfPayment($paymentDays), 0, 1);
 
         if ($invoiceData['delivery_terms']) {
             $pdf->SetX(115);
-            $pdf->Cell(40, 4, $GLOBALS['locPDFDeliveryTerms'] . ': ', 0, 0, 'R');
+            $pdf->Cell(40, 4, Translator::translate('invoice::DeliveryTerms') . ': ', 0, 0, 'R');
             $pdf->MultiCell(50, 4, $invoiceData['delivery_terms'], 0, 'L', 0);
         }
 
         if ($invoiceData['delivery_method']) {
             $pdf->SetX(115);
-            $pdf->Cell(40, 4, $GLOBALS['locPDFDeliveryMethod'] . ': ', 0, 0, 'R');
+            $pdf->Cell(40, 4, Translator::translate('invoice::DeliveryMethod') . ': ', 0, 0, 'R');
             $pdf->MultiCell(50, 4, $invoiceData['delivery_method'], 0, 'L', 0);
         }
         if ($invoiceData['delivery_time']) {
             $pdf->SetX(115);
-            $pdf->Cell(40, 4, $GLOBALS['locPDFDeliveryTime'] . ': ', 0, 0, 'R');
+            $pdf->Cell(40, 4, Translator::translate('invoice::DeliveryTime') . ': ', 0, 0, 'R');
             $pdf->MultiCell(50, 4, $invoiceData['delivery_time'], 0, 'L', 0);
         }
 
         if (isset($invoiceData['info']) && $invoiceData['info']) {
             $pdf->SetX(115);
-            $pdf->Cell(40, 4, $GLOBALS['locPDFAdditionalInformation'] . ': ', 0, 0,
+            $pdf->Cell(40, 4, Translator::translate('invoice::AdditionalInformation') . ': ', 0, 0,
                 'R');
             $pdf->MultiCell(50, 4, $invoiceData['info'], 0, 'L', 0);
         }
@@ -146,19 +146,19 @@ class InvoicePrinterOffer extends InvoicePrinterBase
             $nameColWidth -= 50;
         }
 
-        $pdf->Cell($nameColWidth, 5, $GLOBALS['locPDFRowName'], 0, 0, 'L');
-        $pdf->Cell(17, 5, $GLOBALS['locPDFRowPrice'], 0, 0, 'R');
+        $pdf->Cell($nameColWidth, 5, Translator::translate('invoice::RowName'), 0, 0, 'L');
+        $pdf->Cell(17, 5, Translator::translate('invoice::RowPrice'), 0, 0, 'R');
         if ($this->discountedRows) {
-            $pdf->Cell(12, 5, $GLOBALS['locPDFRowDiscount'], 0, 0, 'R');
+            $pdf->Cell(12, 5, Translator::translate('invoice::RowDiscount'), 0, 0, 'R');
         }
-        $pdf->Cell(20, 5, $GLOBALS['locPDFRowPieces'], 0, 0, 'R');
+        $pdf->Cell(20, 5, Translator::translate('invoice::RowPieces'), 0, 0, 'R');
         if ($this->senderData['vat_registered']) {
-            $pdf->MultiCell(20, 5, $GLOBALS['locPDFRowTotalVATLess'], 0, 'R', 0,
+            $pdf->MultiCell(20, 5, Translator::translate('invoice::RowTotalVATLess'), 0, 'R', 0,
                 0);
-            $pdf->Cell(15, 5, $GLOBALS['locPDFRowVATPercent'], 0, 0, 'R');
-            $pdf->Cell(15, 5, $GLOBALS['locPDFRowTax'], 0, 0, 'R');
+            $pdf->Cell(15, 5, Translator::translate('invoice::RowVATPercent'), 0, 0, 'R');
+            $pdf->Cell(15, 5, Translator::translate('invoice::RowTax'), 0, 0, 'R');
         }
-        $pdf->Cell(20, 5, $GLOBALS['locPDFRowTotal'], 0, 1, 'R');
+        $pdf->Cell(20, 5, Translator::translate('invoice::RowTotal'), 0, 1, 'R');
         $pdf->Cell(20, 5, '', 0, 1, 'R'); // line feed
 
         foreach ($this->invoiceRowData as $row) {
@@ -167,10 +167,10 @@ class InvoicePrinterOffer extends InvoicePrinterBase
             $description = '';
             switch ($row['reminder_row']) {
             case 1 :
-                $description = $GLOBALS['locPDFPenaltyInterestDesc'];
+                $description = Translator::translate('invoice::PenaltyInterestDesc');
                 break;
             case 2 :
-                $description = $GLOBALS['locPDFReminderFeeDesc'];
+                $description = Translator::translate('invoice::ReminderFeeDesc');
                 break;
             default :
                 if ($row['product_name']) {
@@ -209,7 +209,7 @@ class InvoicePrinterOffer extends InvoicePrinterBase
                 $pdf->Cell(13, 5, $this->_formatNumber($row['pcs'], 2, true), 0, 0,
                     'R');
                 $pdf->Cell(7, 5,
-                    isset($GLOBALS["locPDF{$row['type']}"]) ? $GLOBALS["locPDF{$row['type']}"] : $row['type'],
+                    Translator::translate("invoice::{$row['type']}"),
                     0, 0, 'L');
                 if ($this->senderData['vat_registered']) {
                     $pdf->Cell(20, 5, $partial ? '' : $this->_formatCurrency($rowSum), 0, 0, 'R');
@@ -226,20 +226,20 @@ class InvoicePrinterOffer extends InvoicePrinterBase
         if ($this->senderData['vat_registered']) {
             $pdf->SetFont('Helvetica', '', 10);
             $pdf->SetY($pdf->GetY() + 10);
-            $pdf->Cell(162, 5, $GLOBALS['locPDFTotalExcludingVAT'] . ': ', 0, 0,
+            $pdf->Cell(162, 5, Translator::translate('invoice::TotalExcludingVAT') . ': ', 0, 0,
                 'R');
             $pdf->SetX(187 - $left);
             $pdf->Cell(20, 5, $this->_formatCurrency($this->totalSum), 0, 0, 'R');
 
             $pdf->SetFont('Helvetica', '', 10);
             $pdf->SetY($pdf->GetY() + 5);
-            $pdf->Cell(162, 5, $GLOBALS['locPDFTotalVAT'] . ': ', 0, 0, 'R');
+            $pdf->Cell(162, 5, Translator::translate('invoice::TotalVAT') . ': ', 0, 0, 'R');
             $pdf->SetX(187 - $left);
             $pdf->Cell(20, 5, $this->_formatCurrency($this->totalVAT), 0, 0, 'R');
 
             $pdf->SetFont('Helvetica', 'B', 10);
             $pdf->SetY($pdf->GetY() + 5);
-            $pdf->Cell(162, 5, $GLOBALS['locPDFTotalIncludingVAT'] . ': ', 0, 0,
+            $pdf->Cell(162, 5, Translator::translate('invoice::TotalIncludingVAT') . ': ', 0, 0,
                 'R');
             $pdf->SetX(187 - $left);
             $pdf->Cell(20, 5, $this->_formatCurrency($this->totalSumVAT), 0, 1,
@@ -248,7 +248,7 @@ class InvoicePrinterOffer extends InvoicePrinterBase
         } else {
             $pdf->SetFont('Helvetica', 'B', 10);
             $pdf->SetY($pdf->GetY() + 5);
-            $pdf->Cell(162, 5, $GLOBALS['locPDFTotalPrice'] . ': ', 0, 0, 'R');
+            $pdf->Cell(162, 5, Translator::translate('invoice::TotalPrice') . ': ', 0, 0, 'R');
             $pdf->SetX(187 - $left);
             $pdf->Cell(20, 5, $this->_formatCurrency($this->totalSumVAT), 0, 1,
                 'R');

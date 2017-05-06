@@ -55,8 +55,8 @@ function miscRound2Decim($value, $decimals = 2, $decimalSeparator = null,
     $thousandSeparator = null)
 {
     return number_format($value, $decimals,
-        isset($decimalSeparator) ? $decimalSeparator : $GLOBALS['locDecimalSeparator'],
-        isset($thousandSeparator) ? $thousandSeparator : $GLOBALS['locThousandSeparator']);
+        isset($decimalSeparator) ? $decimalSeparator : Translator::translate('DecimalSeparator'),
+        isset($thousandSeparator) ? $thousandSeparator : Translator::translate('ThousandSeparator'));
 }
 
 function miscRound2OptDecim($value, $decimals = 2, $decimalSeparator = null,
@@ -226,63 +226,63 @@ function getPageTitle($strFunc, $strList, $strForm)
             if (getRequest('offer')
                 || (($invId = getRequest('id')) && isOffer($invId))
             ) {
-                return $GLOBALS['locOffer'];
+                return Translator::translate('Offer');
             }
-            return $GLOBALS['locInvoice'];
+            return Translator::translate('Invoice');
         } else {
-            return $GLOBALS['locOpenAndUnpaidInvoices'];
+            return Translator::translate('OpenAndUnpaidInvoices');
         }
         break;
     case 'invoices' :
         if ($strForm)
-            return $GLOBALS['locInvoice'];
+            return Translator::translate('Invoice');
         else
-            return $GLOBALS['locInvoices'];
+            return Translator::translate('Invoices');
         break;
     case 'archived_invoices' :
         if ($strForm)
-            return $GLOBALS['locInvoice'];
+            return Translator::translate('Invoice');
         else
-            return $GLOBALS['locArchivedInvoices'];
+            return Translator::translate('ArchivedInvoices');
         break;
     case 'companies' :
         if ($strForm)
-            return $GLOBALS['locClient'];
+            return Translator::translate('Client');
         else
-            return $GLOBALS['locClients'];
+            return Translator::translate('Clients');
         break;
     case 'reports' :
         switch ($strForm) {
         case 'invoice' :
-            return $GLOBALS['locInvoiceReport'];
+            return Translator::translate('InvoiceReport');
         case 'product' :
-            return $GLOBALS['locProductReport'];
+            return Translator::translate('ProductReport');
         case 'product_stock' :
-            return $GLOBALS['locProductStockReport'];
+            return Translator::translate('ProductStockReport');
         default :
-            return $GLOBALS['locReports'];
+            return Translator::translate('Reports');
         }
         break;
     case 'settings' :
         if ($strForm) {
             switch ($strForm) {
             case 'base' :
-                return $GLOBALS['locBase'];
+                return Translator::translate('Base');
             case 'product' :
-                return $GLOBALS['locProduct'];
+                return Translator::translate('Product');
             default :
-                return $GLOBALS['locSettings'];
+                return Translator::translate('Settings');
             }
         } else {
             switch ($strList) {
             case 'settings' :
-                return $GLOBALS['locGeneralSettings'];
+                return Translator::translate('GeneralSettings');
             case 'base' :
-                return $GLOBALS['locBases'];
+                return Translator::translate('Bases');
             case 'product' :
-                return $GLOBALS['locProducts'];
+                return Translator::translate('Products');
             default :
-                return $GLOBALS['locSettings'];
+                return Translator::translate('Settings');
             }
         }
         break;
@@ -290,45 +290,45 @@ function getPageTitle($strFunc, $strList, $strForm)
         if ($strForm) {
             switch ($strForm) {
             case 'user' :
-                return $GLOBALS['locUser'];
+                return Translator::translate('User');
             case 'session_type' :
-                return $GLOBALS['locSessionType'];
+                return Translator::translate('SessionType');
             case 'row_type' :
-                return $GLOBALS['locRowType'];
+                return Translator::translate('RowType');
             case 'print_template' :
-                return $GLOBALS['locPrintTemplate'];
+                return Translator::translate('PrintTemplate');
             case 'invoice_state' :
-                return $GLOBALS['locInvoiceState'];
+                return Translator::translate('InvoiceState');
             case 'delivery_terms' :
-                return $GLOBALS['locDeliveryTerms'];
+                return Translator::translate('DeliveryTerms');
             case 'delivery_method' :
-                return $GLOBALS['locDeliveryMethod'];
+                return Translator::translate('DeliveryMethod');
             default :
-                return $GLOBALS['locSystem'];
+                return Translator::translate('System');
             }
         } else {
             switch ($strList) {
             case 'user' :
-                return $GLOBALS['locUsers'];
+                return Translator::translate('Users');
             case 'session_type' :
-                return $GLOBALS['locSessionTypes'];
+                return Translator::translate('SessionTypes');
             case 'row_type' :
-                return $GLOBALS['locRowTypes'];
+                return Translator::translate('RowTypes');
             case 'print_template' :
-                return $GLOBALS['locPrintTemplates'];
+                return Translator::translate('PrintTemplates');
             case 'invoice_state' :
-                return $GLOBALS['locInvoiceStates'];
+                return Translator::translate('InvoiceStates');
             case 'delivery_terms' :
-                return $GLOBALS['locDeliveryTerms'];
+                return Translator::translate('DeliveryTerms');
             case 'delivery_method' :
-                return $GLOBALS['locDeliveryMethods'];
+                return Translator::translate('DeliveryMethods');
             default :
-                return $GLOBALS['locSystem'];
+                return Translator::translate('System');
             }
         }
         break;
     case 'import_statement' :
-        return $GLOBALS['locImportAccountStatement'];
+        return Translator::translate('ImportAccountStatement');
     }
     return '';
 }
@@ -606,19 +606,19 @@ function getInvoiceDefaults($invoiceId, $baseId, $companyId, $invoiceDate,
     if ($invoiceNumber < 100)
         $invoiceNumber = 100; // min ref number length is 3 + check digit, make sure invoice number matches that
     $refNr = $invoiceNumber . miscCalcCheckNo($invoiceNumber);
-    $strDate = date($GLOBALS['locDateFormat']);
-    $strDueDate = date($GLOBALS['locDateFormat'],
+    $strDate = date(Translator::translate('DateFormat'));
+    $strDueDate = date(Translator::translate('DateFormat'),
         mktime(0, 0, 0, date('m'), date('d') + getPaymentDays($companyId), date('Y')));
     switch ($intervalType) {
     case 2:
         $nextIntervalDate = date(
-            $GLOBALS['locDateFormat'],
+            Translator::translate('DateFormat'),
             mktime(0, 0, 0, date('m') + 1, date('d'), date('Y'))
         );
         break;
     case 3:
         $nextIntervalDate = date(
-            $GLOBALS['locDateFormat'],
+            Translator::translate('DateFormat'),
             mktime(0, 0, 0, date('m'), date('d'), date('Y') + 1)
         );
         break;
@@ -628,7 +628,7 @@ function getInvoiceDefaults($invoiceId, $baseId, $companyId, $invoiceDate,
     case 7:
     case 8:
         $nextIntervalDate = date(
-            $GLOBALS['locDateFormat'],
+            Translator::translate('DateFormat'),
             mktime(0, 0, 0, date('m') + $intervalType - 2, date('d'), date('Y'))
         );
         break;

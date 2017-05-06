@@ -26,7 +26,7 @@ require_once 'htmlfuncs.php';
 require_once 'sqlfuncs.php';
 require_once 'miscfuncs.php';
 require_once 'datefuncs.php';
-require_once 'localize.php';
+require_once 'translator.php';
 require_once 'list.php';
 require_once 'settings.php';
 
@@ -39,7 +39,7 @@ function createOpenInvoiceList()
     $row = mysqli_fetch_assoc($res);
     if ($row['cnt'] > 0) {
         createList('open_invoices', 'invoice', 'resultlist_repeating_invoices',
-            $GLOBALS['locLabelInvoicesWithIntervalDue'],
+            Translator::translate('LabelInvoicesWithIntervalDue'),
             "i.interval_type > 0 AND i.next_interval_date <= $currentDate AND i.archived = 0",
             true);
     }
@@ -76,21 +76,21 @@ function createOpenInvoiceList()
 
     if ($open) {
         createList('open_invoices', 'invoice', 'resultlist_open_invoices',
-            $GLOBALS['locLabelOpenInvoices'],
+            Translator::translate('LabelOpenInvoices'),
             "i.state_id IN ($open) AND i.archived=0", true
         );
     }
 
     if ($unpaid) {
         createList('open_invoices', 'invoice', 'resultlist_unpaid_invoices',
-            $GLOBALS['locLabelUnpaidInvoices'],
+            Translator::translate('LabelUnpaidInvoices'),
             "i.state_id IN ($unpaid) AND i.archived=0", true, true
         );
     }
 
     if ($offers) {
         createList('open_invoices', 'offer', 'resultlist_offers',
-            $GLOBALS['locLabelOffers'],
+            Translator::translate('LabelOffers'),
             "i.state_id IN ($offers) AND i.archived=0", true
         );
     }

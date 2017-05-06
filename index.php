@@ -32,7 +32,7 @@ require_once 'list.php';
 require_once 'form.php';
 require_once 'open_invoices.php';
 require_once 'settings.php';
-require_once 'localize.php';
+require_once 'translator.php';
 require_once 'settings_list.php';
 require_once 'version.php';
 require_once 'sqlfuncs.php';
@@ -87,7 +87,7 @@ $normalMenuRights = [
 $astrMainButtons = [
     [
         'name' => 'invoice',
-        'title' => 'locShowInvoiceNavi',
+        'title' => 'ShowInvoiceNavi',
         'action' => 'open_invoices',
         'levels_allowed' => [
             ROLE_READONLY,
@@ -97,7 +97,7 @@ $astrMainButtons = [
     ],
     [
         'name' => 'archive',
-        'title' => 'locShowArchiveNavi',
+        'title' => 'ShowArchiveNavi',
         'action' => 'archived_invoices',
         'levels_allowed' => [
             ROLE_READONLY,
@@ -107,7 +107,7 @@ $astrMainButtons = [
     ],
     [
         'name' => 'company',
-        'title' => 'locShowClientNavi',
+        'title' => 'ShowClientNavi',
         'action' => 'companies',
         'levels_allowed' => [
             ROLE_USER,
@@ -116,7 +116,7 @@ $astrMainButtons = [
     ],
     [
         'name' => 'reports',
-        'title' => 'locShowReportNavi',
+        'title' => 'ShowReportNavi',
         'action' => 'reports',
         'levels_allowed' => [
             ROLE_READONLY,
@@ -126,7 +126,7 @@ $astrMainButtons = [
     ],
     [
         'name' => 'settings',
-        'title' => 'locShowSettingsNavi',
+        'title' => 'ShowSettingsNavi',
         'action' => 'settings',
         'action' => 'settings',
         'levels_allowed' => [
@@ -136,7 +136,7 @@ $astrMainButtons = [
     ],
     [
         'name' => 'system',
-        'title' => 'locShowSystemNavi',
+        'title' => 'ShowSystemNavi',
         'action' => 'system',
         'levels_allowed' => [
             ROLE_BACKUPMGR,
@@ -145,7 +145,7 @@ $astrMainButtons = [
     ],
     [
         'name' => 'logout',
-        'title' => 'locLogout',
+        'title' => 'Logout',
         'action' => 'logout',
         'levels_allowed' => null
     ]
@@ -165,7 +165,7 @@ foreach ($astrMainButtons as $button) {
          ($button['action'] == 'open_invoices' && $strFunc == 'invoices'))
         $strButton .= ' ui-tabs-selected ui-state-active';
     $strButton .= '"><a class="ui-tabs-anchor functionlink" href="?func=' . $button['action'] . '">';
-    $strButton .= $GLOBALS[$button['title']] . '</a></li>';
+    $strButton .= Translator::translate($button['title']) . '</a></li>';
 
     if (!isset($button['levels_allowed']) ||
          sesAccessLevel($button['levels_allowed']) || sesAdminAccess()) {
@@ -241,12 +241,12 @@ if ($strFunc == 'open_invoices' && !$strForm) {
 
     function updateVersionMessage(data)
     {
-        var title = new String("<?php echo $GLOBALS['locUpdateAvailableTitle']?>").replace("{version}", data.version).replace("{date}", data.date);
+        var title = new String("<?php echo Translator::translate('UpdateAvailableTitle')?>").replace("{version}", data.version).replace("{date}", data.date);
         var result = compareVersionNumber(data.version, "<?php echo $softwareVersion?>");
       if (result > 0) {
-        $("<a/>").attr("href", data.url).attr("title", title).text("<?php echo $GLOBALS['locUpdateAvailable']?>").appendTo("#version");
+        $("<a/>").attr("href", data.url).attr("title", title).text("<?php echo Translator::translate('UpdateAvailable')?>").appendTo("#version");
       } else if (result < 0) {
-        $("<span/>").text("<?php echo $GLOBALS['locPrereleaseVersion']?>").appendTo("#version");
+        $("<span/>").text("<?php echo Translator::translate('PrereleaseVersion')?>").appendTo("#version");
       }
       $.cookie("updateversion", $.toJSON(data), { expires: 1 });
     }
@@ -255,20 +255,22 @@ if ($strFunc == 'open_invoices' && !$strForm) {
     }
 }
 if ($strFunc == 'system' && getRequest('operation', '') == 'export' &&
-     sesAdminAccess()) {
+    sesAdminAccess()
+) {
     createFuncMenu($strFunc);
-    require_once 'export.php';
+    include_once 'export.php';
     $export = new ExportData();
     $export->launch();
 } elseif ($strFunc == 'system' && getRequest('operation', '') == 'import' &&
-     sesAdminAccess()) {
+    sesAdminAccess()
+) {
     createFuncMenu($strFunc);
-    require_once 'import.php';
+    include_once 'import.php';
     $import = new ImportFile();
     $import->launch();
 } elseif ($strFunc == 'import_statement') {
     createFuncMenu($strFunc);
-    require_once 'import_statement.php';
+    include_once 'import_statement.php';
     $import = new ImportStatement();
     $import->launch();
 } else {
@@ -277,22 +279,22 @@ if ($strFunc == 'system' && getRequest('operation', '') == 'export' &&
         createFuncMenu($strFunc);
         switch ($strForm) {
         case 'invoice' :
-            require_once 'invoice_report.php';
+            include_once 'invoice_report.php';
             $invoiceReport = new InvoiceReport();
             $invoiceReport->createReport();
             break;
         case 'product' :
-            require_once 'product_report.php';
+            include_once 'product_report.php';
             $productReport = new ProductReport();
             $productReport->createReport();
             break;
         case 'product_stock' :
-            require_once 'product_stock_report.php';
+            include_once 'product_stock_report.php';
             $productStockReport = new ProductStockReport();
             $productStockReport->createReport();
             break;
         case 'accounting' :
-            require_once 'accounting_report.php';
+            include_once 'accounting_report.php';
             $accountingReport = new AccountingReport();
             $accountingReport->createReport();
             break;

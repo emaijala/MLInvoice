@@ -28,7 +28,7 @@ sesVerifySession();
 
 require_once 'vendor/autoload.php';
 require_once 'sqlfuncs.php';
-require_once 'localize.php';
+require_once 'translator.php';
 require_once 'pdf.php';
 require_once 'datefuncs.php';
 require_once 'miscfuncs.php';

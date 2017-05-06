@@ -28,8 +28,8 @@ class AccountingReport extends InvoiceReport
 {
     public function __construct()
     {
-        $this->reportName = 'locAccountingReport';
-        $this->description = $GLOBALS['locAccountingReportDescription'];
+        $this->reportName = 'AccountingReport';
+        $this->description = Translator::translate('AccountingReportDescription');
     }
 
     protected function addLimitSelection()
@@ -38,13 +38,13 @@ class AccountingReport extends InvoiceReport
         $intCompanyId = getRequest('company', false);
         $dateRange = getRequest('date', '');
 ?>
-            <div class="medium_label"><?php echo $GLOBALS['locDateInterval']?></div>
+            <div class="medium_label"><?php echo Translator::translate('DateInterval')?></div>
             <div class="field"><?php echo htmlFormElement('accounting_date', 'TEXT', $dateRange, 'medium hasDateRangePicker', '', 'MODIFY', false)?></div>
 
-            <div class="medium_label"><?php echo $GLOBALS['locBiller']?></div>
+            <div class="medium_label"><?php echo Translator::translate('Biller')?></div>
             <div class="field"><?php echo htmlFormElement('base', 'LIST', $intBaseId, 'medium', 'SELECT id, name FROM {prefix}base WHERE deleted=0 ORDER BY name', 'MODIFY', false)?></div>
 
-            <div class="medium_label"><?php echo $GLOBALS['locClient']?></div>
+            <div class="medium_label"><?php echo Translator::translate('Client')?></div>
             <div class="field"><?php echo htmlFormElement('company', 'LIST', $intCompanyId, 'medium', 'SELECT id, company_name FROM {prefix}company WHERE deleted=0 ORDER BY company_name', 'MODIFY', false)?></div>
 <?php
     }

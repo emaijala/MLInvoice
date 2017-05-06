@@ -220,23 +220,6 @@ function save_partial_payment(translations)
   });
 }
 
-function format_currency(value, decimals, decimalSep, thousandSep)
-{
-  var s = parseFloat(value).toFixed(decimals).replace('.', decimalSep);
-  if (thousandSep) {
-    var parts = s.split(decimalSep);
-    var regexp = new RegExp('(\d+)(\d{3})' + decimalSep + '?');
-    while (regexp.test(parts[0])) {
-      parts[0] = parts[0].replace(regexp, '$1' + thousandSep + '$2');
-    }
-    s = parts[0];
-    if (parts.length > 1) {
-      s += decimalSep + parts[1];
-    }
-  }
-  return s;
-}
-
 function round_number(num, dec)
 {
   return Math.round(num * Math.pow(10, dec)) / Math.pow(10, dec);

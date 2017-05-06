@@ -14,7 +14,7 @@
  Tämä ohjelma on vapaa. Lue oheinen LICENSE.
 
  *******************************************************************************/
-require_once 'localize.php';
+require_once 'translator.php';
 require_once 'miscfuncs.php';
 require_once 'import.php';
 
@@ -63,8 +63,7 @@ class ExportData
             }
 
             ob_clean();
-            $filename = isset($GLOBALS["locTable_$table"])
-                ? $GLOBALS["locTable_$table"] : $table;
+            $filename = Translator::translate("Table_$table", null, $table);
             switch ($format) {
             case 'csv' :
                 $field_delims = $this->importer->get_field_delims();
@@ -258,7 +257,7 @@ class ExportData
       select.onchange = update_columns;
       var option = document.createElement("option");
       option.value = "";
-      option.text = "<?php echo $GLOBALS['locImportExportColumnNone']?>";
+      option.text = "<?php echo Translator::translate('ImportExportColumnNone')?>";
       select.options.add(option);
       for (var i = 0; i < json.columns.length; i++)
       {
@@ -316,14 +315,14 @@ class ExportData
   </script>
 
 <div class="form_container">
-    <h1><?php echo $GLOBALS['locExport']?></h1>
+    <h1><?php echo Translator::translate('Export')?></h1>
     <span id="imessage" style="display: none"></span> <span id="spinner"
         style="visibility: hidden"><img src="images/spinner.gif" alt=""></span>
     <form id="export_form" name="export_form" method="GET">
         <input type="hidden" name="func" value="system"> <input type="hidden"
             name="operation" value="export">
 
-        <div class="medium_label"><?php echo $GLOBALS['locImportExportCharacterSet']?></div>
+        <div class="medium_label"><?php echo Translator::translate('ImportExportCharacterSet')?></div>
         <div class="field">
             <select id="charset" name="charset">
                 <option value="UTF-8">UTF-8</option>
@@ -336,25 +335,25 @@ class ExportData
             </select>
         </div>
 
-        <div class="medium_label"><?php echo $GLOBALS['locImportExportTable']?></div>
+        <div class="medium_label"><?php echo Translator::translate('ImportExportTable')?></div>
         <div class="field">
             <select id="sel_table" name="table" onchange="reset_columns()">
-                <option value="company"><?php echo $GLOBALS['locImportExportTableCompanies']?></option>
-                <option value="company_contact"><?php echo $GLOBALS['locImportExportTableCompanyContacts']?></option>
-                <option value="base"><?php echo $GLOBALS['locImportExportTableBases']?></option>
-                <option value="invoice"><?php echo $GLOBALS['locImportExportTableInvoices']?></option>
-                <option value="invoice_row"><?php echo $GLOBALS['locImportExportTableInvoiceRows']?></option>
-                <option value="product"><?php echo $GLOBALS['locImportExportTableProducts']?></option>
-                <option value="row_type"><?php echo $GLOBALS['locImportExportTableRowTypes']?></option>
-                <option value="invoice_state"><?php echo $GLOBALS['locImportExportTableInvoiceStates']?></option>
-                <option value="delivery_terms"><?php echo $GLOBALS['locImportExportTableDeliveryTerms']?></option>
-                <option value="delivery_method"><?php echo $GLOBALS['locImportExportTableDeliveryMethods']?></option>
-                <option value="stock_balance_log"><?php echo $GLOBALS['locImportExportTableStockBalanceLog']?></option>
-                <option value="default_value"><?php echo $GLOBALS['locImportExportTableDefaultValues']?></option>
+                <option value="company"><?php echo Translator::translate('ImportExportTableCompanies')?></option>
+                <option value="company_contact"><?php echo Translator::translate('ImportExportTableCompanyContacts')?></option>
+                <option value="base"><?php echo Translator::translate('ImportExportTableBases')?></option>
+                <option value="invoice"><?php echo Translator::translate('ImportExportTableInvoices')?></option>
+                <option value="invoice_row"><?php echo Translator::translate('ImportExportTableInvoiceRows')?></option>
+                <option value="product"><?php echo Translator::translate('ImportExportTableProducts')?></option>
+                <option value="row_type"><?php echo Translator::translate('ImportExportTableRowTypes')?></option>
+                <option value="invoice_state"><?php echo Translator::translate('ImportExportTableInvoiceStates')?></option>
+                <option value="delivery_terms"><?php echo Translator::translate('ImportExportTableDeliveryTerms')?></option>
+                <option value="delivery_method"><?php echo Translator::translate('ImportExportTableDeliveryMethods')?></option>
+                <option value="stock_balance_log"><?php echo Translator::translate('ImportExportTableStockBalanceLog')?></option>
+                <option value="default_value"><?php echo Translator::translate('ImportExportTableDefaultValues')?></option>
             </select>
         </div>
 
-        <div class="medium_label"><?php echo $GLOBALS['locImportExportFormat']?></div>
+        <div class="medium_label"><?php echo Translator::translate('ImportExportFormat')?></div>
         <div class="field">
             <select id="format" name="format" onchange="update_field_states()">
                 <option value="csv">CSV</option>
@@ -363,7 +362,7 @@ class ExportData
             </select>
         </div>
 
-        <div class="medium_label"><?php echo $GLOBALS['locImportExportFieldDelimiter']?></div>
+        <div class="medium_label"><?php echo Translator::translate('ImportExportFieldDelimiter')?></div>
         <div class="field">
             <select id="field_delim" name="field_delim">
         <?php
@@ -375,7 +374,7 @@ class ExportData
           </select>
         </div>
 
-        <div class="medium_label"><?php echo $GLOBALS['locImportExportEnclosureCharacter']?></div>
+        <div class="medium_label"><?php echo Translator::translate('ImportExportEnclosureCharacter')?></div>
         <div class="field">
             <select id="enclosure_char" name="enclosure_char">
         <?php
@@ -387,7 +386,7 @@ class ExportData
           </select>
         </div>
 
-        <div class="medium_label"><?php echo $GLOBALS['locImportExportRowDelimiter']?></div>
+        <div class="medium_label"><?php echo Translator::translate('ImportExportRowDelimiter')?></div>
         <div class="field">
             <select id="row_delim" name="row_delim">
         <?php
@@ -399,26 +398,26 @@ class ExportData
           </select>
         </div>
 
-        <div class="medium_label"><?php echo $GLOBALS['locExportIncludeChildRows']?></div>
+        <div class="medium_label"><?php echo Translator::translate('ExportIncludeChildRows')?></div>
         <div class="field">
             <input id="child_rows" name="child_rows" type="checkbox"
                 checked="checked">
         </div>
 
-        <div class="medium_label"><?php echo $GLOBALS['locExportIncludeDeletedRecords']?></div>
+        <div class="medium_label"><?php echo Translator::translate('ExportIncludeDeletedRecords')?></div>
         <div class="field">
             <input id="deleted" name="deleted" type="checkbox">
         </div>
 
-        <div class="medium_label"><?php echo $GLOBALS['locExportColumns']?> <input
+        <div class="medium_label"><?php echo Translator::translate('ExportColumns')?> <input
                 type="button"
-                value="<?php echo $GLOBALS['locExportAddAllColumns']?>"
+                value="<?php echo Translator::translate('ExportAddAllColumns')?>"
                 onclick="add_all_columns()">
         </div>
         <div id="columns" class="field"></div>
 
         <div class="form_buttons" style="clear: both">
-            <input type="submit" value="<?php echo $GLOBALS['locExportDo']?>">
+            <input type="submit" value="<?php echo Translator::translate('ExportDo')?>">
         </div>
     </form>
 </div>

@@ -34,7 +34,7 @@ require_once 'sqlfuncs.php';
 
 sesVerifySession();
 
-require_once 'localize.php';
+require_once 'translator.php';
 
 sesEndSession();
 
@@ -46,13 +46,13 @@ echo htmlPageStart();
     <div class="pagewrapper ui-widget ui-widget-content">
         <div style="padding: 30px;">
 
-            <h1><?php echo $GLOBALS['locThankYou']?></h1>
+            <h1><?php echo Translator::translate('ThankYou')?></h1>
             <p>
-<?php echo $GLOBALS['locSessionClosed']?>
+<?php echo Translator::translate('SessionClosed')?>
 </p>
 
             <p>
-                <a href="login.php"><?php echo $GLOBALS['locBackToLogin']?></a>
+                <a href="login.php"><?php echo Translator::translate('BackToLogin')?></a>
             </p>
 
         </div>

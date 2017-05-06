@@ -20,7 +20,7 @@ require_once 'sessionfuncs.php';
 
 sesVerifySession();
 
-require_once 'localize.php';
+require_once 'translator.php';
 require_once 'datefuncs.php';
 require_once 'miscfuncs.php';
 require_once 'settings.php';
@@ -31,7 +31,7 @@ if (!sesWriteAccess()) {
 <body>
     <div class="ui-widget">
         <div class="form_container ui-widget-content">
-        <?php echo $GLOBALS['locNoAccess'] . "\n"?>
+        <?php echo Translator::translate('NoAccess') . "\n"?>
     </div>
     </div>
 </body>
@@ -62,7 +62,7 @@ if ($intInvoiceId) {
 <body>
     <div class="ui-widget">
         <div class="form_container ui-widget-content">
-        <?php echo $GLOBALS['locRecordNotFound'] . "\n"?>
+        <?php echo Translator::translate('RecordNotFound') . "\n"?>
     </div>
     </div>
 </body>

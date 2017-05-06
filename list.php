@@ -1,7 +1,7 @@
 <?php
 /*******************************************************************************
  MLInvoice: web-based invoicing application.
- Copyright (C) 2010-2016 Ere Maijala
+ Copyright (C) 2010-2017 Ere Maijala
 
  Portions based on:
  PkLasku : web-based invoicing software.
@@ -13,7 +13,7 @@
 
 /*******************************************************************************
  MLInvoice: web-pohjainen laskutusohjelma.
- Copyright (C) 2010-2016 Ere Maijala
+ Copyright (C) 2010-2017 Ere Maijala
 
  Perustuu osittain sovellukseen:
  PkLasku : web-pohjainen laskutusohjelmisto.
@@ -89,7 +89,7 @@ if ($invoiceTotal) {
         data: <?php echo json_encode($params) ?>,
         type: 'POST'
       }).done(function(data) {
-        $('#<?php echo $strTableName?>_title').append(' ' + data['sum_str']);
+        $('#<?php echo $strTableName?>_title').append(' ' + MLInvoice.translate('InvoicesTotal', {'%%sum%%': MLInvoice.formatCurrency(data['sum'])}));
       });
     });
 <?php
@@ -98,7 +98,7 @@ if ($invoiceTotal) {
 
     $('#<?php echo $strTableName?>').dataTable( {
       language: {
-        <?php echo $GLOBALS['locTableTexts']?>
+        <?php echo Translator::translate('TableTexts')?>
       },
       stateSave: true,
       stateDuration: 0,
@@ -127,7 +127,32 @@ foreach ($astrShowFields as $key => $field) {
       ajax: {
         url: 'json.php?func=get_list',
         data: <?php echo json_encode($params) ?>,
-        type: 'POST'
+        type: 'POST',
+        dataSrc: function (json) {
+          for (var i = 0, len = json.data.length; i < len; i++) {
+            <?php
+            $i = 0;
+            foreach ($astrShowFields as $key => $field) {
+                ++$i;
+                if (!empty($field['translate'])) {
+                ?>
+                  json.data[i][<?php echo $i?>] = MLInvoice.translate(json.data[i][<?php echo $i?>]);
+                <?php
+                } elseif ('CURRENCY' === $field['type']) {
+                    $decimals = isset($field['decimals']) ? $field['decimals'] : 2;
+                ?>
+                  json.data[i][<?php echo $i?>] = MLInvoice.formatCurrency(json.data[i][<?php echo $i?>], <?php echo $decimals?>);
+                <?php
+                } elseif ('INTDATE' === $field['type']) {
+                ?>
+                  json.data[i][<?php echo $i?>] = formatDate(json.data[i][<?php echo $i?>]);
+                <?php
+                }
+            }
+            ?>
+          }
+          return json.data;
+        }
       }
     });
     $(document).on('click', '#<?php echo $strTableName?> tbody tr', function(e) {
@@ -138,7 +163,7 @@ foreach ($astrShowFields as $key => $field) {
   </script>
 
 <div class="list_container">
-    <div id="<?php echo $strTableName?>_title" class="table_header"><?php echo $strTitle?></div>
+    <div id="<?php echo $strTableName?>_title" class="table_header"><?php echo Translator::translate($strTitle)?></div>
     <table id="<?php echo $strTableName?>" class="list">
         <thead>
             <tr>
@@ -151,7 +176,7 @@ foreach ($astrShowFields as $field) {
     $strWidth = isset($field['width'])
         ? (' style="width: ' . $field['width'] . 'px"') : '';
 ?>
-                <th<?php echo $strWidth?>><?php echo $field['header']?></th>
+                <th<?php echo $strWidth?>><?php echo Translator::translate($field['header'])?></th>
 <?php
 }
 ?>
@@ -175,7 +200,7 @@ function createJSONList($strFunc, $strList, $startRow, $rowCount, $sort, $filter
     if (!sesAccessLevel($levelsAllowed) && !sesAdminAccess()) {
         ?>
 <div class="form_container ui-widget-content">
-    <?php echo $GLOBALS['locNoAccess'] . "\n"?>
+    <?php echo Translator::translate('NoAccess') . "\n"?>
   </div>
 <?php
         return;
@@ -295,16 +320,18 @@ function createJSONList($strFunc, $strList, $startRow, $rowCount, $sort, $filter
             if ($field['type'] == 'TEXT' || $field['type'] == 'INT') {
                 $value = $row[$name];
                 if (isset($field['mappings']) && isset($field['mappings'][$value]))
-                    $value = $field['mappings'][$value];
+                    $value = Translator::translate($field['mappings'][$value]);
                 $astrListValues[$i][$name] = $value;
             } elseif ($field['type'] == 'CURRENCY') {
                 $value = $row[$name];
                 $value = miscRound2Decim(
-                    $value, isset($field['decimals']) ? $field['decimals'] : 2
+                    $value,
+                    isset($field['decimals']) ? $field['decimals'] : 2,
+                    '.', ''
                 );
                 $astrListValues[$i][$name] = $value;
             } elseif ($field['type'] == 'INTDATE') {
-                $astrListValues[$i][$name] = dateConvDBDate2Date($row[$name]);
+                $astrListValues[$i][$name] = $row[$name];
             }
         }
     }
@@ -322,7 +349,7 @@ function createJSONList($strFunc, $strList, $startRow, $rowCount, $sort, $filter
 
             // Special colouring for overdue invoices
             if ($highlight && $name == 'i.due_date') {
-                $rowDue = strDate2UnixTime($row['i.due_date']);
+                $rowDue = $row['i.due_date'];
                 if ($rowDue < mktime(0, 0, 0, date("m"), date("d") - 14, date("Y"))
                 ) {
                     $overdue = ' overdue14';
@@ -336,12 +363,11 @@ function createJSONList($strFunc, $strList, $startRow, $rowCount, $sort, $filter
                 }
             }
 
-            if (isset($field['translate']) && $field['translate']
-                && isset($GLOBALS["loc{$row[$name]}"])
-            ) {
-                $value = $GLOBALS["loc{$row[$name]}"];
+            if (isset($field['translate']) && $field['translate']) {
+                $value = $row[$name];
             } else {
-                $value = trim($row[$name]) ? htmlspecialchars($row[$name]) : '&nbsp;';
+                $value = '' !== trim($row[$name]) ? htmlspecialchars($row[$name])
+                    : '&nbsp;';
             }
             $resultValues[] = $value;
         }
@@ -372,7 +398,7 @@ function createJSONSelectList($strList, $startRow, $rowCount, $filter, $sort,
     if (empty($id) && !sesAccessLevel($levelsAllowed) && !sesAdminAccess()) {
         ?>
 <div class="form_container ui-widget-content">
-    <?php echo $GLOBALS['locNoAccess'] . "\n"?>
+    <?php echo Translator::translate('NoAccess') . "\n"?>
   </div>
 <?php
         return;
@@ -505,7 +531,7 @@ function createJSONSelectList($strList, $startRow, $rowCount, $filter, $sort,
             ) {
                 $value = $row[$name];
                 if (isset($field['mappings']) && isset($field['mappings'][$value])) {
-                    $value = $field['mappings'][$value];
+                    $value = Translator::translate($field['mappings'][$value]);
                 }
                 $astrListValues[$i][$name] = $value;
             } elseif ($field['type'] == 'CURRENCY') {
@@ -541,22 +567,20 @@ function createJSONSelectList($strList, $startRow, $rowCount, $filter, $sort,
                     continue 2;
                 case 'vendor':
                     if (!empty($row[$name])) {
-                        $desc2[] = $GLOBALS['locProductVendor'] . ': ' . $row[$name];
+                        $desc2[] = Translator::translate('ProductVendor') . ': ' . $row[$name];
                     }
                     continue 2;
                 case 'vendors_code':
                     if (!empty($row[$name])) {
-                        $desc2[] = $GLOBALS['locProductVendorsCode'] . ': '
+                        $desc2[] = Translator::translate('ProductVendorsCode') . ': '
                             . $row[$name];
                     }
                     continue 2;
                 }
             }
 
-            if (isset($field['translate']) && $field['translate']
-                && isset($GLOBALS["loc{$row[$name]}"])
-            ) {
-                $value = $GLOBALS["loc{$row[$name]}"];
+            if (isset($field['translate']) && $field['translate']) {
+                $value = Translator::translate($row[$name]);
             } else {
                 $value = $row[$name];
             }
