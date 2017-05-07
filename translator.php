@@ -53,14 +53,15 @@ class Translator
     static $activeLanguages = [];
 
     /**
-    * Translate a string
-    *
-    * @param string $str          String to translate
-    * @param array  $placeholders Any key/value pairs to replace in the translation
-    * @param string $default      Optional default value if translation doesn't exist
-    *
-    * @return string
-    */
+     * Translate a string
+     *
+     * @param string $str          String to translate
+     * @param array  $placeholders Any key/value pairs to replace in the translation
+     * @param string $default      Optional default value if translation doesn't
+     * exist
+     *
+     * @return string
+     */
     static public function translate($str, $placeholders = [], $default = null)
     {
         $domain = 'default';
@@ -91,13 +92,13 @@ class Translator
     }
 
     /**
-    * Set active language for a domain
-    *
-    * @param string $domain   Translation domain
-    * @param string $language Language
-    *
-    * @return string
-    */
+     * Set active language for a domain
+     *
+     * @param string $domain   Translation domain
+     * @param string $language Language
+     *
+     * @return string
+     */
     static public function setActiveLanguage($domain, $language)
     {
         if ('en' === $language) {
@@ -113,12 +114,12 @@ class Translator
     }
 
     /**
-    * Load translations for a domain
-    *
-    * @param string $domain Translation domain
-    *
-    * @return void
-    */
+     * Load translations for a domain
+     *
+     * @param string $domain Translation domain
+     *
+     * @return void
+     */
     static protected function loadTranslations($domain)
     {
         $file = 'fi-FI';
