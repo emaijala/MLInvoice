@@ -146,7 +146,9 @@ function createForm($strFunc, $strList, $strForm)
 <div class="form_container">
 
 <?php
-    createFormButtons($strForm, $blnNew, $copyLinkOverride, true, $readOnlyForm);
+    createFormButtons(
+        $strForm, $blnNew, $copyLinkOverride, true, $readOnlyForm, $extraButtons
+    );
 
     if ($strForm == 'invoice' && !empty($astrValues['next_interval_date'])
         && strDate2UnixTime($astrValues['next_interval_date']) <= time()
@@ -1230,8 +1232,9 @@ function popup_editor(event, title, id, copy_row)
 <?php
 }
 
-function createFormButtons($form, $new, $copyLinkOverride, $spinner, $readOnlyForm)
-{
+function createFormButtons($form, $new, $copyLinkOverride, $spinner, $readOnlyForm,
+    $extraButtons = ''
+) {
     if (!sesWriteAccess()) {
 ?>
     <div class="form_buttons"></div>
@@ -1240,12 +1243,12 @@ function createFormButtons($form, $new, $copyLinkOverride, $spinner, $readOnlyFo
     }
     ?>
     <div class="form_buttons">
-<?php
+    <?php
     if (!$readOnlyForm) {
         ?>
       <a class="actionlink save_button" href="#"
                         onclick="save_record(); return false;"><?php echo Translator::translate('Save')?></a>
-<?php
+    <?php
     }
 
     if (!$new) {
@@ -1254,12 +1257,15 @@ function createFormButtons($form, $new, $copyLinkOverride, $spinner, $readOnlyFo
                         onclick="<?php echo $copyCmd?>"><?php echo Translator::translate('Copy')?></a>
                     <a class="actionlink" href="#"
                         onclick="document.getElementById('admin_form').newact.value=1; document.getElementById('admin_form').submit(); return false;"><?php echo Translator::translate('New')?></a>
-<?php
+        <?php
         if (!$readOnlyForm) {
             ?>
       <a class="actionlink" href="#"
                         onclick="if(confirm('<?php echo Translator::translate('ConfirmDelete')?>')==true) {  document.getElementById('admin_form').deleteact.value=1; document.getElementById('admin_form').submit(); return false;} else{ return false; }"><?php echo Translator::translate('Delete')?></a>
-<?php
+            <?php
+            if ($extraButtons) {
+                echo $extraButtons;
+            }
         }
     }
     if (!$readOnlyForm && $form === 'company') {

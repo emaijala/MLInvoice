@@ -37,6 +37,7 @@ $onAfterRowAdded = '';
 $readOnlyForm = false;
 $addressAutocomplete = false;
 $formDataAttrs = [];
+$extraButtons = '';
 if (!isset($strFunc)) {
     $strFunc = '';
 }
@@ -590,12 +591,18 @@ case 'invoice' :
     $intInvoiceId = getRequest('id', 0);
     if ($intInvoiceId) {
         $isOffer = isOffer($intInvoiceId);
+
+        if ($isOffer) {
+            $locCopyAsInvoice = Translator::translate('CopyAsInvoice');
+            $extraButtons = <<<EOT
+<a class="actionlink" href="copy_invoice.php?func=$strFunc&list=$strList&id=$intInvoiceId&invoice=1">$locCopyAsInvoice</a>
+
+EOT;
+        }
+
         $strQuery = 'SELECT refunded_invoice_id ' . 'FROM {prefix}invoice ' .
              'WHERE id=?'; // ok to maintain links to deleted invoices too
-        $intRes = mysqli_param_query($strQuery,
-            [
-                $intInvoiceId
-            ]);
+        $intRes = mysqli_param_query($strQuery, [$intInvoiceId]);
         $strBaseLink = '?' . preg_replace('/&id=\d*/', '', $_SERVER['QUERY_STRING']);
         $strBaseLink = preg_replace('/&/', '&amp;', $strBaseLink);
         if ($intRes) {
@@ -1023,21 +1030,6 @@ EOF;
             'type' => 'BUTTON',
             'style' => 'redirect',
             'listquery' => "copy_invoice.php?func=$strFunc&list=$strList&id=_ID_&refund=1",
-            'position' => 1,
-            'default' => FALSE,
-            'allow_null' => true
-        ],
-        !sesWriteAccess() || !$isOffer ? [
-            'name' => 'copyasinvoice',
-            'label' => '',
-            'type' => 'FILLER',
-            'position' => 1
-        ] : [
-            'name' => 'copyasinvoice',
-            'label' => 'CopyAsInvoice',
-            'type' => 'BUTTON',
-            'style' => 'redirect',
-            'listquery' => "copy_invoice.php?func=$strFunc&list=$strList&id=_ID_&invoice=1",
             'position' => 1,
             'default' => FALSE,
             'allow_null' => true
