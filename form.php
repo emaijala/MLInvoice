@@ -189,7 +189,7 @@ function createForm($strFunc, $strList, $strForm)
             ?>
         <tr>
                     <td class="sublabel ui-widget-header ui-state-default" colspan="4">
-            <?php echo $elem['label']?>
+            <?php echo Translator::translate($elem['label'])?>
           </td>
                 </tr>
   <?php
@@ -272,13 +272,13 @@ function createForm($strFunc, $strList, $strForm)
                 $value = $value ? miscRound2Decim($value, 2) : '';
             if ($elem['type'] == 'AREA') {
                 ?>
-          <td class="toplabel"><?php echo $elem['label']?></td>
+          <td class="toplabel"><?php echo Translator::translate($elem['label'])?></td>
 <?php
             } else {
                 ?>
           <td id="<?php echo htmlentities($elem['name']) . '_label' ?>"
                     class="label"
-                    <?php if (isset($elem['title'])) echo ' title="' . $elem['title'] . '"'?>><?php echo $elem['label']?></td>
+                    <?php if (isset($elem['title'])) echo ' title="' . Translator::translate($elem['title']) . '"'?>><?php echo Translator::translate($elem['label'])?></td>
 <?php
             }
             ?>
@@ -590,7 +590,7 @@ function createIForm($astrFormElements, $elem, $intKeyValue, $newRecord, $strFor
                     id="<?php echo $elem['name']?>"
                     <?php echo $elem['elem_attributes'] ? ' ' . $elem['elem_attributes'] : ''?>>
                     <div
-                        class="ui-corner-tl ui-corner-tr fg-toolbar ui-toolbar ui-widget-header"><?php echo $elem['label']?></div>
+                        class="ui-corner-tl ui-corner-tr fg-toolbar ui-toolbar ui-widget-header"><?php echo Translator::translate($elem['label'])?></div>
 <?php
     if ($newRecord) {
         ?>
@@ -1114,7 +1114,7 @@ function popup_editor(event, title, id, copy_row)
             ])) {
             ?>
               <th
-                                    class="label ui-state-default <?php echo strtolower($subElem['style'])?>_label"><?php echo $subElem['label']?></th>
+                                    class="label ui-state-default <?php echo strtolower($subElem['style'])?>_label"><?php echo Translator::translate($subElem['label'])?></th>
 <?php
         }
     }
@@ -1198,7 +1198,7 @@ function popup_editor(event, title, id, copy_row)
                 ?>
             <td
                                     class="label <?php echo strtolower($elem['style'])?>_label">
-              <?php echo $elem['label']?><br>
+              <?php echo Translator::translate($elem['label'])?><br>
               <?php echo htmlFormElement('iform_popup_' . $elem['name'], $elem['type'], '', $elem['style'], $elem['listquery'], 'MODIFY', 0, '', [], $elem['elem_attributes'])?>
             </td>
 <?php

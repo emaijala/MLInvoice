@@ -130,9 +130,10 @@ function saveFormData($table, &$primaryKey, &$formElements, &$values, &$warnings
         $name = $elem['name'];
 
         if (!$elem['allow_null'] && (!isset($values[$name]) || $values[$name] === '')) {
-            if ($missingValues)
+            if ($missingValues) {
                 $missingValues .= ', ';
-            $missingValues .= $elem['label'];
+            }
+            $missingValues .= Translator::translate($elem['label']);
             continue;
         }
 
@@ -159,7 +160,10 @@ function saveFormData($table, &$primaryKey, &$formElements, &$values, &$warnings
             }
             $res = mysqli_param_query($query, $params);
             if (mysqli_fetch_array($res)) {
-                $warnings = sprintf(Translator::translate('DuplicateValue'), $elem['label']);
+                $warnings = sprintf(
+                    Translator::translate('DuplicateValue'),
+                    Translator::translate($elem['label'])
+                );
                 return false;
             }
         }

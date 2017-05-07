@@ -68,14 +68,14 @@ case 'company' :
     $astrFormElements = [
         [
             'name' => 'company_name',
-            'label' => Translator::translate('ClientName'),
+            'label' => 'ClientName',
             'type' => 'TEXT',
             'style' => 'medium',
             'position' => 1
         ],
         [
             'name' => 'inactive',
-            'label' => Translator::translate('ClientInactive'),
+            'label' => 'ClientInactive',
             'type' => 'CHECK',
             'style' => 'medium',
             'position' => 2,
@@ -84,7 +84,7 @@ case 'company' :
         ],
         [
             'name' => 'company_id',
-            'label' => Translator::translate('ClientVATID'),
+            'label' => 'ClientVATID',
             'type' => 'TEXT',
             'style' => 'medium',
             'position' => 1,
@@ -92,7 +92,7 @@ case 'company' :
         ],
         [
             'name' => 'email',
-            'label' => Translator::translate('Email'),
+            'label' => 'Email',
             'type' => 'TEXT',
             'style' => 'medium',
             'position' => 2,
@@ -100,7 +100,7 @@ case 'company' :
         ],
         [
             'name' => 'customer_no',
-            'label' => Translator::translate('CustomerNr'),
+            'label' => 'CustomerNr',
             'type' => 'INT',
             'style' => 'medium',
             'position' => 1,
@@ -109,7 +109,7 @@ case 'company' :
         ],
         [
             'name' => 'default_ref_number',
-            'label' => Translator::translate('CustomerDefaultRefNr'),
+            'label' => 'CustomerDefaultRefNr',
             'type' => 'TEXT',
             'style' => 'medium',
             'position' => 2,
@@ -117,7 +117,7 @@ case 'company' :
         ],
         [
             'name' => 'org_unit_number',
-            'label' => Translator::translate('OrgUnitNumber'),
+            'label' => 'OrgUnitNumber',
             'type' => 'TEXT',
             'style' => 'medium',
             'position' => 1,
@@ -125,7 +125,7 @@ case 'company' :
         ],
         [
             'name' => 'payment_intermediator',
-            'label' => Translator::translate('PaymentIntermediator'),
+            'label' => 'PaymentIntermediator',
             'type' => 'TEXT',
             'style' => 'medium',
             'position' => 2,
@@ -133,7 +133,7 @@ case 'company' :
         ],
         [
             'name' => 'delivery_terms_id',
-            'label' => Translator::translate('DeliveryTerms'),
+            'label' => 'DeliveryTerms',
             'type' => 'LIST',
             'style' => 'medium',
             'listquery' => 'SELECT id, name FROM {prefix}delivery_terms WHERE deleted=0 ORDER BY order_no;',
@@ -143,7 +143,7 @@ case 'company' :
         ],
         [
             'name' => 'delivery_method_id',
-            'label' => Translator::translate('DeliveryMethod'),
+            'label' => 'DeliveryMethod',
             'type' => 'LIST',
             'style' => 'medium',
             'listquery' => 'SELECT id, name FROM {prefix}delivery_method WHERE deleted=0 ORDER BY order_no;',
@@ -153,7 +153,7 @@ case 'company' :
         ],
         [
             'name' => 'payment_days',
-            'label' => Translator::translate('PaymentDays'),
+            'label' => 'PaymentDays',
             'type' => 'INT',
             'style' => 'short',
             'position' => 1,
@@ -162,7 +162,7 @@ case 'company' :
         ],
         [
             'name' => 'terms_of_payment',
-            'label' => Translator::translate('TermsOfPayment'),
+            'label' => 'TermsOfPayment',
             'type' => 'TEXT',
             'style' => 'medium',
             'position' => 2,
@@ -171,7 +171,7 @@ case 'company' :
         ],
         [
             'name' => 'street_address',
-            'label' => Translator::translate('StreetAddr'),
+            'label' => 'StreetAddr',
             'type' => 'TEXT',
             'style' => 'medium',
             'position' => 1,
@@ -179,7 +179,7 @@ case 'company' :
         ],
         [
             'name' => 'zip_code',
-            'label' => Translator::translate('ZipCode'),
+            'label' => 'ZipCode',
             'type' => 'TEXT',
             'style' => 'short',
             'position' => 2,
@@ -187,7 +187,7 @@ case 'company' :
         ],
         [
             'name' => 'city',
-            'label' => Translator::translate('City'),
+            'label' => 'City',
             'type' => 'TEXT',
             'style' => 'medium',
             'position' => 1,
@@ -195,7 +195,7 @@ case 'company' :
         ],
         [
             'name' => 'country',
-            'label' => Translator::translate('Country'),
+            'label' => 'Country',
             'type' => 'TEXT',
             'style' => 'medium',
             'position' => 2,
@@ -203,7 +203,7 @@ case 'company' :
         ],
         [
             'name' => 'phone',
-            'label' => Translator::translate('Phone'),
+            'label' => 'Phone',
             'type' => 'TEXT',
             'style' => 'medium',
             'position' => 1,
@@ -211,7 +211,7 @@ case 'company' :
         ],
         [
             'name' => 'fax',
-            'label' => Translator::translate('FAX'),
+            'label' => 'FAX',
             'type' => 'TEXT',
             'style' => 'medium',
             'position' => 2,
@@ -219,7 +219,7 @@ case 'company' :
         ],
         [
             'name' => 'gsm',
-            'label' => Translator::translate('GSM'),
+            'label' => 'GSM',
             'type' => 'TEXT',
             'style' => 'medium',
             'position' => 1,
@@ -227,7 +227,7 @@ case 'company' :
         ],
         [
             'name' => 'www',
-            'label' => Translator::translate('WWW'),
+            'label' => 'WWW',
             'type' => 'TEXT',
             'style' => 'medium',
             'position' => 2,
@@ -235,7 +235,7 @@ case 'company' :
         ],
         [
             'name' => 'billing_address',
-            'label' => Translator::translate('BillAddr'),
+            'label' => 'BillAddr',
             'type' => 'AREA',
             'style' => 'medium',
             'position' => 1,
@@ -243,7 +243,7 @@ case 'company' :
         ],
         [
             'name' => 'info',
-            'label' => Translator::translate('Info'),
+            'label' => 'Info',
             'type' => 'AREA',
             'style' => 'medium',
             'position' => 2,
@@ -251,7 +251,7 @@ case 'company' :
         ],
         [
             'name' => 'tags',
-            'label' => Translator::translate('Tags'),
+            'label' => 'Tags',
             'type' => 'TAGS',
             'style' => 'noemptyvalue long',
             'listquery' => 'table=company_tag&sort=tag',
@@ -261,7 +261,7 @@ case 'company' :
         ],
         [
             'name' => 'company_contacts',
-            'label' => Translator::translate('Contacts'),
+            'label' => 'Contacts',
             'type' => 'IFORM',
             'style' => 'full',
             'position' => 0,
@@ -280,16 +280,16 @@ case 'company_contacts' :
     $astrFormElements = [
         [
             'name' => 'contact_type',
-            'label' => Translator::translate('ContactType'),
+            'label' => 'ContactType',
             'type' => 'LIST',
-            'style' => 'medium',
+            'style' => 'medium translated',
             'listquery' => [
-                'invoice' => Translator::translate('ContactTypeInvoice'),
-                'dispatch' => Translator::translate('ContactTypeDispatchNote'),
-                'receipt' => Translator::translate('ContactTypeReceipt'),
-                'order_confirmation' => Translator::translate('ContactTypeOrderConfirmation'),
-                'reminder' => Translator::translate('ContactTypeReminder'),
-                'offer' => Translator::translate('ContactTypeOffer')
+                'invoice' => 'ContactTypeInvoice',
+                'dispatch' => 'ContactTypeDispatchNote',
+                'receipt' => 'ContactTypeReceipt',
+                'order_confirmation' => 'ContactTypeOrderConfirmation',
+                'reminder' => 'ContactTypeReminder',
+                'offer' => 'ContactTypeOffer'
             ],
             'position' => 0,
             'allow_null' => true
@@ -303,14 +303,14 @@ case 'company_contacts' :
         ],
         [
             'name' => 'contact_person',
-            'label' => Translator::translate('ContactPerson'),
+            'label' => 'ContactPerson',
             'type' => 'TEXT',
             'style' => 'medium',
             'position' => 0
         ],
         [
             'name' => 'person_title',
-            'label' => Translator::translate('PersonTitle'),
+            'label' => 'PersonTitle',
             'type' => 'TEXT',
             'style' => 'short',
             'listquery' => '',
@@ -319,7 +319,7 @@ case 'company_contacts' :
         ],
         [
             'name' => 'phone',
-            'label' => Translator::translate('Phone'),
+            'label' => 'Phone',
             'type' => 'TEXT',
             'style' => 'small',
             'position' => 0,
@@ -327,7 +327,7 @@ case 'company_contacts' :
         ],
         [
             'name' => 'gsm',
-            'label' => Translator::translate('GSM'),
+            'label' => 'GSM',
             'type' => 'TEXT',
             'style' => 'small',
             'position' => 0,
@@ -335,7 +335,7 @@ case 'company_contacts' :
         ],
         [
             'name' => 'email',
-            'label' => Translator::translate('Email'),
+            'label' => 'Email',
             'type' => 'TEXT',
             'style' => 'medium',
             'position' => 0,
@@ -343,7 +343,7 @@ case 'company_contacts' :
         ],
         [
             'name' => 'tags',
-            'label' => Translator::translate('Tags'),
+            'label' => 'Tags',
             'type' => 'TAGS',
             'style' => 'noemptyvalue medium',
             'listquery' => 'table=contact_tag&sort=tag',
@@ -400,7 +400,7 @@ EOS;
     $astrFormElements = [
         [
             'name' => 'order_no',
-            'label' => Translator::translate('OrderNr'),
+            'label' => 'OrderNr',
             'type' => 'INT',
             'style' => 'short',
             'position' => 1,
@@ -408,7 +408,7 @@ EOS;
         ],
         [
             'name' => 'product_code',
-            'label' => Translator::translate('ProductCode'),
+            'label' => 'ProductCode',
             'type' => 'TEXT',
             'style' => 'medium',
             'position' => 2,
@@ -416,14 +416,14 @@ EOS;
         ],
         [
             'name' => 'product_name',
-            'label' => Translator::translate('ProductName'),
+            'label' => 'ProductName',
             'type' => 'TEXT',
             'style' => 'medium',
             'position' => 1
         ],
         [
             'name' => 'product_group',
-            'label' => Translator::translate('ProductGroup'),
+            'label' => 'ProductGroup',
             'type' => 'TEXT',
             'style' => 'medium',
             'position' => 2,
@@ -431,7 +431,7 @@ EOS;
         ],
         [
             'name' => 'vendor',
-            'label' => Translator::translate('ProductVendor'),
+            'label' => 'ProductVendor',
             'type' => 'TEXT',
             'style' => 'medium',
             'position' => 1,
@@ -439,7 +439,7 @@ EOS;
         ],
         [
             'name' => 'vendors_code',
-            'label' => Translator::translate('ProductVendorsCode'),
+            'label' => 'ProductVendorsCode',
             'type' => 'TEXT',
             'style' => 'medium',
             'position' => 2,
@@ -447,7 +447,7 @@ EOS;
         ],
         [
             'name' => 'barcode1',
-            'label' => Translator::translate('FirstBarcode'),
+            'label' => 'FirstBarcode',
             'type' => 'TEXT',
             'style' => 'medium',
             'position' => 1,
@@ -455,7 +455,7 @@ EOS;
         ],
         [
             'name' => 'barcode1_type',
-            'label' => Translator::translate('BarcodeType'),
+            'label' => 'BarcodeType',
             'type' => 'LIST',
             'style' => 'medium',
             'position' => 2,
@@ -464,7 +464,7 @@ EOS;
         ],
         [
             'name' => 'barcode2',
-            'label' => Translator::translate('SecondBarcode'),
+            'label' => 'SecondBarcode',
             'type' => 'TEXT',
             'style' => 'medium',
             'position' => 1,
@@ -472,7 +472,7 @@ EOS;
         ],
         [
             'name' => 'barcode2_type',
-            'label' => Translator::translate('BarcodeType'),
+            'label' => 'BarcodeType',
             'type' => 'LIST',
             'style' => 'medium',
             'position' => 2,
@@ -481,7 +481,7 @@ EOS;
         ],
         [
             'name' => 'description',
-            'label' => Translator::translate('ProductDescription'),
+            'label' => 'ProductDescription',
             'type' => 'TEXT',
             'style' => 'long',
             'position' => 1,
@@ -489,7 +489,7 @@ EOS;
         ],
         [
             'name' => 'internal_info',
-            'label' => Translator::translate('InternalInfo'),
+            'label' => 'InternalInfo',
             'type' => 'AREA',
             'style' => 'xlarge',
             'position' => 0,
@@ -497,7 +497,7 @@ EOS;
         ],
         [
             'name' => 'unit_price',
-            'label' => Translator::translate('UnitPrice'),
+            'label' => 'UnitPrice',
             'type' => 'INT',
             'style' => 'medium',
             'position' => 1,
@@ -506,7 +506,7 @@ EOS;
         ],
         [
             'name' => 'type_id',
-            'label' => Translator::translate('Unit'),
+            'label' => 'Unit',
             'type' => 'LIST',
             'style' => 'short translated',
             'listquery' => 'SELECT id, name FROM {prefix}row_type WHERE deleted=0 ORDER BY order_no;',
@@ -515,7 +515,7 @@ EOS;
         ],
         [
             'name' => 'price_decimals',
-            'label' => Translator::translate('PriceInvoiceDecimals'),
+            'label' => 'PriceInvoiceDecimals',
             'type' => 'INT',
             'style' => 'short',
             'position' => 1,
@@ -523,7 +523,7 @@ EOS;
         ],
         [
             'name' => 'discount',
-            'label' => Translator::translate('DiscountPercent'),
+            'label' => 'DiscountPercent',
             'type' => 'INT',
             'style' => 'percent',
             'position' => 2,
@@ -532,7 +532,7 @@ EOS;
         ],
         [
             'name' => 'vat_percent',
-            'label' => Translator::translate('VATPercent'),
+            'label' => 'VATPercent',
             'type' => 'INT',
             'style' => 'short',
             'position' => 1,
@@ -541,7 +541,7 @@ EOS;
         ],
         [
             'name' => 'vat_included',
-            'label' => Translator::translate('VATIncluded'),
+            'label' => 'VATIncluded',
             'type' => 'CHECK',
             'style' => 'medium',
             'position' => 2,
@@ -550,7 +550,7 @@ EOS;
         ],
         [
             'name' => 'purchase_price',
-            'label' => Translator::translate('PurchasePrice'),
+            'label' => 'PurchasePrice',
             'type' => 'INT',
             'style' => 'medium',
             'position' => 1,
@@ -559,7 +559,7 @@ EOS;
         ],
         [
             'name' => 'stock_balance',
-            'label' => Translator::translate('StockBalance'),
+            'label' => 'StockBalance',
             'type' => 'INT',
             'style' => 'small',
             'position' => 2,
@@ -603,7 +603,7 @@ case 'invoice' :
             if ($intRefundedInvoiceId)
                 $arrRefundedInvoice = [
                     'name' => 'get',
-                    'label' => Translator::translate('ShowRefundedInvoice'),
+                    'label' => 'ShowRefundedInvoice',
                     'type' => 'BUTTON',
                     'style' => 'custom',
                     'listquery' => "$strBaseLink&amp;id=$intRefundedInvoiceId",
@@ -622,7 +622,7 @@ case 'invoice' :
             if ($intRefundingInvoiceId)
                 $arrRefundingInvoice = [
                     'name' => 'get',
-                    'label' => Translator::translate('ShowRefundingInvoice'),
+                    'label' => 'ShowRefundingInvoice',
                     'type' => 'BUTTON',
                     'style' => 'custom',
                     'listquery' => "'$strBaseLink&amp;id=$intRefundingInvoiceId",
@@ -767,7 +767,7 @@ EOF;
 
         $arr = [
             'name' => "print$templateId",
-            'label' => Translator::translate($row['name']),
+            'label' => $row['name'],
             'type' => 'JSBUTTON',
             'style' => $printStyle,
             'listquery' => $printFunc,
@@ -785,7 +785,7 @@ EOF;
     if (count($printButtons2) > 3) {
          $printButtons2[2] = [
              'name' => 'printmenu',
-             'label' => Translator::translate('PrintOther'),
+             'label' => 'PrintOther',
              'type' => 'DROPDOWNMENU',
              'style' => '',
              'position' => 4,
@@ -830,7 +830,7 @@ EOF;
     $astrFormElements = [
         [
             'name' => 'base_id',
-            'label' => Translator::translate('Biller'),
+            'label' => 'Biller',
             'type' => 'LIST',
             'style' => 'long linked',
             'listquery' => 'SELECT id, name FROM {prefix}base WHERE deleted=0 ORDER BY name, id',
@@ -839,7 +839,7 @@ EOF;
         ],
         [
             'name' => 'name',
-            'label' => $isOffer ? Translator::translate('OfferName') : Translator::translate('InvName'),
+            'label' => $isOffer ? 'OfferName' : 'InvName',
             'type' => 'TEXT',
             'style' => 'medium',
             'position' => 2,
@@ -847,7 +847,7 @@ EOF;
         ],
         [
             'name' => 'company_id',
-            'label' => Translator::translate('Payer'),
+            'label' => 'Payer',
             'type' => 'SEARCHLIST',
             'style' => 'long linked',
             'listquery' => 'table=company&sort=company_name,company_id',
@@ -858,7 +858,7 @@ EOF;
         ],
         $isOffer ? [] : [
             'name' => 'reference',
-            'label' => Translator::translate('ClientsReference'),
+            'label' => 'ClientsReference',
             'type' => 'TEXT',
             'style' => 'medium',
             'position' => 2,
@@ -866,7 +866,7 @@ EOF;
         ],
         $isOffer ? [] : [
             'name' => 'invoice_no',
-            'label' => Translator::translate('InvoiceNumber'),
+            'label' => 'InvoiceNumber',
             'type' => 'INT',
             'style' => 'medium hidezerovalue',
             'position' => 1,
@@ -875,7 +875,7 @@ EOF;
         ],
         $isOffer ? [] : [
             'name' => 'ref_number',
-            'label' => Translator::translate('ReferenceNumber'),
+            'label' => 'ReferenceNumber',
             'type' => 'TEXT',
             'style' => 'medium hidezerovalue',
             'position' => 2,
@@ -885,7 +885,7 @@ EOF;
         ],
         [
             'name' => 'invoice_date',
-            'label' => Translator::translate('InvDate'),
+            'label' => 'InvDate',
             'type' => 'INTDATE',
             'style' => 'date',
             'position' => 1,
@@ -893,8 +893,7 @@ EOF;
         ],
         [
             'name' => 'due_date',
-            'label' => $isOffer ? Translator::translate('ValidUntilDate')
-                : Translator::translate('DueDate'),
+            'label' => $isOffer ? 'ValidUntilDate' : 'DueDate',
             'type' => 'INTDATE',
             'style' => 'date',
             'position' => 2,
@@ -903,7 +902,7 @@ EOF;
         ],
         $isOffer ? [] : [
             'name' => 'interval_type',
-            'label' => Translator::translate('InvoiceIntervalType'),
+            'label' => 'InvoiceIntervalType',
             'type' => 'SELECT',
             'style' => 'medium',
             'position' => 1,
@@ -913,7 +912,7 @@ EOF;
         ],
         $isOffer ? [] : [
             'name' => 'next_interval_date',
-            'label' => Translator::translate('InvoiceNextIntervalDate'),
+            'label' => 'InvoiceNextIntervalDate',
             'type' => 'INTDATE',
             'style' => 'date',
             'position' => 2,
@@ -922,7 +921,7 @@ EOF;
         ],
         [
             'name' => 'state_id',
-            'label' => Translator::translate('Status'),
+            'label' => 'Status',
             'type' => 'LIST',
             'style' => 'long translated noemptyvalue',
             'listquery' => $stateQuery,
@@ -931,7 +930,7 @@ EOF;
         ],
         $isOffer ? [] : [
             'name' => 'payment_date',
-            'label' => Translator::translate('PayDate'),
+            'label' => 'PayDate',
             'type' => 'INTDATE',
             'style' => 'date',
             'position' => 2,
@@ -941,7 +940,7 @@ EOF;
         ],
         [
             'name' => 'archived',
-            'label' => Translator::translate('Archived'),
+            'label' => 'Archived',
             'type' => 'CHECK',
             'style' => 'medium',
             'position' => 1,
@@ -950,7 +949,7 @@ EOF;
         ],
         $isOffer ? [
             'name' => 'delivery_time',
-            'label' => Translator::translate('DeliveryTime'),
+            'label' => 'DeliveryTime',
             'type' => 'TEXT',
             'style' => 'medium hidezerovalue',
             'position' => 2,
@@ -959,7 +958,7 @@ EOF;
         ] : [],
         [
             'name' => 'delivery_terms_id',
-            'label' => Translator::translate('DeliveryTerms'),
+            'label' => 'DeliveryTerms',
             'type' => 'LIST',
             'style' => 'long',
             'listquery' => 'SELECT id, name FROM {prefix}delivery_terms WHERE deleted=0 ORDER BY order_no;',
@@ -969,7 +968,7 @@ EOF;
         ],
         [
             'name' => 'delivery_method_id',
-            'label' => Translator::translate('DeliveryMethod'),
+            'label' => 'DeliveryMethod',
             'type' => 'LIST',
             'style' => 'medium',
             'listquery' => 'SELECT id, name FROM {prefix}delivery_method WHERE deleted=0 ORDER BY order_no;',
@@ -979,7 +978,7 @@ EOF;
         ],
         [
             'name' => 'info',
-            'label' => Translator::translate('VisibleInfo'),
+            'label' => 'VisibleInfo',
             'type' => 'AREA',
             'style' => 'large',
             'position' => 1,
@@ -988,7 +987,7 @@ EOF;
         ],
         [
             'name' => 'internal_info',
-            'label' => Translator::translate('InternalInfo'),
+            'label' => 'InternalInfo',
             'type' => 'AREA',
             'style' => 'large',
             'position' => 2,
@@ -996,7 +995,7 @@ EOF;
         ],
         [
             'name' => 'foreword',
-            'label' => Translator::translate('Foreword'),
+            'label' => 'Foreword',
             'type' => 'AREA',
             'style' => 'large',
             'position' => 1,
@@ -1005,7 +1004,7 @@ EOF;
         ],
         [
             'name' => 'afterword',
-            'label' => Translator::translate('Afterword'),
+            'label' => 'Afterword',
             'type' => 'AREA',
             'style' => 'large',
             'position' => 2,
@@ -1020,7 +1019,7 @@ EOF;
             'position' => 1
         ] : [
             'name' => 'refundinvoice',
-            'label' => Translator::translate('RefundInvoice'),
+            'label' => 'RefundInvoice',
             'type' => 'BUTTON',
             'style' => 'redirect',
             'listquery' => "copy_invoice.php?func=$strFunc&list=$strList&id=_ID_&refund=1",
@@ -1035,7 +1034,7 @@ EOF;
             'position' => 1
         ] : [
             'name' => 'copyasinvoice',
-            'label' => Translator::translate('CopyAsInvoice'),
+            'label' => 'CopyAsInvoice',
             'type' => 'BUTTON',
             'style' => 'redirect',
             'listquery' => "copy_invoice.php?func=$strFunc&list=$strList&id=_ID_&invoice=1",
@@ -1053,7 +1052,7 @@ EOF;
             'position' => 1
         ] : [
             'name' => 'addreminderfees',
-            'label' => Translator::translate('AddReminderFees'),
+            'label' => 'AddReminderFees',
             'type' => 'JSBUTTON',
             'style' => 'redirect',
             'listquery' => $addReminderFees,
@@ -1071,7 +1070,7 @@ EOF;
             'position' => 1
         ] : [
             'name' => 'addpartialpayment',
-            'label' => Translator::translate('AddPartialPayment'),
+            'label' => 'AddPartialPayment',
             'type' => 'JSBUTTON',
             'style' => 'redirect',
             'listquery' => $addPartialPaymentCode,
@@ -1089,7 +1088,7 @@ EOF;
 
     $astrFormElements[] = [
         'name' => 'invoice_rows',
-        'label' => Translator::translate('InvRows'),
+        'label' => 'InvRows',
         'type' => 'IFORM',
         'style' => 'xfull',
         'position' => 0,
@@ -1125,9 +1124,9 @@ $astrFormElements = [
     ],
     [
         'name' => 'product_id',
-        'label' => Translator::translate('ProductName'),
+        'label' => 'ProductName',
         'type' => 'SEARCHLIST',
-        'style' => 'medium',
+        'style' => 'medium translated',
         'listquery' => 'table=product&sort=order_no,product_code,product_name',
         'position' => 0,
         'allow_null' => true,
@@ -1135,7 +1134,7 @@ $astrFormElements = [
     ],
     [
         'name' => 'description',
-        'label' => Translator::translate('RowDesc'),
+        'label' => 'RowDesc',
         'type' => 'TEXT',
         'style' => 'medium',
         'position' => 0,
@@ -1143,7 +1142,7 @@ $astrFormElements = [
     ],
     [
         'name' => 'row_date',
-        'label' => Translator::translate('Date'),
+        'label' => 'Date',
         'type' => 'INTDATE',
         'style' => 'date',
         'position' => 0,
@@ -1151,14 +1150,14 @@ $astrFormElements = [
     ],
     [
         'name' => 'pcs',
-        'label' => Translator::translate('PCS'),
+        'label' => 'PCS',
         'type' => 'INT',
         'style' => 'count',
         'position' => 0
     ],
     [
         'name' => 'type_id',
-        'label' => Translator::translate('Unit'),
+        'label' => 'Unit',
         'type' => 'LIST',
         'style' => 'short translated',
         'listquery' => 'SELECT id, name FROM {prefix}row_type WHERE deleted=0 ORDER BY order_no',
@@ -1168,7 +1167,7 @@ $astrFormElements = [
     ],
     [
         'name' => 'price',
-        'label' => Translator::translate('Price'),
+        'label' => 'Price',
         'type' => 'INT',
         'style' => 'currency',
         'position' => 0,
@@ -1177,7 +1176,7 @@ $astrFormElements = [
     ],
     [
         'name' => 'discount',
-        'label' => Translator::translate('Discount'),
+        'label' => 'Discount',
         'type' => 'INT',
         'style' => 'percent',
         'position' => 0,
@@ -1186,17 +1185,19 @@ $astrFormElements = [
     ],
     [
         'name' => 'vat',
-        'label' => Translator::translate('VAT'),
+        'label' => 'VAT',
         'type' => 'INT',
         'style' => 'percent',
         'position' => 0,
-        'default' => str_replace('.', Translator::translate('DecimalSeparator'),
-            getSetting('invoice_default_vat_percent')),
+        'default' => str_replace(
+            '.', Translator::translate('DecimalSeparator'),
+            getSetting('invoice_default_vat_percent')
+        ),
         'allow_null' => false
     ],
     [
         'name' => 'vat_included',
-        'label' => Translator::translate('VATInc'),
+        'label' => 'VATInc',
         'type' => 'CHECK',
         'style' => 'xshort',
         'position' => 0,
@@ -1205,7 +1206,7 @@ $astrFormElements = [
     ],
     [
         'name' => 'order_no',
-        'label' => Translator::translate('RowNr'),
+        'label' => 'RowNr',
         'type' => 'INT',
         'style' => 'tiny',
         'listquery' => 'SELECT max(order_no)+5 FROM {prefix}invoice_row WHERE deleted=0 AND invoice_id=_PARENTID_',
@@ -1215,7 +1216,7 @@ $astrFormElements = [
     ],
     [
         'name' => 'partial_payment',
-        'label' => Translator::translate('PartialPayment'),
+        'label' => 'PartialPayment',
         'type' => 'HID_INT',
         'style' => 'xshort',
         'position' => 0,
@@ -1224,7 +1225,7 @@ $astrFormElements = [
     ],
     [
         'name' => 'row_sum',
-        'label' => Translator::translate('RowTotal'),
+        'label' => 'RowTotal',
         'type' => 'ROWSUM',
         'style' => 'currency',
         'position' => 0,
@@ -1251,14 +1252,14 @@ EOF;
 $astrFormElements = [
     [
         'name' => 'name',
-        'label' => Translator::translate('BaseName'),
+        'label' => 'BaseName',
         'type' => 'TEXT',
         'style' => 'medium',
         'position' => 1
     ],
     [
         'name' => 'company_id',
-        'label' => Translator::translate('ClientVATID'),
+        'label' => 'ClientVATID',
         'type' => 'TEXT',
         'style' => 'medium',
         'position' => 2,
@@ -1266,8 +1267,8 @@ $astrFormElements = [
     ],
     [
         'name' => 'vat_registered',
-        'label' => Translator::translate('VATRegistered'),
-        'title' => Translator::translate('VATRegisteredHint'),
+        'label' => 'VATRegistered',
+        'title' => 'VATRegisteredHint',
         'type' => 'CHECK',
         'style' => 'short',
         'position' => 1,
@@ -1275,7 +1276,7 @@ $astrFormElements = [
     ],
     [
         'name' => 'org_unit_number',
-        'label' => Translator::translate('OrgUnitNumber'),
+        'label' => 'OrgUnitNumber',
         'type' => 'TEXT',
         'style' => 'medium',
         'position' => 1,
@@ -1283,7 +1284,7 @@ $astrFormElements = [
     ],
     [
         'name' => 'payment_intermediator',
-        'label' => Translator::translate('PaymentIntermediator'),
+        'label' => 'PaymentIntermediator',
         'type' => 'TEXT',
         'style' => 'medium',
         'position' => 2,
@@ -1291,7 +1292,7 @@ $astrFormElements = [
     ],
     [
         'name' => 'contact_person',
-        'label' => Translator::translate('ContactPerson'),
+        'label' => 'ContactPerson',
         'type' => 'TEXT',
         'style' => 'medium',
         'position' => 1,
@@ -1299,7 +1300,7 @@ $astrFormElements = [
     ],
     [
         'name' => 'email',
-        'label' => Translator::translate('Email'),
+        'label' => 'Email',
         'type' => 'TEXT',
         'style' => 'medium',
         'position' => 2,
@@ -1307,7 +1308,7 @@ $astrFormElements = [
     ],
     [
         'name' => 'street_address',
-        'label' => Translator::translate('StreetAddr'),
+        'label' => 'StreetAddr',
         'type' => 'TEXT',
         'style' => 'medium',
         'position' => 1,
@@ -1315,7 +1316,7 @@ $astrFormElements = [
     ],
     [
         'name' => 'zip_code',
-        'label' => Translator::translate('ZipCode'),
+        'label' => 'ZipCode',
         'type' => 'TEXT',
         'style' => 'short',
         'position' => 2,
@@ -1323,7 +1324,7 @@ $astrFormElements = [
     ],
     [
         'name' => 'city',
-        'label' => Translator::translate('City'),
+        'label' => 'City',
         'type' => 'TEXT',
         'style' => 'medium',
         'position' => 1,
@@ -1331,7 +1332,7 @@ $astrFormElements = [
     ],
     [
         'name' => 'country',
-        'label' => Translator::translate('Country'),
+        'label' => 'Country',
         'type' => 'TEXT',
         'style' => 'medium',
         'position' => 2,
@@ -1339,7 +1340,7 @@ $astrFormElements = [
     ],
     [
         'name' => 'phone',
-        'label' => Translator::translate('Phone'),
+        'label' => 'Phone',
         'type' => 'TEXT',
         'style' => 'medium',
         'position' => 1,
@@ -1347,7 +1348,7 @@ $astrFormElements = [
     ],
     [
         'name' => 'www',
-        'label' => Translator::translate('WWW'),
+        'label' => 'WWW',
         'type' => 'TEXT',
         'style' => 'medium',
         'position' => 2,
@@ -1355,45 +1356,45 @@ $astrFormElements = [
     ],
     [
         'name' => 'banksep1',
-        'label' => Translator::translate('FirstBank'),
+        'label' => 'FirstBank',
         'type' => 'LABEL'
     ],
     [
         'name' => 'bank_name',
-        'label' => Translator::translate('Bank'),
+        'label' => 'Bank',
         'type' => 'TEXT',
         'style' => 'medium',
         'position' => 1
     ],
     [
         'name' => 'bank_account',
-        'label' => Translator::translate('Account'),
+        'label' => 'Account',
         'type' => 'TEXT',
         'style' => 'medium',
         'position' => 2
     ],
     [
         'name' => 'bank_iban',
-        'label' => Translator::translate('AccountIBAN'),
+        'label' => 'AccountIBAN',
         'type' => 'TEXT',
         'style' => 'medium',
         'position' => 1
     ],
     [
         'name' => 'bank_swiftbic',
-        'label' => Translator::translate('SWIFTBIC'),
+        'label' => 'SWIFTBIC',
         'type' => 'TEXT',
         'style' => 'medium',
         'position' => 2
     ],
     [
         'name' => 'banksep2',
-        'label' => Translator::translate('SecondBank'),
+        'label' => 'SecondBank',
         'type' => 'LABEL'
     ],
     [
         'name' => 'bank_name2',
-        'label' => Translator::translate('Bank'),
+        'label' => 'Bank',
         'type' => 'TEXT',
         'style' => 'medium',
         'position' => 1,
@@ -1401,7 +1402,7 @@ $astrFormElements = [
     ],
     [
         'name' => 'bank_account2',
-        'label' => Translator::translate('Account'),
+        'label' => 'Account',
         'type' => 'TEXT',
         'style' => 'medium',
         'position' => 2,
@@ -1409,7 +1410,7 @@ $astrFormElements = [
     ],
     [
         'name' => 'bank_iban2',
-        'label' => Translator::translate('AccountIBAN'),
+        'label' => 'AccountIBAN',
         'type' => 'TEXT',
         'style' => 'medium',
         'position' => 1,
@@ -1417,7 +1418,7 @@ $astrFormElements = [
     ],
     [
         'name' => 'bank_swiftbic2',
-        'label' => Translator::translate('SWIFTBIC'),
+        'label' => 'SWIFTBIC',
         'type' => 'TEXT',
         'style' => 'medium',
         'position' => 2,
@@ -1425,12 +1426,12 @@ $astrFormElements = [
     ],
     [
         'name' => 'banksep3',
-        'label' => Translator::translate('ThirdBank'),
+        'label' => 'ThirdBank',
         'type' => 'LABEL'
     ],
     [
         'name' => 'bank_name3',
-        'label' => Translator::translate('Bank'),
+        'label' => 'Bank',
         'type' => 'TEXT',
         'style' => 'medium',
         'position' => 1,
@@ -1438,7 +1439,7 @@ $astrFormElements = [
     ],
     [
         'name' => 'bank_account3',
-        'label' => Translator::translate('Account'),
+        'label' => 'Account',
         'type' => 'TEXT',
         'style' => 'medium',
         'position' => 2,
@@ -1446,7 +1447,7 @@ $astrFormElements = [
     ],
     [
         'name' => 'bank_iban3',
-        'label' => Translator::translate('AccountIBAN'),
+        'label' => 'AccountIBAN',
         'type' => 'TEXT',
         'style' => 'medium',
         'position' => 1,
@@ -1454,7 +1455,7 @@ $astrFormElements = [
     ],
     [
         'name' => 'bank_swiftbic3',
-        'label' => Translator::translate('SWIFTBIC'),
+        'label' => 'SWIFTBIC',
         'type' => 'TEXT',
         'style' => 'medium',
         'position' => 2,
@@ -1462,12 +1463,12 @@ $astrFormElements = [
     ],
     [
         'name' => 'invoicesep',
-        'label' => Translator::translate('BaseInvoiceTexts'),
+        'label' => 'BaseInvoiceTexts',
         'type' => 'LABEL'
     ],
     [
         'name' => 'invoice_default_info',
-        'label' => Translator::translate('InvoiceDefaultInfo'),
+        'label' => 'InvoiceDefaultInfo',
         'type' => 'AREA',
         'style' => 'medium',
         'position' => 1,
@@ -1475,7 +1476,7 @@ $astrFormElements = [
     ],
     [
         'name' => 'invoice_default_foreword',
-        'label' => Translator::translate('InvoiceDefaultForeword'),
+        'label' => 'InvoiceDefaultForeword',
         'type' => 'AREA',
         'style' => 'large',
         'position' => 1,
@@ -1483,7 +1484,7 @@ $astrFormElements = [
     ],
     [
         'name' => 'invoice_default_afterword',
-        'label' => Translator::translate('InvoiceDefaultAfterword'),
+        'label' => 'InvoiceDefaultAfterword',
         'type' => 'AREA',
         'style' => 'large',
         'position' => 2,
@@ -1491,7 +1492,7 @@ $astrFormElements = [
     ],
     [
         'name' => 'offer_default_foreword',
-        'label' => Translator::translate('OfferDefaultForeword'),
+        'label' => 'OfferDefaultForeword',
         'type' => 'AREA',
         'style' => 'large',
         'position' => 1,
@@ -1499,7 +1500,7 @@ $astrFormElements = [
     ],
     [
         'name' => 'offer_default_afterword',
-        'label' => Translator::translate('OfferDefaultAfterword'),
+        'label' => 'OfferDefaultAfterword',
         'type' => 'AREA',
         'style' => 'large',
         'position' => 2,
@@ -1507,7 +1508,7 @@ $astrFormElements = [
     ],
     [
         'name' => 'terms_of_payment',
-        'label' => Translator::translate('SettingInvoiceTermsOfPayment'),
+        'label' => 'SettingInvoiceTermsOfPayment',
         'type' => 'TEXT',
         'style' => 'large',
         'position' => 1,
@@ -1515,7 +1516,7 @@ $astrFormElements = [
     ],
     [
         'name' => 'period_for_complaints',
-        'label' => Translator::translate('SettingInvoicePeriodForComplaints'),
+        'label' => 'SettingInvoicePeriodForComplaints',
         'type' => 'TEXT',
         'style' => 'large',
         'position' => 2,
@@ -1523,12 +1524,12 @@ $astrFormElements = [
     ],
     [
         'name' => 'emailsep',
-        'label' => Translator::translate('BaseEmailTitle'),
+        'label' => 'BaseEmailTitle',
         'type' => 'LABEL'
     ],
     [
         'name' => 'invoice_email_from',
-        'label' => Translator::translate('BaseEmailFrom'),
+        'label' => 'BaseEmailFrom',
         'type' => 'TEXT',
         'style' => 'medium',
         'position' => 1,
@@ -1536,7 +1537,7 @@ $astrFormElements = [
     ],
     [
         'name' => 'invoice_email_bcc',
-        'label' => Translator::translate('BaseEmailBCC'),
+        'label' => 'BaseEmailBCC',
         'type' => 'TEXT',
         'style' => 'medium',
         'position' => 2,
@@ -1544,7 +1545,7 @@ $astrFormElements = [
     ],
     [
         'name' => 'invoice_email_subject',
-        'label' => Translator::translate('BaseInvoiceEmailSubject'),
+        'label' => 'BaseInvoiceEmailSubject',
         'type' => 'TEXT',
         'style' => 'long',
         'position' => 0,
@@ -1552,7 +1553,7 @@ $astrFormElements = [
     ],
     [
         'name' => 'invoice_email_body',
-        'label' => Translator::translate('BaseInvoiceEmailBody'),
+        'label' => 'BaseInvoiceEmailBody',
         'type' => 'AREA',
         'style' => 'email email_body',
         'position' => 0,
@@ -1560,7 +1561,7 @@ $astrFormElements = [
     ],
     [
         'name' => 'receipt_email_subject',
-        'label' => Translator::translate('BaseReceiptEmailSubject'),
+        'label' => 'BaseReceiptEmailSubject',
         'type' => 'TEXT',
         'style' => 'long',
         'position' => 0,
@@ -1568,7 +1569,7 @@ $astrFormElements = [
     ],
     [
         'name' => 'receipt_email_body',
-        'label' => Translator::translate('BaseReceiptEmailBody'),
+        'label' => 'BaseReceiptEmailBody',
         'type' => 'AREA',
         'style' => 'email email_body',
         'position' => 0,
@@ -1576,7 +1577,7 @@ $astrFormElements = [
     ],
     [
         'name' => 'order_confirmation_email_subject',
-        'label' => Translator::translate('BaseOrderConfirmationEmailSubject'),
+        'label' => 'BaseOrderConfirmationEmailSubject',
         'type' => 'TEXT',
         'style' => 'long',
         'position' => 0,
@@ -1584,7 +1585,7 @@ $astrFormElements = [
     ],
     [
         'name' => 'order_confirmation_email_body',
-        'label' => Translator::translate('BaseOrderConfirmationEmailBody'),
+        'label' => 'BaseOrderConfirmationEmailBody',
         'type' => 'AREA',
         'style' => 'email email_body',
         'position' => 0,
@@ -1592,7 +1593,7 @@ $astrFormElements = [
     ],
     [
         'name' => 'offer_email_subject',
-        'label' => Translator::translate('BaseOfferEmailSubject'),
+        'label' => 'BaseOfferEmailSubject',
         'type' => 'TEXT',
         'style' => 'long',
         'position' => 0,
@@ -1600,7 +1601,7 @@ $astrFormElements = [
     ],
     [
         'name' => 'offer_email_body',
-        'label' => Translator::translate('BaseOfferEmailBody'),
+        'label' => 'BaseOfferEmailBody',
         'type' => 'AREA',
         'style' => 'email email_body',
         'position' => 0,
@@ -1608,7 +1609,7 @@ $astrFormElements = [
     ],
     [
         'name' => 'logosep',
-        'label' => Translator::translate('BaseLogoTitle'),
+        'label' => 'BaseLogoTitle',
         'type' => 'LABEL'
     ],
     [
@@ -1622,7 +1623,7 @@ $astrFormElements = [
     ],
     [
         'name' => 'edit_logo',
-        'label' => Translator::translate('BaseChangeImage'),
+        'label' => 'BaseChangeImage',
         'type' => 'JSBUTTON',
         'style' => 'medium',
         'listquery' => $openPopJS,
@@ -1631,7 +1632,7 @@ $astrFormElements = [
     ],
     [
         'name' => 'logo_left',
-        'label' => Translator::translate('BaseLogoLeft'),
+        'label' => 'BaseLogoLeft',
         'type' => 'INT',
         'style' => 'measurement',
         'position' => 1,
@@ -1639,7 +1640,7 @@ $astrFormElements = [
     ],
     [
         'name' => 'logo_top',
-        'label' => Translator::translate('BaseLogoTop'),
+        'label' => 'BaseLogoTop',
         'type' => 'INT',
         'style' => 'measurement',
         'position' => 2,
@@ -1647,7 +1648,7 @@ $astrFormElements = [
     ],
     [
         'name' => 'logo_width',
-        'label' => Translator::translate('BaseLogoWidth'),
+        'label' => 'BaseLogoWidth',
         'type' => 'INT',
         'style' => 'measurement',
         'position' => 1,
@@ -1668,7 +1669,7 @@ $readOnly = ($intId && $intId <= 8);
 $astrFormElements = [
     [
         'name' => 'name',
-        'label' => Translator::translate('Status'),
+        'label' => 'Status',
         'type' => 'TEXT',
         'style' => 'medium',
         'position' => 1,
@@ -1676,7 +1677,7 @@ $astrFormElements = [
     ],
     [
         'name' => 'order_no',
-        'label' => Translator::translate('OrderNr'),
+        'label' => 'OrderNr',
         'type' => 'INT',
         'style' => 'short',
         'position' => 2,
@@ -1684,21 +1685,21 @@ $astrFormElements = [
     ],
     [
         'name' => 'invoice_open',
-        'label' => Translator::translate('InvoiceStatusOpen'),
+        'label' => 'InvoiceStatusOpen',
         'type' => 'CHECK',
         'style' => 'short',
         'position' => 1
     ],
     [
         'name' => 'invoice_unpaid',
-        'label' => Translator::translate('InvoiceStatusUnpaid'),
+        'label' => 'InvoiceStatusUnpaid',
         'type' => 'CHECK',
         'style' => 'short',
         'position' => 2
     ],
     [
         'name' => 'invoice_offer',
-        'label' => Translator::translate('InvoiceStatusOffer'),
+        'label' => 'InvoiceStatusOffer',
         'type' => 'CHECK',
         'style' => 'short',
         'position' => 1
@@ -1717,14 +1718,14 @@ $strJSONType = 'row_type';
 $astrFormElements = [
     [
         'name' => 'name',
-        'label' => Translator::translate('RowType'),
+        'label' => 'RowType',
         'type' => 'TEXT',
         'style' => 'medium',
         'position' => 1
     ],
     [
         'name' => 'order_no',
-        'label' => Translator::translate('OrderNr'),
+        'label' => 'OrderNr',
         'type' => 'INT',
         'style' => 'short',
         'position' => 2
@@ -1746,21 +1747,21 @@ if ($intId && $intId <= 4) {
 $astrFormElements = [
     [
         'name' => 'name',
-        'label' => Translator::translate('SessionType'),
+        'label' => 'SessionType',
         'type' => 'TEXT',
         'style' => 'medium',
         'position' => 1
     ],
     [
         'name' => 'order_no',
-        'label' => Translator::translate('OrderNr'),
+        'label' => 'OrderNr',
         'type' => 'INT',
         'style' => 'short',
         'position' => 2
     ],
     [
         'name' => 'access_level',
-        'label' => Translator::translate('AccessLevel'),
+        'label' => 'AccessLevel',
         'type' => 'INT',
         'style' => 'short',
         'position' => 1,
@@ -1779,14 +1780,14 @@ $strJSONType = 'delivery_terms';
 $astrFormElements = [
     [
         'name' => 'name',
-        'label' => Translator::translate('DeliveryTerms'),
+        'label' => 'DeliveryTerms',
         'type' => 'TEXT',
         'style' => 'medium',
         'position' => 1
     ],
     [
         'name' => 'order_no',
-        'label' => Translator::translate('OrderNr'),
+        'label' => 'OrderNr',
         'type' => 'INT',
         'style' => 'short',
         'position' => 2
@@ -1804,14 +1805,14 @@ $strJSONType = 'delivery_method';
 $astrFormElements = [
     [
         'name' => 'name',
-        'label' => Translator::translate('DeliveryMethod'),
+        'label' => 'DeliveryMethod',
         'type' => 'TEXT',
         'style' => 'medium',
         'position' => 1
     ],
     [
         'name' => 'order_no',
-        'label' => Translator::translate('OrderNr'),
+        'label' => 'OrderNr',
         'type' => 'INT',
         'style' => 'short',
         'position' => 2
@@ -1829,33 +1830,33 @@ $strJSONType = 'default_value';
 $astrFormElements = [
     [
         'name' => 'type',
-        'label' => Translator::translate('DefaultValueType'),
+        'label' => 'DefaultValueType',
         'type' => 'LIST',
         'style' => 'medium',
         'listquery' => [
-            'info' => Translator::translate('Info'),
-            'foreword' => Translator::translate('Foreword'),
-            'afterword' => Translator::translate('Afterword')
+            'info' => 'Info',
+            'foreword' => 'Foreword',
+            'afterword' => 'Afterword'
         ],
         'position' => 1
     ],
     [
         'name' => 'name',
-        'label' => Translator::translate('Name'),
+        'label' => 'Name',
         'type' => 'TEXT',
         'style' => 'medium',
         'position' => 1
     ],
     [
         'name' => 'order_no',
-        'label' => Translator::translate('OrderNr'),
+        'label' => 'OrderNr',
         'type' => 'INT',
         'style' => 'short',
         'position' => 2
     ],
     [
         'name' => 'content',
-        'label' => Translator::translate('Content'),
+        'label' => 'Content',
         'type' => 'AREA',
         'style' => 'xlarge',
         'position' => 0
@@ -1872,14 +1873,14 @@ $strJSONType = 'user';
 $astrFormElements = [
     [
         'name' => 'name',
-        'label' => Translator::translate('UserName'),
+        'label' => 'UserName',
         'type' => 'TEXT',
         'style' => 'medium',
         'position' => 1
     ],
     [
         'name' => 'login',
-        'label' => Translator::translate('LoginName'),
+        'label' => 'LoginName',
         'type' => 'TEXT',
         'style' => 'medium',
         'position' => 1,
@@ -1887,7 +1888,7 @@ $astrFormElements = [
     ],
     [
         'name' => 'passwd',
-        'label' => Translator::translate('Password'),
+        'label' => 'Password',
         'type' => 'PASSWD',
         'style' => 'medium',
         'position' => 2,
@@ -1895,7 +1896,7 @@ $astrFormElements = [
     ],
     [
         'name' => 'type_id',
-        'label' => Translator::translate('Type'),
+        'label' => 'Type',
         'type' => 'LIST',
         'style' => 'medium translated',
         'listquery' => 'SELECT id, name FROM {prefix}session_type WHERE deleted=0 ORDER BY order_no',
@@ -1912,32 +1913,32 @@ $elem_attributes = '';
 $astrFormElements = [
     [
         'name' => 'type',
-        'label' => Translator::translate('PrintTemplateType'),
+        'label' => 'PrintTemplateType',
         'type' => 'LIST',
         'style' => 'medium noemptyvalue',
         'listquery' => [
-            'invoice' => Translator::translate('PrintTemplateTypeInvoice'),
-            'offer' => Translator::translate('PrintTemplateTypeOffer')
+            'invoice' => 'PrintTemplateTypeInvoice',
+            'offer' => 'PrintTemplateTypeOffer'
         ],
         'position' => 1
     ],
     [
         'name' => 'order_no',
-        'label' => Translator::translate('OrderNr'),
+        'label' => 'OrderNr',
         'type' => 'INT',
         'style' => 'short',
         'position' => 2
     ],
     [
         'name' => 'name',
-        'label' => Translator::translate('PrintTemplateName'),
+        'label' => 'PrintTemplateName',
         'type' => 'TEXT',
         'style' => 'medium',
         'position' => 1
     ],
     [
         'name' => 'filename',
-        'label' => Translator::translate('PrintTemplateFileName'),
+        'label' => 'PrintTemplateFileName',
         'type' => 'TEXT',
         'style' => 'medium',
         'position' => 2,
@@ -1945,7 +1946,7 @@ $astrFormElements = [
     ],
     [
         'name' => 'parameters',
-        'label' => Translator::translate('PrintTemplateParameters'),
+        'label' => 'PrintTemplateParameters',
         'type' => 'TEXT',
         'style' => 'medium',
         'position' => 1,
@@ -1953,7 +1954,7 @@ $astrFormElements = [
     ],
     [
         'name' => 'output_filename',
-        'label' => Translator::translate('PrintTemplateOutputFileName'),
+        'label' => 'PrintTemplateOutputFileName',
         'type' => 'TEXT',
         'style' => 'medium',
         'position' => 2,
@@ -1961,7 +1962,7 @@ $astrFormElements = [
     ],
     [
         'name' => 'new_window',
-        'label' => Translator::translate('PrintTemplateOpenInNewWindow'),
+        'label' => 'PrintTemplateOpenInNewWindow',
         'type' => 'CHECK',
         'style' => 'medium',
         'position' => 1,
@@ -1969,7 +1970,7 @@ $astrFormElements = [
     ],
     [
         'name' => 'inactive',
-        'label' => Translator::translate('PrintTemplateInactive'),
+        'label' => 'PrintTemplateInactive',
         'type' => 'CHECK',
         'style' => 'medium',
         'position' => 2,

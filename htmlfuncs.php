@@ -481,7 +481,7 @@ EOT;
             break;
         }
         $strFormElement = "<a class=\"formbuttonlink\" href=\"$strHref\" $strOnClick$astrAdditionalAttributes>" .
-             htmlspecialchars($strTitle) . "</a>\n";
+             htmlspecialchars(Translator::translate($strTitle)) . "</a>\n";
         break;
 
     case 'JSBUTTON':
@@ -492,7 +492,7 @@ EOT;
                 $strListQuery = str_replace('_ID_', $strValue, $strListQuery);
             $strOnClick = "onClick=\"$strListQuery\"";
             $strFormElement = "<a class=\"formbuttonlink\" href=\"#\" $strOnClick$astrAdditionalAttributes>" .
-                 htmlspecialchars($strTitle) . "</a>\n";
+                 htmlspecialchars(Translator::translate($strTitle)) . "</a>\n";
         }
         break;
 
@@ -500,11 +500,11 @@ EOT;
         if (strstr($strListQuery, '_ID_') && !$strValue) {
             $strFormElement = Translator::translate('SaveFirst');
         } else {
-            $menuTitle = htmlspecialchars($strTitle);
+            $menuTitle = htmlspecialchars(Translator::translate($strTitle));
             $menuItems = '';
             foreach ($options as $option) {
                 $strListQuery = str_replace('_ID_', $strValue, $option['listquery']);
-                $menuItems .= '<li onClick="' . $strListQuery . '"><div>' . $option['label'] . '</div></li>';
+                $menuItems .= '<li onClick="' . $strListQuery . '"><div>' . Translator::translate($option['label']) . '</div></li>';
             }
             $strFormElement = <<<EOT
 <ul class="dropdownmenu" $astrAdditionalAttributes>
@@ -521,7 +521,7 @@ EOT;
     case 'IMAGE':
         $strListQuery = str_replace('_ID_', $strValue, $strListQuery);
         $strFormElement = "<img class=\"$strStyle\" src=\"$strListQuery\" title=\"" .
-             htmlspecialchars($strTitle) . "\"></div>\n";
+             htmlspecialchars(Translator::translate($strTitle)) . "\"></div>\n";
         break;
 
     default :
