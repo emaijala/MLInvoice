@@ -527,6 +527,9 @@ class InvoiceReport extends AbstractReport
                 $pdf->headerRightPos = 223;
             }
             $pdf->setTopMargin(20);
+            if ('pdf' === $format) {
+                $pdf->setLeftMargin(5);
+            }
             $pdf->headerRight = Translator::translate('ReportPage');
             $pdf->printHeaderOnFirstPage = true;
             $pdf->AddPage();
@@ -805,10 +808,10 @@ class InvoiceReport extends AbstractReport
                 $rowWidth += 40;
             }
             if (in_array('status', $printFields)) {
-                $rowWidth += 15;
+                $rowWidth += 20;
             }
             if (in_array('ref_number', $printFields)) {
-                $rowWidth += 25;
+                $rowWidth += 20;
             }
             $sumPos = $rowWidth;
             $rowWidth += 80;
@@ -919,10 +922,10 @@ class InvoiceReport extends AbstractReport
                 $rowWidth += 40;
             }
             if (in_array('status', $printFields)) {
-                $rowWidth += 15;
+                $rowWidth += 20;
             }
             if (in_array('ref_number', $printFields)) {
-                $rowWidth += 25;
+                $rowWidth += 20;
             }
             $sumPos = $rowWidth;
             $rowWidth += 80;
