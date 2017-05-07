@@ -4,6 +4,7 @@ var MLInvoice = (function MLInvoice() {
     var _offerStatuses = [];
     var _selectedProduct = null;
     var _defaultDescription = null;
+    var _keepAliveEnabled = true;
 
     function addTranslation(key, value) {
         _translations[key] = value;
@@ -467,10 +468,23 @@ var MLInvoice = (function MLInvoice() {
         return s;
     }
 
+    function _keepAlive() {
+        $.getJSON('json.php?func=noop').done(function() {
+            window.setTimeout(_keepAlive, 60*1000);
+        });
+    }
+
+    function setKeepAlive(enable) {
+        _keepAliveEnabled = enable;
+    }
+
     function init() {
         _setupYtjSearch();
         _setupDefaultTextSelection();
         _setupSelect2();
+        if (_keepAliveEnabled) {
+            window.setTimeout(_keepAlive, 60*1000);
+        }
     };
 
     return {
@@ -483,7 +497,8 @@ var MLInvoice = (function MLInvoice() {
         printInvoice: printInvoice,
         updateDispatchByDateButtons: updateDispatchByDateButtons,
         getSelectedProductDefaults: getSelectedProductDefaults,
-        formatCurrency: formatCurrency
+        formatCurrency: formatCurrency,
+        setKeepAlive: setKeepAlive
     }
 })();
 

@@ -364,6 +364,7 @@ EOT
 
 case 'noop' :
     // Session keep-alive
+    header('HTTP/1.1 204 No Content');
     break;
 
 default :

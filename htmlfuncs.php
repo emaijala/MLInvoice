@@ -67,9 +67,6 @@ function htmlPageStart($strTitle = '', $arrExtraScripts = [])
     if (file_exists("select2/select2_locale_$lang.js")) {
         $scripts[] = "select2/select2_locale_$lang.js";
     }
-    if (getSetting('session_keepalive')) {
-        $scripts[] = 'js/keepalive.js';
-    }
 
     $scripts = array_merge($scripts, $arrExtraScripts);
     foreach ($scripts as &$script) {
@@ -138,6 +135,8 @@ function htmlPageStart($strTitle = '', $arrExtraScripts = [])
     }
     $offerStatuses = json_encode($offerStatuses);
 
+    $keepAlive = getSetting('session_keepalive') ? 'true' : 'false';
+
     $strHtmlStart = <<<EOT
 <!DOCTYPE html>
 <html>
@@ -151,6 +150,7 @@ $scriptLinks
 MLInvoice.addTranslations($jsTranslations);
 MLInvoice.setDispatchNotePrintStyle('$dispatchNotePrintStyle');
 MLInvoice.setOfferStatuses($offerStatuses);
+MLInvoice.setKeepAlive($keepAlive);
 $(document).ready(function() {
   $.datepicker.setDefaults($datePickerOptions);
   $('a[class~="actionlink"]').button();
