@@ -40,6 +40,10 @@ div.breadcrumbs a {
   font-size: 1.1em;
 }
 
+span.prev-next {
+  margin: 6px 0 6px 16px;
+}
+
 div#version {
   float: right;
   margin-top: 4px;

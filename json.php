@@ -28,6 +28,7 @@ require_once 'sessionfuncs.php';
 require_once 'form_funcs.php';
 require_once 'translator.php';
 require_once 'settings.php';
+require_once 'memory.php';
 
 sesVerifySession(false);
 
@@ -237,6 +238,8 @@ case 'get_list' :
         die('Table must be defined');
     }
 
+    $tableId = getRequest('tableid', '');
+
     include 'list_switch.php';
 
     if (!$strTable) {
@@ -267,7 +270,13 @@ case 'get_list' :
     header('Content-Type: application/json');
     echo createJSONList(
         $listFunc, $strList, $startRow, $rowCount, $sort, $filter, $where,
-        intval(getRequest('draw', 1))
+        intval(getRequest('draw', 1)), $tableId
+    );
+    Memory::set(
+        $tableId,
+        compact(
+            'strList', 'startRow', 'rowCount', 'sort', 'filter', 'where'
+        )
     );
     break;
 

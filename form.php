@@ -28,6 +28,7 @@ require_once 'datefuncs.php';
 require_once 'translator.php';
 require_once 'form_funcs.php';
 require_once 'sessionfuncs.php';
+require_once "memory.php";
 
 function createForm($strFunc, $strList, $strForm)
 {
@@ -1273,10 +1274,123 @@ function createFormButtons($form, $new, $copyLinkOverride, $spinner, $readOnlyFo
         <a class="actionlink ytj_search_button" href="#"><?php echo Translator::translate('SearchYTJ')?></a>
 <?php
     }
+
+    if (($id = getRequest('id', '')) && ($listId = getRequest('listid', ''))) {
+        createListNavigationLinks($listId, $id);
+    }
+
     if ($spinner)
         echo '     <span id="spinner" style="visibility: hidden"><img src="images/spinner.gif" alt=""></span>' .
              "\n";
     ?>
     </div>
 <?php
+}
+
+/**
+ * Create navigation buttons for next/previous record
+ *
+ * @param string $listId    List ID
+ * @param int    $currentId Current record ID
+ *
+ * @return void
+ */
+function createListNavigationLinks($listId, $currentId)
+{
+    $listInfo = Memory::get("{$listId}_info");
+    if (null === $listInfo) {
+        // No list info for the current list
+        return;
+    }
+    $pos = array_search($currentId, $listInfo['ids']);
+    if (false === $pos) {
+        // We've lost track of our position
+        return;
+    }
+    $previous = null;
+    $next = null;
+    if (0 === $pos) {
+        // If we're not at the beginning, fetch previous page and try again
+        if (0 != $listInfo['startRow']) {
+            $startRow = max([$listInfo['startRow'] - $listInfo['rowCount'], 0]);
+            augmentListInfo($listId, $listInfo, $startRow, $listInfo['rowCount']);
+            createListNavigationLinks($listId, $currentId);
+            return;
+        }
+    } else {
+        $previous = $listInfo['ids'][$pos - 1];
+    }
+    if ($pos === count($listInfo['ids']) - 1) {
+        // If we're not at the end, fetch next page and try again
+        if ($listInfo['startRow'] + $pos < $listInfo['recordCount'] - 1) {
+            $startRow = min(
+                [$listInfo['startRow'] + $listInfo['rowCount'],
+                $listInfo['recordCount'] - 1]
+            );
+            augmentListInfo($listId, $listInfo, $startRow, $listInfo['rowCount']);
+            createListNavigationLinks($listId, $currentId);
+            return;
+        }
+    } else {
+        $next = $listInfo['ids'][$pos + 1];
+    }
+    $qs = $_SERVER['QUERY_STRING'];
+    echo '<span class="prev-next">';
+    if (null !== $previous) {
+        $link = preg_replace('/&id=\d+/', "&id=$previous", $qs);
+        echo '<a href="?' . $link . '" class="actionlink">'
+            . Translator::translate('Previous')
+            . '</a> ';
+    } else {
+        echo '<a class="actionlink ui-button ui-corner-all ui-state-disabled">'
+            . Translator::translate('Previous')
+            . '</a> ';
+    }
+    if (null !== $next) {
+        $link = preg_replace('/&id=\d+/', "&id=$next", $qs);
+        echo '<a href="?' . $link . '" class="actionlink ui-button">'
+            . Translator::translate('Next')
+            . '</a> ';
+    } else {
+        echo '<a class="actionlink ui-button ui-corner-all ui-state-disabled">'
+            . Translator::translate('Next')
+            . '</a> ';
+    }
+    echo '</span>';
+}
+
+function augmentListInfo($listId, $listInfo, $startRow, $rowCount)
+{
+    $params = $listInfo['queryParams'];
+    $join = $params['join'];
+    $where = 'WHERE ' . (isset($params['filteredTerms']) ? $params['filteredTerms']
+        : $params['terms']);
+    $groupBy = !empty($params['group']) ? " GROUP BY {$params['group']}" : '';
+    $primaryKey = $params['primaryKey'];
+
+    $fullQuery = "SELECT $primaryKey FROM {$params['table']} $join"
+        . " $where$groupBy";
+
+    if ($params['order']) {
+        $fullQuery .= ' ORDER BY ' . $params['order'];
+    }
+
+    if ($startRow >= 0 && $rowCount >= 0) {
+        $fullQuery .= " LIMIT $startRow, $rowCount";
+    }
+
+    $res = mysqli_param_query($fullQuery, $params['params']);
+
+    $ids = [];
+    while ($row = mysqli_fetch_prefixed_assoc($res)) {
+        $ids[] = $row[$primaryKey];
+    }
+
+    if ($listInfo['startRow'] > $startRow) {
+        $listInfo['startRow'] = $startRow;
+        $listInfo['ids'] = array_merge($ids, $listInfo['ids']);
+    } else {
+        $listInfo['ids'] = array_merge($listInfo['ids'], $ids);
+    }
+    Memory::set("{$listId}_info", $listInfo);
 }

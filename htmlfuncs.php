@@ -153,16 +153,16 @@ MLInvoice.setOfferStatuses($offerStatuses);
 MLInvoice.setKeepAlive($keepAlive);
 $(document).ready(function() {
   $.datepicker.setDefaults($datePickerOptions);
-  $('a[class~="actionlink"]').button();
-  $('a[class~="tinyactionlink"]').button();
-  $('a[class~="buttonlink"]').button();
-  $('a[class~="formbuttonlink"]').button();
+  $('a.actionlink').not('.ui-state-disabled').button();
+  $('a.tinyactionlink').button();
+  $('a.buttonlink').button();
+  $('a.formbuttonlink').button();
   $('#maintabs ul li').hover(
     function () {
-      $(this).addClass("ui-state-hover");
+      $(this).addClass('ui-state-hover');
     },
     function () {
-      $(this).removeClass("ui-state-hover");
+      $(this).removeClass('ui-state-hover');
     }
   );
 });
