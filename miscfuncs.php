@@ -2,7 +2,7 @@
 
 /*******************************************************************************
  MLInvoice: web-based invoicing application.
- Copyright (C) 2010-2016 Ere Maijala
+ Copyright (C) 2010-2017 Ere Maijala
 
  Portions based on:
  PkLasku : web-based invoicing software.
@@ -14,7 +14,7 @@
 
 /*******************************************************************************
  MLInvoice: web-pohjainen laskutusohjelma.
- Copyright (C) 2010-2016 Ere Maijala
+ Copyright (C) 2010-2017 Ere Maijala
 
  Perustuu osittain sovellukseen:
  PkLasku : web-pohjainen laskutusohjelmisto.
@@ -590,16 +590,21 @@ function getInvoiceDefaults($invoiceId, $baseId, $companyId, $invoiceDate,
         if (mysqli_fetch_assoc($res)) {
             $invoiceNumber = 0;
         }
+        mysqli_free_result($res);
     }
 
     if (!$invoiceNumber) {
-        $maxNr = get_max_invoice_number($invoiceId,
+        $maxNr = get_max_invoice_number(
+            $invoiceId,
             getSetting('invoice_numbering_per_base') && $baseId ? $baseId : null,
-            $perYear);
+            $perYear
+        );
         if ($maxNr === null && $perYear) {
-            $maxNr = get_max_invoice_number($invoiceId,
+            $maxNr = get_max_invoice_number(
+                $invoiceId,
                 getSetting('invoice_numbering_per_base') && $baseId ? $baseId : null,
-                false);
+                false
+            );
         }
         $invoiceNumber = $maxNr + 1;
     }
@@ -607,8 +612,10 @@ function getInvoiceDefaults($invoiceId, $baseId, $companyId, $invoiceDate,
         $invoiceNumber = 100; // min ref number length is 3 + check digit, make sure invoice number matches that
     $refNr = $invoiceNumber . miscCalcCheckNo($invoiceNumber);
     $strDate = date(Translator::translate('DateFormat'));
-    $strDueDate = date(Translator::translate('DateFormat'),
-        mktime(0, 0, 0, date('m'), date('d') + getPaymentDays($companyId), date('Y')));
+    $strDueDate = date(
+        Translator::translate('DateFormat'),
+        mktime(0, 0, 0, date('m'), date('d') + getPaymentDays($companyId), date('Y'))
+    );
     switch ($intervalType) {
     case 2:
         $nextIntervalDate = date(

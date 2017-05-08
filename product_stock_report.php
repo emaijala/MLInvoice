@@ -1,7 +1,7 @@
 <?php
 /*******************************************************************************
  MLInvoice: web-based invoicing application.
- Copyright (C) 2010-2016 Ere Maijala
+ Copyright (C) 2010-2017 Ere Maijala
 
  Portions based on:
  PkLasku : web-based invoicing software.
@@ -13,7 +13,7 @@
 
 /*******************************************************************************
  MLInvoice: web-pohjainen laskutusohjelma.
- Copyright (C) 2010-2016 Ere Maijala
+ Copyright (C) 2010-2017 Ere Maijala
 
  Perustuu osittain sovellukseen:
  PkLasku : web-pohjainen laskutusohjelmisto.
@@ -109,10 +109,13 @@ class ProductStockReport extends AbstractReport
         $stockValue = 0;
         $intRes = mysqli_param_query($strQuery, $arrParams);
         while ($row = mysqli_fetch_assoc($intRes)) {
-            $this->printRow($format, $row['product_code'], $row['product_name'],
-                $row['purchase_price'], $row['unit_price'], $row['stock_balance']);
+            $this->printRow(
+                $format, $row['product_code'], $row['product_name'],
+                $row['purchase_price'], $row['unit_price'], $row['stock_balance']
+            );
             $stockValue += $row['stock_balance'] * $row['purchase_price'];
         }
+        mysqli_free_result($intRes);
         $this->printTotals($format, $stockValue);
         $this->printFooter($format);
     }

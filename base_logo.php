@@ -1,7 +1,7 @@
 <?php
 /*******************************************************************************
  MLInvoice: web-based invoicing application.
- Copyright (C) 2010-2016 Ere Maijala
+ Copyright (C) 2010-2017 Ere Maijala
 
  This program is free software. See attached LICENSE.
 
@@ -9,7 +9,7 @@
 
 /*******************************************************************************
  MLInvoice: web-pohjainen laskutusohjelma.
- Copyright (C) 2010-2016 Ere Maijala
+ Copyright (C) 2010-2017 Ere Maijala
 
  Tämä ohjelma on vapaa. Lue oheinen LICENSE.
 
@@ -33,25 +33,22 @@ $messages = '';
 if ($func == 'clear') {
     mysqli_param_query(
         'UPDATE {prefix}base set logo_filename=null, logo_filesize=null, logo_filetype=null, logo_filedata=null WHERE id=?',
-        [
-            $baseId
-        ]);
+        [$baseId]
+    );
     $messages .= Translator::translate('BaseLogoErased') . "<br>\n";
 } elseif ($func == 'upload') {
     if ($_FILES['logo']['error'] != UPLOAD_ERR_OK) {
         $messages .= Translator::translate('ErrFileUploadFailed') . "<br>\n";
     } else {
         $imageInfo = getimagesize($_FILES['logo']['tmp_name']);
-        if (!$imageInfo || !in_array($imageInfo['mime'],
-            [
-                'image/jpeg',
-                'image/png'
-            ])) {
+        if (!$imageInfo || !in_array($imageInfo['mime'], ['image/jpeg','image/png'])
+        ) {
             $messages .= Translator::translate('ErrFileTypeInvalid') . "<br>\n";
         } else {
             $file = fopen($_FILES['logo']['tmp_name'], 'rb');
-            if ($file === FALSE)
+            if ($file === false) {
                 die('Could not process file upload - temp file missing');
+            }
             $fsize = filesize($_FILES['logo']['tmp_name']);
             $data = fread($file, $fsize);
             fclose($file);
@@ -63,7 +60,8 @@ if ($func == 'clear') {
                     $imageInfo['mime'],
                     $data,
                     $baseId
-                ]);
+                ]
+            );
             $messages .= Translator::translate('BaseLogoSaved') . ' (' .
                  fileSizeToHumanReadable($fsize) . ")<br>\n";
         }
@@ -73,28 +71,33 @@ if ($func == 'clear') {
         'SELECT logo_filename, logo_filesize, logo_filetype, logo_filedata FROM {prefix}base WHERE id=?',
         [
             $baseId
-        ]);
+        ]
+    );
     if ($row = mysqli_fetch_assoc($res)) {
-        if (isset($row['logo_filename']) && isset($row['logo_filesize']) &&
-             isset($row['logo_filetype']) && isset($row['logo_filedata'])) {
+        if (isset($row['logo_filename']) && isset($row['logo_filesize'])
+            && isset($row['logo_filetype']) && isset($row['logo_filedata'])
+        ) {
             header('Content-length: ' . $row['logo_filesize']);
             header('Content-type: ' . $row['logo_filetype']);
             header('Content-Disposition: inline; filename=' . $row['logo_filename']);
             echo $row['logo_filedata'];
         }
     }
+    mysqli_free_result($res);
     exit();
 }
 
 $maxUploadSize = getMaxUploadSize();
-$row = mysqli_fetch_array(mysqli_query_check('SELECT @@max_allowed_packet'));
-$maxPacket = $row[0];
+$res = mysqli_query_check('SELECT @@max_allowed_packet');
+$maxPacket = mysqli_fetch_value($res);
+mysqli_free_result($res);
 
-if ($maxPacket < $maxUploadSize)
+if ($maxPacket < $maxUploadSize) {
     $maxFileSize = fileSizeToHumanReadable($maxPacket) . ' ' .
          Translator::translate('BaseLogoSizeDBLimited');
-else
+} else {
     $maxFileSize = fileSizeToHumanReadable($maxUploadSize);
+}
 
 echo htmlPageStart();
 ?>

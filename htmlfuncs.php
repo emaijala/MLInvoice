@@ -105,10 +105,13 @@ function htmlPageStart($strTitle = '', $arrExtraScripts = [])
         'ThousandSeparator'
     ];
 
-    $res = mysqli_query_check('SELECT name FROM {prefix}invoice_state WHERE deleted=0');
+    $res = mysqli_query_check(
+        'SELECT name FROM {prefix}invoice_state WHERE deleted=0'
+    );
     while ($row = mysqli_fetch_value($res)) {
         $translations[] = $row;
     }
+    mysqli_free_result($res);
 
     $jsTranslations = [];
     foreach ($translations as $translation) {
@@ -126,6 +129,7 @@ function htmlPageStart($strTitle = '', $arrExtraScripts = [])
             $dispatchNotePrintStyle = $row['new_window'] ? 'openwindow' : 'redirect';
         }
     }
+    mysqli_free_result($res);
 
     $res = mysqli_query_check(
         'SELECT id FROM {prefix}invoice_state WHERE invoice_offer=1'
@@ -133,6 +137,7 @@ function htmlPageStart($strTitle = '', $arrExtraScripts = [])
     while ($row = mysqli_fetch_assoc($res)) {
         $offerStatuses[] = $row['id'];
     }
+    mysqli_free_result($res);
     $offerStatuses = json_encode($offerStatuses);
 
     $keepAlive = getSetting('session_keepalive') ? 'true' : 'false';
@@ -223,6 +228,7 @@ function htmlSQLListBox($strName, $strQuery, $strSelected, $strStyle = '',
     while ($row = mysqli_fetch_row($intRes)) {
         $astrValues[$row[0]] = $row[1];
     }
+    mysqli_free_result($intRes);
     $showEmpty = TRUE;
     if (strstr($strStyle, ' noemptyvalue')) {
         $strStyle = str_replace(' noemptyvalue', '', $strStyle);
@@ -242,6 +248,7 @@ function getSQLListBoxSelectedValue($strQuery, $strSelected)
         if ($row[0] == $strSelected)
             return $row[1];
     }
+    mysqli_free_result($intRes);
     return '';
 }
 
@@ -337,8 +344,11 @@ function htmlFormElement($strName, $strType, $strValue, $strStyle, $strListQuery
 
     case 'RESULT':
         $strListQuery = str_replace('_ID_', $strValue, $strListQuery);
+        $res = mysqli_query_check($strListQuery);
         $strFormElement = htmlspecialchars(
-            mysqli_fetch_value(mysqli_query_check($strListQuery))) . "\n";
+            mysqli_fetch_value($res)
+        ) . "\n";
+        mysqli_free_result($res);
         break;
 
     case 'LIST':

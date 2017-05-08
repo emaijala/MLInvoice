@@ -1,7 +1,7 @@
 <?php
 /*******************************************************************************
  MLInvoice: web-based invoicing application.
- Copyright (C) 2010-2016 Ere Maijala
+ Copyright (C) 2010-2017 Ere Maijala
 
  This program is free software. See attached LICENSE.
 
@@ -9,7 +9,7 @@
 
 /*******************************************************************************
  MLInvoice: web-pohjainen laskutusohjelma.
- Copyright (C) 2010-2016 Ere Maijala
+ Copyright (C) 2010-2017 Ere Maijala
 
  Tämä ohjelma on vapaa. Lue oheinen LICENSE.
 
@@ -56,7 +56,9 @@ if ($intInvoiceId) {
     $strQuery = 'SELECT * ' . 'FROM {prefix}invoice '
         . 'WHERE {prefix}invoice.id = ?';
     $intRes = mysqli_param_query($strQuery, [$intInvoiceId]);
-    if (!($invoiceData = mysqli_fetch_assoc($intRes))) {
+    $invoiceData = mysqli_fetch_assoc($intRes);
+    mysqli_free_result($intRes);
+    if (!$invoiceData) {
         echo htmlPageStart();
 ?>
 <body>
@@ -83,6 +85,7 @@ if ($intInvoiceId) {
                 [$invoiceData['company_id']]
             );
             $invoiceData['ref_number'] = mysqli_fetch_value($res);
+            mysqli_free_result($res);
         }
         if (!empty($invoiceData['base_id'])) {
             $res = mysqli_param_query(
@@ -90,6 +93,7 @@ if ($intInvoiceId) {
                 [$invoiceData['base_id']]
             );
             $invoiceData['info'] = mysqli_fetch_value($res);
+            mysqli_free_result($res);
         }
     }
     $invoiceData['invoice_date'] = date('Ymd');
@@ -182,6 +186,7 @@ if ($intInvoiceId) {
                  str_repeat('?, ', count($row) - 1) . '?)';
             mysqli_param_query($strQuery, $row, 'exception');
         }
+        mysqli_free_result($intRes);
     } catch (Exception $e) {
         mysqli_query_check('ROLLBACK');
         mysqli_query_check('SET AUTOCOMMIT = 1');

@@ -377,6 +377,7 @@ class ImportStatement extends ImportFile
                 '{refnr}', $refnr, Translator::translate('ImportStatementInvoiceAlreadyPaid')
             );
         }
+        mysqli_free_result($intRes);
 
         $res2 = mysqli_param_query(
             'SELECT ir.price, ir.pcs, ir.vat, ir.vat_included, ir.discount, ir.partial_payment from {prefix}invoice_row ir where ir.deleted = 0 AND ir.invoice_id = ?',
@@ -396,6 +397,8 @@ class ImportStatement extends ImportFile
             );
             $rowTotal += $rowSumVAT;
         }
+        mysqli_free_result($res2);
+
         $totalToPay = $rowTotal + $partialPayments;
 
         if (miscRound2Decim($totalToPay) != miscRound2Decim($amount)) {
@@ -453,13 +456,7 @@ EOT;
                 $sql .= ', archived=1';
             }
             $sql .= ' WHERE id = ?';
-            mysqli_param_query(
-                $sql,
-                [
-                    $date,
-                    $row['id']
-                ]
-            );
+            mysqli_param_query($sql, [$date, $row['id']]);
         }
         $msg = str_replace(
             '{amount}', miscRound2Decim($amount),

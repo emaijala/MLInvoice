@@ -1,7 +1,7 @@
 <?php
 /*******************************************************************************
  MLInvoice: web-based invoicing application.
- Copyright (C) 2010-2016 Ere Maijala
+ Copyright (C) 2010-2017 Ere Maijala
 
  Portions based on:
  PkLasku : web-based invoicing software.
@@ -13,7 +13,7 @@
 
 /*******************************************************************************
  MLInvoice: web-pohjainen laskutusohjelma.
- Copyright (C) 2010-2016 Ere Maijala
+ Copyright (C) 2010-2017 Ere Maijala
 
  Perustuu osittain sovellukseen:
  PkLasku : web-pohjainen laskutusohjelmisto.
@@ -263,6 +263,7 @@ class InvoiceReport extends AbstractReport
                     value="1" <?php echo $strChecked?>> <label for="state-<?php echo $intStateId?>"><?php echo htmlspecialchars($strStateName)?></label></div>
 <?php
         }
+        mysqli_free_result($intRes);
 ?>
         </div>
 <?php
@@ -344,6 +345,7 @@ class InvoiceReport extends AbstractReport
                 $arrParams[] = $intStateId;
             }
         }
+        mysqli_free_result($intRes);
         if ($strQuery2) {
             $strQuery2 = ' AND (' . substr($strQuery2, 0, -4) . ')';
         }
@@ -470,6 +472,7 @@ class InvoiceReport extends AbstractReport
                     $totalsPerVAT[$row2['vat']]['sumVAT'] += $intSumVAT;
                 }
             }
+            mysqli_free_result($intRes2);
 
             if (!$rows) {
                 continue;
@@ -504,6 +507,7 @@ class InvoiceReport extends AbstractReport
             $this->printRow($format, $printFields, $row, $intRowSum, $intRowVAT,
                 $intRowSumVAT, $intRowSumVAT - $rowPayments);
         }
+        mysqli_free_result($intRes);
         if ($grouping) {
             $this->printGroupSums($format, $printFields, $row, $groupTotSum,
                 $groupTotVAT, $groupTotSumVAT, $groupTotalToPay,

@@ -1,7 +1,7 @@
 <?php
 /*******************************************************************************
  MLInvoice: web-based invoicing application.
- Copyright (C) 2010-2016 Ere Maijala
+ Copyright (C) 2010-2017 Ere Maijala
 
  This program is free software. See attached LICENSE.
 
@@ -9,7 +9,7 @@
 
 /*******************************************************************************
  MLInvoice: web-pohjainen laskutusohjelma.
- Copyright (C) 2010-2016 Ere Maijala
+ Copyright (C) 2010-2017 Ere Maijala
 
  Tämä ohjelma on vapaa. Lue oheinen LICENSE.
 
@@ -39,7 +39,9 @@ function getSetting($name)
         $res = mysqli_param_query(
             'SELECT value from {prefix}settings WHERE name=?', [$name]
         );
-        if ($row = mysqli_fetch_assoc($res)) {
+        $row = mysqli_fetch_assoc($res);
+        mysqli_free_result($res);
+        if ($row) {
             $settingsCache[$name] = $row['value'];
             return $settingsCache[$name];
         }

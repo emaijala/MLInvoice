@@ -138,16 +138,20 @@ foreach ($astrShowFields as $key => $field) {
                 ++$i;
                 if (!empty($field['translate'])) {
                 ?>
-                  json.data[i][<?php echo $i?>] = MLInvoice.translate(json.data[i][<?php echo $i?>]);
+                    json.data[i][<?php echo $i?>] = MLInvoice.translate(json.data[i][<?php echo $i?>]);
                 <?php
                 } elseif ('CURRENCY' === $field['type']) {
                     $decimals = isset($field['decimals']) ? $field['decimals'] : 2;
                 ?>
-                  json.data[i][<?php echo $i?>] = MLInvoice.formatCurrency(json.data[i][<?php echo $i?>], <?php echo $decimals?>);
+                    json.data[i][<?php echo $i?>] = MLInvoice.formatCurrency(json.data[i][<?php echo $i?>], <?php echo $decimals?>);
                 <?php
                 } elseif ('INTDATE' === $field['type']) {
                 ?>
-                  json.data[i][<?php echo $i?>] = formatDate(json.data[i][<?php echo $i?>]);
+                    json.data[i][<?php echo $i?>] = formatDate(json.data[i][<?php echo $i?>]);
+                <?php
+                } else {
+                ?>
+                    json.data[i][<?php echo $i?>] = $('<div/>').text(json.data[i][<?php echo $i?>]).html();
                 <?php
                 }
             }
@@ -226,6 +230,7 @@ function createJSONList($strFunc, $strList, $startRow, $rowCount, $sort, $filter
         = "SELECT COUNT(*) AS cnt FROM $strTable $strCountJoin $strWhereClause";
     $res = mysqli_param_query($fullQuery, $params['params']);
     $row = mysqli_fetch_assoc($res);
+    mysqli_free_result($res);
     $totalCount = $filteredCount = $row['cnt'];
 
     // Add Filter
@@ -237,6 +242,7 @@ function createJSONList($strFunc, $strList, $startRow, $rowCount, $sort, $filter
             = "SELECT COUNT(*) as cnt FROM $strTable $strCountJoin $strWhereClause";
         $res = mysqli_param_query($fullQuery, $params['params']);
         $row = mysqli_fetch_assoc($res);
+        mysqli_free_result($res);
         $filteredCount = $row['cnt'];
     }
 
@@ -310,6 +316,7 @@ function createJSONList($strFunc, $strList, $startRow, $rowCount, $sort, $filter
 
         $records[] = $resultValues;
     }
+    mysqli_free_result($res);
 
     Memory::set(
         "{$listId}_info",
@@ -572,6 +579,7 @@ function createJSONSelectList($strList, $startRow, $rowCount, $filter, $sort,
             }
         }
     }
+    mysqli_free_result($res);
 
     $records = [];
     for ($i = 0; $i < count($astrListValues); $i ++) {

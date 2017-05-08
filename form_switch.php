@@ -63,7 +63,8 @@ case 'company' :
     if (getSetting('add_customer_number')) {
         $strQuery = 'SELECT max(customer_no) FROM {prefix}company WHERE deleted=0';
         $intRes = mysqli_query_check($strQuery);
-        $defaultCustomerNr = mysqli_fetch_value(mysqli_query_check($strQuery)) + 1;
+        $defaultCustomerNr = mysqli_fetch_value($intRes) + 1;
+        mysqli_free_result($res);
     }
 
     $astrFormElements = [
@@ -607,7 +608,7 @@ EOT;
         $strBaseLink = preg_replace('/&/', '&amp;', $strBaseLink);
         if ($intRes) {
             $intRefundedInvoiceId = mysqli_fetch_value($intRes);
-            if ($intRefundedInvoiceId)
+            if ($intRefundedInvoiceId) {
                 $arrRefundedInvoice = [
                     'name' => 'get',
                     'label' => 'ShowRefundedInvoice',
@@ -617,16 +618,15 @@ EOT;
                     'position' => 2,
                     'allow_null' => true
                 ];
+            }
         }
+        mysqli_free_result($intRes);
         $strQuery = 'SELECT id ' . 'FROM {prefix}invoice ' .
              'WHERE deleted=0 AND refunded_invoice_id=?';
-        $intRes = mysqli_param_query($strQuery,
-            [
-                $intInvoiceId
-            ]);
+        $intRes = mysqli_param_query($strQuery, [$intInvoiceId]);
         if ($intRes && ($row = mysqli_fetch_assoc($intRes))) {
             $intRefundingInvoiceId = $row['id'];
-            if ($intRefundingInvoiceId)
+            if ($intRefundingInvoiceId) {
                 $arrRefundingInvoice = [
                     'name' => 'get',
                     'label' => 'ShowRefundingInvoice',
@@ -636,7 +636,9 @@ EOT;
                     'position' => 2,
                     'allow_null' => true
                 ];
+            }
         }
+        mysqli_free_result($intRes);
     } else {
         if (getRequest('offer', false)) {
             $defaultState = getInitialOfferState();
@@ -693,15 +695,19 @@ EOS;
 $.getJSON('json.php?func=get_invoice_defaults', {id: $('#record_id').val(), invoice_no: $('#invoice_no').val(), invoice_date: $('#invoice_date').val(), base_id: $('#base_id').val(), company_id: $('#company_id').val(), interval_type: $('#interval_type').val()}, function(json) { $('#invoice_no').val(json.invoice_no); $('#ref_number').val(json.ref_no); $('.save_button').addClass('ui-state-highlight'); }); return false;
 EOS;
 
+            $locPartialPayment = Translator::translate('PartialPayment');
+            $locDecimalSeparator = Translator::translate('DecimalSeparator');
             $addPartialPaymentCode = <<<EOS
-add_partial_payment({'save': '$locSave', 'close': '$locClose', 'title': '{Translator::translate('PartialPayment')}', 'missing': '$locMissing: ', 'partial_payment': '{Translator::translate('PartialPayment')}', 'decimal_separator': '{Translator::translate('DecimalSeparator')}'}); return false;
+add_partial_payment({'save': '$locSave', 'close': '$locClose', 'title': '{$locPartialPayment}', 'missing': '$locMissing: ', 'partial_payment': '{$locPartialPayment}', 'decimal_separator': '{$locDecimalSeparator}'}); return false;
 
 EOS;
 
+            $locPaymentAmount = Translator::translate('PaymentAmount');
+            $locPaymentDate = Translator::translate('PayDate');
             $popupHTML .= <<<EOS
 <div id="add_partial_payment" class="form_container ui-widget-content" style="display: none">
-  <div class="medium_label">{Translator::translate('PaymentAmount')}</div> <div class="field"><input type='TEXT' id="add_partial_payment_amount" class='medium'></div>
-  <div class="medium_label">{Translator::translate('PayDate')}</div> <div class="field"><input type='TEXT' id="add_partial_payment_date" class='date hasCalendar'></div>
+  <div class="medium_label">{$locPaymentAmount}</div> <div class="field"><input type='TEXT' id="add_partial_payment_amount" class='medium'></div>
+  <div class="medium_label">{$locPaymentDate}</div> <div class="field"><input type='TEXT' id="add_partial_payment_date" class='date hasCalendar'></div>
 </div>
 
 EOS;
@@ -788,6 +794,7 @@ EOF;
             $printButtons[] = $arr;
         }
     }
+    mysqli_free_result($res);
 
     if (count($printButtons2) > 3) {
          $printButtons2[2] = [
@@ -801,10 +808,12 @@ EOF;
     }
 
     $intRes = mysqli_query_check('SELECT ID from {prefix}base WHERE deleted=0');
-    if (mysqli_num_rows($intRes) == 1)
+    if (mysqli_num_rows($intRes) == 1) {
         $defaultBase = mysqli_fetch_value($intRes);
-    else
-        $defaultBase = FALSE;
+    } else {
+        $defaultBase = false;
+    }
+    mysqli_free_result($intRes);
 
     $copyLinkOverride = "copy_invoice.php?func=$strFunc&amp;list=$strList&amp;id=$intInvoiceId";
 
@@ -818,7 +827,8 @@ EOF;
         }
     }
 
-    $addReminderFees = "$.getJSON('json.php?func=add_reminder_fees&amp;id=' + document.getElementById('record_id').value, function(json) { if (json.errors) { $('#errormsg').text(json.errors).show() } else { showmsg('{Translator::translate('ReminderFeesAdded')}'); } init_rows(); }); return false;";
+    $locReminderFeesAdded = Translator::translate('ReminderFeesAdded');
+    $addReminderFees = "$.getJSON('json.php?func=add_reminder_fees&amp;id=' + document.getElementById('record_id').value, function(json) { if (json.errors) { errormsg(json.errors); } else { showmsg('$locReminderFeesAdded'); } init_rows(); }); return false;";
 
     $intervalOptions = [
         '0' => Translator::translate('InvoiceIntervalNone'),
@@ -1087,908 +1097,908 @@ EOF;
         'allow_null' => true,
         'parent_key' => 'invoice_id'
     ];
-break;
+    break;
 
 case 'invoice_row' :
 case 'invoice_rows' :
-$strTable = '{prefix}invoice_row';
-$strJSONType = 'invoice_row';
-$strParentKey = 'invoice_id';
-$strOrder = 'ORDER BY {prefix}invoice_row.order_no, {prefix}invoice_row.row_date';
+    $strTable = '{prefix}invoice_row';
+    $strJSONType = 'invoice_row';
+    $strParentKey = 'invoice_id';
+    $strOrder = 'ORDER BY {prefix}invoice_row.order_no, {prefix}invoice_row.row_date';
 
-switch (getSetting('invoice_clear_row_values_after_add')) {
-case 0 :
+    switch (getSetting('invoice_clear_row_values_after_add')) {
+    case 0 :
+        break;
+    case 1 :
+        $clearRowValuesAfterAdd = true;
+        break;
+    case 2 :
+        $onAfterRowAdded = 'MLInvoice.getSelectedProductDefaults(form_id);';
+    }
+
+    $astrFormElements = [
+        [
+            'name' => 'id',
+            'label' => '',
+            'type' => 'HID_INT',
+            'style' => 'medium',
+            'position' => 0
+        ],
+        [
+            'name' => 'product_id',
+            'label' => 'ProductName',
+            'type' => 'SEARCHLIST',
+            'style' => 'medium translated',
+            'listquery' => 'table=product&sort=order_no,product_code,product_name',
+            'position' => 0,
+            'allow_null' => true,
+            'elem_attributes' => '_onChangeProduct'
+        ],
+        [
+            'name' => 'description',
+            'label' => 'RowDesc',
+            'type' => 'TEXT',
+            'style' => 'medium',
+            'position' => 0,
+            'allow_null' => true
+        ],
+        [
+            'name' => 'row_date',
+            'label' => 'Date',
+            'type' => 'INTDATE',
+            'style' => 'date',
+            'position' => 0,
+            'default' => 'DATE_NOW'
+        ],
+        [
+            'name' => 'pcs',
+            'label' => 'PCS',
+            'type' => 'INT',
+            'style' => 'count',
+            'position' => 0
+        ],
+        [
+            'name' => 'type_id',
+            'label' => 'Unit',
+            'type' => 'LIST',
+            'style' => 'short translated',
+            'listquery' => 'SELECT id, name FROM {prefix}row_type WHERE deleted=0 ORDER BY order_no',
+            'position' => 0,
+            'default' => 'POST',
+            'allow_null' => true
+        ],
+        [
+            'name' => 'price',
+            'label' => 'Price',
+            'type' => 'INT',
+            'style' => 'currency',
+            'position' => 0,
+            'default' => 'POST',
+            'decimals' => getSetting('unit_price_decimals')
+        ],
+        [
+            'name' => 'discount',
+            'label' => 'Discount',
+            'type' => 'INT',
+            'style' => 'percent',
+            'position' => 0,
+            'default' => 0,
+            'allow_null' => true
+        ],
+        [
+            'name' => 'vat',
+            'label' => 'VAT',
+            'type' => 'INT',
+            'style' => 'percent',
+            'position' => 0,
+            'default' => str_replace(
+                '.', Translator::translate('DecimalSeparator'),
+                getSetting('invoice_default_vat_percent')
+            ),
+            'allow_null' => false
+        ],
+        [
+            'name' => 'vat_included',
+            'label' => 'VATInc',
+            'type' => 'CHECK',
+            'style' => 'xshort',
+            'position' => 0,
+            'default' => 0,
+            'allow_null' => true
+        ],
+        [
+            'name' => 'order_no',
+            'label' => 'RowNr',
+            'type' => 'INT',
+            'style' => 'tiny',
+            'listquery' => 'SELECT max(order_no)+5 FROM {prefix}invoice_row WHERE deleted=0 AND invoice_id=_PARENTID_',
+            'position' => 0,
+            'default' => 'ADD+5',
+            'allow_null' => true
+        ],
+        [
+            'name' => 'partial_payment',
+            'label' => 'PartialPayment',
+            'type' => 'HID_INT',
+            'style' => 'xshort',
+            'position' => 0,
+            'default' => 0,
+            'allow_null' => true
+        ],
+        [
+            'name' => 'row_sum',
+            'label' => 'RowTotal',
+            'type' => 'ROWSUM',
+            'style' => 'currency',
+            'position' => 0,
+            'decimals' => 2,
+            'allow_null' => true
+        ]
+    ];
+
     break;
-case 1 :
-    $clearRowValuesAfterAdd = true;
-    break;
-case 2 :
-    $onAfterRowAdded = 'MLInvoice.getSelectedProductDefaults(form_id);';
-}
-
-$astrFormElements = [
-    [
-        'name' => 'id',
-        'label' => '',
-        'type' => 'HID_INT',
-        'style' => 'medium',
-        'position' => 0
-    ],
-    [
-        'name' => 'product_id',
-        'label' => 'ProductName',
-        'type' => 'SEARCHLIST',
-        'style' => 'medium translated',
-        'listquery' => 'table=product&sort=order_no,product_code,product_name',
-        'position' => 0,
-        'allow_null' => true,
-        'elem_attributes' => '_onChangeProduct'
-    ],
-    [
-        'name' => 'description',
-        'label' => 'RowDesc',
-        'type' => 'TEXT',
-        'style' => 'medium',
-        'position' => 0,
-        'allow_null' => true
-    ],
-    [
-        'name' => 'row_date',
-        'label' => 'Date',
-        'type' => 'INTDATE',
-        'style' => 'date',
-        'position' => 0,
-        'default' => 'DATE_NOW'
-    ],
-    [
-        'name' => 'pcs',
-        'label' => 'PCS',
-        'type' => 'INT',
-        'style' => 'count',
-        'position' => 0
-    ],
-    [
-        'name' => 'type_id',
-        'label' => 'Unit',
-        'type' => 'LIST',
-        'style' => 'short translated',
-        'listquery' => 'SELECT id, name FROM {prefix}row_type WHERE deleted=0 ORDER BY order_no',
-        'position' => 0,
-        'default' => 'POST',
-        'allow_null' => true
-    ],
-    [
-        'name' => 'price',
-        'label' => 'Price',
-        'type' => 'INT',
-        'style' => 'currency',
-        'position' => 0,
-        'default' => 'POST',
-        'decimals' => getSetting('unit_price_decimals')
-    ],
-    [
-        'name' => 'discount',
-        'label' => 'Discount',
-        'type' => 'INT',
-        'style' => 'percent',
-        'position' => 0,
-        'default' => 0,
-        'allow_null' => true
-    ],
-    [
-        'name' => 'vat',
-        'label' => 'VAT',
-        'type' => 'INT',
-        'style' => 'percent',
-        'position' => 0,
-        'default' => str_replace(
-            '.', Translator::translate('DecimalSeparator'),
-            getSetting('invoice_default_vat_percent')
-        ),
-        'allow_null' => false
-    ],
-    [
-        'name' => 'vat_included',
-        'label' => 'VATInc',
-        'type' => 'CHECK',
-        'style' => 'xshort',
-        'position' => 0,
-        'default' => 0,
-        'allow_null' => true
-    ],
-    [
-        'name' => 'order_no',
-        'label' => 'RowNr',
-        'type' => 'INT',
-        'style' => 'tiny',
-        'listquery' => 'SELECT max(order_no)+5 FROM {prefix}invoice_row WHERE deleted=0 AND invoice_id=_PARENTID_',
-        'position' => 0,
-        'default' => 'ADD+5',
-        'allow_null' => true
-    ],
-    [
-        'name' => 'partial_payment',
-        'label' => 'PartialPayment',
-        'type' => 'HID_INT',
-        'style' => 'xshort',
-        'position' => 0,
-        'default' => 0,
-        'allow_null' => true
-    ],
-    [
-        'name' => 'row_sum',
-        'label' => 'RowTotal',
-        'type' => 'ROWSUM',
-        'style' => 'currency',
-        'position' => 0,
-        'decimals' => 2,
-        'allow_null' => true
-    ]
-];
-
-break;
 
 /******************************************************************************
  SYSTEM FORMS - SYSTEEMILOMAKKEET
  ******************************************************************************/
 case 'base' :
-$strTable = '{prefix}base';
-$strJSONType = 'base';
-$addressAutocomplete = true;
+    $strTable = '{prefix}base';
+    $strJSONType = 'base';
+    $addressAutocomplete = true;
 
-$title = Translator::translate('BaseLogoTitle');
-$openPopJS = <<<EOF
-popup_dialog('base_logo.php?func=edit&amp;id=_ID_', '$(\\'img\\').attr(\\'src\\', \\'base_logo.php?func=view&id=_ID_\\')', '$title', event, 600, 400); return false;
+    $locTitle = Translator::translate('BaseLogoTitle');
+    $openPopJS = <<<EOF
+    popup_dialog('base_logo.php?func=edit&amp;id=_ID_', '$(\\'img\\').attr(\\'src\\', \\'base_logo.php?func=view&id=_ID_\\')', '$locTitle', event, 600, 400); return false;
 EOF;
 
-$astrFormElements = [
-    [
-        'name' => 'name',
-        'label' => 'BaseName',
-        'type' => 'TEXT',
-        'style' => 'medium',
-        'position' => 1
-    ],
-    [
-        'name' => 'company_id',
-        'label' => 'ClientVATID',
-        'type' => 'TEXT',
-        'style' => 'medium',
-        'position' => 2,
-        'allow_null' => true
-    ],
-    [
-        'name' => 'vat_registered',
-        'label' => 'VATRegistered',
-        'title' => 'VATRegisteredHint',
-        'type' => 'CHECK',
-        'style' => 'short',
-        'position' => 1,
-        'allow_null' => true
-    ],
-    [
-        'name' => 'org_unit_number',
-        'label' => 'OrgUnitNumber',
-        'type' => 'TEXT',
-        'style' => 'medium',
-        'position' => 1,
-        'allow_null' => true
-    ],
-    [
-        'name' => 'payment_intermediator',
-        'label' => 'PaymentIntermediator',
-        'type' => 'TEXT',
-        'style' => 'medium',
-        'position' => 2,
-        'allow_null' => true
-    ],
-    [
-        'name' => 'contact_person',
-        'label' => 'ContactPerson',
-        'type' => 'TEXT',
-        'style' => 'medium',
-        'position' => 1,
-        'allow_null' => true
-    ],
-    [
-        'name' => 'email',
-        'label' => 'Email',
-        'type' => 'TEXT',
-        'style' => 'medium',
-        'position' => 2,
-        'allow_null' => true
-    ],
-    [
-        'name' => 'street_address',
-        'label' => 'StreetAddr',
-        'type' => 'TEXT',
-        'style' => 'medium',
-        'position' => 1,
-        'allow_null' => true
-    ],
-    [
-        'name' => 'zip_code',
-        'label' => 'ZipCode',
-        'type' => 'TEXT',
-        'style' => 'short',
-        'position' => 2,
-        'allow_null' => true
-    ],
-    [
-        'name' => 'city',
-        'label' => 'City',
-        'type' => 'TEXT',
-        'style' => 'medium',
-        'position' => 1,
-        'allow_null' => true
-    ],
-    [
-        'name' => 'country',
-        'label' => 'Country',
-        'type' => 'TEXT',
-        'style' => 'medium',
-        'position' => 2,
-        'allow_null' => true
-    ],
-    [
-        'name' => 'phone',
-        'label' => 'Phone',
-        'type' => 'TEXT',
-        'style' => 'medium',
-        'position' => 1,
-        'allow_null' => true
-    ],
-    [
-        'name' => 'www',
-        'label' => 'WWW',
-        'type' => 'TEXT',
-        'style' => 'medium',
-        'position' => 2,
-        'allow_null' => true
-    ],
-    [
-        'name' => 'banksep1',
-        'label' => 'FirstBank',
-        'type' => 'LABEL'
-    ],
-    [
-        'name' => 'bank_name',
-        'label' => 'Bank',
-        'type' => 'TEXT',
-        'style' => 'medium',
-        'position' => 1
-    ],
-    [
-        'name' => 'bank_account',
-        'label' => 'Account',
-        'type' => 'TEXT',
-        'style' => 'medium',
-        'position' => 2
-    ],
-    [
-        'name' => 'bank_iban',
-        'label' => 'AccountIBAN',
-        'type' => 'TEXT',
-        'style' => 'medium',
-        'position' => 1
-    ],
-    [
-        'name' => 'bank_swiftbic',
-        'label' => 'SWIFTBIC',
-        'type' => 'TEXT',
-        'style' => 'medium',
-        'position' => 2
-    ],
-    [
-        'name' => 'banksep2',
-        'label' => 'SecondBank',
-        'type' => 'LABEL'
-    ],
-    [
-        'name' => 'bank_name2',
-        'label' => 'Bank',
-        'type' => 'TEXT',
-        'style' => 'medium',
-        'position' => 1,
-        'allow_null' => true
-    ],
-    [
-        'name' => 'bank_account2',
-        'label' => 'Account',
-        'type' => 'TEXT',
-        'style' => 'medium',
-        'position' => 2,
-        'allow_null' => true
-    ],
-    [
-        'name' => 'bank_iban2',
-        'label' => 'AccountIBAN',
-        'type' => 'TEXT',
-        'style' => 'medium',
-        'position' => 1,
-        'allow_null' => true
-    ],
-    [
-        'name' => 'bank_swiftbic2',
-        'label' => 'SWIFTBIC',
-        'type' => 'TEXT',
-        'style' => 'medium',
-        'position' => 2,
-        'allow_null' => true
-    ],
-    [
-        'name' => 'banksep3',
-        'label' => 'ThirdBank',
-        'type' => 'LABEL'
-    ],
-    [
-        'name' => 'bank_name3',
-        'label' => 'Bank',
-        'type' => 'TEXT',
-        'style' => 'medium',
-        'position' => 1,
-        'allow_null' => true
-    ],
-    [
-        'name' => 'bank_account3',
-        'label' => 'Account',
-        'type' => 'TEXT',
-        'style' => 'medium',
-        'position' => 2,
-        'allow_null' => true
-    ],
-    [
-        'name' => 'bank_iban3',
-        'label' => 'AccountIBAN',
-        'type' => 'TEXT',
-        'style' => 'medium',
-        'position' => 1,
-        'allow_null' => true
-    ],
-    [
-        'name' => 'bank_swiftbic3',
-        'label' => 'SWIFTBIC',
-        'type' => 'TEXT',
-        'style' => 'medium',
-        'position' => 2,
-        'allow_null' => true
-    ],
-    [
-        'name' => 'invoicesep',
-        'label' => 'BaseInvoiceTexts',
-        'type' => 'LABEL'
-    ],
-    [
-        'name' => 'invoice_default_info',
-        'label' => 'InvoiceDefaultInfo',
-        'type' => 'AREA',
-        'style' => 'medium',
-        'position' => 1,
-        'allow_null' => true
-    ],
-    [
-        'name' => 'invoice_default_foreword',
-        'label' => 'InvoiceDefaultForeword',
-        'type' => 'AREA',
-        'style' => 'large',
-        'position' => 1,
-        'allow_null' => true
-    ],
-    [
-        'name' => 'invoice_default_afterword',
-        'label' => 'InvoiceDefaultAfterword',
-        'type' => 'AREA',
-        'style' => 'large',
-        'position' => 2,
-        'allow_null' => true
-    ],
-    [
-        'name' => 'offer_default_foreword',
-        'label' => 'OfferDefaultForeword',
-        'type' => 'AREA',
-        'style' => 'large',
-        'position' => 1,
-        'allow_null' => true
-    ],
-    [
-        'name' => 'offer_default_afterword',
-        'label' => 'OfferDefaultAfterword',
-        'type' => 'AREA',
-        'style' => 'large',
-        'position' => 2,
-        'allow_null' => true
-    ],
-    [
-        'name' => 'terms_of_payment',
-        'label' => 'SettingInvoiceTermsOfPayment',
-        'type' => 'TEXT',
-        'style' => 'large',
-        'position' => 1,
-        'allow_null' => true
-    ],
-    [
-        'name' => 'period_for_complaints',
-        'label' => 'SettingInvoicePeriodForComplaints',
-        'type' => 'TEXT',
-        'style' => 'large',
-        'position' => 2,
-        'allow_null' => true
-    ],
-    [
-        'name' => 'emailsep',
-        'label' => 'BaseEmailTitle',
-        'type' => 'LABEL'
-    ],
-    [
-        'name' => 'invoice_email_from',
-        'label' => 'BaseEmailFrom',
-        'type' => 'TEXT',
-        'style' => 'medium',
-        'position' => 1,
-        'allow_null' => true
-    ],
-    [
-        'name' => 'invoice_email_bcc',
-        'label' => 'BaseEmailBCC',
-        'type' => 'TEXT',
-        'style' => 'medium',
-        'position' => 2,
-        'allow_null' => true
-    ],
-    [
-        'name' => 'invoice_email_subject',
-        'label' => 'BaseInvoiceEmailSubject',
-        'type' => 'TEXT',
-        'style' => 'long',
-        'position' => 0,
-        'allow_null' => true
-    ],
-    [
-        'name' => 'invoice_email_body',
-        'label' => 'BaseInvoiceEmailBody',
-        'type' => 'AREA',
-        'style' => 'email email_body',
-        'position' => 0,
-        'allow_null' => true
-    ],
-    [
-        'name' => 'receipt_email_subject',
-        'label' => 'BaseReceiptEmailSubject',
-        'type' => 'TEXT',
-        'style' => 'long',
-        'position' => 0,
-        'allow_null' => true
-    ],
-    [
-        'name' => 'receipt_email_body',
-        'label' => 'BaseReceiptEmailBody',
-        'type' => 'AREA',
-        'style' => 'email email_body',
-        'position' => 0,
-        'allow_null' => true
-    ],
-    [
-        'name' => 'order_confirmation_email_subject',
-        'label' => 'BaseOrderConfirmationEmailSubject',
-        'type' => 'TEXT',
-        'style' => 'long',
-        'position' => 0,
-        'allow_null' => true
-    ],
-    [
-        'name' => 'order_confirmation_email_body',
-        'label' => 'BaseOrderConfirmationEmailBody',
-        'type' => 'AREA',
-        'style' => 'email email_body',
-        'position' => 0,
-        'allow_null' => true
-    ],
-    [
-        'name' => 'offer_email_subject',
-        'label' => 'BaseOfferEmailSubject',
-        'type' => 'TEXT',
-        'style' => 'long',
-        'position' => 0,
-        'allow_null' => true
-    ],
-    [
-        'name' => 'offer_email_body',
-        'label' => 'BaseOfferEmailBody',
-        'type' => 'AREA',
-        'style' => 'email email_body',
-        'position' => 0,
-        'allow_null' => true
-    ],
-    [
-        'name' => 'logosep',
-        'label' => 'BaseLogoTitle',
-        'type' => 'LABEL'
-    ],
-    [
-        'name' => 'logo',
-        'label' => '',
-        'type' => 'IMAGE',
-        'style' => 'image',
-        'listquery' => 'base_logo.php?func=view&amp;id=_ID_',
-        'position' => 0,
-        'allow_null' => true
-    ],
-    [
-        'name' => 'edit_logo',
-        'label' => 'BaseChangeImage',
-        'type' => 'JSBUTTON',
-        'style' => 'medium',
-        'listquery' => $openPopJS,
-        'position' => 1,
-        'allow_null' => true
-    ],
-    [
-        'name' => 'logo_left',
-        'label' => 'BaseLogoLeft',
-        'type' => 'INT',
-        'style' => 'measurement',
-        'position' => 1,
-        'allow_null' => true
-    ],
-    [
-        'name' => 'logo_top',
-        'label' => 'BaseLogoTop',
-        'type' => 'INT',
-        'style' => 'measurement',
-        'position' => 2,
-        'allow_null' => true
-    ],
-    [
-        'name' => 'logo_width',
-        'label' => 'BaseLogoWidth',
-        'type' => 'INT',
-        'style' => 'measurement',
-        'position' => 1,
-        'allow_null' => true
-    ]
-];
-break;
+    $astrFormElements = [
+        [
+            'name' => 'name',
+            'label' => 'BaseName',
+            'type' => 'TEXT',
+            'style' => 'medium',
+            'position' => 1
+        ],
+        [
+            'name' => 'company_id',
+            'label' => 'ClientVATID',
+            'type' => 'TEXT',
+            'style' => 'medium',
+            'position' => 2,
+            'allow_null' => true
+        ],
+        [
+            'name' => 'vat_registered',
+            'label' => 'VATRegistered',
+            'title' => 'VATRegisteredHint',
+            'type' => 'CHECK',
+            'style' => 'short',
+            'position' => 1,
+            'allow_null' => true
+        ],
+        [
+            'name' => 'org_unit_number',
+            'label' => 'OrgUnitNumber',
+            'type' => 'TEXT',
+            'style' => 'medium',
+            'position' => 1,
+            'allow_null' => true
+        ],
+        [
+            'name' => 'payment_intermediator',
+            'label' => 'PaymentIntermediator',
+            'type' => 'TEXT',
+            'style' => 'medium',
+            'position' => 2,
+            'allow_null' => true
+        ],
+        [
+            'name' => 'contact_person',
+            'label' => 'ContactPerson',
+            'type' => 'TEXT',
+            'style' => 'medium',
+            'position' => 1,
+            'allow_null' => true
+        ],
+        [
+            'name' => 'email',
+            'label' => 'Email',
+            'type' => 'TEXT',
+            'style' => 'medium',
+            'position' => 2,
+            'allow_null' => true
+        ],
+        [
+            'name' => 'street_address',
+            'label' => 'StreetAddr',
+            'type' => 'TEXT',
+            'style' => 'medium',
+            'position' => 1,
+            'allow_null' => true
+        ],
+        [
+            'name' => 'zip_code',
+            'label' => 'ZipCode',
+            'type' => 'TEXT',
+            'style' => 'short',
+            'position' => 2,
+            'allow_null' => true
+        ],
+        [
+            'name' => 'city',
+            'label' => 'City',
+            'type' => 'TEXT',
+            'style' => 'medium',
+            'position' => 1,
+            'allow_null' => true
+        ],
+        [
+            'name' => 'country',
+            'label' => 'Country',
+            'type' => 'TEXT',
+            'style' => 'medium',
+            'position' => 2,
+            'allow_null' => true
+        ],
+        [
+            'name' => 'phone',
+            'label' => 'Phone',
+            'type' => 'TEXT',
+            'style' => 'medium',
+            'position' => 1,
+            'allow_null' => true
+        ],
+        [
+            'name' => 'www',
+            'label' => 'WWW',
+            'type' => 'TEXT',
+            'style' => 'medium',
+            'position' => 2,
+            'allow_null' => true
+        ],
+        [
+            'name' => 'banksep1',
+            'label' => 'FirstBank',
+            'type' => 'LABEL'
+        ],
+        [
+            'name' => 'bank_name',
+            'label' => 'Bank',
+            'type' => 'TEXT',
+            'style' => 'medium',
+            'position' => 1
+        ],
+        [
+            'name' => 'bank_account',
+            'label' => 'Account',
+            'type' => 'TEXT',
+            'style' => 'medium',
+            'position' => 2
+        ],
+        [
+            'name' => 'bank_iban',
+            'label' => 'AccountIBAN',
+            'type' => 'TEXT',
+            'style' => 'medium',
+            'position' => 1
+        ],
+        [
+            'name' => 'bank_swiftbic',
+            'label' => 'SWIFTBIC',
+            'type' => 'TEXT',
+            'style' => 'medium',
+            'position' => 2
+        ],
+        [
+            'name' => 'banksep2',
+            'label' => 'SecondBank',
+            'type' => 'LABEL'
+        ],
+        [
+            'name' => 'bank_name2',
+            'label' => 'Bank',
+            'type' => 'TEXT',
+            'style' => 'medium',
+            'position' => 1,
+            'allow_null' => true
+        ],
+        [
+            'name' => 'bank_account2',
+            'label' => 'Account',
+            'type' => 'TEXT',
+            'style' => 'medium',
+            'position' => 2,
+            'allow_null' => true
+        ],
+        [
+            'name' => 'bank_iban2',
+            'label' => 'AccountIBAN',
+            'type' => 'TEXT',
+            'style' => 'medium',
+            'position' => 1,
+            'allow_null' => true
+        ],
+        [
+            'name' => 'bank_swiftbic2',
+            'label' => 'SWIFTBIC',
+            'type' => 'TEXT',
+            'style' => 'medium',
+            'position' => 2,
+            'allow_null' => true
+        ],
+        [
+            'name' => 'banksep3',
+            'label' => 'ThirdBank',
+            'type' => 'LABEL'
+        ],
+        [
+            'name' => 'bank_name3',
+            'label' => 'Bank',
+            'type' => 'TEXT',
+            'style' => 'medium',
+            'position' => 1,
+            'allow_null' => true
+        ],
+        [
+            'name' => 'bank_account3',
+            'label' => 'Account',
+            'type' => 'TEXT',
+            'style' => 'medium',
+            'position' => 2,
+            'allow_null' => true
+        ],
+        [
+            'name' => 'bank_iban3',
+            'label' => 'AccountIBAN',
+            'type' => 'TEXT',
+            'style' => 'medium',
+            'position' => 1,
+            'allow_null' => true
+        ],
+        [
+            'name' => 'bank_swiftbic3',
+            'label' => 'SWIFTBIC',
+            'type' => 'TEXT',
+            'style' => 'medium',
+            'position' => 2,
+            'allow_null' => true
+        ],
+        [
+            'name' => 'invoicesep',
+            'label' => 'BaseInvoiceTexts',
+            'type' => 'LABEL'
+        ],
+        [
+            'name' => 'invoice_default_info',
+            'label' => 'InvoiceDefaultInfo',
+            'type' => 'AREA',
+            'style' => 'medium',
+            'position' => 1,
+            'allow_null' => true
+        ],
+        [
+            'name' => 'invoice_default_foreword',
+            'label' => 'InvoiceDefaultForeword',
+            'type' => 'AREA',
+            'style' => 'large',
+            'position' => 1,
+            'allow_null' => true
+        ],
+        [
+            'name' => 'invoice_default_afterword',
+            'label' => 'InvoiceDefaultAfterword',
+            'type' => 'AREA',
+            'style' => 'large',
+            'position' => 2,
+            'allow_null' => true
+        ],
+        [
+            'name' => 'offer_default_foreword',
+            'label' => 'OfferDefaultForeword',
+            'type' => 'AREA',
+            'style' => 'large',
+            'position' => 1,
+            'allow_null' => true
+        ],
+        [
+            'name' => 'offer_default_afterword',
+            'label' => 'OfferDefaultAfterword',
+            'type' => 'AREA',
+            'style' => 'large',
+            'position' => 2,
+            'allow_null' => true
+        ],
+        [
+            'name' => 'terms_of_payment',
+            'label' => 'SettingInvoiceTermsOfPayment',
+            'type' => 'TEXT',
+            'style' => 'large',
+            'position' => 1,
+            'allow_null' => true
+        ],
+        [
+            'name' => 'period_for_complaints',
+            'label' => 'SettingInvoicePeriodForComplaints',
+            'type' => 'TEXT',
+            'style' => 'large',
+            'position' => 2,
+            'allow_null' => true
+        ],
+        [
+            'name' => 'emailsep',
+            'label' => 'BaseEmailTitle',
+            'type' => 'LABEL'
+        ],
+        [
+            'name' => 'invoice_email_from',
+            'label' => 'BaseEmailFrom',
+            'type' => 'TEXT',
+            'style' => 'medium',
+            'position' => 1,
+            'allow_null' => true
+        ],
+        [
+            'name' => 'invoice_email_bcc',
+            'label' => 'BaseEmailBCC',
+            'type' => 'TEXT',
+            'style' => 'medium',
+            'position' => 2,
+            'allow_null' => true
+        ],
+        [
+            'name' => 'invoice_email_subject',
+            'label' => 'BaseInvoiceEmailSubject',
+            'type' => 'TEXT',
+            'style' => 'long',
+            'position' => 0,
+            'allow_null' => true
+        ],
+        [
+            'name' => 'invoice_email_body',
+            'label' => 'BaseInvoiceEmailBody',
+            'type' => 'AREA',
+            'style' => 'email email_body',
+            'position' => 0,
+            'allow_null' => true
+        ],
+        [
+            'name' => 'receipt_email_subject',
+            'label' => 'BaseReceiptEmailSubject',
+            'type' => 'TEXT',
+            'style' => 'long',
+            'position' => 0,
+            'allow_null' => true
+        ],
+        [
+            'name' => 'receipt_email_body',
+            'label' => 'BaseReceiptEmailBody',
+            'type' => 'AREA',
+            'style' => 'email email_body',
+            'position' => 0,
+            'allow_null' => true
+        ],
+        [
+            'name' => 'order_confirmation_email_subject',
+            'label' => 'BaseOrderConfirmationEmailSubject',
+            'type' => 'TEXT',
+            'style' => 'long',
+            'position' => 0,
+            'allow_null' => true
+        ],
+        [
+            'name' => 'order_confirmation_email_body',
+            'label' => 'BaseOrderConfirmationEmailBody',
+            'type' => 'AREA',
+            'style' => 'email email_body',
+            'position' => 0,
+            'allow_null' => true
+        ],
+        [
+            'name' => 'offer_email_subject',
+            'label' => 'BaseOfferEmailSubject',
+            'type' => 'TEXT',
+            'style' => 'long',
+            'position' => 0,
+            'allow_null' => true
+        ],
+        [
+            'name' => 'offer_email_body',
+            'label' => 'BaseOfferEmailBody',
+            'type' => 'AREA',
+            'style' => 'email email_body',
+            'position' => 0,
+            'allow_null' => true
+        ],
+        [
+            'name' => 'logosep',
+            'label' => 'BaseLogoTitle',
+            'type' => 'LABEL'
+        ],
+        [
+            'name' => 'logo',
+            'label' => '',
+            'type' => 'IMAGE',
+            'style' => 'image',
+            'listquery' => 'base_logo.php?func=view&amp;id=_ID_',
+            'position' => 0,
+            'allow_null' => true
+        ],
+        [
+            'name' => 'edit_logo',
+            'label' => 'BaseChangeImage',
+            'type' => 'JSBUTTON',
+            'style' => 'medium',
+            'listquery' => $openPopJS,
+            'position' => 1,
+            'allow_null' => true
+        ],
+        [
+            'name' => 'logo_left',
+            'label' => 'BaseLogoLeft',
+            'type' => 'INT',
+            'style' => 'measurement',
+            'position' => 1,
+            'allow_null' => true
+        ],
+        [
+            'name' => 'logo_top',
+            'label' => 'BaseLogoTop',
+            'type' => 'INT',
+            'style' => 'measurement',
+            'position' => 2,
+            'allow_null' => true
+        ],
+        [
+            'name' => 'logo_width',
+            'label' => 'BaseLogoWidth',
+            'type' => 'INT',
+            'style' => 'measurement',
+            'position' => 1,
+            'allow_null' => true
+        ]
+    ];
+    break;
 
 case 'invoice_state' :
-$levelsAllowed = [
-    ROLE_ADMIN
-];
-$strTable = '{prefix}invoice_state';
-$strJSONType = 'invoice_state';
+    $levelsAllowed = [
+        ROLE_ADMIN
+    ];
+    $strTable = '{prefix}invoice_state';
+    $strJSONType = 'invoice_state';
 
-$intId = isset($id) ? $id : getRequest('id', FALSE);
-$readOnly = ($intId && $intId <= 8);
-$astrFormElements = [
-    [
-        'name' => 'name',
-        'label' => 'Status',
-        'type' => 'TEXT',
-        'style' => 'medium',
-        'position' => 1,
-        'read_only' => $readOnly
-    ],
-    [
-        'name' => 'order_no',
-        'label' => 'OrderNr',
-        'type' => 'INT',
-        'style' => 'short',
-        'position' => 2,
-        'read_only' => $readOnly
-    ],
-    [
-        'name' => 'invoice_open',
-        'label' => 'InvoiceStatusOpen',
-        'type' => 'CHECK',
-        'style' => 'short',
-        'position' => 1
-    ],
-    [
-        'name' => 'invoice_unpaid',
-        'label' => 'InvoiceStatusUnpaid',
-        'type' => 'CHECK',
-        'style' => 'short',
-        'position' => 2
-    ],
-    [
-        'name' => 'invoice_offer',
-        'label' => 'InvoiceStatusOffer',
-        'type' => 'CHECK',
-        'style' => 'short',
-        'position' => 1
-    ]
+    $intId = isset($id) ? $id : getRequest('id', FALSE);
+    $readOnly = ($intId && $intId <= 8);
+    $astrFormElements = [
+        [
+            'name' => 'name',
+            'label' => 'Status',
+            'type' => 'TEXT',
+            'style' => 'medium',
+            'position' => 1,
+            'read_only' => $readOnly
+        ],
+        [
+            'name' => 'order_no',
+            'label' => 'OrderNr',
+            'type' => 'INT',
+            'style' => 'short',
+            'position' => 2,
+            'read_only' => $readOnly
+        ],
+        [
+            'name' => 'invoice_open',
+            'label' => 'InvoiceStatusOpen',
+            'type' => 'CHECK',
+            'style' => 'short',
+            'position' => 1
+        ],
+        [
+            'name' => 'invoice_unpaid',
+            'label' => 'InvoiceStatusUnpaid',
+            'type' => 'CHECK',
+            'style' => 'short',
+            'position' => 2
+        ],
+        [
+            'name' => 'invoice_offer',
+            'label' => 'InvoiceStatusOffer',
+            'type' => 'CHECK',
+            'style' => 'short',
+            'position' => 1
+        ]
 
-];
-break;
+    ];
+    break;
 
 case 'row_type' :
-$levelsAllowed = [
-    ROLE_ADMIN
-];
-$strTable = '{prefix}row_type';
-$strJSONType = 'row_type';
+    $levelsAllowed = [
+        ROLE_ADMIN
+    ];
+    $strTable = '{prefix}row_type';
+    $strJSONType = 'row_type';
 
-$astrFormElements = [
-    [
-        'name' => 'name',
-        'label' => 'RowType',
-        'type' => 'TEXT',
-        'style' => 'medium',
-        'position' => 1
-    ],
-    [
-        'name' => 'order_no',
-        'label' => 'OrderNr',
-        'type' => 'INT',
-        'style' => 'short',
-        'position' => 2
-    ]
-];
-break;
+    $astrFormElements = [
+        [
+            'name' => 'name',
+            'label' => 'RowType',
+            'type' => 'TEXT',
+            'style' => 'medium',
+            'position' => 1
+        ],
+        [
+            'name' => 'order_no',
+            'label' => 'OrderNr',
+            'type' => 'INT',
+            'style' => 'short',
+            'position' => 2
+        ]
+    ];
+    break;
 
 case 'session_type' :
-$levelsAllowed = [
-    ROLE_ADMIN
-];
-$strTable = '{prefix}session_type';
-$strJSONType = 'session_type';
+    $levelsAllowed = [
+        ROLE_ADMIN
+    ];
+    $strTable = '{prefix}session_type';
+    $strJSONType = 'session_type';
 
-$intId = getRequest('id', FALSE);
-if ($intId && $intId <= 4) {
-    $readOnlyForm = true;
-}
-$astrFormElements = [
-    [
-        'name' => 'name',
-        'label' => 'SessionType',
-        'type' => 'TEXT',
-        'style' => 'medium',
-        'position' => 1
-    ],
-    [
-        'name' => 'order_no',
-        'label' => 'OrderNr',
-        'type' => 'INT',
-        'style' => 'short',
-        'position' => 2
-    ],
-    [
-        'name' => 'access_level',
-        'label' => 'AccessLevel',
-        'type' => 'INT',
-        'style' => 'short',
-        'position' => 1,
-        'default' => 1
-    ]
-];
-break;
+    $intId = getRequest('id', FALSE);
+    if ($intId && $intId <= 4) {
+        $readOnlyForm = true;
+    }
+    $astrFormElements = [
+        [
+            'name' => 'name',
+            'label' => 'SessionType',
+            'type' => 'TEXT',
+            'style' => 'medium',
+            'position' => 1
+        ],
+        [
+            'name' => 'order_no',
+            'label' => 'OrderNr',
+            'type' => 'INT',
+            'style' => 'short',
+            'position' => 2
+        ],
+        [
+            'name' => 'access_level',
+            'label' => 'AccessLevel',
+            'type' => 'INT',
+            'style' => 'short',
+            'position' => 1,
+            'default' => 1
+        ]
+    ];
+    break;
 
 case 'delivery_terms' :
-$levelsAllowed = [
-    ROLE_ADMIN
-];
-$strTable = '{prefix}delivery_terms';
-$strJSONType = 'delivery_terms';
+    $levelsAllowed = [
+        ROLE_ADMIN
+    ];
+    $strTable = '{prefix}delivery_terms';
+    $strJSONType = 'delivery_terms';
 
-$astrFormElements = [
-    [
-        'name' => 'name',
-        'label' => 'DeliveryTerms',
-        'type' => 'TEXT',
-        'style' => 'medium',
-        'position' => 1
-    ],
-    [
-        'name' => 'order_no',
-        'label' => 'OrderNr',
-        'type' => 'INT',
-        'style' => 'short',
-        'position' => 2
-    ]
-];
-break;
+    $astrFormElements = [
+        [
+            'name' => 'name',
+            'label' => 'DeliveryTerms',
+            'type' => 'TEXT',
+            'style' => 'medium',
+            'position' => 1
+        ],
+        [
+            'name' => 'order_no',
+            'label' => 'OrderNr',
+            'type' => 'INT',
+            'style' => 'short',
+            'position' => 2
+        ]
+    ];
+    break;
 
 case 'delivery_method' :
-$levelsAllowed = [
-    ROLE_ADMIN
-];
-$strTable = '{prefix}delivery_method';
-$strJSONType = 'delivery_method';
+    $levelsAllowed = [
+        ROLE_ADMIN
+    ];
+    $strTable = '{prefix}delivery_method';
+    $strJSONType = 'delivery_method';
 
-$astrFormElements = [
-    [
-        'name' => 'name',
-        'label' => 'DeliveryMethod',
-        'type' => 'TEXT',
-        'style' => 'medium',
-        'position' => 1
-    ],
-    [
-        'name' => 'order_no',
-        'label' => 'OrderNr',
-        'type' => 'INT',
-        'style' => 'short',
-        'position' => 2
-    ]
-];
-break;
+    $astrFormElements = [
+        [
+            'name' => 'name',
+            'label' => 'DeliveryMethod',
+            'type' => 'TEXT',
+            'style' => 'medium',
+            'position' => 1
+        ],
+        [
+            'name' => 'order_no',
+            'label' => 'OrderNr',
+            'type' => 'INT',
+            'style' => 'short',
+            'position' => 2
+        ]
+    ];
+    break;
 
 case 'default_value' :
-$levelsAllowed = [
-    ROLE_ADMIN
-];
-$strTable = '{prefix}default_value';
-$strJSONType = 'default_value';
+    $levelsAllowed = [
+        ROLE_ADMIN
+    ];
+    $strTable = '{prefix}default_value';
+    $strJSONType = 'default_value';
 
-$astrFormElements = [
-    [
-        'name' => 'type',
-        'label' => 'DefaultValueType',
-        'type' => 'LIST',
-        'style' => 'medium',
-        'listquery' => [
-            'info' => 'Info',
-            'foreword' => 'Foreword',
-            'afterword' => 'Afterword'
+    $astrFormElements = [
+        [
+            'name' => 'type',
+            'label' => 'DefaultValueType',
+            'type' => 'LIST',
+            'style' => 'medium',
+            'listquery' => [
+                'info' => 'Info',
+                'foreword' => 'Foreword',
+                'afterword' => 'Afterword'
+            ],
+            'position' => 1
         ],
-        'position' => 1
-    ],
-    [
-        'name' => 'name',
-        'label' => 'Name',
-        'type' => 'TEXT',
-        'style' => 'medium',
-        'position' => 1
-    ],
-    [
-        'name' => 'order_no',
-        'label' => 'OrderNr',
-        'type' => 'INT',
-        'style' => 'short',
-        'position' => 2
-    ],
-    [
-        'name' => 'content',
-        'label' => 'Content',
-        'type' => 'AREA',
-        'style' => 'xlarge',
-        'position' => 0
-    ]
-];
-break;
+        [
+            'name' => 'name',
+            'label' => 'Name',
+            'type' => 'TEXT',
+            'style' => 'medium',
+            'position' => 1
+        ],
+        [
+            'name' => 'order_no',
+            'label' => 'OrderNr',
+            'type' => 'INT',
+            'style' => 'short',
+            'position' => 2
+        ],
+        [
+            'name' => 'content',
+            'label' => 'Content',
+            'type' => 'AREA',
+            'style' => 'xlarge',
+            'position' => 0
+        ]
+    ];
+    break;
 
 case 'user' :
-$levelsAllowed = [
-    ROLE_ADMIN
-];
-$strTable = '{prefix}users';
-$strJSONType = 'user';
-$astrFormElements = [
-    [
-        'name' => 'name',
-        'label' => 'UserName',
-        'type' => 'TEXT',
-        'style' => 'medium',
-        'position' => 1
-    ],
-    [
-        'name' => 'login',
-        'label' => 'LoginName',
-        'type' => 'TEXT',
-        'style' => 'medium',
-        'position' => 1,
-        'unique' => true
-    ],
-    [
-        'name' => 'passwd',
-        'label' => 'Password',
-        'type' => 'PASSWD',
-        'style' => 'medium',
-        'position' => 2,
-        'allow_null' => true
-    ],
-    [
-        'name' => 'type_id',
-        'label' => 'Type',
-        'type' => 'LIST',
-        'style' => 'medium translated',
-        'listquery' => 'SELECT id, name FROM {prefix}session_type WHERE deleted=0 ORDER BY order_no',
-        'position' => 0
-    ]
-];
-break;
+    $levelsAllowed = [
+        ROLE_ADMIN
+    ];
+    $strTable = '{prefix}users';
+    $strJSONType = 'user';
+    $astrFormElements = [
+        [
+            'name' => 'name',
+            'label' => 'UserName',
+            'type' => 'TEXT',
+            'style' => 'medium',
+            'position' => 1
+        ],
+        [
+            'name' => 'login',
+            'label' => 'LoginName',
+            'type' => 'TEXT',
+            'style' => 'medium',
+            'position' => 1,
+            'unique' => true
+        ],
+        [
+            'name' => 'passwd',
+            'label' => 'Password',
+            'type' => 'PASSWD',
+            'style' => 'medium',
+            'position' => 2,
+            'allow_null' => true
+        ],
+        [
+            'name' => 'type_id',
+            'label' => 'Type',
+            'type' => 'LIST',
+            'style' => 'medium translated',
+            'listquery' => 'SELECT id, name FROM {prefix}session_type WHERE deleted=0 ORDER BY order_no',
+            'position' => 0
+        ]
+    ];
+    break;
 
 case 'print_template' :
-$strTable = '{prefix}print_template';
-$strJSONType = 'print_template';
+    $strTable = '{prefix}print_template';
+    $strJSONType = 'print_template';
 
-$elem_attributes = '';
-$astrFormElements = [
-    [
-        'name' => 'type',
-        'label' => 'PrintTemplateType',
-        'type' => 'LIST',
-        'style' => 'medium noemptyvalue',
-        'listquery' => [
-            'invoice' => 'PrintTemplateTypeInvoice',
-            'offer' => 'PrintTemplateTypeOffer'
+    $elem_attributes = '';
+    $astrFormElements = [
+        [
+            'name' => 'type',
+            'label' => 'PrintTemplateType',
+            'type' => 'LIST',
+            'style' => 'medium noemptyvalue',
+            'listquery' => [
+                'invoice' => 'PrintTemplateTypeInvoice',
+                'offer' => 'PrintTemplateTypeOffer'
+            ],
+            'position' => 1
         ],
-        'position' => 1
-    ],
-    [
-        'name' => 'order_no',
-        'label' => 'OrderNr',
-        'type' => 'INT',
-        'style' => 'short',
-        'position' => 2
-    ],
-    [
-        'name' => 'name',
-        'label' => 'PrintTemplateName',
-        'type' => 'TEXT',
-        'style' => 'medium',
-        'position' => 1
-    ],
-    [
-        'name' => 'filename',
-        'label' => 'PrintTemplateFileName',
-        'type' => 'TEXT',
-        'style' => 'medium',
-        'position' => 2,
-        'allow_null' => true
-    ],
-    [
-        'name' => 'parameters',
-        'label' => 'PrintTemplateParameters',
-        'type' => 'TEXT',
-        'style' => 'medium',
-        'position' => 1,
-        'allow_null' => true
-    ],
-    [
-        'name' => 'output_filename',
-        'label' => 'PrintTemplateOutputFileName',
-        'type' => 'TEXT',
-        'style' => 'medium',
-        'position' => 2,
-        'allow_null' => true
-    ],
-    [
-        'name' => 'new_window',
-        'label' => 'PrintTemplateOpenInNewWindow',
-        'type' => 'CHECK',
-        'style' => 'medium',
-        'position' => 1,
-        'allow_null' => true
-    ],
-    [
-        'name' => 'inactive',
-        'label' => 'PrintTemplateInactive',
-        'type' => 'CHECK',
-        'style' => 'medium',
-        'position' => 2,
-        'default' => 0,
-        'allow_null' => true
-    ]
-];
-break;
+        [
+            'name' => 'order_no',
+            'label' => 'OrderNr',
+            'type' => 'INT',
+            'style' => 'short',
+            'position' => 2
+        ],
+        [
+            'name' => 'name',
+            'label' => 'PrintTemplateName',
+            'type' => 'TEXT',
+            'style' => 'medium',
+            'position' => 1
+        ],
+        [
+            'name' => 'filename',
+            'label' => 'PrintTemplateFileName',
+            'type' => 'TEXT',
+            'style' => 'medium',
+            'position' => 2,
+            'allow_null' => true
+        ],
+        [
+            'name' => 'parameters',
+            'label' => 'PrintTemplateParameters',
+            'type' => 'TEXT',
+            'style' => 'medium',
+            'position' => 1,
+            'allow_null' => true
+        ],
+        [
+            'name' => 'output_filename',
+            'label' => 'PrintTemplateOutputFileName',
+            'type' => 'TEXT',
+            'style' => 'medium',
+            'position' => 2,
+            'allow_null' => true
+        ],
+        [
+            'name' => 'new_window',
+            'label' => 'PrintTemplateOpenInNewWindow',
+            'type' => 'CHECK',
+            'style' => 'medium',
+            'position' => 1,
+            'allow_null' => true
+        ],
+        [
+            'name' => 'inactive',
+            'label' => 'PrintTemplateInactive',
+            'type' => 'CHECK',
+            'style' => 'medium',
+            'position' => 2,
+            'default' => 0,
+            'allow_null' => true
+        ]
+    ];
+    break;
 }
 
 // Clean up the array
 $akeys = [
-'name',
-'type',
-'position',
-'style',
-'label',
-'parent_key',
-'listquery',
-'allow_null',
-'elem_attributes'
+    'name',
+    'type',
+    'position',
+    'style',
+    'label',
+    'parent_key',
+    'listquery',
+    'allow_null',
+    'elem_attributes'
 ];
 foreach ($astrFormElements as &$element) {
-foreach ($akeys as $key) {
-    if (!isset($element[$key])) {
-        $element[$key] = false;
+    foreach ($akeys as $key) {
+        if (!isset($element[$key])) {
+            $element[$key] = false;
+        }
     }
-}
 }

@@ -456,6 +456,7 @@ class ImportFile
         while ($row = mysqli_fetch_assoc($res)) {
             $fieldDefs[$row['Field']] = $row;
         }
+        mysqli_free_result($res);
         if ('company' === $table || 'company_contact' === $table) {
             $fieldDefs['tags'] = ['Type' => 'text'];
         }
@@ -1076,7 +1077,9 @@ function select_preset()
             }
             if ($params) {
                 $res = mysqli_param_query($query . $where, $params);
-                if ($dupRow = mysqli_fetch_row($res)) {
+                $dupRow = mysqli_fetch_row($res);
+                mysqli_free_result($res);
+                if ($dupRow) {
                     $id = $dupRow[0];
                     $found_dup = true;
                     if ($dupMode == 'update') {

@@ -75,7 +75,9 @@ function getFormDefaultValue($elem, $parentKey)
         );
     } elseif (strstr($elem['default'], 'ADD')) {
         $strQuery = str_replace('_PARENTID_', $parentKey, $elem['listquery']);
-        $intAdd = mysqli_fetch_value(mysqli_query_check($strQuery));
+        $res = mysqli_query_check($strQuery);
+        $intAdd = mysqli_fetch_value($res);
+        mysqli_free_result($res);
         return isset($intAdd) ? $intAdd : 0;
     } elseif ($elem['default'] === 'POST') {
         // POST has special treatment in iform
@@ -159,7 +161,9 @@ function saveFormData($table, &$primaryKey, &$formElements, &$values, &$warnings
                 $params[] = $primaryKey;
             }
             $res = mysqli_param_query($query, $params);
-            if (mysqli_fetch_array($res)) {
+            $checkRow = mysqli_fetch_array($res);
+            mysqli_free_result($res);
+            if ($checkRow) {
                 $warnings = sprintf(
                     Translator::translate('DuplicateValue'),
                     Translator::translate($elem['label'])
@@ -222,6 +226,7 @@ function saveFormData($table, &$primaryKey, &$formElements, &$values, &$warnings
                 [$primaryKey]
             );
             $invoiceId = mysqli_fetch_value($res);
+            mysqli_free_result($res);
         }
         if ($table == '{prefix}invoice_row' && !isOffer($invoiceId)) {
             updateProductStockBalance(
@@ -248,7 +253,9 @@ function saveFormData($table, &$primaryKey, &$formElements, &$values, &$warnings
                     'SELECT deleted FROM {prefix}invoice WHERE id=?',
                     [$primaryKey]
                 );
-                if (mysqli_fetch_value($res)) {
+                $checkValue = mysqli_fetch_value($res);
+                mysqli_free_result($res);
+                if ($checkValue) {
                     $res = mysqli_param_query(
                         'SELECT product_id, pcs FROM {prefix}invoice_row WHERE invoice_id=? AND deleted=0',
                         [$primaryKey]
@@ -258,6 +265,7 @@ function saveFormData($table, &$primaryKey, &$formElements, &$values, &$warnings
                             null, $row['product_id'], $row['pcs']
                         );
                     }
+                    mysqli_free_result($res);
                 }
             }
 
@@ -304,8 +312,10 @@ function saveFormData($table, &$primaryKey, &$formElements, &$values, &$warnings
         }
 
         $res = mysqli_param_query($query, $params);
-        if (mysqli_fetch_assoc($res))
+        if (mysqli_fetch_assoc($res)) {
             $warnings = Translator::translate('InvoiceNumberAlreadyInUse');
+        }
+        mysqli_free_result($res);
     }
 
     // Special case for invoices - check, according to settings, that the invoice has
@@ -324,6 +334,7 @@ function saveFormData($table, &$primaryKey, &$formElements, &$values, &$warnings
             [$primaryKey]
         );
         $data = mysqli_fetch_assoc($res);
+        mysqli_free_result($res);
         $needInvNo = getSetting('invoice_add_number');
         $needRefNo = getSetting('invoice_add_reference_number');
         if (($needInvNo && empty($data['invoice_no']))
@@ -363,6 +374,7 @@ function fetchRecord($table, $primaryKey, &$formElements, &$values)
     $strQuery = "SELECT * FROM $table WHERE id=?";
     $intRes = mysqli_param_query($strQuery, [$primaryKey]);
     $row = mysqli_fetch_assoc($intRes);
+    mysqli_free_result($intRes);
     if (!$row) {
         return 'notfound';
     }

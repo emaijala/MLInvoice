@@ -1,7 +1,7 @@
 <?php
 /*******************************************************************************
  MLInvoice: web-based invoicing application.
- Copyright (C) 2010-2016 Ere Maijala
+ Copyright (C) 2010-2017 Ere Maijala
 
  Portions based on:
  PkLasku : web-based invoicing software.
@@ -13,7 +13,7 @@
 
 /*******************************************************************************
  MLInvoice: web-pohjainen laskutusohjelma.
- Copyright (C) 2010-2016 Ere Maijala
+ Copyright (C) 2010-2017 Ere Maijala
 
  Perustuu osittain sovellukseen:
  PkLasku : web-pohjainen laskutusohjelmisto.
@@ -51,8 +51,9 @@ function sesCreateSession($strLogin, $strPasswd)
         $keytime = $_SESSION['keytime'];
         if (!$key || time() - $keytime > 300) {
             error_log(
-                'Key not found or timeout, ' . time() - $keytime .
-                     ' seconds since login form was created');
+                'Key not found or timeout, ' . (time() - $keytime)
+                . ' seconds since login form was created'
+            );
             return 'TIMEOUT';
         }
 
@@ -60,10 +61,10 @@ function sesCreateSession($strLogin, $strPasswd)
              'FROM {prefix}users u ' .
              'INNER JOIN {prefix}session_type st ON st.id = u.type_id ' .
              'WHERE u.deleted=0 AND u.login=?';
-        $intRes = mysqli_param_query($strQuery, [
-            $strLogin
-        ]);
-        if ($row = mysqli_fetch_assoc($intRes)) {
+        $intRes = mysqli_param_query($strQuery, [$strLogin]);
+        $row = mysqli_fetch_assoc($intRes);
+        mysqli_free_result($intRes);
+        if ($row) {
             $passwd_md5 = $row['passwd'];
             $md5 = md5($key . $passwd_md5);
             if ($md5 != $strPasswd) {
@@ -96,7 +97,7 @@ function sesEndSession()
     return true;
 }
 
-function sesVerifySession($redirect = TRUE)
+function sesVerifySession($redirect = true)
 {
     if (!session_id()) {
         session_start();
@@ -108,8 +109,8 @@ function sesVerifySession($redirect = TRUE)
         return true;
     }
     if ($redirect) {
-        if (substr($_SERVER['SCRIPT_FILENAME'], -9, 9) == 'index.php' &&
-             $_SERVER['QUERY_STRING'] && getRequest('func', '') != 'logout'
+        if (substr($_SERVER['SCRIPT_FILENAME'], -9, 9) == 'index.php'
+            && $_SERVER['QUERY_STRING'] && getRequest('func', '') != 'logout'
         ) {
             $_SESSION['BACKLINK'] = getSelfPath() . '/index.php?' .
                 $_SERVER['QUERY_STRING'];
@@ -199,9 +200,9 @@ function db_session_read($sessionID)
     $res = mysqli_param_query(
         'SELECT data FROM {prefix}session where id=?', [$sessionID]
     );
-    if ($row = mysqli_fetch_row($res))
-        return reset($row);
-    return '';
+    $result = mysqli_fetch_value($res);
+    mysqli_free_result($res);
+    return null !== $result ? $result : '';
 }
 
 function db_session_write($sessionID, $sessionData)
@@ -212,15 +213,14 @@ function db_session_write($sessionID, $sessionData)
             $sessionID,
             $sessionData,
             date('Y-m-d H:i:s', time())
-        ]);
+        ]
+    );
     return true;
 }
 
 function db_session_destroy($sessionID)
 {
-    mysqli_param_query('DELETE FROM {prefix}session WHERE id=?', [
-        $sessionID
-    ]);
+    mysqli_param_query('DELETE FROM {prefix}session WHERE id=?', [$sessionID]);
     return true;
 }
 
@@ -232,12 +232,15 @@ function db_session_gc($sessionMaxAge)
     mysqli_param_query('DELETE FROM {prefix}session WHERE session_timestamp<?',
         [
             date('Y-m-d H:i:s', time() - $sessionMaxAge)
-        ]);
+        ]
+    );
     return true;
 }
 
-session_set_save_handler('db_session_open', 'db_session_close', 'db_session_read',
-'db_session_write', 'db_session_destroy', 'db_session_gc');
+session_set_save_handler(
+    'db_session_open', 'db_session_close', 'db_session_read',
+    'db_session_write', 'db_session_destroy', 'db_session_gc'
+);
 session_name(_SESSION_NAME_);
 if (_SESSION_RESTRICT_PATH_) {
     session_set_cookie_params(0, getSelfDirectory() . '/');

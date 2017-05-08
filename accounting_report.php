@@ -1,7 +1,7 @@
 <?php
 /*******************************************************************************
  MLInvoice: web-based invoicing application.
- Copyright (C) 2010-2016 Ere Maijala
+ Copyright (C) 2010-2017 Ere Maijala
 
  Portions based on:
  PkLasku : web-based invoicing software.
@@ -13,7 +13,7 @@
 
 /*******************************************************************************
  MLInvoice: web-pohjainen laskutusohjelma.
- Copyright (C) 2010-2016 Ere Maijala
+ Copyright (C) 2010-2017 Ere Maijala
 
  Perustuu osittain sovellukseen:
  PkLasku : web-pohjainen laskutusohjelmisto.
@@ -76,6 +76,7 @@ class AccountingReport extends InvoiceReport
         while ($row = mysqli_fetch_assoc($res)) {
             $unpaidStates[] = $row['id'];
         }
+        mysqli_free_result($res);
 
         // Include invoices that are unpaid or have been paid after the date range
         $orQueries = [];

@@ -1,7 +1,7 @@
 <?php
 /*******************************************************************************
  MLInvoice: web-based invoicing application.
- Copyright (C) 2010-2016 Ere Maijala
+ Copyright (C) 2010-2017 Ere Maijala
 
  Portions based on:
  PkLasku : web-based invoicing software.
@@ -13,7 +13,7 @@
 
 /*******************************************************************************
  MLInvoice: web-pohjainen laskutusohjelma.
- Copyright (C) 2010-2016 Ere Maijala
+ Copyright (C) 2010-2017 Ere Maijala
 
  Perustuu osittain sovellukseen:
  PkLasku : web-pohjainen laskutusohjelmisto.
@@ -94,6 +94,7 @@ abstract class AbstractReport
                 } else {
                     $param .= $res;
                 }
+                mysqli_free_result($res);
             } else {
                 $param .= $value;
             }
@@ -111,6 +112,7 @@ abstract class AbstractReport
                 $states[] = Translator::translate($row['name']);
             }
         }
+        mysqli_free_result($res);
 
         if ($states) {
             $params[] = Translator::translate('PrintReportStates') . ': '

@@ -1,7 +1,7 @@
 <?php
 /*******************************************************************************
  MLInvoice: web-based invoicing application.
- Copyright (C) 2010-2016 Ere Maijala
+ Copyright (C) 2010-2017 Ere Maijala
 
  This program is free software. See attached LICENSE.
 
@@ -9,7 +9,7 @@
 
 /*******************************************************************************
  MLInvoice: web-pohjainen laskutusohjelma.
- Copyright (C) 2010-2016 Ere Maijala
+ Copyright (C) 2010-2017 Ere Maijala
 
  Tämä ohjelma on vapaa. Lue oheinen LICENSE.
 
@@ -40,6 +40,7 @@ class InvoicePrinterOfferEmail extends InvoicePrinterOffer
             [$this->invoiceData['state_id']]
         );
         $open = mysqli_fetch_value($res);
+        mysqli_free_result($res);
         if ($open) {
             $res = mysqli_query_check(
                 'SELECT id FROM {prefix}invoice_state WHERE invoice_open=1'
@@ -47,6 +48,7 @@ class InvoicePrinterOfferEmail extends InvoicePrinterOffer
                 . ' ORDER BY order_no'
             );
             $stateId = mysqli_fetch_value($res);
+            mysqli_free_result($res);
             // Mark invoice offered
             if (null !== $stateId) {
                 mysqli_param_query(

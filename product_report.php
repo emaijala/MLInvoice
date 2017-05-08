@@ -1,7 +1,7 @@
 <?php
 /*******************************************************************************
  MLInvoice: web-based invoicing application.
- Copyright (C) 2010-2016 Ere Maijala
+ Copyright (C) 2010-2017 Ere Maijala
 
  Portions based on:
  PkLasku : web-based invoicing software.
@@ -13,7 +13,7 @@
 
 /*******************************************************************************
  MLInvoice: web-pohjainen laskutusohjelma.
- Copyright (C) 2010-2016 Ere Maijala
+ Copyright (C) 2010-2017 Ere Maijala
 
  Perustuu osittain sovellukseen:
  PkLasku : web-pohjainen laskutusohjelmisto.
@@ -113,6 +113,7 @@ class ProductReport extends AbstractReport
                 value="1" <?php echo $strChecked?>> <label for="state-<?php echo $intStateId?>"><?php echo htmlspecialchars($strStateName)?></label></div>
 <?php
         }
+        mysqli_free_result($intRes);
         ?>
     <div class="medium_label">
             <a class="actionlink" href="#"
@@ -171,12 +172,13 @@ class ProductReport extends AbstractReport
             $intStateId = $row['id'];
             $strStateName = $row['name'];
             $strTemp = "stateid_$intStateId";
-            $tmpSelected = getRequest($strTemp, FALSE) ? TRUE : FALSE;
+            $tmpSelected = getRequest($strTemp, false) ? true : false;
             if ($tmpSelected) {
                 $strQuery2 .= ' i.state_id = ? OR ';
                 $arrParams[] = $intStateId;
             }
         }
+        mysqli_free_result($intRes);
         if ($strQuery2) {
             $strQuery2 = ' AND (' . substr($strQuery2, 0, -3) . ')';
         }
@@ -186,8 +188,9 @@ class ProductReport extends AbstractReport
         if ($intProductId) {
             $strProductWhere = 'AND ir.product_id = ? ';
             $arrParams[] = $intProductId;
-        } else
+        } else {
             $strProductWhere = '';
+        }
 
         $strProductQuery = 'SELECT p.id, p.product_code, p.product_name, ir.description, ' .
              'ir.vat, ir.pcs, t.name as unit, ir.price, ir.vat_included, ir.discount ' .
@@ -209,13 +212,17 @@ class ProductReport extends AbstractReport
         $productSumVAT = 0;
         $intRes = mysqli_param_query($strProductQuery, $arrParams);
         while ($row = mysqli_fetch_assoc($intRes)) {
-            if ($prevRow !== false && ($prevRow['id'] != $row['id'] ||
-                 $prevRow['description'] != $row['description'] ||
-                 $prevRow['unit'] != $row['unit'] || $prevRow['vat'] != $row['vat'])) {
-                $this->printRow($format, $prevRow['product_code'],
+            if ($prevRow !== false && ($prevRow['id'] != $row['id']
+                || $prevRow['description'] != $row['description']
+                || $prevRow['unit'] != $row['unit']
+                || $prevRow['vat'] != $row['vat'])
+            ) {
+                $this->printRow(
+                    $format, $prevRow['product_code'],
                     $prevRow['product_name'], $prevRow['description'], $productCount,
                     $prevRow['unit'], $productSum, $prevRow['vat'], $productVAT,
-                    $productSumVAT);
+                    $productSumVAT
+                );
                 $productCount = 0;
                 $productSum = 0;
                 $productVAT = 0;
@@ -224,8 +231,13 @@ class ProductReport extends AbstractReport
             $prevRow = $row;
 
             $productCount += $row['pcs'];
-            list ($rowSum, $rowVAT, $rowSumVAT) = calculateRowSum($row['price'],
-                $row['pcs'], $row['vat'], $row['vat_included'], $row['discount']);
+            list ($rowSum, $rowVAT, $rowSumVAT) = calculateRowSum(
+                $row['price'],
+                $row['pcs'],
+                $row['vat'],
+                $row['vat_included'],
+                $row['discount']
+            );
 
             $productSum += $rowSum;
             $productVAT += $rowVAT;
@@ -235,11 +247,14 @@ class ProductReport extends AbstractReport
             $totalVAT += $rowVAT;
             $totalSumVAT += $rowSumVAT;
         }
+        mysqli_free_result($intRes);
         if ($prevRow !== false) {
-            $this->printRow($format, $prevRow['product_code'],
+            $this->printRow(
+                $format, $prevRow['product_code'],
                 $prevRow['product_name'], $prevRow['description'], $productCount,
                 $prevRow['unit'], $productSum, $prevRow['vat'], $productVAT,
-                $productSumVAT);
+                $productSumVAT
+            );
         }
 
         $this->printTotals($format, $totalSum, $totalVAT, $totalSumVAT);

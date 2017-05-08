@@ -1,7 +1,7 @@
 <?php
 /*******************************************************************************
  MLInvoice: web-based invoicing application.
- Copyright (C) 2010-2016 Ere Maijala
+ Copyright (C) 2010-2017 Ere Maijala
 
  Portions based on:
  PkLasku : web-based invoicing software.
@@ -13,7 +13,7 @@
 
 /*******************************************************************************
  MLInvoice: web-pohjainen laskutusohjelma.
- Copyright (C) 2010-2016 Ere Maijala
+ Copyright (C) 2010-2017 Ere Maijala
 
  Perustuu osittain sovellukseen:
  PkLasku : web-pohjainen laskutusohjelmisto.
@@ -38,22 +38,17 @@ if ($strFunc == 'open_invoices')
 
 $strQuery = 'SELECT * FROM {prefix}quicksearch ' . 'WHERE func=? AND user_id=? ' .
      'ORDER BY name';
-$intRes = mysqli_param_query($strQuery,
-    [
-        $strFunc,
-        $_SESSION['sesUSERID']
-    ]);
+$intRes = mysqli_param_query($strQuery, [$strFunc, $_SESSION['sesUSERID']]);
 
 while ($row = mysqli_fetch_assoc($intRes)) {
     $intId = $row['id'];
     $blnDelete = getPost('delete_' . $intId . '_x', FALSE) ? TRUE : FALSE;
     if ($blnDelete && $intId) {
         $strDelQuery = 'DELETE FROM {prefix}quicksearch ' . 'WHERE id=?';
-        $intDelRes = mysqli_param_query($strDelQuery, [
-            $intId
-        ]);
+        mysqli_param_query($strDelQuery, [$intId]);
     }
 }
+mysqli_free_result($intRes);
 
 echo htmlPageStart();
 ?>
@@ -71,11 +66,7 @@ echo htmlPageStart();
                         </td>
                     </tr>
 <?php
-$intRes = mysqli_param_query($strQuery,
-    [
-        $strFunc,
-        $_SESSION['sesUSERID']
-    ]);
+$intRes = mysqli_param_query($strQuery, [$strFunc, $_SESSION['sesUSERID']]);
 while ($row = mysqli_fetch_assoc($intRes)) {
     $intID = $row['id'];
     $strName = $row['name'];
@@ -84,7 +75,7 @@ while ($row = mysqli_fetch_assoc($intRes)) {
     $strLink = "index.php?func=$strFunc&where=$strWhereClause";
     $strOnClick = "opener.location.href='$strLink'";
     ?>
-<tr class="search_row">
+                    <tr class="search_row">
                         <td class="label"><a href="quick_search.php"
                             onClick="<?php echo $strOnClick?>; return false;"><?php echo $strName?></a>
                         </td>
@@ -96,6 +87,7 @@ while ($row = mysqli_fetch_assoc($intRes)) {
                     </tr>
 <?php
 }
+mysqli_free_result($intRes);
 if (!isset($intID)) {
     ?>
 <tr>

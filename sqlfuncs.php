@@ -1,7 +1,7 @@
 <?php
 /*******************************************************************************
  MLInvoice: web-based invoicing application.
- Copyright (C) 2010-2016 Ere Maijala
+ Copyright (C) 2010-2017 Ere Maijala
 
  Portions based on:
  PkLasku : web-based invoicing software.
@@ -13,7 +13,7 @@
 
 /*******************************************************************************
  MLInvoice: web-pohjainen laskutusohjelma.
- Copyright (C) 2010-2016 Ere Maijala
+ Copyright (C) 2010-2017 Ere Maijala
 
  Perustuu osittain sovellukseen:
  PkLasku : web-pohjainen laskutusohjelmisto.
@@ -113,8 +113,8 @@ function extractSearchTerm(&$searchTerms, &$field, &$operator, &$term, &$boolean
 }
 
 function createWhereClause($astrSearchFields, $strSearchTerms, &$arrQueryParams,
-    $leftAnchored = false)
-{
+    $leftAnchored = false
+) {
     $astrTerms = explode(' ', $strSearchTerms);
     $strWhereClause = '(';
     $termPrefix = $leftAnchored ? '' : '%';
@@ -163,6 +163,7 @@ function updateProductStockBalance($invoiceRowId, $productId, $count)
             'exception'
         );
         list ($oldProductId, $oldCount) = mysqli_fetch_array($res);
+        mysqli_free_result($res);
     }
 
     if ($oldProductId) {
@@ -194,6 +195,7 @@ function getPaymentDays($companyId)
             [$companyId]
         );
         $companyPaymentDays = mysqli_fetch_value($res);
+        mysqli_free_result($res);
         if (!empty($companyPaymentDays)) {
             return $companyPaymentDays;
         }
@@ -208,7 +210,9 @@ function isOffer($invoiceId)
         . 'SELECT state_id FROM {prefix}invoice WHERE id=?)',
         [$invoiceId]
     );
-    return mysqli_fetch_value($res) ? true : false;
+    $result = mysqli_fetch_value($res) ? true : false;
+    mysqli_free_result($res);
+    return $result;
 }
 
 function isRowOfOffer($invoiceRowId)
@@ -220,7 +224,9 @@ function isRowOfOffer($invoiceRowId)
         . ' WHERE ir.id=?)',
         [$invoiceRowId]
     );
-    return mysqli_fetch_value($res) ? true : false;
+    $result = mysqli_fetch_value($res) ? true : false;
+    mysqli_free_result($res);
+    return $result;
 }
 
 function getInitialOfferState()
@@ -230,7 +236,9 @@ function getInitialOfferState()
         . ' WHERE invoice_open=1 AND invoice_offer=1 AND invoice_offer_sent=0'
         . ' ORDER BY order_no'
     );
-    return mysqli_fetch_value($res) ?: 1;
+    $result = mysqli_fetch_value($res) ?: 1;
+    mysqli_free_result($res);
+    return $result;
 }
 
 /**
@@ -256,6 +264,7 @@ EOT
     while ($tagRow = mysqli_fetch_array($res)) {
         $tags[] = $tagRow[0];
     }
+    mysqli_free_result($res);
     return implode(',', $tags);
 }
 
@@ -333,6 +342,7 @@ function deleteRecord($table, $id)
             while ($row = mysqli_fetch_assoc($res)) {
                 updateProductStockBalance($row['id'], null, null);
             }
+            mysqli_free_result($res);
         }
         $query = "UPDATE $table SET deleted=1 WHERE id=?";
         mysqli_param_query($query, [$id], 'exception');
@@ -353,11 +363,11 @@ function mysqli_query_check($query, $noFail = false)
     if (defined('_SQL_DEBUG_')) {
         error_log('QUERY [' . round(microtime(true) - $startTime, 4) . "s]: $query");
     }
-    if ($intRes === FALSE) {
+    if ($intRes === false) {
         $intError = mysqli_errno($dblink);
         if (strlen($query) > 1024)
-            $query = substr($query, 0, 1024) . '[' . (strlen($query) - 1024) .
-                 ' more characters]';
+            $query = substr($query, 0, 1024) . '[' . (strlen($query) - 1024)
+                . ' more characters]';
         error_log("Query '$query' failed: ($intError) " . mysqli_error($dblink));
         if ($noFail !== true) {
             if (!headers_sent()) {
@@ -390,13 +400,14 @@ function mysqli_param_query($query, $params = false, $noFail = false)
         return mysqli_query_check($query, $noFail);
     }
     foreach ($params as &$v) {
-        if (is_null($v))
+        if (null === $v) {
             $v = 'NULL';
-        elseif (is_array($v)) {
+        } elseif (is_array($v)) {
             $t = '';
             foreach ($v as $v2) {
-                if ($t)
+                if ($t) {
                     $t .= ',';
+                }
                 $v2 = mysqli_real_escape_string($dblink, $v2);
                 if (!is_numeric($v2)
                     || (strlen(trim($v2)) > 0 && substr(trim($v2), 0, 1) == '0')
@@ -455,6 +466,10 @@ function create_db_dump()
         'delivery_method',
         'company',
         'company_contact',
+        'company_tag',
+        'company_tag_link',
+        'contact_tag',
+        'contact_tag_link',
         'product',
         'session_type',
         'users',
@@ -465,6 +480,7 @@ function create_db_dump()
         'settings',
         'session',
         'print_template',
+        'default_value',
         'state'
     ];
 
@@ -490,6 +506,7 @@ function create_db_dump()
             $tables[] = $row[0];
         }
     }
+    mysqli_free_result($res);
     foreach ($tables as $table) {
         $res = mysqli_query_check("show create table $table");
         $row = mysqli_fetch_assoc($res);
@@ -497,6 +514,7 @@ function create_db_dump()
             die("Could not read table definition for table $table");
         }
         echo $row['Create Table'] . ";\n\n";
+        mysqli_free_result($res);
 
         $res = mysqli_query_check("show fields from $table");
         $field_count = mysqli_num_rows($res);
@@ -508,6 +526,7 @@ function create_db_dump()
                 $columns .= ', ';
             $columns .= $row['Field'];
         }
+        mysqli_free_result($res);
         // Don't dump current sessions
         if ($table == _DB_PREFIX_ . '_session') {
             continue;
@@ -530,13 +549,13 @@ function create_db_dump()
                     echo $value;
                 } elseif ($value && ($type == 'longblob' || strpos($value, "\n"))) {
                     echo '0x' . bin2hex($value);
-                }
-                else {
+                } else {
                     echo '\'' . addslashes($value) . '\'';
                 }
             }
             echo ");\n";
         }
+        mysqli_free_result($res);
         echo "\n";
     }
     echo "\nSET FOREIGN_KEY_CHECKS=1;\n";
@@ -544,12 +563,16 @@ function create_db_dump()
 
 function table_valid($table)
 {
-    $tables = [];
+    $table = _DB_PREFIX_ . "_$table";
     $res = mysqli_query_check('SHOW TABLES');
     while ($row = mysqli_fetch_row($res)) {
-        $tables[] = $row[0];
+        if ($table == $row[0]) {
+            mysqli_free_result($res);
+            return true;
+        }
     }
-    return in_array(_DB_PREFIX_ . "_$table", $tables);
+    mysqli_free_result($res);
+    return false;
 }
 
 /**
@@ -561,7 +584,9 @@ function table_valid($table)
 function verifyDatabase()
 {
     $res = mysqli_query_check("SHOW TABLES LIKE '{prefix}state'");
-    if (mysqli_num_rows($res) == 0) {
+    $stateRows = mysqli_num_rows($res);
+    mysqli_free_result($res);
+    if ($stateRows == 0) {
         $res = mysqli_query_check(
             <<<EOT
 CREATE TABLE {prefix}state (
@@ -585,7 +610,9 @@ EOT
     $res = mysqli_param_query(
         'SELECT data FROM {prefix}state WHERE id=?', ['tableconversiondone']
     );
-    if (mysqli_num_rows($res) == 0) {
+    $stateRows = mysqli_num_rows($res);
+    mysqli_free_result($res);
+    if ($stateRows == 0) {
         mysqli_query_check('SET AUTOCOMMIT = 0');
         mysqli_query_check('BEGIN');
         mysqli_query_check('SET FOREIGN_KEY_CHECKS = 0');
@@ -604,6 +631,7 @@ EOT
                 return 'FAILED';
             }
         }
+        mysqli_free_result($res);
         mysqli_query_check(
             'INSERT INTO {prefix}state (id, data) VALUES'
             . " ('tableconversiondone', '1')"
@@ -617,6 +645,7 @@ EOT
         'SELECT data FROM {prefix}state WHERE id=?', ['version']
     );
     $version = mysqli_fetch_value($res);
+    mysqli_free_result($res);
     $updates = [];
     if ($version < 16) {
         $updates = array_merge(

@@ -1,7 +1,7 @@
 <?php
 /*******************************************************************************
  MLInvoice: web-based invoicing application.
- Copyright (C) 2010-2016 Ere Maijala
+ Copyright (C) 2010-2017 Ere Maijala
 
  Portions based on:
  PkLasku : web-based invoicing software.
@@ -13,7 +13,7 @@
 
 /*******************************************************************************
  MLInvoice: web-pohjainen laskutusohjelma.
- Copyright (C) 2010-2016 Ere Maijala
+ Copyright (C) 2010-2017 Ere Maijala
 
  Perustuu osittain sovellukseen:
  PkLasku : web-pohjainen laskutusohjelmisto.
@@ -154,13 +154,15 @@ if ($blnSearch || $blnSave) {
     if ($blnSave && $strSearchName) {
         $strQuery = 'INSERT INTO {prefix}quicksearch(user_id, name, func, whereclause) ' .
              'VALUES (?, ?, ?, ?)';
-        $intRes = mysqli_param_query($strQuery,
+        mysqli_param_query(
+            $strQuery,
             [
                 $_SESSION['sesUSERID'],
                 $strSearchName,
                 $strFunc,
                 $strWhereClause
-            ]);
+            ]
+        );
     } elseif ($blnSave && !$strSearchName) {
         $strOnLoad = "alert('" . Translator::translate('ErrorNoSearchName') . "')";
     }
