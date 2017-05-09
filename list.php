@@ -230,7 +230,6 @@ function createJSONList($strFunc, $strList, $startRow, $rowCount, $sort, $filter
         = "SELECT COUNT(*) AS cnt FROM $strTable $strCountJoin $strWhereClause";
     $res = mysqli_param_query($fullQuery, $params['params']);
     $row = mysqli_fetch_assoc($res);
-    mysqli_free_result($res);
     $totalCount = $filteredCount = $row['cnt'];
 
     // Add Filter
@@ -242,7 +241,6 @@ function createJSONList($strFunc, $strList, $startRow, $rowCount, $sort, $filter
             = "SELECT COUNT(*) as cnt FROM $strTable $strCountJoin $strWhereClause";
         $res = mysqli_param_query($fullQuery, $params['params']);
         $row = mysqli_fetch_assoc($res);
-        mysqli_free_result($res);
         $filteredCount = $row['cnt'];
     }
 
@@ -316,7 +314,6 @@ function createJSONList($strFunc, $strList, $startRow, $rowCount, $sort, $filter
 
         $records[] = $resultValues;
     }
-    mysqli_free_result($res);
 
     Memory::set(
         "{$listId}_info",
@@ -579,7 +576,6 @@ function createJSONSelectList($strList, $startRow, $rowCount, $filter, $sort,
             }
         }
     }
-    mysqli_free_result($res);
 
     $records = [];
     for ($i = 0; $i < count($astrListValues); $i ++) {

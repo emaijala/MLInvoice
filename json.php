@@ -204,7 +204,6 @@ case 'get_table_columns' :
         }
         echo json_encode(['name' => $field_def->name]);
     }
-    mysqli_free_result($res);
     if ('company' === $table || 'company_contact' === $table) {
         echo ",\n";
         echo json_encode(['name' => 'tags']);
@@ -370,7 +369,6 @@ EOT
 </tr>
 <?php
     }
-    mysqli_free_result($res);
     break;
 
 case 'noop' :
@@ -416,7 +414,6 @@ function printJSONRecord($table, $id = false, $warnings = null)
             header('HTTP/1.1 404 Not Found');
             return;
         }
-        mysqli_free_result($res);
         if ($table == 'users') {
             unset($row['password']);
         }
@@ -495,7 +492,6 @@ function printJSONRecords($table, $parentIdCol, $sort)
 
         echo json_encode($row);
     }
-    mysqli_free_result($res);
     echo "\n]}";
 }
 
@@ -604,7 +600,6 @@ function getInvoiceListTotal($where)
     if ($row = mysqli_fetch_assoc($res)) {
         $sum = $row['total_sum'];
     }
-    mysqli_free_result($res);
     $result = [
         'sum' => $sum,
         'sum_rounded' => miscRound2Decim($sum, 2, '.', '')
@@ -647,7 +642,6 @@ function updateStockBalance($productId, $change, $desc)
         [$productId]
     );
     $row = mysqli_fetch_row($res);
-    mysqli_free_result($res);
     if ($row === null) {
         return json_encode(
             ['status' => 'error', 'errors' => Translator::translate('ErrInvalidValue')]
@@ -692,7 +686,6 @@ function get_max_invoice_number($invoiceId, $baseId, $perYear)
     }
     $res = mysqli_param_query($sql, $params);
     $result = mysqli_fetch_value($res);
-    mysqli_free_result($res);
     return $res;
 }
 

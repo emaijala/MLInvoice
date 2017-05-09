@@ -40,7 +40,6 @@ class InvoicePrinterOfferEmail extends InvoicePrinterOffer
             [$this->invoiceData['state_id']]
         );
         $open = mysqli_fetch_value($res);
-        mysqli_free_result($res);
         if ($open) {
             $res = mysqli_query_check(
                 'SELECT id FROM {prefix}invoice_state WHERE invoice_open=1'
@@ -48,7 +47,6 @@ class InvoicePrinterOfferEmail extends InvoicePrinterOffer
                 . ' ORDER BY order_no'
             );
             $stateId = mysqli_fetch_value($res);
-            mysqli_free_result($res);
             // Mark invoice offered
             if (null !== $stateId) {
                 mysqli_param_query(

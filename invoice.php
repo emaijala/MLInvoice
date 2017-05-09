@@ -53,7 +53,6 @@ $res = mysqli_param_query(
 if (!$row = mysqli_fetch_row($res)) {
     die('Could not find print template');
 }
-mysqli_free_result($res);
 $printTemplateFile = $row[0];
 $printParameters = $row[1];
 $printOutputFileName = $row[2];
@@ -67,7 +66,6 @@ $strQuery = 'SELECT inv.*, ref.invoice_no as refunded_invoice_no, delivery_terms
      'WHERE inv.id=?';
 $intRes = mysqli_param_query($strQuery, [$intInvoiceId]);
 $invoiceData = mysqli_fetch_assoc($intRes);
-mysqli_free_result($intRes);
 if (!$invoiceData) {
     die('Could not find invoice data');
 }
@@ -79,7 +77,6 @@ if (isOffer($intInvoiceId)) {
 $strQuery = 'SELECT * FROM {prefix}company WHERE id=?';
 $intRes = mysqli_param_query($strQuery, [$invoiceData['company_id']]);
 $recipientData = mysqli_fetch_assoc($intRes);
-mysqli_free_result($intRes);
 if (!empty($recipientData)) {
     if (!empty($recipientData['company_id'])) {
         $recipientData['vat_id'] = createVATID($recipientData['company_id']);
@@ -95,12 +92,10 @@ $intRes = mysqli_param_query($strQuery, [$invoiceData['company_id']]);
 while ($contact = mysqli_fetch_assoc($intRes)) {
     $recipientContactData[] = $contact;
 }
-mysqli_free_result($intRes);
 
 $strQuery = 'SELECT * FROM {prefix}base WHERE id=?';
 $intRes = mysqli_param_query($strQuery, [$invoiceData['base_id']]);
 $senderData = mysqli_fetch_assoc($intRes);
-mysqli_free_result($intRes);
 if (!$senderData) {
     die('Could not find invoice sender data');
 }
@@ -124,7 +119,6 @@ $invoiceRowData = [];
 while ($row = mysqli_fetch_assoc($intRes)) {
     $invoiceRowData[] = $row;
 }
-mysqli_free_result($intRes);
 
 if (sesWriteAccess()) {
     mysqli_param_query('UPDATE {prefix}invoice SET print_date=? where id=?',

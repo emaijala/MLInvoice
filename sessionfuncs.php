@@ -63,7 +63,6 @@ function sesCreateSession($strLogin, $strPasswd)
              'WHERE u.deleted=0 AND u.login=?';
         $intRes = mysqli_param_query($strQuery, [$strLogin]);
         $row = mysqli_fetch_assoc($intRes);
-        mysqli_free_result($intRes);
         if ($row) {
             $passwd_md5 = $row['passwd'];
             $md5 = md5($key . $passwd_md5);
@@ -201,7 +200,6 @@ function db_session_read($sessionID)
         'SELECT data FROM {prefix}session where id=?', [$sessionID]
     );
     $result = mysqli_fetch_value($res);
-    mysqli_free_result($res);
     return null !== $result ? $result : '';
 }
 

@@ -129,7 +129,6 @@ function createSettingsList()
                     $value = isset($elem['default'])
                         ? cond_utf8_decode($elem['default']) : '';
                 }
-                mysqli_free_result($res);
             }
 
             if ($elemType == 'CURRENCY') {

@@ -341,7 +341,6 @@ var globals = {
     if ($strForm == 'invoice' && !empty($intKeyValue)) {
         $res = mysqli_param_query('SELECT invoice_open FROM {prefix}invoice_state WHERE id=?', [$astrValues['state_id']]);
         $open = mysqli_fetch_value($res);
-        mysqli_free_result($res);
         echo '    , invoiceOpenStatus: ' . ($open ? 'true' : 'false') . "\n";
     }
 ?>
@@ -627,7 +626,6 @@ function init_rows()
             while ($row = mysqli_fetch_row($res)) {
                 $values[$row[0]] = $row[1];
             }
-            mysqli_free_result($res);
         }
         $translate = strstr($subElem['style'], ' translated');
         echo '  var arr_' . $subElem['name'] . ' = {"0":"-"';
@@ -1386,7 +1384,6 @@ function augmentListInfo($listId, $listInfo, $startRow, $rowCount)
     while ($row = mysqli_fetch_prefixed_assoc($res)) {
         $ids[] = $row[$primaryKey];
     }
-    mysqli_free_result($res);
 
     if ($listInfo['startRow'] > $startRow) {
         $listInfo['startRow'] = $startRow;

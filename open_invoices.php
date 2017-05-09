@@ -46,7 +46,6 @@ function createOpenInvoiceList()
             true
         );
     }
-    mysqli_free_result($res);
 
     $open = '';
     $res = mysqli_query_check(
@@ -58,7 +57,6 @@ function createOpenInvoiceList()
         }
         $open .= $id;
     }
-    mysqli_free_result($res);
 
     $unpaid = '';
     $res = mysqli_query_check(
@@ -70,7 +68,6 @@ function createOpenInvoiceList()
         }
         $unpaid .= $id;
     }
-    mysqli_free_result($res);
 
     $offers = '';
     $res = mysqli_query_check(
@@ -82,7 +79,6 @@ function createOpenInvoiceList()
         }
         $offers .= $id;
     }
-    mysqli_free_result($res);
 
     if ($open) {
         createList(

@@ -76,7 +76,6 @@ class AccountingReport extends InvoiceReport
         while ($row = mysqli_fetch_assoc($res)) {
             $unpaidStates[] = $row['id'];
         }
-        mysqli_free_result($res);
 
         // Include invoices that are unpaid or have been paid after the date range
         $orQueries = [];

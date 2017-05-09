@@ -163,7 +163,6 @@ function updateProductStockBalance($invoiceRowId, $productId, $count)
             'exception'
         );
         list ($oldProductId, $oldCount) = mysqli_fetch_array($res);
-        mysqli_free_result($res);
     }
 
     if ($oldProductId) {
@@ -195,7 +194,6 @@ function getPaymentDays($companyId)
             [$companyId]
         );
         $companyPaymentDays = mysqli_fetch_value($res);
-        mysqli_free_result($res);
         if (!empty($companyPaymentDays)) {
             return $companyPaymentDays;
         }
@@ -211,7 +209,6 @@ function isOffer($invoiceId)
         [$invoiceId]
     );
     $result = mysqli_fetch_value($res) ? true : false;
-    mysqli_free_result($res);
     return $result;
 }
 
@@ -225,7 +222,6 @@ function isRowOfOffer($invoiceRowId)
         [$invoiceRowId]
     );
     $result = mysqli_fetch_value($res) ? true : false;
-    mysqli_free_result($res);
     return $result;
 }
 
@@ -237,7 +233,6 @@ function getInitialOfferState()
         . ' ORDER BY order_no'
     );
     $result = mysqli_fetch_value($res) ?: 1;
-    mysqli_free_result($res);
     return $result;
 }
 
@@ -264,7 +259,6 @@ EOT
     while ($tagRow = mysqli_fetch_array($res)) {
         $tags[] = $tagRow[0];
     }
-    mysqli_free_result($res);
     return implode(',', $tags);
 }
 
@@ -342,7 +336,6 @@ function deleteRecord($table, $id)
             while ($row = mysqli_fetch_assoc($res)) {
                 updateProductStockBalance($row['id'], null, null);
             }
-            mysqli_free_result($res);
         }
         $query = "UPDATE $table SET deleted=1 WHERE id=?";
         mysqli_param_query($query, [$id], 'exception');
@@ -506,7 +499,6 @@ function create_db_dump()
             $tables[] = $row[0];
         }
     }
-    mysqli_free_result($res);
     foreach ($tables as $table) {
         $res = mysqli_query_check("show create table $table");
         $row = mysqli_fetch_assoc($res);
@@ -514,7 +506,6 @@ function create_db_dump()
             die("Could not read table definition for table $table");
         }
         echo $row['Create Table'] . ";\n\n";
-        mysqli_free_result($res);
 
         $res = mysqli_query_check("show fields from $table");
         $field_count = mysqli_num_rows($res);
@@ -526,7 +517,6 @@ function create_db_dump()
                 $columns .= ', ';
             $columns .= $row['Field'];
         }
-        mysqli_free_result($res);
         // Don't dump current sessions
         if ($table == _DB_PREFIX_ . '_session') {
             continue;
@@ -555,7 +545,6 @@ function create_db_dump()
             }
             echo ");\n";
         }
-        mysqli_free_result($res);
         echo "\n";
     }
     echo "\nSET FOREIGN_KEY_CHECKS=1;\n";
@@ -567,11 +556,9 @@ function table_valid($table)
     $res = mysqli_query_check('SHOW TABLES');
     while ($row = mysqli_fetch_row($res)) {
         if ($table == $row[0]) {
-            mysqli_free_result($res);
             return true;
         }
     }
-    mysqli_free_result($res);
     return false;
 }
 
@@ -585,7 +572,6 @@ function verifyDatabase()
 {
     $res = mysqli_query_check("SHOW TABLES LIKE '{prefix}state'");
     $stateRows = mysqli_num_rows($res);
-    mysqli_free_result($res);
     if ($stateRows == 0) {
         $res = mysqli_query_check(
             <<<EOT
@@ -611,7 +597,6 @@ EOT
         'SELECT data FROM {prefix}state WHERE id=?', ['tableconversiondone']
     );
     $stateRows = mysqli_num_rows($res);
-    mysqli_free_result($res);
     if ($stateRows == 0) {
         mysqli_query_check('SET AUTOCOMMIT = 0');
         mysqli_query_check('BEGIN');
@@ -631,7 +616,6 @@ EOT
                 return 'FAILED';
             }
         }
-        mysqli_free_result($res);
         mysqli_query_check(
             'INSERT INTO {prefix}state (id, data) VALUES'
             . " ('tableconversiondone', '1')"
@@ -645,7 +629,6 @@ EOT
         'SELECT data FROM {prefix}state WHERE id=?', ['version']
     );
     $version = mysqli_fetch_value($res);
-    mysqli_free_result($res);
     $updates = [];
     if ($version < 16) {
         $updates = array_merge(

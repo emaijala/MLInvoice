@@ -83,14 +83,12 @@ if ($func == 'clear') {
             echo $row['logo_filedata'];
         }
     }
-    mysqli_free_result($res);
     exit();
 }
 
 $maxUploadSize = getMaxUploadSize();
 $res = mysqli_query_check('SELECT @@max_allowed_packet');
 $maxPacket = mysqli_fetch_value($res);
-mysqli_free_result($res);
 
 if ($maxPacket < $maxUploadSize) {
     $maxFileSize = fileSizeToHumanReadable($maxPacket) . ' ' .

@@ -48,7 +48,6 @@ while ($row = mysqli_fetch_assoc($intRes)) {
         mysqli_param_query($strDelQuery, [$intId]);
     }
 }
-mysqli_free_result($intRes);
 
 echo htmlPageStart();
 ?>
@@ -87,7 +86,6 @@ while ($row = mysqli_fetch_assoc($intRes)) {
                     </tr>
 <?php
 }
-mysqli_free_result($intRes);
 if (!isset($intID)) {
     ?>
 <tr>

@@ -115,7 +115,6 @@ class ProductStockReport extends AbstractReport
             );
             $stockValue += $row['stock_balance'] * $row['purchase_price'];
         }
-        mysqli_free_result($intRes);
         $this->printTotals($format, $stockValue);
         $this->printFooter($format);
     }

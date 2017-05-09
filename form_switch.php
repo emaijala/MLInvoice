@@ -64,7 +64,6 @@ case 'company' :
         $strQuery = 'SELECT max(customer_no) FROM {prefix}company WHERE deleted=0';
         $intRes = mysqli_query_check($strQuery);
         $defaultCustomerNr = mysqli_fetch_value($intRes) + 1;
-        mysqli_free_result($res);
     }
 
     $astrFormElements = [
@@ -620,7 +619,6 @@ EOT;
                 ];
             }
         }
-        mysqli_free_result($intRes);
         $strQuery = 'SELECT id ' . 'FROM {prefix}invoice ' .
              'WHERE deleted=0 AND refunded_invoice_id=?';
         $intRes = mysqli_param_query($strQuery, [$intInvoiceId]);
@@ -638,7 +636,6 @@ EOT;
                 ];
             }
         }
-        mysqli_free_result($intRes);
     } else {
         if (getRequest('offer', false)) {
             $defaultState = getInitialOfferState();
@@ -794,7 +791,6 @@ EOF;
             $printButtons[] = $arr;
         }
     }
-    mysqli_free_result($res);
 
     if (count($printButtons2) > 3) {
          $printButtons2[2] = [
@@ -813,7 +809,6 @@ EOF;
     } else {
         $defaultBase = false;
     }
-    mysqli_free_result($intRes);
 
     $copyLinkOverride = "copy_invoice.php?func=$strFunc&amp;list=$strList&amp;id=$intInvoiceId";
 

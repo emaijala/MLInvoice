@@ -25,12 +25,10 @@ function addReminderFees($intInvoiceId)
          'FROM {prefix}invoice inv ' . 'WHERE inv.id = ?';
     $intRes = mysqli_param_query($strQuery, [$intInvoiceId]);
     if ($row = mysqli_fetch_assoc($intRes)) {
-        mysqli_free_result($res);
         $intStateId = $row['state_id'];
         $strDueDate = dateConvDBDate2Date($row['due_date']);
         $strPrintDate = $row['print_date'];
     } else {
-        mysqli_free_result($res);
         return Translator::translate('RecordNotFound');
     }
 
@@ -101,7 +99,6 @@ function addReminderFees($intInvoiceId)
                 );
                 $intTotSumVAT += $rowSumVAT;
             }
-            mysqli_free_result($intRes);
             $intPenalty = $intTotSumVAT * $penaltyInterest / 100 * $intDaysOverdue /
                  360;
 

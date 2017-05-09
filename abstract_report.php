@@ -94,7 +94,6 @@ abstract class AbstractReport
                 } else {
                     $param .= $res;
                 }
-                mysqli_free_result($res);
             } else {
                 $param .= $value;
             }
@@ -112,7 +111,6 @@ abstract class AbstractReport
                 $states[] = Translator::translate($row['name']);
             }
         }
-        mysqli_free_result($res);
 
         if ($states) {
             $params[] = Translator::translate('PrintReportStates') . ': '

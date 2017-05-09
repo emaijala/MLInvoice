@@ -263,7 +263,6 @@ class InvoiceReport extends AbstractReport
                     value="1" <?php echo $strChecked?>> <label for="state-<?php echo $intStateId?>"><?php echo htmlspecialchars($strStateName)?></label></div>
 <?php
         }
-        mysqli_free_result($intRes);
 ?>
         </div>
 <?php
@@ -345,7 +344,6 @@ class InvoiceReport extends AbstractReport
                 $arrParams[] = $intStateId;
             }
         }
-        mysqli_free_result($intRes);
         if ($strQuery2) {
             $strQuery2 = ' AND (' . substr($strQuery2, 0, -4) . ')';
         }
@@ -472,7 +470,6 @@ class InvoiceReport extends AbstractReport
                     $totalsPerVAT[$row2['vat']]['sumVAT'] += $intSumVAT;
                 }
             }
-            mysqli_free_result($intRes2);
 
             if (!$rows) {
                 continue;
@@ -507,7 +504,6 @@ class InvoiceReport extends AbstractReport
             $this->printRow($format, $printFields, $row, $intRowSum, $intRowVAT,
                 $intRowSumVAT, $intRowSumVAT - $rowPayments);
         }
-        mysqli_free_result($intRes);
         if ($grouping) {
             $this->printGroupSums($format, $printFields, $row, $groupTotSum,
                 $groupTotVAT, $groupTotSumVAT, $groupTotalToPay,

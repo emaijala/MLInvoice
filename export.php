@@ -50,7 +50,6 @@ class ExportData
             while ($row = mysqli_fetch_assoc($res)) {
                 $field_defs[$row['Field']] = $row;
             }
-            mysqli_free_result($res);
             if ('company' === $table || 'company_contact' === $table) {
                 $field_defs['tags'] = ['Type' => 'text'];
             }
@@ -208,7 +207,6 @@ class ExportData
                     break;
                 }
             }
-            mysqli_free_result($res);
             switch ($format) {
             case 'xml' :
                 $this->output_str("</records>\n");
@@ -481,7 +479,6 @@ EOT
             while ($crow = mysqli_fetch_assoc($cres)) {
                 $result[$tag][] = $crow;
             }
-            mysqli_free_result($cres);
         }
         return $result;
     }

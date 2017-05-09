@@ -590,7 +590,6 @@ function getInvoiceDefaults($invoiceId, $baseId, $companyId, $invoiceDate,
         if (mysqli_fetch_assoc($res)) {
             $invoiceNumber = 0;
         }
-        mysqli_free_result($res);
     }
 
     if (!$invoiceNumber) {

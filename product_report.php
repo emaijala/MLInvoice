@@ -113,7 +113,6 @@ class ProductReport extends AbstractReport
                 value="1" <?php echo $strChecked?>> <label for="state-<?php echo $intStateId?>"><?php echo htmlspecialchars($strStateName)?></label></div>
 <?php
         }
-        mysqli_free_result($intRes);
         ?>
     <div class="medium_label">
             <a class="actionlink" href="#"
@@ -178,7 +177,6 @@ class ProductReport extends AbstractReport
                 $arrParams[] = $intStateId;
             }
         }
-        mysqli_free_result($intRes);
         if ($strQuery2) {
             $strQuery2 = ' AND (' . substr($strQuery2, 0, -3) . ')';
         }
@@ -247,7 +245,6 @@ class ProductReport extends AbstractReport
             $totalVAT += $rowVAT;
             $totalSumVAT += $rowSumVAT;
         }
-        mysqli_free_result($intRes);
         if ($prevRow !== false) {
             $this->printRow(
                 $format, $prevRow['product_code'],

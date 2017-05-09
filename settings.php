@@ -40,7 +40,6 @@ function getSetting($name)
             'SELECT value from {prefix}settings WHERE name=?', [$name]
         );
         $row = mysqli_fetch_assoc($res);
-        mysqli_free_result($res);
         if ($row) {
             $settingsCache[$name] = $row['value'];
             return $settingsCache[$name];
