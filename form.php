@@ -868,6 +868,11 @@ function save_row(form_id)
         if (form_id == 'iform')
           $('.add_row_button').removeClass('ui-state-highlight');
         init_rows();
+        $('#iform_product_id').select2('val', '');
+        $('#iform_description, #iform_pcs, #iform_price, #iform_discount, #iform_vat_included').val('');
+        $('#iform_type_id').val('-');
+        $('#iform_vat_included').val('0');
+        $('#iform_vat').val('<?php echo str_replace('.', $GLOBALS['locDecimalSeparator'], getSetting("invoice_default_vat_percent")); ?>');
         if (form_id == 'iform_popup')
           $("#popup_edit").dialog('close');
         if (!obj.id)
