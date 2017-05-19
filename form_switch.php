@@ -1837,9 +1837,6 @@ case 'delivery_method' :
     break;
 
 case 'default_value' :
-    $levelsAllowed = [
-        ROLE_ADMIN
-    ];
     $strTable = '{prefix}default_value';
     $strJSONType = 'default_value';
 
