@@ -115,18 +115,18 @@ abstract class InvoicePrinterBase
                 continue;
             }
 
-            list ($rowSum, $rowVAT, $rowSumVAT) = calculateRowSum($row['price'],
-                $row['pcs'], $row['vat'], $row['vat_included'], $row['discount']);
+            list ($rowSum, $rowVAT, $rowSumVAT) = calculateRowSum($row);
             $this->invoiceRowData[$key]['rowsum'] = $rowSum;
             $this->invoiceRowData[$key]['rowvat'] = $rowVAT;
             $this->invoiceRowData[$key]['rowsumvat'] = $rowSumVAT;
             $this->totalSum += $rowSum;
             $this->totalVAT += $rowVAT;
             $this->totalSumVAT += $rowSumVAT;
-            if (isset($row['discount']) && $row['discount'] > 0)
+            if ($row['discount'] || $row['discount_amount']) {
                 $this->discountedRows = true;
+            }
 
-                // Create array grouped by the VAT base
+            // Create array grouped by the VAT base
             $vat = 'vat' . number_format($row['vat'], 2, '', '');
             if (isset($this->groupedVATs[$vat])) {
                 $this->groupedVATs[$vat]['totalsum'] += $rowSum;
@@ -539,7 +539,7 @@ abstract class InvoicePrinterBase
             $pdf->SetAutoPageBreak(TRUE, 22);
 
             $pdf->SetFont('Helvetica', 'B', 20);
-            $pdf->SetXY(10, $pdf->GetY());
+            $pdf->SetXY($this->discountedRows ? 4 : 10, $pdf->GetY());
             $pdf->Cell(80, 5, Translator::translate('invoice::InvoiceStatement'), 0, 0, 'L');
             $pdf->SetFont('Helvetica', '', 10);
             $pdf->SetX(115);
@@ -566,17 +566,20 @@ abstract class InvoicePrinterBase
         if ($this->printStyle == 'dispatch')
             $nameColWidth = 120;
         else {
-            if ($this->senderData['vat_registered'])
-                $nameColWidth = 80;
-            else
-                $nameColWidth = 130;
+            if ($this->senderData['vat_registered']) {
+                $nameColWidth = 77;
+            } else {
+                $nameColWidth = 127;
+            }
         }
 
         $showDate = getSetting('invoice_show_row_date');
-        if ($this->discountedRows)
+        if ($this->discountedRows) {
             $left = 4;
-        else
+            $nameColWidth -= 8;
+        } else {
             $left = 10;
+        }
         $pdf->SetX($left);
         if ($showDate) {
             $pdf->Cell($nameColWidth - 20, 5, Translator::translate('invoice::RowName'), 0, 0, 'L');
@@ -585,9 +588,9 @@ abstract class InvoicePrinterBase
             $pdf->Cell($nameColWidth, 5, Translator::translate('invoice::RowName'), 0, 0, 'L');
         }
         if ($this->printStyle != 'dispatch') {
-            $pdf->Cell(17, 5, Translator::translate('invoice::RowPrice'), 0, 0, 'R');
+            $pdf->Cell(20, 5, Translator::translate('invoice::RowPrice'), 0, 0, 'R');
             if ($this->discountedRows)
-                $pdf->Cell(12, 5, Translator::translate('invoice::RowDiscount'), 0, 0, 'R');
+                $pdf->Cell(20, 5, Translator::translate('invoice::RowDiscount'), 0, 0, 'R');
         }
         $pdf->Cell(20, 5, Translator::translate('invoice::RowPieces'), 0, 0, 'R');
         if ($this->printStyle != 'dispatch') {
@@ -630,13 +633,15 @@ abstract class InvoicePrinterBase
                 if ($partial) {
                     $description = Translator::translate('invoice::PartialPaymentDesc');
                 } elseif ($row['product_name']) {
-                    if ($row['description'])
+                    if ($row['description']) {
                         $description = $row['product_name'] . ' (' .
                              $row['description'] . ')';
-                    else
+                    } else {
                         $description = $row['product_name'];
-                    if (getSetting('invoice_display_product_codes') &&
-                         $row['product_code']) {
+                    }
+                    if (getSetting('invoice_display_product_codes')
+                        && $row['product_code']
+                    ) {
                         $description = $row['product_code'] . ' ' . $description;
                     }
                 } else {
@@ -649,31 +654,55 @@ abstract class InvoicePrinterBase
                 $rowSum = $rowSumVAT = $row['price'];
                 $rowVAT = 0;
             } else {
-                list ($rowSum, $rowVAT, $rowSumVAT) = calculateRowSum($row['price'],
-                    $row['pcs'], $row['vat'], $row['vat_included'], $row['discount']);
-                if ($row['vat_included'])
+                list ($rowSum, $rowVAT, $rowSumVAT) = calculateRowSum($row);
+                if ($row['vat_included']) {
                     $row['price'] /= (1 + $row['vat'] / 100);
+                }
             }
 
+            $rowMaxY = $pdf->getY() + 5;
             if ($row['price'] == 0 && $row['pcs'] == 0) {
                 $pdf->SetX($left);
                 $pdf->MultiCell(0, 5, $description, 0, 'L', false, 1, '', '', true, 0, false, true, $descMaxHeight);
             } else {
                 if ($showDate) {
                     $pdf->SetX($nameColWidth - 20 + $left);
-                    $pdf->Cell(20, 5, $this->_formatDate($row['row_date']), 0, 0,
-                        'L');
+                    $pdf->Cell(
+                        20, 5, $this->_formatDate($row['row_date']), 0, 0, 'L'
+                    );
                 } else {
                     $pdf->SetX($nameColWidth + $left);
                 }
                 if ($this->printStyle != 'dispatch') {
                     $decimals = isset($row['price_decimals']) ? $row['price_decimals'] : 2;
-                    $pdf->Cell(17, 5,
-                        $partial ? '' : $this->_formatCurrency($row['price'], $decimals), 0, 0, 'R');
-                    if ($this->discountedRows)
-                        $pdf->Cell(12, 5,
-                            (isset($row['discount']) && $row['discount'] != '0') ? $this->_formatCurrency(
-                                $row['discount'], 2, true) : '', 0, 0, 'R');
+                    $pdf->Cell(
+                        20, 5,
+                        $partial ? '' : $this->_formatCurrency($row['price'], $decimals), 0, 0, 'R'
+                    );
+                    if ($this->discountedRows) {
+                        $x = $pdf->GetX();
+                        if ((float)$row['discount']) {
+                            $discount = $this->_formatCurrency(
+                                $row['discount'], 2, true
+                            ) . '%';
+                            $pdf->Cell(20, 5, $discount, 0, 0, 'R');
+                        } elseif (!(float)$row['discount_amount']) {
+                            $pdf->Cell(20, 5, '', 0, 0, 'R');
+                        }
+                        if ((float)$row['discount_amount']) {
+                            $discount = $this->_formatCurrency(
+                                $row['discount_amount'], $decimals
+                            );
+                            if ((float)$row['discount']) {
+                                $pdf->SetXY($x, $pdf->GetY() + 5);
+                            }
+                            $pdf->Cell(20, 5, $discount, 0, 0, 'R');
+                            if ((float)$row['discount']) {
+                                $pdf->SetXY($x + 20, $pdf->GetY() - 5);
+                                $rowMaxY += 5;
+                            }
+                        }
+                    }
                 }
                 $pdf->Cell(13, 5, $partial ? '' : $this->_formatNumber($row['pcs'], 2, true), 0, 0,
                     'R');
@@ -733,6 +762,12 @@ abstract class InvoicePrinterBase
                             0.34, $style, 'T');
                     }
                     $pdf->SetY($pdf->GetY() + 18);
+                }
+
+                $currentY = $pdf->getY();
+
+                if ($rowMaxY > $currentY) {
+                    $pdf->SetY($rowMaxY);
                 }
             }
         }

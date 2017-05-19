@@ -159,20 +159,24 @@ function createFuncMenu($strFunc)
             ]
         ];
         $strNewText = '';
-        $strList = getRequest('list', '');
-        switch ($strList) {
-        case 'base':
-            $strNewText = Translator::translate('NewBase');
-            break;
-        case 'product':
-            $strNewText = Translator::translate('NewProduct');
-            break;
-        case 'default_value':
-            $strNewText = Translator::translate('NewDefaultValue');
-            break;
+        $form = getRequest('form', '');
+        if (!$form) {
+            $strList = getRequest('list', '');
+            switch ($strList) {
+            case 'base':
+                $strNewText = Translator::translate('NewBase');
+                break;
+            case 'product':
+                $strNewText = Translator::translate('NewProduct');
+                break;
+            case 'default_value':
+                $strNewText = Translator::translate('NewDefaultValue');
+                break;
+            }
+            if ($strNewText) {
+                $strNewButton = "<br/><br/><a class=\"buttonlink\" href=\"?func=settings&amp;list=$strList&amp;form=$strList\">$strNewText</a>";
+            }
         }
-        if ($strNewText)
-            $strNewButton = "<br/><br/><a class=\"buttonlink\" href=\"?func=settings&amp;list=$strList&amp;form=$strList\">$strNewText</a>";
         break;
 
     case 'reports' :

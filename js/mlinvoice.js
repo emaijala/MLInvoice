@@ -125,8 +125,9 @@ var MLInvoice = (function MLInvoice() {
                     break;
                 }
             }
-            document.getElementById(form_id + '_price').value = json.unit_price ? json.unit_price.replace('.', ',') : '';
+            document.getElementById(form_id + '_price').value = json.unit_price ? formatCurrency(json.unit_price) : '';
             document.getElementById(form_id + '_discount').value = json.discount ? json.discount.replace('.', ',') : '';
+            document.getElementById(form_id + '_discount_amount').value = json.discount_amount ? formatCurrency(json.discount_amount) : '';
             document.getElementById(form_id + '_vat').value = json.vat_percent ? json.vat_percent.replace('.', ',') : '';
             document.getElementById(form_id + '_vat_included').checked = (json.vat_included && json.vat_included == 1) ? true : false;
         });

@@ -85,7 +85,7 @@ function addReminderFees($intInvoiceId)
 
             // Add new interest
             $intTotSumVAT = 0;
-            $strQuery = 'SELECT ir.pcs, ir.price, ir.discount, ir.vat, ir.vat_included, ir.reminder_row ' .
+            $strQuery = 'SELECT ir.pcs, ir.price, ir.discount, ir.discount_amount, ir.vat, ir.vat_included, ir.reminder_row ' .
                  'FROM {prefix}invoice_row ir ' .
                  'WHERE ir.deleted=0 AND ir.invoice_id=?';
             $intRes = mysqli_param_query($strQuery, [$intInvoiceId]);
@@ -93,17 +93,14 @@ function addReminderFees($intInvoiceId)
                 if ($row['reminder_row']) {
                     continue;
                 }
-                list ($rowSum, $rowVAT, $rowSumVAT) = calculateRowSum(
-                    $row['price'], $row['pcs'], $row['vat'], $row['vat_included'],
-                    $row['discount']
-                );
+                list ($rowSum, $rowVAT, $rowSumVAT) = calculateRowSum($row);
                 $intTotSumVAT += $rowSumVAT;
             }
             $intPenalty = $intTotSumVAT * $penaltyInterest / 100 * $intDaysOverdue /
                  360;
 
-            $strQuery = 'INSERT INTO {prefix}invoice_row (invoice_id, description, pcs, price, discount, row_date, vat, vat_included, order_no, reminder_row) ' .
-                 'VALUES (?, ?, 1, ?, 0, ?, 0, 0, -1, 1)';
+            $strQuery = 'INSERT INTO {prefix}invoice_row (invoice_id, description, pcs, price, discount, discount_amount, row_date, vat, vat_included, order_no, reminder_row) ' .
+                 'VALUES (?, ?, 1, ?, 0, 0, ?, 0, 0, -1, 1)';
             mysqli_param_query(
                 $strQuery,
                 [

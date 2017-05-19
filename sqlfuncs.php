@@ -1150,6 +1150,17 @@ EOT
         );
     }
 
+    if ($version < 50) {
+        $updates = array_merge(
+            $updates,
+            [
+                'ALTER TABLE {prefix}product ADD COLUMN discount_amount decimal(15,5) NULL',
+                'ALTER TABLE {prefix}invoice_row ADD COLUMN discount_amount decimal(15,5) NULL',
+                "REPLACE INTO {prefix}state (id, data) VALUES ('version', '50')"
+            ]
+        );
+    }
+
     if (!empty($updates)) {
         mysqli_query_check('SET AUTOCOMMIT = 0');
         mysqli_query_check('BEGIN');

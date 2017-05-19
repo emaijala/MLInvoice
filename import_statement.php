@@ -379,7 +379,7 @@ class ImportStatement extends ImportFile
         }
 
         $res2 = mysqli_param_query(
-            'SELECT ir.price, ir.pcs, ir.vat, ir.vat_included, ir.discount, ir.partial_payment from {prefix}invoice_row ir where ir.deleted = 0 AND ir.invoice_id = ?',
+            'SELECT ir.price, ir.pcs, ir.vat, ir.vat_included, ir.discount, ir.discount_amount, ir.partial_payment from {prefix}invoice_row ir where ir.deleted = 0 AND ir.invoice_id = ?',
             [
                 $row['id']
             ]
@@ -390,10 +390,7 @@ class ImportStatement extends ImportFile
             if ($invoiceRow['partial_payment']) {
                 $partialPayments += $invoiceRow['price'];
             }
-            list ($rowSum, $rowVAT, $rowSumVAT) = calculateRowSum(
-                $invoiceRow['price'], $invoiceRow['pcs'], $invoiceRow['vat'],
-                $invoiceRow['vat_included'], $invoiceRow['discount']
-            );
+            list ($rowSum, $rowVAT, $rowSumVAT) = calculateRowSum($invoiceRow);
             $rowTotal += $rowSumVAT;
         }
 

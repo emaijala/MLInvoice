@@ -108,7 +108,7 @@ if ($dateOverride) {
     $queryParams[] = $dateOverride;
 }
 
-$strQuery = 'SELECT pr.product_name, pr.product_code, pr.price_decimals, pr.barcode1, pr.barcode1_type, pr.barcode2, pr.barcode2_type, ir.description, ir.pcs, ir.price, IFNULL(ir.discount, 0) as discount, ir.row_date, ir.vat, ir.vat_included, ir.reminder_row, ir.partial_payment, rt.name type ' .
+$strQuery = 'SELECT pr.product_name, pr.product_code, pr.price_decimals, pr.barcode1, pr.barcode1_type, pr.barcode2, pr.barcode2_type, ir.description, ir.pcs, ir.price, IFNULL(ir.discount, 0) as discount, IFNULL(ir.discount_amount, 0) as discount_amount, ir.row_date, ir.vat, ir.vat_included, ir.reminder_row, ir.partial_payment, rt.name type ' .
      'FROM {prefix}invoice_row ir ' .
      'LEFT OUTER JOIN {prefix}row_type rt ON rt.id = ir.type_id ' .
      'LEFT OUTER JOIN {prefix}product pr ON ir.product_id = pr.id ' .
@@ -120,12 +120,16 @@ while ($row = mysqli_fetch_assoc($intRes)) {
     $invoiceRowData[] = $row;
 }
 
+sleep(3);
+
 if (sesWriteAccess()) {
-    mysqli_param_query('UPDATE {prefix}invoice SET print_date=? where id=?',
+    mysqli_param_query(
+        'UPDATE {prefix}invoice SET print_date=? where id=?',
         [
             date('Ymd'),
             $intInvoiceId
-        ]);
+        ]
+    );
 }
 
 $printer = instantiateInvoicePrinter(trim($printTemplateFile));

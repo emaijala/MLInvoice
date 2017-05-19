@@ -407,7 +407,7 @@ class InvoiceReport extends AbstractReport
             $rowParams = [
                 $row['id']
             ];
-            $strQuery = 'SELECT ir.description, ir.pcs, ir.price, ir.discount, ir.row_date, ir.vat, ir.vat_included, ir.partial_payment ' .
+            $strQuery = 'SELECT ir.description, ir.pcs, ir.price, ir.discount, ir.discount_amount, ir.row_date, ir.vat, ir.vat_included, ir.partial_payment ' .
                  'FROM {prefix}invoice_row ir ' .
                  'WHERE ir.invoice_id=? AND ir.deleted=0';
 
@@ -450,9 +450,7 @@ class InvoiceReport extends AbstractReport
                     continue;
                 }
 
-                list ($intSum, $intVAT, $intSumVAT) = calculateRowSum(
-                    $row2['price'], $row2['pcs'], $row2['vat'],
-                    $row2['vat_included'], $row2['discount']);
+                list ($intSum, $intVAT, $intSumVAT) = calculateRowSum($row2);
 
                 $intRowSum += $intSum;
                 $intRowVAT += $intVAT;

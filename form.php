@@ -318,15 +318,14 @@ function createForm($strFunc, $strList, $strForm)
         class="iform ui-corner-tl ui-corner-bl ui-corner-br ui-corner-tr ui-helper-clearfix"
         id="stock_balance_log">
         <div class="ui-corner-tl ui-corner-tr fg-toolbar ui-toolbar ui-widget-header"><?php echo Translator::translate('StockBalanceUpdates')?></div>
-          <table id="stock_balance_change_log">
-            <tr>
-              <th class="medium"><?php echo Translator::translate('HeaderChangeLogDateTime')?></th>
-              <th class="medium"><?php echo Translator::translate('HeaderChangeLogUser')?></th>
-              <th class="small"><?php echo Translator::translate('HeaderChangeLogAmount')?></th>
-              <th class="long"><?php echo Translator::translate('HeaderChangeLogDescription')?></th>
-            </tr>
-          </table>
-        </div>
+        <table id="stock_balance_change_log">
+        <tr>
+            <th class="medium"><?php echo Translator::translate('HeaderChangeLogDateTime')?></th>
+            <th class="medium"><?php echo Translator::translate('HeaderChangeLogUser')?></th>
+            <th class="small"><?php echo Translator::translate('HeaderChangeLogAmount')?></th>
+            <th class="long"><?php echo Translator::translate('HeaderChangeLogDescription')?></th>
+        </tr>
+        </table>
       </div>
 <?php
     }
@@ -682,10 +681,12 @@ function init_rows()
       var items = record.pcs;
       var price = record.price;
       var discount = record.discount || 0;
+      var discountAmount = record.discount_amount || 0;
       var VATPercent = record.vat;
       var VATIncluded = record.vat_included;
 
       price *= (1 - discount / 100);
+      price -= discountAmount;
       var sum = 0;
       var sumVAT = 0;
       var VAT = 0;
@@ -742,11 +743,13 @@ function init_rows()
 
       var items = record.pcs;
       var price = record.price;
-      var discount = record.discount;
+      var discount = record.discount || 0;
+      var discountAmount = record.discount_amount || 0;
       var VATPercent = record.vat;
       var VATIncluded = record.vat_included;
 
       price *= (1 - discount / 100);
+      price -= discountAmount;
       var sum = 0;
       var sumVAT = 0;
       var VAT = 0;

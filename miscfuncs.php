@@ -486,10 +486,21 @@ function sanitize($str)
     return preg_replace('/[^\w\d]/', '', $str);
 }
 
-function calculateRowSum($price, $count, $VAT, $VATIncluded, $discount)
+function calculateRowSum($row)
 {
-    if (isset($discount))
+    $price = $row['price'];
+    $count = $row['pcs'];
+    $VAT = $row['vat'];
+    $VATIncluded = $row['vat_included'];
+    $discount = $row['discount'];
+    $discountAmount = $row['discount_amount'];
+
+    if ($discount) {
         $price *= (1 - $discount / 100);
+    }
+    if ($discountAmount) {
+        $price -= $discountAmount;
+    }
 
     if ($VATIncluded) {
         $rowSumVAT = round($count * $price, 2);

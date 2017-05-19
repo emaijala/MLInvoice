@@ -527,8 +527,17 @@ EOS;
             'label' => 'DiscountPercent',
             'type' => 'INT',
             'style' => 'percent',
-            'position' => 2,
+            'position' => 1,
             'decimals' => 1,
+            'allow_null' => true
+        ],
+        [
+            'name' => 'discount_amount',
+            'label' => 'DiscountAmount',
+            'type' => 'INT',
+            'style' => 'medium',
+            'position' => 2,
+            'decimals' => getSetting('unit_price_decimals'),
             'allow_null' => true
         ],
         [
@@ -1173,12 +1182,22 @@ case 'invoice_rows' :
         ],
         [
             'name' => 'discount',
-            'label' => 'Discount',
+            'label' => 'DiscountPct',
             'type' => 'INT',
             'style' => 'percent',
             'position' => 0,
             'default' => 0,
             'allow_null' => true
+        ],
+        [
+            'name' => 'discount_amount',
+            'label' => 'DiscountAmount',
+            'type' => 'INT',
+            'style' => 'currency',
+            'position' => 0,
+            'default' => 0,
+            'allow_null' => true,
+            'decimals' => getSetting('unit_price_decimals')
         ],
         [
             'name' => 'vat',

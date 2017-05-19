@@ -192,6 +192,7 @@ class ProductReport extends AbstractReport
 
         $strProductQuery = 'SELECT p.id, p.product_code, p.product_name, ir.description, ' .
              'ir.vat, ir.pcs, t.name as unit, ir.price, ir.vat_included, ir.discount ' .
+             'ir.discount_amount ' .
              'FROM {prefix}invoice_row ir ' .
              'LEFT OUTER JOIN {prefix}product p ON p.id = ir.product_id ' .
              'LEFT OUTER JOIN {prefix}row_type t ON t.id = ir.type_id ' .
@@ -229,13 +230,7 @@ class ProductReport extends AbstractReport
             $prevRow = $row;
 
             $productCount += $row['pcs'];
-            list ($rowSum, $rowVAT, $rowSumVAT) = calculateRowSum(
-                $row['price'],
-                $row['pcs'],
-                $row['vat'],
-                $row['vat_included'],
-                $row['discount']
-            );
+            list ($rowSum, $rowVAT, $rowSumVAT) = calculateRowSum($row);
 
             $productSum += $rowSum;
             $productVAT += $rowVAT;

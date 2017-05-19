@@ -222,7 +222,20 @@
     <DeliveredQuantity QuantityUnitCode="{@type}"><xsl:value-of select="format-number(pcs, '0,00', 'euro')"/></DeliveredQuantity>
     <UnitPriceAmount AmountCurrencyIdentifier="EUR"><xsl:value-of select="format-number(price, '0,00###', 'euro')"/></UnitPriceAmount>
     <RowDeliveryDate Format="CCYYMMDD"><xsl:value-of select="row_date"/></RowDeliveryDate>
+    <xsl:choose>
+      <xsl:when test="discount_amount=0">
     <RowDiscountPercent><xsl:value-of select="format-number(discount, '0,0#', 'euro')"/></RowDiscountPercent>
+      </xsl:when>
+      <xsl:when test="discount=0 and discount_amount!=0">
+    <RowDiscountAmount AmountCurrencyIdentifier="EUR"><xsl:value-of select="format-number(discount_amount, '0,00###', 'euro')"/></RowDiscountAmount>
+      </xsl:when>
+      <xsl:otherwise>
+    <RowProgressiveDiscountDetails>
+      <RowDiscountPercent><xsl:value-of select="format-number(discount, '0,0#', 'euro')"/></RowDiscountPercent>
+      <RowDiscountAmount AmountCurrencyIdentifier="EUR"><xsl:value-of select="format-number(discount_amount, '0,00###', 'euro')"/></RowDiscountAmount>
+    </RowProgressiveDiscountDetails>
+      </xsl:otherwise>
+    </xsl:choose>
     <RowVatRatePercent><xsl:value-of select="format-number(vat, '0,0#', 'euro')"/></RowVatRatePercent>
     <RowVatAmount AmountCurrencyIdentifier="EUR"><xsl:value-of select="format-number(rowvat, '0,00###', 'euro')"/></RowVatAmount>
     <RowVatExcludedAmount AmountCurrencyIdentifier="EUR"><xsl:value-of select="format-number(rowsum, '0,00###', 'euro')"/></RowVatExcludedAmount>

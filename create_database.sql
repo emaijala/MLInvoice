@@ -194,6 +194,7 @@ CREATE TABLE mlinvoice_product (
   vat_percent decimal(9,1) NOT NULL default 0,
   vat_included tinyint NOT NULL default 0,
   discount decimal(4,1) NULL,
+  discount_amount decimal(15,5) NULL,
   price_decimals decimal(1,0) NOT NULL default 2,
   order_no int(11) default NULL,
   stock_balance decimal(11,2) default NULL,
@@ -251,6 +252,7 @@ CREATE TABLE mlinvoice_invoice_row (
   reminder_row tinyint NOT NULL default 0,
   partial_payment tinyint NOT NULL default 0,
   discount decimal(4,1) NULL,
+  discount_amount decimal(15,5) NULL,
   PRIMARY KEY (id),
   FOREIGN KEY (invoice_id) REFERENCES mlinvoice_invoice(id) ON DELETE CASCADE,
   FOREIGN KEY (product_id) REFERENCES mlinvoice_product(id),
@@ -349,7 +351,7 @@ CREATE TABLE mlinvoice_default_value (
 
 SET NAMES 'utf8';
 
-INSERT INTO mlinvoice_state (id, data) VALUES ('version', '49');
+INSERT INTO mlinvoice_state (id, data) VALUES ('version', '50');
 
 INSERT INTO mlinvoice_state (id, data) VALUES ('tableconversiondone', '1');
 

@@ -188,8 +188,7 @@ class InvoicePrinterOffer extends InvoicePrinterBase
             }
 
             // Sums
-            list ($rowSum, $rowVAT, $rowSumVAT) = calculateRowSum($row['price'],
-                $row['pcs'], $row['vat'], $row['vat_included'], $row['discount']);
+            list ($rowSum, $rowVAT, $rowSumVAT) = calculateRowSum($row);
             if ($row['vat_included'])
                 $row['price'] /= (1 + $row['vat'] / 100);
 

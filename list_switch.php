@@ -127,8 +127,8 @@ case 'offer':
 LEFT OUTER JOIN (
   SELECT ir.invoice_id, ROUND(
     CASE WHEN ir.vat_included = 0
-      THEN ir.price * (1 - IFNULL(ir.discount, 0) / 100) * ir.pcs
-      ELSE ROUND(ir.price * (1 - IFNULL(ir.discount, 0) / 100) * ir.pcs, 2) / (1 + ir.vat / 100)
+      THEN ((ir.price * (1 - IFNULL(ir.discount, 0) / 100) - IFNULL(ir.discount_amount, 0)) * ir.pcs
+      ELSE ROUND((ir.price * (1 - IFNULL(ir.discount, 0) / 100) - IFNULL(ir.discount_amount, 0)) * ir.pcs, 2) / (1 + ir.vat / 100)
     END, 2) as row_total
   FROM {prefix}invoice_row ir
   WHERE ir.deleted = 0) it
@@ -140,8 +140,8 @@ LEFT OUTER JOIN (
   SELECT ir.invoice_id, ROUND(
     CASE WHEN ir.partial_payment = 0 THEN
       CASE WHEN ir.vat_included = 0
-        THEN ROUND(ir.price * (1 - IFNULL(ir.discount, 0) / 100) * ir.pcs, 2) * (1 + ir.vat / 100)
-        ELSE ir.price * (1 - IFNULL(ir.discount, 0) / 100) * ir.pcs
+        THEN ROUND((ir.price * (1 - IFNULL(ir.discount, 0) / 100) - IFNULL(ir.discount_amount, 0)) * ir.pcs, 2) * (1 + ir.vat / 100)
+        ELSE (ir.price * (1 - IFNULL(ir.discount, 0) / 100) - IFNULL(ir.discount_amount, 0)) * ir.pcs
       END
     ELSE
       ir.price
