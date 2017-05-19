@@ -877,28 +877,28 @@ EOF;
             'attached_elem' => $addCompanyCode,
             'elem_attributes' => $companyOnChange
         ],
-        $isOffer ? [] : [
+        [
             'name' => 'reference',
             'label' => 'ClientsReference',
             'type' => 'TEXT',
-            'style' => 'medium',
+            'style' => 'medium' . ($isOffer ? ' hidden' : ''),
             'position' => 2,
             'allow_null' => true
         ],
-        $isOffer ? [] : [
+        [
             'name' => 'invoice_no',
             'label' => 'InvoiceNumber',
             'type' => 'INT',
-            'style' => 'medium hidezerovalue',
+            'style' => 'medium hidezerovalue' . ($isOffer ? ' hidden' : ''),
             'position' => 1,
             'default' => null,
             'allow_null' => true
         ],
-        $isOffer ? [] : [
+        [
             'name' => 'ref_number',
             'label' => 'ReferenceNumber',
             'type' => 'TEXT',
-            'style' => 'medium hidezerovalue',
+            'style' => 'medium hidezerovalue' . ($isOffer ? ' hidden' : ''),
             'position' => 2,
             'default' => null,
             'attached_elem' => $updateInvoiceNr,
@@ -921,21 +921,21 @@ EOF;
             'default' => 'DATE_NOW+' . getSetting('invoice_payment_days'),
             'attached_elem' => $updateDates
         ],
-        $isOffer ? [] : [
+        [
             'name' => 'interval_type',
             'label' => 'InvoiceIntervalType',
             'type' => 'SELECT',
-            'style' => 'medium',
+            'style' => 'medium' . ($isOffer ? ' hidden' : ''),
             'position' => 1,
             'options' => $intervalOptions,
             'default' => '0',
             'allow_null' => true
         ],
-        $isOffer ? [] : [
+        [
             'name' => 'next_interval_date',
             'label' => 'InvoiceNextIntervalDate',
             'type' => 'INTDATE',
-            'style' => 'date',
+            'style' => 'date' . ($isOffer ? ' hidden' : ''),
             'position' => 2,
             'default' => '',
             'allow_null' => true
@@ -949,11 +949,11 @@ EOF;
             'position' => 1,
             'default' => $defaultState
         ],
-        $isOffer ? [] : [
+        [
             'name' => 'payment_date',
             'label' => 'PayDate',
             'type' => 'INTDATE',
-            'style' => 'date',
+            'style' => 'date' . ($isOffer ? ' hidden' : ''),
             'position' => 2,
             'allow_null' => true,
             'attached_elem' => $markPaidTodayButton,
@@ -968,15 +968,15 @@ EOF;
             'default' => 0,
             'allow_null' => true
         ],
-        $isOffer ? [
+        [
             'name' => 'delivery_time',
             'label' => 'DeliveryTime',
             'type' => 'TEXT',
-            'style' => 'medium hidezerovalue',
+            'style' => 'medium hidezerovalue' . (!$isOffer ? ' hidden' : ''),
             'position' => 2,
             'default' => null,
             'allow_null' => true
-        ] : [],
+        ],
         [
             'name' => 'delivery_terms_id',
             'label' => 'DeliveryTerms',
@@ -1088,8 +1088,9 @@ EOF;
 
     for ($i = 2; $i < count($printButtons); $i ++) {
         $astrFormElements[] = $printButtons[$i];
-        if (isset($printButtons2[$i]))
+        if (isset($printButtons2[$i])) {
             $astrFormElements[] = $printButtons2[$i];
+        }
     }
 
     $astrFormElements[] = [

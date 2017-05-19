@@ -520,3 +520,7 @@ img.image {
 .bigdrop {
   max-width: 80em;
 }
+
+.hidden {
+  display: none;
+}

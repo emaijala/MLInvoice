@@ -180,8 +180,10 @@ function createForm($strFunc, $strList, $strForm)
     $rowOpen = false;
     $formFieldMode = sesWriteAccess() && !$readOnlyForm ? 'MODIFY' : 'READONLY';
     foreach ($astrFormElements as $elem) {
-        if ($elem['type'] === false)
+        if ($elem['type'] === false) {
             continue;
+        }
+        $style = $elem['style'] !== '' ? ' ' . $elem['style'] : '';
 
         $fieldMode = isset($elem['read_only']) && $elem['read_only'] ? 'READONLY' : $formFieldMode;
 
@@ -191,11 +193,11 @@ function createForm($strFunc, $strList, $strForm)
             $rowOpen = false;
             ?>
         <tr>
-                    <td class="sublabel ui-widget-header ui-state-default" colspan="4">
+          <td class="ui-widget-header ui-state-default sublabel$style" colspan="4">
             <?php echo Translator::translate($elem['label'])?>
           </td>
                 </tr>
-  <?php
+        <?php
             continue;
         }
 
@@ -231,7 +233,7 @@ function createForm($strFunc, $strList, $strForm)
         if ($blnNew
             && in_array($elem['type'], ['BUTTON', 'JSBUTTON', 'IMAGE', 'DROPDOWNMENU'])
         ) {
-            echo '          <td class="label">&nbsp;</td>';
+            echo '          <td class="label$style">&nbsp;</td>';
         } elseif (in_array($elem['type'], ['BUTTON', 'JSBUTTON', 'DROPDOWNMENU'])) {
             $intColspan = 1;
             ?>
@@ -280,7 +282,7 @@ function createForm($strFunc, $strList, $strForm)
             } else {
                 ?>
           <td id="<?php echo htmlentities($elem['name']) . '_label' ?>"
-                    class="label"
+                    class="label<?php echo $style?>"
                     <?php if (isset($elem['title'])) echo ' title="' . Translator::translate($elem['title']) . '"'?>><?php echo Translator::translate($elem['label'])?></td>
 <?php
             }
