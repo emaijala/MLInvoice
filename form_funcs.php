@@ -48,6 +48,9 @@ function getPostValues(&$formElements, $primaryKey, $parentKey = FALSE)
                 || ($elem['type'] == 'INT' && $values[$elem['name']] === ''))
             ) {
                 $values[$elem['name']] = getFormDefaultValue($elem, $parentKey);
+                if (null === $values[$elem['name']]) {
+                    $values[$elem['name']] = '';
+                }
             } elseif ($elem['type'] == 'INT') {
                 $values[$elem['name']]
                     = str_replace(',', '.', $values[$elem['name']]);
@@ -59,11 +62,18 @@ function getPostValues(&$formElements, $primaryKey, $parentKey = FALSE)
     return $values;
 }
 
-// Get the default value for the given form element
+/**
+ * Get the default value for the given form element
+ *
+ * @param string $elem      Element id
+ * @param string $parentKey Parent record id
+ *
+ * @return mixed Default value
+ */
 function getFormDefaultValue($elem, $parentKey)
 {
     if (!isset($elem['default'])) {
-        return false;
+        return null;
     }
     if ($elem['default'] === 'DATE_NOW') {
         return date(Translator::translate('DateFormat'));
@@ -185,7 +195,7 @@ function saveFormData($table, &$primaryKey, &$formElements, &$values, &$warnings
         case 'INT':
         case 'HID_INT':
         case 'SECHID_INT':
-            $arrValues[] = ($value !== '' && $value !== false)
+            $arrValues[] = ($value !== '' && $value !== false  && $value !== null)
                 ? str_replace(',', '.', $value)
                 : ($elem['allow_null'] ? null : 0);
             break;

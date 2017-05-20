@@ -1136,16 +1136,23 @@ function popup_editor(event, title, id, copy_row)
             <tr id="form_row">
 <?php
         foreach ($subFormElements as $subElem) {
-            if (!in_array($subElem['type'],
-                [
-                    'HID_INT',
-                    'CONST_HID_INT',
-                    'SECHID_INT',
-                    'BUTTON',
-                    'NEWLINE',
-                    'ROWSUM'
-                ])) {
+            if (true
+                && !in_array(
+                    $subElem['type'],
+                    [
+                        'HID_INT',
+                        'CONST_HID_INT',
+                        'SECHID_INT',
+                        'BUTTON',
+                        'NEWLINE',
+                        'ROWSUM'
+                    ]
+                )
+            ) {
                 $value = getFormDefaultValue($subElem, $intKeyValue);
+                if (null === $value) {
+                    $value = '';
+                }
                 ?>
               <td
                                     class="label <?php echo strtolower($subElem['style'])?>_label">
