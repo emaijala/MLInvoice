@@ -320,7 +320,7 @@ case 'invoice_state' :
             'width' => 450,
             'type' => 'TEXT',
             'header' => 'Status',
-            'translate' => true
+            'pretranslate' => true
         ]
     ];
     // array('order_no','name');
@@ -432,7 +432,7 @@ case 'row_type' :
             'width' => 450,
             'type' => 'TEXT',
             'header' => 'RowType',
-            'translate' => true
+            'pretranslate' => true
         ]
     ];
     $strMainForm = 'row_type';
@@ -527,7 +527,7 @@ case 'print_template' :
             'width' => 200,
             'type' => 'TEXT',
             'header' => 'PrintTemplateName',
-            'translate' => true
+            'pretranslate' => true
         ],
         [
             'name' => 'inactive',
@@ -691,7 +691,7 @@ case 'session_type' :
             'width' => 450,
             'type' => 'TEXT',
             'header' => 'SessionType',
-            'translate' => true
+            'pretranslate' => true
         ]
     ];
     $strMainForm = 'session_type';

@@ -280,6 +280,8 @@ function createJSONList($strFunc, $strList, $startRow, $rowCount, $sort, $filter
             if ($field['type'] == 'TEXT' || $field['type'] == 'INT') {
                 if (isset($field['mappings']) && isset($field['mappings'][$value])) {
                     $value = Translator::translate($field['mappings'][$value]);
+                } elseif (!empty($field['pretranslate'])) {
+                    $value = Translator::translate($value);
                 }
             } elseif ($field['type'] == 'CURRENCY') {
                 $value = miscRound2Decim(
