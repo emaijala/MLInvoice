@@ -191,7 +191,7 @@ class ProductReport extends AbstractReport
         }
 
         $strProductQuery = 'SELECT p.id, p.product_code, p.product_name, ir.description, ' .
-             'ir.vat, ir.pcs, t.name as unit, ir.price, ir.vat_included, ir.discount ' .
+             'ir.vat, ir.pcs, t.name as unit, ir.price, ir.vat_included, ir.discount, ' .
              'ir.discount_amount ' .
              'FROM {prefix}invoice_row ir ' .
              'LEFT OUTER JOIN {prefix}product p ON p.id = ir.product_id ' .
@@ -217,7 +217,7 @@ class ProductReport extends AbstractReport
                 || $prevRow['vat'] != $row['vat'])
             ) {
                 $this->printRow(
-                    $format, $prevRow['product_code'],
+                    $format, $prevRow['id'], $prevRow['product_code'],
                     $prevRow['product_name'], $prevRow['description'], $productCount,
                     $prevRow['unit'], $productSum, $prevRow['vat'], $productVAT,
                     $productSumVAT
@@ -242,7 +242,7 @@ class ProductReport extends AbstractReport
         }
         if ($prevRow !== false) {
             $this->printRow(
-                $format, $prevRow['product_code'],
+                $format, $prevRow['id'], $prevRow['product_code'],
                 $prevRow['product_name'], $prevRow['description'], $productCount,
                 $prevRow['unit'], $productSum, $prevRow['vat'], $productVAT,
                 $productSumVAT
@@ -332,7 +332,7 @@ class ProductReport extends AbstractReport
 <?php
     }
 
-    private function printRow($format, $strCode, $strProduct, $strDescription,
+    private function printRow($format, $id, $strCode, $strProduct, $strDescription,
         $intCount, $strUnit, $intSum, $intVATPercent, $intVAT, $intSumVAT)
     {
         if ($strDescription) {
@@ -384,8 +384,12 @@ class ProductReport extends AbstractReport
             <td class="input">
             <?php echo $strCode?>
         </td>
-            <td class="input">
-            <?php echo $strProduct?>
+            <td class="input" data-sort="<?php echo $strProduct?>">
+            <?php if (null !== $id) { ?>
+              <a href="index.php?func=settings&list=product&form=product&id=<?php echo htmlspecialchars($id)?>"><?php echo $strProduct?></a>
+            <?php } else { ?>
+              <?php echo $strProduct?>
+            <?php } ?>
         </td>
             <td class="input" style="text-align: right">
             <?php echo miscRound2Decim($intCount)?>

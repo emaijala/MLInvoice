@@ -110,7 +110,7 @@ class ProductStockReport extends AbstractReport
         $intRes = mysqli_param_query($strQuery, $arrParams);
         while ($row = mysqli_fetch_assoc($intRes)) {
             $this->printRow(
-                $format, $row['product_code'], $row['product_name'],
+                $format, $row['id'], $row['product_code'], $row['product_name'],
                 $row['purchase_price'], $row['unit_price'], $row['stock_balance']
             );
             $stockValue += $row['stock_balance'] * $row['purchase_price'];
@@ -195,7 +195,7 @@ class ProductStockReport extends AbstractReport
 <?php
     }
 
-    protected function printRow($format, $strCode, $strProduct, $purchasePrice,
+    protected function printRow($format, $id, $strCode, $strProduct, $purchasePrice,
         $unitPrice, $stockBalance)
     {
         if ($format == 'pdf') {
@@ -229,8 +229,8 @@ class ProductStockReport extends AbstractReport
         <td class="input">
             <?php echo $strCode?>
         </td>
-        <td class="input">
-            <?php echo $strProduct?>
+        <td class="input" data-sort="<?php echo $strProduct?>">
+            <a href="index.php?func=settings&list=product&form=product&id=<?php echo htmlspecialchars($id)?>"><?php echo $strProduct?></a>
         </td>
         <td class="input" style="text-align: right">
             <?php echo miscRound2Decim($unitPrice)?>
