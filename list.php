@@ -270,7 +270,7 @@ function createJSONList($strFunc, $strList, $startRow, $rowCount, $sort, $filter
     while ($row = mysqli_fetch_prefixed_assoc($res)) {
         $astrPrimaryKeys[] = $row[$strPrimaryKey];
         $deleted = $row[$strDeletedField] ? ' deleted' : '';
-        $strLink = "?func=$strFunc&list=$strList&listid=$strFunc&form=$strMainForm"
+        $strLink = "?func=$strFunc&list=$strList&form=$strMainForm"
             . '&listid=' . urlencode($listId) . '&id=' . $row[$strPrimaryKey];
         $resultValues = [$strLink];
         $overdue = '';
