@@ -521,10 +521,9 @@ abstract class InvoicePrinterBase
         $pdf = $this->pdf;
 
         $afterword = $this->replacePlaceholders($this->invoiceData['afterword']);
-        $pdf->setX($this->left);
         $pdf->SetTextColor(0);
         $pdf->SetFont('Helvetica', '', 10);
-        $pdf->SetY($pdf->GetY() + 5);
+        $pdf->setXY($this->left, $pdf->GetY() + 5);
         $pdf->MultiCell(200 - $this->left, 5, $afterword, 0, 'L', 0);
     }
 
@@ -532,6 +531,7 @@ abstract class InvoicePrinterBase
     {
         $pdf = $this->pdf;
         $pdf->SetFont('Helvetica', 'B', 20);
+        $pdf->setX($this->left);
         $pdf->MultiCell(180, 5, Translator::translate('invoice::SeeSeparateStatement'), 0, 'L', 0);
     }
 
