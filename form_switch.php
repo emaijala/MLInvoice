@@ -1206,10 +1206,7 @@ case 'invoice_rows' :
             'type' => 'INT',
             'style' => 'percent',
             'position' => 0,
-            'default' => str_replace(
-                '.', Translator::translate('DecimalSeparator'),
-                getSetting('invoice_default_vat_percent')
-            ),
+            'default' => getSetting('invoice_default_vat_percent'),
             'allow_null' => false
         ],
         [

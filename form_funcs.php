@@ -92,7 +92,12 @@ function getFormDefaultValue($elem, $parentKey)
         // POST has special treatment in iform
         return '';
     }
-    return $elem['default'];
+    $result = $elem['default'];
+    if ($elem['type'] == 'INT') {
+        $decimals = isset($elem['decimals']) ? $elem['decimals'] : 2;
+        $result = miscRound2Decim($result, $decimals);
+    }
+    return $result;
 }
 
 // Save form data. If primaryKey is not set, add a new record and set it, otherwise update existing record.
