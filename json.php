@@ -686,6 +686,6 @@ function get_max_invoice_number($invoiceId, $baseId, $perYear)
     }
     $res = mysqli_param_query($sql, $params);
     $result = mysqli_fetch_value($res);
-    return $res;
+    return $result;
 }
 
