@@ -124,7 +124,12 @@ function createForm($strFunc, $strList, $strForm)
         if ($res === 'deleted')
             $strMessage .= Translator::translate('DeletedRecord') . '<br>';
         elseif ($res === 'notfound') {
-            echo Translator::translate('EntryDeleted');
+            $msg = Translator::translate('RecordNotFound');
+            echo <<<EOT
+<div class="form_container">
+  <div class="message">$msg</div>
+</div>
+EOT;
             die();
         }
     }
@@ -320,7 +325,7 @@ function createForm($strFunc, $strList, $strForm)
         class="iform ui-corner-tl ui-corner-bl ui-corner-br ui-corner-tr ui-helper-clearfix"
         id="stock_balance_log">
         <div class="ui-corner-tl ui-corner-tr fg-toolbar ui-toolbar ui-widget-header"><?php echo Translator::translate('StockBalanceUpdates')?></div>
-        <table id="stock_balance_change_log">
+        <table id="stock_balance_change_log" class="iform">
         <tr>
             <th class="medium"><?php echo Translator::translate('HeaderChangeLogDateTime')?></th>
             <th class="medium"><?php echo Translator::translate('HeaderChangeLogUser')?></th>

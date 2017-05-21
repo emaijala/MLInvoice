@@ -386,7 +386,7 @@ function fetchRecord($table, $primaryKey, &$formElements, &$values)
         return 'notfound';
     }
 
-    if ($row['deleted']) {
+    if (!empty($row['deleted'])) {
         $result = 'deleted';
     }
 
