@@ -211,79 +211,79 @@ td.reportsublabel {
   clear: both;
   margin-top: 10px;
 }
-td.tiny {
+#itable td.tiny {
   width: 40px;
 }
-td.tiny_label {
+#itable td.tiny_label {
   width: 40px;
 }
-td.xshort {
+#itable td.xshort {
   width: 55px;
 }
-td.xshort_label {
+#itable td.xshort_label {
   width: 55px;
 }
-td.short {
+#itable td.short {
   width: 70px;
 }
-td.short_label {
+#itable td.short_label {
   width: 70px;
 }
-td.date_label {
+#itable td.date_label {
   width: 75px;
 }
-td.small_label {
+#itable td.small_label {
   width: 100px;
 }
-th.small, td.small {
+#itable th.small, #itable td.small {
   width: 100px;
 }
-td.date {
+#itable td.date {
   width: 75px;
 }
-th.medium, td.medium {
+#itable th.medium, #itable td.medium {
   width: 160px;
 }
-td.medium_label {
+#itable td.medium_label {
   width: 160px;
 }
-th.long, td.long {
+#itable th.long, #itable td.long {
   width: 240px;
 }
-td.long_label {
+#itable td.long_label {
   width: 240px;
 }
-td.currency {
+#itable td.currency {
   width: 60px;
   padding-right: 8px;
   text-align: right;
 }
-td.currency_label {
+#itable td.currency_label {
   width: 60px;
   padding-right: 8px;
 }
-td.count {
+#itable td.count {
   width: 60px;
   text-align: right;
   padding-right: 4px;
 }
-td.count_label {
+#itable td.count_label {
   width: 60px;
 }
-td.measurement {
+#itable td.measurement {
   width: 60px;
   text-align: right;
   padding-right: 4px;
 }
-td.measurement_label {
+#itable td.measurement_label {
   width: 60px;
 }
-td.percent {
+#itable td.percent {
   width: 30px;
   text-align: right;
   padding-right: 4px;
 }
-td.percent_label {
+#itable td.percent_label {
   width: 30px;
 }
 
