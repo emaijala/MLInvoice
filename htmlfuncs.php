@@ -139,9 +139,11 @@ function htmlPageStart($strTitle = '', $arrExtraScripts = [])
 
     $keepAlive = getSetting('session_keepalive') ? 'true' : 'false';
 
+    $lang = Translator::translate('HTMLLanguageCode');
+
     $strHtmlStart = <<<EOT
 <!DOCTYPE html>
-<html>
+<html lang="$lang">
 <head>
   <meta http-equiv="Content-Type" content="text/html; charset=$charset">
 $xUACompatible  <title>$strTitle</title>
