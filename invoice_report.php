@@ -711,7 +711,7 @@ class InvoiceReport extends AbstractReport
     <tr>
       <?php if (in_array('invoice_no', $printFields)) {?>
         <td class="input" data-sort="<?php echo htmlspecialchars($row['invoice_no'])?>">
-          <a href="index.php?func=invoices&list=invoices&listid=invoices&form=invoice&id=<?php echo htmlspecialchars($row['id'])?>"><?php echo ('' != $row['invoice_no'] ? htmlspecialchars($row['invoice_no']) : '-')?></a>
+          <a href="index.php?func=invoices&list=invoices&form=invoice&id=<?php echo htmlspecialchars($row['id'])?>"><?php echo ('' != $row['invoice_no'] ? htmlspecialchars($row['invoice_no']) : '-')?></a>
         </td>
       <?php
         }
