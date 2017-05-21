@@ -84,9 +84,10 @@ for ($j = 0; $j < count($astrFormElements); $j ++) {
         $astrFormElements[$j]['type'] != 'BUTTON' &&
         $astrFormElements[$j]['type'] != 'JSBUTTON' &&
         $astrFormElements[$j]['type'] != 'DROPDOWNMENU' &&
-        !in_array($astrFormElements[$j]['name'], $astrSelectedFields, true)) {
+        !in_array($astrFormElements[$j]['name'], $astrSelectedFields, true)
+    ) {
         $listValues[$astrFormElements[$j]['name']] = str_replace('<br>', ' ',
-            $astrFormElements[$j]['label']);
+            Translator::translate($astrFormElements[$j]['label']));
     }
     $strControlType = $astrFormElements[$j]['type'];
     $strControlName = $astrFormElements[$j]['name'];
@@ -189,16 +190,10 @@ $(function() {
                         <tr>
                             <th class="sublabel">
     <?php echo Translator::translate('SearchField')?>
-
-
-
-
-
-
-                            </td>
+                            </th>
                             <th class="sublabel">&nbsp;
 
-                            </td>
+                            </th>
                             <th class="sublabel">
     <?php echo Translator::translate('SearchTerm')?>
 
@@ -207,8 +202,8 @@ $(function() {
 
 
 
-                            </td>
-                            <td></td>
+                            </th>
+                            <th></th>
                         </tr>
                     </thead>
                     <tbody>
@@ -242,7 +237,7 @@ for ($j = 0; $j < count($astrFormElements); $j ++) {
         ?>
 <tr class="search_row">
                             <td class="label">
-    <?php echo $astrFormElements[$j]['label']?>
+    <?php echo Translator::translate($astrFormElements[$j]['label'])?>
   </td>
                             <td class="field">
     <?php echo htmlListBox('searchmatch_' . $astrFormElements[$j]['name'], $comparisonValues, $strSearchMatch, '', 0)?>
