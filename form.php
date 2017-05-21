@@ -1132,6 +1132,8 @@ function popup_editor(event, title, id, copy_row)
         }
     }
     ?>
+              <th></th>
+              <th></th>
             </tr>
                         </thead>
                         <tbody>

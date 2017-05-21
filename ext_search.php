@@ -297,7 +297,7 @@ if ($blnSave && $strSearchName) {
   </td>
                             <td class="field"><input class="medium" type="text"
                                 name="searchname" value="<?php echo $strSearchName?>"></td>
-                            <td><input type="hidden" name="save_x" value="0"> <a
+                            <td colspan="2"><input type="hidden" name="save_x" value="0"> <a
                                 class="actionlink" href="#"
                                 onclick="self.document.forms[0].save_x.value=1; self.document.forms[0].submit(); return false;"><?php echo Translator::translate('SaveSearch')?></a>
                             </td>

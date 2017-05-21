@@ -1003,7 +1003,7 @@ EOF;
             'type' => 'AREA',
             'style' => 'large',
             'position' => 1,
-            'attached_elem' => '<span class="select-default-text" data-type="info" data-target="info"/>',
+            'attached_elem' => '<span class="select-default-text" data-type="info" data-target="info"></span>',
             'allow_null' => true
         ],
         [
@@ -1020,7 +1020,7 @@ EOF;
             'type' => 'AREA',
             'style' => 'large',
             'position' => 1,
-            'attached_elem' => '<span class="select-default-text" data-type="foreword" data-target="foreword"/>',
+            'attached_elem' => '<span class="select-default-text" data-type="foreword" data-target="foreword"></span>',
             'allow_null' => true
         ],
         [
@@ -1029,7 +1029,7 @@ EOF;
             'type' => 'AREA',
             'style' => 'large',
             'position' => 2,
-            'attached_elem' => '<span class="select-default-text" data-type="afterword" data-target="afterword"/>',
+            'attached_elem' => '<span class="select-default-text" data-type="afterword" data-target="afterword"></span>',
             'allow_null' => true
         ],
 
