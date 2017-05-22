@@ -52,73 +52,72 @@ class InvoicePrinterOrderConfirmation extends InvoicePrinterBase
         $this->pdf->printFooterOnFirstPage = true;
     }
 
-    protected function printInfo()
+    /**
+     * Gather an array of information to print
+     *
+     * @param bool $bankInfo Whether to include recipient bank information
+     *
+     * @return array
+     */
+    protected function getInfoArray($bankInfo = false)
     {
-        $pdf = $this->pdf;
-        $senderData = $this->senderData;
         $invoiceData = $this->invoiceData;
         $recipientData = $this->recipientData;
+        $senderData = $this->senderData;
 
-        // Invoice info headers
-        $pdf->SetXY(115, 10);
-        $pdf->SetFont('Helvetica', 'B', 12);
-        $pdf->Cell(40, 5, Translator::translate('invoice::OrderConfirmationHeader'), 0, 1, 'R');
-        $pdf->SetFont('Helvetica', '', 10);
-        $pdf->SetXY(115, $pdf->GetY() + 5);
+        $data = [];
+
         if ($recipientData['customer_no'] != 0) {
-            $pdf->Cell(40, 4, Translator::translate('invoice::CustomerNumber') . ': ', 0, 0, 'R');
-            $pdf->Cell(60, 4, $recipientData['customer_no'], 0, 1);
+            $data['invoice::CustomerNumber'] = $recipientData['customer_no'];
         }
         if ($recipientData['company_id']) {
-            $pdf->SetX(115);
-            $pdf->Cell(40, 4, Translator::translate('invoice::ClientVATID') . ': ', 0, 0, 'R');
-            $pdf->Cell(60, 4, $recipientData['company_id'], 0, 1);
+            $data['invoice::ClientVATID'] = $recipientData['company_id'];
         }
-        $pdf->SetX(115);
-        $pdf->Cell(40, 4, Translator::translate('invoice::OrderConfirmationNumber') . ': ', 0, 0,
-            'R');
-        $pdf->Cell(60, 4, $invoiceData['invoice_no'], 0, 1);
 
-        $pdf->SetX(115);
-        $pdf->Cell(40, 4, Translator::translate('invoice::OrderConfirmationDate') . ': ', 0, 0, 'R');
-        $strInvoiceDate = $this->_formatDate($invoiceData['invoice_date']);
-        $pdf->Cell(60, 4, $strInvoiceDate, 0, 1);
-
-        $pdf->SetX(115);
-        $pdf->Cell(40, 4, Translator::translate('invoice::TermsOfPayment') . ': ', 0, 0, 'R');
+        $data['invoice::OrderConfirmationNumber'] = $invoiceData['invoice_no'];
+        $strInvoiceDate = ($this->dateOverride)
+            ? $this->_formatDate($this->dateOverride)
+            : $this->_formatDate($invoiceData['invoice_date']);
+        $data['invoice::OrderConfirmationDate'] = $strInvoiceDate;
         $paymentDays = round(
             dbDate2UnixTime($invoiceData['due_date']) / 3600 / 24 -
-                 dbDate2UnixTime($invoiceData['invoice_date']) / 3600 / 24);
+                    dbDate2UnixTime($invoiceData['invoice_date']) / 3600 / 24
+        );
         if ($paymentDays < 0) {
             // This shouldn't happen, but try to be safe...
             $paymentDays = getPaymentDays($invoiceData['company_id']);
         }
-        $pdf->Cell(60, 4, $this->getTermsOfPayment($paymentDays), 0, 1);
-
+        $data['invoice::TermsOfPayment'] = $this->getTermsOfPayment(
+            $paymentDays
+        );
         if ($invoiceData['reference']) {
-            $pdf->SetX(115);
-            $pdf->Cell(40, 4, Translator::translate('invoice::YourReference') . ': ', 0, 0, 'R');
-            $pdf->MultiCell(50, 4, $invoiceData['reference'], 0, 'L');
+            $data['invoice::YourReference'] = $invoiceData['reference'];
         }
-
         if ($invoiceData['delivery_terms']) {
-            $pdf->SetX(115);
-            $pdf->Cell(40, 4, Translator::translate('invoice::DeliveryTerms') . ': ', 0, 0, 'R');
-            $pdf->MultiCell(50, 4, $invoiceData['delivery_terms'], 0, 'L', 0);
+            $data['invoice::DeliveryTerms'] = [
+                'value' => $invoiceData['delivery_terms'],
+                'type' => 'multicell'
+            ];
         }
-
         if ($invoiceData['delivery_method']) {
-            $pdf->SetX(115);
-            $pdf->Cell(40, 4, Translator::translate('invoice::DeliveryMethod') . ': ', 0, 0, 'R');
-            $pdf->MultiCell(50, 4, $invoiceData['delivery_method'], 0, 'L', 0);
+            $data['invoice::DeliveryMethod'] = [
+                'value' => $invoiceData['delivery_method'],
+                'type' => 'multicell'
+            ];
+        }
+        if (!empty($invoiceData['info'])) {
+            $data['invoice::AdditionalInformation'] = [
+                'value' => $invoiceData['info'],
+                'type' => 'multicell'
+            ];
         }
 
-        if (isset($invoiceData['info']) && $invoiceData['info']) {
-            $pdf->SetX(115);
-            $pdf->Cell(40, 4, Translator::translate('invoice::AdditionalInformation') . ': ', 0, 0,
-                'R');
-            $pdf->MultiCell(50, 4, $invoiceData['info'], 0, 'L', 0);
-        }
+        return $data;
+    }
+
+    protected function getHeaderTitle()
+    {
+        return Translator::translate('invoice::OrderConfirmationHeader');
     }
 
     protected function printForm()

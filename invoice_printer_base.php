@@ -62,6 +62,30 @@ abstract class InvoicePrinterBase
     protected $allowSeparateStatement = true;
     protected $autoPageBreak = false;
 
+    /**
+     * Left coordinate of the info array
+     *
+     * @param int
+     */
+    protected $infoLeft = 115;
+
+    /**
+     * Info headings column width
+     *
+     * @param int
+     */
+    protected $infoHeadingsWidth = 40;
+
+    /**
+     * Info text column width
+     *
+     * @param int
+     */
+    protected $infoTextWidth = 48;
+
+    /**
+     * Constructor
+     */
     public function __construct()
     {
     }
@@ -384,105 +408,169 @@ abstract class InvoicePrinterBase
         $this->recipientMaxY = $pdf->GetY();
     }
 
+    /**
+     * Print info headers
+     *
+     * @return void
+     */
     protected function printInfo()
     {
         $pdf = $this->pdf;
+
+        $pdf->SetXY($this->infoLeft + $this->infoHeadingsWidth, 10);
+        $pdf->SetFont('Helvetica', 'B', 12);
+        $pdf->Cell($this->infoTextWidth, 5, $this->getHeaderTitle(), 0, 1, 'L');
+        $pdf->SetFont('Helvetica', '', 10);
+        $pdf->SetXY($this->infoLeft, $pdf->GetY() + 5);
+
+        $data = $this->getInfoArray();
+        $this->printInfoArray($data);
+    }
+
+    /**
+     * Gather an array of information to print
+     *
+     * @param bool $bankInfo Whether to include recipient bank information
+     *
+     * @return array
+     */
+    protected function getInfoArray($bankInfo = false)
+    {
+        if ($this->printStyle == 'dispatch') {
+            $locStr = 'DispatchNote';
+        } elseif ($this->printStyle == 'receipt') {
+            $locStr = 'Receipt';
+        } else {
+            $locStr = 'Invoice';
+        }
+
         $invoiceData = $this->invoiceData;
         $recipientData = $this->recipientData;
+        $senderData = $this->senderData;
 
-        if ($this->printStyle == 'dispatch')
-            $locStr = 'DispatchNote';
-        elseif ($this->printStyle == 'receipt')
-            $locStr = 'Receipt';
-        else
-            $locStr = 'Invoice';
+        $data = [];
 
-        // Invoice info headers
-        $pdf->SetXY(115, 10);
-        $pdf->SetFont('Helvetica', 'B', 12);
-        $pdf->Cell(40, 5, $this->getHeaderTitle(), 0, 1, 'R');
-        $pdf->SetFont('Helvetica', '', 10);
-        $pdf->SetXY(115, $pdf->GetY() + 5);
         if ($recipientData['customer_no'] != 0) {
-            $pdf->Cell(40, 4, Translator::translate('invoice::CustomerNumber') . ': ', 0, 0, 'R');
-            $pdf->Cell(60, 4, $recipientData['customer_no'], 0, 1);
+            $data['invoice::CustomerNumber'] = $recipientData['customer_no'];
         }
         if ($recipientData['company_id']) {
-            $pdf->SetX(115);
-            $pdf->Cell(40, 4, Translator::translate('invoice::ClientVATID') . ': ', 0, 0, 'R');
-            $pdf->Cell(60, 4, $recipientData['company_id'], 0, 1);
+            $data['invoice::ClientVATID'] = $recipientData['company_id'];
         }
-        $pdf->SetX(115);
-        $pdf->Cell(40, 4, Translator::translate("invoice::${locStr}Number") . ': ', 0, 0, 'R');
-        $pdf->Cell(60, 4, $invoiceData['invoice_no'], 0, 1);
-        $pdf->SetX(115);
-        $pdf->Cell(40, 4, Translator::translate("invoice::${locStr}Date") . ': ', 0, 0, 'R');
+        $data["invoice::${locStr}Number"] = $invoiceData['invoice_no'];
         $strInvoiceDate = ($this->dateOverride)
             ? $this->_formatDate($this->dateOverride)
             : $this->_formatDate($invoiceData['invoice_date']);
+        $data["invoice::${locStr}Date"] = $strInvoiceDate;
         $strDueDate = $this->_formatDate($invoiceData['due_date']);
-        $pdf->Cell(60, 4, $strInvoiceDate, 0, 1);
         if ($this->printStyle == 'invoice') {
-            $pdf->SetX(115);
-            $pdf->Cell(40, 4, Translator::translate('invoice::DueDate') . ': ', 0, 0, 'R');
-            $pdf->Cell(60, 4, $strDueDate, 0, 1);
-            $pdf->SetX(115);
-            $pdf->Cell(40, 4, Translator::translate('invoice::TermsOfPayment') . ': ', 0, 0, 'R');
+            $data['invoice::DueDate'] = $strDueDate;
             $paymentDays = round(
                 dbDate2UnixTime($invoiceData['due_date']) / 3600 / 24 -
-                     dbDate2UnixTime($invoiceData['invoice_date']) / 3600 / 24);
+                     dbDate2UnixTime($invoiceData['invoice_date']) / 3600 / 24
+            );
             if ($paymentDays < 0) {
                 // This shouldn't happen, but try to be safe...
                 $paymentDays = getPaymentDays($invoiceData['company_id']);
             }
-            $pdf->Cell(60, 4, $this->getTermsOfPayment($paymentDays), 0, 1);
-            $pdf->SetX(115);
-            $pdf->Cell(40, 4, Translator::translate('invoice::PeriodForComplaints') . ': ', 0, 0,
-                'R');
-            $pdf->Cell(60, 4, $this->getPeriodForComplaints(), 0, 1);
-            $pdf->SetX(115);
-            $pdf->Cell(40, 4, Translator::translate('invoice::PenaltyInterest') . ': ', 0, 0, 'R');
-            $pdf->Cell(60, 4,
-                $this->_formatNumber(getSetting('invoice_penalty_interest'), 1, true) .
-                     ' %', 0, 1);
-            $pdf->SetX(115);
+            $data['invoice::TermsOfPayment'] = $this->getTermsOfPayment(
+                $paymentDays
+            );
+            $data['invoice::PeriodForComplaints'] = $this->getPeriodForComplaints();
+            $data['invoice::PenaltyInterest'] = $this->_formatNumber(
+                getSetting('invoice_penalty_interest'), 1, true
+            ) . ' %';
+
+            if ($bankInfo) {
+                $data['invoice::RecipientBankAccount'] = $senderData['bank_iban'];
+                $data['invoice::RecipientBankBIC'] = $senderData['bank_swiftbic'];
+            }
+
             if ($this->refNumber) {
-                $pdf->Cell(40, 4, Translator::translate('invoice::InvoiceRefNr') . ': ', 0, 0, 'R');
-                $pdf->Cell(60, 4, $this->refNumber, 0, 1);
+                $data['invoice::InvoiceRefNr'] = $this->refNumber;
             }
         }
 
         if ($invoiceData['reference']) {
-            $pdf->SetX(115);
-            $pdf->Cell(40, 4, Translator::translate('invoice::YourReference') . ': ', 0, 0, 'R');
-            $pdf->MultiCell(50, 4, $invoiceData['reference'], 0, 'L');
+            $data['invoice::YourReference'] = $invoiceData['reference'];
         }
-        if (isset($invoiceData['info']) && $invoiceData['info']) {
-            $pdf->SetX(115);
-            $pdf->Cell(40, 4, Translator::translate('invoice::AdditionalInformation') . ': ', 0, 0,
-                'R');
-            $pdf->MultiCell(50, 4, $invoiceData['info'], 0, 'L', 0);
+        if (!empty($invoiceData['info'])) {
+            $data['invoice::AdditionalInformation'] = [
+                'value' => $invoiceData['info'],
+                'type' => 'multicell'
+            ];
         }
 
         if ($this->printStyle == 'invoice') {
             if ($invoiceData['refunded_invoice_no']) {
-                $pdf->SetX(115);
-                $pdf->Cell(40, 5,
-                    sprintf(Translator::translate('invoice::RefundsInvoice'),
-                        $invoiceData['refunded_invoice_no']), 0, 1, 'R');
+                $data['invoice::RefundsInvoice'] = [
+                    'value' => sprintf(
+                        Translator::translate('invoice::RefundsInvoice'),
+                        $invoiceData['refunded_invoice_no']
+                    ),
+                    'type' => 'textonly'
+                ];
             }
 
             if ($invoiceData['state_id'] == 5) {
-                $pdf->SetX(108);
-                $pdf->SetFont('Helvetica', 'B', 10);
-                $pdf->MultiCell(98, 5, Translator::translate('invoice::FirstReminderNote'), 0, 'L',
-                    0);
-                $pdf->SetFont('Helvetica', '', 10);
+                $data['invoice::FirstReminderNote'] = [
+                    'value' => Translator::translate('invoice::FirstReminderNote'),
+                    'type' => 'textonly',
+                    'fontweight' => 'B'
+                ];
             } elseif ($invoiceData['state_id'] == 6) {
-                $pdf->SetX(108);
-                $pdf->SetFont('Helvetica', 'B', 10);
-                $pdf->MultiCell(98, 5, Translator::translate('invoice::SecondReminderNote'), 0, 'L',
-                    0);
+                $data['invoice::SecondReminderNote'] = [
+                    'value' => Translator::translate('invoice::SecondReminderNote'),
+                    'type' => 'textonly',
+                    'fontweight' => 'B'
+                ];
+            }
+        }
+        return $data;
+    }
+
+    /**
+     * Print the info array
+     *
+     * @param array $data Actual content to print
+     *
+     * @return void
+     */
+    protected function printInfoArray($data)
+    {
+        $pdf = $this->pdf;
+        foreach ($data as $key => $current) {
+            $value = is_string($current) ? $current : $current['value'];
+            $type = !empty($current['type']) ? $current['type'] : 'normal';
+            if ('normal' === $type || 'multicell' === $type) {
+                $pdf->SetX($this->infoLeft);
+                $pdf->Cell(
+                    $this->infoHeadingsWidth,
+                    4,
+                    Translator::translate($key) . ': ',
+                    0,
+                    0,
+                    'R'
+                );
+            }
+            if (isset($current['fontweight'])) {
+                $pdf->SetFont('Helvetica', $current['fontweight'], 10);
+            }
+            if ('normal' === $type) {
+                $pdf->Cell($this->infoTextWidth, 4, $value, 0, 1);
+            } elseif ('multicell' === $type) {
+                $pdf->MultiCell($this->infoTextWidth, 4, $value, 0, 'L', 0);
+            } elseif ('textonly' === $type) {
+                $pdf->SetXY($this->infoLeft, $pdf->getY() + 2);
+                $pdf->MultiCell(
+                    $this->infoHeadingsWidth + $this->infoTextWidth,
+                    4,
+                    $value,
+                    0,
+                    'L',
+                    0
+                );
+            }
+            if (isset($current['fontweight'])) {
                 $pdf->SetFont('Helvetica', '', 10);
             }
         }
@@ -569,9 +657,9 @@ abstract class InvoicePrinterBase
             $pdf->SetAutoPageBreak(true, 22);
         }
 
-        if ($this->printStyle == 'dispatch')
+        if ($this->printStyle == 'dispatch' || $this->printStyle == 'offer') {
             $nameColWidth = 120;
-        else {
+        } else {
             if ($this->senderData['vat_registered']) {
                 $nameColWidth = 77;
             } else {
