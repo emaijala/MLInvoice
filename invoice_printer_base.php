@@ -1388,6 +1388,8 @@ abstract class InvoicePrinterBase
         $senderData = $this->senderData;
         $invoiceData = $this->invoiceData;
 
+        $pdf->SetAutoPageBreak(false);
+
         $pdf->SetFont('Helvetica', '', 7);
         if ($this->printVirtualBarcode && $this->barcode) {
             $pdf->SetXY(4, 180);
