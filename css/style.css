@@ -330,7 +330,7 @@ input.small {
   width: 100px;
 }
 input.date {
-  width: 72px;
+  width: 160px;
 }
 input.medium {
   width: 160px;
@@ -348,7 +348,7 @@ input.measurement {
   width: 60px;
 }
 input.percent {
-  width: 30px;
+  width: 60px;
 }
 
 select {
