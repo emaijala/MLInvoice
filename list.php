@@ -254,9 +254,12 @@ function createJSONList($strFunc, $strList, $startRow, $rowCount, $sort, $filter
     $fullQuery = "SELECT $strSelectClause FROM $strTable $strJoin"
         . " $strWhereClause$strGroupBy";
 
+    $order = [];
     if ($params['order']) {
-        $fullQuery .= ' ORDER BY ' . $params['order'];
+        $order = explode(',', $params['order']);
     }
+    $order[] = 'id';
+    $fullQuery .= ' ORDER BY ' . implode(',', $order);
 
     if ($startRow >= 0 && $rowCount >= 0) {
         $fullQuery .= " LIMIT $startRow, $rowCount";
@@ -463,6 +466,10 @@ function createJSONSelectList($strList, $startRow, $rowCount, $filter, $sort,
             }
         }
     }
+    if ($sort) {
+        $sort .= ',';
+    }
+    $sort .= 'id';
 
     $arrQueryParams = [];
 
