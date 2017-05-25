@@ -94,19 +94,25 @@ echo htmlPageStart('', ['jquery/js/jquery.md5.js']);
 
 <body onload="document.getElementById('flogin').focus();">
     <div class="pagewrapper ui-widget ui-widget-content">
-        <div class="form" style="padding: 30px;">
+        <div id="maintabs" class="navi ui-widget-header ui-tabs">
+            <ul class="ui-tabs-nav ui-helper-clearfix ui-corner-all">
+                <li class="functionlink ui-state-default ui-corner-top ui-tabs-selected ui-state-active">
+                    <a class="ui-tabs-anchor functionlink"><?php echo Translator::translate('Login')?></a>
+                </li>
+            </ul>
+        </div>
 
 <?php
 if (isset($upgradeMessage)) {
-    ?>
-<div
-                class="message ui-widget <?php echo isset($upgradeFailed) ? 'ui-state-error' : 'ui-state-highlight'?>">
-  <?php echo $upgradeMessage?>
-</div>
-            <br />
+?>
+        <div class="message ui-widget <?php echo isset($upgradeFailed) ? 'ui-state-error' : 'ui-state-highlight'?>">
+            <?php echo $upgradeMessage?>
+        </div>
+        <br />
 <?php
 }
 ?>
+        <div class="ui-widget form" style="padding: 30px;">
 
 <?php
 if (isset($languages)) {
@@ -121,12 +127,12 @@ if (isset($languages)) {
     echo '<br/>';
 }
 ?>
-<h1><?php echo Translator::translate('Welcome')?></h1>
+            <h1><?php echo Translator::translate('Welcome')?></h1>
             <p>
                 <span id="loginmsg"><?php echo $strMessage?></span>
             </p>
 
-            <script type="text/javascript">
+<script type="text/javascript">
 function createHash()
 {
   var pass_md5 = $.md5(document.getElementById('passwd').value);
@@ -146,18 +152,15 @@ function createHash()
                     type="hidden" name="key" id="key" value="<?php echo $key?>">
                 <p>
                     <span style="width: 100px; display: inline-block;"><?php echo Translator::translate('UserID')?></span>
-                    <input class="medium" name="flogin" id="flogin" type="text"
-                        value="">
+                    <input class="medium" name="flogin" id="flogin" type="text" value="">
                 </p>
                 <p>
                     <span style="width: 100px; display: inline-block;"><?php echo Translator::translate('Password')?></span>
-                    <input class="medium" name="passwd" id="passwd" type="password"
-                        value="">
+                    <input class="medium" name="passwd" id="passwd" type="password" value="">
                 </p>
-                <input type="submit" name="logon"
+                <input class="ui-button ui-corner-all ui-widget" type="submit" name="logon"
                     value="<?php echo Translator::translate('Login')?>">
             </form>
-
         </div>
     </div>
 </body>

@@ -44,7 +44,15 @@ echo htmlPageStart();
 
 <body>
     <div class="pagewrapper ui-widget ui-widget-content">
-        <div style="padding: 30px;">
+        <div id="maintabs" class="navi ui-widget-header ui-tabs">
+            <ul class="ui-tabs-nav ui-helper-clearfix ui-corner-all">
+                <li class="functionlink ui-state-default ui-corner-top">
+                    <a class="ui-tabs-anchor functionlink" href="login.php"><?php echo Translator::translate('Login')?></a>
+                </li>
+            </ul>
+        </div>
+
+        <div class="ui-widget" style="padding: 30px;">
 
             <h1><?php echo Translator::translate('ThankYou')?></h1>
             <p>
