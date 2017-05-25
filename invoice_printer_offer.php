@@ -77,12 +77,12 @@ class InvoicePrinterOffer extends InvoicePrinterBase
 
         $data['invoice::OfferNumber'] = $invoiceData['invoice_no'];
         $strInvoiceDate = ($this->dateOverride)
-            ? $this->_formatDate($this->dateOverride)
-            : $this->_formatDate($invoiceData['invoice_date']);
+            ? $this->formatDate($this->dateOverride)
+            : $this->formatDate($invoiceData['invoice_date']);
         $data['invoice::OfferDate'] = $strInvoiceDate;
 
 
-        $strDueDate = $this->_formatDate($invoiceData['due_date']);
+        $strDueDate = $this->formatDate($invoiceData['due_date']);
         if (!empty(Translator::translate('invoice::ValidUntilSuffix'))) {
             $strDueDate .= ' ' . Translator::translate('invoice::ValidUntilSuffix');
         }

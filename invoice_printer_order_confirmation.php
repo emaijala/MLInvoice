@@ -82,8 +82,8 @@ class InvoicePrinterOrderConfirmation extends InvoicePrinterBase
 
         $data['invoice::OrderConfirmationNumber'] = $invoiceData['invoice_no'];
         $strInvoiceDate = ($this->dateOverride)
-            ? $this->_formatDate($this->dateOverride)
-            : $this->_formatDate($invoiceData['invoice_date']);
+            ? $this->formatDate($this->dateOverride)
+            : $this->formatDate($invoiceData['invoice_date']);
         $data['invoice::OrderConfirmationDate'] = $strInvoiceDate;
         $paymentDays = round(
             dbDate2UnixTime($invoiceData['due_date']) / 3600 / 24 -
