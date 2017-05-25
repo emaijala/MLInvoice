@@ -390,7 +390,9 @@ var MLInvoice = (function MLInvoice() {
                     if (id !== '') {
                         $.ajax('json.php?func=get_selectlist&' + query + '&id=' + id, {
                             dataType: "json"
-                        }).done(function(data) { callback(data.records[0]); });
+                        }).done(function(data) {
+                            callback(data.records[0]);
+                        });
                     }
                 },
                 formatResult: function (object) {

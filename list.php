@@ -506,7 +506,7 @@ function createJSONSelectList($strList, $startRow, $rowCount, $filter, $sort,
     }
 
     // Filter out inactive companies
-    if ($strList == 'company' || $strList == 'companies' && empty($id)) {
+    if (($strList == 'company' || $strList == 'companies') && empty($id)) {
         $strWhereClause .= ($strWhereClause ? ' AND ' : ' WHERE ') . 'inactive=0';
     }
 
