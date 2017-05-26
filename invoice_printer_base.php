@@ -1,6 +1,6 @@
 <?php
 /**
- * Translator
+ * Invoice printer abstract base class
  *
  * PHP version 5
  *
@@ -21,7 +21,7 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  *
  * @category MLInvoice
- * @package  Localisation
+ * @package  Printing
  * @author   Samu Reinikainen <not-available@ajassa.fi>
  * @author   Ere Maijala <ere@labs.fi>
  * @license  http://opensource.org/licenses/gpl-2.0.php GNU General Public License
