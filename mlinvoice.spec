@@ -1,5 +1,5 @@
 Name:		mlinvoice
-Version:	1.14.2
+Version:	1.15.0-beta1
 Release:	1%{?dist}
 Summary:	MLInvoice - Web application to create Finnish invoices
 Group:		Applications/Internet
@@ -22,8 +22,9 @@ Requires: php-mysqli
 BuildArch:	noarch
 
 %description
-MLInvoice is a web application written in PHP for printing invoices.
-It available in English and Finnish. Among its features
+MLInvoice is a web application written in PHP for printing offers, dispatch notes,
+invoices etc.
+It available in English, Finnish and Swedish. Among its features
 are automatic invoice numbering and reference calculation, pdf
 generation, customer database and unlimited number of user accounts.
 Data is stored in a MySQL database.
@@ -67,6 +68,8 @@ EOM
 %{_datadir}/%{name}
 
 %changelog
+* Fri May 26 2017 Ere Maijala <ere@labs.fi> - 1.15.0-beta1-1
+- updated for version 1.15.0-beta1
 * Sun Mar 26 2017 Ere Maijala <ere@labs.fi> - 1.14.2-1
 - updated for version 1.14.2
 * Sat Mar 18 2017 Ere Maijala <ere@labs.fi> - 1.14.1-1
