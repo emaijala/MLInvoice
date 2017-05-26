@@ -601,7 +601,7 @@ function getInvoiceListTotal($where)
         $sum = $row['total_sum'];
     }
     $result = [
-        'sum' => $sum,
+        'sum' => null !== $sum ? $sum : 0,
         'sum_rounded' => miscRound2Decim($sum, 2, '.', '')
     ];
 
