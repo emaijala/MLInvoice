@@ -105,14 +105,6 @@ $arrSettings = [
         'type' => 'LABEL'
     ],
 
-    'invoice_add_number' => [
-        'label' => 'SettingInvoiceAddNumber',
-        'type' => 'CHECK',
-        'style' => 'medium',
-        'position' => 1,
-        'default' => 1,
-        'allow_null' => true
-    ],
     'invoice_numbering_per_base' => [
         'label' => 'SettingInvoiceNumberingPerBase',
         'type' => 'CHECK',
@@ -131,6 +123,106 @@ $arrSettings = [
     ],
     'invoice_update_row_dates_on_copy' => [
         'label' => 'SettingInvoiceUpdateRowDateOnCopy',
+        'type' => 'CHECK',
+        'style' => 'medium',
+        'position' => 1,
+        'default' => 1,
+        'allow_null' => true
+    ],
+    'invoice_display_vatless_price_in_list' => [
+        'label' => 'SettingInvoiceDisplayVATLessPriceInList',
+        'type' => 'CHECK',
+        'style' => 'medium',
+        'position' => 1,
+        'default' => 0,
+        'allow_null' => true
+    ],
+    'invoice_mark_paid_when_payment_date_set' => [
+        'label' => 'SettingInvoiceMarkPaidWhenPaymentDateIsSet',
+        'type' => 'CHECK',
+        'style' => 'medium',
+        'position' => 1,
+        'default' => 1,
+        'allow_null' => true
+    ],
+    'invoice_auto_archive' => [
+        'label' => 'SettingInvoiceAutoArchive',
+        'type' => 'CHECK',
+        'style' => 'medium',
+        'position' => 1,
+        'default' => 1,
+        'allow_null' => true
+    ],
+
+    'invoice_default_vat_percent' => [
+        'label' => 'SettingInvoiceDefaultVATPercent',
+        'type' => 'PERCENT',
+        'style' => 'percent',
+        'position' => 1,
+        'default' => 24,
+        'allow_null' => false
+    ],
+    'invoice_payment_days' => [
+        'label' => 'SettingInvoicePaymentDays',
+        'type' => 'INT',
+        'style' => 'tiny',
+        'position' => 1,
+        'default' => 14,
+        'allow_null' => false
+    ],
+    'invoice_terms_of_payment' => [
+        'label' => 'SettingInvoiceTermsOfPayment',
+        'type' => 'TEXT',
+        'style' => 'medium',
+        'position' => 1,
+        'default' => '%d pv netto',
+        'allow_null' => false
+    ],
+    'invoice_period_for_complaints' => [
+        'label' => 'SettingInvoicePeriodForComplaints',
+        'type' => 'TEXT',
+        'style' => 'medium',
+        'position' => 1,
+        'default' => '7 päivää',
+        'allow_null' => false
+    ],
+    'invoice_penalty_interest' => [
+        'label' => 'SettingInvoicePenaltyInterestPercent',
+        'type' => 'PERCENT',
+        'style' => 'percent',
+        'position' => 1,
+        'default' => 8,
+        'allow_null' => false
+    ],
+    'invoice_notification_fee' => [
+        'label' => 'SettingInvoiceNotificationFee',
+        'type' => 'CURRENCY',
+        'style' => 'currency',
+        'position' => 1,
+        'default' => 5,
+        'allow_null' => false
+    ],
+    'invoice_clear_row_values_after_add' => [
+        'label' => 'SettingInvoiceClearRowValuesAfterAdd',
+        'type' => 'SELECT',
+        'style' => 'long noemptyvalue',
+        'position' => 1,
+        'default' => 0,
+        'allow_null' => true,
+        'options' => [
+            0 => 'SettingInvoiceKeepRowValues',
+            1 => 'SettingInvoiceClearRowValues',
+            2 => 'SettingInvoiceUseProductDefaults'
+        ]
+    ],
+
+    'printing_sep' => [
+        'label' => 'SettingPrinting',
+        'type' => 'LABEL'
+    ],
+
+    'invoice_add_number' => [
+        'label' => 'SettingInvoiceAddNumber',
         'type' => 'CHECK',
         'style' => 'medium',
         'position' => 1,
@@ -242,92 +334,6 @@ $arrSettings = [
         'default' => 0,
         'allow_null' => true
     ],
-    'invoice_display_vatless_price_in_list' => [
-        'label' => 'SettingInvoiceDisplayVATLessPriceInList',
-        'type' => 'CHECK',
-        'style' => 'medium',
-        'position' => 1,
-        'default' => 0,
-        'allow_null' => true
-    ],
-    'invoice_mark_paid_when_payment_date_set' => [
-        'label' => 'SettingInvoiceMarkPaidWhenPaymentDateIsSet',
-        'type' => 'CHECK',
-        'style' => 'medium',
-        'position' => 1,
-        'default' => 1,
-        'allow_null' => true
-    ],
-    'invoice_auto_archive' => [
-        'label' => 'SettingInvoiceAutoArchive',
-        'type' => 'CHECK',
-        'style' => 'medium',
-        'position' => 1,
-        'default' => 1,
-        'allow_null' => true
-    ],
-
-    'invoice_default_vat_percent' => [
-        'label' => 'SettingInvoiceDefaultVATPercent',
-        'type' => 'PERCENT',
-        'style' => 'percent',
-        'position' => 1,
-        'default' => 24,
-        'allow_null' => false
-    ],
-    'invoice_payment_days' => [
-        'label' => 'SettingInvoicePaymentDays',
-        'type' => 'INT',
-        'style' => 'tiny',
-        'position' => 1,
-        'default' => 14,
-        'allow_null' => false
-    ],
-    'invoice_terms_of_payment' => [
-        'label' => 'SettingInvoiceTermsOfPayment',
-        'type' => 'TEXT',
-        'style' => 'medium',
-        'position' => 1,
-        'default' => '%d pv netto',
-        'allow_null' => false
-    ],
-    'invoice_period_for_complaints' => [
-        'label' => 'SettingInvoicePeriodForComplaints',
-        'type' => 'TEXT',
-        'style' => 'medium',
-        'position' => 1,
-        'default' => '7 päivää',
-        'allow_null' => false
-    ],
-    'invoice_penalty_interest' => [
-        'label' => 'SettingInvoicePenaltyInterestPercent',
-        'type' => 'PERCENT',
-        'style' => 'percent',
-        'position' => 1,
-        'default' => 8,
-        'allow_null' => false
-    ],
-    'invoice_notification_fee' => [
-        'label' => 'SettingInvoiceNotificationFee',
-        'type' => 'CURRENCY',
-        'style' => 'currency',
-        'position' => 1,
-        'default' => 5,
-        'allow_null' => false
-    ],
-    'invoice_clear_row_values_after_add' => [
-        'label' => 'SettingInvoiceClearRowValuesAfterAdd',
-        'type' => 'SELECT',
-        'style' => 'long noemptyvalue',
-        'position' => 1,
-        'default' => 0,
-        'allow_null' => true,
-        'options' => [
-            0 => 'SettingInvoiceKeepRowValues',
-            1 => 'SettingInvoiceClearRowValues',
-            2 => 'SettingInvoiceUseProductDefaults'
-        ]
-    ],
     'invoice_pdf_filename' => [
         'label' => 'SettingInvoicePDFFilename',
         'type' => 'TEXT',
@@ -374,6 +380,14 @@ $arrSettings = [
         'style' => 'currency',
         'position' => 1,
         'default' => 85,
+        'allow_null' => true
+    ],
+    'printout_markdown' => [
+        'label' => 'SettingMarkdown',
+        'type' => 'CHECK',
+        'style' => 'medium',
+        'position' => 1,
+        'default' => 0,
         'allow_null' => true
     ],
 

@@ -550,6 +550,7 @@ abstract class InvoicePrinterBase
         $pdf->footerCenter = $this->senderContactInfo;
         $pdf->footerRight = $this->senderData['www'] . "\n" .
              $this->senderData['email'];
+        $pdf->markdown = getSetting('printout_markdown');
         $this->pdf = $pdf;
     }
 
@@ -592,10 +593,10 @@ abstract class InvoicePrinterBase
             $pdf->SetFont('Helvetica', 'B', 10);
             $pdf->SetY($this->senderAddressY);
             $pdf->setX($this->senderAddressX);
-            $pdf->MultiCell($width, 5, $senderData['name'], 0, 'L');
+            $pdf->multiCellMD($width, 5, $senderData['name'], 'L');
             $pdf->SetFont('Helvetica', '', 10);
             $pdf->setX($this->senderAddressX);
-            $pdf->MultiCell($width, 5, $address, 0, 'L');
+            $pdf->multiCellMD($width, 5, $address, 'L');
         }
     }
 
@@ -614,20 +615,20 @@ abstract class InvoicePrinterBase
         $pdf->SetFont('Helvetica', '', 12);
         $pdf->SetY($this->recipientAddressY);
         $pdf->setX($this->recipientAddressX);
-        $pdf->MultiCell($width, 5, $this->recipientName, 0, 'L');
+        $pdf->multiCellMD($width, 5, $this->recipientName, 'L');
         $contact = $this->getContactPerson();
         if (!empty($contact['contact_person'])
             && getSetting('invoice_show_recipient_contact_person')
         ) {
             $pdf->setX($this->recipientAddressX);
-            $pdf->MultiCell($width, 5, $contact['contact_person'], 0, 'L');
+            $pdf->multiCellMD($width, 5, $contact['contact_person'], 'L');
         }
         $pdf->setX($this->recipientAddressX);
-        $pdf->MultiCell($width, 5, $this->recipientAddress, 0, 'L');
+        $pdf->multiCellMD($width, 5, $this->recipientAddress, 'L');
         if ($recipientData['email'] && getSetting('invoice_show_recipient_email')) {
             $pdf->SetY($pdf->GetY() + 4);
             $pdf->setX($this->recipientAddressX);
-            $pdf->MultiCell($width, 5, $recipientData['email'], 0, 'L');
+            $pdf->multiCellMD($width, 5, $recipientData['email'], 'L');
         }
 
         $this->recipientMaxY = $pdf->GetY();
@@ -783,16 +784,17 @@ abstract class InvoicePrinterBase
             if ('normal' === $type) {
                 $pdf->Cell($this->infoTextWidth, 4, $value, 0, 1);
             } elseif ('multicell' === $type) {
-                $pdf->MultiCell($this->infoTextWidth, 4, $value, 0, 'L', 0);
+                $pdf->multiCellMD($this->infoTextWidth, 4, $value, 'L', 1, 0, true);
             } elseif ('textonly' === $type) {
                 $pdf->SetXY($this->infoLeft, $pdf->getY() + 2);
-                $pdf->MultiCell(
+                $pdf->multiCellMD(
                     $this->infoHeadingsWidth + $this->infoTextWidth,
                     4,
                     $value,
-                    0,
                     'L',
-                    0
+                    1,
+                    0,
+                    true
                 );
             }
             if (isset($current['fontweight'])) {
@@ -831,7 +833,7 @@ abstract class InvoicePrinterBase
         $pdf->setX($this->left);
         $pdf->SetTextColor(0);
         $pdf->SetFont('Helvetica', '', 10);
-        $pdf->MultiCell(200 - $this->left, 5, $foreword, 0, 'L', 0);
+        $pdf->multiCellMD(200 - $this->left, 5, $foreword, 'L', 1, 0, true);
         $pdf->setY($pdf->getY() + 5);
     }
 
@@ -852,7 +854,7 @@ abstract class InvoicePrinterBase
         $pdf->SetTextColor(0);
         $pdf->SetFont('Helvetica', '', 10);
         $pdf->setXY($this->left, $pdf->GetY() + 5);
-        $pdf->MultiCell(200 - $this->left, 5, $afterword, 0, 'L', 0);
+        $pdf->multiCellMD(200 - $this->left, 5, $afterword, 'L', 1, 0, true);
     }
 
     /**
@@ -865,13 +867,11 @@ abstract class InvoicePrinterBase
         $pdf = $this->pdf;
         $pdf->SetFont('Helvetica', 'B', 12);
         $pdf->setX($this->left);
-        $pdf->MultiCell(
+        $pdf->multiCellMD(
             180,
             5,
             Translator::translate('invoice::SeeSeparateStatement'),
-            0,
-            'L',
-            0
+            'L'
         );
     }
 
@@ -1116,21 +1116,14 @@ abstract class InvoicePrinterBase
                     $column['align']
                 );
             } else {
-                $pdf->MultiCell(
+                $pdf->multiCellMD(
                     $width,
                     4,
                     Translator::translate($column['heading']),
-                    0,
                     $column['align'],
-                    false,
                     1,
-                    '',
-                    '',
-                    true,
                     0,
-                    false,
-                    true,
-                    0
+                    true
                 );
             }
             $curX += $width;
@@ -1159,21 +1152,14 @@ abstract class InvoicePrinterBase
                 ? $this->columnDefs['description']['maxheight'] : 0;
 
             $pdf->setX($this->left);
-            $pdf->MultiCell(
+            $pdf->multiCellMD(
                 $this->width,
                 4,
                 $value,
-                0,
                 $this->columnDefs['description']['align'],
-                false,
                 1,
-                '',
-                '',
-                true,
-                0,
-                false,
-                true,
-                $maxHeight
+                $maxHeight,
+                true
             );
 
             $pdf->setY($pdf->getY() + 1);
@@ -1206,21 +1192,14 @@ abstract class InvoicePrinterBase
                     $column['align']
                 );
             } else {
-                $pdf->MultiCell(
+                $pdf->multiCellMD(
                     $width,
                     4,
                     $value,
-                    0,
                     $column['align'],
-                    false,
                     1,
-                    '',
-                    '',
-                    true,
-                    0,
-                    false,
-                    true,
-                    $maxHeight
+                    $maxHeight,
+                    true
                 );
             }
             $curY = $pdf->getY();
@@ -1513,12 +1492,12 @@ abstract class InvoicePrinterBase
         }
         $intStartY = 187;
         $pdf->SetXY(4, $intStartY);
-        $pdf->MultiCell(120, 5, $this->senderAddressLine, 0, 'L', 0);
+        $pdf->multiCellMD(120, 5, $this->senderAddressLine, 'L', 0);
         $pdf->SetXY(75, $intStartY);
-        $pdf->MultiCell(65, 5, $this->senderContactInfo, 0, 'C', 0);
+        $pdf->multiCellMD(65, 5, $this->senderContactInfo, 'C', 0);
         $pdf->SetXY(143, $intStartY);
-        $pdf->MultiCell(
-            60, 5, $senderData['www'] . "\n" . $senderData['email'], 0, 'R', 0
+        $pdf->multiCellMD(
+            60, 5, $senderData['www'] . "\n" . $senderData['email'], 'R', 0
         );
 
         // Invoice form
@@ -1573,20 +1552,18 @@ abstract class InvoicePrinterBase
         // bank
         $pdf->SetFont('Helvetica', '', 7);
         $pdf->SetXY($intStartX, $intStartY + 1);
-        $pdf->MultiCell(
+        $pdf->multiCellMD(
             19,
             2.8,
             Translator::translate('invoice::FormRecipientAccountNumber1'),
-            0,
             'R',
             0
         );
         $pdf->SetXY($intStartX, $intStartY + 8);
-        $pdf->MultiCell(
+        $pdf->multiCellMD(
             19,
             2.8,
             Translator::translate('invoice::FormRecipientAccountNumber2'),
-            0,
             'R',
             0
         );
@@ -1647,43 +1624,41 @@ abstract class InvoicePrinterBase
         );
         $pdf->SetFont('Helvetica', '', 10);
         $pdf->SetXY($intStartX + 21, $intStartY + 17);
-        $pdf->MultiCell(100, 4, $this->senderAddress, 0, 1);
+        $pdf->multiCellMD(100, 4, $this->senderAddress, 'L');
 
         // payer
         $pdf->SetFont('Helvetica', '', 7);
         $pdf->SetXY($intStartX, $intStartY + 35);
-        $pdf->MultiCell(
+        $pdf->multiCellMD(
             19,
             2.8,
             Translator::translate('invoice::FormPayerNameAndAddress1'),
-            0,
             'R',
             0
         );
         $pdf->SetXY($intStartX, $intStartY + 45);
-        $pdf->MultiCell(
+        $pdf->multiCellMD(
             19,
             2.8,
             Translator::translate('invoice::FormPayernameAndAddress2'),
-            0,
             'R',
             0
         );
         $pdf->SetFont('Helvetica', '', 10);
         $pdf->SetXY($intStartX + 21, $intStartY + 35);
-        $pdf->MultiCell(100, 4, $this->recipientFullAddress, 0, 1);
+        $pdf->multiCellMD(90, 4, $this->recipientFullAddress, 'L');
 
         // signature
         $pdf->SetFont('Helvetica', '', 7);
         $pdf->SetXY($intStartX, $intStartY + 59);
-        $pdf->MultiCell(
-            19, 6, Translator::translate('invoice::FormSignature'), 0, 'R', 0
+        $pdf->multiCellMD(
+            19, 6, Translator::translate('invoice::FormSignature'), 'R', 0
         );
 
         // from account
         $pdf->SetXY($intStartX, $intStartY + 67);
-        $pdf->MultiCell(
-            19, 6, Translator::translate('invoice::FormFromAccount'), 0, 'R', 0
+        $pdf->multiCellMD(
+            19, 6, Translator::translate('invoice::FormFromAccount'), 'R', 0
         );
 
         // info
@@ -1701,9 +1676,14 @@ abstract class InvoicePrinterBase
         if (getSetting('invoice_show_info_in_form')
             && $this->invoiceData['info']
         ) {
-            $pdf->MultiCell(
-                70, 4, $this->invoiceData['info'], 0, 'L', 0, 1, '', '', true, 0,
-                false, true, $this->refNumber ? 20 : 30
+            $pdf->multiCellMD(
+                70,
+                4,
+                $this->invoiceData['info'],
+                'L',
+                1,
+                $this->refNumber ? 20 : 30,
+                true
             );
         }
         if ($this->refNumber) {
@@ -1730,12 +1710,12 @@ abstract class InvoicePrinterBase
         // terms
         $pdf->SetFont('Helvetica', '', 5);
         $pdf->SetXY($intStartX + 133, $intStartY + 85);
-        $pdf->MultiCell(
-            70, 2, Translator::translate('invoice::FormClearingTerms1'), 0, 1
+        $pdf->multiCellMD(
+            70, 2, Translator::translate('invoice::FormClearingTerms1'), 'L'
         );
         $pdf->SetXY($intStartX + 133, $intStartY + 90);
-        $pdf->MultiCell(
-            70, 2, Translator::translate('invoice::FormClearingTerms2'), 0, 1
+        $pdf->multiCellMD(
+            70, 2, Translator::translate('invoice::FormClearingTerms2'), 'L'
         );
         $pdf->SetFont('Helvetica', '', 6);
         $pdf->SetXY($intStartX + 133, $intStartY + 95);
@@ -1752,8 +1732,8 @@ abstract class InvoicePrinterBase
         // refnr
         $pdf->SetFont('Helvetica', '', 7);
         $pdf->SetXY($intStartX + 112.4, $intStartY + 58);
-        $pdf->MultiCell(
-            15, 6, Translator::translate('invoice::FormReferenceNumber'), 0, 'L', 0
+        $pdf->multiCellMD(
+            15, 6, Translator::translate('invoice::FormReferenceNumber'), 'L'
         );
         if ($this->refNumber) {
             $pdf->SetFont('Helvetica', '', 10);
@@ -1764,8 +1744,8 @@ abstract class InvoicePrinterBase
         // due date
         $pdf->SetFont('Helvetica', '', 7);
         $pdf->SetXY($intStartX + 112.4, $intStartY + 67);
-        $pdf->MultiCell(
-            15, 6, Translator::translate('invoice::FormDueDate'), 0, 'L', 0
+        $pdf->multiCellMD(
+            15, 6, Translator::translate('invoice::FormDueDate'), 'L'
         );
         $pdf->SetFont('Helvetica', '', 10);
         $pdf->SetXY($intStartX + 131.4, $intStartY + 68);
@@ -1783,8 +1763,8 @@ abstract class InvoicePrinterBase
         // amount
         $pdf->SetFont('Helvetica', '', 7);
         $pdf->SetXY($intStartX + 161, $intStartY + 67);
-        $pdf->MultiCell(
-            15, 6, Translator::translate('invoice::FormCurrency'), 0, 'L', 0
+        $pdf->multiCellMD(
+            15, 6, Translator::translate('invoice::FormCurrency'), 'L'
         );
         $pdf->SetFont('Helvetica', '', 10);
         if (!empty($this->invoiceRowData)) {
