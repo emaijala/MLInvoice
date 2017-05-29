@@ -165,6 +165,15 @@ foreach ($astrShowFields as $key => $field) {
       var data = $('#<?php echo $strTableName?>').dataTable().fnGetData(this);
       document.location.href = data[0];
     });
+    $(document).on('mousedown', '#<?php echo $strTableName?> tbody tr', function(e) {
+      if (e.button === 1 || e.ctrlKey || e.metaKey) {
+        var data = $('#<?php echo $strTableName?>').dataTable().fnGetData(this);
+        window.open(data[0], '_blank');
+        e.preventDefault();
+        return false;
+      }
+      return true;
+    });
   });
   </script>
 
