@@ -127,7 +127,7 @@ case 'offer':
 LEFT OUTER JOIN (
   SELECT ir.invoice_id, ROUND(
     CASE WHEN ir.vat_included = 0
-      THEN ((ir.price * (1 - IFNULL(ir.discount, 0) / 100) - IFNULL(ir.discount_amount, 0)) * ir.pcs
+      THEN (ir.price * (1 - IFNULL(ir.discount, 0) / 100) - IFNULL(ir.discount_amount, 0)) * ir.pcs
       ELSE ROUND((ir.price * (1 - IFNULL(ir.discount, 0) / 100) - IFNULL(ir.discount_amount, 0)) * ir.pcs, 2) / (1 + ir.vat / 100)
     END, 2) as row_total
   FROM {prefix}invoice_row ir
