@@ -35,7 +35,7 @@ class InvoicePrinterOffer extends InvoicePrinterBase
 
     public function printInvoice()
     {
-        $this->invoiceRowMaxY = 260;
+        $this->invoiceRowMaxY = 270;
         if ($this->senderData['bank_iban'] && $this->senderData['bank_swiftbic']) {
             $bank = $this->senderData['bank_iban'] . '/' .
                  $this->senderData['bank_swiftbic'];

@@ -97,7 +97,7 @@ abstract class InvoicePrinterBase
      *
      * @value int
      */
-    protected $columnPadding = 2;
+    protected $columnPadding = 3;
 
     /**
      * Left coordinate of the info array
