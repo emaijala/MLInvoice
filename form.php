@@ -1099,7 +1099,7 @@ function popup_editor(event, title, id, copy_row)
     if (!copy_row)
       buttons["<?php echo Translator::translate('Delete')?>"] = function() { if(confirm('<?php echo Translator::translate('ConfirmDelete')?>')==true) { delete_row('iform_popup'); } return false; };
     buttons["<?php echo Translator::translate('Close')?>"] = function() { $("#popup_edit").dialog('close'); };
-    $("#popup_edit").dialog({ modal: true, width: 980, height: 180, resizable: true,
+    $("#popup_edit").dialog({ modal: true, width: 1050, height: 180, resizable: true,
       buttons: buttons,
       title: title,
     });
