@@ -69,8 +69,19 @@ trait InvoicePrinterEmailTrait
         $this->emailSubject = $this->replacePlaceholders(
             getRequest('email_subject', $this->getDefaultSubject())
         );
+
+        $emailBody = '';
+        $id = getRequest('default_body_text');
+        if ($id) {
+            $value = getDefaultValue($id);
+            if ($value) {
+                $emailBody = $value['content'];
+            }
+        }
+
         $this->emailBody = $this->replacePlaceholders(
-            getRequest('email_body', $this->getDefaultBody())
+            $emailBody ? $emailBody
+                : getRequest('email_body', $this->getDefaultBody())
         );
 
         $send = getRequest('email_send', '');
@@ -113,61 +124,62 @@ trait InvoicePrinterEmailTrait
         ?>
 <body>
     <div class="pagewrapper ui-widget ui-widget-content">
+        <?php echo htmlMainTabs('open_invoices'); ?>
 
         <div id="email_form_container" class="form_container">
             <h1><?php echo Translator::translate('SendEmail')?></h1>
-<?php if ($errorMsg) echo '<div class="ui-state-error-text">' . $errorMsg . "<br><br></div>\n";?>
-  <form method="POST" id="email_form">
-                <input type="hidden" name="id"
-                    value="<?php echo htmlspecialchars(getRequest('id', ''))?>"> <input
-                    type="hidden" name="template"
-                    value="<?php echo htmlspecialchars(getRequest('template', ''))?>">
-                <input type="hidden" name="email_send" value="1"> <input
-                    type="hidden" name="func"
-                    value="<?php echo htmlspecialchars(getRequest('func', ''))?>">
+            <?php if ($errorMsg) echo '<div class="ui-state-error-text">' . $errorMsg . "<br><br></div>\n";?>
+            <form method="POST" id="email_form">
+                <input type="hidden" name="id" value="<?php echo htmlspecialchars(getRequest('id', ''))?>">
+                <input type="hidden" name="template" value="<?php echo htmlspecialchars(getRequest('template', ''))?>">
+                <input type="hidden" id="email_send" name="email_send" value="0">
+                <input type="hidden" name="func" value="<?php echo htmlspecialchars(getRequest('func', ''))?>">
+
                 <div class="medium_label"><?php echo Translator::translate('EmailFrom')?></div>
                 <div class="field">
-                    <input type="text" id="email_from" name="email_from" class="medium"
-                        value="<?php echo htmlspecialchars($this->emailFrom)?>">
+                    <input type="text" id="email_from" name="email_from" class="medium" value="<?php echo htmlspecialchars($this->emailFrom)?>">
                 </div>
                 <div class="medium_label"><?php echo Translator::translate('EmailTo')?></div>
                 <div class="field">
-                    <input type="text" id="email_to" name="email_to" class="medium"
-                        value="<?php echo htmlspecialchars($this->emailTo)?>">
+                    <input type="text" id="email_to" name="email_to" class="medium" value="<?php echo htmlspecialchars($this->emailTo)?>">
                 </div>
                 <div class="medium_label"><?php echo Translator::translate('EmailCC')?></div>
                 <div class="field">
-                    <input type="text" id="email_cc" name="email_cc" class="medium"
-                        value="<?php echo htmlspecialchars($this->emailCC)?>">
+                    <input type="text" id="email_cc" name="email_cc" class="medium" value="<?php echo htmlspecialchars($this->emailCC)?>">
                 </div>
                 <div class="medium_label"><?php echo Translator::translate('EmailBCC')?></div>
                 <div class="field">
-                    <input type="text" id="email_bcc" name="email_bcc" class="medium"
-                        value="<?php echo htmlspecialchars($this->emailBCC)?>">
+                    <input type="text" id="email_bcc" name="email_bcc" class="medium" value="<?php echo htmlspecialchars($this->emailBCC)?>">
                 </div>
                 <div class="medium_label"><?php echo Translator::translate('EmailSubject')?></div>
                 <div class="field">
-                    <input type="text" id="email_subject" name="email_subject"
-                        class="medium"
-                        value="<?php echo htmlspecialchars($this->emailSubject)?>">
+                    <input type="text" id="email_subject" name="email_subject" class="medium" value="<?php echo htmlspecialchars($this->emailSubject)?>">
                 </div>
                 <div class="medium_label"><?php echo Translator::translate('EmailBody')?></div>
                 <div class="field">
-                    <textarea id="emailBody" name="email_body" class="email_body"
-                        cols="80" rows="24"><?php echo htmlspecialchars($this->emailBody)?></textarea>
+                    <textarea id="emailBody" name="email_body" class="email_body" cols="80" rows="24"><?php echo htmlspecialchars($this->emailBody)?></textarea>
+                    <span class="select-default-text" data-type="email" data-target="email_form" data-send-form-param="default_body_text"></span>
                 </div>
                 <div class="form_buttons" style="clear: both">
-                    <a class="actionlink"
-                        onclick="document.getElementById('email_form').submit(); return false;"
-                        href="#"><?php echo Translator::translate('Send')?></a> <a
-                        class="actionlink"
-                        onclick="if (window.opener) window.close(); else history.back(); return false;"
-                        href="#"><?php echo Translator::translate('Cancel')?></a>
+                    <a class="actionlink" onclick="$('#email_send').val(1); $('#email_form').submit(); return false;" href="#">
+                        <?php echo Translator::translate('Send')?>
+                    </a>
+                    <a class="actionlink" onclick="if (window.opener) { window.close(); } else { history.back(); } return false;" href="#">
+                        <?php echo Translator::translate('Cancel')?>
+                    </a>
+                    <span id="spinner" style="display: none"><img src="images/spinner.gif" alt=""></span>
                 </div>
             </form>
         </div>
     </div>
 </body>
+<script type="text/javascript">
+$(document).ready(function() {
+    $('#email_form').submit(function() {
+        $('#spinner').show();
+    });
+});
+</script>
 </html>
 <?php
     }

@@ -1843,11 +1843,12 @@ case 'default_value' :
             'name' => 'type',
             'label' => 'DefaultValueType',
             'type' => 'LIST',
-            'style' => 'medium',
+            'style' => 'medium translated',
             'listquery' => [
                 'info' => 'Info',
                 'foreword' => 'Foreword',
-                'afterword' => 'Afterword'
+                'afterword' => 'Afterword',
+                'email' => 'Email'
             ],
             'position' => 1
         ],
@@ -1869,7 +1870,7 @@ case 'default_value' :
             'name' => 'content',
             'label' => 'Content',
             'type' => 'AREA',
-            'style' => 'xlarge',
+            'style' => 'xxlarge',
             'position' => 0
         ]
     ];

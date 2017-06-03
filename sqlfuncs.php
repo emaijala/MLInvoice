@@ -317,6 +317,25 @@ EOT
     );
 }
 
+/**
+ * Get a default value
+ *
+ * @param int $id Record ID
+ *
+ * @return array
+ */
+function getDefaultValue($id)
+{
+    $res = mysqli_param_query(
+        'SELECT * FROM {prefix}default_value WHERE id=?',
+        [$id]
+    );
+    if ($row = mysqli_fetch_array($res)) {
+        return $row;
+    }
+    return [];
+}
+
 function deleteRecord($table, $id)
 {
     mysqli_query_check('BEGIN');

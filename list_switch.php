@@ -585,7 +585,8 @@ case 'default_value' :
             'mappings' => [
                 'info' => 'Info',
                 'foreword' => 'Foreword',
-                'afterword' => 'Afterword'
+                'afterword' => 'Afterword',
+                'email' => 'Email'
             ]
 
         ],

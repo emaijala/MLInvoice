@@ -388,6 +388,10 @@ textarea.xlarge {
   height: 80px;
   width: 400px;
 }
+textarea.xxlarge {
+  height: 200px;
+  width: 500px;
+}
 textarea.email_body {
   height: 200px;
   width: 500px;

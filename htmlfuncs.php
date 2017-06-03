@@ -177,6 +177,114 @@ EOT;
     return $strHtmlStart;
 }
 
+/**
+ * Create main tabs
+ *
+ * @param string $func Current function
+ *
+ * @return void
+ */
+function htmlMainTabs($func)
+{
+    $normalMenuRights = [
+        ROLE_READONLY,
+        ROLE_USER,
+        ROLE_BACKUPMGR
+    ];
+    $astrMainButtons = [
+        [
+            'name' => 'invoice',
+            'title' => 'ShowInvoiceNavi',
+            'action' => 'open_invoices',
+            'levels_allowed' => [
+                ROLE_READONLY,
+                ROLE_USER,
+                ROLE_BACKUPMGR
+            ]
+        ],
+        [
+            'name' => 'archive',
+            'title' => 'ShowArchiveNavi',
+            'action' => 'archived_invoices',
+            'levels_allowed' => [
+                ROLE_READONLY,
+                ROLE_USER,
+                ROLE_BACKUPMGR
+            ]
+        ],
+        [
+            'name' => 'company',
+            'title' => 'ShowClientNavi',
+            'action' => 'companies',
+            'levels_allowed' => [
+                ROLE_USER,
+                ROLE_BACKUPMGR
+            ]
+        ],
+        [
+            'name' => 'reports',
+            'title' => 'ShowReportNavi',
+            'action' => 'reports',
+            'levels_allowed' => [
+                ROLE_READONLY,
+                ROLE_USER,
+                ROLE_BACKUPMGR
+            ]
+        ],
+        [
+            'name' => 'settings',
+            'title' => 'ShowSettingsNavi',
+            'action' => 'settings',
+            'action' => 'settings',
+            'levels_allowed' => [
+                ROLE_USER,
+                ROLE_BACKUPMGR
+            ]
+        ],
+        [
+            'name' => 'system',
+            'title' => 'ShowSystemNavi',
+            'action' => 'system',
+            'levels_allowed' => [
+                ROLE_BACKUPMGR,
+                ROLE_ADMIN
+            ]
+        ],
+        [
+            'name' => 'logout',
+            'title' => 'Logout',
+            'action' => 'logout',
+            'levels_allowed' => null
+        ]
+    ];
+
+?>
+            <div id="maintabs" class="navi ui-widget-header ui-tabs">
+                <ul class="ui-tabs-nav ui-helper-clearfix ui-corner-all">
+<?php
+foreach ($astrMainButtons as $button) {
+    $strButton = '<li class="functionlink ui-state-default ui-corner-top';
+    if ($button['action'] == $func
+        || ($button['action'] == 'open_invoices' && $func == 'invoices')
+    ) {
+        $strButton .= ' ui-tabs-selected ui-state-active';
+    }
+    $strButton .= '"><a class="ui-tabs-anchor functionlink" href="index.php?func='
+        . $button['action'] . '">';
+    $strButton .= Translator::translate($button['title']) . '</a></li>';
+
+    if (!isset($button['levels_allowed'])
+        ||  sesAccessLevel($button['levels_allowed']) || sesAdminAccess()
+    ) {
+        echo "      $strButton\n";
+    }
+}
+?>
+                </ul>
+            </div>
+<?php
+}
+
 function htmlListBox($strName, $astrValues, $strSelected, $strStyle = '',
     $blnSubmitOnChange = FALSE, $blnShowEmpty = TRUE, $astrAdditionalAttributes = '',
     $translate = false)

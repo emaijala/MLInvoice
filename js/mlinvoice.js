@@ -297,6 +297,7 @@ var MLInvoice = (function MLInvoice() {
     function _setupDefaultTextSelection() {
         $('.select-default-text').each(function () {
             var target = $(this).data('target');
+            var formParam = $(this).data('sendFormParam');
             var select = $('<input type="hidden" class="select-default-text"/>').appendTo($(this));
             select.select2({
                 placeholder: '',
@@ -334,7 +335,16 @@ var MLInvoice = (function MLInvoice() {
                     }
                 }
                 ).done(function(data) {
-                    $('#' + target).text(data.content);
+                    if (formParam) {
+                        var input = $('<input type="hidden"/>');
+                        input.attr('name', formParam);
+                        input.attr('value', data.id);
+                        $('#' + target).append(input);
+                        $('#' + target).submit();
+                    } else {
+                        $('#' + target).text(data.content);
+                        $('#' + target).change();
+                    }
                 }).fail(function(jqXHR, textStatus) {
                     window.alert('Request failed: ' + jqXHR.status + ' - ' + textStatus);
                 });
