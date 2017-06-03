@@ -285,6 +285,14 @@ $arrSettings = [
         'default' => 1,
         'allow_null' => true
     ],
+    'invoice_show_vat_breakdown' => [
+        'label' => 'SettingInvoiceShowVATBreakdown',
+        'type' => 'CHECK',
+        'style' => 'medium',
+        'position' => 1,
+        'default' => 1,
+        'allow_null' => true
+    ],
     'invoice_show_dispatch_dates' => [
         'label' => 'SettingInvoiceShowDispatchDates',
         'type' => 'CHECK',

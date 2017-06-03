@@ -330,6 +330,7 @@ abstract class InvoicePrinterBase
                 $this->groupedVATs[$vat]['totalvat'] = $rowVAT;
                 $this->groupedVATs[$vat]['totalsumvat'] = $rowSumVAT;
             }
+            ksort($this->groupedVATs);
         }
         $this->separateStatement = ($this->printStyle == 'invoice') &&
              getSetting('invoice_separate_statement');
@@ -510,6 +511,7 @@ abstract class InvoicePrinterBase
         $savePdf = clone($this->pdf);
         if (!$this->separateStatement) {
             $this->printRows();
+            $this->printSummary();
         } else {
             $this->printSeparateStatementMessage();
         }
@@ -529,6 +531,7 @@ abstract class InvoicePrinterBase
 
         if ($this->separateStatement) {
             $this->printRows();
+            $this->printSummary();
         }
 
         $this->printOut();
@@ -812,7 +815,9 @@ abstract class InvoicePrinterBase
     {
         $pdf = $this->pdf;
         $pdf->SetY(max($pdf->GetY(), $this->recipientMaxY) + 5);
-        $pdf->Line(5, $pdf->GetY(), 202, $pdf->GetY());
+        $pdf->Line(
+            $this->left, $pdf->GetY(), $this->left + $this->width, $pdf->GetY()
+        );
         $pdf->SetY($pdf->GetY() + 5);
     }
 
@@ -943,34 +948,118 @@ abstract class InvoicePrinterBase
                 $this->printRow($pdf, $row);
             }
         }
+    }
 
-        if ($this->printStyle != 'dispatch') {
-            $pdf->SetAutoPageBreak(true, 22);
-            if ($this->invoiceData['invoice_unpaid']) {
-                $unpaidAmount = $this->totalSumVAT - $this->partialPayments;
-            } else {
-                $unpaidAmount = 0;
+    /**
+     *  Print payment summary
+     *
+     * @return void
+     */
+    protected function printSummary()
+    {
+        if ('dispatch' === $this->printStyle) {
+            return;
+        }
+
+        $pdf = $this->pdf;
+        $savePDF = clone($pdf);
+
+        $pdf->SetAutoPageBreak(false);
+        $startY = $maxY = $pdf->GetY();
+
+        // VAT Breakdown
+        if ($this->senderData['vat_registered']
+            && getSetting('invoice_show_vat_breakdown')
+        ) {
+            $pdf->SetFont('Helvetica', '', 9);
+            $pdf->SetXY($this->left, $startY + 5);
+            $pdf->Cell(
+                20, 4, Translator::translate('invoice::RowVATPercent'), 0, 0, 'R'
+            );
+            $pdf->Cell(
+                20, 4, Translator::translate('invoice::RowTotalVATLess'), 0, 0, 'R'
+            );
+            $pdf->Cell(
+                20, 4, Translator::translate('invoice::RowTax'), 0, 0, 'R'
+            );
+            $pdf->Cell(
+                20, 4, Translator::translate('invoice::RowTotal'), 0, 0, 'R'
+            );
+            $pdf->SetLineWidth(0.13);
+            $pdf->Line($this->left + 2, $startY + 9, $pdf->GetX(), $startY + 9);
+
+            $pdf->SetY($startY + 6);
+            foreach ($this->groupedVATs as $group) {
+                $pdf->SetXY($this->left, $pdf->getY() + 4);
+
+                $pdf->Cell(
+                    20, 4, $this->formatNumber($group['vat'], 1, true), 0, 0, 'R'
+                );
+                $pdf->Cell(
+                    20, 4, $this->formatCurrency($group['totalsum']), 0, 0, 'R'
+                );
+                $pdf->Cell(
+                    20, 4, $this->formatCurrency($group['totalvat']), 0, 0, 'R'
+                );
+                $pdf->Cell(
+                    20, 4, $this->formatCurrency($group['totalsumvat']), 0, 0, 'R'
+                );
             }
-            $colWidth = 30;
-            $leftAmount = $this->left + $this->width - $colWidth;
-            $right = $leftAmount - 5;
-            if ($this->senderData['vat_registered']) {
-                $pdf->SetFont('Helvetica', '', 10);
-                $pdf->SetY($pdf->GetY() + 6);
-                $pdf->Cell(
-                    $right,
-                    5,
-                    Translator::translate('invoice::TotalExcludingVAT') . ': ',
-                    0,
-                    0,
-                    'R'
-                );
-                $pdf->SetX($leftAmount);
-                $pdf->Cell(
-                    $colWidth, 5, $this->formatCurrency($this->totalSum), 0, 0, 'R'
-                );
 
-                $pdf->SetFont('Helvetica', '', 10);
+            if (count($this->groupedVATs) > 1) {
+                $pdf->SetXY($this->left, $pdf->getY() + 4);
+                $pdf->Cell(
+                    20, 4, Translator::translate('invoice::RowTotal'), 0, 0, 'R'
+                );
+                $pdf->Cell(
+                    20, 4, $this->formatCurrency($this->totalSum), 0, 0, 'R'
+                );
+                $pdf->Cell(
+                    20, 4, $this->formatCurrency($this->totalVAT), 0, 0, 'R'
+                );
+                $pdf->Cell(
+                    20, 4, $this->formatCurrency($this->totalSumVAT), 0, 0, 'R'
+                );
+            }
+
+            $maxY = $pdf->GetY() + 5;
+            $maxX = $pdf->GetX();
+
+            // Border for the VAT summary
+            $pdf->SetLineWidth(0.13);
+            $pdf->Line($this->left, $startY + 5, $maxX + 2, $startY + 5);
+            $pdf->Line($maxX + 2, $startY + 5, $maxX + 2, $maxY);
+            $pdf->Line($maxX + 2, $maxY, $this->left, $maxY);
+            $pdf->Line($this->left, $maxY, $this->left, $startY + 5);
+
+            $pdf->SetY($startY);
+        }
+
+        if ($this->invoiceData['invoice_unpaid']) {
+            $unpaidAmount = $this->totalSumVAT - $this->partialPayments;
+        } else {
+            $unpaidAmount = 0;
+        }
+        $colWidth = 30;
+        $leftAmount = $this->left + $this->width - $colWidth;
+        $right = $leftAmount - 5;
+        if ($this->senderData['vat_registered']) {
+            $pdf->SetFont('Helvetica', '', 10);
+            $pdf->SetY($pdf->GetY() + 6);
+            $pdf->Cell(
+                $right,
+                5,
+                Translator::translate('invoice::TotalExcludingVAT') . ': ',
+                0,
+                0,
+                'R'
+            );
+            $pdf->SetX($leftAmount);
+            $pdf->Cell(
+                $colWidth, 5, $this->formatCurrency($this->totalSum), 0, 0, 'R'
+            );
+
+            if (!getSetting('invoice_show_vat_breakdown')) {
                 $pdf->SetY($pdf->GetY() + 5);
                 $pdf->Cell(
                     $right,
@@ -984,72 +1073,73 @@ abstract class InvoicePrinterBase
                 $pdf->Cell(
                     $colWidth, 5, $this->formatCurrency($this->totalVAT), 0, 0, 'R'
                 );
+            }
 
-                if ('invoice' !== $this->printStyle) {
-                    $pdf->SetFont('Helvetica', 'B', 10);
-                }
-                $pdf->SetY($pdf->GetY() + 5);
-                $pdf->Cell(
-                    $right,
-                    5,
-                    Translator::translate('invoice::TotalIncludingVAT') . ': ',
-                    0,
-                    0,
-                    'R'
-                );
-                $pdf->SetX($leftAmount);
-                $pdf->Cell(
-                    $colWidth,
-                    5,
-                    $this->formatCurrency($this->totalSumVAT),
-                    0,
-                    0,
-                    'R'
-                );
-                $pdf->SetFont('Helvetica', '', 10);
-            } else {
-                if ('invoice' !== $this->printStyle) {
-                    $pdf->SetFont('Helvetica', 'B', 10);
-                }
-                $pdf->SetY($pdf->GetY() + 5);
-                $pdf->Cell(
-                    $left,
-                    5,
-                    Translator::translate('invoice::TotalPrice') . ': ',
-                    0,
-                    0,
-                    'R'
-                );
-                $pdf->SetX($leftAmount);
-                $pdf->Cell(
-                    $colWidth,
-                    5,
-                    $this->formatCurrency($this->totalSumVAT),
-                    0,
-                    0,
-                    'R'
-                );
-                $pdf->SetFont('Helvetica', '', 10);
-            }
-            if ('invoice' === $this->printStyle) {
+            if ('invoice' !== $this->printStyle) {
                 $pdf->SetFont('Helvetica', 'B', 10);
-                $pdf->SetY($pdf->GetY() + 5);
-                $pdf->Cell(
-                    $right,
-                    5,
-                    Translator::translate('invoice::TotalToPay') . ': ',
-                    0,
-                    0,
-                    'R'
-                );
-                $pdf->SetX($leftAmount);
-                $pdf->Cell(
-                    $colWidth, 5, $this->formatCurrency($unpaidAmount), 0, 1, 'R'
-                );
-            } else {
-                $pdf->SetY($pdf->GetY() + 5);
             }
+            $pdf->SetY($pdf->GetY() + 5);
+            $pdf->Cell(
+                $right,
+                5,
+                Translator::translate('invoice::TotalIncludingVAT') . ': ',
+                0,
+                0,
+                'R'
+            );
+            $pdf->SetX($leftAmount);
+            $pdf->Cell(
+                $colWidth,
+                5,
+                $this->formatCurrency($this->totalSumVAT),
+                0,
+                0,
+                'R'
+            );
+            $pdf->SetFont('Helvetica', '', 10);
+        } else {
+            if ('invoice' !== $this->printStyle) {
+                $pdf->SetFont('Helvetica', 'B', 10);
+            }
+            $pdf->SetY($pdf->GetY() + 5);
+            $pdf->Cell(
+                $right,
+                5,
+                Translator::translate('invoice::TotalPrice') . ': ',
+                0,
+                0,
+                'R'
+            );
+            $pdf->SetX($leftAmount);
+            $pdf->Cell(
+                $colWidth,
+                5,
+                $this->formatCurrency($this->totalSumVAT),
+                0,
+                0,
+                'R'
+            );
+            $pdf->SetFont('Helvetica', '', 10);
         }
+        if ('invoice' === $this->printStyle) {
+            $pdf->SetFont('Helvetica', 'B', 10);
+            $pdf->SetY($pdf->GetY() + 5);
+            $pdf->Cell(
+                $right,
+                5,
+                Translator::translate('invoice::TotalToPay') . ': ',
+                0,
+                0,
+                'R'
+            );
+            $pdf->SetX($leftAmount);
+            $pdf->Cell(
+                $colWidth, 5, $this->formatCurrency($unpaidAmount), 0, 1, 'R'
+            );
+        } else {
+            $pdf->SetY($pdf->GetY() + 5);
+        }
+        $pdf->SetY(max([$pdf->GetY(), $maxY]));
     }
 
     /**
@@ -1096,12 +1186,12 @@ abstract class InvoicePrinterBase
     protected function printRowHeadings(&$pdf)
     {
         $curX = $this->left;
-        $rowY = $pdf->getY();
+        $rowY = $pdf->GetY();
         foreach ($this->columnDefs as $key => $column) {
             if (!$column['visible']) {
                 continue;
             }
-            $pdf->setXY($curX, $rowY);
+            $pdf->SetXY($curX, $rowY);
             $width = $column['width'];
             if ('fill' === $width) {
                 $width = $this->getColumnFillWidth($key);
@@ -1128,7 +1218,9 @@ abstract class InvoicePrinterBase
             }
             $curX += $width;
         }
-        $pdf->setY($pdf->getY() + 2);
+        $pdf->SetLineWidth(0.13);
+        $pdf->Line($this->left, $rowY + 5, $curX, $rowY + 5);
+        $pdf->setY($rowY + 2);
     }
 
     /**
@@ -1211,12 +1303,12 @@ abstract class InvoicePrinterBase
 
         ++$maxY;
 
-        $pdf->setY($maxY);
+        $pdf->SetY($maxY);
 
         if ($this->printStyle == 'dispatch'
             && getSetting('dispatch_note_show_barcodes')
             && ((!empty($row['barcode1']) && !empty($row['barcode1_type']))
-            || (!empty($row['barcode2']) && !empty($row['barcode2_type'])))
+            || (!empty($row['barcode2']) && !empty($row['barcode2_type'])))
         ) {
             $style = [
                 'position' => '',
@@ -1460,7 +1552,7 @@ abstract class InvoicePrinterBase
      */
     protected function getRowTotal($row)
     {
-        return $row['partial_payment'] ? ''
+        return $row['partial_payment'] ? $this->formatCurrency($row['price'])
             : $this->formatCurrency($row['rowsumvat']);
     }
 
