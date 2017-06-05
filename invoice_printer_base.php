@@ -486,6 +486,8 @@ abstract class InvoicePrinterBase
             $this->columnDefs['vat']['visible'] = false;
         }
         if ('dispatch' === $this->printStyle) {
+            $this->columnDefs['price']['visible'] = false;
+            $this->columnDefs['discount']['visible'] = false;
             $this->columnDefs['total']['visible'] = false;
         }
 
@@ -931,6 +933,9 @@ abstract class InvoicePrinterBase
         $margins = $pdf->getMargins();
         $pdf->SetY($pdf->GetY() + 5);
         foreach ($this->invoiceRowData as $row) {
+            if ($row['partial_payment'] && 'dispatch' === $this->printStyle) {
+                continue;
+            }
             $savePDF = clone($pdf);
             $maxY = $this->printRow($pdf, $row);
             if (!$this->separateStatement && $this->printStyle == 'invoice'
