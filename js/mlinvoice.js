@@ -193,50 +193,55 @@ var MLInvoice = (function MLInvoice() {
             return;
         }
         button.click(function() {
-            var term = window.prompt(translate('SearchYTJPrompt'), '');
+            var term = $('#company_id').val();
+            if (!term) {
+                term = $('#company_name').val();
+            }
+            term = window.prompt(translate('SearchYTJPrompt'), term);
             if ('' == term || null == term) {
-            return;
+                return;
             }
             // Try business ID first
+            var businessId = term.replace(/FI-?/i, '');
             jQuery.ajax(
             {
                 url: 'https://avoindata.prh.fi/bis/v1',
                 data: {
-                maxResults: 1,
-                businessId: term
+                    maxResults: 1,
+                    businessId: businessId
                 }
             }
             ).done(function(data) {
-            if ('undefined' === typeof data.results[0]) {
-                return;
-            }
-            _fillCompanyForm(data.results[0]);
-            }).fail(function(jqXHR, textStatus) {
-            if (404 === jqXHR.status) {
-                // Try company name second
-                jQuery.ajax(
-                {
-                    url: 'https://avoindata.prh.fi/bis/v1',
-                    data: {
-                    maxResults: 1,
-                    name: term
-                    }
-                }
-                ).done(function(data) {
                 if ('undefined' === typeof data.results[0]) {
                     return;
                 }
                 _fillCompanyForm(data.results[0]);
-                }).fail(function (jqXHR, textStatus) {
+            }).fail(function(jqXHR, textStatus) {
                 if (404 === jqXHR.status) {
-                    window.alert(translate('NoYTJResultsFound'));
+                    // Try company name second
+                    jQuery.ajax(
+                    {
+                        url: 'https://avoindata.prh.fi/bis/v1',
+                        data: {
+                        maxResults: 1,
+                        name: term
+                        }
+                    }
+                    ).done(function(data) {
+                    if ('undefined' === typeof data.results[0]) {
+                        return;
+                    }
+                    _fillCompanyForm(data.results[0]);
+                    }).fail(function (jqXHR, textStatus) {
+                    if (404 === jqXHR.status) {
+                        window.alert(translate('NoYTJResultsFound'));
+                    } else {
+                        window.alert('Request failed: ' + jqXHR.status + ' - ' + textStatus);
+                    }
+                    });
                 } else {
                     window.alert('Request failed: ' + jqXHR.status + ' - ' + textStatus);
                 }
-                });
-            } else {
-                window.alert('Request failed: ' + jqXHR.status + ' - ' + textStatus);
-            }
             });
         });
     };
