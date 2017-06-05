@@ -25,6 +25,7 @@
 require_once 'sqlfuncs.php';
 require_once 'sessionfuncs.php';
 require_once 'miscfuncs.php';
+require_once 'memory.php';
 
 function createFuncMenu($strFunc)
 {
@@ -343,4 +344,31 @@ function createFuncMenu($strFunc)
     ?>
   </div>
 <?php
+}
+
+/**
+ * Update navigation history in session
+ *
+ * @param string $title Entry title
+ * @param string $url   Entry url
+ * @param int    $level Entry level
+ *
+ * @return Updated history
+ */
+function updateNavigationHistory($title, $url, $level)
+{
+    $arrNew = [];
+    $history = Memory::get('history') ?: [];
+    foreach ($history as $item) {
+        if ($item['level'] < $level)
+            $arrNew[] = $item;
+    }
+    $arrNew[] = [
+        'title' => $title,
+        'url' => $url,
+        'level' => $level
+    ];
+    Memory::set('history', $arrNew);
+
+    return $arrNew;
 }

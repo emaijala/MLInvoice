@@ -91,7 +91,7 @@ if ($strList && ($strFunc == 'settings' || $strFunc == 'system'))
     ++$level;
 if ($strForm)
     ++$level;
-$arrHistory = sesUpdateHistory($title, $_SERVER['QUERY_STRING'], $level);
+$arrHistory = updateNavigationHistory($title, $_SERVER['QUERY_STRING'], $level);
 
 $strBreadcrumbs = '';
 foreach ($arrHistory as $arrHE) {

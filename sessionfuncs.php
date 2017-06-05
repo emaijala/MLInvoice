@@ -77,7 +77,6 @@ function sesCreateSession($strLogin, $strPasswd)
             $_SESSION['sesUSERID'] = $row['user_id'];
             $_SESSION['sesACCESSLEVEL'] = $row['access_level'];
             $_SESSION['REMOTE_ADDR'] = $_SERVER['REMOTE_ADDR'];
-            $_SESSION['HISTORY'] = [];
             $_SESSION['ACCESSTIME'] = time();
 
             return 'OK';
@@ -129,23 +128,6 @@ function sesCreateKey()
     $_SESSION['keytime'] = time();
     $_SESSION['keyip'] = $_SERVER['REMOTE_ADDR'];
     return $_SESSION['key'];
-}
-
-function sesUpdateHistory($title, $url, $level)
-{
-    $arrNew = [];
-    foreach ($_SESSION['HISTORY'] as $item) {
-        if ($item['level'] < $level)
-            $arrNew[] = $item;
-    }
-    $arrNew[] = [
-        'title' => $title,
-        'url' => $url,
-        'level' => $level
-    ];
-    $_SESSION['HISTORY'] = $arrNew;
-
-    return $_SESSION['HISTORY'];
 }
 
 function createRandomString($length)
