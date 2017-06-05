@@ -239,7 +239,7 @@ td.reportsublabel {
 .iform th.small, .iform td.small {
   width: 100px;
 }
-.iform td.date {
+.iform .date {
   width: 75px;
 }
 .iform th.medium, .iform td.medium {
