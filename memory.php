@@ -30,6 +30,8 @@ require_once 'sessionfuncs.php';
 /**
  * Session Memory Manager
  *
+ * Stores data in the session in a format that any PHP session handler can process.
+ *
  * @category MLInvoice
  * @package  Session
  * @author   Ere Maijala <ere@labs.fi>
@@ -55,7 +57,7 @@ class Memory
             session_start();
         }
 
-        $_SESSION['memory'][$id] = $data;
+        $_SESSION['memory'][$id] = base64_encode(serialize($data));
     }
 
     /**
@@ -75,6 +77,7 @@ class Memory
             session_start();
         }
 
-        return isset($_SESSION['memory'][$id]) ? $_SESSION['memory'][$id] : null;
+        return isset($_SESSION['memory'][$id])
+            ? unserialize(base64_decode($_SESSION['memory'][$id])) : null;
     }
 }
