@@ -131,18 +131,21 @@ if ($blnSearch || $blnSave) {
                     $strSearchMatch = 'NOT LIKE';
                 }
                 $strSearchValue = "'%" . addcslashes($astrValues[$name], "'\\") . "%'";
-            } elseif ($astrFormElements[$j]['type'] == 'INT' ||
-                 $astrFormElements[$j]['type'] == 'LIST' ||
-                 $astrFormElements[$j]['type'] == 'SELECT' ||
-                 $astrFormElements[$j]['type'] == 'SEARCHLIST') {
+            } elseif ($astrFormElements[$j]['type'] == 'INT'
+                || $astrFormElements[$j]['type'] == 'LIST'
+                || $astrFormElements[$j]['type'] == 'SELECT'
+                || $astrFormElements[$j]['type'] == 'SEARCHLIST'
+                || $astrFormElements[$j]['type'] == 'TAGS'
+            ) {
                 $strSearchValue = $astrValues[$name];
             } elseif ($astrFormElements[$j]['type'] == 'CHECK') {
                 $strSearchValue = $astrValues[$name] ? 1 : 0;
             } elseif ($astrFormElements[$j]['type'] == 'INTDATE') {
                 $strSearchValue = dateConvDate2DBDate($astrValues[$name]);
             }
-            if ($strSearchValue)
+            if ($strSearchValue) {
                 $strWhereClause .= "$strSearchOperator$strListTableAlias$name $strSearchMatch $strSearchValue";
+            }
         }
     }
 

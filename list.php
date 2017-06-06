@@ -364,7 +364,22 @@ function createListQueryParams($strFunc, $strList, $startRow, $rowCount, $sort,
         // Validate and build query parameters
         $boolean = '';
         while (extractSearchTerm($where, $field, $operator, $term, $nextBool)) {
-            if (strcasecmp($operator, 'IN') === 0) {
+            if ('tags' === $field) {
+                $tagTable = 'companies' === $strList ? 'company' : 'contact';
+                foreach (explode(',', $term) as $i => $current) {
+                    $subQuery = <<<EOT
+SELECT {$tagTable}_id FROM {prefix}{$tagTable}_tag_link
+  WHERE tag_id = (
+    SELECT id FROM {prefix}{$tagTable}_tag WHERE tag = ?
+  )
+EOT;
+                    if ($i > 0) {
+                        $terms .= ' AND ';
+                    }
+                    $terms .= "$boolean id IN (" . $subQuery . ')';
+                    $arrQueryParams[] = str_replace("%-", "%", $current);
+                }
+            } elseif (strcasecmp($operator, 'IN') === 0) {
                 $terms .= "$boolean$field $operator " .
                      mysqli_real_escape_string($dblink, $term);
             } else {
@@ -572,7 +587,7 @@ function createJSONSelectList($strList, $startRow, $rowCount, $filter, $sort,
             break;
         }
         $astrPrimaryKeys[$i] = $row[$strPrimaryKey];
-        $aboolDeleted[$i] = $row[$strDeletedField];
+        $aboolDeleted[$i] = isset($strDeletedField) ? $row[$strDeletedField] : false;
         foreach ($astrShowFields as $field) {
             $name = $field['name'];
             if ($field['type'] == 'TEXT' || $field['type'] == 'INT'
