@@ -640,6 +640,12 @@ function createJSONSelectList($strList, $startRow, $rowCount, $filter, $sort,
                             . $row[$name];
                     }
                     continue 2;
+                case 'unit_price':
+                    if (!empty($row[$name]) && $row[$name] != 0.0) {
+                        $desc2[] = Translator::translate('Price') . ': '
+                            . $row[$name];
+                    }
+                    continue 2;
                 }
             }
 

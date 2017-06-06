@@ -395,7 +395,8 @@ case 'product' :
             'width' => 100,
             'type' => 'CURRENCY',
             'header' => 'UnitPrice',
-            'decimals' => getSetting('unit_price_decimals')
+            'decimals' => getSetting('unit_price_decimals'),
+            'select' => true
         ],
         [
             'name' => 'stock_balance',
