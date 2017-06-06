@@ -438,7 +438,18 @@ function mysqli_param_query($query, $params = false, $noFail = false)
             }
         }
     }
-    $sql_query = vsprintf(str_replace('?', '%s', $query), $params);
+    // Find unquoted question marks and replace them with params
+    $idx = 0;
+    $sql_query = preg_replace_callback(
+        "/(?<!['])(\?+)(?!['])/",
+        function ($matches) use ($params, &$idx) {
+            if (!isset($params[$idx])) {
+                die("Param $idx missing from query");
+            }
+            return $params[$idx++];
+        },
+        $query
+    );
     return mysqli_query_check($sql_query, $noFail);
 }
 
