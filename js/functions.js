@@ -293,7 +293,8 @@ function intVal(i) {
     return 0;
 }
 
-function formatDate(dateString)
+function formatDate(date)
 {
+    dateString = new String(date);
     return dateString.substr(6, 2) + '.' + dateString.substr(4, 2) + '.' + dateString.substr(0, 4);
 }

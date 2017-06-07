@@ -217,7 +217,7 @@ function saveFormData($table, &$primaryKey, &$formElements, &$values, &$warnings
             $arrValues[] = $value ? dateConvDate2DBDate($value) : null;
             break;
         default :
-            $arrValues[] = $value;
+            $arrValues[] = null !== $value ? $value : '';
         }
         $strInsert .= $fieldPlaceholder;
         $strUpdateFields .= "$name=$fieldPlaceholder";
@@ -233,7 +233,7 @@ function saveFormData($table, &$primaryKey, &$formElements, &$values, &$warnings
         // Special case for invoice rows - update product stock balance
         if (isset($values['invoice_id'])) {
             $invoiceId = $values['invoice_id'];
-        } else {
+        } elseif ($table == '{prefix}invoice_row') {
             $res = mysqli_param_query(
                 'SELECT invoice_id FROM {prefix}invoice_row WHERE id=?',
                 [$primaryKey]

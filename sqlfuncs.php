@@ -376,25 +376,7 @@ function mysqli_query_check($query, $noFail = false)
         error_log('QUERY [' . round(microtime(true) - $startTime, 4) . "s]: $query");
     }
     if ($intRes === false) {
-        $intError = mysqli_errno($dblink);
-        if (strlen($query) > 1024)
-            $query = substr($query, 0, 1024) . '[' . (strlen($query) - 1024)
-                . ' more characters]';
-        error_log("Query '$query' failed: ($intError) " . mysqli_error($dblink));
-        if ($noFail !== true) {
-            if (!headers_sent()) {
-                header('HTTP/1.1 500 Internal Server Error');
-            }
-            $msg = (!defined('_DB_VERBOSE_ERRORS_') || !_DB_VERBOSE_ERRORS_)
-                ? Translator::translate('DBError')
-                : htmlspecialchars(
-                    "Query '$query' failed: ($intError) " . mysqli_error($dblink)
-                );
-            if ($noFail == 'exception') {
-                throw new Exception($msg);
-            }
-            die($msg);
-        }
+        handle_mysqli_error($query, [], $noFail);
     }
     return $intRes;
 }
@@ -402,55 +384,105 @@ function mysqli_query_check($query, $noFail = false)
 function mysqli_param_query($query, $params = false, $noFail = false)
 {
     global $dblink;
+    static $preparedStatements = [];
 
     if (!$dblink) {
         // We may need a reinit for e.g. session closure
         init_db_connection();
     }
 
-    if (!$params) {
-        return mysqli_query_check($query, $noFail);
+    $query = str_replace('{prefix}', _DB_PREFIX_ . '_', $query);
+
+    $first = strtoupper(strtok($query, ' '));
+    if (in_array($first, ['ALTER', 'BEGIN', 'COMMIT', 'ROLLBACK', 'LOCK', 'UNLOCK'])
+    ) {
+        if (!mysqli_query($dblink, $query)) {
+            handle_mysqli_error($query, $params, $noFail);
+            return false;
+        }
+        return true;
     }
-    foreach ($params as &$v) {
-        if (null === $v) {
-            $v = 'NULL';
-        } elseif (is_array($v)) {
-            $t = '';
-            foreach ($v as $v2) {
-                if ($t) {
-                    $t .= ',';
-                }
-                $v2 = mysqli_real_escape_string($dblink, $v2);
-                if (!is_numeric($v2)
-                    || (strlen(trim($v2)) > 0 && substr(trim($v2), 0, 1) == '0')
-                ) {
-                    $v2 = "'$v2'";
-                }
-                $t .= $v2;
-            }
-            $v = $t;
-        } elseif (is_bool($v)) {
-            $v = $v ? '1' : '0';
-        } else {
-            $v = mysqli_real_escape_string($dblink, $v);
-            if (!is_numeric($v) || (strlen(trim($v)) > 1 && substr(trim($v), 0, 1) == '0')) {
-                $v = "'$v'";
+
+    $hash = md5($query);
+    if (isset($preparedStatements[$hash])) {
+        $statement = $preparedStatements[$hash];
+    } else {
+        $statement = mysqli_stmt_init($dblink);
+        if (!mysqli_stmt_prepare($statement, $query)) {
+            handle_mysqli_error($query, $params, $noFail);
+            return false;
+        }
+        $preparedStatements[$hash] = $statement;
+    }
+    if ($params) {
+        $paramTypes = '';
+        foreach ($params as &$v) {
+            if (null === $v) {
+                $paramTypes .= 's';
+            } elseif (is_array($v)) {
+                $v = implode(',', $v);
+                $paramTypes .= 's';
+            } elseif (is_bool($v)) {
+                $v = $v ? '1' : '0';
+                $paramTypes .= 'i';
+            } else {
+                $paramTypes .= 's';
             }
         }
+        $paramRefs = [];
+        foreach ($params as $key => $param) {
+            $paramRefs[$key] = &$params[$key];
+        }
+        $bindParams = array_merge([$statement, $paramTypes], $paramRefs);
+        call_user_func_array('mysqli_stmt_bind_param', $bindParams);
     }
-    // Find unquoted question marks and replace them with params
-    $idx = 0;
-    $sql_query = preg_replace_callback(
-        "/(?<!['])(\?+)(?!['])/",
-        function ($matches) use ($params, &$idx) {
-            if (!isset($params[$idx])) {
-                die("Param $idx missing from query");
-            }
-            return $params[$idx++];
-        },
-        $query
-    );
-    return mysqli_query_check($sql_query, $noFail);
+    $startTime = microtime(true);
+    $res = mysqli_stmt_execute($statement);
+    if (defined('_SQL_DEBUG_')) {
+        error_log(
+            'QUERY [' . round(microtime(true) - $startTime, 4)
+            . "s]: $query, params: " . var_export($params, true)
+        );
+    }
+    if (!$res) {
+        handle_mysqli_error($query, $params, $noFail);
+        return false;
+    }
+    return mysqli_stmt_get_result($statement);
+}
+
+/**
+ * Handle a MySQLi error
+ *
+ * @param string $query  Query string
+ * @param array  $params Query params
+ * @param bool   $noFail Whether to not abort execution
+ *
+ * @return void
+ */
+function handle_mysqli_error($query, $params, $noFail)
+{
+    global $dblink;
+    $errno = mysqli_errno($dblink);
+    if (strlen($query) > 1024)
+        $query = substr($query, 0, 1024) . '[' . (strlen($query) - 1024)
+            . ' more characters]';
+    $errorMsg = "Query '$query' with params " . var_export($params, true)
+        . " failed: ($errno) " . mysqli_error($dblink);
+
+    error_log($errorMsg);
+    if ($noFail !== true) {
+        if (!headers_sent()) {
+            header('HTTP/1.1 500 Internal Server Error');
+        }
+        $msg = (!defined('_DB_VERBOSE_ERRORS_') || !_DB_VERBOSE_ERRORS_)
+            ? Translator::translate('DBError')
+            : htmlspecialchars($errorMsg);
+        if ($noFail == 'exception') {
+            throw new Exception($msg);
+        }
+        die($msg);
+    }
 }
 
 function mysqli_fetch_value($result)

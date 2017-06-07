@@ -59,7 +59,7 @@ case 'company' :
         ]
     ];
 
-    $defaultCustomerNr = FALSE;
+    $defaultCustomerNr = null;
     if (getSetting('add_customer_number')) {
         $strQuery = 'SELECT max(customer_no) FROM {prefix}company WHERE deleted=0';
         $intRes = mysqli_query_check($strQuery);
