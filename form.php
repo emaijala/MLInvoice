@@ -674,7 +674,7 @@ function init_rows()
             if (isset($subElem['decimals'])) {
                 echo "      td.text(record.$name ? MLInvoice.formatCurrency(record.$name, {$subElem['decimals']}) : '').appendTo(tr);\n";
             } else {
-                echo "      td.text(record.$name ? record.$name.replace('.', '" . Translator::translate('DecimalSeparator') . "') : '').appendTo(tr);\n";
+                echo "      td.text(record.$name ? String(record.$name).replace('.', '" . Translator::translate('DecimalSeparator') . "') : '').appendTo(tr);\n";
             }
         } elseif ($subElem['type'] == 'INTDATE') {
             echo "      if (record.$name === null) record.$name = '';\n";
