@@ -1295,6 +1295,9 @@ function select_preset()
             $headings = $this->get_csv(
                 $fp, $fieldDelimiter, $enclosureChar, $charset, $rowDelimiter
             );
+            if ('import' === $importMode) {
+                mysqli_query_check('BEGIN');
+            }
             while (!feof($fp)) {
                 $row = $this->get_csv(
                     $fp, $fieldDelimiter, $enclosureChar, $charset, $rowDelimiter
@@ -1304,6 +1307,10 @@ function select_preset()
                 }
 
                 ++$rowNum;
+                if ('import' === $importMode && $rowNum % 5000 == 0) {
+                    mysqli_query_check('COMMIT');
+                    mysqli_query_check('BEGIN');
+                }
                 $mapped_row = [];
                 $haveMappings = false;
                 for ($i = 0; $i < count($row); $i++) {
@@ -1329,6 +1336,9 @@ function select_preset()
                              htmlspecialchars($result) . "<br>\n";
                     }
                 }
+            }
+            if ('import' === $importMode) {
+                mysqli_query_check('COMMIT');
             }
             fclose($fp);
             if ($_SESSION['import_file'] != _IMPORT_FILE_
@@ -1388,6 +1398,9 @@ function select_preset()
             $headings = [];
             $rows = [];
 
+            if ('import' === $importMode) {
+                mysqli_query_check('BEGIN');
+            }
             foreach (reset($data) as $record) {
                 $childRecords = [];
                 $mapped_row = [];
@@ -1410,6 +1423,11 @@ function select_preset()
                 }
 
                 ++$recNum;
+                if ('import' === $importMode && $recNum % 5000 == 0) {
+                    mysqli_query_check('COMMIT');
+                    mysqli_query_check('BEGIN');
+                }
+
                 $addedRecordId = null;
                 $result = $this->process_import_row(
                     $table, $mapped_row, $duplicateMode, $duplicateCheckColumns,
@@ -1427,6 +1445,9 @@ function select_preset()
                     );
                 }
             }
+            if ('import' === $importMode) {
+                mysqli_query_check('COMMIT');
+            }
         } elseif ($format == 'fixed') {
             $data = file_get_contents($_SESSION['import_file']);
 
@@ -1435,6 +1456,10 @@ function select_preset()
             }
 
             $rowNum = 0;
+
+            if ('import' === $importMode) {
+                mysqli_query_check('BEGIN');
+            }
             foreach (explode("\n", $data) as $line) {
                 $line = trim($line, "\r");
                 $pos = 0;
@@ -1452,6 +1477,11 @@ function select_preset()
                 }
 
                 ++$rowNum;
+                if ('import' === $importMode && $rowNum % 5000 == 0) {
+                    mysqli_query_check('COMMIT');
+                    mysqli_query_check('BEGIN');
+                }
+
                 $mapped_row = [];
                 $haveMappings = false;
                 for ($i = 0; $i < count($row); $i ++) {
@@ -1478,6 +1508,9 @@ function select_preset()
                     }
                 }
             }
+            if ('import' === $importMode) {
+                mysqli_query_check('COMMIT');
+            }
         }
 
         echo '    ' . Translator::translate('ImportDone') . "\n";
@@ -1492,6 +1525,9 @@ function select_preset()
     ) {
         $errors = [];
         $recNum = 0;
+        if ('import' === $importMode) {
+            mysqli_query_check('BEGIN');
+        }
         foreach ($xml as $record) {
             $record = get_object_vars($record);
 
@@ -1514,6 +1550,10 @@ function select_preset()
             }
 
             ++$recNum;
+            if ('import' === $importMode && $recNum % 5000 == 0) {
+                mysqli_query_check('COMMIT');
+                mysqli_query_check('BEGIN');
+            }
             $addedRecordId = null;
             $result = $this->process_import_row(
                 $table, $mapped_row, $duplicateMode, $duplicateCheckColumns,
@@ -1529,6 +1569,9 @@ function select_preset()
                     $importMode, $decimalSeparator, $fieldDefs
                 );
             }
+        }
+        if ('import' === $importMode) {
+            mysqli_query_check('COMMIT');
         }
     }
 
