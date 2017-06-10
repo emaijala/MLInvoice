@@ -244,7 +244,7 @@ function createFuncMenu($strFunc)
                     ROLE_BACKUPMGR
                 ]
             ];
-        } else {
+        } elseif ($strFunc != 'archived_invoices') {
             $astrNaviLinks[] = [
                 'href' => 'index.php?func=open_invoices',
                 'text' => Translator::translate('DisplayOpenInvoices'),
@@ -268,7 +268,6 @@ function createFuncMenu($strFunc)
                 ]
             ];
         }
-        $strFunc = 'invoices';
         break;
     }
 
