@@ -357,12 +357,15 @@ var MLInvoice = (function MLInvoice() {
         });
     };
 
-    function _setupSelect2() {
+    function setupSelect2(container) {
+        if ('undefined' === typeof container) {
+            container = 'body';
+        }
         var callbacks = {
             _onChangeCompany: _onChangeCompany,
             _onChangeProduct: _onChangeProduct
         };
-        $('.select2').each(function () {
+        $(container).find('.select2').each(function () {
             var field = $(this);
             var tags = field.hasClass('tags');
             var query = field.data('query');
@@ -499,7 +502,7 @@ var MLInvoice = (function MLInvoice() {
     function init() {
         _setupYtjSearch();
         _setupDefaultTextSelection();
-        _setupSelect2();
+        setupSelect2();
         if (_keepAliveEnabled) {
             window.setTimeout(_keepAlive, 60*1000);
         }
@@ -516,7 +519,8 @@ var MLInvoice = (function MLInvoice() {
         updateDispatchByDateButtons: updateDispatchByDateButtons,
         getSelectedProductDefaults: getSelectedProductDefaults,
         formatCurrency: formatCurrency,
-        setKeepAlive: setKeepAlive
+        setKeepAlive: setKeepAlive,
+        setupSelect2: setupSelect2
     }
 })();
 

@@ -1094,6 +1094,8 @@ function popup_editor(event, title, id, copy_row)
             }
         }
 ?>
+    MLInvoice.setupSelect2($("#popup_edit"));
+
     var buttons = new Object();
     buttons["<?php echo Translator::translate('Save')?>"] = function() { save_row('iform_popup'); };
     if (!copy_row)
