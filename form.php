@@ -1057,7 +1057,7 @@ function popup_editor(event, title, id, copy_row)
     if (copy_row)
       value = document.getElementById('<?php echo "iform_$name"?>').value;
     else
-      value = json.<?php echo $name?> ? json.<?php echo $name?>.replace('.', '<?php Translator::translate('DecimalSeparator')?>') : '';
+      value = json.<?php echo $name?> ? json.<?php echo $name?>.toString().replace('.', '<?php Translator::translate('DecimalSeparator')?>') : '';
     form.<?php echo "iform_popup_$name"?>.value = value;
 <?php
                 } else {
