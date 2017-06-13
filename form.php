@@ -716,7 +716,7 @@ function init_rows()
       var td = $('<td/>').addClass('<?php echo $class?>' + (record.deleted == 1 ? ' deleted' : '')).append('<span title="' + title + '">' + sumVAT + '<\/span>').appendTo(tr);
 <?php
         } elseif ($subElem['type'] == 'TAGS') {
-            echo "      var val = record.$name ? record.$name : '';\n";
+            echo "      var val = record.$name ? String(record.$name) : '';\n";
             echo "      val = val.replace(new RegExp(/,/, 'g'), ', ');\n";
             echo "      $('<td/>').addClass('$class' + (record.deleted == 1 ? ' deleted' : '')).text(val).appendTo(tr);\n";
         } else {
@@ -1057,7 +1057,7 @@ function popup_editor(event, title, id, copy_row)
     if (copy_row)
       value = document.getElementById('<?php echo "iform_$name"?>').value;
     else
-      value = json.<?php echo $name?> ? json.<?php echo $name?>.replace('.', '<?php Translator::translate('DecimalSeparator')?>') : '';
+      value = json.<?php echo $name?> ? String(json.<?php echo $name?>).replace('.', '<?php Translator::translate('DecimalSeparator')?>') : '';
     form.<?php echo "iform_popup_$name"?>.value = value;
 <?php
                 } else {
@@ -1067,7 +1067,7 @@ function popup_editor(event, title, id, copy_row)
 <?php
                     } else {
 ?>
-    form.<?php echo "iform_popup_$name"?>.value = json.<?php echo $name?> ? json.<?php echo $name?>.replace('.', '<?php echo Translator::translate('DecimalSeparator')?>') : '';
+    form.<?php echo "iform_popup_$name"?>.value = json.<?php echo $name?> ? String(json.<?php echo $name?>).replace('.', '<?php echo Translator::translate('DecimalSeparator')?>') : '';
 <?php
                     }
                 }
