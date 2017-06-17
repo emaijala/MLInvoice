@@ -25,7 +25,7 @@ class InvoicePrinterEmail extends InvoicePrinterBase
     {
         if ($this->invoiceData['state_id'] == 1) {
             // Mark invoice sent
-            mysqli_param_query('UPDATE {prefix}invoice SET state_id=2 WHERE id=?',
+            db_param_query('UPDATE {prefix}invoice SET state_id=2 WHERE id=?',
                 [
                     $this->invoiceId
                 ]

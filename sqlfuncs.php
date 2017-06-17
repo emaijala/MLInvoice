@@ -157,17 +157,20 @@ function updateProductStockBalance($invoiceRowId, $productId, $count)
     $oldCount = 0;
     if (!empty($invoiceRowId)) {
         // Fetch old product id
-        $res = mysqli_param_query(
+        $rows = db_param_query(
             'SELECT product_id, pcs from {prefix}invoice_row WHERE id=? AND deleted=0',
             [$invoiceRowId],
             'exception'
         );
-        list ($oldProductId, $oldCount) = mysqli_fetch_array($res);
+        if ($rows) {
+            $oldProductId = $rows[0]['product_id'];
+            $oldCount = $rows[0]['pcs'];
+        }
     }
 
     if ($oldProductId) {
         // Add old balance to old product
-        mysqli_param_query(
+        db_param_query(
             'UPDATE {prefix}product SET stock_balance=IFNULL(stock_balance, 0)+? WHERE id=?',
             [$oldCount, $oldProductId],
             'exception'
@@ -175,7 +178,7 @@ function updateProductStockBalance($invoiceRowId, $productId, $count)
     }
     if (!empty($productId)) {
         // Deduct from new product
-        mysqli_param_query(
+        db_param_query(
             'UPDATE {prefix}product SET stock_balance=IFNULL(stock_balance, 0)-? WHERE id=?',
             [
                 $count,
@@ -189,13 +192,12 @@ function updateProductStockBalance($invoiceRowId, $productId, $count)
 function getPaymentDays($companyId)
 {
     if (!empty($companyId)) {
-        $res = mysqli_param_query(
+        $rows = db_param_query(
             'SELECT payment_days FROM {prefix}company WHERE id = ?',
             [$companyId]
         );
-        $companyPaymentDays = mysqli_fetch_value($res);
-        if (!empty($companyPaymentDays)) {
-            return $companyPaymentDays;
+        if ($rows) {
+            return $rows[0]['payment_days'];
         }
     }
     return getSetting('invoice_payment_days');
@@ -203,26 +205,24 @@ function getPaymentDays($companyId)
 
 function isOffer($invoiceId)
 {
-    $res = mysqli_param_query(
+    $rows = db_param_query(
         'SELECT id FROM {prefix}invoice_state WHERE invoice_offer=1 AND id IN ('
         . 'SELECT state_id FROM {prefix}invoice WHERE id=?)',
         [$invoiceId]
     );
-    $result = mysqli_fetch_value($res) ? true : false;
-    return $result;
+    return $rows ? true : false;
 }
 
 function isRowOfOffer($invoiceRowId)
 {
-    $res = mysqli_param_query(
+    $rows = db_param_query(
         'SELECT id FROM {prefix}invoice_state WHERE invoice_offer=1 AND id IN ('
         . 'SELECT state_id FROM {prefix}invoice i'
         . ' INNER JOIN {prefix}invoice_row ir ON i.id = ir.invoice_id'
         . ' WHERE ir.id=?)',
         [$invoiceRowId]
     );
-    $result = mysqli_fetch_value($res) ? true : false;
-    return $result;
+    return $rows ? true : false;
 }
 
 function getInitialOfferState()
@@ -247,7 +247,7 @@ function getInitialOfferState()
 function getTags($type, $id)
 {
     $tags = [];
-    $res = mysqli_param_query(
+    $rows = db_param_query(
         <<<EOT
 SELECT tag FROM {prefix}${type}_tag WHERE id IN (
     SELECT tag_id FROM {prefix}${type}_tag_link WHERE ${type}_id=?
@@ -256,8 +256,8 @@ EOT
         ,
         [$id]
     );
-    while ($tagRow = mysqli_fetch_array($res)) {
-        $tags[] = $tagRow[0];
+    foreach ($rows as $tagRow) {
+        $tags[] = $tagRow['tag'];
     }
     return implode(',', $tags);
 }
@@ -276,7 +276,7 @@ function saveTags($type, $id, $tags)
     global $dblink;
 
     // Delete tag links
-    mysqli_param_query(
+    db_param_query(
         "DELETE FROM {prefix}${type}_tag_link WHERE ${type}_id=?",
         [$id],
         'exception'
@@ -284,20 +284,20 @@ function saveTags($type, $id, $tags)
     if ($tags) {
         // Save tags
         foreach (explode(',', $tags) as $tag) {
-            $res = mysqli_param_query(
+            $rows = db_param_query(
                 "SELECT id FROM {prefix}${type}_tag WHERE tag=?",
                 [$tag]
             );
-            $tagId = mysqli_fetch_value($res);
+            $tagId = $rows ? $rows[0]['id'] : null;
             if (null === $tagId) {
-                mysqli_param_query(
+                db_param_query(
                     "INSERT INTO {prefix}${type}_tag (tag) VALUES (?)",
                     [$tag],
                     'exception'
                 );
                 $tagId = mysqli_insert_id($dblink);
             }
-            mysqli_param_query(
+            db_param_query(
                 "INSERT INTO {prefix}${type}_tag_link (tag_id, ${type}_id)"
                 . ' VALUES (?, ?)',
                 [$tagId, $id],
@@ -306,7 +306,7 @@ function saveTags($type, $id, $tags)
         }
     }
     // Delete any orphaned tags
-    mysqli_param_query(
+    db_param_query(
         <<<EOT
 DELETE FROM {prefix}${type}_tag WHERE id NOT IN
     (SELECT tag_id FROM {prefix}${type}_tag_link)
@@ -322,18 +322,15 @@ EOT
  *
  * @param int $id Record ID
  *
- * @return array
+ * @return mixed String or null
  */
 function getDefaultValue($id)
 {
-    $res = mysqli_param_query(
-        'SELECT * FROM {prefix}default_value WHERE id=?',
+    $rows = db_param_query(
+        'SELECT content FROM {prefix}default_value WHERE id=?',
         [$id]
     );
-    if ($row = mysqli_fetch_array($res)) {
-        return $row;
-    }
-    return [];
+    return $rows ? $rows[0]['content'] : null;
 }
 
 function deleteRecord($table, $id)
@@ -347,17 +344,17 @@ function deleteRecord($table, $id)
 
         // Special case for invoice - update all products in invoice rows
         if ($table == '{prefix}invoice' && !isOffer($id)) {
-            $res = mysqli_param_query(
+            $rows = db_param_query(
                 'SELECT id FROM {prefix}invoice_row WHERE invoice_id=? AND deleted=0',
                 [$id],
                 'exception'
             );
-            while ($row = mysqli_fetch_assoc($res)) {
+            foreach ($rows as $row) {
                 updateProductStockBalance($row['id'], null, null);
             }
         }
         $query = "UPDATE $table SET deleted=1 WHERE id=?";
-        mysqli_param_query($query, [$id], 'exception');
+        db_param_query($query, [$id], 'exception');
     } catch (Exception $e) {
         mysqli_query_check('ROLLBACK');
         throw $e;
@@ -381,8 +378,8 @@ function mysqli_query_check($query, $noFail = false)
     return $intRes;
 }
 
-function mysqli_param_query($query, $params = false, $noFail = false)
-{
+function db_param_query($query, $params = false, $noFail = false, $prefixed = false
+) {
     global $dblink;
     static $preparedStatements = [];
 
@@ -393,14 +390,24 @@ function mysqli_param_query($query, $params = false, $noFail = false)
 
     $query = str_replace('{prefix}', _DB_PREFIX_ . '_', $query);
 
-    $first = strtoupper(strtok($query, ' '));
-    if (in_array($first, ['ALTER', 'BEGIN', 'COMMIT', 'ROLLBACK', 'LOCK', 'UNLOCK'])
+    $queryType = strtoupper(strtok($query, ' '));
+    if (true
+        && in_array(
+            $queryType,
+            ['ALTER', 'BEGIN', 'COMMIT', 'ROLLBACK', 'LOCK', 'UNLOCK']
+        )
     ) {
         if (!mysqli_query($dblink, $query)) {
             handle_mysqli_error($query, $params, $noFail);
             return false;
         }
         return true;
+    }
+
+    if (!is_callable('mysqli_stmt_get_result')) {
+        // Fall back to not using stored procedures when mysqli_stmt_get_result is
+        // not available
+
     }
 
     $hash = md5($query);
@@ -448,7 +455,35 @@ function mysqli_param_query($query, $params = false, $noFail = false)
         handle_mysqli_error($query, $params, $noFail);
         return false;
     }
-    return mysqli_stmt_get_result($statement);
+
+    $results = [];
+    if ('SELECT' === $queryType) {
+        mysqli_stmt_store_result($statement);
+        $resultMetadata = $statement->result_metadata();
+        $fieldKeys = [];
+        while ($field = $resultMetadata->fetch_field()) {
+            if ($prefixed
+                && strncmp(
+                    $field->table, _DB_PREFIX_ . '_', strlen(_DB_PREFIX_) + 1
+                ) != 0
+            ) {
+                $key = $field->table . '.' . $field->name;
+            } else {
+                $key = $field->name;
+            }
+
+            $fieldKeys[] = $key;
+        }
+        for ($i = 0; $i < $statement->num_rows; $i++) {
+            $fields = [];
+            foreach ($fieldKeys as $key) {
+                $fields[] = &$results[$i][$key];
+            }
+            call_user_func_array([$statement, 'bind_result'], $fields);
+            $statement->fetch();
+        }
+    }
+    return $results;
 }
 
 /**
@@ -655,11 +690,10 @@ EOT
     }
 
     // Convert any MyISAM tables to InnoDB
-    $res = mysqli_param_query(
+    $rows = db_param_query(
         'SELECT data FROM {prefix}state WHERE id=?', ['tableconversiondone']
     );
-    $stateRows = mysqli_num_rows($res);
-    if ($stateRows == 0) {
+    if (!$rows) {
         mysqli_query_check('SET AUTOCOMMIT = 0');
         mysqli_query_check('BEGIN');
         mysqli_query_check('SET FOREIGN_KEY_CHECKS = 0');
@@ -687,10 +721,10 @@ EOT
         mysqli_query_check('SET FOREIGN_KEY_CHECKS = 1');
     }
 
-    $res = mysqli_param_query(
+    $rows = db_param_query(
         'SELECT data FROM {prefix}state WHERE id=?', ['version']
     );
-    $version = mysqli_fetch_value($res);
+    $version = $rows ? $rows[0]['data'] : 0;
     $updates = [];
     if ($version < 16) {
         $updates = array_merge(
@@ -1033,8 +1067,8 @@ EOT
 
     if ($version < 39) {
         // Check for a bug in database creation script in v1.12.0 and v1.12.1
-        $res = mysqli_param_query("SELECT count(*) FROM information_schema.columns WHERE table_schema = '" . _DB_NAME_ . "' AND table_name   = '{prefix}invoice_row' AND column_name = 'partial_payment'");
-        $count = mysqli_fetch_value($res);
+        $rows = db_param_query("SELECT count(*) as cnt FROM information_schema.columns WHERE table_schema = '" . _DB_NAME_ . "' AND table_name   = '{prefix}invoice_row' AND column_name = 'partial_payment'");
+        $count = $rows[0]['cnt'];
         if ($count == 0) {
             $updates = array_merge(
                 $updates,

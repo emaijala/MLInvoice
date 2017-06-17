@@ -88,12 +88,8 @@ abstract class AbstractReport
                 $param .= isset($mapping['values'][$value])
                     ? Translator::translate($mapping['values'][$value]) : $value;
             } elseif (isset($mapping['sql'])) {
-                $res = mysqli_param_query($mapping['sql'], [$value]);
-                if ($res) {
-                    $param .= mysqli_fetch_value($res);
-                } else {
-                    $param .= $res;
-                }
+                $rows = db_param_query($mapping['sql'], [$value]);
+                $param = $rows ? $rows[0] : null;
             } else {
                 $param .= $value;
             }

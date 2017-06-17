@@ -597,8 +597,8 @@ function getInvoiceDefaults($invoiceId, $baseId, $companyId, $invoiceDate,
             $query .= ' AND invoice_date >= ' . dateConvDate2DBDate($invoiceDate);
         }
 
-        $res = mysqli_param_query($query, $params);
-        if (mysqli_fetch_assoc($res)) {
+        $rows = db_param_query($query, $params);
+        if ($rows) {
             $invoiceNumber = 0;
         }
     }

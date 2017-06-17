@@ -209,8 +209,8 @@ class ProductReport extends AbstractReport
         $productSum = 0;
         $productVAT = 0;
         $productSumVAT = 0;
-        $intRes = mysqli_param_query($strProductQuery, $arrParams);
-        while ($row = mysqli_fetch_assoc($intRes)) {
+        $rows = db_param_query($strProductQuery, $arrParams);
+        foreach ($rows as $row) {
             if ($prevRow !== false && ($prevRow['id'] != $row['id']
                 || $prevRow['description'] != $row['description']
                 || $prevRow['unit'] != $row['unit']

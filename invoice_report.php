@@ -385,8 +385,8 @@ class InvoiceReport extends AbstractReport
         $groupTotSumVAT = 0;
         $groupTotalToPay = 0;
         $totalsPerVAT = [];
-        $intRes = mysqli_param_query($strQuery, $arrParams);
-        while ($row = mysqli_fetch_assoc($intRes)) {
+        $rows = db_param_query($strQuery, $arrParams);
+        foreach ($rows as $row) {
             switch ($grouping) {
             case 'state' :
                 $invoiceGroup = $row['state'];
@@ -436,13 +436,17 @@ class InvoiceReport extends AbstractReport
                 }
             }
 
-            $intRes2 = mysqli_param_query($strQuery, $rowParams);
+            $rows2 = db_param_query($strQuery, $rowParams);
             $intRowSum = 0;
             $intRowVAT = 0;
             $intRowSumVAT = 0;
             $rowPayments = 0;
-            $rows = false;
-            while ($row2 = mysqli_fetch_assoc($intRes2)) {
+
+            if (!$rows2) {
+                continue;
+            }
+
+            foreach ($rows2 as $row2) {
                 $rows = true;
 
                 if ($row2['partial_payment']) {
@@ -467,10 +471,6 @@ class InvoiceReport extends AbstractReport
                     $totalsPerVAT[$row2['vat']]['VAT'] += $intVAT;
                     $totalsPerVAT[$row2['vat']]['sumVAT'] += $intSumVAT;
                 }
-            }
-
-            if (!$rows) {
-                continue;
             }
 
             $intTotSum += $intRowSum;

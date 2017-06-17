@@ -611,11 +611,11 @@ EOT;
 
         $strQuery = 'SELECT refunded_invoice_id ' . 'FROM {prefix}invoice ' .
              'WHERE id=?'; // ok to maintain links to deleted invoices too
-        $intRes = mysqli_param_query($strQuery, [$intInvoiceId]);
+        $rows = db_param_query($strQuery, [$intInvoiceId]);
         $strBaseLink = '?' . preg_replace('/&id=\d*/', '', $_SERVER['QUERY_STRING']);
         $strBaseLink = preg_replace('/&/', '&amp;', $strBaseLink);
-        if ($intRes) {
-            $intRefundedInvoiceId = mysqli_fetch_value($intRes);
+        if ($rows) {
+            $intRefundedInvoiceId = $rows[0]['refunded_invoice_id'];
             if ($intRefundedInvoiceId) {
                 $arrRefundedInvoice = [
                     'name' => 'get',
@@ -630,9 +630,9 @@ EOT;
         }
         $strQuery = 'SELECT id ' . 'FROM {prefix}invoice ' .
              'WHERE deleted=0 AND refunded_invoice_id=?';
-        $intRes = mysqli_param_query($strQuery, [$intInvoiceId]);
-        if ($intRes && ($row = mysqli_fetch_assoc($intRes))) {
-            $intRefundingInvoiceId = $row['id'];
+        $rows = db_param_query($strQuery, [$intInvoiceId]);
+        if ($rows) {
+            $intRefundingInvoiceId = $rows[0]['id'];
             if ($intRefundingInvoiceId) {
                 $arrRefundingInvoice = [
                     'name' => 'get',
@@ -758,14 +758,14 @@ EOF;
     // Print buttons
     $printButtons = [];
     $printButtons2 = [];
-    $res = mysqli_param_query(
+    $rows = db_param_query(
         'SELECT * FROM {prefix}print_template WHERE deleted=0 and type=? and inactive=0 ORDER BY order_no',
         [$isOffer ? 'offer' : 'invoice']
     );
-    $templateCount = mysqli_num_rows($res);
+    $templateCount = count($rows);
     $templateFirstCol = 3;
     $rowNum = 0;
-    while ($row = mysqli_fetch_assoc($res)) {
+    foreach ($rows as $row) {
         $templateId = $row['id'];
         $printStyle = $row['new_window'] ? 'openwindow' : 'redirect';
 

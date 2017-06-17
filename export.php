@@ -473,10 +473,10 @@ EOT
         }
         $result = [];
         foreach ($children as $tag => $settings) {
-            $cres = mysqli_param_query(
+            $rows = db_param_query(
                 $settings['sql'], $settings['params']
             );
-            while ($crow = mysqli_fetch_assoc($cres)) {
+            foreach ($rows as $crow) {
                 $result[$tag][] = $crow;
             }
         }

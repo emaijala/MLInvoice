@@ -68,12 +68,12 @@ class AccountingReport extends InvoiceReport
             $query .= ' AND i.invoice_date <= ?';
             $params[] = dateConvDate2DBDate($endDate);
         }
-        $res = mysqli_param_query(
+        $rows = db_param_query(
             'SELECT id FROM {prefix}invoice_state WHERE invoice_open=0'
             . ' AND invoice_unpaid=1 AND invoice_offer=0'
         );
         $unpaidStates = [];
-        while ($row = mysqli_fetch_assoc($res)) {
+        foreach ($rows as $row) {
             $unpaidStates[] = $row['id'];
         }
 

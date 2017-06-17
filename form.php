@@ -345,8 +345,8 @@ var globals = {
     nonOpenModificationWarning: '<?php echo Translator::translate('NonOpenInvoiceModificationWarning')?>'
     <?php
     if ($strForm == 'invoice' && !empty($intKeyValue)) {
-        $res = mysqli_param_query('SELECT invoice_open FROM {prefix}invoice_state WHERE id=?', [$astrValues['state_id']]);
-        $open = mysqli_fetch_value($res);
+        $rows = db_param_query('SELECT invoice_open FROM {prefix}invoice_state WHERE id=?', [$astrValues['state_id']]);
+        $open = isset($rows[0]) && $rows[0]['invoice_open'];
         echo '    , invoiceOpenStatus: ' . ($open ? 'true' : 'false') . "\n";
     }
 ?>
@@ -1401,8 +1401,8 @@ function augmentListInfo($listId, $listInfo, $startRow, $rowCount)
     }
 
     $ids = [];
-    $res = mysqli_param_query($fullQuery, $params['params']);
-    while ($row = mysqli_fetch_prefixed_assoc($res)) {
+    $rows = db_param_query($fullQuery, $params['params']);
+    foreach ($rows as $row) {
         $ids[] = $row[$primaryKey];
     }
 

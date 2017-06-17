@@ -61,9 +61,9 @@ function sesCreateSession($strLogin, $strPasswd)
              'FROM {prefix}users u ' .
              'INNER JOIN {prefix}session_type st ON st.id = u.type_id ' .
              'WHERE u.deleted=0 AND u.login=?';
-        $intRes = mysqli_param_query($strQuery, [$strLogin]);
-        $row = mysqli_fetch_assoc($intRes);
-        if ($row) {
+        $rows = db_param_query($strQuery, [$strLogin]);
+        if ($rows) {
+            $row = $rows[0];
             $passwd_md5 = $row['passwd'];
             $md5 = md5($key . $passwd_md5);
             if ($md5 != $strPasswd) {
@@ -178,17 +178,17 @@ function db_session_close()
 
 function db_session_read($sessionID)
 {
-    $res = mysqli_param_query(
+    $rows = db_param_query(
         'SELECT data FROM {prefix}session where id=?', [$sessionID]
     );
-    $result = mysqli_fetch_value($res);
-    return null !== $result ? $result : '';
+    return isset($rows[0]['data']) ? $rows[0]['data'] : '';
 }
 
 function db_session_write($sessionID, $sessionData)
 {
-    mysqli_param_query(
-        'REPLACE INTO {prefix}session (id, data, session_timestamp) VALUES (?, ?, ?)',
+    db_param_query(
+        'REPLACE INTO {prefix}session (id, data, session_timestamp) VALUES'
+        . ' (?, ?, ?)',
         [
             $sessionID,
             $sessionData,
@@ -200,7 +200,7 @@ function db_session_write($sessionID, $sessionData)
 
 function db_session_destroy($sessionID)
 {
-    mysqli_param_query('DELETE FROM {prefix}session WHERE id=?', [$sessionID]);
+    db_param_query('DELETE FROM {prefix}session WHERE id=?', [$sessionID]);
     return true;
 }
 
@@ -209,7 +209,7 @@ function db_session_gc($sessionMaxAge)
     if (!$sessionMaxAge) {
         $sessionMaxAge = 900;
     }
-    mysqli_param_query('DELETE FROM {prefix}session WHERE session_timestamp<?',
+    db_param_query('DELETE FROM {prefix}session WHERE session_timestamp<?',
         [
             date('Y-m-d H:i:s', time() - $sessionMaxAge)
         ]

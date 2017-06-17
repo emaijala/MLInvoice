@@ -356,8 +356,8 @@ class ImportStatement extends ImportFile
             $sql .= ' AND ist.invoice_unpaid = 1';
         }
 
-        $intRes = mysqli_param_query($sql, $params);
-        $count = mysqli_num_rows($intRes);
+        $rows = db_param_query($sql, $params);
+        $count = count($rows);
         if ($count == 0) {
             return str_replace(
                 '{refnr}', $refnr, Translator::translate('ImportStatementInvoiceNotFound')
@@ -370,7 +370,7 @@ class ImportStatement extends ImportFile
             );
         }
 
-        $row = mysqli_fetch_assoc($intRes);
+        $row = $rows[0];
 
         if (!$row['invoice_unpaid']) {
             return str_replace(
@@ -378,7 +378,7 @@ class ImportStatement extends ImportFile
             );
         }
 
-        $res2 = mysqli_param_query(
+        $rows2 = db_param_query(
             'SELECT ir.price, ir.pcs, ir.vat, ir.vat_included, ir.discount, ir.discount_amount, ir.partial_payment from {prefix}invoice_row ir where ir.deleted = 0 AND ir.invoice_id = ?',
             [
                 $row['id']
@@ -386,7 +386,7 @@ class ImportStatement extends ImportFile
         );
         $rowTotal = 0;
         $partialPayments = 0;
-        while ($invoiceRow = mysqli_fetch_assoc($res2)) {
+        foreach ($rows2 as $invoiceRow) {
             if ($invoiceRow['partial_payment']) {
                 $partialPayments += $invoiceRow['price'];
             }
@@ -407,7 +407,7 @@ INSERT INTO {prefix}invoice_row
     VALUES (?, ?, 0, ?, ?, 100000, 1)
 EOT;
 
-                    mysqli_param_query(
+                    db_param_query(
                         $sql,
                         [
                             $row['id'],
@@ -451,7 +451,7 @@ EOT;
                 $sql .= ', archived=1';
             }
             $sql .= ' WHERE id = ?';
-            mysqli_param_query($sql, [$date, $row['id']]);
+            db_param_query($sql, [$date, $row['id']]);
         }
         $msg = str_replace(
             '{amount}', miscRound2Decim($amount),

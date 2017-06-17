@@ -38,14 +38,14 @@ if ($strFunc == 'open_invoices')
 
 $strQuery = 'SELECT * FROM {prefix}quicksearch ' . 'WHERE func=? AND user_id=? ' .
      'ORDER BY name';
-$intRes = mysqli_param_query($strQuery, [$strFunc, $_SESSION['sesUSERID']]);
+$rows = db_param_query($strQuery, [$strFunc, $_SESSION['sesUSERID']]);
 
-while ($row = mysqli_fetch_assoc($intRes)) {
+foreach ($rows as $row) {
     $intId = $row['id'];
     $blnDelete = getPost('delete_' . $intId . '_x', FALSE) ? TRUE : FALSE;
     if ($blnDelete && $intId) {
         $strDelQuery = 'DELETE FROM {prefix}quicksearch ' . 'WHERE id=?';
-        mysqli_param_query($strDelQuery, [$intId]);
+        db_param_query($strDelQuery, [$intId]);
     }
 }
 
@@ -65,8 +65,8 @@ echo htmlPageStart();
                         </td>
                     </tr>
 <?php
-$intRes = mysqli_param_query($strQuery, [$strFunc, $_SESSION['sesUSERID']]);
-while ($row = mysqli_fetch_assoc($intRes)) {
+$rows = db_param_query($strQuery, [$strFunc, $_SESSION['sesUSERID']]);
+foreach ($rows as $row) {
     $intID = $row['id'];
     $strName = $row['name'];
     $strFunc = $row['func'];

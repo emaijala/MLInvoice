@@ -31,7 +31,7 @@ if (!isset($baseId) || !is_numeric($baseId) || !isset($func))
 $messages = '';
 
 if ($func == 'clear') {
-    mysqli_param_query(
+    db_param_query(
         'UPDATE {prefix}base set logo_filename=null, logo_filesize=null, logo_filetype=null, logo_filedata=null WHERE id=?',
         [$baseId]
     );
@@ -52,7 +52,7 @@ if ($func == 'clear') {
             $fsize = filesize($_FILES['logo']['tmp_name']);
             $data = fread($file, $fsize);
             fclose($file);
-            mysqli_param_query(
+            db_param_query(
                 'UPDATE {prefix}base set logo_filename=?, logo_filesize=?, logo_filetype=?, logo_filedata=? WHERE id=?',
                 [
                     $_FILES['logo']['name'],
@@ -67,13 +67,14 @@ if ($func == 'clear') {
         }
     }
 } elseif ($func == 'view') {
-    $res = mysqli_param_query(
+    $rows = db_param_query(
         'SELECT logo_filename, logo_filesize, logo_filetype, logo_filedata FROM {prefix}base WHERE id=?',
         [
             $baseId
         ]
     );
-    if ($row = mysqli_fetch_assoc($res)) {
+    if ($rows) {
+        $row = $rows[0];
         if (isset($row['logo_filename']) && isset($row['logo_filesize'])
             && isset($row['logo_filetype']) && isset($row['logo_filedata'])
         ) {

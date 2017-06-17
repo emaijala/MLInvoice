@@ -174,9 +174,8 @@ function saveFormData($table, &$primaryKey, &$formElements, &$values, &$warnings
                 $query .= ' AND id!=?';
                 $params[] = $primaryKey;
             }
-            $res = mysqli_param_query($query, $params);
-            $checkRow = mysqli_fetch_array($res);
-            if ($checkRow) {
+            $checkRows = db_param_query($query, $params);
+            if ($checkRows) {
                 $warnings = sprintf(
                     Translator::translate('DuplicateValue'),
                     Translator::translate($elem['label'])
@@ -234,11 +233,12 @@ function saveFormData($table, &$primaryKey, &$formElements, &$values, &$warnings
         if (isset($values['invoice_id'])) {
             $invoiceId = $values['invoice_id'];
         } elseif ($table == '{prefix}invoice_row') {
-            $res = mysqli_param_query(
+            $rows = db_param_query(
                 'SELECT invoice_id FROM {prefix}invoice_row WHERE id=?',
                 [$primaryKey]
             );
-            $invoiceId = mysqli_fetch_value($res);
+            $invoiceId = isset($rows[0]['invoice_id'])
+                ? $rows[0]['invoice_id'] : null;
         }
         if ($table == '{prefix}invoice_row' && !isOffer($invoiceId)) {
             updateProductStockBalance(
@@ -255,23 +255,22 @@ function saveFormData($table, &$primaryKey, &$formElements, &$values, &$warnings
                 $arrValues[] = $parentKey;
             }
             $strQuery = "INSERT INTO $table ($strFields) VALUES ($strInsert)";
-            mysqli_param_query($strQuery, $arrValues, 'exception');
+            db_param_query($strQuery, $arrValues, 'exception');
             $primaryKey = mysqli_insert_id($dblink);
         } else {
             // Special case for invoice - update product stock balance for all
             // invoice rows if the invoice was previously deleted
             if ($table == '{prefix}invoice' && !isOffer($primaryKey)) {
-                $res = mysqli_param_query(
+                $checkValues = db_param_query(
                     'SELECT deleted FROM {prefix}invoice WHERE id=?',
                     [$primaryKey]
                 );
-                $checkValue = mysqli_fetch_value($res);
-                if ($checkValue) {
-                    $res = mysqli_param_query(
+                if ($checkValues) {
+                    $rows = db_param_query(
                         'SELECT product_id, pcs FROM {prefix}invoice_row WHERE invoice_id=? AND deleted=0',
                         [$primaryKey]
                     );
-                    while ($row = mysqli_fetch_assoc($res)) {
+                    foreach ($rows as $row) {
                         updateProductStockBalance(
                             null, $row['product_id'], $row['pcs']
                         );
@@ -281,7 +280,7 @@ function saveFormData($table, &$primaryKey, &$formElements, &$values, &$warnings
 
             $strQuery = "UPDATE $table SET $strUpdateFields, deleted=0 WHERE id=?";
             $arrValues[] = $primaryKey;
-            mysqli_param_query($strQuery, $arrValues, 'exception');
+            db_param_query($strQuery, $arrValues, 'exception');
         }
         if ($table === '{prefix}company') {
             saveTags(
@@ -321,8 +320,8 @@ function saveFormData($table, &$primaryKey, &$formElements, &$values, &$warnings
             $query .= ' AND invoice_date >= ' . date('Y') . '0101';
         }
 
-        $res = mysqli_param_query($query, $params);
-        if (mysqli_fetch_assoc($res)) {
+        $check = db_param_query($query, $params);
+        if ($check) {
             $warnings = Translator::translate('InvoiceNumberAlreadyInUse');
         }
     }
@@ -337,12 +336,12 @@ function saveFormData($table, &$primaryKey, &$formElements, &$values, &$warnings
             'LOCK TABLES {prefix}invoice WRITE, {prefix}settings READ'
             . ', {prefix}company READ'
         );
-        $res = mysqli_param_query(
+        $rows = db_param_query(
             'SELECT invoice_no, ref_number, base_id, company_id, invoice_date,'
             . "interval_type FROM $table WHERE id=?",
             [$primaryKey]
         );
-        $data = mysqli_fetch_assoc($res);
+        $data = isset($rows[0]) ? $rows[0] : null;
         $needInvNo = getSetting('invoice_add_number');
         $needRefNo = getSetting('invoice_add_reference_number');
         if (($needInvNo && empty($data['invoice_no']))
@@ -366,7 +365,7 @@ function saveFormData($table, &$primaryKey, &$formElements, &$values, &$warnings
             }
             $sql .= ' ' . implode(', ', $updateStrings) . ' WHERE id=?';
             $params[] = $primaryKey;
-            mysqli_param_query($sql, $params);
+            db_param_query($sql, $params);
         }
         mysqli_query_check('UNLOCK TABLES');
     }
@@ -380,11 +379,11 @@ function fetchRecord($table, $primaryKey, &$formElements, &$values)
 {
     $result = true;
     $strQuery = "SELECT * FROM $table WHERE id=?";
-    $intRes = mysqli_param_query($strQuery, [$primaryKey]);
-    $row = mysqli_fetch_assoc($intRes);
-    if (!$row) {
+    $rows = db_param_query($strQuery, [$primaryKey]);
+    if (!$rows) {
         return 'notfound';
     }
+    $row = $rows[0];
 
     if (!empty($row['deleted'])) {
         $result = 'deleted';

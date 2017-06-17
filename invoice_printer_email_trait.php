@@ -75,7 +75,7 @@ trait InvoicePrinterEmailTrait
         if ($id) {
             $value = getDefaultValue($id);
             if ($value) {
-                $emailBody = $value['content'];
+                $emailBody = $value;
             }
         }
 

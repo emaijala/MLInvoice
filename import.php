@@ -1075,10 +1075,9 @@ function select_preset()
                 $params[] = $row[$dupCol];
             }
             if ($params) {
-                $res = mysqli_param_query($query . $where, $params);
-                $dupRow = mysqli_fetch_row($res);
-                if ($dupRow) {
-                    $id = $dupRow[0];
+                $dupRows = db_param_query($query . $where, $params);
+                if ($dupRows) {
+                    $id = $dupRows[0][0];
                     $found_dup = true;
                     if ($dupMode == 'update') {
                         $result = "Update existing row id $id in table $table";
@@ -1100,7 +1099,7 @@ function select_preset()
                         }
                         $query .= implode(',', $columns) . ' WHERE id=?';
                         $params[] = $id;
-                        mysqli_param_query($query, $params);
+                        db_param_query($query, $params);
                         if (in_array($table, ['company', 'company_contact'])
                             && isset($row['tags'])
                         ) {
@@ -1128,7 +1127,7 @@ function select_preset()
         $query .= '(' . implode(',', $columns) . ') VALUES (' . implode(',', $values)
             . ')';
         if ($mode == 'import') {
-            mysqli_param_query($query, $params);
+            db_param_query($query, $params);
             $addedRecordId = mysqli_insert_id($dblink);
             if (in_array($table, ['company', 'company_contact'])
                 && !empty($row['tags'])

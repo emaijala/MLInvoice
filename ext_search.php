@@ -158,7 +158,7 @@ if ($blnSearch || $blnSave) {
     if ($blnSave && $strSearchName) {
         $strQuery = 'INSERT INTO {prefix}quicksearch(user_id, name, func, whereclause) ' .
              'VALUES (?, ?, ?, ?)';
-        mysqli_param_query(
+        db_param_query(
             $strQuery,
             [
                 $_SESSION['sesUSERID'],

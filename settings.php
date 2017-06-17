@@ -36,12 +36,11 @@ function getSetting($name)
             return $_SESSION[$name];
         }
     } else {
-        $res = mysqli_param_query(
+        $rows = db_param_query(
             'SELECT value from {prefix}settings WHERE name=?', [$name]
         );
-        $row = mysqli_fetch_assoc($res);
-        if ($row) {
-            $settingsCache[$name] = $row['value'];
+        if ($rows) {
+            $settingsCache[$name] = $rows[0]['value'];
             return $settingsCache[$name];
         }
     }

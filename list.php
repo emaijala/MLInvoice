@@ -238,9 +238,8 @@ function createJSONList($strFunc, $strList, $startRow, $rowCount, $sort, $filter
     // Total count
     $fullQuery
         = "SELECT COUNT(*) AS cnt FROM $strTable $strCountJoin $strWhereClause";
-    $res = mysqli_param_query($fullQuery, $queryParams);
-    $row = mysqli_fetch_assoc($res);
-    $totalCount = $filteredCount = $row['cnt'];
+    $rows = db_param_query($fullQuery, $queryParams);
+    $totalCount = $filteredCount = $rows[0]['cnt'];
 
     // Add Filter
     if (isset($params['filteredTerms'])) {
@@ -250,9 +249,8 @@ function createJSONList($strFunc, $strList, $startRow, $rowCount, $sort, $filter
         // Filtered count
         $fullQuery
             = "SELECT COUNT(*) as cnt FROM $strTable $strCountJoin $strWhereClause";
-        $res = mysqli_param_query($fullQuery, $queryParams);
-        $row = mysqli_fetch_assoc($res);
-        $filteredCount = $row['cnt'];
+        $rows = db_param_query($fullQuery, $queryParams);
+        $filteredCount = $rows[0]['cnt'];
     }
 
     // Build the final select clause
@@ -276,12 +274,12 @@ function createJSONList($strFunc, $strList, $startRow, $rowCount, $sort, $filter
         $fullQuery .= " LIMIT $startRow, $rowCount";
     }
 
-    $res = mysqli_param_query($fullQuery, $queryParams);
+    $rows = db_param_query($fullQuery, $queryParams, false, true);
 
     $astrPrimaryKeys = [];
     $records = [];
     $highlight = getRequest('highlight_overdue', false);
-    while ($row = mysqli_fetch_prefixed_assoc($res)) {
+    foreach ($rows as $row) {
         $astrPrimaryKeys[] = $row[$strPrimaryKey];
         $deleted = $row[$strDeletedField] ? ' deleted' : '';
         $strLink = "?func=$strFunc&list=$strList&form=$strMainForm"
@@ -579,12 +577,12 @@ function createJSONSelectList($strList, $startRow, $rowCount, $filter, $sort,
         $fullQuery .= " LIMIT $startRow, " . ($rowCount + 1);
     }
 
-    $res = mysqli_param_query($fullQuery, $arrQueryParams);
+    $rows = db_param_query($fullQuery, $arrQueryParams);
 
     $astrListValues = [];
     $i = -1;
     $moreAvailable = false;
-    while ($row = mysqli_fetch_prefixed_assoc($res)) {
+    foreach ($rows as $row) {
         ++$i;
         if ($startRow >= 0 && $rowCount >= 0 && $i >= $rowCount) {
             $moreAvailable = true;

@@ -69,8 +69,8 @@ function createSettingsList()
             if (isset($elem['session']) && $elem['session']) {
                 $_SESSION[$name] = $newValue;
             }
-            mysqli_param_query('DELETE from {prefix}settings WHERE name=?', [$name]);
-            mysqli_param_query(
+            db_param_query('DELETE from {prefix}settings WHERE name=?', [$name]);
+            db_param_query(
                 'INSERT INTO {prefix}settings (name, value) VALUES (?, ?)',
                 [$name, $newValue]
             );
@@ -120,15 +120,7 @@ function createSettingsList()
                     : (isset($elem['default'])
                     ? cond_utf8_decode($elem['default']) : '');
             } else {
-                $res = mysqli_param_query(
-                    'SELECT value from {prefix}settings WHERE name=?', [$name]
-                );
-                if ($row = mysqli_fetch_assoc($res)) {
-                    $value = $row['value'];
-                } else {
-                    $value = isset($elem['default'])
-                        ? cond_utf8_decode($elem['default']) : '';
-                }
+                $value = getSetting($name);
             }
 
             if ($elemType == 'CURRENCY') {

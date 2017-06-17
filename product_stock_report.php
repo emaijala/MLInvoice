@@ -107,8 +107,8 @@ class ProductStockReport extends AbstractReport
         $this->printHeader($format);
 
         $stockValue = 0;
-        $intRes = mysqli_param_query($strQuery, $arrParams);
-        while ($row = mysqli_fetch_assoc($intRes)) {
+        $rows = db_param_query($strQuery, $arrParams);
+        foreach ($rows as $row) {
             $this->printRow(
                 $format, $row['id'], $row['product_code'], $row['product_name'],
                 $row['purchase_price'], $row['unit_price'], $row['stock_balance']

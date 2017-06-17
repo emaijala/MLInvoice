@@ -350,7 +350,7 @@ case 'get_stock_balance_rows' :
     if (!$productId) {
         break;
     }
-    $res = mysqli_param_query(
+    $rows = db_param_query(
         <<<EOT
 SELECT l.time, u.name, l.stock_change, l.description FROM {prefix}stock_balance_log l
 INNER JOIN {prefix}users u ON l.user_id=u.id WHERE product_id=? ORDER BY time DESC
@@ -359,7 +359,7 @@ EOT
         [$productId]
     );
     $html = '';
-    while ($row = mysqli_fetch_assoc($res)) {
+    foreach ($rows as $row) {
         ?>
 <tr>
     <td><?php echo dateConvDBTimestamp2DateTime($row['time'])?></td>
@@ -408,12 +408,12 @@ function printJSONRecord($table, $id = false, $warnings = null)
         }
 
         $query = "$select $from $where";
-        $res = mysqli_param_query($query, [$id]);
-        $row = mysqli_fetch_assoc($res);
-        if (null === $row) {
+        $rows = db_param_query($query, [$id]);
+        if (!$rows) {
             header('HTTP/1.1 404 Not Found');
             return;
         }
+        $row = $rows[0];
         if ($table == 'users') {
             unset($row['password']);
         }
@@ -466,11 +466,11 @@ function printJSONRecords($table, $parentIdCol, $sort)
     if ($sort) {
         $query .= " order by $sort";
     }
-    $res = mysqli_param_query($query, $params);
+    $rows = db_param_query($query, $params);
     header('Content-Type: application/json');
     echo '{"records":[';
     $first = true;
-    while ($row = mysqli_fetch_assoc($res)) {
+    foreach ($rows as $row) {
         if ($first) {
             echo "\n";
             $first = false;
@@ -596,9 +596,9 @@ function getInvoiceListTotal($where)
     $sql = "SELECT sum(it.row_total) as total_sum from $strTable $strJoin $strWhereClause";
 
     $sum = 0;
-    $res = mysqli_param_query($sql, $arrQueryParams);
-    if ($row = mysqli_fetch_assoc($res)) {
-        $sum = $row['total_sum'];
+    $rows = db_param_query($sql, $arrQueryParams);
+    if ($rows) {
+        $sum = $rows[0]['total_sum'];
     }
     $result = [
         'sum' => null !== $sum ? $sum : 0,
@@ -616,7 +616,7 @@ function updateInvoiceRowDates($invoiceId, $date)
             ['status' => 'error', 'errors' => Translator::translate('ErrInvalidValue')]
         );
     }
-    mysqli_param_query(
+    db_param_query(
         'UPDATE {prefix}invoice_row SET row_date=? WHERE invoice_id=? AND deleted=0',
         [$date, $invoiceId]
     );
@@ -637,23 +637,23 @@ function updateStockBalance($productId, $change, $desc)
         return json_encode(['missing_fields' => $missing]);
     }
 
-    $res = mysqli_param_query(
+    $rows = db_param_query(
         'SELECT stock_balance FROM {prefix}product WHERE id=?',
         [$productId]
     );
-    $row = mysqli_fetch_row($res);
-    if ($row === null) {
+    if (!$rows) {
         return json_encode(
             ['status' => 'error', 'errors' => Translator::translate('ErrInvalidValue')]
         );
     }
-    $balance = $row[0];
+    $row = $rows[0];
+    $balance = $row['stock_balance'];
     $balance += $change;
-    mysqli_param_query(
+    db_param_query(
         'UPDATE {prefix}product SET stock_balance=? where id=?',
         [$balance, $productId]
     );
-    mysqli_param_query(
+    db_param_query(
         <<<EOT
 INSERT INTO {prefix}stock_balance_log
 (user_id, product_id, stock_change, description) VALUES (?, ?, ?, ?)
@@ -672,20 +672,19 @@ EOT
 function get_max_invoice_number($invoiceId, $baseId, $perYear)
 {
     if ($baseId !== null) {
-        $sql = 'SELECT max(cast(invoice_no as unsigned integer)) FROM {prefix}invoice WHERE deleted=0 AND id!=? AND base_id=?';
+        $sql = 'SELECT max(cast(invoice_no as unsigned integer)) as maxnum FROM {prefix}invoice WHERE deleted=0 AND id!=? AND base_id=?';
         $params = [
             $invoiceId,
             $baseId
         ];
     } else {
-        $sql = 'SELECT max(cast(invoice_no as unsigned integer)) FROM {prefix}invoice WHERE deleted=0 AND id!=?';
+        $sql = 'SELECT max(cast(invoice_no as unsigned integer)) as maxnum FROM {prefix}invoice WHERE deleted=0 AND id!=?';
         $params = [$invoiceId];
     }
     if ($perYear) {
         $sql .= ' AND invoice_date >= ' . date('Y') . '0101';
     }
-    $res = mysqli_param_query($sql, $params);
-    $result = mysqli_fetch_value($res);
-    return $result;
+    $rows = db_param_query($sql, $params);
+    return $rows[0]['maxnum'];
 }
 
