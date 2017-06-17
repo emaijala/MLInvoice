@@ -233,22 +233,24 @@ function createJSONList($strFunc, $strList, $startRow, $rowCount, $sort, $filter
     $strCountJoin = $params['countJoin'];
     $strWhereClause = !empty($params['terms']) ? "WHERE {$params['terms']}" : '';
     $strGroupBy = !empty($params['group']) ? " GROUP BY {$params['group']}" : '';
+    $queryParams = $params['params'];
 
     // Total count
     $fullQuery
         = "SELECT COUNT(*) AS cnt FROM $strTable $strCountJoin $strWhereClause";
-    $res = mysqli_param_query($fullQuery, $params['params']);
+    $res = mysqli_param_query($fullQuery, $queryParams);
     $row = mysqli_fetch_assoc($res);
     $totalCount = $filteredCount = $row['cnt'];
 
     // Add Filter
     if (isset($params['filteredTerms'])) {
         $strWhereClause = 'WHERE ' . $params['filteredTerms'];
+        $queryParams = $params['filteredParams'];
 
         // Filtered count
         $fullQuery
             = "SELECT COUNT(*) as cnt FROM $strTable $strCountJoin $strWhereClause";
-        $res = mysqli_param_query($fullQuery, $params['params']);
+        $res = mysqli_param_query($fullQuery, $queryParams);
         $row = mysqli_fetch_assoc($res);
         $filteredCount = $row['cnt'];
     }
@@ -274,7 +276,7 @@ function createJSONList($strFunc, $strList, $startRow, $rowCount, $sort, $filter
         $fullQuery .= " LIMIT $startRow, $rowCount";
     }
 
-    $res = mysqli_param_query($fullQuery, $params['params']);
+    $res = mysqli_param_query($fullQuery, $queryParams);
 
     $astrPrimaryKeys = [];
     $records = [];
@@ -402,9 +404,10 @@ EOT;
         $joinOp = ' AND';
     }
 
+    $filteredParams = $arrQueryParams;
     if ($filter) {
         $filteredTerms = "$terms $joinOp (" .
-             createWhereClause($astrSearchFields, $filter, $arrQueryParams) . ')';
+             createWhereClause($astrSearchFields, $filter, $filteredParams) . ')';
         $joinOp = ' AND';
     }
 
@@ -444,6 +447,7 @@ EOT;
     ];
     if (isset($filteredTerms)) {
         $result['filteredTerms'] = $filteredTerms;
+        $result['filteredParams'] = $filteredParams;
     }
 
     return $result;
