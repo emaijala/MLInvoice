@@ -98,7 +98,11 @@ if ($invoiceTotal) {
 }
 ?>
 
-    $('#<?php echo $strTableName?>').dataTable( {
+    $('#<?php echo $strTableName?>')
+    .on('stateLoaded.dt', function () {
+      $('#<?php echo $strTableName?>').DataTable().page(0).draw('page');
+    })
+    .dataTable( {
       language: {
         <?php echo Translator::translate('TableTexts')?>
       },
