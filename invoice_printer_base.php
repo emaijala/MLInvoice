@@ -494,6 +494,10 @@ abstract class InvoicePrinterBase
         if (getSetting('invoice_row_description_first_line_only', false)) {
             $this->columnDefs['description']['maxheight'] = 5;
         }
+
+        if ('invoice' !== $this->printStyle) {
+            $this->invoiceRowMaxY = 270;
+        }
     }
 
     /**
