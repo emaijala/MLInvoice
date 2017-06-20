@@ -483,6 +483,8 @@ function db_param_query($query, $params = false, $noFail = false, $prefixed = fa
             $statement->fetch();
         }
     }
+    mysqli_stmt_free_result($statement);
+
     return $results;
 }
 
