@@ -15,5 +15,10 @@
     },
     "require-dev": {
         "squizlabs/php_codesniffer": "^2.8"
+    },
+    "scripts": {
+        "post-install-cmd": [
+            "cp htaccess-vendor vendor/.htaccess"
+        ]
     }
 }
