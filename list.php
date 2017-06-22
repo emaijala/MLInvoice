@@ -100,7 +100,7 @@ if ($invoiceTotal) {
 
     $('#<?php echo $strTableName?>')
     .on('stateLoaded.dt', function () {
-      $('#<?php echo $strTableName?>').DataTable().page(0).draw('page');
+      $('#<?php echo $strTableName?>').DataTable().search('').page(0).draw('page');
     })
     .dataTable( {
       language: {
