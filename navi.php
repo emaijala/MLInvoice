@@ -255,10 +255,10 @@ function createFuncMenu($strFunc)
             ];
         }
         if ($strFunc != 'archived_invoices') {
-            $strNewButton = '<a class="buttonlink" href="?func=invoices&amp;form=invoice">' .
-                 Translator::translate('NewInvoice') . '</a>';
-            $strNewButton .= ' <a class="buttonlink" href="?func=invoices&amp;form=invoice&amp;offer=1">' .
+            $strNewButton = ' <a class="buttonlink" href="?func=invoices&amp;form=invoice&amp;offer=1">' .
                  Translator::translate('NewOffer') . '</a>';
+            $strNewButton .= '<a class="buttonlink" href="?func=invoices&amp;form=invoice">' .
+                 Translator::translate('NewInvoice') . '</a>';
             $astrNaviLinks[] = [
                 'href' => 'index.php?func=import_statement',
                 'text' => Translator::translate('ImportAccountStatement'),
