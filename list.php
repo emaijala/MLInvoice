@@ -100,7 +100,10 @@ if ($invoiceTotal) {
 
     $('#<?php echo $strTableName?>')
     .on('stateLoaded.dt', function () {
-      $('#<?php echo $strTableName?>').DataTable().search('').page(0).draw('page');
+      var table = $('#<?php echo $strTableName?>').DataTable();
+      if (table.search() != '' || table.page() != 0) {
+        table.search('').page(0).draw('page');
+      }
     })
     .dataTable( {
       language: {
@@ -139,6 +142,9 @@ foreach ($astrShowFields as $key => $field) {
             <?php
             $i = 0;
             foreach ($astrShowFields as $key => $field) {
+                if ('HIDDEN' === $field['type']) {
+                    continue;
+                }
                 ++$i;
                 if (!empty($field['translate'])) {
                 ?>
@@ -260,6 +266,9 @@ function createJSONList($strFunc, $strList, $startRow, $rowCount, $sort, $filter
     // Build the final select clause
     $strSelectClause = "$strPrimaryKey, $strDeletedField";
     foreach ($astrShowFields as $field) {
+        if ('HIDDEN' === $field['type']) {
+            continue;
+        }
         $strSelectClause .= ', ' .
              (isset($field['sql']) ? $field['sql'] : $field['name']);
     }
@@ -291,6 +300,10 @@ function createJSONList($strFunc, $strList, $startRow, $rowCount, $sort, $filter
         $resultValues = [$strLink];
         $overdue = '';
         foreach ($astrShowFields as $field) {
+            if ('HIDDEN' === $field['type']) {
+                continue;
+            }
+
             $name = $field['name'];
             $value = $row[$name];
             if ($field['type'] == 'TEXT' || $field['type'] == 'INT') {
