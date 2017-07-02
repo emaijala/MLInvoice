@@ -534,8 +534,9 @@ function getSelfPath()
 
 function getSelfDirectory()
 {
-    $path = $_SERVER['PHP_SELF'];
-    $p = strrpos($path, DIRECTORY_SEPARATOR);
+    $path = $_SERVER['SCRIPT_NAME'];
+    $path = str_replace('\\', '/', $path);
+    $p = strrpos($path, '/');
     if ($p > 0) {
         $path = substr($path, 0, $p);
     } else {
