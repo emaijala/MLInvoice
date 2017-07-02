@@ -194,10 +194,4 @@ if ($intInvoiceId) {
     mysqli_query_check('SET AUTOCOMMIT = 1');
 }
 
-header(
-    'Location: ' . _PROTOCOL_ . $_SERVER['HTTP_HOST']
-    . dirname($_SERVER['PHP_SELF'])
-    . "/index.php?func=$strFunc&list=$strList&form=invoice&id=$intNewId"
-);
-
-?>
+header("Location: index.php?func=$strFunc&list=$strList&form=invoice&id=$intNewId");

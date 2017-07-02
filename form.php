@@ -106,9 +106,7 @@ function createForm($strFunc, $strList, $strForm)
         if (getSetting('auto_close_after_delete')) {
             $qs = preg_replace('/&form=\w*/', '', $_SERVER['QUERY_STRING']);
             $qs = preg_replace('/&id=\w*/', '', $qs);
-            header(
-                'Location: ' . _PROTOCOL_ . $_SERVER['HTTP_HOST'] .
-                     dirname($_SERVER['PHP_SELF']) . "/index.php?$qs");
+            header("Location: index.php?$qs");
             return;
         }
         ?>

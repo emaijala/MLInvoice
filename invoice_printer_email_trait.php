@@ -261,10 +261,9 @@ $(document).ready(function() {
         }
         $_SESSION['formMessage'] = 'EmailSent';
         header(
-            'Location: ' . _PROTOCOL_ . $_SERVER['HTTP_HOST'] .
-                 dirname($_SERVER['PHP_SELF']) . '/index.php?func=' .
-                 sanitize(getRequest('func', 'open_invoices')) .
-                 "&list=invoices&form=invoice&id={$this->invoiceId}"
+            'Location: index.php?func='
+            . sanitize(getRequest('func', 'open_invoices'))
+            . "&list=invoices&form=invoice&id={$this->invoiceId}"
         );
     }
 

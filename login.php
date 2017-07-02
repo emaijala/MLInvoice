@@ -72,7 +72,7 @@ if ($strLogon) {
             if ($backlink == '1' && isset($_SESSION['BACKLINK'])) {
                 header('Location: ' . $_SESSION['BACKLINK']);
             } else {
-                header('Location: ' . getSelfPath() . '/index.php');
+                header('Location: index.php');
             }
             exit();
         case 'FAIL' :

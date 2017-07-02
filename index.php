@@ -47,7 +47,7 @@ if (!$strFunc)
     $strFunc = 'open_invoices';
 
 if ($strFunc == 'logout') {
-    header('Location: ' . getSelfPath() . '/logout.php');
+    header('Location: logout.php');
     exit();
 }
 
