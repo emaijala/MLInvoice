@@ -152,7 +152,8 @@ abstract class InvoicePrinterBase
             'valuemethod' => 'getRowDate',
             'visible' => true,
             'align' => 'L',
-            'width' => 20
+            'width' => 20,
+            'autofit' => true
         ],
         'price' => [
             'heading' => 'invoice::RowPrice',
@@ -774,7 +775,7 @@ abstract class InvoicePrinterBase
     {
         $pdf = $this->pdf;
         foreach ($data as $key => $current) {
-            $value = is_string($current) ? $current : $current['value'];
+            $value = is_array($current) ? $current['value'] : $current;
             $type = !empty($current['type']) ? $current['type'] : 'normal';
             if ('normal' === $type || 'multicell' === $type) {
                 $pdf->SetX($this->infoLeft);
