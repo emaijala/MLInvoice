@@ -196,7 +196,7 @@ function getPaymentDays($companyId)
             'SELECT payment_days FROM {prefix}company WHERE id = ?',
             [$companyId]
         );
-        if ($rows) {
+        if (!empty($rows[0]['payment_days'])) {
             return $rows[0]['payment_days'];
         }
     }
