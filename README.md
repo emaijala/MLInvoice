@@ -50,8 +50,8 @@ Lisätietoja, asennus- ja päivitysohjeet sekä tiedot muutoksista uusissa versi
 MLInvoicen kotisivulta http://www.labs.fi/mlinvoice.php
 
 HUOM! Jos asennat MLInvoicen suoraan git:stä, suorita "composer install" latauksen
-tai kloonauksen jälkeen asentaaksesi ulkoiset riippuvuudet. Tämä koskee myös release-
-haaraa GitHubissa. Jos sinulla ei vielä ole
+tai kloonauksen jälkeen asentaaksesi ulkoiset riippuvuudet. Tämä koskee myös
+release-haaraa GitHubissa. Jos sinulla ei vielä ole
 composeria asennettuna, käy osoitteessa https://getcomposer.org/.
 
 Julkaistut versiot osoitteessa https://www.labs.fi/mlinvoice_installation.php
