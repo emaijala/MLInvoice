@@ -26,9 +26,11 @@ installation instructions and the change log.
 
 N.B. If you install MLInvoice from git (not using one of the releases), be sure to
 run "composer install" after downloading or cloning the repository to install
-external. dependencies. Visit https://getcomposer.org/ if you don't already have
-composer installed. Release packages at
-https://www.labs.fi/mlinvoice_installation.eng.php include the dependencies.
+external dependencies. This is also the case for the release branch in GitHub.
+Visit https://getcomposer.org/ if you don't already have composer installed.
+
+Release packages at https://www.labs.fi/mlinvoice_installation.eng.php include the
+dependencies.
 
 Suomeksi
 --------
@@ -48,7 +50,9 @@ Lisätietoja, asennus- ja päivitysohjeet sekä tiedot muutoksista uusissa versi
 MLInvoicen kotisivulta http://www.labs.fi/mlinvoice.php
 
 HUOM! Jos asennat MLInvoicen suoraan git:stä, suorita "composer install" latauksen
-tai kloonauksen jälkeen asentaaksesi ulkoiset riippuvuudet. Jos sinulla ei vielä ole
-composeria asennettuna, käy osoitteessa https://getcomposer.org/. Julkaistut versiot
-osoitteessa https://www.labs.fi/mlinvoice_installation.php sisältävät ulkoiset
-riippuvuudet.
+tai kloonauksen jälkeen asentaaksesi ulkoiset riippuvuudet. Tämä koskee myös release-
+haaraa GitHubissa. Jos sinulla ei vielä ole
+composeria asennettuna, käy osoitteessa https://getcomposer.org/.
+
+Julkaistut versiot osoitteessa https://www.labs.fi/mlinvoice_installation.php
+sisältävät ulkoiset riippuvuudet.
