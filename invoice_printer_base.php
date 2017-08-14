@@ -292,7 +292,8 @@ abstract class InvoicePrinterBase
         $this->totalSumVAT = 0;
         $this->discountedRows = false;
         $this->partialPayments = 0;
-        foreach ($this->invoiceRowData as $key => $row) {
+        $this->groupedVATs = [];
+        foreach ($this->invoiceRowData as $key => &$row) {
             if ($row['partial_payment']) {
                 $this->partialPayments -= $row['price'];
                 continue;
@@ -307,9 +308,9 @@ abstract class InvoicePrinterBase
                     $row['price'] /= (1 + $row['vat'] / 100);
                 }
             }
-            $this->invoiceRowData[$key]['rowsum'] = $rowSum;
-            $this->invoiceRowData[$key]['rowvat'] = $rowVAT;
-            $this->invoiceRowData[$key]['rowsumvat'] = $rowSumVAT;
+            $row['rowsum'] = $rowSum;
+            $row['rowvat'] = $rowVAT;
+            $row['rowsumvat'] = $rowSumVAT;
             $this->totalSum += $rowSum;
             $this->totalVAT += $rowVAT;
             $this->totalSumVAT += $rowSumVAT;
@@ -331,8 +332,8 @@ abstract class InvoicePrinterBase
                 $this->groupedVATs[$vat]['totalvat'] = $rowVAT;
                 $this->groupedVATs[$vat]['totalsumvat'] = $rowSumVAT;
             }
-            ksort($this->groupedVATs);
         }
+        ksort($this->groupedVATs);
         $this->separateStatement = ($this->printStyle == 'invoice') &&
              getSetting('invoice_separate_statement');
 
