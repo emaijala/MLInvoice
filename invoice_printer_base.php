@@ -321,7 +321,9 @@ abstract class InvoicePrinterBase
             }
 
             // Create array grouped by the VAT base
-            $vat = 'vat' . number_format($row['vat'], 2, '', '');
+            $vat = str_pad(
+                number_format($row['vat'], 2, '', ''), 5, '0', STR_PAD_LEFT
+            );
             if (isset($this->groupedVATs[$vat])) {
                 $this->groupedVATs[$vat]['totalsum'] += $rowSum;
                 $this->groupedVATs[$vat]['totalvat'] += $rowVAT;
@@ -334,6 +336,7 @@ abstract class InvoicePrinterBase
             }
         }
         ksort($this->groupedVATs);
+
         $this->separateStatement = ($this->printStyle == 'invoice') &&
              getSetting('invoice_separate_statement');
 
