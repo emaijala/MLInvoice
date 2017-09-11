@@ -150,11 +150,12 @@ EOT
     {
         foreach ($array as $key => $value) {
             if (is_array($value)) {
+                $node = $xml->addChild(
+                    '' !== $subnodename ? $subnodename : $key
+                );
                 if (!is_numeric($key)) {
-                    $node = $xml->addChild($key);
                     $this->arrayToXML($value, $node);
                 } else {
-                    $node = $xml->addChild($subnodename);
                     $this->arrayToXML($value, $node);
                 }
             } else {
