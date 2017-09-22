@@ -82,8 +82,9 @@ class InvoicePrinterOffer extends InvoicePrinterBase
 
 
         $strDueDate = $this->formatDate($invoiceData['due_date']);
-        if (!empty(Translator::translate('invoice::ValidUntilSuffix'))) {
-            $strDueDate .= ' ' . Translator::translate('invoice::ValidUntilSuffix');
+        $validUntilSuffix = Translator::translate('invoice::ValidUntilSuffix');
+        if (!empty($validUntilSuffix)) {
+            $strDueDate .= " $validUntilSuffix";
         }
         $data['invoice::ValidUntil'] = $strDueDate;
 
