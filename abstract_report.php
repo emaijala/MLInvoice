@@ -45,11 +45,11 @@ abstract class AbstractReport
             ],
             'company' => [
                 'name' => 'Client',
-                'sql' => 'SELECT company_name FROM {prefix}company WHERE id = ?'
+                'sql' => 'SELECT company_name as v FROM {prefix}company WHERE id = ?'
             ],
             'product' => [
                 'name' => 'Product',
-                'sql' => 'SELECT product_name FROM {prefix}product WHERE id = ?'
+                'sql' => 'SELECT product_name as v FROM {prefix}product WHERE id = ?'
             ],
             'row_types' => [
                 'name' => 'InvoiceRowTypes',
@@ -89,7 +89,7 @@ abstract class AbstractReport
                     ? Translator::translate($mapping['values'][$value]) : $value;
             } elseif (isset($mapping['sql'])) {
                 $rows = db_param_query($mapping['sql'], [$value]);
-                $param = $rows ? $rows[0] : null;
+                $param .= $rows ? $rows[0]['v'] : '';
             } else {
                 $param .= $value;
             }
