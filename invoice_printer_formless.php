@@ -24,7 +24,7 @@ class InvoicePrinterFormless extends InvoicePrinterBase
     public function printInvoice()
     {
         $this->allowSeparateStatement = false;
-        $this->autoPageBreak = 22;
+        $this->autoPageBreakMarginFirstPage = $this->autoPageBreakMargin;
         $this->invoiceRowMaxY = 270;
         if ($this->senderData['bank_iban'] && $this->senderData['bank_swiftbic']) {
             $bank = $this->senderData['bank_iban'] . '/' .

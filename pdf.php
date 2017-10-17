@@ -48,6 +48,10 @@ class PDF extends TCPDF
     public $footerLeftPos = 4;
     public $footerRightPos = 143;
     public $markdown = false;
+    protected $savedAutoBreakState = null;
+    protected $savedPageBreakTrigger = null;
+    protected $savedbMargin = null;
+    protected $marginSubsequent = null;
 
     /**
      * This method is used to render the page header.
@@ -167,6 +171,53 @@ class PDF extends TCPDF
     }
 
     /**
+     * Enables or disables the automatic page breaking mode. When enabling, the
+     * second parameter is the distance from the bottom of the page that defines the
+     * triggering limit. By default, the mode is on and the margin is 2 cm.
+     *
+     * @param bool  $auto        Boolean indicating if mode should be on or off.
+     * @param float $margin      float Distance from the bottom of the page.
+     * @param float $marginFirst float Distance from the bottom of the page on first page.
+     *
+     * @return void
+     */
+    // @codingStandardsIgnoreLine
+    public function SetAutoPageBreak($auto, $margin = 0, $marginFirst = false)
+    {
+        $this->marginSubsequent = $margin;
+        parent::SetAutoPageBreak(
+            $auto, false !== $marginFirst ? $marginFirst : $margin
+        );
+    }
+
+    /**
+     * Save auto page break state
+     *
+     * @return void
+     */
+    public function saveAutoBreakState()
+    {
+        $this->savedAutoBreakState = $this->AutoPageBreak;
+        $this->savedbMargin = $this->bMargin;
+        $this->savedPageBreakTrigger = $this->PageBreakTrigger;
+    }
+
+    /**
+     * Restore saved auto page break state
+     *
+     * @return void
+     */
+     public function restoreAutoBreakState()
+    {
+        if (null === $this->savedAutoBreakState) {
+            throw new Exception('No saved auto break state');
+        }
+        $this->AutoPageBreak = $this->savedAutoBreakState;
+        $this->PageBreakTrigger = $this->savedPageBreakTrigger;
+        $this->bMargin = $this->savedbMargin;
+    }
+
+    /**
      * Include page number in a header string if appropriate
      *
      * @param string $str Header string
@@ -176,5 +227,26 @@ class PDF extends TCPDF
     protected function handlePageNum($str)
     {
         return sprintf($str, $this->PageNo());
+    }
+
+    /**
+     * Initialize a new page.
+     *
+     * @param string $orientation page orientation. Possible values are (case
+     * insensitive):<ul><li>P or PORTRAIT (default)</li><li>L or LANDSCAPE</li></ul>
+     * @param mixed  $format      The format used for pages. It can be either: one
+     * of the string values specified at getPageSizeFromFormat() or an array of
+     * parameters specified at setPageFormat().
+     *
+     * @return void
+     */
+    // @codingStandardsIgnoreLine
+    protected function _beginpage($orientation = '', $format = '')
+    {
+        if (null !== $this->marginSubsequent && 1 === $this->page) {
+            // Change page break margin when moving on from first page
+            $this->SetAutoPageBreak(true, $this->marginSubsequent);
+        }
+        return parent::_beginpage($orientation, $format);
     }
 }
