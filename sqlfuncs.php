@@ -1272,6 +1272,16 @@ EOT
         );
     }
 
+    if ($version < 52) {
+        $updates = array_merge(
+            $updates,
+            [
+                'ALTER TABLE {prefix}base ADD COLUMN inactive tinyint NOT NULL default 0',
+                "REPLACE INTO {prefix}state (id, data) VALUES ('version', '52')"
+            ]
+        );
+    }
+
     if (!empty($updates)) {
         mysqli_query_check('SET AUTOCOMMIT = 0');
         mysqli_query_check('BEGIN');

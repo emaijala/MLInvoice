@@ -812,7 +812,9 @@ EOF;
          ];
     }
 
-    $intRes = mysqli_query_check('SELECT ID from {prefix}base WHERE deleted=0');
+    $intRes = mysqli_query_check(
+        'SELECT ID from {prefix}base WHERE deleted=0 AND inactive=0'
+    );
     if (mysqli_num_rows($intRes) == 1) {
         $defaultBase = mysqli_fetch_value($intRes);
     } else {
@@ -854,7 +856,7 @@ EOF;
             'label' => 'Biller',
             'type' => 'LIST',
             'style' => 'long linked',
-            'listquery' => 'SELECT id, name FROM {prefix}base WHERE deleted=0 ORDER BY name, id',
+            'listquery' => 'SELECT id, name FROM {prefix}base WHERE deleted=0 AND inactive=0 ORDER BY name, id',
             'position' => 1,
             'default' => $defaultBase
         ],
@@ -1280,12 +1282,21 @@ EOF;
             'allow_null' => true
         ],
         [
+            'name' => 'inactive',
+            'label' => 'Inactive',
+            'type' => 'CHECK',
+            'style' => 'medium',
+            'position' => 1,
+            'default' => 0,
+            'allow_null' => true
+        ],
+        [
             'name' => 'vat_registered',
             'label' => 'VATRegistered',
             'title' => 'VATRegisteredHint',
             'type' => 'CHECK',
             'style' => 'short',
-            'position' => 1,
+            'position' => 2,
             'allow_null' => true
         ],
         [

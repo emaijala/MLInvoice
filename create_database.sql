@@ -29,6 +29,7 @@ CREATE TABLE mlinvoice_company_type (
 CREATE TABLE mlinvoice_base (
   id int(11) NOT NULL auto_increment,
   deleted tinyint NOT NULL default 0,
+  inactive tinyint NOT NULL default 0,
   name varchar(100) NOT NULL,
   contact_person varchar(50) NOT NULL,
   street_address varchar(100) NOT NULL,
@@ -351,7 +352,7 @@ CREATE TABLE mlinvoice_default_value (
 
 SET NAMES 'utf8';
 
-INSERT INTO mlinvoice_state (id, data) VALUES ('version', '51');
+INSERT INTO mlinvoice_state (id, data) VALUES ('version', '52');
 
 INSERT INTO mlinvoice_state (id, data) VALUES ('tableconversiondone', '1');
 
