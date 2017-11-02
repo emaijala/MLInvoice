@@ -856,7 +856,7 @@ EOF;
             'label' => 'Biller',
             'type' => 'LIST',
             'style' => 'long linked',
-            'listquery' => 'SELECT id, name FROM {prefix}base WHERE deleted=0 AND inactive=0 ORDER BY name, id',
+            'listquery' => 'SELECT id, name FROM {prefix}base WHERE deleted=0 AND inactive=0    ORDER BY name, id',
             'position' => 1,
             'default' => $defaultBase
         ],

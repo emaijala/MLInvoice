@@ -116,7 +116,7 @@ class InvoicePrinterOffer extends InvoicePrinterBase
 
         if (!empty($invoiceData['info'])) {
             $data['invoice::AdditionalInformation'] = [
-                'value' => $invoiceData['info'],
+                'value' => $this->replacePlaceholders($invoiceData['info']),
                 'type' => 'multicell'
             ];
         }

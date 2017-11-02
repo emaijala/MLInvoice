@@ -757,7 +757,7 @@ abstract class InvoicePrinterBase
         }
         if (!empty($invoiceData['info'])) {
             $data['invoice::AdditionalInformation'] = [
-                'value' => $invoiceData['info'],
+                'value' => $this->replacePlaceholders($invoiceData['info']),
                 'type' => 'multicell'
             ];
         }
@@ -2117,7 +2117,14 @@ abstract class InvoicePrinterBase
                     );
                 }
                 break;
-            default :
+            case 'var':
+                if ('date' === $pcparts[1]) {
+                    $values[] = date(Translator::translate('DateFormat'));
+                } elseif ('datetime' === $pcparts[1]) {
+                    $values[] = date(Translator::translate('DateTimeFormat'));
+                }
+                break;
+            default:
                 error_log(
                     "Unknown placeholder '$placeholder' in invoice email fields"
                 );
