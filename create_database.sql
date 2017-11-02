@@ -37,7 +37,7 @@ CREATE TABLE mlinvoice_base (
   country varchar(255) default NULL,
   phone varchar(50) NOT NULL,
   www varchar(255) default NULL,
-  email varchar(100) default NULL,
+  email varchar(512) default NULL,
   company_id varchar(15) default NULL,
   org_unit_number varchar(35) default NULL,
   payment_intermediator varchar(100) default NULL,
@@ -111,7 +111,7 @@ CREATE TABLE mlinvoice_company (
   country varchar(255) default NULL,
   phone varchar(30) default NULL,
   fax varchar(30) default NULL,
-  email varchar(50) default NULL,
+  email varchar(512) default NULL,
   gsm varchar(30) default NULL,
   billing_address text,
   www varchar(100) default NULL,
@@ -138,7 +138,7 @@ CREATE TABLE mlinvoice_company_contact (
   company_id int(11) NOT NULL default '0',
   contact_person varchar(100) default NULL,
   person_title varchar(100) default NULL,
-  email varchar(50) default NULL,
+  email varchar(512) default NULL,
   phone varchar(30) default NULL,
   gsm varchar(30) default NULL,
   contact_type varchar(100) default NULL,
@@ -273,7 +273,7 @@ CREATE TABLE mlinvoice_users (
   id int(11) NOT NULL auto_increment,
   deleted tinyint NOT NULL default 0,
   name varchar(255) default NULL,
-  email varchar(255) default NULL,
+  email varchar(512) default NULL,
   login varchar(255) default NULL,
   passwd varchar(255) default NULL,
   type_id int(11) default NULL,
@@ -351,7 +351,7 @@ CREATE TABLE mlinvoice_default_value (
 
 SET NAMES 'utf8';
 
-INSERT INTO mlinvoice_state (id, data) VALUES ('version', '50');
+INSERT INTO mlinvoice_state (id, data) VALUES ('version', '51');
 
 INSERT INTO mlinvoice_state (id, data) VALUES ('tableconversiondone', '1');
 

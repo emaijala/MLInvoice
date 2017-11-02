@@ -1259,6 +1259,19 @@ EOT
         );
     }
 
+    if ($version < 51) {
+        $updates = array_merge(
+            $updates,
+            [
+                'ALTER TABLE {prefix}base CHANGE COLUMN email email varchar(512) default NULL',
+                'ALTER TABLE {prefix}company CHANGE COLUMN email email varchar(512) default NULL',
+                'ALTER TABLE {prefix}company_contact CHANGE COLUMN email email varchar(512) default NULL',
+                'ALTER TABLE {prefix}users CHANGE COLUMN email email varchar(512) default NULL',
+                "REPLACE INTO {prefix}state (id, data) VALUES ('version', '51')"
+            ]
+        );
+    }
+
     if (!empty($updates)) {
         mysqli_query_check('SET AUTOCOMMIT = 0');
         mysqli_query_check('BEGIN');
