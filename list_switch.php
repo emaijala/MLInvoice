@@ -338,6 +338,10 @@ case 'product' :
         [
             'name' => 'product_name',
             'type' => 'TEXT'
+        ],
+        [
+            'name' => 'product_group',
+            'type' => 'TEXT'
         ]
     ];
     $strPrimaryKey = 'id';
@@ -374,7 +378,8 @@ case 'product' :
             'name' => 'product_group',
             'width' => 150,
             'type' => 'TEXT',
-            'header' => 'ProductGroup'
+            'header' => 'ProductGroup',
+            'select' => true
         ],
         [
             'name' => 'vendor',

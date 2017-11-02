@@ -633,8 +633,9 @@ function createJSONSelectList($strList, $startRow, $rowCount, $filter, $sort,
     for ($i = 0; $i < count($astrListValues); $i ++) {
         $row = $astrListValues[$i];
         $resultValues = [];
-        $descriptions = [];
+        $desc1 = [];
         $desc2 = [];
+        $desc3 = [];
         foreach ($astrShowFields as $field) {
             if (!isset($field['select']) || !$field['select']) {
                 continue;
@@ -645,23 +646,29 @@ function createJSONSelectList($strList, $startRow, $rowCount, $filter, $sort,
                 switch ($name) {
                 case 'description':
                     if (!empty($row[$name])) {
-                        $descriptions[] = $row[$name];
+                        $desc1[] = $row[$name];
+                    }
+                    continue 2;
+                case 'product_group':
+                    if (!empty($row[$name])) {
+                        $desc2[] = Translator::translate('ProductGroup') . ': '
+                            . $row[$name];
                     }
                     continue 2;
                 case 'vendor':
                     if (!empty($row[$name])) {
-                        $desc2[] = Translator::translate('ProductVendor') . ': ' . $row[$name];
+                        $desc3[] = Translator::translate('ProductVendor') . ': ' . $row[$name];
                     }
                     continue 2;
                 case 'vendors_code':
                     if (!empty($row[$name])) {
-                        $desc2[] = Translator::translate('ProductVendorsCode') . ': '
+                        $desc3[] = Translator::translate('ProductVendorsCode') . ': '
                             . $row[$name];
                     }
                     continue 2;
                 case 'unit_price':
                     if (!empty($row[$name]) && $row[$name] != 0.0) {
-                        $desc2[] = Translator::translate('Price') . ': '
+                        $desc3[] = Translator::translate('Price') . ': '
                             . $row[$name];
                     }
                     continue 2;
@@ -675,8 +682,12 @@ function createJSONSelectList($strList, $startRow, $rowCount, $filter, $sort,
             }
             $resultValues[$name] = $value;
         }
+        $descriptions = $desc1;
         if ($desc2) {
             $descriptions[] = implode(', ', $desc2);
+        }
+        if ($desc3) {
+            $descriptions[] = implode(', ', $desc3);
         }
 
         $records[] = [
