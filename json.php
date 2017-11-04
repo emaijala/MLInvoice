@@ -323,6 +323,11 @@ case 'update_multiple':
     echo updateMultipleRows();
     break;
 
+case 'update_row_order':
+    header('Content-Type: application/json');
+    echo updateRowOrder();
+    break;
+
 case 'update_stock_balance' :
     if (!sesWriteAccess()) {
         header('HTTP/1.1 403 Forbidden');
@@ -582,6 +587,29 @@ function updateMultipleRows()
             header('Content-Type: application/json');
             return json_encode(['missing_fields' => $res, 'warnings' => $warnings]);
         }
+    }
+
+    return json_encode(['status' => 'ok']);
+}
+
+function updateRowOrder()
+{
+    if (!sesWriteAccess()) {
+        header('HTTP/1.1 403 Forbidden');
+        return;
+    }
+
+    $request = json_decode(file_get_contents('php://input'), true);
+    if (!$request) {
+        header('HTTP/1.1 400 Bad Request');
+        return;
+    }
+
+    foreach ($request['order'] as $id => $orderNo) {
+        db_param_query(
+            "UPDATE {prefix}{$request['table']} SET order_no=? WHERE id=?",
+            [$orderNo, $id]
+        );
     }
 
     return json_encode(['status' => 'ok']);

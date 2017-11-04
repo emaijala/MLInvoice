@@ -87,7 +87,7 @@ function getFormDefaultValue($elem, $parentKey)
         $strQuery = str_replace('_PARENTID_', $parentKey, $elem['listquery']);
         $res = mysqli_query_check($strQuery);
         $intAdd = mysqli_fetch_value($res);
-        return isset($intAdd) ? $intAdd : 0;
+        return isset($intAdd) ? $intAdd : 5;
     } elseif ($elem['default'] === 'POST') {
         // POST has special treatment in iform
         return '';

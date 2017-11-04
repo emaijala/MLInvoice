@@ -439,6 +439,17 @@ $(document).ready(function() {
     if ($haveChildForm && !$blnNew) {
 ?>
   init_rows();
+<?php
+  if (sesWriteAccess() && 'invoice' === $strForm) {
+?>
+  $('#itable > tbody').sortable({
+    stop: function(event, ui) {
+      update_row_order();
+    }
+  });
+<?php
+  }
+?>
   $('#iform').find('input[type="text"],input[type="hidden"],input[type="checkbox"]:not(.cb-select-row):not(#cb-select-all),select:not(.dropdownmenu),textarea').change(function() { $('.add_row_button').addClass('ui-state-highlight'); });
   $('#iform').find('input[type="text"],input[type="hidden"],input[type="checkbox"],select:not(.dropdownmenu),textarea').one('change', startChanging);
 
@@ -826,7 +837,10 @@ EOT;
     $(table).append(tr);
 
     tr = $('<tr/>').addClass('summary');
-    $('<td/>').addClass('input').attr('colspan', '12').attr('align', 'right').text('<?php echo Translator::translate('TotalVAT')?>').appendTo(tr);
+    var helpCol = $('<td/>').addClass('input').attr('colspan', '6');
+    helpCol.text('<?php echo Translator::translate('DragToSort')?>');
+    helpCol.appendTo(tr);
+    $('<td/>').addClass('input').attr('colspan', '6').attr('align', 'right').text('<?php echo Translator::translate('TotalVAT')?>').appendTo(tr);
     $('<td/>').addClass('input currency').attr('align', 'right').text(MLInvoice.formatCurrency(totVAT)).appendTo(tr);
     $(table).append(tr);
 
@@ -1044,6 +1058,37 @@ function modify_rows(form_id)
       }
     }
   });
+}
+
+function update_row_order()
+{
+  var req = new Object();
+  req.table = '<?php echo $formJSONType?>';
+  req.order = {};
+  var orderno = 5;
+  $('.cb-select-row').each(function() {
+    req.order[this.value] = orderno;
+    orderno += 5;
+  });
+  $.ajax({
+    'url': "json.php?func=update_row_order",
+    'type': 'POST',
+    'dataType': 'json',
+    'data': $.toJSON(req),
+    'contentType': 'application/json; charset=utf-8',
+    'success': function(data) {
+      init_rows();
+    },
+    'error': function(XMLHTTPReq, textStatus, errorThrown) {
+      if (textStatus == 'timeout') {
+        alert('Timeout trying to modify rows');
+      } else {
+        alert('Error trying to modify rows: ' + XMLHTTPReq.status + ' - ' + XMLHTTPReq.statusText);
+      }
+      init_rows();
+    }
+  });
+
 }
 
 function delete_selected_rows()
