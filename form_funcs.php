@@ -104,7 +104,7 @@ function getFormDefaultValue($elem, $parentKey)
 // Return true on success.
 // Return false on conflict or a string of missing values if encountered. In these cases, the record is not saved.
 function saveFormData($table, &$primaryKey, &$formElements, &$values, &$warnings,
-    $parentKeyName = '', $parentKey = false, $onPrint = false
+    $parentKeyName = '', $parentKey = false, $onPrint = false, $partial = false
 ) {
     global $dblink;
 
@@ -115,6 +115,24 @@ function saveFormData($table, &$primaryKey, &$formElements, &$values, &$warnings
     $arrValues = [];
 
     if (!isset($primaryKey) || !$primaryKey) {
+        if ($partial) {
+            $warnings = 'Unable to do partial update without ID';
+            return false;
+        }
+        unset($values['id']);
+    }
+
+    if ($partial) {
+        $res = fetchRecord($table, $primaryKey, $formElements, $origValues);
+        if ('notfound' === $res) {
+            $warnings = "Row $primaryKey not found";
+            return false;
+        }
+        foreach ($origValues as $key => $value) {
+            if (!isset($values[$key])) {
+                $values[$key] = $origValues[$key];
+            }
+        }
         unset($values['id']);
     }
 
@@ -400,6 +418,8 @@ function fetchRecord($table, $primaryKey, &$formElements, &$values)
         }
 
         switch ($type) {
+        case 'ROWSUM':
+            break;
         case 'IFORM':
         case 'RESULT':
             $values[$name] = $primaryKey;

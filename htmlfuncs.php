@@ -102,7 +102,12 @@ function htmlPageStart($strTitle = '', $arrExtraScripts = [])
         'NoYTJResultsFound',
         'SearchYTJPrompt',
         'SettingDispatchNotes',
-        'ThousandSeparator'
+        'ThousandSeparator',
+        'ForSelected',
+        'Delete',
+        'Modify',
+        'ModifySelectedRows',
+        'Modified'
     ];
 
     $res = mysqli_query_check(

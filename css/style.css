@@ -287,6 +287,10 @@ td.reportsublabel {
 .iform td.percent_label {
   width: 30px;
 }
+.iform .cb-select-row {
+  width: 15px;
+  padding: 0;
+}
 
 td.row_sum {
   border-top: 1px solid gray;

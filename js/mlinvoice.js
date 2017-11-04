@@ -499,6 +499,25 @@ var MLInvoice = (function MLInvoice() {
         _keepAliveEnabled = enable;
     }
 
+    function _setupSelectAll() {
+        $('#cb-select-all').click(function() {
+            var table = $(this).closest('table');
+            table.find('.cb-select-row').prop('checked', $(this).prop('checked'));
+            updateRowSelectedState();
+        });
+    }
+
+    function updateRowSelectedState() {
+        var disabled = $('.cb-select-row:checked').length === 0;
+        if (disabled) {
+            $('.selected-row-button').attr('disabled', 'disabled');
+            $('.selected-row-button').addClass('ui-state-disabled');
+        } else {
+            $('.selected-row-button').removeAttr('disabled');
+            $('.selected-row-button').removeClass('ui-state-disabled');
+        }
+    }
+
     function init() {
         _setupYtjSearch();
         _setupDefaultTextSelection();
@@ -506,6 +525,7 @@ var MLInvoice = (function MLInvoice() {
         if (_keepAliveEnabled) {
             window.setTimeout(_keepAlive, 60*1000);
         }
+        _setupSelectAll();
     };
 
     return {
@@ -520,7 +540,8 @@ var MLInvoice = (function MLInvoice() {
         getSelectedProductDefaults: getSelectedProductDefaults,
         formatCurrency: formatCurrency,
         setKeepAlive: setKeepAlive,
-        setupSelect2: setupSelect2
+        setupSelect2: setupSelect2,
+        updateRowSelectedState: updateRowSelectedState
     }
 })();
 

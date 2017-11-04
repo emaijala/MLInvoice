@@ -318,19 +318,9 @@ case 'get_selectlist' :
     );
     break;
 
-case 'update_invoice_row_dates' :
-    if (!sesWriteAccess()) {
-        header('HTTP/1.1 403 Forbidden');
-        break;
-    }
-    $invoiceId = getRequest('id', 0);
-    $date = getRequest('date', '');
-    if (!$date) {
-        header('HTTP/1.1 400 Bad Request');
-        die('date must be given');
-    }
+case 'update_multiple':
     header('Content-Type: application/json');
-    echo updateInvoiceRowDates($invoiceId, $date);
+    echo updateMultipleRows();
     break;
 
 case 'update_stock_balance' :
@@ -548,12 +538,53 @@ function DeleteJSONRecord($table)
         return;
     }
 
-    $id = getRequest('id', '');
-    if ($id) {
-        deleteRecord("{prefix}$table", $id);
+    $ids = getRequest('id', '');
+    if ($ids) {
+        foreach ((array)$ids as $id) {
+            deleteRecord("{prefix}$table", $id);
+        }
         header('Content-Type: application/json');
         echo json_encode(['status' => 'ok']);
     }
+}
+
+function updateMultipleRows()
+{
+    if (!sesWriteAccess()) {
+        header('HTTP/1.1 403 Forbidden');
+        return;
+    }
+
+    $request = json_decode(file_get_contents('php://input'), true);
+    if (!$request) {
+        header('HTTP/1.1 400 Bad Request');
+        return;
+    }
+
+    $strForm = $request['table'];
+    $strFunc = '';
+    $strList = '';
+    include 'form_switch.php';
+
+    $warnings = '';
+    foreach ($request['ids'] as $id) {
+        $id = (int)$id;
+        // Set fields anew for every row since saveFormData returns the whole record
+        $data = $request['changes'];
+        $res = saveFormData(
+            '{prefix}' . $request['table'], $id, $astrFormElements, $data, $warnings,
+            false, false, false, true
+        );
+        if ($res !== true) {
+            if ($warnings) {
+                header('HTTP/1.1 409 Conflict');
+            }
+            header('Content-Type: application/json');
+            return json_encode(['missing_fields' => $res, 'warnings' => $warnings]);
+        }
+    }
+
+    return json_encode(['status' => 'ok']);
 }
 
 function getInvoiceListTotal($where)
@@ -606,21 +637,6 @@ function getInvoiceListTotal($where)
     ];
 
     echo json_encode($result);
-}
-
-function updateInvoiceRowDates($invoiceId, $date)
-{
-    $date = dateConvDate2DBDate($date);
-    if ($date === false) {
-        return json_encode(
-            ['status' => 'error', 'errors' => Translator::translate('ErrInvalidValue')]
-        );
-    }
-    db_param_query(
-        'UPDATE {prefix}invoice_row SET row_date=? WHERE invoice_id=? AND deleted=0',
-        [$date, $invoiceId]
-    );
-    return json_encode(['status' => 'ok']);
 }
 
 function updateStockBalance($productId, $change, $desc)
