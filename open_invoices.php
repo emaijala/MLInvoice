@@ -69,15 +69,15 @@ function createOpenInvoiceList()
         $unpaid .= $id;
     }
 
-    $offers = '';
+    $openOffers = '';
     $res = mysqli_query_check(
-        'SELECT id FROM {prefix}invoice_state WHERE invoice_offer=1'
+        'SELECT id FROM {prefix}invoice_state WHERE invoice_open=1 AND invoice_offer=1'
     );
     while ($id = mysqli_fetch_value($res)) {
-        if ($offers) {
-            $offers .= ', ';
+        if ($openOffers) {
+            $openOffers .= ', ';
         }
-        $offers .= $id;
+        $openOffers .= $id;
     }
 
     if ($open) {
@@ -96,11 +96,11 @@ function createOpenInvoiceList()
         );
     }
 
-    if ($offers) {
+    if ($openOffers) {
         createList(
             'open_invoices', 'offer', 'resultlist_offers',
-            Translator::translate('LabelOffers'),
-            "i.state_id IN ($offers) AND i.archived=0", true
+            Translator::translate('LabelUnfinishedOffers'),
+            "i.state_id IN ($openOffers) AND i.archived=0", true
         );
     }
 }
