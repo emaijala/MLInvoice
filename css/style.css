@@ -159,12 +159,14 @@ tr.summary td {
   background-color: transparent;
 }
 
-.iform td {
-  padding: 3px 1px 3px 1px;
-}
-
 .iform td.button {
   vertical-align: middle;
+}
+
+.iform td.sort-col {
+  width: 1.2em;
+  letter-spacing: -5px;
+  cursor: grab;
 }
 
 th {

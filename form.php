@@ -443,6 +443,9 @@ $(document).ready(function() {
   if (sesWriteAccess() && 'invoice' === $strForm) {
 ?>
   $('#itable > tbody').sortable({
+    axis: 'y',
+    handle: '.sort-col',
+    items: 'tr.item-row',
     stop: function(event, ui) {
       update_row_order();
     }
@@ -668,12 +671,14 @@ function init_rows()
     for (var i = 0; i < json.records.length; i++)
     {
       var record = json.records[i];
-      var tr = $('<tr/>');
+      var tr = $('<tr/>').addClass('item-row');
     <?php
     if ($strForm == 'invoice' && sesWriteAccess()) {
         $selectRow = Translator::translate('SelectRow');
         echo <<<EOT
-      var td = $('<td class="select-row"/>');
+      var td = $('<td class="sort-col"><span class="sort-handle hidden">&#x25B2;&#x25BC;</span>');
+      tr.append(td);
+      td = $('<td class="select-row"/>');
       var input = $('<input type="checkbox" class="cb-select-row" title="$selectRow" aria-label="$selectRow">');
       input.val(record.id);
       td.append(input);
@@ -844,16 +849,7 @@ EOT;
     $(table).append(tr);
 
     var tr = $('<tr/>').addClass('summary');
-    var helpCol = $('<td/>').addClass('input').attr('colspan', '6');
-<?php
-    if (sesWriteAccess()) {
-?>
-    helpCol.text('<?php echo Translator::translate('DragToReorder')?>');
-<?php
-    }
-?>
-    helpCol.appendTo(tr);
-    $('<td/>').addClass('input').attr('colspan', '6').attr('align', 'right').text('<?php echo Translator::translate('TotalIncludingVAT')?>').appendTo(tr);
+    $('<td/>').addClass('input').attr('colspan', '12').attr('align', 'right').text('<?php echo Translator::translate('TotalIncludingVAT')?>').appendTo(tr);
     $('<td/>').addClass('input currency').attr('align', 'right').text(MLInvoice.formatCurrency(totSumVAT)).appendTo(tr);
     $('<td/>').attr('colspan', '2').appendTo(tr);
     $(table).append(tr);
@@ -866,6 +862,10 @@ EOT;
 
     MLInvoice.updateRowSelectedState();
     $('.cb-select-row').click(MLInvoice.updateRowSelectedState);
+
+    $('#itable tr')
+      .mouseover(function() { console.log('over'); console.log(this); $(this).find('.sort-handle').removeClass('hidden'); })
+      .mouseout(function() { console.log('out'); console.log(this); $(this).find('.sort-handle').addClass('hidden'); });
 
 <?php
     }
@@ -1338,6 +1338,7 @@ function multi_editor(event, title)
     if ($strForm == 'invoice' && sesWriteAccess()) {
         $selectAll = Translator::translate('SelectAll');
         ?>
+        <th class="label ui-state-default sort-col"> </th>
         <th class="label ui-state-default select-row"><input type="checkbox" id="cb-select-all" title="<?php echo $selectAll?>" aria-label="<?php echo $selectAll?>"></th>
         <?php
     } else {
@@ -1376,6 +1377,7 @@ function multi_editor(event, title)
         <?php
         if ($strForm == 'invoice') {
             ?>
+            <td></td>
             <td class="select-row"></td>
             <?php
         }
