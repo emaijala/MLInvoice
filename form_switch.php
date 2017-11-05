@@ -774,7 +774,7 @@ EOF;
         } else {
             // Check if this print template is safe for read-only use
             $printer = instantiateInvoicePrinter($row['filename']);
-            if (!$printer->getReadOnlySafe()) {
+            if (null === $printer || !$printer->getReadOnlySafe()) {
                 continue;
             }
 
