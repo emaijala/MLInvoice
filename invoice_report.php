@@ -205,9 +205,13 @@ class InvoiceReport extends AbstractReport
         }
         ?>
     </div>
-        <div class="medium_label">
-            <a class="actionlink" href="#"
-                onclick="document.getElementById('params').submit(); return false;"><?php echo Translator::translate('CreateReport')?></a>
+        <div class="unlimited_label">
+            <a class="actionlink" href="#" onclick="var form = document.getElementById('params'); form.target = ''; form.submit(); return false;">
+                <?php echo Translator::translate('CreateReport')?>
+            </a>
+            <a class="actionlink" href="#" onclick="var form = document.getElementById('params'); form.target = '_blank'; form.submit(); return false;">
+                <?php echo Translator::translate('CreateReportInNewWindow')?>
+            </a>
         </div>
     </form>
 </div>
