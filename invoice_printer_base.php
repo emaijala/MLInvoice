@@ -152,6 +152,15 @@ abstract class InvoicePrinterBase
      * @param array
      */
     protected $columnDefs = [
+        'sequence' => [
+            'heading' => 'invoice::RowRunningNumber',
+            'valuemethod' => 'getRowRunningNumber',
+            'visible' => true,
+            'align' => 'L',
+            'width' => 2,
+            'autofit' => true,
+            'maxheight' => 0
+        ],
         'description' => [
             'heading' => 'invoice::RowName',
             'valuemethod' => 'getRowDescription',
@@ -306,7 +315,9 @@ abstract class InvoicePrinterBase
         $this->discountedRows = false;
         $this->partialPayments = 0;
         $this->groupedVATs = [];
+        $sequence = 1;
         foreach ($this->invoiceRowData as $key => &$row) {
+            $row['sequence'] = $sequence++;
             if ($row['partial_payment']) {
                 $this->partialPayments -= $row['price'];
                 continue;
@@ -487,6 +498,10 @@ abstract class InvoicePrinterBase
         if ($this->printStyle === 'invoice') {
             $this->autoPageBreakMarginFirstPage = $this->printVirtualBarcode
                 ? 120 : 115;
+        }
+
+        if (!getSetting('invoice_show_sequential_number')) {
+            $this->columnDefs['sequence']['visible'] = false;
         }
 
         if (!getSetting('invoice_show_row_date')) {
@@ -1434,6 +1449,18 @@ abstract class InvoicePrinterBase
             throw new Exception("No room for column '$column'");
         }
         return $width;
+    }
+
+    /**
+     * Get running number for row
+     *
+     * @param array $row Current row
+     *
+     * @return string
+     */
+    protected function getRowRunningNumber($row)
+    {
+        return $row['sequence'];
     }
 
     /**
