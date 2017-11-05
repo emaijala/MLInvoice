@@ -121,6 +121,7 @@ table {
   border-style: none;
   border-width: 0px;
   padding: 0px;
+  border-spacing: 0;
 }
 table.list {
   clear: both;
@@ -159,11 +160,10 @@ tr.summary td {
 }
 
 .iform td {
-  padding: 2px 1px 2px 1px;
+  padding: 3px 1px 3px 1px;
 }
 
 .iform td.button {
-  padding: 2px 2px 2px 2px;
   vertical-align: middle;
 }
 
@@ -181,11 +181,11 @@ th {
 
 td {
   font-weight: normal;
+  padding: 2px;
 }
 
 td.button {
   vertical-align: top;
-  padding: 2px 0px;
 }
 
 td.button .dropdownmenu.ui-widget-content {
