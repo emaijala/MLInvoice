@@ -808,7 +808,7 @@ EOT;
       totSumVAT += sumVAT;
     }
     var tr = $('<tr/>').addClass('summary');
-    var modifyCol = $('<td/>').addClass('input').attr('colspan', '6');
+    var modifyCol = $('<td/>').addClass('input').attr('colspan', '6').attr('rowspan', '2');
 <?php
     if (sesWriteAccess()) {
 ?>
@@ -834,24 +834,34 @@ EOT;
     modifyCol.appendTo(tr);
     $('<td/>').addClass('input').attr('colspan', '6').attr('align', 'right').text('<?php echo Translator::translate('TotalExcludingVAT')?>').appendTo(tr);
     $('<td/>').addClass('input currency').attr('align', 'right').text(MLInvoice.formatCurrency(totSum)).appendTo(tr);
+    $('<td/>').attr('colspan', '2').appendTo(tr);
     $(table).append(tr);
 
     tr = $('<tr/>').addClass('summary');
-    var helpCol = $('<td/>').addClass('input').attr('colspan', '6');
-    helpCol.text('<?php echo Translator::translate('DragToSort')?>');
-    helpCol.appendTo(tr);
     $('<td/>').addClass('input').attr('colspan', '6').attr('align', 'right').text('<?php echo Translator::translate('TotalVAT')?>').appendTo(tr);
     $('<td/>').addClass('input currency').attr('align', 'right').text(MLInvoice.formatCurrency(totVAT)).appendTo(tr);
+    $('<td/>').attr('colspan', '2').appendTo(tr);
     $(table).append(tr);
 
     var tr = $('<tr/>').addClass('summary');
-    $('<td/>').addClass('input').attr('colspan', '12').attr('align', 'right').text('<?php echo Translator::translate('TotalIncludingVAT')?>').appendTo(tr);
+    var helpCol = $('<td/>').addClass('input').attr('colspan', '6');
+<?php
+    if (sesWriteAccess()) {
+?>
+    helpCol.text('<?php echo Translator::translate('DragToReorder')?>');
+<?php
+    }
+?>
+    helpCol.appendTo(tr);
+    $('<td/>').addClass('input').attr('colspan', '6').attr('align', 'right').text('<?php echo Translator::translate('TotalIncludingVAT')?>').appendTo(tr);
     $('<td/>').addClass('input currency').attr('align', 'right').text(MLInvoice.formatCurrency(totSumVAT)).appendTo(tr);
+    $('<td/>').attr('colspan', '2').appendTo(tr);
     $(table).append(tr);
 
     var tr = $('<tr/>').addClass('summary');
     $('<td/>').addClass('input').attr('colspan', '12').attr('align', 'right').text('<?php echo Translator::translate('TotalToPay')?>').appendTo(tr);
     $('<td/>').addClass('input currency').attr('align', 'right').text(MLInvoice.formatCurrency(totSumVAT + partialPayments)).appendTo(tr);
+    $('<td/>').attr('colspan', '2').appendTo(tr);
     $(table).append(tr);
 
     MLInvoice.updateRowSelectedState();
@@ -1328,7 +1338,11 @@ function multi_editor(event, title)
     if ($strForm == 'invoice' && sesWriteAccess()) {
         $selectAll = Translator::translate('SelectAll');
         ?>
-        <th class="select-row"><input type="checkbox" id="cb-select-all" title="<?php echo $selectAll?>" aria-label="<?php echo $selectAll?>"></th>
+        <th class="label ui-state-default select-row"><input type="checkbox" id="cb-select-all" title="<?php echo $selectAll?>" aria-label="<?php echo $selectAll?>"></th>
+        <?php
+    } else {
+        ?>
+        <th class="label ui-state-default select-row"></th>
         <?php
     }
 
@@ -1351,8 +1365,7 @@ function multi_editor(event, title)
         }
     }
     ?>
-                            <th></th>
-                            <th></th>
+                            <th class="label ui-state-default" colspan="2"></th>
                             </tr>
                         </thead>
                         <tbody>
@@ -1401,7 +1414,7 @@ function multi_editor(event, title)
         }
         if ($strForm == 'invoice') {
             ?>
-              <td class="button"><a
+              <td class="button" colspan="2"><a
                                     class="tinyactionlink add_row_button" href="#"
                                     onclick="save_row('iform'); return false;"><?php echo Translator::translate('AddRow')?></a>
                                 </td>
