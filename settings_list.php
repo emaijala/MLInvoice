@@ -1,87 +1,79 @@
 <?php
 /*******************************************************************************
  MLInvoice: web-based invoicing application.
- Copyright (C) 2010-2016 Ere Maijala
- 
+ Copyright (C) 2010-2017 Ere Maijala
+
  This program is free software. See attached LICENSE.
- 
+
  *******************************************************************************/
 
 /*******************************************************************************
  MLInvoice: web-pohjainen laskutusohjelma.
- Copyright (C) 2010-2016 Ere Maijala
- 
+ Copyright (C) 2010-2017 Ere Maijala
+
  Tämä ohjelma on vapaa. Lue oheinen LICENSE.
- 
+
  *******************************************************************************/
 require_once 'sqlfuncs.php';
 require_once 'miscfuncs.php';
-require_once 'localize.php';
+require_once 'translator.php';
 
 function createSettingsList()
 {
     if (!sesAdminAccess()) {
         ?>
 <div class="form_container ui-widget-content">
-    <?php echo $GLOBALS['locNoAccess'] . "\n"?>
+    <?php echo Translator::translate('NoAccess') . "\n"?>
   </div>
 <?php
         return;
     }
-    
-    require 'settings_def.php';
-    
+
+    include 'settings_def.php';
+
     $messages = '';
-    
-    $blnSave = getPostRequest('saveact', FALSE) ? TRUE : FALSE;
+
+    $blnSave = getPostRequest('saveact', false) ? true : false;
     if ($blnSave) {
         foreach ($arrSettings as $name => $elem) {
             $type = $elem['type'];
             $label = $elem['label'];
-            if ($type == 'LABEL')
+            if ($type == 'LABEL') {
                 continue;
-            
-            $newValue = getPost($name, NULL);
+            }
+
+            $newValue = getPost($name, null);
             if (!isset($newValue) || $newValue === '') {
                 if (!$elem['allow_null']) {
-                    $messages .= $GLOBALS['locErrValueMissing'] . ": '$label'<br>\n";
+                    $messages .= Translator::translate('ErrValueMissing')
+                        . ": '" . Translator::translate($label) . "'<br>\n";
                     continue;
                 } else {
                     $newValue = '';
                 }
             }
-            if (in_array($type, 
-                [
-                    'CURRENCY', 
-                    'PERCENT'
-                ]))
-                $newValue = str_replace($GLOBALS['locDecimalSeparator'], '.', 
-                    $newValue);
-            if (in_array($type, 
-                [
-                    'CURRENCY', 
-                    'PERCENT', 
-                    'INT'
-                ])) {
+            if (in_array($type, ['CURRENCY', 'PERCENT'])) {
+                $newValue = str_replace(
+                    Translator::translate('DecimalSeparator'), '.', $newValue
+                );
+            }
+            if (in_array($type, ['CURRENCY', 'PERCENT', 'INT'])) {
                 $newValue = trim($newValue);
                 if (!is_numeric($newValue)) {
-                    $messages .= $GLOBALS['locErrInvalidValue'] . " '$label'<br>\n";
+                    $messages .= Translator::translate('ErrInvalidValue')
+                        . ": '" . Translator::translate($label) . "'<br>\n";
                     continue;
                 }
             }
-            
-            if (isset($elem['session']) && $elem['session'])
+
+            if (isset($elem['session']) && $elem['session']) {
                 $_SESSION[$name] = $newValue;
-            mysqli_param_query('DELETE from {prefix}settings WHERE name=?', 
-                [
-                    $name
-                ]);
-            mysqli_param_query(
-                'INSERT INTO {prefix}settings (name, value) VALUES (?, ?)', 
-                [
-                    $name, 
-                    $newValue
-                ]);
+            }
+            db_param_query('DELETE from {prefix}settings WHERE name=?', [$name]);
+            db_param_query(
+                'INSERT INTO {prefix}settings (name, value) VALUES (?, ?)',
+                [$name, $newValue]
+            );
         }
     }
     ?>
@@ -112,54 +104,55 @@ function createSettingsList()
     <?php createSettingsListButtons()?>
     <div class="form">
         <form method="post" name="admin_form" id="admin_form">
-<?php
+    <?php
     foreach ($arrSettings as $name => $elem) {
         $elemType = $elem['type'];
         if ($elemType == 'LABEL') {
-            ?>
-        <div class="sublabel ui-widget-header ui-state-default"><?php echo $elem['label']?></div>
-<?php
+    ?>
+        <div class="sublabel ui-widget-header ui-state-default"><?php echo Translator::translate($elem['label'])?></div>
+    <?php
             continue;
         }
-        $value = getPost($name, NULL);
+        $value = getPost($name, null);
         if (!isset($value)) {
             if (isset($elem['session']) && $elem['session']) {
-                $value = isset($_SESSION[$name]) ? $_SESSION[$name] : (isset(
-                    $elem['default']) ? cond_utf8_decode($elem['default']) : '');
+                $value = isset($_SESSION[$name]) ? $_SESSION[$name]
+                    : (isset($elem['default'])
+                    ? cond_utf8_decode($elem['default']) : '');
             } else {
-                $res = mysqli_param_query(
-                    'SELECT value from {prefix}settings WHERE name=?', 
-                    [
-                        $name
-                    ]);
-                if ($row = mysqli_fetch_assoc($res))
-                    $value = $row['value'];
-                else
-                    $value = isset($elem['default']) ? cond_utf8_decode(
-                        $elem['default']) : '';
+                $value = getSetting($name);
             }
-            
-            if ($elemType == 'CURRENCY')
+
+            if ($elemType == 'CURRENCY') {
                 $value = miscRound2Decim($value);
-            elseif ($elemType == 'PERCENT')
+            } elseif ($elemType == 'PERCENT') {
                 $value = miscRound2Decim($value, 1);
+            }
         }
-        if ($elemType == 'CURRENCY' || $elemType == 'PERCENT')
+        if ($elemType == 'CURRENCY' || $elemType == 'PERCENT') {
             $elemType = 'INT';
+        }
+        $options = null;
+        if (isset($elem['options'])) {
+            $options = $elem['options'];
+            foreach ($options as &$option) {
+                $option = Translator::translate($option);
+            }
+        }
         if ($elemType == 'CHECK') {
-            ?>
+        ?>
       <div class="field" style="clear: both">
-        <?php echo htmlFormElement($name, $elemType, $value, $elem['style'], '', 'MODIFY', '', '', [], isset($elem['elem_attributes']) ? $elem['elem_attributes'] : '', isset($elem['options']) ? $elem['options'] : null)?>
-        <label for="<?php echo $name?>"><?php echo $elem['label']?></label>
+        <?php echo htmlFormElement($name, $elemType, $value, $elem['style'], '', 'MODIFY', '', '', [], isset($elem['elem_attributes']) ? $elem['elem_attributes'] : '', $options)?>
+        <label for="<?php echo $name?>"><?php echo Translator::translate($elem['label'])?></label>
             </div>
-<?php
+        <?php
         } else {
             ?>
       <div class="label" style="clear: both">
-                <label for="<?php echo $name?>"><?php echo $elem['label']?></label>
+                <label for="<?php echo $name?>"><?php echo Translator::translate($elem['label'])?></label>
             </div>
             <div class="field" style="clear: both">
-        <?php echo htmlFormElement($name, $elemType, $value, $elem['style'], '', 'MODIFY', '', '', [], isset($elem['elem_attributes']) ? $elem['elem_attributes'] : '', isset($elem['options']) ? $elem['options'] : null)?>
+        <?php echo htmlFormElement($name, $elemType, $value, $elem['style'], '', 'MODIFY', '', '', [], isset($elem['elem_attributes']) ? $elem['elem_attributes'] : '', $options)?>
       </div>
 <?php
         }
@@ -178,7 +171,7 @@ function createSettingsListButtons()
     ?>
 <div class="form_buttons" style="clear: both">
     <a class="actionlink save_button" href="#"
-        onclick="document.getElementById('admin_form').saveact.value=1; document.getElementById('admin_form').submit(); return false;"><?php echo $GLOBALS['locSave']?></a>
+        onclick="document.getElementById('admin_form').saveact.value=1; document.getElementById('admin_form').submit(); return false;"><?php echo Translator::translate('Save')?></a>
 </div>
 <?php
 }

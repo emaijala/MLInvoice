@@ -2,7 +2,7 @@
 
 /*******************************************************************************
  MLInvoice: web-based invoicing application.
- Copyright (C) 2010-2016 Ere Maijala
+ Copyright (C) 2010-2017 Ere Maijala
 
  Portions based on:
  PkLasku : web-based invoicing software.
@@ -14,7 +14,7 @@
 
 /*******************************************************************************
  MLInvoice: web-pohjainen laskutusohjelma.
- Copyright (C) 2010-2016 Ere Maijala
+ Copyright (C) 2010-2017 Ere Maijala
 
  Perustuu osittain sovellukseen:
  PkLasku : web-pohjainen laskutusohjelmisto.
@@ -55,8 +55,8 @@ function miscRound2Decim($value, $decimals = 2, $decimalSeparator = null,
     $thousandSeparator = null)
 {
     return number_format($value, $decimals,
-        isset($decimalSeparator) ? $decimalSeparator : $GLOBALS['locDecimalSeparator'],
-        isset($thousandSeparator) ? $thousandSeparator : $GLOBALS['locThousandSeparator']);
+        isset($decimalSeparator) ? $decimalSeparator : Translator::translate('DecimalSeparator'),
+        isset($thousandSeparator) ? $thousandSeparator : Translator::translate('ThousandSeparator'));
 }
 
 function miscRound2OptDecim($value, $decimals = 2, $decimalSeparator = null,
@@ -198,22 +198,22 @@ function miscCalcCheckNo($intValue)
     return $intCheckNo;
 }
 
-function getPost($strKey, $varDefault)
+function getPost($strKey, $varDefault = null)
 {
     return isset($_POST[$strKey]) ? gpcStripSlashes($_POST[$strKey]) : $varDefault;
 }
 
-function getRequest($strKey, $varDefault)
+function getRequest($strKey, $varDefault = null)
 {
     return isset($_REQUEST[$strKey]) ? gpcStripSlashes($_REQUEST[$strKey]) : $varDefault;
 }
 
-function getGet($strKey, $varDefault)
+function getGet($strKey, $varDefault = null)
 {
     return isset($_GET[$strKey]) ? gpcStripSlashes($_GET[$strKey]) : $varDefault;
 }
 
-function getPostRequest($strKey, $varDefault)
+function getPostRequest($strKey, $varDefault = null)
 {
     return getPost($strKey, getRequest($strKey, $varDefault));
 }
@@ -222,61 +222,67 @@ function getPageTitle($strFunc, $strList, $strForm)
 {
     switch ($strFunc) {
     case 'open_invoices' :
-        if ($strForm)
-            return $GLOBALS['locInvoice'];
-        else
-            return $GLOBALS['locOpenAndUnpaidInvoices'];
+        if ($strForm) {
+            if (getRequest('offer')
+                || (($invId = getRequest('id')) && isOffer($invId))
+            ) {
+                return Translator::translate('Offer');
+            }
+            return Translator::translate('Invoice');
+        } else {
+            return Translator::translate('OpenAndUnpaidInvoices');
+        }
         break;
     case 'invoices' :
         if ($strForm)
-            return $GLOBALS['locInvoice'];
+            return Translator::translate('Invoice');
         else
-            return $GLOBALS['locInvoices'];
+            return Translator::translate('Invoices');
         break;
     case 'archived_invoices' :
         if ($strForm)
-            return $GLOBALS['locInvoice'];
+            return Translator::translate('Invoice');
         else
-            return $GLOBALS['locArchivedInvoices'];
+            return Translator::translate('ArchivedInvoices');
         break;
     case 'companies' :
         if ($strForm)
-            return $GLOBALS['locClient'];
+            return Translator::translate('Client');
         else
-            return $GLOBALS['locClients'];
+            return Translator::translate('Clients');
         break;
     case 'reports' :
         switch ($strForm) {
         case 'invoice' :
-            return $GLOBALS['locInvoiceReport'];
+            return Translator::translate('InvoiceReport');
         case 'product' :
-            return $GLOBALS['locProductReport'];
+            return Translator::translate('ProductReport');
         case 'product_stock' :
-            return $GLOBALS['locProductStockReport'];
+            return Translator::translate('ProductStockReport');
         default :
-            return $GLOBALS['locReports'];
+            return Translator::translate('Reports');
         }
         break;
     case 'settings' :
         if ($strForm) {
             switch ($strForm) {
             case 'base' :
-                return $GLOBALS['locBase'];
+                return Translator::translate('Base');
             case 'product' :
-                return $GLOBALS['locProduct'];
+                return Translator::translate('Product');
             default :
-                return $GLOBALS['locSettings'];
+                return Translator::translate('Settings');
             }
         } else {
             switch ($strList) {
             case 'settings' :
-                return $GLOBALS['locGeneralSettings'];
+                return Translator::translate('GeneralSettings');
             case 'base' :
-                return $GLOBALS['locBases'];
+                return Translator::translate('Bases');
             case 'product' :
-                return $GLOBALS['locProducts'];
+                return Translator::translate('Products');
             default :
-                return $GLOBALS['locSettings'];
+                return Translator::translate('Settings');
             }
         }
         break;
@@ -284,45 +290,45 @@ function getPageTitle($strFunc, $strList, $strForm)
         if ($strForm) {
             switch ($strForm) {
             case 'user' :
-                return $GLOBALS['locUser'];
+                return Translator::translate('User');
             case 'session_type' :
-                return $GLOBALS['locSessionType'];
+                return Translator::translate('SessionType');
             case 'row_type' :
-                return $GLOBALS['locRowType'];
+                return Translator::translate('RowType');
             case 'print_template' :
-                return $GLOBALS['locPrintTemplate'];
+                return Translator::translate('PrintTemplate');
             case 'invoice_state' :
-                return $GLOBALS['locInvoiceState'];
+                return Translator::translate('InvoiceState');
             case 'delivery_terms' :
-                return $GLOBALS['locDeliveryTerms'];
+                return Translator::translate('DeliveryTerms');
             case 'delivery_method' :
-                return $GLOBALS['locDeliveryMethod'];
+                return Translator::translate('DeliveryMethod');
             default :
-                return $GLOBALS['locSystem'];
+                return Translator::translate('System');
             }
         } else {
             switch ($strList) {
             case 'user' :
-                return $GLOBALS['locUsers'];
+                return Translator::translate('Users');
             case 'session_type' :
-                return $GLOBALS['locSessionTypes'];
+                return Translator::translate('SessionTypes');
             case 'row_type' :
-                return $GLOBALS['locRowTypes'];
+                return Translator::translate('RowTypes');
             case 'print_template' :
-                return $GLOBALS['locPrintTemplates'];
+                return Translator::translate('PrintTemplates');
             case 'invoice_state' :
-                return $GLOBALS['locInvoiceStates'];
+                return Translator::translate('InvoiceStates');
             case 'delivery_terms' :
-                return $GLOBALS['locDeliveryTerms'];
+                return Translator::translate('DeliveryTerms');
             case 'delivery_method' :
-                return $GLOBALS['locDeliveryMethods'];
+                return Translator::translate('DeliveryMethods');
             default :
-                return $GLOBALS['locSystem'];
+                return Translator::translate('System');
             }
         }
         break;
     case 'import_statement' :
-        return $GLOBALS['locImportAccountStatement'];
+        return Translator::translate('ImportAccountStatement');
     }
     return '';
 }
@@ -404,7 +410,7 @@ if (!function_exists('str_getcsv')) {
 
 function fgets_charset($handle, $charset, $line_ending = "\n")
 {
-    if (substr($charset, 0, 6) == 'UTF-16') {
+    if (strncmp($charset, 'UTF-16', 6) == 0) {
         $be = $charset == 'UTF-16' || $charset == 'UTF-16BE';
         $str = '';
         $le_pos = 0;
@@ -412,15 +418,18 @@ function fgets_charset($handle, $charset, $line_ending = "\n")
         while (!feof($handle)) {
             $c1 = fgetc($handle);
             $c2 = fgetc($handle);
-            if ($c1 === false || $c2 === false)
+            if ($c1 === false || $c2 === false) {
                 break;
+            }
             $str .= $c1 . $c2;
-            if (($be && ord($c1) == 0 && $c2 == $line_ending[$le_pos]) ||
-                 (!$be && ord($c2) == 0 && $c1 == $line_ending[$le_pos])) {
+            if (($be && ord($c1) == 0 && $c2 == $line_ending[$le_pos])
+                || (!$be && ord($c2) == 0 && $c1 == $line_ending[$le_pos])
+            ) {
                 if (++$le_pos >= $le_len)
                     break;
-            } else
+            } else {
                 $le_pos = 0;
+            }
         }
         $str = iconv($charset, _CHARSET_, $str);
     } else {
@@ -429,22 +438,27 @@ function fgets_charset($handle, $charset, $line_ending = "\n")
         $le_len = strlen($line_ending);
         while (!feof($handle)) {
             $c1 = fgetc($handle);
-            if ($c1 === false)
+            if ($c1 === false) {
                 break;
+            }
             $str .= $c1;
             if ($c1 == $line_ending[$le_pos]) {
-                if (++$le_pos >= $le_len)
+                if (++$le_pos >= $le_len) {
                     break;
-            } else
+                }
+            } else {
                 $le_pos = 0;
+            }
         }
         $conv_str = iconv($charset, _CHARSET_, $str);
-        if ($str && !$conv_str)
+        if ($str && !$conv_str) {
             error_log(
-                "Conversion from '$charset' to '" . _CHARSET_ .
-                     "' failed for string '$str'");
-        else
+                "Conversion from '$charset' to '" . _CHARSET_
+                . "' failed for string '$str'"
+            );
+        } else {
             $str = $conv_str;
+        }
     }
     return $str;
 }
@@ -472,10 +486,21 @@ function sanitize($str)
     return preg_replace('/[^\w\d]/', '', $str);
 }
 
-function calculateRowSum($price, $count, $VAT, $VATIncluded, $discount)
+function calculateRowSum($row)
 {
-    if (isset($discount))
+    $price = $row['price'];
+    $count = $row['pcs'];
+    $VAT = $row['vat'];
+    $VATIncluded = $row['vat_included'];
+    $discount = $row['discount'];
+    $discountAmount = $row['discount_amount'];
+
+    if ($discount) {
         $price *= (1 - $discount / 100);
+    }
+    if ($discountAmount) {
+        $price -= $discountAmount;
+    }
 
     if ($VATIncluded) {
         $rowSumVAT = round($count * $price, 2);
@@ -509,8 +534,9 @@ function getSelfPath()
 
 function getSelfDirectory()
 {
-    $path = $_SERVER['PHP_SELF'];
-    $p = strrpos($path, DIRECTORY_SEPARATOR);
+    $path = $_SERVER['SCRIPT_NAME'];
+    $path = str_replace('\\', '/', $path);
+    $p = strrpos($path, '/');
     if ($p > 0) {
         $path = substr($path, 0, $p);
     } else {
@@ -521,13 +547,17 @@ function getSelfDirectory()
 
 function instantiateInvoicePrinter($printTemplateFile)
 {
+    if (!is_readable($printTemplateFile)) {
+        return null;
+    }
+
     $className = $printTemplateFile;
     $className = str_replace('.php', '', $className);
     $className = str_replace('_', ' ', $className);
     $className = ucwords($className);
     $className = str_replace(' ', '', $className);
 
-    require_once $printTemplateFile;
+    include_once $printTemplateFile;
     return new $className();
 }
 
@@ -572,39 +602,45 @@ function getInvoiceDefaults($invoiceId, $baseId, $companyId, $invoiceDate,
             $query .= ' AND invoice_date >= ' . dateConvDate2DBDate($invoiceDate);
         }
 
-        $res = mysqli_param_query($query, $params);
-        if (mysqli_fetch_assoc($res)) {
+        $rows = db_param_query($query, $params);
+        if ($rows) {
             $invoiceNumber = 0;
         }
     }
 
     if (!$invoiceNumber) {
-        $maxNr = get_max_invoice_number($invoiceId,
+        $maxNr = get_max_invoice_number(
+            $invoiceId,
             getSetting('invoice_numbering_per_base') && $baseId ? $baseId : null,
-            $perYear);
+            $perYear
+        );
         if ($maxNr === null && $perYear) {
-            $maxNr = get_max_invoice_number($invoiceId,
+            $maxNr = get_max_invoice_number(
+                $invoiceId,
                 getSetting('invoice_numbering_per_base') && $baseId ? $baseId : null,
-                false);
+                false
+            );
         }
         $invoiceNumber = $maxNr + 1;
     }
     if ($invoiceNumber < 100)
         $invoiceNumber = 100; // min ref number length is 3 + check digit, make sure invoice number matches that
     $refNr = $invoiceNumber . miscCalcCheckNo($invoiceNumber);
-    $strDate = date($GLOBALS['locDateFormat']);
-    $strDueDate = date($GLOBALS['locDateFormat'],
-        mktime(0, 0, 0, date('m'), date('d') + getPaymentDays($companyId), date('Y')));
+    $strDate = date(Translator::translate('DateFormat'));
+    $strDueDate = date(
+        Translator::translate('DateFormat'),
+        mktime(0, 0, 0, date('m'), date('d') + getPaymentDays($companyId), date('Y'))
+    );
     switch ($intervalType) {
     case 2:
         $nextIntervalDate = date(
-            $GLOBALS['locDateFormat'],
+            Translator::translate('DateFormat'),
             mktime(0, 0, 0, date('m') + 1, date('d'), date('Y'))
         );
         break;
     case 3:
         $nextIntervalDate = date(
-            $GLOBALS['locDateFormat'],
+            Translator::translate('DateFormat'),
             mktime(0, 0, 0, date('m'), date('d'), date('Y') + 1)
         );
         break;
@@ -614,7 +650,7 @@ function getInvoiceDefaults($invoiceId, $baseId, $companyId, $invoiceDate,
     case 7:
     case 8:
         $nextIntervalDate = date(
-            $GLOBALS['locDateFormat'],
+            Translator::translate('DateFormat'),
             mktime(0, 0, 0, date('m') + $intervalType - 2, date('d'), date('Y'))
         );
         break;

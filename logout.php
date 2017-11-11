@@ -1,7 +1,7 @@
 <?php
 /*******************************************************************************
  MLInvoice: web-based invoicing application.
- Copyright (C) 2010-2016 Ere Maijala
+ Copyright (C) 2010-2017 Ere Maijala
 
  Portions based on:
  PkLasku : web-based invoicing software.
@@ -13,7 +13,7 @@
 
 /*******************************************************************************
  MLInvoice: web-pohjainen laskutusohjelma.
- Copyright (C) 2010-2016 Ere Maijala
+ Copyright (C) 2010-2017 Ere Maijala
 
  Perustuu osittain sovellukseen:
  PkLasku : web-pohjainen laskutusohjelmisto.
@@ -34,7 +34,7 @@ require_once 'sqlfuncs.php';
 
 sesVerifySession();
 
-require_once 'localize.php';
+require_once 'translator.php';
 
 sesEndSession();
 
@@ -44,15 +44,23 @@ echo htmlPageStart();
 
 <body>
     <div class="pagewrapper ui-widget ui-widget-content">
-        <div style="padding: 30px;">
+        <div id="maintabs" class="navi ui-widget-header ui-tabs">
+            <ul class="ui-tabs-nav ui-helper-clearfix ui-corner-all">
+                <li class="functionlink ui-state-default ui-corner-top">
+                    <a class="ui-tabs-anchor functionlink" href="login.php"><?php echo Translator::translate('Login')?></a>
+                </li>
+            </ul>
+        </div>
 
-            <h1><?php echo $GLOBALS['locThankYou']?></h1>
+        <div class="ui-widget" style="padding: 30px;">
+
+            <h1><?php echo Translator::translate('ThankYou')?></h1>
             <p>
-<?php echo $GLOBALS['locSessionClosed']?>
+<?php echo Translator::translate('SessionClosed')?>
 </p>
 
             <p>
-                <a href="login.php"><?php echo $GLOBALS['locBackToLogin']?></a>
+                <a href="login.php"><?php echo Translator::translate('BackToLogin')?></a>
             </p>
 
         </div>

@@ -1,7 +1,7 @@
 <?php
 /*******************************************************************************
  MLInvoice: web-based invoicing application.
- Copyright (C) 2010-2016 Ere Maijala
+ Copyright (C) 2010-2017 Ere Maijala
 
  This program is free software. See attached LICENSE.
 
@@ -9,7 +9,7 @@
 
 /*******************************************************************************
  MLInvoice: web-pohjainen laskutusohjelma.
- Copyright (C) 2010-2016 Ere Maijala
+ Copyright (C) 2010-2017 Ere Maijala
 
  Tämä ohjelma on vapaa. Lue oheinen LICENSE.
 
@@ -34,13 +34,10 @@ trait InvoicePrinterEmailTrait
         $invoiceData = $this->invoiceData;
 
         $defaultRecipient = isset($recipientData['email']) ? $recipientData['email'] : '';
-        $type = $this->printStyle ? $this->printStyle : 'invoice';
-        if ($type == 'invoice' && in_array($invoiceData['state_id'], [5, 6])) {
-            $type = 'reminder';
-        }
         $recipients = [];
-        foreach ($recipientData['contacts'] as $contact) {
-            if ($contact['contact_type'] == $type && !empty($contact['email'])) {
+        $contacts = $this->getContactPersons();
+        foreach ($contacts as $contact) {
+            if ($contact && !empty($contact['email'])) {
                 if (!empty($contact['contact_person'])) {
                     $email = str_replace(',', ' ', $contact['contact_person'])
                         . ' <' . $contact['email'] . '>';
@@ -54,22 +51,46 @@ trait InvoicePrinterEmailTrait
             $defaultRecipient = implode(', ', $recipients);
         }
 
-        $this->emailFrom = getRequest('email_from',
-            isset($senderData['invoice_email_from']) ? $senderData['invoice_email_from'] : (isset(
-                $senderData['email']) ? $senderData['email'] : ''));
+        $this->emailFrom = getRequest('email_from', '');
+        if (!$this->emailFrom) {
+            if (!empty($senderData['invoice_email_from'])) {
+                $this->emailFrom = $senderData['invoice_email_from'];
+            } elseif (!empty($senderData['email'])) {
+                $this->emailFrom = $senderData['email'];
+            }
+        }
         $this->emailTo = getRequest('email_to', $defaultRecipient);
         $this->emailCC = getRequest('email_cc', '');
-        $this->emailBCC = getRequest('email_bcc',
-            isset($senderData['invoice_email_bcc']) ? $senderData['invoice_email_bcc'] : '');
+        $this->emailBCC = getRequest(
+            'email_bcc',
+            isset($senderData['invoice_email_bcc'])
+            ? $senderData['invoice_email_bcc'] : ''
+        );
         $this->emailSubject = $this->replacePlaceholders(
-            getRequest('email_subject', $this->getDefaultSubject()));
+            getRequest('email_subject', $this->getDefaultSubject())
+        );
+
+        $emailBody = '';
+        $id = getRequest('default_body_text');
+        if ($id) {
+            $value = getDefaultValue($id);
+            if ($value) {
+                $emailBody = $value;
+            }
+        }
+
         $this->emailBody = $this->replacePlaceholders(
-            getRequest('email_body', $this->getDefaultBody()));
+            $emailBody ? $emailBody
+                : getRequest('email_body', $this->getDefaultBody())
+        );
 
         $send = getRequest('email_send', '');
-        if (!$send || !$this->emailFrom || !$this->emailTo || !$this->emailSubject ||
-             !$this->emailBody) {
-            $this->showEmailForm($send);
+        if (!$send || !$this->emailFrom || !$this->emailTo || !$this->emailSubject
+            || !$this->emailBody
+        ) {
+            $this->showEmailForm(
+                $send ? Translator::translate('EmailFillRequiredFields') : ''
+            );
             return;
         }
 
@@ -94,70 +115,71 @@ trait InvoicePrinterEmailTrait
         return isset($this->senderData[$key]) ? $this->senderData[$key] : '';
     }
 
-    protected function showEmailForm($submitted)
+    protected function showEmailForm($errorMsg = '')
     {
         $senderData = $this->senderData;
         $recipientData = $this->recipientData;
 
-        echo htmlPageStart($GLOBALS['locSendEmail']);
+        echo htmlPageStart(Translator::translate('SendEmail'));
         ?>
 <body>
     <div class="pagewrapper ui-widget ui-widget-content">
+        <?php echo htmlMainTabs('open_invoices'); ?>
 
         <div id="email_form_container" class="form_container">
-            <h1><?php echo $GLOBALS['locSendEmail']?></h1>
-<?php if ($submitted) echo '<div class="ui-state-error-text">' . $GLOBALS['locEmailFillRequiredFields'] . "<br><br></div>\n";?>
-  <form method="POST" id="email_form">
-                <input type="hidden" name="id"
-                    value="<?php echo htmlspecialchars(getRequest('id', ''))?>"> <input
-                    type="hidden" name="template"
-                    value="<?php echo htmlspecialchars(getRequest('template', ''))?>">
-                <input type="hidden" name="email_send" value="1"> <input
-                    type="hidden" name="func"
-                    value="<?php echo htmlspecialchars(getRequest('func', ''))?>">
-                <div class="medium_label"><?php echo $GLOBALS['locEmailFrom']?></div>
+            <h1><?php echo Translator::translate('SendEmail')?></h1>
+            <?php if ($errorMsg) echo '<div class="ui-state-error-text">' . $errorMsg . "<br><br></div>\n";?>
+            <form method="POST" id="email_form">
+                <input type="hidden" name="id" value="<?php echo htmlspecialchars(getRequest('id', ''))?>">
+                <input type="hidden" name="template" value="<?php echo htmlspecialchars(getRequest('template', ''))?>">
+                <input type="hidden" id="email_send" name="email_send" value="0">
+                <input type="hidden" name="func" value="<?php echo htmlspecialchars(getRequest('func', ''))?>">
+
+                <div class="medium_label"><?php echo Translator::translate('EmailFrom')?></div>
                 <div class="field">
-                    <input type="text" id="email_from" name="email_from" class="medium"
-                        value="<?php echo htmlspecialchars($this->emailFrom)?>">
+                    <input type="text" id="email_from" name="email_from" class="medium" value="<?php echo htmlspecialchars($this->emailFrom)?>">
                 </div>
-                <div class="medium_label"><?php echo $GLOBALS['locEmailTo']?></div>
+                <div class="medium_label"><?php echo Translator::translate('EmailTo')?></div>
                 <div class="field">
-                    <input type="text" id="email_to" name="email_to" class="medium"
-                        value="<?php echo htmlspecialchars($this->emailTo)?>">
+                    <input type="text" id="email_to" name="email_to" class="medium" value="<?php echo htmlspecialchars($this->emailTo)?>">
                 </div>
-                <div class="medium_label"><?php echo $GLOBALS['locEmailCC']?></div>
+                <div class="medium_label"><?php echo Translator::translate('EmailCC')?></div>
                 <div class="field">
-                    <input type="text" id="email_cc" name="email_cc" class="medium"
-                        value="<?php echo htmlspecialchars($this->emailCC)?>">
+                    <input type="text" id="email_cc" name="email_cc" class="medium" value="<?php echo htmlspecialchars($this->emailCC)?>">
                 </div>
-                <div class="medium_label"><?php echo $GLOBALS['locEmailBCC']?></div>
+                <div class="medium_label"><?php echo Translator::translate('EmailBCC')?></div>
                 <div class="field">
-                    <input type="text" id="email_bcc" name="email_bcc" class="medium"
-                        value="<?php echo htmlspecialchars($this->emailBCC)?>">
+                    <input type="text" id="email_bcc" name="email_bcc" class="medium" value="<?php echo htmlspecialchars($this->emailBCC)?>">
                 </div>
-                <div class="medium_label"><?php echo $GLOBALS['locEmailSubject']?></div>
+                <div class="medium_label"><?php echo Translator::translate('EmailSubject')?></div>
                 <div class="field">
-                    <input type="text" id="email_subject" name="email_subject"
-                        class="medium"
-                        value="<?php echo htmlspecialchars($this->emailSubject)?>">
+                    <input type="text" id="email_subject" name="email_subject" class="medium" value="<?php echo htmlspecialchars($this->emailSubject)?>">
                 </div>
-                <div class="medium_label"><?php echo $GLOBALS['locEmailBody']?></div>
+                <div class="medium_label"><?php echo Translator::translate('EmailBody')?></div>
                 <div class="field">
-                    <textarea id="emailBody" name="email_body" class="email_body"
-                        cols="80" rows="24"><?php echo htmlspecialchars($this->emailBody)?></textarea>
+                    <textarea id="emailBody" name="email_body" class="email_body" cols="80" rows="24"><?php echo htmlspecialchars($this->emailBody)?></textarea>
+                    <span class="select-default-text" data-type="email" data-target="email_form" data-send-form-param="default_body_text"></span>
                 </div>
                 <div class="form_buttons" style="clear: both">
-                    <a class="actionlink"
-                        onclick="document.getElementById('email_form').submit(); return false;"
-                        href="#"><?php echo $GLOBALS['locSend']?></a> <a
-                        class="actionlink"
-                        onclick="if (window.opener) window.close(); else history.back(); return false;"
-                        href="#"><?php echo $GLOBALS['locCancel']?></a>
+                    <a class="actionlink" onclick="$('#email_send').val(1); $('#email_form').submit(); return false;" href="#">
+                        <?php echo Translator::translate('Send')?>
+                    </a>
+                    <a class="actionlink" onclick="if (window.opener) { window.close(); } else { history.back(); } return false;" href="#">
+                        <?php echo Translator::translate('Cancel')?>
+                    </a>
+                    <span id="spinner" style="display: none"><img src="images/spinner.gif" alt=""></span>
                 </div>
             </form>
         </div>
     </div>
 </body>
+<script type="text/javascript">
+$(document).ready(function() {
+    $('#email_form').submit(function() {
+        $('#spinner').show();
+    });
+});
+</script>
 </html>
 <?php
     }
@@ -170,57 +192,79 @@ trait InvoicePrinterEmailTrait
 
         mb_internal_encoding('UTF-8');
 
-        $boundary = '-----' . md5(uniqid(time())) . '-----';
-
-        // Note: According to https://bugs.php.net/bug.php?id=15841 the PHP documentation is wrong,
-        // and CRLF should not be used except on Windows. PHP_EOL should work.
-
-        $headers = [
-            'Date' => date('r'),
-            'From' => $this->emailFrom,
-            'Cc' => $this->emailCC,
-            'Bcc' => $this->emailBCC,
-            'Mime-Version' => '1.0',
-            'Content-Type' => "multipart/mixed; boundary=\"${boundary}\"",
-            'X-Mailer' => 'MLInvoice'
-        ];
-
-        $filename = $this->outputFileName ? $this->outputFileName : getSetting(
-            'invoice_pdf_filename');
+        $filename = $this->outputFileName ? $this->outputFileName
+            : getSetting('invoice_pdf_filename');
         $filename = $this->getPrintOutFileName($filename);
-        $data = $pdf->Output($filename, 'E');
+        $data = $pdf->Output($filename, 'S');
 
-        $messageBody = 'This is a multipart message in mime format.' . PHP_EOL .
-             PHP_EOL;
-        $messageBody .= "--$boundary" . PHP_EOL;
-        $messageBody .= 'Content-Type: text/plain; charset=UTF-8; format=flowed' .
-             PHP_EOL;
-        $messageBody .= 'Content-Transfer-Encoding: 8bit' . PHP_EOL;
-        $messageBody .= 'Content-Disposition: inline' . PHP_EOL . PHP_EOL;
-        $messageBody .= $this->getFlowedBody() . PHP_EOL;
+        $message = Swift_Message::newInstance(
+            $this->emailSubject,
+            $this->getFlowedBody(),
+            'text/plain; format="flowed"'
+        );
 
-        $messageBody .= "--$boundary" . PHP_EOL;
-        $messageBody .= str_replace("\r\n", PHP_EOL, $data);
-        $messageBody .= PHP_EOL . "--$boundary--";
+        $message->setFrom($this->extractNameAndAddress($this->emailFrom));
+        $message->setTo($this->extractAddresses($this->emailTo));
+        $message->setCc($this->extractAddresses($this->emailCC));
+        $message->setBcc($this->extractAddresses($this->emailBCC));
 
-        $result = mail($this->mimeEncodeAddress($this->emailTo),
-            $this->mimeEncodeHeaderValue($this->emailSubject), $messageBody,
-            $this->headersToStr($headers),
-            '-f ' . $this->extractAddress($this->emailFrom));
+        $attachment = Swift_Attachment::newInstance(
+            $data, $filename, 'application/pdf'
+        );
+        $message->attach($attachment);
 
-        if (method_exists($this, 'emailPostProcess')) {
-            $this->emailPostProcess($result);
+        $headers = $message->getHeaders();
+        $headers->addTextHeader('X-Mailer', 'MLInvoice');
+
+        $settings = isset($GLOBALS['mlinvoice_mail_settings'])
+            ? $GLOBALS['mlinvoice_mail_settings'] : [];
+
+        if (!isset($settings['send_method']) || 'mail' === $settings['send_method']
+        ) {
+            $transport = Swift_MailTransport::newInstance();
+        } elseif ('sendmail' === $settings['send_method']) {
+            $command = empty($settings['sendmail']['command'])
+                ? '/usr/sbin/sendmail -bs'
+                : $settings['sendmail']['command'];
+            $transport = Swift_SendmailTransport::newInstance($command);
+        } elseif ('smtp' === $settings['send_method']) {
+            $smtp = empty($settings['smtp']) ? [] : $settings['smtp'];
+            $transport = Swift_SmtpTransport::newInstance(
+                $smtp['host'], $smtp['port'], $smtp['security']
+            );
+            if (!empty($smtp['username'])) {
+                $transport->setUsername($smtp['username']);
+            }
+            if (!empty($smtp['password'])) {
+                $transport->setPassword($smtp['password']);
+            }
+            if (!empty($smtp['stream_context_options'])) {
+                $transport->setStreamOptions($smtp['stream_context_options']);
+            }
         }
-        if ($result) {
-            $_SESSION['formMessage'] = 'EmailSent';
-        } else {
-            $_SESSION['formErrorMessage'] = 'EmailFailed';
+        $mailer = Swift_Mailer::newInstance($transport);
+
+        try {
+            $result = $mailer->send($message);
+            if (!$result) {
+                $this->showEmailForm(Translator::translate('EmailFailed'));
+                return;
+            }
+        } catch (Exception $e) {
+            $this->showEmailForm(
+                Translator::translate('EmailFailed') . ': ' . $e->getMessage()
+            );
+            return;
         }
-        echo header(
-            'Location: ' . _PROTOCOL_ . $_SERVER['HTTP_HOST'] .
-                 dirname($_SERVER['PHP_SELF']) . '/index.php?func=' .
-                 sanitize(getRequest('func', 'open_invoices')) .
-                 "&list=invoices&form=invoice&id={$this->invoiceId}");
+        if (is_callable([$this, 'emailSent'])) {
+            $this->emailSent();
+        }
+        $_SESSION['formMessage'] = 'EmailSent';
+        header(
+            'Location: index.php?func='
+            . sanitize(getRequest('func', 'open_invoices'))
+            . "&list=invoices&form=invoice&id={$this->invoiceId}"
+        );
     }
 
     protected function getFlowedBody()
@@ -253,44 +297,46 @@ trait InvoicePrinterEmailTrait
         return $result;
     }
 
-    protected function headersToStr(&$headers)
-    {
-        $result = '';
-        foreach ($headers as $header => $value) {
-            if (!$value)
-                continue;
-            if (in_array($header,
-                [
-                    'From',
-                    'To',
-                    'Cc',
-                    'Bcc'
-                ]))
-                $result .= "$header: " . $this->mimeEncodeAddress($value) . PHP_EOL;
-            else
-                $result .= "$header: $value" . PHP_EOL;
-        }
-        return $result;
-    }
-
     protected function extractAddress($address)
     {
-        if (preg_match('/<(.+)>/', $address, $matches) == 1)
+        if (preg_match('/<(.+)>/', $address, $matches)) {
             return $matches[1];
+        }
         return $address;
     }
 
-    protected function mimeEncodeAddress($address)
+    protected function extractName($address)
     {
-        if (preg_match('/(.+) (<.+>)/', $address, $matches) == 1)
-            $address = $this->mimeEncodeHeaderValue($matches[1]) . ' ' . $matches[2];
-        elseif (preg_match('/(.+)(<.+>)/', $address, $matches) == 1)
-            $address = $this->mimeEncodeHeaderValue($matches[1]) . $matches[2];
-        return $address;
+        if (preg_match('/(.+)\s*<.+>/', $address, $matches)) {
+            return $matches[1];
+        }
+        return '';
     }
 
-    protected function mimeEncodeHeaderValue($value)
+    protected function extractNameAndAddress($address)
     {
-        return mb_encode_mimeheader(cond_utf8_encode($value), 'UTF-8', 'Q');
+        $name = $this->extractName($address);
+        $address = $this->extractAddress($address);
+        return $name === '' ? $address : [$address => $name];
+    }
+
+    protected function extractAddresses($addresses)
+    {
+        $result = [];
+        if ($addresses) {
+            if (is_string($addresses)) {
+                $addresses = array_map('trim', str_getcsv($addresses));
+            }
+            foreach ($addresses as $idx => $address) {
+                $name = $this->extractName($address);
+                $addr = $this->extractAddress($address);
+                if ($name) {
+                    $result[$addr] = $name;
+                } else {
+                    $result[$idx] = $addr;
+                }
+            }
+        }
+        return $result;
     }
 }

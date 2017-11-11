@@ -40,10 +40,14 @@ div.breadcrumbs a {
   font-size: 1.1em;
 }
 
+span.prev-next {
+  margin: 6px 0 6px 16px;
+}
+
 div#version {
   float: right;
   margin-top: 4px;
-  margin-right: 10px; 
+  margin-right: 10px;
 }
 
 div.function_navi {
@@ -76,32 +80,33 @@ div.form_container {
   padding: 8px;
   margin: 0;
   border: 0;
+  clear: both;
 }
 
 div.small_label {
   width: 100px;
   float: left;
-  margin-bottom: 8px; 
+  margin-bottom: 8px;
   clear: left;
 }
 
 div.medium_label {
   width: 160px;
   float: left;
-  margin-bottom: 8px; 
+  margin-bottom: 8px;
   clear: left;
 }
 
 div.unlimited_label {
   float: left;
-  margin-bottom: 8px; 
+  margin-bottom: 8px;
   clear: left;
   font-size: 1.1em;
 }
 
 div.field {
   float: left;
-  margin-bottom: 8px; 
+  margin-bottom: 8px;
 }
 
 div.report {
@@ -109,15 +114,16 @@ div.report {
 }
 
 div.report td, div.report th {
-  padding-right: 10px;	
+  padding-right: 10px;
 }
 
 table {
   border-style: none;
   border-width: 0px;
   padding: 0px;
+  border-spacing: 0;
 }
-table.list { 
+table.list {
   clear: both;
   border: 1px solid #cccccc;
 }
@@ -153,13 +159,14 @@ tr.summary td {
   background-color: transparent;
 }
 
-.iform td {
-  padding: 2px 1px 2px 1px;
+.iform td.button {
+  vertical-align: middle;
 }
 
-.iform td.button {
-  padding: 2px 2px 2px 2px;
-  vertical-align: middle;
+.iform td.sort-col {
+  width: 1.2em;
+  letter-spacing: -5px;
+  cursor: grab;
 }
 
 th {
@@ -176,11 +183,11 @@ th {
 
 td {
   font-weight: normal;
+  padding: 2px;
 }
 
 td.button {
   vertical-align: top;
-  padding: 2px 0px;
 }
 
 td.button .dropdownmenu.ui-widget-content {
@@ -197,90 +204,94 @@ td.error {
 }
 .sublabel {
   padding: 2px 2px 2px 2px;
-  clear: both; 
+  clear: both;
   margin-top: 20px;
   margin-bottom: 8px;
 }
 td.reportsublabel {
   font-weight: bold;
   padding: 2px 2px 2px 2px;
-  clear: both; 
+  clear: both;
   margin-top: 10px;
 }
-td.tiny {
+.iform td.tiny {
   width: 40px;
 }
-td.tiny_label {
+.iform td.tiny_label {
   width: 40px;
 }
-td.xshort {
+.iform td.xshort {
   width: 55px;
 }
-td.xshort_label {
+.iform td.xshort_label {
   width: 55px;
 }
-td.short {
+.iform td.short {
   width: 70px;
 }
-td.short_label {
+.iform td.short_label {
   width: 70px;
 }
-td.date_label {
+.iform td.date_label {
   width: 75px;
 }
-td.small_label {
+.iform td.small_label {
   width: 100px;
 }
-th.small, td.small {
+.iform th.small, .iform td.small {
   width: 100px;
 }
-td.date {
+.iform .date {
   width: 75px;
 }
-th.medium, td.medium {
+.iform th.medium, .iform td.medium {
   width: 160px;
 }
-td.medium_label {
+.iform td.medium_label {
   width: 160px;
 }
-th.long, td.long {
+.iform th.long, .iform td.long {
   width: 240px;
 }
-td.long_label {
+.iform td.long_label {
   width: 240px;
 }
-td.currency {
+.iform td.currency {
   width: 60px;
   padding-right: 8px;
   text-align: right;
 }
-td.currency_label {
+.iform td.currency_label {
   width: 60px;
   padding-right: 8px;
 }
-td.count {
+.iform td.count {
   width: 60px;
   text-align: right;
   padding-right: 4px;
 }
-td.count_label {
+.iform td.count_label {
   width: 60px;
 }
-td.measurement {
+.iform td.measurement {
   width: 60px;
   text-align: right;
   padding-right: 4px;
 }
-td.measurement_label {
+.iform td.measurement_label {
   width: 60px;
 }
-td.percent {
+.iform td.percent {
   width: 30px;
   text-align: right;
   padding-right: 4px;
 }
-td.percent_label {
+.iform td.percent_label {
   width: 30px;
+}
+.iform .cb-select-row {
+  width: 15px;
+  padding: 0;
 }
 
 td.row_sum {
@@ -298,14 +309,14 @@ td a {
 }
 
 td a.navilink {
-  text-decoration: none;  
+  text-decoration: none;
   font-weight: normal;
   width: 100%;
   height: 100%;
   display: block;
 }
 td a.navilink:hover {
-  text-decoration: none; 
+  text-decoration: none;
   width: 100%;
   height: 100%;
   display: block;
@@ -325,7 +336,7 @@ input.small {
   width: 100px;
 }
 input.date {
-  width: 72px;
+  width: 160px;
 }
 input.medium {
   width: 160px;
@@ -343,7 +354,7 @@ input.measurement {
   width: 60px;
 }
 input.percent {
-  width: 30px;
+  width: 60px;
 }
 
 select {
@@ -358,6 +369,9 @@ select.small {
 }
 select.medium, div.medium {
   width: 160px;
+}
+select.long {
+  width: 240px;
 }
 
 textarea {
@@ -380,6 +394,10 @@ textarea.xlarge {
   height: 80px;
   width: 400px;
 }
+textarea.xxlarge {
+  height: 200px;
+  width: 500px;
+}
 textarea.email_body {
   height: 200px;
   width: 500px;
@@ -394,22 +412,22 @@ div.iform {
 }
 
 div.column_mapping {
-  sdwidth: 900px; 
+  sdwidth: 900px;
   border: 1px solid gray;
   clear: both;
   overflow: auto;
 }
 
 a {
-  text-decoration: none;  
+  text-decoration: none;
 }
 a:hover {
   text-decoration: underline;
 }
 
 a.navilink {
-  text-decoration: none;  
-  font-weight: normal; 
+  text-decoration: none;
+  font-weight: normal;
 }
 a.navilink:hover {
   text-decoration: underline;
@@ -418,14 +436,14 @@ a.navilink:hover {
 
 a.buttonlink {
   font-weight: normal;
-  margin-bottom: 2px; 
+  margin-bottom: 2px;
 }
 a.buttonlink:hover {
 }
 
 a.functionlink {
   cursor: pointer;
-  font-weight: bold; 
+  font-weight: bold;
 }
 
 a.selected {
@@ -451,12 +469,12 @@ img.image {
 }
 
 .ui-floating-message {
-  display: table; 
+  display: table;
 }
 
 .ui-floating-message div {
   text-align: center;
-  display: table-cell; 
+  display: table-cell;
   vertical-align: middle;
 }
 
@@ -496,4 +514,24 @@ img.image {
   background: rgb(0, 0, 0) transparent;
   background: rgba(0, 0, 0, 0.0);
   cursor: pointer;
+}
+
+.select-default-text {
+  vertical-align: top;
+  width: 20px;
+}
+
+.select-description {
+  padding-left: 1.5em;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  overflow: hidden;
+}
+
+.bigdrop {
+  max-width: 80em;
+}
+
+.hidden {
+  display: none;
 }

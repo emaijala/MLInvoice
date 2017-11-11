@@ -1,5 +1,5 @@
 Name:		mlinvoice
-Version:	1.13.0
+Version:	1.15.5
 Release:	1%{?dist}
 Summary:	MLInvoice - Web application to create Finnish invoices
 Group:		Applications/Internet
@@ -22,10 +22,11 @@ Requires: php-mysqli
 BuildArch:	noarch
 
 %description
-MLInvoice is a web application written in PHP for printing invoices. 
-It available in English and Finnish. Among its features 
-are automatic invoice numbering and reference calculation, pdf 
-generation, customer database and unlimited number of user accounts. 
+MLInvoice is a web application written in PHP for printing offers, dispatch notes,
+invoices etc.
+It available in English, Finnish and Swedish. Among its features
+are automatic invoice numbering and reference calculation, pdf
+generation, customer database and unlimited number of user accounts.
 Data is stored in a MySQL database.
 
 %prep
@@ -50,7 +51,7 @@ EOM
 %{__install} -d -m755 $RPM_BUILD_ROOT%{_datadir}/%{name}
 
 %{__install} -m644 *.php *.ico *.xsl *.xsd config.php.sample $RPM_BUILD_ROOT%{_datadir}/%{name}
-%{__cp} -a css datatables images jquery js lang select2 tcpdf $RPM_BUILD_ROOT%{_datadir}/%{name}
+%{__cp} -a css datatables images jquery js lang select2 vendor $RPM_BUILD_ROOT%{_datadir}/%{name}
 
 %{__mv} $RPM_BUILD_ROOT%{_datadir}/%{name}/config.php.sample \
 	$RPM_BUILD_ROOT%{_sysconfdir}/%{name}/config.php
@@ -67,9 +68,31 @@ EOM
 %{_datadir}/%{name}
 
 %changelog
+* Fri Sep 222 2017 Ere Maijala <ere@labs.fi> - 1.15.5
+- updated for version 1.15.5
+* Sun Aug 20 2017 Ere Maijala <ere@labs.fi> - 1.15.4
+- updated for version 1.15.4
+* Wed Jul 5 2017 Ere Maijala <ere@labs.fi> - 1.15.3
+- updated for version 1.15.3
+* Tue Jun 20 2017 Ere Maijala <ere@labs.fi> - 1.15.2
+- updated for version 1.15.2
+* Sat Jun 13 2017 Ere Maijala <ere@labs.fi> - 1.15.1
+- updated for version 1.15.1
+* Sat May 23 2017 Ere Maijala <ere@labs.fi> - 1.15.0
+- updated for version 1.15.0
+* Fri May 26 2017 Ere Maijala <ere@labs.fi> - 1.15.0-beta1-1
+- updated for version 1.15.0-beta1
+* Sun Mar 26 2017 Ere Maijala <ere@labs.fi> - 1.14.2-1
+- updated for version 1.14.2
+* Sat Mar 18 2017 Ere Maijala <ere@labs.fi> - 1.14.1-1
+- updated for version 1.14.1
+- removed copying of tcpdf directory
+- added copying of vendor directory
+* Sun Mar 5 2017 Ere Maijala <ere@labs.fi> - 1.14.0-1
+- updated for version 1.14.0
 * Sun Apr 3 2016 Ere Maijala <ere@labs.fi> - 1.13.0-1
 - updated for version 1.13.0
-- removed php-mysql from dependencies since only php-mysqli is used 
+- removed php-mysql from dependencies since only php-mysqli is used
 * Thu Dec 31 2015 Ere Maijala <ere@labs.fi> - 1.12.2-1
 - updated for version 1.12.1
 * Wed Dec 23 2015 Ere Maijala <ere@labs.fi> - 1.12.1-1

@@ -1,7 +1,7 @@
 <?php
 /*******************************************************************************
  MLInvoice: web-based invoicing application.
- Copyright (C) 2010-2016 Ere Maijala
+ Copyright (C) 2010-2017 Ere Maijala
 
  Portions based on:
  PkLasku : web-based invoicing software.
@@ -13,7 +13,7 @@
 
 /*******************************************************************************
  MLInvoice: web-pohjainen laskutusohjelma.
- Copyright (C) 2010-2016 Ere Maijala
+ Copyright (C) 2010-2017 Ere Maijala
 
  Perustuu osittain sovellukseen:
  PkLasku : web-pohjainen laskutusohjelmisto.
@@ -25,9 +25,10 @@
 require_once 'sqlfuncs.php';
 require_once 'miscfuncs.php';
 require_once 'datefuncs.php';
-require_once 'localize.php';
+require_once 'translator.php';
 require_once 'form_funcs.php';
 require_once 'sessionfuncs.php';
+require_once "memory.php";
 
 function createForm($strFunc, $strList, $strForm)
 {
@@ -36,7 +37,7 @@ function createForm($strFunc, $strList, $strForm)
     if (!sesAccessLevel($levelsAllowed) && !sesAdminAccess()) {
         ?>
 <div class="form_container ui-widget-content">
-    <?php echo $GLOBALS['locNoAccess'] . "\n"?>
+    <?php echo Translator::translate('NoAccess') . "\n"?>
   </div>
 <?php
         return;
@@ -52,7 +53,7 @@ function createForm($strFunc, $strList, $strForm)
     if (!sesWriteAccess() && ($blnNew || $blnCopy || $blnDelete)) {
         ?>
 <div class="form_container ui-widget-content">
-    <?php echo $GLOBALS['locNoAccess'] . "\n"?>
+    <?php echo Translator::translate('NoAccess') . "\n"?>
   </div>
 <?php
         return;
@@ -60,13 +61,13 @@ function createForm($strFunc, $strList, $strForm)
 
     $strMessage = '';
     if (isset($_SESSION['formMessage']) && $_SESSION['formMessage']) {
-        $strMessage = $GLOBALS['loc' . $_SESSION['formMessage']];
+        $strMessage = Translator::translate($_SESSION['formMessage']);
         unset($_SESSION['formMessage']);
     }
 
     $strErrorMessage = '';
     if (isset($_SESSION['formErrorMessage']) && $_SESSION['formErrorMessage']) {
-        $strErrorMessage = $GLOBALS['loc' . $_SESSION['formErrorMessage']];
+        $strErrorMessage = Translator::translate($_SESSION['formErrorMessage']);
         unset($_SESSION['formErrorMessage']);
     }
 
@@ -105,14 +106,12 @@ function createForm($strFunc, $strList, $strForm)
         if (getSetting('auto_close_after_delete')) {
             $qs = preg_replace('/&form=\w*/', '', $_SERVER['QUERY_STRING']);
             $qs = preg_replace('/&id=\w*/', '', $qs);
-            header(
-                'Location: ' . _PROTOCOL_ . $_SERVER['HTTP_HOST'] .
-                     dirname($_SERVER['PHP_SELF']) . "/index.php?$qs");
+            header("Location: index.php?$qs");
             return;
         }
         ?>
 <div class="form_container ui-widget-content">
-    <?php echo $GLOBALS['locRecordDeleted'] . "\n"?>
+    <?php echo Translator::translate('RecordDeleted') . "\n"?>
   </div>
 <?php
         return;
@@ -121,9 +120,14 @@ function createForm($strFunc, $strList, $strForm)
     if (isset($intKeyValue) && $intKeyValue) {
         $res = fetchRecord($strTable, $intKeyValue, $astrFormElements, $astrValues);
         if ($res === 'deleted')
-            $strMessage .= $GLOBALS['locDeletedRecord'] . '<br>';
+            $strMessage .= Translator::translate('DeletedRecord') . '<br>';
         elseif ($res === 'notfound') {
-            echo $GLOBALS['locEntryDeleted'];
+            $msg = Translator::translate('RecordNotFound');
+            echo <<<EOT
+<div class="form_container">
+  <div class="message">$msg</div>
+</div>
+EOT;
             die();
         }
     }
@@ -146,20 +150,25 @@ function createForm($strFunc, $strList, $strForm)
 <div class="form_container">
 
 <?php
-    createFormButtons($blnNew, $copyLinkOverride, true, $readOnlyForm);
+    createFormButtons(
+        $strForm, $blnNew, $copyLinkOverride, true, $readOnlyForm, $extraButtons
+    );
 
-    if ($strForm == 'invoice' && $astrValues['next_interval_date']
+    if ($strForm == 'invoice' && !empty($astrValues['next_interval_date'])
         && strDate2UnixTime($astrValues['next_interval_date']) <= time()
     ) {
 ?>
     <div class="ui-widget ui-button ui-button-text-only ui-state-highlight">
-      <span class="ui-button-text"><?php echo $GLOBALS['locCreateCopyForNextInvoice']?></span>
+      <span class="ui-button-text"><?php echo Translator::translate('CreateCopyForNextInvoice')?></span>
     </div>
 <?php
     }
+    if (!sesWriteAccess() || $readOnlyForm) {
+        $formDataAttrs[] = 'read-only';
+    }
 ?>
     <div class="form">
-        <form method="post" name="admin_form" id="admin_form">
+        <form method="post" name="admin_form" id="admin_form"<?php echo empty($formDataAttrs) ? '' : ' ' . implode(' ', array_map(function($s) { return "data-$s"; }, $formDataAttrs)) ?>>
             <input type="hidden" name="copyact" value="0"> <input type="hidden"
                 name="newact" value="<?php echo $blnNew ? 1 : 0?>"> <input
                 type="hidden" name="deleteact" value="0"> <input type="hidden"
@@ -174,8 +183,10 @@ function createForm($strFunc, $strList, $strForm)
     $rowOpen = false;
     $formFieldMode = sesWriteAccess() && !$readOnlyForm ? 'MODIFY' : 'READONLY';
     foreach ($astrFormElements as $elem) {
-        if ($elem['type'] === false)
+        if ($elem['type'] === false) {
             continue;
+        }
+        $style = $elem['style'] !== '' ? ' ' . $elem['style'] : '';
 
         $fieldMode = isset($elem['read_only']) && $elem['read_only'] ? 'READONLY' : $formFieldMode;
 
@@ -185,11 +196,11 @@ function createForm($strFunc, $strList, $strForm)
             $rowOpen = false;
             ?>
         <tr>
-                    <td class="sublabel ui-widget-header ui-state-default" colspan="4">
-            <?php echo $elem['label']?>
+          <td class="ui-widget-header ui-state-default sublabel$style" colspan="4">
+            <?php echo Translator::translate($elem['label'])?>
           </td>
                 </tr>
-  <?php
+        <?php
             continue;
         }
 
@@ -225,7 +236,7 @@ function createForm($strFunc, $strList, $strForm)
         if ($blnNew
             && in_array($elem['type'], ['BUTTON', 'JSBUTTON', 'IMAGE', 'DROPDOWNMENU'])
         ) {
-            echo '          <td class="label">&nbsp;</td>';
+            echo '          <td class="label$style">&nbsp;</td>';
         } elseif (in_array($elem['type'], ['BUTTON', 'JSBUTTON', 'DROPDOWNMENU'])) {
             $intColspan = 1;
             ?>
@@ -269,13 +280,13 @@ function createForm($strFunc, $strList, $strForm)
                 $value = $value ? miscRound2Decim($value, 2) : '';
             if ($elem['type'] == 'AREA') {
                 ?>
-          <td class="toplabel"><?php echo $elem['label']?></td>
+          <td class="toplabel"><?php echo Translator::translate($elem['label'])?></td>
 <?php
             } else {
                 ?>
           <td id="<?php echo htmlentities($elem['name']) . '_label' ?>"
-                    class="label"
-                    <?php if (isset($elem['title'])) echo ' title="' . $elem['title'] . '"'?>><?php echo $elem['label']?></td>
+                    class="label<?php echo $style?>"
+                    <?php if (isset($elem['title'])) echo ' title="' . Translator::translate($elem['title']) . '"'?>><?php echo Translator::translate($elem['label'])?></td>
 <?php
             }
             ?>
@@ -311,16 +322,15 @@ function createForm($strFunc, $strList, $strForm)
       <div
         class="iform ui-corner-tl ui-corner-bl ui-corner-br ui-corner-tr ui-helper-clearfix"
         id="stock_balance_log">
-        <div class="ui-corner-tl ui-corner-tr fg-toolbar ui-toolbar ui-widget-header"><?php echo $GLOBALS['locStockBalanceUpdates']?></div>
-          <table id="stock_balance_change_log">
-            <tr>
-              <th class="medium"><?php echo $GLOBALS['locHeaderChangeLogDateTime']?></th>
-              <th class="medium"><?php echo $GLOBALS['locHeaderChangeLogUser']?></th>
-              <th class="small"><?php echo $GLOBALS['locHeaderChangeLogAmount']?></th>
-              <th class="long"><?php echo $GLOBALS['locHeaderChangeLogDescription']?></th>
-            </tr>
-          </table>
-        </div>
+        <div class="ui-corner-tl ui-corner-tr fg-toolbar ui-toolbar ui-widget-header"><?php echo Translator::translate('StockBalanceUpdates')?></div>
+        <table id="stock_balance_change_log" class="iform">
+        <tr>
+            <th class="medium"><?php echo Translator::translate('HeaderChangeLogDateTime')?></th>
+            <th class="medium"><?php echo Translator::translate('HeaderChangeLogUser')?></th>
+            <th class="small"><?php echo Translator::translate('HeaderChangeLogAmount')?></th>
+            <th class="long"><?php echo Translator::translate('HeaderChangeLogDescription')?></th>
+        </tr>
+        </table>
       </div>
 <?php
     }
@@ -330,11 +340,11 @@ function createForm($strFunc, $strList, $strForm)
   <script type="text/javascript">
 /* <![CDATA[ */
 var globals = {
-    nonOpenModificationWarning: '<?php echo $GLOBALS['locNonOpenInvoiceModificationWarning']?>'
-<?php
+    nonOpenModificationWarning: '<?php echo Translator::translate('NonOpenInvoiceModificationWarning')?>'
+    <?php
     if ($strForm == 'invoice' && !empty($intKeyValue)) {
-        $res = mysqli_param_query('SELECT invoice_open FROM {prefix}invoice_state WHERE id=?', [$astrValues['state_id']]);
-        $open = mysqli_fetch_value($res);
+        $rows = db_param_query('SELECT invoice_open FROM {prefix}invoice_state WHERE id=?', [$astrValues['state_id']]);
+        $open = isset($rows[0]) && $rows[0]['invoice_open'];
         echo '    , invoiceOpenStatus: ' . ($open ? 'true' : 'false') . "\n";
     }
 ?>
@@ -343,8 +353,8 @@ var globals = {
 $(window).bind('beforeunload', function(e) {
   if ($('.save_button').hasClass('ui-state-highlight') || $('.add_row_button').hasClass('ui-state-highlight'))
   {
-    e.returnValue = "<?php echo $GLOBALS['locUnsavedData']?>";
-    return "<?php echo $GLOBALS['locUnsavedData']?>";
+    e.returnValue = "<?php echo Translator::translate('UnsavedData')?>";
+    return "<?php echo Translator::translate('UnsavedData')?>";
   }
 });
 
@@ -389,19 +399,6 @@ function startChanging()
 }
 $(document).ready(function() {
 <?php
-    if (getSetting('invoice_show_dispatch_dates')
-        && in_array($strList, ['invoice', 'invoices'])
-        && isset($intKeyValue)
-    ) {
-?>
-  $.getJSON('json.php?func=get_invoice_row_dates&id=<?php echo $intKeyValue ?>', function(json) {
-        for (var i in json.records) {
-            var d = json.records[i];
-            $('#dispatch_date_buttons').append('<a class="formbuttonlink ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only" href="invoice.php?id=<?php echo $intKeyValue ?>&template=2&func=open_invoices&date='+ d.row_date +'"><span class="ui-button-text"><?php echo $GLOBALS['locSettingDispatchNotes'] ?> '+ formatDate(d.row_date) + '</span></a> ');
-        }
-    });
-<?php } ?>
-<?php
   if ($strMessage) {
 ?>
   showmsg("<?php echo $strMessage?>");
@@ -434,19 +431,43 @@ $(document).ready(function() {
     $('#spinner').css('visibility', 'hidden');
   });
 
-  $('#admin_form').find('input[type="text"],input[type="hidden"],input[type="checkbox"],select:not(.dropdownmenu),textarea').change(function(e) { $('.save_button').addClass('ui-state-highlight'); });
+  $('#admin_form').find('input[type="text"],input[type="hidden"]:not(.select-default-text),input[type="checkbox"],select:not(.dropdownmenu),textarea').change(function(e) {
+    $('.save_button').addClass('ui-state-highlight');
+  });
   $('#admin_form').find('input[type="text"]:not([name="payment_date"]),input[type="hidden"],input[type="checkbox"]:not([name="archived"]),select:not(.dropdownmenu),textarea').one('change', startChanging);
 <?php
     if ($haveChildForm && !$blnNew) {
-        ?>
+?>
   init_rows();
-  $('#iform').find('input[type="text"],input[type="hidden"],input[type="checkbox"],select:not(.dropdownmenu),textarea').change(function() { $('.add_row_button').addClass('ui-state-highlight'); });
-  $('#iform').find('input[type="text"],input[type="hidden"],input[type="checkbox"],select:not(.dropdownmenu),textarea').one('change', startChanging);
 <?php
-    } elseif (isset($newLocation))
+  if (sesWriteAccess() && 'invoice' === $strForm) {
+?>
+  $('#itable > tbody').sortable({
+    axis: 'y',
+    handle: '.sort-col',
+    items: 'tr.item-row',
+    stop: function(event, ui) {
+      update_row_order();
+    }
+  });
+<?php
+  }
+?>
+  $('#iform').find('input[type="text"],input[type="hidden"],input[type="checkbox"]:not(.cb-select-row):not(#cb-select-all),select:not(.dropdownmenu),textarea').change(function() { $('.add_row_button').addClass('ui-state-highlight'); });
+  $('#iform').find('input[type="text"],input[type="hidden"],input[type="checkbox"],select:not(.dropdownmenu),textarea').one('change', startChanging);
+
+  $('#iform_popup').find('input[type="text"],input[type="hidden"]:not(.select-default-text),input[type="checkbox"],select:not(.dropdownmenu),textarea').change(function(e) {
+    $(this).parent().find('.modification-indicator').removeClass('hidden');
+    $(this).data('modified', 1);
+  });
+
+<?php
+    } elseif (isset($newLocation)) {
         echo "window.location='$newLocation';";
-    if (isset($openWindow))
+    }
+    if (isset($openWindow)) {
         echo "window.open('$openWindow');";
+    }
     ?>
 });
 <?php
@@ -482,7 +503,8 @@ function save_record(redirect_url, redir_style, on_print)
                 'NEWLINE',
                 'ROWSUM',
                 'CHECK',
-                'IFORM'
+                'IFORM',
+                'FILLER'
             ])) {
             ?>
   obj.<?php echo $elem['name']?> = form.<?php echo $elem['name']?>.value;
@@ -509,7 +531,7 @@ function save_record(redirect_url, redir_style, on_print)
         alert(data.warnings);
       }
       if (data.missing_fields) {
-        errormsg('<?php echo $GLOBALS['locErrValueMissing']?>: ' + data.missing_fields);
+        errormsg('<?php echo Translator::translate('ErrValueMissing')?>: ' + data.missing_fields);
       } else {
         <?php if ($strJSONType == 'invoice'): ?>
           if (typeof on_print !== 'undefined' && on_print) {
@@ -518,7 +540,7 @@ function save_record(redirect_url, redir_style, on_print)
           }
         <?php endif; ?>
         $('.save_button').removeClass('ui-state-highlight');
-        showmsg('<?php echo $GLOBALS['locRecordSaved']?>', 2000);
+        showmsg('<?php echo Translator::translate('RecordSaved')?>', 2000);
         if (redirect_url) {
           if (redir_style == 'openwindow') {
             window.open(redirect_url);
@@ -555,7 +577,7 @@ function popup_dialog(url, on_close, dialog_title, event, width, height)
   $("#popup_dlg").find("#popup_dlg_iframe").html('');
   $("#popup_dlg").dialog({ modal: true, width: width, height: height, resizable: true,
     buttons: {
-      "<?php echo $GLOBALS['locClose']?>": function() { $("#popup_dlg").dialog('close'); }
+      "<?php echo Translator::translate('Close')?>": function() { $("#popup_dlg").dialog('close'); }
     },
     title: dialog_title,
     close: function(event, ui) { eval(on_close); }
@@ -568,7 +590,7 @@ function popup_dialog(url, on_close, dialog_title, event, width, height)
 </script>
 
 <?php
-    createFormButtons($blnNew, $copyLinkOverride, false, $readOnlyForm);
+    createFormButtons($strForm, $blnNew, $copyLinkOverride, false, $readOnlyForm);
     echo "  </div>\n";
 
     if ($addressAutocomplete && getSetting('address_autocomplete')) {
@@ -597,11 +619,11 @@ function createIForm($astrFormElements, $elem, $intKeyValue, $newRecord, $strFor
                     id="<?php echo $elem['name']?>"
                     <?php echo $elem['elem_attributes'] ? ' ' . $elem['elem_attributes'] : ''?>>
                     <div
-                        class="ui-corner-tl ui-corner-tr fg-toolbar ui-toolbar ui-widget-header"><?php echo $elem['label']?></div>
+                        class="ui-corner-tl ui-corner-tr fg-toolbar ui-toolbar ui-widget-header"><?php echo Translator::translate($elem['label'])?></div>
 <?php
     if ($newRecord) {
         ?>
-        <div id="inewmessage" class="new_message"><?php echo $GLOBALS['locSaveRecordToAddRows']?></div>
+        <div id="inewmessage" class="new_message"><?php echo Translator::translate('SaveRecordToAddRows')?></div>
                 </div>
 <?php
         return;
@@ -612,6 +634,7 @@ function createIForm($astrFormElements, $elem, $intKeyValue, $newRecord, $strFor
 
 function init_rows()
 {
+  $('#cb-select-all').prop('checked', false);
 <?php
     $subFormElements = getFormElements($elem['name']);
     $strParentKey = getFormParentKey($elem['name']);
@@ -634,8 +657,8 @@ function init_rows()
         $translate = strstr($subElem['style'], ' translated');
         echo '  var arr_' . $subElem['name'] . ' = {"0":"-"';
         foreach ($values as $key => $value) {
-            if ($translate && isset($GLOBALS["loc$value"])) {
-                $value = $GLOBALS["loc$value"];
+            if ($translate) {
+                $value = Translator::translate($value);
             }
             echo ',' . $key . ':"' . addcslashes($value, '\"\/') . '"';
         }
@@ -648,8 +671,22 @@ function init_rows()
     for (var i = 0; i < json.records.length; i++)
     {
       var record = json.records[i];
-      var tr = $('<tr/>');
-<?php
+      var tr = $('<tr/>').addClass('item-row');
+    <?php
+    if ($strForm == 'invoice' && sesWriteAccess()) {
+        $selectRow = Translator::translate('SelectRow');
+        echo <<<EOT
+      var td = $('<td class="sort-col"><span class="sort-handle hidden">&#x25B2;&#x25BC;</span>');
+      tr.append(td);
+      td = $('<td class="select-row"/>');
+      var input = $('<input type="checkbox" class="cb-select-row" title="$selectRow" aria-label="$selectRow">');
+      input.val(record.id);
+      td.append(input);
+      tr.append(td);
+
+EOT;
+    }
+
     foreach ($subFormElements as $subElem) {
         if (in_array($subElem['type'],
             [
@@ -663,30 +700,35 @@ function init_rows()
         }
         $name = $subElem['name'];
         $class = $subElem['style'];
+        echo "      var td = $('<td/>').addClass('$class' + (record.deleted == 1 ? ' deleted' : ''));\n";
+        echo "      td.attr('data-field', '$name');\n";
         if ($subElem['type'] == 'LIST' || $subElem['type'] == 'SEARCHLIST') {
-            echo "      if (record.${name}_text === null || typeof record.${name}_text === 'undefined') record.${name}_text = (typeof arr_" . $subElem['name'] . "[record.${name}] !== 'undefined') ? arr_" . $subElem['name'] . "[record.${name}] : ''; $('<td/>').addClass('$class' + (record.deleted == 1 ? ' deleted' : '')).text(record.${name}_text).appendTo(tr);\n";
+            echo "      if (record.${name}_text === null || typeof record.${name}_text === 'undefined') record.${name}_text = (typeof arr_" . $subElem['name'] . "[record.${name}] !== 'undefined') ? arr_" . $subElem['name'] . "[record.${name}] : '';\n";
+            echo "      td.text(record.${name}_text).appendTo(tr);\n";
         } elseif ($subElem['type'] == 'INT') {
             if (isset($subElem['decimals'])) {
-                echo "      $('<td/>').addClass('$class' + (record.deleted == 1 ? ' deleted' : '')).text(record.$name ? format_currency(record.$name, {$subElem['decimals']}, '{$GLOBALS['locDecimalSeparator']}', '{$GLOBALS['locThousandSeparator']}') : '').appendTo(tr);\n";
+                echo "      td.text(record.$name ? MLInvoice.formatCurrency(record.$name, {$subElem['decimals']}) : '').appendTo(tr);\n";
             } else {
-                echo "      $('<td/>').addClass('$class' + (record.deleted == 1 ? ' deleted' : '')).text(record.$name ? record.$name.replace('.', '{$GLOBALS['locDecimalSeparator']}') : '').appendTo(tr);\n";
+                echo "      td.text(record.$name ? String(record.$name).replace('.', '" . Translator::translate('DecimalSeparator') . "') : '').appendTo(tr);\n";
             }
         } elseif ($subElem['type'] == 'INTDATE') {
             echo "      if (record.$name === null) record.$name = '';\n";
-            echo "      $('<td/>').addClass('$class' + (record.deleted == 1 ? ' deleted' : '')).text(record.$name.substr(6, 2) + '.' + record.$name.substr(4, 2) + '.' + record.$name.substr(0, 4)).appendTo(tr);\n";
+            echo "      td.text(formatDate(record.$name)).appendTo(tr);\n";
         } elseif ($subElem['type'] == 'CHECK') {
-            echo "      $('<td/>').addClass('$class' + (record.deleted == 1 ? ' deleted' : '')).text(record.$name == 1 ? \"" .
-                 $GLOBALS['locYesButton'] . '" : "' . $GLOBALS['locNoButton'] .
-                 "\").appendTo(tr);\n";
+            echo "      td.text(record.$name == 1 ? \"" .
+                Translator::translate('YesButton') . '" : "' . Translator::translate('NoButton') .
+                "\").appendTo(tr);\n";
         } elseif ($subElem['type'] == 'ROWSUM') {
-            ?>
+?>
       var items = record.pcs;
       var price = record.price;
       var discount = record.discount || 0;
+      var discountAmount = record.discount_amount || 0;
       var VATPercent = record.vat;
       var VATIncluded = record.vat_included;
 
       price *= (1 - discount / 100);
+      price -= discountAmount;
       var sum = 0;
       var sumVAT = 0;
       var VAT = 0;
@@ -702,20 +744,24 @@ function init_rows()
         VAT = round_number(sum * (VATPercent / 100), 2);
         sumVAT = sum + VAT;
       }
-      sum = format_currency(sum, <?php echo isset($subElem['decimals']) ? $subElem['decimals'] : 2?>, '<?php echo $GLOBALS['locDecimalSeparator']?>', '<?php echo $GLOBALS['locThousandSeparator']?>');
-      VAT = format_currency(VAT, <?php echo isset($subElem['decimals']) ? $subElem['decimals'] : 2?>, '<?php echo $GLOBALS['locDecimalSeparator']?>', '<?php echo $GLOBALS['locThousandSeparator']?>');
-      sumVAT = format_currency(sumVAT, <?php echo isset($subElem['decimals']) ? $subElem['decimals'] : 2?>, '<?php echo $GLOBALS['locDecimalSeparator']?>', '<?php echo $GLOBALS['locThousandSeparator']?>');
-      var title = '<?php echo $GLOBALS['locVATLess'] . ': '?>' + sum + ' &ndash; ' + '<?php echo $GLOBALS['locVATPart'] . ': '?>' + VAT;
-      $('<td/>').addClass('<?php echo $class?>' + (record.deleted == 1 ? ' deleted' : '')).append('<span title="' + title + '">' + sumVAT + '<\/span>').appendTo(tr);
+      sum = MLInvoice.formatCurrency(sum, <?php echo isset($subElem['decimals']) ? $subElem['decimals'] : 2?>);
+      VAT = MLInvoice.formatCurrency(VAT, <?php echo isset($subElem['decimals']) ? $subElem['decimals'] : 2?>);
+      sumVAT = MLInvoice.formatCurrency(sumVAT, <?php echo isset($subElem['decimals']) ? $subElem['decimals'] : 2?>);
+      var title = '<?php echo Translator::translate('VATLess') . ': '?>' + sum + ' &ndash; ' + '<?php echo Translator::translate('VATPart') . ': '?>' + VAT;
+      var td = $('<td/>').addClass('<?php echo $class?>' + (record.deleted == 1 ? ' deleted' : '')).append('<span title="' + title + '">' + sumVAT + '<\/span>').appendTo(tr);
 <?php
+        } elseif ($subElem['type'] == 'TAGS') {
+            echo "      var val = record.$name ? String(record.$name) : '';\n";
+            echo "      val = val.replace(new RegExp(/,/, 'g'), ', ');\n";
+            echo "      $('<td/>').addClass('$class' + (record.deleted == 1 ? ' deleted' : '')).text(val).appendTo(tr);\n";
         } else {
             echo "      $('<td/>').addClass('$class' + (record.deleted == 1 ? ' deleted' : '')).text(record.$name ? record.$name : '').appendTo(tr);\n";
         }
     }
     if (sesWriteAccess()) {
         ?>
-      $('<td/>').addClass('button').append('<a class="tinyactionlink row_edit_button rec' + record.id + '" href="#"><?php echo $GLOBALS['locEdit']?><\/a>').appendTo(tr);
-      $('<td/>').addClass('button').append('<a class="tinyactionlink row_copy_button rec' + record.id + '" href="#"><?php echo $GLOBALS['locCopy']?><\/a>').appendTo(tr);
+      $('<td/>').addClass('button').append('<a class="tinyactionlink row_edit_button rec' + record.id + '" href="#"><?php echo Translator::translate('Edit')?><\/a>').appendTo(tr);
+      $('<td/>').addClass('button').append('<a class="tinyactionlink row_copy_button rec' + record.id + '" href="#"><?php echo Translator::translate('Copy')?><\/a>').appendTo(tr);
 <?php
     }
     ?>
@@ -723,7 +769,7 @@ function init_rows()
     }
 <?php
     if ($elem['name'] == 'invoice_rows') {
-        ?>
+?>
     var totSum = 0;
     var totVAT = 0;
     var totSumVAT = 0;
@@ -739,11 +785,13 @@ function init_rows()
 
       var items = record.pcs;
       var price = record.price;
-      var discount = record.discount;
+      var discount = record.discount || 0;
+      var discountAmount = record.discount_amount || 0;
       var VATPercent = record.vat;
       var VATIncluded = record.vat_included;
 
       price *= (1 - discount / 100);
+      price -= discountAmount;
       var sum = 0;
       var sumVAT = 0;
       var VAT = 0;
@@ -765,43 +813,88 @@ function init_rows()
       totSumVAT += sumVAT;
     }
     var tr = $('<tr/>').addClass('summary');
-    $('<td/>').addClass('input').attr('colspan', '10').attr('align', 'right').text('<?php echo $GLOBALS['locTotalExcludingVAT']?>').appendTo(tr);
-    $('<td/>').addClass('input').attr('align', 'right').text(format_currency(totSum, 2, '<?php echo $GLOBALS['locDecimalSeparator']?>', '<?php echo $GLOBALS['locThousandSeparator']?>')).appendTo(tr);
+    var modifyCol = $('<td/>').addClass('input').attr('colspan', '6').attr('rowspan', '2');
+<?php
+    if (sesWriteAccess()) {
+?>
+    modifyCol.text('<?php echo Translator::translate('ForSelected')?>: ');
+    var button = $('<button id="delete-selected-rows" class="selected-row-button ui-button ui-corner-all ui-widget"/>')
+        .text('<?php echo Translator::translate('Delete')?>')
+        .click(function(event) {
+            delete_selected_rows();
+            return false;
+        });
+    button.appendTo(modifyCol);
+    modifyCol.append($('<span/>').text(' '));
+    var button = $('<button id="update-selected-rows" class="selected-row-button ui-button ui-corner-all ui-widget"/>')
+        .text('<?php echo Translator::translate('Modify')?>')
+        .click(function(event) {
+            multi_editor(event, '<?php echo Translator::translate('ModifySelectedRows')?>');
+            return false;
+        });
+    button.appendTo(modifyCol);
+<?php
+    }
+?>
+    modifyCol.appendTo(tr);
+    $('<td/>').addClass('input').attr('colspan', '6').attr('align', 'right').text('<?php echo Translator::translate('TotalExcludingVAT')?>').appendTo(tr);
+    $('<td/>').addClass('input currency').attr('align', 'right').text(MLInvoice.formatCurrency(totSum)).appendTo(tr);
+    $('<td/>').attr('colspan', '2').appendTo(tr);
     $(table).append(tr);
 
     tr = $('<tr/>').addClass('summary');
-    $('<td/>').addClass('input').attr('colspan', '10').attr('align', 'right').text('<?php echo $GLOBALS['locTotalVAT']?>').appendTo(tr);
-    $('<td/>').addClass('input').attr('align', 'right').text(format_currency(totVAT, 2, '<?php echo $GLOBALS['locDecimalSeparator']?>', '<?php echo $GLOBALS['locThousandSeparator']?>')).appendTo(tr);
+    $('<td/>').addClass('input').attr('colspan', '6').attr('align', 'right').text('<?php echo Translator::translate('TotalVAT')?>').appendTo(tr);
+    $('<td/>').addClass('input currency').attr('align', 'right').text(MLInvoice.formatCurrency(totVAT)).appendTo(tr);
+    $('<td/>').attr('colspan', '2').appendTo(tr);
     $(table).append(tr);
 
     var tr = $('<tr/>').addClass('summary');
-    $('<td/>').addClass('input').attr('colspan', '10').attr('align', 'right').text('<?php echo $GLOBALS['locTotalIncludingVAT']?>').appendTo(tr);
-    $('<td/>').addClass('input').attr('align', 'right').text(format_currency(totSumVAT, 2, '<?php echo $GLOBALS['locDecimalSeparator']?>', '<?php echo $GLOBALS['locThousandSeparator']?>')).appendTo(tr);
+    $('<td/>').addClass('input').attr('colspan', '12').attr('align', 'right').text('<?php echo Translator::translate('TotalIncludingVAT')?>').appendTo(tr);
+    $('<td/>').addClass('input currency').attr('align', 'right').text(MLInvoice.formatCurrency(totSumVAT)).appendTo(tr);
+    $('<td/>').attr('colspan', '2').appendTo(tr);
     $(table).append(tr);
 
     var tr = $('<tr/>').addClass('summary');
-    $('<td/>').addClass('input').attr('colspan', '10').attr('align', 'right').text('<?php echo $GLOBALS['locTotalToPay']?>').appendTo(tr);
-    $('<td/>').addClass('input').attr('align', 'right').text(format_currency(totSumVAT + partialPayments, 2, '<?php echo $GLOBALS['locDecimalSeparator']?>', '<?php echo $GLOBALS['locThousandSeparator']?>')).appendTo(tr);
+    $('<td/>').addClass('input').attr('colspan', '12').attr('align', 'right').text('<?php echo Translator::translate('TotalToPay')?>').appendTo(tr);
+    $('<td/>').addClass('input currency').attr('align', 'right').text(MLInvoice.formatCurrency(totSumVAT + partialPayments)).appendTo(tr);
+    $('<td/>').attr('colspan', '2').appendTo(tr);
     $(table).append(tr);
+
+    MLInvoice.updateRowSelectedState();
+    $('.cb-select-row').click(MLInvoice.updateRowSelectedState);
+
+    $('#itable tr')
+      .mouseover(function() { console.log('over'); console.log(this); $(this).find('.sort-handle').removeClass('hidden'); })
+      .mouseout(function() { console.log('out'); console.log(this); $(this).find('.sort-handle').addClass('hidden'); });
 
 <?php
     }
-    ?>
+?>
     $('a[class~="row_edit_button"]').click(function(event) {
       var row_id = $(this).attr('class').match(/rec(\d+)/)[1];
-      popup_editor(event, '<?php echo $GLOBALS['locRowModification']?>', row_id, false);
+      popup_editor(event, '<?php echo Translator::translate('RowModification')?>', row_id, false);
       return false;
     });
 
     $('a[class~="row_copy_button"]').click(function(event) {
       var row_id = $(this).attr('class').match(/rec(\d+)/)[1];
-      popup_editor(event, '<?php echo $GLOBALS['locRowCopy']?>', row_id, true);
+      popup_editor(event, '<?php echo Translator::translate('RowCopy')?>', row_id, true);
       return false;
     });
 
     $('a[class~="tinyactionlink"]').button();
 
     init_rows_done();
+<?php
+    if (getSetting('invoice_show_dispatch_dates')
+        && $elem['name'] == 'invoice_rows'
+        && isset($intKeyValue)
+    ) {
+?>
+    MLInvoice.updateDispatchByDateButtons();
+<?php
+    }
+?>
   });
 }
 <?php
@@ -832,7 +925,7 @@ function save_row(form_id)
 <?php
             } elseif ($subElem['type'] == 'INT') {
                 ?>
-  obj.<?php echo $subElem['name']?> = document.getElementById(form_id + '_<?php echo $subElem['name']?>').value.replace('<?php echo $GLOBALS['locDecimalSeparator']?>', '.');
+  obj.<?php echo $subElem['name']?> = document.getElementById(form_id + '_<?php echo $subElem['name']?>').value.replace('<?php echo Translator::translate('DecimalSeparator')?>', '.');
 <?php
             }
         }
@@ -848,7 +941,7 @@ function save_row(form_id)
     'success': function(data) {
       if (data.missing_fields)
       {
-        errormsg('<?php echo $GLOBALS['locErrValueMissing']?>: ' + data.missing_fields);
+        errormsg('<?php echo Translator::translate('ErrValueMissing')?>: ' + data.missing_fields);
       }
       else
       {
@@ -913,50 +1006,124 @@ function save_row(form_id)
   });
 }
 
-function update_row_dates(id)
+function modify_rows(form_id)
 {
-  startChanging();
-  var buttons = new Object();
-  buttons["<?php echo $GLOBALS['locUpdateRowDates']?>"] = function() {
-    var date = $("#popup_date_edit_field").val();
-    if (date == '') {
-      alert('<?php echo $GLOBALS['locErrValueMissing'] ?>');
-      return;
-    }
-    var params = {
-      func: 'update_invoice_row_dates',
-      id: <?php echo $intKeyValue?>,
-      date: date
-    };
-    $.ajax({
-      'url': 'json.php',
-      'data': params,
-      'type': 'GET',
-      'dataType': 'json',
-      'contentType': 'application/json; charset=utf-8',
-      'success': function(data) {
-        if (data.status != 'ok') {
-          alert(data.errors);
-        } else {
-          $("#popup_date_edit").dialog('close');
-          init_rows();
+  var form = document.getElementById(form_id);
+  var obj = new Object();
+<?php
+        foreach ($subFormElements as $subElem) {
+            if (!in_array($subElem['type'],
+                [
+                    'HID_INT',
+                    'SECHID_INT',
+                    'BUTTON',
+                    'NEWLINE',
+                    'ROWSUM',
+                    'CHECK',
+                    'INT'
+                ])) {
+                ?>
+  if ($('#' + form_id + '_<?php echo $subElem['name']?>').data('modified')) {
+    obj.<?php echo $subElem['name']?> = document.getElementById(form_id + '_<?php echo $subElem['name']?>').value;
+  }
+<?php
+            } elseif ($subElem['type'] == 'CHECK') {
+                ?>
+  if ($('#' + form_id + '_<?php echo $subElem['name']?>').data('modified')) {
+    obj.<?php echo $subElem['name']?> = document.getElementById(form_id + '_<?php echo $subElem['name']?>').checked ? 1 : 0;
+  }
+<?php
+            } elseif ($subElem['type'] == 'INT') {
+                ?>
+  if ($('#' + form_id + '_<?php echo $subElem['name']?>').data('modified')) {
+    obj.<?php echo $subElem['name']?> = document.getElementById(form_id + '_<?php echo $subElem['name']?>').value.replace('<?php echo Translator::translate('DecimalSeparator')?>', '.');
+  }
+<?php
+            }
         }
-      },
-      'error': function(XMLHTTPReq, textStatus, errorThrown) {
-        if (textStatus == 'timeout')
-          errormsg('Timeout trying to update row dates');
-        else
-          errormsg('Error trying to update row dates: ' + XMLHTTPReq.status + ' - ' + XMLHTTPReq.statusText);
-        return false;
+        ?>
+  var req = new Object();
+  req.table = '<?php echo $formJSONType?>';
+  req.ids = $('.cb-select-row:checked').map(function() { return this.value; }).get();
+  req.changes = obj;
+  $.ajax({
+    'url': "json.php?func=update_multiple",
+    'type': 'POST',
+    'dataType': 'json',
+    'data': $.toJSON(req),
+    'contentType': 'application/json; charset=utf-8',
+    'success': function(data) {
+      if (data.missing_fields) {
+        errormsg('<?php echo Translator::translate('ErrValueMissing')?>: ' + data.missing_fields);
+      } else {
+        $("#popup_edit").dialog('close');
+          init_rows();
       }
-    });
-  };
-  buttons["<?php echo $GLOBALS['locClose']?>"] = function() { $("#popup_date_edit").dialog('close'); };
-  $("#popup_date_edit").dialog({ modal: true, width: 420, height: 120, resizable: false,
-    buttons: buttons,
-    title: '<?php echo $GLOBALS['locUpdateAllRowDates'] ?>'
+    },
+    'error': function(XMLHTTPReq, textStatus, errorThrown) {
+      if (textStatus == 'timeout') {
+        alert('Timeout trying to modify rows');
+      } else {
+        alert('Error trying to modify rows: ' + XMLHTTPReq.status + ' - ' + XMLHTTPReq.statusText);
+      }
+    }
+  });
+}
+
+function update_row_order()
+{
+  var req = new Object();
+  req.table = '<?php echo $formJSONType?>';
+  req.order = {};
+  var orderno = 5;
+  $('.cb-select-row').each(function() {
+    req.order[this.value] = orderno;
+    orderno += 5;
+  });
+  $.ajax({
+    'url': "json.php?func=update_row_order",
+    'type': 'POST',
+    'dataType': 'json',
+    'data': $.toJSON(req),
+    'contentType': 'application/json; charset=utf-8',
+    'success': function(data) {
+      init_rows();
+    },
+    'error': function(XMLHTTPReq, textStatus, errorThrown) {
+      if (textStatus == 'timeout') {
+        alert('Timeout trying to modify rows');
+      } else {
+        alert('Error trying to modify rows: ' + XMLHTTPReq.status + ' - ' + XMLHTTPReq.statusText);
+      }
+      init_rows();
+    }
   });
 
+}
+
+function delete_selected_rows()
+{
+  var table = '<?php echo $formJSONType?>';
+  var req = new Object();
+  req.id = $('.cb-select-row:checked').map(function() { return this.value; }).get();
+  $.ajax({
+    'url': "json.php?func=delete_<?php echo $formJSONType?>",
+    'type': 'POST',
+    'dataType': 'json',
+    'data': req,
+    //'contentType': 'application/json; charset=utf-8',
+    'success': function(data) {
+      init_rows();
+    },
+    'error': function(XMLHTTPReq, textStatus, errorThrown) {
+      init_rows();
+      if (textStatus == 'timeout') {
+        alert('Timeout trying to modify rows');
+      } else {
+        alert('Error trying to modify rows: ' + XMLHTTPReq.status + ' - ' + XMLHTTPReq.statusText);
+      }
+    }
+  });
 }
 
 function delete_row(form_id)
@@ -986,6 +1153,8 @@ function delete_row(form_id)
 function popup_editor(event, title, id, copy_row)
 {
   startChanging();
+  $('#iform_popup .modification-indicator').addClass('hidden');
+  $('#iform_popup input').data('modified', '');
   $.getJSON('json.php?func=get_<?php echo $formJSONType?>&id=' + id, function(json) {
     if (!json.id) return;
     var form = document.getElementById('iform_popup');
@@ -1029,52 +1198,133 @@ function popup_editor(event, title, id, copy_row)
 <?php
             } elseif ($subElem['type'] == 'INT') {
                 if (isset($subElem['default']) && strstr($subElem['default'], 'ADD')) {
-                    ?>
+?>
     var value;
     if (copy_row)
       value = document.getElementById('<?php echo "iform_$name"?>').value;
     else
-      value = json.<?php echo $name?> ? json.<?php echo $name?>.replace('.', '<?php $GLOBALS['locDecimalSeparator']?>') : '';
+      value = json.<?php echo $name?> ? String(json.<?php echo $name?>).replace('.', '<?php Translator::translate('DecimalSeparator')?>') : '';
     form.<?php echo "iform_popup_$name"?>.value = value;
 <?php
                 } else {
                     if (isset($subElem['decimals'])) {
-                        ?>
-    form.<?php echo "iform_popup_$name"?>.value = json.<?php echo $name?> ? format_currency(json.<?php echo $name?>, <?php echo $subElem['decimals']?>, '<?php echo $GLOBALS['locDecimalSeparator']?>', '<?php echo $GLOBALS['locThousandSeparator']?>') : '';
+?>
+    form.<?php echo "iform_popup_$name"?>.value = json.<?php echo $name?> ? MLInvoice.formatCurrency(json.<?php echo $name?>, <?php echo $subElem['decimals']?>) : '';
 <?php
                     } else {
-                        ?>
-    form.<?php echo "iform_popup_$name"?>.value = json.<?php echo $name?> ? json.<?php echo $name?>.replace('.', '<?php echo $GLOBALS['locDecimalSeparator']?>') : '';
+?>
+    form.<?php echo "iform_popup_$name"?>.value = json.<?php echo $name?> ? String(json.<?php echo $name?>).replace('.', '<?php echo Translator::translate('DecimalSeparator')?>') : '';
 <?php
                     }
                 }
             } elseif ($subElem['type'] == 'INTDATE') {
-                ?>
+?>
     form.<?php echo "iform_popup_$name"?>.value = json.<?php echo $name?> ? formatDate(json.<?php echo $name?>) : '';
 <?php
             } elseif ($subElem['type'] == 'CHECK') {
-                ?>
+?>
     form.<?php echo "iform_popup_$name"?>.checked = json.<?php echo $name?> != 0 ? true : false;
 <?php
+            } elseif ($subElem['type'] == 'TAGS') {
+?>
+    var items = [];
+    $(json.<?php echo $name?>.split(',')).each(function () {
+        items.push({id: this, text: this});
+    });
+    $('#<?php echo "iform_popup_$name"?>').select2('data', items);
+<?php
             } else {
-                ?>
+?>
     form.<?php echo "iform_popup_$name"?>.value = json.<?php echo $name?>;
 <?php
             }
         }
-        ?>
+?>
+    MLInvoice.setupSelect2($("#popup_edit"));
+
     var buttons = new Object();
-    buttons["<?php echo $GLOBALS['locSave']?>"] = function() { save_row('iform_popup'); };
+    buttons["<?php echo Translator::translate('Save')?>"] = function() { save_row('iform_popup'); };
     if (!copy_row)
-      buttons["<?php echo $GLOBALS['locDelete']?>"] = function() { if(confirm('<?php echo $GLOBALS['locConfirmDelete']?>')==true) { delete_row('iform_popup'); } return false; };
-    buttons["<?php echo $GLOBALS['locClose']?>"] = function() { $("#popup_edit").dialog('close'); };
-    $("#popup_edit").dialog({ modal: true, width: 840, height: 150, resizable: false,
+      buttons["<?php echo Translator::translate('Delete')?>"] = function() { if(confirm('<?php echo Translator::translate('ConfirmDelete')?>')==true) { delete_row('iform_popup'); } return false; };
+    buttons["<?php echo Translator::translate('Close')?>"] = function() { $("#popup_edit").dialog('close'); };
+    $("#popup_edit").dialog({ modal: true, width: 1050, height: 180, resizable: true,
       buttons: buttons,
       title: title,
     });
 
   });
 }
+
+function multi_editor(event, title)
+{
+  startChanging();
+  $('#iform_popup .modification-indicator').addClass('hidden');
+  $('#iform_popup input').data('modified', 0);
+  var form = document.getElementById('iform_popup');
+<?php
+        foreach ($subFormElements as $subElem) {
+            if (in_array($subElem['type'], ['HID_INT', 'SECHID_INT', 'CONST_HID_INT', 'BUTTON', 'NEWLINE', 'ROWSUM'])) {
+                continue;
+            }
+            $name = $subElem['name'];
+            if ($subElem['type'] == 'SEARCHLIST') {
+                ?>
+    $('#<?php echo "iform_popup_$name"?>').select2('data', {});
+<?php
+            } elseif ($subElem['type'] == 'LIST') {
+                ?>
+    for (var i = 0; i < form.<?php echo "iform_popup_$name"?>.options.length; i++)
+    {
+      var item = form.<?php echo "iform_popup_$name"?>.options[i].selected = false;
+    }
+<?php
+            } elseif ($subElem['type'] == 'INT') {
+                if (isset($subElem['default']) && strstr($subElem['default'], 'ADD')) {
+?>
+    form.<?php echo "iform_popup_$name"?>.value = '';
+<?php
+                } else {
+                    if (isset($subElem['decimals'])) {
+?>
+    form.<?php echo "iform_popup_$name"?>.value = '';
+<?php
+                    } else {
+?>
+    form.<?php echo "iform_popup_$name"?>.value = '';
+<?php
+                    }
+                }
+            } elseif ($subElem['type'] == 'INTDATE') {
+?>
+    form.<?php echo "iform_popup_$name"?>.value = '';
+<?php
+            } elseif ($subElem['type'] == 'CHECK') {
+?>
+    form.<?php echo "iform_popup_$name"?>.checked = false;
+<?php
+            } elseif ($subElem['type'] == 'TAGS') {
+?>
+    $('#<?php echo "iform_popup_$name"?>').select2('data', []);
+<?php
+            } else {
+?>
+    form.<?php echo "iform_popup_$name"?>.value = '';
+<?php
+            }
+        }
+?>
+    MLInvoice.setupSelect2($("#popup_edit"));
+
+    var buttons = new Object();
+    buttons["<?php echo Translator::translate('Save')?>"] = function() { modify_rows('iform_popup'); };
+    buttons["<?php echo Translator::translate('Close')?>"] = function() { $("#popup_edit").dialog('close'); };
+    $("#popup_edit").dialog({
+      modal: true, width: 1050, height: 180, resizable: true,
+      buttons: buttons,
+      title: title,
+    });
+}
+
 <?php
     }
     ?>
@@ -1084,42 +1334,72 @@ function popup_editor(event, title, id, copy_row)
                     <table class="iform" id="itable">
                         <thead>
                             <tr>
-<?php
+    <?php
+    if ($strForm == 'invoice' && sesWriteAccess()) {
+        $selectAll = Translator::translate('SelectAll');
+        ?>
+        <th class="label ui-state-default sort-col"> </th>
+        <th class="label ui-state-default select-row"><input type="checkbox" id="cb-select-all" title="<?php echo $selectAll?>" aria-label="<?php echo $selectAll?>"></th>
+        <?php
+    } else {
+        ?>
+        <th class="label ui-state-default select-row"></th>
+        <?php
+    }
+
     foreach ($subFormElements as $subElem) {
-        if (!in_array($subElem['type'],
+        if (!in_array(
+            $subElem['type'],
             [
                 'HID_INT',
                 'CONST_HID_INT',
                 'SECHID_INT',
                 'BUTTON',
                 'NEWLINE'
-            ])) {
+            ]
+        )) {
             ?>
-              <th
-                                    class="label ui-state-default <?php echo strtolower($subElem['style'])?>_label"><?php echo $subElem['label']?></th>
+                <th class="label ui-state-default <?php echo strtolower($subElem['style'])?>_label">
+                    <?php echo Translator::translate($subElem['label'])?>
+                </th>
 <?php
         }
     }
     ?>
-            </tr>
+                            <th class="label ui-state-default" colspan="2"></th>
+                            </tr>
                         </thead>
                         <tbody>
-<?php
+    <?php
     if (sesWriteAccess()) {
         ?>
             <tr id="form_row">
-<?php
+        <?php
+        if ($strForm == 'invoice') {
+            ?>
+            <td></td>
+            <td class="select-row"></td>
+            <?php
+        }
+
         foreach ($subFormElements as $subElem) {
-            if (!in_array($subElem['type'],
-                [
-                    'HID_INT',
-                    'CONST_HID_INT',
-                    'SECHID_INT',
-                    'BUTTON',
-                    'NEWLINE',
-                    'ROWSUM'
-                ])) {
+            if (true
+                && !in_array(
+                    $subElem['type'],
+                    [
+                        'HID_INT',
+                        'CONST_HID_INT',
+                        'SECHID_INT',
+                        'BUTTON',
+                        'NEWLINE',
+                        'ROWSUM'
+                    ]
+                )
+            ) {
                 $value = getFormDefaultValue($subElem, $intKeyValue);
+                if (null === $value) {
+                    $value = '';
+                }
                 ?>
               <td
                                     class="label <?php echo strtolower($subElem['style'])?>_label">
@@ -1136,19 +1416,16 @@ function popup_editor(event, title, id, copy_row)
         }
         if ($strForm == 'invoice') {
             ?>
-              <td class="button"><a
+              <td class="button" colspan="2"><a
                                     class="tinyactionlink add_row_button" href="#"
-                                    onclick="save_row('iform'); return false;"><?php echo $GLOBALS['locAddRow']?></a>
-                                </td>
-                                <td class="button"><a class="tinyactionlink update_row_dates"
-                                    href="#" onclick="update_row_dates(); return false;"><?php echo $GLOBALS['locUpdateRowDates']?></a>
+                                    onclick="save_row('iform'); return false;"><?php echo Translator::translate('AddRow')?></a>
                                 </td>
 <?php
         } else {
             ?>
               <td class="button" colspan="2"><a
                                     class="tinyactionlink add_row_button" href="#"
-                                    onclick="save_row('iform'); return false;"><?php echo $GLOBALS['locAddRow']?></a>
+                                    onclick="save_row('iform'); return false;"><?php echo Translator::translate('AddRow')?></a>
                                 </td>
 <?php
         }
@@ -1178,17 +1455,16 @@ function popup_editor(event, title, id, copy_row)
                     'ROWSUM'
                 ])) {
                 ?>
-            <td
-                                    class="label <?php echo strtolower($elem['style'])?>_label">
-              <?php echo $elem['label']?><br>
+            <td class="label <?php echo strtolower($elem['style'])?>_label">
+              <?php echo Translator::translate($elem['label'])?><br>
               <?php echo htmlFormElement('iform_popup_' . $elem['name'], $elem['type'], '', $elem['style'], $elem['listquery'], 'MODIFY', 0, '', [], $elem['elem_attributes'])?>
+              <br/>
+              <span class="modification-indicator ui-state-highlight hidden"><?php echo Translator::translate('Modified')?></span>&nbsp;
             </td>
 <?php
             } elseif ($elem['type'] == 'SECHID_INT') {
                 ?>
-            <input type="hidden"
-                                    name="<?php echo 'iform_popup_' . $elem['name']?>"
-                                    value="<?php echo gpcStripSlashes($astrValues[$elem['name']])?>">
+            <input type="hidden" name="<?php echo 'iform_popup_' . $elem['name']?>" value="<?php echo gpcStripSlashes($astrValues[$elem['name']])?>">
 <?php
             } elseif ($elem['type'] == 'BUTTON') {
                 ?>
@@ -1202,18 +1478,17 @@ function popup_editor(event, title, id, copy_row)
                         </table>
                     </form>
                 </div>
-                <div id="popup_date_edit"
-                    style="display: none; width: 300px; overflow: hidden">
+                <div id="popup_date_edit" style="display: none; width: 300px; overflow: hidden">
                     <form method="post" name="form_date_popup" id="form_date_popup">
-                        <input id="popup_date_edit_field" type="text"
-                            class="medium hasCalendar">
+                        <input id="popup_date_edit_field" type="text" class="medium hasCalendar">
                     </form>
                 </div>
 <?php
 }
 
-function createFormButtons($boolNew, $copyLinkOverride, $spinner, $readOnlyForm)
-{
+function createFormButtons($form, $new, $copyLinkOverride, $spinner, $readOnlyForm,
+    $extraButtons = ''
+) {
     if (!sesWriteAccess()) {
 ?>
     <div class="form_buttons"></div>
@@ -1222,32 +1497,152 @@ function createFormButtons($boolNew, $copyLinkOverride, $spinner, $readOnlyForm)
     }
     ?>
     <div class="form_buttons">
-<?php
+    <?php
     if (!$readOnlyForm) {
         ?>
       <a class="actionlink save_button" href="#"
-                        onclick="save_record(); return false;"><?php echo $GLOBALS['locSave']?></a>
-<?php
+                        onclick="save_record(); return false;"><?php echo Translator::translate('Save')?></a>
+    <?php
     }
 
-    if (!$boolNew) {
+    if (!$new) {
         $copyCmd = $copyLinkOverride ? "window.location='$copyLinkOverride'; return false;" : "document.getElementById('admin_form').copyact.value=1; document.getElementById('admin_form').submit(); return false;";
         ?>      <a class="actionlink" href="#"
-                        onclick="<?php echo $copyCmd?>"><?php echo $GLOBALS['locCopy']?></a>
+                        onclick="<?php echo $copyCmd?>"><?php echo Translator::translate('Copy')?></a>
                     <a class="actionlink" href="#"
-                        onclick="document.getElementById('admin_form').newact.value=1; document.getElementById('admin_form').submit(); return false;"><?php echo $GLOBALS['locNew']?></a>
-<?php
+                        onclick="document.getElementById('admin_form').newact.value=1; document.getElementById('admin_form').submit(); return false;"><?php echo Translator::translate('New')?></a>
+        <?php
         if (!$readOnlyForm) {
             ?>
       <a class="actionlink" href="#"
-                        onclick="if(confirm('<?php echo $GLOBALS['locConfirmDelete']?>')==true) {  document.getElementById('admin_form').deleteact.value=1; document.getElementById('admin_form').submit(); return false;} else{ return false; }"><?php echo $GLOBALS['locDelete']?></a>
-<?php
+                        onclick="if(confirm('<?php echo Translator::translate('ConfirmDelete')?>')==true) {  document.getElementById('admin_form').deleteact.value=1; document.getElementById('admin_form').submit(); return false;} else{ return false; }"><?php echo Translator::translate('Delete')?></a>
+            <?php
+            if ($extraButtons) {
+                echo $extraButtons;
+            }
         }
     }
+    if (!$readOnlyForm && $form === 'company') {
+?>
+        <a class="actionlink ytj_search_button" href="#"><?php echo Translator::translate('SearchYTJ')?></a>
+<?php
+    }
+
+    if (($id = getRequest('id', '')) && ($listId = getRequest('listid', ''))) {
+        createListNavigationLinks($listId, $id);
+    }
+
     if ($spinner)
         echo '     <span id="spinner" style="visibility: hidden"><img src="images/spinner.gif" alt=""></span>' .
              "\n";
     ?>
     </div>
 <?php
+}
+
+/**
+ * Create navigation buttons for next/previous record
+ *
+ * @param string $listId    List ID
+ * @param int    $currentId Current record ID
+ *
+ * @return void
+ */
+function createListNavigationLinks($listId, $currentId)
+{
+    $listInfo = Memory::get("{$listId}_info");
+    if (null === $listInfo) {
+        // No list info for the current list
+        return;
+    }
+    $pos = array_search($currentId, $listInfo['ids']);
+    if (false === $pos) {
+        // We've lost track of our position
+        return;
+    }
+    $previous = null;
+    $next = null;
+    if (0 === $pos) {
+        // If we're not at the beginning, fetch previous page and try again
+        if (0 != $listInfo['startRow']) {
+            $startRow = max([$listInfo['startRow'] - $listInfo['rowCount'], 0]);
+            augmentListInfo($listId, $listInfo, $startRow, $listInfo['rowCount']);
+            createListNavigationLinks($listId, $currentId);
+            return;
+        }
+    } else {
+        $previous = $listInfo['ids'][$pos - 1];
+    }
+    if ($pos === count($listInfo['ids']) - 1) {
+        // If we're not at the end, fetch next page and try again
+        if ($listInfo['startRow'] + $pos < $listInfo['recordCount'] - 1) {
+            $startRow = min(
+                [$listInfo['startRow'] + $listInfo['rowCount'],
+                $listInfo['recordCount'] - 1]
+            );
+            augmentListInfo($listId, $listInfo, $startRow, $listInfo['rowCount']);
+            createListNavigationLinks($listId, $currentId);
+            return;
+        }
+    } else {
+        $next = $listInfo['ids'][$pos + 1];
+    }
+    $qs = $_SERVER['QUERY_STRING'];
+    echo '<span class="prev-next">';
+    if (null !== $previous) {
+        $link = preg_replace('/&id=\d+/', "&id=$previous", $qs);
+        echo '<a href="?' . $link . '" class="actionlink">'
+            . Translator::translate('Previous')
+            . '</a> ';
+    } else {
+        echo '<a class="actionlink ui-button ui-corner-all ui-state-disabled">'
+            . Translator::translate('Previous')
+            . '</a> ';
+    }
+    if (null !== $next) {
+        $link = preg_replace('/&id=\d+/', "&id=$next", $qs);
+        echo '<a href="?' . $link . '" class="actionlink ui-button">'
+            . Translator::translate('Next')
+            . '</a> ';
+    } else {
+        echo '<a class="actionlink ui-button ui-corner-all ui-state-disabled">'
+            . Translator::translate('Next')
+            . '</a> ';
+    }
+    echo '</span>';
+}
+
+function augmentListInfo($listId, $listInfo, $startRow, $rowCount)
+{
+    $params = $listInfo['queryParams'];
+    $join = $params['join'];
+    $where = 'WHERE ' . (isset($params['filteredTerms']) ? $params['filteredTerms']
+        : $params['terms']);
+    $groupBy = !empty($params['group']) ? " GROUP BY {$params['group']}" : '';
+    $primaryKey = $params['primaryKey'];
+
+    $fullQuery = "SELECT $primaryKey FROM {$params['table']} $join"
+        . " $where$groupBy";
+
+    if ($params['order']) {
+        $fullQuery .= ' ORDER BY ' . $params['order'];
+    }
+
+    if ($startRow >= 0 && $rowCount >= 0) {
+        $fullQuery .= " LIMIT $startRow, $rowCount";
+    }
+
+    $ids = [];
+    $rows = db_param_query($fullQuery, $params['params']);
+    foreach ($rows as $row) {
+        $ids[] = $row[$primaryKey];
+    }
+
+    if ($listInfo['startRow'] > $startRow) {
+        $listInfo['startRow'] = $startRow;
+        $listInfo['ids'] = array_merge($ids, $listInfo['ids']);
+    } else {
+        $listInfo['ids'] = array_merge($listInfo['ids'], $ids);
+    }
+    Memory::set("{$listId}_info", $listInfo);
 }

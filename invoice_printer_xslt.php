@@ -1,7 +1,7 @@
 <?php
 /*******************************************************************************
  MLInvoice: web-based invoicing application.
- Copyright (C) 2010-2016 Ere Maijala
+ Copyright (C) 2010-2017 Ere Maijala
 
  This program is free software. See attached LICENSE.
 
@@ -9,7 +9,7 @@
 
 /*******************************************************************************
  MLInvoice: web-pohjainen laskutusohjelma.
- Copyright (C) 2010-2016 Ere Maijala
+ Copyright (C) 2010-2017 Ere Maijala
 
  Tämä ohjelma on vapaa. Lue oheinen LICENSE.
 
@@ -29,6 +29,21 @@ class InvoicePrinterXslt extends InvoicePrinterBase
 
     protected function transform($xslt, $xsd = '')
     {
+        if (!class_exists('XSLTProcessor')) {
+            die(
+                <<<EOT
+<p>This printout requires the PHP XSL extension, more specifically the XSLTProcessor
+class, which seems to be missing. Please install the XSL extension or request
+your server administrator to do it.</p>
+<p>Many Linux distributions offer the XSL extension in a separate package that can be
+installed with a package manager. E.g. in Ubuntu the package might be php5-xsl,
+php7.0-xsl or php7.1-xsl depending on the PHP version.</p>
+<p>More information about the XSL extension is available in the
+<a href="http://php.net/manual/en/book.xsl.php" target="_blank">PHP Manual</a>.
+EOT
+            );
+        }
+
         $xml = new SimpleXMLElement('<?xml version="1.0"?><invoicedata/>');
         $sender = $xml->addChild('sender');
         $this->arrayToXML($this->senderData, $sender);
@@ -47,9 +62,7 @@ class InvoicePrinterXslt extends InvoicePrinterBase
         $this->arrayToXML($invoiceData, $invoice);
 
         foreach ($this->invoiceRowData as  &$data) {
-            if (isset($GLOBALS["locPDF{$data['type']}"])) {
-                $data['type'] = $GLOBALS["locPDF{$data['type']}"];
-            }
+            $data['type'] = Translator::translate("invoice::{$data['type']}");
         }
 
         $rows = $invoice->addChild('rows');
@@ -61,8 +74,7 @@ class InvoicePrinterXslt extends InvoicePrinterBase
             if (substr($key, 0, 8) == 'invoice_' && $value['type'] != 'LABEL') {
                 switch ($key) {
                 case 'invoice_terms_of_payment' :
-                    $settingsData[$key] = sprintf(
-                        getTermsOfPayment($invoiceData['company_id']),
+                    $settingsData[$key] = $this->getTermsOfPayment(
                         getPaymentDays($invoiceData['company_id'])
                     );
                     break;
@@ -76,9 +88,10 @@ class InvoicePrinterXslt extends InvoicePrinterBase
                 }
             }
         }
-        $settingsData['invoice_penalty_interest_desc'] = $GLOBALS['locPDFPenaltyInterestDesc'] .
-             ': ' . miscRound2OptDecim(getSetting('invoice_penalty_interest'), 1) .
-             ' %';
+        $settingsData['invoice_penalty_interest_desc']
+            = Translator::translate('invoice::PenaltyInterestDesc')
+            . ': ' . miscRound2OptDecim(getSetting('invoice_penalty_interest'), 1)
+            . ' %';
         $settingsData['current_time_year'] = date('Y');
         $settingsData['current_time_mon'] = date('m');
         $settingsData['current_time_day'] = date('d');
@@ -137,11 +150,12 @@ class InvoicePrinterXslt extends InvoicePrinterBase
     {
         foreach ($array as $key => $value) {
             if (is_array($value)) {
+                $node = $xml->addChild(
+                    '' !== $subnodename ? $subnodename : $key
+                );
                 if (!is_numeric($key)) {
-                    $node = $xml->addChild($key);
                     $this->arrayToXML($value, $node);
                 } else {
-                    $node = $xml->addChild($subnodename);
                     $this->arrayToXML($value, $node);
                 }
             } else {

@@ -1,7 +1,7 @@
 <?php
 /*******************************************************************************
  MLInvoice: web-based invoicing application.
- Copyright (C) 2010-2016 Ere Maijala
+ Copyright (C) 2010-2017 Ere Maijala
 
  This program is free software. See attached LICENSE.
 
@@ -9,7 +9,7 @@
 
 /*******************************************************************************
  MLInvoice: web-pohjainen laskutusohjelma.
- Copyright (C) 2010-2016 Ere Maijala
+ Copyright (C) 2010-2017 Ere Maijala
 
  Tämä ohjelma on vapaa. Lue oheinen LICENSE.
 
@@ -19,13 +19,20 @@
 ini_set('implicit_flush', 'Off');
 ob_start();
 
+require_once 'config.php';
+
+if (defined('_PROFILING_') && is_callable('tideways_enable')) {
+    tideways_enable(TIDEWAYS_FLAGS_CPU + TIDEWAYS_FLAGS_MEMORY);
+}
+
+require_once 'vendor/autoload.php';
 require_once 'sessionfuncs.php';
 require_once 'navi.php';
 require_once 'list.php';
 require_once 'form.php';
 require_once 'open_invoices.php';
 require_once 'settings.php';
-require_once 'localize.php';
+require_once 'translator.php';
 require_once 'settings_list.php';
 require_once 'version.php';
 require_once 'sqlfuncs.php';
@@ -40,7 +47,7 @@ if (!$strFunc)
     $strFunc = 'open_invoices';
 
 if ($strFunc == 'logout') {
-    header('Location: ' . getSelfPath() . '/logout.php');
+    header('Location: logout.php');
     exit();
 }
 
@@ -71,103 +78,12 @@ if ($strFunc == 'reports') {
 }
 
 echo htmlPageStart($title, $extraJs);
-
-$normalMenuRights = [
-    ROLE_READONLY,
-    ROLE_USER,
-    ROLE_BACKUPMGR
-];
-$astrMainButtons = [
-    [
-        'name' => 'invoice',
-        'title' => 'locShowInvoiceNavi',
-        'action' => 'open_invoices',
-        'levels_allowed' => [
-            ROLE_READONLY,
-            ROLE_USER,
-            ROLE_BACKUPMGR
-        ]
-    ],
-    [
-        'name' => 'archive',
-        'title' => 'locShowArchiveNavi',
-        'action' => 'archived_invoices',
-        'levels_allowed' => [
-            ROLE_READONLY,
-            ROLE_USER,
-            ROLE_BACKUPMGR
-        ]
-    ],
-    [
-        'name' => 'company',
-        'title' => 'locShowClientNavi',
-        'action' => 'companies',
-        'levels_allowed' => [
-            ROLE_USER,
-            ROLE_BACKUPMGR
-        ]
-    ],
-    [
-        'name' => 'reports',
-        'title' => 'locShowReportNavi',
-        'action' => 'reports',
-        'levels_allowed' => [
-            ROLE_READONLY,
-            ROLE_USER,
-            ROLE_BACKUPMGR
-        ]
-    ],
-    [
-        'name' => 'settings',
-        'title' => 'locShowSettingsNavi',
-        'action' => 'settings',
-        'action' => 'settings',
-        'levels_allowed' => [
-            ROLE_USER,
-            ROLE_BACKUPMGR
-        ]
-    ],
-    [
-        'name' => 'system',
-        'title' => 'locShowSystemNavi',
-        'action' => 'system',
-        'levels_allowed' => [
-            ROLE_BACKUPMGR,
-            ROLE_ADMIN
-        ]
-    ],
-    [
-        'name' => 'logout',
-        'title' => 'locLogout',
-        'action' => 'logout',
-        'levels_allowed' => null
-    ]
-];
-
 ?>
 
 <body>
     <div class="pagewrapper ui-widget-content">
         <div class="ui-widget">
-            <div id="maintabs" class="navi ui-widget-header ui-tabs">
-                <ul class="ui-tabs-nav ui-helper-clearfix ui-corner-all">
-<?php
-foreach ($astrMainButtons as $button) {
-    $strButton = '<li class="functionlink ui-state-default ui-corner-top';
-    if ($button['action'] == $strFunc ||
-         ($button['action'] == 'open_invoices' && $strFunc == 'invoices'))
-        $strButton .= ' ui-tabs-selected ui-state-active';
-    $strButton .= '"><a class="ui-tabs-anchor functionlink" href="?func=' . $button['action'] . '">';
-    $strButton .= $GLOBALS[$button['title']] . '</a></li>';
-
-    if (!isset($button['levels_allowed']) ||
-         sesAccessLevel($button['levels_allowed']) || sesAdminAccess()) {
-        echo "      $strButton\n";
-    }
-}
-?>
-    </ul>
-            </div>
+            <?php echo htmlMainTabs($strFunc); ?>
 <?php
 
 $level = 1;
@@ -175,7 +91,7 @@ if ($strList && ($strFunc == 'settings' || $strFunc == 'system'))
     ++$level;
 if ($strForm)
     ++$level;
-$arrHistory = sesUpdateHistory($title, $_SERVER['QUERY_STRING'], $level);
+$arrHistory = updateNavigationHistory($title, $_SERVER['QUERY_STRING'], $level);
 
 $strBreadcrumbs = '';
 foreach ($arrHistory as $arrHE) {
@@ -205,8 +121,8 @@ if ($strFunc == 'open_invoices' && !$strForm) {
         updateVersionMessage($.parseJSON($.cookie("updateversion")));
         return;
       }
-        $.getJSON('http://www.labs.fi/mlinvoice_version.php?callback=?', function(data) {
-        updateVersionMessage(data);
+        $.getJSON('https://www.labs.fi/mlinvoice_version.php?callback=?', function(data) {
+          updateVersionMessage(data);
         });
     });
 
@@ -234,12 +150,12 @@ if ($strFunc == 'open_invoices' && !$strForm) {
 
     function updateVersionMessage(data)
     {
-        var title = new String("<?php echo $GLOBALS['locUpdateAvailableTitle']?>").replace("{version}", data.version).replace("{date}", data.date);
+        var title = new String("<?php echo Translator::translate('UpdateAvailableTitle')?>").replace("{version}", data.version).replace("{date}", data.date);
         var result = compareVersionNumber(data.version, "<?php echo $softwareVersion?>");
       if (result > 0) {
-        $("<a/>").attr("href", data.url).attr("title", title).text("<?php echo $GLOBALS['locUpdateAvailable']?>").appendTo("#version");
+        $("<a/>").attr("href", data.url).attr("title", title).text("<?php echo Translator::translate('UpdateAvailable')?>").appendTo("#version");
       } else if (result < 0) {
-        $("<span/>").text("<?php echo $GLOBALS['locPrereleaseVersion']?>").appendTo("#version");
+        $("<span/>").text("<?php echo Translator::translate('PrereleaseVersion')?>").appendTo("#version");
       }
       $.cookie("updateversion", $.toJSON(data), { expires: 1 });
     }
@@ -248,20 +164,22 @@ if ($strFunc == 'open_invoices' && !$strForm) {
     }
 }
 if ($strFunc == 'system' && getRequest('operation', '') == 'export' &&
-     sesAdminAccess()) {
+    sesAdminAccess()
+) {
     createFuncMenu($strFunc);
-    require_once 'export.php';
+    include_once 'export.php';
     $export = new ExportData();
     $export->launch();
 } elseif ($strFunc == 'system' && getRequest('operation', '') == 'import' &&
-     sesAdminAccess()) {
+    sesAdminAccess()
+) {
     createFuncMenu($strFunc);
-    require_once 'import.php';
+    include_once 'import.php';
     $import = new ImportFile();
     $import->launch();
 } elseif ($strFunc == 'import_statement') {
     createFuncMenu($strFunc);
-    require_once 'import_statement.php';
+    include_once 'import_statement.php';
     $import = new ImportStatement();
     $import->launch();
 } else {
@@ -270,22 +188,22 @@ if ($strFunc == 'system' && getRequest('operation', '') == 'export' &&
         createFuncMenu($strFunc);
         switch ($strForm) {
         case 'invoice' :
-            require_once 'invoice_report.php';
+            include_once 'invoice_report.php';
             $invoiceReport = new InvoiceReport();
             $invoiceReport->createReport();
             break;
         case 'product' :
-            require_once 'product_report.php';
+            include_once 'product_report.php';
             $productReport = new ProductReport();
             $productReport->createReport();
             break;
         case 'product_stock' :
-            require_once 'product_stock_report.php';
+            include_once 'product_stock_report.php';
             $productStockReport = new ProductStockReport();
             $productStockReport->createReport();
             break;
         case 'accounting' :
-            require_once 'accounting_report.php';
+            include_once 'accounting_report.php';
             $accountingReport = new AccountingReport();
             $accountingReport->createReport();
             break;
@@ -317,3 +235,12 @@ if ($strFunc == 'system' && getRequest('operation', '') == 'export' &&
     </div>
 </body>
 </html>
+
+<?php
+if (defined('_PROFILING_') && is_callable('tideways_disable')) {
+    $data = tideways_disable();
+    file_put_contents(
+        sys_get_temp_dir() . '/' . uniqid() . '.mlinvoice-index.xhprof',
+        serialize($data)
+    );
+}

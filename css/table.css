@@ -1,10 +1,10 @@
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
  * dataTables display
  */
-  
+
 .dataTables_length {
   float: left;
-  margin-right: 20px; 
+  margin-right: 20px;
 }
 
 .dataTables_filter {
@@ -222,6 +222,15 @@ tr.odd td.sorting_1 {
   background: rgba(0, 0, 0, 0.05);
 }
 
+tr.overdue td:nth-child(2).sorting_1 {
+  background-color: #FFCCDD;
+}
+tr.overdue7 td:nth-child(2).sorting_1 {
+  background-color: #FF99AA;
+}
+tr.overdue14 td:nth-child(2).sorting_1 {
+  background-color: #FF5566;
+}
 
 /*
  * KeyTable

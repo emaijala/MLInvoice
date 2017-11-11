@@ -2,7 +2,7 @@
 
 /*******************************************************************************
  MLInvoice: web-based invoicing application.
- Copyright (C) 2010-2016 Ere Maijala
+ Copyright (C) 2010-2017 Ere Maijala
 
  Portions based on:
  PkLasku : web-based invoicing software.
@@ -14,7 +14,7 @@
 
 /*******************************************************************************
  MLInvoice: web-pohjainen laskutusohjelma.
- Copyright (C) 2010-2016 Ere Maijala
+ Copyright (C) 2010-2017 Ere Maijala
 
  Perustuu osittain sovellukseen:
  PkLasku : web-pohjainen laskutusohjelmisto.
@@ -26,6 +26,7 @@
 
 require_once 'list.php';
 require_once 'settings.php';
+require_once 'sqlfuncs.php';
 
 function htmlPageStart($strTitle = '', $arrExtraScripts = [])
 {
@@ -46,7 +47,7 @@ function htmlPageStart($strTitle = '', $arrExtraScripts = [])
         $xUACompatible = '';
     $theme = defined('_UI_THEME_LOCATION_') ? _UI_THEME_LOCATION_ : 'jquery/css/theme/jquery-ui.min.css';
     $lang = isset($_SESSION['sesLANG']) ? $_SESSION['sesLANG'] : 'fi-FI';
-    $datePickerOptions = $GLOBALS['locDatePickerOptions'];
+    $datePickerOptions = Translator::translate('DatePickerOptions');
 
     $scripts = [
         'jquery/js/jquery-2.2.4.min.js',
@@ -58,15 +59,13 @@ function htmlPageStart($strTitle = '', $arrExtraScripts = [])
         'js/date.js',
         "js/date-$lang.js",
         'jquery/js/jquery.daterangepicker.js',
+        'js/mlinvoice.js',
         'js/functions.js',
         'select2/select2.min.js'
     ];
 
     if (file_exists("select2/select2_locale_$lang.js")) {
         $scripts[] = "select2/select2_locale_$lang.js";
-    }
-    if (getSetting('session_keepalive')) {
-        $scripts[] = 'js/keepalive.js';
     }
 
     $scripts = array_merge($scripts, $arrExtraScripts);
@@ -94,9 +93,62 @@ function htmlPageStart($strTitle = '', $arrExtraScripts = [])
 
     $strTitle = $strTitle ? _PAGE_TITLE_ . " - $strTitle" : _PAGE_TITLE_;
 
+    $translations = [
+        'DecimalSeparator',
+        'InvoiceDateNonCurrent',
+        'InvoiceNumberNotDefined',
+        'InvoiceRefNumberTooShort',
+        'InvoicesTotal',
+        'NoYTJResultsFound',
+        'SearchYTJPrompt',
+        'SettingDispatchNotes',
+        'ThousandSeparator',
+        'ForSelected',
+        'Delete',
+        'Modify',
+        'ModifySelectedRows',
+        'Modified'
+    ];
+
+    $res = mysqli_query_check(
+        'SELECT name FROM {prefix}invoice_state WHERE deleted=0'
+    );
+    while ($row = mysqli_fetch_value($res)) {
+        $translations[] = $row;
+    }
+
+    $jsTranslations = [];
+    foreach ($translations as $translation) {
+        $translated = Translator::translate($translation);
+        if ($translated != $translation) {
+            $jsTranslations[$translation] = $translated;
+        }
+    }
+    $jsTranslations = json_encode($jsTranslations);
+
+    $dispatchNotePrintStyle = 'none';
+    $res = mysqli_query_check('SELECT * FROM {prefix}print_template WHERE id=2');
+    if ($row = mysqli_fetch_assoc($res)) {
+        if (!$row['deleted'] && !$row['inactive']) {
+            $dispatchNotePrintStyle = $row['new_window'] ? 'openwindow' : 'redirect';
+        }
+    }
+
+    $res = mysqli_query_check(
+        'SELECT id FROM {prefix}invoice_state WHERE invoice_offer=1'
+    );
+    while ($row = mysqli_fetch_assoc($res)) {
+        $offerStatuses[] = $row['id'];
+    }
+    $offerStatuses = json_encode($offerStatuses);
+
+    $keepAlive = getSetting('session_keepalive') ? 'true' : 'false';
+
+    $lang = Translator::translate('HTMLLanguageCode');
+
     $strHtmlStart = <<<EOT
 <!DOCTYPE html>
-<html>
+<html lang="$lang">
 <head>
   <meta http-equiv="Content-Type" content="text/html; charset=$charset">
 $xUACompatible  <title>$strTitle</title>
@@ -104,18 +156,22 @@ $xUACompatible  <title>$strTitle</title>
 $cssLinks
 $scriptLinks
   <script type="text/javascript">
+MLInvoice.addTranslations($jsTranslations);
+MLInvoice.setDispatchNotePrintStyle('$dispatchNotePrintStyle');
+MLInvoice.setOfferStatuses($offerStatuses);
+MLInvoice.setKeepAlive($keepAlive);
 $(document).ready(function() {
   $.datepicker.setDefaults($datePickerOptions);
-  $('a[class~="actionlink"]').button();
-  $('a[class~="tinyactionlink"]').button();
-  $('a[class~="buttonlink"]').button();
-  $('a[class~="formbuttonlink"]').button();
+  $('a.actionlink').not('.ui-state-disabled').button();
+  $('a.tinyactionlink').button();
+  $('a.buttonlink').button();
+  $('a.formbuttonlink').button();
   $('#maintabs ul li').hover(
     function () {
-      $(this).addClass("ui-state-hover");
+      $(this).addClass('ui-state-hover');
     },
     function () {
-      $(this).removeClass("ui-state-hover");
+      $(this).removeClass('ui-state-hover');
     }
   );
 });
@@ -124,6 +180,114 @@ $(document).ready(function() {
 EOT;
 
     return $strHtmlStart;
+}
+
+/**
+ * Create main tabs
+ *
+ * @param string $func Current function
+ *
+ * @return void
+ */
+function htmlMainTabs($func)
+{
+    $normalMenuRights = [
+        ROLE_READONLY,
+        ROLE_USER,
+        ROLE_BACKUPMGR
+    ];
+    $astrMainButtons = [
+        [
+            'name' => 'invoice',
+            'title' => 'ShowInvoiceNavi',
+            'action' => 'open_invoices',
+            'levels_allowed' => [
+                ROLE_READONLY,
+                ROLE_USER,
+                ROLE_BACKUPMGR
+            ]
+        ],
+        [
+            'name' => 'archive',
+            'title' => 'ShowArchiveNavi',
+            'action' => 'archived_invoices',
+            'levels_allowed' => [
+                ROLE_READONLY,
+                ROLE_USER,
+                ROLE_BACKUPMGR
+            ]
+        ],
+        [
+            'name' => 'company',
+            'title' => 'ShowClientNavi',
+            'action' => 'companies',
+            'levels_allowed' => [
+                ROLE_USER,
+                ROLE_BACKUPMGR
+            ]
+        ],
+        [
+            'name' => 'reports',
+            'title' => 'ShowReportNavi',
+            'action' => 'reports',
+            'levels_allowed' => [
+                ROLE_READONLY,
+                ROLE_USER,
+                ROLE_BACKUPMGR
+            ]
+        ],
+        [
+            'name' => 'settings',
+            'title' => 'ShowSettingsNavi',
+            'action' => 'settings',
+            'action' => 'settings',
+            'levels_allowed' => [
+                ROLE_USER,
+                ROLE_BACKUPMGR
+            ]
+        ],
+        [
+            'name' => 'system',
+            'title' => 'ShowSystemNavi',
+            'action' => 'system',
+            'levels_allowed' => [
+                ROLE_BACKUPMGR,
+                ROLE_ADMIN
+            ]
+        ],
+        [
+            'name' => 'logout',
+            'title' => 'Logout',
+            'action' => 'logout',
+            'levels_allowed' => null
+        ]
+    ];
+
+?>
+            <div id="maintabs" class="navi ui-widget-header ui-tabs">
+                <ul class="ui-tabs-nav ui-helper-clearfix ui-corner-all">
+<?php
+foreach ($astrMainButtons as $button) {
+    $strButton = '<li class="functionlink ui-state-default ui-corner-top';
+    if ($button['action'] == $func
+        || ($button['action'] == 'open_invoices' && $func == 'invoices')
+    ) {
+        $strButton .= ' ui-tabs-selected ui-state-active';
+    }
+    $strButton .= '"><a class="ui-tabs-anchor functionlink" href="index.php?func='
+        . $button['action'] . '">';
+    $strButton .= Translator::translate($button['title']) . '</a></li>';
+
+    if (!isset($button['levels_allowed'])
+        ||  sesAccessLevel($button['levels_allowed']) || sesAdminAccess()
+    ) {
+        echo "      $strButton\n";
+    }
+}
+?>
+                </ul>
+            </div>
+<?php
 }
 
 function htmlListBox($strName, $astrValues, $strSelected, $strStyle = '',
@@ -157,8 +321,8 @@ function htmlListBox($strName, $astrValues, $strSelected, $strStyle = '',
 
     foreach ($astrValues as $value => $desc) {
         $strSelect = $strSelected == $value ? ' selected' : '';
-        if ($translate && isset($GLOBALS["loc$desc"])) {
-            $desc = $GLOBALS["loc$desc"];
+        if ($translate) {
+            $desc = Translator::translate($desc);
         }
         $strListBox .= '<option value="' . htmlspecialchars($value) . "\"$strSelect>" .
              htmlspecialchars($desc) . "</option>\n";
@@ -290,8 +454,10 @@ function htmlFormElement($strName, $strType, $strValue, $strStyle, $strListQuery
 
     case 'RESULT':
         $strListQuery = str_replace('_ID_', $strValue, $strListQuery);
+        $res = mysqli_query_check($strListQuery);
         $strFormElement = htmlspecialchars(
-            mysqli_fetch_value(mysqli_query_check($strListQuery))) . "\n";
+            mysqli_fetch_value($res)
+        ) . "\n";
         break;
 
     case 'LIST':
@@ -303,8 +469,15 @@ function htmlFormElement($strName, $strType, $strValue, $strStyle, $strListQuery
 
         if ($strMode == 'MODIFY') {
             if (is_array($strListQuery)) {
-                $strFormElement = htmlListBox($strName, $strListQuery, $strValue,
-                    $strStyle, false, $astrAdditionalAttributes, $translate);
+                $showEmpty = true;
+                if (strstr($strStyle, ' noemptyvalue')) {
+                    $showEmpty = false;
+                    $strStyle = str_replace(' noemptyvalue', '', $strStyle);
+                }
+                $strFormElement = htmlListBox(
+                    $strName, $strListQuery, $strValue, $strStyle, false, $showEmpty,
+                    $astrAdditionalAttributes, $translate
+                );
 
             } else {
                 $strFormElement = htmlSQLListBox($strName, $strListQuery, $strValue,
@@ -321,56 +494,16 @@ function htmlFormElement($strName, $strType, $strValue, $strStyle, $strListQuery
 
     case 'SEARCHLIST':
         if ($strMode == 'MODIFY') {
-            $showEmpty = <<<EOT
-      if (page == 1 && data.filter == '') {
-        records.unshift({id: '', text: '-'});
-      }
-
-EOT;
+            $showEmpty = '1';
             if (strstr($strStyle, ' noemptyvalue')) {
                 $strStyle = str_replace(' noemptyvalue', '', $strStyle);
-                $showEmpty = '';
+                $showEmpty = '0';
             }
             $strValue = htmlspecialchars($strValue);
-            $onchange = $astrAdditionalAttributes ? ".on(\"change\", $astrAdditionalAttributes)" : '';
+            $onChange = $astrAdditionalAttributes ? trim($astrAdditionalAttributes) : '';
+            $encodedQuery = htmlspecialchars($strListQuery);
             $strFormElement = <<<EOT
-<input type="hidden" class="$strStyle" id="$strName" name="$strName" value="$strValue"/>
-<script type="text/javascript">
-$(document).ready(function() {
-  $("#$strName").select2({
-    placeholder: "",
-    ajax: {
-      url: "json.php?func=get_selectlist&$strListQuery",
-      dataType: 'json',
-      quietMillis: 200,
-      data: function (term, page) { // page is the one-based page number tracked by Select2
-        return {
-          q: term, //search term
-          pagelen: 50, // page size
-          page: page, // page number
-        };
-      },
-      results: function (data, page) {
-        var records = data.records;
-  $showEmpty
-        return {results: records, more: data.moreAvailable};
-      }
-    },
-    initSelection: function(element, callback) {
-      var id = $(element).val();
-      if (id !== "") {
-        $.ajax("json.php?func=get_selectlist&$strListQuery&id=" + id, {
-          dataType: "json"
-        }).done(function(data) { callback(data.records[0]); });
-      }
-    },
-    dropdownCssClass: "bigdrop",
-    dropdownAutoWidth: true,
-    escapeMarkup: function (m) { return m; },
-    width: "element"
-  })$onchange
-});
-</script>
+<input type="hidden" class="$strStyle select2" id="$strName" name="$strName" value="$strValue" data-query="$encodedQuery" data-show-empty="$showEmpty" data-on-change="$onChange"/>
 EOT;
         } else {
             $strFormElement = "<input type=\"text\" class=\"$strStyle\" " .
@@ -393,6 +526,26 @@ EOT;
             $strFormElement = "<input type=\"text\" class=\"$strStyle\" " .
                  "id=\"$strName\" name=\"$strName\" value=\"" . htmlspecialchars(
                     getListBoxSelectedValue($options, $strValue, $translate)) .
+                 "\"$astrAdditionalAttributes$readOnly>\n";
+        }
+        break;
+    case 'TAGS':
+        if ($strMode == 'MODIFY') {
+            $showEmpty = '1';
+            if (strstr($strStyle, 'noemptyvalue ')) {
+                $strStyle = str_replace('noemptyvalue ', '', $strStyle);
+                $showEmpty = '0';
+            }
+            $strValue = htmlspecialchars($strValue);
+            $onChange = $astrAdditionalAttributes ? trim($astrAdditionalAttributes) : '';
+            $encodedQuery = htmlspecialchars($strListQuery);
+            $strFormElement = <<<EOT
+<input type="hidden" class="$strStyle select2 tags" id="$strName" name="$strName" value="$strValue" data-query="$encodedQuery" data-show-empty="$showEmpty" data-on-change="$onChange"/>
+EOT;
+        } else {
+            $strFormElement = "<input type=\"text\" class=\"$strStyle\" " .
+                 "id=\"$strName\" name=\"$strName\" value=\"" .
+                 htmlspecialchars($strValue) .
                  "\"$astrAdditionalAttributes$readOnly>\n";
         }
         break;
@@ -447,30 +600,30 @@ EOT;
             break;
         }
         $strFormElement = "<a class=\"formbuttonlink\" href=\"$strHref\" $strOnClick$astrAdditionalAttributes>" .
-             htmlspecialchars($strTitle) . "</a>\n";
+             htmlspecialchars(Translator::translate($strTitle)) . "</a>\n";
         break;
 
     case 'JSBUTTON':
         if (strstr($strListQuery, '_ID_') && !$strValue) {
-            $strFormElement = $GLOBALS['locSaveFirst'];
+            $strFormElement = Translator::translate('SaveFirst');
         } else {
             if ($strValue)
                 $strListQuery = str_replace('_ID_', $strValue, $strListQuery);
             $strOnClick = "onClick=\"$strListQuery\"";
             $strFormElement = "<a class=\"formbuttonlink\" href=\"#\" $strOnClick$astrAdditionalAttributes>" .
-                 htmlspecialchars($strTitle) . "</a>\n";
+                 htmlspecialchars(Translator::translate($strTitle)) . "</a>\n";
         }
         break;
 
     case 'DROPDOWNMENU':
         if (strstr($strListQuery, '_ID_') && !$strValue) {
-            $strFormElement = $GLOBALS['locSaveFirst'];
+            $strFormElement = Translator::translate('SaveFirst');
         } else {
-            $menuTitle = htmlspecialchars($strTitle);
+            $menuTitle = htmlspecialchars(Translator::translate($strTitle));
             $menuItems = '';
             foreach ($options as $option) {
                 $strListQuery = str_replace('_ID_', $strValue, $option['listquery']);
-                $menuItems .= '<li onClick="' . $strListQuery . '"><div>' . $option['label'] . '</div></li>';
+                $menuItems .= '<li onClick="' . $strListQuery . '"><div>' . Translator::translate($option['label']) . '</div></li>';
             }
             $strFormElement = <<<EOT
 <ul class="dropdownmenu" $astrAdditionalAttributes>
@@ -487,7 +640,7 @@ EOT;
     case 'IMAGE':
         $strListQuery = str_replace('_ID_', $strValue, $strListQuery);
         $strFormElement = "<img class=\"$strStyle\" src=\"$strListQuery\" title=\"" .
-             htmlspecialchars($strTitle) . "\"></div>\n";
+             htmlspecialchars(Translator::translate($strTitle)) . "\"></div>\n";
         break;
 
     default :

@@ -1,7 +1,7 @@
 <?php
 /*******************************************************************************
  MLInvoice: web-based invoicing application.
- Copyright (C) 2010-2016 Ere Maijala
+ Copyright (C) 2010-2017 Ere Maijala
 
  Portions based on:
  PkLasku : web-based invoicing software.
@@ -13,7 +13,7 @@
 
 /*******************************************************************************
  MLInvoice: web-pohjainen laskutusohjelma.
- Copyright (C) 2010-2016 Ere Maijala
+ Copyright (C) 2010-2017 Ere Maijala
 
  Perustuu osittain sovellukseen:
  PkLasku : web-pohjainen laskutusohjelmisto.
@@ -23,7 +23,7 @@
 
  *******************************************************************************/
 require_once 'sqlfuncs.php';
-require_once 'localize.php';
+require_once 'translator.php';
 require_once 'pdf.php';
 
 abstract class AbstractReport
@@ -35,37 +35,37 @@ abstract class AbstractReport
     protected function getParamsStr($html)
     {
         $mappings = [
-            'date' => ['name' => 'locInvoiceDateInterval'],
-            'accounting_date' => ['name' => 'locDateInterval'],
-            'row_date' => ['name' => 'locInvoiceRowDateInterval'],
-            'payment_date' => ['name' => 'locPaymentDateInterval'],
+            'date' => ['name' => 'InvoiceDateInterval'],
+            'accounting_date' => ['name' => 'DateInterval'],
+            'row_date' => ['name' => 'InvoiceRowDateInterval'],
+            'payment_date' => ['name' => 'PaymentDateInterval'],
             'base' => [
-                'name' => 'locBiller',
+                'name' => 'Biller',
                 'sql' => 'SELECT name FROM {prefix}base WHERE id = ?'
             ],
             'company' => [
-                'name' => 'locClient',
-                'sql' => 'SELECT company_name FROM {prefix}company WHERE id = ?'
+                'name' => 'Client',
+                'sql' => 'SELECT company_name as v FROM {prefix}company WHERE id = ?'
             ],
             'product' => [
-                'name' => 'locProduct',
-                'sql' => 'SELECT product_name FROM {prefix}product WHERE id = ?'
+                'name' => 'Product',
+                'sql' => 'SELECT product_name as v FROM {prefix}product WHERE id = ?'
             ],
             'row_types' => [
-                'name' => 'locInvoiceRowTypes',
+                'name' => 'InvoiceRowTypes',
                 'values' => [
-                    'all' => 'locPrintInvoiceRowTypeAll',
-                    'normal' => 'locPrintInvoiceRowTypeNormal',
-                    'reminder' => 'locPrintInvoiceRowTypeReminder'
+                    'all' => 'PrintInvoiceRowTypeAll',
+                    'normal' => 'PrintInvoiceRowTypeNormal',
+                    'reminder' => 'PrintInvoiceRowTypeReminder'
                 ]
             ],
             'grouping' => [
-                'name' => 'locPrintGrouping',
+                'name' => 'PrintGrouping',
                 'values' => [
-                    'state' => 'locPrintGroupingState',
-                    'month' =>'locPrintGroupingMonth',
-                    'client' =>'locPrintGroupingCliet',
-                    'vat' => 'locPrintGroupingVAT'
+                    'state' => 'PrintGroupingState',
+                    'month' => 'PrintGroupingMonth',
+                    'client' => 'PrintGroupingCliet',
+                    'vat' => 'PrintGroupingVAT'
                 ]
             ],
         ];
@@ -83,17 +83,13 @@ abstract class AbstractReport
                 continue;
             }
             $mapping = $mappings[$key];
-            $param = $GLOBALS[$mapping['name']] . ': ';
+            $param = Translator::translate($mapping['name']) . ': ';
             if (isset($mapping['values'])) {
                 $param .= isset($mapping['values'][$value])
-                    ? $GLOBALS[$mapping['values'][$value]] : $value;
+                    ? Translator::translate($mapping['values'][$value]) : $value;
             } elseif (isset($mapping['sql'])) {
-                $res = mysqli_param_query($mapping['sql'], [$value]);
-                if ($res) {
-                    $param .= mysqli_fetch_value($res);
-                } else {
-                    $param .= $res;
-                }
+                $rows = db_param_query($mapping['sql'], [$value]);
+                $param .= $rows ? $rows[0]['v'] : '';
             } else {
                 $param .= $value;
             }
@@ -108,13 +104,12 @@ abstract class AbstractReport
         while ($row = mysqli_fetch_assoc($res)) {
             $stateId = $row['id'];
             if (getRequest("stateid_$stateId", false)) {
-                $states[] = isset($GLOBALS['loc' . $row['name']])
-                    ? $GLOBALS['loc' . $row['name']] : $row['name'];
+                $states[] = Translator::translate($row['name']);
             }
         }
 
         if ($states) {
-            $params[] = $GLOBALS['locPrintReportStates'] . ': '
+            $params[] = Translator::translate('PrintReportStates') . ': '
                 . implode(', ', $states);
         }
 

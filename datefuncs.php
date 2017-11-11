@@ -2,18 +2,18 @@
 
 /*******************************************************************************
  MLInvoice: web-based invoicing application.
- Copyright (C) 2010-2016 Ere Maijala
- 
+ Copyright (C) 2010-2017 Ere Maijala
+
  This program is free software. See attached LICENSE.
- 
+
  *******************************************************************************/
 
 /*******************************************************************************
  MLInvoice: web-pohjainen laskutusohjelma.
- Copyright (C) 2010-2016 Ere Maijala
- 
+ Copyright (C) 2010-2017 Ere Maijala
+
  Tämä ohjelma on vapaa. Lue oheinen LICENSE.
- 
+
  *******************************************************************************/
 
 /**
@@ -31,7 +31,7 @@ function dateConvDBDate2Date($intDate, $format = '')
     $day = substr($intDate, 6);
     $mon = substr($intDate, 4, 2);
     $year = substr($intDate, 0, 4);
-    return date($format ? $format : $GLOBALS['locDateFormat'], 
+    return date($format ? $format : Translator::translate('DateFormat'),
         mktime(0, 0, 0, $mon, $day, $year));
 }
 
@@ -48,7 +48,7 @@ function dateConvDBTimestamp2DateTime($dateTime, $format = '')
     if (!$dateTime) {
         return '';
     }
-    return date($format ? $format : $GLOBALS['locDateTimeFormat'], 
+    return date($format ? $format : Translator::translate('DateTimeFormat'),
         strtotime($dateTime));
 }
 
@@ -61,7 +61,7 @@ function dateConvDBTimestamp2DateTime($dateTime, $format = '')
  */
 function dateConvDate2DBDate($strDate)
 {
-    $arr = date_parse_from_format($GLOBALS['locDateFormat'], $strDate);
+    $arr = date_parse_from_format(Translator::translate('DateFormat'), $strDate);
     if ($arr['error_count'] > 0) {
         return false;
     }
@@ -77,7 +77,7 @@ function dateConvDate2DBDate($strDate)
  */
 function strDate2UnixTime($strDate)
 {
-    $arr = date_parse_from_format($GLOBALS['locDateFormat'], $strDate);
+    $arr = date_parse_from_format(Translator::translate('DateFormat'), $strDate);
     return mktime(0, 0, 0, $arr['month'], $arr['day'], $arr['year']);
 }
 

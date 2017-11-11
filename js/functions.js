@@ -19,7 +19,7 @@ $(document).ready(function() {
 
 function setup_base_link()
 {
-  base_id = $('#base_id.linked');
+  var base_id = $('#base_id.linked');
   if (base_id.val() == '') {
     $('#base_id_label').text($('#base_id_label').text());
   } else {
@@ -29,7 +29,10 @@ function setup_base_link()
 
 function setup_company_link()
 {
-  company_id = $('#company_id.linked');
+  var company_id = $('#company_id.linked');
+  if (company_id.length == 0) {
+    return;
+  }
   if (company_id.val() == '') {
     $('#company_id_label').text($('#company_id_label').text());
   } else {
@@ -217,23 +220,6 @@ function save_partial_payment(translations)
   });
 }
 
-function format_currency(value, decimals, decimalSep, thousandSep)
-{
-  var s = parseFloat(value).toFixed(decimals).replace('.', decimalSep);
-  if (thousandSep) {
-    var parts = s.split(decimalSep);
-    var regexp = new RegExp('(\d+)(\d{3})' + decimalSep + '?');
-    while (regexp.test(parts[0])) {
-      parts[0] = parts[0].replace(regexp, '$1' + thousandSep + '$2');
-    }
-    s = parts[0];
-    if (parts.length > 1) {
-      s += decimalSep + parts[1];
-    }
-  }
-  return s;
-}
-
 function round_number(num, dec)
 {
   return Math.round(num * Math.pow(10, dec)) / Math.pow(10, dec);
@@ -307,7 +293,8 @@ function intVal(i) {
     return 0;
 }
 
-function formatDate(dateString)
+function formatDate(date)
 {
+    dateString = new String(date);
     return dateString.substr(6, 2) + '.' + dateString.substr(4, 2) + '.' + dateString.substr(0, 4);
 }

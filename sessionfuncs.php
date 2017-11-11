@@ -1,7 +1,7 @@
 <?php
 /*******************************************************************************
  MLInvoice: web-based invoicing application.
- Copyright (C) 2010-2016 Ere Maijala
+ Copyright (C) 2010-2017 Ere Maijala
 
  Portions based on:
  PkLasku : web-based invoicing software.
@@ -13,7 +13,7 @@
 
 /*******************************************************************************
  MLInvoice: web-pohjainen laskutusohjelma.
- Copyright (C) 2010-2016 Ere Maijala
+ Copyright (C) 2010-2017 Ere Maijala
 
  Perustuu osittain sovellukseen:
  PkLasku : web-pohjainen laskutusohjelmisto.
@@ -51,8 +51,9 @@ function sesCreateSession($strLogin, $strPasswd)
         $keytime = $_SESSION['keytime'];
         if (!$key || time() - $keytime > 300) {
             error_log(
-                'Key not found or timeout, ' . time() - $keytime .
-                     ' seconds since login form was created');
+                'Key not found or timeout, ' . (time() - $keytime)
+                . ' seconds since login form was created'
+            );
             return 'TIMEOUT';
         }
 
@@ -60,10 +61,9 @@ function sesCreateSession($strLogin, $strPasswd)
              'FROM {prefix}users u ' .
              'INNER JOIN {prefix}session_type st ON st.id = u.type_id ' .
              'WHERE u.deleted=0 AND u.login=?';
-        $intRes = mysqli_param_query($strQuery, [
-            $strLogin
-        ]);
-        if ($row = mysqli_fetch_assoc($intRes)) {
+        $rows = db_param_query($strQuery, [$strLogin]);
+        if ($rows) {
+            $row = $rows[0];
             $passwd_md5 = $row['passwd'];
             $md5 = md5($key . $passwd_md5);
             if ($md5 != $strPasswd) {
@@ -77,7 +77,6 @@ function sesCreateSession($strLogin, $strPasswd)
             $_SESSION['sesUSERID'] = $row['user_id'];
             $_SESSION['sesACCESSLEVEL'] = $row['access_level'];
             $_SESSION['REMOTE_ADDR'] = $_SERVER['REMOTE_ADDR'];
-            $_SESSION['HISTORY'] = [];
             $_SESSION['ACCESSTIME'] = time();
 
             return 'OK';
@@ -96,7 +95,7 @@ function sesEndSession()
     return true;
 }
 
-function sesVerifySession($redirect = TRUE)
+function sesVerifySession($redirect = true)
 {
     if (!session_id()) {
         session_start();
@@ -108,14 +107,13 @@ function sesVerifySession($redirect = TRUE)
         return true;
     }
     if ($redirect) {
-        if (substr($_SERVER['SCRIPT_FILENAME'], -9, 9) == 'index.php' &&
-             $_SERVER['QUERY_STRING'] && getRequest('func', '') != 'logout'
+        if (substr($_SERVER['SCRIPT_FILENAME'], -9, 9) == 'index.php'
+            && $_SERVER['QUERY_STRING'] && getRequest('func', '') != 'logout'
         ) {
-            $_SESSION['BACKLINK'] = getSelfPath() . '/index.php?' .
-                $_SERVER['QUERY_STRING'];
-            header('Location: ' . getSelfPath() . '/login.php?backlink=1');
+            $_SESSION['BACKLINK'] = 'index.php?' . $_SERVER['QUERY_STRING'];
+            header('Location: login.php?backlink=1');
         } else {
-            header('Location: ' . getSelfPath() . '/login.php');
+            header('Location: login.php');
         }
     } else {
         header('HTTP/1.1 403 Forbidden');
@@ -129,23 +127,6 @@ function sesCreateKey()
     $_SESSION['keytime'] = time();
     $_SESSION['keyip'] = $_SERVER['REMOTE_ADDR'];
     return $_SESSION['key'];
-}
-
-function sesUpdateHistory($title, $url, $level)
-{
-    $arrNew = [];
-    foreach ($_SESSION['HISTORY'] as $item) {
-        if ($item['level'] < $level)
-            $arrNew[] = $item;
-    }
-    $arrNew[] = [
-        'title' => $title,
-        'url' => $url,
-        'level' => $level
-    ];
-    $_SESSION['HISTORY'] = $arrNew;
-
-    return $_SESSION['HISTORY'];
 }
 
 function createRandomString($length)
@@ -196,31 +177,29 @@ function db_session_close()
 
 function db_session_read($sessionID)
 {
-    $res = mysqli_param_query(
+    $rows = db_param_query(
         'SELECT data FROM {prefix}session where id=?', [$sessionID]
     );
-    if ($row = mysqli_fetch_row($res))
-        return reset($row);
-    return '';
+    return isset($rows[0]['data']) ? $rows[0]['data'] : '';
 }
 
 function db_session_write($sessionID, $sessionData)
 {
-    mysqli_param_query(
-        'REPLACE INTO {prefix}session (id, data, session_timestamp) VALUES (?, ?, ?)',
+    db_param_query(
+        'REPLACE INTO {prefix}session (id, data, session_timestamp) VALUES'
+        . ' (?, ?, ?)',
         [
             $sessionID,
             $sessionData,
             date('Y-m-d H:i:s', time())
-        ]);
+        ]
+    );
     return true;
 }
 
 function db_session_destroy($sessionID)
 {
-    mysqli_param_query('DELETE FROM {prefix}session WHERE id=?', [
-        $sessionID
-    ]);
+    db_param_query('DELETE FROM {prefix}session WHERE id=?', [$sessionID]);
     return true;
 }
 
@@ -229,15 +208,18 @@ function db_session_gc($sessionMaxAge)
     if (!$sessionMaxAge) {
         $sessionMaxAge = 900;
     }
-    mysqli_param_query('DELETE FROM {prefix}session WHERE session_timestamp<?',
+    db_param_query('DELETE FROM {prefix}session WHERE session_timestamp<?',
         [
             date('Y-m-d H:i:s', time() - $sessionMaxAge)
-        ]);
+        ]
+    );
     return true;
 }
 
-session_set_save_handler('db_session_open', 'db_session_close', 'db_session_read',
-'db_session_write', 'db_session_destroy', 'db_session_gc');
+session_set_save_handler(
+    'db_session_open', 'db_session_close', 'db_session_read',
+    'db_session_write', 'db_session_destroy', 'db_session_gc'
+);
 session_name(_SESSION_NAME_);
 if (_SESSION_RESTRICT_PATH_) {
     session_set_cookie_params(0, getSelfDirectory() . '/');
