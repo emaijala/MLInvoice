@@ -142,6 +142,10 @@ function createRandomString($length)
 
 function sesWriteAccess()
 {
+    if (!isset($_SESSION['sesACCESSLEVEL'])) {
+        ob_clean();
+        die();
+    }
     return in_array(
         $_SESSION['sesACCESSLEVEL'],
         [
@@ -154,11 +158,19 @@ function sesWriteAccess()
 
 function sesAdminAccess()
 {
+    if (!isset($_SESSION['sesACCESSLEVEL'])) {
+        ob_clean();
+        die();
+    }
     return $_SESSION['sesACCESSLEVEL'] == ROLE_ADMIN;
 }
 
 function sesAccessLevel($allowedLevels)
 {
+    if (!isset($_SESSION['sesACCESSLEVEL'])) {
+        ob_clean();
+        die();
+    }
     return in_array($_SESSION['sesACCESSLEVEL'], $allowedLevels);
 }
 

@@ -441,6 +441,7 @@ function htmlFormElement($strName, $strType, $strValue, $strStyle, $strListQuery
         break;
 
     case 'HID_INT':
+    case 'HID_UUID':
         $strFormElement = '<input type="hidden" ' .
              "id=\"$strName\" name=\"$strName\" value=\"" .
              htmlspecialchars($strValue) . "\">\n";

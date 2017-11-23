@@ -406,6 +406,14 @@ $arrSettings = [
         'default' => 0,
         'allow_null' => true
     ],
+    'pdf_link_base_url' => [
+        'label' => 'SettingPDFLinkTemplate',
+        'type' => 'TEXT',
+        'style' => 'xlong',
+        'position' => 1,
+        'default' => '',
+        'allow_null' => true
+    ],
 
     'order_confirmation_sep' => [
         'label' => 'SettingOrderConfirmations',

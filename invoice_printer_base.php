@@ -244,6 +244,27 @@ abstract class InvoicePrinterBase
     ];
 
     /**
+     * Any print parameters apart from the first three that have a special meaning
+     *
+     * @var array
+     */
+    protected $printParams = [];
+
+    /**
+     * Print template ID
+     *
+     * @var int
+     */
+    protected $printTemplateId;
+
+    /**
+     * Whether the print request is made by an authenticated user
+     *
+     * @var bool
+     */
+    protected $authenticated;
+
+    /**
      * Constructor
      */
     public function __construct()
@@ -272,13 +293,17 @@ abstract class InvoicePrinterBase
      * @param array  $invoiceRowData       Invoice row records
      * @param array  $recipientContactData Recipient's contact records
      * @param int    $dateOverride         Date override for invoice date
+     * @param int    $printTemplateId      Print template ID
+     * @param bool   $authenticated        Whether the user is authenticated
      *
      * @return void
      */
     public function init($invoiceId, $printParameters, $outputFileName, $senderData,
         $recipientData, $invoiceData, $invoiceRowData, $recipientContactData,
-        $dateOverride
+        $dateOverride, $printTemplateId, $authenticated
     ) {
+        $this->printTemplateId = $printTemplateId;
+        $this->authenticated = $authenticated;
         if (empty($recipientData)) {
             $recipientData = [
                 'company_name' => '',
@@ -300,6 +325,13 @@ abstract class InvoicePrinterBase
         $this->printLanguage = isset($parameters[1]) ? $parameters[1] : 'fi';
         $this->printVirtualBarcode = isset($parameters[2]) ? ($parameters[2] == 'Y')
             : false;
+        // Rest of the parameters are key=value style
+        if (count($parameters) > 3) {
+            $this->printParams = parse_ini_string(
+                implode("\n", array_slice($parameters, 3))
+            );
+        }
+
         $this->outputFileName = $outputFileName;
         $this->senderData = $senderData;
         $this->recipientData = $recipientData;
@@ -2149,6 +2181,35 @@ abstract class InvoicePrinterBase
                     $values[] = date(Translator::translate('DateFormat'));
                 } elseif ('datetime' === $pcparts[1]) {
                     $values[] = date(Translator::translate('DateTimeFormat'));
+                } elseif ('pdf_link' === $pcparts[1]) {
+                    $url = getSetting('pdf_link_base_url');
+                    if ($url) {
+                        include_once 'hmac.php';
+                        $language = isset($pcparts[2])
+                            ? $pcparts[2] : $this->printLanguage;
+                        $uuid = $this->invoiceData['uuid'];
+                        $ts = time();
+                        $hash = HMAC::createHMAC(
+                            [
+                                $this->printTemplateId,
+                                $language,
+                                $uuid,
+                                $ts
+                            ]
+                        );
+                        $vars = [
+                            't' => $this->printTemplateId,
+                            'l' => $language,
+                            'i' => $uuid,
+                            'c' => $hash,
+                            's' => $ts
+                        ];
+                        $url .= strpos($url, '?') !== false ? '&' : '?';
+                        $url .= http_build_query($vars);
+                        $values[] = $url;
+                    } else {
+                        $values[] = '';
+                    }
                 }
                 break;
             default:

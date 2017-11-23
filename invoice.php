@@ -22,9 +22,32 @@
  Tämä ohjelma on vapaa. Lue oheinen LICENSE.
 
  *******************************************************************************/
+
+ // buffered, so we can redirect later if necessary
+ini_set('implicit_flush', 'Off');
+ob_start();
+
 require_once 'sessionfuncs.php';
 
-sesVerifySession();
+$authenticated = true;
+$intInvoiceId = getRequest('id', false);
+$printTemplate = getRequest('t', false);
+$dateOverride = false;
+$language = getRequest('l', false);
+$uuid = getRequest('i', false);
+$hash = getRequest('c', false);
+$ts = getRequest('s', false);
+if (false === $printTemplate || false === $language || false === $uuid
+    || false === $hash || false === $ts
+) {
+    if ($intInvoiceId) {
+        sesVerifySession();
+    } else {
+        return;
+    }
+} else {
+    $authenticated = false;
+}
 
 require_once 'vendor/autoload.php';
 require_once 'sqlfuncs.php';
@@ -33,17 +56,39 @@ require_once 'pdf.php';
 require_once 'datefuncs.php';
 require_once 'miscfuncs.php';
 
-$intInvoiceId = getRequest('id', false);
-$printTemplate = getRequest('template', 1);
-$dateOverride = getRequest('date', false);
-if (!is_string($dateOverride) || !ctype_digit($dateOverride)
-    || strlen($dateOverride) != 8
-) {
-    $dateOverride = false;
+if ($authenticated) {
+    $printTemplate = getRequest('template', 1);
+    $dateOverride = getRequest('date', false);
+    if (!is_string($dateOverride) || !ctype_digit($dateOverride)
+        || strlen($dateOverride) != 8
+    ) {
+        $dateOverride = false;
+    }
+} else {
+    include_once 'hmac.php';
+    $reqHash = HMAC::createHMAC([$printTemplate, $language, $uuid, $ts]);
+    if ($reqHash !== $hash) {
+        return;
+    }
+    Translator::setActiveLanguage('', $language);
+    if (abs(time() - $ts) > 90 * 24 * 60 * 60) { // 90 days
+        die(Translator::translate('LinkExpired'));
+    }
+    $rows = db_param_query(
+        'SELECT id FROM {prefix}invoice WHERE uuid=?',
+        [$uuid]
+    );
+    if (!$rows) {
+        return;
+    }
+    $intInvoiceId = $rows[0]['id'];
 }
 
 if (!$intInvoiceId) {
-    die('Id missing');
+    if ($authenticated) {
+        die('Id missing');
+    }
+    return;
 }
 
 $rows = db_param_query(
@@ -51,7 +96,10 @@ $rows = db_param_query(
     [$printTemplate]
 );
 if (!$rows) {
-    die('Could not find print template');
+    if ($authenticated) {
+        die('Could not find print template');
+    }
+    return;
 }
 $row = $rows[0];
 $printTemplateFile = $row['filename'];
@@ -67,7 +115,10 @@ $strQuery = 'SELECT inv.*, ref.invoice_no as refunded_invoice_no, delivery_terms
      'WHERE inv.id=?';
 $rows = db_param_query($strQuery, [$intInvoiceId]);
 if (!$rows) {
-    die('Could not find invoice data');
+    if ($authenticated) {
+        die('Could not find invoice data');
+    }
+    return;
 }
 $invoiceData = $rows[0];
 
@@ -96,7 +147,10 @@ if ($rows) {
 $strQuery = 'SELECT * FROM {prefix}base WHERE id=?';
 $rows = db_param_query($strQuery, [$invoiceData['base_id']]);
 if (!$rows) {
-    die('Could not find invoice sender data');
+    if ($authenticated) {
+        die('Could not find invoice sender data');
+    }
+    return;
 }
 $senderData = $rows[0];
 $senderData['vat_id'] = createVATID($senderData['company_id']);
@@ -115,7 +169,7 @@ $strQuery = 'SELECT pr.product_name, pr.product_code, pr.price_decimals, pr.barc
      "WHERE $where ORDER BY ir.order_no, row_date, pr.product_name DESC, ir.description DESC";
 $invoiceRowData = db_param_query($strQuery, $queryParams);
 
-if (sesWriteAccess()) {
+if ($authenticated && sesWriteAccess()) {
     db_param_query(
         'UPDATE {prefix}invoice SET print_date=? where id=?',
         [
@@ -125,10 +179,17 @@ if (sesWriteAccess()) {
     );
 }
 
+if (!$authenticated) {
+    if (substr($printTemplateFile, -6) === '_email') {
+        $printTemplateFile = substr($printTemplateFile, -6);
+    }
+    $printParameters[1] = $language;
+}
+
 $printer = instantiateInvoicePrinter(trim($printTemplateFile));
 $printer->init(
     $intInvoiceId, $printParameters, $printOutputFileName, $senderData,
     $recipientData, $invoiceData, $invoiceRowData, $recipientContactData,
-    $dateOverride
+    $dateOverride, $printTemplate, $authenticated
 );
 $printer->printInvoice();

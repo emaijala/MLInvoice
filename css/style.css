@@ -344,6 +344,9 @@ input.medium {
 input.long {
   width: 240px;
 }
+input.xlong {
+  width: 400px;
+}
 input.count {
   width: 60px;
 }

@@ -29,6 +29,10 @@ trait InvoicePrinterEmailTrait
 
     public function printInvoice()
     {
+        if (!$this->authenticated) {
+            parent::printInvoice();
+            return;
+        }
         $senderData = $this->senderData;
         $recipientData = $this->recipientData;
         $invoiceData = $this->invoiceData;
@@ -160,6 +164,20 @@ trait InvoicePrinterEmailTrait
                     <textarea id="emailBody" name="email_body" class="email_body" cols="80" rows="24"><?php echo htmlspecialchars($this->emailBody)?></textarea>
                     <span class="select-default-text" data-type="email" data-target="email_form" data-send-form-param="default_body_text"></span>
                 </div>
+                <div class="medium_label"><?php echo Translator::translate('EmailAttachments')?></div>
+                <div class="field">
+                    <?php
+                    if (!isset($this->printParams['attachment'])
+                        || $this->printParams['attachment']
+                    ) {
+                        $filename = $this->outputFileName ? $this->outputFileName
+                            : getSetting('invoice_pdf_filename');
+                        echo $this->getPrintOutFileName($filename);
+                    } else {
+                        echo '-';
+                    }
+                    ?>
+                </div>
                 <div class="form_buttons" style="clear: both">
                     <a class="actionlink" onclick="$('#email_send').val(1); $('#email_form').submit(); return false;" href="#">
                         <?php echo Translator::translate('Send')?>
@@ -186,6 +204,10 @@ $(document).ready(function() {
 
     protected function printOut()
     {
+        if (!$this->authenticated) {
+            parent::printOut();
+            return;
+        }
         $pdf = $this->pdf;
         $senderData = $this->senderData;
         $invoiceData = $this->invoiceData;
@@ -208,10 +230,14 @@ $(document).ready(function() {
         $message->setCc($this->extractAddresses($this->emailCC));
         $message->setBcc($this->extractAddresses($this->emailBCC));
 
-        $attachment = Swift_Attachment::newInstance(
-            $data, $filename, 'application/pdf'
-        );
-        $message->attach($attachment);
+        if (!isset($this->printParams['attachment'])
+            || $this->printParams['attachment']
+        ) {
+            $attachment = Swift_Attachment::newInstance(
+                $data, $filename, 'application/pdf'
+            );
+            $message->attach($attachment);
+        }
 
         $headers = $message->getHeaders();
         $headers->addTextHeader('X-Mailer', 'MLInvoice');

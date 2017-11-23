@@ -162,13 +162,16 @@ function saveFormData($table, &$primaryKey, &$formElements, &$values, &$warnings
         }
 
         $name = $elem['name'];
-
         if (!$elem['allow_null'] && (!isset($values[$name]) || $values[$name] === '')) {
-            if ($missingValues) {
-                $missingValues .= ', ';
+            if (!empty($elem['default'])) {
+                $values[$name] = $elem['default'];
+            } else {
+                if ($missingValues) {
+                    $missingValues .= ', ';
+                }
+                $missingValues .= Translator::translate($elem['label']);
+                continue;
             }
-            $missingValues .= Translator::translate($elem['label']);
-            continue;
         }
 
         if (isset($values[$name])) {

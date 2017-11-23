@@ -23,6 +23,7 @@
 
  *******************************************************************************/
 require_once 'settings.php';
+require_once 'vendor/autoload.php';
 
 $strListTableAlias = '';
 $strOrder = '';
@@ -852,11 +853,20 @@ EOF;
 
     $astrFormElements = [
         [
+            'name' => 'uuid',
+            'label' => 'uuid',
+            'type' => 'HID_UUID',
+            'style' => '',
+            'position' => 1,
+            'allow_null' => false,
+            'default' => \Ramsey\Uuid\Uuid::uuid4()->toString()
+        ],
+        [
             'name' => 'base_id',
             'label' => 'Biller',
             'type' => 'LIST',
             'style' => 'long linked',
-            'listquery' => 'SELECT id, name FROM {prefix}base WHERE deleted=0 AND inactive=0    ORDER BY name, id',
+            'listquery' => 'SELECT id, name FROM {prefix}base WHERE deleted=0 AND inactive=0 ORDER BY name, id',
             'position' => 1,
             'default' => $defaultBase
         ],

@@ -1,4 +1,4 @@
-<FilesMatch "\.(xml|json|lock|sql|spec)$">
+<FilesMatch "\.(xml|json|lock|sql|spec|sample)$">
   <IfModule !mod_authz_core.c>
     Order deny,allow
     Deny from all
@@ -8,3 +8,8 @@
     Require all denied
   </IfModule>
 </FilesMatch>
+
+<IfModule mod_rewrite.c>
+  RewriteEngine On
+  RewriteRule docs/open_doc$ invoice.php
+</IfModule>
