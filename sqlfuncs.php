@@ -1307,6 +1307,16 @@ EOT
         );
     }
 
+    if ($version < 55) {
+        $updates = array_merge(
+            $updates,
+            [
+                'ALTER TABLE {prefix}product ADD COLUMN weight decimal(15,5) NULL',
+                "REPLACE INTO {prefix}state (id, data) VALUES ('version', '55')"
+            ]
+        );
+    }
+
     if (!empty($updates)) {
         mysqli_query_check('SET AUTOCOMMIT = 0');
         mysqli_query_check('BEGIN');

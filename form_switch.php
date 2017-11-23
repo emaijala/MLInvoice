@@ -578,7 +578,16 @@ EOS;
             'allow_null' => true,
             'read_only' => true,
             'attached_elem' => $updateStockBalanceCode
-        ]
+        ],
+        [
+            'name' => 'weight',
+            'label' => 'Weight',
+            'type' => 'INT',
+            'style' => 'medium',
+            'position' => 1,
+            'decimals' => 3,
+            'allow_null' => true
+        ],
     ];
     break;
 

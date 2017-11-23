@@ -435,8 +435,8 @@ function printJSONRecords($table, $parentIdCol, $sort)
     $from = "FROM {prefix}$table t";
 
     if ($table == 'invoice_row') {
-        // Include product name, product code and row type name
-        $select .= ", CASE WHEN LENGTH(p.product_code) = 0 THEN IFNULL(p.product_name, '') ELSE CONCAT_WS(' ', p.product_code, IFNULL(p.product_name, '')) END as product_id_text";
+        // Include product name, product code, product weight and row type name
+        $select .= ", CASE WHEN LENGTH(p.product_code) = 0 THEN IFNULL(p.product_name, '') ELSE CONCAT_WS(' ', p.product_code, IFNULL(p.product_name, '')) END as product_id_text, p.weight as product_weight";
         $from .= ' LEFT OUTER JOIN {prefix}product p on (p.id = t.product_id)';
         $select .= ', rt.name as type_id_text';
         $from .= ' LEFT OUTER JOIN {prefix}row_type rt on (rt.id = t.type_id)';

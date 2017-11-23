@@ -107,7 +107,8 @@ function htmlPageStart($strTitle = '', $arrExtraScripts = [])
         'Delete',
         'Modify',
         'ModifySelectedRows',
-        'Modified'
+        'Modified',
+        'ProductWeight'
     ];
 
     $res = mysqli_query_check(

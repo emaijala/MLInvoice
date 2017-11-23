@@ -773,6 +773,7 @@ EOT;
     var totSum = 0;
     var totVAT = 0;
     var totSumVAT = 0;
+    var totWeight = 0;
     var partialPayments = 0;
     for (var i = 0; i < json.records.length; i++)
     {
@@ -789,6 +790,10 @@ EOT;
       var discountAmount = record.discount_amount || 0;
       var VATPercent = record.vat;
       var VATIncluded = record.vat_included;
+
+      if (record.product_weight !== null) {
+        totWeight += items * parseFloat(record.product_weight);
+      }
 
       price *= (1 - discount / 100);
       price -= discountAmount;
@@ -859,6 +864,14 @@ EOT;
     $('<td/>').addClass('input currency').attr('align', 'right').text(MLInvoice.formatCurrency(totSumVAT + partialPayments)).appendTo(tr);
     $('<td/>').attr('colspan', '2').appendTo(tr);
     $(table).append(tr);
+
+    if (totWeight > 0) {
+        var tr = $('<tr/>').addClass('summary');
+        $('<td/>').addClass('input').attr('colspan', '12').attr('align', 'right').text('<?php echo Translator::translate('ProductWeight')?>').appendTo(tr);
+        $('<td/>').addClass('input currency').attr('align', 'right').text(MLInvoice.formatCurrency(totWeight, 3)).appendTo(tr);
+        $('<td/>').attr('colspan', '2').appendTo(tr);
+        $(table).append(tr);
+    }
 
     MLInvoice.updateRowSelectedState();
     $('.cb-select-row').click(MLInvoice.updateRowSelectedState);

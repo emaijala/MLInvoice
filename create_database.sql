@@ -201,6 +201,7 @@ CREATE TABLE mlinvoice_product (
   stock_balance decimal(11,2) default NULL,
   vendor varchar(255) NULL,
   vendors_code varchar(100) NULL,
+  weight decimal(15,5) NULL,
   PRIMARY KEY (id),
   FOREIGN KEY (type_id) REFERENCES mlinvoice_row_type(id)
 ) ENGINE=INNODB CHARACTER SET utf8 COLLATE utf8_swedish_ci;
@@ -353,7 +354,7 @@ CREATE TABLE mlinvoice_default_value (
 
 SET NAMES 'utf8';
 
-INSERT INTO mlinvoice_state (id, data) VALUES ('version', '54');
+INSERT INTO mlinvoice_state (id, data) VALUES ('version', '55');
 
 INSERT INTO mlinvoice_state (id, data) VALUES ('tableconversiondone', '1');
 
