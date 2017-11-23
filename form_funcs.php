@@ -286,7 +286,7 @@ function saveFormData($table, &$primaryKey, &$formElements, &$values, &$warnings
                     'SELECT deleted FROM {prefix}invoice WHERE id=?',
                     [$primaryKey]
                 );
-                if ($checkValues) {
+                if ($checkValues[0]['deleted']) {
                     $rows = db_param_query(
                         'SELECT product_id, pcs FROM {prefix}invoice_row WHERE invoice_id=? AND deleted=0',
                         [$primaryKey]
