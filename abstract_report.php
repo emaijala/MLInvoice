@@ -115,4 +115,34 @@ abstract class AbstractReport
 
         return implode($html ? '<br/>' : "\n", $params);
     }
+
+    protected function addInvoiceStateSelection()
+    {
+?>
+        <div style="float: left; margin-right: 20px;">
+            <div class="medium_label"><?php echo Translator::translate('PrintReportStates')?></div>
+<?php
+        $strQuery = 'SELECT id, name, invoice_offer FROM {prefix}invoice_state WHERE deleted=0 ' .
+             'ORDER BY order_no';
+        $intRes = mysqli_query_check($strQuery);
+        $first = true;
+        while ($row = mysqli_fetch_assoc($intRes)) {
+            $intStateId = $row['id'];
+            $strStateName = Translator::translate($row['name']);
+            $strChecked = getRequest("stateid_$intStateId", $row['invoice_offer'] ? false : true) ? ' checked' : '';
+            if (!$first) {
+                echo "      <div class=\"medium_label\"></div>\n";
+            }
+            $first = false;
+            ?>
+      <div class="field">
+                <input type="checkbox" id="state-<?php echo $intStateId?>" name="stateid_<?php echo $intStateId?>"
+                    value="1" <?php echo $strChecked?>> <label for="state-<?php echo $intStateId?>"><?php echo htmlspecialchars($strStateName)?></label></div>
+<?php
+        }
+?>
+        </div>
+<?php
+    }
+
 }

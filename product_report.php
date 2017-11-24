@@ -92,37 +92,19 @@ class ProductReport extends AbstractReport
         </div>
         <div class="field_sep"></div>
 
-        <div class="medium_label"><?php echo Translator::translate('PrintReportStates')?></div>
 <?php
-        $strQuery = 'SELECT id, name ' . 'FROM {prefix}invoice_state WHERE deleted=0 ' .
-             'ORDER BY order_no';
-        $intRes = mysqli_query_check($strQuery);
-        $first = true;
-        while ($row = mysqli_fetch_assoc($intRes)) {
-            $intStateId = $row['id'];
-            $strStateName = Translator::translate($row['name']);
-            $tmpSelected = getRequest("stateid_$intStateId", TRUE) ? TRUE : false;
-            $strChecked = $tmpSelected ? ' checked' : '';
-            if (!$first) {
-                echo "    <div class=\"medium_label\"></div>\n";
-            }
-            $first = false;
-            ?>
-    <div class="field">
-            <input type="checkbox" id="state-<?php echo $intStateId?>" name="stateid_<?php echo $intStateId?>"
-                value="1" <?php echo $strChecked?>> <label for="state-<?php echo $intStateId?>"><?php echo htmlspecialchars($strStateName)?></label></div>
-<?php
-        }
-        ?>
-    <div class="unlimited_label">
-        <a class="actionlink" href="#" onclick="var form = document.getElementById('params'); form.target = ''; form.submit(); return false;">
-            <?php echo Translator::translate('CreateReport')?>
-        </a>
-        <a class="actionlink" href="#" onclick="var form = document.getElementById('params'); form.target = '_blank'; form.submit(); return false;">
-            <?php echo Translator::translate('CreateReportInNewWindow')?>
-        </a>
-    </div>
-</form>
+        $this->addInvoiceStateSelection();
+?>
+
+        <div class="unlimited_label">
+            <a class="actionlink" href="#" onclick="var form = document.getElementById('params'); form.target = ''; form.submit(); return false;">
+                <?php echo Translator::translate('CreateReport')?>
+            </a>
+            <a class="actionlink" href="#" onclick="var form = document.getElementById('params'); form.target = '_blank'; form.submit(); return false;">
+                <?php echo Translator::translate('CreateReportInNewWindow')?>
+            </a>
+        </div>
+    </form>
 </div>
 <?php
     }
