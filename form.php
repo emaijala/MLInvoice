@@ -151,7 +151,7 @@ EOT;
 
 <?php
     createFormButtons(
-        $strForm, $blnNew, $copyLinkOverride, true, $readOnlyForm, $extraButtons
+        $strForm, $blnNew, $copyLinkOverride, true, $readOnlyForm, $extraButtons, true
     );
 
     if ($strForm == 'invoice' && !empty($astrValues['next_interval_date'])
@@ -590,7 +590,7 @@ function popup_dialog(url, on_close, dialog_title, event, width, height)
 </script>
 
 <?php
-    createFormButtons($strForm, $blnNew, $copyLinkOverride, false, $readOnlyForm);
+    createFormButtons($strForm, $blnNew, $copyLinkOverride, false, $readOnlyForm, '', false);
     echo "  </div>\n";
 
     if ($addressAutocomplete && getSetting('address_autocomplete')) {
@@ -1500,7 +1500,7 @@ function multi_editor(event, title)
 }
 
 function createFormButtons($form, $new, $copyLinkOverride, $spinner, $readOnlyForm,
-    $extraButtons = ''
+    $extraButtons, $top
 ) {
     if (!sesWriteAccess()) {
 ?>
@@ -1535,10 +1535,41 @@ function createFormButtons($form, $new, $copyLinkOverride, $spinner, $readOnlyFo
             }
         }
     }
-    if (!$readOnlyForm && $form === 'company') {
+    if ($form === 'company') {
+        if (!!$readOnlyForm) {
 ?>
         <a class="actionlink ytj_search_button" href="#"><?php echo Translator::translate('SearchYTJ')?></a>
 <?php
+        }
+        if ($top && !$new) {
+?>
+        <a id="cover-letter-button" class="actionlink" href="#"><?php echo Translator::translate('PrintCoverLetter')?></a>
+        <div id="cover-letter-form" class="ui-corner-all hidden">
+          <div class="ui-corner-tl ui-corner-tr fg-toolbar ui-toolbar ui-widget-header"><?php echo Translator::translate('PrintCoverLetter')?></div>
+          <div id="cover-letter-form-inner">
+            <form action="coverletter.php" method="POST">
+              <input type="hidden" name="company" value="<?php echo getRequest('id')?>">
+              <div class="medium_label"><?php echo Translator::translate('Sender')?></div>
+              <div class="field">
+                <?php echo htmlFormElement(
+                    'base', 'LIST', '', 'long noemptyvalue',
+                    'SELECT id, name FROM {prefix}base WHERE deleted=0 AND inactive=0 ORDER BY name, id'
+                );?>
+              </div>
+              <div class="medium_label"><?php echo Translator::translate('Foreword')?></div>
+              <div class="field">
+                <?php echo htmlFormElement('foreword', 'AREA', '', 'large', '');?>
+                <span class="select-default-text" data-type="foreword" data-target="foreword"></span>
+              </div>
+              <div class="form_buttons" style="clear: both">
+                <input type="submit" class="ui-button ui-corner-all" value="<?php echo Translator::translate('Print')?>">
+                <input type="button" class="ui-button ui-corner-all close-btn" value="<?php echo Translator::translate('Close')?>">
+              </div>
+            </form>
+          </div>
+        </div>
+<?php
+        }
     }
 
     if (($id = getRequest('id', '')) && ($listId = getRequest('listid', ''))) {

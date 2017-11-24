@@ -538,3 +538,12 @@ img.image {
 .hidden {
   display: none;
 }
+
+#cover-letter-form {
+  margin: 16px;
+  border: 1px solid #dddddd;
+}
+
+#cover-letter-form-inner {
+  padding: 16px;
+}

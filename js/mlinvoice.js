@@ -507,6 +507,15 @@ var MLInvoice = (function MLInvoice() {
         });
     }
 
+    function _setupCoverLetterForm() {
+        $('#cover-letter-button').click(function() {
+            $('#cover-letter-form').toggleClass('hidden');
+        });
+        $('#cover-letter-form .close-btn').click(function() {
+            $('#cover-letter-form').addClass('hidden');
+        });
+    }
+
     function updateRowSelectedState() {
         var disabled = $('.cb-select-row:checked').length === 0;
         if (disabled) {
@@ -526,6 +535,7 @@ var MLInvoice = (function MLInvoice() {
             window.setTimeout(_keepAlive, 60*1000);
         }
         _setupSelectAll();
+        _setupCoverLetterForm();
     };
 
     return {

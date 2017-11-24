@@ -92,12 +92,26 @@ class Translator
     }
 
     /**
+     * Get active language for a domain
+     *
+     * @param string $domain   Translation domain
+     *
+     * @return string
+     */
+    static public function getActiveLanguage($domain)
+    {
+        return isset(self::$activeLanguages[$domain])
+            ? self::$activeLanguages[$domain]
+            : '';
+    }
+
+    /**
      * Set active language for a domain
      *
      * @param string $domain   Translation domain
      * @param string $language Language
      *
-     * @return string
+     * @return void
      */
     static public function setActiveLanguage($domain, $language)
     {

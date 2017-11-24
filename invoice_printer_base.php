@@ -443,11 +443,14 @@ abstract class InvoicePrinterBase
             $this->senderContactInfo = '';
         }
 
-        if ($invoiceData['ref_number'] && strlen($invoiceData['ref_number']) < 4) {
+        if (!empty($invoiceData['ref_number'])
+            && strlen($invoiceData['ref_number']) < 4
+        ) {
             error_log('Reference number too short, will not be displayed');
             $invoiceData['ref_number'] = '';
         }
-        $this->refNumber = formatRefNumber($invoiceData['ref_number']);
+        $this->refNumber = isset($invoiceData['ref_number'])
+            ? formatRefNumber($invoiceData['ref_number']) : '';
 
         $this->recipientFullAddress = $recipientData['company_name'] . "\n" .
              $recipientData['street_address'] . "\n" . $recipientData['zip_code'] .
@@ -2253,7 +2256,8 @@ abstract class InvoicePrinterBase
         // Replace the %d style placeholder
         $filename = sprintf(
             $filename ? $filename : $this->outputFileName,
-            $this->invoiceData['invoice_no']
+            isset($this->invoiceData['invoice_no'])
+                ? $this->invoiceData['invoice_no'] : ''
         );
         // Handle additional placeholders
         $filename = $this->replacePlaceholders($filename);
