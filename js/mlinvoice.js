@@ -154,8 +154,9 @@ var MLInvoice = (function MLInvoice() {
         document.getElementById(form_id + '_vat_included').checked = _selectedProduct.vat_included == 1 ? true : false;
     };
 
-    function _parseDate(dateString) {
-        return dateString.substr(6, 4) + dateString.substr(3, 2) + dateString.substr(0, 2);
+    function _parseDate(dateString, _sep) {
+        var sep = typeof _sep === 'undefined' ? '' : _sep
+        return dateString.substr(6, 4) + sep + dateString.substr(3, 2) + sep + dateString.substr(0, 2);
     };
 
     function updateDispatchByDateButtons() {
@@ -538,6 +539,57 @@ var MLInvoice = (function MLInvoice() {
         _setupCoverLetterForm();
     };
 
+    function initDateFields()
+    {
+        $('input[class~="hasCalendar"]').each(function() {
+            var settings = {};
+            if ($(this).data('noFuture')) {
+                settings.maxDate = 0;
+            }
+            $(this).datepicker(settings);
+        });
+        $('input[class~="date"]').each(function() {
+            if ($(this).data('noFuture')) {
+                $(this).change(function() {
+                    var val = $(this).val();
+                    if (val.length === 10) {
+                        var dt = new Date(_parseDate(val, '-'));
+                        if (dt > new Date()) {
+                            errormsg(translate('FutureDateEntered'));
+                        }
+                    }
+                });
+            }
+        });
+    }
+
+    function infomsg(msg, timeout)
+    {
+      $.floatingMessage("<span>" + msg + "</span>", {
+        position: "top-right",
+        className: "ui-widget ui-state-highlight",
+        show: "show",
+        hide: "fade",
+        stuffEaseTime: 200,
+        moveEaseTime: 0,
+        time: typeof(timeout) != 'undefined' ? timeout : 5000
+      });
+    }
+
+    function errormsg(msg, timeout)
+    {
+      $.floatingMessage("<span>" + msg + "</span>", {
+        position: "top-right",
+        className: "ui-widget ui-state-error",
+        show: "show",
+        hide: "fade",
+        stuffEaseTime: 200,
+        moveEaseTime: 0,
+        time: typeof(timeout) != 'undefined' ? timeout : 5000
+      });
+    }
+
+
     return {
         init: init,
         addTranslation: addTranslation,
@@ -551,7 +603,10 @@ var MLInvoice = (function MLInvoice() {
         formatCurrency: formatCurrency,
         setKeepAlive: setKeepAlive,
         setupSelect2: setupSelect2,
-        updateRowSelectedState: updateRowSelectedState
+        updateRowSelectedState: updateRowSelectedState,
+        initDateFields: initDateFields,
+        infomsg: infomsg,
+        errormsg: errormsg
     }
 })();
 

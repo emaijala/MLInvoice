@@ -358,39 +358,13 @@ $(window).bind('beforeunload', function(e) {
   }
 });
 
-function showmsg(msg, timeout)
-{
-  $.floatingMessage("<span>" + msg + "</span>", {
-    position: "top-right",
-    className: "ui-widget ui-state-highlight",
-    show: "show",
-    hide: "fade",
-    stuffEaseTime: 200,
-    moveEaseTime: 0,
-    time: typeof(timeout) != 'undefined' ? timeout : 5000
-  });
-}
-
-function errormsg(msg, timeout)
-{
-  $.floatingMessage("<span>" + msg + "</span>", {
-    position: "top-right",
-    className: "ui-widget ui-state-error",
-    show: "show",
-    hide: "fade",
-    stuffEaseTime: 200,
-    moveEaseTime: 0,
-    time: typeof(timeout) != 'undefined' ? timeout : 5000
-  });
-}
-
 function startChanging()
 {
 <?php
     if ($strForm == 'invoice') {
 ?>
       if (typeof globals.invoiceOpenStatus !== 'undefined' && !globals.invoiceOpenStatus && typeof globals.warningShown === 'undefined') {
-        errormsg(globals.nonOpenModificationWarning, 0);
+        MLInvoice.errormsg(globals.nonOpenModificationWarning, 0);
         globals.warningShown = true;
       }
 <?php
@@ -401,12 +375,12 @@ $(document).ready(function() {
 <?php
   if ($strMessage) {
 ?>
-  showmsg("<?php echo $strMessage?>");
+  MLInvoice.infomsg("<?php echo $strMessage?>");
 <?php
     }
     if ($strErrorMessage) {
 ?>
-      errormsg("<?php echo $strErrorMessage?>");
+      MLInvoice.errormsg("<?php echo $strErrorMessage?>");
 <?php
     }
     if ($strForm == 'product') {
@@ -416,7 +390,7 @@ $(document).ready(function() {
     }
     if (sesWriteAccess()) {
         ?>
-  $('input[class~="hasCalendar"]').datepicker();
+  MLInvoice.initDateFields();
 <?php
     }
     ?>
@@ -427,7 +401,7 @@ $(document).ready(function() {
     $('#spinner').css('visibility', 'hidden');
   });
   $('#errormsg').ajaxError(function(event, request, settings) {
-    errormsg('Server request failed: ' + request.status + ' - ' + request.statusText);
+    MLInvoice.errormsg('Server request failed: ' + request.status + ' - ' + request.statusText);
     $('#spinner').css('visibility', 'hidden');
   });
 
@@ -531,7 +505,7 @@ function save_record(redirect_url, redir_style, on_print)
         alert(data.warnings);
       }
       if (data.missing_fields) {
-        errormsg('<?php echo Translator::translate('ErrValueMissing')?>: ' + data.missing_fields);
+        MLInvoice.errormsg('<?php echo Translator::translate('ErrValueMissing')?>: ' + data.missing_fields);
       } else {
         <?php if ($strJSONType == 'invoice'): ?>
           if (typeof on_print !== 'undefined' && on_print) {
@@ -540,7 +514,7 @@ function save_record(redirect_url, redir_style, on_print)
           }
         <?php endif; ?>
         $('.save_button').removeClass('ui-state-highlight');
-        showmsg('<?php echo Translator::translate('RecordSaved')?>', 2000);
+        MLInvoice.infomsg('<?php echo Translator::translate('RecordSaved')?>', 2000);
         if (redirect_url) {
           if (redir_style == 'openwindow') {
             window.open(redirect_url);
@@ -560,12 +534,12 @@ function save_record(redirect_url, redir_style, on_print)
     },
     'error': function(XMLHTTPReq, textStatus, errorThrown) {
       if (XMLHTTPReq.status == 409) {
-        errormsg(jQuery.parseJSON(XMLHTTPReq.responseText).warnings);
+        MLInvoice.errormsg(jQuery.parseJSON(XMLHTTPReq.responseText).warnings);
       }
       else if (textStatus == 'timeout') {
-        errormsg('Timeout trying to save data');
+        MLInvoice.errormsg('Timeout trying to save data');
       } else {
-        errormsg('Error trying to save data: ' + XMLHTTPReq.status + ' - ' + XMLHTTPReq.statusText);
+        MLInvoice.errormsg('Error trying to save data: ' + XMLHTTPReq.status + ' - ' + XMLHTTPReq.statusText);
       }
       return false;
     }
@@ -954,7 +928,7 @@ function save_row(form_id)
     'success': function(data) {
       if (data.missing_fields)
       {
-        errormsg('<?php echo Translator::translate('ErrValueMissing')?>: ' + data.missing_fields);
+        MLInvoice.errormsg('<?php echo Translator::translate('ErrValueMissing')?>: ' + data.missing_fields);
       }
       else
       {
@@ -1010,10 +984,11 @@ function save_row(form_id)
       }
     },
     'error': function(XMLHTTPReq, textStatus, errorThrown) {
-      if (textStatus == 'timeout')
-        alert('Timeout trying to save row');
-      else
-        alert('Error trying to save row: ' + XMLHTTPReq.status + ' - ' + XMLHTTPReq.statusText);
+      if (textStatus == 'timeout') {
+        MLInvoice.errormsg('Timeout trying to save row');
+      } else {
+        MLInvoice.errormsg('Error trying to save row: ' + XMLHTTPReq.status + ' - ' + XMLHTTPReq.statusText);
+      }
       return false;
     }
   });
@@ -1067,7 +1042,7 @@ function modify_rows(form_id)
     'contentType': 'application/json; charset=utf-8',
     'success': function(data) {
       if (data.missing_fields) {
-        errormsg('<?php echo Translator::translate('ErrValueMissing')?>: ' + data.missing_fields);
+        MLInvoice.errormsg('<?php echo Translator::translate('ErrValueMissing')?>: ' + data.missing_fields);
       } else {
         $("#popup_edit").dialog('close');
           init_rows();
@@ -1154,10 +1129,11 @@ function delete_row(form_id)
         $("#popup_edit").dialog('close');
     },
     'error': function(XMLHTTPReq, textStatus, errorThrown) {
-      if (textStatus == 'timeout')
-        errormsg('Timeout trying to save row');
-      else
-        errormsg('Error trying to save row: ' + XMLHTTPReq.status + ' - ' + XMLHTTPReq.statusText);
+      if (textStatus == 'timeout') {
+        MLInvoice.errormsg('Timeout trying to save row');
+      } else {
+        MLInvoice.errormsg('Error trying to save row: ' + XMLHTTPReq.status + ' - ' + XMLHTTPReq.statusText);
+      }
       return false;
     }
   });

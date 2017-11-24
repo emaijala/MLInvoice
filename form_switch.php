@@ -844,7 +844,7 @@ EOF;
     }
 
     $locReminderFeesAdded = Translator::translate('ReminderFeesAdded');
-    $addReminderFees = "$.getJSON('json.php?func=add_reminder_fees&amp;id=' + document.getElementById('record_id').value, function(json) { if (json.errors) { errormsg(json.errors); } else { showmsg('$locReminderFeesAdded'); } init_rows(); }); return false;";
+    $addReminderFees = "$.getJSON('json.php?func=add_reminder_fees&amp;id=' + document.getElementById('record_id').value, function(json) { if (json.errors) { MLInvoice.errormsg(json.errors); } else { MLInvoice.showmsg('$locReminderFeesAdded'); } init_rows(); }); return false;";
 
     $intervalOptions = [
         '0' => Translator::translate('InvoiceIntervalNone'),
@@ -978,7 +978,7 @@ EOF;
             'position' => 2,
             'allow_null' => true,
             'attached_elem' => $markPaidTodayButton,
-            'elem_attributes' => 'onchange="' . $markPaidTodayEvent . '"'
+            'elem_attributes' => 'onchange="' . $markPaidTodayEvent . '" data-no-future="1"'
         ],
         [
             'name' => 'archived',
