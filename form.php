@@ -390,7 +390,6 @@ $(document).ready(function() {
     }
     if (sesWriteAccess()) {
         ?>
-  MLInvoice.initDateFields();
 <?php
     }
     ?>
@@ -851,8 +850,8 @@ EOT;
     $('.cb-select-row').click(MLInvoice.updateRowSelectedState);
 
     $('#itable tr')
-      .mouseover(function() { console.log('over'); console.log(this); $(this).find('.sort-handle').removeClass('hidden'); })
-      .mouseout(function() { console.log('out'); console.log(this); $(this).find('.sort-handle').addClass('hidden'); });
+      .mouseover(function() { $(this).find('.sort-handle').removeClass('hidden'); })
+      .mouseout(function() { $(this).find('.sort-handle').addClass('hidden'); });
 
 <?php
     }

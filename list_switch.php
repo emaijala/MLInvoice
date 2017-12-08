@@ -404,6 +404,28 @@ case 'product' :
             'select' => true
         ],
         [
+            'name' => 'custom_price',
+            'width' => 100,
+            'type' => 'CURRENCY',
+            'header' => 'ClientsPrice',
+            'decimals' => getSetting('unit_price_decimals'),
+            'virtual' => true,
+            'select' => true
+        ],
+        [
+            'name' => 'discount',
+            'width' => 100,
+            'type' => 'CURRENCY',
+            'header' => 'DiscountPct'
+        ],
+        [
+            'name' => 'discount_amount',
+            'width' => 100,
+            'type' => 'CURRENCY',
+            'header' => 'DiscountAmount',
+            'decimals' => getSetting('unit_price_decimals')
+        ],
+        [
             'name' => 'stock_balance',
             'width' => 100,
             'type' => 'CURRENCY',

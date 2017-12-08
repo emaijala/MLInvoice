@@ -16,6 +16,7 @@
  *******************************************************************************/
 ini_set('display_errors', 0);
 
+require_once 'vendor/autoload.php';
 require_once 'config.php';
 
 if (defined('_PROFILING_') && is_callable('tideways_enable')) {
@@ -118,6 +119,112 @@ case 'put_invoice_row' :
     saveJSONRecord('invoice_row', 'invoice_id');
     break;
 
+case 'get_custom_prices':
+    $customPrice = getCustomPriceSettings(
+        getRequest('companyId')
+    );
+    header('Content-Type: application/json');
+    echo json_encode($customPrice);
+    break;
+
+case 'put_custom_prices':
+    if (!sesWriteAccess()) {
+        header('HTTP/1.1 403 Forbidden');
+        return;
+    }
+    $data = json_decode(file_get_contents('php://input'), true);
+    if (!$data) {
+        header('HTTP/1.1 400 Bad Request');
+        return;
+    }
+    setCustomPriceSettings(
+        $data['company_id'],
+        $data['discount'],
+        $data['multiplier'],
+        $data['valid_until']
+    );
+    header('Content-Type: application/json');
+    echo json_encode(['status' => 'ok']);
+    break;
+
+case 'delete_custom_prices':
+    if (!sesWriteAccess()) {
+        header('HTTP/1.1 403 Forbidden');
+        return;
+    }
+    $data = json_decode(file_get_contents('php://input'), true);
+    if (!$data) {
+        header('HTTP/1.1 400 Bad Request');
+        return;
+    }
+    deleteCustomPriceSettings($data['company_id']);
+    header('Content-Type: application/json');
+    echo json_encode(['status' => 'ok']);
+    break;
+
+case 'get_custom_price':
+    $customPrice = getCustomPrice(
+        getRequest('company_id'),
+        getRequest('product_id')
+    );
+    header('Content-Type: application/json');
+    echo json_encode($customPrice);
+    break;
+
+case 'put_custom_price':
+    if (!sesWriteAccess()) {
+        header('HTTP/1.1 403 Forbidden');
+        return;
+    }
+    $data = json_decode(file_get_contents('php://input'), true);
+    if (!$data) {
+        header('HTTP/1.1 400 Bad Request');
+        return;
+    }
+    $unitPrice = (float)$data['unit_price'];
+    setCustomPrice(
+        $data['company_id'],
+        $data['product_id'],
+        $unitPrice
+    );
+    header('Content-Type: application/json');
+    echo json_encode(
+        [
+            'status' => 'ok',
+            'unit_price' => $unitPrice
+        ]
+    );
+    break;
+
+case 'delete_custom_price':
+    if (!sesWriteAccess()) {
+        header('HTTP/1.1 403 Forbidden');
+        return;
+    }
+    $data = json_decode(file_get_contents('php://input'), true);
+    if (!$data) {
+        header('HTTP/1.1 400 Bad Request');
+        return;
+    }
+    deleteCustomPrice($data['company_id'], $data['product_id']);
+    $product = getProduct($data['product_id']);
+    $unitPrice = $product['unit_price'];
+    if ($unitPrice) {
+        $customPrice = getCustomPriceSettings($data['company_id']);
+        if ($customPrice && $customPrice['valid']) {
+            $unitPrice -= $unitPrice * $customPrice['discount'] / 100;
+            $unitPrice *= $customPrice['multiplier'];
+        }
+    }
+    header('Content-Type: application/json');
+    echo json_encode(
+        [
+            'status' => 'ok',
+            'unit_price' => $unitPrice
+        ]
+    );
+    break;
+
 case 'add_reminder_fees' :
     include 'add_reminder_fees.php';
     $invoiceId = getRequest('id', 0);
@@ -127,6 +234,7 @@ case 'add_reminder_fees' :
     } else {
         $ret = ['status' => 'ok'];
     }
+    header('Content-Type: application/json');
     echo json_encode($ret);
     break;
 
@@ -266,11 +374,12 @@ case 'get_list' :
     $search = getRequest('search', []);
     $filter = empty($search['value']) ? '' : $search['value'];
     $where = getRequest('where', '');
+    $companyId = 'product' === $strList ? getRequest('company_id', null) : null;
 
     header('Content-Type: application/json');
     echo createJSONList(
         $listFunc, $strList, $startRow, $rowCount, $sort, $filter, $where,
-        intval(getRequest('draw', 1)), $tableId
+        intval(getRequest('draw', 1)), $tableId, $companyId
     );
     Memory::set(
         $tableId,
@@ -411,6 +520,28 @@ function printJSONRecord($table, $id = false, $warnings = null)
         $row = $rows[0];
         if ($table == 'users') {
             unset($row['password']);
+        }
+
+        // Include any custom price for a product
+        if ($table == '{prefix}product' && ($companyId = getRequest('company_id'))) {
+            $customPriceSettings = getCustomPriceSettings($companyId);
+            if (!$customPriceSettings['valid']) {
+                $customPriceSettings = null;
+            }
+            $customPrice = null;
+            if ($customPriceSettings) {
+                $customPrice = getCustomPrice($companyId, $id);
+                if (!$customPrice) {
+                    $unitPrice = $row['unit_price'];
+                    $unitPrice -= $unitPrice * $customPriceSettings['discount']
+                        / 100;
+                    $unitPrice *= $customPriceSettings['multiplier'];
+                    $customPrice = [
+                        'unit_price' => $unitPrice
+                    ];
+                }
+            }
+            $row['custom_price'] = $customPrice ? $customPrice : null;
         }
 
         // Fetch tags

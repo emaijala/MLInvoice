@@ -109,7 +109,10 @@ function htmlPageStart($strTitle = '', $arrExtraScripts = [])
         'ModifySelectedRows',
         'Modified',
         'ProductWeight',
-        'FutureDateEntered'
+        'FutureDateEntered',
+        'RecordSaved',
+        'RecordDeleted',
+        'ConfirmDelete'
     ];
 
     $res = mysqli_query_check(
@@ -145,8 +148,8 @@ function htmlPageStart($strTitle = '', $arrExtraScripts = [])
     $offerStatuses = json_encode($offerStatuses);
 
     $keepAlive = getSetting('session_keepalive') ? 'true' : 'false';
-
     $lang = Translator::translate('HTMLLanguageCode');
+    $currencyDecimals = getSetting('unit_price_decimals');
 
     $strHtmlStart = <<<EOT
 <!DOCTYPE html>
@@ -162,6 +165,7 @@ MLInvoice.addTranslations($jsTranslations);
 MLInvoice.setDispatchNotePrintStyle('$dispatchNotePrintStyle');
 MLInvoice.setOfferStatuses($offerStatuses);
 MLInvoice.setKeepAlive($keepAlive);
+MLInvoice.setCurrencyDecimals($currencyDecimals);
 $(document).ready(function() {
   $.datepicker.setDefaults($datePickerOptions);
   $('a.actionlink').not('.ui-state-disabled').button();
@@ -383,7 +387,7 @@ function getListBoxSelectedValue($options, $selected)
 }
 
 // Create form element
-function htmlFormElement($strName, $strType, $strValue, $strStyle, $strListQuery,
+function htmlFormElement($strName, $strType, $strValue, $strStyle, $strListQuery = '',
     $strMode = 'MODIFY', $strParentKey = NULL, $strTitle = '', $astrDefaults = [],
     $astrAdditionalAttributes = '', $options = NULL)
 {
