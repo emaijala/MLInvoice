@@ -42,7 +42,7 @@ trait InvoicePrinterEmailTrait
         $contacts = $this->getContactPersons();
         foreach ($contacts as $contact) {
             if ($contact && !empty($contact['email'])) {
-                if (!empty($contact['contact_person'])) {
+                if (!empty(trim($contact['contact_person']))) {
                     $email = str_replace(',', ' ', $contact['contact_person'])
                         . ' <' . $contact['email'] . '>';
                 } else {
@@ -225,10 +225,46 @@ $(document).ready(function() {
             'text/plain; format="flowed"'
         );
 
-        $message->setFrom($this->extractNameAndAddress($this->emailFrom));
-        $message->setTo($this->extractAddresses($this->emailTo));
-        $message->setCc($this->extractAddresses($this->emailCC));
-        $message->setBcc($this->extractAddresses($this->emailBCC));
+        try {
+            $message->setFrom($this->extractNameAndAddress($this->emailFrom));
+        } catch (Swift_RfcComplianceException $e) {
+            $this->showEmailForm(
+                Translator::translate(
+                    'InvalidEmailAddress', ['%%email%%' => $this->emailFrom]
+                )
+            );
+            return;
+        }
+        try {
+            $message->setTo($this->extractAddresses($this->emailTo));
+        } catch (Swift_RfcComplianceException $e) {
+            $this->showEmailForm(
+                Translator::translate(
+                    'InvalidEmailAddress', ['%%email%%' => $this->emailTo]
+                )
+            );
+            return;
+        }
+        try {
+            $message->setCc($this->extractAddresses($this->emailCC));
+        } catch (Swift_RfcComplianceException $e) {
+            $this->showEmailForm(
+                Translator::translate(
+                    'InvalidEmailAddress', ['%%email%%' => $this->emailCC]
+                )
+            );
+            return;
+        }
+        try {
+            $message->setBcc($this->extractAddresses($this->emailBCC));
+        } catch (Swift_RfcComplianceException $e) {
+            $this->showEmailForm(
+                Translator::translate(
+                    'InvalidEmailAddress', ['%%email%%' => $this->emailBCC]
+                )
+            );
+            return;
+        }
 
         if (!isset($this->printParams['attachment'])
             || $this->printParams['attachment']
@@ -343,7 +379,7 @@ $(document).ready(function() {
     {
         $name = $this->extractName($address);
         $address = $this->extractAddress($address);
-        return $name === '' ? $address : [$address => $name];
+        return trim($name) === '' ? $address : [$address => $name];
     }
 
     protected function extractAddresses($addresses)
@@ -356,7 +392,7 @@ $(document).ready(function() {
             foreach ($addresses as $idx => $address) {
                 $name = $this->extractName($address);
                 $addr = $this->extractAddress($address);
-                if ($name) {
+                if (trim($name) !== '') {
                     $result[$addr] = $name;
                 } else {
                     $result[$idx] = $addr;
