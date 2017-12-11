@@ -459,6 +459,9 @@ class ImportFile
         if ('company' === $table || 'company_contact' === $table) {
             $fieldDefs['tags'] = ['Type' => 'text'];
         }
+        if ('custom_price_map' === $table) {
+            $fieldDefs['company_id'] = ['Type' => 'int'];
+        }
         return $fieldDefs;
     }
 
@@ -889,6 +892,8 @@ function select_preset()
                 <option value="delivery_method"><?php echo Translator::translate('ImportExportTableDeliveryMethods')?></option>
                 <option value="stock_balance_log"><?php echo Translator::translate('ImportExportTableStockBalanceLog')?></option>
                 <option value="default_value"><?php echo Translator::translate('ImportExportTableDefaultValues')?></option>
+                <option value="custom_price"><?php echo Translator::translate('ImportExportTableCustomPrices')?></option>
+                <option value="custom_price_map"><?php echo Translator::translate('ImportExportTableCustomPriceMaps')?></option>
             </select>
         </div>
         <?php
@@ -1040,6 +1045,28 @@ function select_preset()
         $mode, $decimalSeparator, $fieldDefs, &$addedRecordId
     ) {
         global $dblink;
+
+        if ('custom_price_map' === $table && !isset($row['custom_price_id'])
+            && isset($row['company_id'])
+        ) {
+            static $customPrice = null;
+            if (!$customPrice || $customPrice['company_id'] != $row['company_id']) {
+                $customPrice = getCustomPriceSettings($row['company_id']);
+                if (!$customPrice) {
+                    $customPrice = setCustomPriceSettings(
+                        $row['company_id'],
+                        0,
+                        1,
+                        null
+                    );
+                    $customPrice = getCustomPriceSettings($row['company_id']);
+                }
+            }
+            if ($customPrice) {
+                $row['custom_price_id'] = $customPrice['id'];
+            }
+            unset($row['company_id']);
+        }
 
         foreach ($row as $key => &$value) {
             if (isset($fieldDefs[$key])) {

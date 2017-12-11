@@ -315,6 +315,9 @@ case 'get_table_columns' :
     if ('company' === $table || 'company_contact' === $table) {
         echo ",\n";
         echo json_encode(['name' => 'tags']);
+    } elseif ('custom_price_map' === $table) {
+        echo ",\n";
+        echo json_encode(['name' => 'company_id']);
     }
     echo "\n]}";
     break;
