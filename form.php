@@ -1329,10 +1329,6 @@ function multi_editor(event, title)
         <th class="label ui-state-default sort-col"> </th>
         <th class="label ui-state-default select-row"><input type="checkbox" id="cb-select-all" title="<?php echo $selectAll?>" aria-label="<?php echo $selectAll?>"></th>
         <?php
-    } else {
-        ?>
-        <th class="label ui-state-default select-row"></th>
-        <?php
     }
 
     foreach ($subFormElements as $subElem) {
