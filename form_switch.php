@@ -308,7 +308,8 @@ case 'company_contacts' :
             'label' => 'ContactPerson',
             'type' => 'TEXT',
             'style' => 'medium',
-            'position' => 0
+            'position' => 0,
+            'allow_null' => true
         ],
         [
             'name' => 'person_title',
