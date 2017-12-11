@@ -39,8 +39,8 @@ define('_DB_PASSWORD_', '');
 // Tietokannan nimi
 define('_DB_NAME_', 'mlinvoice');
 
-// Database table prefix
-// Tietokantataulujen prefix
+// Database table prefix. Note that an underscore is automatically added to this value unless empty.
+// Tietokantataulujen prefix. Huom! Alaviiva lisätään loppuun automaattisesti, ellei arvo ole tyhjä.
 define('_DB_PREFIX_', 'mlinvoice');
 
 // Whether verbose error messages are reported on html pages (true = yes, false = only in php error log)
