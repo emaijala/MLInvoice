@@ -247,7 +247,7 @@ if ('product' === $strList) {
                 <div class="field">
                     <?php echo htmlFormElement(
                         'valid_until', 'INTDATE', $customPriceSettings ? dateConvDBDate2Date($customPriceSettings['valid_until']) : '',
-                        'date' . ($customPriceSettings && $customPriceSettings['valid'] ? '' : ' ui-state-error')
+                        'date' . (!$customPriceSettings || $customPriceSettings['valid'] ? '' : ' ui-state-error')
                     );?>
                     <?php if ($customPriceSettings && !$customPriceSettings['valid']) { ?>
                         <i class="ui-icon ui-icon-alert"></i>
@@ -360,7 +360,7 @@ function createJSONList($strFunc, $strList, $startRow, $rowCount, $sort, $filter
         $strSelectClause .= ', ' .
              (isset($field['sql']) ? $field['sql'] : $field['name']);
     }
-    if ('product' === $strList && null !== $customPrices) {
+    if ('product' === $strList && $customPrices) {
         // Include any custom prices
         $strSelectClause .= <<<EOT
 , (SELECT unit_price FROM {prefix}custom_price_map pm WHERE pm.custom_price_id = ? AND pm.product_id = $strTable.id) custom_unit_price
