@@ -5,6 +5,7 @@ var MLInvoice = (function MLInvoice() {
     var _selectedProduct = null;
     var _defaultDescription = null;
     var _keepAliveEnabled = true;
+    var _currencyDecimals = 2;
 
     function addTranslation(key, value) {
         _translations[key] = value;
@@ -87,28 +88,29 @@ var MLInvoice = (function MLInvoice() {
 
     function _onChangeCompany() {
         $.getJSON('json.php?func=get_company', {id: $('#company_id').val() }, function(json) {
-        if (json) {
-            if (json.default_ref_number) {
-                $('#ref_number').val(json.default_ref_number);
+            if (json) {
+                if (json.default_ref_number) {
+                    $('#ref_number').val(json.default_ref_number);
+                }
+                if (json.delivery_terms_id) {
+                    $('#delivery_terms_id').val(json.delivery_terms_id);
+                }
+                if (json.delivery_method_id) {
+                    $('#delivery_method_id').val(json.delivery_method_id);
+                }
+                if (json.payment_days) {
+                    $.getJSON('json.php?func=get_invoice_defaults', {id: $('#record_id').val(), invoice_no: $('#invoice_no').val(), invoice_date: $('#invoice_date').val(), base_id: $('#base_id').val(), company_id: $('#company_id').val(), interval_type: $('#interval_type').val()}, function(json) {
+                        $('#due_date').val(json.due_date);
+                    });
+                }
             }
-            if (json.delivery_terms_id) {
-                $('#delivery_terms_id').val(json.delivery_terms_id);
-            }
-            if (json.delivery_method_id) {
-                $('#delivery_method_id').val(json.delivery_method_id);
-            }
-            if (json.payment_days) {
-                $.getJSON('json.php?func=get_invoice_defaults', {id: $('#record_id').val(), invoice_no: $('#invoice_no').val(), invoice_date: $('#invoice_date').val(), base_id: $('#base_id').val(), company_id: $('#company_id').val(), interval_type: $('#interval_type').val()}, function(json) {
-                    $('#due_date').val(json.due_date);
-                });
-            }
-        }
         });
     };
 
     function _onChangeProduct() {
         var form_id = this.form.id;
-        $.getJSON('json.php?func=get_product&id=' + this.value, function(json) {
+        var company_id = $('#company_id').val();
+        $.getJSON('json.php?func=get_product&id=' + this.value + '&company_id=' + company_id, function(json) {
             _selectedProduct = json;
             if (!json || !json.id) return;
 
@@ -125,13 +127,23 @@ var MLInvoice = (function MLInvoice() {
                     break;
                 }
             }
-            document.getElementById(form_id + '_price').value = json.unit_price ? formatCurrency(json.unit_price) : '';
+            var unitPrice = json.custom_price && json.custom_price.unit_price !== null
+                ? json.custom_price.unit_price : json.unit_price;
+            document.getElementById(form_id + '_price').value = json.unit_price ? formatCurrency(unitPrice) : '';
             document.getElementById(form_id + '_discount').value = json.discount ? json.discount.replace('.', ',') : '';
             document.getElementById(form_id + '_discount_amount').value = json.discount_amount ? formatCurrency(json.discount_amount) : '';
             document.getElementById(form_id + '_vat').value = json.vat_percent ? json.vat_percent.replace('.', ',') : '';
             document.getElementById(form_id + '_vat_included').checked = (json.vat_included && json.vat_included == 1) ? true : false;
         });
     };
+
+    function _onChangeCompanyReload() {
+        var loc = window.location.href;
+        loc = loc.replace(/[\?&]company=\d*/, '');
+        loc += loc.indexOf('?') >= 0 ? '&' : '?';
+        loc += 'company=' + this.value;
+        window.location.href = loc;
+    }
 
     function getSelectedProductDefaults(form_id) {
         if (null === _selectedProduct) {
@@ -155,9 +167,17 @@ var MLInvoice = (function MLInvoice() {
     };
 
     function _parseDate(dateString, _sep) {
+        if (!dateString) {
+            return null;
+        }
         var sep = typeof _sep === 'undefined' ? '' : _sep
         return dateString.substr(6, 4) + sep + dateString.substr(3, 2) + sep + dateString.substr(0, 2);
     };
+
+    function _parseFloat(value) {
+        var valueString = new String(value);
+        return valueString.replace(',', '.');
+    }
 
     function updateDispatchByDateButtons() {
         if (_dispatchNotePrintStyle == 'none' || _offerStatuses.indexOf($('#state_id').val()) !== -1) {
@@ -364,7 +384,8 @@ var MLInvoice = (function MLInvoice() {
         }
         var callbacks = {
             _onChangeCompany: _onChangeCompany,
-            _onChangeProduct: _onChangeProduct
+            _onChangeProduct: _onChangeProduct,
+            _onChangeCompanyReload: _onChangeCompanyReload
         };
         $(container).find('.select2').each(function () {
             var field = $(this);
@@ -379,11 +400,18 @@ var MLInvoice = (function MLInvoice() {
                     dataType: 'json',
                     quietMillis: 200,
                     data: function (term, page) {
-                        return {
+                        var params = {
                             q: term,
                             pagelen: 50,
                             page: page
-                        };
+                        }
+                        if ('iform_product_id' === field[0].id) {
+                            var $companyId = $('#company_id');
+                            if ($companyId.length && $companyId.val()) {
+                                params.company = $companyId.val();
+                            }
+                        }
+                        return params;
                     },
                     results: function (data, page) {
                         var records = [];
@@ -415,15 +443,15 @@ var MLInvoice = (function MLInvoice() {
                     }
                 },
                 formatResult: function (object) {
-                    var text = $('<div/>').text(object.text).html();
+                    var text = object.text;
                     $(object.descriptions).each(function () {
-                        var desc = $('<div/>').text(this).html();
-                        text += '<div class="select-description">' + desc + '</div>';
+                        text += '<div class="select-description">' + this + '</div>';
                     });
                     return text;
                 },
                 dropdownCssClass: 'bigdrop',
                 dropdownAutoWidth: true,
+                escapeMarkup: function (m) { return m; },
                 width: 'element'
             };
 
@@ -471,7 +499,7 @@ var MLInvoice = (function MLInvoice() {
 
     function formatCurrency(value, decimals) {
         if (typeof decimals === 'undefined') {
-            decimals = 2;
+            decimals = _currencyDecimals;
         }
         var decimalSep = translate('DecimalSeparator');
         var thousandSep = translate('ThousandSeparator');
@@ -500,6 +528,10 @@ var MLInvoice = (function MLInvoice() {
         _keepAliveEnabled = enable;
     }
 
+    function setCurrencyDecimals(value) {
+        _currencyDecimals = value;
+    }
+
     function _setupSelectAll() {
         $('#cb-select-all').click(function() {
             var table = $(this).closest('table');
@@ -515,6 +547,166 @@ var MLInvoice = (function MLInvoice() {
         $('#cover-letter-form .close-btn').click(function() {
             $('#cover-letter-form').addClass('hidden');
         });
+    }
+
+    function _setupCustomPricesForm() {
+        $('#add-custom-prices').click(function() {
+            $('#no-custom-prices').addClass('hidden');
+            $('#custom-prices-form').removeClass('hidden');
+        });
+        $('#custom-prices-form .save-button').click(function() {
+            var form = $('#custom-prices-form');
+            var values = {
+                company_id: $('#company_id').val(),
+                discount: _parseFloat(form.find('#discount').val()),
+                multiplier: _parseFloat(form.find('#multiplier').val()),
+                valid_until: _parseDate(form.find('#valid_until').val())
+            };
+            $.ajax({
+                'url': "json.php?func=put_custom_prices",
+                'type': 'POST',
+                'dataType': 'json',
+                'data': $.toJSON(values),
+                'contentType': 'application/json; charset=utf-8',
+                'success': function(data) {
+                    infomsg(translate('RecordSaved'), 2000);
+                    window.location.reload();
+                },
+                'error': function(XMLHTTPReq, textStatus, errorThrown) {
+                    if (textStatus == 'timeout') {
+                        errormsg('Timeout trying to save record');
+                    } else {
+                        errormsg('Error trying to save record: ' + XMLHTTPReq.status + ' - ' + XMLHTTPReq.statusText);
+                    }
+                }
+            });
+            return false;
+        });
+        $('#custom-prices-form .delete-button').click(function() {
+            if (!confirm(translate('ConfirmDelete'))) {
+                return;
+            }
+            var values = {
+                company_id: $('#company_id').val(),
+            };
+            $.ajax({
+                'url': "json.php?func=delete_custom_prices",
+                'type': 'POST',
+                'dataType': 'json',
+                'data': $.toJSON(values),
+                'contentType': 'application/json; charset=utf-8',
+                'success': function(data) {
+                    infomsg(translate('RecordDeleted'), 2000);
+                    window.location.reload();
+                },
+                'error': function(XMLHTTPReq, textStatus, errorThrown) {
+                    if (textStatus == 'timeout') {
+                        errormsg('Timeout trying to delete record');
+                    } else {
+                        errormsg('Error trying to delete record: ' + XMLHTTPReq.status + ' - ' + XMLHTTPReq.statusText);
+                    }
+                }
+            });
+            return false;
+        });
+    }
+
+    function editUnitPrice()
+    {
+        return _editUnitPrice(this);
+    }
+
+    function _editUnitPrice(cell)
+    {
+        var $item = $(cell);
+        var $tr = $item.parents('tr');
+        var $table = $item.parents('table').dataTable();
+        var origValue = $item.text();
+        var rowValues = $table.fnGetData($tr);
+
+        var cancelEdit = function cancelEdit() {
+            $item.text(origValue);
+            $item.removeClass('editing');
+        }
+
+        var saveEdit = function saveEdit() {
+            var $input = $item.find('input');
+            $input.css('width', $item.innerWidth() - 36)
+            $item.append('<img src="images/spinner.gif" alt="">');
+            var value = $input.val();
+            if (value == origValue) {
+                cancelEdit();
+                return;
+            }
+            var values = {
+                company_id: $('#company_id').val(),
+                product_id: rowValues[0],
+                unit_price: _parseFloat(value)
+            };
+            $.ajax({
+                'url': 'json.php?func=' + ('' === value ? 'delete_custom_price' : 'put_custom_price'),
+                'type': 'POST',
+                'dataType': 'json',
+                'data': $.toJSON(values),
+                'contentType': 'application/json; charset=utf-8',
+                'success': function(data) {
+                    $item.removeClass('editing');
+                    var newPrice = data.unit_price !== null ? formatCurrency(data.unit_price) : $table.fnGetData($item.prev().get(0));
+                    if ('' === value) {
+                        $item.text(newPrice);
+                        $tr.removeClass('custom-price');
+                    } else {
+                        $item.text(newPrice);
+                        $tr.addClass('custom-price');
+                    }
+                },
+                'error': function(XMLHTTPReq, textStatus, errorThrown) {
+                    if (textStatus == 'timeout') {
+                        errormsg('Timeout trying to save record');
+                    } else {
+                        errormsg('Error trying to save record: ' + XMLHTTPReq.status + ' - ' + XMLHTTPReq.statusText);
+                    }
+                    $item.text(value);
+                    $item.removeClass('editing');
+                }
+            });
+        }
+
+        var $input = $('<input/>').attr('type', 'text').attr('value', origValue)
+            .css('width', $item.innerWidth() - 12)
+            .keydown(function(event) {
+                if (event.which === 13) {
+                    $(this).data('handled', true);
+                    saveEdit();
+                } else if (event.which === 27) {
+                    $(this).data('handled', true);
+                    cancelEdit();
+                } else if (event.which === 9) {
+                    var $editables = $('td.editable');
+                    var index = $editables.index(cell);
+                    if (event.shiftKey) {
+                        if (index > 0) {
+                            $editables[index - 1].click();
+                        }
+                    } else {
+                        if ($editables.length > index + 1) {
+                            $editables[index + 1].click();
+                        }
+                    }
+                    return false;
+                }
+            })
+            .click(function() {
+                return false;
+            })
+            .blur(function(event) {
+                if (!$(this).data('handled')) {
+                    saveEdit();
+                }
+            });
+        $item.empty().addClass('editing').append($input);
+        $input.select().focus();
+        return false;
     }
 
     function updateRowSelectedState() {
@@ -537,6 +729,8 @@ var MLInvoice = (function MLInvoice() {
         }
         _setupSelectAll();
         _setupCoverLetterForm();
+        _setupCustomPricesForm();
+        initDateFields();
     };
 
     function initDateFields()
@@ -589,7 +783,6 @@ var MLInvoice = (function MLInvoice() {
       });
     }
 
-
     return {
         init: init,
         addTranslation: addTranslation,
@@ -606,7 +799,9 @@ var MLInvoice = (function MLInvoice() {
         updateRowSelectedState: updateRowSelectedState,
         initDateFields: initDateFields,
         infomsg: infomsg,
-        errormsg: errormsg
+        errormsg: errormsg,
+        editUnitPrice: editUnitPrice,
+        setCurrencyDecimals: setCurrencyDecimals
     }
 })();
 

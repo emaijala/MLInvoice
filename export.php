@@ -52,6 +52,8 @@ class ExportData
             }
             if ('company' === $table || 'company_contact' === $table) {
                 $field_defs['tags'] = ['Type' => 'text'];
+            } elseif ('custom_price_map' === $table) {
+                $field_defs['company_id'] = ['Type' => 'text'];
             }
 
             foreach ($columns as $key => $column) {
@@ -116,7 +118,14 @@ class ExportData
                 break;
             }
 
-            $query = "select * from {prefix}$table";
+            $select = "{prefix}$table.*";
+            if ('custom_price_map' === $table) {
+                $select .= <<<EOT
+, (SELECT company_id FROM {prefix}custom_price WHERE id = {prefix}$table.custom_price_id) company_id
+EOT;
+            }
+
+            $query = "SELECT $select FROM {prefix}$table";
             if (!$deletedRecords) {
                 if (isset($field_defs['deleted'])) {
                     $query .= ' where deleted=0';
@@ -350,6 +359,8 @@ class ExportData
                 <option value="delivery_method"><?php echo Translator::translate('ImportExportTableDeliveryMethods')?></option>
                 <option value="stock_balance_log"><?php echo Translator::translate('ImportExportTableStockBalanceLog')?></option>
                 <option value="default_value"><?php echo Translator::translate('ImportExportTableDefaultValues')?></option>
+                <option value="custom_price"><?php echo Translator::translate('ImportExportTableCustomPrices')?></option>
+                <option value="custom_price_map"><?php echo Translator::translate('ImportExportTableCustomPriceMaps')?></option>
             </select>
         </div>
 

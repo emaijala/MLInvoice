@@ -547,3 +547,15 @@ img.image {
 #cover-letter-form-inner {
   padding: 16px;
 }
+
+#custom-prices .label {
+  float: left;
+  margin-top: 5px;
+  margin-right: 8px;
+}
+#custom-prices .field {
+  margin-right: 8px;
+}
+.not-valid {
+  text-decoration: line-through;
+}

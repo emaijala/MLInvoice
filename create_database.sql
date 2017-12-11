@@ -206,6 +206,28 @@ CREATE TABLE mlinvoice_product (
   FOREIGN KEY (type_id) REFERENCES mlinvoice_row_type(id)
 ) ENGINE=INNODB CHARACTER SET utf8 COLLATE utf8_swedish_ci;
 
+CREATE TABLE mlinvoice_custom_price (
+  id int(11) NOT NULL auto_increment,
+  company_id int(11) NOT NULL,
+  discount decimal(4,1) NULL,
+  multiplier decimal(10,5) NULL,
+  valid_until int(11) default NULL,
+  PRIMARY KEY (id),
+  FOREIGN KEY (company_id) REFERENCES mlinvoice_company(id) ON DELETE CASCADE
+) ENGINE=INNODB CHARACTER SET utf8 COLLATE utf8_swedish_ci;
+
+CREATE TABLE mlinvoice_custom_price_map (
+  id int(11) NOT NULL auto_increment,
+  custom_price_id int(11) NOT NULL,
+  product_id int(11) NOT NULL,
+  unit_price decimal(15,5) NULL,
+  discount decimal(4,1) NULL,
+  discount_amount decimal(15,5) NULL,
+  PRIMARY KEY (id),
+  FOREIGN KEY (custom_price_id) REFERENCES mlinvoice_custom_price(id) ON DELETE CASCADE,
+  FOREIGN KEY (product_id) REFERENCES mlinvoice_product(id) ON DELETE CASCADE
+) ENGINE=INNODB CHARACTER SET utf8 COLLATE utf8_swedish_ci;
+
 CREATE TABLE mlinvoice_invoice (
   id int(11) NOT NULL auto_increment,
   deleted tinyint NOT NULL default 0,
@@ -354,7 +376,7 @@ CREATE TABLE mlinvoice_default_value (
 
 SET NAMES 'utf8';
 
-INSERT INTO mlinvoice_state (id, data) VALUES ('version', '55');
+INSERT INTO mlinvoice_state (id, data) VALUES ('version', '56');
 
 INSERT INTO mlinvoice_state (id, data) VALUES ('tableconversiondone', '1');
 

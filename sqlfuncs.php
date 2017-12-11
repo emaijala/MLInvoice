@@ -333,6 +333,178 @@ function getDefaultValue($id)
     return $rows ? $rows[0]['content'] : null;
 }
 
+/**
+ * Get a product
+ *
+ * @param int $productId Product ID
+ *
+ * @return array
+ */
+function getProduct($productId)
+{
+    $rows = db_param_query(
+        'SELECT * FROM {prefix}product WHERE id=?',
+        [$productId]
+    );
+    return $rows ? $rows[0] : [];
+}
+
+/**
+ * Get company specific price settings
+ *
+ * @param int $companyId Company ID
+ *
+ * @return array
+ */
+function getCustomPriceSettings($companyId)
+{
+    $rows = db_param_query(
+        'SELECT * FROM {prefix}custom_price WHERE company_id=?',
+        [$companyId]
+    );
+    if ($rows) {
+        $result = $rows[0];
+        $result['valid'] = empty($result['valid_until'])
+            || $result['valid_until'] >= date('Ymd');
+        return $result;
+    }
+    return [];
+}
+
+/**
+ * Set company specific price settings
+ *
+ * @param int   $companyId  Company ID
+ * @param float $discount   Discount percentage
+ * @param float $multiplier Price multiplier
+ * @param int   $validUntil Valid until date
+ *
+ * @return void
+ */
+function setCustomPriceSettings($companyId, $discount, $multiplier, $validUntil)
+{
+    $settings = getCustomPriceSettings($companyId);
+    if ($settings) {
+        db_param_query(
+            'UPDATE {prefix}custom_price SET discount=?, multiplier=?'
+            . ', valid_until=? WHERE id=?',
+            [$discount, $multiplier, $validUntil, $settings['id']]
+        );
+    } else {
+        db_param_query(
+            'INSERT INTO {prefix}custom_price (company_id, discount, multiplier'
+            . ', valid_until) VALUES (?, ?, ?, ?)',
+            [$companyId, $discount, $multiplier, $validUntil]
+        );
+    }
+}
+
+/**
+ * Delete company specific price settings
+ *
+ * @param int $companyId Company ID
+ *
+ * @return void
+ */
+function deleteCustomPriceSettings($companyId)
+{
+    db_param_query(
+        'DELETE FROM {prefix}custom_price WHERE company_id=?', [$companyId]
+    );
+}
+
+/**
+ * Get company specific price for a product
+ *
+ * @param int $companyId Company ID
+ * @param int $productId Product ID
+ *
+ * @return array
+ */
+function getCustomPrice($companyId, $productId)
+{
+    $rows = db_param_query(
+        <<<EOT
+SELECT * FROM {prefix}custom_price_map WHERE product_id=? AND custom_price_id IN (
+    SELECT id FROM {prefix}custom_price WHERE company_id=?
+)
+EOT
+        ,
+        [$productId, $companyId]
+    );
+    return $rows ? $rows[0] : [];
+}
+
+/**
+ * Set company specific product price
+ *
+ * @param int   $companyId  Company ID
+ * @param int   $productId  Product ID
+ * @param float $unitPrice  Unit price
+ *
+ * @return void
+ */
+function setCustomPrice($companyId, $productId, $unitPrice)
+{
+    mysqli_query_check('BEGIN');
+    try {
+        $customPrices = getCustomPriceSettings($companyId);
+        if (!$customPrices) {
+            die('No custom prices defined for the company');
+        }
+        db_param_query(
+            <<<EOT
+DELETE FROM {prefix}custom_price_map WHERE product_id=? AND custom_price_id=?
+EOT
+            ,
+            [$productId, $customPrices['id']]
+        );
+        db_param_query(
+            <<<EOT
+INSERT INTO {prefix}custom_price_map (custom_price_id, product_id, unit_price)
+    VALUES (?, ?, ?)
+EOT
+            ,
+            [$customPrices['id'], $productId, $unitPrice]
+        );
+    } catch (Exception $e) {
+        mysqli_query_check('ROLLBACK');
+        throw $e;
+    }
+    mysqli_query_check('COMMIT');
+}
+
+/**
+ * Delete company specific product price
+ *
+ * @param int $companyId Company ID
+ * @param int $productId Product ID
+ *
+ * @return void
+ */
+function deleteCustomPrice($companyId, $productId)
+{
+    $customPrices = getCustomPriceSettings($companyId);
+    if (!$customPrices) {
+        return;
+    }
+    db_param_query(
+        <<<EOT
+DELETE FROM {prefix}custom_price_map WHERE product_id=? AND custom_price_id=?
+EOT
+        ,
+        [$productId, $customPrices['id']]
+    );
+}
+
+/**
+ * Delete a record by ID
+ *
+ * @param string $table Table name
+ * @param int    $id    Record ID
+ *
+ * @return void
+ */
 function deleteRecord($table, $id)
 {
     mysqli_query_check('BEGIN');
@@ -362,6 +534,14 @@ function deleteRecord($table, $id)
     mysqli_query_check('COMMIT');
 }
 
+/**
+ * Perform a query and check the result but don't return any data
+ *
+ * @param string $query  SQL query
+ * @param bool   $noFail Whether to return an error code instead of dying on error
+ *
+ * @return int
+ */
 function mysqli_query_check($query, $noFail = false)
 {
     global $dblink;
@@ -573,6 +753,8 @@ function create_db_dump()
         'session',
         'print_template',
         'default_value',
+        'custom_price',
+        'custom_price_map',
         'state'
     ];
 
@@ -1313,6 +1495,40 @@ EOT
             [
                 'ALTER TABLE {prefix}product ADD COLUMN weight decimal(15,5) NULL',
                 "REPLACE INTO {prefix}state (id, data) VALUES ('version', '55')"
+            ]
+        );
+    }
+
+    if ($version < 56) {
+        $updates = array_merge(
+            $updates,
+            [
+                <<<EOT
+    CREATE TABLE {prefix}custom_price (
+        id int(11) NOT NULL auto_increment,
+        company_id int(11) NOT NULL,
+        discount decimal(4,1) NULL,
+        multiplier decimal(10,5) NULL,
+        valid_until int(11) default NULL,
+        PRIMARY KEY (id),
+        FOREIGN KEY (company_id) REFERENCES {prefix}company(id) ON DELETE CASCADE
+    ) ENGINE=INNODB CHARACTER SET utf8 COLLATE utf8_swedish_ci;
+EOT
+                , <<<EOT
+    CREATE TABLE {prefix}custom_price_map (
+        id int(11) NOT NULL auto_increment,
+        custom_price_id int(11) NOT NULL,
+        product_id int(11) NOT NULL,
+        unit_price decimal(15,5) NULL,
+        discount decimal(4,1) NULL,
+        discount_amount decimal(15,5) NULL,
+        PRIMARY KEY (id),
+        FOREIGN KEY (custom_price_id) REFERENCES {prefix}custom_price(id) ON DELETE CASCADE,
+        FOREIGN KEY (product_id) REFERENCES {prefix}product(id) ON DELETE CASCADE
+    ) ENGINE=INNODB CHARACTER SET utf8 COLLATE utf8_swedish_ci;
+EOT
+                ,
+                "REPLACE INTO {prefix}state (id, data) VALUES ('version', '56')"
             ]
         );
     }
