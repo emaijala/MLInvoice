@@ -753,6 +753,8 @@ function create_db_dump()
         'session',
         'print_template',
         'default_value',
+        'custom_price',
+        'custom_price_map',
         'state'
     ];
 
