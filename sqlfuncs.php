@@ -383,27 +383,20 @@ function getCustomPriceSettings($companyId)
  */
 function setCustomPriceSettings($companyId, $discount, $multiplier, $validUntil)
 {
-    mysqli_query_check('BEGIN');
-    try {
-        $settings = getCustomPriceSettings($companyId);
-        if ($settings) {
-            db_param_query(
-                'UPDATE {prefix}custom_price SET discount=?, multiplier=?'
-                . ', valid_until=? WHERE id=?',
-                [$discount, $multiplier, $validUntil, $settings['id']]
-            );
-        } else {
-            db_param_query(
-                'INSERT INTO {prefix}custom_price (company_id, discount, multiplier'
-                . ', valid_until) VALUES (?, ?, ?, ?)',
-                [$companyId, $discount, $multiplier, $validUntil]
-            );
-        }
-    } catch (Exception $e) {
-        mysqli_query_check('ROLLBACK');
-        throw $e;
+    $settings = getCustomPriceSettings($companyId);
+    if ($settings) {
+        db_param_query(
+            'UPDATE {prefix}custom_price SET discount=?, multiplier=?'
+            . ', valid_until=? WHERE id=?',
+            [$discount, $multiplier, $validUntil, $settings['id']]
+        );
+    } else {
+        db_param_query(
+            'INSERT INTO {prefix}custom_price (company_id, discount, multiplier'
+            . ', valid_until) VALUES (?, ?, ?, ?)',
+            [$companyId, $discount, $multiplier, $validUntil]
+        );
     }
-    mysqli_query_check('COMMIT');
 }
 
 /**
