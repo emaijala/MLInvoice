@@ -2,8 +2,10 @@
 
 VERSION=$1
 
+BRANCH=$2 || "master"
+
 if [[ ! "$VERSION"  ]]; then
-  echo "Usage: $0 <version>"
+  echo "Usage: $0 <version> [branch]"
   exit 1
 fi
 
@@ -26,7 +28,7 @@ function cleanup {
 trap cleanup EXIT
 
 cd $MLINVOICE_DIR
-git archive --format zip --prefix mlinvoice/ --output $OUTPUT_FILE master
+git archive --format zip --prefix mlinvoice/ --output $OUTPUT_FILE $BRANCH
 cd $TMP_DIR
 unzip $OUTPUT_FILE
 cd mlinvoice
