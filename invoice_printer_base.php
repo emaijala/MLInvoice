@@ -2279,6 +2279,8 @@ abstract class InvoicePrinterBase
             return Translator::translate('invoice::FirstReminderHeader');
         } elseif ($this->invoiceData['state_id'] == 6) {
             return Translator::translate('invoice::SecondReminderHeader');
+        } elseif ($this->invoiceData['refunded_invoice_no'] || $this->totalSum < 0) {
+            return Translator::translate('invoice::CreditInvoiceHeader');
         }
         return Translator::translate('invoice::InvoiceHeader');
     }
