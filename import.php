@@ -1539,7 +1539,11 @@ function select_preset()
             }
         }
 
-        echo '    ' . Translator::translate('ImportDone') . "\n";
+        if ('import' === $importMode) {
+            echo '    ' . Translator::translate('ImportDone') . "\n";
+        } else {
+            echo '    ' . Translator::translate('ImportSimulationDone') . "\n";
+        }
         ?>
     </div>
 <?php

@@ -420,7 +420,10 @@ EOT;
 
                 $msg = str_replace(
                     '{statementAmount}', miscRound2Decim($amount),
-                    Translator::translate('ImportStatementPartialPayment')
+                    Translator::translate(
+                        $mode == 'import' ? 'ImportStatementPartialPayment'
+                            : 'ImportStatementPartialPaymentSimulation'
+                    )
                 );
                 $msg = str_replace(
                     '{invoiceAmount}', miscRound2Decim($totalToPay), $msg
@@ -453,11 +456,14 @@ EOT;
             $sql .= ' WHERE id = ?';
             db_param_query($sql, [$date, $row['id']]);
         }
+        $msgId = $archive
+            ? 'ImportStatementInvoiceMarkedAsPaidAndArchived'
+            : 'ImportStatementInvoiceMarkedAsPaid';
+        if ('import' !== $mode) {
+            $msgId .= 'Simulation';
+        }
         $msg = str_replace(
-            '{amount}', miscRound2Decim($amount),
-            $archive
-                ? Translator::translate('ImportStatementInvoiceMarkedAsPaidAndArchived')
-                : Translator::translate('ImportStatementInvoiceMarkedAsPaid')
+            '{amount}', miscRound2Decim($amount), Translator::translate($msgId)
         );
         $msg = str_replace('{id}', $row['id'], $msg);
         $msg = str_replace('{date}', dateConvDBDate2Date($date), $msg);
