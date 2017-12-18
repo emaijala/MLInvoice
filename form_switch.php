@@ -1903,6 +1903,13 @@ case 'default_value' :
             'type' => 'AREA',
             'style' => 'xxlarge',
             'position' => 0
+        ],
+        [
+            'name' => 'additional',
+            'label' => 'AddInfo',
+            'type' => 'AREA',
+            'style' => 'xxlarge',
+            'position' => 0
         ]
     ];
     break;

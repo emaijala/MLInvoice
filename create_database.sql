@@ -371,12 +371,13 @@ CREATE TABLE mlinvoice_default_value (
   order_no int(11) default NULL,
   type varchar(100) NULL,
   content text NULL,
+  additional text NULL,
   PRIMARY KEY (id)
 ) ENGINE=INNODB CHARACTER SET utf8 COLLATE utf8_swedish_ci;
 
 SET NAMES 'utf8';
 
-INSERT INTO mlinvoice_state (id, data) VALUES ('version', '56');
+INSERT INTO mlinvoice_state (id, data) VALUES ('version', '57');
 
 INSERT INTO mlinvoice_state (id, data) VALUES ('tableconversiondone', '1');
 

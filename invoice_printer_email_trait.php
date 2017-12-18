@@ -37,7 +37,12 @@ trait InvoicePrinterEmailTrait
         $recipientData = $this->recipientData;
         $invoiceData = $this->invoiceData;
 
-        $defaultRecipient = isset($recipientData['email']) ? $recipientData['email'] : '';
+        $defaultId = getRequest('default_body_text');
+        $defaultValue = $defaultId ? getDefaultValue($defaultId, true) : null;
+        $defaultSettings = $this->parseDefaultSettings($defaultValue);
+
+        $defaultRecipient = isset($recipientData['email'])
+            ? $recipientData['email'] : '';
         $recipients = [];
         $contacts = $this->getContactPersons();
         foreach ($contacts as $contact) {
@@ -55,7 +60,8 @@ trait InvoicePrinterEmailTrait
             $defaultRecipient = implode(', ', $recipients);
         }
 
-        $this->emailFrom = getRequest('email_from', '');
+        $this->emailFrom = !empty($defaultSettings['from'])
+            ? $defaultSettings['from'] : getRequest('email_from', '');
         if (!$this->emailFrom) {
             if (!empty($senderData['invoice_email_from'])) {
                 $this->emailFrom = $senderData['invoice_email_from'];
@@ -64,23 +70,23 @@ trait InvoicePrinterEmailTrait
             }
         }
         $this->emailTo = getRequest('email_to', $defaultRecipient);
-        $this->emailCC = getRequest('email_cc', '');
-        $this->emailBCC = getRequest(
-            'email_bcc',
-            isset($senderData['invoice_email_bcc'])
-            ? $senderData['invoice_email_bcc'] : ''
-        );
+        $this->emailCC = !empty($defaultSettings['cc'])
+            ? $defaultSettings['cc'] : getRequest('email_cc', '');
+        $this->emailBCC = !empty($defaultSettings['bcc'])
+            ? $defaultSettings['bcc'] : getRequest(
+                'email_bcc',
+                isset($senderData['invoice_email_bcc'])
+                ? $senderData['invoice_email_bcc'] : ''
+            );
         $this->emailSubject = $this->replacePlaceholders(
-            getRequest('email_subject', $this->getDefaultSubject())
+            !empty($defaultSettings['subject'])
+                ? $defaultSettings['subject']
+                : getRequest('email_subject', $this->getDefaultSubject())
         );
 
         $emailBody = '';
-        $id = getRequest('default_body_text');
-        if ($id) {
-            $value = getDefaultValue($id);
-            if ($value) {
-                $emailBody = $value;
-            }
+        if (!empty($defaultValue['content'])) {
+            $emailBody = $defaultValue['content'];
         }
 
         $this->emailBody = $this->replacePlaceholders(
@@ -400,5 +406,20 @@ $(document).ready(function() {
             }
         }
         return $result;
+    }
+
+    protected function parseDefaultSettings($defaultValue)
+    {
+        if (empty($defaultValue['additional'])) {
+            return [];
+        }
+        $settings = [];
+        foreach (explode("\n", $defaultValue['additional']) as $line) {
+            $parts = explode(':', $line, 2);
+            if (isset($parts[1])) {
+                $settings[strtolower(trim($parts[0]))] = trim($parts[1]);
+            }
+        }
+        return $settings;
     }
 }

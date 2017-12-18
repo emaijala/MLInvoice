@@ -849,7 +849,7 @@ function select_preset()
             <select id="preset" name="preset" onchange="select_preset()">
             <?php
             foreach ($this->presets as $preset) {
-                echo "<option value=\"${preset['value']}\""
+                echo "<option value=\"{$preset['value']}\""
                     . ($selectedPreset['value'] == $preset['value'] ? ' selected="selected"' : '')
                     . '>' . $preset['name'] . "</option>\n";
             }

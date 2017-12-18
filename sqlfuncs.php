@@ -322,15 +322,18 @@ EOT
  *
  * @param int $id Record ID
  *
- * @return mixed String or null
+ * @return mixed String, array if $full or null
  */
-function getDefaultValue($id)
+function getDefaultValue($id, $full = false)
 {
     $rows = db_param_query(
-        'SELECT content FROM {prefix}default_value WHERE id=?',
+        'SELECT * FROM {prefix}default_value WHERE id=?',
         [$id]
     );
-    return $rows ? $rows[0]['content'] : null;
+    if (!$rows) {
+        return null;
+    }
+    return $full ? $rows[0] : $rows[0]['content'];
 }
 
 /**
@@ -1529,6 +1532,16 @@ EOT
 EOT
                 ,
                 "REPLACE INTO {prefix}state (id, data) VALUES ('version', '56')"
+            ]
+        );
+    }
+
+    if ($version < 57) {
+        $updates = array_merge(
+            $updates,
+            [
+                'ALTER TABLE {prefix}default_value ADD COLUMN additional text NULL',
+                "REPLACE INTO {prefix}state (id, data) VALUES ('version', '57')"
             ]
         );
     }
