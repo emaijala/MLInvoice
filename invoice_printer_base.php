@@ -2147,6 +2147,36 @@ abstract class InvoicePrinterBase
                     }
                     $values[] = $str;
                     break;
+                case 'pdf_link':
+                    $url = getSetting('pdf_link_base_url');
+                    if ($url) {
+                        include_once 'hmac.php';
+                        $language = isset($pcparts[2])
+                            ? $pcparts[2] : $this->printLanguage;
+                        $uuid = $this->invoiceData['uuid'];
+                        $ts = time();
+                        $hash = HMAC::createHMAC(
+                            [
+                                $this->printTemplateId,
+                                $language,
+                                $uuid,
+                                $ts
+                            ]
+                        );
+                        $vars = [
+                            't' => $this->printTemplateId,
+                            'l' => $language,
+                            'i' => $uuid,
+                            'c' => $hash,
+                            's' => $ts
+                        ];
+                        $url .= strpos($url, '?') !== false ? '&' : '?';
+                        $url .= http_build_query($vars);
+                        $values[] = $url;
+                    } else {
+                        $values[] = '';
+                    }
+                    break;
                 default :
                     $value = isset($this->invoiceData[$pcparts[1]])
                         ? $this->invoiceData[$pcparts[1]] : '';
@@ -2184,35 +2214,6 @@ abstract class InvoicePrinterBase
                     $values[] = date(Translator::translate('DateFormat'));
                 } elseif ('datetime' === $pcparts[1]) {
                     $values[] = date(Translator::translate('DateTimeFormat'));
-                } elseif ('pdf_link' === $pcparts[1]) {
-                    $url = getSetting('pdf_link_base_url');
-                    if ($url) {
-                        include_once 'hmac.php';
-                        $language = isset($pcparts[2])
-                            ? $pcparts[2] : $this->printLanguage;
-                        $uuid = $this->invoiceData['uuid'];
-                        $ts = time();
-                        $hash = HMAC::createHMAC(
-                            [
-                                $this->printTemplateId,
-                                $language,
-                                $uuid,
-                                $ts
-                            ]
-                        );
-                        $vars = [
-                            't' => $this->printTemplateId,
-                            'l' => $language,
-                            'i' => $uuid,
-                            'c' => $hash,
-                            's' => $ts
-                        ];
-                        $url .= strpos($url, '?') !== false ? '&' : '?';
-                        $url .= http_build_query($vars);
-                        $values[] = $url;
-                    } else {
-                        $values[] = '';
-                    }
                 }
                 break;
             default:
