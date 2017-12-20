@@ -2,7 +2,9 @@
 
 VERSION=$1
 
-BRANCH=$2 || "master"
+BRANCH=${2:-"master"}
+
+echo "Branch $BRANCH"
 
 if [[ ! "$VERSION"  ]]; then
   echo "Usage: $0 <version> [branch]"
