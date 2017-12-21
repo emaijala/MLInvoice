@@ -1507,7 +1507,7 @@ function createFormButtons($form, $new, $copyLinkOverride, $spinner, $readOnlyFo
         }
     }
     if ($form === 'company') {
-        if (!!$readOnlyForm) {
+        if (!$readOnlyForm) {
 ?>
         <a class="actionlink ytj_search_button" href="#"><?php echo Translator::translate('SearchYTJ')?></a>
 <?php
