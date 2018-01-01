@@ -783,6 +783,62 @@ var MLInvoice = (function MLInvoice() {
       });
     }
 
+    function checkForUpdates(url, currentVersion)
+    {
+        if ($.cookie('updateversion')) {
+            _updateVersionMessage($.parseJSON($.cookie('updateversion')), currentVersion);
+            return;
+        }
+        $.getJSON(url + '?callback=?', function(data) {
+            _updateVersionMessage(data, currentVersion);
+        });
+    }
+
+    function _compareVersionNumber(v1, v2)
+    {
+        v1 = v1.split('.');
+        v2 = v2.split('.');
+
+        while (v1.length < v2.length) {
+        v1.push(0);
+        }
+        while (v2.length < v1.length) {
+        v2.push(0);
+        }
+
+        for (i = 0; i < v1.length; i++)
+        {
+        if (v1[i] === v2[i]) {
+            continue;
+        }
+        return parseInt(v1[i]) > parseInt(v2[i]) ? 1 : -1;
+        }
+        return 0;
+    }
+
+    function _updateVersionMessage(data, currentVersion)
+    {
+        var result = _compareVersionNumber(data.version, currentVersion);
+        if (result > 0) {
+            var title = translate(
+                'UpdateAvailableTitle',
+                {
+                    '{version}': data.version,
+                    '{date}': data.date
+                }
+            );
+            var $span = $('<span/>').attr('title', title).text(translate('UpdateAvailable') + ' ');
+            $('<br/>').appendTo($span);
+            $('<a/>').attr('href', data.url).text(translate('UpdateInformation')).appendTo($span);
+            $('<br/>').appendTo($span);
+            $('<a/>').attr('href', 'index.php?func=system&operation=update').text(translate('UpdateNow')).appendTo($span);
+            $span.appendTo('#version');
+        } else if (result < 0) {
+            $('<span/>').text(translate('PrereleaseVersion')).appendTo('#version');
+        }
+        $.cookie('updateversion', $.toJSON(data), { expires: 1 });
+    }
+
     return {
         init: init,
         addTranslation: addTranslation,
@@ -801,7 +857,8 @@ var MLInvoice = (function MLInvoice() {
         infomsg: infomsg,
         errormsg: errormsg,
         editUnitPrice: editUnitPrice,
-        setCurrencyDecimals: setCurrencyDecimals
+        setCurrencyDecimals: setCurrencyDecimals,
+        checkForUpdates: checkForUpdates
     }
 })();
 

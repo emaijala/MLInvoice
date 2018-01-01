@@ -114,69 +114,38 @@ if ($strFunc == 'open_invoices' && !$strForm) {
   </div>
 <?php
     if (getSetting('check_updates')) {
+        $address = defined('_UPDATE_ADDRESS_') ? _UPDATE_ADDRESS_
+            : 'https://www.labs.fi/mlinvoice_version.php';
         ?>
   <script type="text/javascript">
     $(document).ready(function() {
-      if ($.cookie("updateversion")) {
-        updateVersionMessage($.parseJSON($.cookie("updateversion")));
-        return;
-      }
-        $.getJSON('https://www.labs.fi/mlinvoice_version.php?callback=?', function(data) {
-          updateVersionMessage(data);
-        });
+      MLInvoice.checkForUpdates('<?php echo $address?>', '<?php echo $softwareVersion?>');
     });
-
-    function compareVersionNumber(v1, v2)
-    {
-      v1 = v1.split('.');
-      v2 = v2.split('.');
-
-      while (v1.length < v2.length) {
-        v1.push(0);
-      }
-      while (v2.length < v1.length) {
-        v2.push(0);
-      }
-
-      for (i = 0; i < v1.length; i++)
-      {
-        if (v1[i] === v2[i]) {
-          continue;
-        }
-        return parseInt(v1[i]) > parseInt(v2[i]) ? 1 : -1;
-      }
-      return 0;
-    }
-
-    function updateVersionMessage(data)
-    {
-        var title = new String("<?php echo Translator::translate('UpdateAvailableTitle')?>").replace("{version}", data.version).replace("{date}", data.date);
-        var result = compareVersionNumber(data.version, "<?php echo $softwareVersion?>");
-      if (result > 0) {
-        $("<a/>").attr("href", data.url).attr("title", title).text("<?php echo Translator::translate('UpdateAvailable')?>").appendTo("#version");
-      } else if (result < 0) {
-        $("<span/>").text("<?php echo Translator::translate('PrereleaseVersion')?>").appendTo("#version");
-      }
-      $.cookie("updateversion", $.toJSON(data), { expires: 1 });
-    }
   </script>
 <?php
     }
 }
-if ($strFunc == 'system' && getRequest('operation', '') == 'export' &&
-    sesAdminAccess()
+if ($strFunc == 'system' && getRequest('operation', '') == 'export'
+    && sesAdminAccess()
 ) {
     createFuncMenu($strFunc);
     include_once 'export.php';
     $export = new ExportData();
     $export->launch();
-} elseif ($strFunc == 'system' && getRequest('operation', '') == 'import' &&
-    sesAdminAccess()
+} elseif ($strFunc == 'system' && getRequest('operation', '') == 'import'
+    && sesAdminAccess()
 ) {
     createFuncMenu($strFunc);
     include_once 'import.php';
     $import = new ImportFile();
     $import->launch();
+} elseif ($strFunc == 'system' && getRequest('operation', '') == 'update'
+    && sesAdminAccess()
+) {
+    createFuncMenu($strFunc);
+    include_once 'updater.php';
+    $updater = new Updater();
+    $updater->launch();
 } elseif ($strFunc == 'import_statement') {
     createFuncMenu($strFunc);
     include_once 'import_statement.php';

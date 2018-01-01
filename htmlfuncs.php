@@ -122,6 +122,18 @@ function htmlPageStart($strTitle = '', $arrExtraScripts = [])
         $translations[] = $row;
     }
 
+    if (getSetting('check_updates')) {
+        $translations = array_merge(
+            $translations,
+            [
+                'UpdateAvailable',
+                'UpdateAvailableTitle',
+                'UpdateInformation',
+                'UpdateNow'
+            ]
+        );
+    }
+
     $jsTranslations = [];
     foreach ($translations as $translation) {
         $translated = Translator::translate($translation);
@@ -129,6 +141,7 @@ function htmlPageStart($strTitle = '', $arrExtraScripts = [])
             $jsTranslations[$translation] = $translated;
         }
     }
+
     $jsTranslations = json_encode($jsTranslations);
 
     $dispatchNotePrintStyle = 'none';
