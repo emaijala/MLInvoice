@@ -528,7 +528,7 @@ function printJSONRecord($table, $id = false, $warnings = null)
         // Include any custom price for a product
         if ($table == '{prefix}product' && ($companyId = getRequest('company_id'))) {
             $customPriceSettings = getCustomPriceSettings($companyId);
-            if (!$customPriceSettings['valid']) {
+            if (empty($customPriceSettings['valid'])) {
                 $customPriceSettings = null;
             }
             $customPrice = null;
