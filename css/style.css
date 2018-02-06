@@ -69,6 +69,7 @@ div.list_container {
 div.message {
   margin: 2px;
   padding: 2px;
+  display: inline-block;
 }
 
 span.message {

@@ -158,8 +158,8 @@ EOT;
         && strDate2UnixTime($astrValues['next_interval_date']) <= time()
     ) {
 ?>
-    <div class="ui-widget ui-button ui-button-text-only ui-state-highlight">
-      <span class="ui-button-text"><?php echo Translator::translate('CreateCopyForNextInvoice')?></span>
+    <div class="ui-state-highlight ui-border-all message">
+      <?php echo Translator::translate('CreateCopyForNextInvoice')?>
     </div>
 <?php
     }

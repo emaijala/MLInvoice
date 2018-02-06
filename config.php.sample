@@ -83,6 +83,14 @@ define('_SESSION_RESTRICT_PATH_', true);
 // Aikavyöhyke. Määritelty tyypillisesti PHP-asetuksissa, mutta voidaan määritellä tässä MLInvoicea varten.
 //date_default_timezone_set('Europe/Helsinki');
 
+// Directory for temporary files. By default the system-provided directory is used, but this setting can be used to override it.
+// Väliaikaistiedostojen hakemisto. Oletuksena käytetään järjestelmän määrittelemää hakemistoa, mutta tällä asetuksella se voidaan vaihtaa toiseen.
+//define('_TEMP_DIR_', '/tmp');
+
+// Version check address used if checking for new versions is enabled from general settings. Change only if necessary.
+// Versiotarkistuksen osoite, jota käytetään, jos uusien versioiden tarkistus on käytössä yleisissä asetuksissa. Vaihda vain, jos välttämätöntä.
+//define('_UPDATE_ADDRESS_', 'https://www.labs.fi/mlinvoice_version.php');
+
 // Mail settings. By default the PHP mail() command is used, but an sendmail or an external SMTP server can be used by changing these settings.
 // Sähköpostiasetukset. Oletuksena käytetään PHP:n mail()-komentoa, mutta muokkaamalla näitä asetuksia voidaan käyttää sendmail-komentoa tai ulkoista SMTP-palvelinta.
 // See http://swiftmailer.org/docs/sending.html for more information on the settings for the mail component.

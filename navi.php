@@ -101,6 +101,13 @@ function createFuncMenu($strFunc)
                 'levels_allowed' => [
                     ROLE_ADMIN
                 ]
+            ],
+            [
+                'href' => 'operation=update',
+                'text' => Translator::translate('Update'),
+                'levels_allowed' => [
+                    ROLE_ADMIN
+                ]
             ]
         ];
         $strNewText = '';
