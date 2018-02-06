@@ -141,10 +141,12 @@ foreach ($astrShowFields as $key => $field) {
         {
             targets: [ <?php echo $i?> ],
             'width': "<?php echo $strWidth?>"
-<?php if ('product' === $strList && $customPriceSettings && $customPriceSettings['valid'] && $field['name'] == 'custom_price') { ?>
-            ,className: 'editable',
-            sortable: false
-<?php } ?>
+            <?php if ('product' === $strList && $field['name'] == 'custom_price') { ?>
+            ,sortable: false
+                <?php if ($customPriceSettings && $customPriceSettings['valid']) { ?>
+            ,className: 'editable'
+                <?php } ?>
+            <?php } ?>
 
         },
 <?php
