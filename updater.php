@@ -404,13 +404,6 @@ class Updater
             $destPath = __DIR__ . DIRECTORY_SEPARATOR . $destFile;
 
             $res = file_put_contents($destPath, $zip->getFromIndex($i));
-
-/*            if (file_exists($destPath)) {
-                unlink($destPath);
-            }
-            $res = copy(
-                "zip://$zipFile#$filename", $destPath
-            );*/
             if (!$res) {
                 $zip->close();
                 return [false, $filesWritten];
