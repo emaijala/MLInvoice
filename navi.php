@@ -137,8 +137,7 @@ function createFuncMenu($strFunc)
                 'href' => 'list=settings',
                 'text' => Translator::translate('GeneralSettings'),
                 'levels_allowed' => [
-                    ROLE_USER,
-                    ROLE_BACKUPMGR
+                    ROLE_ADMIN
                 ]
             ],
             [
