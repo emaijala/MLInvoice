@@ -534,7 +534,7 @@ class InvoiceReport extends AbstractReport
                 $pdf->Cell(40, 4, Translator::translate('Payer'), 0, 0, 'L');
             }
             if (in_array('status', $printFields)) {
-                $pdf->Cell(20, 4, Translator::translate('InvoiceState'), 0, 0, 'L');
+                $pdf->Cell(20, 4, Translator::translate('State'), 0, 0, 'L');
             }
             if (in_array('ref_number', $printFields)) {
                 $pdf->Cell(20, 4, Translator::translate('ReferenceNumber'), 0, 0, 'L');
