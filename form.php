@@ -677,7 +677,18 @@ EOT;
         echo "      td.attr('data-field', '$name');\n";
         if ($subElem['type'] == 'LIST' || $subElem['type'] == 'SEARCHLIST') {
             echo "      if (record.${name}_text === null || typeof record.${name}_text === 'undefined') record.${name}_text = (typeof arr_" . $subElem['name'] . "[record.${name}] !== 'undefined') ? arr_" . $subElem['name'] . "[record.${name}] : '';\n";
-            echo "      td.text(record.${name}_text).appendTo(tr);\n";
+            if ($elem['name'] == 'invoice_rows' && $name == 'product_id') {
+                echo <<<EOT
+      if (record.$name !== null) {
+        var link = $('<a/>').attr('href', '?func=settings&list=product&form=product&listid=list_product&id=' + record.$name).text(record.${name}_text);
+        td.append(link);
+      }
+      td.appendTo(tr);
+
+EOT;
+            } else {
+                echo "      td.text(record.${name}_text).appendTo(tr);\n";
+            }
         } elseif ($subElem['type'] == 'INT') {
             if (isset($subElem['decimals'])) {
                 echo "      td.text(record.$name ? MLInvoice.formatCurrency(record.$name, {$subElem['decimals']}) : '').appendTo(tr);\n";
