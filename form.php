@@ -693,33 +693,10 @@ EOT;
                 "\").appendTo(tr);\n";
         } elseif ($subElem['type'] == 'ROWSUM') {
 ?>
-      var items = record.pcs;
-      var price = record.price;
-      var discount = record.discount || 0;
-      var discountAmount = record.discount_amount || 0;
-      var VATPercent = record.vat;
-      var VATIncluded = record.vat_included;
-
-      price *= (1 - discount / 100);
-      price -= discountAmount;
-      var sum = 0;
-      var sumVAT = 0;
-      var VAT = 0;
-      if (VATIncluded == 1)
-      {
-        sumVAT = round_number(items * price, 2);
-        sum = round_number(sumVAT / (1 + VATPercent / 100), 2);
-        VAT = sumVAT - sum;
-      }
-      else
-      {
-        sum = round_number(items * price, 2);
-        VAT = round_number(sum * (VATPercent / 100), 2);
-        sumVAT = sum + VAT;
-      }
-      sum = MLInvoice.formatCurrency(sum, <?php echo isset($subElem['decimals']) ? $subElem['decimals'] : 2?>);
-      VAT = MLInvoice.formatCurrency(VAT, <?php echo isset($subElem['decimals']) ? $subElem['decimals'] : 2?>);
-      sumVAT = MLInvoice.formatCurrency(sumVAT, <?php echo isset($subElem['decimals']) ? $subElem['decimals'] : 2?>);
+      var rowSum = MLInvoice.calcRowSum(record);
+      sum = MLInvoice.formatCurrency(rowSum.sum, <?php echo isset($subElem['decimals']) ? $subElem['decimals'] : 2?>);
+      VAT = MLInvoice.formatCurrency(rowSum.VAT, <?php echo isset($subElem['decimals']) ? $subElem['decimals'] : 2?>);
+      sumVAT = MLInvoice.formatCurrency(rowSum.sumVAT, <?php echo isset($subElem['decimals']) ? $subElem['decimals'] : 2?>);
       var title = '<?php echo Translator::translate('VATLess') . ': '?>' + sum + ' &ndash; ' + '<?php echo Translator::translate('VATPart') . ': '?>' + VAT;
       var td = $('<td/>').addClass('<?php echo $class?>' + (record.deleted == 1 ? ' deleted' : '')).append('<span title="' + title + '">' + sumVAT + '<\/span>').appendTo(tr);
 <?php
@@ -775,14 +752,14 @@ EOT;
       var VAT = 0;
       if (VATIncluded == 1)
       {
-        sumVAT = round_number(items * price, 2);
-        sum = round_number(sumVAT / (1 + VATPercent / 100), 2);
+        sumVAT = items * price;
+        sum = sumVAT / (1 + VATPercent / 100);
         VAT = sumVAT - sum;
       }
       else
       {
-        sum = round_number(items * price, 2);
-        VAT = round_number(sum * (VATPercent / 100), 2);
+        sum = items * price;
+        VAT = sum * (VATPercent / 100);
         sumVAT = sum + VAT;
       }
 

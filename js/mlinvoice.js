@@ -839,6 +839,36 @@ var MLInvoice = (function MLInvoice() {
         $.cookie('updateversion', $.toJSON(data), { expires: 1 });
     }
 
+    function calcRowSum(row)
+    {
+        var items = row.pcs;
+        var price = row.price;
+        var discount = row.discount || 0;
+        var discountAmount = row.discount_amount || 0;
+        var VATPercent = row.vat;
+        var VATIncluded = row.vat_included;
+
+        price *= (1 - discount / 100);
+        price -= discountAmount;
+        var sum = 0;
+        var sumVAT = 0;
+        var VAT = 0;
+        if (VATIncluded == 1) {
+          sumVAT = items * price;
+          sum = sumVAT / (1 + VATPercent / 100);
+          VAT = sumVAT - sum;
+        } else {
+          sum = items * price;
+          VAT = sum * (VATPercent / 100);
+          sumVAT = sum + VAT;
+        }
+        return {
+            sum: sum,
+            VAT: VAT,
+            sumVAT: sumVAT
+        };
+    }
+
     return {
         init: init,
         addTranslation: addTranslation,
@@ -858,7 +888,8 @@ var MLInvoice = (function MLInvoice() {
         errormsg: errormsg,
         editUnitPrice: editUnitPrice,
         setCurrencyDecimals: setCurrencyDecimals,
-        checkForUpdates: checkForUpdates
+        checkForUpdates: checkForUpdates,
+        calcRowSum: calcRowSum
     }
 })();
 

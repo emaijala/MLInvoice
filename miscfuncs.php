@@ -503,12 +503,12 @@ function calculateRowSum($row)
     }
 
     if ($VATIncluded) {
-        $rowSumVAT = round($count * $price, 2);
-        $rowSum = round(($rowSumVAT / (1 + $VAT / 100)), 2);
+        $rowSumVAT = $count * $price;
+        $rowSum = ($rowSumVAT / (1 + $VAT / 100));
         $rowVAT = $rowSumVAT - $rowSum;
     } else {
-        $rowSum = round($count * $price, 2);
-        $rowVAT = round(($rowSum * ($VAT / 100)), 2);
+        $rowSum = $count * $price;
+        $rowVAT = ($rowSum * ($VAT / 100));
         $rowSumVAT = $rowSum + $rowVAT;
     }
     return [

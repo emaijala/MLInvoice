@@ -5,7 +5,7 @@
  * PHP version 5
  *
  * Copyright (C) 2004-2008 Samu Reinikainen
- * Copyright (C) Ere Maijala 2010-2017.
+ * Copyright (C) Ere Maijala 2010-2018.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2,
@@ -76,6 +76,7 @@ abstract class InvoicePrinterBase
     protected $partialPayments = 0;
     protected $dateOverride = false;
     protected $allowSeparateStatement = true;
+    protected $roundRowPrices = false;
 
     /**
      * Left of the main content
@@ -1560,7 +1561,9 @@ abstract class InvoicePrinterBase
     {
         $decimals = isset($row['price_decimals']) ? $row['price_decimals'] : 2;
         return $row['partial_payment'] ? ''
-            : $this->formatCurrency($row['price'], $decimals);
+            : $this->formatCurrency(
+                $row['price'], $decimals, false, $this->roundRowPrices
+            );
     }
 
     /**
@@ -1621,7 +1624,8 @@ abstract class InvoicePrinterBase
      */
     protected function getRowTotalVATLess($row)
     {
-        return $row['partial_payment'] ? '' : $this->formatCurrency($row['rowsum']);
+        return $row['partial_payment'] ? ''
+            : $this->formatCurrency($row['rowsum'], 2, false, $this->roundRowPrices);
     }
 
     /**
@@ -1646,7 +1650,8 @@ abstract class InvoicePrinterBase
      */
     protected function getRowVAT($row)
     {
-        return $row['partial_payment'] ? '' : $this->formatCurrency($row['rowvat']);
+        return $row['partial_payment'] ? ''
+            : $this->formatCurrency($row['rowvat'], 2, false, $this->roundRowPrices);
     }
 
     /**
@@ -1659,7 +1664,9 @@ abstract class InvoicePrinterBase
     protected function getRowTotal($row)
     {
         return $row['partial_payment'] ? $this->formatCurrency($row['price'])
-            : $this->formatCurrency($row['rowsumvat']);
+            : $this->formatCurrency(
+                $row['rowsumvat'], 2, false, $this->roundRowPrices
+            );
     }
 
     /**
@@ -2044,11 +2051,17 @@ abstract class InvoicePrinterBase
      * @param float $value            Value to format
      * @param int   $decimals         Number of decimals to display
      * @param bool  $decimalsOptional Whether to hide decimals if they are 0
+     * @param bool  $round            Whether to round the value instead of
+     * truncating
      *
      * @return string
      */
-    protected function formatNumber($value, $decimals = 2, $decimalsOptional = false)
-    {
+    protected function formatNumber($value, $decimals = 2, $decimalsOptional = false,
+        $round = true
+    ) {
+        if (!$round) {
+            $value = round($value - (1 / (100 * $decimals)) * 0.5, $decimals);
+        }
         if ($decimalsOptional) {
             return miscRound2OptDecim(
                 $value, $decimals,
@@ -2070,13 +2083,15 @@ abstract class InvoicePrinterBase
      * @param float $value            Value to format
      * @param int   $decimals         Number of decimals to display
      * @param bool  $decimalsOptional Whether to hide decimals if they are 0
+     * @param bool  $round            Whether to round the value instead of
+     * truncating
      *
      * @return string
      */
     protected function formatCurrency($value, $decimals = 2,
-        $decimalsOptional = false
+        $decimalsOptional = false, $round = true
     ) {
-        $number = $this->formatNumber($value, $decimals, $decimalsOptional);
+        $number = $this->formatNumber($value, $decimals, $decimalsOptional, $round);
         return Translator::translate('invoice::CurrencyPrefix') . $number
              . Translator::translate('invoice::CurrencySuffix');
     }
