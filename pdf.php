@@ -4,7 +4,7 @@
  *
  * PHP version 5
  *
- * Copyright (C) Ere Maijala 2010-2017.
+ * Copyright (C) Ere Maijala 2010-2018.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2,
@@ -43,10 +43,20 @@ class PDF extends TCPDF
     public $footerLeft = '', $footerCenter = '', $footerRight = '';
     public $printHeaderOnFirstPage = false;
     public $printFooterOnFirstPage = false;
-    public $headerLeftPos = 4;
-    public $headerRightPos = 143;
-    public $footerLeftPos = 4;
-    public $footerRightPos = 143;
+    public $headerTopMargin = 10;
+    public $headerLeftPos = 10;
+    public $headerLeftWidth = 60;
+    public $headerCenterPos = 75; // 105 - 60 / 2
+    public $headerCenterWidth = 60;
+    public $headerRightPos = 140;
+    public $headerRightWidth = 60;
+    public $footerBottomMargin = 17;
+    public $footerLeftPos = 10;
+    public $footerLeftWidth = 60;
+    public $footerCenterPos = 75; // 105 - 60 / 2
+    public $footerCenterWidth = 60;
+    public $footerRightPos = 140;
+    public $footerRightWidth = 60;
     public $markdown = false;
     protected $savedAutoBreakState = null;
     protected $savedPageBreakTrigger = null;
@@ -65,19 +75,22 @@ class PDF extends TCPDF
         if ($this->PageNo() == 1 && !$this->printHeaderOnFirstPage) {
             return;
         }
-        $this->SetY(10);
+        $this->SetY($this->headerTopMargin);
         $this->SetFont('Helvetica', '', 7);
         $this->SetX($this->headerLeftPos);
         $this->MultiCell(
-            120, 5, $this->handlePageNum($this->headerLeft), 0, 'L', 0, 0
+            $this->headerLeftWidth, 5, $this->handlePageNum($this->headerLeft),
+            0, 'L', 0, 0
         );
-        $this->SetX(75);
+        $this->SetX($this->headerCenterPos);
         $this->MultiCell(
-            65, 5, $this->handlePageNum($this->headerCenter), 0, 'C', 0, 0
+            $this->headerCenterWidth, 5, $this->handlePageNum($this->headerCenter),
+            0, 'C', 0, 0
         );
         $this->SetX($this->headerRightPos);
         $this->MultiCell(
-            60, 5, $this->handlePageNum($this->headerRight), 0, 'R', 0, 0
+            $this->headerRightWidth, 5, $this->handlePageNum($this->headerRight),
+            0, 'R', 0, 0
         );
     }
 
@@ -93,14 +106,18 @@ class PDF extends TCPDF
         if ($this->PageNo() == 1 && !$this->printFooterOnFirstPage) {
             return;
         }
-        $this->SetY(-17);
+        $this->SetY(-$this->footerBottomMargin);
         $this->SetFont('Helvetica', '', 7);
         $this->SetX($this->footerLeftPos);
-        $this->MultiCell(120, 5, $this->footerLeft, 0, 'L', 0, 0);
-        $this->SetX(75);
-        $this->MultiCell(65, 5, $this->footerCenter, 0, 'C', 0, 0);
+        $this->MultiCell($this->footerLeftWidth, 5, $this->footerLeft, 0, 'L', 0, 0);
+        $this->SetX($this->footerCenterPos);
+        $this->MultiCell(
+            $this->footerCenterWidth, 5, $this->footerCenter, 0, 'C', 0, 0
+        );
         $this->SetX($this->footerRightPos);
-        $this->MultiCell(60, 5, $this->footerRight, 0, 'R', 0, 0);
+        $this->MultiCell(
+            $this->footerRightWidth, 5, $this->footerRight, 0, 'R', 0, 0
+        );
     }
 
     /**

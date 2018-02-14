@@ -637,6 +637,9 @@ abstract class InvoicePrinterBase
         $pdf->footerCenter = $this->senderContactInfo;
         $pdf->footerRight = $this->senderData['www'] . "\n" .
              $this->senderData['email'];
+        $pdf->headerLeftPos = $pdf->footerLeftPos = $this->left;
+        $pdf->headerRightPos = $pdf->footerRightPos = $this->left + $this->width
+            - $pdf->headerRightWidth;
         $pdf->markdown = getSetting('printout_markdown');
         $this->pdf = $pdf;
     }
@@ -1020,7 +1023,6 @@ abstract class InvoicePrinterBase
 
         $this->printRowHeadings($pdf);
 
-        $margins = $pdf->getMargins();
         $pdf->SetY($pdf->GetY() + 5);
         foreach ($this->invoiceRowData as $row) {
             if ($row['partial_payment'] && 'dispatch' === $this->printStyle) {
@@ -1700,13 +1702,18 @@ abstract class InvoicePrinterBase
             );
         }
         $intStartY = 187;
-        $pdf->SetXY(4, $intStartY);
-        $pdf->multiCellMD(120, 5, $this->senderAddressLine, 'L', 0);
-        $pdf->SetXY(75, $intStartY);
-        $pdf->multiCellMD(65, 5, $this->senderContactInfo, 'C', 0);
-        $pdf->SetXY(143, $intStartY);
+        $pdf->SetXY($pdf->footerLeftPos, $intStartY);
         $pdf->multiCellMD(
-            60, 5, $senderData['www'] . "\n" . $senderData['email'], 'R', 0
+            $pdf->footerLeftWidth, 4, $this->senderAddressLine, 'L', 0, 8
+        );
+        $pdf->SetXY($pdf->footerCenterPos, $intStartY);
+        $pdf->multiCellMD(
+            $pdf->footerCenterWidth, 4, $this->senderContactInfo, 'C', 0, 8
+        );
+        $pdf->SetXY($pdf->footerRightPos, $intStartY);
+        $pdf->multiCellMD(
+            $pdf->footerRightWidth, 4,
+            $senderData['www'] . "\n" . $senderData['email'], 'R', 0, 8
         );
 
         // Invoice form
