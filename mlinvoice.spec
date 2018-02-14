@@ -11,7 +11,7 @@ Obsoletes: vllasku
 
 BuildRequires:	httpd
 Requires:	httpd
-Requires:	php
+Requires:	php >= 5.6.0
 %if 0%{?el5}
 Requires:	php-pecl-json
 %endif
