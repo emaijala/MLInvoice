@@ -856,7 +856,7 @@ function create_db_dump()
     header("Content-Disposition: attachment; filename=\"$filename\"");
 
     if (_CHARSET_ == 'UTF-8') {
-        echo ("SET NAMES 'utf8';\n\n");
+        echo("SET NAMES 'utf8';\n\n");
     }
 
     echo "SET FOREIGN_KEY_CHECKS=0;\n\n";

@@ -210,7 +210,7 @@ EOT;
                     if ($first) {
                         $first = false;
                     } else {
-                        echo (",\n");
+                        echo(",\n");
                     }
                     $this->output_str(json_encode($data), $charset);
                     break;
@@ -221,7 +221,7 @@ EOT;
                 $this->output_str("</records>\n");
                 break;
             case 'json' :
-                echo ("\n]}\n");
+                echo("\n]}\n");
                 break;
             }
             exit();

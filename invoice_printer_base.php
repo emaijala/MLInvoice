@@ -27,7 +27,6 @@
  * @license  http://opensource.org/licenses/gpl-2.0.php GNU General Public License
  * @link     http://labs.fi/mlinvoice.eng.php
  */
-
 require_once 'translator.php';
 require_once 'settings.php';
 
@@ -360,7 +359,7 @@ abstract class InvoicePrinterBase
                 $rowSum = $rowSumVAT = $row['price'];
                 $rowVAT = 0;
             } else {
-                list ($rowSum, $rowVAT, $rowSumVAT) = calculateRowSum($row);
+                list($rowSum, $rowVAT, $rowSumVAT) = calculateRowSum($row);
                 if ($row['vat_included']) {
                     $row['price'] /= (1 + $row['vat'] / 100);
                 }

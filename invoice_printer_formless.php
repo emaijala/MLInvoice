@@ -20,7 +20,6 @@ require_once 'miscfuncs.php';
 
 class InvoicePrinterFormless extends InvoicePrinterBase
 {
-
     public function printInvoice()
     {
         $this->allowSeparateStatement = false;

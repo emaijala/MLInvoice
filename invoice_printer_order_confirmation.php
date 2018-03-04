@@ -20,7 +20,6 @@ require_once 'miscfuncs.php';
 
 class InvoicePrinterOrderConfirmation extends InvoicePrinterBase
 {
-
     public function init($invoiceId, $printParameters, $outputFileName, $senderData,
         $recipientData, $invoiceData, $invoiceRowData, $recipientContactData,
         $dateOverride, $printTemplateId, $authenticated

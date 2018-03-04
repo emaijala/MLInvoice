@@ -314,7 +314,7 @@ function createFuncMenu($strFunc)
                 $strHref = $link['href'];
             $class = '';
             if (strpos($link['href'], '?')) {
-                list (, $urlParams) = explode('?', $link['href'], 2);
+                list(, $urlParams) = explode('?', $link['href'], 2);
             } else {
                 $urlParams = $link['href'];
             }

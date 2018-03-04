@@ -220,7 +220,7 @@ function saveFormData($table, &$primaryKey, &$formElements, &$values, &$warnings
         case 'INT':
         case 'HID_INT':
         case 'SECHID_INT':
-            $arrValues[] = ($value !== '' && $value !== false  && $value !== null)
+            $arrValues[] = ($value !== '' && $value !== false && $value !== null)
                 ? str_replace(',', '.', $value)
                 : ($elem['allow_null'] ? null : 0);
             break;

@@ -20,7 +20,6 @@ require_once 'miscfuncs.php';
 
 class InvoicePrinterOffer extends InvoicePrinterBase
 {
-
     public function init($invoiceId, $printParameters, $outputFileName, $senderData,
         $recipientData, $invoiceData, $invoiceRowData, $recipientContactData,
         $dateOverride, $printTemplateId, $authenticated)
@@ -79,7 +78,6 @@ class InvoicePrinterOffer extends InvoicePrinterBase
             ? $this->formatDate($this->dateOverride)
             : $this->formatDate($invoiceData['invoice_date']);
         $data['invoice::OfferDate'] = $strInvoiceDate;
-
 
         $strDueDate = $this->formatDate($invoiceData['due_date']);
         $validUntilSuffix = Translator::translate('invoice::ValidUntilSuffix');

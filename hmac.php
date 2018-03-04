@@ -25,7 +25,6 @@
  * @license  http://opensource.org/licenses/gpl-2.0.php GNU General Public License
  * @link     http://labs.fi/mlinvoice.eng.php
  */
-
 require_once 'settings.php';
 
 /**
@@ -37,7 +36,6 @@ require_once 'settings.php';
  * @license  http://opensource.org/licenses/gpl-2.0.php GNU General Public License
  * @link     http://labs.fi/mlinvoice.eng.php
  */
-
 class HMAC
 {
     /**
@@ -49,7 +47,7 @@ class HMAC
      * @return string
      * @author josefkoh at hotmail dot com
      */
-    static function hmacSha1($key, $data)
+    public static function hmacSha1($key, $data)
     {
         // Adjust key to exactly 64 bytes
         if (strlen($key) > 64) {
@@ -79,7 +77,7 @@ class HMAC
      *
      * @return string
      */
-    static function createHMAC($data)
+    public static function createHMAC($data)
     {
         $key = getSetting('hmac_key');
         if (!$key) {

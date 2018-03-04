@@ -390,7 +390,7 @@ class ImportStatement extends ImportFile
             if ($invoiceRow['partial_payment']) {
                 $partialPayments += $invoiceRow['price'];
             }
-            list ($rowSum, $rowVAT, $rowSumVAT) = calculateRowSum($invoiceRow);
+            list($rowSum, $rowVAT, $rowSumVAT) = calculateRowSum($invoiceRow);
             $rowTotal += $rowSumVAT;
         }
 

@@ -216,7 +216,7 @@ class ProductReport extends AbstractReport
             $prevRow = $row;
 
             $productCount += $row['pcs'];
-            list ($rowSum, $rowVAT, $rowSumVAT) = calculateRowSum($row);
+            list($rowSum, $rowVAT, $rowSumVAT) = calculateRowSum($row);
 
             $productSum += $rowSum;
             $productVAT += $rowVAT;

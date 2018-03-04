@@ -43,14 +43,14 @@ class Translator
      *
      * @var array
      */
-    static $translations = [];
+    public static $translations = [];
 
     /**
      * Any active languages for domains
      *
      * @var array
      */
-    static $activeLanguages = [];
+    public static $activeLanguages = [];
 
     /**
      * Translate a string
@@ -62,7 +62,7 @@ class Translator
      *
      * @return string
      */
-    static public function translate($str, $placeholders = [], $default = null)
+    public static function translate($str, $placeholders = [], $default = null)
     {
         $domain = 'default';
         $p = strpos($str, '::');
@@ -98,7 +98,7 @@ class Translator
      *
      * @return string
      */
-    static public function getActiveLanguage($domain)
+    public static function getActiveLanguage($domain)
     {
         return isset(self::$activeLanguages[$domain])
             ? self::$activeLanguages[$domain]
@@ -113,7 +113,7 @@ class Translator
      *
      * @return void
      */
-    static public function setActiveLanguage($domain, $language)
+    public static function setActiveLanguage($domain, $language)
     {
         if ('en' === $language) {
             $language = 'en-US';
@@ -134,7 +134,7 @@ class Translator
      *
      * @return void
      */
-    static protected function loadTranslations($domain)
+    protected static function loadTranslations($domain)
     {
         $file = 'fi-FI';
 

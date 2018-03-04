@@ -298,7 +298,7 @@ foreach ($astrMainButtons as $button) {
     $strButton .= Translator::translate($button['title']) . '</a></li>';
 
     if (!isset($button['levels_allowed'])
-        ||  sesAccessLevel($button['levels_allowed']) || sesAdminAccess()
+        || sesAccessLevel($button['levels_allowed']) || sesAdminAccess()
     ) {
         echo "      $strButton\n";
     }

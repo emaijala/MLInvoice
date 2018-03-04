@@ -48,7 +48,7 @@ class Memory
      *
      * @return void
      */
-    static public function set($id, $data)
+    public static function set($id, $data)
     {
         if (empty($id)) {
             return;
@@ -67,7 +67,7 @@ class Memory
      *
      * @return mixed
      */
-    static public function get($id)
+    public static function get($id)
     {
         if (empty($id)) {
             return null;

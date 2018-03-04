@@ -87,7 +87,6 @@ class ImportFile
         'ymd'
     ];
 
-
     /**
      * Constructor
      */

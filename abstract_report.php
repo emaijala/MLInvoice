@@ -30,7 +30,7 @@ abstract class AbstractReport
 {
     protected $pdf = null;
 
-    public abstract function createReport();
+    abstract public function createReport();
 
     protected function getParamsStr($html)
     {

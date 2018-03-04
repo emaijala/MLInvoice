@@ -93,7 +93,7 @@ function addReminderFees($intInvoiceId)
                 if ($row['reminder_row']) {
                     continue;
                 }
-                list ($rowSum, $rowVAT, $rowSumVAT) = calculateRowSum($row);
+                list($rowSum, $rowVAT, $rowSumVAT) = calculateRowSum($row);
                 $intTotSumVAT += $rowSumVAT;
             }
             $intPenalty = $intTotSumVAT * $penaltyInterest / 100 * $intDaysOverdue /
