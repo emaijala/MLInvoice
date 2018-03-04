@@ -31,8 +31,8 @@ if (!sesWriteAccess()) {
 <body>
     <div class="ui-widget">
         <div class="form_container ui-widget-content">
-        <?php echo Translator::translate('NoAccess') . "\n"?>
-    </div>
+            <?php echo Translator::translate('NoAccess') . "\n"?>
+        </div>
     </div>
 </body>
 </html>
