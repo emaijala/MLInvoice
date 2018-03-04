@@ -501,6 +501,96 @@ EOT
 }
 
 /**
+ * Get user by id
+ *
+ * @param string $id User id
+ *
+ * @return mixed array or null
+ */
+function getUserById($id)
+{
+    $rows = db_param_query(
+        'SELECT * FROM {prefix}users WHERE id=?',
+        [$id]
+    );
+    return $rows ? $rows[0] : null;
+}
+
+/**
+ * Get user by login name or email
+ *
+ * @param string $userId User login name or email address
+ *
+ * @return mixed array or null
+ */
+function getUserByLoginId($userId)
+{
+    $rows = db_param_query(
+        'SELECT * FROM {prefix}users WHERE login=? OR email=?',
+        [$userId, $userId]
+    );
+    return $rows ? $rows[0] : null;
+}
+
+/**
+ * Get user by token
+ *
+ * @param string $token User token
+ *
+ * @return mixed array or null
+ */
+function getUserByToken($token)
+{
+    $rows = db_param_query(
+        'SELECT * FROM {prefix}users WHERE token=?',
+        [$token]
+    );
+    return $rows ? $rows[0] : null;
+}
+
+/**
+ * Update user's token
+ *
+ * @param int $id User id
+ *
+ * @return string
+ */
+function updateUserToken($id)
+{
+    $user = getUserById($id);
+    if (!$user) {
+        throw new Exception('User not found');
+    }
+    $token = sha1($user['id'] . $user['login'] . $user['passwd'] . rand())
+        . str_pad(substr((string)time(), 0, 10), 10, '0', STR_PAD_LEFT);
+    db_param_query(
+        'UPDATE {prefix}users SET token=? WHERE id=?',
+        [$token, $id]
+    );
+    return $token;
+}
+
+/**
+ * Update user's password
+ *
+ * @param int    $id       User id
+ * @param string $password New password
+ *
+ * @return void
+ */
+function updateUserPassword($id, $password)
+{
+    $user = getUserById($id);
+    if (!$user) {
+        throw new Exception('User not found');
+    }
+    db_param_query(
+        'UPDATE {prefix}users SET passwd=? WHERE id=?',
+        [md5($password), $id]
+    );
+}
+
+/**
  * Delete a record by ID
  *
  * @param string $table Table name
@@ -1542,6 +1632,16 @@ EOT
             [
                 'ALTER TABLE {prefix}default_value ADD COLUMN additional text NULL',
                 "REPLACE INTO {prefix}state (id, data) VALUES ('version', '57')"
+            ]
+        );
+    }
+
+    if ($version < 58) {
+        $updates = array_merge(
+            $updates,
+            [
+                'ALTER TABLE {prefix}users ADD COLUMN token varchar(255) NULL',
+                "REPLACE INTO {prefix}state (id, data) VALUES ('version', '58')"
             ]
         );
     }

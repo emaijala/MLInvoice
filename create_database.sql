@@ -302,6 +302,7 @@ CREATE TABLE mlinvoice_users (
   login varchar(255) default NULL,
   passwd varchar(255) default NULL,
   type_id int(11) default NULL,
+  token varchar(255) default NULL,
   PRIMARY KEY (id),
   FOREIGN KEY (type_id) REFERENCES mlinvoice_session_type(id)
 ) ENGINE=INNODB CHARACTER SET utf8 COLLATE utf8_swedish_ci;
@@ -377,7 +378,7 @@ CREATE TABLE mlinvoice_default_value (
 
 SET NAMES 'utf8';
 
-INSERT INTO mlinvoice_state (id, data) VALUES ('version', '57');
+INSERT INTO mlinvoice_state (id, data) VALUES ('version', '58');
 
 INSERT INTO mlinvoice_state (id, data) VALUES ('tableconversiondone', '1');
 

@@ -99,6 +99,14 @@ $arrSettings = [
         'default' => 0,
         'allow_null' => true
     ],
+    'password_recovery' => [
+        'label' => 'SettingPasswordRecovery',
+        'type' => 'CHECK',
+        'style' => 'medium',
+        'position' => 1,
+        'default' => 1,
+        'allow_null' => true
+    ],
 
     'invoice_sep' => [
         'label' => 'SettingInvoices',

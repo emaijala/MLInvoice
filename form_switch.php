@@ -1929,6 +1929,13 @@ case 'user' :
             'position' => 1
         ],
         [
+            'name' => 'email',
+            'label' => 'Email',
+            'type' => 'TEXT',
+            'style' => 'medium',
+            'position' => 2
+        ],
+        [
             'name' => 'login',
             'label' => 'LoginName',
             'type' => 'TEXT',

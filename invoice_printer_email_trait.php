@@ -17,6 +17,7 @@
 
 require_once 'htmlfuncs.php';
 require_once 'miscfuncs.php';
+require_once 'mailer.php';
 
 trait InvoicePrinterEmailTrait
 {
@@ -220,110 +221,36 @@ $(document).ready(function() {
 
         mb_internal_encoding('UTF-8');
 
-        $filename = $this->outputFileName ? $this->outputFileName
-            : getSetting('invoice_pdf_filename');
-        $filename = $this->getPrintOutFileName($filename);
-        $data = $pdf->Output($filename, 'S');
-
-        $message = Swift_Message::newInstance(
-            $this->emailSubject,
-            $this->getFlowedBody(),
-            'text/plain; format="flowed"'
-        );
-
-        try {
-            $message->setFrom($this->extractNameAndAddress($this->emailFrom));
-        } catch (Swift_RfcComplianceException $e) {
-            $this->showEmailForm(
-                Translator::translate(
-                    'InvalidEmailAddress', ['%%email%%' => $this->emailFrom]
-                )
-            );
-            return;
-        }
-        try {
-            $message->setTo($this->extractAddresses($this->emailTo));
-        } catch (Swift_RfcComplianceException $e) {
-            $this->showEmailForm(
-                Translator::translate(
-                    'InvalidEmailAddress', ['%%email%%' => $this->emailTo]
-                )
-            );
-            return;
-        }
-        try {
-            $message->setCc($this->extractAddresses($this->emailCC));
-        } catch (Swift_RfcComplianceException $e) {
-            $this->showEmailForm(
-                Translator::translate(
-                    'InvalidEmailAddress', ['%%email%%' => $this->emailCC]
-                )
-            );
-            return;
-        }
-        try {
-            $message->setBcc($this->extractAddresses($this->emailBCC));
-        } catch (Swift_RfcComplianceException $e) {
-            $this->showEmailForm(
-                Translator::translate(
-                    'InvalidEmailAddress', ['%%email%%' => $this->emailBCC]
-                )
-            );
-            return;
-        }
-
+        $attachments = [];
         if (!isset($this->printParams['attachment'])
             || $this->printParams['attachment']
         ) {
-            $attachment = Swift_Attachment::newInstance(
-                $data, $filename, 'application/pdf'
-            );
-            $message->attach($attachment);
+            $filename = $this->outputFileName ? $this->outputFileName
+                : getSetting('invoice_pdf_filename');
+            $filename = $this->getPrintOutFileName($filename);
+            $data = $pdf->Output($filename, 'S');
+            $attachments[] = [
+                'filename' => $filename,
+                'data' => $data,
+                'mimetype' => 'application/pdf'
+            ];
         }
 
-        $headers = $message->getHeaders();
-        $headers->addTextHeader('X-Mailer', 'MLInvoice');
+        $mailer = new Mailer();
+        $result = $mailer->sendEmail(
+            $this->emailFrom,
+            $this->emailTo,
+            $this->emailCC,
+            $this->emailBCC,
+            $this->emailSubject,
+            $this->emailBody,
+            $attachments
+        );
 
-        $settings = isset($GLOBALS['mlinvoice_mail_settings'])
-            ? $GLOBALS['mlinvoice_mail_settings'] : [];
-
-        if (!isset($settings['send_method']) || 'mail' === $settings['send_method']
-        ) {
-            $transport = Swift_MailTransport::newInstance();
-        } elseif ('sendmail' === $settings['send_method']) {
-            $command = empty($settings['sendmail']['command'])
-                ? '/usr/sbin/sendmail -bs'
-                : $settings['sendmail']['command'];
-            $transport = Swift_SendmailTransport::newInstance($command);
-        } elseif ('smtp' === $settings['send_method']) {
-            $smtp = empty($settings['smtp']) ? [] : $settings['smtp'];
-            $transport = Swift_SmtpTransport::newInstance(
-                $smtp['host'], $smtp['port'], $smtp['security']
-            );
-            if (!empty($smtp['username'])) {
-                $transport->setUsername($smtp['username']);
-            }
-            if (!empty($smtp['password'])) {
-                $transport->setPassword($smtp['password']);
-            }
-            if (!empty($smtp['stream_context_options'])) {
-                $transport->setStreamOptions($smtp['stream_context_options']);
-            }
+        if ($result) {
+            $this->showEmailForm($mailer->getErrorMessage());
         }
-        $mailer = Swift_Mailer::newInstance($transport);
 
-        try {
-            $result = $mailer->send($message);
-            if (!$result) {
-                $this->showEmailForm(Translator::translate('EmailFailed'));
-                return;
-            }
-        } catch (Exception $e) {
-            $this->showEmailForm(
-                Translator::translate('EmailFailed') . ': ' . $e->getMessage()
-            );
-            return;
-        }
         if (is_callable([$this, 'emailSent'])) {
             $this->emailSent();
         }
@@ -333,79 +260,6 @@ $(document).ready(function() {
             . sanitize(getRequest('func', 'open_invoices'))
             . "&list=invoices&form=invoice&id={$this->invoiceId}"
         );
-    }
-
-    protected function getFlowedBody()
-    {
-        $body = cond_utf8_encode($this->emailBody);
-
-        $lines = [];
-        foreach (explode(PHP_EOL, $body) as $paragraph) {
-            $line = '';
-            foreach (explode(' ', $paragraph) as $word) {
-                if (strlen($line) + strlen($word) > 66) {
-                    $lines[] = "$line ";
-                    $line = '';
-                }
-                if ($line)
-                    $line .= " $word";
-                elseif ($word)
-                    $line = $word;
-                else
-                    $line = ' ';
-            }
-            $line = rtrim($line);
-            $line = preg_replace('/\s+' . PHP_EOL . '$/', PHP_EOL, $line);
-            $lines[] = rtrim($line, ' ');
-        }
-        $result = '';
-        foreach ($lines as $line) {
-            $result .= chunk_split($line, 998, PHP_EOL);
-        }
-        return $result;
-    }
-
-    protected function extractAddress($address)
-    {
-        if (preg_match('/<(.+)>/', $address, $matches)) {
-            return $matches[1];
-        }
-        return $address;
-    }
-
-    protected function extractName($address)
-    {
-        if (preg_match('/(.+)\s*<.+>/', $address, $matches)) {
-            return $matches[1];
-        }
-        return '';
-    }
-
-    protected function extractNameAndAddress($address)
-    {
-        $name = $this->extractName($address);
-        $address = $this->extractAddress($address);
-        return trim($name) === '' ? $address : [$address => $name];
-    }
-
-    protected function extractAddresses($addresses)
-    {
-        $result = [];
-        if ($addresses) {
-            if (is_string($addresses)) {
-                $addresses = array_map('trim', str_getcsv($addresses));
-            }
-            foreach ($addresses as $idx => $address) {
-                $name = $this->extractName($address);
-                $addr = $this->extractAddress($address);
-                if (trim($name) !== '') {
-                    $result[$addr] = $name;
-                } else {
-                    $result[$idx] = $addr;
-                }
-            }
-        }
-        return $result;
     }
 
     protected function parseDefaultSettings($defaultValue)

@@ -72,6 +72,12 @@ div.message {
   display: inline-block;
 }
 
+.login div.message {
+  margin: 30px 30px 0 30px;
+  padding: 8px;
+  display: block;
+}
+
 span.message {
   margin: 4px;
   padding: 1px;

@@ -93,7 +93,7 @@ echo htmlPageStart('', ['jquery/js/jquery.md5.js']);
 ?>
 
 <body onload="document.getElementById('flogin').focus();">
-    <div class="pagewrapper ui-widget ui-widget-content">
+    <div class="pagewrapper ui-widget ui-widget-content login">
         <div id="maintabs" class="navi ui-widget-header ui-tabs">
             <ul class="ui-tabs-nav ui-helper-clearfix ui-corner-all">
                 <li class="functionlink ui-state-default ui-corner-top ui-tabs-selected ui-state-active">
@@ -158,8 +158,19 @@ function createHash()
                     <span style="width: 100px; display: inline-block;"><?php echo Translator::translate('Password')?></span>
                     <input class="medium" name="passwd" id="passwd" type="password" value="">
                 </p>
+                <p>
                 <input class="ui-button ui-corner-all ui-widget" type="submit" name="logon"
                     value="<?php echo Translator::translate('Login')?>">
+                </p>
+<?php
+if (getSetting('password_recovery')) {
+?>
+                <p>
+                  <a href="recover.php"><?php echo Translator::translate('ForgotPassword')?></a>
+                </p>
+<?php
+}
+?>
             </form>
         </div>
     </div>
