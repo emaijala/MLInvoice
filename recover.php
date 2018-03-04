@@ -186,16 +186,13 @@ if (empty($completed)) {
             </form>
         </div>
 <?php
-} else {
+}
 ?>
-        <div class="ui-widget" style="padding: 30px;">
+        <div class="ui-widget" style="padding-left: 30px; padding-right: 30px">
             <p>
                 <a href="login.php"><?php echo Translator::translate('BackToLogin')?></a>
             </p>
         </div>
-<?php
-}
-?>
     </div>
 </body>
 </html>
