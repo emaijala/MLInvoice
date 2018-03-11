@@ -20,7 +20,7 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  *
  * @category MLInvoice
- * @package  Administration
+ * @package  MLInvoice\Base
  * @author   Ere Maijala <ere@labs.fi>
  * @license  http://opensource.org/licenses/gpl-2.0.php GNU General Public License
  * @link     http://labs.fi/mlinvoice.eng.php
@@ -35,7 +35,7 @@ require_once 'version.php';
  * Self-updating mechanism
  *
  * @category MLInvoice
- * @package  Administration
+ * @package  MLInvoice\Base
  * @author   Ere Maijala <ere@labs.fi>
  * @license  http://opensource.org/licenses/gpl-2.0.php GNU General Public License
  * @link     http://labs.fi/mlinvoice.eng.php

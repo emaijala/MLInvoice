@@ -1,23 +1,40 @@
 <?php
-/*******************************************************************************
- MLInvoice: web-based invoicing application.
- Copyright (C) 2010-2017 Ere Maijala
-
- This program is free software. See attached LICENSE.
-
- *******************************************************************************/
-
-/*******************************************************************************
- MLInvoice: web-pohjainen laskutusohjelma.
- Copyright (C) 2010-2017 Ere Maijala
-
- Tämä ohjelma on vapaa. Lue oheinen LICENSE.
-
- *******************************************************************************/
+/**
+ * Settings form
+ *
+ * PHP version 5
+ *
+ * Copyright (C) 2004-2008 Samu Reinikainen
+ * Copyright (C) 2010-2018 Ere Maijala
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License version 2,
+ * as published by the Free Software Foundation.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
+ *
+ * @category MLInvoice
+ * @package  MLInvoice\Base
+ * @author   Ere Maijala <ere@labs.fi>
+ * @license  http://opensource.org/licenses/gpl-2.0.php GNU General Public License
+ * @link     http://labs.fi/mlinvoice.eng.php
+ */
 require_once 'sqlfuncs.php';
 require_once 'miscfuncs.php';
 require_once 'translator.php';
 
+/**
+ * Create a list of settings
+ *
+ * @return void
+ */
 function createSettingsList()
 {
     if (!sesAdminAccess()) {
@@ -69,8 +86,8 @@ function createSettingsList()
             if (isset($elem['session']) && $elem['session']) {
                 $_SESSION[$name] = $newValue;
             }
-            db_param_query('DELETE from {prefix}settings WHERE name=?', [$name]);
-            db_param_query(
+            dbParamQuery('DELETE from {prefix}settings WHERE name=?', [$name]);
+            dbParamQuery(
                 'INSERT INTO {prefix}settings (name, value) VALUES (?, ?)',
                 [$name, $newValue]
             );
@@ -118,7 +135,7 @@ function createSettingsList()
             if (isset($elem['session']) && $elem['session']) {
                 $value = isset($_SESSION[$name]) ? $_SESSION[$name]
                     : (isset($elem['default'])
-                    ? cond_utf8_decode($elem['default']) : '');
+                    ? condUtf8Decode($elem['default']) : '');
             } else {
                 $value = getSetting($name);
             }
@@ -166,6 +183,11 @@ function createSettingsList()
 <?php
 }
 
+/**
+ * Create buttons
+ *
+ * @return void
+ */
 function createSettingsListButtons()
 {
     ?>

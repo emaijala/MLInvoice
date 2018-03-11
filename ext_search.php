@@ -1,27 +1,31 @@
 <?php
-/*******************************************************************************
- MLInvoice: web-based invoicing application.
- Copyright (C) 2010-2017 Ere Maijala
-
- Portions based on:
- PkLasku : web-based invoicing software.
- Copyright (C) 2004-2008 Samu Reinikainen
-
- This program is free software. See attached LICENSE.
-
- *******************************************************************************/
-
-/*******************************************************************************
- MLInvoice: web-pohjainen laskutusohjelma.
- Copyright (C) 2010-2017 Ere Maijala
-
- Perustuu osittain sovellukseen:
- PkLasku : web-pohjainen laskutusohjelmisto.
- Copyright (C) 2004-2008 Samu Reinikainen
-
- Tämä ohjelma on vapaa. Lue oheinen LICENSE.
-
- *******************************************************************************/
+/**
+ * Extended search
+ *
+ * PHP version 5
+ *
+ * Copyright (C) 2004-2008 Samu Reinikainen
+ * Copyright (C) 2010-2018 Ere Maijala
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License version 2,
+ * as published by the Free Software Foundation.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
+ *
+ * @category MLInvoice
+ * @package  MLInvoice\Base
+ * @author   Ere Maijala <ere@labs.fi>
+ * @license  http://opensource.org/licenses/gpl-2.0.php GNU General Public License
+ * @link     http://labs.fi/mlinvoice.eng.php
+ */
 require_once 'htmlfuncs.php';
 require_once 'sqlfuncs.php';
 require_once 'sessionfuncs.php';
@@ -34,24 +38,25 @@ require_once 'translator.php';
 
 $strFunc = getRequest('func', '');
 $strForm = getRequest('form', '');
-if ($strFunc == 'open_invoices')
+if ($strFunc == 'open_invoices') {
     $strFunc = 'invoices';
+}
 $strList = $strFunc;
 
-$blnSearch = getPost('search_x', FALSE) ? TRUE : FALSE;
-$blnSave = getPost('save_x', FALSE) ? TRUE : FALSE;
-$strFields = getPost('fields', FALSE);
-$strSearchField = getPost('searchfield', FALSE);
+$blnSearch = getPost('search_x', false) ? true : false;
+$blnSave = getPost('save_x', false) ? true : false;
+$strFields = getPost('fields', false);
+$strSearchField = getPost('searchfield', false);
 $strSearchName = getPost('searchname', '');
-if ($strSearchField !== FALSE) {
-    if ($strFields === FALSE) {
+if ($strSearchField !== false) {
+    if ($strFields === false) {
         $strFields = $strSearchField;
     } else {
         $strFields .= ",$strSearchField";
     }
 }
 
-if ($strFields !== FALSE) {
+if ($strFields !== false) {
     $astrSelectedFields = explode(',', $strFields);
 } else {
     $astrSelectedFields = [];
@@ -60,7 +65,7 @@ if ($strFields !== FALSE) {
 require 'form_switch.php';
 
 for ($j = 0; $j < count($astrSelectedFields); $j ++) {
-    $tmpDelete = getPost('delete_' . $astrSelectedFields[$j] . '_x', FALSE);
+    $tmpDelete = getPost('delete_' . $astrSelectedFields[$j] . '_x', false);
     if ($tmpDelete) {
         $astrSelectedFields[$j] = '';
     }
@@ -69,25 +74,28 @@ for ($j = 0; $j < count($astrSelectedFields); $j ++) {
 $strFields = implode(',', $astrSelectedFields);
 
 for ($j = 0; $j < count($astrFormElements); $j ++) {
-    if ($astrFormElements[$j]['type'] == 'RESULT' &&
-         $astrFormElements[$j]['name'] != '') {
+    if ($astrFormElements[$j]['type'] == 'RESULT'
+        && $astrFormElements[$j]['name'] != ''
+    ) {
         $astrFormElements[$j]['type'] = 'TEXT';
     }
 }
 
 $listValues = [];
 for ($j = 0; $j < count($astrFormElements); $j ++) {
-    if ($astrFormElements[$j]['type'] != '' &&
-        $astrFormElements[$j]['type'] != 'LABEL' &&
-        $astrFormElements[$j]['type'] != 'HID_INT' &&
-        $astrFormElements[$j]['type'] != 'IFORM' &&
-        $astrFormElements[$j]['type'] != 'BUTTON' &&
-        $astrFormElements[$j]['type'] != 'JSBUTTON' &&
-        $astrFormElements[$j]['type'] != 'DROPDOWNMENU' &&
-        !in_array($astrFormElements[$j]['name'], $astrSelectedFields, true)
+    if ($astrFormElements[$j]['type'] != ''
+        && $astrFormElements[$j]['type'] != 'LABEL'
+        && $astrFormElements[$j]['type'] != 'HID_INT'
+        && $astrFormElements[$j]['type'] != 'IFORM'
+        && $astrFormElements[$j]['type'] != 'BUTTON'
+        && $astrFormElements[$j]['type'] != 'JSBUTTON'
+        && $astrFormElements[$j]['type'] != 'DROPDOWNMENU'
+        && !in_array($astrFormElements[$j]['name'], $astrSelectedFields, true)
     ) {
-        $listValues[$astrFormElements[$j]['name']] = str_replace('<br>', ' ',
-            Translator::translate($astrFormElements[$j]['label']));
+        $listValues[$astrFormElements[$j]['name']] = str_replace(
+            '<br>', ' ',
+            Translator::translate($astrFormElements[$j]['label'])
+        );
     }
     $strControlType = $astrFormElements[$j]['type'];
     $strControlName = $astrFormElements[$j]['name'];
@@ -119,8 +127,9 @@ if ($blnSearch || $blnSave) {
         $name = $elem['name'];
         if (in_array($name, $astrSelectedFields, true)) {
             $strSearchOperator = getPost("operator_$name", '');
-            if ($strSearchOperator)
+            if ($strSearchOperator) {
                 $strSearchOperator = " $strSearchOperator ";
+            }
             $strSearchMatch = getPost("searchmatch_$name", '=');
 
             // do LIKE || NOT LIKE search to elements with text or varchar datatype
@@ -158,7 +167,7 @@ if ($blnSearch || $blnSave) {
     if ($blnSave && $strSearchName) {
         $strQuery = 'INSERT INTO {prefix}quicksearch(user_id, name, func, whereclause) ' .
              'VALUES (?, ?, ?, ?)';
-        db_param_query(
+        dbParamQuery(
             $strQuery,
             [
                 $_SESSION['sesUSERID'],
@@ -215,20 +224,25 @@ $(function() {
 $fieldCount = 0;
 for ($j = 0; $j < count($astrFormElements); $j ++) {
     if (in_array($astrFormElements[$j]['name'], $astrSelectedFields, true)) {
-        $strSearchMatch = getPost('searchmatch_' . $astrFormElements[$j]['name'],
-            '=');
+        $strSearchMatch = getPost(
+            'searchmatch_' . $astrFormElements[$j]['name'],
+            '='
+        );
         if ($astrFormElements[$j]['style'] == 'xxlong') {
             $astrFormElements[$j]['style'] = 'long';
         }
 
         if (++$fieldCount > 1) {
             $strSelectedOperator = getPost(
-                'operator_' . $astrFormElements[$j]['name'], 'AND');
-            $strOperator = htmlListBox('operator_' . $astrFormElements[$j]['name'],
+                'operator_' . $astrFormElements[$j]['name'], 'AND'
+            );
+            $strOperator = htmlListBox(
+                'operator_' . $astrFormElements[$j]['name'],
                 [
                     'AND' => Translator::translate('SearchAND'),
                     'OR' => Translator::translate('SearchOR')
-                ], $strSelectedOperator);
+                ], $strSelectedOperator
+            );
             ?>
 <tr>
                             <td colspan="4">
@@ -246,7 +260,15 @@ for ($j = 0; $j < count($astrFormElements); $j ++) {
     <?php echo htmlListBox('searchmatch_' . $astrFormElements[$j]['name'], $comparisonValues, $strSearchMatch, '', 0)?>
   </td>
                             <td class="field">
-    <?php echo htmlFormElement($astrFormElements[$j]['name'], $astrFormElements[$j]['type'], $astrValues[$astrFormElements[$j]['name']], $astrFormElements[$j]['style'], $astrFormElements[$j]['listquery'], 'MODIFY', $astrFormElements[$j]['parent_key'], '', [], '', isset($astrFormElements[$j]['options']) ? $astrFormElements[$j]['options'] : NULL)?>
+        <?php
+            echo htmlFormElement(
+                $astrFormElements[$j]['name'], $astrFormElements[$j]['type'],
+                $astrValues[$astrFormElements[$j]['name']],
+                $astrFormElements[$j]['style'], $astrFormElements[$j]['listquery'],
+                'MODIFY', $astrFormElements[$j]['parent_key'], '', [], '',
+                isset($astrFormElements[$j]['options']) ? $astrFormElements[$j]['options'] : null
+            );
+        ?>
   </td>
                             <td><input type="hidden"
                                 name="delete_<?php echo $astrFormElements[$j]['name']?>_x"
@@ -262,10 +284,10 @@ for ($j = 0; $j < count($astrFormElements); $j ++) {
 ?>
 <tr>
                             <td class="label">
-  <?php echo Translator::translate('SelectSearchField')?>
+    <?php echo Translator::translate('SelectSearchField')?>
   </td>
                             <td class="field" colspan="3">
-  <?php echo $strListBox?>
+    <?php echo $strListBox?>
   </td>
                         </tr>
                         <tr>
@@ -280,7 +302,7 @@ for ($j = 0; $j < count($astrFormElements); $j ++) {
                         </tr>
                         <tr>
                             <td class="sublabel" colspan="4">
-  <?php echo Translator::translate('SearchSave')?>
+    <?php echo Translator::translate('SearchSave')?>
   </td>
                         </tr>
 <?php
@@ -296,7 +318,7 @@ if ($blnSave && $strSearchName) {
 ?>
 <tr>
                             <td class="label">
-  <?php echo Translator::translate('SearchName')?>
+    <?php echo Translator::translate('SearchName')?>
   </td>
                             <td class="field"><input class="medium" type="text"
                                 name="searchname" value="<?php echo $strSearchName?>"></td>

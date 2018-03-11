@@ -1,27 +1,31 @@
 <?php
-/*******************************************************************************
- MLInvoice: web-based invoicing application.
- Copyright (C) 2010-2017 Ere Maijala
-
- Portions based on:
- PkLasku : web-based invoicing software.
- Copyright (C) 2004-2008 Samu Reinikainen
-
- This program is free software. See attached LICENSE.
-
- *******************************************************************************/
-
-/*******************************************************************************
- MLInvoice: web-pohjainen laskutusohjelma.
- Copyright (C) 2010-2017 Ere Maijala
-
- Perustuu osittain sovellukseen:
- PkLasku : web-pohjainen laskutusohjelmisto.
- Copyright (C) 2004-2008 Samu Reinikainen
-
- Tämä ohjelma on vapaa. Lue oheinen LICENSE.
-
- *******************************************************************************/
+/**
+ * List displays
+ *
+ * PHP version 5
+ *
+ * Copyright (C) 2004-2008 Samu Reinikainen
+ * Copyright (C) 2010-2018 Ere Maijala
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License version 2,
+ * as published by the Free Software Foundation.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
+ *
+ * @category MLInvoice
+ * @package  MLInvoice\Base
+ * @author   Ere Maijala <ere@labs.fi>
+ * @license  http://opensource.org/licenses/gpl-2.0.php GNU General Public License
+ * @link     http://labs.fi/mlinvoice.eng.php
+ */
 require_once "sqlfuncs.php";
 require_once "miscfuncs.php";
 require_once "datefuncs.php";
@@ -29,9 +33,23 @@ require_once "memory.php";
 
 use Michelf\Markdown;
 
+/**
+ * Create a list
+ *
+ * @param string $strFunc          Function
+ * @param string $strList          List
+ * @param string $strTableName     Table name
+ * @param string $strTitleOverride Default title override
+ * @param string $prefilter        Prefilter
+ * @param bool   $invoiceTotal     Whether to display invoice total
+ * @param bool   $highlightOverdue Whether to highlight overdue rows
+ *
+ * @return void
+ */
 function createList($strFunc, $strList, $strTableName = '', $strTitleOverride = '',
-    $prefilter = '', $invoiceTotal = false, $highlightOverdue = false)
-{
+    $prefilter = '', $invoiceTotal = false, $highlightOverdue = false
+) {
+
     $strWhereClause = $prefilter ? $prefilter : getRequest('where', '');
 
     include 'list_switch.php';
@@ -295,6 +313,22 @@ foreach ($astrShowFields as $field) {
 <?php
 }
 
+/**
+ * Create a JSON list
+ *
+ * @param string $strFunc   Function
+ * @param string $strList   List
+ * @param int    $startRow  Start row
+ * @param int    $rowCount  Number of rows
+ * @param string $sort      Table name
+ * @param string $filter    Filter
+ * @param string $where     Where clause
+ * @param int    $requestId Request ID
+ * @param int    $listId    List ID
+ * @param int    $companyId Company ID
+ *
+ * @return void
+ */
 function createJSONList($strFunc, $strList, $startRow, $rowCount, $sort, $filter,
     $where, $requestId, $listId, $companyId = null
 ) {
@@ -328,7 +362,7 @@ function createJSONList($strFunc, $strList, $startRow, $rowCount, $sort, $filter
     // Total count
     $fullQuery
         = "SELECT COUNT(*) AS cnt FROM $strTable $strCountJoin $strWhereClause";
-    $rows = db_param_query($fullQuery, $queryParams);
+    $rows = dbParamQuery($fullQuery, $queryParams);
     $totalCount = $filteredCount = $rows[0]['cnt'];
 
     // Add Filter
@@ -339,7 +373,7 @@ function createJSONList($strFunc, $strList, $startRow, $rowCount, $sort, $filter
         // Filtered count
         $fullQuery
             = "SELECT COUNT(*) as cnt FROM $strTable $strCountJoin $strWhereClause";
-        $rows = db_param_query($fullQuery, $queryParams);
+        $rows = dbParamQuery($fullQuery, $queryParams);
         $filteredCount = $rows[0]['cnt'];
     }
 
@@ -384,7 +418,7 @@ EOT;
         $fullQuery .= " LIMIT $startRow, $rowCount";
     }
 
-    $rows = db_param_query($fullQuery, $queryParams, false, true);
+    $rows = dbParamQuery($fullQuery, $queryParams, false, true);
 
     $astrPrimaryKeys = [];
     $records = [];
@@ -478,6 +512,19 @@ EOT;
 
 }
 
+/**
+ * Create list query parameters
+ *
+ * @param string $strFunc  Function
+ * @param string $strList  List
+ * @param int    $startRow Start row
+ * @param int    $rowCount Number of rows
+ * @param string $sort     Table name
+ * @param string $filter   Filter
+ * @param string $where    Where clause
+ *
+ * @return array
+ */
 function createListQueryParams($strFunc, $strList, $startRow, $rowCount, $sort,
     $filter, $where
 ) {
@@ -588,6 +635,18 @@ EOT;
     return $result;
 }
 
+/**
+ * Create a JSON select list
+ *
+ * @param string $strList  List
+ * @param int    $startRow Start row
+ * @param int    $rowCount Number of rows
+ * @param string $filter   Filter
+ * @param string $sort     Table name
+ * @param int    $id       Item ID
+ *
+ * @return array
+ */
 function createJSONSelectList($strList, $startRow, $rowCount, $filter, $sort,
     $id = null
 ) {
@@ -734,7 +793,7 @@ EOT;
         $fullQuery .= " LIMIT $startRow, " . ($rowCount + 1);
     }
 
-    $rows = db_param_query($fullQuery, $arrQueryParams);
+    $rows = dbParamQuery($fullQuery, $arrQueryParams);
 
     $records = [];
     $i = -1;

@@ -5,8 +5,8 @@
   <property name="php-cs-fixer-rules" value="no_spaces_after_function_name,no_trailing_whitespace,no_unused_imports,lowercase_keywords,encoding,no_spaces_inside_parenthesis,no_closing_tag,visibility_required,no_empty_statement,no_extra_consecutive_blank_lines,no_blank_lines_after_class_opening,no_blank_lines_after_phpdoc,binary_operator_spaces,no_singleline_whitespace_before_semicolons,ternary_operator_spaces,phpdoc_no_access,no_leading_import_slash" />
   <property name="php-cs-fixer-extra-params" value=""/>
 
-  <!-- Continuous Integration Tasks -->
-  <target name="ci-tasks" description="continuous integration tasks">
+  <!-- Travis Tasks -->
+  <target name="travis" description="Travis tasks">
     <!-- Call standard tasks -->
     <phingcall target="phpcs"/>
     <phingcall target="php-cs-fixer-dryrun"/>
@@ -15,6 +15,11 @@
   <!-- PHP CodeSniffer -->
   <target name="phpcs">
     <exec command="vendor/bin/phpcs --standard=tests/phpcs-ruleset.xml *.php" passthru="true" escape="false" checkreturn="true" />
+  </target>
+
+  <!-- phpcbf -->
+  <target name="phpcbf">
+    <exec command="vendor/bin/phpcbf --standard=tests/phpcs-ruleset.xml *.php" passthru="true" escape="false"/>
   </target>
 
   <!-- php-cs-fixer (first task applies fixes, second task simply checks if they are needed) -->

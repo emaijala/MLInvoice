@@ -20,7 +20,7 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  *
  * @category MLInvoice
- * @package  Misc
+ * @package  MLInvoice\Base
  * @author   Ere Maijala <ere@labs.fi>
  * @license  http://opensource.org/licenses/gpl-2.0.php GNU General Public License
  * @link     http://labs.fi/mlinvoice.eng.php
@@ -31,7 +31,7 @@ require_once 'settings.php';
  * HMAC utility class
  *
  * @category MLInvoice
- * @package  Utility
+ * @package  MLInvoice\Base
  * @author   Ere Maijala <ere@labs.fi>
  * @license  http://opensource.org/licenses/gpl-2.0.php GNU General Public License
  * @link     http://labs.fi/mlinvoice.eng.php
@@ -82,7 +82,7 @@ class HMAC
         $key = getSetting('hmac_key');
         if (!$key) {
             $key = base64_encode(random_bytes(64));
-            db_param_query(
+            dbParamQuery(
                 'INSERT INTO {prefix}settings (name, value) VALUES (?, ?)',
                 ['hmac_key', $key]
             );

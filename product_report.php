@@ -1,27 +1,30 @@
 <?php
-/*******************************************************************************
- MLInvoice: web-based invoicing application.
- Copyright (C) 2010-2017 Ere Maijala
-
- Portions based on:
- PkLasku : web-based invoicing software.
- Copyright (C) 2004-2008 Samu Reinikainen
-
- This program is free software. See attached LICENSE.
-
- *******************************************************************************/
-
-/*******************************************************************************
- MLInvoice: web-pohjainen laskutusohjelma.
- Copyright (C) 2010-2017 Ere Maijala
-
- Perustuu osittain sovellukseen:
- PkLasku : web-pohjainen laskutusohjelmisto.
- Copyright (C) 2004-2008 Samu Reinikainen
-
- Tämä ohjelma on vapaa. Lue oheinen LICENSE.
-
- *******************************************************************************/
+/**
+ * Product report
+ *
+ * PHP version 5
+ *
+ * Copyright (C) 2010-2018 Ere Maijala
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License version 2,
+ * as published by the Free Software Foundation.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
+ *
+ * @category MLInvoice
+ * @package  MLInvoice\Reports
+ * @author   Ere Maijala <ere@labs.fi>
+ * @license  http://opensource.org/licenses/gpl-2.0.php GNU General Public License
+ * @link     http://labs.fi/mlinvoice.eng.php
+ */
 require_once 'htmlfuncs.php';
 require_once 'sqlfuncs.php';
 require_once 'miscfuncs.php';
@@ -30,8 +33,22 @@ require_once 'translator.php';
 require_once 'pdf.php';
 require_once 'abstract_report.php';
 
+/**
+ * Product report
+ *
+ * @category MLInvoice
+ * @package  MLInvoice\Reports
+ * @author   Ere Maijala <ere@labs.fi>
+ * @license  http://opensource.org/licenses/gpl-2.0.php GNU General Public License
+ * @link     http://labs.fi/mlinvoice.eng.php
+ */
 class ProductReport extends AbstractReport
 {
+    /**
+     * Create the report form
+     *
+     * @return void
+     */
     public function createReport()
     {
         $strReport = getRequest('report', '');
@@ -41,9 +58,9 @@ class ProductReport extends AbstractReport
             return;
         }
 
-        $intBaseId = getRequest('base', FALSE);
-        $intCompanyId = getRequest('company', FALSE);
-        $intProductId = getRequest('product', FALSE);
+        $intBaseId = getRequest('base', false);
+        $intCompanyId = getRequest('company', false);
+        $intProductId = getRequest('product', false);
         $dateRange = getRequest('date', '');
         ?>
 
@@ -64,31 +81,45 @@ class ProductReport extends AbstractReport
         </div>
 
         <div class="medium_label"><?php echo Translator::translate('InvoiceDateInterval')?></div>
-        <div class="field"><?php echo htmlFormElement('date', 'TEXT', "$dateRange", 'medium hasDateRangePicker', '', 'MODIFY', FALSE)?></div>
+        <div class="field">
+            <?php echo htmlFormElement('date', 'TEXT', "$dateRange", 'medium hasDateRangePicker', '', 'MODIFY', false)?>
+        </div>
 
         <div class="medium_label"><?php echo Translator::translate('Biller')?></div>
-        <div class="field"><?php echo htmlFormElement('base', 'LIST', $intBaseId, 'medium', 'SELECT id, name FROM {prefix}base WHERE deleted=0 ORDER BY name', 'MODIFY', FALSE)?></div>
+        <div class="field">
+            <?php echo htmlFormElement('base', 'LIST', $intBaseId, 'medium', 'SELECT id, name FROM {prefix}base WHERE deleted=0 ORDER BY name', 'MODIFY', false)?>
+        </div>
 
         <div class="medium_label"><?php echo Translator::translate('Client')?></div>
-        <div class="field"><?php echo htmlFormElement('company', 'LIST', $intCompanyId, 'medium', 'SELECT id, company_name FROM {prefix}company WHERE deleted=0 ORDER BY company_name', 'MODIFY', FALSE)?></div>
+        <div class="field">
+            <?php echo htmlFormElement('company', 'LIST', $intCompanyId, 'medium', 'SELECT id, company_name FROM {prefix}company WHERE deleted=0 ORDER BY company_name', 'MODIFY', false)?>
+        </div>
 
         <div class="medium_label"><?php echo Translator::translate('Product')?></div>
-        <div class="field"><?php echo htmlFormElement('product', 'LIST', $intProductId, 'medium', 'SELECT id, product_name FROM {prefix}product WHERE deleted=0 ORDER BY product_name', 'MODIFY', FALSE)?></div>
+        <div class="field">
+            <?php echo htmlFormElement('product', 'LIST', $intProductId, 'medium', 'SELECT id, product_name FROM {prefix}product WHERE deleted=0 ORDER BY product_name', 'MODIFY', false)?>
+        </div>
 
         <div class="medium_label"><?php echo Translator::translate('PrintFormat')?></div>
         <div class="field">
-            <input type="radio" id="format-table" name="format" value="table" checked="checked">
-            <label for="format-table"><?php echo Translator::translate('PrintFormatTable')?></label>
+            <label>
+                <input type="radio" id="format-table" name="format" value="table" checked="checked">
+                <?php echo Translator::translate('PrintFormatTable')?>
+            </label>
         </div>
         <div class="medium_label"></div>
         <div class="field">
-            <input type="radio" id="format-html" name="format" value="html">
-            <label for="format-html"><?php echo Translator::translate('PrintFormatHTML')?></label>
+            <label>
+                <input type="radio" id="format-html" name="format" value="html">
+                <?php echo Translator::translate('PrintFormatHTML')?>
+            </label>
         </div>
         <div class="medium_label"></div>
         <div class="field">
-            <input type="radio" id="format-pdf" name="format" value="pdf">
-            <label for="format-pdf"><?php echo Translator::translate('PrintFormatPDF')?></label>
+            <label>
+                <input type="radio" id="format-pdf" name="format" value="pdf">
+                <?php echo Translator::translate('PrintFormatPDF')?>
+            </label>
         </div>
         <div class="field_sep"></div>
 
@@ -109,12 +140,17 @@ class ProductReport extends AbstractReport
 <?php
     }
 
-    private function printReport()
+    /**
+     * Print the report
+     *
+     * @return void
+     */
+    protected function printReport()
     {
-        $intStateID = getRequest('stateid', FALSE);
-        $intBaseId = getRequest('base', FALSE);
-        $intCompanyId = getRequest('company', FALSE);
-        $intProductId = getRequest('product', FALSE);
+        $intStateID = getRequest('stateid', false);
+        $intBaseId = getRequest('base', false);
+        $intCompanyId = getRequest('company', false);
+        $intProductId = getRequest('product', false);
         $format = getRequest('format', 'html');
 
         $dateRange = explode(' - ', getRequest('date', ''));
@@ -152,7 +188,7 @@ class ProductReport extends AbstractReport
         $strQuery2 = '';
         $strQuery3 = 'SELECT id, name ' .
              'FROM {prefix}invoice_state WHERE deleted=0 ' . 'ORDER BY order_no';
-        $intRes = mysqli_query_check($strQuery3);
+        $intRes = dbQueryCheck($strQuery3);
         while ($row = mysqli_fetch_assoc($intRes)) {
             $intStateId = $row['id'];
             $strStateName = $row['name'];
@@ -195,7 +231,7 @@ class ProductReport extends AbstractReport
         $productSum = 0;
         $productVAT = 0;
         $productSumVAT = 0;
-        $rows = db_param_query($strProductQuery, $arrParams);
+        $rows = dbParamQuery($strProductQuery, $arrParams);
         foreach ($rows as $row) {
             if ($prevRow !== false && ($prevRow['id'] != $row['id']
                 || $prevRow['description'] != $row['description']
@@ -239,7 +275,16 @@ class ProductReport extends AbstractReport
         $this->printFooter($format);
     }
 
-    private function printHeader($format, $startDate, $endDate)
+    /**
+     * Print header
+     *
+     * @param string $format    Format
+     * @param string $startDate Start date
+     * @param string $endDate   End date
+     *
+     * @return void
+     */
+    protected function printHeader($format, $startDate, $endDate)
     {
         if ($format == 'pdf') {
             ob_end_clean();
@@ -248,7 +293,7 @@ class ProductReport extends AbstractReport
             $pdf->headerRight = Translator::translate('ReportPage');
             $pdf->printHeaderOnFirstPage = true;
             $pdf->AddPage();
-            $pdf->SetAutoPageBreak(TRUE, 15);
+            $pdf->SetAutoPageBreak(true, 15);
 
             $pdf->setY(10);
             $pdf->SetFont('Helvetica', 'B', 12);
@@ -318,9 +363,27 @@ class ProductReport extends AbstractReport
 <?php
     }
 
-    private function printRow($format, $id, $strCode, $strProduct, $strDescription,
-        $intCount, $strUnit, $intSum, $intVATPercent, $intVAT, $intSumVAT)
-    {
+    /**
+     * Print a row
+     *
+     * @param string $format         Format
+     * @param int    $id             Record ID
+     * @param string $strCode        Product code
+     * @param string $strProduct     Product name
+     * @param string $strDescription Product description
+     * @param int    $intCount       Count
+     * @param string $strUnit        Unit
+     * @param int    $intSum         Sum
+     * @param int    $intVATPercent  VAT percent
+     * @param int    $intVAT         VAT
+     * @param int    $intSumVAT      Sum including VAT
+     *
+     * @return void
+     */
+    protected function printRow($format, $id, $strCode, $strProduct, $strDescription,
+        $intCount, $strUnit, $intSum, $intVATPercent, $intVAT, $intSumVAT
+    ) {
+
         if ($strDescription) {
             if ($format == 'html' && mb_strlen($strDescription, 'UTF-8') > 20) {
                 $strDescription = mb_substr($strDescription, 0, 17, 'UTF-8') . '...';
@@ -374,7 +437,7 @@ class ProductReport extends AbstractReport
             <?php if (null !== $id) { ?>
               <a href="index.php?func=settings&list=product&form=product&id=<?php echo htmlspecialchars($id)?>"><?php echo $strProduct?></a>
             <?php } else { ?>
-              <?php echo $strProduct?>
+                <?php echo $strProduct?>
             <?php } ?>
         </td>
             <td class="input" style="text-align: right">
@@ -399,7 +462,17 @@ class ProductReport extends AbstractReport
 <?php
     }
 
-    private function printTotals($format, $intTotSum, $intTotVAT, $intTotSumVAT)
+    /**
+     * Print totals
+     *
+     * @param string $format       Format
+     * @param int    $intTotSum    Total sum
+     * @param int    $intTotVAT    Total VAT
+     * @param int    $intTotSumVAT Total sum including VAT
+     *
+     * @return void
+     */
+    protected function printTotals($format, $intTotSum, $intTotVAT, $intTotSumVAT)
     {
         if ($format == 'pdf') {
             $pdf = $this->pdf;
@@ -441,7 +514,14 @@ class ProductReport extends AbstractReport
 <?php
     }
 
-    private function printFooter($format)
+    /**
+     * Print footer
+     *
+     * @param string $format Format
+     *
+     * @return void
+     */
+    protected function printFooter($format)
     {
         if ($format == 'pdf') {
             $pdf = $this->pdf;
@@ -498,7 +578,11 @@ var table = $('.report-table.datatable').DataTable({
             // Update footer
             pageTotal = MLInvoice.formatCurrency(pageTotal/100);
             total = MLInvoice.formatCurrency(total/100);
-            $(api.column(column).footer()).html('<div style="float: right"><?php echo Translator::translate('VisiblePage') ?>&nbsp;' + pageTotal + '</div><br><div style="float: right"><?php echo Translator::translate('Total') ?>&nbsp;' + total + '</div>');
+            $(api.column(column).footer()).html(
+                '<div style="float: right"><?php echo Translator::translate('VisiblePage') ?>&nbsp;'
+                + pageTotal + '</div><br><div style="float: right"><?php echo Translator::translate('Total') ?>&nbsp;'
+                + total + '</div>'
+            );
         });
     }
 });

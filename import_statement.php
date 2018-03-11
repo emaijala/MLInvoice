@@ -1,26 +1,37 @@
 <?php
-/*******************************************************************************
- MLInvoice: web-based invoicing application.
- Copyright (C) 2010-2017 Ere Maijala
-
- This program is free software. See attached LICENSE.
-
- *******************************************************************************/
-
-/*******************************************************************************
- MLInvoice: web-pohjainen laskutusohjelma.
- Copyright (C) 2010-2017 Ere Maijala
-
- Tämä ohjelma on vapaa. Lue oheinen LICENSE.
-
- *******************************************************************************/
+/**
+ * Account statement import
+ *
+ * PHP version 5
+ *
+ * Copyright (C) 2010-2018 Ere Maijala
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License version 2,
+ * as published by the Free Software Foundation.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
+ *
+ * @category MLInvoice
+ * @package  MLInvoice\Base
+ * @author   Ere Maijala <ere@labs.fi>
+ * @license  http://opensource.org/licenses/gpl-2.0.php GNU General Public License
+ * @link     http://labs.fi/mlinvoice.eng.php
+ */
 require_once 'import.php';
 
 /**
  * Account statement import
  *
  * @category MLInvoice
- * @package  MLInvoice\Import
+ * @package  MLInvoice\Base
  * @author   Ere Maijala <ere@labs.fi>
  * @license  https://opensource.org/licenses/GPL-2.0 GNU Public License 2.0
  * @link     http://github.com/emaijala/MLInvoice
@@ -166,7 +177,17 @@ class ImportStatement extends ImportFile
         $this->fixedWidthName = 'KTL';
     }
 
-    protected function get_xml_preview_data($xml, &$headings, &$rows, &$errors)
+    /**
+     * Get preview data for XML import
+     *
+     * @param SimpleXMLElement $xml      XML
+     * @param array            $headings Resulting headings
+     * @param array            $rows     Resulting rows
+     * @param array            $errors   Any errors
+     *
+     * @return void
+     */
+    protected function getXmlPreviewData($xml, &$headings, &$rows, &$errors)
     {
         $headings = ['booking date', 'value date', 'amount', 'refnr'];
         $rows = [];
@@ -199,7 +220,24 @@ class ImportStatement extends ImportFile
         }
     }
 
-    protected function import_xml($xml, $table, $fieldDefs, $columnMappings,
+    /**
+     * Import XML
+     *
+     * @param SimpleXMLElement $xml                   XML
+     * @param string           $table                 Table name
+     * @param array            $fieldDefs             Field definitions
+     * @param array            $columnMappings        Column mappings
+     * @param string           $duplicateMode         Duplicate handling mode
+     * ('ignore' or 'update')
+     * @param array            $duplicateCheckColumns Columns to use for duplicate
+     * check
+     * @param string           $importMode            Mode ('preview' or 'import')
+     * @param string           $decimalSeparator      Decimal separator
+     * @param array            $errors                Any errors
+     *
+     * @return void
+     */
+    protected function importXml($xml, $table, $fieldDefs, $columnMappings,
         $duplicateMode, $duplicateCheckColumns, $importMode, $decimalSeparator,
         &$errors
     ) {
@@ -234,7 +272,7 @@ class ImportStatement extends ImportFile
                                  Translator::translate('ImportNoMappedColumns') . "<br>\n";
                         }
                     } else {
-                        $result = $this->process_import_row(
+                        $result = $this->processImportRow(
                             $table, $mapped_row, $duplicateMode,
                             $duplicateCheckColumns, $importMode, $decimalSeparator,
                             $fieldDefs[$table], $addedRecordId
@@ -255,16 +293,21 @@ class ImportStatement extends ImportFile
         }
     }
 
-    protected function add_custom_form_fields()
+    /**
+     * Add any custom fields to the form
+     *
+     * @return void
+     */
+    protected function addCustomFormFields()
     {
 ?>
       <div class="medium_label"><?php echo Translator::translate('ImportStatementMarkPaidInvoicesArchived')?></div>
       <div class="field">
-        <input type="checkbox" id="archive" name="archive" value="1" <?=getSetting('invoice_auto_archive') ? 'checked="checked"' : '' ?>>
+        <input type="checkbox" id="archive" name="archive" value="1" <?php echo getSetting('invoice_auto_archive') ? 'checked="checked"' : '' ?>>
       </div>
       <div class="medium_label"><?php echo Translator::translate('Biller')?></div>
       <div class="field">
-        <?=htmlSQLListBox('base_id', 'SELECT id, name FROM {prefix}base WHERE deleted=0', '', 'medium') ?>
+        <?php echo htmlSQLListBox('base_id', 'SELECT id, name FROM {prefix}base WHERE deleted=0', '', 'medium') ?>
       </div>
       <div class="medium_label"><?php echo Translator::translate('ImportStatementAcceptPartialPayments')?></div>
       <div class="field">
@@ -277,7 +320,14 @@ class ImportStatement extends ImportFile
 <?php
     }
 
-    protected function get_field_defs($table)
+    /**
+     * Get field definitions for a table
+     *
+     * @param string $table Table name
+     *
+     * @return array
+     */
+    protected function getFieldDefs($table)
     {
         return [
             'date' => true,
@@ -287,12 +337,34 @@ class ImportStatement extends ImportFile
         ];
     }
 
-    protected function table_valid($table)
+    /**
+     * Check if the table name is valid
+     *
+     * @param string $table Table name
+     *
+     * @return bool
+     */
+    protected function isTableNameValid($table)
     {
         return $table == 'account_statement';
     }
 
-    protected function process_import_row($table, $row, $dupMode, $dupCheckColumns,
+    /**
+     * Process a row to import
+     *
+     * @param string $table            Table name
+     * @param array  $row              Row data
+     * @param string $dupMode          Duplicate handling mode
+     * ('ignore' or 'update')
+     * @param array  $dupCheckColumns  Columns to use for duplicate check
+     * @param string $mode             Mode ('preview' or 'import')
+     * @param string $decimalSeparator Decimal separator
+     * @param array  $fieldDefs        Field definitions
+     * @param int    $addedRecordId    ID of the added record
+     *
+     * @return string Result message
+     */
+    protected function processImportRow($table, $row, $dupMode, $dupCheckColumns,
         $mode, $decimalSeparator, $fieldDefs, &$addedRecordId
     ) {
         if (!isset($row['date']) || !isset($row['amount']) || !isset($row['refnr'])) {
@@ -356,7 +428,7 @@ class ImportStatement extends ImportFile
             $sql .= ' AND ist.invoice_unpaid = 1';
         }
 
-        $rows = db_param_query($sql, $params);
+        $rows = dbParamQuery($sql, $params);
         $count = count($rows);
         if ($count == 0) {
             return str_replace(
@@ -378,7 +450,7 @@ class ImportStatement extends ImportFile
             );
         }
 
-        $rows2 = db_param_query(
+        $rows2 = dbParamQuery(
             'SELECT ir.price, ir.pcs, ir.vat, ir.vat_included, ir.discount, ir.discount_amount, ir.partial_payment from {prefix}invoice_row ir where ir.deleted = 0 AND ir.invoice_id = ?',
             [
                 $row['id']
@@ -407,7 +479,7 @@ INSERT INTO {prefix}invoice_row
     VALUES (?, ?, 0, ?, ?, 100000, 1)
 EOT;
 
-                    db_param_query(
+                    dbParamQuery(
                         $sql,
                         [
                             $row['id'],
@@ -454,7 +526,7 @@ EOT;
                 $sql .= ', archived=1';
             }
             $sql .= ' WHERE id = ?';
-            db_param_query($sql, [$date, $row['id']]);
+            dbParamQuery($sql, [$date, $row['id']]);
         }
         $msgId = $archive
             ? 'ImportStatementInvoiceMarkedAsPaidAndArchived'

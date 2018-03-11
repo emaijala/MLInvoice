@@ -20,7 +20,7 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  *
  * @category MLInvoice
- * @package  Localisation
+ * @package  MLInvoice\Base
  * @author   Ere Maijala <ere@labs.fi>
  * @license  http://opensource.org/licenses/gpl-2.0.php GNU General Public License
  * @link     http://labs.fi/mlinvoice.eng.php
@@ -31,7 +31,7 @@ require_once 'sessionfuncs.php';
  * Translator
  *
  * @category MLInvoice
- * @package  Localisation
+ * @package  MLInvoice\Base
  * @author   Ere Maijala <ere@labs.fi>
  * @license  http://opensource.org/licenses/gpl-2.0.php GNU General Public License
  * @link     http://labs.fi/mlinvoice.eng.php
@@ -94,7 +94,7 @@ class Translator
     /**
      * Get active language for a domain
      *
-     * @param string $domain   Translation domain
+     * @param string $domain Translation domain
      *
      * @return string
      */

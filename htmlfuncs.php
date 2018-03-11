@@ -1,33 +1,43 @@
 <?php
-
-/*******************************************************************************
- MLInvoice: web-based invoicing application.
- Copyright (C) 2010-2017 Ere Maijala
-
- Portions based on:
- PkLasku : web-based invoicing software.
- Copyright (C) 2004-2008 Samu Reinikainen
-
- This program is free software. See attached LICENSE.
-
- *******************************************************************************/
-
-/*******************************************************************************
- MLInvoice: web-pohjainen laskutusohjelma.
- Copyright (C) 2010-2017 Ere Maijala
-
- Perustuu osittain sovellukseen:
- PkLasku : web-pohjainen laskutusohjelmisto.
- Copyright (C) 2004-2008 Samu Reinikainen
-
- Tämä ohjelma on vapaa. Lue oheinen LICENSE.
-
- *******************************************************************************/
-
+/**
+ * HTML functions
+ *
+ * PHP version 5
+ *
+ * Copyright (C) 2004-2008 Samu Reinikainen
+ * Copyright (C) 2010-2018 Ere Maijala
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License version 2,
+ * as published by the Free Software Foundation.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
+ *
+ * @category MLInvoice
+ * @package  MLInvoice\Base
+ * @author   Ere Maijala <ere@labs.fi>
+ * @license  http://opensource.org/licenses/gpl-2.0.php GNU General Public License
+ * @link     http://labs.fi/mlinvoice.eng.php
+ */
 require_once 'list.php';
 require_once 'settings.php';
 require_once 'sqlfuncs.php';
 
+/**
+ * Create HTTP headers and HTML page start
+ *
+ * @param string $strTitle        Page title
+ * @param array  $arrExtraScripts Extra scripts to add
+ *
+ * @return string HTML content
+ */
 function htmlPageStart($strTitle = '', $arrExtraScripts = [])
 {
     // These are to prevent browser & proxy caching
@@ -40,11 +50,13 @@ function htmlPageStart($strTitle = '', $arrExtraScripts = [])
     header('Last-Modified: ' . gmdate('D, d M Y H:i:s') . ' GMT');
 
     $charset = (_CHARSET_ == 'UTF-8') ? 'UTF-8' : 'ISO-8859-15';
-    if (isset($_SERVER['HTTP_USER_AGENT']) &&
-         strpos($_SERVER['HTTP_USER_AGENT'], 'MSIE') !== false)
+    if (isset($_SERVER['HTTP_USER_AGENT'])
+        && strpos($_SERVER['HTTP_USER_AGENT'], 'MSIE') !== false
+    ) {
         $xUACompatible = "  <meta http-equiv=\"X-UA-Compatible\" content=\"IE=edge\">\n";
-    else
+    } else {
         $xUACompatible = '';
+    }
     $theme = defined('_UI_THEME_LOCATION_') ? _UI_THEME_LOCATION_ : 'jquery/css/theme/jquery-ui.min.css';
     $lang = isset($_SESSION['sesLANG']) ? $_SESSION['sesLANG'] : 'fi-FI';
     $datePickerOptions = Translator::translate('DatePickerOptions');
@@ -115,10 +127,10 @@ function htmlPageStart($strTitle = '', $arrExtraScripts = [])
         'ConfirmDelete'
     ];
 
-    $res = mysqli_query_check(
+    $res = dbQueryCheck(
         'SELECT name FROM {prefix}invoice_state WHERE deleted=0'
     );
-    while ($row = mysqli_fetch_value($res)) {
+    while ($row = dbFetchValue($res)) {
         $translations[] = $row;
     }
 
@@ -145,14 +157,14 @@ function htmlPageStart($strTitle = '', $arrExtraScripts = [])
     $jsTranslations = json_encode($jsTranslations);
 
     $dispatchNotePrintStyle = 'none';
-    $res = mysqli_query_check('SELECT * FROM {prefix}print_template WHERE id=2');
+    $res = dbQueryCheck('SELECT * FROM {prefix}print_template WHERE id=2');
     if ($row = mysqli_fetch_assoc($res)) {
         if (!$row['deleted'] && !$row['inactive']) {
             $dispatchNotePrintStyle = $row['new_window'] ? 'openwindow' : 'redirect';
         }
     }
 
-    $res = mysqli_query_check(
+    $res = dbQueryCheck(
         'SELECT id FROM {prefix}invoice_state WHERE invoice_offer=1'
     );
     while ($row = mysqli_fetch_assoc($res)) {
@@ -309,29 +321,33 @@ foreach ($astrMainButtons as $button) {
 <?php
 }
 
+/**
+ * Create Html-listbox
+ *
+ * @param string $strName                  Listbox name
+ * @param array  $astrValues               Listbox values => descriptions
+ * @param string $strSelected              Selected value
+ * @param string $strStyle                 Style
+ * @param bool   $blnSubmitOnChange        Whether to submit the form when value is
+ * changed
+ * @param bool   $blnShowEmpty             Whether to show "empty" value
+ * @param string $astrAdditionalAttributes Any additional attributes
+ * @param bool   $translate                Whether the options are translated
+ *
+ * @return string HTML
+ */
 function htmlListBox($strName, $astrValues, $strSelected, $strStyle = '',
-    $blnSubmitOnChange = FALSE, $blnShowEmpty = TRUE, $astrAdditionalAttributes = '',
-    $translate = false)
-{
-    /********************************************************************
-     Function : htmlListBox
-     Create Html-listbox
+    $blnSubmitOnChange = false, $blnShowEmpty = true, $astrAdditionalAttributes = '',
+    $translate = false
+) {
 
-     Args :
-     $strName (string): listbox name
-     $astrValues (stringarray): listbox values => descriptions
-     $strSelected (string): selected value
-
-     Return : $strListBox (string) : listbox element
-
-     Todo :
-     ********************************************************************/
     $strOnChange = '';
     if ($blnSubmitOnChange) {
         $strOnChange = " onchange='this.form.submit();'";
     }
-    if ($astrAdditionalAttributes)
+    if ($astrAdditionalAttributes) {
         $astrAdditionalAttributes = " $astrAdditionalAttributes";
+    }
     $strListBox = "<select class=\"$strStyle\" id=\"$strName\" name=\"$strName\"{$strOnChange}{$astrAdditionalAttributes}>\n";
     if ($blnShowEmpty) {
         $strListBox .= '<option value=""' . ($strSelected ? '' : ' selected') .
@@ -351,37 +367,69 @@ function htmlListBox($strName, $astrValues, $strSelected, $strStyle = '',
     return $strListBox;
 }
 
+/**
+ * Create a listbox from an SQL query
+ *
+ * @param string $strName                  Element name
+ * @param string $strQuery                 SQL query to get the list contents
+ * @param string $strSelected              Selected value
+ * @param string $strStyle                 CSS style
+ * @param bool   $blnSubmitOnChange        Whether to submit the form when a value is
+ * selected
+ * @param string $astrAdditionalAttributes Additional element attributes
+ * @param bool   $translate                Whether to translate the choices
+ *
+ * @return string
+ */
 function htmlSQLListBox($strName, $strQuery, $strSelected, $strStyle = '',
-    $blnSubmitOnChange = FALSE, $astrAdditionalAttributes = '', $translate = false)
-{
+    $blnSubmitOnChange = false, $astrAdditionalAttributes = '', $translate = false
+) {
+
     $astrValues = [];
-    $intRes = mysqli_query_check($strQuery);
+    $intRes = dbQueryCheck($strQuery);
     while ($row = mysqli_fetch_row($intRes)) {
         $astrValues[$row[0]] = $row[1];
     }
-    $showEmpty = TRUE;
+    $showEmpty = true;
     if (strstr($strStyle, ' noemptyvalue')) {
         $strStyle = str_replace(' noemptyvalue', '', $strStyle);
-        $showEmpty = FALSE;
+        $showEmpty = false;
     }
-    $strListBox = htmlListBox($strName, $astrValues, $strSelected, $strStyle,
-        $blnSubmitOnChange, $showEmpty, $astrAdditionalAttributes, $translate);
+    $strListBox = htmlListBox(
+        $strName, $astrValues, $strSelected, $strStyle,
+        $blnSubmitOnChange, $showEmpty, $astrAdditionalAttributes, $translate
+    );
 
     return $strListBox;
 }
 
-// Get the value for the specified option
+/**
+ * Get the value for the specified option
+ *
+ * @param string $strQuery    SQL query
+ * @param string $strSelected Selected option
+ *
+ * @return string
+ */
 function getSQLListBoxSelectedValue($strQuery, $strSelected)
 {
-    $intRes = mysqli_query_check($strQuery);
+    $intRes = dbQueryCheck($strQuery);
     while ($row = mysqli_fetch_row($intRes)) {
-        if ($row[0] == $strSelected)
+        if ($row[0] == $strSelected) {
             return $row[1];
+        }
     }
     return '';
 }
 
-// Get the value for the specified option
+/**
+ * Get the value for the specified option of a search list
+ *
+ * @param string $strQuery    SQL query
+ * @param string $strSelected Selected option
+ *
+ * @return string
+ */
 function getSearchListSelectedValue($strQuery, $strSelected)
 {
     parse_str($strQuery, $params);
@@ -391,21 +439,47 @@ function getSearchListSelectedValue($strQuery, $strSelected)
     return isset($result['records'][0]['text']) ? $result['records'][0]['text'] : '';
 }
 
-// Get the value for the specified option
+/**
+ * Get the value for the specified option
+ *
+ * @param array $options  Options
+ * @param array $selected Selected option
+ *
+ * @return string
+ */
 function getListBoxSelectedValue($options, $selected)
 {
-    if (isset($options[$selected]))
+    if (isset($options[$selected])) {
         return $options[$selected];
+    }
     return '';
 }
 
-// Create form element
+/**
+ * Create a form element
+ *
+ * @param string $strName                  Element name
+ * @param string $strType                  Element type
+ * @param string $strValue                 Element value
+ * @param string $strStyle                 Element style
+ * @param string $strListQuery             Query for list element
+ * @param string $strMode                  Edit mode
+ * @param string $strParentKey             Parent record ID
+ * @param string $strTitle                 Element title
+ * @param array  $astrDefaults             Unused TODO: remove
+ * @param array  $astrAdditionalAttributes Additional HTML attributes
+ * @param array  $options                  Options for a listbox or drop-down menu
+ *
+ * @return string
+ */
 function htmlFormElement($strName, $strType, $strValue, $strStyle, $strListQuery = '',
-    $strMode = 'MODIFY', $strParentKey = NULL, $strTitle = '', $astrDefaults = [],
-    $astrAdditionalAttributes = '', $options = NULL)
-{
-    if ($astrAdditionalAttributes)
+    $strMode = 'MODIFY', $strParentKey = null, $strTitle = '', $astrDefaults = [],
+    $astrAdditionalAttributes = '', $options = null
+) {
+
+    if ($astrAdditionalAttributes) {
         $astrAdditionalAttributes = " $astrAdditionalAttributes";
+    }
     $strFormElement = '';
     $readOnly = $strMode == 'MODIFY' ? '' : ' readonly="readonly"';
     $disabled = $strMode == 'MODIFY' ? '' : ' disabled="disabled"';
@@ -441,13 +515,14 @@ function htmlFormElement($strName, $strType, $strValue, $strStyle, $strListQuery
         break;
 
     case 'INT':
-        $hideZero = FALSE;
+        $hideZero = false;
         if (strstr($strStyle, ' hidezerovalue')) {
             $strStyle = str_replace(' hidezerovalue', '', $strStyle);
-            $hideZero = TRUE;
+            $hideZero = true;
         }
-        if ($hideZero && $strValue == 0)
+        if ($hideZero && $strValue == 0) {
             $strValue = '';
+        }
         $strFormElement = "<input type=\"text\" class=\"$strStyle\" " .
              "id=\"$strName\" name=\"$strName\" value=\"" .
              htmlspecialchars($strValue) . "\"$astrAdditionalAttributes$readOnly>\n";
@@ -474,9 +549,9 @@ function htmlFormElement($strName, $strType, $strValue, $strStyle, $strListQuery
 
     case 'RESULT':
         $strListQuery = str_replace('_ID_', $strValue, $strListQuery);
-        $res = mysqli_query_check($strListQuery);
+        $res = dbQueryCheck($strListQuery);
         $strFormElement = htmlspecialchars(
-            mysqli_fetch_value($res)
+            dbFetchValue($res)
         ) . "\n";
         break;
 
@@ -500,14 +575,17 @@ function htmlFormElement($strName, $strType, $strValue, $strStyle, $strListQuery
                 );
 
             } else {
-                $strFormElement = htmlSQLListBox($strName, $strListQuery, $strValue,
-                    $strStyle, false, $astrAdditionalAttributes, $translate);
+                $strFormElement = htmlSQLListBox(
+                    $strName, $strListQuery, $strValue,
+                    $strStyle, false, $astrAdditionalAttributes, $translate
+                );
             }
         } else {
             $strFormElement = "<input type=\"text\" class=\"$strStyle\" " .
                  "id=\"$strName\" name=\"$strName\" value=\"" .
                  htmlspecialchars(
-                    getSQLListBoxSelectedValue($strListQuery, $strValue, $translate)) .
+                     getSQLListBoxSelectedValue($strListQuery, $strValue, $translate)
+                 ) .
                  "\"$astrAdditionalAttributes$readOnly>\n";
         }
         break;
@@ -529,7 +607,8 @@ EOT;
             $strFormElement = "<input type=\"text\" class=\"$strStyle\" " .
                  "id=\"$strName\" name=\"$strName\" value=\"" .
                  htmlspecialchars(
-                    getSearchListSelectedValue($strListQuery, $strValue, false)) .
+                     getSearchListSelectedValue($strListQuery, $strValue, false)
+                 ) .
                  "\"$astrAdditionalAttributes$readOnly>\n";
         }
         break;
@@ -540,12 +619,15 @@ EOT;
             $strStyle = str_replace(' translated', '', $strStyle);
         }
         if ($strMode == 'MODIFY') {
-            $strFormElement = htmlListBox($strName, $options, $strValue, $strStyle,
-                false, $astrAdditionalAttributes, $translate);
+            $strFormElement = htmlListBox(
+                $strName, $options, $strValue, $strStyle,
+                false, $astrAdditionalAttributes, $translate
+            );
         } else {
             $strFormElement = "<input type=\"text\" class=\"$strStyle\" " .
                  "id=\"$strName\" name=\"$strName\" value=\"" . htmlspecialchars(
-                    getListBoxSelectedValue($options, $strValue, $translate)) .
+                     getListBoxSelectedValue($options, $strValue, $translate)
+                 ) .
                  "\"$astrAdditionalAttributes$readOnly>\n";
         }
         break;
@@ -627,8 +709,9 @@ EOT;
         if (strstr($strListQuery, '_ID_') && !$strValue) {
             $strFormElement = Translator::translate('SaveFirst');
         } else {
-            if ($strValue)
+            if ($strValue) {
                 $strListQuery = str_replace('_ID_', $strValue, $strListQuery);
+            }
             $strOnClick = "onClick=\"$strListQuery\"";
             $strFormElement = "<a class=\"formbuttonlink\" href=\"#\" $strOnClick$astrAdditionalAttributes>" .
                  htmlspecialchars(Translator::translate($strTitle)) . "</a>\n";

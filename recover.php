@@ -20,7 +20,7 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  *
  * @category MLInvoice
- * @package  Login
+ * @package  MLInvoice\Base
  * @author   Ere Maijala <ere@labs.fi>
  * @license  http://opensource.org/licenses/gpl-2.0.php GNU General Public License
  * @link     http://labs.fi/mlinvoice.eng.php
@@ -156,9 +156,9 @@ if (empty($completed)) {
         <div class="ui-widget form" style="padding: 30px;">
             <h1><?php echo Translator::translate('RecoverAccount')?></h1>
             <form method="post" name="recover_form">
-<?php
+    <?php
     if ($token && !empty($user)) {
-?>
+    ?>
                 <input type="hidden" name="token" value="<?php echo htmlentities($token)?>">
                 <p>
                     <span style="width: 140px; display: inline-block;"><?php echo Translator::translate('UserID')?></span>
@@ -168,16 +168,16 @@ if (empty($completed)) {
                     <span style="width: 140px; display: inline-block;"><?php echo Translator::translate('NewPassword')?></span>
                     <input class="medium" name="password" id="password" type="text" value="">
                 </p>
-<?php
+    <?php
     } else {
-?>
+    ?>
                 <p>
                     <span style="width: 140px; display: inline-block;"><?php echo Translator::translate('UserIdOrEmail')?></span>
                     <input class="medium" name="userid" id="userid" type="text" value="">
                 </p>
-<?php
+    <?php
     }
-?>
+    ?>
 
                 <p>
                 <input class="ui-button ui-corner-all ui-widget" type="submit" name="logon"

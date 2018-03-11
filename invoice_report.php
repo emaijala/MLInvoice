@@ -1,27 +1,30 @@
 <?php
-/*******************************************************************************
- MLInvoice: web-based invoicing application.
- Copyright (C) 2010-2017 Ere Maijala
-
- Portions based on:
- PkLasku : web-based invoicing software.
- Copyright (C) 2004-2008 Samu Reinikainen
-
- This program is free software. See attached LICENSE.
-
- *******************************************************************************/
-
-/*******************************************************************************
- MLInvoice: web-pohjainen laskutusohjelma.
- Copyright (C) 2010-2017 Ere Maijala
-
- Perustuu osittain sovellukseen:
- PkLasku : web-pohjainen laskutusohjelmisto.
- Copyright (C) 2004-2008 Samu Reinikainen
-
- Tämä ohjelma on vapaa. Lue oheinen LICENSE.
-
- *******************************************************************************/
+/**
+ * Invoice report
+ *
+ * PHP version 5
+ *
+ * Copyright (C) 2010-2018 Ere Maijala
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License version 2,
+ * as published by the Free Software Foundation.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
+ *
+ * @category MLInvoice
+ * @package  MLInvoice\Reports
+ * @author   Ere Maijala <ere@labs.fi>
+ * @license  http://opensource.org/licenses/gpl-2.0.php GNU General Public License
+ * @link     http://labs.fi/mlinvoice.eng.php
+ */
 require_once 'htmlfuncs.php';
 require_once 'sqlfuncs.php';
 require_once 'miscfuncs.php';
@@ -30,6 +33,15 @@ require_once 'translator.php';
 require_once 'pdf.php';
 require_once 'abstract_report.php';
 
+/**
+ * Invoice report
+ *
+ * @category MLInvoice
+ * @package  MLInvoice\Reports
+ * @author   Ere Maijala <ere@labs.fi>
+ * @license  http://opensource.org/licenses/gpl-2.0.php GNU General Public License
+ * @link     http://labs.fi/mlinvoice.eng.php
+ */
 class InvoiceReport extends AbstractReport
 {
     protected $fields = [
@@ -75,6 +87,11 @@ class InvoiceReport extends AbstractReport
 
     protected $description = '';
 
+    /**
+     * Create the report
+     *
+     * @return void
+     */
     public function createReport()
     {
         $strReport = getRequest('report', '');
@@ -124,83 +141,123 @@ class InvoiceReport extends AbstractReport
 <?php
         $this->addLimitSelection();
 ?>
-            <div class="medium_label"><?php echo Translator::translate('PrintFormat')?></div>
+            <div class="medium_label">
+                <?php echo Translator::translate('PrintFormat')?>
+            </div>
             <div class="field">
-                <input type="radio" id="format-html" name="format" value="html" <?php if ($format == 'html') echo ' checked="checked"'?>>
-                <label for="format-html"><?php echo Translator::translate('PrintFormatHTML')?></label>
+                <label>
+                    <input type="radio" id="format-html" name="format" value="html"<?php echo $format == 'html' ? ' checked="checked"' : ''?>>
+                    <?php echo Translator::translate('PrintFormatHTML')?>
+                </label>
             </div>
             <div class="medium_label"></div>
             <div class="field">
-                <input type="radio" id="format-table" name="format" value="table" <?php if ($format == 'table') echo ' checked="checked"'?>>
-                <label for="format-table"><?php echo Translator::translate('PrintFormatTable')?></label>
+                <label>
+                    <input type="radio" id="format-table" name="format" value="table"<?php echo $format == 'table' ? ' checked="checked"' : ''?>>
+                    <?php echo Translator::translate('PrintFormatTable')?>
+                </label>
             </div>
             <div class="medium_label"></div>
             <div class="field">
-                <input type="radio" id="format-pdf" name="format" value="pdf" <?php if ($format == 'pdf') echo ' checked="checked"'?>>
-                <label for="format-pdf"><?php echo Translator::translate('PrintFormatPDF')?></label>
+                <label>
+                    <input type="radio" id="format-pdf" name="format" value="pdf"<?php echo $format == 'pdf' ? ' checked="checked"' : ''?>>
+                    <?php echo Translator::translate('PrintFormatPDF')?>
+                </label>
             </div>
             <div class="medium_label"></div>
             <div class="field">
-                <input type="radio" id="format-pdfl" name="format" value="pdfl" <?php if ($format == 'pdfl') echo ' checked="checked"'?>>
-                <label for="format-pdfl"><?php echo Translator::translate('PrintFormatPDFLandscape')?></label>
+                <label>
+                    <input type="radio" id="format-pdfl" name="format" value="pdfl"<?php echo $format == 'pdfl' ? ' checked="checked"' : ''?>>
+                    <?php echo Translator::translate('PrintFormatPDFLandscape')?>
+                </label>
             </div>
             <div class="field_sep"></div>
 
-            <div class="medium_label"><?php echo Translator::translate('InvoiceRowTypes')?></div>
+            <div class="medium_label">
+                <?php echo Translator::translate('InvoiceRowTypes')?>
+            </div>
             <div class="field">
-                <input type="radio" id="row-type-all" name="row_types" value="all"
-                    <?php if ($rowTypes == 'all') echo ' checked="checked"'?>><label for="row-type-all"><?php echo Translator::translate('PrintInvoiceRowTypeAll')?></label></div>
+                <label>
+                    <input type="radio" id="row-type-all" name="row_types" value="all"<?php echo $rowTypes == 'all' ? ' checked="checked"' : ''?>>
+                    <?php echo Translator::translate('PrintInvoiceRowTypeAll')?>
+                </label>
+            </div>
             <div class="medium_label"></div>
             <div class="field">
-                <input type="radio" id="row-type-normal" name="row_types" value="normal"
-                    <?php if ($rowTypes == 'normal') echo ' checked="checked"'?>><label for="row-type-normal"><?php echo Translator::translate('PrintInvoiceRowTypeNormal')?></label></div>
+                <label>
+                    <input type="radio" id="row-type-normal" name="row_types" value="normal" <?php echo $rowTypes == 'normal' ? ' checked="checked"' : ''?>>
+                    <?php echo Translator::translate('PrintInvoiceRowTypeNormal')?>
+                </label>
+            </div>
             <div class="medium_label"></div>
             <div class="field">
-                <input type="radio" id="row-type-reminder" name="row_types" value="reminder"
-                    <?php if ($rowTypes == 'reminder') echo ' checked="checked"'?>><label for="row-type-reminder"><?php echo Translator::translate('PrintInvoiceRowTypeReminder')?></label></div>
+                <label>
+                    <input type="radio" id="row-type-reminder" name="row_types" value="reminder"<?php echo $rowTypes == 'reminder' ? ' checked="checked"' : ''?>>
+                    <?php echo Translator::translate('PrintInvoiceRowTypeReminder')?>
+                </label>
+            </div>
             <div class="field_sep"></div>
 
-            <div class="medium_label"><?php echo Translator::translate('PrintGrouping')?></div>
+            <div class="medium_label">
+                <?php echo Translator::translate('PrintGrouping')?>
+            </div>
             <div class="field">
-                <input type="radio" id="grouping-none" name="grouping" value=""
-                    <?php if ($grouping == '') echo ' checked="checked"'?>><label for="grouping-none"><?php echo Translator::translate('PrintGroupingNone')?></label></div>
+                <label>
+                    <input type="radio" id="grouping-none" name="grouping" value=""<?php echo $grouping == '' ? ' checked="checked"' : ''?>>
+                    <?php echo Translator::translate('PrintGroupingNone')?>
+                </label>
+            </div>
             <div class="medium_label"></div>
             <div class="field">
-                <input type="radio" id="grouping-state" name="grouping" value="state"
-                    <?php if ($grouping == 'state') echo ' checked="checked"'?>><label for="grouping-state"><?php echo Translator::translate('PrintGroupingState')?></label></div>
+                <label>
+                    <input type="radio" id="grouping-state" name="grouping" value="state"<?php echo $grouping == 'state' ? ' checked="checked"' : ''?>>
+                    <?php echo Translator::translate('PrintGroupingState')?>
+                </label>
+            </div>
             <div class="medium_label"></div>
             <div class="field">
-                <input type="radio" id="grouping-month" name="grouping" value="month"
-                    <?php if ($grouping == 'month') echo ' checked="checked"'?>><label for="grouping-month"><?php echo Translator::translate('PrintGroupingMonth')?></label></div>
+                <label>
+                    <input type="radio" id="grouping-month" name="grouping" value="month"<?php echo $grouping == 'month' ? ' checked="checked"' : ''?>>
+                    <?php echo Translator::translate('PrintGroupingMonth')?>
+                </label>
+            </div>
             <div class="medium_label"></div>
             <div class="field">
-                <input type="radio" id="grouping-client" name="grouping" value="client"
-                    <?php if ($grouping == 'client') echo ' checked="checked"'?>><label for="grouping-client"><?php echo Translator::translate('PrintGroupingClient')?></label></div>
+                <label>
+                    <input type="radio" id="grouping-client" name="grouping" value="client"<?php echo $grouping == 'client' ? ' checked="checked"' : ''?>>
+                    <?php echo Translator::translate('PrintGroupingClient')?>
+                </label>
+            </div>
             <div class="medium_label"></div>
             <div class="field">
-                <input type="radio" id="grouping-vat" name="grouping" value="vat"
-                    <?php if ($grouping == 'vat') echo ' checked="checked"'?>><label for="grouping-vat"><?php echo Translator::translate('PrintGroupingVAT')?></label></div>
+                <label>
+                    <input type="radio" id="grouping-vat" name="grouping" value="vat"<?php echo $grouping == 'vat' ? ' checked="checked"' : ''?>>
+                    <?php echo Translator::translate('PrintGroupingVAT')?>
+                </label>
+            </div>
             <div class="field_sep">&nbsp;</div>
-
         </div>
-<?php
+        <?php
         $this->addInvoiceStateSelection();
-?>
+        ?>
         <div style="float: left">
             <div class="medium_label"><?php echo Translator::translate('PrintFields')?></div>
-<?php
+        <?php
         $first = true;
         foreach ($this->fields as $field => $spec) {
             $label = Translator::translate($spec['label']);
-            $checked = $spec['checked'] ? 'checked="checked"' : '';
+            $checked = $spec['checked'] ? ' checked="checked"' : '';
             if (!$first) {
                 echo "      <div class=\"medium_label\"></div>\n";
             }
             ?>
         <div class="field">
-                <input type="checkbox" id="field-<?php echo $field?>" name="fields[]" value="<?php echo $field?>"
-                    <?php echo $checked?>> <label for="field-<?php echo $field?>"><?php echo $label?></label></div>
-<?php
+            <label>
+                <input type="checkbox" id="field-<?php echo $field?>" name="fields[]" value="<?php echo $field?>"<?php echo $checked?>>
+                <?php echo $label?>
+            </label>
+        </div>
+            <?php
             $first = false;
         }
         ?>
@@ -218,6 +275,11 @@ class InvoiceReport extends AbstractReport
 <?php
     }
 
+    /**
+     * Add limits
+     *
+     * @return void
+     */
     protected function addLimitSelection()
     {
         $intBaseId = getRequest('base', false);
@@ -227,22 +289,37 @@ class InvoiceReport extends AbstractReport
         $paymentDateRange = getRequest('payment_date', '');
 ?>
             <div class="medium_label"><?php echo Translator::translate('InvoiceDateInterval')?></div>
-            <div class="field"><?php echo htmlFormElement('date', 'TEXT', $invoiceDateRange, 'medium hasDateRangePicker', '', 'MODIFY', false)?></div>
+            <div class="field">
+                <?php echo htmlFormElement('date', 'TEXT', $invoiceDateRange, 'medium hasDateRangePicker', '', 'MODIFY', false)?>
+            </div>
 
             <div class="medium_label"><?php echo Translator::translate('InvoiceRowDateInterval')?></div>
-            <div class="field"><?php echo htmlFormElement('row_date', 'TEXT', $invoiceRowDateRange, 'medium hasDateRangePicker', '', 'MODIFY', false)?></div>
+            <div class="field">
+                <?php echo htmlFormElement('row_date', 'TEXT', $invoiceRowDateRange, 'medium hasDateRangePicker', '', 'MODIFY', false)?>
+            </div>
 
             <div class="medium_label"><?php echo Translator::translate('PaymentDateInterval')?></div>
-            <div class="field"><?php echo htmlFormElement('payment_date', 'TEXT', $paymentDateRange, 'medium hasDateRangePicker', '', 'MODIFY', false)?></div>
+            <div class="field">
+                <?php echo htmlFormElement('payment_date', 'TEXT', $paymentDateRange, 'medium hasDateRangePicker', '', 'MODIFY', false)?>
+            </div>
 
             <div class="medium_label"><?php echo Translator::translate('Biller')?></div>
-            <div class="field"><?php echo htmlFormElement('base', 'LIST', $intBaseId, 'medium', 'SELECT id, name FROM {prefix}base WHERE deleted=0 ORDER BY name', 'MODIFY', false)?></div>
+            <div class="field">
+                <?php echo htmlFormElement('base', 'LIST', $intBaseId, 'medium', 'SELECT id, name FROM {prefix}base WHERE deleted=0 ORDER BY name', 'MODIFY', false)?>
+            </div>
 
             <div class="medium_label"><?php echo Translator::translate('Client')?></div>
-            <div class="field"><?php echo htmlFormElement('company', 'LIST', $intCompanyId, 'medium', 'SELECT id, company_name FROM {prefix}company WHERE deleted=0 ORDER BY company_name', 'MODIFY', false)?></div>
+            <div class="field">
+                <?php echo htmlFormElement('company', 'LIST', $intCompanyId, 'medium', 'SELECT id, company_name FROM {prefix}company WHERE deleted=0 ORDER BY company_name', 'MODIFY', false)?>
+            </div>
 <?php
     }
 
+    /**
+     * Create a limit query
+     *
+     * @return string
+     */
     protected function createLimitQuery()
     {
         $strQuery = '';
@@ -286,6 +363,11 @@ class InvoiceReport extends AbstractReport
         return [$strQuery, $arrParams];
     }
 
+    /**
+     * Print the report
+     *
+     * @return void
+     */
     protected function printReport()
     {
         $grouping = getRequest('grouping', '');
@@ -293,13 +375,15 @@ class InvoiceReport extends AbstractReport
         $printFields = getRequest('fields', []);
         $rowTypes = getRequest('row_types', 'all');
 
-        $strQuery = 'SELECT i.id, i.invoice_no, i.invoice_date, i.due_date, i.payment_date, i.ref_number, i.ref_number, c.company_name AS name, c.billing_address, ist.name as state, ist.invoice_unpaid as unpaid' .
-            ($grouping == 'vat' ? ', ir.vat' : '') .
-            ' FROM {prefix}invoice i' .
-            ($grouping == 'vat' ? ' INNER JOIN {prefix}invoice_row ir ON ir.invoice_id = i.id' : '') .
-            ' LEFT OUTER JOIN {prefix}company c ON c.id = i.company_id' .
-            ' LEFT OUTER JOIN {prefix}invoice_state ist ON i.state_id = ist.id' .
-            ' WHERE i.deleted=0';
+        $strQuery = 'SELECT i.id, i.invoice_no, i.invoice_date, i.due_date,'
+            . ' i.payment_date, i.ref_number, i.ref_number, c.company_name AS name,'
+            . ' c.billing_address, ist.name as state, ist.invoice_unpaid as unpaid'
+            . ($grouping == 'vat' ? ', ir.vat' : '')
+            . ' FROM {prefix}invoice i'
+            . ($grouping == 'vat' ? ' INNER JOIN {prefix}invoice_row ir ON ir.invoice_id = i.id' : '')
+            . ' LEFT OUTER JOIN {prefix}company c ON c.id = i.company_id'
+            . ' LEFT OUTER JOIN {prefix}invoice_state ist ON i.state_id = ist.id'
+            . ' WHERE i.deleted=0';
 
         list($limitQuery, $arrParams) = $this->createLimitQuery();
 
@@ -308,7 +392,7 @@ class InvoiceReport extends AbstractReport
         $strQuery2 = '';
         $strQuery3 = 'SELECT id, name ' .
             'FROM {prefix}invoice_state WHERE deleted=0 ORDER BY order_no';
-        $intRes = mysqli_query_check($strQuery3);
+        $intRes = dbQueryCheck($strQuery3);
         while ($row = mysqli_fetch_assoc($intRes)) {
             $intStateId = $row['id'];
             $strStateName = $row['name'];
@@ -360,7 +444,7 @@ class InvoiceReport extends AbstractReport
         $groupTotSumVAT = 0;
         $groupTotalToPay = 0;
         $totalsPerVAT = [];
-        $rows = db_param_query($strQuery, $arrParams);
+        $rows = dbParamQuery($strQuery, $arrParams);
         foreach ($rows as $row) {
             switch ($grouping) {
             case 'state' :
@@ -411,7 +495,7 @@ class InvoiceReport extends AbstractReport
                 }
             }
 
-            $rows2 = db_param_query($strQuery, $rowParams);
+            $rows2 = dbParamQuery($strQuery, $rowParams);
             $intRowSum = 0;
             $intRowVAT = 0;
             $intRowSumVAT = 0;
@@ -459,9 +543,11 @@ class InvoiceReport extends AbstractReport
             }
 
             if ($grouping && $currentGroup !== false && $currentGroup != $invoiceGroup) {
-                $this->printGroupSums($format, $printFields, $row, $groupTotSum,
+                $this->printGroupSums(
+                    $format, $printFields, $row, $groupTotSum,
                     $groupTotVAT, $groupTotSumVAT, $groupTotalToPay,
-                    $grouping == 'vat' ? Translator::translate('VAT') . ' ' . miscRound2Decim($currentGroup) : '');
+                    $grouping == 'vat' ? Translator::translate('VAT') . ' ' . miscRound2Decim($currentGroup) : ''
+                );
                 $groupTotSum = 0;
                 $groupTotVAT = 0;
                 $groupTotSumVAT = 0;
@@ -474,28 +560,44 @@ class InvoiceReport extends AbstractReport
             $groupTotSumVAT += $intRowSumVAT;
             $groupTotalToPay += $intRowSumVAT - $rowPayments;
 
-            $this->printRow($format, $printFields, $row, $intRowSum, $intRowVAT,
-                $intRowSumVAT, $intRowSumVAT - $rowPayments);
+            $this->printRow(
+                $format, $printFields, $row, $intRowSum, $intRowVAT,
+                $intRowSumVAT, $intRowSumVAT - $rowPayments
+            );
         }
         if ($grouping) {
-            $this->printGroupSums($format, $printFields, $row, $groupTotSum,
+            $this->printGroupSums(
+                $format, $printFields, $row, $groupTotSum,
                 $groupTotVAT, $groupTotSumVAT, $groupTotalToPay,
                 $grouping == 'vat' ? Translator::translate('VAT') . ' '
-                    . miscRound2Decim($currentGroup) : '');
+                    . miscRound2Decim($currentGroup) : ''
+            );
         }
         ksort($totalsPerVAT, SORT_NUMERIC);
-        $this->printTotals($format, $printFields, $intTotSum, $intTotVAT,
-            $intTotSumVAT, $intTotalToPay, $totalsPerVAT);
+        $this->printTotals(
+            $format, $printFields, $intTotSum, $intTotVAT,
+            $intTotSumVAT, $intTotalToPay, $totalsPerVAT
+        );
         $this->printFooter($format, $printFields);
     }
 
-    private function printHeader($format, $printFields)
+    /**
+     * Print header
+     *
+     * @param string $format      Print format
+     * @param array  $printFields Fields to print
+     *
+     * @return void
+     */
+    protected function printHeader($format, $printFields)
     {
         if ($format == 'pdf' || $format == 'pdfl') {
             ob_end_clean();
-            $pdf = new PDF($format == 'pdf' ? 'P' : 'L', 'mm', 'A4',
-                _CHARSET_ == 'UTF-8', _CHARSET_, false);
-            $pdf->SetFillColor(255,255,255);
+            $pdf = new PDF(
+                $format == 'pdf' ? 'P' : 'L', 'mm', 'A4',
+                _CHARSET_ == 'UTF-8', _CHARSET_, false
+            );
+            $pdf->SetFillColor(255, 255, 255);
             if ($format == 'pdfl') {
                 $pdf->headerRightPos = 223;
             }
@@ -506,7 +608,7 @@ class InvoiceReport extends AbstractReport
             $pdf->headerRight = Translator::translate('ReportPage');
             $pdf->printHeaderOnFirstPage = true;
             $pdf->AddPage();
-            $pdf->SetAutoPageBreak(TRUE, 15);
+            $pdf->SetAutoPageBreak(true, 15);
 
             $pdf->setY(10);
             $pdf->SetFont('Helvetica', 'B', 12);
@@ -561,7 +663,7 @@ class InvoiceReport extends AbstractReport
       </tr>
       <tr>
         <td>
-          <?php echo $this->getParamsStr(true) ?>
+            <?php echo $this->getParamsStr(true) ?>
         </td>
       </tr>
     </table>
@@ -569,53 +671,55 @@ class InvoiceReport extends AbstractReport
     <table class="report-table<?php echo $format == 'table' ? ' datatable' : '' ?>">
       <thead>
         <tr>
-      <?php if (in_array('invoice_no', $printFields)) {?>
+        <?php
+        if (in_array('invoice_no', $printFields)) {
+            ?>
         <th class="label">
             <?php echo Translator::translate('InvoiceNumber')?>
         </th>
-      <?php
+        <?php
         }
         if (in_array('invoice_date', $printFields)) {
             ?>
         <th class="label">
             <?php echo Translator::translate('InvDate')?>
         </th>
-      <?php
+        <?php
         }
         if (in_array('due_date', $printFields)) {
             ?>
         <th class="label">
             <?php echo Translator::translate('DueDate')?>
         </th>
-      <?php
+            <?php
         }
         if (in_array('payment_date', $printFields)) {
             ?>
         <th class="label">
             <?php echo Translator::translate('PaymentDate')?>
         </th>
-        <?php
+            <?php
         }
         if (in_array('company_name', $printFields)) {
             ?>
         <th class="label">
             <?php echo Translator::translate('Payer')?>
         </th>
-      <?php
+            <?php
         }
         if (in_array('status', $printFields)) {
             ?>
         <th class="label">
             <?php echo Translator::translate('InvoiceState')?>
         </th>
-      <?php
+            <?php
         }
         if (in_array('ref_number', $printFields)) {
             ?>
         <th class="label">
             <?php echo Translator::translate('ReferenceNumber')?>
         </th>
-      <?php
+            <?php
         }
         if (in_array('sums', $printFields)) {
             ?>
@@ -638,9 +742,22 @@ class InvoiceReport extends AbstractReport
 <?php
     }
 
-    private function printRow($format, $printFields, $row, $intRowSum, $intRowVAT,
-        $intRowSumVAT, $rowTotalToPay)
-    {
+    /**
+     * Print a row
+     *
+     * @param string $format        Print format
+     * @param array  $printFields   Fields to print
+     * @param array  $row           Row data
+     * @param int    $intRowSum     Row sum
+     * @param int    $intRowVAT     Row VAT
+     * @param int    $intRowSumVAT  Row sum including VAT
+     * @param int    $rowTotalToPay Total to pay for the row
+     *
+     * @return void
+     */
+    protected function printRow($format, $printFields, $row, $intRowSum, $intRowVAT,
+        $intRowSumVAT, $rowTotalToPay
+    ) {
         if ($format == 'pdf' || $format == 'pdfl') {
             $pdf = $this->pdf;
             $pdf->SetFont('Helvetica', '', 8);
@@ -649,15 +766,17 @@ class InvoiceReport extends AbstractReport
                 $pdf->Cell(18, 4, $row['invoice_no'], 0, 0, 'L');
             }
             if (in_array('invoice_date', $printFields)) {
-                $pdf->Cell(20, 4, dateConvDBDate2Date($row['invoice_date']), 0, 0,
-                    'L');
+                $pdf->Cell(
+                    20, 4, dateConvDBDate2Date($row['invoice_date']), 0, 0, 'L'
+                );
             }
             if (in_array('due_date', $printFields)) {
                 $pdf->Cell(20, 4, dateConvDBDate2Date($row['due_date']), 0, 0, 'L');
             }
             if (in_array('payment_date', $printFields)) {
-                $pdf->Cell(20, 4, dateConvDBDate2Date($row['payment_date']), 0, 0,
-                    'L');
+                $pdf->Cell(
+                    20, 4, dateConvDBDate2Date($row['payment_date']), 0, 0, 'L'
+                );
             }
             if (in_array('company_name', $printFields)) {
                 $nameX = $pdf->getX();
@@ -667,7 +786,9 @@ class InvoiceReport extends AbstractReport
                 $pdf->Cell(20, 4, Translator::translate($row['state']), 0, 0, 'L');
             }
             if (in_array('ref_number', $printFields)) {
-                $pdf->Cell(20, 4, formatRefNumber($row['ref_number']), 0, 0, 'L', true);
+                $pdf->Cell(
+                    20, 4, formatRefNumber($row['ref_number']), 0, 0, 'L', true
+                );
             }
             if (in_array('sums', $printFields)) {
                 $pdf->Cell(20, 4, miscRound2Decim($intRowSum), 0, 0, 'R');
@@ -684,53 +805,57 @@ class InvoiceReport extends AbstractReport
         }
         ?>
     <tr>
-      <?php if (in_array('invoice_no', $printFields)) {?>
+        <?php
+        if (in_array('invoice_no', $printFields)) {
+            ?>
         <td class="input" data-sort="<?php echo htmlspecialchars($row['invoice_no'])?>">
-          <a href="index.php?func=invoices&list=invoices&form=invoice&id=<?php echo htmlspecialchars($row['id'])?>"><?php echo('' != $row['invoice_no'] ? htmlspecialchars($row['invoice_no']) : '-')?></a>
+          <a href="index.php?func=invoices&list=invoices&form=invoice&id=<?php echo htmlspecialchars($row['id'])?>">
+            <?php echo('' != $row['invoice_no'] ? htmlspecialchars($row['invoice_no']) : '-')?>
+          </a>
         </td>
-      <?php
+            <?php
         }
         if (in_array('invoice_date', $printFields)) {
             ?>
         <td class="input">
             <?php echo htmlspecialchars(dateConvDBDate2Date($row['invoice_date']))?>
         </td>
-      <?php
+            <?php
         }
         if (in_array('due_date', $printFields)) {
             ?>
         <td class="input">
             <?php echo htmlspecialchars(dateConvDBDate2Date($row['due_date']))?>
         </td>
-      <?php
+            <?php
         }
         if (in_array('payment_date', $printFields)) {
             ?>
         <td class="input">
             <?php echo htmlspecialchars(dateConvDBDate2Date($row['payment_date']))?>
         </td>
-      <?php
+            <?php
         }
         if (in_array('company_name', $printFields)) {
             ?>
         <td class="input">
             <?php echo htmlspecialchars($row['name'])?>
         </td>
-      <?php
+            <?php
         }
         if (in_array('status', $printFields)) {
             ?>
         <td class="input">
             <?php echo htmlspecialchars(Translator::translate($row['state']))?>
         </td>
-      <?php
+            <?php
         }
         if (in_array('ref_number', $printFields)) {
             ?>
         <td class="input">
             <?php echo htmlspecialchars(formatRefNumber($row['ref_number']))?>
         </td>
-      <?php
+            <?php
         }
         if (in_array('sums', $printFields)) {
             ?>
@@ -746,14 +871,30 @@ class InvoiceReport extends AbstractReport
             <td class="input" style="text-align: right">
             <?php echo miscRound2Decim($rowTotalToPay)?>
         </td>
-        <?php } ?>
+        <?php
+        }
+    ?>
       </tr>
-<?php
+    <?php
     }
 
-    private function printGroupSums($format, $printFields, $row, $groupTotSum,
-        $groupTotVAT, $groupTotSumVAT, $groupTotalToPay, $groupTitle)
-    {
+    /**
+     * Print a group sum
+     *
+     * @param string $format          Print format
+     * @param array  $printFields     Fields to print
+     * @param array  $row             Row data
+     * @param int    $groupTotSum     Group total sum
+     * @param int    $groupTotVAT     Group total VAT
+     * @param int    $groupTotSumVAT  Group total sum including VAT
+     * @param int    $groupTotalToPay Total to pay for the group
+     * @param string $groupTitle      Group title
+     *
+     * @return void
+     */
+    protected function printGroupSums($format, $printFields, $row, $groupTotSum,
+        $groupTotVAT, $groupTotSumVAT, $groupTotalToPay, $groupTitle
+    ) {
         if (!in_array('sums', $printFields)) {
             return;
         }
@@ -792,8 +933,10 @@ class InvoiceReport extends AbstractReport
                 $sumPos -= 25;
             }
 
-            $pdf->line($pdf->getX() + $sumPos, $pdf->getY(),
-                $pdf->getX() + $rowWidth, $pdf->getY());
+            $pdf->line(
+                $pdf->getX() + $sumPos, $pdf->getY(), $pdf->getX() + $rowWidth,
+                $pdf->getY()
+            );
             $pdf->setXY($pdf->getX() + $sumPos, $pdf->getY() + 1);
             if ($groupTitle) {
                 $pdf->Cell(25, 4, $groupTitle, 0, 0, 'R');
@@ -863,9 +1006,22 @@ class InvoiceReport extends AbstractReport
 <?php
     }
 
-    private function printTotals($format, $printFields, $intTotSum, $intTotVAT,
-        $intTotSumVAT, $totalToPay, $totalsPerVAT)
-    {
+    /**
+     * Print report totals
+     *
+     * @param string $format       Print format
+     * @param array  $printFields  Fields to print
+     * @param int    $intTotSum    Total sum
+     * @param int    $intTotVAT    Total VAT
+     * @param int    $intTotSumVAT Total sum including VAT
+     * @param int    $totalToPay   Total to pay for the group
+     * @param array  $totalsPerVAT Totals grouped by VAT
+     *
+     * @return void
+     */
+    protected function printTotals($format, $printFields, $intTotSum, $intTotVAT,
+        $intTotSumVAT, $totalToPay, $totalsPerVAT
+    ) {
         if (!in_array('sums', $printFields)) {
             return;
         }
@@ -905,8 +1061,10 @@ class InvoiceReport extends AbstractReport
 
             $pdf = $this->pdf;
             $pdf->SetFont('Helvetica', 'B', 8);
-            $pdf->line($pdf->getX() + $sumPos, $pdf->getY(),
-                $pdf->getX() + $rowWidth, $pdf->getY());
+            $pdf->line(
+                $pdf->getX() + $sumPos, $pdf->getY(),
+                $pdf->getX() + $rowWidth, $pdf->getY()
+            );
             $pdf->setY($pdf->getY() + 1);
             $pdf->Cell($sumPos, 4, Translator::translate('Total'), 0, 0, 'R');
             $pdf->Cell(20, 4, miscRound2Decim($intTotSum), 0, 0, 'R');
@@ -964,7 +1122,7 @@ class InvoiceReport extends AbstractReport
             &nbsp;<?php echo miscRound2Decim($totalToPay)?>
         </td>
     </tr>
-<?php
+        <?php
         if (in_array('vat_breakdown', $printFields)) {
 ?>
     </table>
@@ -975,7 +1133,7 @@ class InvoiceReport extends AbstractReport
             <th class="label" style="text-align: right"><?php echo Translator::translate('VATPart')?></th>
             <th class="label" style="text-align: right"><?php echo Translator::translate('WithVAT')?></th>
         </tr>
-<?php
+            <?php
             foreach ($totalsPerVAT as $vat => $sums) {
 ?>
         <tr>
@@ -984,12 +1142,20 @@ class InvoiceReport extends AbstractReport
             <td class="input" style="text-align: right"><?php echo miscRound2Decim($sums['VAT'])?></td>
             <td class="input" style="text-align: right"><?php echo miscRound2Decim($sums['sumVAT'])?></td>
         </tr>
-<?php
-             }
+            <?php
+            }
         }
     }
 
-    private function printFooter($format, $printFields)
+    /**
+     * Print footer
+     *
+     * @param string $format      Print format
+     * @param array  $printFields Fields to print
+     *
+     * @return void
+     */
+    protected function printFooter($format, $printFields)
     {
         if ($format == 'pdf' || $format == 'pdfl') {
             $pdf = $this->pdf;
@@ -1046,7 +1212,11 @@ var table = $('.report-table.datatable').DataTable({
             // Update footer
             pageTotal = MLInvoice.formatCurrency(pageTotal/100);
             total = MLInvoice.formatCurrency(total/100);
-            $(api.column(column).footer()).html('<div style="float: right"><?php echo Translator::translate('VisiblePage') ?>&nbsp;' + pageTotal + '</div><br><div style="float: right"><?php echo Translator::translate('Total') ?>&nbsp;' + total + '</div>');
+            $(api.column(column).footer()).html(
+                '<div style="float: right"><?php echo Translator::translate('VisiblePage') ?>&nbsp;'
+                + pageTotal + '</div><br><div style="float: right"><?php echo Translator::translate('Total') ?>&nbsp;'
+                + total + '</div>'
+            );
         });
     }
 });
@@ -1063,6 +1233,13 @@ table.buttons().container().appendTo($('.fg-toolbar', table.table().container())
         }
     }
 
+    /**
+     * Get the first sum column
+     *
+     * @param array $printFields Fields to print
+     *
+     * @return int
+     */
     protected function getSumStartCol($printFields)
     {
         $startCol = 0;

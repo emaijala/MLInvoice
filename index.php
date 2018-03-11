@@ -1,19 +1,30 @@
 <?php
-/*******************************************************************************
- MLInvoice: web-based invoicing application.
- Copyright (C) 2010-2017 Ere Maijala
-
- This program is free software. See attached LICENSE.
-
- *******************************************************************************/
-
-/*******************************************************************************
- MLInvoice: web-pohjainen laskutusohjelma.
- Copyright (C) 2010-2017 Ere Maijala
-
- Tämä ohjelma on vapaa. Lue oheinen LICENSE.
-
- *******************************************************************************/
+/**
+ * Main script
+ *
+ * PHP version 5
+ *
+ * Copyright (C) 2010-2018 Ere Maijala
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License version 2,
+ * as published by the Free Software Foundation.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
+ *
+ * @category MLInvoice
+ * @package  MLInvoice\Base
+ * @author   Ere Maijala <ere@labs.fi>
+ * @license  http://opensource.org/licenses/gpl-2.0.php GNU General Public License
+ * @link     http://labs.fi/mlinvoice.eng.php
+ */
 
 // buffered, so we can redirect later if necessary
 ini_set('implicit_flush', 'Off');
@@ -43,16 +54,18 @@ $strFunc = sanitize(getRequest('func', 'open_invoices'));
 $strList = sanitize(getRequest('list', ''));
 $strForm = sanitize(getRequest('form', ''));
 
-if (!$strFunc)
+if (!$strFunc) {
     $strFunc = 'open_invoices';
+}
 
 if ($strFunc == 'logout') {
     header('Location: logout.php');
     exit();
 }
 
-if (!$strFunc && $strForm)
+if (!$strFunc && $strForm) {
     $strFunc = 'invoices';
+}
 
 $title = getPageTitle($strFunc, $strList, $strForm);
 
@@ -64,7 +77,7 @@ if ($strFunc == 'system' && getRequest('operation', '') == 'dbdump'
         ]
     )
 ) {
-    create_db_dump();
+    createDbDump();
     exit();
 }
 
@@ -87,16 +100,19 @@ echo htmlPageStart($title, $extraJs);
 <?php
 
 $level = 1;
-if ($strList && ($strFunc == 'settings' || $strFunc == 'system'))
+if ($strList && ($strFunc == 'settings' || $strFunc == 'system')) {
     ++$level;
-if ($strForm)
+}
+if ($strForm) {
     ++$level;
+}
 $arrHistory = updateNavigationHistory($title, $_SERVER['QUERY_STRING'], $level);
 
 $strBreadcrumbs = '';
 foreach ($arrHistory as $arrHE) {
-    if ($strBreadcrumbs)
+    if ($strBreadcrumbs) {
         $strBreadcrumbs .= '&gt; ';
+    }
     $strBreadcrumbs .= '<a href="index.php?' .
          str_replace('&', '&amp;', $arrHE['url']) . '">' . $arrHE['title'] .
          '</a>&nbsp;';
@@ -112,14 +128,14 @@ if ($strFunc == 'open_invoices' && !$strForm) {
   <div id="version">
     MLInvoice <?php echo $softwareVersion?>
   </div>
-<?php
+    <?php
     if (getSetting('check_updates')) {
         $address = defined('_UPDATE_ADDRESS_') ? _UPDATE_ADDRESS_
-            : 'https://www.labs.fi/mlinvoice_version.php';
-        ?>
+        : 'https://www.labs.fi/mlinvoice_version.php';
+    ?>
   <script type="text/javascript">
     $(document).ready(function() {
-      MLInvoice.checkForUpdates('<?php echo $address?>', '<?php echo $softwareVersion?>');
+        MLInvoice.checkForUpdates('<?php echo $address?>', '<?php echo $softwareVersion?>');
     });
   </script>
 <?php
@@ -180,8 +196,9 @@ if ($strFunc == 'system' && getRequest('operation', '') == 'export'
         break;
     default :
         if ($strForm) {
-            if ($strFunc == 'settings')
+            if ($strFunc == 'settings') {
                 createFuncMenu($strFunc);
+            }
             createForm($strFunc, $strList, $strForm);
         } else {
             createFuncMenu($strFunc);

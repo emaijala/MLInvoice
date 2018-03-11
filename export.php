@@ -1,32 +1,60 @@
 <?php
-/*******************************************************************************
- MLInvoice: web-based invoicing application.
- Copyright (C) 2010-2017 Ere Maijala
-
- This program is free software. See attached LICENSE.
-
- *******************************************************************************/
-
-/*******************************************************************************
- MLInvoice: web-pohjainen laskutusohjelma.
- Copyright (C) 2010-2017 Ere Maijala
-
- Tämä ohjelma on vapaa. Lue oheinen LICENSE.
-
- *******************************************************************************/
+/**
+ * Export
+ *
+ * PHP version 5
+ *
+ * Copyright (C) 2010-2018 Ere Maijala
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License version 2,
+ * as published by the Free Software Foundation.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
+ *
+ * @category MLInvoice
+ * @package  MLInvoice\Base
+ * @author   Ere Maijala <ere@labs.fi>
+ * @license  http://opensource.org/licenses/gpl-2.0.php GNU General Public License
+ * @link     http://labs.fi/mlinvoice.eng.php
+ */
 require_once 'translator.php';
 require_once 'miscfuncs.php';
 require_once 'import.php';
 
+/**
+ * Export
+ *
+ * @category MLInvoice
+ * @package  MLInvoice\Base
+ * @author   Ere Maijala <ere@labs.fi>
+ * @license  http://opensource.org/licenses/gpl-2.0.php GNU General Public License
+ * @link     http://labs.fi/mlinvoice.eng.php
+ */
 class ExportData
 {
     protected $importer;
 
+    /**
+     * Constructor
+     */
     public function __construct()
     {
         $this->importer = new ImportFile();
     }
 
+    /**
+     * Main entry point
+     *
+     * @return void
+     */
     public function launch()
     {
         $charset = getRequest('charset', 'UTF-8');
@@ -40,11 +68,11 @@ class ExportData
         $deletedRecords = getRequest('deleted', false);
 
         if ($table && $format && $columns) {
-            if (!table_valid($table)) {
+            if (!tableNameValid($table)) {
                 die('Invalid table name');
             }
 
-            $res = mysqli_query_check("show fields from {prefix}$table");
+            $res = dbQueryCheck("show fields from {prefix}$table");
             $field_count = mysqli_num_rows($res);
             $field_defs = [];
             while ($row = mysqli_fetch_assoc($res)) {
@@ -68,9 +96,9 @@ class ExportData
             $filename = Translator::translate("Table_$table", null, $table);
             switch ($format) {
             case 'csv' :
-                $field_delims = $this->importer->get_field_delims();
-                $enclosure_chars = $this->importer->get_enclosure_chars();
-                $row_delims = $this->importer->get_row_delims();
+                $field_delims = $this->importer->getFieldDelims();
+                $enclosure_chars = $this->importer->getEnclosureChars();
+                $row_delims = $this->importer->getRowDelims();
 
                 if (!isset($field_delims[$fieldDelimiter])) {
                     die('Invalid field delimiter');
@@ -90,8 +118,8 @@ class ExportData
                 if ($charset == 'UTF-16') {
                     echo iconv($charset, 'UTF-16', ''); // output BOM
                 }
-                $this->output_str(
-                    $this->str_putcsv($columns, $fieldDelimiter, $enclosureChar)
+                $this->outputString(
+                    $this->createCsvString($columns, $fieldDelimiter, $enclosureChar)
                     . $rowDelimiter,
                     $charset
                 );
@@ -103,7 +131,7 @@ class ExportData
                 if ($charset == 'UTF-16') {
                     echo iconv($charset, 'UTF-16', ''); // output BOM
                 }
-                $this->output_str("<?xml version=\"1.0\"?>\n<records>\n", $charset);
+                $this->outputString("<?xml version=\"1.0\"?>\n<records>\n", $charset);
                 break;
 
             case 'json' :
@@ -138,7 +166,7 @@ EOT;
                         . ' {prefix}invoice where deleted=1)';
                 }
             }
-            $res = mysqli_query_check($query);
+            $res = dbQueryCheck($query);
             $first = true;
             while ($row = mysqli_fetch_assoc($res)) {
                 if (in_array($table, ['company', 'company_contact'])
@@ -163,8 +191,8 @@ EOT;
                 }
                 switch ($format) {
                 case 'csv' :
-                    $this->output_str(
-                        $this->str_putcsv($data, $fieldDelimiter, $enclosureChar)
+                    $this->outputString(
+                        $this->createCsvString($data, $fieldDelimiter, $enclosureChar)
                         . $rowDelimiter,
                         $charset
                     );
@@ -173,7 +201,7 @@ EOT;
                 case 'xml' :
                     $str = "  <$table>\n";
                     foreach ($columns as $column) {
-                        $str .= "    <$column>" . xml_encode($data[$column]) .
+                        $str .= "    <$column>" . xmlEncode($data[$column]) .
                              "</$column>\n";
                     }
                     if ($childRows) {
@@ -184,20 +212,20 @@ EOT;
                                     $str .= "    <$tag>\n";
                                     foreach ($crow as $column => $value) {
                                         $str .= "      <$column>"
-                                            . xml_encode($value)
+                                            . xmlEncode($value)
                                             . "</$column>\n";
                                     }
                                     $str .= "    </$tag>\n";
                                 }
                             } else {
-                                $str .= "    <$tag>" . xml_encode($crows)
+                                $str .= "    <$tag>" . xmlEncode($crows)
                                     . "</$tag>\n";
 
                             }
                         }
                     }
                     $str .= "  </$table>\n";
-                    $this->output_str($str, $charset);
+                    $this->outputString($str, $charset);
                     break;
 
                 case 'json' :
@@ -212,13 +240,13 @@ EOT;
                     } else {
                         echo(",\n");
                     }
-                    $this->output_str(json_encode($data), $charset);
+                    $this->outputString(json_encode($data), $charset);
                     break;
                 }
             }
             switch ($format) {
             case 'xml' :
-                $this->output_str("</records>\n");
+                $this->outputString("</records>\n");
                 break;
             case 'json' :
                 echo("\n]}\n");
@@ -377,7 +405,7 @@ EOT;
         <div class="field">
             <select id="field_delim" name="field_delim">
         <?php
-        $field_delims = $this->importer->get_field_delims();
+        $field_delims = $this->importer->getFieldDelims();
         foreach ($field_delims as $key => $delim) {
             echo "<option value=\"$key\">" . $delim['name'] . "</option>\n";
         }
@@ -389,7 +417,7 @@ EOT;
         <div class="field">
             <select id="enclosure_char" name="enclosure_char">
         <?php
-        $enclosure_chars = $this->importer->get_enclosure_chars();
+        $enclosure_chars = $this->importer->getEnclosureChars();
         foreach ($enclosure_chars as $key => $delim) {
             echo "<option value=\"$key\">" . $delim['name'] . "</option>\n";
         }
@@ -401,7 +429,7 @@ EOT;
         <div class="field">
             <select id="row_delim" name="row_delim">
         <?php
-        $row_delims = $this->importer->get_row_delims();
+        $row_delims = $this->importer->getRowDelims();
         foreach ($row_delims as $key => $delim) {
             echo "<option value=\"$key\">" . $delim['name'] . "</option>\n";
         }
@@ -435,7 +463,16 @@ EOT;
     <?php
     }
 
-    protected function str_putcsv($data, $delimiter = ',', $enclosure = '"')
+    /**
+     * Create a CSV string from an array of data
+     *
+     * @param array  $data      Fields
+     * @param string $delimiter Field delimiter
+     * @param string $enclosure Enclosure character
+     *
+     * @return string
+     */
+    protected function createCsvString($data, $delimiter = ',', $enclosure = '"')
     {
         $fp = fopen('php://temp', 'r+');
         fputcsv($fp, $data, $delimiter, $enclosure);
@@ -448,7 +485,15 @@ EOT;
         return rtrim($data, "\n");
     }
 
-    protected function output_str($str, $charset = '')
+    /**
+     * Convert character set if necessary and output a string
+     *
+     * @param string $str     String to output
+     * @param string $charset Character set to output
+     *
+     * @return void
+     */
+    protected function outputString($str, $charset = '')
     {
         if ($charset && $charset != _CHARSET_) {
             $str = iconv(_CHARSET_, $charset, $str);
@@ -461,6 +506,14 @@ EOT;
         echo $str;
     }
 
+    /**
+     * Get child rows for a parent row
+     *
+     * @param string $table    Parent table name
+     * @param int    $parentId Parent row ID
+     *
+     * @return array
+     */
     protected function getChildRows($table, $parentId)
     {
         $children = [];
@@ -484,7 +537,7 @@ EOT
         }
         $result = [];
         foreach ($children as $tag => $settings) {
-            $rows = db_param_query(
+            $rows = dbParamQuery(
                 $settings['sql'], $settings['params']
             );
             foreach ($rows as $crow) {

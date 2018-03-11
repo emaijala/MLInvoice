@@ -20,7 +20,7 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  *
  * @category MLInvoice
- * @package  Printing
+ * @package  MLInvoice\Base
  * @author   Ere Maijala <ere@labs.fi>
  * @license  http://opensource.org/licenses/gpl-2.0.php GNU General Public License
  * @link     http://labs.fi/mlinvoice.eng.php
@@ -31,7 +31,7 @@ use Michelf\Markdown;
  * Extended TCPDF class
  *
  * @category MLInvoice
- * @package  Printing
+ * @package  MLInvoice\Base
  * @author   Ere Maijala <ere@labs.fi>
  * @license  http://opensource.org/licenses/gpl-2.0.php GNU General Public License
  * @link     http://labs.fi/mlinvoice.eng.php
@@ -223,7 +223,7 @@ class PDF extends TCPDF
      *
      * @return void
      */
-     public function restoreAutoBreakState()
+    public function restoreAutoBreakState()
     {
         if (null === $this->savedAutoBreakState) {
             throw new Exception('No saved auto break state');

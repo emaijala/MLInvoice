@@ -1,30 +1,68 @@
 <?php
-/*******************************************************************************
- MLInvoice: web-based invoicing application.
- Copyright (C) 2010-2017 Ere Maijala
-
- This program is free software. See attached LICENSE.
-
- *******************************************************************************/
-
-/*******************************************************************************
- MLInvoice: web-pohjainen laskutusohjelma.
- Copyright (C) 2010-2017 Ere Maijala
-
- Tämä ohjelma on vapaa. Lue oheinen LICENSE.
-
- *******************************************************************************/
+/**
+ * Order confirmation PDF
+ *
+ * PHP version 5
+ *
+ * Copyright (C) 2010-2018 Ere Maijala
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License version 2,
+ * as published by the Free Software Foundation.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
+ *
+ * @category MLInvoice
+ * @package  MLInvoice\Base
+ * @author   Ere Maijala <ere@labs.fi>
+ * @license  http://opensource.org/licenses/gpl-2.0.php GNU General Public License
+ * @link     http://labs.fi/mlinvoice.eng.php
+ */
 require_once 'invoice_printer_base.php';
 require_once 'htmlfuncs.php';
 require_once 'miscfuncs.php';
 
+/**
+ * Order confirmation PDF
+ *
+ * @category MLInvoice
+ * @package  MLInvoice\Base
+ * @author   Ere Maijala <ere@labs.fi>
+ * @license  http://opensource.org/licenses/gpl-2.0.php GNU General Public License
+ * @link     http://labs.fi/mlinvoice.eng.php
+ */
 class InvoicePrinterOrderConfirmation extends InvoicePrinterBase
 {
+    /**
+     * Initialize printing
+     *
+     * @param int    $invoiceId            Invoice ID
+     * @param array  $printParameters      Print control parameters
+     * @param string $outputFileName       File name template
+     * @param array  $senderData           Sender record
+     * @param array  $recipientData        Recipient record
+     * @param array  $invoiceData          Invoice record
+     * @param array  $invoiceRowData       Invoice row records
+     * @param array  $recipientContactData Recipient's contact records
+     * @param int    $dateOverride         Date override for invoice date
+     * @param int    $printTemplateId      Print template ID
+     * @param bool   $authenticated        Whether the user is authenticated
+     *
+     * @return void
+     */
     public function init($invoiceId, $printParameters, $outputFileName, $senderData,
         $recipientData, $invoiceData, $invoiceRowData, $recipientContactData,
         $dateOverride, $printTemplateId, $authenticated
     ) {
-        parent::init($invoiceId, $printParameters, $outputFileName, $senderData,
+        parent::init(
+            $invoiceId, $printParameters, $outputFileName, $senderData,
             $recipientData, $invoiceData, $invoiceRowData, $recipientContactData,
             $dateOverride, $printTemplateId, $authenticated
         );
@@ -37,6 +75,11 @@ class InvoicePrinterOrderConfirmation extends InvoicePrinterBase
         $this->columnDefs['total']['visible'] = false;
     }
 
+    /**
+     * Main method for printing
+     *
+     * @return void
+     */
     public function printInvoice()
     {
         if ($this->senderData['bank_iban'] && $this->senderData['bank_swiftbic']) {
@@ -50,6 +93,11 @@ class InvoicePrinterOrderConfirmation extends InvoicePrinterBase
         parent::printInvoice();
     }
 
+    /**
+     * Initialize the PDF
+     *
+     * @return void
+     */
     protected function initPDF()
     {
         parent::initPDF();
@@ -119,11 +167,21 @@ class InvoicePrinterOrderConfirmation extends InvoicePrinterBase
         return $data;
     }
 
+    /**
+     * Get a title for the current print style
+     *
+     * @return string
+     */
     protected function getHeaderTitle()
     {
         return Translator::translate('invoice::OrderConfirmationHeader');
     }
 
+    /**
+     * Print the invoice form at the end of the first page
+     *
+     * @return void
+     */
     protected function printForm()
     {
     }
