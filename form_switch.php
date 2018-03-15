@@ -718,17 +718,19 @@ EOS;
 
             $locPartialPayment = Translator::translate('PartialPayment');
             $locDecimalSeparator = Translator::translate('DecimalSeparator');
-            $addPartialPaymentCode = <<<EOS
-add_partial_payment({'save': '$locSave', 'close': '$locClose', 'title': '{$locPartialPayment}', 'missing': '$locMissing: ', 'partial_payment': '{$locPartialPayment}', 'decimal_separator': '{$locDecimalSeparator}'}); return false;
-
-EOS;
+            $addPartialPaymentCode = "add_partial_payment({'save': '$locSave', 'close': '$locClose',"
+                . " 'title': '{$locPartialPayment}', 'missing': '$locMissing: ', "
+                . "'partial_payment': '{$locPartialPayment}', 'decimal_separator': '{$locDecimalSeparator}'});"
+                . " return false;";
 
             $locPaymentAmount = Translator::translate('PaymentAmount');
             $locPaymentDate = Translator::translate('PayDate');
             $popupHTML .= <<<EOS
 <div id="add_partial_payment" class="form_container ui-widget-content" style="display: none">
-  <div class="medium_label">{$locPaymentAmount}</div> <div class="field"><input type='TEXT' id="add_partial_payment_amount" class='medium'></div>
-  <div class="medium_label">{$locPaymentDate}</div> <div class="field"><input type='TEXT' id="add_partial_payment_date" class='date hasCalendar'></div>
+  <div class="medium_label">{$locPaymentAmount}</div>
+    <div class="field"><input type='TEXT' id="add_partial_payment_amount" class='medium'></div>
+  <div class="medium_label">{$locPaymentDate}</div>
+  <div class="field"><input type='TEXT' id="add_partial_payment_date" class='date hasCalendar'></div>
 </div>
 
 EOS;
@@ -745,9 +747,10 @@ EOS;
 
     if (sesWriteAccess() && !$isOffer) {
         $today = dateConvDBDate2Date(date('Ymd'));
-        $markPaidToday = <<<EOS
-if ([1, 2, 5, 6, 7].indexOf(parseInt($('#state_id').val())) !== -1) { $('#state_id').val(3); } if (!$(this).is('#payment_date')) { $('#payment_date').val('$today'); }
-EOS;
+        $markPaidToday = "if ([1, 2, 5, 6, 7].indexOf(parseInt($('#state_id').val())) !== -1) {"
+            . " $('#state_id').val(3); }"
+            . " if (!$(this).is('#payment_date')) { $('#payment_date').val('$today'); }";
+
         if (getSetting('invoice_auto_archive')) {
             $markPaidToday .= <<<EOS
 if ($('#interval_type').val() == 0) { $('#archived').prop('checked', true); }
