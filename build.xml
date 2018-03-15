@@ -8,13 +8,17 @@
   <!-- Travis Tasks -->
   <target name="travis" description="Travis tasks">
     <!-- Call standard tasks -->
-    <phingcall target="phpcs"/>
+    <phingcall target="phpcs-n"/>
     <phingcall target="php-cs-fixer-dryrun"/>
   </target>
 
   <!-- PHP CodeSniffer -->
   <target name="phpcs">
     <exec command="vendor/bin/phpcs --standard=tests/phpcs-ruleset.xml *.php" passthru="true" escape="false" checkreturn="true" />
+  </target>
+  <!-- PHP CodeSniffer without warnings-->
+  <target name="phpcs-n">
+    <exec command="vendor/bin/phpcs --standard=tests/phpcs-ruleset.xml -n *.php" passthru="true" escape="false" checkreturn="true" />
   </target>
 
   <!-- phpcbf -->
