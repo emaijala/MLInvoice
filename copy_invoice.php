@@ -87,6 +87,7 @@ if ($intInvoiceId) {
 
     unset($invoiceData['id']);
     unset($invoiceData['invoice_no']);
+    $invoiceData['deleted'] = 0;
     if (!$boolRefund) {
         unset($invoiceData['ref_number']);
         if (!empty($invoiceData['company_id'])) {
