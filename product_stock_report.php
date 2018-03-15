@@ -73,7 +73,14 @@ class ProductStockReport extends AbstractReport
 
         <div class="medium_label"><?php echo Translator::translate('Product')?></div>
         <div class="field">
-            <?php echo htmlFormElement('product', 'LIST', $intProductId, 'medium', 'SELECT id, product_name FROM {prefix}product WHERE deleted=0 ORDER BY product_name', 'MODIFY', false)?>
+            <?php
+            echo htmlFormElement(
+                'product', 'LIST', $intProductId, 'medium',
+                'SELECT id, product_name FROM {prefix}product WHERE deleted=0'
+                    . ' ORDER BY product_name',
+                'MODIFY', false
+            );
+            ?>
         </div>
         <div class="field_sep"></div>
         <div class="medium_label"></div>
@@ -108,10 +115,10 @@ class ProductStockReport extends AbstractReport
         <div class="field_sep"></div>
 
         <div class="unlimited_label">
-            <a class="actionlink" href="#" onclick="var form = document.getElementById('params'); form.target = ''; form.submit(); return false;">
+            <a class="actionlink form-submit" href="#" data-form-target="">
                 <?php echo Translator::translate('CreateReport')?>
             </a>
-            <a class="actionlink" href="#" onclick="var form = document.getElementById('params'); form.target = '_blank'; form.submit(); return false;">
+            <a class="actionlink form-submit" href="#" data-form-target="_blank">
                 <?php echo Translator::translate('CreateReportInNewWindow')?>
             </a>
         </div>
@@ -295,7 +302,13 @@ class ProductStockReport extends AbstractReport
             <?php echo $strCode?>
         </td>
         <td class="input" data-sort="<?php echo $strProduct?>">
-            <a href="index.php?func=settings&list=product&form=product&id=<?php echo htmlspecialchars($id)?>"><?php echo $strProduct?></a>
+            <?php
+            $link = 'index.php?func=settings&list=product&form=product&id='
+                . htmlspecialchars($id);
+            ?>
+            <a href="<?php echo $link?>">
+                <?php echo $strProduct?>
+            </a>
         </td>
         <td class="input" style="text-align: right">
             <?php echo miscRound2Decim($unitPrice)?>

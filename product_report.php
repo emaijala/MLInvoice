@@ -66,7 +66,8 @@ class ProductReport extends AbstractReport
 
 <script type="text/javascript">
   $(document).ready(function() {
-    $('input[class~="hasDateRangePicker"]').daterangepicker(<?php echo Translator::translate('DateRangePickerOptions')?>);
+    $('input[class~="hasDateRangePicker"]')
+        .daterangepicker(<?php echo Translator::translate('DateRangePickerOptions')?>);
   });
   </script>
 
@@ -80,24 +81,48 @@ class ProductReport extends AbstractReport
             <h1><?php echo Translator::translate('ProductReport')?></h1>
         </div>
 
-        <div class="medium_label"><?php echo Translator::translate('InvoiceDateInterval')?></div>
+        <div class="medium_label">
+            <?php echo Translator::translate('InvoiceDateInterval')?>
+        </div>
         <div class="field">
-            <?php echo htmlFormElement('date', 'TEXT', "$dateRange", 'medium hasDateRangePicker', '', 'MODIFY', false)?>
+            <?php
+            echo htmlFormElement(
+                'date', 'TEXT', "$dateRange", 'medium hasDateRangePicker', '', 'MODIFY', false
+            );
+            ?>
         </div>
 
         <div class="medium_label"><?php echo Translator::translate('Biller')?></div>
         <div class="field">
-            <?php echo htmlFormElement('base', 'LIST', $intBaseId, 'medium', 'SELECT id, name FROM {prefix}base WHERE deleted=0 ORDER BY name', 'MODIFY', false)?>
+            <?php
+            echo htmlFormElement(
+                'base', 'LIST', $intBaseId, 'medium',
+                'SELECT id, name FROM {prefix}base WHERE deleted=0 ORDER BY name',
+                'MODIFY', false
+            );
+            ?>
         </div>
 
         <div class="medium_label"><?php echo Translator::translate('Client')?></div>
         <div class="field">
-            <?php echo htmlFormElement('company', 'LIST', $intCompanyId, 'medium', 'SELECT id, company_name FROM {prefix}company WHERE deleted=0 ORDER BY company_name', 'MODIFY', false)?>
+            <?php
+            echo htmlFormElement(
+                'company', 'LIST', $intCompanyId, 'medium',
+                'SELECT id, company_name FROM {prefix}company WHERE deleted=0 ORDER BY company_name',
+                'MODIFY', false
+            );
+            ?>
         </div>
 
         <div class="medium_label"><?php echo Translator::translate('Product')?></div>
         <div class="field">
-            <?php echo htmlFormElement('product', 'LIST', $intProductId, 'medium', 'SELECT id, product_name FROM {prefix}product WHERE deleted=0 ORDER BY product_name', 'MODIFY', false)?>
+            <?php
+            echo htmlFormElement(
+                'product', 'LIST', $intProductId, 'medium',
+                'SELECT id, product_name FROM {prefix}product WHERE deleted=0 ORDER BY product_name',
+                'MODIFY', false
+            );
+            ?>
         </div>
 
         <div class="medium_label"><?php echo Translator::translate('PrintFormat')?></div>
@@ -128,10 +153,10 @@ class ProductReport extends AbstractReport
 ?>
 
         <div class="unlimited_label">
-            <a class="actionlink" href="#" onclick="var form = document.getElementById('params'); form.target = ''; form.submit(); return false;">
+            <a class="actionlink form-submit" href="#" data-form-target="">
                 <?php echo Translator::translate('CreateReport')?>
             </a>
-            <a class="actionlink" href="#" onclick="var form = document.getElementById('params'); form.target = '_blank'; form.submit(); return false;">
+            <a class="actionlink form-submit" href="#" data-form-target="_blank">
                 <?php echo Translator::translate('CreateReportInNewWindow')?>
             </a>
         </div>
@@ -435,7 +460,9 @@ class ProductReport extends AbstractReport
         </td>
             <td class="input" data-sort="<?php echo $strProduct?>">
             <?php if (null !== $id) { ?>
-              <a href="index.php?func=settings&list=product&form=product&id=<?php echo htmlspecialchars($id)?>"><?php echo $strProduct?></a>
+                <a href="index.php?func=settings&list=product&form=product&id=<?php echo htmlspecialchars($id)?>">
+                    <?php echo $strProduct?>
+                </a>
             <?php } else { ?>
                 <?php echo $strProduct?>
             <?php } ?>
@@ -580,7 +607,8 @@ var table = $('.report-table.datatable').DataTable({
             total = MLInvoice.formatCurrency(total/100);
             $(api.column(column).footer()).html(
                 '<div style="float: right"><?php echo Translator::translate('VisiblePage') ?>&nbsp;'
-                + pageTotal + '</div><br><div style="float: right"><?php echo Translator::translate('Total') ?>&nbsp;'
+                + pageTotal
+                + '</div><br><div style="float: right"><?php echo Translator::translate('Total') ?>&nbsp;'
                 + total + '</div>'
             );
         });

@@ -261,12 +261,12 @@ class InvoiceReport extends AbstractReport
             $first = false;
         }
         ?>
-    </div>
+        </div>
         <div class="unlimited_label">
-            <a class="actionlink" href="#" onclick="var form = document.getElementById('params'); form.target = ''; form.submit(); return false;">
+            <a class="actionlink form-submit" href="#" data-form-target="">
                 <?php echo Translator::translate('CreateReport')?>
             </a>
-            <a class="actionlink" href="#" onclick="var form = document.getElementById('params'); form.target = '_blank'; form.submit(); return false;">
+            <a class="actionlink form-submit" href="#" data-form-target="_blank">
                 <?php echo Translator::translate('CreateReportInNewWindow')?>
             </a>
         </div>
@@ -900,8 +900,9 @@ class InvoiceReport extends AbstractReport
         }
         if ($format == 'pdf' || $format == 'pdfl') {
             $pdf = $this->pdf;
-            if ($pdf->getY() > $pdf->getPageHeight() - 7 - 15)
+            if ($pdf->getY() > $pdf->getPageHeight() - 7 - 15) {
                 $pdf->AddPage();
+            }
             $pdf->SetFont('Helvetica', '', 8);
             $pdf->setLineWidth(0.2);
 

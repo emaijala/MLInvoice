@@ -29,14 +29,14 @@ require_once 'translator.php';
 require_once 'settings.php';
 
  /**
- * Email handling
- *
- * @category MLInvoice
- * @package  MLInvoice\Base
- * @author   Ere Maijala <ere@labs.fi>
- * @license  http://opensource.org/licenses/gpl-2.0.php GNU General Public License
- * @link     http://labs.fi/mlinvoice.eng.php
- */
+  * Email handling
+  *
+  * @category MLInvoice
+  * @package  MLInvoice\Base
+  * @author   Ere Maijala <ere@labs.fi>
+  * @license  http://opensource.org/licenses/gpl-2.0.php GNU General Public License
+  * @link     http://labs.fi/mlinvoice.eng.php
+  */
 class Mailer
 {
     /**

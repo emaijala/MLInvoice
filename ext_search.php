@@ -191,34 +191,26 @@ $(function() {
 });
 -->
 </script>
-    <div class="form_container ui-widget-content">
-        <div class="form ui-widget">
-            <form method="post"
-                action="ext_search.php?func=<?php echo $strFunc?>&amp;form=<?php echo $strForm?>"
-                target="_self" name="search_form">
-                <input type="hidden" name="fields" value="<?php echo $strFields?>">
-                <table>
-                    <thead>
-                        <tr>
-                            <th class="sublabel">
-    <?php echo Translator::translate('SearchField')?>
-                            </th>
-                            <th class="sublabel">&nbsp;
-
-                            </th>
-                            <th class="sublabel">
-    <?php echo Translator::translate('SearchTerm')?>
-
-
-
-
-
-
-                            </th>
-                            <th></th>
-                        </tr>
-                    </thead>
-                    <tbody>
+  <div class="form_container ui-widget-content">
+    <div class="form ui-widget">
+      <form method="post"
+        action="ext_search.php?func=<?php echo $strFunc?>&amp;form=<?php echo $strForm?>"
+        target="_self" name="search_form">
+        <input type="hidden" name="fields" value="<?php echo $strFields?>">
+        <table>
+          <thead>
+            <tr>
+              <th class="sublabel">
+                <?php echo Translator::translate('SearchField')?>
+              </th>
+              <th class="sublabel">&nbsp;</th>
+              <th class="sublabel">
+                <?php echo Translator::translate('SearchTerm')?>
+              </th>
+              <th></th>
+            </tr>
+          </thead>
+        <tbody>
 <?php
 
 $fieldCount = 0;
@@ -244,93 +236,103 @@ for ($j = 0; $j < count($astrFormElements); $j ++) {
                 ], $strSelectedOperator
             );
             ?>
-<tr>
-                            <td colspan="4">
-    <?php echo $strOperator?>
-  </td>
-                        </tr>
+            <tr>
+              <td colspan="4">
+                <?php echo $strOperator?>
+              </td>
+            </tr>
 <?php
         }
         ?>
-<tr class="search_row">
-                            <td class="label">
-    <?php echo Translator::translate($astrFormElements[$j]['label'])?>
-  </td>
-                            <td class="field">
-    <?php echo htmlListBox('searchmatch_' . $astrFormElements[$j]['name'], $comparisonValues, $strSearchMatch, '', 0)?>
-  </td>
-                            <td class="field">
-        <?php
-            echo htmlFormElement(
-                $astrFormElements[$j]['name'], $astrFormElements[$j]['type'],
-                $astrValues[$astrFormElements[$j]['name']],
-                $astrFormElements[$j]['style'], $astrFormElements[$j]['listquery'],
-                'MODIFY', $astrFormElements[$j]['parent_key'], '', [], '',
-                isset($astrFormElements[$j]['options']) ? $astrFormElements[$j]['options'] : null
-            );
-        ?>
-  </td>
-                            <td><input type="hidden"
-                                name="delete_<?php echo $astrFormElements[$j]['name']?>_x"
-                                value="0"> <a class="tinyactionlink" href="#"
-                                title="<?php echo Translator::translate('DelRow')?>"
-                                onclick="self.document.forms[0].delete_<?php echo $astrFormElements[$j]['name']?>_x.value=1; self.document.forms[0].submit(); return false;">
-                                    X </a></td>
-                        </tr>
+            <tr class="search_row">
+              <td class="label">
+                <?php echo Translator::translate($astrFormElements[$j]['label'])?>
+              </td>
+              <td class="field">
+                <?php echo htmlListBox('searchmatch_' . $astrFormElements[$j]['name'], $comparisonValues, $strSearchMatch, '', 0)?>
+              </td>
+              <td class="field">
+                <?php
+                echo htmlFormElement(
+                    $astrFormElements[$j]['name'], $astrFormElements[$j]['type'],
+                    $astrValues[$astrFormElements[$j]['name']],
+                    $astrFormElements[$j]['style'], $astrFormElements[$j]['listquery'],
+                    'MODIFY', $astrFormElements[$j]['parent_key'], '', [], '',
+                    isset($astrFormElements[$j]['options']) ? $astrFormElements[$j]['options'] : null
+                );
+                ?>
+              </td>
+              <td>
+                <?php
+                    $inputName = 'delete_'
+                    . $astrFormElements[$j]['name'] . '_x';
+                ?>
+                <input type="hidden" name="<?php echo $inputName?>"value="0">
+                <a class="tinyactionlink form-submit" href="#" title="<?php echo Translator::translate('DelRow')?>"
+                  data-set-field="<?php echo $inputName?>">X
+                </a>
+              </td>
+            </tr>
 <?php
     }
 }
 
 ?>
-<tr>
-                            <td class="label">
-    <?php echo Translator::translate('SelectSearchField')?>
-  </td>
-                            <td class="field" colspan="3">
-    <?php echo $strListBox?>
-  </td>
-                        </tr>
-                        <tr>
-                            <td colspan="4"
-                                style="text-align: center; padding-top: 8px; padding-bottom: 8px">
-                                <input type="hidden" name="search_x" value="0"> <a
-                                class="actionlink" href="#"
-                                onclick="self.document.forms[0].search_x.value=1; self.document.forms[0].submit(); return false;"><?php echo Translator::translate('Search')?></a>
-                                <a class="actionlink" href="#"
-                                onclick="self.close(); return false;"><?php echo Translator::translate('Close')?></a>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td class="sublabel" colspan="4">
-    <?php echo Translator::translate('SearchSave')?>
-  </td>
-                        </tr>
+            <tr>
+              <td class="label">
+                <?php echo Translator::translate('SelectSearchField')?>
+              </td>
+              <td class="field" colspan="3">
+                <?php echo $strListBox?>
+              </td>
+            </tr>
+            <tr>
+              <td colspan="4"
+                style="text-align: center; padding-top: 8px; padding-bottom: 8px">
+                <input type="hidden" name="search_x" value="0">
+                <a class="actionlink form-submit" href="#"
+                    data-set-field="search_x">
+                    <?php echo Translator::translate('Search')?>
+                </a>
+                <a class="actionlink popup-close" href="#">
+                    <?php echo Translator::translate('Close')?>
+                </a>
+              </td>
+            </tr>
+            <tr>
+              <td class="sublabel" colspan="4">
+                <?php echo Translator::translate('SearchSave')?>
+              </td>
+            </tr>
 <?php
 if ($blnSave && $strSearchName) {
     ?>
-<tr>
-                            <td colspan="4">
-    <?php echo Translator::translate('SearchSaved')?>
-  </td>
-                        </tr>
+            <tr>
+              <td colspan="4">
+                <?php echo Translator::translate('SearchSaved')?>
+              </td>
+            </tr>
 <?php
 }
 ?>
-<tr>
-                            <td class="label">
-    <?php echo Translator::translate('SearchName')?>
-  </td>
-                            <td class="field"><input class="medium" type="text"
-                                name="searchname" value="<?php echo $strSearchName?>"></td>
-                            <td colspan="2"><input type="hidden" name="save_x" value="0"> <a
-                                class="actionlink" href="#"
-                                onclick="self.document.forms[0].save_x.value=1; self.document.forms[0].submit(); return false;"><?php echo Translator::translate('SaveSearch')?></a>
-                            </td>
-                        </tr>
-                    </tbody>
-                </table>
-            </form>
-        </div>
+            <tr>
+              <td class="label">
+                <?php echo Translator::translate('SearchName')?>
+              </td>
+              <td class="field"><input class="medium" type="text"
+                name="searchname" value="<?php echo $strSearchName?>">
+              </td>
+              <td colspan="2">
+                <input type="hidden" name="save_x" value="0">
+                <a class="actionlink form-submit" href="#" data-set-field="save_x">
+                <?php echo Translator::translate('SaveSearch')?>
+                </a>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </form>
     </div>
+  </div>
 </body>
 </html>

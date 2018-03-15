@@ -2058,7 +2058,7 @@ abstract class InvoicePrinterBase
      * @param int   $decimals         Number of decimals to display
      * @param bool  $decimalsOptional Whether to hide decimals if they are 0
      * @param bool  $round            Whether to round the value instead of
-     * truncating
+     *                                truncating
      *
      * @return string
      */
@@ -2090,7 +2090,7 @@ abstract class InvoicePrinterBase
      * @param int   $decimals         Number of decimals to display
      * @param bool  $decimalsOptional Whether to hide decimals if they are 0
      * @param bool  $round            Whether to round the value instead of
-     * truncating
+     *                                truncating
      *
      * @return string
      */

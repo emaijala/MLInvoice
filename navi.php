@@ -139,7 +139,8 @@ function createFuncMenu($strFunc)
             break;
         }
         if ($strNewText) {
-            $strNewButton = "<br/><br/><a class=\"buttonlink new_button\" href=\"?func=system&amp;list=$strList&amp;form=$strList\">$strNewText</a>";
+            $strNewButton = "<br/><br/><a class=\"buttonlink new_button\""
+                . " href=\"?func=system&amp;list=$strList&amp;form=$strList\">$strNewText</a>";
         }
         break;
 
@@ -193,7 +194,8 @@ function createFuncMenu($strFunc)
                 break;
             }
             if ($strNewText) {
-                $strNewButton = "<br/><br/><a class=\"buttonlink\" href=\"?func=settings&amp;list=$strList&amp;form=$strList\">$strNewText</a>";
+                $strNewButton = "<br/><br/><a class=\"buttonlink\" "
+                    . "href=\"?func=settings&amp;list=$strList&amp;form=$strList\">$strNewText</a>";
             }
         }
         break;
@@ -245,8 +247,8 @@ function createFuncMenu($strFunc)
         $strFormName = 'company';
         $strFormSwitch = 'company';
         $astrNaviLinks = [];
-        $strNewButton = '<a class="buttonlink" href="?func=companies&amp;form=company">' .
-             Translator::translate('NewClient') . '</a>';
+        $strNewButton = '<a class="buttonlink" href="?func=companies&amp;form=company">'
+             . Translator::translate('NewClient') . '</a>';
         break;
 
     default :
@@ -309,7 +311,12 @@ function createFuncMenu($strFunc)
           windowname = 'quicksearch';
       }
 
-      var win = window.open(strLink, windowname, 'height='+height+',width='+width+',screenX=' + x + ',screenY=' + y + ',left=' + x + ',top=' + y + ',menubar=no,scrollbars=yes,status=no,toolbar=no');
+      var win = window.open(
+          strLink, windowname,
+          'height='+height+',width='+width+',screenX=' + x + ',screenY=' + y
+          + ',left=' + x + ',top=' + y
+          + ',menubar=no,scrollbars=yes,status=no,toolbar=no'
+      );
       win.focus();
 
       return true;

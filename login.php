@@ -152,7 +152,8 @@ function createHash()
   document.getElementById('passwd').value = '';
   document.getElementById('key').value = '';
   var loginmsg = document.getElementById('loginmsg');
-  loginmsg.childNodes.item(0).nodeValue = '<?php echo Translator::translate('LoggingIn')?>';
+  loginmsg.childNodes.item(0)
+    .nodeValue = '<?php echo Translator::translate('LoggingIn')?>';
 }
 </script>
 
@@ -162,11 +163,15 @@ function createHash()
                 <input type="hidden" name="fpasswd" id="fpasswd" value=""> <input
                     type="hidden" name="key" id="key" value="<?php echo $key?>">
                 <p>
-                    <span style="width: 100px; display: inline-block;"><?php echo Translator::translate('UserID')?></span>
+                    <span style="width: 100px; display: inline-block;">
+                        <?php echo Translator::translate('UserID')?>
+                    </span>
                     <input class="medium" name="flogin" id="flogin" type="text" value="">
                 </p>
                 <p>
-                    <span style="width: 100px; display: inline-block;"><?php echo Translator::translate('Password')?></span>
+                    <span style="width: 100px; display: inline-block;">
+                        <?php echo Translator::translate('Password')?>
+                    </span>
                     <input class="medium" name="passwd" id="passwd" type="password" value="">
                 </p>
                 <p>
@@ -177,7 +182,9 @@ function createHash()
 if (getSetting('password_recovery')) {
 ?>
                 <p>
-                  <a href="recover.php"><?php echo Translator::translate('ForgotPassword')?></a>
+                  <a href="recover.php">
+                    <?php echo Translator::translate('ForgotPassword')?>
+                  </a>
                 </p>
 <?php
 }

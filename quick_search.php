@@ -83,11 +83,10 @@ foreach ($rows as $row) {
                         <td class="label"><a href="quick_search.php"
                             onClick="<?php echo $strOnClick?>; return false;"><?php echo $strName?></a>
                         </td>
-                        <td><input type="hidden" name="delete_<?php echo $intID?>_x"
-                            value="0"> <a class="tinyactionlink" href="#"
-                            title="<?php echo Translator::translate('DelRow')?>"
-                            onclick="self.document.forms[0].delete_<?php echo $intID?>_x.value=1; self.document.forms[0].submit(); return false;">
-                                X </a></td>
+                        <td>
+                            <input type="hidden" name="delete_<?php echo $intID?>_x" value="0">
+                            <a class="tinyactionlink form-submit" href="#" data-set-field="delete_<?php echo $intID?>_x"> X </a>
+                        </td>
                     </tr>
 <?php
 }
@@ -106,8 +105,10 @@ if (!isset($intID)) {
                 <center>
                     <table>
                         <tr>
-                            <td><a class="actionlink" href="#"
-                                onclick="self.close(); return false;"><?php echo Translator::translate('Close')?></a>
+                            <td>
+                              <a class="actionlink popup-close" href="#">
+                                <?php echo Translator::translate('Close')?>
+                              </a>
                             </td>
                         </tr>
                     </table>

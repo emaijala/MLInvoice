@@ -162,13 +162,14 @@ function createWhereClause($astrSearchFields, $strSearchTerms, &$arrQueryParams,
                 } elseif ($astrSearchFields[$j]['type'] == 'INT'
                     && preg_match('/^([0-9]+)$/', $astrTerms[$i])
                 ) {
-                    $strWhereClause .= $astrSearchFields[$j]['name'] . ' = ?' . ' OR ';
+                    $strWhereClause .= $astrSearchFields[$j]['name'] . ' = ?'
+                        . ' OR ';
                     $arrQueryParams[] = $astrTerms[$i];
                 } elseif ($astrSearchFields[$j]['type'] == 'PRIMARY'
                     && preg_match('/^([0-9]+)$/', $intID)
                 ) {
-                    $strWhereClause = 'WHERE ' . $astrSearchFields[$j]['name'] .
-                        ' = ?     ';
+                    $strWhereClause = 'WHERE ' . $astrSearchFields[$j]['name']
+                        . ' = ? ';
                     $arrQueryParams = [$intID];
                     unset($astrSearchFields);
                     break 2;
@@ -198,7 +199,8 @@ function updateProductStockBalance($invoiceRowId, $productId, $count)
     if (!empty($invoiceRowId)) {
         // Fetch old product id
         $rows = dbParamQuery(
-            'SELECT product_id, pcs from {prefix}invoice_row WHERE id=? AND deleted=0',
+            'SELECT product_id, pcs from {prefix}invoice_row WHERE id=?'
+            . ' AND deleted=0',
             [$invoiceRowId],
             'exception'
         );
@@ -211,7 +213,8 @@ function updateProductStockBalance($invoiceRowId, $productId, $count)
     if ($oldProductId) {
         // Add old balance to old product
         dbParamQuery(
-            'UPDATE {prefix}product SET stock_balance=IFNULL(stock_balance, 0)+? WHERE id=?',
+            'UPDATE {prefix}product SET stock_balance=IFNULL(stock_balance, 0)+?'
+            . ' WHERE id=?',
             [$oldCount, $oldProductId],
             'exception'
         );
@@ -219,7 +222,8 @@ function updateProductStockBalance($invoiceRowId, $productId, $count)
     if (!empty($productId)) {
         // Deduct from new product
         dbParamQuery(
-            'UPDATE {prefix}product SET stock_balance=IFNULL(stock_balance, 0)-? WHERE id=?',
+            'UPDATE {prefix}product SET stock_balance=IFNULL(stock_balance, 0)-?'
+            . ' WHERE id=?',
             [
                 $count,
                 $productId
@@ -669,13 +673,15 @@ function updateUserPassword($id, $password)
 function getMaxInvoiceNumber($invoiceId, $baseId, $perYear)
 {
     if ($baseId !== null) {
-        $sql = 'SELECT max(cast(invoice_no as unsigned integer)) as maxnum FROM {prefix}invoice WHERE deleted=0 AND id!=? AND base_id=?';
+        $sql = 'SELECT max(cast(invoice_no as unsigned integer)) as maxnum'
+            . ' FROM {prefix}invoice WHERE deleted=0 AND id!=? AND base_id=?';
         $params = [
             $invoiceId,
             $baseId
         ];
     } else {
-        $sql = 'SELECT max(cast(invoice_no as unsigned integer)) as maxnum FROM {prefix}invoice WHERE deleted=0 AND id!=?';
+        $sql = 'SELECT max(cast(invoice_no as unsigned integer)) as maxnum'
+            . ' FROM {prefix}invoice WHERE deleted=0 AND id!=?';
         $params = [$invoiceId];
     }
     if ($perYear) {
@@ -705,7 +711,8 @@ function deleteRecord($table, $id)
         // Special case for invoice - update all products in invoice rows
         if ($table == '{prefix}invoice' && !isOffer($id)) {
             $rows = dbParamQuery(
-                'SELECT id FROM {prefix}invoice_row WHERE invoice_id=? AND deleted=0',
+                'SELECT id FROM {prefix}invoice_row WHERE invoice_id=?'
+                    . ' AND deleted=0',
                 [$id],
                 'exception'
             );
@@ -1045,6 +1052,7 @@ function tableNameValid($table)
  */
 function verifyDatabase()
 {
+    // phpcs:disable Generic.Files.LineLength
     $res = dbQueryCheck("SHOW TABLES LIKE '{prefix}state'");
     $stateRows = mysqli_num_rows($res);
     if ($stateRows == 0) {
@@ -1075,7 +1083,10 @@ EOT
         dbQueryCheck('SET AUTOCOMMIT = 0');
         dbQueryCheck('BEGIN');
         dbQueryCheck('SET FOREIGN_KEY_CHECKS = 0');
-        $res = dbQueryCheck("SHOW TABLE STATUS WHERE Name like '" . _DB_PREFIX_ . "_%' AND ENGINE='MyISAM'");
+        $res = dbQueryCheck(
+            "SHOW TABLE STATUS WHERE Name like '" . _DB_PREFIX_
+            . "_%' AND ENGINE='MyISAM'"
+        );
         while ($row = mysqli_fetch_array($res)) {
             $res2 = dbQueryCheck(
                 'ALTER TABLE `' . $row['Name'] . '` ENGINE=INNODB', true
@@ -1781,6 +1792,7 @@ EOT
         );
     }
 
+    // phpcs:enable Generic.Files.LineLength
     if (!empty($updates)) {
         dbQueryCheck('SET AUTOCOMMIT = 0');
         dbQueryCheck('BEGIN');
@@ -1789,9 +1801,14 @@ EOT
             if ($res === false) {
                 dbQueryCheck('ROLLBACK');
                 dbQueryCheck('SET AUTOCOMMIT = 1');
-                error_log('Database upgrade query failed. Please execute the following queries manually:');
+                error_log(
+                    'Database upgrade query failed. Please execute the following'
+                    . ' queries manually:'
+                );
                 foreach ($updates as $s) {
-                    error_log('  ' . str_replace('{prefix}', _DB_PREFIX_ . '_', $s) . ';');
+                    error_log(
+                        '  ' . str_replace('{prefix}', _DB_PREFIX_ . '_', $s) . ';'
+                    );
                 }
                 return 'FAILED';
             }

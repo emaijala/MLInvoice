@@ -113,7 +113,9 @@ function createSettingsList()
         iframe.css("height", newHeight + 'px');
         body.css("overflow", "hidden");
       });
-      $('#admin_form').find('input[type="text"],input[type="checkbox"],select,textarea').change(function() { $('.save_button').addClass('unsaved'); });
+      $('#admin_form')
+        .find('input[type="text"],input[type="checkbox"],select,textarea')
+        .change(function() { $('.save_button').addClass('unsaved'); });
     });
     -->
     </script>
@@ -126,7 +128,9 @@ function createSettingsList()
         $elemType = $elem['type'];
         if ($elemType == 'LABEL') {
     ?>
-        <div class="sublabel ui-widget-header ui-state-default"><?php echo Translator::translate($elem['label'])?></div>
+        <div class="sublabel ui-widget-header ui-state-default">
+            <?php echo Translator::translate($elem['label'])?>
+        </div>
     <?php
             continue;
         }
@@ -158,18 +162,32 @@ function createSettingsList()
         }
         if ($elemType == 'CHECK') {
         ?>
-      <div class="field" style="clear: both">
-        <?php echo htmlFormElement($name, $elemType, $value, $elem['style'], '', 'MODIFY', '', '', [], isset($elem['elem_attributes']) ? $elem['elem_attributes'] : '', $options)?>
-        <label for="<?php echo $name?>"><?php echo Translator::translate($elem['label'])?></label>
-            </div>
+        <div class="field" style="clear: both">
+        <?php
+        echo htmlFormElement(
+            $name, $elemType, $value, $elem['style'], '', 'MODIFY', '', '', [],
+            isset($elem['elem_attributes']) ? $elem['elem_attributes'] : '', $options
+        );
+        ?>
+        <label for="<?php echo $name?>">
+            <?php echo Translator::translate($elem['label'])?>
+        </label>
+        </div>
         <?php
         } else {
             ?>
-      <div class="label" style="clear: both">
-                <label for="<?php echo $name?>"><?php echo Translator::translate($elem['label'])?></label>
+            <div class="label" style="clear: both">
+                <label for="<?php echo $name?>">
+                    <?php echo Translator::translate($elem['label'])?>
+                </label>
             </div>
             <div class="field" style="clear: both">
-        <?php echo htmlFormElement($name, $elemType, $value, $elem['style'], '', 'MODIFY', '', '', [], isset($elem['elem_attributes']) ? $elem['elem_attributes'] : '', $options)?>
+            <?php
+            echo htmlFormElement(
+                $name, $elemType, $value, $elem['style'], '', 'MODIFY', '', '', [],
+                isset($elem['elem_attributes']) ? $elem['elem_attributes'] : '', $options
+            );
+            ?>
       </div>
 <?php
         }
@@ -192,8 +210,9 @@ function createSettingsListButtons()
 {
     ?>
 <div class="form_buttons" style="clear: both">
-    <a class="actionlink save_button" href="#"
-        onclick="document.getElementById('admin_form').saveact.value=1; document.getElementById('admin_form').submit(); return false;"><?php echo Translator::translate('Save')?></a>
+    <a class="actionlink save_button form-submit" href="#" data-set-field="saveact">
+        <?php echo Translator::translate('Save')?>
+    </a>
 </div>
 <?php
 }

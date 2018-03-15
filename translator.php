@@ -58,7 +58,7 @@ class Translator
      * @param string $str          String to translate
      * @param array  $placeholders Any key/value pairs to replace in the translation
      * @param string $default      Optional default value if translation doesn't
-     * exist
+     *                             exist
      *
      * @return string
      */

@@ -804,9 +804,17 @@ EOT;
         }
     }
     if (sesWriteAccess()) {
-        ?>
-      $('<td/>').addClass('button').append('<a class="tinyactionlink row_edit_button rec' + record.id + '" href="#"><?php echo Translator::translate('Edit')?><\/a>').appendTo(tr);
-      $('<td/>').addClass('button').append('<a class="tinyactionlink row_copy_button rec' + record.id + '" href="#"><?php echo Translator::translate('Copy')?><\/a>').appendTo(tr);
+    ?>
+      $('<td/>').addClass('button')
+        .append(
+          '<a class="tinyactionlink row_edit_button rec' + record.id
+          + '" href="#"><?php echo Translator::translate('Edit')?><\/a>'
+        ).appendTo(tr);
+      $('<td/>').addClass('button')
+        .append(
+          '<a class="tinyactionlink row_copy_button rec' + record.id +
+          '" href="#"><?php echo Translator::translate('Copy')?><\/a>'
+        ).appendTo(tr);
     <?php
     }
     ?>
@@ -1478,7 +1486,13 @@ function multi_editor(event, title)
                 ?>
               <td
                                     class="label <?php echo strtolower($subElem['style'])?>_label">
-                <?php echo htmlFormElement('iform_' . $subElem['name'], $subElem['type'], $value, $subElem['style'], $subElem['listquery'], 'MODIFY', 0, '', [], $subElem['elem_attributes'])?>
+                <?php
+                echo htmlFormElement(
+                    'iform_' . $subElem['name'], $subElem['type'], $value,
+                    $subElem['style'], $subElem['listquery'], 'MODIFY', 0, '', [],
+                    $subElem['elem_attributes']
+                );
+                ?>
               </td>
 <?php
             } elseif ($subElem['type'] == 'ROWSUM') {
@@ -1491,17 +1505,21 @@ function multi_editor(event, title)
         }
         if ($strForm == 'invoice') {
             ?>
-              <td class="button" colspan="2"><a
-                                    class="tinyactionlink add_row_button" href="#"
-                                    onclick="save_row('iform'); return false;"><?php echo Translator::translate('AddRow')?></a>
-                                </td>
+              <td class="button" colspan="2">
+                <a class="tinyactionlink add_row_button" href="#"
+                  onclick="save_row('iform'); return false;">
+                    <?php echo Translator::translate('AddRow')?>
+                </a>
+              </td>
 <?php
         } else {
             ?>
-              <td class="button" colspan="2"><a
-                                    class="tinyactionlink add_row_button" href="#"
-                                    onclick="save_row('iform'); return false;"><?php echo Translator::translate('AddRow')?></a>
-                                </td>
+              <td class="button" colspan="2">
+                <a class="tinyactionlink add_row_button" href="#"
+                  onclick="save_row('iform'); return false;">
+                    <?php echo Translator::translate('AddRow')?>
+                </a>
+              </td>
 <?php
         }
         ?>
@@ -1582,9 +1600,9 @@ function createFormButtons($form, $new, $copyLinkOverride, $spinner, $readOnlyFo
     $extraButtons, $top
 ) {
     if (!sesWriteAccess()) {
-?>
+    ?>
     <div class="form_buttons"></div>
-<?php
+    <?php
         return;
     }
     ?>
@@ -1592,28 +1610,37 @@ function createFormButtons($form, $new, $copyLinkOverride, $spinner, $readOnlyFo
     <?php
     if (!$readOnlyForm) {
         ?>
-      <a class="actionlink save_button" href="#"
-                        onclick="save_record(); return false;"><?php echo Translator::translate('Save')?></a>
+      <a class="actionlink save_button" href="#" onclick="save_record(); return false;">
+        <?php echo Translator::translate('Save')?>
+      </a>
     <?php
     }
 
     if (!$new) {
-        $copyCmd = $copyLinkOverride
-            ? "window.location='$copyLinkOverride'; return false;"
-            : "document.getElementById('admin_form').copyact.value=1; document.getElementById('admin_form').submit(); return false;";
-        ?>      <a class="actionlink" href="#"
-                        onclick="<?php echo $copyCmd?>"><?php echo Translator::translate('Copy')?></a>
-                    <a class="actionlink" href="#"
-                        onclick="document.getElementById('admin_form').newact.value=1; document.getElementById('admin_form').submit(); return false;">
-                        <?php echo Translator::translate('New')?>
-                    </a>
+        if ($copyLinkOverride) {
+            ?>
+            <a class="actionlink" href="<?php echo $copyLinkOverride?>">
+                <?php echo Translator::translate('Copy')?>
+            </a>
+            <?php
+        } else {
+            ?>
+            <a class="actionlink form-submit" href="#" data-form="admin_form" data-set-field="copyact">
+                <?php echo Translator::translate('Copy')?>
+            </a>
+            <?php
+        }
+        ?>
+        <a class="actionlink form-submit" href="#" data-form="admin_form" data-set-field="newact">
+            <?php echo Translator::translate('New')?>
+        </a>
         <?php
         if (!$readOnlyForm) {
             ?>
-      <a class="actionlink" href="#"
-                        onclick="if(confirm('<?php echo Translator::translate('ConfirmDelete')?>')==true) {  document.getElementById('admin_form').deleteact.value=1; document.getElementById('admin_form').submit(); return false;} else{ return false; }">
-                        <?php echo Translator::translate('Delete')?>
-      </a>
+            <a class="actionlink form-submit" href="#" data-form="admin_form" data-set-field="deleteact"
+              data-confirm="ConfirmDelete">
+                <?php echo Translator::translate('Delete')?>
+            </a>
             <?php
             if ($extraButtons) {
                 echo $extraButtons;
@@ -1622,38 +1649,42 @@ function createFormButtons($form, $new, $copyLinkOverride, $spinner, $readOnlyFo
     }
     if ($form === 'company') {
         if (!$readOnlyForm) {
-?>
-        <a class="actionlink ytj_search_button" href="#"><?php echo Translator::translate('SearchYTJ')?></a>
-<?php
+            ?>
+            <a class="actionlink ytj_search_button" href="#"><?php echo Translator::translate('SearchYTJ')?></a>
+            <?php
         }
         if ($top && !$new) {
-?>
-        <a id="cover-letter-button" class="actionlink" href="#"><?php echo Translator::translate('PrintCoverLetter')?></a>
-        <div id="cover-letter-form" class="ui-corner-all hidden">
-          <div class="ui-corner-tl ui-corner-tr fg-toolbar ui-toolbar ui-widget-header"><?php echo Translator::translate('PrintCoverLetter')?></div>
-          <div id="cover-letter-form-inner">
-            <form action="coverletter.php" method="POST">
-              <input type="hidden" name="company" value="<?php echo getRequest('id')?>">
-              <div class="medium_label"><?php echo Translator::translate('Sender')?></div>
-              <div class="field">
-                <?php echo htmlFormElement(
-                    'base', 'LIST', '', 'long noemptyvalue',
-                    'SELECT id, name FROM {prefix}base WHERE deleted=0 AND inactive=0 ORDER BY name, id'
-                );?>
-              </div>
-              <div class="medium_label"><?php echo Translator::translate('Foreword')?></div>
-              <div class="field">
-                <?php echo htmlFormElement('foreword', 'AREA', '', 'large', '');?>
-                <span class="select-default-text" data-type="foreword" data-target="foreword"></span>
-              </div>
-              <div class="form_buttons" style="clear: both">
-                <input type="submit" class="ui-button ui-corner-all" value="<?php echo Translator::translate('Print')?>">
-                <input type="button" class="ui-button ui-corner-all close-btn" value="<?php echo Translator::translate('Close')?>">
-              </div>
-            </form>
-          </div>
+            ?>
+            <a id="cover-letter-button" class="actionlink" href="#">
+                <?php echo Translator::translate('PrintCoverLetter')?>
+            </a>
+            <div id="cover-letter-form" class="ui-corner-all hidden">
+            <div class="ui-corner-tl ui-corner-tr fg-toolbar ui-toolbar ui-widget-header">
+                <?php echo Translator::translate('PrintCoverLetter')?>
+            </div>
+            <div id="cover-letter-form-inner">
+                <form action="coverletter.php" method="POST">
+                <input type="hidden" name="company" value="<?php echo getRequest('id')?>">
+                <div class="medium_label"><?php echo Translator::translate('Sender')?></div>
+                <div class="field">
+                    <?php echo htmlFormElement(
+                        'base', 'LIST', '', 'long noemptyvalue',
+                        'SELECT id, name FROM {prefix}base WHERE deleted=0 AND inactive=0 ORDER BY name, id'
+                    );?>
+                </div>
+                <div class="medium_label"><?php echo Translator::translate('Foreword')?></div>
+                <div class="field">
+                    <?php echo htmlFormElement('foreword', 'AREA', '', 'large', '');?>
+                    <span class="select-default-text" data-type="foreword" data-target="foreword"></span>
+                </div>
+                <div class="form_buttons" style="clear: both">
+                    <input type="submit" class="ui-button ui-corner-all" value="<?php echo Translator::translate('Print')?>">
+                    <input type="button" class="ui-button ui-corner-all close-btn" value="<?php echo Translator::translate('Close')?>">
+                </div>
+                </form>
+            </div>
         </div>
-<?php
+        <?php
         }
     }
 
@@ -1667,7 +1698,7 @@ function createFormButtons($form, $new, $copyLinkOverride, $spinner, $readOnlyFo
     }
     ?>
     </div>
-<?php
+    <?php
 }
 
 /**

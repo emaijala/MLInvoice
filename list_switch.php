@@ -118,7 +118,8 @@ case 'invoices':
 case 'offer':
     $levelsAllowed[] = ROLE_READONLY;
 
-    $strListFilter = ($strFunc == 'archived_invoices') ? 'i.archived = 1' : 'i.archived = 0';
+    $strListFilter = ($strFunc == 'archived_invoices') ? 'i.archived = 1'
+        : 'i.archived = 0';
     $strTable = '{prefix}invoice i';
     $strJoin = 'LEFT OUTER JOIN {prefix}base b on i.base_id=b.id ' .
          'LEFT OUTER JOIN {prefix}company c on i.company_id=c.id ' .
@@ -131,8 +132,10 @@ case 'offer':
 LEFT OUTER JOIN (
   SELECT ir.invoice_id,
     CASE WHEN ir.vat_included = 0
-      THEN (ir.price * (1 - IFNULL(ir.discount, 0) / 100) - IFNULL(ir.discount_amount, 0)) * ir.pcs
-      ELSE (ir.price * (1 - IFNULL(ir.discount, 0) / 100) - IFNULL(ir.discount_amount, 0)) * ir.pcs / (1 + ir.vat / 100)
+      THEN (ir.price * (1 - IFNULL(ir.discount, 0) / 100)
+        - IFNULL(ir.discount_amount, 0)) * ir.pcs
+      ELSE (ir.price * (1 - IFNULL(ir.discount, 0) / 100)
+        - IFNULL(ir.discount_amount, 0)) * ir.pcs / (1 + ir.vat / 100)
     END as row_total
   FROM {prefix}invoice_row ir
   WHERE ir.deleted = 0) it
@@ -144,8 +147,10 @@ LEFT OUTER JOIN (
   SELECT ir.invoice_id,
     CASE WHEN ir.partial_payment = 0 THEN
       CASE WHEN ir.vat_included = 0
-        THEN (ir.price * (1 - IFNULL(ir.discount, 0) / 100) - IFNULL(ir.discount_amount, 0)) * ir.pcs * (1 + ir.vat / 100)
-        ELSE (ir.price * (1 - IFNULL(ir.discount, 0) / 100) - IFNULL(ir.discount_amount, 0)) * ir.pcs
+        THEN (ir.price * (1 - IFNULL(ir.discount, 0) / 100)
+          - IFNULL(ir.discount_amount, 0)) * ir.pcs * (1 + ir.vat / 100)
+        ELSE (ir.price * (1 - IFNULL(ir.discount, 0) / 100)
+          - IFNULL(ir.discount_amount, 0)) * ir.pcs
       END
     ELSE
       ir.price
@@ -253,7 +258,8 @@ EOT;
             ]
         );
     }
-    $strGroupBy = 'i.id, i.deleted, i.invoice_date, i.due_date, i.invoice_no, b.name, c.company_name, i.name, s.name, i.ref_number';
+    $strGroupBy = 'i.id, i.deleted, i.invoice_date, i.due_date, i.invoice_no,'
+        . ' b.name, c.company_name, i.name, s.name, i.ref_number';
     $strMainForm = 'invoice';
     $strTitle = 'Invoices';
     break;

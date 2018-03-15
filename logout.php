@@ -51,7 +51,9 @@ echo htmlPageStart();
         <div id="maintabs" class="navi ui-widget-header ui-tabs">
             <ul class="ui-tabs-nav ui-helper-clearfix ui-corner-all">
                 <li class="functionlink ui-state-default ui-corner-top">
-                    <a class="ui-tabs-anchor functionlink" href="login.php"><?php echo Translator::translate('Login')?></a>
+                    <a class="ui-tabs-anchor functionlink" href="login.php">
+                        <?php echo Translator::translate('Login')?>
+                    </a>
                 </li>
             </ul>
         </div>
@@ -64,7 +66,9 @@ echo htmlPageStart();
 </p>
 
             <p>
-                <a href="login.php"><?php echo Translator::translate('BackToLogin')?></a>
+                <a href="login.php">
+                    <?php echo Translator::translate('BackToLogin')?>
+                </a>
             </p>
 
         </div>

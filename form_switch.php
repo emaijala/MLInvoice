@@ -389,7 +389,10 @@ case 'product' :
 EOS;
 
         $updateStockBalanceCode = <<<EOS
-<a class="formbuttonlink" href="#" onclick="update_stock_balance({'save': '$locSave', 'close': '$locClose', 'title': '$locTitle', 'missing': '$locMissing: ', 'decimal_separator': '$locDecimalSeparator'})">$locUpdateStockBalance</a>
+<a class="formbuttonlink" href="#"
+  onclick="update_stock_balance({'save': '$locSave', 'close': '$locClose', 'title': '$locTitle', 'missing': '$locMissing: ', 'decimal_separator': '$locDecimalSeparator'})">
+    $locUpdateStockBalance
+</a>
 
 EOS;
     }
@@ -675,9 +678,7 @@ EOT;
 
     if (sesWriteAccess()) {
         $locUpdateDates = Translator::translate('UpdateDates');
-        $updateDates = <<<EOS
-<a class="formbuttonlink" href="#" onclick="$.getJSON('json.php?func=get_invoice_defaults', {id: $('#record_id').val(), invoice_no: $('#invoice_no').val(), invoice_date: $('#invoice_date').val(), base_id: $('#base_id').val(), company_id: $('#company_id').val(), interval_type: $('#interval_type').val()}, function(json) { $('#invoice_date').val(json.date); $('#due_date').val(json.due_date); $('#next_interval_date').val(json.next_interval_date); $('.save_button').addClass('ui-state-highlight'); }); return false;">$locUpdateDates</a>
-EOS;
+        $updateDates = '<a class="formbuttonlink update-dates" href="#">' . $locUpdateDates . '</a>';
 
         $locNew = Translator::translate('New') . '...';
         $locClientName = Translator::translate('ClientName');
@@ -692,7 +693,10 @@ EOS;
         $locTitle = Translator::translate('NewClient');
         $locMissing = Translator::translate('ErrValueMissing');
         $addCompanyCode = <<<EOS
-<a class="formbuttonlink" href="#" onclick="add_company({'save': '$locSave', 'close': '$locClose', 'title': '$locTitle', 'missing': '$locMissing: '})">$locNew</a>
+<a class="formbuttonlink" href="#"
+  onclick="add_company({'save': '$locSave', 'close': '$locClose', 'title': '$locTitle', 'missing': '$locMissing: '})">
+    $locNew
+</a>
 
 EOS;
 
@@ -711,10 +715,6 @@ EOS;
 
         if (!$isOffer) {
             $companyOnChange = '_onChangeCompany';
-
-            $getInvoiceNr = <<<EOS
-$.getJSON('json.php?func=get_invoice_defaults', {id: $('#record_id').val(), invoice_no: $('#invoice_no').val(), invoice_date: $('#invoice_date').val(), base_id: $('#base_id').val(), company_id: $('#company_id').val(), interval_type: $('#interval_type').val()}, function(json) { $('#invoice_no').val(json.invoice_no); $('#ref_number').val(json.ref_no); $('.save_button').addClass('ui-state-highlight'); }); return false;
-EOS;
 
             $locPartialPayment = Translator::translate('PartialPayment');
             $locDecimalSeparator = Translator::translate('DecimalSeparator');
@@ -844,8 +844,8 @@ EOF;
         if (!getSetting('invoice_add_number')
             || !getSetting('invoice_add_reference_number')
         ) {
-            $updateInvoiceNr = '<a class="formbuttonlink" href="#" onclick="' .
-            $getInvoiceNr . '">' . Translator::translate('GetInvoiceNr') . '</a>';
+            $updateInvoiceNr = '<a class="formbuttonlink update-invoice-nr" href="#">'
+                . Translator::translate('GetInvoiceNr') . '</a>';
         }
     }
 

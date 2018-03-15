@@ -233,7 +233,9 @@ foreach ($astrShowFields as $key => $field) {
 if ('product' === $strList) {
 ?>
     <div id="custom-prices" class="function_navi ui-helper-clearfix">
-        <div class="medium_label label"><?php echo Translator::translate('ClientSpecificPrices')?></div>
+        <div class="medium_label label">
+            <?php echo Translator::translate('ClientSpecificPrices')?>
+        </div>
         <div class="field">
             <?php echo htmlFormElement(
                 'company_id', 'SEARCHLIST', getRequest('company'), 'long',
@@ -243,31 +245,57 @@ if ('product' === $strList) {
         </div>
         <?php if ($companyId) { ?>
             <div id="no-custom-prices"<?php echo $customPriceSettings ? ' class="hidden"' : ''?>>
-                <div class="label"><?php echo Translator::translate('NoClientSpecificPricesDefined')?></div>
+                <div class="label">
+                    <?php echo Translator::translate('NoClientSpecificPricesDefined')?>
+                </div>
                 <?php if (sesWriteAccess()) { ?>
                     <div class="field">
-                        <button id="add-custom-prices" class="ui-button ui-corner-all ui-widget"><?php echo Translator::translate('Define')?></button>
+                        <button id="add-custom-prices" class="ui-button ui-corner-all ui-widget">
+                            <?php echo Translator::translate('Define')?>
+                        </button>
                     </div>
                 <?php } ?>
             </div>
             <div id="custom-prices-form" class="ui-helper-clearfix<?php echo !$customPriceSettings ? ' hidden' : ''?>">
-                <div class="label medium_label"><?php echo Translator::translate('DiscountPercent')?></div>
+                <div class="label medium_label">
+                    <?php echo Translator::translate('DiscountPercent')?>
+                </div>
                 <div class="field">
                     <?php echo htmlFormElement(
-                        'discount', 'INT', $customPriceSettings ? miscRound2OptDecim($customPriceSettings['discount']) : 0, 'percent'
+                        'discount', 'INT',
+                        $customPriceSettings
+                            ? miscRound2OptDecim(
+                                $customPriceSettings['discount']
+                            ) : 0,
+                        'percent'
                     );?>
                 </div>
-                <div class="label medium_label"><?php echo Translator::translate('Multiplier')?></div>
+                <div class="label medium_label">
+                    <?php echo Translator::translate('Multiplier')?>
+                </div>
                 <div class="field">
                     <?php echo htmlFormElement(
-                        'multiplier', 'INT', $customPriceSettings ? miscRound2OptDecim($customPriceSettings['multiplier'], 5) : 1, 'currency'
+                        'multiplier', 'INT',
+                        $customPriceSettings
+                            ? miscRound2OptDecim(
+                                $customPriceSettings['multiplier'], 5
+                            ) : 1,
+                        'currency'
                     );?>
                 </div>
-                <div class="label medium_label"><?php echo Translator::translate('ValidUntil')?></div>
+                <div class="label medium_label">
+                    <?php echo Translator::translate('ValidUntil')?>
+                </div>
                 <div class="field">
                     <?php echo htmlFormElement(
-                        'valid_until', 'INTDATE', $customPriceSettings ? dateConvDBDate2Date($customPriceSettings['valid_until']) : '',
-                        'date' . (!$customPriceSettings || $customPriceSettings['valid'] ? '' : ' ui-state-error')
+                        'valid_until', 'INTDATE',
+                        $customPriceSettings
+                            ? dateConvDBDate2Date(
+                                $customPriceSettings['valid_until']
+                            ) : '',
+                        'date'
+                        . (!$customPriceSettings || $customPriceSettings['valid']
+                            ? '' : ' ui-state-error')
                     );?>
                     <?php if ($customPriceSettings && !$customPriceSettings['valid']) { ?>
                         <i class="ui-icon ui-icon-alert"></i>
@@ -275,8 +303,12 @@ if ('product' === $strList) {
                 </div>
                 <div class="label medium_label">
                     <?php if (sesWriteAccess()) { ?>
-                        <a class="actionlink save-button" href="#"><?php echo Translator::translate('Save')?></a>
-                        <a class="actionlink delete-button" href="#"><?php echo Translator::translate('Delete')?></a>
+                        <a class="actionlink save-button" href="#">
+                            <?php echo Translator::translate('Save')?>
+                        </a>
+                        <a class="actionlink delete-button" href="#">
+                            <?php echo Translator::translate('Delete')?>
+                        </a>
                     <?php } ?>
                 </div>
             </div>
@@ -285,7 +317,9 @@ if ('product' === $strList) {
 <?php } ?>
 
 <div class="list_container">
-    <div id="<?php echo $strTableName?>_title" class="table_header"><?php echo Translator::translate($strTitle)?></div>
+    <div id="<?php echo $strTableName?>_title" class="table_header">
+        <?php echo Translator::translate($strTitle)?>
+    </div>
     <table id="<?php echo $strTableName?>" class="list">
         <thead>
             <tr>
@@ -299,11 +333,13 @@ foreach ($astrShowFields as $field) {
     $strWidth = isset($field['width'])
         ? (' style="width: ' . $field['width'] . 'px"') : '';
 ?>
-                <th<?php echo $strWidth?>><?php echo Translator::translate($field['header'])?></th>
+                <th<?php echo $strWidth?>>
+                    <?php echo Translator::translate($field['header'])?>
+                </th>
 <?php
 }
 ?>
-        </tr>
+            </tr>
         </thead>
         <tbody>
         </tbody>
@@ -399,7 +435,8 @@ function createJSONList($strFunc, $strList, $startRow, $rowCount, $sort, $filter
     if ('product' === $strList && $customPrices) {
         // Include any custom prices
         $strSelectClause .= <<<EOT
-, (SELECT unit_price FROM {prefix}custom_price_map pm WHERE pm.custom_price_id = ? AND pm.product_id = $strTable.id) custom_unit_price
+, (SELECT unit_price FROM {prefix}custom_price_map pm WHERE pm.custom_price_id = ?
+AND pm.product_id = $strTable.id) custom_unit_price
 EOT;
         $queryParams[] = $customPrices['id'];
     }
@@ -778,7 +815,8 @@ function createJSONSelectList($strList, $startRow, $rowCount, $filter, $sort,
         if ($customPrices) {
             // Include any custom prices
             $strSelectClause .= <<<EOT
-, (SELECT unit_price FROM {prefix}custom_price_map pm WHERE pm.custom_price_id = ? AND pm.product_id = $strTable.id) custom_unit_price
+, (SELECT unit_price FROM {prefix}custom_price_map pm WHERE pm.custom_price_id = ?
+AND pm.product_id = $strTable.id) custom_unit_price
 EOT;
             array_unshift($arrQueryParams, $customPrices['id']);
         }

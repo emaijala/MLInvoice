@@ -44,21 +44,25 @@ function createOpenInvoiceList()
     $currentDate = date('Ymd');
 
     $res = dbQueryCheck(
-        "select count(*) as cnt from {prefix}invoice i where i.deleted = 0 AND i.interval_type > 0 AND i.next_interval_date <= $currentDate AND i.archived = 0"
+        "select count(*) as cnt from {prefix}invoice i where i.deleted = 0"
+        . " AND i.interval_type > 0 AND i.next_interval_date <= $currentDate"
+        . " AND i.archived = 0"
     );
     $row = mysqli_fetch_assoc($res);
     if ($row['cnt'] > 0) {
         createList(
             'open_invoices', 'invoice', 'resultlist_repeating_invoices',
             Translator::translate('LabelInvoicesWithIntervalDue'),
-            "i.interval_type > 0 AND i.next_interval_date <= $currentDate AND i.archived = 0",
+            "i.interval_type > 0 AND i.next_interval_date <= $currentDate"
+                . " AND i.archived = 0",
             true
         );
     }
 
     $open = '';
     $res = dbQueryCheck(
-        'SELECT id FROM {prefix}invoice_state WHERE invoice_open=1 AND invoice_offer=0'
+        'SELECT id FROM {prefix}invoice_state WHERE invoice_open=1'
+        . ' AND invoice_offer=0'
     );
     while ($id = dbFetchValue($res)) {
         if ($open) {
@@ -69,7 +73,8 @@ function createOpenInvoiceList()
 
     $unpaid = '';
     $res = dbQueryCheck(
-        'SELECT id FROM {prefix}invoice_state WHERE invoice_open=0 AND invoice_unpaid=1 AND invoice_offer=0'
+        'SELECT id FROM {prefix}invoice_state WHERE invoice_open=0'
+        . ' AND invoice_unpaid=1 AND invoice_offer=0'
     );
     while ($id = dbFetchValue($res)) {
         if ($unpaid) {
@@ -80,7 +85,8 @@ function createOpenInvoiceList()
 
     $openOffers = '';
     $res = dbQueryCheck(
-        'SELECT id FROM {prefix}invoice_state WHERE invoice_open=1 AND invoice_offer=1'
+        'SELECT id FROM {prefix}invoice_state WHERE invoice_open=1'
+        . ' AND invoice_offer=1'
     );
     while ($id = dbFetchValue($res)) {
         if ($openOffers) {

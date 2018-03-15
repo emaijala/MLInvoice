@@ -192,19 +192,8 @@ MLInvoice.setOfferStatuses($offerStatuses);
 MLInvoice.setKeepAlive($keepAlive);
 MLInvoice.setCurrencyDecimals($currencyDecimals);
 $(document).ready(function() {
+  MLInvoice.init();
   $.datepicker.setDefaults($datePickerOptions);
-  $('a.actionlink').not('.ui-state-disabled').button();
-  $('a.tinyactionlink').button();
-  $('a.buttonlink').button();
-  $('a.formbuttonlink').button();
-  $('#maintabs ul li').hover(
-    function () {
-      $(this).addClass('ui-state-hover');
-    },
-    function () {
-      $(this).removeClass('ui-state-hover');
-    }
-  );
 });
   </script>
 </head>
@@ -329,7 +318,7 @@ foreach ($astrMainButtons as $button) {
  * @param string $strSelected              Selected value
  * @param string $strStyle                 Style
  * @param bool   $blnSubmitOnChange        Whether to submit the form when value is
- * changed
+ *                                         changed
  * @param bool   $blnShowEmpty             Whether to show "empty" value
  * @param string $astrAdditionalAttributes Any additional attributes
  * @param bool   $translate                Whether the options are translated
@@ -375,7 +364,7 @@ function htmlListBox($strName, $astrValues, $strSelected, $strStyle = '',
  * @param string $strSelected              Selected value
  * @param string $strStyle                 CSS style
  * @param bool   $blnSubmitOnChange        Whether to submit the form when a value is
- * selected
+ *                                         selected
  * @param string $astrAdditionalAttributes Additional element attributes
  * @param bool   $translate                Whether to translate the choices
  *
@@ -583,9 +572,9 @@ function htmlFormElement($strName, $strType, $strValue, $strStyle, $strListQuery
         } else {
             $strFormElement = "<input type=\"text\" class=\"$strStyle\" " .
                  "id=\"$strName\" name=\"$strName\" value=\"" .
-                 htmlspecialchars(
-                     getSQLListBoxSelectedValue($strListQuery, $strValue, $translate)
-                 ) .
+                htmlspecialchars(
+                    getSQLListBoxSelectedValue($strListQuery, $strValue, $translate)
+                ) .
                  "\"$astrAdditionalAttributes$readOnly>\n";
         }
         break;
@@ -606,9 +595,9 @@ EOT;
         } else {
             $strFormElement = "<input type=\"text\" class=\"$strStyle\" " .
                  "id=\"$strName\" name=\"$strName\" value=\"" .
-                 htmlspecialchars(
-                     getSearchListSelectedValue($strListQuery, $strValue, false)
-                 ) .
+                htmlspecialchars(
+                    getSearchListSelectedValue($strListQuery, $strValue, false)
+                ) .
                  "\"$astrAdditionalAttributes$readOnly>\n";
         }
         break;
@@ -625,9 +614,9 @@ EOT;
             );
         } else {
             $strFormElement = "<input type=\"text\" class=\"$strStyle\" " .
-                 "id=\"$strName\" name=\"$strName\" value=\"" . htmlspecialchars(
-                     getListBoxSelectedValue($options, $strValue, $translate)
-                 ) .
+                "id=\"$strName\" name=\"$strName\" value=\"" . htmlspecialchars(
+                    getListBoxSelectedValue($options, $strValue, $translate)
+                ) .
                  "\"$astrAdditionalAttributes$readOnly>\n";
         }
         break;

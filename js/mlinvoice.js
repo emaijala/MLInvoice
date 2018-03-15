@@ -720,7 +720,74 @@ var MLInvoice = (function MLInvoice() {
         }
     }
 
+    function _initFormButtons() {
+        $('a.form-submit').click(function() {
+            $a = $(this);
+
+            var confirmAction = $a.data('confirm');
+            if (confirmAction && !confirm(translate(confirmAction))) {
+                return false;
+            }
+
+            var formName = $a.data('form');
+            var $form = formName ? $('#' + formName) : $('form');
+            var target = $a.data('formTarget');
+            if (typeof target !== 'undefined') {
+                $form.attr('target', target);
+            }
+            var setField = $a.data('setField');
+            if (typeof setField !== 'undefined') {
+                $form.find('[name=' + setField + ']').val(1);
+
+            }
+            $form.submit();
+            return false;
+        });
+        $('a.popup-close').click(function() {
+            window.close();
+            return false;
+        });
+        $('a.update-dates').click(function() {
+            $.getJSON(
+                'json.php?func=get_invoice_defaults',
+                {
+                    id: $('#record_id').val(),
+                    invoice_no: $('#invoice_no').val(),
+                    invoice_date: $('#invoice_date').val(),
+                    base_id: $('#base_id').val(),
+                    company_id: $('#company_id').val(),
+                    interval_type: $('#interval_type').val()
+                }, function(json) {
+                    $('#invoice_date').val(json.date);
+                    $('#due_date').val(json.due_date);
+                    $('#next_interval_date').val(json.next_interval_date);
+                    $('.save_button').addClass('ui-state-highlight');
+                }
+            );
+            return false;
+        });
+        $('a.update-invoice-nr').click(function() {
+            $.getJSON(
+                'json.php?func=get_invoice_defaults',
+                {
+                    id: $('#record_id').val(),
+                    invoice_no: $('#invoice_no').val(),
+                    invoice_date: $('#invoice_date').val(),
+                    base_id: $('#base_id').val(),
+                    company_id: $('#company_id').val(),
+                    interval_type: $('#interval_type').val()
+                }, function(json) {
+                    $('#invoice_no').val(json.invoice_no);
+                    $('#ref_number').val(json.ref_no);
+                    $('.save_button').addClass('ui-state-highlight');
+                }
+            );
+            return false;
+        });
+    }
+
     function init() {
+        _initUI();
         _setupYtjSearch();
         _setupDefaultTextSelection();
         setupSelect2();
@@ -730,10 +797,10 @@ var MLInvoice = (function MLInvoice() {
         _setupSelectAll();
         _setupCoverLetterForm();
         _setupCustomPricesForm();
-        initDateFields();
+        _initFormButtons();
     };
 
-    function initDateFields()
+    function _initUI()
     {
         $('input[class~="hasCalendar"]').each(function() {
             var settings = {};
@@ -755,6 +822,18 @@ var MLInvoice = (function MLInvoice() {
                 });
             }
         });
+        $('a.actionlink').not('.ui-state-disabled').button();
+        $('a.tinyactionlink').button();
+        $('a.buttonlink').button();
+        $('a.formbuttonlink').button();
+        $('#maintabs ul li').hover(
+          function () {
+            $(this).addClass('ui-state-hover');
+          },
+          function () {
+            $(this).removeClass('ui-state-hover');
+          }
+        );
     }
 
     function infomsg(msg, timeout)
@@ -883,7 +962,6 @@ var MLInvoice = (function MLInvoice() {
         setKeepAlive: setKeepAlive,
         setupSelect2: setupSelect2,
         updateRowSelectedState: updateRowSelectedState,
-        initDateFields: initDateFields,
         infomsg: infomsg,
         errormsg: errormsg,
         editUnitPrice: editUnitPrice,
@@ -892,7 +970,3 @@ var MLInvoice = (function MLInvoice() {
         calcRowSum: calcRowSum
     }
 })();
-
-$(document).ready(function() {
-    MLInvoice.init();
-});

@@ -228,9 +228,9 @@ class ImportStatement extends ImportFile
      * @param array            $fieldDefs             Field definitions
      * @param array            $columnMappings        Column mappings
      * @param string           $duplicateMode         Duplicate handling mode
-     * ('ignore' or 'update')
+     *                                                ('ignore' or 'update')
      * @param array            $duplicateCheckColumns Columns to use for duplicate
-     * check
+     *                                                check
      * @param string           $importMode            Mode ('preview' or 'import')
      * @param string           $decimalSeparator      Decimal separator
      * @param array            $errors                Any errors
@@ -355,7 +355,7 @@ class ImportStatement extends ImportFile
      * @param string $table            Table name
      * @param array  $row              Row data
      * @param string $dupMode          Duplicate handling mode
-     * ('ignore' or 'update')
+     *                                 ('ignore' or 'update')
      * @param array  $dupCheckColumns  Columns to use for duplicate check
      * @param string $mode             Mode ('preview' or 'import')
      * @param string $decimalSeparator Decimal separator

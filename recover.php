@@ -161,18 +161,24 @@ if (empty($completed)) {
     ?>
                 <input type="hidden" name="token" value="<?php echo htmlentities($token)?>">
                 <p>
-                    <span style="width: 140px; display: inline-block;"><?php echo Translator::translate('UserID')?></span>
+                    <span style="width: 140px; display: inline-block;">
+                        <?php echo Translator::translate('UserID')?>
+                    </span>
                     <?php echo htmlentities($user['login'])?>
                 </p>
                 <p>
-                    <span style="width: 140px; display: inline-block;"><?php echo Translator::translate('NewPassword')?></span>
+                    <span style="width: 140px; display: inline-block;">
+                        <?php echo Translator::translate('NewPassword')?>
+                    </span>
                     <input class="medium" name="password" id="password" type="text" value="">
                 </p>
     <?php
     } else {
     ?>
                 <p>
-                    <span style="width: 140px; display: inline-block;"><?php echo Translator::translate('UserIdOrEmail')?></span>
+                    <span style="width: 140px; display: inline-block;">
+                        <?php echo Translator::translate('UserIdOrEmail')?>
+                    </span>
                     <input class="medium" name="userid" id="userid" type="text" value="">
                 </p>
     <?php
