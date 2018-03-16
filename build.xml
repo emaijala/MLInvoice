@@ -8,8 +8,17 @@
   <!-- Travis Tasks -->
   <target name="travis" description="Travis tasks">
     <!-- Call standard tasks -->
+    <phingcall target="eslint"/>
     <phingcall target="phpcs-n"/>
     <phingcall target="php-cs-fixer-dryrun"/>
+  </target>
+
+  <!-- eslint -->
+  <target name="eslint">
+    <exec command="eslint js/mlinvoice.js" escape="false" checkreturn="true" passthru="true" />
+  </target>
+  <target name="eslint-fix">
+    <exec command="eslint js/mlinvoice.js --fix" escape="false" checkreturn="true" passthru="true" />
   </target>
 
   <!-- PHP CodeSniffer -->
