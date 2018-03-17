@@ -815,14 +815,16 @@ var MLInvoice = (function MLInvoice() {
 
   function _initUI()
   {
-    $('input[class~="hasCalendar"]').each(function setupCalendar() {
+    // Calendar fields
+    $('input.hasCalendar').each(function setupCalendar() {
       var settings = {};
       if ($(this).data('noFuture')) {
         settings.maxDate = 0;
       }
       $(this).datepicker(settings);
     });
-    $('input[class~="date"]').each(function setupDate() {
+    // Date fields
+    $('input.date').each(function setupDate() {
       if ($(this).data('noFuture')) {
         $(this).change(function changeDate() {
           var val = $(this).val();
@@ -835,10 +837,12 @@ var MLInvoice = (function MLInvoice() {
         });
       }
     });
+    // Buttons
     $('a.actionlink').not('.ui-state-disabled').button();
     $('a.tinyactionlink').button();
     $('a.buttonlink').button();
     $('a.formbuttonlink').button();
+    // Main tabs
     $('#maintabs ul li').hover(
       function onHover() {
         $(this).addClass('ui-state-hover');
@@ -847,6 +851,28 @@ var MLInvoice = (function MLInvoice() {
         $(this).removeClass('ui-state-hover');
       }
     );
+    // Page exit data confirmation
+    $('#admin_form').find('input[type="text"],input[type="hidden"]:not(.select-default-text),input[type="checkbox"],select:not(.dropdownmenu),textarea')
+      .change(function onFormFieldChange() {
+        $('.save_button').addClass('ui-state-highlight');
+      });
+    $(window).bind('beforeunload', function onBeforeUnload(e) {
+      if ($('.save_button').hasClass('ui-state-highlight') || $('.add_row_button').hasClass('ui-state-highlight')) {
+        e.returnValue = translate('UnsavedData');
+        return e.returnValue;
+      }
+    });
+    // AJAX progress and errors
+    $('#message').ajaxStart(function onAjaxStart() {
+      $('#spinner').css('visibility', 'visible');
+    });
+    $('#message').ajaxStop(function onAjaxStop() {
+      $('#spinner').css('visibility', 'hidden');
+    });
+    $('#errormsg').ajaxError(function onAjaxError(event, request) {
+      MLInvoice.errormsg('Server request failed: ' + request.status + ' - ' + request.statusText);
+      $('#spinner').css('visibility', 'hidden');
+    });
   }
 
   function infomsg(msg, timeout)
@@ -961,6 +987,76 @@ var MLInvoice = (function MLInvoice() {
     };
   }
 
+  function popupDialog(url, on_close, dialog_title, event, width, height)
+  {
+    var buttons = {};
+    buttons[translate('Close')] = function popupClose() {
+      $("#popup_dlg").dialog('close');
+    };
+    $("#popup_dlg").find("#popup_dlg_iframe").html('');
+    $("#popup_dlg").dialog({ modal: true, width: width, height: height, resizable: true,
+      buttons: buttons,
+      title: dialog_title,
+      'close': function onPopupClose() { eval(on_close); } // eslint-disable-line no-eval
+    }).find("#popup_dlg_iframe").attr("src", url);
+
+    return true;
+  }
+
+  function calculateInvoiceRowSummary(records)
+  {
+    var totSum = 0;
+    var totVAT = 0;
+    var totSumVAT = 0;
+    var totWeight = 0;
+    var partialPayments = 0;
+    for (var i = 0; i < records.length; i++) {
+      var record = records[i];
+
+      if (record.partial_payment) {
+        partialPayments += parseFloat(record.price);
+        continue;
+      }
+
+      var items = record.pcs;
+      var price = record.price;
+      var discount = record.discount || 0;
+      var discountAmount = record.discount_amount || 0;
+      var VATPercent = record.vat;
+      var VATIncluded = record.vat_included;
+
+      if (record.product_weight !== null) {
+        totWeight += items * parseFloat(record.product_weight);
+      }
+
+      price *= (1 - discount / 100);
+      price -= discountAmount;
+      var sum = 0;
+      var sumVAT = 0;
+      var VAT = 0;
+      if (VATIncluded == 1) {
+        sumVAT = items * price;
+        sum = sumVAT / (1 + VATPercent / 100);
+        VAT = sumVAT - sum;
+      } else {
+        sum = items * price;
+        VAT = sum * (VATPercent / 100);
+        sumVAT = sum + VAT;
+      }
+
+      totSum += sum;
+      totVAT += VAT;
+      totSumVAT += sumVAT;
+    }
+    return {
+      totSum: totSum,
+      totVAT: totVAT,
+      totSumVAT: totSumVAT,
+      totWeight: totWeight,
+      partialPayments: partialPayments
+    }
+  }
+
   return {
     init: init,
     addTranslation: addTranslation,
@@ -980,6 +1076,8 @@ var MLInvoice = (function MLInvoice() {
     editUnitPrice: editUnitPrice,
     setCurrencyDecimals: setCurrencyDecimals,
     checkForUpdates: checkForUpdates,
-    calcRowSum: calcRowSum
+    calcRowSum: calcRowSum,
+    popupDialog: popupDialog,
+    calculateInvoiceRowSummary: calculateInvoiceRowSummary
   }
 })();

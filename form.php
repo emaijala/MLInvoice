@@ -409,14 +409,6 @@ var globals = {
 ?>
 };
 
-$(window).bind('beforeunload', function(e) {
-  if ($('.save_button').hasClass('ui-state-highlight') || $('.add_row_button').hasClass('ui-state-highlight'))
-  {
-    e.returnValue = "<?php echo Translator::translate('UnsavedData')?>";
-    return "<?php echo Translator::translate('UnsavedData')?>";
-  }
-});
-
 function startChanging()
 {
     <?php
@@ -452,20 +444,7 @@ $(document).ready(function() {
 <?php
     }
 ?>
-  $('#message').ajaxStart(function() {
-    $('#spinner').css('visibility', 'visible');
-  });
-  $('#message').ajaxStop(function() {
-    $('#spinner').css('visibility', 'hidden');
-  });
-  $('#errormsg').ajaxError(function(event, request, settings) {
-    MLInvoice.errormsg('Server request failed: ' + request.status + ' - ' + request.statusText);
-    $('#spinner').css('visibility', 'hidden');
-  });
 
-  $('#admin_form').find('input[type="text"],input[type="hidden"]:not(.select-default-text),input[type="checkbox"],select:not(.dropdownmenu),textarea').change(function(e) {
-    $('.save_button').addClass('ui-state-highlight');
-  });
   $('#admin_form').find(
       'input[type="text"]:not([name="payment_date"]),input[type="hidden"],input[type="checkbox"]:not([name="archived"]),select:not(.dropdownmenu),textarea'
   ).one('change', startChanging);
@@ -612,20 +591,6 @@ function save_record(redirect_url, redir_style, on_print)
   });
 }
 
-function popup_dialog(url, on_close, dialog_title, event, width, height)
-{
-  $("#popup_dlg").find("#popup_dlg_iframe").html('');
-  $("#popup_dlg").dialog({ modal: true, width: width, height: height, resizable: true,
-    buttons: {
-      "<?php echo Translator::translate('Close')?>": function() { $("#popup_dlg").dialog('close'); }
-    },
-    title: dialog_title,
-    close: function(event, ui) { eval(on_close); }
-  }).find("#popup_dlg_iframe").attr("src", url);
-
-  return true;
-}
-
 /* ]]> */
 </script>
 
@@ -640,11 +605,11 @@ function popup_dialog(url, on_close, dialog_title, event, width, height)
   var s = document.createElement("script");
     s.type = "text/javascript";
     s.src  = "https://maps.googleapis.com/maps/api/js?sensor=false&libraries=places&callback=gmapsready";
-    window.gmapsready = function(){
-        initAddressAutocomplete("");
-        initAddressAutocomplete("quick_");
+    window.gmapsready = function() {
+      initAddressAutocomplete('');
+      initAddressAutocomplete('quick_');
     };
-    $("head").append(s);
+    $('head').append(s);
   });
   </script>
     <?php
@@ -823,53 +788,7 @@ EOT;
     <?php
     if ($elem['name'] == 'invoice_rows') {
     ?>
-    var totSum = 0;
-    var totVAT = 0;
-    var totSumVAT = 0;
-    var totWeight = 0;
-    var partialPayments = 0;
-    for (var i = 0; i < json.records.length; i++)
-    {
-      var record = json.records[i];
-
-      if (record.partial_payment == 1) {
-          partialPayments += parseFloat(record.price);
-          continue;
-      }
-
-      var items = record.pcs;
-      var price = record.price;
-      var discount = record.discount || 0;
-      var discountAmount = record.discount_amount || 0;
-      var VATPercent = record.vat;
-      var VATIncluded = record.vat_included;
-
-      if (record.product_weight !== null) {
-        totWeight += items * parseFloat(record.product_weight);
-      }
-
-      price *= (1 - discount / 100);
-      price -= discountAmount;
-      var sum = 0;
-      var sumVAT = 0;
-      var VAT = 0;
-      if (VATIncluded == 1)
-      {
-        sumVAT = items * price;
-        sum = sumVAT / (1 + VATPercent / 100);
-        VAT = sumVAT - sum;
-      }
-      else
-      {
-        sum = items * price;
-        VAT = sum * (VATPercent / 100);
-        sumVAT = sum + VAT;
-      }
-
-      totSum += sum;
-      totVAT += VAT;
-      totSumVAT += sumVAT;
-    }
+    var summary = MLInvoice.calculateInvoiceRowSummary(json.records);
     var tr = $('<tr/>').addClass('summary');
     var modifyCol = $('<td/>').addClass('input').attr('colspan', '6').attr('rowspan', '2');
     <?php
@@ -896,32 +815,32 @@ EOT;
 ?>
     modifyCol.appendTo(tr);
     $('<td/>').addClass('input').attr('colspan', '6').attr('align', 'right').text('<?php echo Translator::translate('TotalExcludingVAT')?>').appendTo(tr);
-    $('<td/>').addClass('input currency').attr('align', 'right').text(MLInvoice.formatCurrency(totSum)).appendTo(tr);
+    $('<td/>').addClass('input currency').attr('align', 'right').text(MLInvoice.formatCurrency(summary.totSum)).appendTo(tr);
     $('<td/>').attr('colspan', '2').appendTo(tr);
     $(table).append(tr);
 
     tr = $('<tr/>').addClass('summary');
     $('<td/>').addClass('input').attr('colspan', '6').attr('align', 'right').text('<?php echo Translator::translate('TotalVAT')?>').appendTo(tr);
-    $('<td/>').addClass('input currency').attr('align', 'right').text(MLInvoice.formatCurrency(totVAT)).appendTo(tr);
+    $('<td/>').addClass('input currency').attr('align', 'right').text(MLInvoice.formatCurrency(summary.totVAT)).appendTo(tr);
     $('<td/>').attr('colspan', '2').appendTo(tr);
     $(table).append(tr);
 
     var tr = $('<tr/>').addClass('summary');
     $('<td/>').addClass('input').attr('colspan', '12').attr('align', 'right').text('<?php echo Translator::translate('TotalIncludingVAT')?>').appendTo(tr);
-    $('<td/>').addClass('input currency').attr('align', 'right').text(MLInvoice.formatCurrency(totSumVAT)).appendTo(tr);
+    $('<td/>').addClass('input currency').attr('align', 'right').text(MLInvoice.formatCurrency(summary.totSumVAT)).appendTo(tr);
     $('<td/>').attr('colspan', '2').appendTo(tr);
     $(table).append(tr);
 
     var tr = $('<tr/>').addClass('summary');
     $('<td/>').addClass('input').attr('colspan', '12').attr('align', 'right').text('<?php echo Translator::translate('TotalToPay')?>').appendTo(tr);
-    $('<td/>').addClass('input currency').attr('align', 'right').text(MLInvoice.formatCurrency(totSumVAT + partialPayments)).appendTo(tr);
+    $('<td/>').addClass('input currency').attr('align', 'right').text(MLInvoice.formatCurrency(summary.totSumVAT + summary.partialPayments)).appendTo(tr);
     $('<td/>').attr('colspan', '2').appendTo(tr);
     $(table).append(tr);
 
-    if (totWeight > 0) {
+    if (summary.totWeight > 0) {
         var tr = $('<tr/>').addClass('summary');
         $('<td/>').addClass('input').attr('colspan', '12').attr('align', 'right').text('<?php echo Translator::translate('ProductWeight')?>').appendTo(tr);
-        $('<td/>').addClass('input currency').attr('align', 'right').text(MLInvoice.formatCurrency(totWeight, 3)).appendTo(tr);
+        $('<td/>').addClass('input currency').attr('align', 'right').text(MLInvoice.formatCurrency(summary.totWeight, 3)).appendTo(tr);
         $('<td/>').attr('colspan', '2').appendTo(tr);
         $(table).append(tr);
     }

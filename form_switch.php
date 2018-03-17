@@ -1290,7 +1290,7 @@ case 'base' :
 
     $locTitle = Translator::translate('BaseLogoTitle');
     $openPopJS = <<<EOF
-    popup_dialog('base_logo.php?func=edit&amp;id=_ID_', '$(\\'img\\').attr(\\'src\\', \\'base_logo.php?func=view&id=_ID_\\')', '$locTitle', event, 600, 400); return false;
+    MLInvoice.popupDialog('base_logo.php?func=edit&amp;id=_ID_', '$(\\'img\\').attr(\\'src\\', \\'base_logo.php?func=view&id=_ID_\\')', '$locTitle', event, 600, 400); return false;
 EOF;
 
     $astrFormElements = [
