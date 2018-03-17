@@ -11,7 +11,7 @@ function update_stock_balance(translations)
   };
   $('#update_stock_balance').dialog(
     {
-      modal: true, width: 400, height: 220, resizable: false, zIndex: 900,
+      modal: true, width: 400, height: 240, resizable: false, zIndex: 900,
       buttons: buttons,
       title: translations.title,
     }
