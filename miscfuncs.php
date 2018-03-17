@@ -1,73 +1,139 @@
 <?php
+/**
+ * Miscellaneous functions
+ *
+ * PHP version 5
+ *
+ * Copyright (C) 2004-2008 Samu Reinikainen
+ * Copyright (C) 2010-2018 Ere Maijala
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License version 2,
+ * as published by the Free Software Foundation.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
+ *
+ * @category MLInvoice
+ * @package  MLInvoice\Base
+ * @author   Ere Maijala <ere@labs.fi>
+ * @license  http://opensource.org/licenses/gpl-2.0.php GNU General Public License
+ * @link     http://labs.fi/mlinvoice.eng.php
+ */
 
-/*******************************************************************************
- MLInvoice: web-based invoicing application.
- Copyright (C) 2010-2017 Ere Maijala
-
- Portions based on:
- PkLasku : web-based invoicing software.
- Copyright (C) 2004-2008 Samu Reinikainen
-
- This program is free software. See attached LICENSE.
-
- *******************************************************************************/
-
-/*******************************************************************************
- MLInvoice: web-pohjainen laskutusohjelma.
- Copyright (C) 2010-2017 Ere Maijala
-
- Perustuu osittain sovellukseen:
- PkLasku : web-pohjainen laskutusohjelmisto.
- Copyright (C) 2004-2008 Samu Reinikainen
-
- Tämä ohjelma on vapaa. Lue oheinen LICENSE.
-
- *******************************************************************************/
+/**
+ * Add slashes if magic quotes are not enabled
+ *
+ * @param string $strString String
+ *
+ * @return string
+ */
 function gpcAddSlashes($strString)
 {
-    if (!get_magic_quotes_gpc())
+    if (!get_magic_quotes_gpc()) {
         return addslashes($strString);
+    }
     return $strString;
 }
 
+/**
+ * Remove slashes if magic quotes are enabled
+ *
+ * @param string $strString String
+ *
+ * @return string
+ */
 function gpcStripSlashes($strString)
 {
-    if (get_magic_quotes_gpc() && is_string($strString))
+    if (get_magic_quotes_gpc() && is_string($strString)) {
         return stripslashes($strString);
+    }
     return $strString;
 }
 
-function cond_utf8_decode($str)
+/**
+ * Decode UTF-8 if current charset is something else
+ *
+ * @param string $str String
+ *
+ * @return string
+ */
+function condUtf8Decode($str)
 {
-    if (_CHARSET_ != 'UTF-8')
+    if (_CHARSET_ != 'UTF-8') {
         return utf8_decode($str);
+    }
     return $str;
 }
 
-function cond_utf8_encode($str)
+/**
+ * Encode UTF-8 if current charset is something else
+ *
+ * @param string $str String
+ *
+ * @return string
+ */
+function condUtf8Encode($str)
 {
-    if (_CHARSET_ != 'UTF-8')
+    if (_CHARSET_ != 'UTF-8') {
         return utf8_encode($str);
+    }
     return $str;
 }
 
+/**
+ * Round a value to given decimals
+ *
+ * @param float  $value             Value
+ * @param int    $decimals          Number of decimals
+ * @param string $decimalSeparator  Decimal separator
+ * @param string $thousandSeparator Thousand separator
+ *
+ * @return string
+ */
 function miscRound2Decim($value, $decimals = 2, $decimalSeparator = null,
-    $thousandSeparator = null)
-{
-    return number_format($value, $decimals,
+    $thousandSeparator = null
+) {
+    return number_format(
+        $value, $decimals,
         isset($decimalSeparator) ? $decimalSeparator : Translator::translate('DecimalSeparator'),
-        isset($thousandSeparator) ? $thousandSeparator : Translator::translate('ThousandSeparator'));
+        isset($thousandSeparator) ? $thousandSeparator : Translator::translate('ThousandSeparator')
+    );
 }
 
+/**
+ * Round a value to maximum of given decimals. Drop any unnecessary decimals.
+ *
+ * @param float  $value             Value
+ * @param int    $decimals          Number of decimals
+ * @param string $decimalSeparator  Decimal separator
+ * @param string $thousandSeparator Thousand separator
+ *
+ * @return string
+ */
 function miscRound2OptDecim($value, $decimals = 2, $decimalSeparator = null,
-    $thousandSeparator = null)
-{
+    $thousandSeparator = null
+) {
+
     if ($value == floor($value)) {
         $decimals = 0;
     }
     return miscRound2Decim($value, $decimals, $decimalSeparator, $thousandSeparator);
 }
 
+/**
+ * Calculate check number for a reference number
+ *
+ * @param int $intValue Reference number
+ *
+ * @return int
+ */
 function miscCalcCheckNo($intValue)
 {
     $astrWeight = [
@@ -187,7 +253,8 @@ function miscCalcCheckNo($intValue)
         '7'
     ];
     $astrTmp = array_reverse(
-        explode('.', substr(chunk_split($intValue, 1, '.'), 0, -1)));
+        explode('.', substr(chunk_split($intValue, 1, '.'), 0, -1))
+    );
 
     $intSum = 0;
     foreach ($astrTmp as $value) {
@@ -198,26 +265,67 @@ function miscCalcCheckNo($intValue)
     return $intCheckNo;
 }
 
+/**
+ * Get a POST request value
+ *
+ * @param string $strKey     Parameter name
+ * @param mixed  $varDefault Default value
+ *
+ * @return mixed
+ */
 function getPost($strKey, $varDefault = null)
 {
     return isset($_POST[$strKey]) ? gpcStripSlashes($_POST[$strKey]) : $varDefault;
 }
 
+/**
+ * Get a request value
+ *
+ * @param string $strKey     Parameter name
+ * @param mixed  $varDefault Default value
+ *
+ * @return mixed
+ */
 function getRequest($strKey, $varDefault = null)
 {
     return isset($_REQUEST[$strKey]) ? gpcStripSlashes($_REQUEST[$strKey]) : $varDefault;
 }
 
+/**
+ * Get a GET request value
+ *
+ * @param string $strKey     Parameter name
+ * @param mixed  $varDefault Default value
+ *
+ * @return mixed
+ */
 function getGet($strKey, $varDefault = null)
 {
     return isset($_GET[$strKey]) ? gpcStripSlashes($_GET[$strKey]) : $varDefault;
 }
 
+/**
+ * Get a POST or GET request value
+ *
+ * @param string $strKey     Parameter name
+ * @param mixed  $varDefault Default value
+ *
+ * @return mixed
+ */
 function getPostRequest($strKey, $varDefault = null)
 {
     return getPost($strKey, getRequest($strKey, $varDefault));
 }
 
+/**
+ * Get page title
+ *
+ * @param string $strFunc Function
+ * @param string $strList List
+ * @param string $strForm Form
+ *
+ * @return string
+ */
 function getPageTitle($strFunc, $strList, $strForm)
 {
     switch ($strFunc) {
@@ -234,22 +342,25 @@ function getPageTitle($strFunc, $strList, $strForm)
         }
         break;
     case 'invoices' :
-        if ($strForm)
+        if ($strForm) {
             return Translator::translate('Invoice');
-        else
+        } else {
             return Translator::translate('Invoices');
+        }
         break;
     case 'archived_invoices' :
-        if ($strForm)
+        if ($strForm) {
             return Translator::translate('Invoice');
-        else
+        } else {
             return Translator::translate('ArchivedInvoices');
+        }
         break;
     case 'companies' :
-        if ($strForm)
+        if ($strForm) {
             return Translator::translate('Client');
-        else
+        } else {
             return Translator::translate('Clients');
+        }
         break;
     case 'reports' :
         switch ($strForm) {
@@ -333,18 +444,29 @@ function getPageTitle($strFunc, $strList, $strForm)
     return '';
 }
 
+/**
+ * Convert a PHP ini value to integer
+ *
+ * @param string $value Value
+ *
+ * @return int
+ */
 function phpIniValueToInteger($value)
 {
     $unit = strtoupper(substr($value, -1));
-    if (!in_array($unit,
+    if (!in_array(
+        $unit,
         [
             'P',
             'T',
             'G',
             'M',
             'K'
-        ]))
+        ]
+    )
+    ) {
         return $value;
+    }
     $value = substr($value, 0, -1);
     switch ($unit) {
     case 'P' :
@@ -361,12 +483,26 @@ function phpIniValueToInteger($value)
     return $value;
 }
 
+/**
+ * Get maximum file upload size
+ *
+ * @return int
+ */
 function getMaxUploadSize()
 {
-    return min(phpIniValueToInteger(ini_get('post_max_size')),
-        phpIniValueToInteger(ini_get('upload_max_filesize')));
+    return min(
+        phpIniValueToInteger(ini_get('post_max_size')),
+        phpIniValueToInteger(ini_get('upload_max_filesize'))
+    );
 }
 
+/**
+ * Convert a file size to a human-readable value
+ *
+ * @param int $value File size
+ *
+ * @return string
+ */
 function fileSizeToHumanReadable($value)
 {
     $suffixes = [
@@ -386,7 +522,14 @@ function fileSizeToHumanReadable($value)
     return round($value, 2) . ' ' . $suffixes[$idx];
 }
 
-function xml_encode($str)
+/**
+ * Encode string in XML
+ *
+ * @param string $str String
+ *
+ * @return string
+ */
+function xmlEncode($str)
 {
     $str = str_replace('&', '&amp;', $str);
     $str = str_replace('<', '&lt;', $str);
@@ -395,97 +538,25 @@ function xml_encode($str)
     return $str;
 }
 
-if (!function_exists('str_getcsv')) {
-
-    function str_getcsv($input, $delimiter = ',', $enclosure = '"', $escape = null, $eol = null)
-    {
-        $temp = fopen('php://memory', 'rw');
-        fwrite($temp, $input);
-        fseek($temp, 0);
-        $r = fgetcsv($temp, 4096, $delimiter, $enclosure);
-        fclose($temp);
-        return $r;
-    }
-}
-
-function fgets_charset($handle, $charset, $line_ending = "\n")
-{
-    if (strncmp($charset, 'UTF-16', 6) == 0) {
-        $be = $charset == 'UTF-16' || $charset == 'UTF-16BE';
-        $str = '';
-        $le_pos = 0;
-        $le_len = strlen($line_ending);
-        while (!feof($handle)) {
-            $c1 = fgetc($handle);
-            $c2 = fgetc($handle);
-            if ($c1 === false || $c2 === false) {
-                break;
-            }
-            $str .= $c1 . $c2;
-            if (($be && ord($c1) == 0 && $c2 == $line_ending[$le_pos])
-                || (!$be && ord($c2) == 0 && $c1 == $line_ending[$le_pos])
-            ) {
-                if (++$le_pos >= $le_len)
-                    break;
-            } else {
-                $le_pos = 0;
-            }
-        }
-        $str = iconv($charset, _CHARSET_, $str);
-    } else {
-        $str = '';
-        $le_pos = 0;
-        $le_len = strlen($line_ending);
-        while (!feof($handle)) {
-            $c1 = fgetc($handle);
-            if ($c1 === false) {
-                break;
-            }
-            $str .= $c1;
-            if ($c1 == $line_ending[$le_pos]) {
-                if (++$le_pos >= $le_len) {
-                    break;
-                }
-            } else {
-                $le_pos = 0;
-            }
-        }
-        $conv_str = iconv($charset, _CHARSET_, $str);
-        if ($str && !$conv_str) {
-            error_log(
-                "Conversion from '$charset' to '" . _CHARSET_
-                . "' failed for string '$str'"
-            );
-        } else {
-            $str = $conv_str;
-        }
-    }
-    return $str;
-}
-
-function iconvErrorHandler($errno, $errstr, $errfile, $errline)
-{
-    throw new ErrorException($errstr, 0, $errno, $errfile, $errline);
-}
-
-function try_iconv($from, $to, $str)
-{
-    set_error_handler('iconvErrorHandler');
-    try {
-        $str = iconv($from, $to, $str);
-    } catch (ErrorException $e) {
-        restore_error_handler();
-        return false;
-    }
-    restore_error_handler();
-    return $str;
-}
-
+/**
+ * Sanitize a string
+ *
+ * @param string $str String
+ *
+ * @return string
+ */
 function sanitize($str)
 {
     return preg_replace('/[^\w\d]/', '', $str);
 }
 
+/**
+ * Calculate row sum for an invoice row
+ *
+ * @param array $row Row
+ *
+ * @return array
+ */
 function calculateRowSum($row)
 {
     $price = $row['price'];
@@ -518,6 +589,13 @@ function calculateRowSum($row)
     ];
 }
 
+/**
+ * Create a VAT ID
+ *
+ * @param string $id ID
+ *
+ * @return string
+ */
 function createVATID($id)
 {
     $id = strtoupper(str_replace('-', '', $id));
@@ -527,11 +605,21 @@ function createVATID($id)
     return $id;
 }
 
+/**
+ * Get our path
+ *
+ * @return string
+ */
 function getSelfPath()
 {
     return _PROTOCOL_ . $_SERVER['HTTP_HOST'] . getSelfDirectory();
 }
 
+/**
+ * Get our directory
+ *
+ * @return string
+ */
 function getSelfDirectory()
 {
     $path = $_SERVER['SCRIPT_NAME'];
@@ -545,6 +633,13 @@ function getSelfDirectory()
     return $path;
 }
 
+/**
+ * Instantiate an invoice printer
+ *
+ * @param string $printTemplateFile Print template
+ *
+ * @return object
+ */
 function instantiateInvoicePrinter($printTemplateFile)
 {
     if (!is_readable($printTemplateFile)) {
@@ -561,6 +656,13 @@ function instantiateInvoicePrinter($printTemplateFile)
     return new $className();
 }
 
+/**
+ * Format a reference number
+ *
+ * @param string $refNumber Reference number
+ *
+ * @return string
+ */
 function formatRefNumber($refNumber)
 {
     if (strncasecmp($refNumber, 'RF', 2) == 0) {
@@ -569,6 +671,13 @@ function formatRefNumber($refNumber)
     return trim(strrev(chunk_split(strrev($refNumber), 5, ' ')));
 }
 
+/**
+ * Add a file timestamp parameter to a filename
+ *
+ * @param string $filename Filename
+ *
+ * @return string
+ */
 function addFileTimestamp($filename)
 {
     if (!file_exists($filename)) {
@@ -582,6 +691,18 @@ function addFileTimestamp($filename)
     return $filename;
 }
 
+/**
+ * Get default values for an invoice
+ *
+ * @param int $invoiceId     Invoice ID
+ * @param int $baseId        Base ID
+ * @param int $companyId     Company ID
+ * @param int $invoiceDate   Invoice date
+ * @param int $intervalType  Invoice interval
+ * @param int $invoiceNumber Invoice number
+ *
+ * @return array
+ */
 function getInvoiceDefaults($invoiceId, $baseId, $companyId, $invoiceDate,
     $intervalType, $invoiceNumber
 ) {
@@ -602,20 +723,20 @@ function getInvoiceDefaults($invoiceId, $baseId, $companyId, $invoiceDate,
             $query .= ' AND invoice_date >= ' . dateConvDate2DBDate($invoiceDate);
         }
 
-        $rows = db_param_query($query, $params);
+        $rows = dbParamQuery($query, $params);
         if ($rows) {
             $invoiceNumber = 0;
         }
     }
 
     if (!$invoiceNumber) {
-        $maxNr = get_max_invoice_number(
+        $maxNr = getMaxInvoiceNumber(
             $invoiceId,
             getSetting('invoice_numbering_per_base') && $baseId ? $baseId : null,
             $perYear
         );
         if ($maxNr === null && $perYear) {
-            $maxNr = get_max_invoice_number(
+            $maxNr = getMaxInvoiceNumber(
                 $invoiceId,
                 getSetting('invoice_numbering_per_base') && $baseId ? $baseId : null,
                 false
@@ -623,8 +744,9 @@ function getInvoiceDefaults($invoiceId, $baseId, $companyId, $invoiceDate,
         }
         $invoiceNumber = $maxNr + 1;
     }
-    if ($invoiceNumber < 100)
+    if ($invoiceNumber < 100) {
         $invoiceNumber = 100; // min ref number length is 3 + check digit, make sure invoice number matches that
+    }
     $refNr = $invoiceNumber . miscCalcCheckNo($invoiceNumber);
     $strDate = date(Translator::translate('DateFormat'));
     $strDueDate = date(

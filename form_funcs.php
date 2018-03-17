@@ -1,25 +1,44 @@
 <?php
-/*******************************************************************************
- MLInvoice: web-based invoicing application.
- Copyright (C) 2010-2017 Ere Maijala
-
- This program is free software. See attached LICENSE.
-
- *******************************************************************************/
-
-/*******************************************************************************
- MLInvoice: web-pohjainen laskutusohjelma.
- Copyright (C) 2010-2017 Ere Maijala
-
- Tämä ohjelma on vapaa. Lue oheinen LICENSE.
-
- *******************************************************************************/
+/**
+ * Form handling
+ *
+ * PHP version 5
+ *
+ * Copyright (C) 2010-2018 Ere Maijala
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License version 2,
+ * as published by the Free Software Foundation.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
+ *
+ * @category MLInvoice
+ * @package  MLInvoice\Base
+ * @author   Ere Maijala <ere@labs.fi>
+ * @license  http://opensource.org/licenses/gpl-2.0.php GNU General Public License
+ * @link     http://labs.fi/mlinvoice.eng.php
+ */
 require_once 'sqlfuncs.php';
 require_once 'datefuncs.php';
 require_once 'miscfuncs.php';
 
-// Get post values or defaults for unspecified values
-function getPostValues(&$formElements, $primaryKey, $parentKey = FALSE)
+/**
+ *  Get post values or defaults for unspecified values
+ *
+ * @param array $formElements Form elements
+ * @param int   $primaryKey   Primary key value
+ * @param int   $parentKey    Parent key value, if any
+ *
+ * @return array
+ */
+function getPostValues(&$formElements, $primaryKey, $parentKey = false)
 {
     $values = [];
 
@@ -68,7 +87,7 @@ function getPostValues(&$formElements, $primaryKey, $parentKey = FALSE)
  * @param string $elem      Element id
  * @param string $parentKey Parent record id
  *
- * @return mixed Default value
+ * @return mixed Default value
  */
 function getFormDefaultValue($elem, $parentKey)
 {
@@ -85,8 +104,8 @@ function getFormDefaultValue($elem, $parentKey)
         );
     } elseif (strstr($elem['default'], 'ADD')) {
         $strQuery = str_replace('_PARENTID_', $parentKey, $elem['listquery']);
-        $res = mysqli_query_check($strQuery);
-        $intAdd = mysqli_fetch_value($res);
+        $res = dbQueryCheck($strQuery);
+        $intAdd = dbFetchValue($res);
         return isset($intAdd) ? $intAdd : 5;
     } elseif ($elem['default'] === 'POST') {
         // POST has special treatment in iform
@@ -100,9 +119,26 @@ function getFormDefaultValue($elem, $parentKey)
     return $result;
 }
 
-// Save form data. If primaryKey is not set, add a new record and set it, otherwise update existing record.
-// Return true on success.
-// Return false on conflict or a string of missing values if encountered. In these cases, the record is not saved.
+/**
+ * Save form data.
+ *
+ * If primaryKey is not set, add a new record and set it, otherwise update existing
+ * record.
+ * Return true on success. Return false on conflict or a string of missing values if
+ * encountered. In these cases, the record is not saved.
+ *
+ * @param string $table         Table name
+ * @param int    $primaryKey    Primary key value
+ * @param array  $formElements  Form elements
+ * @param array  $values        Values
+ * @param array  $warnings      Any warnings encountered
+ * @param string $parentKeyName Parent key field name, if any
+ * @param int    $parentKey     Parent key value, if any
+ * @param bool   $onPrint       Whether the save is happening on print
+ * @param bool   $partial       Whether values contain only updated fields
+ *
+ * @return mixed
+ */
 function saveFormData($table, &$primaryKey, &$formElements, &$values, &$warnings,
     $parentKeyName = '', $parentKey = false, $onPrint = false, $partial = false
 ) {
@@ -183,8 +219,9 @@ function saveFormData($table, &$primaryKey, &$formElements, &$values, &$warnings
             $value = getFormDefaultValue($elem, $parentKey);
         }
 
-        if ($type == 'PASSWD' && !$value)
+        if ($type == 'PASSWD' && !$value) {
             continue; // Don't save empty password
+        }
 
         if (isset($elem['unique']) && $elem['unique']) {
             $query = "SELECT * FROM $table WHERE deleted=0 AND $name=?";
@@ -195,7 +232,7 @@ function saveFormData($table, &$primaryKey, &$formElements, &$values, &$warnings
                 $query .= ' AND id!=?';
                 $params[] = $primaryKey;
             }
-            $checkRows = db_param_query($query, $params);
+            $checkRows = dbParamQuery($query, $params);
             if ($checkRows) {
                 $warnings = sprintf(
                     Translator::translate('DuplicateValue'),
@@ -220,7 +257,7 @@ function saveFormData($table, &$primaryKey, &$formElements, &$values, &$warnings
         case 'INT':
         case 'HID_INT':
         case 'SECHID_INT':
-            $arrValues[] = ($value !== '' && $value !== false  && $value !== null)
+            $arrValues[] = ($value !== '' && $value !== false && $value !== null)
                 ? str_replace(',', '.', $value)
                 : ($elem['allow_null'] ? null : 0);
             break;
@@ -247,14 +284,14 @@ function saveFormData($table, &$primaryKey, &$formElements, &$values, &$warnings
         return $missingValues;
     }
 
-    mysqli_query_check('SET AUTOCOMMIT = 0');
-    mysqli_query_check('BEGIN');
+    dbQueryCheck('SET AUTOCOMMIT = 0');
+    dbQueryCheck('BEGIN');
     try {
         // Special case for invoice rows - update product stock balance
         if (isset($values['invoice_id'])) {
             $invoiceId = $values['invoice_id'];
         } elseif ($table == '{prefix}invoice_row') {
-            $rows = db_param_query(
+            $rows = dbParamQuery(
                 'SELECT invoice_id FROM {prefix}invoice_row WHERE id=?',
                 [$primaryKey]
             );
@@ -276,18 +313,18 @@ function saveFormData($table, &$primaryKey, &$formElements, &$values, &$warnings
                 $arrValues[] = $parentKey;
             }
             $strQuery = "INSERT INTO $table ($strFields) VALUES ($strInsert)";
-            db_param_query($strQuery, $arrValues, 'exception');
+            dbParamQuery($strQuery, $arrValues, 'exception');
             $primaryKey = mysqli_insert_id($dblink);
         } else {
             // Special case for invoice - update product stock balance for all
             // invoice rows if the invoice was previously deleted
             if ($table == '{prefix}invoice' && !isOffer($primaryKey)) {
-                $checkValues = db_param_query(
+                $checkValues = dbParamQuery(
                     'SELECT deleted FROM {prefix}invoice WHERE id=?',
                     [$primaryKey]
                 );
                 if ($checkValues[0]['deleted']) {
-                    $rows = db_param_query(
+                    $rows = dbParamQuery(
                         'SELECT product_id, pcs FROM {prefix}invoice_row WHERE invoice_id=? AND deleted=0',
                         [$primaryKey]
                     );
@@ -301,7 +338,7 @@ function saveFormData($table, &$primaryKey, &$formElements, &$values, &$warnings
 
             $strQuery = "UPDATE $table SET $strUpdateFields, deleted=0 WHERE id=?";
             $arrValues[] = $primaryKey;
-            db_param_query($strQuery, $arrValues, 'exception');
+            dbParamQuery($strQuery, $arrValues, 'exception');
         }
         if ($table === '{prefix}company') {
             saveTags(
@@ -317,12 +354,12 @@ function saveFormData($table, &$primaryKey, &$formElements, &$values, &$warnings
             );
         }
     } catch (Exception $e) {
-        mysqli_query_check('ROLLBACK');
-        mysqli_query_check('SET AUTOCOMMIT = 1');
+        dbQueryCheck('ROLLBACK');
+        dbQueryCheck('SET AUTOCOMMIT = 1');
         die($e->getMessage());
     }
-    mysqli_query_check('COMMIT');
-    mysqli_query_check('SET AUTOCOMMIT = 1');
+    dbQueryCheck('COMMIT');
+    dbQueryCheck('SET AUTOCOMMIT = 1');
 
     // Special case for invoices - check for duplicate invoice numbers
     if ($table == '{prefix}invoice' && isset($values['invoice_no'])
@@ -341,7 +378,7 @@ function saveFormData($table, &$primaryKey, &$formElements, &$values, &$warnings
             $query .= ' AND invoice_date >= ' . date('Y') . '0101';
         }
 
-        $check = db_param_query($query, $params);
+        $check = dbParamQuery($query, $params);
         if ($check) {
             $warnings = Translator::translate('InvoiceNumberAlreadyInUse');
         }
@@ -353,11 +390,11 @@ function saveFormData($table, &$primaryKey, &$formElements, &$values, &$warnings
         && (getSetting('invoice_add_number')
         || getSetting('invoice_add_reference_number'))
     ) {
-        mysqli_query_check(
+        dbQueryCheck(
             'LOCK TABLES {prefix}invoice WRITE, {prefix}settings READ'
             . ', {prefix}company READ'
         );
-        $rows = db_param_query(
+        $rows = dbParamQuery(
             'SELECT invoice_no, ref_number, base_id, company_id, invoice_date,'
             . "interval_type FROM $table WHERE id=?",
             [$primaryKey]
@@ -386,21 +423,32 @@ function saveFormData($table, &$primaryKey, &$formElements, &$values, &$warnings
             }
             $sql .= ' ' . implode(', ', $updateStrings) . ' WHERE id=?';
             $params[] = $primaryKey;
-            db_param_query($sql, $params);
+            dbParamQuery($sql, $params);
         }
-        mysqli_query_check('UNLOCK TABLES');
+        dbQueryCheck('UNLOCK TABLES');
     }
 
     return true;
 }
 
-// Fetch a record. Values in $values, may modify $formElements.
-// Returns TRUE on success, 'deleted' for deleted records and 'notfound' if record is not found.
+/**
+ * Fetch a record. Values in $values, may modify $formElements.
+ *
+ * Returns true on success, 'deleted' for deleted records and 'notfound' if record is
+ * not found.
+ *
+ * @param string $table        Table name
+ * @param int    $primaryKey   Record ID
+ * @param int    $formElements Form elements
+ * @param array  $values       Record data
+ *
+ * @return mixed
+ */
 function fetchRecord($table, $primaryKey, &$formElements, &$values)
 {
     $result = true;
     $strQuery = "SELECT * FROM $table WHERE id=?";
-    $rows = db_param_query($strQuery, [$primaryKey]);
+    $rows = dbParamQuery($strQuery, [$primaryKey]);
     if (!$rows) {
         return 'notfound';
     }
@@ -469,6 +517,13 @@ function fetchRecord($table, $primaryKey, &$formElements, &$values)
     return $result;
 }
 
+/**
+ * Get form elements
+ *
+ * @param string $form Form name
+ *
+ * @return array
+ */
 function getFormElements($form)
 {
     $strForm = $form;
@@ -476,6 +531,13 @@ function getFormElements($form)
     return $astrFormElements;
 }
 
+/**
+ * Get form parent key field
+ *
+ * @param string $form Form name
+ *
+ * @return string
+ */
 function getFormParentKey($form)
 {
     $strForm = $form;
@@ -483,6 +545,13 @@ function getFormParentKey($form)
     return $strParentKey;
 }
 
+/**
+ * Get form JSON type
+ *
+ * @param string $form Form name
+ *
+ * @return string
+ */
 function getFormJSONType($form)
 {
     $strForm = $form;
@@ -490,6 +559,13 @@ function getFormJSONType($form)
     return $strJSONType;
 }
 
+/**
+ * Get form "clear row values after add"
+ *
+ * @param string $form Form name
+ *
+ * @return bool
+ */
 function getFormClearRowValuesAfterAdd($form)
 {
     $strForm = $form;
@@ -497,6 +573,13 @@ function getFormClearRowValuesAfterAdd($form)
     return $clearRowValuesAfterAdd;
 }
 
+/**
+ * Get form "on row added event"
+ *
+ * @param string $form Form name
+ *
+ * @return string
+ */
 function getFormOnAfterRowAdded($form)
 {
     $strForm = $form;

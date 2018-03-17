@@ -1,27 +1,31 @@
 <?php
-/*******************************************************************************
- MLInvoice: web-based invoicing application.
- Copyright (C) 2010-2017 Ere Maijala
-
- Portions based on:
- PkLasku : web-based invoicing software.
- Copyright (C) 2004-2008 Samu Reinikainen
-
- This program is free software. See attached LICENSE.
-
- *******************************************************************************/
-
-/*******************************************************************************
- MLInvoice: web-pohjainen laskutusohjelma.
- Copyright (C) 2010-2017 Ere Maijala
-
- Perustuu osittain sovellukseen:
- PkLasku : web-pohjainen laskutusohjelmisto.
- Copyright (C) 2004-2008 Samu Reinikainen
-
- Tämä ohjelma on vapaa. Lue oheinen LICENSE.
-
- *******************************************************************************/
+/**
+ * Form config
+ *
+ * PHP version 5
+ *
+ * Copyright (C) 2004-2008 Samu Reinikainen
+ * Copyright (C) 2010-2018 Ere Maijala
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License version 2,
+ * as published by the Free Software Foundation.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
+ *
+ * @category MLInvoice
+ * @package  MLInvoice\Base
+ * @author   Ere Maijala <ere@labs.fi>
+ * @license  http://opensource.org/licenses/gpl-2.0.php GNU General Public License
+ * @link     http://labs.fi/mlinvoice.eng.php
+ */
 require_once 'settings.php';
 require_once 'vendor/autoload.php';
 
@@ -63,8 +67,8 @@ case 'company' :
     $defaultCustomerNr = null;
     if (getSetting('add_customer_number')) {
         $strQuery = 'SELECT max(customer_no) FROM {prefix}company WHERE deleted=0';
-        $intRes = mysqli_query_check($strQuery);
-        $defaultCustomerNr = mysqli_fetch_value($intRes) + 1;
+        $intRes = dbQueryCheck($strQuery);
+        $defaultCustomerNr = dbFetchValue($intRes) + 1;
     }
 
     $astrFormElements = [
@@ -385,7 +389,10 @@ case 'product' :
 EOS;
 
         $updateStockBalanceCode = <<<EOS
-<a class="formbuttonlink" href="#" onclick="update_stock_balance({'save': '$locSave', 'close': '$locClose', 'title': '$locTitle', 'missing': '$locMissing: ', 'decimal_separator': '$locDecimalSeparator'})">$locUpdateStockBalance</a>
+<a class="formbuttonlink" href="#"
+  onclick="update_stock_balance({'save': '$locSave', 'close': '$locClose', 'title': '$locTitle', 'missing': '$locMissing: ', 'decimal_separator': '$locDecimalSeparator'})">
+    $locUpdateStockBalance
+</a>
 
 EOS;
     }
@@ -557,7 +564,7 @@ EOS;
             'type' => 'CHECK',
             'style' => 'medium',
             'position' => 2,
-            'default' => FALSE,
+            'default' => false,
             'allow_null' => true
         ],
         [
@@ -622,7 +629,7 @@ EOT;
 
         $strQuery = 'SELECT refunded_invoice_id ' . 'FROM {prefix}invoice ' .
              'WHERE id=?'; // ok to maintain links to deleted invoices too
-        $rows = db_param_query($strQuery, [$intInvoiceId]);
+        $rows = dbParamQuery($strQuery, [$intInvoiceId]);
         $strBaseLink = '?' . preg_replace('/&id=\d*/', '', $_SERVER['QUERY_STRING']);
         $strBaseLink = preg_replace('/&/', '&amp;', $strBaseLink);
         if ($rows) {
@@ -641,7 +648,7 @@ EOT;
         }
         $strQuery = 'SELECT id ' . 'FROM {prefix}invoice ' .
              'WHERE deleted=0 AND refunded_invoice_id=?';
-        $rows = db_param_query($strQuery, [$intInvoiceId]);
+        $rows = dbParamQuery($strQuery, [$intInvoiceId]);
         if ($rows) {
             $intRefundingInvoiceId = $rows[0]['id'];
             if ($intRefundingInvoiceId) {
@@ -671,9 +678,7 @@ EOT;
 
     if (sesWriteAccess()) {
         $locUpdateDates = Translator::translate('UpdateDates');
-        $updateDates = <<<EOS
-<a class="formbuttonlink" href="#" onclick="$.getJSON('json.php?func=get_invoice_defaults', {id: $('#record_id').val(), invoice_no: $('#invoice_no').val(), invoice_date: $('#invoice_date').val(), base_id: $('#base_id').val(), company_id: $('#company_id').val(), interval_type: $('#interval_type').val()}, function(json) { $('#invoice_date').val(json.date); $('#due_date').val(json.due_date); $('#next_interval_date').val(json.next_interval_date); $('.save_button').addClass('ui-state-highlight'); }); return false;">$locUpdateDates</a>
-EOS;
+        $updateDates = '<a class="formbuttonlink update-dates" href="#">' . $locUpdateDates . '</a>';
 
         $locNew = Translator::translate('New') . '...';
         $locClientName = Translator::translate('ClientName');
@@ -688,7 +693,10 @@ EOS;
         $locTitle = Translator::translate('NewClient');
         $locMissing = Translator::translate('ErrValueMissing');
         $addCompanyCode = <<<EOS
-<a class="formbuttonlink" href="#" onclick="add_company({'save': '$locSave', 'close': '$locClose', 'title': '$locTitle', 'missing': '$locMissing: '})">$locNew</a>
+<a class="formbuttonlink" href="#"
+  onclick="add_company({'save': '$locSave', 'close': '$locClose', 'title': '$locTitle', 'missing': '$locMissing: '})">
+    $locNew
+</a>
 
 EOS;
 
@@ -708,23 +716,21 @@ EOS;
         if (!$isOffer) {
             $companyOnChange = '_onChangeCompany';
 
-            $getInvoiceNr = <<<EOS
-$.getJSON('json.php?func=get_invoice_defaults', {id: $('#record_id').val(), invoice_no: $('#invoice_no').val(), invoice_date: $('#invoice_date').val(), base_id: $('#base_id').val(), company_id: $('#company_id').val(), interval_type: $('#interval_type').val()}, function(json) { $('#invoice_no').val(json.invoice_no); $('#ref_number').val(json.ref_no); $('.save_button').addClass('ui-state-highlight'); }); return false;
-EOS;
-
             $locPartialPayment = Translator::translate('PartialPayment');
             $locDecimalSeparator = Translator::translate('DecimalSeparator');
-            $addPartialPaymentCode = <<<EOS
-add_partial_payment({'save': '$locSave', 'close': '$locClose', 'title': '{$locPartialPayment}', 'missing': '$locMissing: ', 'partial_payment': '{$locPartialPayment}', 'decimal_separator': '{$locDecimalSeparator}'}); return false;
-
-EOS;
+            $addPartialPaymentCode = "add_partial_payment({'save': '$locSave', 'close': '$locClose',"
+                . " 'title': '{$locPartialPayment}', 'missing': '$locMissing: ', "
+                . "'partial_payment': '{$locPartialPayment}', 'decimal_separator': '{$locDecimalSeparator}'});"
+                . " return false;";
 
             $locPaymentAmount = Translator::translate('PaymentAmount');
             $locPaymentDate = Translator::translate('PayDate');
             $popupHTML .= <<<EOS
 <div id="add_partial_payment" class="form_container ui-widget-content" style="display: none">
-  <div class="medium_label">{$locPaymentAmount}</div> <div class="field"><input type='TEXT' id="add_partial_payment_amount" class='medium'></div>
-  <div class="medium_label">{$locPaymentDate}</div> <div class="field"><input type='TEXT' id="add_partial_payment_date" class='date hasCalendar'></div>
+  <div class="medium_label">{$locPaymentAmount}</div>
+    <div class="field"><input type='TEXT' id="add_partial_payment_amount" class='medium'></div>
+  <div class="medium_label">{$locPaymentDate}</div>
+  <div class="field"><input type='TEXT' id="add_partial_payment_date" class='date hasCalendar'></div>
 </div>
 
 EOS;
@@ -741,9 +747,10 @@ EOS;
 
     if (sesWriteAccess() && !$isOffer) {
         $today = dateConvDBDate2Date(date('Ymd'));
-        $markPaidToday = <<<EOS
-if ([1, 2, 5, 6, 7].indexOf(parseInt($('#state_id').val())) !== -1) { $('#state_id').val(3); } if (!$(this).is('#payment_date')) { $('#payment_date').val('$today'); }
-EOS;
+        $markPaidToday = "if ([1, 2, 5, 6, 7].indexOf(parseInt($('#state_id').val())) !== -1) {"
+            . " $('#state_id').val(3); }"
+            . " if (!$(this).is('#payment_date')) { $('#payment_date').val('$today'); }";
+
         if (getSetting('invoice_auto_archive')) {
             $markPaidToday .= <<<EOS
 if ($('#interval_type').val() == 0) { $('#archived').prop('checked', true); }
@@ -769,7 +776,7 @@ EOF;
     // Print buttons
     $printButtons = [];
     $printButtons2 = [];
-    $rows = db_param_query(
+    $rows = dbParamQuery(
         'SELECT * FROM {prefix}print_template WHERE deleted=0 and type=? and inactive=0 ORDER BY order_no',
         [$isOffer ? 'offer' : 'invoice']
     );
@@ -789,10 +796,11 @@ EOF;
                 continue;
             }
 
-            if ($printStyle == 'openwindow')
+            if ($printStyle == 'openwindow') {
                 $printFunc = "window.open('invoice.php?id=_ID_&amp;template=$templateId&amp;func=$strFunc'); return false;";
-            else
+            } else {
                 $printFunc = "window.location = 'invoice.php?id=_ID_&amp;template=$templateId&amp;func=$strFunc'; return false;";
+            }
         }
 
         $arr = [
@@ -823,11 +831,11 @@ EOF;
          ];
     }
 
-    $intRes = mysqli_query_check(
+    $intRes = dbQueryCheck(
         'SELECT ID from {prefix}base WHERE deleted=0 AND inactive=0'
     );
     if (mysqli_num_rows($intRes) == 1) {
-        $defaultBase = mysqli_fetch_value($intRes);
+        $defaultBase = dbFetchValue($intRes);
     } else {
         $defaultBase = false;
     }
@@ -839,13 +847,15 @@ EOF;
         if (!getSetting('invoice_add_number')
             || !getSetting('invoice_add_reference_number')
         ) {
-            $updateInvoiceNr = '<a class="formbuttonlink" href="#" onclick="' .
-            $getInvoiceNr . '">' . Translator::translate('GetInvoiceNr') . '</a>';
+            $updateInvoiceNr = '<a class="formbuttonlink update-invoice-nr" href="#">'
+                . Translator::translate('GetInvoiceNr') . '</a>';
         }
     }
 
     $locReminderFeesAdded = Translator::translate('ReminderFeesAdded');
-    $addReminderFees = "$.getJSON('json.php?func=add_reminder_fees&amp;id=' + document.getElementById('record_id').value, function(json) { if (json.errors) { MLInvoice.errormsg(json.errors); } else { MLInvoice.showmsg('$locReminderFeesAdded'); } init_rows(); }); return false;";
+    $addReminderFees = "$.getJSON('json.php?func=add_reminder_fees&amp;id=' + document.getElementById('record_id').value, function(json) {"
+        . " if (json.errors) { MLInvoice.errormsg(json.errors); } else { MLInvoice.showmsg('$locReminderFeesAdded'); } init_rows(); });"
+        . " return false;";
 
     $intervalOptions = [
         '0' => Translator::translate('InvoiceIntervalNone'),
@@ -1067,7 +1077,7 @@ EOF;
             'style' => 'redirect',
             'listquery' => "copy_invoice.php?func=$strFunc&list=$strList&id=_ID_&refund=1",
             'position' => 1,
-            'default' => FALSE,
+            'default' => false,
             'allow_null' => true
         ],
         $arrRefundedInvoice,
@@ -1085,7 +1095,7 @@ EOF;
             'style' => 'redirect',
             'listquery' => $addReminderFees,
             'position' => 1,
-            'default' => FALSE,
+            'default' => false,
             'allow_null' => true
         ],
         $arrRefundingInvoice,
@@ -1103,7 +1113,7 @@ EOF;
             'style' => 'redirect',
             'listquery' => $addPartialPaymentCode,
             'position' => 1,
-            'default' => FALSE,
+            'default' => false,
             'allow_null' => true
         ],
     ];
@@ -1272,9 +1282,7 @@ case 'invoice_rows' :
 
     break;
 
-/******************************************************************************
- SYSTEM FORMS - SYSTEEMILOMAKKEET
- ******************************************************************************/
+/* SYSTEM FORMS */
 case 'base' :
     $strTable = '{prefix}base';
     $strJSONType = 'base';
@@ -1709,7 +1717,7 @@ case 'invoice_state' :
     $strTable = '{prefix}invoice_state';
     $strJSONType = 'invoice_state';
 
-    $intId = isset($id) ? $id : getRequest('id', FALSE);
+    $intId = isset($id) ? $id : getRequest('id', false);
     $readOnly = ($intId && $intId <= 8);
     $astrFormElements = [
         [
@@ -1785,7 +1793,7 @@ case 'session_type' :
     $strTable = '{prefix}session_type';
     $strJSONType = 'session_type';
 
-    $intId = getRequest('id', FALSE);
+    $intId = getRequest('id', false);
     if ($intId && $intId <= 4) {
         $readOnlyForm = true;
     }

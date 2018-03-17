@@ -1,24 +1,43 @@
 <?php
-/*******************************************************************************
- MLInvoice: web-based invoicing application.
- Copyright (C) 2010-2017 Ere Maijala
-
- This program is free software. See attached LICENSE.
-
- *******************************************************************************/
-
-/*******************************************************************************
- MLInvoice: web-pohjainen laskutusohjelma.
- Copyright (C) 2010-2017 Ere Maijala
-
- Tämä ohjelma on vapaa. Lue oheinen LICENSE.
-
- *******************************************************************************/
-
+/**
+ * Email invoice trait
+ *
+ * PHP version 5
+ *
+ * Copyright (C) 2010-2018 Ere Maijala
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License version 2,
+ * as published by the Free Software Foundation.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
+ *
+ * @category MLInvoice
+ * @package  MLInvoice\Base
+ * @author   Ere Maijala <ere@labs.fi>
+ * @license  http://opensource.org/licenses/gpl-2.0.php GNU General Public License
+ * @link     http://labs.fi/mlinvoice.eng.php
+ */
 require_once 'htmlfuncs.php';
 require_once 'miscfuncs.php';
 require_once 'mailer.php';
 
+/**
+ * Email invoice trait
+ *
+ * @category MLInvoice
+ * @package  MLInvoice\Base
+ * @author   Ere Maijala <ere@labs.fi>
+ * @license  http://opensource.org/licenses/gpl-2.0.php GNU General Public License
+ * @link     http://labs.fi/mlinvoice.eng.php
+ */
 trait InvoicePrinterEmailTrait
 {
     protected $emailFrom = '';
@@ -28,6 +47,11 @@ trait InvoicePrinterEmailTrait
     protected $emailSubject = '';
     protected $emailBody = '';
 
+    /**
+     * Main method for printing
+     *
+     * @return void
+     */
     public function printInvoice()
     {
         if (!$this->authenticated) {
@@ -108,6 +132,11 @@ trait InvoicePrinterEmailTrait
         parent::printInvoice();
     }
 
+    /**
+     * Get default message body
+     *
+     * @return string
+     */
     protected function getDefaultBody()
     {
         $key = 'invoice_email_body';
@@ -117,6 +146,11 @@ trait InvoicePrinterEmailTrait
         return isset($this->senderData[$key]) ? $this->senderData[$key] : '';
     }
 
+    /**
+     * Get default subject
+     *
+     * @return string
+     */
     protected function getDefaultSubject()
     {
         $key = 'invoice_email_subject';
@@ -126,6 +160,13 @@ trait InvoicePrinterEmailTrait
         return isset($this->senderData[$key]) ? $this->senderData[$key] : '';
     }
 
+    /**
+     * Display the email form
+     *
+     * @param string $errorMsg Any error message
+     *
+     * @return void
+     */
     protected function showEmailForm($errorMsg = '')
     {
         $senderData = $this->senderData;
@@ -209,6 +250,11 @@ $(document).ready(function() {
 <?php
     }
 
+    /**
+     * Print the printout
+     *
+     * @return void
+     */
     protected function printOut()
     {
         if (!$this->authenticated) {
@@ -262,6 +308,13 @@ $(document).ready(function() {
         );
     }
 
+    /**
+     * Parse default value
+     *
+     * @param array $defaultValue Default value
+     *
+     * @return array
+     */
     protected function parseDefaultSettings($defaultValue)
     {
         if (empty($defaultValue['additional'])) {

@@ -21,13 +21,12 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  *
  * @category MLInvoice
- * @package  Printing
+ * @package  MLInvoice\Base
  * @author   Samu Reinikainen <not-available@ajassa.fi>
  * @author   Ere Maijala <ere@labs.fi>
  * @license  http://opensource.org/licenses/gpl-2.0.php GNU General Public License
  * @link     http://labs.fi/mlinvoice.eng.php
  */
-
 require_once 'translator.php';
 require_once 'settings.php';
 
@@ -35,7 +34,7 @@ require_once 'settings.php';
  * Invoice printer abstract base class
  *
  * @category MLInvoice
- * @package  Printing
+ * @package  MLInvoice\Base
  * @author   Samu Reinikainen <not-available@ajassa.fi>
  * @author   Ere Maijala <ere@labs.fi>
  * @license  http://opensource.org/licenses/gpl-2.0.php GNU General Public License
@@ -360,7 +359,7 @@ abstract class InvoicePrinterBase
                 $rowSum = $rowSumVAT = $row['price'];
                 $rowVAT = 0;
             } else {
-                list ($rowSum, $rowVAT, $rowSumVAT) = calculateRowSum($row);
+                list($rowSum, $rowVAT, $rowSumVAT) = calculateRowSum($row);
                 if ($row['vat_included']) {
                     $row['price'] /= (1 + $row['vat'] / 100);
                 }
@@ -2059,7 +2058,7 @@ abstract class InvoicePrinterBase
      * @param int   $decimals         Number of decimals to display
      * @param bool  $decimalsOptional Whether to hide decimals if they are 0
      * @param bool  $round            Whether to round the value instead of
-     * truncating
+     *                                truncating
      *
      * @return string
      */
@@ -2091,7 +2090,7 @@ abstract class InvoicePrinterBase
      * @param int   $decimals         Number of decimals to display
      * @param bool  $decimalsOptional Whether to hide decimals if they are 0
      * @param bool  $round            Whether to round the value instead of
-     * truncating
+     *                                truncating
      *
      * @return string
      */

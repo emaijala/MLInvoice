@@ -1,19 +1,31 @@
 <?php
-/*******************************************************************************
- MLInvoice: web-based invoicing application.
- Copyright (C) 2010-2017 Ere Maijala
-
- This program is free software. See attached LICENSE.
-
- *******************************************************************************/
-
-/*******************************************************************************
- MLInvoice: web-pohjainen laskutusohjelma.
- Copyright (C) 2010-2017 Ere Maijala
-
- Tämä ohjelma on vapaa. Lue oheinen LICENSE.
-
- *******************************************************************************/
+/**
+ * JSON API
+ *
+ * PHP version 5
+ *
+ * Copyright (C) 2004-2008 Samu Reinikainen
+ * Copyright (C) 2010-2018 Ere Maijala
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License version 2,
+ * as published by the Free Software Foundation.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
+ *
+ * @category MLInvoice
+ * @package  MLInvoice\Base
+ * @author   Ere Maijala <ere@labs.fi>
+ * @license  http://opensource.org/licenses/gpl-2.0.php GNU General Public License
+ * @link     http://labs.fi/mlinvoice.eng.php
+ */
 ini_set('display_errors', 0);
 
 require_once 'vendor/autoload.php';
@@ -294,14 +306,14 @@ case 'get_table_columns' :
         break;
     }
 
-    if (!table_valid($table)) {
+    if (!tableNameValid($table)) {
         header('HTTP/1.1 400 Bad Request');
         die('Invalid table name');
     }
 
     header('Content-Type: application/json');
     echo '{"columns":[';
-    $res = mysqli_query_check("select * from {prefix}$table where 1=2");
+    $res = dbQueryCheck("select * from {prefix}$table where 1=2");
     $field_count = mysqli_num_fields($res);
     for ($i = 0; $i < $field_count; $i ++) {
         $field_def = mysqli_fetch_field($res);
@@ -335,7 +347,7 @@ case 'get_import_preview' :
         include 'import.php';
         $import = new ImportFile();
     }
-    $import->create_import_preview();
+    $import->createImportPreview();
     break;
 
 case 'get_list' :
@@ -408,7 +420,7 @@ case 'get_selectlist' :
         break;
     }
 
-    if (!table_valid($table)) {
+    if (!tableNameValid($table)) {
         header('HTTP/1.1 400 Bad Request');
         die('Invalid table name');
     }
@@ -457,7 +469,7 @@ case 'get_stock_balance_rows' :
     if (!$productId) {
         break;
     }
-    $rows = db_param_query(
+    $rows = dbParamQuery(
         <<<EOT
 SELECT l.time, u.name, l.stock_change, l.description FROM {prefix}stock_balance_log l
 INNER JOIN {prefix}users u ON l.user_id=u.id WHERE product_id=? ORDER BY time DESC
@@ -495,6 +507,15 @@ if (defined('_PROFILING_') && is_callable('tideways_disable')) {
     );
 }
 
+/**
+ * Output a JSON record
+ *
+ * @param string $table    Table name
+ * @param int    $id       Record ID
+ * @param array  $warnings Warnings to include in the output
+ *
+ * @return void
+ */
 function printJSONRecord($table, $id = false, $warnings = null)
 {
     if ($id === false) {
@@ -515,7 +536,7 @@ function printJSONRecord($table, $id = false, $warnings = null)
         }
 
         $query = "$select $from $where";
-        $rows = db_param_query($query, [$id]);
+        $rows = dbParamQuery($query, [$id]);
         if (!$rows) {
             header('HTTP/1.1 404 Not Found');
             return;
@@ -563,6 +584,15 @@ function printJSONRecord($table, $id = false, $warnings = null)
     }
 }
 
+/**
+ * Output multiple records
+ *
+ * @param string $table       Table name
+ * @param string $parentIdCol Parent ID column name
+ * @param string $sort        Sort rules
+ *
+ * @return void
+ */
 function printJSONRecords($table, $parentIdCol, $sort)
 {
     $select = 'SELECT t.*';
@@ -570,7 +600,11 @@ function printJSONRecords($table, $parentIdCol, $sort)
 
     if ($table == 'invoice_row') {
         // Include product name, product code, product weight and row type name
-        $select .= ", CASE WHEN LENGTH(p.product_code) = 0 THEN IFNULL(p.product_name, '') ELSE CONCAT_WS(' ', p.product_code, IFNULL(p.product_name, '')) END as product_id_text, p.weight as product_weight";
+        $select .= <<<EOT
+, CASE WHEN LENGTH(p.product_code) = 0 THEN IFNULL(p.product_name, '')
+  ELSE CONCAT_WS(' ', p.product_code, IFNULL(p.product_name, ''))
+  END as product_id_text, p.weight as product_weight
+EOT;
         $from .= ' LEFT OUTER JOIN {prefix}product p on (p.id = t.product_id)';
         $select .= ', rt.name as type_id_text';
         $from .= ' LEFT OUTER JOIN {prefix}row_type rt on (rt.id = t.type_id)';
@@ -595,7 +629,7 @@ function printJSONRecords($table, $parentIdCol, $sort)
     if ($sort) {
         $query .= " order by $sort";
     }
-    $rows = db_param_query($query, $params);
+    $rows = dbParamQuery($query, $params);
     header('Content-Type: application/json');
     echo '{"records":[';
     $first = true;
@@ -624,6 +658,14 @@ function printJSONRecords($table, $parentIdCol, $sort)
     echo "\n]}";
 }
 
+/**
+ * Save a record
+ *
+ * @param string $table         Table name
+ * @param string $parentKeyName Parent ID column name
+ *
+ * @return void
+ */
 function saveJSONRecord($table, $parentKeyName)
 {
     if (!sesWriteAccess()) {
@@ -670,7 +712,14 @@ function saveJSONRecord($table, $parentKeyName)
     printJSONRecord($strTable, $id, $warnings);
 }
 
-function DeleteJSONRecord($table)
+/**
+ * Delete a record
+ *
+ * @param string $table Table name
+ *
+ * @return void
+ */
+function deleteJSONRecord($table)
 {
     if (!sesWriteAccess()) {
         header('HTTP/1.1 403 Forbidden');
@@ -687,6 +736,11 @@ function DeleteJSONRecord($table)
     }
 }
 
+/**
+ * Update multiple rows
+ *
+ * @return void
+ */
 function updateMultipleRows()
 {
     if (!sesWriteAccess()) {
@@ -726,6 +780,11 @@ function updateMultipleRows()
     return json_encode(['status' => 'ok']);
 }
 
+/**
+ * Update row order based on POST data
+ *
+ * @return void
+ */
 function updateRowOrder()
 {
     if (!sesWriteAccess()) {
@@ -740,7 +799,7 @@ function updateRowOrder()
     }
 
     foreach ($request['order'] as $id => $orderNo) {
-        db_param_query(
+        dbParamQuery(
             "UPDATE {prefix}{$request['table']} SET order_no=? WHERE id=?",
             [$orderNo, $id]
         );
@@ -749,6 +808,13 @@ function updateRowOrder()
     return json_encode(['status' => 'ok']);
 }
 
+/**
+ * Output total sums for invoice list
+ *
+ * @param string $where Where clause
+ *
+ * @return void
+ */
 function getInvoiceListTotal($where)
 {
     global $dblink;
@@ -789,7 +855,7 @@ function getInvoiceListTotal($where)
     $sql = "SELECT sum(it.row_total) as total_sum from $strTable $strJoin $strWhereClause";
 
     $sum = 0;
-    $rows = db_param_query($sql, $arrQueryParams);
+    $rows = dbParamQuery($sql, $arrQueryParams);
     if ($rows) {
         $sum = $rows[0]['total_sum'];
     }
@@ -801,6 +867,15 @@ function getInvoiceListTotal($where)
     echo json_encode($result);
 }
 
+/**
+ * Update product stock balance
+ *
+ * @param int    $productId Product ID
+ * @param int    $change    Change in balance
+ * @param string $desc      Change description
+ *
+ * @return void
+ */
 function updateStockBalance($productId, $change, $desc)
 {
     $missing = [];
@@ -815,7 +890,7 @@ function updateStockBalance($productId, $change, $desc)
         return json_encode(['missing_fields' => $missing]);
     }
 
-    $rows = db_param_query(
+    $rows = dbParamQuery(
         'SELECT stock_balance FROM {prefix}product WHERE id=?',
         [$productId]
     );
@@ -827,11 +902,11 @@ function updateStockBalance($productId, $change, $desc)
     $row = $rows[0];
     $balance = $row['stock_balance'];
     $balance += $change;
-    db_param_query(
+    dbParamQuery(
         'UPDATE {prefix}product SET stock_balance=? where id=?',
         [$balance, $productId]
     );
-    db_param_query(
+    dbParamQuery(
         <<<EOT
 INSERT INTO {prefix}stock_balance_log
 (user_id, product_id, stock_change, description) VALUES (?, ?, ?, ?)
@@ -846,23 +921,3 @@ EOT
     );
     return json_encode(['status' => 'ok', 'new_stock_balance' => $balance]);
 }
-
-function get_max_invoice_number($invoiceId, $baseId, $perYear)
-{
-    if ($baseId !== null) {
-        $sql = 'SELECT max(cast(invoice_no as unsigned integer)) as maxnum FROM {prefix}invoice WHERE deleted=0 AND id!=? AND base_id=?';
-        $params = [
-            $invoiceId,
-            $baseId
-        ];
-    } else {
-        $sql = 'SELECT max(cast(invoice_no as unsigned integer)) as maxnum FROM {prefix}invoice WHERE deleted=0 AND id!=?';
-        $params = [$invoiceId];
-    }
-    if ($perYear) {
-        $sql .= ' AND invoice_date >= ' . date('Y') . '0101';
-    }
-    $rows = db_param_query($sql, $params);
-    return $rows[0]['maxnum'];
-}
-

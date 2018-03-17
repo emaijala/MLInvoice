@@ -1,19 +1,30 @@
 <?php
-/*******************************************************************************
- MLInvoice: web-based invoicing application.
- Copyright (C) 2010-2017 Ere Maijala
-
- This program is free software. See attached LICENSE.
-
- *******************************************************************************/
-
-/*******************************************************************************
- MLInvoice: web-pohjainen laskutusohjelma.
- Copyright (C) 2010-2017 Ere Maijala
-
- Tämä ohjelma on vapaa. Lue oheinen LICENSE.
-
- *******************************************************************************/
+/**
+ * Logo handling
+ *
+ * PHP version 5
+ *
+ * Copyright (C) 2010-2018 Ere Maijala
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License version 2,
+ * as published by the Free Software Foundation.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
+ *
+ * @category MLInvoice
+ * @package  MLInvoice\Base
+ * @author   Ere Maijala <ere@labs.fi>
+ * @license  http://opensource.org/licenses/gpl-2.0.php GNU General Public License
+ * @link     http://labs.fi/mlinvoice.eng.php
+ */
 require_once 'sqlfuncs.php';
 require_once 'miscfuncs.php';
 require_once 'sessionfuncs.php';
@@ -25,13 +36,14 @@ sesVerifySession();
 $func = getRequest('func', 'view');
 $baseId = getRequest('id', null);
 
-if (!isset($baseId) || !is_numeric($baseId) || !isset($func))
+if (!isset($baseId) || !is_numeric($baseId) || !isset($func)) {
     exit();
+}
 
 $messages = '';
 
 if ($func == 'clear') {
-    db_param_query(
+    dbParamQuery(
         'UPDATE {prefix}base set logo_filename=null, logo_filesize=null, logo_filetype=null, logo_filedata=null WHERE id=?',
         [$baseId]
     );
@@ -52,7 +64,7 @@ if ($func == 'clear') {
             $fsize = filesize($_FILES['logo']['tmp_name']);
             $data = fread($file, $fsize);
             fclose($file);
-            db_param_query(
+            dbParamQuery(
                 'UPDATE {prefix}base set logo_filename=?, logo_filesize=?, logo_filetype=?, logo_filedata=? WHERE id=?',
                 [
                     $_FILES['logo']['name'],
@@ -67,7 +79,7 @@ if ($func == 'clear') {
         }
     }
 } elseif ($func == 'view') {
-    $rows = db_param_query(
+    $rows = dbParamQuery(
         'SELECT logo_filename, logo_filesize, logo_filetype, logo_filedata FROM {prefix}base WHERE id=?',
         [
             $baseId
@@ -88,8 +100,8 @@ if ($func == 'clear') {
 }
 
 $maxUploadSize = getMaxUploadSize();
-$res = mysqli_query_check('SELECT @@max_allowed_packet');
-$maxPacket = mysqli_fetch_value($res);
+$res = dbQueryCheck('SELECT @@max_allowed_packet');
+$maxPacket = dbFetchValue($res);
 
 if ($maxPacket < $maxUploadSize) {
     $maxFileSize = fileSizeToHumanReadable($maxPacket) . ' ' .
