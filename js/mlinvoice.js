@@ -21,8 +21,11 @@ var MLInvoice = (function MLInvoice() {
     }
   }
 
-  function translate(key, placeholders) {
+  function translate(key, placeholders, defaultValue) {
     var translated = _translations[key] || key;
+    if (translated === key && typeof defaultValue !== 'undefined') {
+      translated = defaultValue;
+    }
     if (typeof placeholders === 'object') {
       $.each(placeholders, function replacePlaceHolder(pkey, value) {
         translated = translated.replace(new RegExp(pkey, 'g'), value);
@@ -514,7 +517,7 @@ var MLInvoice = (function MLInvoice() {
   function formatCurrency(value, _decimals) {
     var decimals = 'undefined' === typeof _decimals ? _currencyDecimals : _decimals;
     var decimalSep = translate('DecimalSeparator');
-    var thousandSep = translate('ThousandSeparator');
+    var thousandSep = translate('ThousandSeparator', [], '');
     var s = parseFloat(value).toFixed(decimals).replace('.', decimalSep);
     if (thousandSep) {
       var parts = s.split(decimalSep);
