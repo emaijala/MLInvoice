@@ -15,10 +15,10 @@
 
   <!-- eslint -->
   <target name="eslint">
-    <exec command="eslint js/mlinvoice.js" escape="false" checkreturn="true" passthru="true" />
+    <exec command="eslint js/functions.js js/mlinvoice.js js/stock_balance.js" escape="false" checkreturn="true" passthru="true" />
   </target>
   <target name="eslint-fix">
-    <exec command="eslint js/mlinvoice.js --fix" escape="false" checkreturn="true" passthru="true" />
+    <exec command="eslint js/functions.js js/mlinvoice.js js/stock_balance.js --fix" escape="false" checkreturn="true" passthru="true" />
   </target>
 
   <!-- PHP CodeSniffer -->

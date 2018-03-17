@@ -450,7 +450,7 @@ var MLInvoice = (function MLInvoice() {
           var id = $(element).val();
           if (id !== '') {
             $.ajax('json.php?func=get_selectlist&' + query + '&id=' + id, {
-              dataType: "json"
+              dataType: 'json'
             }).done(function getSelectListDone(data) {
               callback(data.records[0]);
             });
@@ -575,16 +575,16 @@ var MLInvoice = (function MLInvoice() {
         valid_until: _parseDate(form.find('#valid_until').val())
       };
       $.ajax({
-        'url': "json.php?func=put_custom_prices",
-        'type': 'POST',
-        'dataType': 'json',
-        'data': $.toJSON(values),
-        'contentType': 'application/json; charset=utf-8',
-        'success': function saveCustomPricesDone(/*data*/) {
+        url: 'json.php?func=put_custom_prices',
+        type: 'POST',
+        dataType: 'json',
+        data: $.toJSON(values),
+        contentTypes: 'application/json; charset=utf-8',
+        success: function saveCustomPricesDone(/*data*/) {
           infomsg(translate('RecordSaved'), 2000);
           window.location.reload();
         },
-        'error': function saveCustomPricesFail(XMLHTTPReq, textStatus/*, errorThrown*/) {
+        error: function saveCustomPricesFail(XMLHTTPReq, textStatus/*, errorThrown*/) {
           if (textStatus === 'timeout') {
             errormsg('Timeout trying to save record');
           } else {
@@ -602,16 +602,16 @@ var MLInvoice = (function MLInvoice() {
         company_id: $('#company_id').val(),
       };
       $.ajax({
-        'url': "json.php?func=delete_custom_prices",
-        'type': 'POST',
-        'dataType': 'json',
-        'data': $.toJSON(values),
-        'contentType': 'application/json; charset=utf-8',
-        'success': function deleteCustomPricesDone(/*data*/) {
+        url: 'json.php?func=delete_custom_prices',
+        type: 'POST',
+        dataType: 'json',
+        data: $.toJSON(values),
+        contentType: 'application/json; charset=utf-8',
+        success: function deleteCustomPricesDone(/*data*/) {
           infomsg(translate('RecordDeleted'), 2000);
           window.location.reload();
         },
-        'error': function deleteCustomPricesFail(XMLHTTPReq, textStatus/*, errorThrown*/) {
+        error: function deleteCustomPricesFail(XMLHTTPReq, textStatus/*, errorThrown*/) {
           if (textStatus === 'timeout') {
             errormsg('Timeout trying to delete record');
           } else {
@@ -656,12 +656,12 @@ var MLInvoice = (function MLInvoice() {
         unit_price: _parseFloat(value)
       };
       $.ajax({
-        'url': 'json.php?func=' + ('' === value ? 'delete_custom_price' : 'put_custom_price'),
-        'type': 'POST',
-        'dataType': 'json',
-        'data': $.toJSON(values),
-        'contentType': 'application/json; charset=utf-8',
-        'success': function customPriceDone(data) {
+        url: 'json.php?func=' + ('' === value ? 'delete_custom_price' : 'put_custom_price'),
+        type: 'POST',
+        dataType: 'json',
+        data: $.toJSON(values),
+        contentType: 'application/json; charset=utf-8',
+        success: function customPriceDone(data) {
           $item.removeClass('editing');
           var newPrice = data.unit_price !== null ? formatCurrency(data.unit_price) : $table.fnGetData($item.prev().get(0));
           if ('' === value) {
@@ -672,7 +672,7 @@ var MLInvoice = (function MLInvoice() {
             $tr.addClass('custom-price');
           }
         },
-        'error': function customPriceFail(XMLHTTPReq, textStatus/*, errorThrown*/) {
+        error: function customPriceFail(XMLHTTPReq, textStatus/*, errorThrown*/) {
           if (textStatus === 'timeout') {
             errormsg('Timeout trying to save record');
           } else {
@@ -848,11 +848,11 @@ var MLInvoice = (function MLInvoice() {
 
   function infomsg(msg, timeout)
   {
-    $.floatingMessage("<span>" + msg + "</span>", {
-      position: "top-right",
-      className: "ui-widget ui-state-highlight",
-      show: "show",
-      hide: "fade",
+    $.floatingMessage('<span>' + msg + '</span>', {
+      position: 'top-right',
+      className: 'ui-widget ui-state-highlight',
+      show: 'show',
+      hide: 'fade',
       stuffEaseTime: 200,
       moveEaseTime: 0,
       time: typeof(timeout) != 'undefined' ? timeout : 5000
@@ -861,11 +861,11 @@ var MLInvoice = (function MLInvoice() {
 
   function errormsg(msg, timeout)
   {
-    $.floatingMessage("<span>" + msg + "</span>", {
-      position: "top-right",
-      className: "ui-widget ui-state-error",
-      show: "show",
-      hide: "fade",
+    $.floatingMessage('<span>' + msg + '</span>', {
+      position: 'top-right',
+      className: 'ui-widget ui-state-error',
+      show: 'show',
+      hide: 'fade',
       stuffEaseTime: 200,
       moveEaseTime: 0,
       time: typeof(timeout) != 'undefined' ? timeout : 5000
