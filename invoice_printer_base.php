@@ -1924,16 +1924,16 @@ abstract class InvoicePrinterBase
 
         // terms
         $pdf->SetFont('Helvetica', '', 5);
-        $pdf->SetXY($intStartX + 133, $intStartY + 85);
+        $pdf->SetXY($intStartX + 133, $intStartY + 78);
         $pdf->multiCellMD(
             70, 2, Translator::translate('invoice::FormClearingTerms1'), 'L'
         );
-        $pdf->SetXY($intStartX + 133, $intStartY + 90);
+        $pdf->SetXY($intStartX + 133, $intStartY + 83);
         $pdf->multiCellMD(
             70, 2, Translator::translate('invoice::FormClearingTerms2'), 'L'
         );
         $pdf->SetFont('Helvetica', '', 6);
-        $pdf->SetXY($intStartX + 133, $intStartY + 95);
+        $pdf->SetXY($intStartX + 133, $intStartY + 90);
         $pdf->Cell(
             $intMaxX + 1 - 133 - $intStartX,
             5,
@@ -2016,7 +2016,7 @@ abstract class InvoicePrinterBase
                 'stretchtext' => 4
             ];
             $pdf->write1DBarcode(
-                $this->barcode, 'C128C', 20, 284, 105, 11, 0.34, $style, 'N'
+                $this->barcode, 'C128C', 20, 273, 105, 14, 0.34, $style, 'N'
             );
         }
         $pdf->setXY($saveX, $saveY);
