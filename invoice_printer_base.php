@@ -1700,23 +1700,27 @@ abstract class InvoicePrinterBase
                 'L'
             );
         }
-        $intStartY = 187;
+
+        $lines = 3;
+        $footerHeight = ($lines * 4);
+        $intStartY = 197 - $footerHeight;
         $pdf->SetXY($pdf->footerLeftPos, $intStartY);
         $pdf->multiCellMD(
-            $pdf->footerLeftWidth, 4, $this->senderAddressLine, 'L', 0, 8
+            $pdf->footerLeftWidth, 4, $this->senderAddressLine, 'L', 0, $footerHeight
         );
         $pdf->SetXY($pdf->footerCenterPos, $intStartY);
         $pdf->multiCellMD(
-            $pdf->footerCenterWidth, 4, $this->senderContactInfo, 'C', 0, 8
+            $pdf->footerCenterWidth, 4, $this->senderContactInfo, 'C', 0,
+            $footerHeight
         );
         $pdf->SetXY($pdf->footerRightPos, $intStartY);
         $pdf->multiCellMD(
             $pdf->footerRightWidth, 4,
-            $senderData['www'] . "\n" . $senderData['email'], 'R', 0, 8
+            $senderData['www'] . "\n" . $senderData['email'], 'R', 0, $footerHeight
         );
 
         // Invoice form
-        $intStartY = $intStartY + 8;
+        $intStartY = $intStartY + $footerHeight;
         $intStartX = 3.6;
 
         $intMaxX = 210 - $intStartX;
