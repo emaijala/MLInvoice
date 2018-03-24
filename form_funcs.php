@@ -251,8 +251,7 @@ function saveFormData($table, &$primaryKey, &$formElements, &$values, &$warnings
         $fieldPlaceholder = '?';
         switch ($type) {
         case 'PASSWD':
-            $fieldPlaceholder = 'md5(?)';
-            $arrValues[] = $values[$name];
+            $arrValues[] = password_hash($values[$name], PASSWORD_DEFAULT);
             break;
         case 'INT':
         case 'HID_INT':

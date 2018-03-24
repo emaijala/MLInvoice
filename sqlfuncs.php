@@ -657,7 +657,7 @@ function updateUserPassword($id, $password)
     }
     dbParamQuery(
         'UPDATE {prefix}users SET passwd=? WHERE id=?',
-        [md5($password), $id]
+        [password_hash($password), $id]
     );
 }
 

@@ -40,45 +40,46 @@ define('ROLE_ADMIN', 99);
  *
  * @param string $strLogin  Login name
  * @param string $strPasswd Password
+ * @param string $strCsrf   CSRF token
  *
  * @return string OK|TIMEOUT|FAIL
  */
-function sesCreateSession($strLogin, $strPasswd)
+function sesCreateSession($strLogin, $strPasswd, $strCsrf)
 {
     if ($strLogin && $strPasswd) {
-        if (!isset($_SESSION['key']) || !isset($_SESSION['keyip'])) {
+        if (!isset($_SESSION['csrf']) || !isset($_SESSION['csrfip'])) {
             error_log('No key information in session, timeout or session problem');
             return 'TIMEOUT';
         }
-        $key_ip = $_SESSION['keyip'];
-        if ($_SERVER['REMOTE_ADDR'] != $key_ip) {
+        $csrfIp = $_SESSION['csrfip'];
+        if ($_SERVER['REMOTE_ADDR'] != $csrfIp) {
             // Delay so that brute-force attacks become unpractical
             error_log("Login failed for $strLogin due to IP address change");
             sleep(2);
             return 'FAIL';
         }
 
-        $key = $_SESSION['key'];
-        unset($_SESSION['key']);
-        $keytime = $_SESSION['keytime'];
-        if (!$key || time() - $keytime > 300) {
+        $csrf = $_SESSION['csrf'];
+        unset($_SESSION['csrf']);
+        $csrfTime = $_SESSION['csrftime'];
+        if ($csrf !== $strCsrf || time() - $csrfTime > 300) {
             error_log(
-                'Key not found or timeout, ' . (time() - $keytime)
+                'Key not found or timeout, ' . (time() - $csrfTime)
                 . ' seconds since login form was created'
             );
             return 'TIMEOUT';
         }
 
-        $strQuery = 'SELECT u.id AS user_id, u.type_id, u.passwd, st.time_out, st.access_level ' .
-             'FROM {prefix}users u ' .
-             'INNER JOIN {prefix}session_type st ON st.id = u.type_id ' .
-             'WHERE u.deleted=0 AND u.login=?';
+        $strQuery = 'SELECT u.id AS user_id, u.type_id, u.passwd, st.time_out, st.access_level '
+             . 'FROM {prefix}users u '
+             . 'INNER JOIN {prefix}session_type st ON st.id = u.type_id '
+             . 'WHERE u.deleted=0 AND u.login=?';
         $rows = dbParamQuery($strQuery, [$strLogin]);
         if ($rows) {
             $row = $rows[0];
-            $passwd_md5 = $row['passwd'];
-            $md5 = md5($key . $passwd_md5);
-            if ($md5 != $strPasswd) {
+            if (!password_verify($strPasswd, $row['passwd'])
+                && md5($strPasswd) != $row['passwd']
+            ) {
                 // Delay so that brute-force attacks become unpractical
                 sleep(2);
                 error_log("Login failed for $strLogin");
@@ -146,16 +147,16 @@ function sesVerifySession($redirect = true)
 }
 
 /**
- * Create a session key
+ * Create a session CSRF hash
  *
  * @return string
  */
-function sesCreateKey()
+function sesCreateCsrf()
 {
-    $_SESSION['key'] = createRandomString(20);
-    $_SESSION['keytime'] = time();
-    $_SESSION['keyip'] = $_SERVER['REMOTE_ADDR'];
-    return $_SESSION['key'];
+    $_SESSION['csrf'] = createRandomString(20);
+    $_SESSION['csrftime'] = time();
+    $_SESSION['csrfip'] = $_SERVER['REMOTE_ADDR'];
+    return $_SESSION['csrf'];
 }
 
 /**

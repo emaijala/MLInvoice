@@ -40,8 +40,9 @@ if (!session_id()) {
     session_start();
 }
 
-$strLogin = getPost('flogin', false);
-$strPasswd = getPost('fpasswd', false);
+$strLogin = getPost('login', false);
+$strPasswd = getPost('passwd', false);
+$strCsrf = getPost('csrf', false);
 $strLogon = getPost('logon', '');
 $backlink = getRequest('backlink', '0');
 
@@ -78,7 +79,7 @@ $strMessage = Translator::translate('WelcomeMessage');
 
 if ($strLogon) {
     if ($strLogin && $strPasswd) {
-        switch (sesCreateSession($strLogin, $strPasswd)) {
+        switch (sesCreateSession($strLogin, $strPasswd, $strCsrf)) {
         case 'OK' :
             if ($backlink == '1' && isset($_SESSION['BACKLINK'])) {
                 header('Location: ' . $_SESSION['BACKLINK']);
@@ -98,7 +99,7 @@ if ($strLogon) {
     }
 }
 
-$key = sesCreateKey();
+$csrf = sesCreateCsrf();
 
 echo htmlPageStart('', ['jquery/js/jquery.md5.js']);
 ?>
@@ -142,31 +143,14 @@ if (isset($languages)) {
             <p>
                 <span id="loginmsg"><?php echo $strMessage?></span>
             </p>
-
-<script type="text/javascript">
-function createHash()
-{
-  var pass_md5 = $.md5(document.getElementById('passwd').value);
-  var key = document.getElementById('key').value;
-  document.getElementById('fpasswd').value = $.md5(key + pass_md5);
-  document.getElementById('passwd').value = '';
-  document.getElementById('key').value = '';
-  var loginmsg = document.getElementById('loginmsg');
-  loginmsg.childNodes.item(0)
-    .nodeValue = '<?php echo Translator::translate('LoggingIn')?>';
-}
-</script>
-
-            <form action="login.php" method="post" name="login_form"
-                onsubmit="createHash();">
+            <form action="login.php" method="post" name="login_form">
                 <input type="hidden" name="backlink" value="<?php echo $backlink?>">
-                <input type="hidden" name="fpasswd" id="fpasswd" value=""> <input
-                    type="hidden" name="key" id="key" value="<?php echo $key?>">
+                <input type="hidden" name="csrf" id="csrf" value="<?php echo $csrf?>">
                 <p>
                     <span style="width: 100px; display: inline-block;">
                         <?php echo Translator::translate('UserID')?>
                     </span>
-                    <input class="medium" name="flogin" id="flogin" type="text" value="">
+                    <input class="medium" name="login" id="login" type="text" value="">
                 </p>
                 <p>
                     <span style="width: 100px; display: inline-block;">
