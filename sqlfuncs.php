@@ -642,6 +642,29 @@ function updateUserToken($id)
 }
 
 /**
+ * Update user
+ *
+ * @param int   $id   User id
+ * @param array $data User data
+ *
+ * @return void
+ */
+function updateUser($id, $data)
+{
+    $fields = [];
+    $params = [];
+    foreach ($data as $key => $value) {
+        $fields[] = "$key = ?";
+        $params[] = $value;
+    }
+    $params[] = $id;
+    dbParamQuery(
+        'UPDATE {prefix}users SET ' . implode(', ', $fields) . ' WHERE id=?',
+        $params
+    );
+}
+
+/**
  * Update user's password
  *
  * @param int    $id       User id
@@ -657,7 +680,7 @@ function updateUserPassword($id, $password)
     }
     dbParamQuery(
         'UPDATE {prefix}users SET passwd=? WHERE id=?',
-        [password_hash($password), $id]
+        [password_hash($password, PASSWORD_DEFAULT), $id]
     );
 }
 

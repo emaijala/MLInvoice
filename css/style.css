@@ -78,6 +78,11 @@ div.message {
   display: block;
 }
 
+.profile div.message {
+  padding: 8px;
+  display: block;
+}
+
 span.message {
   margin: 4px;
   padding: 1px;
@@ -102,6 +107,7 @@ div.medium_label {
   float: left;
   margin-bottom: 8px;
   clear: left;
+  padding-top: 2px;
 }
 
 div.unlimited_label {
@@ -114,6 +120,12 @@ div.unlimited_label {
 div.field {
   float: left;
   margin-bottom: 8px;
+}
+
+div.static-field {
+  float: left;
+  margin-bottom: 8px;
+  padding-top: 2px;
 }
 
 div.report {
@@ -422,7 +434,6 @@ div.iform {
 }
 
 div.column_mapping {
-  sdwidth: 900px;
   border: 1px solid gray;
   clear: both;
   overflow: auto;
@@ -565,4 +576,13 @@ img.image {
 }
 .not-valid {
   text-decoration: line-through;
+}
+#profile-link {
+  float: right;
+  margin-right: 10px;
+  margin-top: 3px;
+}
+#profile-link:hover {
+  border: 0;
+  font-weight: bold;
 }

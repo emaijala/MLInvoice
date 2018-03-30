@@ -141,23 +141,19 @@ if ($strFunc == 'open_invoices' && !$strForm) {
 <?php
     }
 }
-if ($strFunc == 'system' && getRequest('operation', '') == 'export'
-    && sesAdminAccess()
-) {
+
+$operation = getRequest('operation', '');
+if ($strFunc == 'system' && $operation == 'export' && sesAdminAccess()) {
     createFuncMenu($strFunc);
     include_once 'export.php';
     $export = new ExportData();
     $export->launch();
-} elseif ($strFunc == 'system' && getRequest('operation', '') == 'import'
-    && sesAdminAccess()
-) {
+} elseif ($strFunc == 'system' && $operation == 'import' && sesAdminAccess()) {
     createFuncMenu($strFunc);
     include_once 'import.php';
     $import = new ImportFile();
     $import->launch();
-} elseif ($strFunc == 'system' && getRequest('operation', '') == 'update'
-    && sesAdminAccess()
-) {
+} elseif ($strFunc == 'system' && $operation == 'update' && sesAdminAccess()) {
     createFuncMenu($strFunc);
     include_once 'updater.php';
     $updater = new Updater();
@@ -167,51 +163,52 @@ if ($strFunc == 'system' && getRequest('operation', '') == 'export'
     include_once 'import_statement.php';
     $import = new ImportStatement();
     $import->launch();
-} else {
-    switch ($strFunc) {
-    case 'reports' :
-        createFuncMenu($strFunc);
-        switch ($strForm) {
-        case 'invoice' :
-            include_once 'invoice_report.php';
-            $invoiceReport = new InvoiceReport();
-            $invoiceReport->createReport();
-            break;
-        case 'product' :
-            include_once 'product_report.php';
-            $productReport = new ProductReport();
-            $productReport->createReport();
-            break;
-        case 'product_stock' :
-            include_once 'product_stock_report.php';
-            $productStockReport = new ProductStockReport();
-            $productStockReport->createReport();
-            break;
-        case 'accounting' :
-            include_once 'accounting_report.php';
-            $accountingReport = new AccountingReport();
-            $accountingReport->createReport();
-            break;
-        }
+} elseif ($strFunc === 'reports') {
+    createFuncMenu($strFunc);
+    switch ($strForm) {
+    case 'invoice' :
+        include_once 'invoice_report.php';
+        $invoiceReport = new InvoiceReport();
+        $invoiceReport->createReport();
         break;
-    default :
-        if ($strForm) {
-            if ($strFunc == 'settings') {
-                createFuncMenu($strFunc);
-            }
-            createForm($strFunc, $strList, $strForm);
-        } else {
+    case 'product' :
+        include_once 'product_report.php';
+        $productReport = new ProductReport();
+        $productReport->createReport();
+        break;
+    case 'product_stock' :
+        include_once 'product_stock_report.php';
+        $productStockReport = new ProductStockReport();
+        $productStockReport->createReport();
+        break;
+    case 'accounting' :
+        include_once 'accounting_report.php';
+        $accountingReport = new AccountingReport();
+        $accountingReport->createReport();
+        break;
+    }
+} elseif ($strFunc == 'profile') {
+    createFuncMenu($strFunc);
+    include_once 'profile.php';
+    $profile = new Profile();
+    $profile->launch();
+} else {
+    if ($strForm) {
+        if ($strFunc == 'settings') {
             createFuncMenu($strFunc);
-            if ($strFunc == 'open_invoices') {
-                createOpenInvoiceList();
-            } elseif ($strFunc == 'archived_invoices') {
-                createList('archived_invoices', 'invoice', 'archived_invoices', '');
+        }
+        createForm($strFunc, $strList, $strForm);
+    } else {
+        createFuncMenu($strFunc);
+        if ($strFunc == 'open_invoices') {
+            createOpenInvoiceList();
+        } elseif ($strFunc == 'archived_invoices') {
+            createList('archived_invoices', 'invoice', 'archived_invoices', '');
+        } else {
+            if ($strList == 'settings') {
+                createSettingsList();
             } else {
-                if ($strList == 'settings') {
-                    createSettingsList();
-                } else {
-                    createList($strFunc, $strList);
-                }
+                createList($strFunc, $strList);
             }
         }
     }

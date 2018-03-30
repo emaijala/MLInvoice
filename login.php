@@ -101,7 +101,7 @@ if ($strLogon) {
 
 $csrf = sesCreateCsrf();
 
-echo htmlPageStart('', ['jquery/js/jquery.md5.js']);
+echo htmlPageStart('');
 ?>
 
 <body onload="document.getElementById('flogin').focus();">

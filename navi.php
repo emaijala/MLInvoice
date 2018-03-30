@@ -47,7 +47,7 @@ function createFuncMenu($strFunc)
     $blnShowSearch = false;
 
     switch ($strFunc) {
-    case 'system' :
+    case 'system':
         $astrNaviLinks = [
             [
                 'href' => 'list=user',
@@ -144,7 +144,7 @@ function createFuncMenu($strFunc)
         }
         break;
 
-    case 'settings' :
+    case 'settings':
         $astrNaviLinks = [
             [
                 'href' => 'list=settings',
@@ -200,7 +200,7 @@ function createFuncMenu($strFunc)
         }
         break;
 
-    case 'reports' :
+    case 'reports':
         $astrNaviLinks = [
             [
                 'href' => 'form=invoice',
@@ -241,7 +241,7 @@ function createFuncMenu($strFunc)
         ];
         break;
 
-    case 'companies' :
+    case 'companies':
         $blnShowSearch = true;
         $strOpenForm = 'company';
         $strFormName = 'company';
@@ -251,7 +251,11 @@ function createFuncMenu($strFunc)
              . Translator::translate('NewClient') . '</a>';
         break;
 
-    default :
+    case 'profile':
+        $astrNaviLinks = [];
+        break;
+
+    default:
         $blnShowSearch = true;
         $strFormName = 'invoice';
         $astrNaviLinks = [];
@@ -323,50 +327,52 @@ function createFuncMenu($strFunc)
   }
   -->
   </script>
-<div class="function_navi">
+    <?php if ($astrNaviLinks || $blnShowSearch || $strNewButton) { ?>
+    <div class="function_navi">
+        <?php
+        foreach ($astrNaviLinks as $link) {
+            if (sesAccessLevel($link['levels_allowed']) || sesAdminAccess()) {
+                if (strchr($link['href'], '?') === false) {
+                    $strHref = "?func=$strFunc&amp;" . $link['href'];
+                } else {
+                    $strHref = $link['href'];
+                }
+                $class = '';
+                if (strpos($link['href'], '?')) {
+                    list(, $urlParams) = explode('?', $link['href'], 2);
+                } else {
+                    $urlParams = $link['href'];
+                }
+                parse_str($urlParams, $linkParts);
+                if ((!isset($linkParts['func'])
+                    || getRequest('func', '') == $linkParts['func']) && (!isset($linkParts['list'])
+                    || getRequest('list', '') == $linkParts['list']) && (!isset($linkParts['form'])
+                    || getRequest('form', '') == $linkParts['form']) && (!isset($linkParts['operation'])
+                    || getRequest('operation', '') == $linkParts['operation'])
+                ) {
+                    $class = ' ui-state-highlight';
+                }
+                ?>
+        <a class="buttonlink<?php echo $class?>"
+            href="<?php echo $strHref?>"><?php echo $link['text']?></a>
     <?php
-    foreach ($astrNaviLinks as $link) {
-        if (sesAccessLevel($link['levels_allowed']) || sesAdminAccess()) {
-            if (strchr($link['href'], '?') === false) {
-                $strHref = "?func=$strFunc&amp;" . $link['href'];
-            } else {
-                $strHref = $link['href'];
             }
-            $class = '';
-            if (strpos($link['href'], '?')) {
-                list(, $urlParams) = explode('?', $link['href'], 2);
-            } else {
-                $urlParams = $link['href'];
-            }
-            parse_str($urlParams, $linkParts);
-            if ((!isset($linkParts['func'])
-                || getRequest('func', '') == $linkParts['func']) && (!isset($linkParts['list'])
-                || getRequest('list', '') == $linkParts['list']) && (!isset($linkParts['form'])
-                || getRequest('form', '') == $linkParts['form']) && (!isset($linkParts['operation'])
-                || getRequest('operation', '') == $linkParts['operation'])
-            ) {
-                $class = ' ui-state-highlight';
-            }
-            ?>
-    <a class="buttonlink<?php echo $class?>"
-        href="<?php echo $strHref?>"><?php echo $link['text']?></a>
-<?php
         }
-    }
-    if ($blnShowSearch) {
+        if ($blnShowSearch) {
+            ?>
+        <a class="buttonlink" href="#"
+            onClick="openSearchWindow('ext', event); return false;"><?php echo Translator::translate('ExtSearch')?></a>
+        <a class="buttonlink" href="#"
+            onClick="openSearchWindow('quick', event); return false;"><?php echo Translator::translate('QuickSearch')?></a>
+    <?php
+        }
+        if (sesWriteAccess()) {
+            echo "&nbsp; &nbsp; $strNewButton\n";
+        }
         ?>
-    <a class="buttonlink" href="#"
-        onClick="openSearchWindow('ext', event); return false;"><?php echo Translator::translate('ExtSearch')?></a>
-    <a class="buttonlink" href="#"
-        onClick="openSearchWindow('quick', event); return false;"><?php echo Translator::translate('QuickSearch')?></a>
-<?php
+    </div>
+    <?php
     }
-    if (sesWriteAccess()) {
-        echo "&nbsp; &nbsp; $strNewButton\n";
-    }
-    ?>
-  </div>
-<?php
 }
 
 /**

@@ -329,7 +329,7 @@ function getPostRequest($strKey, $varDefault = null)
 function getPageTitle($strFunc, $strList, $strForm)
 {
     switch ($strFunc) {
-    case 'open_invoices' :
+    case 'open_invoices':
         if ($strForm) {
             if (getRequest('offer')
                 || (($invId = getRequest('id')) && isOffer($invId))
@@ -341,28 +341,28 @@ function getPageTitle($strFunc, $strList, $strForm)
             return Translator::translate('OpenAndUnpaidInvoices');
         }
         break;
-    case 'invoices' :
+    case 'invoices':
         if ($strForm) {
             return Translator::translate('Invoice');
         } else {
             return Translator::translate('Invoices');
         }
         break;
-    case 'archived_invoices' :
+    case 'archived_invoices':
         if ($strForm) {
             return Translator::translate('Invoice');
         } else {
             return Translator::translate('ArchivedInvoices');
         }
         break;
-    case 'companies' :
+    case 'companies':
         if ($strForm) {
             return Translator::translate('Client');
         } else {
             return Translator::translate('Clients');
         }
         break;
-    case 'reports' :
+    case 'reports':
         switch ($strForm) {
         case 'invoice' :
             return Translator::translate('InvoiceReport');
@@ -374,7 +374,7 @@ function getPageTitle($strFunc, $strList, $strForm)
             return Translator::translate('Reports');
         }
         break;
-    case 'settings' :
+    case 'settings':
         if ($strForm) {
             switch ($strForm) {
             case 'base' :
@@ -397,7 +397,7 @@ function getPageTitle($strFunc, $strList, $strForm)
             }
         }
         break;
-    case 'system' :
+    case 'system':
         if ($strForm) {
             switch ($strForm) {
             case 'user' :
@@ -440,6 +440,8 @@ function getPageTitle($strFunc, $strList, $strForm)
         break;
     case 'import_statement' :
         return Translator::translate('ImportAccountStatement');
+    case 'profile':
+        return Translator::translate('Profile');
     }
     return '';
 }

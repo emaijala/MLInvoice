@@ -213,6 +213,8 @@ EOT;
  */
 function htmlMainTabs($func)
 {
+    $user = !empty($_SESSION['sesUSERID']) ? getUserById($_SESSION['sesUSERID'])
+        : [];
     $normalMenuRights = [
         ROLE_READONLY,
         ROLE_USER,
@@ -287,7 +289,7 @@ function htmlMainTabs($func)
 
 ?>
             <div id="maintabs" class="navi ui-widget-header ui-tabs">
-                <ul class="ui-tabs-nav ui-helper-clearfix ui-corner-all">
+              <ul class="ui-tabs-nav ui-helper-clearfix ui-corner-all">
 <?php
 foreach ($astrMainButtons as $button) {
     $strButton = '<li class="functionlink ui-state-default ui-corner-top';
@@ -307,7 +309,12 @@ foreach ($astrMainButtons as $button) {
     }
 }
 ?>
-                </ul>
+                <li id="profile-link">
+                  <a href="index.php?func=profile">
+                    <?php echo $user && $user['name'] ? $user['name'] : Translator::translate('Profile'); ?>
+                  </a>
+                </li>
+              </ul>
             </div>
 <?php
 }
