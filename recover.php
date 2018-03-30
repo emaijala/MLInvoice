@@ -85,7 +85,7 @@ if ($userId) {
         $errorMessage = Translator::translate('AccountNotFound');
     } else {
         if (!empty($user['email'])) {
-            $token = updateUserToken($user['id']);
+            $newToken = updateUserToken($user['id']);
             $scheme = $_SERVER['REQUEST_SCHEME'];
             $url = "$scheme://" . $_SERVER['SERVER_NAME'];
             $port = $_SERVER['SERVER_PORT'];
@@ -96,7 +96,7 @@ if ($userId) {
             }
             $url .= $_SERVER['REQUEST_URI'];
             $url .= (strpos($url, '?') === false ? '?' : '&');
-            $url .= 'token=' . $token;
+            $url .= 'token=' . $newToken;
 
             $mailer = new Mailer();
             $result = $mailer->sendEmail(
@@ -170,7 +170,7 @@ if (empty($completed)) {
                     <span style="width: 140px; display: inline-block;">
                         <?php echo Translator::translate('NewPassword')?>
                     </span>
-                    <input class="medium" name="password" id="password" type="text" value="">
+                    <input class="medium" name="password" id="password" type="password" value="">
                 </p>
     <?php
     } else {
