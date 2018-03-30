@@ -89,24 +89,24 @@ class Profile
     <div class="pagewrapper ui-widget ui-widget-content profile">
         <div class="form_container">
             <?php foreach ($errors as $message) {?>
-              <div class="message ui-corner-all ui-state-error">
-                  <?php echo $message?>
-              </div>
+                <div class="message ui-corner-all ui-state-error">
+                    <?php echo $message?>
+                </div>
             <?php } ?>
             <?php foreach ($messages as $message) {?>
-              <div class="message ui-corner-all ui-state-highlight">
-                  <?php echo $message?>
-              </div>
+                <div class="message ui-corner-all ui-state-highlight">
+                    <?php echo $message?>
+                </div>
             <?php } ?>
 
           <h3><?php echo $user['name']?></h3>
 
           <form method="POST">
             <div class="medium_label">
-              <?php echo Translator::translate('UserID')?>
+                <?php echo Translator::translate('UserID')?>
             </div>
             <div class="static-field">
-              <?php echo htmlentities($user['login'])?>
+                <?php echo htmlentities($user['login'])?>
             </div>
             <div class="medium_label">
               <label for="name"><?php echo Translator::translate('Name')?></label>
@@ -123,7 +123,7 @@ class Profile
             <div class="field_sep"></div>
 
             <div class="unlimited_label">
-              <?php echo Translator::translate('PasswordChangeInstructions') ?>
+                <?php echo Translator::translate('PasswordChangeInstructions') ?>
             </div>
             <div class="medium_label">
               <label for="oldpassword"><?php echo Translator::translate('CurrentPassword')?></label>

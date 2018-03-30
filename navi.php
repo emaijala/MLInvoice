@@ -297,7 +297,6 @@ function createFuncMenu($strFunc)
 
     ?>
 <script type="text/javascript">
-  <!--
   function openSearchWindow(mode, event) {
       x = event.screenX;
       y = event.screenY;
@@ -325,9 +324,10 @@ function createFuncMenu($strFunc)
 
       return true;
   }
-  -->
-  </script>
-    <?php if ($astrNaviLinks || $blnShowSearch || $strNewButton) { ?>
+</script>
+    <?php
+    if ($astrNaviLinks || $blnShowSearch || $strNewButton) {
+    ?>
     <div class="function_navi">
         <?php
         foreach ($astrNaviLinks as $link) {
