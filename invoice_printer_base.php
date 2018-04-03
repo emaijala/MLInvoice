@@ -153,8 +153,8 @@ abstract class InvoicePrinterBase
      */
     protected $columnDefs = [
         'sequence' => [
-            'heading' => 'invoice::RowRunningNumber',
-            'valuemethod' => 'getRowRunningNumber',
+            'heading' => 'invoice::RowSequenceNumber',
+            'valuemethod' => 'getRowSequenceNumber',
             'visible' => true,
             'align' => 'L',
             'width' => 2,
@@ -1489,15 +1489,16 @@ abstract class InvoicePrinterBase
     }
 
     /**
-     * Get running number for row
+     * Get sequence number for row
      *
      * @param array $row Current row
      *
      * @return string
      */
-    protected function getRowRunningNumber($row)
+    protected function getRowSequenceNumber($row)
     {
-        return $row['sequence'];
+        return getSetting('invoice_show_sequential_number') == 1
+            ? $row['sequence'] : $row['order_no'];
     }
 
     /**

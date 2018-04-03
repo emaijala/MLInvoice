@@ -297,12 +297,17 @@ $arrSettings = [
         'allow_null' => true
     ],
     'invoice_show_sequential_number' => [
-        'label' => 'SettingInvoiceShowSequentialNumber',
-        'type' => 'CHECK',
-        'style' => 'medium',
+        'label' => 'SettingInvoiceRowNumbering',
+        'type' => 'SELECT',
+        'style' => 'long noemptyvalue',
         'position' => 1,
         'default' => 0,
-        'allow_null' => true
+        'allow_null' => true,
+        'options' => [
+            0 => 'SettingInvoiceRowNumberingNone',
+            1 => 'SettingInvoiceRowNumberingSequential',
+            2 => 'SettingInvoiceRowNumberingOrderNo'
+        ]
     ],
     'invoice_show_row_date' => [
         'label' => 'SettingInvoiceShowRowDate',
