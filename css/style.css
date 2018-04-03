@@ -586,3 +586,7 @@ img.image {
   border: 0;
   font-weight: bold;
 }
+#dispatch_date_buttons a {
+  display: inline-block;
+  margin-top: 4px;
+}
