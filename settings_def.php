@@ -357,6 +357,14 @@ $arrSettings = [
         'default' => 0,
         'allow_null' => true
     ],
+    'invoice_show_delivery_info_in_invoice' => [
+        'label' => 'SettingInvoiceShowDeliveryInfoInInvoice',
+        'type' => 'CHECK',
+        'style' => 'medium',
+        'position' => 1,
+        'default' => 0,
+        'allow_null' => true
+    ],
 
     'invoice_warn_if_noncurrent_date' => [
         'label' => 'SettingInvoiceWarnIfNonCurrentDate',

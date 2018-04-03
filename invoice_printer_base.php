@@ -808,6 +808,22 @@ abstract class InvoicePrinterBase
         if ($invoiceData['reference']) {
             $data['invoice::YourReference'] = $invoiceData['reference'];
         }
+        if ($this->printStyle == 'invoice'
+            && getSetting('invoice_show_delivery_info_in_invoice')
+        ) {
+            if ($invoiceData['delivery_terms']) {
+                $data['invoice::DeliveryTerms'] = [
+                    'value' => $invoiceData['delivery_terms'],
+                    'type' => 'multicell'
+                ];
+            }
+            if ($invoiceData['delivery_method']) {
+                $data['invoice::DeliveryMethod'] = [
+                    'value' => $invoiceData['delivery_method'],
+                    'type' => 'multicell'
+                ];
+            }
+        }
         if (!empty($invoiceData['info'])) {
             $data['invoice::AdditionalInformation'] = [
                 'value' => $this->replacePlaceholders($invoiceData['info']),
