@@ -751,8 +751,8 @@ var MLInvoice = (function MLInvoice() {
       var setField = $a.data('setField');
       if (typeof setField !== 'undefined') {
         $form.find('[name=' + setField + ']').val(1);
-
       }
+      $('.save_button').removeClass('ui-state-highlight');
       $form.submit();
       return false;
     });
