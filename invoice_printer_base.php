@@ -2070,7 +2070,7 @@ abstract class InvoicePrinterBase
         $round = true
     ) {
         if (!$round) {
-            $value = round($value - (1 / (100 * $decimals)) * 0.5, $decimals);
+            $value = round($value - (1 / (10 ** $decimals)) * 0.5, $decimals);
         }
         if ($decimalsOptional) {
             return miscRound2OptDecim(
