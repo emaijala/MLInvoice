@@ -89,33 +89,51 @@ var MLInvoice = (function MLInvoice() {
     return false;
   }
 
-  function _onChangeCompany() {
+  function _onChangeCompany(_initialLoad) {
+    var initialLoad = typeof _initialLoad === 'undefined' ? false : _initialLoad;
+    _addCompanyInfoTooltip('');
     $.getJSON('json.php?func=get_company', {id: $('#company_id').val() }, function setCompanyData(json) {
       if (json) {
-        if (json.default_ref_number) {
-          $('#ref_number').val(json.default_ref_number);
+        if (!initialLoad) {
+          if (json.default_ref_number) {
+            $('#ref_number').val(json.default_ref_number);
+          }
+          if (json.delivery_terms_id) {
+            $('#delivery_terms_id').val(json.delivery_terms_id);
+          }
+          if (json.delivery_method_id) {
+            $('#delivery_method_id').val(json.delivery_method_id);
+          }
+          if (json.payment_days) {
+            $.getJSON(
+              'json.php?func=get_invoice_defaults',
+              {
+                id: $('#record_id').val(),
+                invoice_no: $('#invoice_no').val(),
+                invoice_date: $('#invoice_date').val(),
+                base_id: $('#base_id').val(),
+                company_id: $('#company_id').val(),
+                interval_type: $('#interval_type').val()
+              },
+              function getInvoiceDefaultsDone(data) {
+                $('#due_date').val(data.due_date);
+              }
+            );
+          }
         }
-        if (json.delivery_terms_id) {
-          $('#delivery_terms_id').val(json.delivery_terms_id);
+        if (json.info) {
+          _addCompanyInfoTooltip(json.info);
         }
-        if (json.delivery_method_id) {
-          $('#delivery_method_id').val(json.delivery_method_id);
-        }
-        if (json.payment_days) {
-          $.getJSON(
-            'json.php?func=get_invoice_defaults',
-            {
-              id: $('#record_id').val(),
-              invoice_no: $('#invoice_no').val(),
-              invoice_date: $('#invoice_date').val(),
-              base_id: $('#base_id').val(),
-              company_id: $('#company_id').val(),
-              interval_type: $('#interval_type').val()
-            },
-            function getInvoiceDefaultsDone(data) {
-              $('#due_date').val(data.due_date);
-            }
-          );
+      }
+    });
+  }
+
+  function _onChangeCompanyOffer() {
+    _addCompanyInfoTooltip('');
+    $.getJSON('json.php?func=get_company', {id: $('#company_id').val() }, function setCompanyData(json) {
+      if (json) {
+        if (json.info) {
+          _addCompanyInfoTooltip(json.info);
         }
       }
     });
@@ -157,6 +175,19 @@ var MLInvoice = (function MLInvoice() {
     loc += loc.indexOf('?') >= 0 ? '&' : '?';
     loc += 'company=' + this.value;
     window.location.href = loc;
+  }
+
+  function _addCompanyInfoTooltip(content)
+  {
+    if (!content) {
+      $('#company_id_label>span.info').remove();
+      return;
+    }
+    var info = $('<span/>').addClass('info ui-state-highlight ui-corner-all')
+      .attr('title', content).text(' ').click(function infoClick() {
+        alert(content);
+      });
+    info.appendTo($('#company_id_label'));
   }
 
   function getSelectedProductDefaults(form_id) {
@@ -401,6 +432,7 @@ var MLInvoice = (function MLInvoice() {
 
     var callbacks = {
       _onChangeCompany: _onChangeCompany,
+      _onChangeCompanyOffer: _onChangeCompanyOffer,
       _onChangeProduct: _onChangeProduct,
       _onChangeCompanyReload: _onChangeCompanyReload
     };
@@ -799,82 +831,6 @@ var MLInvoice = (function MLInvoice() {
     });
   }
 
-  function init() {
-    _initUI();
-    _setupYtjSearch();
-    _setupDefaultTextSelection();
-    setupSelect2();
-    if (_keepAliveEnabled) {
-      window.setTimeout(_keepAlive, 60 * 1000);
-    }
-    _setupSelectAll();
-    _setupCoverLetterForm();
-    _setupCustomPricesForm();
-    _initFormButtons();
-  }
-
-  function _initUI()
-  {
-    // Calendar fields
-    $('input.hasCalendar').each(function setupCalendar() {
-      var settings = {};
-      if ($(this).data('noFuture')) {
-        settings.maxDate = 0;
-      }
-      $(this).datepicker(settings);
-    });
-    // Date fields
-    $('input.date').each(function setupDate() {
-      if ($(this).data('noFuture')) {
-        $(this).change(function changeDate() {
-          var val = $(this).val();
-          if (val.length === 10) {
-            var dt = new Date(_parseDate(val, '-'));
-            if (dt > new Date()) {
-              errormsg(translate('FutureDateEntered'));
-            }
-          }
-        });
-      }
-    });
-    // Buttons
-    $('a.actionlink').not('.ui-state-disabled').button();
-    $('a.tinyactionlink').button();
-    $('a.buttonlink').button();
-    $('a.formbuttonlink').button();
-    // Main tabs
-    $('#maintabs ul li').hover(
-      function onHover() {
-        $(this).addClass('ui-state-hover');
-      },
-      function onBlur() {
-        $(this).removeClass('ui-state-hover');
-      }
-    );
-    // Page exit data confirmation
-    $('#admin_form').find('input[type="text"],input[type="hidden"]:not(.select-default-text),input[type="checkbox"],select:not(.dropdownmenu),textarea')
-      .change(function onFormFieldChange() {
-        $('.save_button').addClass('ui-state-highlight');
-      });
-    $(window).bind('beforeunload', function onBeforeUnload(e) {
-      if ($('.save_button').hasClass('ui-state-highlight') || $('.add_row_button').hasClass('ui-state-highlight')) {
-        e.returnValue = translate('UnsavedData');
-        return e.returnValue;
-      }
-    });
-    // AJAX progress and errors
-    $('#message').ajaxStart(function onAjaxStart() {
-      $('#spinner').css('visibility', 'visible');
-    });
-    $('#message').ajaxStop(function onAjaxStop() {
-      $('#spinner').css('visibility', 'hidden');
-    });
-    $('#errormsg').ajaxError(function onAjaxError(event, request) {
-      MLInvoice.errormsg('Server request failed: ' + request.status + ' - ' + request.statusText);
-      $('#spinner').css('visibility', 'hidden');
-    });
-  }
-
   function infomsg(msg, timeout)
   {
     $.floatingMessage('<span>' + msg + '</span>', {
@@ -1055,6 +1011,86 @@ var MLInvoice = (function MLInvoice() {
       totWeight: totWeight,
       partialPayments: partialPayments
     }
+  }
+
+  function _initUI()
+  {
+    // Calendar fields
+    $('input.hasCalendar').each(function setupCalendar() {
+      var settings = {};
+      if ($(this).data('noFuture')) {
+        settings.maxDate = 0;
+      }
+      $(this).datepicker(settings);
+    });
+    // Date fields
+    $('input.date').each(function setupDate() {
+      if ($(this).data('noFuture')) {
+        $(this).change(function changeDate() {
+          var val = $(this).val();
+          if (val.length === 10) {
+            var dt = new Date(_parseDate(val, '-'));
+            if (dt > new Date()) {
+              errormsg(translate('FutureDateEntered'));
+            }
+          }
+        });
+      }
+    });
+    // Buttons
+    $('a.actionlink').not('.ui-state-disabled').button();
+    $('a.tinyactionlink').button();
+    $('a.buttonlink').button();
+    $('a.formbuttonlink').button();
+    // Main tabs
+    $('#maintabs ul li').hover(
+      function onHover() {
+        $(this).addClass('ui-state-hover');
+      },
+      function onBlur() {
+        $(this).removeClass('ui-state-hover');
+      }
+    );
+    // Page exit data confirmation
+    $('#admin_form').find('input[type="text"],input[type="hidden"]:not(.select-default-text),input[type="checkbox"],select:not(.dropdownmenu),textarea')
+      .change(function onFormFieldChange() {
+        $('.save_button').addClass('ui-state-highlight');
+      });
+    $(window).bind('beforeunload', function onBeforeUnload(e) {
+      if ($('.save_button').hasClass('ui-state-highlight') || $('.add_row_button').hasClass('ui-state-highlight')) {
+        e.returnValue = translate('UnsavedData');
+        return e.returnValue;
+      }
+    });
+    // AJAX progress and errors
+    $('#message').ajaxStart(function onAjaxStart() {
+      $('#spinner').css('visibility', 'visible');
+    });
+    $('#message').ajaxStop(function onAjaxStop() {
+      $('#spinner').css('visibility', 'hidden');
+    });
+    $('#errormsg').ajaxError(function onAjaxError(event, request) {
+      MLInvoice.errormsg('Server request failed: ' + request.status + ' - ' + request.statusText);
+      $('#spinner').css('visibility', 'hidden');
+    });
+    // Company info
+    if ($('#company_id').val()) {
+      _onChangeCompany(true);
+    }
+  }
+
+  function init() {
+    _initUI();
+    _setupYtjSearch();
+    _setupDefaultTextSelection();
+    setupSelect2();
+    if (_keepAliveEnabled) {
+      window.setTimeout(_keepAlive, 60 * 1000);
+    }
+    _setupSelectAll();
+    _setupCoverLetterForm();
+    _setupCustomPricesForm();
+    _initFormButtons();
   }
 
   return {

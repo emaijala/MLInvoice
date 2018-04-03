@@ -590,3 +590,11 @@ img.image {
   display: inline-block;
   margin-top: 4px;
 }
+span.info {
+  display: inline-block;
+  margin-left: 8px;
+}
+span.info:before {
+  content: "\2139";
+  font-size: 120%
+}

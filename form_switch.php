@@ -742,6 +742,8 @@ EOS;
             if (!getSetting('invoice_add_number')) {
                 $formDataAttrs[] = 'check-invoice-number';
             }
+        } else {
+            $companyOnChange = '_onChangeCompanyOffer';
         }
     }
 
