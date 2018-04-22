@@ -317,11 +317,14 @@ function dbSessionGc($sessionMaxAge)
     if (!$sessionMaxAge) {
         $sessionMaxAge = 900;
     }
+    // The query may fail if there are simultaneous requests, so don't let it cause
+    // the request to fail
     dbParamQuery(
         'DELETE FROM {prefix}session WHERE session_timestamp<?',
         [
             date('Y-m-d H:i:s', time() - $sessionMaxAge)
-        ]
+        ],
+        true
     );
     return true;
 }
