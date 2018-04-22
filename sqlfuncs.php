@@ -784,7 +784,7 @@ function dbQueryCheck($query, $noFail = false)
  * @param bool   $noFail   Whether to not abort execution
  * @param bool   $prefixed Whether to return the results in a prefixed array
  *
- * @return array
+ * @return array|bool
  */
 function dbParamQuery($query, $params = [], $noFail = false, $prefixed = false)
 {
