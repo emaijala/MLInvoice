@@ -126,7 +126,8 @@ function htmlPageStart($strTitle = '', $arrExtraScripts = [])
         'RecordDeleted',
         'ConfirmDelete',
         'UnsavedData',
-        'Close'
+        'Close',
+        'PrereleaseVersion'
     ];
 
     $res = dbQueryCheck(
