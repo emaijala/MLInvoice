@@ -859,12 +859,13 @@ var MLInvoice = (function MLInvoice() {
 
   function checkForUpdates(url, currentVersion)
   {
-    if ($.cookie('updateversion')) {
+    if ($.cookie('updateversion') && $.cookie('currentversion') === currentVersion) {
       _updateVersionMessage($.parseJSON($.cookie('updateversion')), currentVersion);
       return;
     }
     $.getJSON(url + '?callback=?', function getVersionInfoDone(data) {
       _updateVersionMessage(data, currentVersion);
+      $.cookie('currentversion', currentVersion);
     });
   }
 
