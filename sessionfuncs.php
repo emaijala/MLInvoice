@@ -240,8 +240,6 @@ function sesAccessLevel($allowedLevels)
  */
 function dbSessionOpen($savePath, $sessionID)
 {
-    // Some distributions have gc disabled, need to do it manually
-    dbSessionGc(get_cfg_var('session.gc_maxlifetime'));
     return true;
 }
 
@@ -302,6 +300,8 @@ function dbSessionWrite($sessionID, $sessionData)
 function dbSessionDestroy($sessionID)
 {
     dbParamQuery('DELETE FROM {prefix}session WHERE id=?', [$sessionID]);
+    // Some distributions have gc disabled, need to do it manually
+    dbSessionGc(get_cfg_var('session.gc_maxlifetime'));
     return true;
 }
 
