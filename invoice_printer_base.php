@@ -2375,6 +2375,7 @@ abstract class InvoicePrinterBase
         } else {
             $result = getSetting('invoice_terms_of_payment');
         }
+        $result = Translator::translate($result);
         return sprintf($result, $paymentDays);
     }
 
@@ -2386,8 +2387,10 @@ abstract class InvoicePrinterBase
     protected function getPeriodForComplaints()
     {
         if (!empty($this->senderData['period_for_complaints'])) {
-            return $this->senderData['period_for_complaints'];
+            $result = $this->senderData['period_for_complaints'];
+        } else {
+            $result = getSetting('invoice_period_for_complaints');
         }
-        return getSetting('invoice_period_for_complaints');
+        return Translator::translate($result);
     }
 }
