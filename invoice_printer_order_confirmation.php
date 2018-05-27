@@ -68,8 +68,7 @@ class InvoicePrinterOrderConfirmation extends InvoicePrinterBase
         );
         $this->printStyle = 'order_confirmation';
 
-        $this->columnDefs['date']['heading'] = 'invoice::OrderConfirmationRowDate';
-        $this->columnDefs['totalvatless']['heading'] = 'invoice::RowTotal';
+        $this->columnDefs['totalvatless']['heading'] = 'RowTotal';
         $this->columnDefs['vatpercent']['visible'] = false;
         $this->columnDefs['vat']['visible'] = false;
         $this->columnDefs['total']['visible'] = false;
@@ -120,17 +119,17 @@ class InvoicePrinterOrderConfirmation extends InvoicePrinterBase
         $data = [];
 
         if ($recipientData['customer_no'] != 0) {
-            $data['invoice::CustomerNumber'] = $recipientData['customer_no'];
+            $data['CustomerNumber'] = $recipientData['customer_no'];
         }
         if ($recipientData['company_id']) {
-            $data['invoice::ClientVATID'] = $recipientData['company_id'];
+            $data['ClientVATID'] = $recipientData['company_id'];
         }
 
-        $data['invoice::OrderConfirmationNumber'] = $invoiceData['invoice_no'];
+        $data['OrderConfirmationNumber'] = $invoiceData['invoice_no'];
         $strInvoiceDate = ($this->dateOverride)
             ? $this->formatDate($this->dateOverride)
             : $this->formatDate($invoiceData['invoice_date']);
-        $data['invoice::OrderConfirmationDate'] = $strInvoiceDate;
+        $data['OrderConfirmationDate'] = $strInvoiceDate;
         $paymentDays = round(
             dbDate2UnixTime($invoiceData['due_date']) / 3600 / 24 -
                     dbDate2UnixTime($invoiceData['invoice_date']) / 3600 / 24
@@ -139,26 +138,26 @@ class InvoicePrinterOrderConfirmation extends InvoicePrinterBase
             // This shouldn't happen, but try to be safe...
             $paymentDays = getPaymentDays($invoiceData['company_id']);
         }
-        $data['invoice::TermsOfPayment'] = $this->getTermsOfPayment(
+        $data['TermsOfPayment'] = $this->getTermsOfPayment(
             $paymentDays
         );
         if ($invoiceData['reference']) {
-            $data['invoice::YourReference'] = $invoiceData['reference'];
+            $data['YourReference'] = $invoiceData['reference'];
         }
         if ($invoiceData['delivery_terms']) {
-            $data['invoice::DeliveryTerms'] = [
+            $data['DeliveryTerms'] = [
                 'value' => $invoiceData['delivery_terms'],
                 'type' => 'multicell'
             ];
         }
         if ($invoiceData['delivery_method']) {
-            $data['invoice::DeliveryMethod'] = [
+            $data['DeliveryMethod'] = [
                 'value' => $invoiceData['delivery_method'],
                 'type' => 'multicell'
             ];
         }
         if (!empty($invoiceData['info'])) {
-            $data['invoice::AdditionalInformation'] = [
+            $data['AdditionalInformation'] = [
                 'value' => $this->replacePlaceholders($invoiceData['info']),
                 'type' => 'multicell'
             ];
@@ -174,7 +173,7 @@ class InvoicePrinterOrderConfirmation extends InvoicePrinterBase
      */
     protected function getHeaderTitle()
     {
-        return Translator::translate('invoice::OrderConfirmationHeader');
+        return $this->translate('OrderConfirmationHeader');
     }
 
     /**

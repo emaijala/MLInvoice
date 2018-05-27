@@ -116,53 +116,53 @@ class InvoicePrinterOffer extends InvoicePrinterBase
         $data = [];
 
         if ($recipientData['customer_no'] != 0) {
-            $data['invoice::CustomerNumber'] = $recipientData['customer_no'];
+            $data['CustomerNumber'] = $recipientData['customer_no'];
         }
         if ($recipientData['company_id']) {
-            $data['invoice::ClientVATID'] = $recipientData['company_id'];
+            $data['ClientVATID'] = $recipientData['company_id'];
         }
 
-        $data['invoice::OfferNumber'] = $invoiceData['invoice_no'];
+        $data['OfferNumber'] = $invoiceData['invoice_no'];
         $strInvoiceDate = ($this->dateOverride)
             ? $this->formatDate($this->dateOverride)
             : $this->formatDate($invoiceData['invoice_date']);
-        $data['invoice::OfferDate'] = $strInvoiceDate;
+        $data['OfferDate'] = $strInvoiceDate;
 
         $strDueDate = $this->formatDate($invoiceData['due_date']);
-        $validUntilSuffix = Translator::translate('invoice::ValidUntilSuffix');
+        $validUntilSuffix = $this->translate('ValidUntilSuffix');
         if (!empty($validUntilSuffix)) {
             $strDueDate .= " $validUntilSuffix";
         }
-        $data['invoice::ValidUntil'] = $strDueDate;
+        $data['ValidUntil'] = $strDueDate;
 
         $paymentDays = getPaymentDays($invoiceData['company_id']);
-        $data['invoice::TermsOfPayment'] = $this->getTermsOfPayment(
+        $data['TermsOfPayment'] = $this->getTermsOfPayment(
             $paymentDays
         );
         if ($invoiceData['reference']) {
-            $data['invoice::YourReference'] = $invoiceData['reference'];
+            $data['YourReference'] = $invoiceData['reference'];
         }
         if ($invoiceData['delivery_terms']) {
-            $data['invoice::DeliveryTerms'] = [
+            $data['DeliveryTerms'] = [
                 'value' => $invoiceData['delivery_terms'],
                 'type' => 'multicell'
             ];
         }
         if ($invoiceData['delivery_method']) {
-            $data['invoice::DeliveryMethod'] = [
+            $data['DeliveryMethod'] = [
                 'value' => $invoiceData['delivery_method'],
                 'type' => 'multicell'
             ];
         }
         if ($invoiceData['delivery_time']) {
-            $data['invoice::DeliveryTime'] = [
+            $data['DeliveryTime'] = [
                 'value' => $invoiceData['delivery_time'],
                 'type' => 'multicell'
             ];
         }
 
         if (!empty($invoiceData['info'])) {
-            $data['invoice::AdditionalInformation'] = [
+            $data['AdditionalInformation'] = [
                 'value' => $this->replacePlaceholders($invoiceData['info']),
                 'type' => 'multicell'
             ];
@@ -178,7 +178,7 @@ class InvoicePrinterOffer extends InvoicePrinterBase
      */
     protected function getHeaderTitle()
     {
-        return Translator::translate('invoice::OfferHeader');
+        return $this->translate('OfferHeader');
     }
 
     /**

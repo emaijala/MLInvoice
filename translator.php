@@ -75,7 +75,7 @@ class Translator
             return $str;
         }
 
-        if (empty(self::$translations[$domain])) {
+        if (!isset(self::$translations[$domain])) {
             self::loadTranslations($domain);
         }
         if (isset(self::$translations[$domain][$str])) {
@@ -144,6 +144,10 @@ class Translator
 
         if (!empty(self::$activeLanguages[$domain])) {
             $file = self::$activeLanguages[$domain];
+        } elseif ('default' !== $domain
+            && !empty(self::$activeLanguages['non-default'])
+        ) {
+            $file = self::$activeLanguages['non-default'];
         } elseif (isset($_SESSION['sesLANG'])) {
             $file = $_SESSION['sesLANG'];
         } elseif (defined('_UI_LANGUAGE_')) {
@@ -159,7 +163,8 @@ class Translator
                 $file = 'fi-FI';
             }
         }
-        self::$translations[$domain] = parse_ini_file("lang/$file.ini");
+        self::$translations[$domain] = file_exists("lang/$file.ini")
+            ? parse_ini_file("lang/$file.ini") : [];
 
         if (file_exists("lang/$file.local.ini")) {
             self::$translations[$domain] = array_merge(

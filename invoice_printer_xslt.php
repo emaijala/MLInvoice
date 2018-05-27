@@ -90,7 +90,7 @@ EOT
         $this->arrayToXML($invoiceData, $invoice);
 
         foreach ($this->invoiceRowData as  &$data) {
-            $data['type'] = Translator::translate("invoice::{$data['type']}");
+            $data['type'] = $this->translate($data['type']);
         }
 
         $rows = $invoice->addChild('rows');
@@ -117,7 +117,7 @@ EOT
             }
         }
         $settingsData['invoice_penalty_interest_desc']
-            = Translator::translate('invoice::PenaltyInterestDesc')
+            = $this->translate('PenaltyInterestDesc')
             . ': ' . miscRound2OptDecim(getSetting('invoice_penalty_interest'), 1)
             . ' %';
         $settingsData['current_time_year'] = date('Y');

@@ -88,7 +88,7 @@ class InvoicePrinterBlank extends InvoicePrinterBase
      */
     protected function getHeaderTitle()
     {
-        return Translator::translate('invoice::CoverLetter');
+        return $this->translate('CoverLetter');
     }
 
     /**
