@@ -64,13 +64,6 @@ case 'company' :
         ]
     ];
 
-    $defaultCustomerNr = null;
-    if (getSetting('add_customer_number')) {
-        $strQuery = 'SELECT max(customer_no) FROM {prefix}company WHERE deleted=0';
-        $intRes = dbQueryCheck($strQuery);
-        $defaultCustomerNr = dbFetchValue($intRes) + 1;
-    }
-
     $astrFormElements = [
         [
             'name' => 'company_name',
@@ -110,7 +103,10 @@ case 'company' :
             'type' => 'INT',
             'style' => 'medium',
             'position' => 1,
-            'default' => $defaultCustomerNr,
+            'default' => null,
+            'default_query' => getSetting('add_customer_number')
+                ? 'SELECT max(customer_no)+1 FROM {prefix}company WHERE deleted=0'
+                : null,
             'allow_null' => true
         ],
         [

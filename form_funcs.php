@@ -92,6 +92,10 @@ function getPostValues(&$formElements, $primaryKey, $parentKey = false)
 function getFormDefaultValue($elem, $parentKey)
 {
     if (!isset($elem['default'])) {
+        if (!empty($elem['default_query'])) {
+            $intRes = dbQueryCheck($elem['default_query']);
+            return dbFetchValue($intRes);
+        }
         return null;
     }
     if ($elem['default'] === 'DATE_NOW') {
@@ -211,7 +215,11 @@ function saveFormData($table, &$primaryKey, &$formElements, &$values, &$warnings
         }
 
         if (isset($values[$name])) {
-            $value = $values[$name];
+            if (empty($primaryKey) && '' === $values[$name]) {
+                $value = getFormDefaultValue($elem, $parentKey);
+            } else {
+                $value = $values[$name];
+            }
         } else {
             if (isset($primaryKey) && $primaryKey != 0) {
                 continue;
@@ -263,7 +271,7 @@ function saveFormData($table, &$primaryKey, &$formElements, &$values, &$warnings
         case 'LIST':
         case 'SEARCHLIST':
             $arrValues[] = isset($values[$name])
-                ? ($value !== '' ? str_replace(',', '.', $value) : null)
+                ? ($value !== '' && $value !== null ? str_replace(',', '.', $value) : null)
                 : null;
             break;
         case 'CHECK':
