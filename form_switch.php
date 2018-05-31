@@ -517,7 +517,7 @@ EOS;
             'style' => 'short translated',
             'listquery' => 'SELECT id, name FROM {prefix}row_type WHERE deleted=0 ORDER BY order_no;',
             'position' => 2,
-            'default' => 'POST'
+            'allow_null' => true
         ],
         [
             'name' => 'price_decimals',
@@ -1199,7 +1199,6 @@ case 'invoice_rows' :
             'style' => 'short translated',
             'listquery' => 'SELECT id, name FROM {prefix}row_type WHERE deleted=0 ORDER BY order_no',
             'position' => 0,
-            'default' => 'POST',
             'allow_null' => true
         ],
         [
@@ -1208,7 +1207,6 @@ case 'invoice_rows' :
             'type' => 'INT',
             'style' => 'currency',
             'position' => 0,
-            'default' => 'POST',
             'decimals' => getSetting('unit_price_decimals')
         ],
         [

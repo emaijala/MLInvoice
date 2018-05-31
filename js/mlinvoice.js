@@ -154,7 +154,7 @@ var MLInvoice = (function MLInvoice() {
       var type_id = document.getElementById(form_id + '_type_id');
       for (var i = 0; i < type_id.options.length; i++) {
         var item = type_id.options[i];
-        if (item.value === String(json.type_id)) {
+        if (item.value === (json.type_id === null ? '' : String(json.type_id))) {
           item.selected = true;
           break;
         }
