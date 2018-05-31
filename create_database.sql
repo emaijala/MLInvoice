@@ -43,7 +43,7 @@ CREATE TABLE mlinvoice_base (
   org_unit_number varchar(35) default NULL,
   payment_intermediator varchar(100) default NULL,
   bank_name varchar(50) NOT NULL,
-  bank_account varchar(30) NOT NULL,
+  bank_account varchar(30) NOT NULL DEFAULT '',
   bank_iban varchar(50) NOT NULL,
   bank_swiftbic varchar(30) NOT NULL,
   bank_name2 varchar(50) NOT NULL DEFAULT '',
@@ -378,7 +378,7 @@ CREATE TABLE mlinvoice_default_value (
 
 SET NAMES 'utf8';
 
-INSERT INTO mlinvoice_state (id, data) VALUES ('version', '58');
+INSERT INTO mlinvoice_state (id, data) VALUES ('version', '59');
 
 INSERT INTO mlinvoice_state (id, data) VALUES ('tableconversiondone', '1');
 

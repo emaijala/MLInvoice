@@ -1420,7 +1420,8 @@ EOF;
             'label' => 'Account',
             'type' => 'TEXT',
             'style' => 'medium',
-            'position' => 2
+            'position' => 2,
+            'allow_null' => true
         ],
         [
             'name' => 'bank_iban',

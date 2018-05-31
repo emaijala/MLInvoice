@@ -1815,6 +1815,16 @@ EOT
         );
     }
 
+    if ($version < 59) {
+        $updates = array_merge(
+            $updates,
+            [
+                "ALTER TABLE {prefix}base CHANGE COLUMN bank_account bank_account varchar(30) NOT NULL DEFAULT ''",
+                "REPLACE INTO {prefix}state (id, data) VALUES ('version', '59')"
+            ]
+        );
+    }
+
     // phpcs:enable Generic.Files.LineLength
     if (!empty($updates)) {
         dbQueryCheck('SET AUTOCOMMIT = 0');
