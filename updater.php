@@ -118,7 +118,7 @@ class Updater
         }
         if ($unwritables) {
             $this->error(
-                Translate('UpdaterMissingWriteAccess') . ':<br><br>'
+                Translator::Translate('UpdaterMissingWriteAccess') . ':<br><br>'
                 . implode('<br>', $unwritables)
             );
             return false;
