@@ -267,8 +267,11 @@ function dbSessionRead($sessionID)
     );
     if (isset($rows[0])) {
         // Check for expiration
-        $sessionMaxAge = get_cfg_var('session.gc_maxlifetime') ?? 900;
-        $minTimestamp = date('Y-m-d H:i:s', time() - $sessionMaxAge);
+        $sessionMaxAge = get_cfg_var('session.gc_maxlifetime');
+        $minTimestamp = date(
+            'Y-m-d H:i:s',
+            time() - ($sessionMaxAge ? $sessionMaxAge : 900)
+        );
         if ($rows[0]['session_timestamp'] >= $minTimestamp) {
             return $rows[0]['data'];
         }
