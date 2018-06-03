@@ -263,9 +263,17 @@ function dbSessionClose()
 function dbSessionRead($sessionID)
 {
     $rows = dbParamQuery(
-        'SELECT data FROM {prefix}session where id=?', [$sessionID]
+        'SELECT data, session_timestamp FROM {prefix}session where id=?', [$sessionID]
     );
-    return isset($rows[0]['data']) ? $rows[0]['data'] : '';
+    if (isset($rows[0])) {
+        // Check for expiration
+        $sessionMaxAge = get_cfg_var('session.gc_maxlifetime') ?? 900;
+        $minTimestamp = date('Y-m-d H:i:s', time() - $sessionMaxAge);
+        if ($rows[0]['session_timestamp'] >= $minTimestamp) {
+            return $rows[0]['data'];
+        }
+    }
+    return '';
 }
 
 /**
