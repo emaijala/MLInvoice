@@ -1265,6 +1265,7 @@ function multi_editor(event, title)
   startChanging();
   $('#iform_popup .modification-indicator').addClass('hidden');
   $('#iform_popup input').data('modified', 0);
+  $('#iform_popup select').data('modified', 0);
   var form = document.getElementById('iform_popup');
         <?php
         foreach ($subFormElements as $subElem) {
