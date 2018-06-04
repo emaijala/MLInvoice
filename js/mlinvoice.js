@@ -401,12 +401,18 @@ var MLInvoice = (function MLInvoice() {
         width: 'element'
       });
       select.on('change', function selectChange() {
+        var id = select.select2('val');
+        if (!id) {
+          return;
+        }
+        // Reset selection so that the same entry can be re-selected at will
+        select.select2('val', null);
         jQuery.ajax(
           {
             url: 'json.php',
             data: {
               func: 'get_default_value',
-              id: select.select2('val')
+              id: id
             }
           }
         ).done(function getDefaultValueDone(data) {
@@ -417,7 +423,7 @@ var MLInvoice = (function MLInvoice() {
             $('#' + target).append(input);
             $('#' + target).submit();
           } else {
-            $('#' + target).text(data.content);
+            $('#' + target).val(data.content);
             $('#' + target).change();
           }
         }).fail(function getDefaultValueFail(jqXHR, textStatus) {
