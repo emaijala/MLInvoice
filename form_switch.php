@@ -829,13 +829,25 @@ EOF;
          ];
     }
 
-    $intRes = dbQueryCheck(
-        'SELECT ID from {prefix}base WHERE deleted=0 AND inactive=0'
+    $defaultValues = [
+        'base' => false,
+        'info' => '',
+        'foreword' => '',
+        'afterword' => ''
+    ];
+    $baseCnt = dbParamQuery(
+        'SELECT count(*) as cnt from {prefix}base WHERE deleted=0 AND inactive=0'
     );
-    if (mysqli_num_rows($intRes) == 1) {
-        $defaultBase = dbFetchValue($intRes);
-    } else {
-        $defaultBase = false;
+    if ($baseCnt[0]['cnt'] == 1) {
+        $prefix = $isOffer ? 'offer' : 'invoice';
+        $baseData = dbParamQuery(
+            "SELECT ID, invoice_default_info info, {$prefix}_default_foreword foreword,"
+            . " {$prefix}_default_afterword afterword from {prefix}base WHERE deleted=0 AND inactive=0"
+        );
+        $defaultValues['base'] = $baseData[0]['ID'];
+        $defaultValues['info'] = $baseData[0]['info'];
+        $defaultValues['foreword'] = $baseData[0]['foreword'];
+        $defaultValues['afterword'] = $baseData[0]['afterword'];
     }
 
     $copyLinkOverride = "copy_invoice.php?func=$strFunc&amp;list=$strList&amp;id=$intInvoiceId";
@@ -886,7 +898,7 @@ EOF;
             'style' => 'long linked',
             'listquery' => 'SELECT id, name FROM {prefix}base WHERE deleted=0 AND inactive=0 ORDER BY name, id',
             'position' => 1,
-            'default' => $defaultBase
+            'default' => $defaultValues['base']
         ],
         [
             'name' => 'name',
@@ -1034,7 +1046,8 @@ EOF;
             'style' => 'large',
             'position' => 1,
             'attached_elem' => '<span class="select-default-text" data-type="info" data-target="info"></span>',
-            'allow_null' => true
+            'default' => $defaultValues['info'],
+            'allow_null' => true,
         ],
         [
             'name' => 'internal_info',
@@ -1051,6 +1064,7 @@ EOF;
             'style' => 'large',
             'position' => 1,
             'attached_elem' => '<span class="select-default-text" data-type="foreword" data-target="foreword"></span>',
+            'default' => $defaultValues['foreword'],
             'allow_null' => true
         ],
         [
@@ -1060,6 +1074,7 @@ EOF;
             'style' => 'large',
             'position' => 2,
             'attached_elem' => '<span class="select-default-text" data-type="afterword" data-target="afterword"></span>',
+            'default' => $defaultValues['afterword'],
             'allow_null' => true
         ],
 
