@@ -215,16 +215,11 @@ foreach ($astrShowFields as $key => $field) {
     });
     $(document).on('click', '#<?php echo $strTableName?> tbody tr', function(e) {
       var data = $('#<?php echo $strTableName?>').dataTable().fnGetData(this);
-      document.location.href = data[1];
-    });
-    $(document).on('mousedown', '#<?php echo $strTableName?> tbody tr', function(e) {
       if (e.button === 1 || e.ctrlKey || e.metaKey) {
-        var data = $('#<?php echo $strTableName?>').dataTable().fnGetData(this);
         window.open(data[1], '_blank');
-        e.preventDefault();
-        return false;
+      } else {
+        document.location.href = data[1];
       }
-      return true;
     });
   });
   </script>
