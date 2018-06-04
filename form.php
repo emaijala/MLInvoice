@@ -1190,6 +1190,7 @@ function popup_editor(event, title, id, copy_row)
                 <?php
             } elseif ($subElem['type'] == 'LIST') {
                 ?>
+    form.<?php echo "iform_popup_$name"?>.options[0].selected = true;
     for (var i = 0; i < form.<?php echo "iform_popup_$name"?>.options.length; i++)
     {
       var item = form.<?php echo "iform_popup_$name"?>.options[i];
