@@ -131,12 +131,14 @@ if ($invoiceTotal) {
 <?php } ?>
 
     $('#<?php echo $strTableName?>')
+<?php if (!getRequest('bc')) { ?>
     .on('stateLoaded.dt', function () {
       var table = $('#<?php echo $strTableName?>').DataTable();
       if (table.search() != '' || table.page() != 0) {
         table.search('').page(0).draw('page');
       }
     })
+<?php } ?>
     .dataTable( {
       language: {
         <?php echo Translator::translate('TableTexts')?>

@@ -113,8 +113,9 @@ foreach ($arrHistory as $arrHE) {
     if ($strBreadcrumbs) {
         $strBreadcrumbs .= '&gt; ';
     }
+    $url = $arrHE['url'] . '&bc=1';
     $strBreadcrumbs .= '<a href="index.php?' .
-         str_replace('&', '&amp;', $arrHE['url']) . '">' . $arrHE['title'] .
+         str_replace('&', '&amp;', $url) . '">' . $arrHE['title'] .
          '</a>&nbsp;';
 }
 
