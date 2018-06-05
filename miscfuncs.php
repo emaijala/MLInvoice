@@ -377,22 +377,26 @@ function getPageTitle($strFunc, $strList, $strForm)
     case 'settings':
         if ($strForm) {
             switch ($strForm) {
-            case 'base' :
+            case 'base':
                 return Translator::translate('Base');
-            case 'product' :
+            case 'product':
                 return Translator::translate('Product');
-            default :
+            case 'default_value':
+                return Translator::translate('DefaultValue');
+            default:
                 return Translator::translate('Settings');
             }
         } else {
             switch ($strList) {
-            case 'settings' :
+            case 'settings':
                 return Translator::translate('GeneralSettings');
-            case 'base' :
+            case 'base':
                 return Translator::translate('Bases');
-            case 'product' :
+            case 'product':
                 return Translator::translate('Products');
-            default :
+            case 'default_value':
+                return Translator::translate('DefaultValues');
+            default:
                 return Translator::translate('Settings');
             }
         }
