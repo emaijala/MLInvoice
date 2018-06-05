@@ -1915,7 +1915,9 @@ case 'default_value' :
             'label' => 'OrderNr',
             'type' => 'INT',
             'style' => 'short',
-            'position' => 2
+            'position' => 2,
+            'listquery' => 'SELECT max(order_no)+5 FROM {prefix}default_value WHERE deleted=0',
+            'default' => 'ADD+5'
         ],
         [
             'name' => 'content',
@@ -1929,7 +1931,8 @@ case 'default_value' :
             'label' => 'AddInfo',
             'type' => 'AREA',
             'style' => 'xxlarge',
-            'position' => 0
+            'position' => 0,
+            'allow_null' => true
         ]
     ];
     break;
