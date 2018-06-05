@@ -1190,10 +1190,9 @@ function select_preset()
                 fclose($temp);
                 return $r;
             };
-        } else {
-            $strGetCsv = str_getcsv;
+            return $strGetCsv($line, $delimiter, $enclosure);
         }
-        return $strGetCsv($line, $delimiter, $enclosure);
+        return str_getcsv($line, $delimiter, $enclosure);
     }
 
     /**
