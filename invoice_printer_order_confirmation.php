@@ -177,6 +177,23 @@ class InvoicePrinterOrderConfirmation extends InvoicePrinterBase
     }
 
     /**
+     * Print afterword (after rows or a separate statement message)
+     *
+     * @return void
+     */
+    protected function printAfterword()
+    {
+        parent::printAfterword();
+
+        $terms = getSetting('order_confirmation_terms');
+        if ($terms) {
+            $pdf = $this->pdf;
+            $pdf->SetY($pdf->GetY() + 10);
+            $pdf->MultiCell(187, 4, $terms, 0, 'L', 0);
+        }
+    }
+
+    /**
      * Print the invoice form at the end of the first page
      *
      * @return void
