@@ -1272,7 +1272,7 @@ function select_preset()
             if ($params) {
                 $dupRows = dbParamQuery($query . $where, $params);
                 if ($dupRows) {
-                    $id = $dupRows[0][0];
+                    $id = $dupRows[0]['id'];
                     $found_dup = true;
                     if ($dupMode == 'update') {
                         $result = "Update existing row id $id in table $table";
