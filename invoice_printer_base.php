@@ -546,8 +546,8 @@ abstract class InvoicePrinterBase
         if (!$this->discountedRows) {
             $this->columnDefs['discount']['visible'] = false;
         } elseif ('invoice' === $this->printStyle) {
-            $this->left -= 5;
-            $this->width += 10;
+            $this->left -= 3;
+            $this->width += 6;
         }
 
         if ('dispatch' === $this->printStyle || !$this->senderData['vat_registered']
@@ -1738,7 +1738,7 @@ abstract class InvoicePrinterBase
 
         // Invoice form
         $intStartY = $intStartY + $footerHeight;
-        $intStartX = 3.6;
+        $intStartX = $this->left;
 
         $intMaxX = 210 - $intStartX;
         // 1. hor.line - full width
