@@ -401,7 +401,7 @@ class Updater
             $destPath = __DIR__ . DIRECTORY_SEPARATOR . $destFile;
 
             $res = file_put_contents($destPath, $zip->getFromIndex($i));
-            if (!$res) {
+            if (false === $res) {
                 $zip->close();
                 return [false, $filesWritten];
             }
