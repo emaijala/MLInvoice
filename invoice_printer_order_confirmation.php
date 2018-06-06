@@ -1,43 +1,84 @@
 <?php
-/*******************************************************************************
- MLInvoice: web-based invoicing application.
- Copyright (C) 2010-2017 Ere Maijala
-
- This program is free software. See attached LICENSE.
-
- *******************************************************************************/
-
-/*******************************************************************************
- MLInvoice: web-pohjainen laskutusohjelma.
- Copyright (C) 2010-2017 Ere Maijala
-
- Tämä ohjelma on vapaa. Lue oheinen LICENSE.
-
- *******************************************************************************/
+/**
+ * Order confirmation PDF
+ *
+ * PHP version 5
+ *
+ * Copyright (C) 2010-2018 Ere Maijala
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License version 2,
+ * as published by the Free Software Foundation.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
+ *
+ * @category MLInvoice
+ * @package  MLInvoice\Base
+ * @author   Ere Maijala <ere@labs.fi>
+ * @license  http://opensource.org/licenses/gpl-2.0.php GNU General Public License
+ * @link     http://labs.fi/mlinvoice.eng.php
+ */
 require_once 'invoice_printer_base.php';
 require_once 'htmlfuncs.php';
 require_once 'miscfuncs.php';
 
+/**
+ * Order confirmation PDF
+ *
+ * @category MLInvoice
+ * @package  MLInvoice\Base
+ * @author   Ere Maijala <ere@labs.fi>
+ * @license  http://opensource.org/licenses/gpl-2.0.php GNU General Public License
+ * @link     http://labs.fi/mlinvoice.eng.php
+ */
 class InvoicePrinterOrderConfirmation extends InvoicePrinterBase
 {
-
+    /**
+     * Initialize printing
+     *
+     * @param int    $invoiceId            Invoice ID
+     * @param array  $printParameters      Print control parameters
+     * @param string $outputFileName       File name template
+     * @param array  $senderData           Sender record
+     * @param array  $recipientData        Recipient record
+     * @param array  $invoiceData          Invoice record
+     * @param array  $invoiceRowData       Invoice row records
+     * @param array  $recipientContactData Recipient's contact records
+     * @param int    $dateOverride         Date override for invoice date
+     * @param int    $printTemplateId      Print template ID
+     * @param bool   $authenticated        Whether the user is authenticated
+     *
+     * @return void
+     */
     public function init($invoiceId, $printParameters, $outputFileName, $senderData,
         $recipientData, $invoiceData, $invoiceRowData, $recipientContactData,
         $dateOverride, $printTemplateId, $authenticated
     ) {
-        parent::init($invoiceId, $printParameters, $outputFileName, $senderData,
+        parent::init(
+            $invoiceId, $printParameters, $outputFileName, $senderData,
             $recipientData, $invoiceData, $invoiceRowData, $recipientContactData,
             $dateOverride, $printTemplateId, $authenticated
         );
         $this->printStyle = 'order_confirmation';
 
-        $this->columnDefs['date']['heading'] = 'invoice::OrderConfirmationRowDate';
-        $this->columnDefs['totalvatless']['heading'] = 'invoice::RowTotal';
+        $this->columnDefs['totalvatless']['heading'] = 'RowTotal';
         $this->columnDefs['vatpercent']['visible'] = false;
         $this->columnDefs['vat']['visible'] = false;
         $this->columnDefs['total']['visible'] = false;
     }
 
+    /**
+     * Main method for printing
+     *
+     * @return void
+     */
     public function printInvoice()
     {
         if ($this->senderData['bank_iban'] && $this->senderData['bank_swiftbic']) {
@@ -51,6 +92,11 @@ class InvoicePrinterOrderConfirmation extends InvoicePrinterBase
         parent::printInvoice();
     }
 
+    /**
+     * Initialize the PDF
+     *
+     * @return void
+     */
     protected function initPDF()
     {
         parent::initPDF();
@@ -73,17 +119,17 @@ class InvoicePrinterOrderConfirmation extends InvoicePrinterBase
         $data = [];
 
         if ($recipientData['customer_no'] != 0) {
-            $data['invoice::CustomerNumber'] = $recipientData['customer_no'];
+            $data['CustomerNumber'] = $recipientData['customer_no'];
         }
         if ($recipientData['company_id']) {
-            $data['invoice::ClientVATID'] = $recipientData['company_id'];
+            $data['ClientVATID'] = $recipientData['company_id'];
         }
 
-        $data['invoice::OrderConfirmationNumber'] = $invoiceData['invoice_no'];
+        $data['OrderConfirmationNumber'] = $invoiceData['invoice_no'];
         $strInvoiceDate = ($this->dateOverride)
             ? $this->formatDate($this->dateOverride)
             : $this->formatDate($invoiceData['invoice_date']);
-        $data['invoice::OrderConfirmationDate'] = $strInvoiceDate;
+        $data['OrderConfirmationDate'] = $strInvoiceDate;
         $paymentDays = round(
             dbDate2UnixTime($invoiceData['due_date']) / 3600 / 24 -
                     dbDate2UnixTime($invoiceData['invoice_date']) / 3600 / 24
@@ -92,26 +138,26 @@ class InvoicePrinterOrderConfirmation extends InvoicePrinterBase
             // This shouldn't happen, but try to be safe...
             $paymentDays = getPaymentDays($invoiceData['company_id']);
         }
-        $data['invoice::TermsOfPayment'] = $this->getTermsOfPayment(
+        $data['TermsOfPayment'] = $this->getTermsOfPayment(
             $paymentDays
         );
         if ($invoiceData['reference']) {
-            $data['invoice::YourReference'] = $invoiceData['reference'];
+            $data['YourReference'] = $invoiceData['reference'];
         }
         if ($invoiceData['delivery_terms']) {
-            $data['invoice::DeliveryTerms'] = [
+            $data['DeliveryTerms'] = [
                 'value' => $invoiceData['delivery_terms'],
                 'type' => 'multicell'
             ];
         }
         if ($invoiceData['delivery_method']) {
-            $data['invoice::DeliveryMethod'] = [
+            $data['DeliveryMethod'] = [
                 'value' => $invoiceData['delivery_method'],
                 'type' => 'multicell'
             ];
         }
         if (!empty($invoiceData['info'])) {
-            $data['invoice::AdditionalInformation'] = [
+            $data['AdditionalInformation'] = [
                 'value' => $this->replacePlaceholders($invoiceData['info']),
                 'type' => 'multicell'
             ];
@@ -120,11 +166,38 @@ class InvoicePrinterOrderConfirmation extends InvoicePrinterBase
         return $data;
     }
 
+    /**
+     * Get a title for the current print style
+     *
+     * @return string
+     */
     protected function getHeaderTitle()
     {
-        return Translator::translate('invoice::OrderConfirmationHeader');
+        return $this->translate('OrderConfirmationHeader');
     }
 
+    /**
+     * Print afterword (after rows or a separate statement message)
+     *
+     * @return void
+     */
+    protected function printAfterword()
+    {
+        parent::printAfterword();
+
+        $terms = getSetting('order_confirmation_terms');
+        if ($terms) {
+            $pdf = $this->pdf;
+            $pdf->SetY($pdf->GetY() + 10);
+            $pdf->MultiCell(187, 4, $terms, 0, 'L', 0);
+        }
+    }
+
+    /**
+     * Print the invoice form at the end of the first page
+     *
+     * @return void
+     */
     protected function printForm()
     {
     }

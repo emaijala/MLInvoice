@@ -1,23 +1,40 @@
 <?php
-/*******************************************************************************
- MLInvoice: web-based invoicing application.
- Copyright (C) 2010-2017 Ere Maijala
-
- This program is free software. See attached LICENSE.
-
- *******************************************************************************/
-
-/*******************************************************************************
- MLInvoice: web-pohjainen laskutusohjelma.
- Copyright (C) 2010-2017 Ere Maijala
-
- Tämä ohjelma on vapaa. Lue oheinen LICENSE.
-
- *******************************************************************************/
+/**
+ * Settings form
+ *
+ * PHP version 5
+ *
+ * Copyright (C) 2004-2008 Samu Reinikainen
+ * Copyright (C) 2010-2018 Ere Maijala
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License version 2,
+ * as published by the Free Software Foundation.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
+ *
+ * @category MLInvoice
+ * @package  MLInvoice\Base
+ * @author   Ere Maijala <ere@labs.fi>
+ * @license  http://opensource.org/licenses/gpl-2.0.php GNU General Public License
+ * @link     http://labs.fi/mlinvoice.eng.php
+ */
 require_once 'sqlfuncs.php';
 require_once 'miscfuncs.php';
 require_once 'translator.php';
 
+/**
+ * Create a list of settings
+ *
+ * @return void
+ */
 function createSettingsList()
 {
     if (!sesAdminAccess()) {
@@ -69,8 +86,8 @@ function createSettingsList()
             if (isset($elem['session']) && $elem['session']) {
                 $_SESSION[$name] = $newValue;
             }
-            db_param_query('DELETE from {prefix}settings WHERE name=?', [$name]);
-            db_param_query(
+            dbParamQuery('DELETE from {prefix}settings WHERE name=?', [$name]);
+            dbParamQuery(
                 'INSERT INTO {prefix}settings (name, value) VALUES (?, ?)',
                 [$name, $newValue]
             );
@@ -96,7 +113,9 @@ function createSettingsList()
         iframe.css("height", newHeight + 'px');
         body.css("overflow", "hidden");
       });
-      $('#admin_form').find('input[type="text"],input[type="checkbox"],select,textarea').change(function() { $('.save_button').addClass('unsaved'); });
+      $('#admin_form')
+        .find('input[type="text"],input[type="checkbox"],select,textarea')
+        .change(function() { $('.save_button').addClass('unsaved'); });
     });
     -->
     </script>
@@ -109,7 +128,9 @@ function createSettingsList()
         $elemType = $elem['type'];
         if ($elemType == 'LABEL') {
     ?>
-        <div class="sublabel ui-widget-header ui-state-default"><?php echo Translator::translate($elem['label'])?></div>
+        <div class="sublabel ui-widget-header ui-state-default">
+            <?php echo Translator::translate($elem['label'])?>
+        </div>
     <?php
             continue;
         }
@@ -118,7 +139,7 @@ function createSettingsList()
             if (isset($elem['session']) && $elem['session']) {
                 $value = isset($_SESSION[$name]) ? $_SESSION[$name]
                     : (isset($elem['default'])
-                    ? cond_utf8_decode($elem['default']) : '');
+                    ? condUtf8Decode($elem['default']) : '');
             } else {
                 $value = getSetting($name);
             }
@@ -141,18 +162,32 @@ function createSettingsList()
         }
         if ($elemType == 'CHECK') {
         ?>
-      <div class="field" style="clear: both">
-        <?php echo htmlFormElement($name, $elemType, $value, $elem['style'], '', 'MODIFY', '', '', [], isset($elem['elem_attributes']) ? $elem['elem_attributes'] : '', $options)?>
-        <label for="<?php echo $name?>"><?php echo Translator::translate($elem['label'])?></label>
-            </div>
+        <div class="field" style="clear: both">
+        <?php
+        echo htmlFormElement(
+            $name, $elemType, $value, $elem['style'], '', 'MODIFY', '', '', [],
+            isset($elem['elem_attributes']) ? $elem['elem_attributes'] : '', $options
+        );
+        ?>
+        <label for="<?php echo $name?>">
+            <?php echo Translator::translate($elem['label'])?>
+        </label>
+        </div>
         <?php
         } else {
             ?>
-      <div class="label" style="clear: both">
-                <label for="<?php echo $name?>"><?php echo Translator::translate($elem['label'])?></label>
+            <div class="label" style="clear: both">
+                <label for="<?php echo $name?>">
+                    <?php echo Translator::translate($elem['label'])?>
+                </label>
             </div>
             <div class="field" style="clear: both">
-        <?php echo htmlFormElement($name, $elemType, $value, $elem['style'], '', 'MODIFY', '', '', [], isset($elem['elem_attributes']) ? $elem['elem_attributes'] : '', $options)?>
+            <?php
+            echo htmlFormElement(
+                $name, $elemType, $value, $elem['style'], '', 'MODIFY', '', '', [],
+                isset($elem['elem_attributes']) ? $elem['elem_attributes'] : '', $options
+            );
+            ?>
       </div>
 <?php
         }
@@ -166,12 +201,18 @@ function createSettingsList()
 <?php
 }
 
+/**
+ * Create buttons
+ *
+ * @return void
+ */
 function createSettingsListButtons()
 {
     ?>
 <div class="form_buttons" style="clear: both">
-    <a class="actionlink save_button" href="#"
-        onclick="document.getElementById('admin_form').saveact.value=1; document.getElementById('admin_form').submit(); return false;"><?php echo Translator::translate('Save')?></a>
+    <a class="actionlink save_button form-submit" href="#" data-set-field="saveact">
+        <?php echo Translator::translate('Save')?>
+    </a>
 </div>
 <?php
 }

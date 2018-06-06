@@ -72,6 +72,17 @@ div.message {
   display: inline-block;
 }
 
+.login div.message {
+  margin: 30px 30px 0 30px;
+  padding: 8px;
+  display: block;
+}
+
+.profile div.message {
+  padding: 8px;
+  display: block;
+}
+
 span.message {
   margin: 4px;
   padding: 1px;
@@ -96,6 +107,7 @@ div.medium_label {
   float: left;
   margin-bottom: 8px;
   clear: left;
+  padding-top: 2px;
 }
 
 div.unlimited_label {
@@ -108,6 +120,12 @@ div.unlimited_label {
 div.field {
   float: left;
   margin-bottom: 8px;
+}
+
+div.static-field {
+  float: left;
+  margin-bottom: 8px;
+  padding-top: 2px;
 }
 
 div.report {
@@ -416,7 +434,6 @@ div.iform {
 }
 
 div.column_mapping {
-  sdwidth: 900px;
   border: 1px solid gray;
   clear: both;
   overflow: auto;
@@ -559,4 +576,25 @@ img.image {
 }
 .not-valid {
   text-decoration: line-through;
+}
+#profile-link {
+  float: right;
+  margin-right: 10px;
+  margin-top: 3px;
+}
+#profile-link:hover {
+  border: 0;
+  font-weight: bold;
+}
+#dispatch_date_buttons a {
+  display: inline-block;
+  margin-top: 4px;
+}
+span.info {
+  display: inline-block;
+  margin-left: 8px;
+}
+span.info:before {
+  content: "\2139";
+  font-size: 120%
 }

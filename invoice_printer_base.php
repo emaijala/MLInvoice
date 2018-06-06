@@ -21,13 +21,12 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  *
  * @category MLInvoice
- * @package  Printing
+ * @package  MLInvoice\Base
  * @author   Samu Reinikainen <not-available@ajassa.fi>
  * @author   Ere Maijala <ere@labs.fi>
  * @license  http://opensource.org/licenses/gpl-2.0.php GNU General Public License
  * @link     http://labs.fi/mlinvoice.eng.php
  */
-
 require_once 'translator.php';
 require_once 'settings.php';
 
@@ -35,7 +34,7 @@ require_once 'settings.php';
  * Invoice printer abstract base class
  *
  * @category MLInvoice
- * @package  Printing
+ * @package  MLInvoice\Base
  * @author   Samu Reinikainen <not-available@ajassa.fi>
  * @author   Ere Maijala <ere@labs.fi>
  * @license  http://opensource.org/licenses/gpl-2.0.php GNU General Public License
@@ -154,8 +153,8 @@ abstract class InvoicePrinterBase
      */
     protected $columnDefs = [
         'sequence' => [
-            'heading' => 'invoice::RowRunningNumber',
-            'valuemethod' => 'getRowRunningNumber',
+            'heading' => 'RowSequenceNumber',
+            'valuemethod' => 'getRowSequenceNumber',
             'visible' => true,
             'align' => 'L',
             'width' => 2,
@@ -163,7 +162,7 @@ abstract class InvoicePrinterBase
             'maxheight' => 0
         ],
         'description' => [
-            'heading' => 'invoice::RowName',
+            'heading' => 'RowName',
             'valuemethod' => 'getRowDescription',
             'visible' => true,
             'align' => 'L',
@@ -171,7 +170,7 @@ abstract class InvoicePrinterBase
             'maxheight' => 0
         ],
         'date' => [
-            'heading' => 'invoice::RowDate',
+            'heading' => 'RowDate',
             'valuemethod' => 'getRowDate',
             'visible' => true,
             'align' => 'L',
@@ -179,7 +178,7 @@ abstract class InvoicePrinterBase
             'autofit' => true
         ],
         'price' => [
-            'heading' => 'invoice::RowPrice',
+            'heading' => 'RowPrice',
             'valuemethod' => 'getRowPrice',
             'visible' => true,
             'align' => 'R',
@@ -187,7 +186,7 @@ abstract class InvoicePrinterBase
             'autofit' => true
         ],
         'discount' => [
-            'heading' => 'invoice::RowDiscount',
+            'heading' => 'RowDiscount',
             'valuemethod' => 'getRowDiscount',
             'visible' => true,
             'align' => 'R',
@@ -195,7 +194,7 @@ abstract class InvoicePrinterBase
             'autofit' => true
         ],
         'pieces' => [
-            'heading' => 'invoice::RowPieces',
+            'heading' => 'RowPieces',
             'valuemethod' => 'getRowPieces',
             'visible' => true,
             'align' => 'R',
@@ -211,7 +210,7 @@ abstract class InvoicePrinterBase
             'autofit' => true
         ],
         'totalvatless' => [
-            'heading' => 'invoice::RowTotalVATLess',
+            'heading' => 'RowTotalVATLess',
             'valuemethod' => 'getRowTotalVATLess',
             'visible' => true,
             'align' => 'R',
@@ -219,7 +218,7 @@ abstract class InvoicePrinterBase
             'autofit' => true
         ],
         'vatpercent' => [
-            'heading' => 'invoice::RowVATPercent',
+            'heading' => 'RowVATPercent',
             'valuemethod' => 'getRowVATPercent',
             'visible' => true,
             'align' => 'R',
@@ -227,7 +226,7 @@ abstract class InvoicePrinterBase
             'autofit' => true
         ],
         'vat' => [
-            'heading' => 'invoice::RowTax',
+            'heading' => 'RowTax',
             'valuemethod' => 'getRowVAT',
             'visible' => true,
             'align' => 'R',
@@ -235,7 +234,7 @@ abstract class InvoicePrinterBase
             'autofit' => true
         ],
         'total' => [
-            'heading' => 'invoice::RowTotal',
+            'heading' => 'RowTotal',
             'valuemethod' => 'getRowTotal',
             'visible' => true,
             'align' => 'R',
@@ -340,7 +339,7 @@ abstract class InvoicePrinterBase
         $this->invoiceRowData = $invoiceRowData;
         $this->recipientContactData = $recipientContactData;
 
-        Translator::setActiveLanguage('invoice', $this->printLanguage);
+        Translator::setActiveLanguage('non-default', $this->printLanguage);
 
         $this->totalSum = 0;
         $this->totalVAT = 0;
@@ -360,7 +359,7 @@ abstract class InvoicePrinterBase
                 $rowSum = $rowSumVAT = $row['price'];
                 $rowVAT = 0;
             } else {
-                list ($rowSum, $rowVAT, $rowSumVAT) = calculateRowSum($row);
+                list($rowSum, $rowVAT, $rowSumVAT) = calculateRowSum($row);
                 if ($row['vat_included']) {
                     $row['price'] /= (1 + $row['vat'] / 100);
                 }
@@ -400,16 +399,16 @@ abstract class InvoicePrinterBase
         $this->senderAddressLine = $senderData['name'];
         $strCompanyID = trim($senderData['company_id']);
         if ($strCompanyID) {
-            $strCompanyID = Translator::translate('invoice::VATID')
+            $strCompanyID = $this->translate('VATID')
                 . ": $strCompanyID";
         }
         if ($strCompanyID) {
             $strCompanyID .= ', ';
         }
         if ($senderData['vat_registered']) {
-            $strCompanyID .= Translator::translate('invoice::VATReg');
+            $strCompanyID .= $this->translate('VATReg');
         } else {
-            $strCompanyID .= Translator::translate('invoice::NonVATReg');
+            $strCompanyID .= $this->translate('NonVATReg');
         }
         if ($strCompanyID) {
             $this->senderAddressLine .= " ($strCompanyID)";
@@ -438,7 +437,7 @@ abstract class InvoicePrinterBase
         $this->senderAddress .= $senderData['country'];
 
         if ($senderData['phone']) {
-            $this->senderContactInfo = "\n" . Translator::translate('invoice::Phone')
+            $this->senderContactInfo = "\n" . $this->translate('Phone')
                 . ' ' . $senderData['phone'];
         } else {
             $this->senderContactInfo = '';
@@ -547,8 +546,8 @@ abstract class InvoicePrinterBase
         if (!$this->discountedRows) {
             $this->columnDefs['discount']['visible'] = false;
         } elseif ('invoice' === $this->printStyle) {
-            $this->left -= 5;
-            $this->width += 10;
+            $this->left -= 3;
+            $this->width += 6;
         }
 
         if ('dispatch' === $this->printStyle || !$this->senderData['vat_registered']
@@ -767,19 +766,19 @@ abstract class InvoicePrinterBase
         $data = [];
 
         if ($recipientData['customer_no'] != 0) {
-            $data['invoice::CustomerNumber'] = $recipientData['customer_no'];
+            $data['CustomerNumber'] = $recipientData['customer_no'];
         }
         if ($recipientData['company_id']) {
-            $data['invoice::ClientVATID'] = $recipientData['company_id'];
+            $data['ClientVATID'] = $recipientData['company_id'];
         }
-        $data["invoice::${locStr}Number"] = $invoiceData['invoice_no'];
+        $data["${locStr}Number"] = $invoiceData['invoice_no'];
         $strInvoiceDate = ($this->dateOverride)
             ? $this->formatDate($this->dateOverride)
             : $this->formatDate($invoiceData['invoice_date']);
-        $data["invoice::${locStr}Date"] = $strInvoiceDate;
+        $data["${locStr}Date"] = $strInvoiceDate;
         $strDueDate = $this->formatDate($invoiceData['due_date']);
         if ($this->printStyle == 'invoice') {
-            $data['invoice::DueDate'] = $strDueDate;
+            $data['DueDate'] = $strDueDate;
             $paymentDays = round(
                 dbDate2UnixTime($invoiceData['due_date']) / 3600 / 24 -
                      dbDate2UnixTime($invoiceData['invoice_date']) / 3600 / 24
@@ -788,29 +787,45 @@ abstract class InvoicePrinterBase
                 // This shouldn't happen, but try to be safe...
                 $paymentDays = getPaymentDays($invoiceData['company_id']);
             }
-            $data['invoice::TermsOfPayment'] = $this->getTermsOfPayment(
+            $data['TermsOfPayment'] = $this->getTermsOfPayment(
                 $paymentDays
             );
-            $data['invoice::PeriodForComplaints'] = $this->getPeriodForComplaints();
-            $data['invoice::PenaltyInterest'] = $this->formatNumber(
+            $data['PeriodForComplaints'] = $this->getPeriodForComplaints();
+            $data['PenaltyInterest'] = $this->formatNumber(
                 getSetting('invoice_penalty_interest'), 1, true
             ) . ' %';
 
             if ($bankInfo) {
-                $data['invoice::RecipientBankAccount'] = $senderData['bank_iban'];
-                $data['invoice::RecipientBankBIC'] = $senderData['bank_swiftbic'];
+                $data['RecipientBankAccount'] = $senderData['bank_iban'];
+                $data['RecipientBankBIC'] = $senderData['bank_swiftbic'];
             }
 
             if ($this->refNumber) {
-                $data['invoice::InvoiceRefNr'] = $this->refNumber;
+                $data['InvoiceRefNr'] = $this->refNumber;
             }
         }
 
         if ($invoiceData['reference']) {
-            $data['invoice::YourReference'] = $invoiceData['reference'];
+            $data['YourReference'] = $invoiceData['reference'];
+        }
+        if ($this->printStyle == 'invoice'
+            && getSetting('invoice_show_delivery_info_in_invoice')
+        ) {
+            if ($invoiceData['delivery_terms']) {
+                $data['DeliveryTerms'] = [
+                    'value' => $invoiceData['delivery_terms'],
+                    'type' => 'multicell'
+                ];
+            }
+            if ($invoiceData['delivery_method']) {
+                $data['DeliveryMethod'] = [
+                    'value' => $invoiceData['delivery_method'],
+                    'type' => 'multicell'
+                ];
+            }
         }
         if (!empty($invoiceData['info'])) {
-            $data['invoice::AdditionalInformation'] = [
+            $data['AdditionalInformation'] = [
                 'value' => $this->replacePlaceholders($invoiceData['info']),
                 'type' => 'multicell'
             ];
@@ -818,9 +833,9 @@ abstract class InvoicePrinterBase
 
         if ($this->printStyle == 'invoice') {
             if ($invoiceData['refunded_invoice_no']) {
-                $data['invoice::RefundsInvoice'] = [
+                $data['RefundsInvoice'] = [
                     'value' => sprintf(
-                        Translator::translate('invoice::RefundsInvoice'),
+                        $this->translate('RefundsInvoice'),
                         $invoiceData['refunded_invoice_no']
                     ),
                     'type' => 'textonly'
@@ -828,14 +843,14 @@ abstract class InvoicePrinterBase
             }
 
             if ($invoiceData['state_id'] == 5) {
-                $data['invoice::FirstReminderNote'] = [
-                    'value' => Translator::translate('invoice::FirstReminderNote'),
+                $data['FirstReminderNote'] = [
+                    'value' => $this->translate('FirstReminderNote'),
                     'type' => 'textonly',
                     'fontweight' => 'B'
                 ];
             } elseif ($invoiceData['state_id'] == 6) {
-                $data['invoice::SecondReminderNote'] = [
-                    'value' => Translator::translate('invoice::SecondReminderNote'),
+                $data['SecondReminderNote'] = [
+                    'value' => $this->translate('SecondReminderNote'),
                     'type' => 'textonly',
                     'fontweight' => 'B'
                 ];
@@ -862,7 +877,7 @@ abstract class InvoicePrinterBase
                 $pdf->Cell(
                     $this->infoHeadingsWidth,
                     4,
-                    Translator::translate($key) . ': ',
+                    $this->translate($key) . ': ',
                     0,
                     0,
                     'R'
@@ -962,7 +977,7 @@ abstract class InvoicePrinterBase
         $pdf->multiCellMD(
             180,
             5,
-            Translator::translate('invoice::SeeSeparateStatement'),
+            $this->translate('SeeSeparateStatement'),
             'L'
         );
     }
@@ -987,7 +1002,7 @@ abstract class InvoicePrinterBase
                 $pdf->SetFont('Helvetica', 'B', 12);
                 $pdf->SetXY($this->left, $pdf->GetY());
                 $pdf->Cell(
-                    80, 5, Translator::translate('invoice::InvoiceStatement'), 0, 0, 'L'
+                    80, 5, $this->translate('InvoiceStatement'), 0, 0, 'L'
                 );
                 $pdf->SetFont('Helvetica', '', 10);
 
@@ -1001,7 +1016,7 @@ abstract class InvoicePrinterBase
 
                 $pdf->Cell(
                     $this->left + $this->width - $pdf->getX(), 5,
-                    Translator::translate("invoice::${locStr}Number") . ': '
+                    $this->translate("${locStr}Number") . ': '
                     . $invoiceData['invoice_no'],
                     0, 0, 'R'
                 );
@@ -1009,7 +1024,7 @@ abstract class InvoicePrinterBase
                 $pdf->SetFont('Helvetica', 'B', 12);
                 $pdf->SetXY(10, $pdf->GetY() + 10);
                 $pdf->Cell(
-                    80, 5, Translator::translate('invoice::InvoiceStatement'), 0, 0, 'L'
+                    80, 5, $this->translate('InvoiceStatement'), 0, 0, 'L'
                 );
             }
             $pdf->SetXY(10, $pdf->GetY() + 10);
@@ -1070,16 +1085,16 @@ abstract class InvoicePrinterBase
             $pdf->SetFont('Helvetica', '', 9);
             $pdf->SetXY($this->left, $startY + 5);
             $pdf->Cell(
-                20, 4, Translator::translate('invoice::RowVATPercent'), 0, 0, 'R'
+                20, 4, $this->translate('RowVATPercent'), 0, 0, 'R'
             );
             $pdf->Cell(
-                20, 4, Translator::translate('invoice::RowTotalVATLess'), 0, 0, 'R'
+                20, 4, $this->translate('RowTotalVATLess'), 0, 0, 'R'
             );
             $pdf->Cell(
-                20, 4, Translator::translate('invoice::RowTax'), 0, 0, 'R'
+                20, 4, $this->translate('RowTax'), 0, 0, 'R'
             );
             $pdf->Cell(
-                20, 4, Translator::translate('invoice::RowTotal'), 0, 0, 'R'
+                20, 4, $this->translate('RowTotal'), 0, 0, 'R'
             );
             $pdf->SetLineWidth(0.13);
             $pdf->Line($this->left + 2, $startY + 9, $pdf->GetX(), $startY + 9);
@@ -1105,7 +1120,7 @@ abstract class InvoicePrinterBase
             if (count($this->groupedVATs) > 1) {
                 $pdf->SetXY($this->left, $pdf->getY() + 4);
                 $pdf->Cell(
-                    20, 4, Translator::translate('invoice::RowTotal'), 0, 0, 'R'
+                    20, 4, $this->translate('RowTotal'), 0, 0, 'R'
                 );
                 $pdf->Cell(
                     20, 4, $this->formatCurrency($this->totalSum), 0, 0, 'R'
@@ -1145,7 +1160,7 @@ abstract class InvoicePrinterBase
             $pdf->Cell(
                 $right,
                 5,
-                Translator::translate('invoice::TotalExcludingVAT') . ': ',
+                $this->translate('TotalExcludingVAT') . ': ',
                 0,
                 0,
                 'R'
@@ -1160,7 +1175,7 @@ abstract class InvoicePrinterBase
                 $pdf->Cell(
                     $right,
                     5,
-                    Translator::translate('invoice::TotalVAT') . ': ',
+                    $this->translate('TotalVAT') . ': ',
                     0,
                     0,
                     'R'
@@ -1178,7 +1193,7 @@ abstract class InvoicePrinterBase
             $pdf->Cell(
                 $right,
                 5,
-                Translator::translate('invoice::TotalIncludingVAT') . ': ',
+                $this->translate('TotalIncludingVAT') . ': ',
                 0,
                 0,
                 'R'
@@ -1201,7 +1216,7 @@ abstract class InvoicePrinterBase
             $pdf->Cell(
                 $right,
                 5,
-                Translator::translate('invoice::TotalPrice') . ': ',
+                $this->translate('TotalPrice') . ': ',
                 0,
                 0,
                 'R'
@@ -1223,7 +1238,7 @@ abstract class InvoicePrinterBase
             $pdf->Cell(
                 $right,
                 5,
-                Translator::translate('invoice::TotalToPay') . ': ',
+                $this->translate('TotalToPay') . ': ',
                 0,
                 0,
                 'R'
@@ -1252,7 +1267,7 @@ abstract class InvoicePrinterBase
                 continue;
             }
             $maxWidth = $pdf->GetStringWidth(
-                Translator::translate($column['heading'])
+                $this->translate($column['heading'])
             );
 
             foreach ($this->invoiceRowData as $row) {
@@ -1297,7 +1312,7 @@ abstract class InvoicePrinterBase
                 $pdf->Cell(
                     $width,
                     4,
-                    Translator::translate($column['heading']),
+                    $this->translate($column['heading']),
                     0,
                     0,
                     $column['align']
@@ -1306,7 +1321,7 @@ abstract class InvoicePrinterBase
                 $pdf->multiCellMD(
                     $width,
                     4,
-                    Translator::translate($column['heading']),
+                    $this->translate($column['heading']),
                     $column['align'],
                     1,
                     0,
@@ -1490,15 +1505,16 @@ abstract class InvoicePrinterBase
     }
 
     /**
-     * Get running number for row
+     * Get sequence number for row
      *
      * @param array $row Current row
      *
      * @return string
      */
-    protected function getRowRunningNumber($row)
+    protected function getRowSequenceNumber($row)
     {
-        return $row['sequence'];
+        return getSetting('invoice_show_sequential_number') == 1
+            ? $row['sequence'] : $row['order_no'];
     }
 
     /**
@@ -1513,14 +1529,14 @@ abstract class InvoicePrinterBase
         $description = '';
         switch ($row['reminder_row']) {
         case 1 :
-            $description = Translator::translate('invoice::PenaltyInterestDesc');
+            $description = $this->translate('PenaltyInterestDesc');
             break;
         case 2 :
-            $description = Translator::translate('invoice::ReminderFeeDesc');
+            $description = $this->translate('ReminderFeeDesc');
             break;
         default :
             if ($row['partial_payment']) {
-                $description = Translator::translate('invoice::PartialPaymentDesc');
+                $description = $this->translate('PartialPaymentDesc');
             } elseif ($row['product_name']) {
                 if ($row['description']) {
                     $description = $row['product_name'] . ' (' .
@@ -1614,7 +1630,7 @@ abstract class InvoicePrinterBase
     protected function getRowItemType($row)
     {
         return $row['partial_payment'] ? ''
-            : Translator::translate("invoice::{$row['type']}");
+            : $this->translate($row['type']);
     }
 
     /**
@@ -1694,31 +1710,35 @@ abstract class InvoicePrinterBase
             $pdf->Cell(
                 120,
                 2.8,
-                Translator::translate('invoice::VirtualBarcode') . ': '
+                $this->translate('VirtualBarcode') . ': '
                 . $this->barcode,
                 0,
                 1,
                 'L'
             );
         }
-        $intStartY = 187;
+
+        $lines = 3;
+        $footerHeight = ($lines * 4);
+        $intStartY = 197 - $footerHeight;
         $pdf->SetXY($pdf->footerLeftPos, $intStartY);
         $pdf->multiCellMD(
-            $pdf->footerLeftWidth, 4, $this->senderAddressLine, 'L', 0, 8
+            $pdf->footerLeftWidth, 4, $this->senderAddressLine, 'L', 0, $footerHeight
         );
         $pdf->SetXY($pdf->footerCenterPos, $intStartY);
         $pdf->multiCellMD(
-            $pdf->footerCenterWidth, 4, $this->senderContactInfo, 'C', 0, 8
+            $pdf->footerCenterWidth, 4, $this->senderContactInfo, 'C', 0,
+            $footerHeight
         );
         $pdf->SetXY($pdf->footerRightPos, $intStartY);
         $pdf->multiCellMD(
             $pdf->footerRightWidth, 4,
-            $senderData['www'] . "\n" . $senderData['email'], 'R', 0, 8
+            $senderData['www'] . "\n" . $senderData['email'], 'R', 0, $footerHeight
         );
 
         // Invoice form
-        $intStartY = $intStartY + 8;
-        $intStartX = 3.6;
+        $intStartY = $intStartY + $footerHeight;
+        $intStartX = $this->left;
 
         $intMaxX = 210 - $intStartX;
         // 1. hor.line - full width
@@ -1771,7 +1791,7 @@ abstract class InvoicePrinterBase
         $pdf->multiCellMD(
             19,
             2.8,
-            Translator::translate('invoice::FormRecipientAccountNumber1'),
+            $this->translate('FormRecipientAccountNumber1'),
             'R',
             0
         );
@@ -1779,14 +1799,14 @@ abstract class InvoicePrinterBase
         $pdf->multiCellMD(
             19,
             2.8,
-            Translator::translate('invoice::FormRecipientAccountNumber2'),
+            $this->translate('FormRecipientAccountNumber2'),
             'R',
             0
         );
         $pdf->SetXY($intStartX + 21, $intStartY + 0.5);
-        $pdf->Cell(10, 2.8, Translator::translate('invoice::FormIBAN'), 0, 1, 'L');
+        $pdf->Cell(10, 2.8, $this->translate('FormIBAN'), 0, 1, 'L');
         $pdf->SetXY($intStartX + 112.4, $intStartY + 0.5);
-        $pdf->Cell(10, 2.8, Translator::translate('invoice::FormBIC'), 0, 1, 'L');
+        $pdf->Cell(10, 2.8, $this->translate('FormBIC'), 0, 1, 'L');
 
         // account banks
         $bankX = 0;
@@ -1832,11 +1852,11 @@ abstract class InvoicePrinterBase
         $pdf->SetFont('Helvetica', '', 7);
         $pdf->SetXY($intStartX, $intStartY + 18);
         $pdf->Cell(
-            19, 5, Translator::translate('invoice::FormRecipient1'), 0, 1, 'R'
+            19, 5, $this->translate('FormRecipient1'), 0, 1, 'R'
         );
         $pdf->SetXY($intStartX, $intStartY + 22);
         $pdf->Cell(
-            19, 5, Translator::translate('invoice::FormRecipient2'), 0, 1, 'R'
+            19, 5, $this->translate('FormRecipient2'), 0, 1, 'R'
         );
         $pdf->SetFont('Helvetica', '', 10);
         $pdf->SetXY($intStartX + 21, $intStartY + 17);
@@ -1848,7 +1868,7 @@ abstract class InvoicePrinterBase
         $pdf->multiCellMD(
             19,
             2.8,
-            Translator::translate('invoice::FormPayerNameAndAddress1'),
+            $this->translate('FormPayerNameAndAddress1'),
             'R',
             0
         );
@@ -1856,7 +1876,7 @@ abstract class InvoicePrinterBase
         $pdf->multiCellMD(
             19,
             2.8,
-            Translator::translate('invoice::FormPayernameAndAddress2'),
+            $this->translate('FormPayernameAndAddress2'),
             'R',
             0
         );
@@ -1868,13 +1888,13 @@ abstract class InvoicePrinterBase
         $pdf->SetFont('Helvetica', '', 7);
         $pdf->SetXY($intStartX, $intStartY + 59);
         $pdf->multiCellMD(
-            19, 6, Translator::translate('invoice::FormSignature'), 'R', 0
+            19, 6, $this->translate('FormSignature'), 'R', 0
         );
 
         // from account
         $pdf->SetXY($intStartX, $intStartY + 67);
         $pdf->multiCellMD(
-            19, 6, Translator::translate('invoice::FormFromAccount'), 'R', 0
+            19, 6, $this->translate('FormFromAccount'), 'R', 0
         );
 
         // info
@@ -1883,7 +1903,7 @@ abstract class InvoicePrinterBase
         $pdf->Cell(
             70, 5,
             sprintf(
-                Translator::translate('invoice::FormInvoiceNumber'),
+                $this->translate('FormInvoiceNumber'),
                 $invoiceData['invoice_no']
             ),
             0, 1, 'L'
@@ -1907,7 +1927,7 @@ abstract class InvoicePrinterBase
             $pdf->Cell(
                 70,
                 5,
-                Translator::translate('invoice::FormRefNumberMandatory1'),
+                $this->translate('FormRefNumberMandatory1'),
                 0,
                 1,
                 'L'
@@ -1916,7 +1936,7 @@ abstract class InvoicePrinterBase
             $pdf->Cell(
                 70,
                 5,
-                Translator::translate('invoice::FormRefNumberMandatory2'),
+                $this->translate('FormRefNumberMandatory2'),
                 0,
                 1,
                 'L'
@@ -1925,20 +1945,20 @@ abstract class InvoicePrinterBase
 
         // terms
         $pdf->SetFont('Helvetica', '', 5);
-        $pdf->SetXY($intStartX + 133, $intStartY + 85);
+        $pdf->SetXY($intStartX + 133, $intStartY + 78);
         $pdf->multiCellMD(
-            70, 2, Translator::translate('invoice::FormClearingTerms1'), 'L'
+            70, 2, $this->translate('FormClearingTerms1'), 'L'
         );
-        $pdf->SetXY($intStartX + 133, $intStartY + 90);
+        $pdf->SetXY($intStartX + 133, $intStartY + 83);
         $pdf->multiCellMD(
-            70, 2, Translator::translate('invoice::FormClearingTerms2'), 'L'
+            70, 2, $this->translate('FormClearingTerms2'), 'L'
         );
         $pdf->SetFont('Helvetica', '', 6);
-        $pdf->SetXY($intStartX + 133, $intStartY + 95);
+        $pdf->SetXY($intStartX + 133, $intStartY + 90);
         $pdf->Cell(
             $intMaxX + 1 - 133 - $intStartX,
             5,
-            Translator::translate('invoice::FormBank'),
+            $this->translate('FormBank'),
             0,
             1,
             'R'
@@ -1949,7 +1969,7 @@ abstract class InvoicePrinterBase
         $pdf->SetFont('Helvetica', '', 7);
         $pdf->SetXY($intStartX + 112.4, $intStartY + 58);
         $pdf->multiCellMD(
-            15, 6, Translator::translate('invoice::FormReferenceNumber'), 'L'
+            15, 6, $this->translate('FormReferenceNumber'), 'L'
         );
         if ($this->refNumber) {
             $pdf->SetFont('Helvetica', '', 10);
@@ -1961,7 +1981,7 @@ abstract class InvoicePrinterBase
         $pdf->SetFont('Helvetica', '', 7);
         $pdf->SetXY($intStartX + 112.4, $intStartY + 67);
         $pdf->multiCellMD(
-            15, 6, Translator::translate('invoice::FormDueDate'), 'L'
+            15, 6, $this->translate('FormDueDate'), 'L'
         );
         $pdf->SetFont('Helvetica', '', 10);
         $pdf->SetXY($intStartX + 131.4, $intStartY + 68);
@@ -1969,7 +1989,7 @@ abstract class InvoicePrinterBase
             25,
             5,
             ($invoiceData['state_id'] == 5 || $invoiceData['state_id'] == 6)
-                ? Translator::translate('invoice::FormDueDateNOW')
+                ? $this->translate('FormDueDateNOW')
                 : $this->formatDate($invoiceData['due_date']),
             0,
             1,
@@ -1980,7 +2000,7 @@ abstract class InvoicePrinterBase
         $pdf->SetFont('Helvetica', '', 7);
         $pdf->SetXY($intStartX + 161, $intStartY + 67);
         $pdf->multiCellMD(
-            15, 6, Translator::translate('invoice::FormCurrency'), 'L'
+            15, 6, $this->translate('FormCurrency'), 'L'
         );
         $pdf->SetFont('Helvetica', '', 10);
         if (!empty($this->invoiceRowData)) {
@@ -2017,7 +2037,7 @@ abstract class InvoicePrinterBase
                 'stretchtext' => 4
             ];
             $pdf->write1DBarcode(
-                $this->barcode, 'C128C', 20, 284, 105, 11, 0.34, $style, 'N'
+                $this->barcode, 'C128C', 20, 273, 105, 14, 0.34, $style, 'N'
             );
         }
         $pdf->setXY($saveX, $saveY);
@@ -2048,7 +2068,7 @@ abstract class InvoicePrinterBase
     protected function formatDate($date)
     {
         return dateConvDBDate2Date(
-            $date, Translator::translate('invoice::DateFormat')
+            $date, $this->translate('DateFormat')
         );
     }
 
@@ -2059,7 +2079,7 @@ abstract class InvoicePrinterBase
      * @param int   $decimals         Number of decimals to display
      * @param bool  $decimalsOptional Whether to hide decimals if they are 0
      * @param bool  $round            Whether to round the value instead of
-     * truncating
+     *                                truncating
      *
      * @return string
      */
@@ -2067,20 +2087,20 @@ abstract class InvoicePrinterBase
         $round = true
     ) {
         if (!$round) {
-            $value = round($value - (1 / (100 * $decimals)) * 0.5, $decimals);
+            $value = round($value - (1 / (10 ** $decimals)) * 0.5, $decimals);
         }
         if ($decimalsOptional) {
             return miscRound2OptDecim(
                 $value, $decimals,
-                Translator::translate('invoice::DecimalSeparator'),
-                Translator::translate('invoice::ThousandSeparator')
+                $this->translate('DecimalSeparator'),
+                $this->translate('ThousandSeparator')
             );
         }
         return miscRound2Decim(
             $value,
             $decimals,
-            Translator::translate('invoice::DecimalSeparator'),
-            Translator::translate('invoice::ThousandSeparator')
+            $this->translate('DecimalSeparator'),
+            $this->translate('ThousandSeparator')
         );
     }
 
@@ -2091,7 +2111,7 @@ abstract class InvoicePrinterBase
      * @param int   $decimals         Number of decimals to display
      * @param bool  $decimalsOptional Whether to hide decimals if they are 0
      * @param bool  $round            Whether to round the value instead of
-     * truncating
+     *                                truncating
      *
      * @return string
      */
@@ -2099,8 +2119,8 @@ abstract class InvoicePrinterBase
         $decimalsOptional = false, $round = true
     ) {
         $number = $this->formatNumber($value, $decimals, $decimalsOptional, $round);
-        return Translator::translate('invoice::CurrencyPrefix') . $number
-             . Translator::translate('invoice::CurrencySuffix');
+        return $this->translate('CurrencyPrefix') . $number
+             . $this->translate('CurrencySuffix');
     }
 
     /**
@@ -2150,19 +2170,19 @@ abstract class InvoicePrinterBase
                 case 'printout_type' :
                 case 'printout_type_caps' :
                     if ($this->printStyle == 'dispatch') {
-                        $str = Translator::translate('invoice::DispatchNote');
+                        $str = $this->translate('DispatchNote');
                     } elseif ($this->printStyle == 'receipt') {
-                        $str = Translator::translate('invoice::Receipt');
+                        $str = $this->translate('Receipt');
                     } elseif ($this->printStyle == 'offer') {
-                        $str = Translator::translate('invoice::Offer');
+                        $str = $this->translate('Offer');
                     } elseif ($this->printStyle == 'order_confirmation') {
-                        $str = Translator::translate('invoice::OrderConfirmation');
+                        $str = $this->translate('OrderConfirmation');
                     } elseif ($this->invoiceData['state_id'] == 5) {
-                        $str = Translator::translate('invoice::FirstReminder');
+                        $str = $this->translate('FirstReminder');
                     } elseif ($this->invoiceData['state_id'] == 6) {
-                        $str = Translator::translate('invoice::SecondReminder');
+                        $str = $this->translate('SecondReminder');
                     } else {
-                        $str = Translator::translate('invoice::Invoice');
+                        $str = $this->translate('Invoice');
                     }
                     if ($pcparts[1] == 'printout_type_caps') {
                         $str = ucwords($str);
@@ -2233,9 +2253,9 @@ abstract class InvoicePrinterBase
                 break;
             case 'var':
                 if ('date' === $pcparts[1]) {
-                    $values[] = date(Translator::translate('DateFormat'));
+                    $values[] = date($this->translate('DateFormat'));
                 } elseif ('datetime' === $pcparts[1]) {
-                    $values[] = date(Translator::translate('DateTimeFormat'));
+                    $values[] = date($this->translate('DateTimeFormat'));
                 }
                 break;
             default:
@@ -2295,17 +2315,17 @@ abstract class InvoicePrinterBase
     protected function getHeaderTitle()
     {
         if ($this->printStyle == 'dispatch') {
-            return Translator::translate('invoice::DispatchNoteHeader');
+            return $this->translate('DispatchNoteHeader');
         } elseif ($this->printStyle == 'receipt') {
-            return Translator::translate('invoice::ReceiptHeader');
+            return $this->translate('ReceiptHeader');
         } elseif ($this->invoiceData['state_id'] == 5) {
-            return Translator::translate('invoice::FirstReminderHeader');
+            return $this->translate('FirstReminderHeader');
         } elseif ($this->invoiceData['state_id'] == 6) {
-            return Translator::translate('invoice::SecondReminderHeader');
+            return $this->translate('SecondReminderHeader');
         } elseif ($this->invoiceData['refunded_invoice_no'] || $this->totalSum < 0) {
-            return Translator::translate('invoice::CreditInvoiceHeader');
+            return $this->translate('CreditInvoiceHeader');
         }
-        return Translator::translate('invoice::InvoiceHeader');
+        return $this->translate('InvoiceHeader');
     }
 
     /**
@@ -2355,6 +2375,7 @@ abstract class InvoicePrinterBase
         } else {
             $result = getSetting('invoice_terms_of_payment');
         }
+        $result = $this->translate($result);
         return sprintf($result, $paymentDays);
     }
 
@@ -2366,8 +2387,36 @@ abstract class InvoicePrinterBase
     protected function getPeriodForComplaints()
     {
         if (!empty($this->senderData['period_for_complaints'])) {
-            return $this->senderData['period_for_complaints'];
+            $result = $this->senderData['period_for_complaints'];
+        } else {
+            $result = getSetting('invoice_period_for_complaints');
         }
-        return getSetting('invoice_period_for_complaints');
+        return $this->translate($result);
+    }
+
+    /**
+     * Translate a key using current printout type as the domain and 'invoice' as the
+     * backup domain
+     *
+     * @param string $str          String to translate
+     * @param array  $placeholders Any key/value pairs to replace in the translation
+     * @param string $default      Optional default value if translation doesn't
+     *                             exist
+     *
+     * @return string Translated value
+     */
+    protected function translate($str, $placeholders = [], $default = null)
+    {
+        if (strpos($str, '::') > 0) {
+            return Translator::translate($str, $placeholders, $default);
+        }
+        if ('invoice' !== $this->printStyle) {
+            return Translator::translate(
+                $this->printStyle . "::$str",
+                $placeholders,
+                Translator::translate("invoice::$str", $placeholders, $default)
+            );
+        }
+        return Translator::translate("invoice::$str", $placeholders, $default);
     }
 }

@@ -1,0 +1,14 @@
+<?xml version="1.0"?>
+<ruleset name="MLInvoice Coding Standard" namespace="MLInvoice\CS\Standard">
+ <description>A PEAR-based coding standard for MLInvoice</description>
+
+ <rule ref="PEAR"/>
+
+ <rule ref="Generic.Files.LineLength">
+  <properties>
+   <property name="lineLimit" value="120"/>
+   <property name="absoluteLineLimit" value="200"/>
+  </properties>
+ </rule>
+</ruleset>
+

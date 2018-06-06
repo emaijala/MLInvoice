@@ -20,25 +20,22 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  *
  * @category MLInvoice
- * @package  Administration
+ * @package  MLInvoice\Base
  * @author   Ere Maijala <ere@labs.fi>
  * @license  http://opensource.org/licenses/gpl-2.0.php GNU General Public License
  * @link     http://labs.fi/mlinvoice.eng.php
  */
-
 require_once 'translator.php';
 require_once 'config.php';
 require_once 'miscfuncs.php';
 require_once 'sessionfuncs.php';
 require_once 'version.php';
 
-use GuzzleHttp\Client;
-
 /**
  * Self-updating mechanism
  *
  * @category MLInvoice
- * @package  Administration
+ * @package  MLInvoice\Base
  * @author   Ere Maijala <ere@labs.fi>
  * @license  http://opensource.org/licenses/gpl-2.0.php GNU General Public License
  * @link     http://labs.fi/mlinvoice.eng.php
@@ -121,7 +118,7 @@ class Updater
         }
         if ($unwritables) {
             $this->error(
-                Translate('UpdaterMissingWriteAccess') . ':<br><br>'
+                Translator::Translate('UpdaterMissingWriteAccess') . ':<br><br>'
                 . implode('<br>', $unwritables)
             );
             return false;

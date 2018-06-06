@@ -1,28 +1,32 @@
 <?php
-/*******************************************************************************
- MLInvoice: web-based invoicing application.
- Copyright (C) 2010-2017 Ere Maijala
-
- Portions based on:
- PkLasku : web-based invoicing software.
- Copyright (C) 2004-2008 Samu Reinikainen
-
- This program is free software. See attached LICENSE.
-
- *******************************************************************************/
-
-/*******************************************************************************
- MLInvoice: web-pohjainen laskutusohjelma.
- Copyright (C) 2010-2017 Ere Maijala
-
- Perustuu osittain sovellukseen:
- PkLasku : web-pohjainen laskutusohjelmisto.
- Copyright (C) 2004-2008 Samu Reinikainen
-
- Tämä ohjelma on vapaa. Lue oheinen LICENSE.
-
- *******************************************************************************/
-$strTable = '';
+/**
+ * List config
+ *
+ * PHP version 5
+ *
+ * Copyright (C) 2004-2008 Samu Reinikainen
+ * Copyright (C) 2010-2018 Ere Maijala
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License version 2,
+ * as published by the Free Software Foundation.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
+ *
+ * @category MLInvoice
+ * @package  MLInvoice\Base
+ * @author   Ere Maijala <ere@labs.fi>
+ * @license  http://opensource.org/licenses/gpl-2.0.php GNU General Public License
+ * @link     http://labs.fi/mlinvoice.eng.php
+ */
+ $strTable = '';
 $strJoin = '';
 $strListFilter = '';
 $strGroupBy = '';
@@ -114,7 +118,8 @@ case 'invoices':
 case 'offer':
     $levelsAllowed[] = ROLE_READONLY;
 
-    $strListFilter = ($strFunc == 'archived_invoices') ? 'i.archived = 1' : 'i.archived = 0';
+    $strListFilter = ($strFunc == 'archived_invoices') ? 'i.archived = 1'
+        : 'i.archived = 0';
     $strTable = '{prefix}invoice i';
     $strJoin = 'LEFT OUTER JOIN {prefix}base b on i.base_id=b.id ' .
          'LEFT OUTER JOIN {prefix}company c on i.company_id=c.id ' .
@@ -127,8 +132,10 @@ case 'offer':
 LEFT OUTER JOIN (
   SELECT ir.invoice_id,
     CASE WHEN ir.vat_included = 0
-      THEN (ir.price * (1 - IFNULL(ir.discount, 0) / 100) - IFNULL(ir.discount_amount, 0)) * ir.pcs
-      ELSE (ir.price * (1 - IFNULL(ir.discount, 0) / 100) - IFNULL(ir.discount_amount, 0)) * ir.pcs / (1 + ir.vat / 100)
+      THEN (ir.price * (1 - IFNULL(ir.discount, 0) / 100)
+        - IFNULL(ir.discount_amount, 0)) * ir.pcs
+      ELSE (ir.price * (1 - IFNULL(ir.discount, 0) / 100)
+        - IFNULL(ir.discount_amount, 0)) * ir.pcs / (1 + ir.vat / 100)
     END as row_total
   FROM {prefix}invoice_row ir
   WHERE ir.deleted = 0) it
@@ -140,8 +147,10 @@ LEFT OUTER JOIN (
   SELECT ir.invoice_id,
     CASE WHEN ir.partial_payment = 0 THEN
       CASE WHEN ir.vat_included = 0
-        THEN (ir.price * (1 - IFNULL(ir.discount, 0) / 100) - IFNULL(ir.discount_amount, 0)) * ir.pcs * (1 + ir.vat / 100)
-        ELSE (ir.price * (1 - IFNULL(ir.discount, 0) / 100) - IFNULL(ir.discount_amount, 0)) * ir.pcs
+        THEN (ir.price * (1 - IFNULL(ir.discount, 0) / 100)
+          - IFNULL(ir.discount_amount, 0)) * ir.pcs * (1 + ir.vat / 100)
+        ELSE (ir.price * (1 - IFNULL(ir.discount, 0) / 100)
+          - IFNULL(ir.discount_amount, 0)) * ir.pcs
       END
     ELSE
       ir.price
@@ -249,7 +258,8 @@ EOT;
             ]
         );
     }
-    $strGroupBy = 'i.id, i.deleted, i.invoice_date, i.due_date, i.invoice_no, b.name, c.company_name, i.name, s.name, i.ref_number';
+    $strGroupBy = 'i.id, i.deleted, i.invoice_date, i.due_date, i.invoice_no,'
+        . ' b.name, c.company_name, i.name, s.name, i.ref_number';
     $strMainForm = 'invoice';
     $strTitle = 'Invoices';
     break;

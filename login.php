@@ -1,19 +1,30 @@
 <?php
-/*******************************************************************************
- MLInvoice: web-based invoicing application.
- Copyright (C) 2010-2017 Ere Maijala
-
- This program is free software. See attached LICENSE.
-
- *******************************************************************************/
-
-/*******************************************************************************
- MLInvoice: web-pohjainen laskutusohjelma.
- Copyright (C) 2010-2017 Ere Maijala
-
- Tämä ohjelma on vapaa. Lue oheinen LICENSE.
-
- *******************************************************************************/
+/**
+ * Login page
+ *
+ * PHP version 5
+ *
+ * Copyright (C) 2010-2018 Ere Maijala
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License version 2,
+ * as published by the Free Software Foundation.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
+ *
+ * @category MLInvoice
+ * @package  MLInvoice\Base
+ * @author   Ere Maijala <ere@labs.fi>
+ * @license  http://opensource.org/licenses/gpl-2.0.php GNU General Public License
+ * @link     http://labs.fi/mlinvoice.eng.php
+ */
 
 // buffered, so we can redirect later if necessary
 ini_set('implicit_flush', 'Off');
@@ -29,8 +40,9 @@ if (!session_id()) {
     session_start();
 }
 
-$strLogin = getPost('flogin', FALSE);
-$strPasswd = getPost('fpasswd', FALSE);
+$strLogin = getPost('login', false);
+$strPasswd = getPost('passwd', false);
+$strCsrf = getPost('csrf', false);
 $strLogon = getPost('logon', '');
 $backlink = getRequest('backlink', '0');
 
@@ -67,7 +79,7 @@ $strMessage = Translator::translate('WelcomeMessage');
 
 if ($strLogon) {
     if ($strLogin && $strPasswd) {
-        switch (sesCreateSession($strLogin, $strPasswd)) {
+        switch (sesCreateSession($strLogin, $strPasswd, $strCsrf)) {
         case 'OK' :
             if ($backlink == '1' && isset($_SESSION['BACKLINK'])) {
                 header('Location: ' . $_SESSION['BACKLINK']);
@@ -87,13 +99,13 @@ if ($strLogon) {
     }
 }
 
-$key = sesCreateKey();
+$csrf = sesCreateCsrf();
 
-echo htmlPageStart('', ['jquery/js/jquery.md5.js']);
+echo htmlPageStart('');
 ?>
 
 <body onload="document.getElementById('flogin').focus();">
-    <div class="pagewrapper ui-widget ui-widget-content">
+    <div class="pagewrapper ui-widget ui-widget-content login">
         <div id="maintabs" class="navi ui-widget-header ui-tabs">
             <ul class="ui-tabs-nav ui-helper-clearfix ui-corner-all">
                 <li class="functionlink ui-state-default ui-corner-top ui-tabs-selected ui-state-active">
@@ -131,35 +143,36 @@ if (isset($languages)) {
             <p>
                 <span id="loginmsg"><?php echo $strMessage?></span>
             </p>
-
-<script type="text/javascript">
-function createHash()
-{
-  var pass_md5 = $.md5(document.getElementById('passwd').value);
-  var key = document.getElementById('key').value;
-  document.getElementById('fpasswd').value = $.md5(key + pass_md5);
-  document.getElementById('passwd').value = '';
-  document.getElementById('key').value = '';
-  var loginmsg = document.getElementById('loginmsg');
-  loginmsg.childNodes.item(0).nodeValue = '<?php echo Translator::translate('LoggingIn')?>';
-}
-</script>
-
-            <form action="login.php" method="post" name="login_form"
-                onsubmit="createHash();">
+            <form action="login.php" method="post" name="login_form">
                 <input type="hidden" name="backlink" value="<?php echo $backlink?>">
-                <input type="hidden" name="fpasswd" id="fpasswd" value=""> <input
-                    type="hidden" name="key" id="key" value="<?php echo $key?>">
+                <input type="hidden" name="csrf" id="csrf" value="<?php echo $csrf?>">
                 <p>
-                    <span style="width: 100px; display: inline-block;"><?php echo Translator::translate('UserID')?></span>
-                    <input class="medium" name="flogin" id="flogin" type="text" value="">
+                    <span style="width: 100px; display: inline-block;">
+                        <?php echo Translator::translate('UserID')?>
+                    </span>
+                    <input class="medium" name="login" id="login" type="text" value="">
                 </p>
                 <p>
-                    <span style="width: 100px; display: inline-block;"><?php echo Translator::translate('Password')?></span>
+                    <span style="width: 100px; display: inline-block;">
+                        <?php echo Translator::translate('Password')?>
+                    </span>
                     <input class="medium" name="passwd" id="passwd" type="password" value="">
                 </p>
+                <p>
                 <input class="ui-button ui-corner-all ui-widget" type="submit" name="logon"
                     value="<?php echo Translator::translate('Login')?>">
+                </p>
+<?php
+if (getSetting('password_recovery')) {
+?>
+                <p>
+                  <a href="recover.php">
+                    <?php echo Translator::translate('ForgotPassword')?>
+                  </a>
+                </p>
+<?php
+}
+?>
             </form>
         </div>
     </div>

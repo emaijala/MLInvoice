@@ -1,27 +1,31 @@
 <?php
-/*******************************************************************************
- MLInvoice: web-based invoicing application.
- Copyright (C) 2010-2017 Ere Maijala
-
- Portions based on:
- PkLasku : web-based invoicing software.
- Copyright (C) 2004-2008 Samu Reinikainen
-
- This program is free software. See attached LICENSE.
-
- *******************************************************************************/
-
-/*******************************************************************************
- MLInvoice: web-pohjainen laskutusohjelma.
- Copyright (C) 2010-2017 Ere Maijala
-
- Perustuu osittain sovellukseen:
- PkLasku : web-pohjainen laskutusohjelmisto.
- Copyright (C) 2004-2008 Samu Reinikainen
-
- Tämä ohjelma on vapaa. Lue oheinen LICENSE.
-
- *******************************************************************************/
+/**
+ * List displays
+ *
+ * PHP version 5
+ *
+ * Copyright (C) 2004-2008 Samu Reinikainen
+ * Copyright (C) 2010-2018 Ere Maijala
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License version 2,
+ * as published by the Free Software Foundation.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
+ *
+ * @category MLInvoice
+ * @package  MLInvoice\Base
+ * @author   Ere Maijala <ere@labs.fi>
+ * @license  http://opensource.org/licenses/gpl-2.0.php GNU General Public License
+ * @link     http://labs.fi/mlinvoice.eng.php
+ */
 require_once "sqlfuncs.php";
 require_once "miscfuncs.php";
 require_once "datefuncs.php";
@@ -29,9 +33,23 @@ require_once "memory.php";
 
 use Michelf\Markdown;
 
+/**
+ * Create a list
+ *
+ * @param string $strFunc          Function
+ * @param string $strList          List
+ * @param string $strTableName     Table name
+ * @param string $strTitleOverride Default title override
+ * @param string $prefilter        Prefilter
+ * @param bool   $invoiceTotal     Whether to display invoice total
+ * @param bool   $highlightOverdue Whether to highlight overdue rows
+ *
+ * @return void
+ */
 function createList($strFunc, $strList, $strTableName = '', $strTitleOverride = '',
-    $prefilter = '', $invoiceTotal = false, $highlightOverdue = false)
-{
+    $prefilter = '', $invoiceTotal = false, $highlightOverdue = false
+) {
+
     $strWhereClause = $prefilter ? $prefilter : getRequest('where', '');
 
     include 'list_switch.php';
@@ -113,12 +131,14 @@ if ($invoiceTotal) {
 <?php } ?>
 
     $('#<?php echo $strTableName?>')
+<?php if (!getRequest('bc')) { ?>
     .on('stateLoaded.dt', function () {
       var table = $('#<?php echo $strTableName?>').DataTable();
       if (table.search() != '' || table.page() != 0) {
         table.search('').page(0).draw('page');
       }
     })
+<?php } ?>
     .dataTable( {
       language: {
         <?php echo Translator::translate('TableTexts')?>
@@ -197,16 +217,11 @@ foreach ($astrShowFields as $key => $field) {
     });
     $(document).on('click', '#<?php echo $strTableName?> tbody tr', function(e) {
       var data = $('#<?php echo $strTableName?>').dataTable().fnGetData(this);
-      document.location.href = data[1];
-    });
-    $(document).on('mousedown', '#<?php echo $strTableName?> tbody tr', function(e) {
       if (e.button === 1 || e.ctrlKey || e.metaKey) {
-        var data = $('#<?php echo $strTableName?>').dataTable().fnGetData(this);
         window.open(data[1], '_blank');
-        e.preventDefault();
-        return false;
+      } else {
+        document.location.href = data[1];
       }
-      return true;
     });
   });
   </script>
@@ -215,7 +230,9 @@ foreach ($astrShowFields as $key => $field) {
 if ('product' === $strList) {
 ?>
     <div id="custom-prices" class="function_navi ui-helper-clearfix">
-        <div class="medium_label label"><?php echo Translator::translate('ClientSpecificPrices')?></div>
+        <div class="medium_label label">
+            <?php echo Translator::translate('ClientSpecificPrices')?>
+        </div>
         <div class="field">
             <?php echo htmlFormElement(
                 'company_id', 'SEARCHLIST', getRequest('company'), 'long',
@@ -225,31 +242,57 @@ if ('product' === $strList) {
         </div>
         <?php if ($companyId) { ?>
             <div id="no-custom-prices"<?php echo $customPriceSettings ? ' class="hidden"' : ''?>>
-                <div class="label"><?php echo Translator::translate('NoClientSpecificPricesDefined')?></div>
+                <div class="label">
+                    <?php echo Translator::translate('NoClientSpecificPricesDefined')?>
+                </div>
                 <?php if (sesWriteAccess()) { ?>
                     <div class="field">
-                        <button id="add-custom-prices" class="ui-button ui-corner-all ui-widget"><?php echo Translator::translate('Define')?></button>
+                        <button id="add-custom-prices" class="ui-button ui-corner-all ui-widget">
+                            <?php echo Translator::translate('Define')?>
+                        </button>
                     </div>
                 <?php } ?>
             </div>
             <div id="custom-prices-form" class="ui-helper-clearfix<?php echo !$customPriceSettings ? ' hidden' : ''?>">
-                <div class="label medium_label"><?php echo Translator::translate('DiscountPercent')?></div>
+                <div class="label medium_label">
+                    <?php echo Translator::translate('DiscountPercent')?>
+                </div>
                 <div class="field">
                     <?php echo htmlFormElement(
-                        'discount', 'INT', $customPriceSettings ? miscRound2OptDecim($customPriceSettings['discount']) : 0, 'percent'
+                        'discount', 'INT',
+                        $customPriceSettings
+                            ? miscRound2OptDecim(
+                                $customPriceSettings['discount']
+                            ) : 0,
+                        'percent'
                     );?>
                 </div>
-                <div class="label medium_label"><?php echo Translator::translate('Multiplier')?></div>
+                <div class="label medium_label">
+                    <?php echo Translator::translate('Multiplier')?>
+                </div>
                 <div class="field">
                     <?php echo htmlFormElement(
-                        'multiplier', 'INT', $customPriceSettings ? miscRound2OptDecim($customPriceSettings['multiplier'], 5) : 1, 'currency'
+                        'multiplier', 'INT',
+                        $customPriceSettings
+                            ? miscRound2OptDecim(
+                                $customPriceSettings['multiplier'], 5
+                            ) : 1,
+                        'currency'
                     );?>
                 </div>
-                <div class="label medium_label"><?php echo Translator::translate('ValidUntil')?></div>
+                <div class="label medium_label">
+                    <?php echo Translator::translate('ValidUntil')?>
+                </div>
                 <div class="field">
                     <?php echo htmlFormElement(
-                        'valid_until', 'INTDATE', $customPriceSettings ? dateConvDBDate2Date($customPriceSettings['valid_until']) : '',
-                        'date' . (!$customPriceSettings || $customPriceSettings['valid'] ? '' : ' ui-state-error')
+                        'valid_until', 'INTDATE',
+                        $customPriceSettings
+                            ? dateConvDBDate2Date(
+                                $customPriceSettings['valid_until']
+                            ) : '',
+                        'date'
+                        . (!$customPriceSettings || $customPriceSettings['valid']
+                            ? '' : ' ui-state-error')
                     );?>
                     <?php if ($customPriceSettings && !$customPriceSettings['valid']) { ?>
                         <i class="ui-icon ui-icon-alert"></i>
@@ -257,8 +300,12 @@ if ('product' === $strList) {
                 </div>
                 <div class="label medium_label">
                     <?php if (sesWriteAccess()) { ?>
-                        <a class="actionlink save-button" href="#"><?php echo Translator::translate('Save')?></a>
-                        <a class="actionlink delete-button" href="#"><?php echo Translator::translate('Delete')?></a>
+                        <a class="actionlink save-button" href="#">
+                            <?php echo Translator::translate('Save')?>
+                        </a>
+                        <a class="actionlink delete-button" href="#">
+                            <?php echo Translator::translate('Delete')?>
+                        </a>
                     <?php } ?>
                 </div>
             </div>
@@ -267,7 +314,9 @@ if ('product' === $strList) {
 <?php } ?>
 
 <div class="list_container">
-    <div id="<?php echo $strTableName?>_title" class="table_header"><?php echo Translator::translate($strTitle)?></div>
+    <div id="<?php echo $strTableName?>_title" class="table_header">
+        <?php echo Translator::translate($strTitle)?>
+    </div>
     <table id="<?php echo $strTableName?>" class="list">
         <thead>
             <tr>
@@ -281,11 +330,13 @@ foreach ($astrShowFields as $field) {
     $strWidth = isset($field['width'])
         ? (' style="width: ' . $field['width'] . 'px"') : '';
 ?>
-                <th<?php echo $strWidth?>><?php echo Translator::translate($field['header'])?></th>
+                <th<?php echo $strWidth?>>
+                    <?php echo Translator::translate($field['header'])?>
+                </th>
 <?php
 }
 ?>
-        </tr>
+            </tr>
         </thead>
         <tbody>
         </tbody>
@@ -295,6 +346,22 @@ foreach ($astrShowFields as $field) {
 <?php
 }
 
+/**
+ * Create a JSON list
+ *
+ * @param string $strFunc   Function
+ * @param string $strList   List
+ * @param int    $startRow  Start row
+ * @param int    $rowCount  Number of rows
+ * @param string $sort      Table name
+ * @param string $filter    Filter
+ * @param string $where     Where clause
+ * @param int    $requestId Request ID
+ * @param int    $listId    List ID
+ * @param int    $companyId Company ID
+ *
+ * @return void
+ */
 function createJSONList($strFunc, $strList, $startRow, $rowCount, $sort, $filter,
     $where, $requestId, $listId, $companyId = null
 ) {
@@ -328,7 +395,7 @@ function createJSONList($strFunc, $strList, $startRow, $rowCount, $sort, $filter
     // Total count
     $fullQuery
         = "SELECT COUNT(*) AS cnt FROM $strTable $strCountJoin $strWhereClause";
-    $rows = db_param_query($fullQuery, $queryParams);
+    $rows = dbParamQuery($fullQuery, $queryParams);
     $totalCount = $filteredCount = $rows[0]['cnt'];
 
     // Add Filter
@@ -339,7 +406,7 @@ function createJSONList($strFunc, $strList, $startRow, $rowCount, $sort, $filter
         // Filtered count
         $fullQuery
             = "SELECT COUNT(*) as cnt FROM $strTable $strCountJoin $strWhereClause";
-        $rows = db_param_query($fullQuery, $queryParams);
+        $rows = dbParamQuery($fullQuery, $queryParams);
         $filteredCount = $rows[0]['cnt'];
     }
 
@@ -365,7 +432,8 @@ function createJSONList($strFunc, $strList, $startRow, $rowCount, $sort, $filter
     if ('product' === $strList && $customPrices) {
         // Include any custom prices
         $strSelectClause .= <<<EOT
-, (SELECT unit_price FROM {prefix}custom_price_map pm WHERE pm.custom_price_id = ? AND pm.product_id = $strTable.id) custom_unit_price
+, (SELECT unit_price FROM {prefix}custom_price_map pm WHERE pm.custom_price_id = ?
+AND pm.product_id = $strTable.id) custom_unit_price
 EOT;
         $queryParams[] = $customPrices['id'];
     }
@@ -384,7 +452,7 @@ EOT;
         $fullQuery .= " LIMIT $startRow, $rowCount";
     }
 
-    $rows = db_param_query($fullQuery, $queryParams, false, true);
+    $rows = dbParamQuery($fullQuery, $queryParams, false, true);
 
     $astrPrimaryKeys = [];
     $records = [];
@@ -478,6 +546,19 @@ EOT;
 
 }
 
+/**
+ * Create list query parameters
+ *
+ * @param string $strFunc  Function
+ * @param string $strList  List
+ * @param int    $startRow Start row
+ * @param int    $rowCount Number of rows
+ * @param string $sort     Table name
+ * @param string $filter   Filter
+ * @param string $where    Where clause
+ *
+ * @return array
+ */
 function createListQueryParams($strFunc, $strList, $startRow, $rowCount, $sort,
     $filter, $where
 ) {
@@ -588,6 +669,18 @@ EOT;
     return $result;
 }
 
+/**
+ * Create a JSON select list
+ *
+ * @param string $strList  List
+ * @param int    $startRow Start row
+ * @param int    $rowCount Number of rows
+ * @param string $filter   Filter
+ * @param string $sort     Table name
+ * @param int    $id       Item ID
+ *
+ * @return array
+ */
 function createJSONSelectList($strList, $startRow, $rowCount, $filter, $sort,
     $id = null
 ) {
@@ -719,7 +812,8 @@ function createJSONSelectList($strList, $startRow, $rowCount, $filter, $sort,
         if ($customPrices) {
             // Include any custom prices
             $strSelectClause .= <<<EOT
-, (SELECT unit_price FROM {prefix}custom_price_map pm WHERE pm.custom_price_id = ? AND pm.product_id = $strTable.id) custom_unit_price
+, (SELECT unit_price FROM {prefix}custom_price_map pm WHERE pm.custom_price_id = ?
+AND pm.product_id = $strTable.id) custom_unit_price
 EOT;
             array_unshift($arrQueryParams, $customPrices['id']);
         }
@@ -734,7 +828,7 @@ EOT;
         $fullQuery .= " LIMIT $startRow, " . ($rowCount + 1);
     }
 
-    $rows = db_param_query($fullQuery, $arrQueryParams);
+    $rows = dbParamQuery($fullQuery, $arrQueryParams);
 
     $records = [];
     $i = -1;
