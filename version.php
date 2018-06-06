@@ -1,10 +1,10 @@
 <?php
 /**
- * Password recovery
+ * Version info
  *
  * PHP version 5
  *
- * Copyright (C) Ere Maijala 2010-2017.
+ * Copyright (C) Ere Maijala 2010-2018.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2,
