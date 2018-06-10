@@ -2086,8 +2086,15 @@ abstract class InvoicePrinterBase
     protected function formatNumber($value, $decimals = 2, $decimalsOptional = false,
         $round = true
     ) {
-        if (!$round) {
-            $value = round($value - (1 / (10 ** $decimals)) * 0.5, $decimals);
+        if (!$round && 0.0 !== $value) {
+            if (0 === $decimals) {
+                $value = (int)$value;
+            } else {
+                $mlp = 10 ** $decimals;
+                $value *= $mlp;
+                $value = (int)$value;
+                $value /= $mlp;
+            }
         }
         if ($decimalsOptional) {
             return miscRound2OptDecim(
