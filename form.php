@@ -543,7 +543,7 @@ function save_record(redirect_url, redir_style, on_print)
     'url': "json.php?func=put_<?php echo $strJSONType?>",
     'type': 'POST',
     'dataType': 'json',
-    'data': $.toJSON(obj),
+    'data': JSON.stringify(obj),
     'contentType': 'application/json; charset=utf-8',
     'success': function(data) {
       if (data.warnings) {
@@ -926,7 +926,7 @@ function save_row(form_id)
     'url': "json.php?func=put_<?php echo $formJSONType?>",
     'type': 'POST',
     'dataType': 'json',
-    'data': $.toJSON(obj),
+    'data': JSON.stringify(obj),
     'contentType': 'application/json; charset=utf-8',
     'success': function(data) {
       if (data.missing_fields)
@@ -1048,7 +1048,7 @@ function modify_rows(form_id)
     'url': "json.php?func=update_multiple",
     'type': 'POST',
     'dataType': 'json',
-    'data': $.toJSON(req),
+    'data': JSON.stringify(req),
     'contentType': 'application/json; charset=utf-8',
     'success': function(data) {
       if (data.missing_fields) {
@@ -1082,7 +1082,7 @@ function update_row_order()
     'url': "json.php?func=update_row_order",
     'type': 'POST',
     'dataType': 'json',
-    'data': $.toJSON(req),
+    'data': JSON.stringify(req),
     'contentType': 'application/json; charset=utf-8',
     'success': function(data) {
       init_rows();

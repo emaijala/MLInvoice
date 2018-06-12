@@ -63,7 +63,6 @@ function htmlPageStart($strTitle = '', $arrExtraScripts = [])
 
     $scripts = [
         'jquery/js/jquery-2.2.4.min.js',
-        'jquery/js/jquery.json-2.3.min.js',
         'jquery/js/jquery.cookie.js',
         'jquery/js/jquery-ui.min.js',
         'datatables/jquery.dataTables.min.js',

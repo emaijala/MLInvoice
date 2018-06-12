@@ -619,7 +619,7 @@ var MLInvoice = (function MLInvoice() {
         url: 'json.php?func=put_custom_prices',
         type: 'POST',
         dataType: 'json',
-        data: $.toJSON(values),
+        data: JSON.stringify(values),
         contentTypes: 'application/json; charset=utf-8',
         success: function saveCustomPricesDone(/*data*/) {
           infomsg(translate('RecordSaved'), 2000);
@@ -646,7 +646,7 @@ var MLInvoice = (function MLInvoice() {
         url: 'json.php?func=delete_custom_prices',
         type: 'POST',
         dataType: 'json',
-        data: $.toJSON(values),
+        data: JSON.stringify(values),
         contentType: 'application/json; charset=utf-8',
         success: function deleteCustomPricesDone(/*data*/) {
           infomsg(translate('RecordDeleted'), 2000);
@@ -700,7 +700,7 @@ var MLInvoice = (function MLInvoice() {
         url: 'json.php?func=' + ('' === value ? 'delete_custom_price' : 'put_custom_price'),
         type: 'POST',
         dataType: 'json',
-        data: $.toJSON(values),
+        data: JSON.stringify(values),
         contentType: 'application/json; charset=utf-8',
         success: function customPriceDone(data) {
           $item.removeClass('editing');
@@ -917,7 +917,7 @@ var MLInvoice = (function MLInvoice() {
     } else if (result < 0) {
       $('<span/>').text(translate('PrereleaseVersion')).appendTo('#version');
     }
-    $.cookie('updateversion', $.toJSON(data), { expires: 1 });
+    $.cookie('updateversion', JSON.stringify(data), { expires: 1 });
   }
 
   function calcRowSum(row)
