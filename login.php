@@ -104,7 +104,7 @@ $csrf = sesCreateCsrf();
 echo htmlPageStart('');
 ?>
 
-<body onload="document.getElementById('flogin').focus();">
+<body onload="document.getElementById('login').focus();">
     <div class="pagewrapper ui-widget ui-widget-content login">
         <div id="maintabs" class="navi ui-widget-header ui-tabs">
             <ul class="ui-tabs-nav ui-helper-clearfix ui-corner-all">
