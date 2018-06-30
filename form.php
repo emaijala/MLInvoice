@@ -754,9 +754,9 @@ EOT;
         } elseif ($subElem['type'] == 'ROWSUM') {
 ?>
       var rowSum = MLInvoice.calcRowSum(record);
-      sum = MLInvoice.formatCurrency(rowSum.sum, <?php echo isset($subElem['decimals']) ? $subElem['decimals'] : 2?>);
-      VAT = MLInvoice.formatCurrency(rowSum.VAT, <?php echo isset($subElem['decimals']) ? $subElem['decimals'] : 2?>);
-      sumVAT = MLInvoice.formatCurrency(rowSum.sumVAT, <?php echo isset($subElem['decimals']) ? $subElem['decimals'] : 2?>);
+      sum = MLInvoice.formatCurrency(rowSum.sum);
+      VAT = MLInvoice.formatCurrency(rowSum.VAT);
+      sumVAT = MLInvoice.formatCurrency(rowSum.sumVAT);
       var title = '<?php echo Translator::translate('VATLess') . ': '?>' + sum + ' &ndash; ' + '<?php echo Translator::translate('VATPart') . ': '?>' + VAT;
       var td = $('<td/>').addClass('<?php echo $class?>' + (record.deleted == 1 ? ' deleted' : '')).append('<span title="' + title + '">' + sumVAT + '<\/span>').appendTo(tr);
 <?php
