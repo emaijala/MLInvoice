@@ -89,8 +89,8 @@ var MLInvoice = (function MLInvoice() {
     return false;
   }
 
-  function _onChangeCompany(_initialLoad) {
-    var initialLoad = typeof _initialLoad === 'undefined' ? false : _initialLoad;
+  function _onChangeCompany(eventData) {
+    var initialLoad = typeof eventData === 'undefined';
     _addCompanyInfoTooltip('');
     $.getJSON('json.php?func=get_company', {id: $('#company_id').val() }, function setCompanyData(json) {
       if (json) {
@@ -1082,7 +1082,7 @@ var MLInvoice = (function MLInvoice() {
     });
     // Company info
     if ($('#company_id').val()) {
-      _onChangeCompany(true);
+      _onChangeCompany();
     }
   }
 
