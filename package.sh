@@ -35,6 +35,7 @@ cd $TMP_DIR
 unzip $OUTPUT_FILE
 cd mlinvoice
 composer install --no-dev
+find . -type f -size 0 -delete
 cd ..
 zip -r $OUTPUT_FILE mlinvoice
 

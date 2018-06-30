@@ -144,7 +144,7 @@ function save_company(translations)
     url: 'json.php?func=put_company',
     type: 'POST',
     dataType: 'json',
-    data: $.toJSON(obj),
+    data: JSON.stringify(obj),
     contentType: 'application/json; charset=utf-8',
     success: function putCompanyDone(data) {
       if (data.missing_fields) {
@@ -213,7 +213,7 @@ function save_partial_payment(translations)
     url: 'json.php?func=put_invoice_row',
     type: 'POST',
     dataType: 'json',
-    data: $.toJSON(obj),
+    data: JSON.stringify(obj),
     contentType: 'application/json; charset=utf-8',
     success: function putInvoiceRowDone(data) {
       if (data.missing_fields) {

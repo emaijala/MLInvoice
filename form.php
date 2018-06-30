@@ -543,7 +543,7 @@ function save_record(redirect_url, redir_style, on_print)
     'url': "json.php?func=put_<?php echo $strJSONType?>",
     'type': 'POST',
     'dataType': 'json',
-    'data': $.toJSON(obj),
+    'data': JSON.stringify(obj),
     'contentType': 'application/json; charset=utf-8',
     'success': function(data) {
       if (data.warnings) {
@@ -754,9 +754,9 @@ EOT;
         } elseif ($subElem['type'] == 'ROWSUM') {
 ?>
       var rowSum = MLInvoice.calcRowSum(record);
-      sum = MLInvoice.formatCurrency(rowSum.sum, <?php echo isset($subElem['decimals']) ? $subElem['decimals'] : 2?>);
-      VAT = MLInvoice.formatCurrency(rowSum.VAT, <?php echo isset($subElem['decimals']) ? $subElem['decimals'] : 2?>);
-      sumVAT = MLInvoice.formatCurrency(rowSum.sumVAT, <?php echo isset($subElem['decimals']) ? $subElem['decimals'] : 2?>);
+      sum = MLInvoice.formatCurrency(rowSum.sum);
+      VAT = MLInvoice.formatCurrency(rowSum.VAT);
+      sumVAT = MLInvoice.formatCurrency(rowSum.sumVAT);
       var title = '<?php echo Translator::translate('VATLess') . ': '?>' + sum + ' &ndash; ' + '<?php echo Translator::translate('VATPart') . ': '?>' + VAT;
       var td = $('<td/>').addClass('<?php echo $class?>' + (record.deleted == 1 ? ' deleted' : '')).append('<span title="' + title + '">' + sumVAT + '<\/span>').appendTo(tr);
 <?php
@@ -926,7 +926,7 @@ function save_row(form_id)
     'url': "json.php?func=put_<?php echo $formJSONType?>",
     'type': 'POST',
     'dataType': 'json',
-    'data': $.toJSON(obj),
+    'data': JSON.stringify(obj),
     'contentType': 'application/json; charset=utf-8',
     'success': function(data) {
       if (data.missing_fields)
@@ -1048,7 +1048,7 @@ function modify_rows(form_id)
     'url': "json.php?func=update_multiple",
     'type': 'POST',
     'dataType': 'json',
-    'data': $.toJSON(req),
+    'data': JSON.stringify(req),
     'contentType': 'application/json; charset=utf-8',
     'success': function(data) {
       if (data.missing_fields) {
@@ -1082,7 +1082,7 @@ function update_row_order()
     'url': "json.php?func=update_row_order",
     'type': 'POST',
     'dataType': 'json',
-    'data': $.toJSON(req),
+    'data': JSON.stringify(req),
     'contentType': 'application/json; charset=utf-8',
     'success': function(data) {
       init_rows();
