@@ -30,6 +30,13 @@
 ini_set('implicit_flush', 'Off');
 ob_start();
 
+if (!file_exists(__DIR__ . DIRECTORY_SEPARATOR . 'config.php')) {
+    include_once 'setup.php';
+    $setup = new Setup();
+    $setup->initialSetup();
+    exit();
+}
+
 require_once 'sessionfuncs.php';
 require_once 'sqlfuncs.php';
 require_once 'miscfuncs.php';
