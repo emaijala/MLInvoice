@@ -261,9 +261,9 @@ class Setup
                         <p>
                             <label>Default Language:<br>
                                 <select name="defaultlang">
-                                    <option value="fi-FI"<?php echo $defaultlang === 'fi-FI' ? ' selected="selected"': ''?>>Suomi (Finnish)</option>
-                                    <option value="en-US"<?php echo $defaultlang === 'en-US' ? ' selected="selected"': ''?>>English</option>
-                                    <option value="sv-FI"<?php echo $defaultlang === 'sv-FI' ? ' selected="selected"': ''?>>Svenska (Swedish)</option>
+                                    <option value="fi-FI"<?php echo $defaultlang === 'fi-FI' ? ' selected="selected"' : ''?>>Suomi (Finnish)</option>
+                                    <option value="en-US"<?php echo $defaultlang === 'en-US' ? ' selected="selected"' : ''?>>English</option>
+                                    <option value="sv-FI"<?php echo $defaultlang === 'sv-FI' ? ' selected="selected"' : ''?>>Svenska (Swedish)</option>
                                 </select>
                             </label>
                         </p>
