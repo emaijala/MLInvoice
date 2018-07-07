@@ -45,21 +45,6 @@ class Setup
     protected $errorMsg = '';
 
     /**
-     * Check that basic setup is done
-     *
-     * @return bool
-     */
-    public function verifyBasicSetup()
-    {
-        if (!$this->configExists() || $this->initDatabaseConnection() === false
-            || !$this->checkDatabaseTables()
-        ) {
-            return false;
-        }
-        return true;
-    }
-
-    /**
      * Initialize database and settings
      *
      * @return void
@@ -85,32 +70,38 @@ class Setup
             $lang = $_POST['lang'];
             $defaultlang = $_POST['defaultlang'];
 
-            if (empty($adminPassword)) {
-                $formMessage = 'Password for the admin user is required';
-            } elseif (empty($lang)) {
+            if (empty($lang)) {
                 $formMessage = 'At least one language must be selected';
             } else {
                 $initParams = compact(
-                    'host', 'database', 'username', 'password', 'prefix'
+                    'host', 'database', 'username', 'password', 'prefix', 'lang', 'defaultlang'
                 );
-                if ($this->initDatabaseConnection($initParams) === false) {
+                $db = $this->initDatabaseConnection($initParams);
+                if ($db === false) {
                     $formMessage = $this->errorMsg;
                     $this->errorMsg = '';
                 } else {
-                    $result = copy(
-                        __DIR__ . DIRECTORY_SEPARATOR . 'config.php.sample',
-                        __DIR__ . DIRECTORY_SEPARATOR . 'config.php'
-                    );
-                    if (false === $result) {
-                        $error = error_get_last();
-                        $this->errorMsg = 'Failed to copy config.php.sample to config.php: '
-                            . $error['message'];
+                    $tablesExist = $this->checkDatabaseTables($db, $prefix);
+                    if (!$tablesExist && empty($adminPassword)) {
+                        $formMessage = 'Password for the admin user is required';
                     } else {
-                        if (!$this->updateConfig($initParams)) {
-                            $this->errorMsg = 'Could not write to config.php';
+                        $result = copy(
+                            __DIR__ . DIRECTORY_SEPARATOR . 'config.php.sample',
+                            __DIR__ . DIRECTORY_SEPARATOR . 'config.php'
+                        );
+                        if (false === $result) {
+                            $error = error_get_last();
+                            $this->errorMsg = 'Failed to copy config.php.sample to config.php: '
+                                . $error['message'];
                         } else {
-                            if (!$this->checkDatabaseTables()) {
-                                if ($this->createDatabaseTables($adminPassword)) {
+                            if (!$this->updateConfig($initParams)) {
+                                $this->errorMsg = 'Could not write to config.php';
+                            } else {
+                                if (!$tablesExist) {
+                                    if ($this->createDatabaseTables($adminPassword)) {
+                                        $setupComplete = true;
+                                    }
+                                } else {
                                     $setupComplete = true;
                                 }
                             }
@@ -146,15 +137,13 @@ class Setup
         }
         $cssLinks = implode("\n", $css);
 
-        $favicon = 'favicon.ico';
-
 ?>
 <!DOCTYPE html>
 <html lang="en-US">
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
     <?php echo $xUACompatible?>    <title>Setup</title>
-    <link rel="shortcut icon" href="$favicon" type="image/x-icon">
+    <link rel="shortcut icon" href="favicon.ico" type="image/x-icon">
     <?php echo $cssLinks?>
 </head>
 <body>
@@ -359,13 +348,31 @@ class Setup
             '_DB_NAME_' => 'database',
             '_DB_USERNAME_' => 'username',
             '_DB_PASSWORD_' => 'password',
-            '_DB_PREFIX_' => 'prefix'
+            '_DB_PREFIX_' => 'prefix',
+            '_UI_LANGUAGE_' => 'defaultlang'
         ];
         foreach ($fields as $key => $value) {
             if (isset($params[$value])) {
                 $newVal = str_replace('\'', '\\\'', $params[$value]);
-                $config = preg_replace("/define\('$key'\s*,\s*'.*?'\);/", "define('$key', '$newVal');", $config);
+                $config = preg_replace("/\/*define\('$key'\s*,\s*'.*?'\);/", "define('$key', '$newVal');", $config);
             }
+        }
+        if (!empty($params['lang'])) {
+            $langStrings = [
+                'en-US' => 'In English',
+                'fi-FI' => 'Suomeksi',
+                'sv-FI' => 'På svenska'
+            ];
+            $choices = [];
+            foreach ($params['lang'] as $lang => $set) {
+                $choices[] = "$lang=" . (isset($langStrings[$lang]) ? $langStrings[$lang] : $lang);
+            }
+            $newVal = implode('|', $choices);
+            $config = preg_replace(
+                "/\/*define\('_UI_LANGUAGE_SELECTION_'\s*,\s*'.*?'\);/",
+                "define('_UI_LANGUAGE_SELECTION_', '$newVal');",
+                $config
+            );
         }
         return file_put_contents($filename, $config) !== false;
     }
@@ -410,14 +417,14 @@ class Setup
     /**
      * Check if database tables exist
      *
+     * @param object $db     Database connection
+     * @param string $prefix Table name prefix
+     *
      * @return bool
      */
-    protected function checkDatabaseTables()
+    protected function checkDatabaseTables($db, $prefix)
     {
-        include_once 'config.php';
-        $db = $this->initDatabaseConnection();
-
-        $res = mysqli_query($db, "SHOW TABLES LIKE '" . _DB_PREFIX_ . "_%'");
+        $res = mysqli_query($db, "SHOW TABLES LIKE '" . $prefix . "_%'");
         if (false === $res) {
             $this->errorMsg = mysqli_error($db);
             return false;
@@ -443,7 +450,10 @@ class Setup
         $createCommands = file_get_contents(__DIR__ . DIRECTORY_SEPARATOR . 'create_database.sql');
         $createCommands = str_replace('mlinvoice_', _DB_PREFIX_ . '_', $createCommands);
         if ('' !== $adminPassword) {
-            $createCommands = str_replace("md5('admin')", "'" . password_hash($adminPassword, PASSWORD_DEFAULT) . "'", $createCommands);
+            $createCommands = str_replace(
+                "md5('admin')", "'" . password_hash($adminPassword, PASSWORD_DEFAULT) . "'",
+                $createCommands
+            );
         }
 
         $res = mysqli_multi_query($db, $createCommands);
