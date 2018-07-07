@@ -1,4 +1,4 @@
-<FilesMatch "(\.xml|\.json|\.lock|\.sql|\.spec|\.sample|\.yaml|Dockerfile|db_data)$">
+<FilesMatch "(\.xml|\.json|\.lock|\.sql|\.spec|\.sample|\.yaml|Dockerfile)$">
   <IfModule !mod_authz_core.c>
     Order deny,allow
     Deny from all
