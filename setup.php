@@ -464,7 +464,7 @@ class Setup
             return false;
         }
         while (mysqli_more_results($db)) {
-           mysqli_next_result($db);
+            mysqli_next_result($db);
         }
 
         if ('' !== $adminPassword) {
