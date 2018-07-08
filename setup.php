@@ -411,6 +411,14 @@ class Setup
             $this->errorMsg = mysqli_error($db);
             return false;
         }
+        if (false === mysqli_query($db, 'SET NAMES \'utf8\'')) {
+            $this->errorMsg = mysqli_error($db);
+            return false;
+        }
+        if (false === mysqli_query($db, 'SET AUTOCOMMIT=1')) {
+            $this->errorMsg = mysqli_error($db);
+            return false;
+        }
         return $db;
     }
 
@@ -449,18 +457,28 @@ class Setup
 
         $createCommands = file_get_contents(__DIR__ . DIRECTORY_SEPARATOR . 'create_database.sql');
         $createCommands = str_replace('mlinvoice_', _DB_PREFIX_ . '_', $createCommands);
-        if ('' !== $adminPassword) {
-            $createCommands = str_replace(
-                "md5('admin')", "'" . password_hash($adminPassword, PASSWORD_DEFAULT) . "'",
-                $createCommands
-            );
-        }
 
         $res = mysqli_multi_query($db, $createCommands);
         if (false === $res) {
             $this->errorMsg = mysqli_error($db);
             return false;
         }
+        while (mysqli_more_results($db)) {
+           mysqli_next_result($db);
+        }
+
+        if ('' !== $adminPassword) {
+            $res = mysqli_query(
+                $db,
+                'UPDATE '  . _DB_PREFIX_ . "_users SET passwd = '"
+                . password_hash($adminPassword, PASSWORD_DEFAULT) . "' WHERE "
+                . "login = 'admin'"
+            );
+            if (false === $res) {
+                die(mysqli_error($db));
+            }
+        }
+
         return true;
     }
 }
