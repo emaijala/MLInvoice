@@ -110,77 +110,19 @@ $printTemplateFile = $row['filename'];
 $printParameters = $row['parameters'];
 $printOutputFileName = $row['output_filename'];
 
-$strQuery = 'SELECT inv.*, ref.invoice_no as refunded_invoice_no, delivery_terms.name as delivery_terms,'
-    . ' delivery_method.name as delivery_method, invoice_state.name as invoice_state,'
-    . ' invoice_state.invoice_open as invoice_open, invoice_state.invoice_unpaid as invoice_unpaid '
-    . 'FROM {prefix}invoice inv '
-    . 'LEFT OUTER JOIN {prefix}invoice ref ON ref.id = inv.refunded_invoice_id '
-    . 'LEFT OUTER JOIN {prefix}delivery_terms as delivery_terms ON delivery_terms.id = inv.delivery_terms_id '
-    . 'LEFT OUTER JOIN {prefix}delivery_method as delivery_method ON delivery_method.id = inv.delivery_method_id '
-    . 'LEFT OUTER JOIN {prefix}invoice_state as invoice_state ON invoice_state.id = inv.state_id '
-    . 'WHERE inv.id=?';
-$rows = dbParamQuery($strQuery, [$intInvoiceId]);
-if (!$rows) {
-    if ($authenticated) {
-        die('Could not find invoice data');
+if (!$authenticated) {
+    if (substr($printTemplateFile, -6) === '_email') {
+        $printTemplateFile = substr($printTemplateFile, -6);
     }
-    return;
-}
-$invoiceData = $rows[0];
-
-if (isOffer($intInvoiceId)) {
-    $invoiceData['invoice_no'] = $intInvoiceId;
+    $printParameters[1] = $language;
 }
 
-$strQuery = 'SELECT * FROM {prefix}company WHERE id=?';
-$rows = dbParamQuery($strQuery, [$invoiceData['company_id']]);
-if ($rows) {
-    $recipientData = $rows[0];
-    if (!empty($recipientData['company_id'])) {
-        $recipientData['vat_id'] = createVATID($recipientData['company_id']);
-    } else {
-        $recipientData['vat_id'] = '';
-    }
-
-    $strQuery = 'SELECT * FROM {prefix}company_contact WHERE company_id=?'
-        . ' AND deleted=0 ORDER BY id';
-    $recipientContactData = dbParamQuery($strQuery, [$invoiceData['company_id']]);
-} else {
-    $recipientData = null;
-    $recipientContactData = [];
-}
-
-$strQuery = 'SELECT * FROM {prefix}base WHERE id=?';
-$rows = dbParamQuery($strQuery, [$invoiceData['base_id']]);
-if (!$rows) {
-    if ($authenticated) {
-        die('Could not find invoice sender data');
-    }
-    return;
-}
-$senderData = $rows[0];
-$senderData['vat_id'] = createVATID($senderData['company_id']);
-
-$queryParams = [$intInvoiceId];
-$where = 'ir.invoice_id=? AND ir.deleted=0';
-if ($dateOverride) {
-    $where .= ' AND row_date=?';
-    $queryParams[] = $dateOverride;
-}
-
-$strQuery = <<<EOT
-SELECT pr.product_name, pr.product_code, pr.price_decimals,
-    pr.barcode1, pr.barcode1_type, pr.barcode2, pr.barcode2_type,
-    ir.description, ir.pcs, ir.price, IFNULL(ir.discount, 0) as discount,
-    IFNULL(ir.discount_amount, 0) as discount_amount, ir.row_date, ir.vat,
-    ir.vat_included, ir.reminder_row, ir.partial_payment, ir.order_no, rt.name type
-    FROM {prefix}invoice_row ir
-    LEFT OUTER JOIN {prefix}row_type rt ON rt.id = ir.type_id
-    LEFT OUTER JOIN {prefix}product pr ON ir.product_id = pr.id
-    WHERE $where ORDER BY ir.order_no, row_date, pr.product_name DESC,
-    ir.description DESC
-EOT;
-$invoiceRowData = dbParamQuery($strQuery, $queryParams);
+$printer = instantiateInvoicePrinter(trim($printTemplateFile));
+$printer->init(
+    $intInvoiceId, $printParameters, $printOutputFileName,
+    $dateOverride, $printTemplate, $authenticated
+);
+$printer->printInvoice();
 
 if ($authenticated && sesWriteAccess()) {
     dbParamQuery(
@@ -191,18 +133,3 @@ if ($authenticated && sesWriteAccess()) {
         ]
     );
 }
-
-if (!$authenticated) {
-    if (substr($printTemplateFile, -6) === '_email') {
-        $printTemplateFile = substr($printTemplateFile, -6);
-    }
-    $printParameters[1] = $language;
-}
-
-$printer = instantiateInvoicePrinter(trim($printTemplateFile));
-$printer->init(
-    $intInvoiceId, $printParameters, $printOutputFileName, $senderData,
-    $recipientData, $invoiceData, $invoiceRowData, $recipientContactData,
-    $dateOverride, $printTemplate, $authenticated
-);
-$printer->printInvoice();
