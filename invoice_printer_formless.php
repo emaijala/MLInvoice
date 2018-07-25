@@ -41,18 +41,18 @@ require_once 'miscfuncs.php';
 class InvoicePrinterFormless extends InvoicePrinterBase
 {
     /**
-     * Main method for printing
+     * Create the printout and return headers and data
      *
-     * @return void
+     * @return array Associative array with headers and data
      */
-    public function printInvoice()
+    public function createPrintout()
     {
         $this->allowSeparateStatement = false;
         $this->autoPageBreakMarginFirstPage = $this->autoPageBreakMargin;
         $this->invoiceRowMaxY = 270;
         $this->includeBankInFooter = true;
 
-        parent::printInvoice();
+        return parent::createPrintout();
     }
 
     /**

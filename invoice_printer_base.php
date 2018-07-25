@@ -609,6 +609,28 @@ EOT;
      */
     public function printInvoice()
     {
+        if (ob_get_contents()) {
+            echo "\nData has already been output, cannot continue printing\n";
+            return;
+        } elseif (headers_sent()) {
+            echo "\nHeaders have already been sent, cannot continue printing\n";
+            return;
+        }
+
+        $result = $this->createPrintout();
+        foreach ($result['headers'] as $header) {
+            header($header);
+        }
+        echo $result['data'];
+    }
+
+    /**
+     * Create the printout and return headers and data
+     *
+     * @return array Associative array with headers and data
+     */
+    public function createPrintout()
+    {
         if (!empty($this->invoiceData['ref_number'])
             && strlen($this->invoiceData['ref_number']) < 4
         ) {
@@ -640,8 +662,13 @@ EOT;
 
         $savePdf = clone($this->pdf);
         if (!$this->separateStatement) {
-            $this->printRows();
-            $this->printSummary();
+            if ($this->printRows() || !$this->allowSeparateStatement) {
+                $this->printSummary();
+            } else {
+                $this->pdf = $savePdf;
+                $this->printSeparateStatementMessage();
+                $this->separateStatement = true;
+            }
         } else {
             $this->printSeparateStatementMessage();
         }
@@ -666,7 +693,18 @@ EOT;
             $this->printSummary();
         }
 
-        $this->printOut();
+        $filename = basename($this->getPrintOutFileName());
+        return [
+            'headers' => [
+                'Content-Type: application/pdf',
+                'Cache-Control: private, must-revalidate, post-check=0, pre-check=0, max-age=1',
+                'Pragma: public',
+                'Expires: Mon, 26 Jul 1997 05:00:00 GMT',
+                'Last-Modified: ' . gmdate('D, d M Y H:i:s') . ' GMT',
+                'Content-Disposition: inline; filename="' . $filename . '"'
+            ],
+            'data' => $this->pdf->Output('', 'S')
+        ];
     }
 
     /**
@@ -1036,12 +1074,12 @@ EOT;
     /**
      *  Print all rows
      *
-     * @return void
+     * @return bool True when successful, false if separate statement is needed
      */
     protected function printRows()
     {
         if (empty($this->invoiceRowData)) {
-            return;
+            return true;
         }
         $pdf = $this->pdf;
         $invoiceData = $this->invoiceData;
@@ -1100,9 +1138,7 @@ EOT;
                 && $this->allowSeparateStatement
                 && $pdf->GetY() > $this->invoiceRowMaxY
             ) {
-                $this->separateStatement = true;
-                $this->printInvoice();
-                exit();
+                return false;
             }
 
             if ($maxY > $this->invoiceRowMaxY) {
@@ -1111,6 +1147,7 @@ EOT;
                 $this->printRow($pdf, $row);
             }
         }
+        return true;
     }
 
     /**
@@ -2094,20 +2131,6 @@ EOT;
         }
         $pdf->setXY($saveX, $saveY);
         $pdf->restoreAutoBreakState();
-    }
-
-    /**
-     * Print out the results
-     *
-     * @return void
-     */
-    protected function printOut()
-    {
-        $pdf = $this->pdf;
-        $invoiceData = $this->invoiceData;
-
-        $filename = $this->getPrintOutFileName();
-        $pdf->Output($filename, 'I');
     }
 
     /**

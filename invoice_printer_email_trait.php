@@ -129,7 +129,8 @@ trait InvoicePrinterEmailTrait
             return;
         }
 
-        parent::printInvoice();
+        $result = $this->createPrintout();
+        $this->sendEmail($result);
     }
 
     /**
@@ -251,20 +252,14 @@ $(document).ready(function() {
     }
 
     /**
-     * Print the printout
+     * Send email
+     *
+     * @param array $printout Printout data
      *
      * @return void
      */
-    protected function printOut()
+    protected function sendEmail($printout)
     {
-        if (!$this->authenticated) {
-            parent::printOut();
-            return;
-        }
-        $pdf = $this->pdf;
-        $senderData = $this->senderData;
-        $invoiceData = $this->invoiceData;
-
         mb_internal_encoding('UTF-8');
 
         $attachments = [];
@@ -274,10 +269,9 @@ $(document).ready(function() {
             $filename = $this->outputFileName ? $this->outputFileName
                 : getSetting('invoice_pdf_filename');
             $filename = $this->getPrintOutFileName($filename);
-            $data = $pdf->Output($filename, 'S');
             $attachments[] = [
                 'filename' => $filename,
-                'data' => $data,
+                'data' => $printout['data'],
                 'mimetype' => 'application/pdf'
             ];
         }

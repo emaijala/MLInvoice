@@ -41,11 +41,11 @@ require_once 'miscfuncs.php';
 class InvoicePrinterBlank extends InvoicePrinterBase
 {
     /**
-     * Main method for printing
+     * Create the printout and return headers and data
      *
-     * @return void
+     * @return array Associative array with headers and data
      */
-    public function printInvoice()
+    public function createPrintout()
     {
         $this->autoPageBreakMarginFirstPage = $this->autoPageBreakMargin;
 
@@ -55,7 +55,19 @@ class InvoicePrinterBlank extends InvoicePrinterBase
         $this->printInfo();
         $this->printSeparatorLine();
         $this->printForeword();
-        $this->printOut();
+
+        $filename = basename($this->getPrintOutFileName());
+        return [
+            'headers' => [
+                'Content-Type: application/pdf',
+                'Cache-Control: private, must-revalidate, post-check=0, pre-check=0, max-age=1',
+                'Pragma: public',
+                'Expires: Mon, 26 Jul 1997 05:00:00 GMT',
+                'Last-Modified: ' . gmdate('D, d M Y H:i:s') . ' GMT',
+                'Content-Disposition: inline; filename="' . $filename . '"'
+            ],
+            'data' => $this->pdf->Output('', 'S')
+        ];
     }
 
     /**

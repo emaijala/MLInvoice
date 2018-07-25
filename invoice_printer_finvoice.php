@@ -41,22 +41,27 @@ require_once 'miscfuncs.php';
 class InvoicePrinterFinvoice extends InvoicePrinterXSLT
 {
     /**
-     * Main method for printing
+     * Create the printout and return headers and data
      *
-     * @return void
+     * @return array Associative array with headers and data
      */
-    public function printInvoice()
+    public function createPrintout()
     {
         $this->xsltParams['printTransmissionDetails'] = false;
         parent::transform('create_finvoice.xsl', 'Finvoice.xsd');
-        header('Content-Type: text/xml; charset=ISO-8859-15');
+        $headers = [
+            'Content-Type: text/xml; charset=ISO-8859-15'
+        ];
         $filename = $this->getPrintoutFileName();
         if ($this->printStyle) {
-            header("Content-Disposition: inline; filename=$filename");
+            $headers[] = "Content-Disposition: inline; filename=$filename";
         } else {
-            header("Content-Disposition: attachment; filename=$filename");
+            $headers[] = "Content-Disposition: attachment; filename=$filename";
         }
-        echo $this->xml;
+        return [
+            'headers' => $headers,
+            'data' => $this->xml
+        ];
     }
 
     /**
