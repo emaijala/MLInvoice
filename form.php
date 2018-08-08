@@ -201,12 +201,11 @@ EOT;
 ?>
     <div class="form">
         <form method="post" name="admin_form" id="admin_form"<?php echo $dataAttrs?>>
-            <input type="hidden" name="copyact" value="0"> <input type="hidden"
-                name="newact" value="<?php echo $blnNew ? 1 : 0?>"> <input
-                type="hidden" name="deleteact" value="0"> <input type="hidden"
-                name="redirect" id="redirect" value=""> <input type="hidden"
-                id="record_id" name="id"
-                value="<?php echo (isset($intKeyValue) && $intKeyValue) ? $intKeyValue : '' ?>">
+            <input type="hidden" name="copyact" value="0">
+            <input type="hidden" name="newact" value="<?php echo $blnNew ? 1 : 0?>">
+            <input type="hidden" name="deleteact" value="0">
+            <input type="hidden" name="redirect" id="redirect" value="">
+            <input type="hidden" id="record_id" name="id" value="<?php echo (isset($intKeyValue) && $intKeyValue) ? $intKeyValue : '' ?>">
             <table>
     <?php
     $haveChildForm = false;
@@ -677,7 +676,7 @@ function init_rows()
             if ($translate) {
                 $value = Translator::translate($value);
             }
-            echo ',' . $key . ':"' . addcslashes($value, '\"\/') . '"';
+            echo ',"' . $key . '":"' . addcslashes($value, '\"\/') . '"';
         }
         echo "};\n";
     }
@@ -738,6 +737,8 @@ EOT;
             } else {
                 echo "      td.text(record.${name}_text).appendTo(tr);\n";
             }
+        } elseif ($subElem['type'] == 'PASSWD_STORED') {
+            echo "      td.text('').appendTo(tr);\n";
         } elseif ($subElem['type'] == 'INT') {
             if (isset($subElem['decimals'])) {
                 echo "      td.text(record.$name ? MLInvoice.formatCurrency(record.$name, {$subElem['decimals']}) : '').appendTo(tr);\n";
@@ -1226,6 +1227,10 @@ function popup_editor(event, title, id, copy_row)
                 ?>
     form.<?php echo "iform_popup_$name"?>.value = json.<?php echo $name?> ? formatDate(json.<?php echo $name?>) : '';
                 <?php
+            } elseif ($subElem['type'] == 'PASSWD_STORED') {
+                ?>
+    form.<?php echo "iform_popup_$name"?>.value = '';
+                <?php
             } elseif ($subElem['type'] == 'CHECK') {
                 ?>
     form.<?php echo "iform_popup_$name"?>.checked = json.<?php echo $name?> != 0 ? true : false;
@@ -1249,10 +1254,11 @@ function popup_editor(event, title, id, copy_row)
 
     var buttons = new Object();
     buttons["<?php echo Translator::translate('Save')?>"] = function() { save_row('iform_popup'); };
-    if (!copy_row)
+    if (!copy_row) {
       buttons["<?php echo Translator::translate('Delete')?>"] = function() { if(confirm('<?php echo Translator::translate('ConfirmDelete')?>')==true) { delete_row('iform_popup'); } return false; };
+    }
     buttons["<?php echo Translator::translate('Close')?>"] = function() { $("#popup_edit").dialog('close'); };
-    $("#popup_edit").dialog({ modal: true, width: 1050, height: 180, resizable: true,
+    $("#popup_edit").dialog({ modal: true, width: <?php echo 'send_api_config' === $formJSONType ? 1200 : 1050?>, height: 180, resizable: true,
       buttons: buttons,
       title: title,
     });
@@ -1405,8 +1411,7 @@ function multi_editor(event, title)
                     $value = '';
                 }
                 ?>
-              <td
-                                    class="label <?php echo strtolower($subElem['style'])?>_label">
+              <td class="label <?php echo strtolower($subElem['style'])?>_label">
                 <?php
                 echo htmlFormElement(
                     'iform_' . $subElem['name'], $subElem['type'], $value,
@@ -1418,9 +1423,7 @@ function multi_editor(event, title)
 <?php
             } elseif ($subElem['type'] == 'ROWSUM') {
                 ?>
-              <td
-                                    class="label <?php echo strtolower($subElem['style'])?>_label">
-                                    &nbsp;</td>
+              <td class="label <?php echo strtolower($subElem['style'])?>_label">&nbsp;</td>
 <?php
             }
         }
@@ -1608,6 +1611,12 @@ function createFormButtons($form, $new, $copyLinkOverride, $spinner, $readOnlyFo
         <?php
         }
     }
+    if ($form === 'invoice' && $top && !$new) {
+        ?>
+        <span class="send-buttons">
+        </span>
+        <?php
+    }
 
     if (($id = getRequest('id', '')) && ($listId = getRequest('listid', ''))) {
         createListNavigationLinks($listId, $id);
@@ -1725,7 +1734,7 @@ function augmentListInfo($listId, $listInfo, $startRow, $rowCount)
     }
 
     $ids = [];
-    $rows = dbParamQuery($fullQuery, $params['params']);
+    $rows = dbParamQuery($fullQuery, $params['params'], false, true);
     foreach ($rows as $row) {
         $ids[] = $row[$primaryKey];
     }

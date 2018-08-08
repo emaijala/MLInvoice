@@ -56,7 +56,6 @@ if (false === $printTemplate || false === $language || false === $uuid
 require_once 'vendor/autoload.php';
 require_once 'sqlfuncs.php';
 require_once 'translator.php';
-require_once 'pdf.php';
 require_once 'datefuncs.php';
 require_once 'miscfuncs.php';
 
@@ -117,7 +116,7 @@ if (!$authenticated) {
     $printParameters[1] = $language;
 }
 
-$printer = instantiateInvoicePrinter(trim($printTemplateFile));
+$printer = getInvoicePrinter($printTemplateFile);
 $printer->init(
     $intInvoiceId, $printParameters, $printOutputFileName,
     $dateOverride, $printTemplate, $authenticated

@@ -496,6 +496,7 @@ function htmlFormElement($strName, $strType, $strValue, $strStyle, $strListQuery
         break;
 
     case 'PASSWD':
+    case 'PASSWD_STORED':
         $strFormElement = "<input type=\"password\" class=\"$strStyle\" " .
              "id=\"$strName\" name=\"$strName\" value=\"\"$astrAdditionalAttributes$readOnly>\n";
         break;

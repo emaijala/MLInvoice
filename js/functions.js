@@ -241,6 +241,7 @@ function round_number(num, dec)
 
 function update_base_defaults()
 {
+  MLInvoice.updateSendApiButtons();
   var baseId = String($('#base_id').val());
   if (baseId === '') {
     return;

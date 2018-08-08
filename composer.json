@@ -19,7 +19,8 @@
         "ramsey/uuid": "^3.7.1",
         "swiftmailer/swiftmailer": "^5.4.6",
         "tecnickcom/tcpdf": "^6.2.12",
-        "guzzlehttp/guzzle": "^6.3.0"
+        "guzzlehttp/guzzle": "^6.3.0",
+        "phpseclib/phpseclib": "^2.0.11"
     },
     "require-dev": {
         "friendsofphp/php-cs-fixer": "^v2.10.3",
