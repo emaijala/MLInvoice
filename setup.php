@@ -53,13 +53,14 @@ class Setup
     {
         $formMessage = '';
         $setupComplete = false;
-        list($host, $database, $username, $password, $prefix, $lang, $defaultlang)
+        list($host, $database, $username, $password, $prefix, $lang, $defaultlang, $encryptionKey)
             = $this->getConfigDefaults();
         $adminPassword = '';
         if (isset($_POST['host']) && isset($_POST['database'])
             && isset($_POST['username']) && isset($_POST['password'])
             && isset($_POST['prefix']) && isset($_POST['adminpass'])
             && isset($_POST['lang']) && isset($_POST['defaultlang'])
+            && isset($_POST['encryptionkey'])
         ) {
             $host = $_POST['host'];
             $database = $_POST['database'];
@@ -69,12 +70,16 @@ class Setup
             $adminPassword = $_POST['adminpass'];
             $lang = $_POST['lang'];
             $defaultlang = $_POST['defaultlang'];
+            $encryptionKey = $_POST['encryptionkey'];
 
             if (empty($lang)) {
                 $formMessage = 'At least one language must be selected';
+            } elseif (strlen($encryptionKey) < 32) {
+                $formMessage = 'Encryption key must be at least 32 characters';
             } else {
                 $initParams = compact(
-                    'host', 'database', 'username', 'password', 'prefix', 'lang', 'defaultlang'
+                    'host', 'database', 'username', 'password', 'prefix', 'lang',
+                    'defaultlang', 'encryptionKey'
                 );
                 $db = $this->initDatabaseConnection($initParams);
                 if ($db === false) {
@@ -227,6 +232,17 @@ class Setup
                             </label>
                         </p>
                     </div>
+                    <div class="ui-widget ui-widget-content ui-corner-all" style="padding: 10px; margin-bottom: 10px;">
+                        <p>
+                            Please enter an encryption key that is used to encrypt e.g. passwords for mail sending services.
+                            The key must be something secret and at least 32 characters long.
+                        </p>
+                        <p>
+                            <label>Encryption key:<br>
+                                <input type="text" name="encryptionkey" value="<?php echo htmlentities($encryptionKey)?>">
+                            </label>
+                        </p>
+                    </div>
                     <div class="ui-widget ui-widget-content ui-corner-all" style="padding: 10px">
                         <p>
                             Finally, please choose the user interface languages that can be selected on login.
@@ -275,7 +291,7 @@ class Setup
      * Get defaults from config.php.sample
      *
      * @return array host, database, username, password, prefix, languages, default
-     * language
+     * language, encryption key
      */
     protected function getConfigDefaults()
     {
@@ -286,6 +302,7 @@ class Setup
         $prefix = 'mlinvoice';
         $lang = [];
         $defaultlang = 'fi-FI';
+        $encryptionKey = '';
 
         $config = file_get_contents(__DIR__ . DIRECTORY_SEPARATOR . 'config.php.sample');
         if (false === $config) {
@@ -315,8 +332,11 @@ class Setup
         if (preg_match("/define\('_UI_LANGUAGE_', '(.*?)'\)/", $config, $matches)) {
             $defaultlang = $matches[1];
         }
+        if (preg_match("/define\('_ENCRYPTION_KEY_', '(.*?)'\)/", $config, $matches)) {
+            $encryptionKey = $matches[1];
+        }
 
-        return [$host, $database, $username, $password, $prefix, $lang, $defaultlang];
+        return [$host, $database, $username, $password, $prefix, $lang, $defaultlang, $encryptionKey];
     }
 
     /**
@@ -349,7 +369,8 @@ class Setup
             '_DB_USERNAME_' => 'username',
             '_DB_PASSWORD_' => 'password',
             '_DB_PREFIX_' => 'prefix',
-            '_UI_LANGUAGE_' => 'defaultlang'
+            '_UI_LANGUAGE_' => 'defaultlang',
+            '_ENCRYPTION_KEY_' => 'encryptionKey'
         ];
         foreach ($fields as $key => $value) {
             if (isset($params[$value])) {

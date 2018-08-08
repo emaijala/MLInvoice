@@ -58,6 +58,10 @@ define('_DB_PREFIX_', 'mlinvoice');
 // Raportoidaanko tietokantavirheiden tarkat tiedot html-sivuilla (true = kyllä, false = vain php:n virhelokissa)
 define('_DB_VERBOSE_ERRORS_', true);
 
+// Encryption key used to store e.g. passwords for mail sending services. Must be at least 32 characters.
+// Salausavain mm. lähestyspalveluiden salasanojen kryptausta varten. Tulee olla vähintään 32 merkkiä.
+define('_ENCRYPTION_KEY_', 'replacewithsomethingsecure');
+
 // Character set: UTF-8 or ISO-8859-15. UTF-8 should work properly regardless of database character set.
 // Merkistö: UTF-8 tai ISO-8859-15. UTF-8:n pitäisi toimia riippumatta siitä, mitä merkistöä tietokannassa on.
 define('_CHARSET_', 'UTF-8');

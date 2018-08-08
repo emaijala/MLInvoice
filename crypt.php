@@ -25,7 +25,7 @@
  * @license  http://opensource.org/licenses/gpl-2.0.php GNU General Public License
  * @link     http://labs.fi/mlinvoice.eng.php
  */
-require_once 'settings.php';
+require_once 'config.php';
 
 use phpseclib\Crypt\AES;
 
@@ -52,16 +52,14 @@ class Crypt
      */
     public function __construct()
     {
-        $this->cipher = new AES();
-        $key = getSetting('encryption_key');
-        if (!$key) {
-            $key = base64_encode(random_bytes(32));
-            dbParamQuery(
-                'INSERT INTO {prefix}settings (name, value) VALUES (?, ?)',
-                ['encryption_key', $key]
-            );
+        if (!defined('_ENCRYPTION_KEY_')) {
+            throw new Exception('_ENCRYPTION_KEY_ must be defined in config.php');
         }
-        $this->cipher->setKey($key);
+        if (strlen(_ENCRYPTION_KEY_) < 32) {
+            throw new Exception('_ENCRYPTION_KEY_ in config.php too short');
+        }
+        $this->cipher = new AES();
+        $this->cipher->setKey(_ENCRYPTION_KEY_);
     }
 
     /**
