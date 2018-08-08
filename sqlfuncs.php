@@ -1952,8 +1952,6 @@ EOT
         );
     }
 
-
-
     // phpcs:enable Generic.Files.LineLength
     if (!empty($updates)) {
         dbQueryCheck('SET AUTOCOMMIT = 0');

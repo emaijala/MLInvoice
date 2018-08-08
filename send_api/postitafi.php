@@ -25,7 +25,6 @@
  * @license  http://opensource.org/licenses/gpl-2.0.php GNU General Public License
  * @link     http://labs.fi/mlinvoice.eng.php
  */
-
 require_once 'sqlfuncs.php';
 require_once 'miscfuncs.php';
 require_once 'crypt.php';

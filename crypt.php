@@ -28,7 +28,6 @@
 require_once 'settings.php';
 
 use phpseclib\Crypt\AES;
-use phpseclib\Crypt\Random;
 
 /**
  * Encryption utility class
