@@ -1,4 +1,4 @@
-/* global $, jQuery, google, init_rows */
+/* global $, jQuery, google, init_rows, MLInvoice */
 /* exported add_company, add_partial_payment, formatDate, initAddressAutocomplete, intVal, round_number */
 $(document).ready(function docReady() {
   // Link from base label

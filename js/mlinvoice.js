@@ -58,7 +58,7 @@ var MLInvoice = (function MLInvoice() {
     } else if (printStyle === 'openwindow') {
       window.open(target);
     } else {
-      window.location = target;
+      window.location.href = target;
     }
     return false;
   }
@@ -72,7 +72,7 @@ var MLInvoice = (function MLInvoice() {
     if (typeof form.data('readOnly') === 'undefined') {
       save_record(url, '', true);
     } else {
-      window.location = target;
+      window.location.href = url;
     }
     return false;
   }
@@ -1125,13 +1125,13 @@ var MLInvoice = (function MLInvoice() {
         var $heading = $('<li/>');
         $heading.text(service.name + '...');
         $ul.append($heading);
-        $menuitems = $('<ul/>');
+        var $menuitems = $('<ul/>');
         $.each(service.items, function addItem(idx2, item) {
           var $li = $('<li/>');
           $li.click(function liClick() {
             _sendPrintout('?' + item.href);
           });
-          $name = $('<div>');
+          var $name = $('<div>');
           $name.text(item.name);
           $li.append($name);
           $menuitems.append($li);
