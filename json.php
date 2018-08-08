@@ -707,10 +707,16 @@ function saveJSONRecord($table, $parentKeyName)
     }
 
     $warnings = '';
-    $res = saveFormData(
-        $strTable, $id, $astrFormElements, $data, $warnings, $parentKeyName,
-        $parentKeyName ? $data[$parentKeyName] : false, $onPrint
-    );
+    try {
+        $res = saveFormData(
+            $strTable, $id, $astrFormElements, $data, $warnings, $parentKeyName,
+            $parentKeyName ? $data[$parentKeyName] : false, $onPrint
+        );
+    } catch (Exception $e) {
+        header('Content-Type: application/json');
+        echo json_encode(['error' => $e->getMessage()]);
+        return;
+    }
     if ($res !== true) {
         if ($warnings) {
             header('HTTP/1.1 409 Conflict');

@@ -930,6 +930,10 @@ function save_row(form_id)
     'data': JSON.stringify(obj),
     'contentType': 'application/json; charset=utf-8',
     'success': function(data) {
+      if (data.error) {
+        MLInvoice.errormsg(data.error);
+        return;
+      }
       if (data.missing_fields)
       {
         MLInvoice.errormsg('<?php echo Translator::translate('ErrValueMissing')?>: ' + data.missing_fields);
