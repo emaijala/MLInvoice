@@ -40,9 +40,9 @@ function createSettingsList()
     if (!sesAdminAccess()) {
         ?>
 <div class="form_container ui-widget-content">
-    <?php echo Translator::translate('NoAccess') . "\n"?>
+        <?php echo Translator::translate('NoAccess') . "\n"?>
   </div>
-<?php
+        <?php
         return;
     }
 
@@ -95,9 +95,9 @@ function createSettingsList()
     }
     ?>
 <div class="form_container ui-widget-content">
-<?php if ($messages) {?>
+    <?php if ($messages) {?>
     <div class="ui-widget ui-state-error"><?php echo $messages?></div>
-<?php }?>
+    <?php }?>
 
     <script type="text/javascript">
     <!--
@@ -127,11 +127,11 @@ function createSettingsList()
     foreach ($arrSettings as $name => $elem) {
         $elemType = $elem['type'];
         if ($elemType == 'LABEL') {
-    ?>
+            ?>
         <div class="sublabel ui-widget-header ui-state-default">
             <?php echo Translator::translate($elem['label'])?>
         </div>
-    <?php
+            <?php
             continue;
         }
         $value = getPost($name, null);
@@ -161,19 +161,19 @@ function createSettingsList()
             }
         }
         if ($elemType == 'CHECK') {
-        ?>
+            ?>
         <div class="field" style="clear: both">
-        <?php
-        echo htmlFormElement(
-            $name, $elemType, $value, $elem['style'], '', 'MODIFY', '', '', [],
-            isset($elem['elem_attributes']) ? $elem['elem_attributes'] : '', $options
-        );
-        ?>
+            <?php
+            echo htmlFormElement(
+                $name, $elemType, $value, $elem['style'], '', 'MODIFY', '', '', [],
+                isset($elem['elem_attributes']) ? $elem['elem_attributes'] : '', $options
+            );
+            ?>
         <label for="<?php echo $name?>">
             <?php echo Translator::translate($elem['label'])?>
         </label>
         </div>
-        <?php
+            <?php
         } else {
             ?>
             <div class="label" style="clear: both">
@@ -189,7 +189,7 @@ function createSettingsList()
             );
             ?>
       </div>
-<?php
+            <?php
         }
     }
     ?>
@@ -198,7 +198,7 @@ function createSettingsList()
     </form>
     </div>
 </div>
-<?php
+    <?php
 }
 
 /**
@@ -214,5 +214,5 @@ function createSettingsListButtons()
         <?php echo Translator::translate('Save')?>
     </a>
 </div>
-<?php
+    <?php
 }

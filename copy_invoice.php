@@ -38,7 +38,7 @@ require_once 'settings.php';
 
 if (!sesWriteAccess()) {
     echo htmlPageStart();
-?>
+    ?>
 <body>
     <div class="ui-widget">
         <div class="form_container ui-widget-content">
@@ -47,7 +47,7 @@ if (!sesWriteAccess()) {
     </div>
 </body>
 </html>
-<?php
+    <?php
     return;
 }
 
@@ -69,7 +69,7 @@ if ($intInvoiceId) {
     $rows = dbParamQuery($strQuery, [$intInvoiceId]);
     if (!$rows) {
         echo htmlPageStart();
-?>
+        ?>
 <body>
     <div class="ui-widget">
         <div class="form_container ui-widget-content">
@@ -78,7 +78,7 @@ if ($intInvoiceId) {
     </div>
 </body>
 </html>
-<?php
+        <?php
         return;
     }
     $invoiceData = $rows[0];

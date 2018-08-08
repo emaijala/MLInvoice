@@ -57,7 +57,7 @@ class AccountingReport extends InvoiceReport
         $intBaseId = getRequest('base', false);
         $intCompanyId = getRequest('company', false);
         $dateRange = getRequest('date', '');
-?>
+        ?>
             <div class="medium_label">
                 <?php echo Translator::translate('DateInterval')?>
             </div>
@@ -78,7 +78,7 @@ class AccountingReport extends InvoiceReport
             <div class="field">
                 <?php echo htmlFormElement('company', 'LIST', $intCompanyId, 'medium', 'SELECT id, company_name FROM {prefix}company WHERE deleted=0 ORDER BY company_name', 'MODIFY', false)?>
             </div>
-<?php
+        <?php
     }
 
     /**

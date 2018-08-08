@@ -1731,94 +1731,94 @@ EOF;
     ];
     break;
 
-    case 'send_api_config':
-    case 'send_api_configs':
-        $strTable = '{prefix}send_api_config';
-        $strJSONType = 'send_api_config';
-        $strParentKey = 'base_id';
-        $clearRowValuesAfterAdd = true;
-        $astrFormElements = [
-            [
-                'name' => 'id',
-                'label' => '',
-                'type' => 'HID_INT',
-                'style' => 'medium',
-                'position' => 0
+case 'send_api_config':
+case 'send_api_configs':
+    $strTable = '{prefix}send_api_config';
+    $strJSONType = 'send_api_config';
+    $strParentKey = 'base_id';
+    $clearRowValuesAfterAdd = true;
+    $astrFormElements = [
+        [
+            'name' => 'id',
+            'label' => '',
+            'type' => 'HID_INT',
+            'style' => 'medium',
+            'position' => 0
+        ],
+        [
+            'name' => 'name',
+            'label' => 'Name',
+            'type' => 'TEXT',
+            'style' => 'medium',
+            'position' => 0,
+            'allow_null' => true
+        ],
+        [
+            'name' => 'method',
+            'label' => 'APIName',
+            'type' => 'LIST',
+            'style' => 'medium translated',
+            'listquery' => [
+                'postita.fi' => 'Postita.fi'
             ],
-            [
-                'name' => 'name',
-                'label' => 'Name',
-                'type' => 'TEXT',
-                'style' => 'medium',
-                'position' => 0,
-                'allow_null' => true
+            'position' => 0,
+            'allow_null' => false
+        ],
+        [
+            'name' => 'username',
+            'label' => 'UserID',
+            'type' => 'TEXT',
+            'style' => 'medium',
+            'position' => 0,
+            'allow_null' => true
+        ],
+        [
+            'name' => 'password',
+            'label' => 'Password',
+            'type' => 'PASSWD_STORED',
+            'style' => 'medium',
+            'position' => 0,
+            'allow_null' => true
+        ],
+        [
+            'name' => 'reference',
+            'label' => 'Reference',
+            'type' => 'TEXT',
+            'style' => 'medium',
+            'position' => 0,
+            'allow_null' => true
+        ],
+        [
+            'name' => 'post_class',
+            'label' => 'PostalClass',
+            'type' => 'LIST',
+            'style' => 'medium translated noemptyvalue',
+            'listquery' => [
+                '0' => 'Unspecified',
+                '1' => 'FirstClassBW',
+                '2' => 'SecondClassBW',
+                '3' => 'FirstClassColor',
+                '4' => 'SecondClassColor'
             ],
-            [
-                'name' => 'method',
-                'label' => 'APIName',
-                'type' => 'LIST',
-                'style' => 'medium translated',
-                'listquery' => [
-                    'postita.fi' => 'Postita.fi'
-                ],
-                'position' => 0,
-                'allow_null' => false
-            ],
-            [
-                'name' => 'username',
-                'label' => 'UserID',
-                'type' => 'TEXT',
-                'style' => 'medium',
-                'position' => 0,
-                'allow_null' => true
-            ],
-            [
-                'name' => 'password',
-                'label' => 'Password',
-                'type' => 'PASSWD_STORED',
-                'style' => 'medium',
-                'position' => 0,
-                'allow_null' => true
-            ],
-            [
-                'name' => 'reference',
-                'label' => 'Reference',
-                'type' => 'TEXT',
-                'style' => 'medium',
-                'position' => 0,
-                'allow_null' => true
-            ],
-            [
-                'name' => 'post_class',
-                'label' => 'PostalClass',
-                'type' => 'LIST',
-                'style' => 'medium translated noemptyvalue',
-                'listquery' => [
-                    '0' => 'Unspecified',
-                    '1' => 'FirstClassBW',
-                    '2' => 'SecondClassBW',
-                    '3' => 'FirstClassColor',
-                    '4' => 'SecondClassColor'
-                ],
-                'position' => 0,
-                'allow_null' => false
-            ],
-            [
-                'name' => 'add_to_queue',
-                'label' => 'SendToQueue',
-                'type' => 'CHECK',
-                'style' => 'short',
-                'position' => 0
-            ],
-            [
-                'name' => 'finvoice_mail_backup',
-                'label' => 'FinvoiceMailBackup',
-                'type' => 'CHECK',
-                'style' => 'short',
-                'position' => 0
-            ]
-        ];
-        break;
+            'position' => 0,
+            'allow_null' => false
+        ],
+        [
+            'name' => 'add_to_queue',
+            'label' => 'SendToQueue',
+            'type' => 'CHECK',
+            'style' => 'short',
+            'position' => 0
+        ],
+        [
+            'name' => 'finvoice_mail_backup',
+            'label' => 'FinvoiceMailBackup',
+            'type' => 'CHECK',
+            'style' => 'short',
+            'position' => 0
+        ]
+    ];
+    break;
 
 case 'invoice_state' :
     $levelsAllowed = [

@@ -45,7 +45,7 @@ if (!session_id()) {
 
 if (!getSetting('password_recovery')) {
     echo htmlPageStart();
-?>
+    ?>
 <body>
     <div class="ui-widget">
         <div class="form_container ui-widget-content">
@@ -54,7 +54,7 @@ if (!getSetting('password_recovery')) {
     </div>
 </body>
 </html>
-<?php
+    <?php
     return;
 }
 
@@ -144,21 +144,21 @@ if (isset($message)) {
             <br />
     <?php
 } elseif (isset($errorMessage)) {
-?>
+    ?>
         <div class="message ui-widget ui-state-error">
             <?php echo $errorMessage?>
         </div>
         <br />
-<?php
+    <?php
 }
 if (empty($completed)) {
-?>
+    ?>
         <div class="ui-widget form" style="padding: 30px;">
             <h1><?php echo Translator::translate('RecoverAccount')?></h1>
             <form method="post" name="recover_form">
     <?php
     if ($token && !empty($user)) {
-    ?>
+        ?>
                 <input type="hidden" name="token" value="<?php echo htmlentities($token)?>">
                 <p>
                     <span style="width: 140px; display: inline-block;">
@@ -172,16 +172,16 @@ if (empty($completed)) {
                     </span>
                     <input class="medium" name="password" id="password" type="password" value="">
                 </p>
-    <?php
+        <?php
     } else {
-    ?>
+        ?>
                 <p>
                     <span style="width: 140px; display: inline-block;">
                         <?php echo Translator::translate('UserIdOrEmail')?>
                     </span>
                     <input class="medium" name="userid" id="userid" type="text" value="">
                 </p>
-    <?php
+        <?php
     }
     ?>
 
@@ -191,7 +191,7 @@ if (empty($completed)) {
                 </p>
             </form>
         </div>
-<?php
+    <?php
 }
 ?>
         <div class="ui-widget" style="padding-left: 30px; padding-right: 30px">

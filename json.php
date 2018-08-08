@@ -495,7 +495,7 @@ EOT
     <td><?php echo miscRound2Decim($row['stock_change'])?></td>
     <td><?php echo $row['description']?></td>
 </tr>
-<?php
+        <?php
     }
     break;
 

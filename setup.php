@@ -137,14 +137,14 @@ class Setup
         }
         $cssLinks = implode("\n", $css);
 
-?>
+        ?>
 <!DOCTYPE html>
 <html lang="en-US">
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-    <?php echo $xUACompatible?>    <title>Setup</title>
+        <?php echo $xUACompatible?>    <title>Setup</title>
     <link rel="shortcut icon" href="favicon.ico" type="image/x-icon">
-    <?php echo $cssLinks?>
+        <?php echo $cssLinks?>
 </head>
 <body>
     <div class="pagewrapper ui-widget ui-widget-content login">
@@ -158,14 +158,14 @@ class Setup
 
         <?php
         if ($setupComplete) {
-        ?>
+            ?>
             <div class="message ui-widger ui-state-information">
                 Setup complete. <a href="login.php">Continue to login</a>.
             </div>
             <br />
-        <?php
+            <?php
         } elseif ($this->errorMsg) {
-        ?>
+            ?>
             <div class="ui-widget" style="padding: 30px 30px 0 30px;">
                 Please correct the following issues before trying to continue:
             </div>
@@ -173,9 +173,9 @@ class Setup
                 <?php echo $this->errorMsg?>
             </div>
             <br />
-        <?php
+            <?php
         } else {
-        ?>
+            ?>
             <?php if ($formMessage) { ?>
                 <div class="message ui-widget ui-state-error">
                     <?php echo $formMessage?>
@@ -262,13 +262,13 @@ class Setup
                     </p>
                 </form>
             </div>
-        <?php
+            <?php
         }
-?>
+        ?>
         </div>
     </div>
 </body>
-<?php
+        <?php
     }
 
     /**

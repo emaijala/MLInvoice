@@ -459,7 +459,7 @@ function getSendApiConfig($baseId, $apiId)
 /**
  * Get send API configs for base
  *
- * @param int    $baseId  Base ID
+ * @param int $id Base ID
  *
  * @return array
  */

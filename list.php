@@ -110,9 +110,9 @@ function createList($strFunc, $strList, $strTableName = '', $strTitleOverride = 
 <script type="text/javascript">
 
   $(document).ready(function() {
-<?php
-if ($invoiceTotal) {
-?>
+    <?php
+    if ($invoiceTotal) {
+        ?>
     $('#<?php echo $strTableName?>').one('xhr.dt', function() {
       $.ajax({
         url: 'json.php?func=get_invoice_total_sum',
@@ -122,23 +122,23 @@ if ($invoiceTotal) {
         $('#<?php echo $strTableName?>_title').append(' ' + MLInvoice.translate('InvoicesTotal', {'%%sum%%': MLInvoice.formatCurrency(data['sum'])}));
       });
     });
-<?php
-}
-?>
+        <?php
+    }
+    ?>
 
-<?php if ('product' === $strList && $companyId) { ?>
+    <?php if ('product' === $strList && $companyId) { ?>
     $('#<?php echo $strTableName?>').on( 'click', 'td.editable', MLInvoice.editUnitPrice);
-<?php } ?>
+    <?php } ?>
 
     $('#<?php echo $strTableName?>')
-<?php if (!getRequest('bc')) { ?>
+    <?php if (!getRequest('bc')) { ?>
     .on('stateLoaded.dt', function () {
       var table = $('#<?php echo $strTableName?>').DataTable();
       if (table.search() != '' || table.page() != 0) {
         table.search('').page(0).draw('page');
       }
     })
-<?php } ?>
+    <?php } ?>
     .dataTable( {
       language: {
         <?php echo Translator::translate('TableTexts')?>
@@ -149,15 +149,15 @@ if ($invoiceTotal) {
       pageLength: <?php echo getSetting('default_list_rows')?>,
       pagingType: "full_numbers",
       columnDefs: [
-<?php
-$i = 1;
-foreach ($astrShowFields as $key => $field) {
-    if ('HIDDEN' === $field['type']) {
-        continue;
-    }
-    ++$i;
-    $strWidth = isset($field['width']) ? ($field['width'] . 'px') : '';
-?>
+    <?php
+    $i = 1;
+    foreach ($astrShowFields as $key => $field) {
+        if ('HIDDEN' === $field['type']) {
+            continue;
+        }
+        ++$i;
+        $strWidth = isset($field['width']) ? ($field['width'] . 'px') : '';
+        ?>
         {
             targets: [ <?php echo $i?> ],
             'width': "<?php echo $strWidth?>"
@@ -169,9 +169,9 @@ foreach ($astrShowFields as $key => $field) {
             <?php } ?>
 
         },
-<?php
-}
-?>
+        <?php
+    }
+    ?>
         { targets: [ 0, 1 ], 'searchable': false, 'visible': false }
       ],
       order: [[ 2, 'asc' ]],
@@ -191,22 +191,22 @@ foreach ($astrShowFields as $key => $field) {
                 }
                 ++$i;
                 if (!empty($field['translate'])) {
-                ?>
+                    ?>
                     json.data[i][<?php echo $i?>] = MLInvoice.translate(json.data[i][<?php echo $i?>]);
-                <?php
+                    <?php
                 } elseif ('CURRENCY' === $field['type']) {
                     $decimals = isset($field['decimals']) ? $field['decimals'] : 2;
-                ?>
+                    ?>
                     json.data[i][<?php echo $i?>] = MLInvoice.formatCurrency(json.data[i][<?php echo $i?>], <?php echo $decimals?>);
-                <?php
+                    <?php
                 } elseif ('INTDATE' === $field['type']) {
-                ?>
+                    ?>
                     json.data[i][<?php echo $i?>] = formatDate(json.data[i][<?php echo $i?>]);
-                <?php
+                    <?php
                 } else {
-                ?>
+                    ?>
                     json.data[i][<?php echo $i?>] = $('<div/>').text(json.data[i][<?php echo $i?>]).html();
-                <?php
+                    <?php
                 }
             }
             ?>
@@ -226,9 +226,9 @@ foreach ($astrShowFields as $key => $field) {
   });
   </script>
 
-<?php
-if ('product' === $strList) {
-?>
+    <?php
+    if ('product' === $strList) {
+        ?>
     <div id="custom-prices" class="function_navi ui-helper-clearfix">
         <div class="medium_label label">
             <?php echo Translator::translate('ClientSpecificPrices')?>
@@ -240,7 +240,7 @@ if ('product' === $strList) {
                 '_onChangeCompanyReload'
             );?>
         </div>
-        <?php if ($companyId) { ?>
+            <?php if ($companyId) { ?>
             <div id="no-custom-prices"<?php echo $customPriceSettings ? ' class="hidden"' : ''?>>
                 <div class="label">
                     <?php echo Translator::translate('NoClientSpecificPricesDefined')?>
@@ -309,9 +309,9 @@ if ('product' === $strList) {
                     <?php } ?>
                 </div>
             </div>
-        <?php } ?>
+            <?php } ?>
     </div>
-<?php } ?>
+    <?php } ?>
 
 <div class="list_container">
     <div id="<?php echo $strTableName?>_title" class="table_header">
@@ -322,20 +322,20 @@ if ('product' === $strList) {
             <tr>
                 <th>ID</th>
                 <th>Link</th>
-<?php
-foreach ($astrShowFields as $field) {
-    if ('HIDDEN' === $field['type']) {
-        continue;
-    }
-    $strWidth = isset($field['width'])
+    <?php
+    foreach ($astrShowFields as $field) {
+        if ('HIDDEN' === $field['type']) {
+            continue;
+        }
+        $strWidth = isset($field['width'])
         ? (' style="width: ' . $field['width'] . 'px"') : '';
-?>
+        ?>
                 <th<?php echo $strWidth?>>
                     <?php echo Translator::translate($field['header'])?>
                 </th>
-<?php
-}
-?>
+        <?php
+    }
+    ?>
             </tr>
         </thead>
         <tbody>
@@ -343,7 +343,7 @@ foreach ($astrShowFields as $field) {
     </table>
     <br>
 </div>
-<?php
+    <?php
 }
 
 /**
@@ -372,9 +372,9 @@ function createJSONList($strFunc, $strList, $startRow, $rowCount, $sort, $filter
     if (!sesAccessLevel($levelsAllowed) && !sesAdminAccess()) {
         ?>
 <div class="form_container ui-widget-content">
-    <?php echo Translator::translate('NoAccess') . "\n"?>
+        <?php echo Translator::translate('NoAccess') . "\n"?>
   </div>
-<?php
+        <?php
         return;
     }
 
@@ -690,9 +690,9 @@ function createJSONSelectList($strList, $startRow, $rowCount, $filter, $sort,
     if (empty($id) && !sesAccessLevel($levelsAllowed) && !sesAdminAccess()) {
         ?>
 <div class="form_container ui-widget-content">
-    <?php echo Translator::translate('NoAccess') . "\n"?>
+        <?php echo Translator::translate('NoAccess') . "\n"?>
   </div>
-<?php
+        <?php
         return;
     }
 

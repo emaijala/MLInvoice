@@ -300,7 +300,7 @@ class ImportStatement extends ImportFile
      */
     protected function addCustomFormFields()
     {
-?>
+        ?>
       <div class="medium_label"><?php echo Translator::translate('ImportStatementMarkPaidInvoicesArchived')?></div>
       <div class="field">
         <input type="checkbox" id="archive" name="archive" value="1" <?php echo getSetting('invoice_auto_archive') ? 'checked="checked"' : '' ?>>
@@ -317,7 +317,7 @@ class ImportStatement extends ImportFile
       <div class="field">
         <input type="checkbox" id="ignore_paid" name="ignore_paid" value="1">
       </div>
-<?php
+        <?php
     }
 
     /**

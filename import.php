@@ -149,11 +149,11 @@ class ImportFile
         ?>
 
 <div class="form_container">
-    <?php
-    if ($error) {
-        echo "<div class=\"error\">$error</div>\n";
-    }
-    ?>
+        <?php
+        if ($error) {
+            echo "<div class=\"error\">$error</div>\n";
+        }
+        ?>
     <h1><?php echo Translator::translate('ImportFileSelection')?></h1>
     <span id="imessage" style="display: none"></span> <span id="spinner"
         style="visibility: hidden"><img src="images/spinner.gif" alt=""></span>
@@ -169,18 +169,18 @@ class ImportFile
         <div class="long">
             <input name="data" type="file">
         </div>
-<?php if ($this->allowServerFile) {?>
-      <div class="label" style="clear: both; margin-top: 10px">
+        <?php if ($this->allowServerFile) {?>
+        <div class="label" style="clear: both; margin-top: 10px">
             <input type="radio" id="ft_server" name="filetype"
                 value="server_file"><label for="ft_server"><?php echo Translator::translate('ImportUseServerFile')?></label>
         </div>
-<?php }?>
+        <?php }?>
       <div class="form_buttons" style="clear: both">
             <input type="submit" value="<?php echo Translator::translate('ImportNext')?>">
         </div>
     </form>
 </div>
-<?php
+        <?php
     }
 
     /**
@@ -886,42 +886,42 @@ function select_preset()
     <form id="import_form" name="import_form" method="GET">
         <input type="hidden" name="func" value="<?php echo htmlentities(getRequest('func', ''))?>">
         <input type="hidden" name="operation" value="import">
-    <?php
-    if ($this->presets) {
-        $presets = $this->presets;
-        $selectedPreset = null;
-        array_unshift($presets, ['name' => Translator::translate('ImportExportPresetNone'), 'value' => '']);
-        foreach ($presets as $preset) {
-            if (isset($preset['default_for']) && $format == $preset['default_for']) {
-                $selectedPreset = $preset;
-                if (isset($preset['selections']['charset'])) {
-                    $charset = $this->charsets[$preset['selections']['charset']];
+        <?php
+        if ($this->presets) {
+            $presets = $this->presets;
+            $selectedPreset = null;
+            array_unshift($presets, ['name' => Translator::translate('ImportExportPresetNone'), 'value' => '']);
+            foreach ($presets as $preset) {
+                if (isset($preset['default_for']) && $format == $preset['default_for']) {
+                    $selectedPreset = $preset;
+                    if (isset($preset['selections']['charset'])) {
+                        $charset = $this->charsets[$preset['selections']['charset']];
+                    }
+                    if (isset($preset['selections']['date_format'])) {
+                        $dateFormat = $this->dateFormats[$preset['selections']['date_format']];
+                    }
+                    if (isset($preset['values']['decimal_separator'])) {
+                        $decimalSeparator = $preset['values']['decimal_separator'];
+                    }
+                    break;
                 }
-                if (isset($preset['selections']['date_format'])) {
-                    $dateFormat = $this->dateFormats[$preset['selections']['date_format']];
-                }
-                if (isset($preset['values']['decimal_separator'])) {
-                    $decimalSeparator = $preset['values']['decimal_separator'];
-                }
-                break;
-            }
-        }
-        ?>
-        <div class="medium_label"><?php echo Translator::translate('ImportExportPreset')?></div>
-        <div class="field">
-            <select id="preset" name="preset" onchange="select_preset()">
-            <?php
-            foreach ($this->presets as $preset) {
-                echo "<option value=\"{$preset['value']}\""
-                    . ($selectedPreset['value'] == $preset['value'] ? ' selected="selected"' : '')
-                    . '>' . $preset['name'] . "</option>\n";
             }
             ?>
-            </select>
-        </div>
-    <?php
-    }
-    ?>
+            <div class="medium_label"><?php echo Translator::translate('ImportExportPreset')?></div>
+            <div class="field">
+                <select id="preset" name="preset" onchange="select_preset()">
+                <?php
+                foreach ($this->presets as $preset) {
+                    echo "<option value=\"{$preset['value']}\""
+                        . ($selectedPreset['value'] == $preset['value'] ? ' selected="selected"' : '')
+                        . '>' . $preset['name'] . "</option>\n";
+                }
+                ?>
+                </select>
+            </div>
+            <?php
+        }
+        ?>
 
         <div class="medium_label"><?php echo Translator::translate('ImportExportCharacterSet')?></div>
         <div class="field">
@@ -934,11 +934,11 @@ function select_preset()
         </div>
         <?php
         if ($this->tableName) {
-        ?>
+            ?>
         <input id="sel_table" name="table" type="hidden" value="<?php echo htmlentities($this->tableName)?>"></input>
-        <?php
+            <?php
         } else {
-        ?>
+            ?>
         <div class="medium_label"><?php echo Translator::translate('ImportExportTable')?></div>
         <div class="field">
             <select id="sel_table" name="table"
@@ -959,7 +959,7 @@ function select_preset()
                 <option value="custom_price_map"><?php echo Translator::translate('ImportExportTableCustomPriceMaps')?></option>
             </select>
         </div>
-        <?php
+            <?php
         }
         ?>
 
@@ -972,9 +972,9 @@ function select_preset()
                 <option value="json"<?php if ($format == 'json') echo ' selected="selected"'?>>JSON</option>
         <?php
         if ($this->fixedWidthSettings) {
-        ?>
+            ?>
                 <option value="fixed"<?php if ($format == 'fixed') echo ' selected="selected"'?>><?php echo $this->fixedWidthName ?></option>
-        <?php
+            <?php
         }
         ?>
             </select>
@@ -1026,20 +1026,20 @@ function select_preset()
 
         <?php
         if ($this->dateFormat) {
-        ?>
+            ?>
         <div class="medium_label"><?php echo Translator::translate('ImportExportDateFormat')?></div>
         <div class="field">
             <select id="date_format" name="date_format" onchange="settings_changed()">
             <?php
             foreach ($this->dateFormats as $fmt) {
-            ?>
+                ?>
                 <option value="<?php echo $fmt?>" <?php if ($fmt == $dateFormat) echo 'selected="selected"' ?>><?php echo $fmt?></option>
-            <?php
+                <?php
             }
             ?>
             </select>
         </div>
-        <?php
+            <?php
         }
         ?>
 
@@ -1057,7 +1057,7 @@ function select_preset()
             </input>
         </div>
 
-<?php if ($this->duplicateControl) { ?>
+        <?php if ($this->duplicateControl) { ?>
       <div class="medium_label"><?php echo Translator::translate('ImportExistingRowHandling')?></div>
         <div class="field">
             <select id="duplicate_processing" name="duplicate_processing"
@@ -1069,9 +1069,9 @@ function select_preset()
 
         <div class="medium_label"><?php echo Translator::translate('ImportIdentificationColumns')?></div>
         <div id="columns" class="field"></div>
-<?php } ?>
+        <?php } ?>
 
-<?php $this->addCustomFormFields(); ?>
+        <?php $this->addCustomFormFields(); ?>
 
         <div class="unlimited_label"><?php echo Translator::translate('ImportColumnMapping')?></div>
         <div class="column_mapping">
@@ -1086,7 +1086,7 @@ function select_preset()
         </div>
     </form>
 </div>
-<?php
+        <?php
     }
 
     /**
@@ -1734,7 +1734,7 @@ function select_preset()
         }
         ?>
     </div>
-<?php
+        <?php
     }
 
     /**
