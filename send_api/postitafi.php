@@ -123,14 +123,14 @@ class Postitafi
         } catch (Exception $e) {
             return [
                 'success' => false,
-                'message' => 'Postita.fi request failed: ' . $e->getMessage()
+                'message' => $e->getMessage()
             ];
         }
         if ($res->getStatusCode() !== 200) {
             return [
                 'success' => false,
-                'message' => 'Postita.fi returned the following error information: '
-                    . $res->getStatusCode() . ' (' . $res->getReasonPhrase() . '): '
+                'message' => $res->getStatusCode()
+                    . ' (' . $res->getReasonPhrase() . '): '
                     . (string)$res->getBody()
             ];
         }
