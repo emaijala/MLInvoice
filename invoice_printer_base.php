@@ -2394,7 +2394,7 @@ EOT;
      *
      * @return string
      */
-    protected function getHeaderTitle()
+    public function getHeaderTitle()
     {
         if ($this->printStyle == 'dispatch') {
             return $this->translate('DispatchNoteHeader');

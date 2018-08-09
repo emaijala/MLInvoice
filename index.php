@@ -83,6 +83,9 @@ if ($strFunc == 'send_api') {
         if ($result['message']) {
             $_SESSION['formMessage'] .= ' (' . $result['message'] . ')';
         }
+        if (!empty($result['warnings'])) {
+            $_SESSION['formErrorMessage'] = $result['warnings'];
+        }
     } else {
         $_SESSION['formErrorMessage'] = Translator::Translate('SendFailure');
         if ($result['message']) {

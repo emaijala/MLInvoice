@@ -86,24 +86,22 @@ class Postitafi
         if ($printer instanceof InvoicePrinterFinvoice) {
             $endpoint = 'https://postita.fi/api/send_finvoice/';
             $request = [
-                'job_name' => $recipient
-                    ? ('Finvoice to ' . $recipient['company_name'])
-                    : 'Finvoice to recipient',
+                'job_name' => 'Finvoice'
+                    . ($recipient ? ' / ' . $recipient['company_name'] : ''),
                 'finvoice' => $this->base64url_encode($result['data']),
-                'confirm' => $this->apiConfig['add_to_queue'] ? 'True' : 'False',
+                'confirm' => $this->apiConfig['add_to_queue'] ? 'False' : 'True',
                 'use_snail_backup' => $this->apiConfig['finvoice_mail_backup']
                     ? 'True' : 'False'
             ];
         } else {
             $endpoint = 'https://postita.fi/api/send/';
             $request = [
-                'job_name' => $recipient
-                    ? ('Letter to ' . $recipient['company_name'])
-                    : 'Letter to recipient',
+                'job_name' => $printer->getHeaderTitle()
+                    . ($recipient ? ' / ' . $recipient['company_name'] : ''),
                 'pdf' => $this->base64url_encode($result['data']),
                 'receiver_id' => $this->apiConfig['reference']
                     ? $this->apiConfig['reference'] : '',
-                'confirm' => $this->apiConfig['add_to_queue'] ? 'True' : 'False'
+                'confirm' => $this->apiConfig['add_to_queue'] ? 'False' : 'True'
             ];
             if ($this->apiConfig['post_class']) {
                 $request['post_class'] = $this->apiConfig['post_class'];
@@ -136,9 +134,18 @@ class Postitafi
         }
         $body = (string)$res->getBody();
         $result = json_decode($body, true);
+        if ($printer instanceof InvoicePrinterFinvoice) {
+            $result = $result[0];
+        }
+        $message = 'Status: ' . $this->getStatusString($result['status']);
+        $warnings = '';
+        if (!empty($result['errors'])) {
+            $warnings = implode('. ', $result['errors']);
+        }
         return [
             'success' => true,
-            'message' => 'Status: ' . $this->getStatusString($result['status'])
+            'message' => $message,
+            'warnings' => $warnings
         ];
     }
 

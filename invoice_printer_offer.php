@@ -152,7 +152,7 @@ class InvoicePrinterOffer extends InvoicePrinterBase
      *
      * @return string
      */
-    protected function getHeaderTitle()
+    public function getHeaderTitle()
     {
         return $this->translate('OfferHeader');
     }

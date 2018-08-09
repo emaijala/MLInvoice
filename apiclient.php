@@ -108,8 +108,6 @@ class ApiClient
             }
         }
 
-        $result['message'] = preg_replace('/[\n\r\t]+/', ' ', $result['message']);
-
         return $result;
     }
 

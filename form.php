@@ -425,12 +425,12 @@ $(document).ready(function() {
     <?php
     if ($strMessage) {
         ?>
-  MLInvoice.infomsg("<?php echo $strMessage?>");
+  MLInvoice.infomsg("<?php echo htmlentities($strMessage)?>");
         <?php
     }
     if ($strErrorMessage) {
         ?>
-      MLInvoice.errormsg("<?php echo $strErrorMessage?>");
+      MLInvoice.errormsg("<?php echo htmlentities($strErrorMessage)?>");
         <?php
     }
     if ($strForm == 'product') {
