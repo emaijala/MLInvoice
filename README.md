@@ -32,6 +32,37 @@ Visit https://getcomposer.org/ if you don't already have composer installed.
 Release packages at https://www.labs.fi/mlinvoice_installation.eng.php include the
 dependencies.
 
+
+Running with Docker
+-------------------
+
+Running MLInvoice in a Docker container is now also supported. Docker and
+Docker-compose are required. When they are available, it's enough to download
+MLInvoice, extract it into a directory, enter the directory in a terminal and execute
+the command `docker-compose up`. When the containers have been created and have
+started, MLInvoice will be available at http://localhost:8000/. Note that the
+database is created in the db_data subdirectory, so make sure not to delete it unless
+you want to start from scratch.
+
+Useful docker commands:
+
+`docker-compose up` - Start the containers in foreground (Ctrl-C to stop)
+
+`docker-compose up -d` - Start the containers in background (use `docker-compose stop` to stop them)
+
+`docker-compose up --build` - Start the containers after rebuilding them
+
+`docker-compose down` - Stop the containers
+
+`docker run -it mlinvoice_mlinvoice /bin/bash` - Open a terminal inside the container
+
+
+Running with Vagrant
+--------------------
+
+There is a separate MLInvoice-Vagrant project that allows running MLInvoice under
+Vagrant. See https://github.com/emaijala/MLInvoice-Vagrant for more information.
+
 Suomeksi
 --------
 
