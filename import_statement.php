@@ -45,6 +45,7 @@ class ImportStatement extends ImportFile
     {
         parent::__construct();
 
+        $this->requireAdmin = false;
         $this->tableName = 'account_statement';
         $this->allowServerFile = false;
         $this->duplicateControl = false;
