@@ -84,21 +84,29 @@ class Postitafi
         $httpClient = new GuzzleHttp\Client();
 
         if ($printer instanceof InvoicePrinterFinvoice) {
+            $pdfPrinter = GetInvoicePrinter('invoice_printer.php');
+            $pdfPrinter->init(
+                $invoice['id'], $printParameters ? $printParameters : 'invoice',
+                $printOutputFileName, 0, $template, true
+            );
+            $pdfResult = $pdfPrinter->createPrintout();
+
             $endpoint = 'https://postita.fi/api/send_finvoice/';
             $request = [
                 'job_name' => 'Finvoice'
                     . ($recipient ? ' / ' . $recipient['company_name'] : ''),
-                'finvoice' => $this->base64url_encode($result['data']),
+                'finvoice' => $this->base64urlEncode($result['data']),
                 'confirm' => $this->apiConfig['add_to_queue'] ? 'False' : 'True',
                 'use_snail_backup' => $this->apiConfig['finvoice_mail_backup']
-                    ? 'True' : 'False'
+                    ? 'True' : 'False',
+                'invoice_pdf' => $this->base64urlEncode($pdfResult['data'])
             ];
         } else {
             $endpoint = 'https://postita.fi/api/send/';
             $request = [
                 'job_name' => $printer->getHeaderTitle()
                     . ($recipient ? ' / ' . $recipient['company_name'] : ''),
-                'pdf' => $this->base64url_encode($result['data']),
+                'pdf' => $this->base64urlEncode($result['data']),
                 'receiver_id' => $this->apiConfig['reference']
                     ? $this->apiConfig['reference'] : '',
                 'confirm' => $this->apiConfig['add_to_queue'] ? 'False' : 'True'
@@ -176,7 +184,7 @@ class Postitafi
      *
      * @return string
      */
-    protected function base64url_encode($input)
+    protected function base64urlEncode($input)
     {
         return strtr(base64_encode($input), '+/', '-_');
     }
