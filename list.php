@@ -146,7 +146,7 @@ if ($invoiceTotal) {
       stateSave: true,
       stateDuration: 0,
       jQueryUI: true,
-      pageLength: <?php echo getSetting('default_list_rows')?>,
+      pageLength: 10,
       pagingType: "full_numbers",
       columnDefs: [
 <?php
