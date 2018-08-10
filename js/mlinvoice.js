@@ -398,7 +398,8 @@ var MLInvoice = (function MLInvoice() {
         dropdownCssClass: 'bigdrop',
         dropdownAutoWidth: true,
         escapeMarkup: function escapeString(m) { return m; },
-        width: 'element'
+        width: 'element',
+        minimumResultsForSearch: -1
       });
       select.on('change', function selectChange() {
         var id = select.select2('val');
