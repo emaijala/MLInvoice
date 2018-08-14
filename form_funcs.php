@@ -28,6 +28,7 @@
 require_once 'sqlfuncs.php';
 require_once 'datefuncs.php';
 require_once 'miscfuncs.php';
+require_once 'crypt.php';
 
 /**
  *  Get post values or defaults for unspecified values
@@ -227,7 +228,7 @@ function saveFormData($table, &$primaryKey, &$formElements, &$values, &$warnings
             $value = getFormDefaultValue($elem, $parentKey);
         }
 
-        if ($type == 'PASSWD' && !$value) {
+        if (($type == 'PASSWD' || $type == 'PASSWD_STORED') && !$value) {
             continue; // Don't save empty password
         }
 
@@ -260,6 +261,10 @@ function saveFormData($table, &$primaryKey, &$formElements, &$values, &$warnings
         switch ($type) {
         case 'PASSWD':
             $arrValues[] = password_hash($values[$name], PASSWORD_DEFAULT);
+            break;
+        case 'PASSWD_STORED':
+            $crypt = new Crypt();
+            $arrValues[] = $crypt->encrypt($values[$name]);
             break;
         case 'INT':
         case 'HID_INT':
@@ -343,7 +348,11 @@ function saveFormData($table, &$primaryKey, &$formElements, &$values, &$warnings
                 }
             }
 
-            $strQuery = "UPDATE $table SET $strUpdateFields, deleted=0 WHERE id=?";
+            if ('{prefix}send_api_config' === $table) {
+                $strQuery = "UPDATE $table SET $strUpdateFields WHERE id=?";
+            } else {
+                $strQuery = "UPDATE $table SET $strUpdateFields, deleted=0 WHERE id=?";
+            }
             $arrValues[] = $primaryKey;
             dbParamQuery($strQuery, $arrValues, 'exception');
         }

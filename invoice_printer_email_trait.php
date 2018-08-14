@@ -248,7 +248,7 @@ $(document).ready(function() {
 });
 </script>
 </html>
-<?php
+        <?php
     }
 
     /**

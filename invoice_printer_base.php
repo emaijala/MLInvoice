@@ -29,6 +29,7 @@
  */
 require_once 'translator.php';
 require_once 'settings.php';
+require_once 'pdf.php';
 
 /**
  * Invoice printer abstract base class
@@ -323,10 +324,8 @@ abstract class InvoicePrinterBase
                 $invoiceData['invoice_no'] = $invoiceId;
             }
 
-            $strQuery = 'SELECT * FROM {prefix}company WHERE id=?';
-            $rows = dbParamQuery($strQuery, [$invoiceData['company_id']]);
-            if ($rows) {
-                $recipientData = $rows[0];
+            $recipientData = getCompany($invoiceData['company_id']);
+            if ($recipientData) {
                 if (!empty($recipientData['company_id'])) {
                     $recipientData['vat_id'] = createVATID($recipientData['company_id']);
                 } else {
@@ -2386,6 +2385,7 @@ EOT;
         );
         // Handle additional placeholders
         $filename = $this->replacePlaceholders($filename);
+        $filename = filter_var($filename, FILTER_SANITIZE_URL);
         return $filename;
     }
 
@@ -2394,7 +2394,7 @@ EOT;
      *
      * @return string
      */
-    protected function getHeaderTitle()
+    public function getHeaderTitle()
     {
         if ($this->printStyle == 'dispatch') {
             return $this->translate('DispatchNoteHeader');

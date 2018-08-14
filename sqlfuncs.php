@@ -408,6 +408,87 @@ function getDefaultValue($id, $full = false)
 }
 
 /**
+ * Get an invoice
+ *
+ * @param int $id Invoice ID
+ *
+ * @return array
+ */
+function getInvoice($id)
+{
+    $rows = dbParamQuery(
+        'SELECT * FROM {prefix}invoice WHERE id=?',
+        [$id]
+    );
+    return $rows ? $rows[0] : [];
+}
+
+/**
+ * Get a base
+ *
+ * @param int $id Base ID
+ *
+ * @return array
+ */
+function getBase($id)
+{
+    $rows = dbParamQuery(
+        'SELECT * FROM {prefix}base WHERE id=?',
+        [$id]
+    );
+    return $rows ? $rows[0] : [];
+}
+
+/**
+ * Get send API config
+ *
+ * @param int    $baseId Base ID
+ * @param string $apiId  API name
+ *
+ * @return array
+ */
+function getSendApiConfig($baseId, $apiId)
+{
+    $rows = dbParamQuery(
+        'SELECT * FROM {prefix}send_api_config WHERE base_id=? AND id=?',
+        [$baseId, $apiId]
+    );
+    return $rows ? $rows[0] : [];
+}
+
+/**
+ * Get send API configs for base
+ *
+ * @param int $id Base ID
+ *
+ * @return array
+ */
+function getSendApiConfigs($id)
+{
+    $rows = dbParamQuery(
+        'SELECT * FROM {prefix}send_api_config WHERE base_id=?',
+        [$id]
+    );
+    return $rows;
+}
+
+/**
+ * Get a print template
+ *
+ * @param int $id Template ID
+ *
+ * @return array
+ */
+function getPrintTemplate($id)
+{
+    $rows = dbParamQuery(
+        'SELECT * FROM {prefix}print_template WHERE id=?',
+        [$id]
+    );
+    return $rows ? $rows[0] : [];
+}
+
+/**
  * Get a product
  *
  * @param int $productId Product ID
@@ -419,6 +500,22 @@ function getProduct($productId)
     $rows = dbParamQuery(
         'SELECT * FROM {prefix}product WHERE id=?',
         [$productId]
+    );
+    return $rows ? $rows[0] : [];
+}
+
+/**
+ * Get a company
+ *
+ * @param int $id Company ID
+ *
+ * @return array
+ */
+function getCompany($id)
+{
+    $rows = dbParamQuery(
+        'SELECT * FROM {prefix}company WHERE id=?',
+        [$id]
     );
     return $rows ? $rows[0] : [];
 }
@@ -743,7 +840,11 @@ function deleteRecord($table, $id)
                 updateProductStockBalance($row['id'], null, null);
             }
         }
-        $query = "UPDATE $table SET deleted=1 WHERE id=?";
+        if ('{prefix}send_api_config' === $table) {
+            $query = "DELETE FROM $table WHERE id=?";
+        } else {
+            $query = "UPDATE $table SET deleted=1 WHERE id=?";
+        }
         dbParamQuery($query, [$id], 'exception');
     } catch (Exception $e) {
         dbQueryCheck('ROLLBACK');
@@ -1766,28 +1867,28 @@ EOT
             $updates,
             [
                 <<<EOT
-    CREATE TABLE {prefix}custom_price (
-        id int(11) NOT NULL auto_increment,
-        company_id int(11) NOT NULL,
-        discount decimal(4,1) NULL,
-        multiplier decimal(10,5) NULL,
-        valid_until int(11) default NULL,
-        PRIMARY KEY (id),
-        FOREIGN KEY (company_id) REFERENCES {prefix}company(id) ON DELETE CASCADE
-    ) ENGINE=INNODB CHARACTER SET utf8 COLLATE utf8_swedish_ci;
+CREATE TABLE {prefix}custom_price (
+    id int(11) NOT NULL auto_increment,
+    company_id int(11) NOT NULL,
+    discount decimal(4,1) NULL,
+    multiplier decimal(10,5) NULL,
+    valid_until int(11) default NULL,
+    PRIMARY KEY (id),
+    FOREIGN KEY (company_id) REFERENCES {prefix}company(id) ON DELETE CASCADE
+) ENGINE=INNODB CHARACTER SET utf8 COLLATE utf8_swedish_ci;
 EOT
                 , <<<EOT
-    CREATE TABLE {prefix}custom_price_map (
-        id int(11) NOT NULL auto_increment,
-        custom_price_id int(11) NOT NULL,
-        product_id int(11) NOT NULL,
-        unit_price decimal(15,5) NULL,
-        discount decimal(4,1) NULL,
-        discount_amount decimal(15,5) NULL,
-        PRIMARY KEY (id),
-        FOREIGN KEY (custom_price_id) REFERENCES {prefix}custom_price(id) ON DELETE CASCADE,
-        FOREIGN KEY (product_id) REFERENCES {prefix}product(id) ON DELETE CASCADE
-    ) ENGINE=INNODB CHARACTER SET utf8 COLLATE utf8_swedish_ci;
+CREATE TABLE {prefix}custom_price_map (
+    id int(11) NOT NULL auto_increment,
+    custom_price_id int(11) NOT NULL,
+    product_id int(11) NOT NULL,
+    unit_price decimal(15,5) NULL,
+    discount decimal(4,1) NULL,
+    discount_amount decimal(15,5) NULL,
+    PRIMARY KEY (id),
+    FOREIGN KEY (custom_price_id) REFERENCES {prefix}custom_price(id) ON DELETE CASCADE,
+    FOREIGN KEY (product_id) REFERENCES {prefix}product(id) ON DELETE CASCADE
+) ENGINE=INNODB CHARACTER SET utf8 COLLATE utf8_swedish_ci;
 EOT
                 ,
                 "REPLACE INTO {prefix}state (id, data) VALUES ('version', '56')"
@@ -1821,6 +1922,32 @@ EOT
             [
                 "ALTER TABLE {prefix}base CHANGE COLUMN bank_account bank_account varchar(30) NOT NULL DEFAULT ''",
                 "REPLACE INTO {prefix}state (id, data) VALUES ('version', '59')"
+            ]
+        );
+    }
+
+    if ($version < 60) {
+        $updates = array_merge(
+            $updates,
+            [
+                <<<EOT
+CREATE TABLE {prefix}send_api_config (
+    id int(11) NOT NULL auto_increment,
+    base_id int(11) NOT NULL,
+    name varchar(255) NULL,
+    method varchar(255) NULL,
+    username varchar(255) NULL,
+    password varchar(255) NULL,
+    reference varchar(255) NULL,
+    post_class tinyint default 0 NOT NULL,
+    add_to_queue tinyint default 0 NOT NULL,
+    finvoice_mail_backup tinyint default 0 NOT NULL,
+    PRIMARY KEY (id),
+    FOREIGN KEY (base_id) REFERENCES {prefix}base(id)
+) ENGINE=INNODB CHARACTER SET utf8 COLLATE utf8_swedish_ci;
+EOT
+                ,
+                "REPLACE INTO {prefix}state (id, data) VALUES ('version', '60')"
             ]
         );
     }

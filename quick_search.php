@@ -88,7 +88,7 @@ foreach ($rows as $row) {
                             <a class="tinyactionlink form-submit" href="#" data-set-field="delete_<?php echo $intID?>_x"> X </a>
                         </td>
                     </tr>
-<?php
+    <?php
 }
 if (!isset($intID)) {
     ?>
@@ -97,7 +97,7 @@ if (!isset($intID)) {
         <?php echo Translator::translate('NoQuickSearches')?>
     </td>
                     </tr>
-<?php
+    <?php
 }
 ?>
 </table>

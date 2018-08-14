@@ -640,14 +640,15 @@ function getSelfDirectory()
 }
 
 /**
- * Instantiate an invoice printer
+ * Get an invoice printer
  *
  * @param string $printTemplateFile Print template
  *
  * @return object
  */
-function instantiateInvoicePrinter($printTemplateFile)
+function getInvoicePrinter($printTemplateFile)
 {
+    $printTemplateFile = trim($printTemplateFile);
     if (!is_readable($printTemplateFile)) {
         return null;
     }

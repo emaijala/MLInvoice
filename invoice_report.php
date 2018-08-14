@@ -132,15 +132,15 @@ class InvoiceReport extends AbstractReport
         <div class="unlimited_label">
             <strong><?php echo Translator::translate($this->reportName)?></strong>
         </div>
-<?php if (!empty($this->description)) { ?>
+        <?php if (!empty($this->description)) { ?>
         <div class="unlimited_label">
             <p><?php echo $this->description ?></p>
         </div>
-<?php } ?>
+        <?php } ?>
         <div style="float: left; clear: both; margin-right: 20px;">
-<?php
+        <?php
         $this->addLimitSelection();
-?>
+        ?>
             <div class="medium_label">
                 <?php echo Translator::translate('PrintFormat')?>
             </div>
@@ -272,7 +272,7 @@ class InvoiceReport extends AbstractReport
         </div>
     </form>
 </div>
-<?php
+        <?php
     }
 
     /**
@@ -287,7 +287,7 @@ class InvoiceReport extends AbstractReport
         $invoiceDateRange = getRequest('date', '');
         $invoiceRowDateRange = getRequest('row_date', '');
         $paymentDateRange = getRequest('payment_date', '');
-?>
+        ?>
             <div class="medium_label"><?php echo Translator::translate('InvoiceDateInterval')?></div>
             <div class="field">
                 <?php echo htmlFormElement('date', 'TEXT', $invoiceDateRange, 'medium hasDateRangePicker', '', 'MODIFY', false)?>
@@ -312,7 +312,7 @@ class InvoiceReport extends AbstractReport
             <div class="field">
                 <?php echo htmlFormElement('company', 'LIST', $intCompanyId, 'medium', 'SELECT id, company_name FROM {prefix}company WHERE deleted=0 ORDER BY company_name', 'MODIFY', false)?>
             </div>
-<?php
+        <?php
     }
 
     /**
@@ -677,14 +677,14 @@ class InvoiceReport extends AbstractReport
         <th class="label">
             <?php echo Translator::translate('InvoiceNumber')?>
         </th>
-        <?php
+            <?php
         }
         if (in_array('invoice_date', $printFields)) {
             ?>
         <th class="label">
             <?php echo Translator::translate('InvDate')?>
         </th>
-        <?php
+            <?php
         }
         if (in_array('due_date', $printFields)) {
             ?>
@@ -739,7 +739,7 @@ class InvoiceReport extends AbstractReport
     </tr>
     </thead>
     <tbody>
-<?php
+        <?php
     }
 
     /**
@@ -871,11 +871,11 @@ class InvoiceReport extends AbstractReport
             <td class="input" style="text-align: right">
             <?php echo miscRound2Decim($rowTotalToPay)?>
         </td>
-        <?php
+            <?php
         }
-    ?>
+        ?>
       </tr>
-    <?php
+        <?php
     }
 
     /**
@@ -983,14 +983,14 @@ class InvoiceReport extends AbstractReport
 
         ?>
     <tr>
-    <?php if ($colSpan > 0) { ?>
+        <?php if ($colSpan > 0) { ?>
         <td class="input" colspan="<?php echo $colSpan?>">&nbsp;</td>
-    <?php } ?>
-    <?php if ($groupTitle) { ?>
+        <?php } ?>
+        <?php if ($groupTitle) { ?>
         <td class="input row_sum" style="text-align: right">
             &nbsp;<?php echo htmlentities($groupTitle)?>
         </td>
-    <?php } ?>
+        <?php } ?>
         <td class="input row_sum" style="text-align: right">
             &nbsp;<?php echo miscRound2Decim($groupTotSum)?>
         </td>
@@ -1004,7 +1004,7 @@ class InvoiceReport extends AbstractReport
             &nbsp;<?php echo miscRound2Decim($groupTotalToPay)?>
         </td>
         </tr>
-<?php
+        <?php
     }
 
     /**
@@ -1104,12 +1104,12 @@ class InvoiceReport extends AbstractReport
         $colSpan = $this->getSumStartCol($printFields);
         ?>
     <tr>
-    <?php if ($colSpan > 0) { ?>
+        <?php if ($colSpan > 0) { ?>
         <td class="input total_sum" colspan="<?php echo $colSpan?>"
                 style="text-align: right">
             <?php echo Translator::translate('Total')?>
         </td>
-    <?php } ?>
+        <?php } ?>
         <td class="input total_sum" style="text-align: right">
             &nbsp;<?php echo miscRound2Decim($intTotSum)?>
         </td>
@@ -1125,7 +1125,7 @@ class InvoiceReport extends AbstractReport
     </tr>
         <?php
         if (in_array('vat_breakdown', $printFields)) {
-?>
+            ?>
     </table>
     <table>
         <tr>
@@ -1136,14 +1136,14 @@ class InvoiceReport extends AbstractReport
         </tr>
             <?php
             foreach ($totalsPerVAT as $vat => $sums) {
-?>
+                ?>
         <tr>
             <td class="input" style="text-align: right"><?php echo miscRound2OptDecim($vat)?>%</td>
             <td class="input" style="text-align: right"><?php echo miscRound2Decim($sums['sum'])?></td>
             <td class="input" style="text-align: right"><?php echo miscRound2Decim($sums['VAT'])?></td>
             <td class="input" style="text-align: right"><?php echo miscRound2Decim($sums['sumVAT'])?></td>
         </tr>
-            <?php
+                <?php
             }
         }
     }
@@ -1180,11 +1180,11 @@ class InvoiceReport extends AbstractReport
         <?php
         if ($format == 'table') {
             $sumColumns = [$sumStartCol, $sumStartCol + 1, $sumStartCol + 2, $sumStartCol + 3];
-        ?>
+            ?>
 <script type="text/javascript">
 var table = $('.report-table.datatable').DataTable({
     'language': {
-        <?php echo Translator::translate('TableTexts')?>
+            <?php echo Translator::translate('TableTexts')?>
     },
     'pageLength': 50,
     'jQueryUI': true,
@@ -1230,7 +1230,7 @@ var buttons = new $.fn.dataTable.Buttons(table, {
 
 table.buttons().container().appendTo($('.fg-toolbar', table.table().container()));
 </script>
-<?php
+            <?php
         }
     }
 

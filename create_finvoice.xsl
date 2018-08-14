@@ -72,6 +72,13 @@
   </SellerCommunicationDetails>
     </xsl:if>
   <SellerInformationDetails>
+      <xsl:if test="street_address!='' and zip_code!='' and city !=''">
+    <SellerOfficialPostalAddressDetails>
+      <SellerOfficialStreetName><xsl:value-of select="street_address"/></SellerOfficialStreetName>
+      <SellerOfficialTownName><xsl:value-of select="city"/></SellerOfficialTownName>
+      <SellerOfficialPostCodeIdentifier><xsl:value-of select="zip_code"/></SellerOfficialPostCodeIdentifier>
+    </SellerOfficialPostalAddressDetails>
+      </xsl:if>
       <xsl:if test="vat_registered!=0">
     <SellerVatRegistrationText>Alv.Rek</SellerVatRegistrationText>
       </xsl:if>

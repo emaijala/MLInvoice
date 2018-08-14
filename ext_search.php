@@ -241,7 +241,7 @@ for ($j = 0; $j < count($astrFormElements); $j ++) {
                 <?php echo $strOperator?>
               </td>
             </tr>
-<?php
+            <?php
         }
         ?>
             <tr class="search_row">
@@ -273,7 +273,7 @@ for ($j = 0; $j < count($astrFormElements); $j ++) {
                 </a>
               </td>
             </tr>
-<?php
+        <?php
     }
 }
 
@@ -312,7 +312,7 @@ if ($blnSave && $strSearchName) {
                 <?php echo Translator::translate('SearchSaved')?>
               </td>
             </tr>
-<?php
+    <?php
 }
 ?>
             <tr>

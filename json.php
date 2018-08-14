@@ -63,6 +63,7 @@ case 'get_session_type':
 case 'get_delivery_terms':
 case 'get_delivery_method':
 case 'get_default_value':
+case 'get_send_api_config':
     printJSONRecord(substr($strFunc, 4));
     break;
 case 'get_user':
@@ -87,7 +88,15 @@ case 'put_default_value':
 
 case 'delete_invoice_row':
 case 'delete_default_value':
+case 'delete_send_api_config':
     deleteJSONRecord(substr($strFunc, 7));
+    break;
+
+case 'put_send_api_config':
+    saveJSONRecord(substr($strFunc, 4), 'base_id');
+    break;
+case 'get_send_api_configs':
+    printJSONRecords('send_api_config', 'base_id', 'name');
     break;
 
 case 'session_type':
@@ -486,8 +495,13 @@ EOT
     <td><?php echo miscRound2Decim($row['stock_change'])?></td>
     <td><?php echo $row['description']?></td>
 </tr>
-<?php
+        <?php
     }
+    break;
+
+case 'get_send_api_services':
+    header('Content-Type: application/json');
+    echo getSendApiServices(getRequest('invoice_id'), getRequest('base_id'));
     break;
 
 case 'noop' :
@@ -617,7 +631,7 @@ EOT;
         $where .= " WHERE t.$parentIdCol=?";
         $params[] = $id;
     }
-    if (!getSetting('show_deleted_records')) {
+    if (!getSetting('show_deleted_records') && 'send_api_config' !== $table) {
         if ($where) {
             $where .= ' AND t.deleted=0';
         } else {
@@ -693,10 +707,16 @@ function saveJSONRecord($table, $parentKeyName)
     }
 
     $warnings = '';
-    $res = saveFormData(
-        $strTable, $id, $astrFormElements, $data, $warnings, $parentKeyName,
-        $parentKeyName ? $data[$parentKeyName] : false, $onPrint
-    );
+    try {
+        $res = saveFormData(
+            $strTable, $id, $astrFormElements, $data, $warnings, $parentKeyName,
+            $parentKeyName ? $data[$parentKeyName] : false, $onPrint
+        );
+    } catch (Exception $e) {
+        header('Content-Type: application/json');
+        echo json_encode(['error' => $e->getMessage()]);
+        return;
+    }
     if ($res !== true) {
         if ($warnings) {
             header('HTTP/1.1 409 Conflict');
@@ -920,4 +940,59 @@ EOT
         ]
     );
     return json_encode(['status' => 'ok', 'new_stock_balance' => $balance]);
+}
+
+/**
+ * Get send API services for the given invoice and base
+ *
+ * @param int $invoiceId Invoice ID
+ * @param int $baseId    Base ID
+ *
+ * @return string
+ */
+function getSendApiServices($invoiceId, $baseId)
+{
+    $templateCandidates = dbParamQuery(
+        'SELECT * FROM {prefix}print_template WHERE deleted=0 and type=? and inactive=0 ORDER BY order_no',
+        [isOffer($invoiceId) ? 'offer' : 'invoice']
+    );
+    $templates = [];
+    foreach ($templateCandidates as $candidate) {
+        $printer = getInvoicePrinter($candidate['filename']);
+        if (null === $printer) {
+            continue;
+        }
+        $uses = class_uses($printer);
+        if (in_array('InvoicePrinterEmailTrait', $uses)
+            || $printer instanceof InvoicePrinterFinvoiceSOAP
+            || $printer instanceof InvoicePrinterBlank
+        ) {
+            continue;
+        }
+        $templates[] = $candidate;
+    }
+
+    $services = [];
+    foreach (getSendApiConfigs($baseId) as $config) {
+        $urlBase = [
+            'func' => 'send_api',
+            'invoice_id' => $invoiceId,
+            'api_id' => $config['id']
+        ];
+        $items = [];
+        foreach ($templates as $template) {
+            $item = $urlBase;
+            $item['template_id'] = $template['id'];
+            $items[] = [
+                'href' => http_build_query($item),
+                'name' => Translator::translate($template['name'])
+            ];
+        }
+        $services[] = [
+            'name' => $config['name'] ? $config['name'] : $config['method'],
+            'items' => $items
+        ];
+    }
+
+    return json_encode(['services' => $services]);
 }

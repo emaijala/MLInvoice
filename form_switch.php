@@ -789,7 +789,7 @@ EOF;
             $printFunc = "MLInvoice.printInvoice('$templateId', '$strFunc', '$printStyle'); return false;";
         } else {
             // Check if this print template is safe for read-only use
-            $printer = instantiateInvoicePrinter($row['filename']);
+            $printer = getInvoicePrinter($row['filename']);
             if (null === $printer || !$printer->getReadOnlySafe()) {
                 continue;
             }
@@ -1718,6 +1718,104 @@ EOF;
             'style' => 'measurement',
             'position' => 1,
             'allow_null' => true
+        ],
+        [
+            'name' => 'send_api_configs',
+            'label' => 'SendAPISettings',
+            'type' => 'IFORM',
+            'style' => 'full',
+            'position' => 0,
+            'allow_null' => true,
+            'parent_key' => 'base_id'
+        ]
+    ];
+    break;
+
+case 'send_api_config':
+case 'send_api_configs':
+    $strTable = '{prefix}send_api_config';
+    $strJSONType = 'send_api_config';
+    $strParentKey = 'base_id';
+    $clearRowValuesAfterAdd = true;
+    $astrFormElements = [
+        [
+            'name' => 'id',
+            'label' => '',
+            'type' => 'HID_INT',
+            'style' => 'medium',
+            'position' => 0
+        ],
+        [
+            'name' => 'name',
+            'label' => 'DisplayName',
+            'type' => 'TEXT',
+            'style' => 'medium',
+            'position' => 0,
+            'allow_null' => true
+        ],
+        [
+            'name' => 'method',
+            'label' => 'APIName',
+            'type' => 'LIST',
+            'style' => 'medium translated',
+            'listquery' => [
+                'postita.fi' => 'Postita.fi'
+            ],
+            'position' => 0,
+            'allow_null' => false
+        ],
+        [
+            'name' => 'username',
+            'label' => 'UserNameOrID',
+            'type' => 'TEXT',
+            'style' => 'medium',
+            'position' => 0,
+            'allow_null' => true
+        ],
+        [
+            'name' => 'password',
+            'label' => 'PasswordOrKey',
+            'type' => 'PASSWD_STORED',
+            'style' => 'medium',
+            'position' => 0,
+            'allow_null' => true
+        ],
+        [
+            'name' => 'reference',
+            'label' => 'ReferenceOrUnitID',
+            'type' => 'TEXT',
+            'style' => 'medium',
+            'position' => 0,
+            'allow_null' => true
+        ],
+        [
+            'name' => 'post_class',
+            'label' => 'PostalClass',
+            'type' => 'LIST',
+            'style' => 'medium translated noemptyvalue',
+            'listquery' => [
+                '0' => 'Unspecified',
+                '1' => 'FirstClassBW',
+                '2' => 'SecondClassBW',
+                '3' => 'FirstClassColor',
+                '4' => 'SecondClassColor'
+            ],
+            'position' => 0,
+            'allow_null' => false
+        ],
+        [
+            'name' => 'add_to_queue',
+            'label' => 'SendToQueue',
+            'type' => 'CHECK',
+            'style' => 'short',
+            'position' => 0
+        ],
+        [
+            'name' => 'finvoice_mail_backup',
+            'label' => 'FinvoiceMailBackup',
+            'type' => 'CHECK',
+            'style' => 'short',
+            'position' => 0
         ]
     ];
     break;
