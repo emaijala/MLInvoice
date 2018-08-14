@@ -1747,7 +1747,7 @@ case 'send_api_configs':
         ],
         [
             'name' => 'name',
-            'label' => 'Name',
+            'label' => 'DisplayName',
             'type' => 'TEXT',
             'style' => 'medium',
             'position' => 0,
@@ -1766,7 +1766,7 @@ case 'send_api_configs':
         ],
         [
             'name' => 'username',
-            'label' => 'UserID',
+            'label' => 'UserNameOrID',
             'type' => 'TEXT',
             'style' => 'medium',
             'position' => 0,
@@ -1774,7 +1774,7 @@ case 'send_api_configs':
         ],
         [
             'name' => 'password',
-            'label' => 'Password',
+            'label' => 'PasswordOrKey',
             'type' => 'PASSWD_STORED',
             'style' => 'medium',
             'position' => 0,
@@ -1782,7 +1782,7 @@ case 'send_api_configs':
         ],
         [
             'name' => 'reference',
-            'label' => 'Reference',
+            'label' => 'ReferenceOrUnitID',
             'type' => 'TEXT',
             'style' => 'medium',
             'position' => 0,
