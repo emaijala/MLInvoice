@@ -278,13 +278,13 @@ case 'get_invoice_defaults' :
     break;
 
 case 'get_table_columns' :
-    if (!sesAdminAccess()) {
-        header('HTTP/1.1 403 Forbidden');
-        break;
-    }
     $table = getRequest('table', '');
     if (!$table) {
         header('HTTP/1.1 400 Bad Request');
+        break;
+    }
+    if (!sesAdminAccess() && 'account_statement' !== $table) {
+        header('HTTP/1.1 403 Forbidden');
         break;
     }
     // account_statement is a pseudo table for account statement "import"
@@ -344,15 +344,15 @@ case 'get_table_columns' :
     break;
 
 case 'get_import_preview' :
-    if (!sesAdminAccess()) {
-        header('HTTP/1.1 403 Forbidden');
-        break;
-    }
     $table = getRequest('table', '');
     if ($table == 'account_statement') {
         include 'import_statement.php';
         $import = new ImportStatement();
     } else {
+        if (!sesAdminAccess()) {
+            header('HTTP/1.1 403 Forbidden');
+            break;
+        }
         include 'import.php';
         $import = new ImportFile();
     }

@@ -529,7 +529,7 @@ function htmlFormElement($strName, $strType, $strValue, $strStyle, $strListQuery
 
     case 'INTDATE':
         $strFormElement = "<input type=\"text\" class=\"$strStyle hasCalendar\" " .
-             "id=\"$strName\" name=\"$strName\" value=\"" .
+             "autocomplete=\"off\" id=\"$strName\" name=\"$strName\" value=\"" .
              htmlspecialchars($strValue) . "\"$astrAdditionalAttributes$readOnly>\n";
         break;
 

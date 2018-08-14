@@ -99,6 +99,13 @@ class ImportFile
     ];
 
     /**
+     * Whether admin access is required
+     *
+     * @var bool
+     */
+    protected $requireAdmin = true;
+
+    /**
      * Constructor
      */
     public function __construct()
@@ -112,6 +119,11 @@ class ImportFile
      */
     public function launch()
     {
+        if (($this->requireAdmin && !sesAdminAccess()) || !sesWriteAccess()) {
+            header('HTTP/1.1 403 Forbidden');
+            return;
+        }
+
         $filetype = getRequest('filetype', '');
 
         $error = '';
