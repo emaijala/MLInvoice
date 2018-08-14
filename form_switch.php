@@ -172,6 +172,15 @@ case 'company' :
             'allow_null' => true
         ],
         [
+            'name' => 'invoice_vatless',
+            'label' => 'InvoiceVATLess',
+            'type' => 'CHECK',
+            'style' => 'medium',
+            'position' => 1,
+            'default' => null,
+            'allow_null' => true
+        ],
+        [
             'name' => 'street_address',
             'label' => 'StreetAddr',
             'type' => 'TEXT',
@@ -248,6 +257,38 @@ case 'company' :
             'label' => 'Info',
             'type' => 'AREA',
             'style' => 'medium',
+            'position' => 2,
+            'allow_null' => true
+        ],
+        [
+            'name' => 'invoice_default_foreword',
+            'label' => 'InvoiceDefaultForeword',
+            'type' => 'AREA',
+            'style' => 'large',
+            'position' => 1,
+            'allow_null' => true
+        ],
+        [
+            'name' => 'invoice_default_afterword',
+            'label' => 'InvoiceDefaultAfterword',
+            'type' => 'AREA',
+            'style' => 'large',
+            'position' => 2,
+            'allow_null' => true
+        ],
+        [
+            'name' => 'offer_default_foreword',
+            'label' => 'OfferDefaultForeword',
+            'type' => 'AREA',
+            'style' => 'large',
+            'position' => 1,
+            'allow_null' => true
+        ],
+        [
+            'name' => 'offer_default_afterword',
+            'label' => 'OfferDefaultAfterword',
+            'type' => 'AREA',
+            'style' => 'large',
             'position' => 2,
             'allow_null' => true
         ],

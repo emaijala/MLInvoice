@@ -206,6 +206,13 @@ EOT;
             <input type="hidden" name="deleteact" value="0">
             <input type="hidden" name="redirect" id="redirect" value="">
             <input type="hidden" id="record_id" name="id" value="<?php echo (isset($intKeyValue) && $intKeyValue) ? $intKeyValue : '' ?>">
+    <?php
+    if ('invoice' === $strForm) {
+        ?>
+            <input type="hidden" id="invoice_vatless" value="0">
+        <?php
+    }
+    ?>
             <table>
     <?php
     $haveChildForm = false;

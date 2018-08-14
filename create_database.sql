@@ -142,6 +142,11 @@ CREATE TABLE mlinvoice_company (
   delivery_method_id int(11) default NULL,
   payment_days int(11) default NULL,
   terms_of_payment varchar(255) NULL,
+  invoice_vatless tinyint NOT NULL default 0,
+  invoice_default_foreword text NULL,
+  invoice_default_afterword text NULL,
+  offer_default_foreword text NULL,
+  offer_default_afterword text NULL,
   PRIMARY KEY (id),
   FOREIGN KEY (type_id) REFERENCES mlinvoice_company_type(id),
   FOREIGN KEY (delivery_terms_id) REFERENCES mlinvoice_delivery_terms(id),
@@ -393,7 +398,7 @@ CREATE TABLE mlinvoice_default_value (
 
 SET NAMES 'utf8';
 
-INSERT INTO mlinvoice_state (id, data) VALUES ('version', '60');
+INSERT INTO mlinvoice_state (id, data) VALUES ('version', '61');
 
 INSERT INTO mlinvoice_state (id, data) VALUES ('tableconversiondone', '1');
 

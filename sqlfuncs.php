@@ -1952,6 +1952,20 @@ EOT
         );
     }
 
+    if ($version < 61) {
+        $updates = array_merge(
+            $updates,
+            [
+                'ALTER TABLE {prefix}company ADD COLUMN invoice_vatless tinyint NOT NULL default 0',
+                'ALTER TABLE {prefix}company ADD COLUMN invoice_default_foreword text NULL',
+                'ALTER TABLE {prefix}company ADD COLUMN invoice_default_afterword text NULL',
+                'ALTER TABLE {prefix}company ADD COLUMN offer_default_foreword text NULL',
+                'ALTER TABLE {prefix}company ADD COLUMN offer_default_afterword text NULL',
+                "REPLACE INTO {prefix}state (id, data) VALUES ('version', '61')"
+            ]
+        );
+    }
+
     // phpcs:enable Generic.Files.LineLength
     if (!empty($updates)) {
         dbQueryCheck('SET AUTOCOMMIT = 0');

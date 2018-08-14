@@ -113,6 +113,7 @@ var MLInvoice = (function MLInvoice() {
 
   function _onChangeCompany(eventData) {
     var initialLoad = typeof eventData === 'undefined';
+    $('#invoice_vatless').val('0');
     _addCompanyInfoTooltip('');
     $.getJSON('json.php?func=get_company', {id: $('#company_id').val() }, function setCompanyData(json) {
       if (json) {
@@ -146,6 +147,15 @@ var MLInvoice = (function MLInvoice() {
         if (json.info) {
           _addCompanyInfoTooltip(json.info);
         }
+        if (json.invoice_default_foreword) {
+          $('#foreword').val(json.invoice_default_foreword);
+        }
+        if (json.invoice_default_afterword) {
+          $('#afterword').val(json.invoice_default_afterword);
+        }
+        if (json.invoice_vatless) {
+          $('#invoice_vatless').val('1');
+        }
       }
     });
   }
@@ -156,6 +166,12 @@ var MLInvoice = (function MLInvoice() {
       if (json) {
         if (json.info) {
           _addCompanyInfoTooltip(json.info);
+        }
+        if (json.offer_default_foreword) {
+          $('#foreword').val(json.offer_default_foreword);
+        }
+        if (json.offer_default_afterword) {
+          $('#afterword').val(json.offer_default_afterword);
         }
       }
     });
@@ -186,8 +202,13 @@ var MLInvoice = (function MLInvoice() {
       document.getElementById(form_id + '_price').value = json.unit_price ? formatCurrency(unitPrice) : '';
       document.getElementById(form_id + '_discount').value = json.discount ? json.discount.replace('.', ',') : '';
       document.getElementById(form_id + '_discount_amount').value = json.discount_amount ? formatCurrency(json.discount_amount) : '';
-      document.getElementById(form_id + '_vat').value = json.vat_percent ? json.vat_percent.replace('.', ',') : '';
-      document.getElementById(form_id + '_vat_included').checked = !!((json.vat_included && json.vat_included === 1));
+      if ($('#invoice_vatless').val() === '0') {
+        document.getElementById(form_id + '_vat').value = json.vat_percent ? json.vat_percent.replace('.', ',') : '';
+        document.getElementById(form_id + '_vat_included').checked = !!((json.vat_included && json.vat_included === 1));
+      } else {
+        document.getElementById(form_id + '_vat').value = '0';
+        document.getElementById(form_id + '_vat_included').checked = false;
+      }
     });
   }
 
