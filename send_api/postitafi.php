@@ -85,8 +85,15 @@ class Postitafi
 
         if ($printer instanceof InvoicePrinterFinvoice) {
             $pdfPrinter = GetInvoicePrinter('invoice_printer.php');
+            $pdfLang = 'fi-FI';
+            if ($printParameters) {
+                $parts = explode(',', $printParameters);
+                if (!empty($parts[1])) {
+                    $pdfLang = $parts[1];
+                }
+            }
             $pdfPrinter->init(
-                $invoice['id'], $printParameters ? $printParameters : 'invoice',
+                $invoice['id'], "invoice,$pdfLang,N",
                 $printOutputFileName, 0, $template, true
             );
             $pdfResult = $pdfPrinter->createPrintout();
