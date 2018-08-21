@@ -77,7 +77,7 @@ function dateConvDBTimestamp2DateTime($dateTime, $format = '')
 function dateConvDate2DBDate($strDate)
 {
     $arr = date_parse_from_format(Translator::translate('DateFormat'), $strDate);
-    if ($arr['error_count'] > 0) {
+    if (!$arr['year'] || !$arr['month'] || !$arr['day']) {
         return false;
     }
     return sprintf('%04d%02d%02d', $arr['year'], $arr['month'], $arr['day']);
