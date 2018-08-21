@@ -80,6 +80,9 @@ function dateConvDate2DBDate($strDate)
     if (!$arr['year'] || !$arr['month'] || !$arr['day']) {
         return false;
     }
+    if ($arr['year'] < 100) {
+        $arr['year'] += 2000;
+    }
     return sprintf('%04d%02d%02d', $arr['year'], $arr['month'], $arr['day']);
 }
 
