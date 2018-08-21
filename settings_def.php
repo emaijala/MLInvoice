@@ -220,6 +220,14 @@ $arrSettings = [
             2 => 'SettingInvoiceUseProductDefaults'
         ]
     ],
+    'invoice_display_product_stock_in_selection' => [
+        'label' => 'SettingInvoiceShowProductStockInSelection',
+        'type' => 'CHECK',
+        'style' => 'medium',
+        'position' => 1,
+        'default' => 1,
+        'allow_null' => true
+    ],
 
     'printing_sep' => [
         'label' => 'SettingPrinting',

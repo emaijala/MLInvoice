@@ -440,7 +440,8 @@ case 'product' :
             'width' => 100,
             'type' => 'CURRENCY',
             'header' => 'StockBalance',
-            'decimals' => 2
+            'decimals' => 2,
+            'select' => GetSetting('invoice_display_product_stock_in_selection')
         ]
     ];
 

@@ -921,6 +921,9 @@ EOT;
                         }
                     }
                     continue 2;
+                case 'stock_balance':
+                    $desc3[] = Translator::translate('StockBalance') . ": $value";
+                    continue 2;
                 }
             }
 
