@@ -88,7 +88,7 @@ abstract class AbstractReport
                 'values' => [
                     'state' => 'PrintGroupingState',
                     'month' => 'PrintGroupingMonth',
-                    'client' => 'PrintGroupingCliet',
+                    'client' => 'PrintGroupingClient',
                     'vat' => 'PrintGroupingVAT'
                 ]
             ],
