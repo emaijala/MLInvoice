@@ -421,7 +421,7 @@ function startChanging()
     if ($strForm == 'invoice') {
         ?>
       if (typeof globals.invoiceOpenStatus !== 'undefined' && !globals.invoiceOpenStatus && typeof globals.warningShown === 'undefined') {
-        MLInvoice.errormsg(globals.nonOpenModificationWarning, 0);
+        alert(globals.nonOpenModificationWarning);
         globals.warningShown = true;
       }
         <?php
