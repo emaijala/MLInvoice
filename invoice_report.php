@@ -235,6 +235,13 @@ class InvoiceReport extends AbstractReport
                     <?php echo Translator::translate('PrintGroupingVAT')?>
                 </label>
             </div>
+            <div class="medium_label"></div>
+            <div class="field">
+                <label>
+                    <input type="radio" id="grouping-product" name="grouping" value="product"<?php echo $grouping == 'product' ? ' checked="checked"' : ''?>>
+                    <?php echo Translator::translate('PrintGroupingProduct')?>
+                </label>
+            </div>
             <div class="field_sep">&nbsp;</div>
         </div>
         <?php
@@ -375,14 +382,17 @@ class InvoiceReport extends AbstractReport
         $printFields = getRequest('fields', []);
         $rowTypes = getRequest('row_types', 'all');
 
+        $rowsNeeded = 'vat' === $grouping || 'product' === $grouping;
         $strQuery = 'SELECT i.id, i.invoice_no, i.invoice_date, i.due_date,'
             . ' i.payment_date, i.ref_number, i.ref_number, c.company_name AS name,'
             . ' c.billing_address, ist.name as state, ist.invoice_unpaid as unpaid'
-            . ($grouping == 'vat' ? ', ir.vat' : '')
+            . ('vat' === $grouping ? ', ir.vat' : '')
+            . ('product' === $grouping ? ', ir.product_id, ir.description, prd.product_name' : '')
             . ' FROM {prefix}invoice i'
-            . ($grouping == 'vat' ? ' INNER JOIN {prefix}invoice_row ir ON ir.invoice_id = i.id' : '')
+            . ($rowsNeeded ? ' INNER JOIN {prefix}invoice_row ir ON ir.invoice_id = i.id' : '')
             . ' LEFT OUTER JOIN {prefix}company c ON c.id = i.company_id'
             . ' LEFT OUTER JOIN {prefix}invoice_state ist ON i.state_id = ist.id'
+            . ('product' === $grouping ? ' LEFT OUTER JOIN {prefix}product prd ON ir.product_id = prd.id' : '')
             . ' WHERE i.deleted=0';
 
         list($limitQuery, $arrParams) = $this->createLimitQuery();
@@ -417,6 +427,9 @@ class InvoiceReport extends AbstractReport
             break;
         case 'vat':
             $strQuery .= ' GROUP BY i.id, ir.vat ORDER BY vat, invoice_date, invoice_no';
+            break;
+        case 'product':
+            $strQuery .= ' GROUP BY i.id, ir.product_id, ir.description ORDER BY prd.product_name, invoice_date, invoice_no';
             break;
         default :
             $strQuery .= ' ORDER BY invoice_date, invoice_no';
@@ -459,6 +472,16 @@ class InvoiceReport extends AbstractReport
             case 'vat':
                 $invoiceGroup = $row['vat'];
                 break;
+            case 'product':
+                $invoiceGroup = $row['product_name'] ? $row['product_name'] : '';
+                if (!empty($row['description'])) {
+                    if ($invoiceGroup) {
+                        $invoiceGroup .= ' (' . $row['description'] . ')';
+                    } else {
+                        $invoiceGroup = $row['description'];
+                    }
+                }
+                break;
             default :
                 $invoiceGroup = false;
             }
@@ -492,6 +515,13 @@ class InvoiceReport extends AbstractReport
                 } else {
                     $strQuery .= ' AND ir.vat = ?';
                     $rowParams[] = $row['vat'];
+                }
+            } elseif ($grouping == 'product') {
+                if ($row['product_id'] === null) {
+                    $strQuery .= ' AND ir.product_id IS NULL';
+                } else {
+                    $strQuery .= ' AND ir.product_id = ?';
+                    $rowParams[] = $row['product_id'];
                 }
             }
 
@@ -543,10 +573,16 @@ class InvoiceReport extends AbstractReport
             }
 
             if ($grouping && $currentGroup !== false && $currentGroup != $invoiceGroup) {
+                if ('vat' === $grouping) {
+                    $groupTitle = Translator::translate('VAT') . ' '
+                        . miscRound2Decim($currentGroup);
+                } elseif ('product' === $grouping) {
+                    $groupTitle = $currentGroup;
+                }
                 $this->printGroupSums(
                     $format, $printFields, $row, $groupTotSum,
                     $groupTotVAT, $groupTotSumVAT, $groupTotalToPay,
-                    $grouping == 'vat' ? Translator::translate('VAT') . ' ' . miscRound2Decim($currentGroup) : ''
+                    $groupTitle
                 );
                 $groupTotSum = 0;
                 $groupTotVAT = 0;
@@ -566,11 +602,16 @@ class InvoiceReport extends AbstractReport
             );
         }
         if ($grouping) {
+            if ('vat' === $grouping) {
+                $groupTitle = Translator::translate('VAT') . ' '
+                    . miscRound2Decim($currentGroup);
+            } elseif ('product' === $grouping) {
+                $groupTitle = $currentGroup;
+            }
             $this->printGroupSums(
                 $format, $printFields, $row, $groupTotSum,
                 $groupTotVAT, $groupTotSumVAT, $groupTotalToPay,
-                $grouping == 'vat' ? Translator::translate('VAT') . ' '
-                    . miscRound2Decim($currentGroup) : ''
+                $groupTitle
             );
         }
         ksort($totalsPerVAT, SORT_NUMERIC);
@@ -895,7 +936,7 @@ class InvoiceReport extends AbstractReport
     protected function printGroupSums($format, $printFields, $row, $groupTotSum,
         $groupTotVAT, $groupTotSumVAT, $groupTotalToPay, $groupTitle
     ) {
-        if (!in_array('sums', $printFields)) {
+        if (!in_array('sums', $printFields) && !$groupTitle) {
             return;
         }
         if ($format == 'pdf' || $format == 'pdfl') {

@@ -89,7 +89,8 @@ abstract class AbstractReport
                     'state' => 'PrintGroupingState',
                     'month' => 'PrintGroupingMonth',
                     'client' => 'PrintGroupingClient',
-                    'vat' => 'PrintGroupingVAT'
+                    'vat' => 'PrintGroupingVAT',
+                    'product' => 'PrintGroupingProduct'
                 ]
             ],
         ];
