@@ -311,5 +311,7 @@ function intVal(i) {
 function formatDate(date)
 {
   var dateString = new String(date);
-  return dateString.substr(6, 2) + '.' + dateString.substr(4, 2) + '.' + dateString.substr(0, 4);
+  return dateString.length === 8
+    ? dateString.substr(6, 2) + '.' + dateString.substr(4, 2) + '.' + dateString.substr(0, 4)
+    : '';
 }
