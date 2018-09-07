@@ -132,15 +132,15 @@ class InvoiceReport extends AbstractReport
         <div class="unlimited_label">
             <strong><?php echo Translator::translate($this->reportName)?></strong>
         </div>
-<?php if (!empty($this->description)) { ?>
+        <?php if (!empty($this->description)) { ?>
         <div class="unlimited_label">
             <p><?php echo $this->description ?></p>
         </div>
-<?php } ?>
+        <?php } ?>
         <div style="float: left; clear: both; margin-right: 20px;">
-<?php
+        <?php
         $this->addLimitSelection();
-?>
+        ?>
             <div class="medium_label">
                 <?php echo Translator::translate('PrintFormat')?>
             </div>
@@ -235,6 +235,13 @@ class InvoiceReport extends AbstractReport
                     <?php echo Translator::translate('PrintGroupingVAT')?>
                 </label>
             </div>
+            <div class="medium_label"></div>
+            <div class="field">
+                <label>
+                    <input type="radio" id="grouping-product" name="grouping" value="product"<?php echo $grouping == 'product' ? ' checked="checked"' : ''?>>
+                    <?php echo Translator::translate('PrintGroupingProduct')?>
+                </label>
+            </div>
             <div class="field_sep">&nbsp;</div>
         </div>
         <?php
@@ -272,7 +279,7 @@ class InvoiceReport extends AbstractReport
         </div>
     </form>
 </div>
-<?php
+        <?php
     }
 
     /**
@@ -287,7 +294,7 @@ class InvoiceReport extends AbstractReport
         $invoiceDateRange = getRequest('date', '');
         $invoiceRowDateRange = getRequest('row_date', '');
         $paymentDateRange = getRequest('payment_date', '');
-?>
+        ?>
             <div class="medium_label"><?php echo Translator::translate('InvoiceDateInterval')?></div>
             <div class="field">
                 <?php echo htmlFormElement('date', 'TEXT', $invoiceDateRange, 'medium hasDateRangePicker', '', 'MODIFY', false)?>
@@ -312,7 +319,7 @@ class InvoiceReport extends AbstractReport
             <div class="field">
                 <?php echo htmlFormElement('company', 'LIST', $intCompanyId, 'medium', 'SELECT id, company_name FROM {prefix}company WHERE deleted=0 ORDER BY company_name', 'MODIFY', false)?>
             </div>
-<?php
+        <?php
     }
 
     /**
@@ -375,14 +382,17 @@ class InvoiceReport extends AbstractReport
         $printFields = getRequest('fields', []);
         $rowTypes = getRequest('row_types', 'all');
 
+        $rowsNeeded = 'vat' === $grouping || 'product' === $grouping;
         $strQuery = 'SELECT i.id, i.invoice_no, i.invoice_date, i.due_date,'
             . ' i.payment_date, i.ref_number, i.ref_number, c.company_name AS name,'
             . ' c.billing_address, ist.name as state, ist.invoice_unpaid as unpaid'
-            . ($grouping == 'vat' ? ', ir.vat' : '')
+            . ('vat' === $grouping ? ', ir.vat' : '')
+            . ('product' === $grouping ? ', ir.product_id, ir.description, prd.product_name' : '')
             . ' FROM {prefix}invoice i'
-            . ($grouping == 'vat' ? ' INNER JOIN {prefix}invoice_row ir ON ir.invoice_id = i.id' : '')
+            . ($rowsNeeded ? ' INNER JOIN {prefix}invoice_row ir ON ir.invoice_id = i.id' : '')
             . ' LEFT OUTER JOIN {prefix}company c ON c.id = i.company_id'
             . ' LEFT OUTER JOIN {prefix}invoice_state ist ON i.state_id = ist.id'
+            . ('product' === $grouping ? ' LEFT OUTER JOIN {prefix}product prd ON ir.product_id = prd.id' : '')
             . ' WHERE i.deleted=0';
 
         list($limitQuery, $arrParams) = $this->createLimitQuery();
@@ -417,6 +427,9 @@ class InvoiceReport extends AbstractReport
             break;
         case 'vat':
             $strQuery .= ' GROUP BY i.id, ir.vat ORDER BY vat, invoice_date, invoice_no';
+            break;
+        case 'product':
+            $strQuery .= ' GROUP BY i.id, ir.product_id, ir.description ORDER BY prd.product_name, invoice_date, invoice_no';
             break;
         default :
             $strQuery .= ' ORDER BY invoice_date, invoice_no';
@@ -459,6 +472,16 @@ class InvoiceReport extends AbstractReport
             case 'vat':
                 $invoiceGroup = $row['vat'];
                 break;
+            case 'product':
+                $invoiceGroup = $row['product_name'] ? $row['product_name'] : '';
+                if (!empty($row['description'])) {
+                    if ($invoiceGroup) {
+                        $invoiceGroup .= ' (' . $row['description'] . ')';
+                    } else {
+                        $invoiceGroup = $row['description'];
+                    }
+                }
+                break;
             default :
                 $invoiceGroup = false;
             }
@@ -492,6 +515,13 @@ class InvoiceReport extends AbstractReport
                 } else {
                     $strQuery .= ' AND ir.vat = ?';
                     $rowParams[] = $row['vat'];
+                }
+            } elseif ($grouping == 'product') {
+                if ($row['product_id'] === null) {
+                    $strQuery .= ' AND ir.product_id IS NULL';
+                } else {
+                    $strQuery .= ' AND ir.product_id = ?';
+                    $rowParams[] = $row['product_id'];
                 }
             }
 
@@ -543,10 +573,16 @@ class InvoiceReport extends AbstractReport
             }
 
             if ($grouping && $currentGroup !== false && $currentGroup != $invoiceGroup) {
+                if ('vat' === $grouping) {
+                    $groupTitle = Translator::translate('VAT') . ' '
+                        . miscRound2Decim($currentGroup);
+                } elseif ('product' === $grouping) {
+                    $groupTitle = $currentGroup;
+                }
                 $this->printGroupSums(
                     $format, $printFields, $row, $groupTotSum,
                     $groupTotVAT, $groupTotSumVAT, $groupTotalToPay,
-                    $grouping == 'vat' ? Translator::translate('VAT') . ' ' . miscRound2Decim($currentGroup) : ''
+                    $groupTitle
                 );
                 $groupTotSum = 0;
                 $groupTotVAT = 0;
@@ -566,11 +602,16 @@ class InvoiceReport extends AbstractReport
             );
         }
         if ($grouping) {
+            if ('vat' === $grouping) {
+                $groupTitle = Translator::translate('VAT') . ' '
+                    . miscRound2Decim($currentGroup);
+            } elseif ('product' === $grouping) {
+                $groupTitle = $currentGroup;
+            }
             $this->printGroupSums(
                 $format, $printFields, $row, $groupTotSum,
                 $groupTotVAT, $groupTotSumVAT, $groupTotalToPay,
-                $grouping == 'vat' ? Translator::translate('VAT') . ' '
-                    . miscRound2Decim($currentGroup) : ''
+                $groupTitle
             );
         }
         ksort($totalsPerVAT, SORT_NUMERIC);
@@ -677,14 +718,14 @@ class InvoiceReport extends AbstractReport
         <th class="label">
             <?php echo Translator::translate('InvoiceNumber')?>
         </th>
-        <?php
+            <?php
         }
         if (in_array('invoice_date', $printFields)) {
             ?>
         <th class="label">
             <?php echo Translator::translate('InvDate')?>
         </th>
-        <?php
+            <?php
         }
         if (in_array('due_date', $printFields)) {
             ?>
@@ -739,7 +780,7 @@ class InvoiceReport extends AbstractReport
     </tr>
     </thead>
     <tbody>
-<?php
+        <?php
     }
 
     /**
@@ -871,11 +912,11 @@ class InvoiceReport extends AbstractReport
             <td class="input" style="text-align: right">
             <?php echo miscRound2Decim($rowTotalToPay)?>
         </td>
-        <?php
+            <?php
         }
-    ?>
+        ?>
       </tr>
-    <?php
+        <?php
     }
 
     /**
@@ -895,7 +936,7 @@ class InvoiceReport extends AbstractReport
     protected function printGroupSums($format, $printFields, $row, $groupTotSum,
         $groupTotVAT, $groupTotSumVAT, $groupTotalToPay, $groupTitle
     ) {
-        if (!in_array('sums', $printFields)) {
+        if (!in_array('sums', $printFields) && !$groupTitle) {
             return;
         }
         if ($format == 'pdf' || $format == 'pdfl') {
@@ -983,14 +1024,14 @@ class InvoiceReport extends AbstractReport
 
         ?>
     <tr>
-    <?php if ($colSpan > 0) { ?>
+        <?php if ($colSpan > 0) { ?>
         <td class="input" colspan="<?php echo $colSpan?>">&nbsp;</td>
-    <?php } ?>
-    <?php if ($groupTitle) { ?>
+        <?php } ?>
+        <?php if ($groupTitle) { ?>
         <td class="input row_sum" style="text-align: right">
             &nbsp;<?php echo htmlentities($groupTitle)?>
         </td>
-    <?php } ?>
+        <?php } ?>
         <td class="input row_sum" style="text-align: right">
             &nbsp;<?php echo miscRound2Decim($groupTotSum)?>
         </td>
@@ -1004,7 +1045,7 @@ class InvoiceReport extends AbstractReport
             &nbsp;<?php echo miscRound2Decim($groupTotalToPay)?>
         </td>
         </tr>
-<?php
+        <?php
     }
 
     /**
@@ -1104,12 +1145,12 @@ class InvoiceReport extends AbstractReport
         $colSpan = $this->getSumStartCol($printFields);
         ?>
     <tr>
-    <?php if ($colSpan > 0) { ?>
+        <?php if ($colSpan > 0) { ?>
         <td class="input total_sum" colspan="<?php echo $colSpan?>"
                 style="text-align: right">
             <?php echo Translator::translate('Total')?>
         </td>
-    <?php } ?>
+        <?php } ?>
         <td class="input total_sum" style="text-align: right">
             &nbsp;<?php echo miscRound2Decim($intTotSum)?>
         </td>
@@ -1125,7 +1166,7 @@ class InvoiceReport extends AbstractReport
     </tr>
         <?php
         if (in_array('vat_breakdown', $printFields)) {
-?>
+            ?>
     </table>
     <table>
         <tr>
@@ -1136,14 +1177,14 @@ class InvoiceReport extends AbstractReport
         </tr>
             <?php
             foreach ($totalsPerVAT as $vat => $sums) {
-?>
+                ?>
         <tr>
             <td class="input" style="text-align: right"><?php echo miscRound2OptDecim($vat)?>%</td>
             <td class="input" style="text-align: right"><?php echo miscRound2Decim($sums['sum'])?></td>
             <td class="input" style="text-align: right"><?php echo miscRound2Decim($sums['VAT'])?></td>
             <td class="input" style="text-align: right"><?php echo miscRound2Decim($sums['sumVAT'])?></td>
         </tr>
-            <?php
+                <?php
             }
         }
     }
@@ -1180,11 +1221,11 @@ class InvoiceReport extends AbstractReport
         <?php
         if ($format == 'table') {
             $sumColumns = [$sumStartCol, $sumStartCol + 1, $sumStartCol + 2, $sumStartCol + 3];
-        ?>
+            ?>
 <script type="text/javascript">
 var table = $('.report-table.datatable').DataTable({
     'language': {
-        <?php echo Translator::translate('TableTexts')?>
+            <?php echo Translator::translate('TableTexts')?>
     },
     'pageLength': 50,
     'jQueryUI': true,
@@ -1230,7 +1271,7 @@ var buttons = new $.fn.dataTable.Buttons(table, {
 
 table.buttons().container().appendTo($('.fg-toolbar', table.table().container()));
 </script>
-<?php
+            <?php
         }
     }
 

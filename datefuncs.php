@@ -72,13 +72,18 @@ function dateConvDBTimestamp2DateTime($dateTime, $format = '')
  *
  * @param string $strDate Date
  *
- * @return int
+ * @return int|null
  */
 function dateConvDate2DBDate($strDate)
 {
     $arr = date_parse_from_format(Translator::translate('DateFormat'), $strDate);
-    if ($arr['error_count'] > 0) {
-        return false;
+    if (!$arr['year'] || !$arr['month'] || !$arr['day']
+        || !empty($arr['warnings'])
+    ) {
+        return null;
+    }
+    if ($arr['year'] < 100) {
+        $arr['year'] += 2000;
     }
     return sprintf('%04d%02d%02d', $arr['year'], $arr['month'], $arr['day']);
 }

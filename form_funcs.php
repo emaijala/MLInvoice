@@ -28,6 +28,7 @@
 require_once 'sqlfuncs.php';
 require_once 'datefuncs.php';
 require_once 'miscfuncs.php';
+require_once 'crypt.php';
 
 /**
  *  Get post values or defaults for unspecified values
@@ -204,7 +205,7 @@ function saveFormData($table, &$primaryKey, &$formElements, &$values, &$warnings
         $name = $elem['name'];
         if (!$elem['allow_null'] && (!isset($values[$name]) || $values[$name] === '')) {
             if (!empty($elem['default'])) {
-                $values[$name] = $elem['default'];
+                $values[$name] = getFormDefaultValue($elem, $parentKey);
             } else {
                 if ($missingValues) {
                     $missingValues .= ', ';
@@ -227,7 +228,7 @@ function saveFormData($table, &$primaryKey, &$formElements, &$values, &$warnings
             $value = getFormDefaultValue($elem, $parentKey);
         }
 
-        if ($type == 'PASSWD' && !$value) {
+        if (($type == 'PASSWD' || $type == 'PASSWD_STORED') && !$value) {
             continue; // Don't save empty password
         }
 
@@ -261,6 +262,10 @@ function saveFormData($table, &$primaryKey, &$formElements, &$values, &$warnings
         case 'PASSWD':
             $arrValues[] = password_hash($values[$name], PASSWORD_DEFAULT);
             break;
+        case 'PASSWD_STORED':
+            $crypt = new Crypt();
+            $arrValues[] = $crypt->encrypt($values[$name]);
+            break;
         case 'INT':
         case 'HID_INT':
         case 'SECHID_INT':
@@ -278,7 +283,17 @@ function saveFormData($table, &$primaryKey, &$formElements, &$values, &$warnings
             $arrValues[] = $value ? 1 : 0;
             break;
         case 'INTDATE':
-            $arrValues[] = $value ? dateConvDate2DBDate($value) : null;
+            if ($value) {
+                $converted = dateConvDate2DBDate($value);
+                if (null === $converted) {
+                    $warnings = Translator::translate('ErrInvalidValue') . ': '
+                        . Translator::translate($elem['label']);
+                    return false;
+                }
+                $arrValues[] = $converted;
+            } else {
+                $arrValues[] = null;
+            }
             break;
         default :
             $arrValues[] = null !== $value ? $value : '';
@@ -343,7 +358,11 @@ function saveFormData($table, &$primaryKey, &$formElements, &$values, &$warnings
                 }
             }
 
-            $strQuery = "UPDATE $table SET $strUpdateFields, deleted=0 WHERE id=?";
+            if ('{prefix}send_api_config' === $table) {
+                $strQuery = "UPDATE $table SET $strUpdateFields WHERE id=?";
+            } else {
+                $strQuery = "UPDATE $table SET $strUpdateFields, deleted=0 WHERE id=?";
+            }
             $arrValues[] = $primaryKey;
             dbParamQuery($strQuery, $arrValues, 'exception');
         }

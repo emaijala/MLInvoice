@@ -74,9 +74,11 @@ $invoiceData = [
     'foreword' => $foreword
 ];
 
-$printer = instantiateInvoicePrinter('invoice_printer_blank.php');
+$printer = getInvoicePrinter('invoice_printer_blank.php');
 $printer->init(
-    0, '-,' . Translator::getActiveLanguage(''), 'cover.pdf', $senderData,
-    $recipientData, $invoiceData, [], $recipientContactData, false, 0, true
+    0, '-,' . Translator::getActiveLanguage(''), 'cover.pdf', false, 0, true
 );
+$printer->setSenderData($senderData);
+$printer->setInvoiceData($invoiceData);
+$printer->setRecipientData($recipientData, $recipientContactData);
 $printer->printInvoice();

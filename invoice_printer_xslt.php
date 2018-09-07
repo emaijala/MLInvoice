@@ -29,6 +29,8 @@ require_once 'invoice_printer_base.php';
 require_once 'htmlfuncs.php';
 require_once 'miscfuncs.php';
 
+use Michelf\Markdown;
+
 /**
  * XSLT invoice
  *
@@ -88,13 +90,8 @@ EOT
         $invoiceData['barcode'] = $this->barcode;
         $invoiceData['groupedvats'] = $this->groupedVATs;
         $this->arrayToXML($invoiceData, $invoice);
-
-        foreach ($this->invoiceRowData as  &$data) {
-            $data['type'] = $this->translate($data['type']);
-        }
-
         $rows = $invoice->addChild('rows');
-        $this->arrayToXML($this->invoiceRowData, $rows, 'row');
+        $this->arrayToXML($this->getInvoiceRowData(), $rows, 'row');
 
         include 'settings_def.php';
         $settingsData = [];
@@ -203,5 +200,43 @@ EOT
                 }
             }
         }
+    }
+
+    /**
+     * Preprocess and return invoice rows
+     *
+     * @return array
+     */
+    protected function getInvoiceRowData()
+    {
+        // Preprocess invoice rows
+        if (getSetting('printout_markdown')) {
+            $markdown = new Markdown();
+            $markdown->no_entities = true;
+        } else {
+            $markdown = null;
+        }
+        $rows = [];
+        foreach ($this->invoiceRowData as $data) {
+            $data['type'] = $this->translate($data['type']);
+            if ($markdown) {
+                foreach (['product_name', 'product_code', 'description'] as $key) {
+                    if (!empty($data[$key])) {
+                        $data[$key]
+                            = trim(strip_tags($markdown->transform($data[$key])));
+                    }
+                }
+            }
+            $rowDesc = '';
+            if (!empty($data['product_name']) && !empty($data['description'])) {
+                $rowDesc = $data['product_name'] . ' (' . $data['description'] . ')';
+            } else {
+                $rowDesc = (null !== $data['product_name'] ? $data['product_name'] : '')
+                    . $data['description'];
+            }
+            $data['row_description'] = $rowDesc;
+            $rows[] = $data;
+        }
+        return $rows;
     }
 }

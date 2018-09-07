@@ -1,0 +1,27 @@
+version: '3.3'
+
+services:
+  db:
+    image: mariadb:10
+    volumes:
+      - ./db_data:/var/lib/mysql
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: chocolate
+      MYSQL_DATABASE: mlinvoice
+      MYSQL_USER: mlinvoice
+      MYSQL_PASSWORD: strawberry
+  mlinvoice:
+    build:
+      context: .
+      args:
+        MYSQL_ROOT_PASSWORD: chocolate
+        MYSQL_USER: mlinvoice
+        MYSQL_PASSWORD: strawberry
+    depends_on:
+      - db
+    ports:
+      - "8000:80"
+    links:
+      - db:mariadb
+    restart: always

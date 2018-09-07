@@ -72,20 +72,6 @@ $arrSettings = [
         'default' => 2,
         'allow_null' => true
     ],
-    'default_list_rows' => [
-        'label' => 'SettingDefaultListRows',
-        'type' => 'SELECT',
-        'style' => 'long noemptyvalue',
-        'position' => 1,
-        'default' => 10,
-        'allow_null' => true,
-        'options' => [
-            10 => '10',
-            25 => '25',
-            50 => '50',
-            100 => '100'
-        ]
-    ],
     'check_updates' => [
         'label' => 'SettingCheckForUpdates',
         'type' => 'CHECK',
@@ -233,6 +219,14 @@ $arrSettings = [
             1 => 'SettingInvoiceClearRowValues',
             2 => 'SettingInvoiceUseProductDefaults'
         ]
+    ],
+    'invoice_display_product_stock_in_selection' => [
+        'label' => 'SettingInvoiceShowProductStockInSelection',
+        'type' => 'CHECK',
+        'style' => 'medium',
+        'position' => 1,
+        'default' => 1,
+        'allow_null' => true
     ],
 
     'printing_sep' => [

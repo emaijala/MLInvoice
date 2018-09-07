@@ -72,6 +72,13 @@
   </SellerCommunicationDetails>
     </xsl:if>
   <SellerInformationDetails>
+      <xsl:if test="street_address!='' and zip_code!='' and city !=''">
+    <SellerOfficialPostalAddressDetails>
+      <SellerOfficialStreetName><xsl:value-of select="street_address"/></SellerOfficialStreetName>
+      <SellerOfficialTownName><xsl:value-of select="city"/></SellerOfficialTownName>
+      <SellerOfficialPostCodeIdentifier><xsl:value-of select="zip_code"/></SellerOfficialPostCodeIdentifier>
+    </SellerOfficialPostalAddressDetails>
+      </xsl:if>
       <xsl:if test="vat_registered!=0">
     <SellerVatRegistrationText>Alv.Rek</SellerVatRegistrationText>
       </xsl:if>
@@ -201,20 +208,16 @@
     <ArticleIdentifier><xsl:value-of select="product_code"/></ArticleIdentifier>
     </xsl:if>
     <xsl:choose>
-      <xsl:when test="product_name!='' and description!=''">
-    <ArticleName><xsl:value-of select="product_name"/> (<xsl:value-of select="description"/>)</ArticleName>
-      </xsl:when>
-      <xsl:when test="product_name!=''">
-    <ArticleName><xsl:value-of select="product_name"/></ArticleName>
-      </xsl:when>
-      <xsl:when test="description!=''">
-    <ArticleName><xsl:value-of select="description"/></ArticleName>
+      <xsl:when test="row_description!=''">
+    <ArticleName><xsl:value-of select="row_description"/></ArticleName>
       </xsl:when>
       <xsl:otherwise>
     <ArticleName>--</ArticleName>
       </xsl:otherwise>
     </xsl:choose>
     <xsl:choose>
+      <xsl:when test="extended_description">
+      </xsl:when>
       <xsl:when test="partial_payment=1">
     <RowAmount AmountCurrencyIdentifier="EUR"><xsl:value-of select="format-number(price, '0,00###', 'euro')"/></RowAmount>
       </xsl:when>
@@ -264,6 +267,8 @@
   <xsl:choose>
     <xsl:when test="substring(formatted_ref_number, 1, 2) = 'RF'">
       <EpiRemittanceInfoIdentifier IdentificationSchemeName="ISO"><xsl:value-of select="formatted_ref_number"/></EpiRemittanceInfoIdentifier>
+    </xsl:when>
+    <xsl:when test="format-number(ref_number, '00000000000000000000') = 'NaN'">
     </xsl:when>
     <xsl:otherwise>
       <EpiRemittanceInfoIdentifier IdentificationSchemeName="SPY"><xsl:value-of select="format-number(ref_number, '00000000000000000000')"/></EpiRemittanceInfoIdentifier>

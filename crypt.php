@@ -1,10 +1,10 @@
 <?php
 /**
- * Formless invoice
+ * Encryption utilities
  *
  * PHP version 5
  *
- * Copyright (C) 2010-2018 Ere Maijala
+ * Copyright (C) Ere Maijala 2018.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2,
@@ -25,12 +25,12 @@
  * @license  http://opensource.org/licenses/gpl-2.0.php GNU General Public License
  * @link     http://labs.fi/mlinvoice.eng.php
  */
-require_once 'invoice_printer_base.php';
-require_once 'htmlfuncs.php';
-require_once 'miscfuncs.php';
+require_once 'config.php';
+
+use phpseclib\Crypt\AES;
 
 /**
- * Formless invoice
+ * Encryption utility class
  *
  * @category MLInvoice
  * @package  MLInvoice\Base
@@ -38,52 +38,55 @@ require_once 'miscfuncs.php';
  * @license  http://opensource.org/licenses/gpl-2.0.php GNU General Public License
  * @link     http://labs.fi/mlinvoice.eng.php
  */
-class InvoicePrinterFormless extends InvoicePrinterBase
+class Crypt
 {
     /**
-     * Create the printout and return headers and data
+     * Cipher class
      *
-     * @return array Associative array with headers and data
+     * @var AES
      */
-    public function createPrintout()
-    {
-        $this->allowSeparateStatement = false;
-        $this->autoPageBreakMarginFirstPage = $this->autoPageBreakMargin;
-        $this->invoiceRowMaxY = 270;
-        $this->includeBankInFooter = true;
+    protected $cipher;
 
-        return parent::createPrintout();
+    /**
+     * Constructor
+     */
+    public function __construct()
+    {
+        if (!defined('_ENCRYPTION_KEY_')) {
+            throw new Exception('_ENCRYPTION_KEY_ must be defined in config.php');
+        }
+        if (strlen(_ENCRYPTION_KEY_) < 32) {
+            throw new Exception('_ENCRYPTION_KEY_ in config.php too short');
+        }
+        $this->cipher = new AES();
+        $this->cipher->setKey(_ENCRYPTION_KEY_);
     }
 
     /**
-     * Initialize the PDF
+     * Decrypt a string
      *
-     * @return void
+     * @param string $string String to decrypt
+     *
+     * @return string
      */
-    protected function initPDF()
+    public function decrypt($string)
     {
-        parent::initPDF();
-        $this->pdf->printFooterOnFirstPage = true;
+        $result = $this->cipher->decrypt(base64_decode($string));
+        if (false === $result) {
+            throw new Exception('Failed to decrypt string');
+        }
+        return $result;
     }
 
     /**
-     * Gather an array of information to print
+     * Encrypt a string
      *
-     * @param bool $bankInfo Whether to include recipient bank information
+     * @param string $string String to encrypt
      *
-     * @return array
+     * @return string
      */
-    protected function getInfoArray($bankInfo = false)
+    public function encrypt($string)
     {
-        return parent::getInfoArray(true);
-    }
-
-    /**
-     * Print the invoice form at the end of the first page
-     *
-     * @return void
-     */
-    protected function printForm()
-    {
+        return base64_encode($this->cipher->encrypt($string));
     }
 }

@@ -30,6 +30,13 @@
 ini_set('implicit_flush', 'Off');
 ob_start();
 
+if (!file_exists(__DIR__ . DIRECTORY_SEPARATOR . 'config.php')) {
+    include_once 'setup.php';
+    $setup = new Setup();
+    $setup->initialSetup();
+    exit();
+}
+
 require_once 'sessionfuncs.php';
 require_once 'sqlfuncs.php';
 require_once 'miscfuncs.php';
@@ -116,12 +123,12 @@ echo htmlPageStart('');
 
 <?php
 if (isset($upgradeMessage)) {
-?>
+    ?>
         <div class="message ui-widget <?php echo isset($upgradeFailed) ? 'ui-state-error' : 'ui-state-highlight'?>">
             <?php echo $upgradeMessage?>
         </div>
         <br />
-<?php
+    <?php
 }
 ?>
         <div class="ui-widget form" style="padding: 30px;">
@@ -134,7 +141,7 @@ if (isset($languages)) {
         }
         ?>
 <a href="login.php?lang=<?php echo $code?>"><?php echo htmlspecialchars($name)?></a><br />
-<?php
+        <?php
     }
     echo '<br/>';
 }
@@ -164,13 +171,13 @@ if (isset($languages)) {
                 </p>
 <?php
 if (getSetting('password_recovery')) {
-?>
+    ?>
                 <p>
                   <a href="recover.php">
                     <?php echo Translator::translate('ForgotPassword')?>
                   </a>
                 </p>
-<?php
+    <?php
 }
 ?>
             </form>

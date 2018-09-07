@@ -148,9 +148,9 @@ class ProductReport extends AbstractReport
         </div>
         <div class="field_sep"></div>
 
-<?php
+        <?php
         $this->addInvoiceStateSelection();
-?>
+        ?>
 
         <div class="unlimited_label">
             <a class="actionlink form-submit" href="#" data-form-target="">
@@ -162,7 +162,7 @@ class ProductReport extends AbstractReport
         </div>
     </form>
 </div>
-<?php
+        <?php
     }
 
     /**
@@ -385,7 +385,7 @@ class ProductReport extends AbstractReport
         </tr>
       </thead>
       <tbody>
-<?php
+        <?php
     }
 
     /**
@@ -486,7 +486,7 @@ class ProductReport extends AbstractReport
             <?php echo miscRound2Decim($intSumVAT)?>
         </td>
         </tr>
-<?php
+        <?php
     }
 
     /**
@@ -538,7 +538,7 @@ class ProductReport extends AbstractReport
             <?php echo miscRound2Decim($intTotSumVAT)?>
         </td>
         </tr>
-<?php
+        <?php
     }
 
     /**
@@ -572,11 +572,11 @@ class ProductReport extends AbstractReport
   </div>
         <?php
         if ($format == 'table') {
-        ?>
+            ?>
 <script type="text/javascript">
 var table = $('.report-table.datatable').DataTable({
     'language': {
-        <?php echo Translator::translate('TableTexts')?>
+            <?php echo Translator::translate('TableTexts')?>
     },
     'pageLength': 50,
     'jQueryUI': true,
@@ -623,7 +623,7 @@ var buttons = new $.fn.dataTable.Buttons(table, {
 
 table.buttons().container().appendTo($('.fg-toolbar', table.table().container()));
 </script>
-<?php
+            <?php
         }
     }
 }

@@ -88,8 +88,9 @@ abstract class AbstractReport
                 'values' => [
                     'state' => 'PrintGroupingState',
                     'month' => 'PrintGroupingMonth',
-                    'client' => 'PrintGroupingCliet',
-                    'vat' => 'PrintGroupingVAT'
+                    'client' => 'PrintGroupingClient',
+                    'vat' => 'PrintGroupingVAT',
+                    'product' => 'PrintGroupingProduct'
                 ]
             ],
         ];
@@ -147,7 +148,7 @@ abstract class AbstractReport
      */
     protected function addInvoiceStateSelection()
     {
-?>
+        ?>
         <div style="float: left; margin-right: 20px;">
             <div class="medium_label"><?php echo Translator::translate('PrintReportStates')?></div>
         <?php
@@ -163,17 +164,17 @@ abstract class AbstractReport
                 echo "      <div class=\"medium_label\"></div>\n";
             }
             $first = false;
-        ?>
+            ?>
             <div class="field">
                 <label>
                     <input type="checkbox" id="state-<?php echo $intStateId?>" name="stateid_<?php echo $intStateId?>" value="1"<?php echo $strChecked?>>
                     <?php echo htmlspecialchars($strStateName)?>
                 </label>
             </div>
-        <?php
+            <?php
         }
         ?>
         </div>
-<?php
+        <?php
     }
 }

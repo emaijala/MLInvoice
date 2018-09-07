@@ -41,21 +41,95 @@ require_once 'miscfuncs.php';
 class InvoicePrinterFinvoice extends InvoicePrinterXSLT
 {
     /**
-     * Main method for printing
+     * Create the printout and return headers and data
      *
-     * @return void
+     * @return array Associative array with headers and data
      */
-    public function printInvoice()
+    public function createPrintout()
     {
         $this->xsltParams['printTransmissionDetails'] = false;
         parent::transform('create_finvoice.xsl', 'Finvoice.xsd');
-        header('Content-Type: text/xml; charset=ISO-8859-15');
+        $headers = [
+            'Content-Type: text/xml; charset=ISO-8859-15'
+        ];
         $filename = $this->getPrintoutFileName();
         if ($this->printStyle) {
-            header("Content-Disposition: inline; filename=$filename");
+            $headers[] = "Content-Disposition: inline; filename=$filename";
         } else {
-            header("Content-Disposition: attachment; filename=$filename");
+            $headers[] = "Content-Disposition: attachment; filename=$filename";
         }
-        echo $this->xml;
+        return [
+            'headers' => $headers,
+            'data' => $this->xml
+        ];
+    }
+
+    /**
+     * Preprocess and return invoice rows
+     *
+     * @return array
+     */
+    protected function getInvoiceRowData()
+    {
+        $rows = parent::getInvoiceRowData();
+
+        // Split long invoice rows
+        $newData = [];
+        foreach ($rows as $data) {
+            if (mb_strlen($data['row_description'], 'UTF-8') > 100) {
+                $parts = $this->splitDescription($data['row_description']);
+                $data['row_description'] = array_shift($parts);
+                $newRows[] = $data;
+                foreach ($parts as $part) {
+                    $row = [
+                        'row_description' => $part,
+                        'extended_description' => true
+                    ];
+                    $newRows[] = $row;
+                }
+            } else {
+                $newRows[] = $data;
+            }
+        }
+        return $newRows;
+    }
+
+    /**
+     * Split row description to max 100 character chunks
+     *
+     * @param string $description Description
+     *
+     * @return array
+     */
+    protected function splitDescription($description)
+    {
+        $words = explode(' ', $description);
+        $result = [];
+        $current = [];
+        foreach ($words as $word) {
+            $wordLen = mb_strlen($word, 'UTF-8');
+            if ($wordLen >= 100) {
+                if ($current) {
+                    $result[] = implode(' ', $current);
+                    $current = [];
+                }
+                $pos = 0;
+                while ($part = mb_substr($word, $pos, 100)) {
+                    $result[] = $part;
+                    $pos += 100;
+                }
+                continue;
+            }
+            $chunkLen = mb_strlen(implode(' ', $current), 'UTF-8');
+            if ($chunkLen + $wordLen > 100) {
+                $result[] = implode(' ', $current);
+                $current = [];
+            }
+            $current[] = $word;
+        }
+        if ($current) {
+            $result[] = implode(' ', $current);
+        }
+        return $result;
     }
 }

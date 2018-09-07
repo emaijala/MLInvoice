@@ -460,7 +460,7 @@ EOT;
         </div>
     </form>
 </div>
-    <?php
+        <?php
     }
 
     /**

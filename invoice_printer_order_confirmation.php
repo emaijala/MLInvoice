@@ -43,27 +43,20 @@ class InvoicePrinterOrderConfirmation extends InvoicePrinterBase
     /**
      * Initialize printing
      *
-     * @param int    $invoiceId            Invoice ID
-     * @param array  $printParameters      Print control parameters
-     * @param string $outputFileName       File name template
-     * @param array  $senderData           Sender record
-     * @param array  $recipientData        Recipient record
-     * @param array  $invoiceData          Invoice record
-     * @param array  $invoiceRowData       Invoice row records
-     * @param array  $recipientContactData Recipient's contact records
-     * @param int    $dateOverride         Date override for invoice date
-     * @param int    $printTemplateId      Print template ID
-     * @param bool   $authenticated        Whether the user is authenticated
+     * @param int    $invoiceId       Invoice ID
+     * @param array  $printParameters Print control parameters
+     * @param string $outputFileName  File name template
+     * @param int    $dateOverride    Date override for invoice date
+     * @param int    $printTemplateId Print template ID
+     * @param bool   $authenticated   Whether the user is authenticated
      *
      * @return void
      */
-    public function init($invoiceId, $printParameters, $outputFileName, $senderData,
-        $recipientData, $invoiceData, $invoiceRowData, $recipientContactData,
+    public function init($invoiceId, $printParameters, $outputFileName,
         $dateOverride, $printTemplateId, $authenticated
     ) {
         parent::init(
-            $invoiceId, $printParameters, $outputFileName, $senderData,
-            $recipientData, $invoiceData, $invoiceRowData, $recipientContactData,
+            $invoiceId, $printParameters, $outputFileName,
             $dateOverride, $printTemplateId, $authenticated
         );
         $this->printStyle = 'order_confirmation';
@@ -72,24 +65,8 @@ class InvoicePrinterOrderConfirmation extends InvoicePrinterBase
         $this->columnDefs['vatpercent']['visible'] = false;
         $this->columnDefs['vat']['visible'] = false;
         $this->columnDefs['total']['visible'] = false;
-    }
 
-    /**
-     * Main method for printing
-     *
-     * @return void
-     */
-    public function printInvoice()
-    {
-        if ($this->senderData['bank_iban'] && $this->senderData['bank_swiftbic']) {
-            $bank = $this->senderData['bank_iban'] . '/' .
-                 $this->senderData['bank_swiftbic'];
-        } else {
-            $this->senderData['bank_iban'] . $this->senderData['bank_swiftbic'];
-        }
-        $this->senderAddressLine .= "\n$bank";
-
-        parent::printInvoice();
+        $this->includeBankInFooter = true;
     }
 
     /**
@@ -171,7 +148,7 @@ class InvoicePrinterOrderConfirmation extends InvoicePrinterBase
      *
      * @return string
      */
-    protected function getHeaderTitle()
+    public function getHeaderTitle()
     {
         return $this->translate('OrderConfirmationHeader');
     }

@@ -209,8 +209,11 @@ td.button {
   vertical-align: top;
 }
 
-td.button .dropdownmenu.ui-widget-content {
+td.button .dropdownmenu.ui-widget-content, .send-buttons .dropdownmenu.ui-widget-content {
   border: 0
+}
+.send-buttons .dropdownmenu {
+  display: inline-block;
 }
 
 td.field {

@@ -327,7 +327,7 @@ function createFuncMenu($strFunc)
 </script>
     <?php
     if ($astrNaviLinks || $blnShowSearch || $strNewButton) {
-    ?>
+        ?>
     <div class="function_navi">
         <?php
         foreach ($astrNaviLinks as $link) {
@@ -355,7 +355,7 @@ function createFuncMenu($strFunc)
                 ?>
         <a class="buttonlink<?php echo $class?>"
             href="<?php echo $strHref?>"><?php echo $link['text']?></a>
-    <?php
+                <?php
             }
         }
         if ($blnShowSearch) {
@@ -364,14 +364,14 @@ function createFuncMenu($strFunc)
             onClick="openSearchWindow('ext', event); return false;"><?php echo Translator::translate('ExtSearch')?></a>
         <a class="buttonlink" href="#"
             onClick="openSearchWindow('quick', event); return false;"><?php echo Translator::translate('QuickSearch')?></a>
-    <?php
+            <?php
         }
         if (sesWriteAccess()) {
             echo "&nbsp; &nbsp; $strNewButton\n";
         }
         ?>
     </div>
-    <?php
+        <?php
     }
 }
 

@@ -29,6 +29,7 @@
  */
 require_once 'translator.php';
 require_once 'settings.php';
+require_once 'pdf.php';
 
 /**
  * Invoice printer abstract base class
@@ -53,13 +54,7 @@ abstract class InvoicePrinterBase
     protected $invoiceRowData = null;
     protected $separateStatement = false;
     protected $readOnlySafe = false;
-    protected $senderAddress = '';
-    protected $senderAddressLine = '';
-    protected $senderContactInfo = '';
-    protected $billingAddress = '';
     protected $refNumber = '';
-    protected $recipientName = '';
-    protected $recipientAddress = '';
     protected $barcode = '';
     protected $totalSum = 0;
     protected $totalVAT = 0;
@@ -265,6 +260,13 @@ abstract class InvoicePrinterBase
     protected $authenticated;
 
     /**
+     * Whether to include bank information in footer
+     *
+     * @var bool
+     */
+    protected $includeBankInFooter = false;
+
+    /**
      * Constructor
      */
     public function __construct()
@@ -284,26 +286,94 @@ abstract class InvoicePrinterBase
     /**
      * Initialize printing
      *
-     * @param int    $invoiceId            Invoice ID
-     * @param array  $printParameters      Print control parameters
-     * @param string $outputFileName       File name template
-     * @param array  $senderData           Sender record
-     * @param array  $recipientData        Recipient record
-     * @param array  $invoiceData          Invoice record
-     * @param array  $invoiceRowData       Invoice row records
-     * @param array  $recipientContactData Recipient's contact records
-     * @param int    $dateOverride         Date override for invoice date
-     * @param int    $printTemplateId      Print template ID
-     * @param bool   $authenticated        Whether the user is authenticated
+     * @param int    $invoiceId       Invoice ID
+     * @param array  $printParameters Print control parameters
+     * @param string $outputFileName  File name template
+     * @param int    $dateOverride    Date override for invoice date
+     * @param int    $printTemplateId Print template ID
+     * @param bool   $authenticated   Whether the user is authenticated
      *
      * @return void
      */
-    public function init($invoiceId, $printParameters, $outputFileName, $senderData,
-        $recipientData, $invoiceData, $invoiceRowData, $recipientContactData,
+    public function init($invoiceId, $printParameters, $outputFileName,
         $dateOverride, $printTemplateId, $authenticated
     ) {
         $this->printTemplateId = $printTemplateId;
         $this->authenticated = $authenticated;
+
+        if (0 !== $invoiceId) {
+            $strQuery = 'SELECT inv.*, ref.invoice_no as refunded_invoice_no, delivery_terms.name as delivery_terms,'
+                . ' delivery_method.name as delivery_method, invoice_state.name as invoice_state,'
+                . ' invoice_state.invoice_open as invoice_open, invoice_state.invoice_unpaid as invoice_unpaid '
+                . 'FROM {prefix}invoice inv '
+                . 'LEFT OUTER JOIN {prefix}invoice ref ON ref.id = inv.refunded_invoice_id '
+                . 'LEFT OUTER JOIN {prefix}delivery_terms as delivery_terms ON delivery_terms.id = inv.delivery_terms_id '
+                . 'LEFT OUTER JOIN {prefix}delivery_method as delivery_method ON delivery_method.id = inv.delivery_method_id '
+                . 'LEFT OUTER JOIN {prefix}invoice_state as invoice_state ON invoice_state.id = inv.state_id '
+                . 'WHERE inv.id=?';
+            $rows = dbParamQuery($strQuery, [$invoiceId]);
+            if (!$rows) {
+                if ($authenticated) {
+                    die('Could not find invoice data');
+                }
+                return;
+            }
+            $invoiceData = $rows[0];
+
+            if (isOffer($invoiceId)) {
+                $invoiceData['invoice_no'] = $invoiceId;
+            }
+
+            $recipientData = getCompany($invoiceData['company_id']);
+            if ($recipientData) {
+                if (!empty($recipientData['company_id'])) {
+                    $recipientData['vat_id'] = createVATID($recipientData['company_id']);
+                } else {
+                    $recipientData['vat_id'] = '';
+                }
+
+                $strQuery = 'SELECT * FROM {prefix}company_contact WHERE company_id=?'
+                    . ' AND deleted=0 ORDER BY id';
+                $recipientContactData = dbParamQuery($strQuery, [$invoiceData['company_id']]);
+            }
+
+            $strQuery = 'SELECT * FROM {prefix}base WHERE id=?';
+            $rows = dbParamQuery($strQuery, [$invoiceData['base_id']]);
+            if (!$rows) {
+                if ($authenticated) {
+                    die('Could not find invoice sender data');
+                }
+                return;
+            }
+            $senderData = $rows[0];
+            $senderData['vat_id'] = createVATID($senderData['company_id']);
+
+            $queryParams = [$invoiceId];
+            $where = 'ir.invoice_id=? AND ir.deleted=0';
+            if ($dateOverride) {
+                $where .= ' AND row_date=?';
+                $queryParams[] = $dateOverride;
+            }
+
+            $strQuery = <<<EOT
+            SELECT pr.product_name, pr.product_code, pr.price_decimals,
+                pr.barcode1, pr.barcode1_type, pr.barcode2, pr.barcode2_type,
+                ir.description, ir.pcs, ir.price, IFNULL(ir.discount, 0) as discount,
+                IFNULL(ir.discount_amount, 0) as discount_amount, ir.row_date, ir.vat,
+                ir.vat_included, ir.reminder_row, ir.partial_payment, ir.order_no, rt.name type
+                FROM {prefix}invoice_row ir
+                LEFT OUTER JOIN {prefix}row_type rt ON rt.id = ir.type_id
+                LEFT OUTER JOIN {prefix}product pr ON ir.product_id = pr.id
+                WHERE $where ORDER BY ir.order_no, row_date, pr.product_name DESC,
+                ir.description DESC
+EOT;
+            $invoiceRowData = dbParamQuery($strQuery, $queryParams);
+        } else {
+            $invoiceData = [];
+            $invoiceRowData = [];
+            $senderData = [];
+        }
+
         if (empty($recipientData)) {
             $recipientData = [
                 'company_name' => '',
@@ -316,6 +386,7 @@ abstract class InvoicePrinterBase
                 'billing_address' => '',
                 'email' => ''
             ];
+            $recipientContactData = [];
         }
 
         $this->dateOverride = $dateOverride;
@@ -396,75 +467,8 @@ abstract class InvoicePrinterBase
         $this->separateStatement = ($this->printStyle == 'invoice') &&
              getSetting('invoice_separate_statement');
 
-        $this->senderAddressLine = $senderData['name'];
-        $strCompanyID = trim($senderData['company_id']);
-        if ($strCompanyID) {
-            $strCompanyID = $this->translate('VATID')
-                . ": $strCompanyID";
-        }
-        if ($strCompanyID) {
-            $strCompanyID .= ', ';
-        }
-        if ($senderData['vat_registered']) {
-            $strCompanyID .= $this->translate('VATReg');
-        } else {
-            $strCompanyID .= $this->translate('NonVATReg');
-        }
-        if ($strCompanyID) {
-            $this->senderAddressLine .= " ($strCompanyID)";
-        }
-        $this->senderAddressLine .= "\n" . $senderData['street_address'];
-        if ($senderData['street_address']
-            && ($senderData['zip_code'] || $senderData['city'])
-        ) {
-            $this->senderAddressLine .= ', ';
-        }
-        if ($senderData['zip_code']) {
-            $this->senderAddressLine .= $senderData['zip_code'] . ' ';
-        }
-        $this->senderAddressLine .= $senderData['city'];
-        if ($senderData['country'] && $this->senderAddressLine) {
-            $this->senderAddressLine .= ', ';
-        }
-        $this->senderAddressLine .= $senderData['country'];
-
-        $this->senderAddress = $senderData['name'] . "\n" .
-             $senderData['street_address'] . "\n" . $senderData['zip_code'] . ' ' .
-             $senderData['city'];
-        if ($senderData['country'] && $this->senderAddress) {
-            $this->senderAddress .= ', ';
-        }
-        $this->senderAddress .= $senderData['country'];
-
-        if ($senderData['phone']) {
-            $this->senderContactInfo = "\n" . $this->translate('Phone')
-                . ' ' . $senderData['phone'];
-        } else {
-            $this->senderContactInfo = '';
-        }
-
-        if (!empty($invoiceData['ref_number'])
-            && strlen($invoiceData['ref_number']) < 4
-        ) {
-            error_log('Reference number too short, will not be displayed');
-            $invoiceData['ref_number'] = '';
-        }
         $this->refNumber = isset($invoiceData['ref_number'])
             ? formatRefNumber($invoiceData['ref_number']) : '';
-
-        $this->recipientFullAddress = $recipientData['company_name'] . "\n" .
-             $recipientData['street_address'] . "\n" . $recipientData['zip_code'] .
-             ' ' . $recipientData['city'];
-        $this->billingAddress = $recipientData['billing_address'];
-        if (!$this->billingAddress || $this->printStyle != 'invoice'
-            || (($invoiceData['state_id'] == 5 || $invoiceData['state_id'] == 6)
-            && !getSetting('invoice_send_reminder_to_invoicing_address'))
-        ) {
-            $this->billingAddress = $this->recipientFullAddress;
-        }
-        $addressParts = explode("\n", $this->billingAddress, 2);
-        $this->recipientName = isset($addressParts[0]) ? $addressParts[0] : '';
-        $this->recipientAddress = isset($addressParts[1]) ? $addressParts[1] : '';
 
         // barcode
         /*
@@ -550,6 +554,89 @@ abstract class InvoicePrinterBase
             $this->width += 6;
         }
 
+        if (getSetting('invoice_row_description_first_line_only', false)) {
+            $this->columnDefs['description']['maxheight'] = 5;
+        }
+
+        if ('invoice' !== $this->printStyle) {
+            $this->invoiceRowMaxY = 270;
+        }
+    }
+
+    /**
+     * Set invoice data
+     *
+     * @param array $data Invoice data
+     *
+     * @return void
+     */
+    public function setInvoiceData($data)
+    {
+        $this->invoiceData = $data;
+    }
+
+    /**
+     * Set sender data
+     *
+     * @param array $data Sender data
+     *
+     * @return void
+     */
+    public function setSenderData($data)
+    {
+        $this->senderData = $data;
+    }
+
+    /**
+     * Set recipient data
+     *
+     * @param array $data        Recipient data
+     * @param array $contactData Recipient contact data
+     *
+     * @return void
+     */
+    public function setRecipientData($data, $contactData)
+    {
+        $this->recipientData = $data;
+        $this->recipientContactData = $contactData;
+    }
+
+    /**
+     * Main method for printing
+     *
+     * @return void
+     */
+    public function printInvoice()
+    {
+        if (ob_get_contents()) {
+            echo "\nData has already been output, cannot continue printing\n";
+            return;
+        } elseif (headers_sent()) {
+            echo "\nHeaders have already been sent, cannot continue printing\n";
+            return;
+        }
+
+        $result = $this->createPrintout();
+        foreach ($result['headers'] as $header) {
+            header($header);
+        }
+        echo $result['data'];
+    }
+
+    /**
+     * Create the printout and return headers and data
+     *
+     * @return array Associative array with headers and data
+     */
+    public function createPrintout()
+    {
+        if (!empty($this->invoiceData['ref_number'])
+            && strlen($this->invoiceData['ref_number']) < 4
+        ) {
+            error_log('Reference number too short, will not be displayed');
+            $this->invoiceData['ref_number'] = '';
+        }
+
         if ('dispatch' === $this->printStyle || !$this->senderData['vat_registered']
         ) {
             $this->columnDefs['totalvatless']['visible'] = false;
@@ -562,22 +649,6 @@ abstract class InvoicePrinterBase
             $this->columnDefs['total']['visible'] = false;
         }
 
-        if (getSetting('invoice_row_description_first_line_only', false)) {
-            $this->columnDefs['description']['maxheight'] = 5;
-        }
-
-        if ('invoice' !== $this->printStyle) {
-            $this->invoiceRowMaxY = 270;
-        }
-    }
-
-    /**
-     * Main method for printing
-     *
-     * @return void
-     */
-    public function printInvoice()
-    {
         $this->initPDF();
         $this->printSender();
         $this->printRecipient();
@@ -590,8 +661,13 @@ abstract class InvoicePrinterBase
 
         $savePdf = clone($this->pdf);
         if (!$this->separateStatement) {
-            $this->printRows();
-            $this->printSummary();
+            if ($this->printRows() || !$this->allowSeparateStatement) {
+                $this->printSummary();
+            } else {
+                $this->pdf = $savePdf;
+                $this->printSeparateStatementMessage();
+                $this->separateStatement = true;
+            }
         } else {
             $this->printSeparateStatementMessage();
         }
@@ -616,7 +692,18 @@ abstract class InvoicePrinterBase
             $this->printSummary();
         }
 
-        $this->printOut();
+        $filename = basename($this->getPrintOutFileName());
+        return [
+            'headers' => [
+                'Content-Type: application/pdf',
+                'Cache-Control: private, must-revalidate, post-check=0, pre-check=0, max-age=1',
+                'Pragma: public',
+                'Expires: Mon, 26 Jul 1997 05:00:00 GMT',
+                'Last-Modified: ' . gmdate('D, d M Y H:i:s') . ' GMT',
+                'Content-Disposition: inline; filename="' . $filename . '"'
+            ],
+            'data' => $this->pdf->Output('', 'S')
+        ];
     }
 
     /**
@@ -632,10 +719,9 @@ abstract class InvoicePrinterBase
             true, $this->autoPageBreakMargin, $this->autoPageBreakMarginFirstPage
         );
 
-        $pdf->footerLeft = $this->senderAddressLine;
-        $pdf->footerCenter = $this->senderContactInfo;
-        $pdf->footerRight = $this->senderData['www'] . "\n" .
-             $this->senderData['email'];
+        $pdf->footerLeft = $this->getFooterLeftColumn();
+        $pdf->footerCenter = $this->getFooterCenterColumn();
+        $pdf->footerRight = $this->getFooterRightColumn();
         $pdf->headerLeftPos = $pdf->footerLeftPos = $this->left;
         $pdf->headerRightPos = $pdf->footerRightPos = $this->left + $this->width
             - $pdf->headerRightWidth;
@@ -704,7 +790,7 @@ abstract class InvoicePrinterBase
         $pdf->SetFont('Helvetica', '', 12);
         $pdf->SetY($this->recipientAddressY);
         $pdf->setX($this->recipientAddressX);
-        $pdf->multiCellMD($width, 5, $this->recipientName, 'L');
+        $pdf->multiCellMD($width, 5, $this->getRecipientName(), 'L');
         $contact = $this->getContactPerson();
         if (!empty($contact['contact_person'])
             && getSetting('invoice_show_recipient_contact_person')
@@ -713,8 +799,10 @@ abstract class InvoicePrinterBase
             $pdf->multiCellMD($width, 5, $contact['contact_person'], 'L');
         }
         $pdf->setX($this->recipientAddressX);
-        $pdf->multiCellMD($width, 5, $this->recipientAddress, 'L');
-        if ($recipientData['email'] && getSetting('invoice_show_recipient_email')) {
+        $pdf->multiCellMD($width, 5, $this->getRecipientAddress(), 'L');
+        if (!empty($recipientData['email'])
+            && getSetting('invoice_show_recipient_email')
+        ) {
             $pdf->SetY($pdf->GetY() + 4);
             $pdf->setX($this->recipientAddressX);
             $pdf->multiCellMD($width, 5, $recipientData['email'], 'L');
@@ -985,12 +1073,12 @@ abstract class InvoicePrinterBase
     /**
      *  Print all rows
      *
-     * @return void
+     * @return bool True when successful, false if separate statement is needed
      */
     protected function printRows()
     {
         if (empty($this->invoiceRowData)) {
-            return;
+            return true;
         }
         $pdf = $this->pdf;
         $invoiceData = $this->invoiceData;
@@ -1049,9 +1137,7 @@ abstract class InvoicePrinterBase
                 && $this->allowSeparateStatement
                 && $pdf->GetY() > $this->invoiceRowMaxY
             ) {
-                $this->separateStatement = true;
-                $this->printInvoice();
-                exit();
+                return false;
             }
 
             if ($maxY > $this->invoiceRowMaxY) {
@@ -1060,6 +1146,7 @@ abstract class InvoicePrinterBase
                 $this->printRow($pdf, $row);
             }
         }
+        return true;
     }
 
     /**
@@ -1723,17 +1810,18 @@ abstract class InvoicePrinterBase
         $intStartY = 197 - $footerHeight;
         $pdf->SetXY($pdf->footerLeftPos, $intStartY);
         $pdf->multiCellMD(
-            $pdf->footerLeftWidth, 4, $this->senderAddressLine, 'L', 0, $footerHeight
+            $pdf->footerLeftWidth, 4, $this->getFooterLeftColumn(), 'L', 0,
+            $footerHeight
         );
         $pdf->SetXY($pdf->footerCenterPos, $intStartY);
         $pdf->multiCellMD(
-            $pdf->footerCenterWidth, 4, $this->senderContactInfo, 'C', 0,
+            $pdf->footerCenterWidth, 4, $this->getFooterCenterColumn(), 'C', 0,
             $footerHeight
         );
         $pdf->SetXY($pdf->footerRightPos, $intStartY);
         $pdf->multiCellMD(
-            $pdf->footerRightWidth, 4,
-            $senderData['www'] . "\n" . $senderData['email'], 'R', 0, $footerHeight
+            $pdf->footerRightWidth, 4, $this->getFooterRightColumn(), 'R', 0,
+            $footerHeight
         );
 
         // Invoice form
@@ -1860,7 +1948,7 @@ abstract class InvoicePrinterBase
         );
         $pdf->SetFont('Helvetica', '', 10);
         $pdf->SetXY($intStartX + 21, $intStartY + 17);
-        $pdf->multiCellMD(100, 4, $this->senderAddress, 'L');
+        $pdf->multiCellMD(100, 4, $this->getSenderAddress(), 'L');
 
         // payer
         $pdf->SetFont('Helvetica', '', 7);
@@ -1882,7 +1970,7 @@ abstract class InvoicePrinterBase
         );
         $pdf->SetFont('Helvetica', '', 10);
         $pdf->SetXY($intStartX + 21, $intStartY + 35);
-        $pdf->multiCellMD(90, 4, $this->recipientFullAddress, 'L');
+        $pdf->multiCellMD(90, 4, $this->getRecipientFullAddress(), 'L');
 
         // signature
         $pdf->SetFont('Helvetica', '', 7);
@@ -2042,20 +2130,6 @@ abstract class InvoicePrinterBase
         }
         $pdf->setXY($saveX, $saveY);
         $pdf->restoreAutoBreakState();
-    }
-
-    /**
-     * Print out the results
-     *
-     * @return void
-     */
-    protected function printOut()
-    {
-        $pdf = $this->pdf;
-        $invoiceData = $this->invoiceData;
-
-        $filename = $this->getPrintOutFileName();
-        $pdf->Output($filename, 'I');
     }
 
     /**
@@ -2311,6 +2385,7 @@ abstract class InvoicePrinterBase
         );
         // Handle additional placeholders
         $filename = $this->replacePlaceholders($filename);
+        $filename = filter_var($filename, FILTER_SANITIZE_URL);
         return $filename;
     }
 
@@ -2319,7 +2394,7 @@ abstract class InvoicePrinterBase
      *
      * @return string
      */
-    protected function getHeaderTitle()
+    public function getHeaderTitle()
     {
         if ($this->printStyle == 'dispatch') {
             return $this->translate('DispatchNoteHeader');
@@ -2425,5 +2500,153 @@ abstract class InvoicePrinterBase
             );
         }
         return Translator::translate("invoice::$str", $placeholders, $default);
+    }
+
+    /**
+     * Get sender's address information
+     *
+     * @return string
+     */
+    protected function getSenderAddress()
+    {
+        $result = $this->senderData['name'] . "\n"
+            . $this->senderData['street_address'] . "\n"
+            . $this->senderData['zip_code'] . ' '
+            . $this->senderData['city'];
+        if ($this->senderData['country']) {
+            $result .= ', ' . $this->senderData['country'];
+        }
+
+        return $result;
+    }
+
+    /**
+     * Get left footer column
+     *
+     * @return string
+     */
+    protected function getFooterLeftColumn()
+    {
+        $result = $this->senderData['name'];
+        $companyID = trim($this->senderData['company_id']);
+        if ($companyID) {
+            $companyID = $this->translate('VATID') . ": $companyID";
+        }
+        if ($companyID) {
+            $companyID .= ', ';
+        }
+        if ($this->senderData['vat_registered']) {
+            $companyID .= $this->translate('VATReg');
+        } else {
+            $companyID .= $this->translate('NonVATReg');
+        }
+        $result .= " ($companyID)";
+        $result .= "\n" . $this->senderData['street_address'];
+        if ($this->senderData['street_address']
+            && ($this->senderData['zip_code'] || $this->senderData['city'])
+        ) {
+            $result .= ', ';
+        }
+        if ($this->senderData['zip_code']) {
+            $result .= $this->senderData['zip_code'] . ' ';
+        }
+        $result .= $this->senderData['city'];
+        if ($this->senderData['country']) {
+            $result .= ', ' . $this->senderData['country'];
+        }
+
+        if ($this->includeBankInFooter) {
+            if ($this->senderData['bank_iban'] && $this->senderData['bank_swiftbic']) {
+                $bank = $this->senderData['bank_iban'] . '/' .
+                    $this->senderData['bank_swiftbic'];
+            } else {
+                $bank = $this->senderData['bank_iban']
+                    . $this->senderData['bank_swiftbic'];
+            }
+            $result .= "\n$bank";
+        }
+
+        return $result;
+    }
+
+    /**
+     * Get center footer column
+     *
+     * @return string
+     */
+    protected function getFooterCenterColumn()
+    {
+        if ($this->senderData['phone']) {
+            return "\n" . $this->translate('Phone')
+                . ' ' . $this->senderData['phone'];
+        }
+
+        return '';
+    }
+
+    /**
+     * Get right footer column
+     *
+     * @return string
+     */
+    protected function getFooterRightColumn()
+    {
+        return $this->senderData['www'] . "\n" . $this->senderData['email'];
+    }
+
+    /**
+     * Get recipient's full address
+     *
+     * @return string;
+     */
+    protected function getRecipientFullAddress()
+    {
+        return $this->recipientData['company_name'] . "\n"
+            . $this->recipientData['street_address'] . "\n"
+            . $this->recipientData['zip_code']
+            . ' ' . $this->recipientData['city'];
+    }
+
+    /**
+     * Get recipients name and address parts
+     *
+     * @return array Associated array
+     */
+    protected function getRecipientNameAndAddress()
+    {
+        $address = $this->recipientData['billing_address'];
+        if (!$address || $this->printStyle != 'invoice'
+            || (($this->invoiceData['state_id'] == 5 || $this->invoiceData['state_id'] == 6)
+            && !getSetting('invoice_send_reminder_to_invoicing_address'))
+        ) {
+            $address = $this->getRecipientFullAddress();
+        }
+        $parts = explode("\n", $address, 2);
+        return [
+            'name' => $parts[0],
+            'address' => isset($parts[1]) ? $parts[1] : ''
+        ];
+    }
+
+    /**
+     * Get name part of the recipient
+     *
+     * @return string
+     */
+    protected function getRecipientName()
+    {
+        $data = $this->getRecipientNameAndAddress();
+        return $data['name'];
+    }
+
+    /**
+     * Get address part of the recipient
+     *
+     * @return string
+     */
+    protected function getRecipientAddress()
+    {
+        $data = $this->getRecipientNameAndAddress();
+        return $data['address'];
     }
 }

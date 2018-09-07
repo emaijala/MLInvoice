@@ -287,28 +287,28 @@ function htmlMainTabs($func)
         ]
     ];
 
-?>
+    ?>
             <div id="maintabs" class="navi ui-widget-header ui-tabs">
               <ul class="ui-tabs-nav ui-helper-clearfix ui-corner-all">
-<?php
-foreach ($astrMainButtons as $button) {
-    $strButton = '<li class="functionlink ui-state-default ui-corner-top';
-    if ($button['action'] == $func
-        || ($button['action'] == 'open_invoices' && $func == 'invoices')
-    ) {
-        $strButton .= ' ui-tabs-selected ui-state-active';
-    }
-    $strButton .= '"><a class="ui-tabs-anchor functionlink" href="index.php?func='
+    <?php
+    foreach ($astrMainButtons as $button) {
+        $strButton = '<li class="functionlink ui-state-default ui-corner-top';
+        if ($button['action'] == $func
+            || ($button['action'] == 'open_invoices' && $func == 'invoices')
+        ) {
+            $strButton .= ' ui-tabs-selected ui-state-active';
+        }
+        $strButton .= '"><a class="ui-tabs-anchor functionlink" href="index.php?func='
         . $button['action'] . '">';
-    $strButton .= Translator::translate($button['title']) . '</a></li>';
+        $strButton .= Translator::translate($button['title']) . '</a></li>';
 
-    if (!isset($button['levels_allowed'])
-        || sesAccessLevel($button['levels_allowed']) || sesAdminAccess()
-    ) {
-        echo "      $strButton\n";
+        if (!isset($button['levels_allowed'])
+            || sesAccessLevel($button['levels_allowed']) || sesAdminAccess()
+        ) {
+            echo "      $strButton\n";
+        }
     }
-}
-?>
+    ?>
                 <li id="profile-link">
                   <a href="index.php?func=profile">
                     <?php echo $user && $user['name'] ? $user['name'] : Translator::translate('Profile'); ?>
@@ -316,7 +316,7 @@ foreach ($astrMainButtons as $button) {
                 </li>
               </ul>
             </div>
-<?php
+    <?php
 }
 
 /**
@@ -496,6 +496,7 @@ function htmlFormElement($strName, $strType, $strValue, $strStyle, $strListQuery
         break;
 
     case 'PASSWD':
+    case 'PASSWD_STORED':
         $strFormElement = "<input type=\"password\" class=\"$strStyle\" " .
              "id=\"$strName\" name=\"$strName\" value=\"\"$astrAdditionalAttributes$readOnly>\n";
         break;
@@ -528,7 +529,7 @@ function htmlFormElement($strName, $strType, $strValue, $strStyle, $strListQuery
 
     case 'INTDATE':
         $strFormElement = "<input type=\"text\" class=\"$strStyle hasCalendar\" " .
-             "id=\"$strName\" name=\"$strName\" value=\"" .
+             "autocomplete=\"off\" id=\"$strName\" name=\"$strName\" value=\"" .
              htmlspecialchars($strValue) . "\"$astrAdditionalAttributes$readOnly>\n";
         break;
 

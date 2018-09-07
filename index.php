@@ -30,6 +30,13 @@
 ini_set('implicit_flush', 'Off');
 ob_start();
 
+if (!file_exists(__DIR__ . DIRECTORY_SEPARATOR . 'config.php')) {
+    include_once 'setup.php';
+    $setup = new Setup();
+    $setup->initialSetup();
+    exit();
+}
+
 require_once 'config.php';
 
 if (defined('_PROFILING_') && is_callable('tideways_enable')) {
@@ -60,6 +67,32 @@ if (!$strFunc) {
 
 if ($strFunc == 'logout') {
     header('Location: logout.php');
+    exit();
+}
+
+if ($strFunc == 'send_api') {
+    include_once 'apiclient.php';
+    $invoiceId = getRequest('invoice_id');
+    $apiId = getRequest('api_id');
+    $templateId = getRequest('template_id');
+    $invoice = getInvoice($invoiceId);
+    $client = new ApiClient($apiId, $invoiceId, $templateId);
+    $result = $client->send();
+    if ($result['success']) {
+        $_SESSION['formMessage'] = Translator::Translate('SendSuccess');
+        if ($result['message']) {
+            $_SESSION['formMessage'] .= ' (' . $result['message'] . ')';
+        }
+        if (!empty($result['warnings'])) {
+            $_SESSION['formErrorMessage'] = $result['warnings'];
+        }
+    } else {
+        $_SESSION['formErrorMessage'] = Translator::Translate('SendFailure');
+        if ($result['message']) {
+            $_SESSION['formErrorMessage'] .= ' (' . $result['message'] . ')';
+        }
+    }
+    header('Location: ' . $_SERVER['HTTP_REFERER']);
     exit();
 }
 
@@ -133,13 +166,13 @@ if ($strFunc == 'open_invoices' && !$strForm) {
     if (getSetting('check_updates')) {
         $address = defined('_UPDATE_ADDRESS_') ? _UPDATE_ADDRESS_
         : 'https://www.labs.fi/mlinvoice_version.php';
-    ?>
+        ?>
   <script type="text/javascript">
     $(document).ready(function() {
         MLInvoice.checkForUpdates('<?php echo $address?>', '<?php echo $softwareVersion?>');
     });
   </script>
-<?php
+        <?php
     }
 }
 

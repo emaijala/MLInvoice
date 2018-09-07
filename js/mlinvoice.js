@@ -43,6 +43,41 @@ var MLInvoice = (function MLInvoice() {
   }
 
   function printInvoice(template, func, printStyle, date) {
+    if (!_verifyPrintable()) {
+      return;
+    }
+
+    var id = $('#record_id').val();
+    var target = 'invoice.php?id=' + id + '&template=' + template + '&func=' + func;
+    if (typeof date !== 'undefined') {
+      target += '&date=' + date;
+    }
+    var form = $('#admin_form');
+    if (typeof form.data('readOnly') === 'undefined') {
+      save_record(target, printStyle, true);
+    } else if (printStyle === 'openwindow') {
+      window.open(target);
+    } else {
+      window.location.href = target;
+    }
+    return false;
+  }
+
+  function _sendPrintout(url) {
+    if (!_verifyPrintable()) {
+      return false;
+    }
+
+    var form = $('#admin_form');
+    if (typeof form.data('readOnly') === 'undefined') {
+      save_record(url, '', true);
+    } else {
+      window.location.href = url;
+    }
+    return false;
+  }
+
+  function _verifyPrintable() {
     var offer = _offerStatuses.indexOf($('#state_id').val()) !== -1;
 
     var form = $('#admin_form');
@@ -73,24 +108,12 @@ var MLInvoice = (function MLInvoice() {
         }
       }
     }
-
-    var id = $('#record_id').val();
-    var target = 'invoice.php?id=' + id + '&template=' + template + '&func=' + func;
-    if (typeof date !== 'undefined') {
-      target += '&date=' + date;
-    }
-    if (typeof form.data('readOnly') === 'undefined') {
-      save_record(target, printStyle, true);
-    } else if (printStyle === 'openwindow') {
-      window.open(target);
-    } else {
-      window.location = target;
-    }
-    return false;
+    return true;
   }
 
   function _onChangeCompany(eventData) {
     var initialLoad = typeof eventData === 'undefined';
+    $('#invoice_vatless').val('0');
     _addCompanyInfoTooltip('');
     $.getJSON('json.php?func=get_company', {id: $('#company_id').val() }, function setCompanyData(json) {
       if (json) {
@@ -124,6 +147,15 @@ var MLInvoice = (function MLInvoice() {
         if (json.info) {
           _addCompanyInfoTooltip(json.info);
         }
+        if (json.invoice_default_foreword) {
+          $('#foreword').val(json.invoice_default_foreword);
+        }
+        if (json.invoice_default_afterword) {
+          $('#afterword').val(json.invoice_default_afterword);
+        }
+        if (json.invoice_vatless) {
+          $('#invoice_vatless').val('1');
+        }
       }
     });
   }
@@ -134,6 +166,12 @@ var MLInvoice = (function MLInvoice() {
       if (json) {
         if (json.info) {
           _addCompanyInfoTooltip(json.info);
+        }
+        if (json.offer_default_foreword) {
+          $('#foreword').val(json.offer_default_foreword);
+        }
+        if (json.offer_default_afterword) {
+          $('#afterword').val(json.offer_default_afterword);
         }
       }
     });
@@ -164,8 +202,13 @@ var MLInvoice = (function MLInvoice() {
       document.getElementById(form_id + '_price').value = json.unit_price ? formatCurrency(unitPrice) : '';
       document.getElementById(form_id + '_discount').value = json.discount ? json.discount.replace('.', ',') : '';
       document.getElementById(form_id + '_discount_amount').value = json.discount_amount ? formatCurrency(json.discount_amount) : '';
-      document.getElementById(form_id + '_vat').value = json.vat_percent ? json.vat_percent.replace('.', ',') : '';
-      document.getElementById(form_id + '_vat_included').checked = !!((json.vat_included && json.vat_included === 1));
+      if ($('#invoice_vatless').val() === '0') {
+        document.getElementById(form_id + '_vat').value = json.vat_percent ? json.vat_percent.replace('.', ',') : '';
+        document.getElementById(form_id + '_vat_included').checked = !!((json.vat_included && json.vat_included === 1));
+      } else {
+        document.getElementById(form_id + '_vat').value = '0';
+        document.getElementById(form_id + '_vat_included').checked = false;
+      }
     });
   }
 
@@ -398,7 +441,8 @@ var MLInvoice = (function MLInvoice() {
         dropdownCssClass: 'bigdrop',
         dropdownAutoWidth: true,
         escapeMarkup: function escapeString(m) { return m; },
-        width: 'element'
+        width: 'element',
+        minimumResultsForSearch: -1
       });
       select.on('change', function selectChange() {
         var id = select.select2('val');
@@ -846,7 +890,7 @@ var MLInvoice = (function MLInvoice() {
       hide: 'fade',
       stuffEaseTime: 200,
       moveEaseTime: 0,
-      time: typeof(timeout) != 'undefined' ? timeout : 5000
+      time: typeof(timeout) != 'undefined' ? timeout : 10000
     });
   }
 
@@ -859,8 +903,13 @@ var MLInvoice = (function MLInvoice() {
       hide: 'fade',
       stuffEaseTime: 200,
       moveEaseTime: 0,
-      time: typeof(timeout) != 'undefined' ? timeout : 5000
+      time: typeof timeout !== 'undefined' ? timeout : 10000
     });
+  }
+
+  function clearMessages()
+  {
+    $('.ui-floating-message').trigger('destroy');
   }
 
   function checkForUpdates(url, currentVersion)
@@ -1086,6 +1135,43 @@ var MLInvoice = (function MLInvoice() {
     }
   }
 
+  function updateSendApiButtons()
+  {
+    var $buttons = $('.send-buttons');
+    if ($buttons.length === 0) {
+      return;
+    }
+    $buttons.html('');
+    var baseId = String($('#base_id').val());
+    if (baseId === '') {
+      return;
+    }
+    $.getJSON('json.php?func=get_send_api_services', {invoice_id: String($('#record_id').val()), base_id: baseId}, function getSendApiButtonsDone(json) {
+      $.each(json.services, function addService(idx, service) {
+        var $ul = $('<ul class="dropdownmenu"/>');
+        var $heading = $('<li/>');
+        $heading.text(service.name + '...');
+        $ul.append($heading);
+        var $menuitems = $('<ul/>');
+        $.each(service.items, function addItem(idx2, item) {
+          var $li = $('<li/>');
+          $li.click(function liClick() {
+            _sendPrintout('?' + item.href);
+          });
+          var $name = $('<div>');
+          $name.text(item.name);
+          $li.append($name);
+          $menuitems.append($li);
+        });
+        $heading.append($menuitems);
+        $buttons.append($ul);
+      });
+      $('.send-buttons .dropdownmenu').each(function initMenu() {
+        $(this).menu({}).find('li:first').addClass('formbuttonlink ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only');
+      });
+    });
+  }
+
   function init() {
     _initUI();
     _setupYtjSearch();
@@ -1098,6 +1184,7 @@ var MLInvoice = (function MLInvoice() {
     _setupCoverLetterForm();
     _setupCustomPricesForm();
     _initFormButtons();
+    updateSendApiButtons();
   }
 
   return {
@@ -1121,6 +1208,8 @@ var MLInvoice = (function MLInvoice() {
     checkForUpdates: checkForUpdates,
     calcRowSum: calcRowSum,
     popupDialog: popupDialog,
-    calculateInvoiceRowSummary: calculateInvoiceRowSummary
+    calculateInvoiceRowSummary: calculateInvoiceRowSummary,
+    updateSendApiButtons: updateSendApiButtons,
+    clearMessages: clearMessages
   }
 })();

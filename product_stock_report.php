@@ -124,7 +124,7 @@ class ProductStockReport extends AbstractReport
         </div>
     </form>
 </div>
-<?php
+        <?php
     }
 
     /**
@@ -246,7 +246,7 @@ class ProductStockReport extends AbstractReport
         </tr>
       </thead>
       <tbody>
-<?php
+        <?php
     }
 
     /**
@@ -323,7 +323,7 @@ class ProductStockReport extends AbstractReport
             <?php echo miscRound2Decim($stockBalance * $purchasePrice)?>
         </td>
       </tr>
-<?php
+        <?php
     }
 
     /**
@@ -362,17 +362,17 @@ class ProductStockReport extends AbstractReport
         $colSpan = 5;
         ?>
       <tr>
-    <?php if ($colSpan > 0) { ?>
+        <?php if ($colSpan > 0) { ?>
         <td class="input total_sum" colspan="<?php echo $colSpan?>"
                 style="text-align: right">
             <?php echo Translator::translate('Total')?>
         </td>
-    <?php } ?>
+        <?php } ?>
         <td class="input total_sum" style="text-align: right">
             &nbsp;<?php echo miscRound2Decim($stockValue)?>
         </td>
       </tr>
-<?php
+        <?php
     }
 
     /**
@@ -405,11 +405,11 @@ class ProductStockReport extends AbstractReport
   </div>
         <?php
         if ($format == 'table') {
-        ?>
+            ?>
 <script type="text/javascript">
 var table = $('.report-table.datatable').DataTable({
     'language': {
-        <?php echo Translator::translate('TableTexts')?>
+            <?php echo Translator::translate('TableTexts')?>
     },
     'pageLength': 50,
     'jQueryUI': true,
@@ -455,7 +455,7 @@ var buttons = new $.fn.dataTable.Buttons(table, {
 
 table.buttons().container().appendTo($('.fg-toolbar', table.table().container()));
 </script>
-<?php
+            <?php
         }
     }
 }
