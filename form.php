@@ -507,8 +507,10 @@ function init_rows_done()
 
 function save_record(redirect_url, redir_style, on_print)
 {
+  MLInvoice.clearMessages();
   var form = document.getElementById('admin_form');
   var obj = new Object();
+
 
     <?php
     foreach ($astrFormElements as $elem) {
@@ -895,6 +897,7 @@ EOT;
         ?>
 function save_row(form_id)
 {
+  MLInvoice.clearMessages();
   var form = document.getElementById(form_id);
   var obj = new Object();
         <?php
@@ -947,6 +950,7 @@ function save_row(form_id)
       }
       else
       {
+        MLInvoice.infomsg('<?php echo Translator::translate('RecordSaved')?>', 2000);
         if (form_id == 'iform')
           $('.add_row_button').removeClass('ui-state-highlight');
         init_rows();
@@ -1002,7 +1006,9 @@ function save_row(form_id)
       }
     },
     'error': function(XMLHTTPReq, textStatus, errorThrown) {
-      if (textStatus == 'timeout') {
+      if (XMLHTTPReq.status == 409) {
+        MLInvoice.errormsg(jQuery.parseJSON(XMLHTTPReq.responseText).warnings);
+      } else if (textStatus == 'timeout') {
         MLInvoice.errormsg('Timeout trying to save row');
       } else {
         MLInvoice.errormsg('Error trying to save row: ' + XMLHTTPReq.status + ' - ' + XMLHTTPReq.statusText);

@@ -907,6 +907,11 @@ var MLInvoice = (function MLInvoice() {
     });
   }
 
+  function clearMessages()
+  {
+    $('.ui-floating-message').trigger('destroy');
+  }
+
   function checkForUpdates(url, currentVersion)
   {
     if ($.cookie('updateversion') && $.cookie('currentversion') === currentVersion) {
@@ -1204,6 +1209,7 @@ var MLInvoice = (function MLInvoice() {
     calcRowSum: calcRowSum,
     popupDialog: popupDialog,
     calculateInvoiceRowSummary: calculateInvoiceRowSummary,
-    updateSendApiButtons: updateSendApiButtons
+    updateSendApiButtons: updateSendApiButtons,
+    clearMessages: clearMessages
   }
 })();

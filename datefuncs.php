@@ -78,8 +78,7 @@ function dateConvDate2DBDate($strDate)
 {
     $arr = date_parse_from_format(Translator::translate('DateFormat'), $strDate);
     if (!$arr['year'] || !$arr['month'] || !$arr['day']
-        || $arr['month'] < 1 || $arr['month'] > 12
-        || $arr['day'] < 1 || $arr['day'] > 31
+        || !empty($arr['warnings'])
     ) {
         return null;
     }

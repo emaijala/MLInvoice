@@ -283,7 +283,17 @@ function saveFormData($table, &$primaryKey, &$formElements, &$values, &$warnings
             $arrValues[] = $value ? 1 : 0;
             break;
         case 'INTDATE':
-            $arrValues[] = $value ? dateConvDate2DBDate($value) : null;
+            if ($value) {
+                $converted = dateConvDate2DBDate($value);
+                if (null === $converted) {
+                    $warnings = Translator::translate('ErrInvalidValue') . ': '
+                        . Translator::translate($elem['label']);
+                    return false;
+                }
+                $arrValues[] = $converted;
+            } else {
+                $arrValues[] = null;
+            }
             break;
         default :
             $arrValues[] = null !== $value ? $value : '';
