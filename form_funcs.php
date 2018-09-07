@@ -205,7 +205,7 @@ function saveFormData($table, &$primaryKey, &$formElements, &$values, &$warnings
         $name = $elem['name'];
         if (!$elem['allow_null'] && (!isset($values[$name]) || $values[$name] === '')) {
             if (!empty($elem['default'])) {
-                $values[$name] = $elem['default'];
+                $values[$name] = getFormDefaultValue($elem, $parentKey);
             } else {
                 if ($missingValues) {
                     $missingValues .= ', ';
