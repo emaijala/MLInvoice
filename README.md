@@ -36,13 +36,15 @@ dependencies.
 Running with Docker
 -------------------
 
-Running MLInvoice in a Docker container is now also supported. Docker and
-Docker-compose are required. When they are available, it's enough to download
-MLInvoice, extract it into a directory, enter the directory in a terminal and execute
-the command `docker-compose up`. When the containers have been created and have
-started, MLInvoice will be available at http://localhost:8000/. Note that the
-database is created in the db_data subdirectory, so make sure not to delete it unless
-you want to start from scratch.
+Running MLInvoice in a Docker container is now also supported. MLInvoice is available
+at Docker Hub: https://hub.docker.com/r/emaijala/mlinvoice/
+
+For development purposes, Docker and Docker-compose are required. When they are
+available, it's enough to download MLInvoice, extract it into a directory, enter the
+directory in a terminal and execute the command `docker-compose up`. When the
+containers have been created and have started, MLInvoice will be available at
+http://localhost:8000/. Note that the database is created in the db_data
+subdirectory, so make sure not to delete it unless you want to start from scratch.
 
 Useful docker commands:
 
