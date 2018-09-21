@@ -138,7 +138,8 @@ CREATE TABLE mlinvoice_company (
   fax varchar(30) default NULL,
   email varchar(512) default NULL,
   gsm varchar(30) default NULL,
-  billing_address text,
+  billing_address text default NULL,
+  delivery_address text default NULL,
   www varchar(100) default NULL,
   info text,
   company_id varchar(15) default NULL,
@@ -409,7 +410,7 @@ CREATE TABLE mlinvoice_default_value (
 
 SET NAMES 'utf8';
 
-INSERT INTO mlinvoice_state (id, data) VALUES ('version', '62');
+INSERT INTO mlinvoice_state (id, data) VALUES ('version', '63');
 
 INSERT INTO mlinvoice_state (id, data) VALUES ('tableconversiondone', '1');
 

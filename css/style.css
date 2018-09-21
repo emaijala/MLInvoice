@@ -411,6 +411,10 @@ textarea.medium {
   height: 60px;
   width: 200px;
 }
+textarea.wide {
+  height: 60px;
+  width: 300px;
+}
 textarea.large {
   height: 80px;
   width: 300px;

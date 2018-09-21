@@ -133,6 +133,12 @@ class InvoicePrinterOrderConfirmation extends InvoicePrinterBase
                 'type' => 'multicell'
             ];
         }
+        if (!empty($invoiceData['delivery_address'])) {
+            $data['DeliveryAddress'] = [
+                'value' => $invoiceData['delivery_address'],
+                'type' => 'multicellnonmd'
+            ];
+        }
         if (!empty($invoiceData['info'])) {
             $data['AdditionalInformation'] = [
                 'value' => $this->replacePlaceholders($invoiceData['info']),

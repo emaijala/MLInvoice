@@ -2004,6 +2004,17 @@ EOT
         );
     }
 
+    if ($version < 63) {
+        $updates = array_merge(
+            $updates,
+            [
+                'ALTER TABLE {prefix}company ADD COLUMN delivery_address text default NULL',
+                'ALTER TABLE {prefix}invoice ADD COLUMN delivery_address text default NULL',
+                "REPLACE INTO {prefix}state (id, data) VALUES ('version', '63')"
+            ]
+        );
+    }
+
     // phpcs:enable Generic.Files.LineLength
     if (!empty($updates)) {
         dbQueryCheck('SET AUTOCOMMIT = 0');

@@ -253,11 +253,19 @@ case 'company' :
             'allow_null' => true
         ],
         [
+            'name' => 'delivery_address',
+            'label' => 'DeliveryAddress',
+            'type' => 'AREA',
+            'style' => 'medium',
+            'position' => 2,
+            'allow_null' => true
+        ],
+        [
             'name' => 'info',
             'label' => 'Info',
             'type' => 'AREA',
             'style' => 'medium',
-            'position' => 2,
+            'position' => 1,
             'allow_null' => true
         ],
         [
@@ -1066,7 +1074,7 @@ EOF;
             'label' => 'DeliveryTime',
             'type' => 'TEXT',
             'style' => 'medium hidezerovalue' . (!$isOffer ? ' hidden' : ''),
-            'position' => 2,
+            'position' => 3,
             'default' => null,
             'allow_null' => true
         ],
@@ -1091,10 +1099,19 @@ EOF;
             'allow_null' => true
         ],
         [
+            'name' => 'delivery_address',
+            'label' => 'DeliveryAddress',
+            'type' => 'AREA',
+            'style' => 'wide',
+            'position' => 1,
+            'default' => null,
+            'allow_null' => true,
+        ],
+        [
             'name' => 'info',
             'label' => 'VisibleInfo',
             'type' => 'AREA',
-            'style' => 'large',
+            'style' => 'wide',
             'position' => 1,
             'attached_elem' => '<span class="select-default-text" data-type="info" data-target="info"></span>',
             'default' => $defaultValues['info'],
@@ -1104,7 +1121,7 @@ EOF;
             'name' => 'internal_info',
             'label' => 'InternalInfo',
             'type' => 'AREA',
-            'style' => 'large',
+            'style' => 'wide',
             'position' => 2,
             'allow_null' => true
         ],
@@ -1112,7 +1129,7 @@ EOF;
             'name' => 'foreword',
             'label' => 'Foreword',
             'type' => 'AREA',
-            'style' => 'large',
+            'style' => 'wide',
             'position' => 1,
             'attached_elem' => '<span class="select-default-text" data-type="foreword" data-target="foreword"></span>',
             'default' => $defaultValues['foreword'],
@@ -1122,7 +1139,7 @@ EOF;
             'name' => 'afterword',
             'label' => 'Afterword',
             'type' => 'AREA',
-            'style' => 'large',
+            'style' => 'wide',
             'position' => 2,
             'attached_elem' => '<span class="select-default-text" data-type="afterword" data-target="afterword"></span>',
             'default' => $defaultValues['afterword'],

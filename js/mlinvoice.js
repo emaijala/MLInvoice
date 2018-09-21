@@ -143,6 +143,7 @@ var MLInvoice = (function MLInvoice() {
               }
             );
           }
+          $('#delivery_address').val(json.delivery_address ? json.delivery_address : '');
         }
         if (json.info) {
           _addCompanyInfoTooltip(json.info);

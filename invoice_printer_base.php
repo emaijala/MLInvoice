@@ -922,7 +922,14 @@ EOT;
                     'type' => 'multicell'
                 ];
             }
+            if (!empty($invoiceData['delivery_address'])) {
+                $data['DeliveryAddress'] = [
+                    'value' => $invoiceData['delivery_address'],
+                    'type' => 'multicellnonmd'
+                ];
+            }
         }
+
         if (!empty($invoiceData['info'])) {
             $data['AdditionalInformation'] = [
                 'value' => $this->replacePlaceholders($invoiceData['info']),
@@ -971,7 +978,9 @@ EOT;
         foreach ($data as $key => $current) {
             $value = is_array($current) ? $current['value'] : $current;
             $type = !empty($current['type']) ? $current['type'] : 'normal';
-            if ('normal' === $type || 'multicell' === $type) {
+            if ('normal' === $type || 'multicell' === $type
+                || 'multicellnonmd' === $type
+            ) {
                 $pdf->SetX($this->infoLeft);
                 $pdf->Cell(
                     $this->infoHeadingsWidth,
@@ -989,6 +998,8 @@ EOT;
                 $pdf->Cell($this->infoTextWidth, 4, $value, 0, 1);
             } elseif ('multicell' === $type) {
                 $pdf->multiCellMD($this->infoTextWidth, 4, $value, 'L', 1, 0, true);
+            } elseif ('multicellnonmd' === $type) {
+                $pdf->multiCell($this->infoTextWidth, 4, $value, 0, 'L');
             } elseif ('textonly' === $type) {
                 $pdf->SetXY($this->infoLeft, $pdf->getY() + 2);
                 $pdf->multiCellMD(
