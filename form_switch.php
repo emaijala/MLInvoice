@@ -1052,6 +1052,16 @@ EOF;
             'allow_null' => true
         ],
         [
+            'name' => 'type_id',
+            'label' => 'InvoiceType',
+            'type' => 'SEARCHLIST',
+            'style' => 'long' . ($isOffer ? ' hidden' : ''),
+            'listquery' => 'table=invoice_type&sort=order_no,name',
+            'position' => 2,
+            'default' => null,
+            'allow_null' => true
+        ],
+        [
             'name' => 'delivery_time',
             'label' => 'DeliveryTime',
             'type' => 'TEXT',
@@ -1861,7 +1871,7 @@ case 'send_api_configs':
     ];
     break;
 
-case 'invoice_state' :
+case 'invoice_state':
     $levelsAllowed = [
         ROLE_ADMIN
     ];
@@ -1909,6 +1919,40 @@ case 'invoice_state' :
             'position' => 1
         ]
 
+    ];
+    break;
+
+case 'invoice_type':
+    $levelsAllowed = [
+        ROLE_ADMIN
+    ];
+    $strTable = '{prefix}invoice_type';
+    $strJSONType = 'invoice_type';
+
+    $intId = isset($id) ? $id : getRequest('id', false);
+    $astrFormElements = [
+        [
+            'name' => 'identifier',
+            'label' => 'Identifier',
+            'type' => 'TEXT',
+            'style' => 'medium',
+            'position' => 1
+        ],
+        [
+            'name' => 'name',
+            'label' => 'Name',
+            'type' => 'TEXT',
+            'style' => 'medium',
+            'position' => 1
+        ],
+        [
+            'name' => 'order_no',
+            'label' => 'OrderNr',
+            'type' => 'INT',
+            'style' => 'short',
+            'position' => 2,
+            'listquery' => 'SELECT max(order_no)+5 FROM {prefix}invoice_type WHERE deleted=0',
+        ]
     ];
     break;
 

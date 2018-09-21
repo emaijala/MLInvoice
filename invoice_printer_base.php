@@ -73,6 +73,13 @@ abstract class InvoicePrinterBase
     protected $roundRowPrices = false;
 
     /**
+     * Invoice type data
+     *
+     * @var array
+     */
+    protected $invoiceTypeData = null;
+
+    /**
      * Left of the main content
      *
      * @value int
@@ -368,10 +375,13 @@ abstract class InvoicePrinterBase
                 ir.description DESC
 EOT;
             $invoiceRowData = dbParamQuery($strQuery, $queryParams);
+
+            $invoiceTypeData = getInvoiceType($invoiceData['type_id']);
         } else {
             $invoiceData = [];
             $invoiceRowData = [];
             $senderData = [];
+            $invoiceTypeData = [];
         }
 
         if (empty($recipientData)) {
@@ -409,6 +419,7 @@ EOT;
         $this->invoiceData = $invoiceData;
         $this->invoiceRowData = $invoiceRowData;
         $this->recipientContactData = $recipientContactData;
+        $this->invoiceTypeData = $invoiceTypeData;
 
         Translator::setActiveLanguage('non-default', $this->printLanguage);
 

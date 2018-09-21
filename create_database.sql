@@ -10,6 +10,15 @@ CREATE TABLE mlinvoice_invoice_state (
   PRIMARY KEY (id)
 ) ENGINE=INNODB CHARACTER SET utf8 COLLATE utf8_swedish_ci;
 
+CREATE TABLE mlinvoice_invoice_type (
+  id int(11) NOT NULL auto_increment,
+  deleted tinyint NOT NULL default 0,
+  identifier varchar(255) default NULL,
+  name varchar(255) default NULL,
+  order_no int(11) default NULL,
+  PRIMARY KEY (id)
+) ENGINE=INNODB CHARACTER SET utf8 COLLATE utf8_swedish_ci;
+
 CREATE TABLE mlinvoice_row_type (
   id int(11) NOT NULL auto_increment,
   deleted tinyint NOT NULL default 0,
@@ -274,11 +283,13 @@ CREATE TABLE mlinvoice_invoice (
   afterword text default NULL,
   delivery_time varchar(100) default NULL,
   uuid varchar(50) default NULL,
+  type_id int(11) default NULL,
   PRIMARY KEY (id),
   FOREIGN KEY (company_id) REFERENCES mlinvoice_company(id),
   FOREIGN KEY (state_id) REFERENCES mlinvoice_invoice_state(id),
   FOREIGN KEY (base_id) REFERENCES mlinvoice_base(id),
-  FOREIGN KEY (delivery_method_id) REFERENCES mlinvoice_delivery_method(id)
+  FOREIGN KEY (delivery_method_id) REFERENCES mlinvoice_delivery_method(id),
+  FOREIGN KEY (type_id) REFERENCES mlinvoice_invoice_type(id)
 ) ENGINE=INNODB AUTO_INCREMENT=1 CHARACTER SET utf8 COLLATE utf8_swedish_ci;
 
 CREATE TABLE mlinvoice_invoice_row (
@@ -398,7 +409,7 @@ CREATE TABLE mlinvoice_default_value (
 
 SET NAMES 'utf8';
 
-INSERT INTO mlinvoice_state (id, data) VALUES ('version', '61');
+INSERT INTO mlinvoice_state (id, data) VALUES ('version', '62');
 
 INSERT INTO mlinvoice_state (id, data) VALUES ('tableconversiondone', '1');
 

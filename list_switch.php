@@ -338,6 +338,42 @@ case 'invoice_state' :
     $strTitle = 'InvoiceStates';
     break;
 
+case 'invoice_type' :
+    $strTable = '{prefix}invoice_type';
+    $astrSearchFields = [
+        [
+            'name' => "name'",
+            'type' => 'TEXT'
+        ]
+    ];
+    $strPrimaryKey = 'id';
+    $strDeletedField = 'deleted';
+    $astrShowFields = [
+        [
+            'name' => 'order_no',
+            'width' => 150,
+            'type' => 'TEXT',
+            'header' => 'OrderNr'
+        ],
+        [
+            'name' => 'identifier',
+            'width' => 150,
+            'type' => 'TEXT',
+            'header' => 'Identifier',
+            'select' => true
+        ],
+        [
+            'name' => 'name',
+            'width' => 450,
+            'type' => 'TEXT',
+            'header' => 'Name',
+            'select' => true
+        ]
+    ];
+    $strMainForm = 'invoice_type';
+    $strTitle = 'InvoiceTypes';
+    break;
+
 case 'product' :
     $strTable = '{prefix}product';
     $astrSearchFields = [

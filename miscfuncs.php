@@ -404,38 +404,42 @@ function getPageTitle($strFunc, $strList, $strForm)
     case 'system':
         if ($strForm) {
             switch ($strForm) {
-            case 'user' :
+            case 'user':
                 return Translator::translate('User');
-            case 'session_type' :
+            case 'session_type':
                 return Translator::translate('SessionType');
-            case 'row_type' :
+            case 'row_type':
                 return Translator::translate('RowType');
-            case 'print_template' :
+            case 'print_template':
                 return Translator::translate('PrintTemplate');
-            case 'invoice_state' :
+            case 'invoice_state':
                 return Translator::translate('InvoiceState');
-            case 'delivery_terms' :
+            case 'invoice_type':
+                return Translator::translate('InvoiceType');
+            case 'delivery_terms':
                 return Translator::translate('DeliveryTerms');
-            case 'delivery_method' :
+            case 'delivery_method':
                 return Translator::translate('DeliveryMethod');
             default :
                 return Translator::translate('System');
             }
         } else {
             switch ($strList) {
-            case 'user' :
+            case 'user':
                 return Translator::translate('Users');
-            case 'session_type' :
+            case 'session_type':
                 return Translator::translate('SessionTypes');
-            case 'row_type' :
+            case 'row_type':
                 return Translator::translate('RowTypes');
-            case 'print_template' :
+            case 'print_template':
                 return Translator::translate('PrintTemplates');
-            case 'invoice_state' :
+            case 'invoice_state':
                 return Translator::translate('InvoiceStates');
-            case 'delivery_terms' :
+            case 'invoice_type':
+                return Translator::translate('InvoiceTypes');
+            case 'delivery_terms':
                 return Translator::translate('DeliveryTerms');
-            case 'delivery_method' :
+            case 'delivery_method':
                 return Translator::translate('DeliveryMethods');
             default :
                 return Translator::translate('System');

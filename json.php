@@ -56,6 +56,7 @@ case 'get_invoice_row':
 case 'get_base':
 case 'get_print_template':
 case 'get_invoice_state':
+case 'get_invoice_type':
 case 'get_row_type':
 case 'get_print_template':
 case 'get_company':
@@ -76,6 +77,7 @@ case 'put_invoice':
 case 'put_base':
 case 'put_print_template':
 case 'put_invoice_state':
+case 'put_invoice_type':
 case 'put_row_type':
 case 'put_print_template':
 case 'put_user':

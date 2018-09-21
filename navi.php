@@ -64,6 +64,13 @@ function createFuncMenu($strFunc)
                 ]
             ],
             [
+                'href' => 'list=invoice_type',
+                'text' => Translator::translate('InvoiceTypes'),
+                'levels_allowed' => [
+                    ROLE_ADMIN
+                ]
+            ],
+            [
                 'href' => 'list=row_type',
                 'text' => Translator::translate('RowTypes'),
                 'levels_allowed' => [
@@ -124,17 +131,18 @@ function createFuncMenu($strFunc)
         $strNewText = '';
         $strList = getRequest('list', '');
         switch ($strList) {
-        case 'user' :
+        case 'user':
             $strNewText = Translator::translate('NewUser');
             break;
-        case 'session_type' :
+        case 'session_type':
             $strNewText = Translator::translate('NewSessionType');
             break;
-        case 'invoice_state' :
-        case 'row_type' :
-        case 'delivery_terms' :
-        case 'delivery_method' :
-        case 'print_template' :
+        case 'invoice_state':
+        case 'invoice_type':
+        case 'row_type':
+        case 'delivery_terms':
+        case 'delivery_method':
+        case 'print_template':
             $strNewText = Translator::translate('AddNew');
             break;
         }

@@ -92,6 +92,8 @@ EOT
         $this->arrayToXML($invoiceData, $invoice);
         $rows = $invoice->addChild('rows');
         $this->arrayToXML($this->getInvoiceRowData(), $rows, 'row');
+        $type = $invoice->addChild('invoicetype');
+        $this->arrayToXML($this->invoiceTypeData, $type, 'invoicetype');
 
         include 'settings_def.php';
         $settingsData = [];
@@ -136,6 +138,7 @@ EOT
         foreach ($this->xsltParams as $param => $value) {
             $xsltproc->setParameter('', $param, $value);
         }
+
         $domDoc = dom_import_simplexml($xml)->ownerDocument;
         $this->xml = $xsltproc->transformToXML($domDoc);
 

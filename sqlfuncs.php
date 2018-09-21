@@ -812,6 +812,22 @@ function getMaxInvoiceNumber($invoiceId, $baseId, $perYear)
 }
 
 /**
+ * Get an invoice type
+ *
+ * @param int $id Invoice type ID
+ *
+ * @return array
+ */
+function getInvoiceType($id)
+{
+    $rows = dbParamQuery(
+        'SELECT * FROM {prefix}invoice_type WHERE id=?',
+        [$id]
+    );
+    return $rows ? $rows[0] : [];
+}
+
+/**
  * Delete a record by ID
  *
  * @param string $table Table name
@@ -1962,6 +1978,28 @@ EOT
                 'ALTER TABLE {prefix}company ADD COLUMN offer_default_foreword text NULL',
                 'ALTER TABLE {prefix}company ADD COLUMN offer_default_afterword text NULL',
                 "REPLACE INTO {prefix}state (id, data) VALUES ('version', '61')"
+            ]
+        );
+    }
+
+    if ($version < 62) {
+        $updates = array_merge(
+            $updates,
+            [
+                <<<EOT
+CREATE TABLE {prefix}invoice_type (
+    id int(11) NOT NULL auto_increment,
+    deleted tinyint NOT NULL default 0,
+    identifier varchar(255) default NULL,
+    name varchar(255) default NULL,
+    order_no int(11) default NULL,
+    PRIMARY KEY (id)
+) ENGINE=INNODB CHARACTER SET utf8 COLLATE utf8_swedish_ci;
+EOT
+                ,
+                'ALTER TABLE {prefix}invoice ADD COLUMN type_id int(11) default NULL',
+                'ALTER TABLE {prefix}invoice ADD CONSTRAINT FOREIGN KEY (type_id) REFERENCES {prefix}invoice_type(id)',
+                "REPLACE INTO {prefix}state (id, data) VALUES ('version', '62')"
             ]
         );
     }
