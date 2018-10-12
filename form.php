@@ -56,15 +56,13 @@ function createForm($strFunc, $strList, $strForm)
         return;
     }
 
-    $blnNew = getPostRequest('newact', false);
-    $blnCopy = getPostRequest('copyact', false) ? true : false;
-    $blnDelete = getPostRequest('deleteact', false) ? true : false;
+    $action = getPostRequest('action', false);
     $intKeyValue = getPostRequest('id', false);
     if (!$intKeyValue) {
-        $blnNew = true;
+        $action = 'new';
     }
 
-    if (!sesWriteAccess() && ($blnNew || $blnCopy || $blnDelete)) {
+    if ($action && !sesWriteAccess()) {
         ?>
 <div class="form_container ui-widget-content">
         <?php echo Translator::translate('NoAccess') . "\n"?>
@@ -85,18 +83,9 @@ function createForm($strFunc, $strList, $strForm)
         unset($_SESSION['formErrorMessage']);
     }
 
-    // if NEW is clicked clear existing form data
-    if ($blnNew) {
-        unset($intKeyValue);
-        unset($astrValues);
-        unset($_POST);
-        unset($_REQUEST);
+    if ('new' === $action) {
         $readOnlyForm = false;
     }
-
-    $astrValues = getPostValues(
-        $astrFormElements, isset($intKeyValue) ? $intKeyValue : false
-    );
 
     $redirect = getRequest('redirect', null);
     if (isset($redirect)) {
@@ -116,11 +105,10 @@ function createForm($strFunc, $strList, $strForm)
         }
     }
 
-    if ($blnDelete && $intKeyValue && !$readOnlyForm) {
+    if ('delete' === $action && $intKeyValue && !$readOnlyForm) {
         deleteRecord($strTable, $intKeyValue);
         unset($intKeyValue);
         unset($astrValues);
-        $blnNew = true;
         if (getSetting('auto_close_after_delete')) {
             $qs = preg_replace('/&form=\w*/', '', $_SERVER['QUERY_STRING']);
             $qs = preg_replace('/&id=\w*/', '', $qs);
@@ -150,11 +138,23 @@ EOT;
         }
     }
 
-    if ($blnCopy) {
-        unset($intKeyValue);
-        unset($_POST);
-        $blnNew = true;
-        $readOnlyForm = false;
+    if ('copy' === $action) {
+        unset($astrValues['id']);
+        $id = 0;
+        $res = saveFormData(
+            $strTable, $id, $astrFormElements, $astrValues, $warnings
+        );
+        if ($res === true) {
+            $qs = preg_replace('/&id=\w*/', "&id=$id", $_SERVER['QUERY_STRING']);
+            header("Location: index.php?$qs");
+            return;
+        }
+        $strErrorMessage = $warnings ? $warnings
+            : (Translator::translate('ErrValueMissing') . ': ' . $res);
+    }
+
+    if (!isset($astrValues)) {
+        $astrValues = getFormDefaultValues($astrFormElements);
     }
     ?>
 
@@ -172,8 +172,8 @@ EOT;
 
     <?php
     createFormButtons(
-        $strForm, $blnNew, $copyLinkOverride, true, $readOnlyForm, $extraButtons,
-        true
+        $strForm, $intKeyValue ? false : true, $copyLinkOverride, true, $readOnlyForm,
+        $extraButtons, true
     );
 
     if ($strForm == 'invoice' && !empty($astrValues['next_interval_date'])
@@ -201,9 +201,7 @@ EOT;
     ?>
     <div class="form">
         <form method="post" name="admin_form" id="admin_form"<?php echo $dataAttrs?>>
-            <input type="hidden" name="copyact" value="0">
-            <input type="hidden" name="newact" value="<?php echo $blnNew ? 1 : 0?>">
-            <input type="hidden" name="deleteact" value="0">
+            <input type="hidden" name="action" value="">
             <input type="hidden" name="redirect" id="redirect" value="">
             <input type="hidden" id="record_id" name="id" value="<?php echo (isset($intKeyValue) && $intKeyValue) ? $intKeyValue : '' ?>">
     <?php
@@ -272,7 +270,7 @@ EOT;
             }
         }
 
-        if ($blnNew
+        if (!$intKeyValue
             && in_array($elem['type'], ['BUTTON', 'JSBUTTON', 'IMAGE', 'DROPDOWNMENU'])
         ) {
             echo '          <td class="label$style">&nbsp;</td>';
@@ -284,7 +282,8 @@ EOT;
 
             echo htmlFormElement(
                 $elem['name'], $elem['type'],
-                $astrValues[$elem['name']], $elem['style'], $elem['listquery'],
+                isset($astrValues[$elem['name']]) ? $astrValues[$elem['name']] : '',
+                $elem['style'], $elem['listquery'],
                 $fieldMode, $elem['parent_key'], $elem['label'], [],
                 isset($elem['elem_attributes']) ? $elem['elem_attributes'] : '',
                 isset($elem['options']) ? $elem['options'] : null
@@ -324,7 +323,7 @@ EOT;
             $haveChildForm = true;
             createIForm(
                 $astrFormElements, $elem,
-                isset($intKeyValue) ? $intKeyValue : 0, $blnNew, $strForm
+                isset($intKeyValue) ? $intKeyValue : 0, $intKeyValue ? false : true, $strForm
             );
             break;
         } else {
@@ -455,7 +454,7 @@ $(document).ready(function() {
       'input[type="text"]:not([name="payment_date"]),input[type="hidden"],input[type="checkbox"]:not([name="archived"]),select:not(.dropdownmenu),textarea'
   ).one('change', startChanging);
     <?php
-    if ($haveChildForm && !$blnNew) {
+    if ($haveChildForm && $intKeyValue) {
         ?>
   init_rows();
         <?php
@@ -491,7 +490,7 @@ $(document).ready(function() {
     ?>
 });
     <?php
-    if ($haveChildForm && !$blnNew) {
+    if ($haveChildForm && $intKeyValue) {
         ?>
 function init_rows_done()
 {
@@ -603,7 +602,7 @@ function save_record(redirect_url, redir_style, on_print)
 </script>
 
     <?php
-    createFormButtons($strForm, $blnNew, $copyLinkOverride, false, $readOnlyForm, '', false);
+    createFormButtons($strForm, $intKeyValue ? false : true, $copyLinkOverride, false, $readOnlyForm, '', false);
     echo "  </div>\n";
 
     if ($addressAutocomplete && getSetting('address_autocomplete')) {
@@ -1566,19 +1565,21 @@ function createFormButtons($form, $new, $copyLinkOverride, $spinner, $readOnlyFo
             <?php
         } else {
             ?>
-            <a class="actionlink form-submit" href="#" data-form="admin_form" data-set-field="copyact">
+            <a class="actionlink form-submit" href="#" data-set-field="action=copy">
                 <?php echo Translator::translate('Copy')?>
             </a>
             <?php
         }
+        $newLink = 'index.php?' . $_SERVER['QUERY_STRING'];
+        $newLink = preg_replace('/&id=\w*/', '', $newLink);
         ?>
-        <a class="actionlink form-submit" href="#" data-form="admin_form" data-set-field="newact">
+        <a class="actionlink" href="<?php echo $newLink?>">
             <?php echo Translator::translate('New')?>
         </a>
         <?php
         if (!$readOnlyForm) {
             ?>
-            <a class="actionlink form-submit" href="#" data-form="admin_form" data-set-field="deleteact"
+            <a class="actionlink form-submit" href="#" data-form="admin_form" data-set-field="action=delete"
               data-confirm="ConfirmDelete">
                 <?php echo Translator::translate('Delete')?>
             </a>

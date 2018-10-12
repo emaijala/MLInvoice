@@ -833,7 +833,13 @@ var MLInvoice = (function MLInvoice() {
       }
       var setField = $a.data('setField');
       if (typeof setField !== 'undefined') {
-        $form.find('[name=' + setField + ']').val(1);
+        var setValue = '1';
+        var parts = setField.split('=', 2);
+        if (parts.length === 2) {
+          setField = parts[0];
+          setValue = parts[1];
+        }
+        $form.find('[name=' + setField + ']').val(setValue);
       }
       $('.save_button').removeClass('ui-state-highlight');
       $form.submit();

@@ -31,53 +31,19 @@ require_once 'miscfuncs.php';
 require_once 'crypt.php';
 
 /**
- *  Get post values or defaults for unspecified values
+ *  Get default values for a form
  *
  * @param array $formElements Form elements
- * @param int   $primaryKey   Primary key value
  * @param int   $parentKey    Parent key value, if any
  *
  * @return array
  */
-function getPostValues(&$formElements, $primaryKey, $parentKey = false)
+function getFormDefaultValues(&$formElements, $parentKey = false)
 {
     $values = [];
 
     foreach ($formElements as $elem) {
-        if (true
-            && in_array(
-                $elem['type'],
-                [
-                    '',
-                    'IFORM',
-                    'RESULT',
-                    'BUTTON',
-                    'JSBUTTON',
-                    'DROPDOWNMENU',
-                    'IMAGE',
-                    'ROWSUM',
-                    'NEWLINE',
-                    'LABEL'
-                ]
-            )
-        ) {
-            $values[$elem['name']] = isset($primaryKey) ? $primaryKey : false;
-        } else {
-            $values[$elem['name']] = getPostRequest($elem['name'], false);
-            if (isset($elem['default']) && ($values[$elem['name']] === false
-                || ($elem['type'] == 'INT' && $values[$elem['name']] === ''))
-            ) {
-                $values[$elem['name']] = getFormDefaultValue($elem, $parentKey);
-                if (null === $values[$elem['name']]) {
-                    $values[$elem['name']] = '';
-                }
-            } elseif ($elem['type'] == 'INT') {
-                $values[$elem['name']]
-                    = str_replace(',', '.', $values[$elem['name']]);
-            } elseif ($elem['type'] == 'LIST' && $values[$elem['name']] === false) {
-                $values[$elem['name']] = '';
-            }
-        }
+        $values[$elem['name']] = getFormDefaultValue($elem, $parentKey);
     }
     return $values;
 }
@@ -85,7 +51,7 @@ function getPostValues(&$formElements, $primaryKey, $parentKey = false)
 /**
  * Get the default value for the given form element
  *
- * @param string $elem      Element id
+ * @param array  $elem      Form element
  * @param string $parentKey Parent record id
  *
  * @return mixed Default value
