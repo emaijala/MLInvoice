@@ -828,6 +828,89 @@ function getInvoiceType($id)
 }
 
 /**
+ * Get an attachment
+ *
+ * @param int $id Attachment ID
+ *
+ * @return array
+ */
+function getAttachment($id)
+{
+    $rows = dbParamQuery(
+        'SELECT * FROM {prefix}attachment WHERE id=?',
+        [$id]
+    );
+    return $rows ? $rows[0] : [];
+}
+
+/**
+ * Get attachments
+ *
+ * @return array
+ */
+function getAttachments()
+{
+    $rows = dbParamQuery(
+        'SELECT id, name, description, date, filename, filesize, mimetype FROM {prefix}attachment'
+    );
+    return $rows ? $rows : [];
+}
+
+/**
+ * Get attachment count for invoice
+ *
+ * @param int $id Invoice ID
+ *
+ * @return int
+ */
+function getInvoiceAttachmentCount($id)
+{
+    $rows = dbParamQuery(
+        'SELECT count(*) as cnt FROM {prefix}invoice_attachment WHERE invoice_id=?',
+        [$id]
+    );
+    return $rows[0]['cnt'];
+}
+
+/**
+ * Get attachments for invoice
+ *
+ * @param int $id Invoice ID
+ *
+ * @return int
+ */
+function getInvoiceAttachments($id)
+{
+    $rows = dbParamQuery(
+        'SELECT id, name, description, date, filename, filesize, mimetype FROM {prefix}invoice_attachment WHERE invoice_id=?',
+        [$id]
+    );
+    return $rows ? $rows : [];
+}
+
+/**
+ * Get attachments for invoice
+ *
+ * @param int $id Invoice ID
+ *
+ * @return int
+ */
+function addAttachmentToInvoice($id, $invoiceId)
+{
+    global $dblink;
+
+    $sql = <<<EOT
+INSERT INTO {prefix}invoice_attachment
+(invoice_id, name, mimetype, description, date, filename, filesize, filedata)
+SELECT ?, name, mimetype, description, date, filename, filesize, filedata
+FROM {prefix}attachment WHERE id=?
+EOT;
+    dbParamQuery($sql, [$invoiceId, $id]);
+
+    return mysqli_insert_id($dblink);
+}
+
+/**
  * Delete a record by ID
  *
  * @param string $table Table name
@@ -856,7 +939,10 @@ function deleteRecord($table, $id)
                 updateProductStockBalance($row['id'], null, null);
             }
         }
-        if ('{prefix}send_api_config' === $table) {
+        if ('{prefix}send_api_config' === $table
+            || '{prefix}attachment' === $table
+            || '{prefix}invoice_attachment' === $table
+        ) {
             $query = "DELETE FROM $table WHERE id=?";
         } else {
             $query = "UPDATE $table SET deleted=1 WHERE id=?";
@@ -2011,6 +2097,47 @@ EOT
                 'ALTER TABLE {prefix}company ADD COLUMN delivery_address text default NULL',
                 'ALTER TABLE {prefix}invoice ADD COLUMN delivery_address text default NULL',
                 "REPLACE INTO {prefix}state (id, data) VALUES ('version', '63')"
+            ]
+        );
+    }
+
+    if ($version < 64) {
+        $updates = array_merge(
+            $updates,
+            [
+                <<<EOT
+CREATE TABLE {prefix}attachment (
+    id int(11) NOT NULL auto_increment,
+    name varchar(255) NOT NULL,
+    mimetype varchar(255) NOT NULL,
+    description varchar(255) default NULL,
+    date int(11) default NULL,
+    filename varchar(255) NOT NULL,
+    filesize integer(11) NULL,
+    filedata longblob NOT NULL,
+    order_no int(11) default NULL,
+    PRIMARY KEY (id)
+) ENGINE=INNODB CHARACTER SET utf8 COLLATE utf8_swedish_ci;
+EOT
+                ,
+                <<<EOT
+CREATE TABLE {prefix}invoice_attachment (
+    id int(11) NOT NULL auto_increment,
+    invoice_id int(11) NOT NULL,
+    name varchar(255) NOT NULL,
+    mimetype varchar(255) NOT NULL,
+    description varchar(255) default NULL,
+    date int(11) default NULL,
+    filename varchar(255) NOT NULL,
+    filesize integer(11) NULL,
+    filedata longblob NOT NULL,
+    order_no int(11) default NULL,
+    PRIMARY KEY (id),
+    FOREIGN KEY (invoice_id) REFERENCES {prefix}invoice(id) ON DELETE CASCADE
+) ENGINE=INNODB CHARACTER SET utf8 COLLATE utf8_swedish_ci;
+EOT
+                ,
+                "REPLACE INTO {prefix}state (id, data) VALUES ('version', '64')"
             ]
         );
     }

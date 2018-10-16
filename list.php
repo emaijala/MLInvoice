@@ -421,7 +421,10 @@ function createJSONList($strFunc, $strList, $startRow, $rowCount, $sort, $filter
     }
 
     // Build the final select clause
-    $strSelectClause = "$strPrimaryKey, $strDeletedField";
+    $strSelectClause = $strPrimaryKey;
+    if ($strDeletedField) {
+        $strSelectClause .= ", $strDeletedField";
+    }
     foreach ($astrShowFields as $field) {
         if ('HIDDEN' === $field['type'] || !empty($field['virtual'])) {
             continue;
@@ -459,7 +462,7 @@ EOT;
     $highlight = getRequest('highlight_overdue', false);
     foreach ($rows as $row) {
         $astrPrimaryKeys[] = $row[$strPrimaryKey];
-        $deleted = $row[$strDeletedField] ? ' deleted' : '';
+        $deleted = ($strDeletedField && $row[$strDeletedField]) ? ' deleted' : '';
         $strLink = "?func=$strFunc&list=$strList&form=$strMainForm"
             . '&listid=' . urlencode($listId) . '&id=' . $row[$strPrimaryKey];
         $resultValues = [$row[$strPrimaryKey], $strLink];
@@ -606,7 +609,7 @@ EOT;
         }
     }
 
-    if (!getSetting('show_deleted_records')) {
+    if (!getSetting('show_deleted_records') && $strDeletedField) {
         $terms .= "$joinOp $strDeletedField=0";
         $joinOp = ' AND';
     }

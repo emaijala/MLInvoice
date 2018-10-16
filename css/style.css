@@ -573,6 +573,37 @@ img.image {
   padding: 16px;
 }
 
+.attachment-list {
+  border: 1px solid #dddddd;
+  padding: 8px;
+  margin: 8px 0 16px 0;
+  overflow-x: hidden;
+  overflow-y: scroll;
+  max-height: 200px;
+}
+
+.attachments {
+  border: 1px solid #dddddd;
+  padding: 8px;
+  margin-bottom: 8px;
+  overflow-x: hidden;
+  overflow-y: scroll;
+  max-height: 200px;
+}
+
+.attachment {
+  clear: both;
+}
+
+.attachment-filename {
+  float: left;
+  margin: 4px 0 12px 4px;
+}
+
+.add-attachment, .remove-attachment {
+  float: left;
+}
+
 #custom-prices .label {
   float: left;
   margin-top: 5px;

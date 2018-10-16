@@ -72,7 +72,8 @@ function htmlPageStart($strTitle = '', $arrExtraScripts = [])
         'jquery/js/jquery.daterangepicker.js',
         'js/mlinvoice.js',
         'js/functions.js',
-        'select2/select2.min.js'
+        'select2/select2.min.js',
+        'js/formdata.min.js'
     ];
 
     if (file_exists("select2/select2_locale_$lang.js")) {
@@ -126,7 +127,10 @@ function htmlPageStart($strTitle = '', $arrExtraScripts = [])
         'ConfirmDelete',
         'UnsavedData',
         'Close',
-        'PrereleaseVersion'
+        'PrereleaseVersion',
+        'Attachments',
+        'NoEntries',
+        'ErrValueMissing'
     ];
 
     $res = dbQueryCheck(
@@ -743,6 +747,12 @@ EOT;
         $strListQuery = str_replace('_ID_', $strValue, $strListQuery);
         $strFormElement = "<img class=\"$strStyle\" src=\"$strListQuery\" title=\"" .
              htmlspecialchars(Translator::translate($strTitle)) . "\"></div>\n";
+        break;
+
+    case 'FILE':
+        $strFormElement = '<input type="file" class="' . $strStyle . '" ' .
+             'id="' . $strName . '" name="' . $strName .
+             "\"$astrAdditionalAttributes$readOnly></input>\n";
         break;
 
     default :

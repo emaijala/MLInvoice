@@ -383,6 +383,8 @@ function getPageTitle($strFunc, $strList, $strForm)
                 return Translator::translate('Product');
             case 'default_value':
                 return Translator::translate('DefaultValue');
+            case 'attachment':
+                return Translator::translate('Attachment');
             default:
                 return Translator::translate('Settings');
             }
@@ -396,6 +398,8 @@ function getPageTitle($strFunc, $strList, $strForm)
                 return Translator::translate('Products');
             case 'default_value':
                 return Translator::translate('DefaultValues');
+            case 'attachment':
+                return Translator::translate('Attachments');
             default:
                 return Translator::translate('Settings');
             }

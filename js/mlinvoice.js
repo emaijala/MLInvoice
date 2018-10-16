@@ -1179,6 +1179,95 @@ var MLInvoice = (function MLInvoice() {
     });
   }
 
+  function _updateAttachmentList() {
+    var invoiceId = $('#attachments-form').data('invoiceId');
+    $list = $('<div/>');
+    $.getJSON('json.php?func=get_invoice_attachments&invoice_id=' + invoiceId, function getAttachmentsDone(json) {
+      var cnt = 0;
+      $.each(json.records, function handleAttachment(idx, item) {
+        ++cnt;
+        $attachment = $('<div/>').addClass('attachment');
+        $remove = $('<a/>').addClass('tinyactionlink remove-attachment ui-button ui-corner-all ui-widget')
+          .text(' X ')
+          .click(function removeAttachment() {
+            $.getJSON('json.php?func=delete_invoice_attachment&id=' + item.id, function removeAttachmentDone(json) {
+              _updateAttachmentList();
+            });
+          });
+        $remove.appendTo($attachment);
+        $filename = $('<div/>').addClass('attachment-filename').text(
+          item.name + ' (' + item.filename + ', ' + item.filesize_readable + ')'
+        ).appendTo($attachment);
+        $attachment.appendTo($list);
+      });
+      if (cnt === 0) {
+        $list.text(translate('NoEntries'));
+      }
+      $('.attachment-list').empty().append($list);
+      $('.attachment-count').text(cnt);
+    });
+  }
+
+  function _setupInvoiceAttachments() {
+    var invoiceId = $('#attachments-form').data('invoiceId');
+
+    $('#attachments-button').click(function attachmentsClick() {
+      var buttons = {};
+      buttons[translate('Close')] = function popupClose() {
+        $('#attachments-form').dialog('close');
+      };
+
+      _updateAttachmentList();
+
+      $('#attachments-form').dialog({ modal: true, width: 400, height: 400, resizable: true,
+        buttons: buttons,
+        title: translate('Attachments'),
+      });
+    });
+    $('a.add-attachment').click(function addAttachmentClick() {
+      $.getJSON('json.php?func=add_invoice_attachment&id=' + $(this).data('id') + '&invoice_id=' + invoiceId, function addAttachmentDone(json) {
+        _updateAttachmentList();
+      });
+    });
+    $('#new-attachment-file').change(function addNewAttachment() {
+      if (this.files.length > 0) {
+        var formdata = new FormData();
+        formdata.append('filedata', this.files[0]);
+        formdata.append('invoice_id', invoiceId);
+        $.ajax({
+          'url': "json.php?func=put_invoice_attachment",
+          'type': 'POST',
+          'dataType': 'json',
+          'data': formdata,
+          'processData': false,
+          'contentType': false,
+          'success': function(data) {
+            if (data.warnings) {
+              alert(data.warnings);
+            }
+            if (data.missing_fields) {
+              errormsg(translate('ErrValueMissing') + ': ' + data.missing_fields);
+            } else {
+              _updateAttachmentList();
+            }
+          },
+          'error': function(XMLHTTPReq, textStatus, errorThrown) {
+            if (XMLHTTPReq.status == 409) {
+              errormsg(jQuery.parseJSON(XMLHTTPReq.responseText).warnings);
+            }
+            else if (textStatus == 'timeout') {
+              errormsg('Timeout trying to save data');
+            } else {
+              errormsg('Error trying to save data: ' + XMLHTTPReq.status + ' - ' + XMLHTTPReq.statusText);
+            }
+            return false;
+          }
+        });
+        $(this).val(null);
+      }
+    });
+  }
+
   function init() {
     _initUI();
     _setupYtjSearch();
@@ -1192,6 +1281,7 @@ var MLInvoice = (function MLInvoice() {
     _setupCustomPricesForm();
     _initFormButtons();
     updateSendApiButtons();
+    _setupInvoiceAttachments();
   }
 
   return {

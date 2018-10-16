@@ -30,6 +30,7 @@
 $strJoin = '';
 $strListFilter = '';
 $strGroupBy = '';
+$strDeletedField = '';
 $levelsAllowed = [
     ROLE_USER,
     ROLE_BACKUPMGR
@@ -675,6 +676,49 @@ case 'default_value' :
     ];
     $strMainForm = 'default_value';
     $strTitle = 'DefaultValues';
+    break;
+
+case 'attachment':
+    $strTable = '{prefix}attachment';
+    $astrSearchFields = [
+        [
+            'name' => 'name',
+            'type' => 'TEXT'
+        ],
+        [
+            'name' => 'description',
+            'type' => 'TEXT'
+        ],
+    ];
+    $strPrimaryKey = 'id';
+    $astrShowFields = [
+        [
+            'name' => 'order_no',
+            'width' => 150,
+            'type' => 'TEXT',
+            'header' => 'OrderNr'
+        ],
+        [
+            'name' => 'name',
+            'width' => 200,
+            'type' => 'TEXT',
+            'header' => 'Name'
+        ],
+        [
+            'name' => 'date',
+            'width' => 100,
+            'type' => 'INTDATE',
+            'header' => 'Date'
+        ],
+        [
+            'name' => 'filename',
+            'width' => 200,
+            'type' => 'TEXT',
+            'header' => 'File'
+        ]
+    ];
+    $strMainForm = 'attachment';
+    $strTitle = 'Attachments';
     break;
 
 case 'company_tag' :
