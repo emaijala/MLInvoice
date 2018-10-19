@@ -283,6 +283,7 @@ CREATE TABLE mlinvoice_invoice (
   foreword text default NULL,
   afterword text default NULL,
   delivery_time varchar(100) default NULL,
+  delivery_address text default NULL,
   uuid varchar(50) default NULL,
   type_id int(11) default NULL,
   PRIMARY KEY (id),
