@@ -8,6 +8,7 @@ var MLInvoice = (function MLInvoice() {
   var _defaultDescription = null;
   var _keepAliveEnabled = true;
   var _currencyDecimals = 2;
+  var _maxAttachmentOrderNo = 0;
 
   function addTranslation(key, value) {
     _translations[key] = value;
@@ -630,6 +631,18 @@ var MLInvoice = (function MLInvoice() {
     _currencyDecimals = value;
   }
 
+  function _ajaxErrorHandler(XMLHTTPReq, textStatus) {
+    if (XMLHTTPReq.status == 409) {
+      errormsg(jQuery.parseJSON(XMLHTTPReq.responseText).warnings);
+    }
+    else if (textStatus == 'timeout') {
+      errormsg('Timeout trying to access the server');
+    } else {
+      errormsg('Error trying to access the server: ' + XMLHTTPReq.status + ' - ' + XMLHTTPReq.statusText);
+    }
+    return false;
+  }
+
   function _setupSelectAll() {
     $('#cb-select-all').click(function selectAllClick() {
       var table = $(this).closest('table');
@@ -670,13 +683,7 @@ var MLInvoice = (function MLInvoice() {
           infomsg(translate('RecordSaved'), 2000);
           window.location.reload();
         },
-        error: function saveCustomPricesFail(XMLHTTPReq, textStatus/*, errorThrown*/) {
-          if (textStatus === 'timeout') {
-            errormsg('Timeout trying to save record');
-          } else {
-            errormsg('Error trying to save record: ' + XMLHTTPReq.status + ' - ' + XMLHTTPReq.statusText);
-          }
-        }
+        error: _ajaxErrorHandler
       });
       return false;
     });
@@ -697,13 +704,7 @@ var MLInvoice = (function MLInvoice() {
           infomsg(translate('RecordDeleted'), 2000);
           window.location.reload();
         },
-        error: function deleteCustomPricesFail(XMLHTTPReq, textStatus/*, errorThrown*/) {
-          if (textStatus === 'timeout') {
-            errormsg('Timeout trying to delete record');
-          } else {
-            errormsg('Error trying to delete record: ' + XMLHTTPReq.status + ' - ' + XMLHTTPReq.statusText);
-          }
-        }
+        error: _ajaxErrorHandler
       });
       return false;
     });
@@ -759,11 +760,7 @@ var MLInvoice = (function MLInvoice() {
           }
         },
         error: function customPriceFail(XMLHTTPReq, textStatus/*, errorThrown*/) {
-          if (textStatus === 'timeout') {
-            errormsg('Timeout trying to save record');
-          } else {
-            errormsg('Error trying to save record: ' + XMLHTTPReq.status + ' - ' + XMLHTTPReq.statusText);
-          }
+          _ajaxErrorHandler(XMLHTTPReq, textStatus);
           $item.text(value);
           $item.removeClass('editing');
         }
@@ -1181,21 +1178,25 @@ var MLInvoice = (function MLInvoice() {
 
   function _updateAttachmentList() {
     var invoiceId = $('#attachments-form').data('invoiceId');
-    $list = $('<div/>');
+    var $list = $('<div/>');
+    _maxAttachmentOrderNo = 0;
     $.getJSON('json.php?func=get_invoice_attachments&invoice_id=' + invoiceId, function getAttachmentsDone(json) {
       var cnt = 0;
       $.each(json.records, function handleAttachment(idx, item) {
-        ++cnt;
-        $attachment = $('<div/>').addClass('attachment');
-        $remove = $('<a/>').addClass('tinyactionlink remove-attachment ui-button ui-corner-all ui-widget')
+        cnt += 1;
+        if (item.order_no > _maxAttachmentOrderNo) {
+          _maxAttachmentOrderNo = item.order_no;
+        }
+        var $attachment = $('<div/>').addClass('attachment');
+        var $remove = $('<a/>').addClass('tinyactionlink remove-attachment ui-button ui-corner-all ui-widget')
           .text(' X ')
           .click(function removeAttachment() {
-            $.getJSON('json.php?func=delete_invoice_attachment&id=' + item.id, function removeAttachmentDone(json) {
+            $.getJSON('json.php?func=delete_invoice_attachment&id=' + item.id, function removeAttachmentDone() {
               _updateAttachmentList();
             });
           });
         $remove.appendTo($attachment);
-        $filename = $('<div/>').addClass('attachment-filename').text(
+        $('<div/>').addClass('attachment-filename').text(
           item.name + ' (' + item.filename + ', ' + item.filesize_readable + ')'
         ).appendTo($attachment);
         $attachment.appendTo($list);
@@ -1225,8 +1226,14 @@ var MLInvoice = (function MLInvoice() {
       });
     });
     $('a.add-attachment').click(function addAttachmentClick() {
-      $.getJSON('json.php?func=add_invoice_attachment&id=' + $(this).data('id') + '&invoice_id=' + invoiceId, function addAttachmentDone(json) {
-        _updateAttachmentList();
+      $.ajax({
+        url: 'json.php?func=add_invoice_attachment&id=' + $(this).data('id') + '&invoice_id=' + invoiceId,
+        type: 'POST',
+        dataType: 'json',
+        success: function addAttachmentDone() {
+          _updateAttachmentList();
+        },
+        error: _ajaxErrorHandler
       });
     });
     $('#new-attachment-file').change(function addNewAttachment() {
@@ -1234,14 +1241,15 @@ var MLInvoice = (function MLInvoice() {
         var formdata = new FormData();
         formdata.append('filedata', this.files[0]);
         formdata.append('invoice_id', invoiceId);
+        formdata.append('order_no', _maxAttachmentOrderNo + 5);
         $.ajax({
-          'url': "json.php?func=put_invoice_attachment",
-          'type': 'POST',
-          'dataType': 'json',
-          'data': formdata,
-          'processData': false,
-          'contentType': false,
-          'success': function(data) {
+          url: "json.php?func=put_invoice_attachment",
+          type: 'POST',
+          dataType: 'json',
+          data: formdata,
+          processData: false,
+          contentType: false,
+          success: function addAttachmentFileDone(data) {
             if (data.warnings) {
               alert(data.warnings);
             }
@@ -1251,17 +1259,7 @@ var MLInvoice = (function MLInvoice() {
               _updateAttachmentList();
             }
           },
-          'error': function(XMLHTTPReq, textStatus, errorThrown) {
-            if (XMLHTTPReq.status == 409) {
-              errormsg(jQuery.parseJSON(XMLHTTPReq.responseText).warnings);
-            }
-            else if (textStatus == 'timeout') {
-              errormsg('Timeout trying to save data');
-            } else {
-              errormsg('Error trying to save data: ' + XMLHTTPReq.status + ' - ' + XMLHTTPReq.statusText);
-            }
-            return false;
-          }
+          error: _ajaxErrorHandler
         });
         $(this).val(null);
       }

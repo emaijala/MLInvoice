@@ -576,17 +576,17 @@ function printJSONRecord($table, $id = false, $warnings = null)
         }
         $row = $rows[0];
         switch ($table) {
-            case '{prefix}users':
-                unset($row['password']);
-                break;
-            case '{prefix}attachment':
-            case '{prefix}invoice_attachment':
-                unset($row['filedata']);
-                $row['filesize_readable'] = fileSizeToHumanReadable($row['filesize']);
-                break;
-            case '{prefix}base':
-                unset($row['logo_filedata']);
-                break;
+        case '{prefix}users':
+            unset($row['password']);
+            break;
+        case '{prefix}attachment':
+        case '{prefix}invoice_attachment':
+            unset($row['filedata']);
+            $row['filesize_readable'] = fileSizeToHumanReadable($row['filesize']);
+            break;
+        case '{prefix}base':
+            unset($row['logo_filedata']);
+            break;
         }
 
         // Include any custom price for a product

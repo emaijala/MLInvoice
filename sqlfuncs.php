@@ -882,16 +882,39 @@ function getInvoiceAttachmentCount($id)
 function getInvoiceAttachments($id)
 {
     $rows = dbParamQuery(
-        'SELECT id, name, description, date, filename, filesize, mimetype FROM {prefix}invoice_attachment WHERE invoice_id=?',
+        <<<EOT
+SELECT id, name, description, date, filename, filesize, mimetype
+  FROM {prefix}invoice_attachment
+  WHERE invoice_id=?
+  ORDER BY order_no, id
+EOT
+        ,
         [$id]
     );
     return $rows ? $rows : [];
 }
 
 /**
- * Get attachments for invoice
+ * Get an invoice attachment
  *
- * @param int $id Invoice ID
+ * @param int $id Invoice attachment ID
+ *
+ * @return array
+ */
+function getInvoiceAttachment($id)
+{
+    $rows = dbParamQuery(
+        'SELECT * FROM {prefix}invoice_attachment WHERE id=?',
+        [$id]
+    );
+    return $rows ? $rows[0] : [];
+}
+
+/**
+ * Add an existing attachment to an invoice
+ *
+ * @param int $id        Attachment ID
+ * @param int $invoiceId Invoice ID
  *
  * @return int
  */
@@ -899,13 +922,19 @@ function addAttachmentToInvoice($id, $invoiceId)
 {
     global $dblink;
 
+    $rows = dbParamQuery(
+        'SELECT max(order_no) as orderno FROM {prefix}invoice_attachment WHERE invoice_id=?',
+        [$invoiceId]
+    );
+    $newOrderNo = $rows ? $rows[0]['orderno'] + 5 : 0;
+
     $sql = <<<EOT
 INSERT INTO {prefix}invoice_attachment
-(invoice_id, name, mimetype, description, date, filename, filesize, filedata)
-SELECT ?, name, mimetype, description, date, filename, filesize, filedata
+(invoice_id, name, mimetype, description, date, filename, filesize, filedata, order_no)
+SELECT ?, name, mimetype, description, date, filename, filesize, filedata, ?
 FROM {prefix}attachment WHERE id=?
 EOT;
-    dbParamQuery($sql, [$invoiceId, $id]);
+    dbParamQuery($sql, [$invoiceId, $newOrderNo, $id]);
 
     return mysqli_insert_id($dblink);
 }
