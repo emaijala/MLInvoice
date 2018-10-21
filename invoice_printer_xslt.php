@@ -215,7 +215,6 @@ EOT
         // Preprocess invoice rows
         if (getSetting('printout_markdown')) {
             $markdown = new Markdown();
-            $markdown->no_entities = true;
         } else {
             $markdown = null;
         }
@@ -225,8 +224,16 @@ EOT
             if ($markdown) {
                 foreach (['product_name', 'product_code', 'description'] as $key) {
                     if (!empty($data[$key])) {
-                        $data[$key]
-                            = trim(strip_tags($markdown->transform($data[$key])));
+                        $markdownData = $markdown->transform($data[$key]);
+                        $data[$key] = trim(
+                            strip_tags(
+                                html_entity_decode(
+                                    $markdownData,
+                                    ENT_COMPAT | ENT_HTML401,
+                                    'UTF-8'
+                                )
+                            )
+                        );
                     }
                 }
             }
