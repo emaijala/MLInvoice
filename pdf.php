@@ -107,7 +107,7 @@ class PDF extends \setasign\Fpdi\Tcpdf\Fpdi
     public function Footer()
     {
         if (!$this->printFooter()
-            || (!$this->$this->PageNo() == 1 && !$this->printFooterOnFirstPage)
+            || (!$this->PageNo() == 1 && !$this->printFooterOnFirstPage)
         ) {
             return;
         }
