@@ -37,15 +37,6 @@ function save_stock_balance(translations)
         update_stock_balance_log();
         $('#update_stock_balance').dialog('close');
       }
-    },
-    error: function updateStockBalanceFail(XMLHTTPReq, textStatus/*, errorThrown*/) {
-      if (textStatus === 'timeout')
-      {
-        alert('Timeout trying to save stock balance change');
-      } else {
-        alert('Error trying to save stock balance change: ' + XMLHTTPReq.status + ' - ' + XMLHTTPReq.statusText);
-      }
-      return false;
     }
   });
 }
@@ -61,14 +52,6 @@ function update_stock_balance_log()
     },
     success: function getStockBalanceRowsDone(data) {
       $('#stock_balance_change_log').append(data);
-    },
-    error: function getStockBalanceRowsFail(XMLHTTPReq, textStatus/*, errorThrown*/) {
-      if (textStatus === 'timeout') {
-        alert('Timeout trying to save stock balance change');
-      } else {
-        alert('Error trying to save stock balance change: ' + XMLHTTPReq.status + ' - ' + XMLHTTPReq.statusText);
-      }
-      return false;
     }
   });
 }

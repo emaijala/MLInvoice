@@ -153,14 +153,6 @@ function save_company(translations)
         init_company_list(data.id);
         $('#quick_add_company').dialog('close');
       }
-    },
-    'error': function putCompanyFail(XMLHTTPReq, textStatus/*, errorThrown*/) {
-      if (textStatus === 'timeout') {
-        alert('Timeout trying to save company');
-      } else {
-        alert('Error trying to save company: ' + XMLHTTPReq.status + ' - ' + XMLHTTPReq.statusText);
-      }
-      return false;
     }
   });
 }
@@ -222,14 +214,6 @@ function save_partial_payment(translations)
         init_rows();
         $('#add_partial_payment').dialog('close');
       }
-    },
-    'error': function putInvoiceRowFail(XMLHTTPReq, textStatus/*, errorThrown*/) {
-      if (textStatus === 'timeout') {
-        alert('Timeout trying to add a partial payment');
-      } else {
-        alert('Error trying to add a partial payment: ' + XMLHTTPReq.status + ' - ' + XMLHTTPReq.statusText);
-      }
-      return false;
     }
   });
 }
@@ -281,21 +265,10 @@ function update_base_defaults()
           if (data.invoice_default_info && $('#info').val() == '') {
             $('#info').val(data.invoice_default_info);
           }
-        },
-        'error': ajaxErrorHandler
+        }
       });
-    },
-    'error': ajaxErrorHandler
+    }
   });
-}
-
-function ajaxErrorHandler(XMLHTTPReq, textStatus/*, errorThrown*/)
-{
-  if (textStatus === 'timeout') {
-    alert('Timeout trying to fetch a record from the server');
-  } else {
-    alert('Error trying to fetch a record from the server: ' + XMLHTTPReq.status + ' - ' + XMLHTTPReq.statusText);
-  }
 }
 
 // Remove the formatting to get integer data for summation

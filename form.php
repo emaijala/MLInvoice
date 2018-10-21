@@ -589,17 +589,6 @@ function save_record(redirect_url, redir_style, on_print)
           }
         }
       }
-    },
-    'error': function(XMLHTTPReq, textStatus, errorThrown) {
-      if (XMLHTTPReq.status == 409) {
-        MLInvoice.errormsg(jQuery.parseJSON(XMLHTTPReq.responseText).warnings);
-      }
-      else if (textStatus == 'timeout') {
-        MLInvoice.errormsg('Timeout trying to save data');
-      } else {
-        MLInvoice.errormsg('Error trying to save data: ' + XMLHTTPReq.status + ' - ' + XMLHTTPReq.statusText);
-      }
-      return false;
     }
   });
 }
@@ -1009,16 +998,6 @@ function save_row(form_id)
         ?>
         }
       }
-    },
-    'error': function(XMLHTTPReq, textStatus, errorThrown) {
-      if (XMLHTTPReq.status == 409) {
-        MLInvoice.errormsg(jQuery.parseJSON(XMLHTTPReq.responseText).warnings);
-      } else if (textStatus == 'timeout') {
-        MLInvoice.errormsg('Timeout trying to save row');
-      } else {
-        MLInvoice.errormsg('Error trying to save row: ' + XMLHTTPReq.status + ' - ' + XMLHTTPReq.statusText);
-      }
-      return false;
     }
   });
 }
@@ -1080,13 +1059,6 @@ function modify_rows(form_id)
         $("#popup_edit").dialog('close');
           init_rows();
       }
-    },
-    'error': function(XMLHTTPReq, textStatus, errorThrown) {
-      if (textStatus == 'timeout') {
-        alert('Timeout trying to modify rows');
-      } else {
-        alert('Error trying to modify rows: ' + XMLHTTPReq.status + ' - ' + XMLHTTPReq.statusText);
-      }
     }
   });
 }
@@ -1109,14 +1081,6 @@ function update_row_order()
     'contentType': 'application/json; charset=utf-8',
     'success': function(data) {
       init_rows();
-    },
-    'error': function(XMLHTTPReq, textStatus, errorThrown) {
-      if (textStatus == 'timeout') {
-        alert('Timeout trying to modify rows');
-      } else {
-        alert('Error trying to modify rows: ' + XMLHTTPReq.status + ' - ' + XMLHTTPReq.statusText);
-      }
-      init_rows();
     }
   });
 
@@ -1135,14 +1099,6 @@ function delete_selected_rows()
     //'contentType': 'application/json; charset=utf-8',
     'success': function(data) {
       init_rows();
-    },
-    'error': function(XMLHTTPReq, textStatus, errorThrown) {
-      init_rows();
-      if (textStatus == 'timeout') {
-        alert('Timeout trying to modify rows');
-      } else {
-        alert('Error trying to modify rows: ' + XMLHTTPReq.status + ' - ' + XMLHTTPReq.statusText);
-      }
     }
   });
 }
@@ -1160,14 +1116,6 @@ function delete_row(form_id)
       init_rows();
       if (form_id == 'iform_popup')
         $("#popup_edit").dialog('close');
-    },
-    'error': function(XMLHTTPReq, textStatus, errorThrown) {
-      if (textStatus == 'timeout') {
-        MLInvoice.errormsg('Timeout trying to save row');
-      } else {
-        MLInvoice.errormsg('Error trying to save row: ' + XMLHTTPReq.status + ' - ' + XMLHTTPReq.statusText);
-      }
-      return false;
     }
   });
 }

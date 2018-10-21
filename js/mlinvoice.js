@@ -631,12 +631,10 @@ var MLInvoice = (function MLInvoice() {
     _currencyDecimals = value;
   }
 
-  function _ajaxErrorHandler(XMLHTTPReq, textStatus) {
+  function ajaxErrorHandler(XMLHTTPReq) {
+    $('#spinner').addClass('hidden');
     if (XMLHTTPReq.status == 409) {
       errormsg(jQuery.parseJSON(XMLHTTPReq.responseText).warnings);
-    }
-    else if (textStatus == 'timeout') {
-      errormsg('Timeout trying to access the server');
     } else {
       errormsg('Error trying to access the server: ' + XMLHTTPReq.status + ' - ' + XMLHTTPReq.statusText);
     }
@@ -682,8 +680,7 @@ var MLInvoice = (function MLInvoice() {
         success: function saveCustomPricesDone(/*data*/) {
           infomsg(translate('RecordSaved'), 2000);
           window.location.reload();
-        },
-        error: _ajaxErrorHandler
+        }
       });
       return false;
     });
@@ -703,8 +700,7 @@ var MLInvoice = (function MLInvoice() {
         success: function deleteCustomPricesDone(/*data*/) {
           infomsg(translate('RecordDeleted'), 2000);
           window.location.reload();
-        },
-        error: _ajaxErrorHandler
+        }
       });
       return false;
     });
@@ -759,8 +755,7 @@ var MLInvoice = (function MLInvoice() {
             $tr.addClass('custom-price');
           }
         },
-        error: function customPriceFail(XMLHTTPReq, textStatus/*, errorThrown*/) {
-          _ajaxErrorHandler(XMLHTTPReq, textStatus);
+        error: function customPriceFail() {
           $item.text(value);
           $item.removeClass('editing');
         }
@@ -1130,8 +1125,7 @@ var MLInvoice = (function MLInvoice() {
       $('#spinner').addClass('hidden');
     });
     $(document).ajaxError(function onAjaxError(event, request) {
-      MLInvoice.errormsg('Server request failed: ' + request.status + ' - ' + request.statusText);
-      $('#spinner').addClass('hidden');
+      ajaxErrorHandler(request);
     });
     // Company info
     if ($('#company_id').val()) {
@@ -1207,8 +1201,7 @@ var MLInvoice = (function MLInvoice() {
               send: $(this).prop('checked') ? '1' : '0'
             },
             type: 'POST',
-            dataType: 'json',
-            error: _ajaxErrorHandler
+            dataType: 'json'
           });
         });
         var $cbLabel = $('<label/>').addClass('attachment-send');
@@ -1226,8 +1219,7 @@ var MLInvoice = (function MLInvoice() {
               name: $(this).val()
             },
             type: 'POST',
-            dataType: 'json',
-            error: _ajaxErrorHandler
+            dataType: 'json'
           });
         });
         $input.appendTo($attachment);
@@ -1282,8 +1274,7 @@ var MLInvoice = (function MLInvoice() {
         dataType: 'json',
         success: function addAttachmentDone() {
           _updateAttachmentList();
-        },
-        error: _ajaxErrorHandler
+        }
       });
     });
     $('#new-attachment-file').change(function addNewAttachment() {
@@ -1308,8 +1299,7 @@ var MLInvoice = (function MLInvoice() {
             } else {
               _updateAttachmentList();
             }
-          },
-          error: _ajaxErrorHandler
+          }
         });
         $(this).val(null);
       }
@@ -1355,6 +1345,7 @@ var MLInvoice = (function MLInvoice() {
     popupDialog: popupDialog,
     calculateInvoiceRowSummary: calculateInvoiceRowSummary,
     updateSendApiButtons: updateSendApiButtons,
-    clearMessages: clearMessages
+    clearMessages: clearMessages,
+    ajaxErrorHandler: ajaxErrorHandler
   }
 })();
