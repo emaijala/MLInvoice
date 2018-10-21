@@ -722,7 +722,7 @@ function saveJSONRecord($table, $parentKeyName)
     list($contentType) = explode(';', $_SERVER['CONTENT_TYPE']);
     if ($contentType === 'application/json') {
         $data = json_decode(file_get_contents('php://input'), true);
-    } elseif ($contentType === 'multipart/form-data') {
+    } else {
         // If we don't have a JSON request, assume we have POST data
         $data = $_POST;
     }
@@ -744,11 +744,15 @@ function saveJSONRecord($table, $parentKeyName)
         unset($data['onPrint']);
     }
 
+    // Allow partial update for invoice attachments. This is a safety check since the
+    // partial update mechanism might hide issues with other record types.
+    $partial = !$new && 'invoice_attachment' === $table;
+
     $warnings = '';
     try {
         $res = saveFormData(
             $strTable, $id, $astrFormElements, $data, $warnings, $parentKeyName,
-            $parentKeyName ? $data[$parentKeyName] : false, $onPrint
+            $parentKeyName ? $data[$parentKeyName] : false, $onPrint, $partial
         );
     } catch (Exception $e) {
         header('Content-Type: application/json');

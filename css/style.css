@@ -573,6 +573,17 @@ img.image {
   padding: 16px;
 }
 
+#attachments-form {
+  margin-top: 8px;
+  margin-bottom: 8px;
+  border: 1px solid gray;
+  clear: both;
+}
+
+#attachments-form-inner {
+  padding: 8px;
+}
+
 .attachment-list {
   border: 1px solid #dddddd;
   padding: 8px;
@@ -585,7 +596,6 @@ img.image {
 .attachments {
   border: 1px solid #dddddd;
   padding: 8px;
-  margin-bottom: 8px;
   overflow-x: hidden;
   overflow-y: scroll;
   max-height: 200px;
@@ -595,9 +605,23 @@ img.image {
   clear: both;
 }
 
-.attachment-filename {
+.attachment-new {
+  margin-top: 8px;
+  height: 24px;
+}
+
+.attachment-name {
+  float: left;
+  margin: 4px 0 8px 4px;
+}
+
+.attachment-fileinfo {
   float: left;
   margin: 4px 0 12px 4px;
+}
+
+.attachment-fileinfo .large-file {
+  color: #ff3344;
 }
 
 .add-attachment, .remove-attachment {

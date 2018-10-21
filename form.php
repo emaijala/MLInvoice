@@ -1641,23 +1641,45 @@ function createFormButtons($form, $new, $copyLinkOverride, $spinner, $readOnlyFo
     if ($form === 'invoice' && $top && !$new) {
         $attachmentCount = GetInvoiceAttachmentCount($id);
         ?>
-        <a id="attachments-button" class="actionlink" href="#">
-            <?php echo Translator::translate('Attachments')?>
-            (<span class="attachment-count"><?php echo $attachmentCount?></span>)...
-        </a>
         <span class="send-buttons">
         </span>
+        <a id="attachments-button" class="actionlink" href="#">
+            <?php echo Translator::translate('Attachments')?>
+            (<span class="attachment-count"><?php echo $attachmentCount?></span>)
+            <span class="dropdown-open">&#9660;</span>
+            <span class="dropdown-close hidden">&#9650;</span>
+        </a>
+        <?php
+    }
+
+    if ($id && ($listId = getRequest('listid', ''))) {
+        createListNavigationLinks($listId, $id);
+    }
+
+    if ($spinner) {
+        echo '     <span id="spinner" class="hidden"><img src="images/spinner.gif" alt=""></span>' .
+            "\n";
+    }
+
+    if ($form === 'invoice' && $top && !$new) {
+        ?>
         <div id="attachments-form" class="ui-widget-content ui-corner-all hidden" data-invoice-id="<?php echo $id?>">
+            <div class="ui-corner-tl ui-corner-tr fg-toolbar ui-toolbar ui-widget-header">
+                <?php echo Translator::translate('Attachments')?>
+            </div>
             <div id="attachments-form-inner">
-                <h1><?php echo Translator::translate('AddedAttachments')?></h1>
+                <h1>
+                    <?php echo Translator::translate('AddedAttachments')?>
+                </h1>
                 <div class="attachment-list"></div>
                 <h1><?php echo Translator::translate('AddAttachment')?></h1>
                 <div class="attachment-add">
                     <div class="attachments">
                         <?php foreach (getAttachments() as $attachment) { ?>
                             <div class="attachment">
-                                <a class="tinyactionlink add-attachment" data-id="<?php echo $attachment['id']?>"> + </a>
-                                <div class="attachment-filename">
+                                <a class="tinyactionlink add-attachment" data-id="<?php echo $attachment['id']?>"
+                                    title="<?php echo Translator::translate('AddAttachment')?>"> + </a>
+                                <div class="attachment-fileinfo">
                                 <?php
                                     echo $attachment['name'] . ' ('
                                         . $attachment['filename'] . ', '
@@ -1668,23 +1690,16 @@ function createFormButtons($form, $new, $copyLinkOverride, $spinner, $readOnlyFo
                             </div>
                         <?php } ?>
                     </div>
-                    <div class="medium_label"><?php echo Translator::translate('NewAttachment')?></div>
-                    <div class="field">
-                        <?php echo htmlFormElement('new-attachment-file', 'FILE', '', 'long');?>
+                    <div class="attachment-new">
+                        <div class="medium_label"><?php echo Translator::translate('NewAttachment')?></div>
+                        <div class="field">
+                            <?php echo htmlFormElement('new-attachment-file', 'FILE', '', 'long');?>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
         <?php
-    }
-
-    if ($id && ($listId = getRequest('listid', ''))) {
-        createListNavigationLinks($listId, $id);
-    }
-
-    if ($spinner) {
-        echo '     <span id="spinner" style="visibility: hidden"><img src="images/spinner.gif" alt=""></span>' .
-             "\n";
     }
     ?>
     </div>

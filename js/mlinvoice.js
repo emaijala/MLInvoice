@@ -1123,15 +1123,15 @@ var MLInvoice = (function MLInvoice() {
       }
     });
     // AJAX progress and errors
-    $('#message').ajaxStart(function onAjaxStart() {
-      $('#spinner').css('visibility', 'visible');
+    $(document).ajaxStart(function onAjaxStart() {
+      $('#spinner').removeClass('hidden');
     });
-    $('#message').ajaxStop(function onAjaxStop() {
-      $('#spinner').css('visibility', 'hidden');
+    $(document).ajaxStop(function onAjaxStop() {
+      $('#spinner').addClass('hidden');
     });
-    $('#errormsg').ajaxError(function onAjaxError(event, request) {
+    $(document).ajaxError(function onAjaxError(event, request) {
       MLInvoice.errormsg('Server request failed: ' + request.status + ' - ' + request.statusText);
-      $('#spinner').css('visibility', 'hidden');
+      $('#spinner').addClass('hidden');
     });
     // Company info
     if ($('#company_id').val()) {
@@ -1190,15 +1190,37 @@ var MLInvoice = (function MLInvoice() {
         var $attachment = $('<div/>').addClass('attachment');
         var $remove = $('<a/>').addClass('tinyactionlink remove-attachment ui-button ui-corner-all ui-widget')
           .text(' X ')
+          .attr('title', translate('RemoveAttachment'))
           .click(function removeAttachment() {
             $.getJSON('json.php?func=delete_invoice_attachment&id=' + item.id, function removeAttachmentDone() {
               _updateAttachmentList();
             });
           });
         $remove.appendTo($attachment);
-        $('<div/>').addClass('attachment-filename').text(
-          item.name + ' (' + item.filename + ', ' + item.filesize_readable + ')'
-        ).appendTo($attachment);
+        var $input = $('<input/>').addClass('attachment-name').attr('type', 'text').data('id', item.id).val(item.name);
+        $input.change(function onNameChange() {
+          $.ajax({
+            url: 'json.php?func=put_invoice_attachment',
+            data: {
+              id: $(this).data('id'),
+              name: $(this).val()
+            },
+            type: 'POST',
+            dataType: 'json',
+            error: _ajaxErrorHandler
+          });
+        });
+        $input.appendTo($attachment);
+        var $fileinfo = $('<div/>').addClass('attachment-fileinfo').text(
+          item.filename + ' '
+        );
+        var $filesize = $('<span/>').text(item.filesize_readable);
+        if (item.filesize > 1024 * 1024) {
+          $filesize.addClass('large-file');
+          $filesize.attr('title', translate('LargeFile'));
+        }
+        $filesize.appendTo($fileinfo);
+        $fileinfo.appendTo($attachment);
         $attachment.appendTo($list);
       });
       if (cnt === 0) {
@@ -1209,21 +1231,29 @@ var MLInvoice = (function MLInvoice() {
     });
   }
 
+  function _toggleAttachmentForm(open)
+  {
+    if (open) {
+      $('#attachments-button .dropdown-open').hide();
+      $('#attachments-button .dropdown-close').show();
+      $('#attachments-form').removeClass('hidden');
+    } else {
+      $('#attachments-button .dropdown-open').show();
+      $('#attachments-button .dropdown-close').hide();
+      $('#attachments-form').addClass('hidden');
+    }
+  }
+
   function _setupInvoiceAttachments() {
     var invoiceId = $('#attachments-form').data('invoiceId');
 
     $('#attachments-button').click(function attachmentsClick() {
-      var buttons = {};
-      buttons[translate('Close')] = function popupClose() {
-        $('#attachments-form').dialog('close');
-      };
-
-      _updateAttachmentList();
-
-      $('#attachments-form').dialog({ modal: true, width: 400, height: 400, resizable: true,
-        buttons: buttons,
-        title: translate('Attachments'),
-      });
+      if ($('#attachments-form').hasClass('hidden')) {
+        _updateAttachmentList();
+        _toggleAttachmentForm(true);
+      } else {
+        _toggleAttachmentForm(false);
+      }
     });
     $('a.add-attachment').click(function addAttachmentClick() {
       $.ajax({

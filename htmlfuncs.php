@@ -130,7 +130,9 @@ function htmlPageStart($strTitle = '', $arrExtraScripts = [])
         'PrereleaseVersion',
         'Attachments',
         'NoEntries',
-        'ErrValueMissing'
+        'ErrValueMissing',
+        'RemoveAttachment',
+        'LargeFile'
     ];
 
     $res = dbQueryCheck(
