@@ -1180,7 +1180,7 @@ var MLInvoice = (function MLInvoice() {
     var invoiceId = $('#attachments-form').data('invoiceId');
     var $list = $('<div/>');
     _maxAttachmentOrderNo = 0;
-    $.getJSON('json.php?func=get_invoice_attachments&invoice_id=' + invoiceId, function getAttachmentsDone(json) {
+    $.getJSON('json.php?func=get_invoice_attachments&parent_id=' + invoiceId, function getAttachmentsDone(json) {
       var cnt = 0;
       $.each(json.records, function handleAttachment(idx, item) {
         cnt += 1;
