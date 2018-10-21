@@ -533,7 +533,7 @@ function fileSizeToHumanReadable($value)
         $value /= 1024;
         ++$idx;
     }
-    return round($value, 2) . ' ' . $suffixes[$idx];
+    return miscRound2Decim($value, 2) . ' ' . $suffixes[$idx];
 }
 
 /**

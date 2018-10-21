@@ -875,17 +875,19 @@ function getInvoiceAttachmentCount($id)
 /**
  * Get attachments for invoice
  *
- * @param int $id Invoice ID
+ * @param int  $id       Invoice ID
+ * @param bool $sendable Whether to return only sendable attachments
  *
  * @return int
  */
-function getInvoiceAttachments($id)
+function getInvoiceAttachments($id, $sendable)
 {
+    $sendable = $sendable ? ' AND send=1' : '';
     $rows = dbParamQuery(
         <<<EOT
 SELECT id, name, description, date, filename, filesize, mimetype
   FROM {prefix}invoice_attachment
-  WHERE invoice_id=?
+  WHERE invoice_id=?$sendable
   ORDER BY order_no, id
 EOT
         ,
@@ -2161,6 +2163,7 @@ CREATE TABLE {prefix}invoice_attachment (
     filesize integer(11) NULL,
     filedata longblob NOT NULL,
     order_no int(11) default NULL,
+    send tinyint NOT NULL default 0,
     PRIMARY KEY (id),
     FOREIGN KEY (invoice_id) REFERENCES {prefix}invoice(id) ON DELETE CASCADE
 ) ENGINE=INNODB CHARACTER SET utf8 COLLATE utf8_swedish_ci;

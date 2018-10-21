@@ -610,9 +610,12 @@ img.image {
   height: 24px;
 }
 
-.attachment-name {
+.attachment-name, .attachment-send {
   float: left;
   margin: 4px 0 8px 4px;
+}
+.attachment-name {
+  margin-top: 3px;
 }
 
 .attachment-fileinfo {

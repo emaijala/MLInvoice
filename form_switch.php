@@ -2261,6 +2261,13 @@ case 'invoice_attachment':
                 'image/jpeg',
                 'image/png'
             ]
+        ],
+        [
+            'name' => 'send',
+            'label' => 'Send',
+            'type' => 'INT',
+            'style' => 'medium',
+            'position' => 1,
         ]
     ];
     break;

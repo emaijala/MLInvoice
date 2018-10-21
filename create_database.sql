@@ -340,6 +340,7 @@ CREATE TABLE mlinvoice_invoice_attachment (
   filename varchar(255) NOT NULL,
   filesize integer(11) NULL,
   filedata longblob NOT NULL,
+  send tinyint NOT NULL default 0,
   order_no int(11) default NULL,
   PRIMARY KEY (id),
   FOREIGN KEY (invoice_id) REFERENCES mlinvoice_invoice(id) ON DELETE CASCADE

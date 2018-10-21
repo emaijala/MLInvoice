@@ -1197,7 +1197,27 @@ var MLInvoice = (function MLInvoice() {
             });
           });
         $remove.appendTo($attachment);
-        var $input = $('<input/>').addClass('attachment-name').attr('type', 'text').data('id', item.id).val(item.name);
+
+        var $send = $('<input>').attr('type', 'checkbox').data('id', item.id).prop('checked', item.send);
+        $send.change(function onSendChange() {
+          $.ajax({
+            url: 'json.php?func=put_invoice_attachment',
+            data: {
+              id: $(this).data('id'),
+              send: $(this).prop('checked') ? '1' : '0'
+            },
+            type: 'POST',
+            dataType: 'json',
+            error: _ajaxErrorHandler
+          });
+        });
+        var $cbLabel = $('<label/>').addClass('attachment-send');
+        $send.appendTo($cbLabel);
+        $('<span/>').text(translate('SendToClient')).appendTo($cbLabel);
+        $cbLabel.appendTo($attachment);
+
+        var $input = $('<input/>').addClass('attachment-name').attr('type', 'text').data('id', item.id).val(item.name)
+            .attr('placeholder', translate('Description'));
         $input.change(function onNameChange() {
           $.ajax({
             url: 'json.php?func=put_invoice_attachment',
@@ -1214,7 +1234,7 @@ var MLInvoice = (function MLInvoice() {
         var $fileinfo = $('<div/>').addClass('attachment-fileinfo').text(
           item.filename + ' '
         );
-        var $filesize = $('<span/>').text(item.filesize_readable);
+        var $filesize = $('<span/>').text('(' + item.filesize_readable + ')');
         if (item.filesize > 1024 * 1024) {
           $filesize.addClass('large-file');
           $filesize.attr('title', translate('LargeFile'));

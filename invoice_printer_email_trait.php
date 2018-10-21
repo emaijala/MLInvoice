@@ -219,23 +219,18 @@ trait InvoicePrinterEmailTrait
                 <div class="medium_label"><?php echo Translator::translate('EmailAttachments')?></div>
                 <div class="field">
                     <?php
-                    if ((!isset($this->printParams['attachment'])
-                        || $this->printParams['attachment'])
-                        || $this->attachments
+                    $filenames = [];
+                    if (!isset($this->printParams['attachment'])
+                        || $this->printParams['attachment']
                     ) {
-                        if (!isset($this->printParams['attachment'])
-                            || $this->printParams['attachment']
-                        ) {
-                            $filename = $this->outputFileName ? $this->outputFileName
-                                : getSetting('invoice_pdf_filename');
-                            echo htmlentities($this->getPrintOutFileName($filename)) . '<br>';
-                        }
-                        foreach ($this->attachments as $attachment) {
-                            echo htmlentities($attachment['filename']) . '<br>';
-                        }
-                    } else {
-                        echo '-';
+                        $filename = $this->outputFileName ? $this->outputFileName
+                            : getSetting('invoice_pdf_filename');
+                        $filenames[] = htmlentities($this->getPrintOutFileName($filename));
                     }
+                    foreach ($this->attachments as $attachment) {
+                        $filenames[] = htmlentities($attachment['filename']);
+                    }
+                    echo $filenames ? implode('<br>', $filenames) : '-';
                     ?>
                 </div>
                 <div class="form_buttons" style="clear: both">

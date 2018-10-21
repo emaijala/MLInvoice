@@ -385,7 +385,7 @@ EOT;
 
             $invoiceTypeData = getInvoiceType($invoiceData['type_id']);
 
-            $this->attachments = getInvoiceAttachments($invoiceId);
+            $this->attachments = getInvoiceAttachments($invoiceId, true);
         } else {
             $invoiceData = [];
             $invoiceRowData = [];
@@ -2692,47 +2692,45 @@ EOT;
         $pdf = $this->pdf;
         $pdf->printHeader(false);
         $pdf->printFooter(false);
-        if ($this->attachments) {
-            foreach ($this->attachments as $attachment) {
-                $attachment = getInvoiceAttachment($attachment['id']);
-                if ('application/pdf' !== $attachment['mimetype']) {
-                    // Import image
-                    $pdf->AddPage();
-                    $pdf->Image(
-                        '@' . $attachment['filedata'],
-                        $this->left,
-                        $this->autoPageBreakMargin,
-                        $this->width,
-                        0,
-                        '',
-                        '',
-                        'B',
-                        false,
-                        300,
-                        'C'
-                    );
-                    $pdf->SetXY($this->left, $pdf->GetY() + 5);
-                    $pdf->SetFont('Helvetica', '', 10);
-                    $pdf->multiCellMD(
-                        $this->width,
-                        5,
-                        $attachment['name'] ? $attachment['name']
-                            : $attachment['filename'],
-                        'L'
-                    );
-                    continue;
-                }
-                // Import PDF
-                $pageCount = $pdf->setSourceFile(
-                    \setasign\Fpdi\PdfParser\StreamReader
-                        ::createByString($attachment['filedata'])
+        foreach ($this->attachments as $attachment) {
+            $attachment = getInvoiceAttachment($attachment['id']);
+            if ('application/pdf' !== $attachment['mimetype']) {
+                // Import image
+                $pdf->AddPage();
+                $pdf->Image(
+                    '@' . $attachment['filedata'],
+                    $this->left,
+                    $this->autoPageBreakMargin,
+                    $this->width,
+                    0,
+                    '',
+                    '',
+                    'B',
+                    false,
+                    300,
+                    'C'
                 );
-                for ($i = 1; $i <= $pageCount; $i++) {
-                    $tplx = $pdf->importPage($i);
-                    $size = $pdf->getTemplateSize($tplx);
-                    $pdf->AddPage('P', array($size['w'], $size['h']));
-                    $pdf->useTemplate($tplx);
-                }
+                $pdf->SetXY($this->left, $pdf->GetY() + 5);
+                $pdf->SetFont('Helvetica', '', 10);
+                $pdf->multiCellMD(
+                    $this->width,
+                    5,
+                    $attachment['name'] ? $attachment['name']
+                        : $attachment['filename'],
+                    'L'
+                );
+                continue;
+            }
+            // Import PDF
+            $pageCount = $pdf->setSourceFile(
+                \setasign\Fpdi\PdfParser\StreamReader
+                    ::createByString($attachment['filedata'])
+            );
+            for ($i = 1; $i <= $pageCount; $i++) {
+                $tplx = $pdf->importPage($i);
+                $size = $pdf->getTemplateSize($tplx);
+                $pdf->AddPage('P', array($size['w'], $size['h']));
+                $pdf->useTemplate($tplx);
             }
         }
 
