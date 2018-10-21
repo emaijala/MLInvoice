@@ -107,6 +107,19 @@ CREATE TABLE mlinvoice_send_api_config (
   FOREIGN KEY (base_id) REFERENCES mlinvoice_base(id)
 ) ENGINE=INNODB CHARACTER SET utf8 COLLATE utf8_swedish_ci;
 
+CREATE TABLE mlinvoice_attachment (
+  id int(11) NOT NULL auto_increment,
+  name varchar(255) NOT NULL,
+  mimetype varchar(255) NOT NULL,
+  description varchar(255) default NULL,
+  date int(11) default NULL,
+  filename varchar(255) NOT NULL,
+  filesize integer(11) NULL,
+  filedata longblob NOT NULL,
+  order_no int(11) default NULL,
+  PRIMARY KEY (id)
+) ENGINE=INNODB CHARACTER SET utf8 COLLATE utf8_swedish_ci;
+
 CREATE TABLE mlinvoice_delivery_terms (
   id int(11) NOT NULL auto_increment,
   deleted tinyint NOT NULL default 0,
@@ -317,6 +330,22 @@ CREATE TABLE mlinvoice_invoice_row (
   FOREIGN KEY (type_id) REFERENCES mlinvoice_row_type(id)
 ) ENGINE=INNODB CHARACTER SET utf8 COLLATE utf8_swedish_ci;
 
+CREATE TABLE mlinvoice_invoice_attachment (
+  id int(11) NOT NULL auto_increment,
+  invoice_id int(11) NOT NULL,
+  name varchar(255) NOT NULL,
+  mimetype varchar(255) NOT NULL,
+  description varchar(255) default NULL,
+  date int(11) default NULL,
+  filename varchar(255) NOT NULL,
+  filesize integer(11) NULL,
+  filedata longblob NOT NULL,
+  send tinyint NOT NULL default 0,
+  order_no int(11) default NULL,
+  PRIMARY KEY (id),
+  FOREIGN KEY (invoice_id) REFERENCES mlinvoice_invoice(id) ON DELETE CASCADE
+) ENGINE=INNODB CHARACTER SET utf8 COLLATE utf8_swedish_ci;
+
 CREATE TABLE mlinvoice_session_type (
   id int(11) NOT NULL auto_increment,
   deleted tinyint NOT NULL default 0,
@@ -411,7 +440,7 @@ CREATE TABLE mlinvoice_default_value (
 
 SET NAMES 'utf8';
 
-INSERT INTO mlinvoice_state (id, data) VALUES ('version', '63');
+INSERT INTO mlinvoice_state (id, data) VALUES ('version', '64');
 
 INSERT INTO mlinvoice_state (id, data) VALUES ('tableconversiondone', '1');
 

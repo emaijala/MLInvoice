@@ -2137,6 +2137,141 @@ case 'default_value' :
     ];
     break;
 
+case 'attachment':
+    $strTable = '{prefix}attachment';
+    $strJSONType = 'attachment';
+
+    $intId = isset($id) ? $id : getRequest('id', false);
+    if ($intId) {
+        $showAttachment = Translator::translate('ShowAttachment');
+        $extraButtons = <<<EOT
+    <a class="actionlink" href="attachment.php?id=$intId" target="_blank">$showAttachment</a>
+
+EOT;
+    }
+
+    $astrFormElements = [
+        [
+            'name' => 'name',
+            'label' => 'Name',
+            'type' => 'TEXT',
+            'style' => 'medium',
+            'position' => 1,
+            'allow_null' => true
+        ],
+        [
+            'name' => 'order_no',
+            'label' => 'OrderNr',
+            'type' => 'INT',
+            'style' => 'short',
+            'position' => 2,
+            'listquery' => 'SELECT max(order_no)+5 FROM {prefix}attachment',
+            'default' => 'ADD+5'
+        ],
+        [
+            'name' => 'description',
+            'label' => 'Description',
+            'type' => 'AREA',
+            'style' => 'medium',
+            'position' => 1,
+            'allow_null' => true
+        ],
+        [
+            'name' => 'date',
+            'label' => 'Date',
+            'type' => 'INTDATE',
+            'style' => 'date',
+            'position' => 2,
+            'default' => 'DATE_NOW',
+            'allow_null' => false,
+            'read_only' => true
+        ],
+        [
+            'name' => 'filedata',
+            'label' => 'File',
+            'type' => 'FILE',
+            'style' => 'large',
+            'position' => 1,
+            'mimetypes' => [
+                'application/pdf',
+                'image/jpeg',
+                'image/png'
+            ]
+        ]
+    ];
+    break;
+
+case 'invoice_attachment':
+    $strTable = '{prefix}invoice_attachment';
+    $strJSONType = 'invoice_attachment';
+    $strParentKey = 'invoice_id';
+
+    $astrFormElements = [
+        [
+            'name' => 'invoice_id',
+            'label' => 'InvoiceId',
+            'type' => 'INT',
+            'style' => 'medium',
+            'position' => 1,
+            'allow_null' => false
+        ],
+        [
+            'name' => 'name',
+            'label' => 'Name',
+            'type' => 'TEXT',
+            'style' => 'medium',
+            'position' => 1,
+            'allow_null' => true
+        ],
+        [
+            'name' => 'order_no',
+            'label' => 'OrderNr',
+            'type' => 'INT',
+            'style' => 'short',
+            'position' => 2,
+            'listquery' => 'SELECT max(order_no)+5 FROM {prefix}attachment',
+            'default' => 'ADD+5'
+        ],
+        [
+            'name' => 'description',
+            'label' => 'Description',
+            'type' => 'AREA',
+            'style' => 'medium',
+            'position' => 1,
+            'allow_null' => true
+        ],
+        [
+            'name' => 'date',
+            'label' => 'Date',
+            'type' => 'INTDATE',
+            'style' => 'date',
+            'position' => 2,
+            'default' => 'DATE_NOW',
+            'allow_null' => false,
+            'read_only' => true
+        ],
+        [
+            'name' => 'filedata',
+            'label' => 'File',
+            'type' => 'FILE',
+            'style' => 'large',
+            'position' => 1,
+            'mimetypes' => [
+                'application/pdf',
+                'image/jpeg',
+                'image/png'
+            ]
+        ],
+        [
+            'name' => 'send',
+            'label' => 'Send',
+            'type' => 'INT',
+            'style' => 'medium',
+            'position' => 1,
+        ]
+    ];
+    break;
+
 case 'user' :
     $levelsAllowed = [
         ROLE_ADMIN

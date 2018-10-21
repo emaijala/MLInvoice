@@ -116,9 +116,9 @@ function saveFormData($table, &$primaryKey, &$formElements, &$values, &$warnings
     global $dblink;
 
     $missingValues = '';
-    $strFields = '';
-    $strInsert = '';
-    $strUpdateFields = '';
+    $fields = [];
+    $insert = [];
+    $updateFields = [];
     $arrValues = [];
 
     if (!isset($primaryKey) || !$primaryKey) {
@@ -169,29 +169,35 @@ function saveFormData($table, &$primaryKey, &$formElements, &$values, &$warnings
         }
 
         $name = $elem['name'];
-        if (!$elem['allow_null'] && (!isset($values[$name]) || $values[$name] === '')) {
-            if (!empty($elem['default'])) {
-                $values[$name] = getFormDefaultValue($elem, $parentKey);
-            } else {
-                if ($missingValues) {
-                    $missingValues .= ', ';
+        if ($type !== 'FILE') {
+            if (!$elem['allow_null']
+                && (!isset($values[$name]) || $values[$name] === '')
+            ) {
+                if (!empty($elem['default'])) {
+                    $values[$name] = getFormDefaultValue($elem, $parentKey);
+                } else {
+                    if ($missingValues) {
+                        $missingValues .= ', ';
+                    }
+                    $missingValues .= Translator::translate($elem['label']);
+                    continue;
                 }
-                $missingValues .= Translator::translate($elem['label']);
-                continue;
             }
         }
 
-        if (isset($values[$name])) {
-            if (empty($primaryKey) && '' === $values[$name]) {
-                $value = getFormDefaultValue($elem, $parentKey);
+        if ('FILE' !== $type) {
+            if (isset($values[$name])) {
+                if (empty($primaryKey) && '' === $values[$name]) {
+                    $value = getFormDefaultValue($elem, $parentKey);
+                } else {
+                    $value = $values[$name];
+                }
             } else {
-                $value = $values[$name];
+                if (isset($primaryKey) && $primaryKey != 0) {
+                    continue;
+                }
+                $value = getFormDefaultValue($elem, $parentKey);
             }
-        } else {
-            if (isset($primaryKey) && $primaryKey != 0) {
-                continue;
-            }
-            $value = getFormDefaultValue($elem, $parentKey);
         }
 
         if (($type == 'PASSWD' || $type == 'PASSWD_STORED') && !$value) {
@@ -217,13 +223,6 @@ function saveFormData($table, &$primaryKey, &$formElements, &$values, &$warnings
             }
         }
 
-        if ($strFields) {
-            $strFields .= ', ';
-            $strInsert .= ', ';
-            $strUpdateFields .= ', ';
-        }
-        $strFields .= $name;
-        $fieldPlaceholder = '?';
         switch ($type) {
         case 'PASSWD':
             $arrValues[] = password_hash($values[$name], PASSWORD_DEFAULT);
@@ -261,16 +260,66 @@ function saveFormData($table, &$primaryKey, &$formElements, &$values, &$warnings
                 $arrValues[] = null;
             }
             break;
+        case 'FILE':
+            if (!isset($_FILES[$name])) {
+                continue 2;
+            }
+            if ($_FILES[$name]['error'] != UPLOAD_ERR_OK) {
+                $warnings = Translator::translate('ErrFileUploadFailed');
+                return false;
+            }
+
+            $mimetype = mime_content_type($_FILES[$name]['tmp_name']);
+            if (!empty($elem['mimetypes'])
+                && !in_array($mimetype, $elem['mimetypes'])
+            ) {
+                $warnings = Translator::translate(
+                    'FileTypeInvalid', ['%%mimetype%%' => $mimetype]
+                );
+                return false;
+            }
+
+            $file = fopen($_FILES[$name]['tmp_name'], 'rb');
+            if ($file === false) {
+                $warnings = 'Could not process file upload - temp file missing';
+                return false;
+            }
+            $fsize = filesize($_FILES[$name]['tmp_name']);
+
+            // Additional fields for file information
+            $fields[] = 'filename';
+            $insert[] = '?';
+            $updateFields[] = 'filename=?';
+            $arrValues[] = $_FILES[$name]['name'];
+
+            $fields[] = 'filesize';
+            $insert[] = '?';
+            $updateFields[] = 'filesize=?';
+            $arrValues[] = $fsize;
+
+            $fields[] = 'mimetype';
+            $insert[] = '?';
+            $updateFields[] = 'mimetype=?';
+            $arrValues[] = $mimetype;
+
+            $arrValues[] = fread($file, $fsize);
+            fclose($file);
+            break;
         default :
             $arrValues[] = null !== $value ? $value : '';
         }
-        $strInsert .= $fieldPlaceholder;
-        $strUpdateFields .= "$name=$fieldPlaceholder";
+        $fields[] = $name;
+        $insert[] = '?';
+        $updateFields[] = "$name=?";
     }
 
     if ($missingValues) {
         return $missingValues;
     }
+
+    $strFields = implode(', ', $fields);
+    $strInsert = implode(', ', $insert);
+    $strUpdateFields = implode(', ', $updateFields);
 
     dbQueryCheck('SET AUTOCOMMIT = 0');
     dbQueryCheck('BEGIN');
@@ -324,7 +373,10 @@ function saveFormData($table, &$primaryKey, &$formElements, &$values, &$warnings
                 }
             }
 
-            if ('{prefix}send_api_config' === $table) {
+            if ('{prefix}send_api_config' === $table
+                || '{prefix}attachment' === $table
+                || '{prefix}invoice_attachment' === $table
+            ) {
                 $strQuery = "UPDATE $table SET $strUpdateFields WHERE id=?";
             } else {
                 $strQuery = "UPDATE $table SET $strUpdateFields, deleted=0 WHERE id=?";
@@ -470,6 +522,7 @@ function fetchRecord($table, $primaryKey, &$formElements, &$values)
         case 'BUTTON':
         case 'JSBUTTON':
         case 'IMAGE':
+        case 'FILE':
             if (strstr($elem['listquery'], '=_ID_')) {
                 $values[$name] = $primaryKey;
             } else {

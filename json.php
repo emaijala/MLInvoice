@@ -64,6 +64,7 @@ case 'get_session_type':
 case 'get_delivery_terms':
 case 'get_delivery_method':
 case 'get_default_value':
+case 'get_attachment':
 case 'get_send_api_config':
     printJSONRecord(substr($strFunc, 4));
     break;
@@ -85,12 +86,16 @@ case 'put_session_type':
 case 'put_delivery_terms':
 case 'put_delivery_method':
 case 'put_default_value':
+case 'put_attachment':
+case 'put_invoice_attachment':
     saveJSONRecord(substr($strFunc, 4), '');
     break;
 
 case 'delete_invoice_row':
 case 'delete_default_value':
 case 'delete_send_api_config':
+case 'delete_attachment':
+case 'delete_invoice_attachment':
     deleteJSONRecord(substr($strFunc, 7));
     break;
 
@@ -506,6 +511,18 @@ case 'get_send_api_services':
     echo getSendApiServices(getRequest('invoice_id'), getRequest('base_id'));
     break;
 
+case 'add_invoice_attachment':
+    if (!sesWriteAccess()) {
+        header('HTTP/1.1 403 Forbidden');
+        break;
+    }
+    addInvoiceAttachment();
+    break;
+
+case 'get_invoice_attachments':
+    printJSONRecords('invoice_attachment', 'invoice_id', 'order_no');
+    break;
+
 case 'noop' :
     // Session keep-alive
     header('HTTP/1.1 204 No Content');
@@ -558,8 +575,18 @@ function printJSONRecord($table, $id = false, $warnings = null)
             return;
         }
         $row = $rows[0];
-        if ($table == 'users') {
+        switch ($table) {
+        case '{prefix}users':
             unset($row['password']);
+            break;
+        case '{prefix}attachment':
+        case '{prefix}invoice_attachment':
+            unset($row['filedata']);
+            $row['filesize_readable'] = fileSizeToHumanReadable($row['filesize']);
+            break;
+        case '{prefix}base':
+            unset($row['logo_filedata']);
+            break;
         }
 
         // Include any custom price for a product
@@ -593,9 +620,6 @@ function printJSONRecord($table, $id = false, $warnings = null)
 
         header('Content-Type: application/json');
         $row['warnings'] = $warnings;
-        if ($table == '{prefix}base') {
-            unset($row['logo_filedata']);
-        }
         echo json_encode($row);
     }
 }
@@ -633,7 +657,9 @@ EOT;
         $where .= " WHERE t.$parentIdCol=?";
         $params[] = $id;
     }
-    if (!getSetting('show_deleted_records') && 'send_api_config' !== $table) {
+    if (!getSetting('show_deleted_records') && 'send_api_config' !== $table
+        && 'attachment' !== $table && 'invoice_attachment' !== $table
+    ) {
         if ($where) {
             $where .= ' AND t.deleted=0';
         } else {
@@ -668,6 +694,10 @@ EOT;
         } elseif ($table == 'company_contact') {
             $row['tags'] = getTags('contact', $row['id']);
         }
+        if ('attachment' === $table || 'invoice_attachment' === $table) {
+            unset($row['filedata']);
+            $row['filesize_readable'] = fileSizeToHumanReadable($row['filesize']);
+        }
 
         echo json_encode($row);
     }
@@ -689,7 +719,13 @@ function saveJSONRecord($table, $parentKeyName)
         return;
     }
 
-    $data = json_decode(file_get_contents('php://input'), true);
+    list($contentType) = explode(';', $_SERVER['CONTENT_TYPE']);
+    if ($contentType === 'application/json') {
+        $data = json_decode(file_get_contents('php://input'), true);
+    } else {
+        // If we don't have a JSON request, assume we have POST data
+        $data = $_POST;
+    }
     if (!$data) {
         header('HTTP/1.1 400 Bad Request');
         return;
@@ -708,11 +744,15 @@ function saveJSONRecord($table, $parentKeyName)
         unset($data['onPrint']);
     }
 
+    // Allow partial update for invoice attachments. This is a safety check since the
+    // partial update mechanism might hide issues with other record types.
+    $partial = !$new && 'invoice_attachment' === $table;
+
     $warnings = '';
     try {
         $res = saveFormData(
             $strTable, $id, $astrFormElements, $data, $warnings, $parentKeyName,
-            $parentKeyName ? $data[$parentKeyName] : false, $onPrint
+            $parentKeyName ? $data[$parentKeyName] : false, $onPrint, $partial
         );
     } catch (Exception $e) {
         header('Content-Type: application/json');
@@ -997,4 +1037,16 @@ function getSendApiServices($invoiceId, $baseId)
     }
 
     return json_encode(['services' => $services]);
+}
+
+/**
+ * Add an attachment to an invoice and return the new record
+ *
+ * @return string
+ */
+function addInvoiceAttachment()
+{
+    $newId = addAttachmentToInvoice(getRequest('id'), getRequest('invoice_id'));
+    printJSONRecord('invoice_attachment', $newId);
+
 }

@@ -274,6 +274,13 @@ abstract class InvoicePrinterBase
     protected $includeBankInFooter = false;
 
     /**
+     * Attachments
+     *
+     * @var array
+     */
+    protected $attachments = [];
+
+    /**
      * Constructor
      */
     public function __construct()
@@ -377,11 +384,14 @@ EOT;
             $invoiceRowData = dbParamQuery($strQuery, $queryParams);
 
             $invoiceTypeData = getInvoiceType($invoiceData['type_id']);
+
+            $this->attachments = getInvoiceAttachments($invoiceId, true);
         } else {
             $invoiceData = [];
             $invoiceRowData = [];
             $senderData = [];
             $invoiceTypeData = [];
+            $this->attachments = [];
         }
 
         if (empty($recipientData)) {
@@ -713,8 +723,29 @@ EOT;
                 'Last-Modified: ' . gmdate('D, d M Y H:i:s') . ' GMT',
                 'Content-Disposition: inline; filename="' . $filename . '"'
             ],
-            'data' => $this->pdf->Output('', 'S')
+            'data' => $this->getPdfData()
         ];
+    }
+
+    /**
+     * Get a title for the current print style
+     *
+     * @return string
+     */
+    public function getHeaderTitle()
+    {
+        if ($this->printStyle == 'dispatch') {
+            return $this->translate('DispatchNoteHeader');
+        } elseif ($this->printStyle == 'receipt') {
+            return $this->translate('ReceiptHeader');
+        } elseif ($this->invoiceData['state_id'] == 5) {
+            return $this->translate('FirstReminderHeader');
+        } elseif ($this->invoiceData['state_id'] == 6) {
+            return $this->translate('SecondReminderHeader');
+        } elseif ($this->invoiceData['refunded_invoice_no'] || $this->totalSum < 0) {
+            return $this->translate('CreditInvoiceHeader');
+        }
+        return $this->translate('InvoiceHeader');
     }
 
     /**
@@ -2412,27 +2443,6 @@ EOT;
     }
 
     /**
-     * Get a title for the current print style
-     *
-     * @return string
-     */
-    public function getHeaderTitle()
-    {
-        if ($this->printStyle == 'dispatch') {
-            return $this->translate('DispatchNoteHeader');
-        } elseif ($this->printStyle == 'receipt') {
-            return $this->translate('ReceiptHeader');
-        } elseif ($this->invoiceData['state_id'] == 5) {
-            return $this->translate('FirstReminderHeader');
-        } elseif ($this->invoiceData['state_id'] == 6) {
-            return $this->translate('SecondReminderHeader');
-        } elseif ($this->invoiceData['refunded_invoice_no'] || $this->totalSum < 0) {
-            return $this->translate('CreditInvoiceHeader');
-        }
-        return $this->translate('InvoiceHeader');
-    }
-
-    /**
      * Get first contact person for the printout style
      *
      * @return array
@@ -2670,5 +2680,60 @@ EOT;
     {
         $data = $this->getRecipientNameAndAddress();
         return $data['address'];
+    }
+
+    /**
+     * Get the PDF data as a string
+     *
+     * @return string
+     */
+    protected function getPdfData()
+    {
+        $pdf = $this->pdf;
+        $pdf->printHeader(false);
+        $pdf->printFooter(false);
+        foreach ($this->attachments as $attachment) {
+            $attachment = getInvoiceAttachment($attachment['id']);
+            if ('application/pdf' !== $attachment['mimetype']) {
+                // Import image
+                $pdf->AddPage();
+                $pdf->Image(
+                    '@' . $attachment['filedata'],
+                    $this->left,
+                    $this->autoPageBreakMargin,
+                    $this->width,
+                    0,
+                    '',
+                    '',
+                    'B',
+                    false,
+                    300,
+                    'C'
+                );
+                $pdf->SetXY($this->left, $pdf->GetY() + 5);
+                $pdf->SetFont('Helvetica', '', 10);
+                $pdf->multiCellMD(
+                    $this->width,
+                    5,
+                    $attachment['name'] ? $attachment['name']
+                        : $attachment['filename'],
+                    'L'
+                );
+                continue;
+            }
+            // Import PDF
+            $pageCount = $pdf->setSourceFile(
+                \setasign\Fpdi\PdfParser\StreamReader
+                    ::createByString($attachment['filedata'])
+            );
+            for ($i = 1; $i <= $pageCount; $i++) {
+                $tplx = $pdf->importPage($i);
+                $size = $pdf->getTemplateSize($tplx);
+                $pdf->AddPage('P', array($size['w'], $size['h']));
+                $pdf->useTemplate($tplx);
+            }
+        }
+
+        return $pdf->Output('', 'S');
     }
 }

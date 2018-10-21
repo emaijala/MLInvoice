@@ -184,6 +184,14 @@ function createFuncMenu($strFunc)
                     ROLE_USER,
                     ROLE_BACKUPMGR
                 ]
+            ],
+            [
+                'href' => 'list=attachment',
+                'text' => Translator::translate('Attachments'),
+                'levels_allowed' => [
+                    ROLE_USER,
+                    ROLE_BACKUPMGR
+                ]
             ]
         ];
         $strNewText = '';
@@ -199,6 +207,9 @@ function createFuncMenu($strFunc)
                 break;
             case 'default_value':
                 $strNewText = Translator::translate('NewDefaultValue');
+                break;
+            case 'attachment':
+                $strNewText = Translator::translate('NewAttachment');
                 break;
             }
             if ($strNewText) {

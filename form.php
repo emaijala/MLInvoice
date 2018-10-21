@@ -508,8 +508,7 @@ function save_record(redirect_url, redir_style, on_print)
 {
   MLInvoice.clearMessages();
   var form = document.getElementById('admin_form');
-  var obj = new Object();
-
+  var formdata = new FormData();
 
     <?php
     foreach ($astrFormElements as $elem) {
@@ -528,30 +527,38 @@ function save_record(redirect_url, redir_style, on_print)
                     'ROWSUM',
                     'CHECK',
                     'IFORM',
-                    'FILLER'
+                    'FILLER',
+                    'FILE'
                 ]
             )
         ) {
             ?>
-  obj.<?php echo $elem['name']?> = form.<?php echo $elem['name']?>.value;
+  formdata.append('<?php echo $elem['name']?>', form.<?php echo $elem['name']?>.value);
             <?php
         } elseif ($elem['type'] == 'CHECK') {
             ?>
-  obj.<?php echo $elem['name']?> = form.<?php echo $elem['name']?>.checked ? 1 : 0;
+  formdata.append('<?php echo $elem['name']?>', form.<?php echo $elem['name']?>.checked ? 1 : 0);
+            <?php
+        } elseif ($elem['type'] == 'FILE') {
+            ?>
+  if (form.<?php echo $elem['name']?>.files.length > 0) {
+    formdata.append('<?php echo $elem['name']?>', form.<?php echo $elem['name']?>.files[0]);
+  }
             <?php
         }
     }
     ?>
-  obj.id = form.id.value;
+  formdata.append('id', form.id.value);
   if (typeof on_print !== 'undefined') {
-    obj.onPrint = on_print;
+    formdata.append('onPrint', on_print);
   }
   $.ajax({
     'url': "json.php?func=put_<?php echo $strJSONType?>",
     'type': 'POST',
     'dataType': 'json',
-    'data': JSON.stringify(obj),
-    'contentType': 'application/json; charset=utf-8',
+    'data': formdata,
+    'processData': false,
+    'contentType': false,
     'success': function(data) {
       if (data.warnings) {
         alert(data.warnings);
@@ -574,12 +581,11 @@ function save_record(redirect_url, redir_style, on_print)
             window.location = redirect_url;
           }
         }
-        if (!obj.id) {
-          obj.id = data.id;
-          form.id.value = obj.id;
+        if (!form.id.value) {
+          form.id.value = data.id;
           if (!redirect_url || redir_style == 'openwindow') {
             var newloc = new String(window.location).split('#', 1)[0];
-            window.location = newloc + '&id=' + obj.id;
+            window.location = newloc + '&id=' + data.id;
           }
         }
       }
@@ -1629,20 +1635,71 @@ function createFormButtons($form, $new, $copyLinkOverride, $spinner, $readOnlyFo
             <?php
         }
     }
+
+    $id = getRequest('id', '');
+
     if ($form === 'invoice' && $top && !$new) {
+        $attachmentCount = GetInvoiceAttachmentCount($id);
         ?>
         <span class="send-buttons">
         </span>
+        <a id="attachments-button" class="actionlink" href="#">
+            <?php echo Translator::translate('Attachments')?>
+            (<span class="attachment-count"><?php echo $attachmentCount?></span>)
+            <span class="dropdown-open">&#9660;</span>
+            <span class="dropdown-close hidden">&#9650;</span>
+        </a>
         <?php
     }
 
-    if (($id = getRequest('id', '')) && ($listId = getRequest('listid', ''))) {
+    if ($id && ($listId = getRequest('listid', ''))) {
         createListNavigationLinks($listId, $id);
     }
 
     if ($spinner) {
-        echo '     <span id="spinner" style="visibility: hidden"><img src="images/spinner.gif" alt=""></span>' .
-             "\n";
+        echo '     <span id="spinner" class="hidden"><img src="images/spinner.gif" alt=""></span>' .
+            "\n";
+    }
+
+    if ($form === 'invoice' && $top && !$new) {
+        ?>
+        <div id="attachments-form" class="ui-widget-content ui-corner-all hidden" data-invoice-id="<?php echo $id?>">
+            <div class="ui-corner-tl ui-corner-tr fg-toolbar ui-toolbar ui-widget-header">
+                <?php echo Translator::translate('Attachments')?>
+            </div>
+            <div id="attachments-form-inner">
+                <h1>
+                    <?php echo Translator::translate('AddedAttachments')?>
+                </h1>
+                <div class="attachment-list"></div>
+                <h1><?php echo Translator::translate('AddAttachment')?></h1>
+                <div class="attachment-add">
+                    <div class="attachments">
+                        <?php foreach (getAttachments() as $attachment) { ?>
+                            <div class="attachment">
+                                <a class="tinyactionlink add-attachment" data-id="<?php echo $attachment['id']?>"
+                                    title="<?php echo Translator::translate('AddAttachment')?>"> + </a>
+                                <div class="attachment-fileinfo">
+                                <?php
+                                    echo $attachment['name'] . ' ('
+                                        . $attachment['filename'] . ', '
+                                        . fileSizeToHumanReadable($attachment['filesize'])
+                                        . ')';
+                                ?>
+                                </div>
+                            </div>
+                        <?php } ?>
+                    </div>
+                    <div class="attachment-new">
+                        <div class="medium_label"><?php echo Translator::translate('NewAttachment')?></div>
+                        <div class="field">
+                            <?php echo htmlFormElement('new-attachment-file', 'FILE', '', 'long');?>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <?php
     }
     ?>
     </div>
