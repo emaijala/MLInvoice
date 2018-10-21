@@ -1217,7 +1217,7 @@ var MLInvoice = (function MLInvoice() {
         $cbLabel.appendTo($attachment);
 
         var $input = $('<input/>').addClass('attachment-name').attr('type', 'text').data('id', item.id).val(item.name)
-            .attr('placeholder', translate('Description'));
+          .attr('placeholder', translate('Description'));
         $input.change(function onNameChange() {
           $.ajax({
             url: 'json.php?func=put_invoice_attachment',
