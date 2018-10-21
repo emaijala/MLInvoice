@@ -28,6 +28,7 @@
 require_once 'invoice_printer_base.php';
 require_once 'htmlfuncs.php';
 require_once 'miscfuncs.php';
+require_once 'pdf.php';
 
 use Michelf\Markdown;
 
