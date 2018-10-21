@@ -95,6 +95,53 @@ EOT
         $type = $invoice->addChild('invoicetype');
         $this->arrayToXML($this->invoiceTypeData, $type, 'invoicetype');
 
+        if ($this->attachments) {
+            $attachments = $invoice->addChild('attachments');
+            foreach ($this->attachments as $attachment) {
+                $attachment = getInvoiceAttachment($attachment['id']);
+
+                $xmlAttachment = $attachments->addChild('attachment');
+                $xmlAttachment->addChild(
+                    'name',
+                    $attachment['name'] ? $attachment['name'] : $attachment['filename']
+                );
+                $xmlAttachment->addChild('mimetype', $attachment['mimetype']);
+                $xmlAttachment->addChild('filesize', $attachment['filesize']);
+                $xmlAttachment->addChild('filename', $attachment['filename']);
+
+                if ('application/pdf' !== $attachment['mimetype']) {
+                    // Image to PDF
+                    $pdf = new PDF('P', 'mm', 'A4', _CHARSET_ == 'UTF-8', _CHARSET_, false);
+                    $pdf->AddPage();
+                    $pdf->Image(
+                        '@' . $attachment['filedata'],
+                        $this->left,
+                        $this->autoPageBreakMargin,
+                        $this->width,
+                        0,
+                        '',
+                        '',
+                        'B',
+                        false,
+                        300,
+                        'C'
+                    );
+                    $pdf->SetXY($this->left, $pdf->GetY() + 5);
+                    $pdf->SetFont('Helvetica', '', 10);
+                    $pdf->multiCellMD(
+                        $this->width,
+                        5,
+                        $attachment['name'] ? $attachment['name']
+                            : $attachment['filename'],
+                        'L'
+                    );
+                    $xmlAttachment->addChild('filedata', base64_encode($pdf->Output('', 'S')));
+                } else {
+                    $xmlAttachment->addChild('filedata', base64_encode($attachment['filedata']));
+                }
+            }
+        }
+
         include 'settings_def.php';
         $settingsData = [];
         foreach ($arrSettings as $key => $value) {
