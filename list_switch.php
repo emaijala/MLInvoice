@@ -715,6 +715,13 @@ case 'attachment':
             'width' => 200,
             'type' => 'TEXT',
             'header' => 'File'
+        ],
+        [
+            'name' => 'filesize',
+            'width' => 200,
+            'type' => 'INT',
+            'callback' => 'fileSizeToHumanReadable',
+            'header' => 'HeaderFileSize'
         ]
     ];
     $strMainForm = 'attachment';

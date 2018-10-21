@@ -494,6 +494,9 @@ EOT;
                 } elseif (!empty($field['pretranslate'])) {
                     $value = Translator::translate($value);
                 }
+                if (isset($field['callback'])) {
+                    $value = $field['callback']($value);
+                }
             } elseif ($field['type'] == 'CURRENCY') {
                 $value = miscRound2Decim(
                     $value,
@@ -858,6 +861,9 @@ EOT;
             ) {
                 if (isset($field['mappings']) && isset($field['mappings'][$value])) {
                     $value = Translator::translate($field['mappings'][$value]);
+                }
+                if (isset($field['callback'])) {
+                    $value = $field['callback']($value);
                 }
             } elseif ($field['type'] == 'CURRENCY') {
                 $value = miscRound2Decim(
