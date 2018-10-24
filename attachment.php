@@ -41,9 +41,9 @@ require_once 'datefuncs.php';
 require_once 'miscfuncs.php';
 
 $id = getRequest('id', false);
+$type = getRequest('type', false);
 
-$attachment = getAttachment($id);
-
+$attachment = 'invoice' === $type ? getInvoiceAttachment($id) : getAttachment($id);
 if ($attachment) {
     header('Content-Type: ' . $attachment['mimetype']);
     header('Content-Length: ' . $attachment['filesize']);

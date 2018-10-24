@@ -1223,10 +1223,12 @@ var MLInvoice = (function MLInvoice() {
           });
         });
         $input.appendTo($attachment);
-        var $fileinfo = $('<div/>').addClass('attachment-fileinfo').text(
-          item.filename + ' '
-        );
-        var $filesize = $('<span/>').text('(' + item.filesize_readable + ')');
+        var $fileinfo = $('<div/>').addClass('attachment-fileinfo');
+        var $link = $('<a/>').attr('href', 'attachment.php?type=invoice&id=' + item.id).attr('target', '_blank')
+          .text(item.filename);
+        $link.appendTo($fileinfo);
+
+        var $filesize = $('<span/>').text(' (' + item.filesize_readable + ')');
         if (item.filesize > 1024 * 1024) {
           $filesize.addClass('large-file');
           $filesize.attr('title', translate('LargeFile'));

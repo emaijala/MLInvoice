@@ -622,6 +622,9 @@ img.image {
   float: left;
   margin: 4px 0 12px 4px;
 }
+.attachment-fileinfo a {
+  text-decoration: underline;
+}
 
 .attachment-fileinfo .large-file {
   color: #ff3344;
