@@ -217,7 +217,7 @@ class Setup
                             </label>
                         </p>
                         <p>
-                            <label>Database table name prefix:<br>
+                            <label>Database table name prefix (note that an underscore will be appended to the prefix automatically):<br>
                                 <input type="text" name="prefix" value="<?php echo htmlentities($prefix)?>">
                             </label>
                         </p>
