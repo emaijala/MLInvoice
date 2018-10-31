@@ -180,6 +180,9 @@ var MLInvoice = (function MLInvoice() {
   }
 
   function _onChangeProduct() {
+    if ('' === this.value) {
+      return;
+    }
     var form_id = this.form.id;
     var company_id = $('#company_id').val();
     $.getJSON('json.php?func=get_product&id=' + this.value + '&company_id=' + company_id, function setProductData(json) {
