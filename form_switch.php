@@ -459,7 +459,9 @@ EOS;
             'type' => 'INT',
             'style' => 'short',
             'position' => 1,
-            'allow_null' => true
+            'allow_null' => true,
+            'listquery' => 'SELECT max(order_no)+5 FROM {prefix}product WHERE deleted=0',
+            'default' => 'ADD+5'
         ],
         [
             'name' => 'product_code',
@@ -474,7 +476,9 @@ EOS;
             'label' => 'ProductName',
             'type' => 'TEXT',
             'style' => 'medium',
-            'position' => 1
+            'position' => 1,
+            'default' => '',
+            'allow_null' => true
         ],
         [
             'name' => 'product_group',
