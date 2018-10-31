@@ -66,7 +66,7 @@ class InvoicePrinterFinvoiceSOAP extends InvoicePrinterXSLT
         }
         return [
             'headers' => $headers,
-            'data' => $this->xml . "\n$finvoice"
+            'data' => $this->xml . "$finvoice"
         ];
     }
 }
