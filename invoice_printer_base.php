@@ -1489,13 +1489,24 @@ EOT;
         if ($row['price'] == 0 && $row['pcs'] == 0
             && $this->columnDefs['description']['visible']
         ) {
+            // Move from left to where the description column begins
+            $x = $this->left;
+            foreach ($this->columnDefs as $key => $column) {
+                if ('description' === $key) {
+                    break;
+                }
+                if ($column['visible']) {
+                    $x += $column['width'];
+                }
+            }
+
             $value = call_user_func(
                 [$this, $this->columnDefs['description']['valuemethod']], $row
             );
             $maxHeight = isset($this->columnDefs['description']['maxheight'])
                 ? $this->columnDefs['description']['maxheight'] : 0;
 
-            $pdf->setX($this->left);
+            $pdf->setX($x);
             $pdf->multiCellMD(
                 $this->width,
                 4,
