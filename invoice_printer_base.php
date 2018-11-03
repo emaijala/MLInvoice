@@ -62,7 +62,8 @@ abstract class InvoicePrinterBase
     protected $discountedRows = false;
     protected $groupedVATs = [];
     protected $recipientMaxY = 0;
-    protected $invoiceRowMaxY = 185;
+    protected $invoiceRowMaxY = 270;
+    protected $invoiceRowMaxYFirstPage = 185;
     protected $senderAddressX = 0;
     protected $senderAddressY = 0;
     protected $recipientAddressX = 0;
@@ -580,7 +581,7 @@ EOT;
         }
 
         if ('invoice' !== $this->printStyle) {
-            $this->invoiceRowMaxY = 270;
+            $this->invoiceRowMaxYFirstPage = $this->invoiceRowMaxY;
         }
     }
 
@@ -698,7 +699,7 @@ EOT;
             && !$this->separateStatement
             && $this->allowSeparateStatement
         ) {
-            if ($this->pdf->getY() > $this->invoiceRowMaxY
+            if ($this->pdf->getY() > $this->invoiceRowMaxYFirstPage
                 || $this->pdf->getPage() > 1
             ) {
                 $this->pdf = $savePdf;
@@ -1188,7 +1189,7 @@ EOT;
             $maxY = $this->printRow($pdf, $row);
             if (!$this->separateStatement && $this->printStyle == 'invoice'
                 && $this->allowSeparateStatement
-                && $pdf->GetY() > $this->invoiceRowMaxY
+                && $pdf->GetY() > $this->invoiceRowMaxYFirstPage
             ) {
                 return false;
             }
@@ -1664,8 +1665,9 @@ EOT;
      */
     protected function getRowSequenceNumber($row)
     {
-        return getSetting('invoice_show_sequential_number') == 1
+        $sequence = getSetting('invoice_show_sequential_number') == 1
             ? $row['sequence'] : $row['order_no'];
+        return $sequence >= 0 ? $sequence : '';
     }
 
     /**
