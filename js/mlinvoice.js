@@ -1131,7 +1131,7 @@ var MLInvoice = (function MLInvoice() {
       ajaxErrorHandler(request);
     });
     // Company info
-    if ($('#company_id').val()) {
+    if ($('#company_id.select2').val()) {
       _onChangeCompany();
     }
   }
