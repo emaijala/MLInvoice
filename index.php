@@ -133,7 +133,7 @@ echo htmlPageStart($title, $extraJs);
 <?php
 
 $level = 1;
-if ($strList && ($strFunc == 'settings' || $strFunc == 'system'  || $strFunc == 'multiedit')) {
+if ($strList && ($strFunc == 'settings' || $strFunc == 'system' || $strFunc == 'multiedit')) {
     ++$level;
 }
 if ($strForm) {
