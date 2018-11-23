@@ -666,7 +666,9 @@ case 'invoice' :
     ];
     $intInvoiceId = getRequest('id', 0);
     if ($intInvoiceId) {
-        $isOffer = isOffer($intInvoiceId);
+        if (!isset($isOffer)) {
+            $isOffer = isOffer($intInvoiceId);
+        }
 
         if ($isOffer) {
             $locCopyAsInvoice = Translator::translate('CopyAsInvoice');
@@ -903,7 +905,7 @@ EOF;
         $defaultValues['afterword'] = $baseData[0]['afterword'];
     }
 
-    $copyLinkOverride = "copy_invoice.php?func=$strFunc&amp;list=$strList&amp;id=$intInvoiceId";
+    $copyLinkOverride = is_string($intInvoiceId) ? "copy_invoice.php?func=$strFunc&amp;list=$strList&amp;id=$intInvoiceId" : '';
 
     $updateInvoiceNr = null;
     if (sesWriteAccess() && !$isOffer) {

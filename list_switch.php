@@ -61,6 +61,15 @@ case 'companies' :
     $strDeletedField = 'deleted';
     $astrShowFields = [
         [
+            'name' => 'id',
+            'width' => 20,
+            'type' => 'CHECKBOX',
+            'order' => 'DESC',
+            'header' => '<input class="cb-select-all" type="checkbox" value=""></input>',
+            'class' => 'cb-select-row',
+            'sort' => false
+        ],
+        [
             'name' => 'company_name',
             'width' => 150,
             'type' => 'TEXT',
@@ -186,6 +195,15 @@ EOT;
     $strPrimaryKey = 'i.id';
     $strDeletedField = 'i.deleted';
     $astrShowFields = [
+        [
+            'name' => 'i.id',
+            'width' => 20,
+            'type' => 'CHECKBOX',
+            'order' => 'DESC',
+            'header' => '<input class="cb-select-all" type="checkbox" value=""></input>',
+            'class' => 'cb-select-row',
+            'sort' => false
+        ],
         [
             'name' => 'i.invoice_date',
             'width' => 80,
@@ -395,6 +413,15 @@ case 'product' :
     $strDeletedField = 'deleted';
     $astrShowFields = [
         [
+            'name' => 'id',
+            'width' => 20,
+            'type' => 'CHECKBOX',
+            'order' => 'DESC',
+            'header' => '<input class="cb-select-all" type="checkbox" value=""></input>',
+            'class' => 'cb-select-row',
+            'sort' => false
+        ],
+        [
             'name' => 'order_no',
             'width' => 150,
             'type' => 'TEXT',
@@ -457,7 +484,8 @@ case 'product' :
             'header' => 'ClientsPrice',
             'decimals' => getSetting('unit_price_decimals'),
             'virtual' => true,
-            'select' => true
+            'select' => true,
+            'sort' => false
         ],
         [
             'name' => 'discount',
@@ -767,27 +795,6 @@ case 'contact_tag' :
             'select' => true
         ]
     ];
-    break;
-
-case 'company_tag' :
-    $strTable = '{prefix}company_tag';
-    $astrSearchFields = [
-        [
-            'name' => 'tag',
-            'type' => 'TEXT'
-        ]
-    ];
-    $strPrimaryKey = 'id';
-    $astrShowFields = [
-        [
-            'name' => 'tag',
-            'width' => 450,
-            'type' => 'TEXT',
-            'header' => '',
-            'select' => true
-        ]
-    ];
-    $strMainForm = 'company';
     break;
 
 /***********************************************************************

@@ -275,6 +275,9 @@ function miscCalcCheckNo($intValue)
  */
 function getPost($strKey, $varDefault = null)
 {
+    if ($strKey === '') {
+        return $_POST;
+    }
     return isset($_POST[$strKey]) ? gpcStripSlashes($_POST[$strKey]) : $varDefault;
 }
 
@@ -454,6 +457,8 @@ function getPageTitle($strFunc, $strList, $strForm)
         return Translator::translate('ImportAccountStatement');
     case 'profile':
         return Translator::translate('Profile');
+    case 'multiedit':
+        return Translator::translate('EditMultiple');
     }
     return '';
 }

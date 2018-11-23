@@ -95,6 +95,13 @@ div.form_container {
   clear: both;
 }
 
+div.tiny_label {
+  width: 40px;
+  float: left;
+  margin-bottom: 8px;
+  clear: left;
+}
+
 div.small_label {
   width: 100px;
   float: left;
@@ -108,6 +115,10 @@ div.medium_label {
   margin-bottom: 8px;
   clear: left;
   padding-top: 2px;
+}
+
+div.medium_label.attached {
+  clear: none;
 }
 
 div.unlimited_label {

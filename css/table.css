@@ -83,7 +83,9 @@ table.display td.center {
 	background: url('../images/sort_desc_disabled.png') no-repeat center right;
 }
 
-
+.sorting_disabled .DataTables_sort_wrapper {
+	padding-right: 0;
+}
 
 
 

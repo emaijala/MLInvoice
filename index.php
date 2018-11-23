@@ -133,7 +133,7 @@ echo htmlPageStart($title, $extraJs);
 <?php
 
 $level = 1;
-if ($strList && ($strFunc == 'settings' || $strFunc == 'system')) {
+if ($strList && ($strFunc == 'settings' || $strFunc == 'system'  || $strFunc == 'multiedit')) {
     ++$level;
 }
 if ($strForm) {
@@ -226,6 +226,11 @@ if ($strFunc == 'system' && $operation == 'export' && sesAdminAccess()) {
     include_once 'profile.php';
     $profile = new Profile();
     $profile->launch();
+} elseif ($strFunc == 'multiedit') {
+    createFuncMenu($strFunc);
+    include_once 'multiedit.php';
+    $multiedit = new MultiEdit();
+    $multiedit->launch();
 } else {
     if ($strForm) {
         if ($strFunc == 'settings') {

@@ -471,7 +471,7 @@ $(document).ready(function() {
             <?php
         }
         ?>
-  $('#iform').find('input[type="text"],input[type="hidden"],input[type="checkbox"]:not(.cb-select-row):not(#cb-select-all),select:not(.dropdownmenu),textarea')
+  $('#iform').find('input[type="text"],input[type="hidden"],input[type="checkbox"]:not(.cb-select-row):not(.cb-select-all),select:not(.dropdownmenu),textarea')
     .change(function() { $('.add_row_button').addClass('ui-state-highlight'); });
   $('#iform').find('input[type="text"],input[type="hidden"],input[type="checkbox"],select:not(.dropdownmenu),textarea').one('change', startChanging);
 
@@ -632,7 +632,7 @@ function save_record(redirect_url, redir_style, on_print)
 function createIForm($astrFormElements, $elem, $intKeyValue, $newRecord, $strForm)
 {
     ?>
-        <div class="iform <?php echo $elem['style']?>ui-corner-tl ui-corner-bl ui-corner-br ui-corner-tr ui-helper-clearfix"
+        <div class="iform list_container <?php echo $elem['style']?>ui-corner-tl ui-corner-bl ui-corner-br ui-corner-tr ui-helper-clearfix"
           id="<?php echo $elem['name']?>" <?php echo $elem['elem_attributes'] ? ' ' . $elem['elem_attributes'] : ''?>>
             <div class="ui-corner-tl ui-corner-tr fg-toolbar ui-toolbar ui-widget-header">
                 <?php echo Translator::translate($elem['label'])?>
@@ -653,7 +653,7 @@ function createIForm($astrFormElements, $elem, $intKeyValue, $newRecord, $strFor
 
 function init_rows()
 {
-  $('#cb-select-all').prop('checked', false);
+  $('.cb-select-all').prop('checked', false);
     <?php
     $subFormElements = getFormElements($elem['name']);
     $strParentKey = getFormParentKey($elem['name']);
@@ -1321,7 +1321,7 @@ function multi_editor(event, title)
         $selectAll = Translator::translate('SelectAll');
         ?>
         <th class="label ui-state-default sort-col"> </th>
-        <th class="label ui-state-default select-row"><input type="checkbox" id="cb-select-all" title="<?php echo $selectAll?>" aria-label="<?php echo $selectAll?>"></th>
+        <th class="label ui-state-default select-row"><input type="checkbox" class="cb-select-all" title="<?php echo $selectAll?>" aria-label="<?php echo $selectAll?>"></th>
         <?php
     }
 

@@ -79,6 +79,7 @@ function createList($strFunc, $strList, $strTableName = '', $strTitleOverride = 
     if (!$strTableName) {
         $strTableName = "list_$strList";
     }
+    $strTableName .= '_v2';
 
     if ($strTitleOverride) {
         $strTitle = $strTitleOverride;
@@ -150,6 +151,7 @@ function createList($strFunc, $strList, $strTableName = '', $strTitleOverride = 
       pagingType: "full_numbers",
       columnDefs: [
     <?php
+    $hasRowSelection = false;
     $i = 1;
     foreach ($astrShowFields as $key => $field) {
         if ('HIDDEN' === $field['type']) {
@@ -157,24 +159,22 @@ function createList($strFunc, $strList, $strTableName = '', $strTitleOverride = 
         }
         ++$i;
         $strWidth = isset($field['width']) ? ($field['width'] . 'px') : '';
+        $sortable = !isset($field['sort']) || $field['sort'] ? 'true' : 'false';
+        $class = $customPriceSettings && $customPriceSettings['valid']
+            ? 'editable' : '';
         ?>
         {
             targets: [ <?php echo $i?> ],
-            'width': "<?php echo $strWidth?>"
-            <?php if ('product' === $strList && $field['name'] == 'custom_price') { ?>
-            ,sortable: false
-                <?php if ($customPriceSettings && $customPriceSettings['valid']) { ?>
-            ,className: 'editable'
-                <?php } ?>
-            <?php } ?>
-
+            width: '<?php echo $strWidth?>',
+            sortable: <?php echo $sortable?>,
+            className: '<?php echo $class?>'
         },
         <?php
     }
     ?>
         { targets: [ 0, 1 ], 'searchable': false, 'visible': false }
       ],
-      order: [[ 2, 'asc' ]],
+      order: [[ 3, 'asc' ]],
       processing: true,
       serverSide: true,
       ajax: {
@@ -190,6 +190,9 @@ function createList($strFunc, $strList, $strTableName = '', $strTitleOverride = 
                     continue;
                 }
                 ++$i;
+                $class = !empty($field['class']) ? ' class="' . $field['class'] . '"'
+                    : '';
+                $container = $class ? "<span$class/>" : '<span/>';
                 if (!empty($field['translate'])) {
                     ?>
                     json.data[i][<?php echo $i?>] = MLInvoice.translate(json.data[i][<?php echo $i?>]);
@@ -203,9 +206,16 @@ function createList($strFunc, $strList, $strTableName = '', $strTitleOverride = 
                     ?>
                     json.data[i][<?php echo $i?>] = formatDate(json.data[i][<?php echo $i?>]);
                     <?php
+                } elseif ('CHECKBOX' === $field['type']) {
+                    $hasRowSelection = true;
+                    ?>
+                    json.data[i][<?php echo $i?>] = '<input<?php echo $class?> name="id[]" type="checkbox" value="' + json.data[i][<?php echo $i?>] + '"></input>';
+                    <?php
                 } else {
                     ?>
-                    json.data[i][<?php echo $i?>] = $('<div/>').text(json.data[i][<?php echo $i?>]).html();
+                    var $div = $('<div/>');
+                    $('<?php echo $container?>').text(json.data[i][<?php echo $i?>]).appendTo($div);
+                    json.data[i][<?php echo $i?>] = $div.html();
                     <?php
                 }
             }
@@ -214,8 +224,29 @@ function createList($strFunc, $strList, $strTableName = '', $strTitleOverride = 
           return json.data;
         }
       }
-    });
+    })
+    <?php
+    if ($hasRowSelection) {
+        ?>
+        .on('draw.dt', function () {
+            var $container = $(this).closest('.list_container');
+            $container.find('input.cb-select-all').prop('checked', false);
+            $container.find('input.cb-select-row').click(function() {
+                MLInvoice.updateRowSelectedState($container);
+            });
+            MLInvoice.updateRowSelectedState($container);
+        });
+        <?php
+    } else {
+        ?>
+        ;
+        <?php
+    }
+    ?>
     $(document).on('click', '#<?php echo $strTableName?> tbody tr', function(e) {
+      if ($(e.target).hasClass('cb-select-row') || $(e.target).find('.cb-select-row').length > 0) {
+        return;
+      }
       var data = $('#<?php echo $strTableName?>').dataTable().fnGetData(this);
       if (e.button === 1 || e.ctrlKey || e.metaKey) {
         window.open(data[1], '_blank');
@@ -314,6 +345,16 @@ function createList($strFunc, $strList, $strTableName = '', $strTitleOverride = 
     <?php } ?>
 
 <div class="list_container">
+    <?php
+    if ($hasRowSelection) {
+        ?>
+        <form method="POST">
+            <input type="hidden" name="func" value="multiedit">
+            <input type="hidden" name="list" value="<?php echo htmlentities($strList)?>">
+            <input type="hidden" name="form" value="<?php echo htmlentities($strList === 'open_invoices' ? 'invoice' : $strList)?>">
+        <?php
+    }
+    ?>
     <div id="<?php echo $strTableName?>_title" class="table_header">
         <?php echo Translator::translate($strTitle)?>
     </div>
@@ -341,6 +382,19 @@ function createList($strFunc, $strList, $strTableName = '', $strTitleOverride = 
         <tbody>
         </tbody>
     </table>
+    <?php
+    if ($hasRowSelection) {
+        ?>
+        <div class="selection-buttons fg-toolbar ui-widget">
+            <?php echo Translator::translate('ForSelected')?>:
+            <input type="submit" value="<?php echo Translator::translate('Edit')?>" class="update-selected-rows selected-row-button ui-button ui-corner-all ui-widget">
+
+            </input>
+        </div>
+    </form>
+        <?php
+    }
+    ?>
     <br>
 </div>
     <?php

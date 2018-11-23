@@ -645,10 +645,10 @@ var MLInvoice = (function MLInvoice() {
   }
 
   function _setupSelectAll() {
-    $('#cb-select-all').click(function selectAllClick() {
+    $('.cb-select-all').click(function selectAllClick() {
       var table = $(this).closest('table');
       table.find('.cb-select-row').prop('checked', $(this).prop('checked'));
-      updateRowSelectedState();
+      updateRowSelectedState(table.closest('.list_container'));
     });
   }
 
@@ -800,14 +800,15 @@ var MLInvoice = (function MLInvoice() {
     return false;
   }
 
-  function updateRowSelectedState() {
-    var disabled = $('.cb-select-row:checked').length === 0;
+  function updateRowSelectedState(_container) {
+    var $container = typeof _container === 'undefined' ? $('body') : $(_container);
+    var disabled = $container.find('.cb-select-row:checked').length === 0;
     if (disabled) {
-      $('.selected-row-button').attr('disabled', 'disabled');
-      $('.selected-row-button').addClass('ui-state-disabled');
+      $container.find('.selected-row-button').attr('disabled', 'disabled');
+      $container.find('.selected-row-button').addClass('ui-state-disabled');
     } else {
-      $('.selected-row-button').removeAttr('disabled');
-      $('.selected-row-button').removeClass('ui-state-disabled');
+      $container.find('.selected-row-button').removeAttr('disabled');
+      $container.find('.selected-row-button').removeClass('ui-state-disabled');
     }
   }
 
@@ -1311,6 +1312,17 @@ var MLInvoice = (function MLInvoice() {
     });
   }
 
+  function _setupMultiEdit() {
+    $('a.actionlink.update-selected-rows').click(function editSelectedClick() {
+      var list = $(this).data('list');
+      var ids = $(this).closest('.list_container').find('.cb-select-row:checked').map(function mapChecked() {
+        return 'id[]=' + encodeURIComponent(this.value);
+      }).get();
+      window.location.href = '?func=multiedit&list=' + encodeURIComponent(list) + '&' + ids.join('&');
+      return false;
+    });
+  }
+
   function init() {
     _initUI();
     _setupYtjSearch();
@@ -1325,6 +1337,7 @@ var MLInvoice = (function MLInvoice() {
     _initFormButtons();
     updateSendApiButtons();
     _setupInvoiceAttachments();
+    _setupMultiEdit();
   }
 
   return {
