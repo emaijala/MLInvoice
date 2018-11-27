@@ -1,19 +1,30 @@
 <?php
-/*******************************************************************************
-MLInvoice: web-based invoicing application.
-Copyright (C) 2010-2017 Ere Maijala
-
-This program is free software. See attached LICENSE.
-
-*******************************************************************************/
-
-/*******************************************************************************
-MLInvoice: web-pohjainen laskutusohjelma.
-Copyright (C) 2010-2017 Ere Maijala
-
-Tämä ohjelma on vapaa. Lue oheinen LICENSE.
-
-*******************************************************************************/
+/**
+ * Basic configuration
+ *
+ * PHP version 5
+ *
+ * Copyright (C) 2010-2018 Ere Maijala
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License version 2,
+ * as published by the Free Software Foundation.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
+ *
+ * @category MLInvoice
+ * @package  MLInvoice\Base
+ * @author   Ere Maijala <ere@labs.fi>
+ * @license  http://opensource.org/licenses/gpl-2.0.php GNU General Public License
+ * @link     http://labs.fi/mlinvoice.eng.php
+ */
 
 // UI Language. Default is Finnish.
 // Käyttöliittymän kieli. Oletus on suomi.
@@ -39,13 +50,17 @@ define('_DB_PASSWORD_', '');
 // Tietokannan nimi
 define('_DB_NAME_', 'mlinvoice');
 
-// Database table prefix
-// Tietokantataulujen prefix
+// Database table prefix. Note that an underscore is automatically added to this value unless empty.
+// Tietokantataulujen prefix. Huom! Alaviiva lisätään loppuun automaattisesti, ellei arvo ole tyhjä.
 define('_DB_PREFIX_', 'mlinvoice');
 
 // Whether verbose error messages are reported on html pages (true = yes, false = only in php error log)
 // Raportoidaanko tietokantavirheiden tarkat tiedot html-sivuilla (true = kyllä, false = vain php:n virhelokissa)
 define('_DB_VERBOSE_ERRORS_', true);
+
+// Encryption key used to store e.g. passwords for mail sending services. Must be at least 32 characters.
+// Salausavain mm. lähestyspalveluiden salasanojen kryptausta varten. Tulee olla vähintään 32 merkkiä.
+define('_ENCRYPTION_KEY_', 'replacewithsomethingsecure');
 
 // Character set: UTF-8 or ISO-8859-15. UTF-8 should work properly regardless of database character set.
 // Merkistö: UTF-8 tai ISO-8859-15. UTF-8:n pitäisi toimia riippumatta siitä, mitä merkistöä tietokannassa on.
@@ -83,6 +98,14 @@ define('_SESSION_RESTRICT_PATH_', true);
 // Aikavyöhyke. Määritelty tyypillisesti PHP-asetuksissa, mutta voidaan määritellä tässä MLInvoicea varten.
 //date_default_timezone_set('Europe/Helsinki');
 
+// Directory for temporary files. By default the system-provided directory is used, but this setting can be used to override it.
+// Väliaikaistiedostojen hakemisto. Oletuksena käytetään järjestelmän määrittelemää hakemistoa, mutta tällä asetuksella se voidaan vaihtaa toiseen.
+//define('_TEMP_DIR_', '/tmp');
+
+// Version check address used if checking for new versions is enabled from general settings. Change only if necessary.
+// Versiotarkistuksen osoite, jota käytetään, jos uusien versioiden tarkistus on käytössä yleisissä asetuksissa. Vaihda vain, jos välttämätöntä.
+//define('_UPDATE_ADDRESS_', 'https://www.labs.fi/mlinvoice_version.php');
+
 // Mail settings. By default the PHP mail() command is used, but an sendmail or an external SMTP server can be used by changing these settings.
 // Sähköpostiasetukset. Oletuksena käytetään PHP:n mail()-komentoa, mutta muokkaamalla näitä asetuksia voidaan käyttää sendmail-komentoa tai ulkoista SMTP-palvelinta.
 // See http://swiftmailer.org/docs/sending.html for more information on the settings for the mail component.
@@ -108,7 +131,7 @@ $GLOBALS['mlinvoice_mail_settings'] = [
         'security' => 'tls',            // 'ssl' for secure connection, 'tls' for STARTTLS
         'username' => '???@gmail.com',  // User name for authentication (if needed)
         'password' => 'xyz',            // Password for authentication (if needed)
-        'stream_context_options' =>  [  // SSL stream context options. See http://php.net/manual/en/context.php for more information.
+        'stream_context_options' => [   // SSL stream context options. See http://php.net/manual/en/context.php for more information.
             'ssl' => [
                 //'capath' => '/path/to/my/trusted/ca/folder'
             ]

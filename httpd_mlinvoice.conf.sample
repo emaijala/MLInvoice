@@ -1,0 +1,12 @@
+# Minimal Apache configuration for MLInvoice
+<VirtualHost *:80>
+    DocumentRoot "/usr/local/mlinvoice"
+
+    ErrorLog /var/log/apache2/error.log
+    CustomLog /var/log/apache2/access.log combined
+
+    <Directory "/usr/local/mlinvoice">
+        AllowOverride All
+        Require all granted
+    </Directory>
+</VirtualHost>

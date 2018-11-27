@@ -1,19 +1,30 @@
 <?php
-/*******************************************************************************
- MLInvoice: web-based invoicing application.
- Copyright (C) 2010-2017 Ere Maijala
-
- This program is free software. See attached LICENSE.
-
- *******************************************************************************/
-
-/*******************************************************************************
- MLInvoice: web-pohjainen laskutusohjelma.
- Copyright (C) 2010-2017 Ere Maijala
-
- Tämä ohjelma on vapaa. Lue oheinen LICENSE.
-
- *******************************************************************************/
+/**
+ * Settings definitions
+ *
+ * PHP version 5
+ *
+ * Copyright (C) Ere Maijala 2010-2018.
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License version 2,
+ * as published by the Free Software Foundation.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
+ *
+ * @category MLInvoice
+ * @package  MLInvoice\Base
+ * @author   Ere Maijala <ere@labs.fi>
+ * @license  http://opensource.org/licenses/gpl-2.0.php GNU General Public License
+ * @link     http://labs.fi/mlinvoice.eng.php
+ */
 $arrSettings = [
     'start_sep' => [
         'label' => 'Settings',
@@ -61,20 +72,6 @@ $arrSettings = [
         'default' => 2,
         'allow_null' => true
     ],
-    'default_list_rows' => [
-        'label' => 'SettingDefaultListRows',
-        'type' => 'SELECT',
-        'style' => 'long noemptyvalue',
-        'position' => 1,
-        'default' => 10,
-        'allow_null' => true,
-        'options' => [
-            10 => '10',
-            25 => '25',
-            50 => '50',
-            100 => '100'
-        ]
-    ],
     'check_updates' => [
         'label' => 'SettingCheckForUpdates',
         'type' => 'CHECK',
@@ -97,6 +94,14 @@ $arrSettings = [
         'style' => 'medium',
         'position' => 1,
         'default' => 0,
+        'allow_null' => true
+    ],
+    'password_recovery' => [
+        'label' => 'SettingPasswordRecovery',
+        'type' => 'CHECK',
+        'style' => 'medium',
+        'position' => 1,
+        'default' => 1,
         'allow_null' => true
     ],
 
@@ -173,7 +178,7 @@ $arrSettings = [
     'invoice_terms_of_payment' => [
         'label' => 'SettingInvoiceTermsOfPayment',
         'type' => 'TEXT',
-        'style' => 'medium',
+        'style' => 'long',
         'position' => 1,
         'default' => '%d pv netto',
         'allow_null' => false
@@ -181,7 +186,7 @@ $arrSettings = [
     'invoice_period_for_complaints' => [
         'label' => 'SettingInvoicePeriodForComplaints',
         'type' => 'TEXT',
-        'style' => 'medium',
+        'style' => 'long',
         'position' => 1,
         'default' => '7 päivää',
         'allow_null' => false
@@ -214,6 +219,14 @@ $arrSettings = [
             1 => 'SettingInvoiceClearRowValues',
             2 => 'SettingInvoiceUseProductDefaults'
         ]
+    ],
+    'invoice_display_product_stock_in_selection' => [
+        'label' => 'SettingInvoiceShowProductStockInSelection',
+        'type' => 'CHECK',
+        'style' => 'medium',
+        'position' => 1,
+        'default' => 1,
+        'allow_null' => true
     ],
 
     'printing_sep' => [
@@ -278,12 +291,17 @@ $arrSettings = [
         'allow_null' => true
     ],
     'invoice_show_sequential_number' => [
-        'label' => 'SettingInvoiceShowSequentialNumber',
-        'type' => 'CHECK',
-        'style' => 'medium',
+        'label' => 'SettingInvoiceRowNumbering',
+        'type' => 'SELECT',
+        'style' => 'long noemptyvalue',
         'position' => 1,
         'default' => 0,
-        'allow_null' => true
+        'allow_null' => true,
+        'options' => [
+            0 => 'SettingInvoiceRowNumberingNone',
+            1 => 'SettingInvoiceRowNumberingSequential',
+            2 => 'SettingInvoiceRowNumberingOrderNo'
+        ]
     ],
     'invoice_show_row_date' => [
         'label' => 'SettingInvoiceShowRowDate',
@@ -327,6 +345,14 @@ $arrSettings = [
     ],
     'invoice_show_info_in_form' => [
         'label' => 'SettingInvoiceShowInfoInForm',
+        'type' => 'CHECK',
+        'style' => 'medium',
+        'position' => 1,
+        'default' => 0,
+        'allow_null' => true
+    ],
+    'invoice_show_delivery_info_in_invoice' => [
+        'label' => 'SettingInvoiceShowDeliveryInfoInInvoice',
         'type' => 'CHECK',
         'style' => 'medium',
         'position' => 1,
@@ -404,6 +430,14 @@ $arrSettings = [
         'style' => 'medium',
         'position' => 1,
         'default' => 0,
+        'allow_null' => true
+    ],
+    'pdf_link_base_url' => [
+        'label' => 'SettingPDFLinkTemplate',
+        'type' => 'TEXT',
+        'style' => 'xlong',
+        'position' => 1,
+        'default' => '',
         'allow_null' => true
     ],
 

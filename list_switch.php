@@ -1,31 +1,36 @@
 <?php
-/*******************************************************************************
- MLInvoice: web-based invoicing application.
- Copyright (C) 2010-2017 Ere Maijala
-
- Portions based on:
- PkLasku : web-based invoicing software.
- Copyright (C) 2004-2008 Samu Reinikainen
-
- This program is free software. See attached LICENSE.
-
- *******************************************************************************/
-
-/*******************************************************************************
- MLInvoice: web-pohjainen laskutusohjelma.
- Copyright (C) 2010-2017 Ere Maijala
-
- Perustuu osittain sovellukseen:
- PkLasku : web-pohjainen laskutusohjelmisto.
- Copyright (C) 2004-2008 Samu Reinikainen
-
- Tämä ohjelma on vapaa. Lue oheinen LICENSE.
-
- *******************************************************************************/
-$strTable = '';
+/**
+ * List config
+ *
+ * PHP version 5
+ *
+ * Copyright (C) 2004-2008 Samu Reinikainen
+ * Copyright (C) 2010-2018 Ere Maijala
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License version 2,
+ * as published by the Free Software Foundation.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
+ *
+ * @category MLInvoice
+ * @package  MLInvoice\Base
+ * @author   Ere Maijala <ere@labs.fi>
+ * @license  http://opensource.org/licenses/gpl-2.0.php GNU General Public License
+ * @link     http://labs.fi/mlinvoice.eng.php
+ */
+ $strTable = '';
 $strJoin = '';
 $strListFilter = '';
 $strGroupBy = '';
+$strDeletedField = '';
 $levelsAllowed = [
     ROLE_USER,
     ROLE_BACKUPMGR
@@ -55,6 +60,15 @@ case 'companies' :
     $strPrimaryKey = 'id';
     $strDeletedField = 'deleted';
     $astrShowFields = [
+        [
+            'name' => 'id',
+            'width' => 20,
+            'type' => 'CHECKBOX',
+            'order' => 'DESC',
+            'header' => '<input class="cb-select-all" type="checkbox" value=""></input>',
+            'class' => 'cb-select-row',
+            'sort' => false
+        ],
         [
             'name' => 'company_name',
             'width' => 150,
@@ -114,7 +128,8 @@ case 'invoices':
 case 'offer':
     $levelsAllowed[] = ROLE_READONLY;
 
-    $strListFilter = ($strFunc == 'archived_invoices') ? 'i.archived = 1' : 'i.archived = 0';
+    $strListFilter = ($strFunc == 'archived_invoices') ? 'i.archived = 1'
+        : 'i.archived = 0';
     $strTable = '{prefix}invoice i';
     $strJoin = 'LEFT OUTER JOIN {prefix}base b on i.base_id=b.id ' .
          'LEFT OUTER JOIN {prefix}company c on i.company_id=c.id ' .
@@ -125,11 +140,13 @@ case 'offer':
     if (getSetting('invoice_display_vatless_price_in_list')) {
         $strJoin .= <<<EOT
 LEFT OUTER JOIN (
-  SELECT ir.invoice_id, ROUND(
+  SELECT ir.invoice_id,
     CASE WHEN ir.vat_included = 0
-      THEN (ir.price * (1 - IFNULL(ir.discount, 0) / 100) - IFNULL(ir.discount_amount, 0)) * ir.pcs
-      ELSE ROUND((ir.price * (1 - IFNULL(ir.discount, 0) / 100) - IFNULL(ir.discount_amount, 0)) * ir.pcs, 2) / (1 + ir.vat / 100)
-    END, 2) as row_total
+      THEN (ir.price * (1 - IFNULL(ir.discount, 0) / 100)
+        - IFNULL(ir.discount_amount, 0)) * ir.pcs
+      ELSE (ir.price * (1 - IFNULL(ir.discount, 0) / 100)
+        - IFNULL(ir.discount_amount, 0)) * ir.pcs / (1 + ir.vat / 100)
+    END as row_total
   FROM {prefix}invoice_row ir
   WHERE ir.deleted = 0) it
   ON (it.invoice_id=i.id)
@@ -137,15 +154,17 @@ EOT;
     } else {
         $strJoin .= <<<EOT
 LEFT OUTER JOIN (
-  SELECT ir.invoice_id, ROUND(
+  SELECT ir.invoice_id,
     CASE WHEN ir.partial_payment = 0 THEN
       CASE WHEN ir.vat_included = 0
-        THEN ROUND((ir.price * (1 - IFNULL(ir.discount, 0) / 100) - IFNULL(ir.discount_amount, 0)) * ir.pcs, 2) * (1 + ir.vat / 100)
-        ELSE (ir.price * (1 - IFNULL(ir.discount, 0) / 100) - IFNULL(ir.discount_amount, 0)) * ir.pcs
+        THEN (ir.price * (1 - IFNULL(ir.discount, 0) / 100)
+          - IFNULL(ir.discount_amount, 0)) * ir.pcs * (1 + ir.vat / 100)
+        ELSE (ir.price * (1 - IFNULL(ir.discount, 0) / 100)
+          - IFNULL(ir.discount_amount, 0)) * ir.pcs
       END
     ELSE
       ir.price
-    END, 2) as row_total
+    END as row_total
   FROM {prefix}invoice_row ir
   WHERE ir.deleted = 0) it
   ON (it.invoice_id=i.id)
@@ -176,6 +195,15 @@ EOT;
     $strPrimaryKey = 'i.id';
     $strDeletedField = 'i.deleted';
     $astrShowFields = [
+        [
+            'name' => 'i.id',
+            'width' => 20,
+            'type' => 'CHECKBOX',
+            'order' => 'DESC',
+            'header' => '<input class="cb-select-all" type="checkbox" value=""></input>',
+            'class' => 'cb-select-row',
+            'sort' => false
+        ],
         [
             'name' => 'i.invoice_date',
             'width' => 80,
@@ -249,7 +277,8 @@ EOT;
             ]
         );
     }
-    $strGroupBy = 'i.id, i.deleted, i.invoice_date, i.due_date, i.invoice_no, b.name, c.company_name, i.name, s.name, i.ref_number';
+    $strGroupBy = 'i.id, i.deleted, i.invoice_date, i.due_date, i.invoice_no,'
+        . ' b.name, c.company_name, i.name, s.name, i.ref_number';
     $strMainForm = 'invoice';
     $strTitle = 'Invoices';
     break;
@@ -328,6 +357,42 @@ case 'invoice_state' :
     $strTitle = 'InvoiceStates';
     break;
 
+case 'invoice_type' :
+    $strTable = '{prefix}invoice_type';
+    $astrSearchFields = [
+        [
+            'name' => "name'",
+            'type' => 'TEXT'
+        ]
+    ];
+    $strPrimaryKey = 'id';
+    $strDeletedField = 'deleted';
+    $astrShowFields = [
+        [
+            'name' => 'order_no',
+            'width' => 150,
+            'type' => 'TEXT',
+            'header' => 'OrderNr'
+        ],
+        [
+            'name' => 'identifier',
+            'width' => 150,
+            'type' => 'TEXT',
+            'header' => 'Identifier',
+            'select' => true
+        ],
+        [
+            'name' => 'name',
+            'width' => 450,
+            'type' => 'TEXT',
+            'header' => 'Name',
+            'select' => true
+        ]
+    ];
+    $strMainForm = 'invoice_type';
+    $strTitle = 'InvoiceTypes';
+    break;
+
 case 'product' :
     $strTable = '{prefix}product';
     $astrSearchFields = [
@@ -347,6 +412,15 @@ case 'product' :
     $strPrimaryKey = 'id';
     $strDeletedField = 'deleted';
     $astrShowFields = [
+        [
+            'name' => 'id',
+            'width' => 20,
+            'type' => 'CHECKBOX',
+            'order' => 'DESC',
+            'header' => '<input class="cb-select-all" type="checkbox" value=""></input>',
+            'class' => 'cb-select-row',
+            'sort' => false
+        ],
         [
             'name' => 'order_no',
             'width' => 150,
@@ -404,11 +478,35 @@ case 'product' :
             'select' => true
         ],
         [
+            'name' => 'custom_price',
+            'width' => 100,
+            'type' => 'CURRENCY',
+            'header' => 'ClientsPrice',
+            'decimals' => getSetting('unit_price_decimals'),
+            'virtual' => true,
+            'select' => true,
+            'sort' => false
+        ],
+        [
+            'name' => 'discount',
+            'width' => 100,
+            'type' => 'CURRENCY',
+            'header' => 'DiscountPct'
+        ],
+        [
+            'name' => 'discount_amount',
+            'width' => 100,
+            'type' => 'CURRENCY',
+            'header' => 'DiscountAmount',
+            'decimals' => getSetting('unit_price_decimals')
+        ],
+        [
             'name' => 'stock_balance',
             'width' => 100,
             'type' => 'CURRENCY',
             'header' => 'StockBalance',
-            'decimals' => 2
+            'decimals' => 2,
+            'select' => GetSetting('invoice_display_product_stock_in_selection')
         ]
     ];
 
@@ -608,6 +706,56 @@ case 'default_value' :
     $strTitle = 'DefaultValues';
     break;
 
+case 'attachment':
+    $strTable = '{prefix}attachment';
+    $astrSearchFields = [
+        [
+            'name' => 'name',
+            'type' => 'TEXT'
+        ],
+        [
+            'name' => 'description',
+            'type' => 'TEXT'
+        ],
+    ];
+    $strPrimaryKey = 'id';
+    $astrShowFields = [
+        [
+            'name' => 'order_no',
+            'width' => 150,
+            'type' => 'TEXT',
+            'header' => 'OrderNr'
+        ],
+        [
+            'name' => 'name',
+            'width' => 200,
+            'type' => 'TEXT',
+            'header' => 'Name'
+        ],
+        [
+            'name' => 'date',
+            'width' => 100,
+            'type' => 'INTDATE',
+            'header' => 'Date'
+        ],
+        [
+            'name' => 'filename',
+            'width' => 200,
+            'type' => 'TEXT',
+            'header' => 'File'
+        ],
+        [
+            'name' => 'filesize',
+            'width' => 200,
+            'type' => 'INT',
+            'callback' => 'fileSizeToHumanReadable',
+            'header' => 'HeaderFileSize'
+        ]
+    ];
+    $strMainForm = 'attachment';
+    $strTitle = 'Attachments';
+    break;
+
 case 'company_tag' :
     $strTable = '{prefix}company_tag';
     $astrSearchFields = [
@@ -647,27 +795,6 @@ case 'contact_tag' :
             'select' => true
         ]
     ];
-    break;
-
-case 'company_tag' :
-    $strTable = '{prefix}company_tag';
-    $astrSearchFields = [
-        [
-            'name' => 'tag',
-            'type' => 'TEXT'
-        ]
-    ];
-    $strPrimaryKey = 'id';
-    $astrShowFields = [
-        [
-            'name' => 'tag',
-            'width' => 450,
-            'type' => 'TEXT',
-            'header' => '',
-            'select' => true
-        ]
-    ];
-    $strMainForm = 'company';
     break;
 
 /***********************************************************************

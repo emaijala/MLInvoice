@@ -1,28 +1,33 @@
 <?php
-/*******************************************************************************
- MLInvoice: web-based invoicing application.
- Copyright (C) 2010-2017 Ere Maijala
-
- Portions based on:
- PkLasku : web-based invoicing software.
- Copyright (C) 2004-2008 Samu Reinikainen
-
- This program is free software. See attached LICENSE.
-
- *******************************************************************************/
-
-/*******************************************************************************
- MLInvoice: web-pohjainen laskutusohjelma.
- Copyright (C) 2010-2017 Ere Maijala
-
- Perustuu osittain sovellukseen:
- PkLasku : web-pohjainen laskutusohjelmisto.
- Copyright (C) 2004-2008 Samu Reinikainen
-
- Tämä ohjelma on vapaa. Lue oheinen LICENSE.
-
- *******************************************************************************/
+/**
+ * Form config
+ *
+ * PHP version 5
+ *
+ * Copyright (C) 2004-2008 Samu Reinikainen
+ * Copyright (C) 2010-2018 Ere Maijala
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License version 2,
+ * as published by the Free Software Foundation.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
+ *
+ * @category MLInvoice
+ * @package  MLInvoice\Base
+ * @author   Ere Maijala <ere@labs.fi>
+ * @license  http://opensource.org/licenses/gpl-2.0.php GNU General Public License
+ * @link     http://labs.fi/mlinvoice.eng.php
+ */
 require_once 'settings.php';
+require_once 'vendor/autoload.php';
 
 $strListTableAlias = '';
 $strOrder = '';
@@ -58,13 +63,6 @@ case 'company' :
             'type' => 'TEXT'
         ]
     ];
-
-    $defaultCustomerNr = null;
-    if (getSetting('add_customer_number')) {
-        $strQuery = 'SELECT max(customer_no) FROM {prefix}company WHERE deleted=0';
-        $intRes = mysqli_query_check($strQuery);
-        $defaultCustomerNr = mysqli_fetch_value($intRes) + 1;
-    }
 
     $astrFormElements = [
         [
@@ -105,7 +103,10 @@ case 'company' :
             'type' => 'INT',
             'style' => 'medium',
             'position' => 1,
-            'default' => $defaultCustomerNr,
+            'default' => null,
+            'default_query' => getSetting('add_customer_number')
+                ? 'SELECT max(customer_no)+1 FROM {prefix}company WHERE deleted=0'
+                : null,
             'allow_null' => true
         ],
         [
@@ -167,6 +168,15 @@ case 'company' :
             'type' => 'TEXT',
             'style' => 'medium',
             'position' => 2,
+            'default' => null,
+            'allow_null' => true
+        ],
+        [
+            'name' => 'invoice_vatless',
+            'label' => 'InvoiceVATLess',
+            'type' => 'CHECK',
+            'style' => 'medium',
+            'position' => 1,
             'default' => null,
             'allow_null' => true
         ],
@@ -243,10 +253,50 @@ case 'company' :
             'allow_null' => true
         ],
         [
+            'name' => 'delivery_address',
+            'label' => 'DeliveryAddress',
+            'type' => 'AREA',
+            'style' => 'medium',
+            'position' => 2,
+            'allow_null' => true
+        ],
+        [
             'name' => 'info',
             'label' => 'Info',
             'type' => 'AREA',
             'style' => 'medium',
+            'position' => 1,
+            'allow_null' => true
+        ],
+        [
+            'name' => 'invoice_default_foreword',
+            'label' => 'InvoiceDefaultForeword',
+            'type' => 'AREA',
+            'style' => 'large',
+            'position' => 1,
+            'allow_null' => true
+        ],
+        [
+            'name' => 'invoice_default_afterword',
+            'label' => 'InvoiceDefaultAfterword',
+            'type' => 'AREA',
+            'style' => 'large',
+            'position' => 2,
+            'allow_null' => true
+        ],
+        [
+            'name' => 'offer_default_foreword',
+            'label' => 'OfferDefaultForeword',
+            'type' => 'AREA',
+            'style' => 'large',
+            'position' => 1,
+            'allow_null' => true
+        ],
+        [
+            'name' => 'offer_default_afterword',
+            'label' => 'OfferDefaultAfterword',
+            'type' => 'AREA',
+            'style' => 'large',
             'position' => 2,
             'allow_null' => true
         ],
@@ -307,7 +357,8 @@ case 'company_contacts' :
             'label' => 'ContactPerson',
             'type' => 'TEXT',
             'style' => 'medium',
-            'position' => 0
+            'position' => 0,
+            'allow_null' => true
         ],
         [
             'name' => 'person_title',
@@ -383,7 +434,10 @@ case 'product' :
 EOS;
 
         $updateStockBalanceCode = <<<EOS
-<a class="formbuttonlink" href="#" onclick="update_stock_balance({'save': '$locSave', 'close': '$locClose', 'title': '$locTitle', 'missing': '$locMissing: ', 'decimal_separator': '$locDecimalSeparator'})">$locUpdateStockBalance</a>
+<a class="formbuttonlink" href="#"
+  onclick="update_stock_balance({'save': '$locSave', 'close': '$locClose', 'title': '$locTitle', 'missing': '$locMissing: ', 'decimal_separator': '$locDecimalSeparator'})">
+    $locUpdateStockBalance
+</a>
 
 EOS;
     }
@@ -405,7 +459,9 @@ EOS;
             'type' => 'INT',
             'style' => 'short',
             'position' => 1,
-            'allow_null' => true
+            'allow_null' => true,
+            'listquery' => 'SELECT max(order_no)+5 FROM {prefix}product WHERE deleted=0',
+            'default' => 'ADD+5'
         ],
         [
             'name' => 'product_code',
@@ -420,7 +476,9 @@ EOS;
             'label' => 'ProductName',
             'type' => 'TEXT',
             'style' => 'medium',
-            'position' => 1
+            'position' => 1,
+            'default' => '',
+            'allow_null' => true
         ],
         [
             'name' => 'product_group',
@@ -512,7 +570,7 @@ EOS;
             'style' => 'short translated',
             'listquery' => 'SELECT id, name FROM {prefix}row_type WHERE deleted=0 ORDER BY order_no;',
             'position' => 2,
-            'default' => 'POST'
+            'allow_null' => true
         ],
         [
             'name' => 'price_decimals',
@@ -555,7 +613,7 @@ EOS;
             'type' => 'CHECK',
             'style' => 'medium',
             'position' => 2,
-            'default' => FALSE,
+            'default' => false,
             'allow_null' => true
         ],
         [
@@ -577,7 +635,16 @@ EOS;
             'allow_null' => true,
             'read_only' => true,
             'attached_elem' => $updateStockBalanceCode
-        ]
+        ],
+        [
+            'name' => 'weight',
+            'label' => 'Weight',
+            'type' => 'INT',
+            'style' => 'medium',
+            'position' => 1,
+            'decimals' => 3,
+            'allow_null' => true
+        ],
     ];
     break;
 
@@ -599,7 +666,9 @@ case 'invoice' :
     ];
     $intInvoiceId = getRequest('id', 0);
     if ($intInvoiceId) {
-        $isOffer = isOffer($intInvoiceId);
+        if (!isset($isOffer)) {
+            $isOffer = isOffer($intInvoiceId);
+        }
 
         if ($isOffer) {
             $locCopyAsInvoice = Translator::translate('CopyAsInvoice');
@@ -611,7 +680,7 @@ EOT;
 
         $strQuery = 'SELECT refunded_invoice_id ' . 'FROM {prefix}invoice ' .
              'WHERE id=?'; // ok to maintain links to deleted invoices too
-        $rows = db_param_query($strQuery, [$intInvoiceId]);
+        $rows = dbParamQuery($strQuery, [$intInvoiceId]);
         $strBaseLink = '?' . preg_replace('/&id=\d*/', '', $_SERVER['QUERY_STRING']);
         $strBaseLink = preg_replace('/&/', '&amp;', $strBaseLink);
         if ($rows) {
@@ -630,7 +699,7 @@ EOT;
         }
         $strQuery = 'SELECT id ' . 'FROM {prefix}invoice ' .
              'WHERE deleted=0 AND refunded_invoice_id=?';
-        $rows = db_param_query($strQuery, [$intInvoiceId]);
+        $rows = dbParamQuery($strQuery, [$intInvoiceId]);
         if ($rows) {
             $intRefundingInvoiceId = $rows[0]['id'];
             if ($intRefundingInvoiceId) {
@@ -660,9 +729,7 @@ EOT;
 
     if (sesWriteAccess()) {
         $locUpdateDates = Translator::translate('UpdateDates');
-        $updateDates = <<<EOS
-<a class="formbuttonlink" href="#" onclick="$.getJSON('json.php?func=get_invoice_defaults', {id: $('#record_id').val(), invoice_no: $('#invoice_no').val(), invoice_date: $('#invoice_date').val(), base_id: $('#base_id').val(), company_id: $('#company_id').val(), interval_type: $('#interval_type').val()}, function(json) { $('#invoice_date').val(json.date); $('#due_date').val(json.due_date); $('#next_interval_date').val(json.next_interval_date); $('.save_button').addClass('ui-state-highlight'); }); return false;">$locUpdateDates</a>
-EOS;
+        $updateDates = '<a class="formbuttonlink update-dates" href="#">' . $locUpdateDates . '</a>';
 
         $locNew = Translator::translate('New') . '...';
         $locClientName = Translator::translate('ClientName');
@@ -677,7 +744,10 @@ EOS;
         $locTitle = Translator::translate('NewClient');
         $locMissing = Translator::translate('ErrValueMissing');
         $addCompanyCode = <<<EOS
-<a class="formbuttonlink" href="#" onclick="add_company({'save': '$locSave', 'close': '$locClose', 'title': '$locTitle', 'missing': '$locMissing: '})">$locNew</a>
+<a class="formbuttonlink" href="#"
+  onclick="add_company({'save': '$locSave', 'close': '$locClose', 'title': '$locTitle', 'missing': '$locMissing: '})">
+    $locNew
+</a>
 
 EOS;
 
@@ -697,23 +767,21 @@ EOS;
         if (!$isOffer) {
             $companyOnChange = '_onChangeCompany';
 
-            $getInvoiceNr = <<<EOS
-$.getJSON('json.php?func=get_invoice_defaults', {id: $('#record_id').val(), invoice_no: $('#invoice_no').val(), invoice_date: $('#invoice_date').val(), base_id: $('#base_id').val(), company_id: $('#company_id').val(), interval_type: $('#interval_type').val()}, function(json) { $('#invoice_no').val(json.invoice_no); $('#ref_number').val(json.ref_no); $('.save_button').addClass('ui-state-highlight'); }); return false;
-EOS;
-
             $locPartialPayment = Translator::translate('PartialPayment');
             $locDecimalSeparator = Translator::translate('DecimalSeparator');
-            $addPartialPaymentCode = <<<EOS
-add_partial_payment({'save': '$locSave', 'close': '$locClose', 'title': '{$locPartialPayment}', 'missing': '$locMissing: ', 'partial_payment': '{$locPartialPayment}', 'decimal_separator': '{$locDecimalSeparator}'}); return false;
-
-EOS;
+            $addPartialPaymentCode = "add_partial_payment({'save': '$locSave', 'close': '$locClose',"
+                . " 'title': '{$locPartialPayment}', 'missing': '$locMissing: ', "
+                . "'partial_payment': '{$locPartialPayment}', 'decimal_separator': '{$locDecimalSeparator}'});"
+                . " return false;";
 
             $locPaymentAmount = Translator::translate('PaymentAmount');
             $locPaymentDate = Translator::translate('PayDate');
             $popupHTML .= <<<EOS
 <div id="add_partial_payment" class="form_container ui-widget-content" style="display: none">
-  <div class="medium_label">{$locPaymentAmount}</div> <div class="field"><input type='TEXT' id="add_partial_payment_amount" class='medium'></div>
-  <div class="medium_label">{$locPaymentDate}</div> <div class="field"><input type='TEXT' id="add_partial_payment_date" class='date hasCalendar'></div>
+  <div class="medium_label">{$locPaymentAmount}</div>
+    <div class="field"><input type='TEXT' id="add_partial_payment_amount" class='medium'></div>
+  <div class="medium_label">{$locPaymentDate}</div>
+  <div class="field"><input type='TEXT' id="add_partial_payment_date" class='date hasCalendar'></div>
 </div>
 
 EOS;
@@ -725,14 +793,17 @@ EOS;
             if (!getSetting('invoice_add_number')) {
                 $formDataAttrs[] = 'check-invoice-number';
             }
+        } else {
+            $companyOnChange = '_onChangeCompanyOffer';
         }
     }
 
     if (sesWriteAccess() && !$isOffer) {
         $today = dateConvDBDate2Date(date('Ymd'));
-        $markPaidToday = <<<EOS
-if ([1, 2, 5, 6, 7].indexOf(parseInt($('#state_id').val())) !== -1) { $('#state_id').val(3); } if (!$(this).is('#payment_date')) { $('#payment_date').val('$today'); }
-EOS;
+        $markPaidToday = "if ([1, 2, 5, 6, 7].indexOf(parseInt($('#state_id').val())) !== -1) {"
+            . " $('#state_id').val(3); }"
+            . " if (!$(this).is('#payment_date')) { $('#payment_date').val('$today'); }";
+
         if (getSetting('invoice_auto_archive')) {
             $markPaidToday .= <<<EOS
 if ($('#interval_type').val() == 0) { $('#archived').prop('checked', true); }
@@ -758,7 +829,7 @@ EOF;
     // Print buttons
     $printButtons = [];
     $printButtons2 = [];
-    $rows = db_param_query(
+    $rows = dbParamQuery(
         'SELECT * FROM {prefix}print_template WHERE deleted=0 and type=? and inactive=0 ORDER BY order_no',
         [$isOffer ? 'offer' : 'invoice']
     );
@@ -773,15 +844,16 @@ EOF;
             $printFunc = "MLInvoice.printInvoice('$templateId', '$strFunc', '$printStyle'); return false;";
         } else {
             // Check if this print template is safe for read-only use
-            $printer = instantiateInvoicePrinter($row['filename']);
+            $printer = getInvoicePrinter($row['filename']);
             if (null === $printer || !$printer->getReadOnlySafe()) {
                 continue;
             }
 
-            if ($printStyle == 'openwindow')
+            if ($printStyle == 'openwindow') {
                 $printFunc = "window.open('invoice.php?id=_ID_&amp;template=$templateId&amp;func=$strFunc'); return false;";
-            else
+            } else {
                 $printFunc = "window.location = 'invoice.php?id=_ID_&amp;template=$templateId&amp;func=$strFunc'; return false;";
+            }
         }
 
         $arr = [
@@ -812,29 +884,43 @@ EOF;
          ];
     }
 
-    $intRes = mysqli_query_check(
-        'SELECT ID from {prefix}base WHERE deleted=0 AND inactive=0'
+    $defaultValues = [
+        'base' => false,
+        'info' => '',
+        'foreword' => '',
+        'afterword' => ''
+    ];
+    $baseCnt = dbParamQuery(
+        'SELECT count(*) as cnt from {prefix}base WHERE deleted=0 AND inactive=0'
     );
-    if (mysqli_num_rows($intRes) == 1) {
-        $defaultBase = mysqli_fetch_value($intRes);
-    } else {
-        $defaultBase = false;
+    if ($baseCnt[0]['cnt'] == 1) {
+        $prefix = $isOffer ? 'offer' : 'invoice';
+        $baseData = dbParamQuery(
+            "SELECT ID, invoice_default_info info, {$prefix}_default_foreword foreword,"
+            . " {$prefix}_default_afterword afterword from {prefix}base WHERE deleted=0 AND inactive=0"
+        );
+        $defaultValues['base'] = $baseData[0]['ID'];
+        $defaultValues['info'] = $baseData[0]['info'];
+        $defaultValues['foreword'] = $baseData[0]['foreword'];
+        $defaultValues['afterword'] = $baseData[0]['afterword'];
     }
 
-    $copyLinkOverride = "copy_invoice.php?func=$strFunc&amp;list=$strList&amp;id=$intInvoiceId";
+    $copyLinkOverride = is_string($intInvoiceId) ? "copy_invoice.php?func=$strFunc&amp;list=$strList&amp;id=$intInvoiceId" : '';
 
     $updateInvoiceNr = null;
     if (sesWriteAccess() && !$isOffer) {
         if (!getSetting('invoice_add_number')
             || !getSetting('invoice_add_reference_number')
         ) {
-            $updateInvoiceNr = '<a class="formbuttonlink" href="#" onclick="' .
-            $getInvoiceNr . '">' . Translator::translate('GetInvoiceNr') . '</a>';
+            $updateInvoiceNr = '<a class="formbuttonlink update-invoice-nr" href="#">'
+                . Translator::translate('GetInvoiceNr') . '</a>';
         }
     }
 
     $locReminderFeesAdded = Translator::translate('ReminderFeesAdded');
-    $addReminderFees = "$.getJSON('json.php?func=add_reminder_fees&amp;id=' + document.getElementById('record_id').value, function(json) { if (json.errors) { errormsg(json.errors); } else { showmsg('$locReminderFeesAdded'); } init_rows(); }); return false;";
+    $addReminderFees = "$.getJSON('json.php?func=add_reminder_fees&amp;id=' + document.getElementById('record_id').value, function(json) {"
+        . " if (json.errors) { MLInvoice.errormsg(json.errors); } else { MLInvoice.showmsg('$locReminderFeesAdded'); } init_rows(); });"
+        . " return false;";
 
     $intervalOptions = [
         '0' => Translator::translate('InvoiceIntervalNone'),
@@ -852,13 +938,22 @@ EOF;
 
     $astrFormElements = [
         [
+            'name' => 'uuid',
+            'label' => 'uuid',
+            'type' => 'HID_UUID',
+            'style' => '',
+            'position' => 1,
+            'allow_null' => false,
+            'default' => \Ramsey\Uuid\Uuid::uuid4()->toString()
+        ],
+        [
             'name' => 'base_id',
             'label' => 'Biller',
             'type' => 'LIST',
             'style' => 'long linked',
-            'listquery' => 'SELECT id, name FROM {prefix}base WHERE deleted=0 AND inactive=0    ORDER BY name, id',
+            'listquery' => 'SELECT id, name FROM {prefix}base WHERE deleted=0 AND inactive=0 ORDER BY name, id',
             'position' => 1,
-            'default' => $defaultBase
+            'default' => $defaultValues['base']
         ],
         [
             'name' => 'name',
@@ -959,7 +1054,7 @@ EOF;
             'position' => 2,
             'allow_null' => true,
             'attached_elem' => $markPaidTodayButton,
-            'elem_attributes' => 'onchange="' . $markPaidTodayEvent . '"'
+            'elem_attributes' => 'onchange="' . $markPaidTodayEvent . '" data-no-future="1"'
         ],
         [
             'name' => 'archived',
@@ -971,11 +1066,21 @@ EOF;
             'allow_null' => true
         ],
         [
+            'name' => 'type_id',
+            'label' => 'InvoiceType',
+            'type' => 'SEARCHLIST',
+            'style' => 'long' . ($isOffer ? ' hidden' : ''),
+            'listquery' => 'table=invoice_type&sort=order_no,name',
+            'position' => 2,
+            'default' => null,
+            'allow_null' => true
+        ],
+        [
             'name' => 'delivery_time',
             'label' => 'DeliveryTime',
             'type' => 'TEXT',
             'style' => 'medium hidezerovalue' . (!$isOffer ? ' hidden' : ''),
-            'position' => 2,
+            'position' => 3,
             'default' => null,
             'allow_null' => true
         ],
@@ -1000,19 +1105,29 @@ EOF;
             'allow_null' => true
         ],
         [
+            'name' => 'delivery_address',
+            'label' => 'DeliveryAddress',
+            'type' => 'AREA',
+            'style' => 'wide',
+            'position' => 1,
+            'default' => null,
+            'allow_null' => true,
+        ],
+        [
             'name' => 'info',
             'label' => 'VisibleInfo',
             'type' => 'AREA',
-            'style' => 'large',
+            'style' => 'wide',
             'position' => 1,
             'attached_elem' => '<span class="select-default-text" data-type="info" data-target="info"></span>',
-            'allow_null' => true
+            'default' => $defaultValues['info'],
+            'allow_null' => true,
         ],
         [
             'name' => 'internal_info',
             'label' => 'InternalInfo',
             'type' => 'AREA',
-            'style' => 'large',
+            'style' => 'wide',
             'position' => 2,
             'allow_null' => true
         ],
@@ -1020,18 +1135,20 @@ EOF;
             'name' => 'foreword',
             'label' => 'Foreword',
             'type' => 'AREA',
-            'style' => 'large',
+            'style' => 'wide',
             'position' => 1,
             'attached_elem' => '<span class="select-default-text" data-type="foreword" data-target="foreword"></span>',
+            'default' => $defaultValues['foreword'],
             'allow_null' => true
         ],
         [
             'name' => 'afterword',
             'label' => 'Afterword',
             'type' => 'AREA',
-            'style' => 'large',
+            'style' => 'wide',
             'position' => 2,
             'attached_elem' => '<span class="select-default-text" data-type="afterword" data-target="afterword"></span>',
+            'default' => $defaultValues['afterword'],
             'allow_null' => true
         ],
 
@@ -1047,7 +1164,7 @@ EOF;
             'style' => 'redirect',
             'listquery' => "copy_invoice.php?func=$strFunc&list=$strList&id=_ID_&refund=1",
             'position' => 1,
-            'default' => FALSE,
+            'default' => false,
             'allow_null' => true
         ],
         $arrRefundedInvoice,
@@ -1065,7 +1182,7 @@ EOF;
             'style' => 'redirect',
             'listquery' => $addReminderFees,
             'position' => 1,
-            'default' => FALSE,
+            'default' => false,
             'allow_null' => true
         ],
         $arrRefundingInvoice,
@@ -1083,7 +1200,7 @@ EOF;
             'style' => 'redirect',
             'listquery' => $addPartialPaymentCode,
             'position' => 1,
-            'default' => FALSE,
+            'default' => false,
             'allow_null' => true
         ],
     ];
@@ -1171,7 +1288,6 @@ case 'invoice_rows' :
             'style' => 'short translated',
             'listquery' => 'SELECT id, name FROM {prefix}row_type WHERE deleted=0 ORDER BY order_no',
             'position' => 0,
-            'default' => 'POST',
             'allow_null' => true
         ],
         [
@@ -1180,7 +1296,6 @@ case 'invoice_rows' :
             'type' => 'INT',
             'style' => 'currency',
             'position' => 0,
-            'default' => 'POST',
             'decimals' => getSetting('unit_price_decimals')
         ],
         [
@@ -1252,9 +1367,7 @@ case 'invoice_rows' :
 
     break;
 
-/******************************************************************************
- SYSTEM FORMS - SYSTEEMILOMAKKEET
- ******************************************************************************/
+/* SYSTEM FORMS */
 case 'base' :
     $strTable = '{prefix}base';
     $strJSONType = 'base';
@@ -1262,7 +1375,7 @@ case 'base' :
 
     $locTitle = Translator::translate('BaseLogoTitle');
     $openPopJS = <<<EOF
-    popup_dialog('base_logo.php?func=edit&amp;id=_ID_', '$(\\'img\\').attr(\\'src\\', \\'base_logo.php?func=view&id=_ID_\\')', '$locTitle', event, 600, 400); return false;
+    MLInvoice.popupDialog('base_logo.php?func=edit&amp;id=_ID_', '$(\\'img\\').attr(\\'src\\', \\'base_logo.php?func=view&id=_ID_\\')', '$locTitle', event, 600, 400); return false;
 EOF;
 
     $astrFormElements = [
@@ -1396,7 +1509,8 @@ EOF;
             'label' => 'Account',
             'type' => 'TEXT',
             'style' => 'medium',
-            'position' => 2
+            'position' => 2,
+            'allow_null' => true
         ],
         [
             'name' => 'bank_iban',
@@ -1678,18 +1792,116 @@ EOF;
             'style' => 'measurement',
             'position' => 1,
             'allow_null' => true
+        ],
+        [
+            'name' => 'send_api_configs',
+            'label' => 'SendAPISettings',
+            'type' => 'IFORM',
+            'style' => 'full',
+            'position' => 0,
+            'allow_null' => true,
+            'parent_key' => 'base_id'
         ]
     ];
     break;
 
-case 'invoice_state' :
+case 'send_api_config':
+case 'send_api_configs':
+    $strTable = '{prefix}send_api_config';
+    $strJSONType = 'send_api_config';
+    $strParentKey = 'base_id';
+    $clearRowValuesAfterAdd = true;
+    $astrFormElements = [
+        [
+            'name' => 'id',
+            'label' => '',
+            'type' => 'HID_INT',
+            'style' => 'medium',
+            'position' => 0
+        ],
+        [
+            'name' => 'name',
+            'label' => 'DisplayName',
+            'type' => 'TEXT',
+            'style' => 'medium',
+            'position' => 0,
+            'allow_null' => true
+        ],
+        [
+            'name' => 'method',
+            'label' => 'APIName',
+            'type' => 'LIST',
+            'style' => 'medium translated',
+            'listquery' => [
+                'postita.fi' => 'Postita.fi'
+            ],
+            'position' => 0,
+            'allow_null' => false
+        ],
+        [
+            'name' => 'username',
+            'label' => 'UserNameOrID',
+            'type' => 'TEXT',
+            'style' => 'medium',
+            'position' => 0,
+            'allow_null' => true
+        ],
+        [
+            'name' => 'password',
+            'label' => 'PasswordOrKey',
+            'type' => 'PASSWD_STORED',
+            'style' => 'medium',
+            'position' => 0,
+            'allow_null' => true
+        ],
+        [
+            'name' => 'reference',
+            'label' => 'ReferenceOrUnitID',
+            'type' => 'TEXT',
+            'style' => 'medium',
+            'position' => 0,
+            'allow_null' => true
+        ],
+        [
+            'name' => 'post_class',
+            'label' => 'PostalClass',
+            'type' => 'LIST',
+            'style' => 'medium translated noemptyvalue',
+            'listquery' => [
+                '0' => 'Unspecified',
+                '1' => 'FirstClassBW',
+                '2' => 'SecondClassBW',
+                '3' => 'FirstClassColor',
+                '4' => 'SecondClassColor'
+            ],
+            'position' => 0,
+            'allow_null' => false
+        ],
+        [
+            'name' => 'add_to_queue',
+            'label' => 'SendToQueue',
+            'type' => 'CHECK',
+            'style' => 'short',
+            'position' => 0
+        ],
+        [
+            'name' => 'finvoice_mail_backup',
+            'label' => 'FinvoiceMailBackup',
+            'type' => 'CHECK',
+            'style' => 'short',
+            'position' => 0
+        ]
+    ];
+    break;
+
+case 'invoice_state':
     $levelsAllowed = [
         ROLE_ADMIN
     ];
     $strTable = '{prefix}invoice_state';
     $strJSONType = 'invoice_state';
 
-    $intId = isset($id) ? $id : getRequest('id', FALSE);
+    $intId = isset($id) ? $id : getRequest('id', false);
     $readOnly = ($intId && $intId <= 8);
     $astrFormElements = [
         [
@@ -1733,6 +1945,40 @@ case 'invoice_state' :
     ];
     break;
 
+case 'invoice_type':
+    $levelsAllowed = [
+        ROLE_ADMIN
+    ];
+    $strTable = '{prefix}invoice_type';
+    $strJSONType = 'invoice_type';
+
+    $intId = isset($id) ? $id : getRequest('id', false);
+    $astrFormElements = [
+        [
+            'name' => 'identifier',
+            'label' => 'Identifier',
+            'type' => 'TEXT',
+            'style' => 'medium',
+            'position' => 1
+        ],
+        [
+            'name' => 'name',
+            'label' => 'Name',
+            'type' => 'TEXT',
+            'style' => 'medium',
+            'position' => 1
+        ],
+        [
+            'name' => 'order_no',
+            'label' => 'OrderNr',
+            'type' => 'INT',
+            'style' => 'short',
+            'position' => 2,
+            'listquery' => 'SELECT max(order_no)+5 FROM {prefix}invoice_type WHERE deleted=0',
+        ]
+    ];
+    break;
+
 case 'row_type' :
     $levelsAllowed = [
         ROLE_ADMIN
@@ -1765,7 +2011,7 @@ case 'session_type' :
     $strTable = '{prefix}session_type';
     $strJSONType = 'session_type';
 
-    $intId = getRequest('id', FALSE);
+    $intId = getRequest('id', false);
     if ($intId && $intId <= 4) {
         $readOnlyForm = true;
     }
@@ -1875,7 +2121,9 @@ case 'default_value' :
             'label' => 'OrderNr',
             'type' => 'INT',
             'style' => 'short',
-            'position' => 2
+            'position' => 2,
+            'listquery' => 'SELECT max(order_no)+5 FROM {prefix}default_value WHERE deleted=0',
+            'default' => 'ADD+5'
         ],
         [
             'name' => 'content',
@@ -1883,6 +2131,151 @@ case 'default_value' :
             'type' => 'AREA',
             'style' => 'xxlarge',
             'position' => 0
+        ],
+        [
+            'name' => 'additional',
+            'label' => 'AddInfo',
+            'type' => 'AREA',
+            'style' => 'xxlarge',
+            'position' => 0,
+            'allow_null' => true
+        ]
+    ];
+    break;
+
+case 'attachment':
+    $strTable = '{prefix}attachment';
+    $strJSONType = 'attachment';
+
+    $intId = isset($id) ? $id : getRequest('id', false);
+    if ($intId) {
+        $showAttachment = Translator::translate('ShowAttachment');
+        $extraButtons = <<<EOT
+    <a class="actionlink" href="attachment.php?id=$intId" target="_blank">$showAttachment</a>
+
+EOT;
+    }
+
+    $astrFormElements = [
+        [
+            'name' => 'name',
+            'label' => 'Name',
+            'type' => 'TEXT',
+            'style' => 'medium',
+            'position' => 1,
+            'allow_null' => true
+        ],
+        [
+            'name' => 'order_no',
+            'label' => 'OrderNr',
+            'type' => 'INT',
+            'style' => 'short',
+            'position' => 2,
+            'listquery' => 'SELECT max(order_no)+5 FROM {prefix}attachment',
+            'default' => 'ADD+5'
+        ],
+        [
+            'name' => 'description',
+            'label' => 'Description',
+            'type' => 'AREA',
+            'style' => 'medium',
+            'position' => 1,
+            'allow_null' => true
+        ],
+        [
+            'name' => 'date',
+            'label' => 'Date',
+            'type' => 'INTDATE',
+            'style' => 'date',
+            'position' => 2,
+            'default' => 'DATE_NOW',
+            'allow_null' => false,
+            'read_only' => true
+        ],
+        [
+            'name' => 'filedata',
+            'label' => 'File',
+            'type' => 'FILE',
+            'style' => 'large',
+            'position' => 1,
+            'mimetypes' => [
+                'application/pdf',
+                'image/jpeg',
+                'image/png'
+            ]
+        ]
+    ];
+    break;
+
+case 'invoice_attachment':
+    $strTable = '{prefix}invoice_attachment';
+    $strJSONType = 'invoice_attachment';
+    $strParentKey = 'invoice_id';
+
+    $astrFormElements = [
+        [
+            'name' => 'invoice_id',
+            'label' => 'InvoiceId',
+            'type' => 'INT',
+            'style' => 'medium',
+            'position' => 1,
+            'allow_null' => false
+        ],
+        [
+            'name' => 'name',
+            'label' => 'Name',
+            'type' => 'TEXT',
+            'style' => 'medium',
+            'position' => 1,
+            'allow_null' => true
+        ],
+        [
+            'name' => 'order_no',
+            'label' => 'OrderNr',
+            'type' => 'INT',
+            'style' => 'short',
+            'position' => 2,
+            'listquery' => 'SELECT max(order_no)+5 FROM {prefix}attachment',
+            'default' => 'ADD+5'
+        ],
+        [
+            'name' => 'description',
+            'label' => 'Description',
+            'type' => 'AREA',
+            'style' => 'medium',
+            'position' => 1,
+            'allow_null' => true
+        ],
+        [
+            'name' => 'date',
+            'label' => 'Date',
+            'type' => 'INTDATE',
+            'style' => 'date',
+            'position' => 2,
+            'default' => 'DATE_NOW',
+            'allow_null' => false,
+            'read_only' => true
+        ],
+        [
+            'name' => 'filedata',
+            'label' => 'File',
+            'type' => 'FILE',
+            'style' => 'large',
+            'position' => 1,
+            'mimetypes' => [
+                'application/pdf',
+                'image/jpeg',
+                'image/png'
+            ]
+        ],
+        [
+            'name' => 'send',
+            'label' => 'Send',
+            'type' => 'INT',
+            'style' => 'medium',
+            'position' => 1,
+            'allow_null' => true,
+            'default' => 0
         ]
     ];
     break;
@@ -1900,6 +2293,13 @@ case 'user' :
             'type' => 'TEXT',
             'style' => 'medium',
             'position' => 1
+        ],
+        [
+            'name' => 'email',
+            'label' => 'Email',
+            'type' => 'TEXT',
+            'style' => 'medium',
+            'position' => 2
         ],
         [
             'name' => 'login',

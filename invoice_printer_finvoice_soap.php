@@ -1,26 +1,51 @@
 <?php
-/*******************************************************************************
- MLInvoice: web-based invoicing application.
- Copyright (C) 2010-2017 Ere Maijala
-
- This program is free software. See attached LICENSE.
-
- *******************************************************************************/
-
-/*******************************************************************************
- MLInvoice: web-pohjainen laskutusohjelma.
- Copyright (C) 2010-2017 Ere Maijala
-
- Tämä ohjelma on vapaa. Lue oheinen LICENSE.
-
- *******************************************************************************/
+/**
+ * Finvoice with SOAP envelope
+ *
+ * PHP version 5
+ *
+ * Copyright (C) 2010-2018 Ere Maijala
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License version 2,
+ * as published by the Free Software Foundation.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
+ *
+ * @category MLInvoice
+ * @package  MLInvoice\Base
+ * @author   Ere Maijala <ere@labs.fi>
+ * @license  http://opensource.org/licenses/gpl-2.0.php GNU General Public License
+ * @link     http://labs.fi/mlinvoice.eng.php
+ */
 require_once 'invoice_printer_xslt.php';
 require_once 'htmlfuncs.php';
 require_once 'miscfuncs.php';
 
+/**
+ * Finvoice with SOAP envelope
+ *
+ * @category MLInvoice
+ * @package  MLInvoice\Base
+ * @author   Ere Maijala <ere@labs.fi>
+ * @license  http://opensource.org/licenses/gpl-2.0.php GNU General Public License
+ * @link     http://labs.fi/mlinvoice.eng.php
+ */
 class InvoicePrinterFinvoiceSOAP extends InvoicePrinterXSLT
 {
-    public function printInvoice()
+    /**
+     * Create the printout and return headers and data
+     *
+     * @return array Associative array with headers and data
+     */
+    public function createPrintout()
     {
         // First create the actual Finvoice
         $this->xsltParams['printTransmissionDetails'] = true;
@@ -30,13 +55,18 @@ class InvoicePrinterFinvoiceSOAP extends InvoicePrinterXSLT
         // Create the SOAP envelope
         parent::transform('create_finvoice_soap_envelope.xsl');
 
-        header('Content-Type: text/xml; charset=ISO-8859-15');
+        $headers = [
+            'Content-Type: text/xml; charset=ISO-8859-15'
+        ];
         $filename = $this->getPrintoutFileName();
         if ($this->printStyle) {
-            header("Content-Disposition: inline; filename=$filename");
+            $headers[] = "Content-Disposition: inline; filename=$filename";
         } else {
-            header("Content-Disposition: attachment; filename=$filename");
+            $headers[] = "Content-Disposition: attachment; filename=$filename";
         }
-        echo $this->xml . "\n$finvoice";
+        return [
+            'headers' => $headers,
+            'data' => $this->xml . "$finvoice"
+        ];
     }
 }

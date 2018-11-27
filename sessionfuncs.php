@@ -1,27 +1,31 @@
 <?php
-/*******************************************************************************
- MLInvoice: web-based invoicing application.
- Copyright (C) 2010-2017 Ere Maijala
-
- Portions based on:
- PkLasku : web-based invoicing software.
- Copyright (C) 2004-2008 Samu Reinikainen
-
- This program is free software. See attached LICENSE.
-
- *******************************************************************************/
-
-/*******************************************************************************
- MLInvoice: web-pohjainen laskutusohjelma.
- Copyright (C) 2010-2017 Ere Maijala
-
- Perustuu osittain sovellukseen:
- PkLasku : web-pohjainen laskutusohjelmisto.
- Copyright (C) 2004-2008 Samu Reinikainen
-
- Tämä ohjelma on vapaa. Lue oheinen LICENSE.
-
- *******************************************************************************/
+/**
+ * Session handling
+ *
+ * PHP version 5
+ *
+ * Copyright (C) 2004-2008 Samu Reinikainen
+ * Copyright (C) 2010-2018 Ere Maijala
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License version 2,
+ * as published by the Free Software Foundation.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
+ *
+ * @category MLInvoice
+ * @package  MLInvoice\Base
+ * @author   Ere Maijala <ere@labs.fi>
+ * @license  http://opensource.org/licenses/gpl-2.0.php GNU General Public License
+ * @link     http://labs.fi/mlinvoice.eng.php
+ */
 require_once 'config.php';
 require_once 'sqlfuncs.php';
 require_once 'miscfuncs.php';
@@ -31,42 +35,51 @@ define('ROLE_USER', 1);
 define('ROLE_BACKUPMGR', 90);
 define('ROLE_ADMIN', 99);
 
-function sesCreateSession($strLogin, $strPasswd)
+/**
+ * Create a session
+ *
+ * @param string $strLogin  Login name
+ * @param string $strPasswd Password
+ * @param string $strCsrf   CSRF token
+ *
+ * @return string OK|TIMEOUT|FAIL
+ */
+function sesCreateSession($strLogin, $strPasswd, $strCsrf)
 {
     if ($strLogin && $strPasswd) {
-        if (!isset($_SESSION['key']) || !isset($_SESSION['keyip'])) {
+        if (!isset($_SESSION['csrf']) || !isset($_SESSION['csrfip'])) {
             error_log('No key information in session, timeout or session problem');
             return 'TIMEOUT';
         }
-        $key_ip = $_SESSION['keyip'];
-        if ($_SERVER['REMOTE_ADDR'] != $key_ip) {
+        $csrfIp = $_SESSION['csrfip'];
+        if ($_SERVER['REMOTE_ADDR'] != $csrfIp) {
             // Delay so that brute-force attacks become unpractical
             error_log("Login failed for $strLogin due to IP address change");
             sleep(2);
             return 'FAIL';
         }
 
-        $key = $_SESSION['key'];
-        unset($_SESSION['key']);
-        $keytime = $_SESSION['keytime'];
-        if (!$key || time() - $keytime > 300) {
+        $csrf = $_SESSION['csrf'];
+        unset($_SESSION['csrf']);
+        $csrfTime = $_SESSION['csrftime'];
+        if ($csrf !== $strCsrf || time() - $csrfTime > 300) {
             error_log(
-                'Key not found or timeout, ' . (time() - $keytime)
+                'Key not found or timeout, ' . (time() - $csrfTime)
                 . ' seconds since login form was created'
             );
             return 'TIMEOUT';
         }
 
-        $strQuery = 'SELECT u.id AS user_id, u.type_id, u.passwd, st.time_out, st.access_level ' .
-             'FROM {prefix}users u ' .
-             'INNER JOIN {prefix}session_type st ON st.id = u.type_id ' .
-             'WHERE u.deleted=0 AND u.login=?';
-        $rows = db_param_query($strQuery, [$strLogin]);
+        $strQuery = 'SELECT u.id AS user_id, u.type_id, u.passwd, st.time_out, st.access_level '
+             . 'FROM {prefix}users u '
+             . 'INNER JOIN {prefix}session_type st ON st.id = u.type_id '
+             . 'WHERE u.deleted=0 AND u.login=?';
+        $rows = dbParamQuery($strQuery, [$strLogin]);
         if ($rows) {
             $row = $rows[0];
-            $passwd_md5 = $row['passwd'];
-            $md5 = md5($key . $passwd_md5);
-            if ($md5 != $strPasswd) {
+            if (!password_verify($strPasswd, $row['passwd'])
+                && md5($strPasswd) != $row['passwd']
+            ) {
                 // Delay so that brute-force attacks become unpractical
                 sleep(2);
                 error_log("Login failed for $strLogin");
@@ -88,6 +101,11 @@ function sesCreateSession($strLogin, $strPasswd)
     return 'FAIL';
 }
 
+/**
+ * End a session
+ *
+ * @return bool
+ */
 function sesEndSession()
 {
     session_destroy();
@@ -95,6 +113,13 @@ function sesEndSession()
     return true;
 }
 
+/**
+ * Verify current session
+ *
+ * @param bool $redirect Whether to redirect to login if verification fails
+ *
+ * @return bool
+ */
 function sesVerifySession($redirect = true)
 {
     if (!session_id()) {
@@ -121,14 +146,26 @@ function sesVerifySession($redirect = true)
     exit();
 }
 
-function sesCreateKey()
+/**
+ * Create a session CSRF hash
+ *
+ * @return string
+ */
+function sesCreateCsrf()
 {
-    $_SESSION['key'] = createRandomString(20);
-    $_SESSION['keytime'] = time();
-    $_SESSION['keyip'] = $_SERVER['REMOTE_ADDR'];
-    return $_SESSION['key'];
+    $_SESSION['csrf'] = createRandomString(20);
+    $_SESSION['csrftime'] = time();
+    $_SESSION['csrfip'] = $_SERVER['REMOTE_ADDR'];
+    return $_SESSION['csrf'];
 }
 
+/**
+ * Create a random character string
+ *
+ * @param int $length Length
+ *
+ * @return string
+ */
 function createRandomString($length)
 {
     $chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
@@ -140,8 +177,17 @@ function createRandomString($length)
     return $str;
 }
 
+/**
+ * Check if current session has write access
+ *
+ * @return bool
+ */
 function sesWriteAccess()
 {
+    if (!isset($_SESSION['sesACCESSLEVEL'])) {
+        ob_clean();
+        die();
+    }
     return in_array(
         $_SESSION['sesACCESSLEVEL'],
         [
@@ -152,40 +198,98 @@ function sesWriteAccess()
     );
 }
 
+/**
+ * Check if current session has admin access
+ *
+ * @return bool
+ */
 function sesAdminAccess()
 {
+    if (!isset($_SESSION['sesACCESSLEVEL'])) {
+        ob_clean();
+        die();
+    }
     return $_SESSION['sesACCESSLEVEL'] == ROLE_ADMIN;
 }
 
+/**
+ * Check if current session's access level is one of the allowed levels
+ *
+ * @param array $allowedLevels Allowed levels
+ *
+ * @return bool
+ */
 function sesAccessLevel($allowedLevels)
 {
+    if (!isset($_SESSION['sesACCESSLEVEL'])) {
+        ob_clean();
+        die();
+    }
     return in_array($_SESSION['sesACCESSLEVEL'], $allowedLevels);
 }
 
 // Database-based session management
-function db_session_open($savePath, $sessionID)
+
+/**
+ * Open a session
+ *
+ * @param string $savePath  Save path
+ * @param string $sessionID Session ID
+ *
+ * @return bool
+ */
+function dbSessionOpen($savePath, $sessionID)
 {
-    // Some distributions have gc disabled, need to do it manually
-    db_session_gc(get_cfg_var('session.gc_maxlifetime'));
     return true;
 }
 
-function db_session_close()
+/**
+ * Close a session
+ *
+ * @return bool
+ */
+function dbSessionClose()
 {
     return true;
 }
 
-function db_session_read($sessionID)
+/**
+ * Read session data
+ *
+ * @param string $sessionID Session ID
+ *
+ * @return bool
+ */
+function dbSessionRead($sessionID)
 {
-    $rows = db_param_query(
-        'SELECT data FROM {prefix}session where id=?', [$sessionID]
+    $rows = dbParamQuery(
+        'SELECT data, session_timestamp FROM {prefix}session where id=?', [$sessionID]
     );
-    return isset($rows[0]['data']) ? $rows[0]['data'] : '';
+    if (isset($rows[0])) {
+        // Check for expiration
+        $sessionMaxAge = get_cfg_var('session.gc_maxlifetime');
+        $minTimestamp = date(
+            'Y-m-d H:i:s',
+            time() - ($sessionMaxAge ? $sessionMaxAge : 900)
+        );
+        if ($rows[0]['session_timestamp'] >= $minTimestamp) {
+            return $rows[0]['data'];
+        }
+    }
+    return '';
 }
 
-function db_session_write($sessionID, $sessionData)
+/**
+ * Write session data
+ *
+ * @param string $sessionID   Session ID
+ * @param string $sessionData Session data
+ *
+ * @return bool
+ */
+function dbSessionWrite($sessionID, $sessionData)
 {
-    db_param_query(
+    dbParamQuery(
         'REPLACE INTO {prefix}session (id, data, session_timestamp) VALUES'
         . ' (?, ?, ?)',
         [
@@ -197,28 +301,48 @@ function db_session_write($sessionID, $sessionData)
     return true;
 }
 
-function db_session_destroy($sessionID)
+/**
+ * Delete a session
+ *
+ * @param string $sessionID Session ID
+ *
+ * @return bool
+ */
+function dbSessionDestroy($sessionID)
 {
-    db_param_query('DELETE FROM {prefix}session WHERE id=?', [$sessionID]);
+    dbParamQuery('DELETE FROM {prefix}session WHERE id=?', [$sessionID]);
+    // Some distributions have gc disabled, need to do it manually
+    dbSessionGc(get_cfg_var('session.gc_maxlifetime'));
     return true;
 }
 
-function db_session_gc($sessionMaxAge)
+/**
+ * Collect session garbage
+ *
+ * @param int $sessionMaxAge Session maximum age
+ *
+ * @return bool
+ */
+function dbSessionGc($sessionMaxAge)
 {
     if (!$sessionMaxAge) {
         $sessionMaxAge = 900;
     }
-    db_param_query('DELETE FROM {prefix}session WHERE session_timestamp<?',
+    // The query may fail if there are simultaneous requests, so don't let it cause
+    // the request to fail
+    dbParamQuery(
+        'DELETE FROM {prefix}session WHERE session_timestamp<?',
         [
             date('Y-m-d H:i:s', time() - $sessionMaxAge)
-        ]
+        ],
+        true
     );
     return true;
 }
 
 session_set_save_handler(
-    'db_session_open', 'db_session_close', 'db_session_read',
-    'db_session_write', 'db_session_destroy', 'db_session_gc'
+    'dbSessionOpen', 'dbSessionClose', 'dbSessionRead',
+    'dbSessionWrite', 'dbSessionDestroy', 'dbSessionGc'
 );
 session_name(_SESSION_NAME_);
 if (_SESSION_RESTRICT_PATH_) {

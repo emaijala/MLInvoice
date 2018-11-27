@@ -1,27 +1,30 @@
 <?php
-/*******************************************************************************
- MLInvoice: web-based invoicing application.
- Copyright (C) 2010-2017 Ere Maijala
-
- Portions based on:
- PkLasku : web-based invoicing software.
- Copyright (C) 2004-2008 Samu Reinikainen
-
- This program is free software. See attached LICENSE.
-
- *******************************************************************************/
-
-/*******************************************************************************
- MLInvoice: web-pohjainen laskutusohjelma.
- Copyright (C) 2010-2017 Ere Maijala
-
- Perustuu osittain sovellukseen:
- PkLasku : web-pohjainen laskutusohjelmisto.
- Copyright (C) 2004-2008 Samu Reinikainen
-
- Tämä ohjelma on vapaa. Lue oheinen LICENSE.
-
- *******************************************************************************/
+/**
+ * Product stock report
+ *
+ * PHP version 5
+ *
+ * Copyright (C) 2010-2018 Ere Maijala
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License version 2,
+ * as published by the Free Software Foundation.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
+ *
+ * @category MLInvoice
+ * @package  MLInvoice\Reports
+ * @author   Ere Maijala <ere@labs.fi>
+ * @license  http://opensource.org/licenses/gpl-2.0.php GNU General Public License
+ * @link     http://labs.fi/mlinvoice.eng.php
+ */
 require_once 'htmlfuncs.php';
 require_once 'sqlfuncs.php';
 require_once 'miscfuncs.php';
@@ -30,8 +33,22 @@ require_once 'translator.php';
 require_once 'pdf.php';
 require_once 'abstract_report.php';
 
+/**
+ * Product stock report
+ *
+ * @category MLInvoice
+ * @package  MLInvoice\Reports
+ * @author   Ere Maijala <ere@labs.fi>
+ * @license  http://opensource.org/licenses/gpl-2.0.php GNU General Public License
+ * @link     http://labs.fi/mlinvoice.eng.php
+ */
 class ProductStockReport extends AbstractReport
 {
+    /**
+     * Create the report form
+     *
+     * @return void
+     */
     public function createReport()
     {
         $strReport = getRequest('report', '');
@@ -55,44 +72,69 @@ class ProductStockReport extends AbstractReport
         </div>
 
         <div class="medium_label"><?php echo Translator::translate('Product')?></div>
-        <div class="field"><?php echo htmlFormElement('product', 'LIST', $intProductId, 'medium', 'SELECT id, product_name FROM {prefix}product WHERE deleted=0 ORDER BY product_name', 'MODIFY', FALSE)?></div>
+        <div class="field">
+            <?php
+            echo htmlFormElement(
+                'product', 'LIST', $intProductId, 'medium',
+                'SELECT id, product_name FROM {prefix}product WHERE deleted=0'
+                    . ' ORDER BY product_name',
+                'MODIFY', false
+            );
+            ?>
+        </div>
         <div class="field_sep"></div>
         <div class="medium_label"></div>
         <div class="field">
-            <input type="checkbox" id="purchase-price" name="purchase_price" value="1"> <label for="purchase-price"><?php echo Translator::translate('OnlyProductsWithPurchasePrice')?></label>
+            <label>
+                <input type="checkbox" id="purchase-price" name="purchase_price" value="1">
+                <?php echo Translator::translate('OnlyProductsWithPurchasePrice')?>
+            </label>
         </div>
 
         <div class="medium_label"><?php echo Translator::translate('PrintFormat')?></div>
         <div class="field">
-            <input type="radio" id="format-table" name="format" value="table" checked="checked">
-            <label for="format-table"><?php echo Translator::translate('PrintFormatTable')?></label>
+            <label>
+                <input type="radio" id="format-table" name="format" value="table" checked="checked">
+                <?php echo Translator::translate('PrintFormatTable')?>
+            </label>
         </div>
         <div class="medium_label"></div>
         <div class="field">
-            <input type="radio" id="format-html" name="format" value="html"><label for="format-html"><?php echo Translator::translate('PrintFormatHTML')?></label>
+            <label>
+                <input type="radio" id="format-html" name="format" value="html">
+                <?php echo Translator::translate('PrintFormatHTML')?>
+            </label>
         </div>
         <div class="medium_label"></div>
         <div class="field">
-            <input type="radio" id="format-pdf" name="format" value="pdf"><label for="format-pdf"><?php echo Translator::translate('PrintFormatPDF')?></label>
+            <label>
+                <input type="radio" id="format-pdf" name="format" value="pdf">
+                <?php echo Translator::translate('PrintFormatPDF')?>
+            </label>
         </div>
         <div class="field_sep"></div>
 
         <div class="unlimited_label">
-            <a class="actionlink" href="#" onclick="var form = document.getElementById('params'); form.target = ''; form.submit(); return false;">
+            <a class="actionlink form-submit" href="#" data-form-target="">
                 <?php echo Translator::translate('CreateReport')?>
             </a>
-            <a class="actionlink" href="#" onclick="var form = document.getElementById('params'); form.target = '_blank'; form.submit(); return false;">
+            <a class="actionlink form-submit" href="#" data-form-target="_blank">
                 <?php echo Translator::translate('CreateReportInNewWindow')?>
             </a>
         </div>
     </form>
 </div>
-<?php
+        <?php
     }
 
+    /**
+     * Print the report
+     *
+     * @return void
+     */
     protected function printReport()
     {
-        $intProductId = getRequest('product', FALSE);
+        $intProductId = getRequest('product', false);
         $format = getRequest('format', 'html');
         $purchasePrice = getRequest('purchase_price', false);
 
@@ -112,7 +154,7 @@ class ProductStockReport extends AbstractReport
         $this->printHeader($format);
 
         $stockValue = 0;
-        $rows = db_param_query($strQuery, $arrParams);
+        $rows = dbParamQuery($strQuery, $arrParams);
         foreach ($rows as $row) {
             $this->printRow(
                 $format, $row['id'], $row['product_code'], $row['product_name'],
@@ -124,6 +166,13 @@ class ProductStockReport extends AbstractReport
         $this->printFooter($format);
     }
 
+    /**
+     * Print row header
+     *
+     * @param string $format Print format
+     *
+     * @return void
+     */
     protected function printHeader($format)
     {
         if ($format == 'pdf') {
@@ -133,7 +182,7 @@ class ProductStockReport extends AbstractReport
             $pdf->headerRight = Translator::translate('ReportPage');
             $pdf->printHeaderOnFirstPage = true;
             $pdf->AddPage();
-            $pdf->SetAutoPageBreak(TRUE, 15);
+            $pdf->SetAutoPageBreak(true, 15);
 
             $pdf->setY(10);
             $pdf->SetFont('Helvetica', 'B', 12);
@@ -197,15 +246,30 @@ class ProductStockReport extends AbstractReport
         </tr>
       </thead>
       <tbody>
-<?php
+        <?php
     }
 
+    /**
+     * Print a row
+     *
+     * @param string $format        Print format
+     * @param int    $id            Product id
+     * @param string $strCode       Product code
+     * @param string $strProduct    Product name
+     * @param int    $purchasePrice Purchase price
+     * @param int    $unitPrice     Unit price
+     * @param int    $stockBalance  Stock balance
+     *
+     * @return void
+     */
     protected function printRow($format, $id, $strCode, $strProduct, $purchasePrice,
-        $unitPrice, $stockBalance)
-    {
+        $unitPrice, $stockBalance
+    ) {
+
         if ($format == 'pdf') {
-            if (!$strProduct)
+            if (!$strProduct) {
                 $strProduct = '-';
+            }
 
             $pdf = $this->pdf;
             $pdf->SetFont('Helvetica', '', 8);
@@ -216,8 +280,10 @@ class ProductStockReport extends AbstractReport
             $pdf->Cell(25, 3, miscRound2Decim($unitPrice), 0, 0, 'R');
             $pdf->Cell(25, 3, miscRound2Decim($purchasePrice), 0, 0, 'R');
             $pdf->Cell(25, 3, miscRound2Decim($stockBalance), 0, 0, 'R');
-            $pdf->Cell(25, 3, miscRound2Decim($stockBalance * $purchasePrice), 0, 0,
-                'R');
+            $pdf->Cell(
+                25, 3, miscRound2Decim($stockBalance * $purchasePrice), 0, 0,
+                'R'
+            );
             $pdf->setX($nameX);
             $cells2 = $pdf->MultiCell(40, 3, $strProduct, 0, 'L');
             if ($cells > $cells2) {
@@ -225,17 +291,24 @@ class ProductStockReport extends AbstractReport
             }
             return;
         }
-        if (!$strProduct)
+        if (!$strProduct) {
             $strProduct = '&ndash;';
-        else
+        } else {
             $strProduct = htmlspecialchars($strProduct);
+        }
         ?>
       <tr>
         <td class="input">
             <?php echo $strCode?>
         </td>
         <td class="input" data-sort="<?php echo $strProduct?>">
-            <a href="index.php?func=settings&list=product&form=product&id=<?php echo htmlspecialchars($id)?>"><?php echo $strProduct?></a>
+            <?php
+            $link = 'index.php?func=settings&list=product&form=product&id='
+                . htmlspecialchars($id);
+            ?>
+            <a href="<?php echo $link?>">
+                <?php echo $strProduct?>
+            </a>
         </td>
         <td class="input" style="text-align: right">
             <?php echo miscRound2Decim($unitPrice)?>
@@ -250,15 +323,24 @@ class ProductStockReport extends AbstractReport
             <?php echo miscRound2Decim($stockBalance * $purchasePrice)?>
         </td>
       </tr>
-<?php
+        <?php
     }
 
+    /**
+     * Print totals
+     *
+     * @param string $format     Print format
+     * @param int    $stockValue Product stock value
+     *
+     * @return void
+     */
     protected function printTotals($format, $stockValue)
     {
         if ($format == 'pdf') {
             $pdf = $this->pdf;
-            if ($pdf->getY() > $pdf->getPageHeight() - 7 - 15)
+            if ($pdf->getY() > $pdf->getPageHeight() - 7 - 15) {
                 $pdf->AddPage();
+            }
             $pdf->SetFont('Helvetica', '', 8);
             $pdf->setLineWidth(0.2);
 
@@ -280,19 +362,26 @@ class ProductStockReport extends AbstractReport
         $colSpan = 5;
         ?>
       <tr>
-    <?php if ($colSpan > 0) { ?>
+        <?php if ($colSpan > 0) { ?>
         <td class="input total_sum" colspan="<?php echo $colSpan?>"
                 style="text-align: right">
             <?php echo Translator::translate('Total')?>
         </td>
-    <?php } ?>
+        <?php } ?>
         <td class="input total_sum" style="text-align: right">
             &nbsp;<?php echo miscRound2Decim($stockValue)?>
         </td>
       </tr>
-<?php
+        <?php
     }
 
+    /**
+     * Print footer
+     *
+     * @param string $format Print format
+     *
+     * @return void
+     */
     protected function printFooter($format)
     {
         if ($format == 'pdf') {
@@ -316,11 +405,11 @@ class ProductStockReport extends AbstractReport
   </div>
         <?php
         if ($format == 'table') {
-        ?>
+            ?>
 <script type="text/javascript">
 var table = $('.report-table.datatable').DataTable({
     'language': {
-        <?php echo Translator::translate('TableTexts')?>
+            <?php echo Translator::translate('TableTexts')?>
     },
     'pageLength': 50,
     'jQueryUI': true,
@@ -349,7 +438,11 @@ var table = $('.report-table.datatable').DataTable({
             // Update footer
             pageTotal = MLInvoice.formatCurrency(pageTotal/100);
             total = MLInvoice.formatCurrency(total/100);
-            $(api.column(column).footer()).html('<div style="float: right"><?php echo Translator::translate('VisiblePage') ?>&nbsp;' + pageTotal + '</div><br><div style="float: right"><?php echo Translator::translate('Total') ?>&nbsp;' + total + '</div>');
+            $(api.column(column).footer()).html(
+                '<div style="float: right"><?php echo Translator::translate('VisiblePage') ?>&nbsp;'
+                + pageTotal + '</div><br><div style="float: right"><?php echo Translator::translate('Total') ?>&nbsp;'
+                + total + '</div>'
+            );
         });
     }
 });
@@ -362,7 +455,7 @@ var buttons = new $.fn.dataTable.Buttons(table, {
 
 table.buttons().container().appendTo($('.fg-toolbar', table.table().container()));
 </script>
-<?php
+            <?php
         }
     }
 }

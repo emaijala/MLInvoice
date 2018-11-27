@@ -1,25 +1,43 @@
 <?php
-/*******************************************************************************
- MLInvoice: web-based invoicing application.
- Copyright (C) 2010-2017 Ere Maijala
-
- This program is free software. See attached LICENSE.
-
- *******************************************************************************/
-
-/*******************************************************************************
- MLInvoice: web-pohjainen laskutusohjelma.
- Copyright (C) 2010-2017 Ere Maijala
-
- Tämä ohjelma on vapaa. Lue oheinen LICENSE.
-
- *******************************************************************************/
-
+/**
+ * Email invoice trait
+ *
+ * PHP version 5
+ *
+ * Copyright (C) 2010-2018 Ere Maijala
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License version 2,
+ * as published by the Free Software Foundation.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
+ *
+ * @category MLInvoice
+ * @package  MLInvoice\Base
+ * @author   Ere Maijala <ere@labs.fi>
+ * @license  http://opensource.org/licenses/gpl-2.0.php GNU General Public License
+ * @link     http://labs.fi/mlinvoice.eng.php
+ */
 require_once 'htmlfuncs.php';
 require_once 'miscfuncs.php';
- # Include the Autoloader (see "Libraries" for install instructions)
-require 'vendor/autoload.php';
-use Mailgun\Mailgun; 
+require_once 'mailer.php';
+
+/**
+ * Email invoice trait
+ *
+ * @category MLInvoice
+ * @package  MLInvoice\Base
+ * @author   Ere Maijala <ere@labs.fi>
+ * @license  http://opensource.org/licenses/gpl-2.0.php GNU General Public License
+ * @link     http://labs.fi/mlinvoice.eng.php
+ */
 
 trait InvoicePrinterEmailTrait
 {
@@ -30,18 +48,32 @@ trait InvoicePrinterEmailTrait
     protected $emailSubject = '';
     protected $emailBody = '';
 
+    /**
+     * Main method for printing
+     *
+     * @return void
+     */
     public function printInvoice()
     {
+        if (!$this->authenticated) {
+            parent::printInvoice();
+            return;
+        }
         $senderData = $this->senderData;
         $recipientData = $this->recipientData;
         $invoiceData = $this->invoiceData;
 
-        $defaultRecipient = isset($recipientData['email']) ? $recipientData['email'] : '';
+        $defaultId = getRequest('default_body_text');
+        $defaultValue = $defaultId ? getDefaultValue($defaultId, true) : null;
+        $defaultSettings = $this->parseDefaultSettings($defaultValue);
+
+        $defaultRecipient = isset($recipientData['email'])
+            ? $recipientData['email'] : '';
         $recipients = [];
         $contacts = $this->getContactPersons();
         foreach ($contacts as $contact) {
             if ($contact && !empty($contact['email'])) {
-                if (!empty($contact['contact_person'])) {
+                if (!empty(trim($contact['contact_person']))) {
                     $email = str_replace(',', ' ', $contact['contact_person'])
                         . ' <' . $contact['email'] . '>';
                 } else {
@@ -54,7 +86,8 @@ trait InvoicePrinterEmailTrait
             $defaultRecipient = implode(', ', $recipients);
         }
 
-        $this->emailFrom = getRequest('email_from', '');
+        $this->emailFrom = !empty($defaultSettings['from'])
+            ? $defaultSettings['from'] : getRequest('email_from', '');
         if (!$this->emailFrom) {
             if (!empty($senderData['invoice_email_from'])) {
                 $this->emailFrom = $senderData['invoice_email_from'];
@@ -63,23 +96,23 @@ trait InvoicePrinterEmailTrait
             }
         }
         $this->emailTo = getRequest('email_to', $defaultRecipient);
-        $this->emailCC = getRequest('email_cc', '');
-        $this->emailBCC = getRequest(
-            'email_bcc',
-            isset($senderData['invoice_email_bcc'])
-            ? $senderData['invoice_email_bcc'] : ''
-        );
+        $this->emailCC = !empty($defaultSettings['cc'])
+            ? $defaultSettings['cc'] : getRequest('email_cc', '');
+        $this->emailBCC = !empty($defaultSettings['bcc'])
+            ? $defaultSettings['bcc'] : getRequest(
+                'email_bcc',
+                isset($senderData['invoice_email_bcc'])
+                ? $senderData['invoice_email_bcc'] : ''
+            );
         $this->emailSubject = $this->replacePlaceholders(
-            getRequest('email_subject', $this->getDefaultSubject())
+            !empty($defaultSettings['subject'])
+                ? $defaultSettings['subject']
+                : getRequest('email_subject', $this->getDefaultSubject())
         );
 
         $emailBody = '';
-        $id = getRequest('default_body_text');
-        if ($id) {
-            $value = getDefaultValue($id);
-            if ($value) {
-                $emailBody = $value;
-            }
+        if (!empty($defaultValue['content'])) {
+            $emailBody = $defaultValue['content'];
         }
 
         $this->emailBody = $this->replacePlaceholders(
@@ -97,9 +130,18 @@ trait InvoicePrinterEmailTrait
             return;
         }
 
-        parent::printInvoice();
+        // Don't merge attachments to the invoice PDF
+        $attachments = $this->attachments;
+        $this->attachments = [];
+        $result = $this->createPrintout();
+        $this->sendEmail($result, $attachments);
     }
 
+    /**
+     * Get default message body
+     *
+     * @return string
+     */
     protected function getDefaultBody()
     {
         $key = 'invoice_email_body';
@@ -109,6 +151,11 @@ trait InvoicePrinterEmailTrait
         return isset($this->senderData[$key]) ? $this->senderData[$key] : '';
     }
 
+    /**
+     * Get default subject
+     *
+     * @return string
+     */
     protected function getDefaultSubject()
     {
         $key = 'invoice_email_subject';
@@ -118,6 +165,13 @@ trait InvoicePrinterEmailTrait
         return isset($this->senderData[$key]) ? $this->senderData[$key] : '';
     }
 
+    /**
+     * Display the email form
+     *
+     * @param string $errorMsg Any error message
+     *
+     * @return void
+     */
     protected function showEmailForm($errorMsg = '')
     {
         $senderData = $this->senderData;
@@ -163,6 +217,23 @@ trait InvoicePrinterEmailTrait
                     <textarea id="emailBody" name="email_body" class="email_body" cols="80" rows="24"><?php echo htmlspecialchars($this->emailBody)?></textarea>
                     <span class="select-default-text" data-type="email" data-target="email_form" data-send-form-param="default_body_text"></span>
                 </div>
+                <div class="medium_label"><?php echo Translator::translate('EmailAttachments')?></div>
+                <div class="field">
+                    <?php
+                    $filenames = [];
+                    if (!isset($this->printParams['attachment'])
+                        || $this->printParams['attachment']
+                    ) {
+                        $filename = $this->outputFileName ? $this->outputFileName
+                            : getSetting('invoice_pdf_filename');
+                        $filenames[] = htmlentities($this->getPrintOutFileName($filename));
+                    }
+                    foreach ($this->attachments as $attachment) {
+                        $filenames[] = htmlentities($attachment['filename']);
+                    }
+                    echo $filenames ? implode('<br>', $filenames) : '-';
+                    ?>
+                </div>
                 <div class="form_buttons" style="clear: both">
                     <a class="actionlink" onclick="$('#email_send').val(1); $('#email_form').submit(); return false;" href="#">
                         <?php echo Translator::translate('Send')?>
@@ -184,131 +255,57 @@ $(document).ready(function() {
 });
 </script>
 </html>
-<?php
+        <?php
     }
 
-    protected function printOut()
+    /**
+     * Send email
+     *
+     * @param array $printout    Printout data
+     * @param array $attachments Attachments
+     *
+     * @return void
+     */
+    protected function sendEmail($printout, $attachments)
     {
-        $pdf = $this->pdf;
-        $senderData = $this->senderData;
-        $invoiceData = $this->invoiceData;
-
         mb_internal_encoding('UTF-8');
 
-        $filename = $this->outputFileName ? $this->outputFileName
-            : getSetting('invoice_pdf_filename');
-        $filename = $this->getPrintOutFileName($filename);
-        $data = $pdf->Output($filename, 'S');
-
-        $message = Swift_Message::newInstance(
-            $this->emailSubject,
-            $this->getFlowedBody(),
-            'text/plain; format="flowed"'
-        );
-
-        $message->setFrom($this->extractNameAndAddress($this->emailFrom));
-        $message->setTo($this->extractAddresses($this->emailTo));
-        $message->setCc($this->extractAddresses($this->emailCC));
-        $message->setBcc($this->extractAddresses($this->emailBCC));
-
-        $attachment = Swift_Attachment::newInstance(
-            $data, $filename, 'application/pdf'
-        );
-        $message->attach($attachment);
-
-        $headers = $message->getHeaders();
-        $headers->addTextHeader('X-Mailer', 'MLInvoice');
-
-        
-        $settings = isset($GLOBALS['mlinvoice_mail_settings'])
-            ? $GLOBALS['mlinvoice_mail_settings'] : [];
-
-        
-        if (!isset($settings['send_method']) || 'mail' === $settings['send_method']
+        $emailAttachments = [];
+        if (!isset($this->printParams['attachment'])
+            || $this->printParams['attachment']
         ) {
-            $transport = Swift_MailTransport::newInstance();
-        } elseif ('sendmail' === $settings['send_method']) {
-            $command = empty($settings['sendmail']['command'])
-                ? '/usr/sbin/sendmail -bs'
-                : $settings['sendmail']['command'];
-            $transport = Swift_SendmailTransport::newInstance($command);
-        } elseif ('smtp' === $settings['send_method']) {
-            $smtp = empty($settings['smtp']) ? [] : $settings['smtp'];
-            $transport = Swift_SmtpTransport::newInstance(
-                $smtp['host'], $smtp['port'], $smtp['security']
-            );
-            if (!empty($smtp['username'])) {
-                $transport->setUsername($smtp['username']);
-            }
-            if (!empty($smtp['password'])) {
-                $transport->setPassword($smtp['password']);
-            }
-            if (!empty($smtp['stream_context_options'])) {
-                $transport->setStreamOptions($smtp['stream_context_options']);
+            $filename = $this->outputFileName ? $this->outputFileName
+                : getSetting('invoice_pdf_filename');
+            $filename = $this->getPrintOutFileName($filename);
+            $emailAttachments[] = [
+                'filename' => $filename,
+                'data' => $printout['data'],
+                'mimetype' => 'application/pdf'
+            ];
+            foreach ($attachments as $attachment) {
+                $attachment = getInvoiceAttachment($attachment['id']);
+                $emailAttachments[] = [
+                    'filename' => $attachment['filename'],
+                    'data' => $attachment['filedata'],
+                    'mimetype' => $attachment['mimetype']
+                ];
             }
         }
-        elseif ('mailgun' === $settings['send_method'])
-        {
-            $mailgun = empty($settings['mailgun']) ? [] : $settings['mailgun'];          
-            # Instantiate the client.
-            $mgClient = new Mailgun($mailgun['key'], new \Http\Adapter\Guzzle6\Client());
-            //$mgClient = new Mailgun($mailgun['key']);
-            $domain = $mailgun['domain'];
 
-            # Make the call to the client.
-            $mgMessage=array();
-            $mgMessage['from']=$this->emailFrom;
-            $mgMessage['to']= $this->emailTo;
-            $mgMessage['subject'] = $this->emailSubject;
-            if ($this->emailCC)
-            {
-            $mgMessage['cc'] = $this->emailCC;
-            }
-            if ($this->emailBCC)
-            {
-            $mgMessage['bcc'] = $this->emailBCC;
-            }
-            $mgMessage['text'] = $this->emailBody;
-            $data = $pdf->Output("/tmp/".$filename, 'F');
-            $mgAttachment=array(
-                'attachment' => array("/tmp/".$filename),
-            );
-            $result = $mgClient->sendMessage($domain,
-                $mgMessage,$mgAttachment);
-               
-            if (!$result) {
-                $this->showEmailForm(Translator::translate('EmailFailed'));
-                return;
-            }
-            if (is_callable([$this, 'emailSent'])) {
-            $this->emailSent();
-        }
-        $_SESSION['formMessage'] = 'EmailSent';
-        header(
-            'Location: index.php?func='
-            . sanitize(getRequest('func', 'open_invoices'))
-            . "&list=invoices&form=invoice&id={$this->invoiceId}"
+        $mailer = new Mailer();
+        $result = $mailer->sendEmail(
+            $this->emailFrom,
+            $this->emailTo,
+            $this->emailCC,
+            $this->emailBCC,
+            $this->emailSubject,
+            $this->emailBody,
+            $emailAttachments
         );
-            return;
-            
-  
+        if ($result) {
+            $this->showEmailForm($mailer->getErrorMessage());
         }
-           
-        
-        $mailer = Swift_Mailer::newInstance($transport);
 
-        try {
-            $result = $mailer->send($message);
-            if (!$result) {
-                $this->showEmailForm(Translator::translate('EmailFailed'));
-                return;
-            }
-        } catch (Exception $e) {
-            $this->showEmailForm(
-                Translator::translate('EmailFailed') . ': ' . $e->getMessage()
-            );
-            return;
-        }
         if (is_callable([$this, 'emailSent'])) {
             $this->emailSent();
         }
@@ -320,76 +317,25 @@ $(document).ready(function() {
         );
     }
 
-    protected function getFlowedBody()
+    /**
+     * Parse default value
+     *
+     * @param array $defaultValue Default value
+     *
+     * @return array
+     */
+    protected function parseDefaultSettings($defaultValue)
     {
-        $body = cond_utf8_encode($this->emailBody);
-
-        $lines = [];
-        foreach (explode(PHP_EOL, $body) as $paragraph) {
-            $line = '';
-            foreach (explode(' ', $paragraph) as $word) {
-                if (strlen($line) + strlen($word) > 66) {
-                    $lines[] = "$line ";
-                    $line = '';
-                }
-                if ($line)
-                    $line .= " $word";
-                elseif ($word)
-                    $line = $word;
-                else
-                    $line = ' ';
-            }
-            $line = rtrim($line);
-            $line = preg_replace('/\s+' . PHP_EOL . '$/', PHP_EOL, $line);
-            $lines[] = rtrim($line, ' ');
+        if (empty($defaultValue['additional'])) {
+            return [];
         }
-        $result = '';
-        foreach ($lines as $line) {
-            $result .= chunk_split($line, 998, PHP_EOL);
-        }
-        return $result;
-    }
-
-    protected function extractAddress($address)
-    {
-        if (preg_match('/<(.+)>/', $address, $matches)) {
-            return $matches[1];
-        }
-        return $address;
-    }
-
-    protected function extractName($address)
-    {
-        if (preg_match('/(.+)\s*<.+>/', $address, $matches)) {
-            return $matches[1];
-        }
-        return '';
-    }
-
-    protected function extractNameAndAddress($address)
-    {
-        $name = $this->extractName($address);
-        $address = $this->extractAddress($address);
-        return $name === '' ? $address : [$address => $name];
-    }
-
-    protected function extractAddresses($addresses)
-    {
-        $result = [];
-        if ($addresses) {
-            if (is_string($addresses)) {
-                $addresses = array_map('trim', str_getcsv($addresses));
-            }
-            foreach ($addresses as $idx => $address) {
-                $name = $this->extractName($address);
-                $addr = $this->extractAddress($address);
-                if ($name) {
-                    $result[$addr] = $name;
-                } else {
-                    $result[$idx] = $addr;
-                }
+        $settings = [];
+        foreach (explode("\n", $defaultValue['additional']) as $line) {
+            $parts = explode(':', $line, 2);
+            if (isset($parts[1])) {
+                $settings[strtolower(trim($parts[0]))] = trim($parts[1]);
             }
         }
-        return $result;
+        return $settings;
     }
 }

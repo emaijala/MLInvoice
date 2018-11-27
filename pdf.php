@@ -4,7 +4,7 @@
  *
  * PHP version 5
  *
- * Copyright (C) Ere Maijala 2010-2017.
+ * Copyright (C) Ere Maijala 2010-2018.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2,
@@ -20,38 +20,49 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  *
  * @category MLInvoice
- * @package  Printing
+ * @package  MLInvoice\Base
  * @author   Ere Maijala <ere@labs.fi>
  * @license  http://opensource.org/licenses/gpl-2.0.php GNU General Public License
  * @link     http://labs.fi/mlinvoice.eng.php
  */
-
 use Michelf\Markdown;
 
 /**
  * Extended TCPDF class
  *
  * @category MLInvoice
- * @package  Printing
+ * @package  MLInvoice\Base
  * @author   Ere Maijala <ere@labs.fi>
  * @license  http://opensource.org/licenses/gpl-2.0.php GNU General Public License
  * @link     http://labs.fi/mlinvoice.eng.php
  */
-class PDF extends TCPDF
+class PDF extends \setasign\Fpdi\Tcpdf\Fpdi
 {
     public $headerLeft = '', $headerCenter = '', $headerRight = '';
     public $footerLeft = '', $footerCenter = '', $footerRight = '';
     public $printHeaderOnFirstPage = false;
     public $printFooterOnFirstPage = false;
-    public $headerLeftPos = 4;
-    public $headerRightPos = 143;
-    public $footerLeftPos = 4;
-    public $footerRightPos = 143;
+    public $headerTopMargin = 10;
+    public $headerLeftPos = 10;
+    public $headerLeftWidth = 60;
+    public $headerCenterPos = 75; // 105 - 60 / 2
+    public $headerCenterWidth = 60;
+    public $headerRightPos = 140;
+    public $headerRightWidth = 60;
+    public $footerBottomMargin = 17;
+    public $footerLeftPos = 10;
+    public $footerLeftWidth = 60;
+    public $footerCenterPos = 75; // 105 - 60 / 2
+    public $footerCenterWidth = 60;
+    public $footerRightPos = 140;
+    public $footerRightWidth = 60;
     public $markdown = false;
     protected $savedAutoBreakState = null;
     protected $savedPageBreakTrigger = null;
     protected $savedbMargin = null;
     protected $marginSubsequent = null;
+    protected $printHeader = true;
+    protected $printFooter = true;
 
     /**
      * This method is used to render the page header.
@@ -62,22 +73,27 @@ class PDF extends TCPDF
     // @codingStandardsIgnoreLine
     public function Header()
     {
-        if ($this->PageNo() == 1 && !$this->printHeaderOnFirstPage) {
+        if (!$this->printHeader
+            || ($this->PageNo() == 1 && !$this->printHeaderOnFirstPage)
+        ) {
             return;
         }
-        $this->SetY(10);
+        $this->SetY($this->headerTopMargin);
         $this->SetFont('Helvetica', '', 7);
         $this->SetX($this->headerLeftPos);
         $this->MultiCell(
-            120, 5, $this->handlePageNum($this->headerLeft), 0, 'L', 0, 0
+            $this->headerLeftWidth, 5, $this->handlePageNum($this->headerLeft),
+            0, 'L', 0, 0
         );
-        $this->SetX(75);
+        $this->SetX($this->headerCenterPos);
         $this->MultiCell(
-            65, 5, $this->handlePageNum($this->headerCenter), 0, 'C', 0, 0
+            $this->headerCenterWidth, 5, $this->handlePageNum($this->headerCenter),
+            0, 'C', 0, 0
         );
         $this->SetX($this->headerRightPos);
         $this->MultiCell(
-            60, 5, $this->handlePageNum($this->headerRight), 0, 'R', 0, 0
+            $this->headerRightWidth, 5, $this->handlePageNum($this->headerRight),
+            0, 'R', 0, 0
         );
     }
 
@@ -90,17 +106,23 @@ class PDF extends TCPDF
     // @codingStandardsIgnoreLine
     public function Footer()
     {
-        if ($this->PageNo() == 1 && !$this->printFooterOnFirstPage) {
+        if (!$this->printFooter()
+            || ($this->PageNo() == 1 && !$this->printFooterOnFirstPage)
+        ) {
             return;
         }
-        $this->SetY(-17);
+        $this->SetY(-$this->footerBottomMargin);
         $this->SetFont('Helvetica', '', 7);
         $this->SetX($this->footerLeftPos);
-        $this->MultiCell(120, 5, $this->footerLeft, 0, 'L', 0, 0);
-        $this->SetX(75);
-        $this->MultiCell(65, 5, $this->footerCenter, 0, 'C', 0, 0);
+        $this->MultiCell($this->footerLeftWidth, 5, $this->footerLeft, 0, 'L', 0, 0);
+        $this->SetX($this->footerCenterPos);
+        $this->MultiCell(
+            $this->footerCenterWidth, 5, $this->footerCenter, 0, 'C', 0, 0
+        );
         $this->SetX($this->footerRightPos);
-        $this->MultiCell(60, 5, $this->footerRight, 0, 'R', 0, 0);
+        $this->MultiCell(
+            $this->footerRightWidth, 5, $this->footerRight, 0, 'R', 0, 0
+        );
     }
 
     /**
@@ -114,20 +136,20 @@ class PDF extends TCPDF
      * the background painted.
      *
      * @param float  $w     (float) Width of cells. If 0, they extend up to the
-     * right margin of the page.
+     *                      right margin of the page.
      * @param float  $h     (float) Cell minimum height. The cell extends
-     * automatically if needed.
+     *                      automatically if needed.
      * @param string $txt   (string) String to print
      * @param string $align (string) Allows to center or align the text.
-     * Possible values are:<ul><li>L or empty string: left align</li>
-     * <li>C: center</li><li>R: right align</li><li>J: justification (default value
-     * when $ishtml=false)</li></ul>
+     *                      Possible values are:<ul><li>L or empty string: left align</li>
+     *                      <li>C: center</li><li>R: right align</li><li>J: justification (default value
+     *                      when $ishtml=false)</li></ul>
      * @param int    $ln    (int) Indicates where the current position should
-     * go after the call. Possible values are:<ul><li>0: to the right</li><li>1: to
-     * the beginning of the next line [DEFAULT]</li><li>2: below</li></ul>
+     *                      go after the call. Possible values are:<ul><li>0: to the right</li><li>1: to
+     *                      the beginning of the next line [DEFAULT]</li><li>2: below</li></ul>
      * @param float  $maxh  (float) maximum height. It should be >= $h and less
-     * then remaining space to the bottom of the page, or 0 for disable this feature.
-     * This feature works only when $ishtml=false.
+     *                      then remaining space to the bottom of the page, or 0 for disable this feature.
+     *                      This feature works only when $ishtml=false.
      * @param bool   $md    Whether the input is to be interpreted as Markdown.
      *
      * @return int Return the number of cells or 1 for html mode.
@@ -207,7 +229,7 @@ class PDF extends TCPDF
      *
      * @return void
      */
-     public function restoreAutoBreakState()
+    public function restoreAutoBreakState()
     {
         if (null === $this->savedAutoBreakState) {
             throw new Exception('No saved auto break state');
@@ -215,6 +237,36 @@ class PDF extends TCPDF
         $this->AutoPageBreak = $this->savedAutoBreakState;
         $this->PageBreakTrigger = $this->savedPageBreakTrigger;
         $this->bMargin = $this->savedbMargin;
+    }
+
+    /**
+     * Get/set if printing of header is enabled
+     *
+     * @param bool $newValue If defined, sets the value
+     *
+     * @return bool Current setting
+     */
+    public function printHeader($newValue = null)
+    {
+        if (null !== $newValue) {
+            $this->printHeader = $newValue;
+        }
+        return $this->printHeader;
+    }
+
+    /**
+     * Get/set if printing of footer is enabled
+     *
+     * @param bool $newValue If defined, sets the value
+     *
+     * @return bool Current setting
+     */
+    public function printFooter($newValue = null)
+    {
+        if (null !== $newValue) {
+            $this->printFooter = $newValue;
+        }
+        return $this->printFooter;
     }
 
     /**

@@ -8,16 +8,29 @@
         }
     ],
     "license": "GPL-2.0",
+    "config": {
+        "platform": {
+            "php": "5.6.0"
+        }
+    },
     "require": {
-        "michelf/php-markdown": "^1.7.0",
-        "swiftmailer/swiftmailer": "^5.4.6",
-        "tecnickcom/tcpdf": "^6.2.12",
+        "michelf/php-markdown": "^1.8",
+        "paragonie/random_compat": "^2.0",
+        "ramsey/uuid": "^3.7",
+        "setasign/fpdi": "^2.1",
+        "swiftmailer/swiftmailer": "^5.4",
+        "tecnickcom/tcpdf": "^6.2",
+        "guzzlehttp/guzzle": "^6.3",
+        "phpseclib/phpseclib": "^2.0",
         "mailgun/mailgun-php": "^2.6",
         "php-http/guzzle6-adapter": "^1.1",
         "guzzlehttp/psr7": "^1.4"
+
     },
     "require-dev": {
-        "squizlabs/php_codesniffer": "^2.8"
+        "friendsofphp/php-cs-fixer": "^v2.10.3",
+        "phing/phing" : "^2.16.1",
+        "squizlabs/php_codesniffer": "^3.2.3"
     },
     "scripts": {
         "post-install-cmd": [

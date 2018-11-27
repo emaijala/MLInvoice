@@ -1,27 +1,31 @@
 <?php
-/*******************************************************************************
- MLInvoice: web-based invoicing application.
- Copyright (C) 2010-2017 Ere Maijala
-
- Portions based on:
- PkLasku : web-based invoicing software.
- Copyright (C) 2004-2008 Samu Reinikainen
-
- This program is free software. See attached LICENSE.
-
- *******************************************************************************/
-
-/*******************************************************************************
- MLInvoice: web-pohjainen laskutusohjelma.
- Copyright (C) 2010-2017 Ere Maijala
-
- Perustuu osittain sovellukseen:
- PkLasku : web-pohjainen laskutusohjelmisto.
- Copyright (C) 2004-2008 Samu Reinikainen
-
- Tämä ohjelma on vapaa. Lue oheinen LICENSE.
-
- *******************************************************************************/
+/**
+ * Quick search
+ *
+ * PHP version 5
+ *
+ * Copyright (C) 2004-2008 Samu Reinikainen
+ * Copyright (C) 2010-2018 Ere Maijala
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License version 2,
+ * as published by the Free Software Foundation.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
+ *
+ * @category MLInvoice
+ * @package  MLInvoice\Base
+ * @author   Ere Maijala <ere@labs.fi>
+ * @license  http://opensource.org/licenses/gpl-2.0.php GNU General Public License
+ * @link     http://labs.fi/mlinvoice.eng.php
+ */
 require_once 'htmlfuncs.php';
 require_once 'sqlfuncs.php';
 require_once 'sessionfuncs.php';
@@ -33,19 +37,20 @@ sesVerifySession();
 require_once 'translator.php';
 
 $strFunc = getRequest('func', '');
-if ($strFunc == 'open_invoices')
+if ($strFunc == 'open_invoices') {
     $strFunc = 'invoices';
+}
 
 $strQuery = 'SELECT * FROM {prefix}quicksearch ' . 'WHERE func=? AND user_id=? ' .
      'ORDER BY name';
-$rows = db_param_query($strQuery, [$strFunc, $_SESSION['sesUSERID']]);
+$rows = dbParamQuery($strQuery, [$strFunc, $_SESSION['sesUSERID']]);
 
 foreach ($rows as $row) {
     $intId = $row['id'];
-    $blnDelete = getPost('delete_' . $intId . '_x', FALSE) ? TRUE : FALSE;
+    $blnDelete = getPost('delete_' . $intId . '_x', false) ? true : false;
     if ($blnDelete && $intId) {
         $strDelQuery = 'DELETE FROM {prefix}quicksearch ' . 'WHERE id=?';
-        db_param_query($strDelQuery, [$intId]);
+        dbParamQuery($strDelQuery, [$intId]);
     }
 }
 
@@ -65,7 +70,7 @@ echo htmlPageStart();
                         </td>
                     </tr>
 <?php
-$rows = db_param_query($strQuery, [$strFunc, $_SESSION['sesUSERID']]);
+$rows = dbParamQuery($strQuery, [$strFunc, $_SESSION['sesUSERID']]);
 foreach ($rows as $row) {
     $intID = $row['id'];
     $strName = $row['name'];
@@ -78,13 +83,12 @@ foreach ($rows as $row) {
                         <td class="label"><a href="quick_search.php"
                             onClick="<?php echo $strOnClick?>; return false;"><?php echo $strName?></a>
                         </td>
-                        <td><input type="hidden" name="delete_<?php echo $intID?>_x"
-                            value="0"> <a class="tinyactionlink" href="#"
-                            title="<?php echo Translator::translate('DelRow')?>"
-                            onclick="self.document.forms[0].delete_<?php echo $intID?>_x.value=1; self.document.forms[0].submit(); return false;">
-                                X </a></td>
+                        <td>
+                            <input type="hidden" name="delete_<?php echo $intID?>_x" value="0">
+                            <a class="tinyactionlink form-submit" href="#" data-set-field="delete_<?php echo $intID?>_x"> X </a>
+                        </td>
                     </tr>
-<?php
+    <?php
 }
 if (!isset($intID)) {
     ?>
@@ -93,7 +97,7 @@ if (!isset($intID)) {
         <?php echo Translator::translate('NoQuickSearches')?>
     </td>
                     </tr>
-<?php
+    <?php
 }
 ?>
 </table>
@@ -101,8 +105,10 @@ if (!isset($intID)) {
                 <center>
                     <table>
                         <tr>
-                            <td><a class="actionlink" href="#"
-                                onclick="self.close(); return false;"><?php echo Translator::translate('Close')?></a>
+                            <td>
+                              <a class="actionlink popup-close" href="#">
+                                <?php echo Translator::translate('Close')?>
+                              </a>
                             </td>
                         </tr>
                     </table>

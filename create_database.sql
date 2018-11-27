@@ -10,6 +10,15 @@ CREATE TABLE mlinvoice_invoice_state (
   PRIMARY KEY (id)
 ) ENGINE=INNODB CHARACTER SET utf8 COLLATE utf8_swedish_ci;
 
+CREATE TABLE mlinvoice_invoice_type (
+  id int(11) NOT NULL auto_increment,
+  deleted tinyint NOT NULL default 0,
+  identifier varchar(255) default NULL,
+  name varchar(255) default NULL,
+  order_no int(11) default NULL,
+  PRIMARY KEY (id)
+) ENGINE=INNODB CHARACTER SET utf8 COLLATE utf8_swedish_ci;
+
 CREATE TABLE mlinvoice_row_type (
   id int(11) NOT NULL auto_increment,
   deleted tinyint NOT NULL default 0,
@@ -43,7 +52,7 @@ CREATE TABLE mlinvoice_base (
   org_unit_number varchar(35) default NULL,
   payment_intermediator varchar(100) default NULL,
   bank_name varchar(50) NOT NULL,
-  bank_account varchar(30) NOT NULL,
+  bank_account varchar(30) NOT NULL DEFAULT '',
   bank_iban varchar(50) NOT NULL,
   bank_swiftbic varchar(30) NOT NULL,
   bank_name2 varchar(50) NOT NULL DEFAULT '',
@@ -83,6 +92,34 @@ CREATE TABLE mlinvoice_base (
   PRIMARY KEY (id)
 ) ENGINE=INNODB CHARACTER SET utf8 COLLATE utf8_swedish_ci;
 
+CREATE TABLE mlinvoice_send_api_config (
+  id int(11) NOT NULL auto_increment,
+  base_id int(11) NOT NULL,
+  name varchar(255) NULL,
+  method varchar(255) NULL,
+  username varchar(255) NULL,
+  password varchar(255) NULL,
+  reference varchar(255) NULL,
+  post_class tinyint default 0 NOT NULL,
+  add_to_queue tinyint default 0 NOT NULL,
+  finvoice_mail_backup tinyint default 0 NOT NULL,
+  PRIMARY KEY (id),
+  FOREIGN KEY (base_id) REFERENCES mlinvoice_base(id)
+) ENGINE=INNODB CHARACTER SET utf8 COLLATE utf8_swedish_ci;
+
+CREATE TABLE mlinvoice_attachment (
+  id int(11) NOT NULL auto_increment,
+  name varchar(255) NOT NULL,
+  mimetype varchar(255) NOT NULL,
+  description varchar(255) default NULL,
+  date int(11) default NULL,
+  filename varchar(255) NOT NULL,
+  filesize integer(11) NULL,
+  filedata longblob NOT NULL,
+  order_no int(11) default NULL,
+  PRIMARY KEY (id)
+) ENGINE=INNODB CHARACTER SET utf8 COLLATE utf8_swedish_ci;
+
 CREATE TABLE mlinvoice_delivery_terms (
   id int(11) NOT NULL auto_increment,
   deleted tinyint NOT NULL default 0,
@@ -114,7 +151,8 @@ CREATE TABLE mlinvoice_company (
   fax varchar(30) default NULL,
   email varchar(512) default NULL,
   gsm varchar(30) default NULL,
-  billing_address text,
+  billing_address text default NULL,
+  delivery_address text default NULL,
   www varchar(100) default NULL,
   info text,
   company_id varchar(15) default NULL,
@@ -127,6 +165,11 @@ CREATE TABLE mlinvoice_company (
   delivery_method_id int(11) default NULL,
   payment_days int(11) default NULL,
   terms_of_payment varchar(255) NULL,
+  invoice_vatless tinyint NOT NULL default 0,
+  invoice_default_foreword text NULL,
+  invoice_default_afterword text NULL,
+  offer_default_foreword text NULL,
+  offer_default_afterword text NULL,
   PRIMARY KEY (id),
   FOREIGN KEY (type_id) REFERENCES mlinvoice_company_type(id),
   FOREIGN KEY (delivery_terms_id) REFERENCES mlinvoice_delivery_terms(id),
@@ -201,8 +244,31 @@ CREATE TABLE mlinvoice_product (
   stock_balance decimal(11,2) default NULL,
   vendor varchar(255) NULL,
   vendors_code varchar(100) NULL,
+  weight decimal(15,5) NULL,
   PRIMARY KEY (id),
   FOREIGN KEY (type_id) REFERENCES mlinvoice_row_type(id)
+) ENGINE=INNODB CHARACTER SET utf8 COLLATE utf8_swedish_ci;
+
+CREATE TABLE mlinvoice_custom_price (
+  id int(11) NOT NULL auto_increment,
+  company_id int(11) NOT NULL,
+  discount decimal(4,1) NULL,
+  multiplier decimal(10,5) NULL,
+  valid_until int(11) default NULL,
+  PRIMARY KEY (id),
+  FOREIGN KEY (company_id) REFERENCES mlinvoice_company(id) ON DELETE CASCADE
+) ENGINE=INNODB CHARACTER SET utf8 COLLATE utf8_swedish_ci;
+
+CREATE TABLE mlinvoice_custom_price_map (
+  id int(11) NOT NULL auto_increment,
+  custom_price_id int(11) NOT NULL,
+  product_id int(11) NOT NULL,
+  unit_price decimal(15,5) NULL,
+  discount decimal(4,1) NULL,
+  discount_amount decimal(15,5) NULL,
+  PRIMARY KEY (id),
+  FOREIGN KEY (custom_price_id) REFERENCES mlinvoice_custom_price(id) ON DELETE CASCADE,
+  FOREIGN KEY (product_id) REFERENCES mlinvoice_product(id) ON DELETE CASCADE
 ) ENGINE=INNODB CHARACTER SET utf8 COLLATE utf8_swedish_ci;
 
 CREATE TABLE mlinvoice_invoice (
@@ -230,11 +296,15 @@ CREATE TABLE mlinvoice_invoice (
   foreword text default NULL,
   afterword text default NULL,
   delivery_time varchar(100) default NULL,
+  delivery_address text default NULL,
+  uuid varchar(50) default NULL,
+  type_id int(11) default NULL,
   PRIMARY KEY (id),
   FOREIGN KEY (company_id) REFERENCES mlinvoice_company(id),
   FOREIGN KEY (state_id) REFERENCES mlinvoice_invoice_state(id),
   FOREIGN KEY (base_id) REFERENCES mlinvoice_base(id),
-  FOREIGN KEY (delivery_method_id) REFERENCES mlinvoice_delivery_method(id)
+  FOREIGN KEY (delivery_method_id) REFERENCES mlinvoice_delivery_method(id),
+  FOREIGN KEY (type_id) REFERENCES mlinvoice_invoice_type(id)
 ) ENGINE=INNODB AUTO_INCREMENT=1 CHARACTER SET utf8 COLLATE utf8_swedish_ci;
 
 CREATE TABLE mlinvoice_invoice_row (
@@ -260,6 +330,22 @@ CREATE TABLE mlinvoice_invoice_row (
   FOREIGN KEY (type_id) REFERENCES mlinvoice_row_type(id)
 ) ENGINE=INNODB CHARACTER SET utf8 COLLATE utf8_swedish_ci;
 
+CREATE TABLE mlinvoice_invoice_attachment (
+  id int(11) NOT NULL auto_increment,
+  invoice_id int(11) NOT NULL,
+  name varchar(255) NOT NULL,
+  mimetype varchar(255) NOT NULL,
+  description varchar(255) default NULL,
+  date int(11) default NULL,
+  filename varchar(255) NOT NULL,
+  filesize integer(11) NULL,
+  filedata longblob NOT NULL,
+  send tinyint NOT NULL default 0,
+  order_no int(11) default NULL,
+  PRIMARY KEY (id),
+  FOREIGN KEY (invoice_id) REFERENCES mlinvoice_invoice(id) ON DELETE CASCADE
+) ENGINE=INNODB CHARACTER SET utf8 COLLATE utf8_swedish_ci;
+
 CREATE TABLE mlinvoice_session_type (
   id int(11) NOT NULL auto_increment,
   deleted tinyint NOT NULL default 0,
@@ -278,6 +364,7 @@ CREATE TABLE mlinvoice_users (
   login varchar(255) default NULL,
   passwd varchar(255) default NULL,
   type_id int(11) default NULL,
+  token varchar(255) default NULL,
   PRIMARY KEY (id),
   FOREIGN KEY (type_id) REFERENCES mlinvoice_session_type(id)
 ) ENGINE=INNODB CHARACTER SET utf8 COLLATE utf8_swedish_ci;
@@ -347,12 +434,13 @@ CREATE TABLE mlinvoice_default_value (
   order_no int(11) default NULL,
   type varchar(100) NULL,
   content text NULL,
+  additional text NULL,
   PRIMARY KEY (id)
 ) ENGINE=INNODB CHARACTER SET utf8 COLLATE utf8_swedish_ci;
 
 SET NAMES 'utf8';
 
-INSERT INTO mlinvoice_state (id, data) VALUES ('version', '52');
+INSERT INTO mlinvoice_state (id, data) VALUES ('version', '64');
 
 INSERT INTO mlinvoice_state (id, data) VALUES ('tableconversiondone', '1');
 
@@ -383,36 +471,42 @@ INSERT INTO mlinvoice_session_type (id, name, order_no, time_out, access_level) 
 INSERT INTO mlinvoice_session_type (id, name, order_no, time_out, access_level) VALUES (3, 'SessionTypeBackupUser', 10, 3600, 90);
 INSERT INTO mlinvoice_session_type (id, name, order_no, time_out, access_level) VALUES (4, 'SessionTypeReadOnly', 0, 3600, 0);
 
-INSERT INTO mlinvoice_print_template (id, name, filename, parameters, output_filename, type, order_no) VALUES (1, 'PrintInvoiceFinnish', 'invoice_printer.php', 'invoice', 'lasku_%d.pdf', 'invoice', 5);
-INSERT INTO mlinvoice_print_template (id, name, filename, parameters, output_filename, type, order_no) VALUES (2, 'PrintDispatchNoteFinnish', 'invoice_printer.php', 'dispatch', 'lahetysluettelo_%d.pdf', 'invoice', 20);
-INSERT INTO mlinvoice_print_template (id, name, filename, parameters, output_filename, type, order_no) VALUES (3, 'PrintReceiptFinnish', 'invoice_printer.php', 'receipt', 'kuitti_%d.pdf', 'invoice', 25);
-INSERT INTO mlinvoice_print_template (id, name, filename, parameters, output_filename, type, order_no) VALUES (4, 'PrintEmailFinnish', 'invoice_printer_email.php', 'invoice', 'lasku_%d.pdf', 'invoice', 10);
-INSERT INTO mlinvoice_print_template (id, name, filename, parameters, output_filename, type, order_no, inactive) VALUES (5, 'PrintInvoiceEnglish', 'invoice_printer.php', 'invoice,en', 'invoice_%d.pdf', 'invoice', 15, 1);
-INSERT INTO mlinvoice_print_template (id, name, filename, parameters, output_filename, type, order_no, inactive) VALUES (6, 'PrintReceiptEnglish', 'invoice_printer.php', 'receipt,en', 'receipt_%d.pdf', 'invoice', 30, 1);
-INSERT INTO mlinvoice_print_template (id, name, filename, parameters, output_filename, type, order_no, inactive) VALUES (7, 'PrintFinvoice', 'invoice_printer_finvoice.php', '', 'finvoice_%d.xml', 'invoice', 40, 1);
-INSERT INTO mlinvoice_print_template (id, name, filename, parameters, output_filename, type, order_no, inactive) VALUES (8, 'PrintFinvoiceStyled', 'invoice_printer_finvoice.php', 'Finvoice.xsl', 'finvoice_%d.xml', 'invoice', 50, 1);
-INSERT INTO mlinvoice_print_template (id, name, filename, parameters, output_filename, type, order_no, inactive) VALUES (9, 'PrintInvoiceFinnishWithVirtualBarcode', 'invoice_printer.php', 'invoice,fi,Y', 'lasku_%d.pdf', 'invoice', 60, 1);
-INSERT INTO mlinvoice_print_template (id, name, filename, parameters, output_filename, type, order_no, inactive) VALUES (10, 'PrintInvoiceFinnishFormless', 'invoice_printer_formless.php', 'invoice,fi,N', 'lasku_%d.pdf', 'invoice', 70, 1);
-INSERT INTO mlinvoice_print_template (id, name, filename, parameters, output_filename, type, order_no, inactive) VALUES (11, 'PrintInvoiceEnglishWithVirtualBarcode', 'invoice_printer.php', 'invoice,en,Y', 'invoice_%d.pdf', 'invoice', 70, 1);
-INSERT INTO mlinvoice_print_template (id, name, filename, parameters, output_filename, type, order_no, inactive) VALUES (12, 'PrintInvoiceEnglishFormless', 'invoice_printer_formless.php', 'invoice,en,N', 'invoice_%d.pdf', 'invoice', 80, 1);
-INSERT INTO mlinvoice_print_template (id, name, filename, parameters, output_filename, type, order_no, inactive) VALUES (13, 'PrintInvoiceSwedish', 'invoice_printer.php', 'invoice,sv-FI,N', 'faktura_%d.pdf', 'invoice', 90, 1);
-INSERT INTO mlinvoice_print_template (id, name, filename, parameters, output_filename, type, order_no, inactive) VALUES (14, 'PrintInvoiceSwedishFormless', 'invoice_printer_formless.php', 'invoice,sv-FI,N', 'faktura_%d.pdf', 'invoice', 100, 1);
-INSERT INTO mlinvoice_print_template (id, name, filename, parameters, output_filename, type, order_no, inactive) VALUES (16, 'PrintEmailReceiptFinnish', 'invoice_printer_email.php', 'receipt', 'kuitti_%d.pdf', 'invoice', 110, 1);
-INSERT INTO mlinvoice_print_template (id, name, filename, parameters, output_filename, type, order_no, inactive) VALUES (17, 'PrintEmailReceiptSwedish', 'invoice_printer_email.php', 'receipt,sv-FI', 'kvitto_%d.pdf', 'invoice', 120, 1);
-INSERT INTO mlinvoice_print_template (id, name, filename, parameters, output_filename, type, order_no, inactive) VALUES (18, 'PrintEmailReceiptEnglish', 'invoice_printer_email.php', 'receipt,en', 'receipt_%d.pdf', 'invoice', 130, 1);
-INSERT INTO mlinvoice_print_template (id, name, filename, parameters, output_filename, type, order_no, inactive) VALUES (19, 'PrintOrderConfirmationFinnish', 'invoice_printer_order_confirmation.php', 'receipt', 'tilausvahvistus_%d.pdf', 'invoice', 140, 1);
-INSERT INTO mlinvoice_print_template (id, name, filename, parameters, output_filename, type, order_no, inactive) VALUES (20, 'PrintOrderConfirmationSwedish', 'invoice_printer_order_confirmation.php', 'receipt,sv-FI', 'orderbekraftelse_%d.pdf', 'invoice', 150, 1);
-INSERT INTO mlinvoice_print_template (id, name, filename, parameters, output_filename, type, order_no, inactive) VALUES (21, 'PrintOrderConfirmationEnglish', 'invoice_printer_order_confirmation.php', 'receipt,en', 'order_confirmation_%d.pdf', 'invoice', 160, 1);
-INSERT INTO mlinvoice_print_template (id, name, filename, parameters, output_filename, type, order_no, inactive) VALUES (22, 'PrintOrderConfirmationEmailFinnish', 'invoice_printer_order_confirmation_email.php', 'receipt', 'tilausvahvistus_%d.pdf', 'invoice', 170, 1);
-INSERT INTO mlinvoice_print_template (id, name, filename, parameters, output_filename, type, order_no, inactive) VALUES (23, 'PrintOrderConfirmationEmailSwedish', 'invoice_printer_order_confirmation_email.php', 'receipt,sv-FI', 'orderbekraftelse_%d.pdf', 'invoice', 180, 1);
-INSERT INTO mlinvoice_print_template (id, name, filename, parameters, output_filename, type, order_no, inactive) VALUES (24, 'PrintOrderConfirmationEmailEnglish', 'invoice_printer_order_confirmation_email.php', 'receipt,en', 'order_confirmation_%d.pdf', 'invoice', 190, 1);
-INSERT INTO mlinvoice_print_template (id, name, filename, parameters, output_filename, type, order_no, inactive) VALUES (25, 'PrintFinvoiceSOAP', 'invoice_printer_finvoice_soap.php', '', 'finvoice_%d.xml', 'invoice', 55, 1);
-INSERT INTO mlinvoice_print_template (id, name, filename, parameters, output_filename, type, order_no, inactive) VALUES (26, 'PrintOfferFinnish', 'invoice_printer_offer.php', 'offer', 'tarjous_%d.pdf', 'offer', 200, 1);
-INSERT INTO mlinvoice_print_template (id, name, filename, parameters, output_filename, type, order_no, inactive) VALUES (27, 'PrintOfferSwedish', 'invoice_printer_offer.php', 'offer,sv-FI', 'anbud_%d.pdf', 'offer', 210, 1);
-INSERT INTO mlinvoice_print_template (id, name, filename, parameters, output_filename, type, order_no, inactive) VALUES (28, 'PrintOfferEnglish', 'invoice_printer_offer.php', 'offer,en', 'offer_%d.pdf', 'offer', 220, 1);
-INSERT INTO mlinvoice_print_template (id, name, filename, parameters, output_filename, type, order_no, inactive) VALUES (29, 'PrintOfferEmailFinnish', 'invoice_printer_offer_email.php', 'offer', 'tarjous_%d.pdf', 'offer', 230, 1);
-INSERT INTO mlinvoice_print_template (id, name, filename, parameters, output_filename, type, order_no, inactive) VALUES (30, 'PrintOfferEmailSwedish', 'invoice_printer_offer_email.php', 'offer,sv-FI', 'anbud_%d.pdf', 'offer', 240, 1);
-INSERT INTO mlinvoice_print_template (id, name, filename, parameters, output_filename, type, order_no, inactive) VALUES (31, 'PrintOfferEmailEnglish', 'invoice_printer_offer_email.php', 'offer,en', 'offer_%d.pdf', 'offer', 250, 1);
+INSERT INTO mlinvoice_print_template (name, filename, parameters, output_filename, type, order_no) VALUES ('PrintInvoiceFinnish', 'invoice_printer.php', 'invoice', 'lasku_%d.pdf', 'invoice', 5);
+INSERT INTO mlinvoice_print_template (name, filename, parameters, output_filename, type, order_no) VALUES ('PrintDispatchNoteFinnish', 'invoice_printer.php', 'dispatch', 'lahetysluettelo_%d.pdf', 'invoice', 20);
+INSERT INTO mlinvoice_print_template (name, filename, parameters, output_filename, type, order_no) VALUES ('PrintReceiptFinnish', 'invoice_printer.php', 'receipt', 'kuitti_%d.pdf', 'invoice', 25);
+INSERT INTO mlinvoice_print_template (name, filename, parameters, output_filename, type, order_no) VALUES ('PrintEmailFinnish', 'invoice_printer_email.php', 'invoice', 'lasku_%d.pdf', 'invoice', 10);
+INSERT INTO mlinvoice_print_template (name, filename, parameters, output_filename, type, order_no, inactive) VALUES ('PrintEmailEnglish', 'invoice_printer_email.php', 'invoice,en-US', 'invoice_%d.pdf', 'invoice', 11, 1);
+INSERT INTO mlinvoice_print_template (name, filename, parameters, output_filename, type, order_no, inactive) VALUES ('PrintEmailSwedish', 'invoice_printer_email.php', 'invoice,sv-FI', 'faktura_%d.pdf', 'invoice', 12, 1);
+INSERT INTO mlinvoice_print_template (name, filename, parameters, output_filename, type, order_no, inactive) VALUES ('PrintInvoiceEnglish', 'invoice_printer.php', 'invoice,en', 'invoice_%d.pdf', 'invoice', 15, 1);
+INSERT INTO mlinvoice_print_template (name, filename, parameters, output_filename, type, order_no, inactive) VALUES ('PrintReceiptEnglish', 'invoice_printer.php', 'receipt,en', 'receipt_%d.pdf', 'invoice', 30, 1);
+INSERT INTO mlinvoice_print_template (name, filename, parameters, output_filename, type, order_no, inactive) VALUES ('PrintFinvoice', 'invoice_printer_finvoice.php', '', 'finvoice_%d.xml', 'invoice', 40, 1);
+INSERT INTO mlinvoice_print_template (name, filename, parameters, output_filename, type, order_no, inactive) VALUES ('PrintFinvoiceStyled', 'invoice_printer_finvoice.php', 'Finvoice.xsl', 'finvoice_%d.xml', 'invoice', 50, 1);
+INSERT INTO mlinvoice_print_template (name, filename, parameters, output_filename, type, order_no, inactive) VALUES ('PrintInvoiceFinnishWithVirtualBarcode', 'invoice_printer.php', 'invoice,fi,Y', 'lasku_%d.pdf', 'invoice', 60, 1);
+INSERT INTO mlinvoice_print_template (name, filename, parameters, output_filename, type, order_no, inactive) VALUES ('PrintInvoiceFinnishFormless', 'invoice_printer_formless.php', 'invoice,fi,N', 'lasku_%d.pdf', 'invoice', 70, 1);
+INSERT INTO mlinvoice_print_template (name, filename, parameters, output_filename, type, order_no, inactive) VALUES ('PrintInvoiceEnglishWithVirtualBarcode', 'invoice_printer.php', 'invoice,en,Y', 'invoice_%d.pdf', 'invoice', 70, 1);
+INSERT INTO mlinvoice_print_template (name, filename, parameters, output_filename, type, order_no, inactive) VALUES ('PrintInvoiceEnglishFormless', 'invoice_printer_formless.php', 'invoice,en,N', 'invoice_%d.pdf', 'invoice', 80, 1);
+INSERT INTO mlinvoice_print_template (name, filename, parameters, output_filename, type, order_no, inactive) VALUES ('PrintInvoiceSwedish', 'invoice_printer.php', 'invoice,sv-FI,N', 'faktura_%d.pdf', 'invoice', 90, 1);
+INSERT INTO mlinvoice_print_template (name, filename, parameters, output_filename, type, order_no, inactive) VALUES ('PrintInvoiceSwedishFormless', 'invoice_printer_formless.php', 'invoice,sv-FI,N', 'faktura_%d.pdf', 'invoice', 100, 1);
+INSERT INTO mlinvoice_print_template (name, filename, parameters, output_filename, type, order_no, inactive) VALUES ('PrintEmailReceiptFinnish', 'invoice_printer_email.php', 'receipt', 'kuitti_%d.pdf', 'invoice', 110, 1);
+INSERT INTO mlinvoice_print_template (name, filename, parameters, output_filename, type, order_no, inactive) VALUES ('PrintEmailReceiptSwedish', 'invoice_printer_email.php', 'receipt,sv-FI', 'kvitto_%d.pdf', 'invoice', 120, 1);
+INSERT INTO mlinvoice_print_template (name, filename, parameters, output_filename, type, order_no, inactive) VALUES ('PrintEmailReceiptEnglish', 'invoice_printer_email.php', 'receipt,en', 'receipt_%d.pdf', 'invoice', 130, 1);
+INSERT INTO mlinvoice_print_template (name, filename, parameters, output_filename, type, order_no, inactive) VALUES ('PrintOrderConfirmationFinnish', 'invoice_printer_order_confirmation.php', 'receipt', 'tilausvahvistus_%d.pdf', 'invoice', 140, 1);
+INSERT INTO mlinvoice_print_template (name, filename, parameters, output_filename, type, order_no, inactive) VALUES ('PrintOrderConfirmationSwedish', 'invoice_printer_order_confirmation.php', 'receipt,sv-FI', 'orderbekraftelse_%d.pdf', 'invoice', 150, 1);
+INSERT INTO mlinvoice_print_template (name, filename, parameters, output_filename, type, order_no, inactive) VALUES ('PrintOrderConfirmationEnglish', 'invoice_printer_order_confirmation.php', 'receipt,en', 'order_confirmation_%d.pdf', 'invoice', 160, 1);
+INSERT INTO mlinvoice_print_template (name, filename, parameters, output_filename, type, order_no, inactive) VALUES ('PrintOrderConfirmationEmailFinnish', 'invoice_printer_order_confirmation_email.php', 'receipt', 'tilausvahvistus_%d.pdf', 'invoice', 170, 1);
+INSERT INTO mlinvoice_print_template (name, filename, parameters, output_filename, type, order_no, inactive) VALUES ('PrintOrderConfirmationEmailSwedish', 'invoice_printer_order_confirmation_email.php', 'receipt,sv-FI', 'orderbekraftelse_%d.pdf', 'invoice', 180, 1);
+INSERT INTO mlinvoice_print_template (name, filename, parameters, output_filename, type, order_no, inactive) VALUES ('PrintOrderConfirmationEmailEnglish', 'invoice_printer_order_confirmation_email.php', 'receipt,en', 'order_confirmation_%d.pdf', 'invoice', 190, 1);
+INSERT INTO mlinvoice_print_template (name, filename, parameters, output_filename, type, order_no, inactive) VALUES ('PrintFinvoiceSOAP', 'invoice_printer_finvoice_soap.php', '', 'finvoice_%d.xml', 'invoice', 55, 1);
+INSERT INTO mlinvoice_print_template (name, filename, parameters, output_filename, type, order_no, inactive) VALUES ('PrintOfferFinnish', 'invoice_printer_offer.php', 'offer', 'tarjous_%d.pdf', 'offer', 200, 1);
+INSERT INTO mlinvoice_print_template (name, filename, parameters, output_filename, type, order_no, inactive) VALUES ('PrintOfferSwedish', 'invoice_printer_offer.php', 'offer,sv-FI', 'anbud_%d.pdf', 'offer', 210, 1);
+INSERT INTO mlinvoice_print_template (name, filename, parameters, output_filename, type, order_no, inactive) VALUES ('PrintOfferEnglish', 'invoice_printer_offer.php', 'offer,en', 'offer_%d.pdf', 'offer', 220, 1);
+INSERT INTO mlinvoice_print_template (name, filename, parameters, output_filename, type, order_no, inactive) VALUES ('PrintOfferEmailFinnish', 'invoice_printer_offer_email.php', 'offer', 'tarjous_%d.pdf', 'offer', 230, 1);
+INSERT INTO mlinvoice_print_template (name, filename, parameters, output_filename, type, order_no, inactive) VALUES ('PrintOfferEmailSwedish', 'invoice_printer_offer_email.php', 'offer,sv-FI', 'anbud_%d.pdf', 'offer', 240, 1);
+INSERT INTO mlinvoice_print_template (name, filename, parameters, output_filename, type, order_no, inactive) VALUES ('PrintOfferEmailEnglish', 'invoice_printer_offer_email.php', 'offer,en', 'offer_%d.pdf', 'offer', 250, 1);
+INSERT INTO mlinvoice_print_template (name, filename, parameters, output_filename, type, order_no, inactive) VALUES ('PrintEmailNoAttachment', 'invoice_printer_email.php', 'invoice,fi-FI,N,attachment=false', '', 'invoice', 260, 1);
+INSERT INTO mlinvoice_print_template (name, filename, parameters, output_filename, type, order_no, inactive) VALUES ('PrintEmailReceiptNoAttachment', 'invoice_printer_email.php', 'receipt,fi-FI,N,attachment=false', '', 'invoice', 270, 1);
+INSERT INTO mlinvoice_print_template (name, filename, parameters, output_filename, type, order_no, inactive) VALUES ('PrintOrderConfirmationEmailNoAttachment', 'invoice_printer_order_confirmation_email.php', 'receipt,fi-FI,N,attachment=false', '', 'invoice', 280, 1);
+INSERT INTO mlinvoice_print_template (name, filename, parameters, output_filename, type, order_no, inactive) VALUES ('PrintOfferEmailNoAttachment', 'invoice_printer_offer_email.php', 'offer,fi-FI,N,attachment=false', '', 'offer', 280, 1);
 
 INSERT INTO mlinvoice_users (id, name, email, login, passwd, type_id) VALUES (1, 'Administrator', '', 'admin', md5('admin'), 2);
 

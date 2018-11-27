@@ -1,21 +1,34 @@
 <?php
-/*******************************************************************************
- MLInvoice: web-based invoicing application.
- Copyright (C) 2010-2017 Ere Maijala
-
- This program is free software. See attached LICENSE.
-
- *******************************************************************************/
-
-/*******************************************************************************
- MLInvoice: web-pohjainen laskutusohjelma.
- Copyright (C) 2010-2017 Ere Maijala
-
- Tämä ohjelma on vapaa. Lue oheinen LICENSE.
-
- *******************************************************************************/
+/**
+ * JSON API
+ *
+ * PHP version 5
+ *
+ * Copyright (C) 2004-2008 Samu Reinikainen
+ * Copyright (C) 2010-2018 Ere Maijala
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License version 2,
+ * as published by the Free Software Foundation.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
+ *
+ * @category MLInvoice
+ * @package  MLInvoice\Base
+ * @author   Ere Maijala <ere@labs.fi>
+ * @license  http://opensource.org/licenses/gpl-2.0.php GNU General Public License
+ * @link     http://labs.fi/mlinvoice.eng.php
+ */
 ini_set('display_errors', 0);
 
+require_once 'vendor/autoload.php';
 require_once 'config.php';
 
 if (defined('_PROFILING_') && is_callable('tideways_enable')) {
@@ -43,6 +56,7 @@ case 'get_invoice_row':
 case 'get_base':
 case 'get_print_template':
 case 'get_invoice_state':
+case 'get_invoice_type':
 case 'get_row_type':
 case 'get_print_template':
 case 'get_company':
@@ -50,6 +64,8 @@ case 'get_session_type':
 case 'get_delivery_terms':
 case 'get_delivery_method':
 case 'get_default_value':
+case 'get_attachment':
+case 'get_send_api_config':
     printJSONRecord(substr($strFunc, 4));
     break;
 case 'get_user':
@@ -62,6 +78,7 @@ case 'put_invoice':
 case 'put_base':
 case 'put_print_template':
 case 'put_invoice_state':
+case 'put_invoice_type':
 case 'put_row_type':
 case 'put_print_template':
 case 'put_user':
@@ -69,12 +86,24 @@ case 'put_session_type':
 case 'put_delivery_terms':
 case 'put_delivery_method':
 case 'put_default_value':
+case 'put_attachment':
+case 'put_invoice_attachment':
     saveJSONRecord(substr($strFunc, 4), '');
     break;
 
 case 'delete_invoice_row':
 case 'delete_default_value':
+case 'delete_send_api_config':
+case 'delete_attachment':
+case 'delete_invoice_attachment':
     deleteJSONRecord(substr($strFunc, 7));
+    break;
+
+case 'put_send_api_config':
+    saveJSONRecord(substr($strFunc, 4), 'base_id');
+    break;
+case 'get_send_api_configs':
+    printJSONRecords('send_api_config', 'base_id', 'name');
     break;
 
 case 'session_type':
@@ -118,6 +147,112 @@ case 'put_invoice_row' :
     saveJSONRecord('invoice_row', 'invoice_id');
     break;
 
+case 'get_custom_prices':
+    $customPrice = getCustomPriceSettings(
+        getRequest('companyId')
+    );
+    header('Content-Type: application/json');
+    echo json_encode($customPrice);
+    break;
+
+case 'put_custom_prices':
+    if (!sesWriteAccess()) {
+        header('HTTP/1.1 403 Forbidden');
+        return;
+    }
+    $data = json_decode(file_get_contents('php://input'), true);
+    if (!$data) {
+        header('HTTP/1.1 400 Bad Request');
+        return;
+    }
+    setCustomPriceSettings(
+        $data['company_id'],
+        $data['discount'],
+        $data['multiplier'],
+        $data['valid_until']
+    );
+    header('Content-Type: application/json');
+    echo json_encode(['status' => 'ok']);
+    break;
+
+case 'delete_custom_prices':
+    if (!sesWriteAccess()) {
+        header('HTTP/1.1 403 Forbidden');
+        return;
+    }
+    $data = json_decode(file_get_contents('php://input'), true);
+    if (!$data) {
+        header('HTTP/1.1 400 Bad Request');
+        return;
+    }
+    deleteCustomPriceSettings($data['company_id']);
+    header('Content-Type: application/json');
+    echo json_encode(['status' => 'ok']);
+    break;
+
+case 'get_custom_price':
+    $customPrice = getCustomPrice(
+        getRequest('company_id'),
+        getRequest('product_id')
+    );
+    header('Content-Type: application/json');
+    echo json_encode($customPrice);
+    break;
+
+case 'put_custom_price':
+    if (!sesWriteAccess()) {
+        header('HTTP/1.1 403 Forbidden');
+        return;
+    }
+    $data = json_decode(file_get_contents('php://input'), true);
+    if (!$data) {
+        header('HTTP/1.1 400 Bad Request');
+        return;
+    }
+    $unitPrice = (float)$data['unit_price'];
+    setCustomPrice(
+        $data['company_id'],
+        $data['product_id'],
+        $unitPrice
+    );
+    header('Content-Type: application/json');
+    echo json_encode(
+        [
+            'status' => 'ok',
+            'unit_price' => $unitPrice
+        ]
+    );
+    break;
+
+case 'delete_custom_price':
+    if (!sesWriteAccess()) {
+        header('HTTP/1.1 403 Forbidden');
+        return;
+    }
+    $data = json_decode(file_get_contents('php://input'), true);
+    if (!$data) {
+        header('HTTP/1.1 400 Bad Request');
+        return;
+    }
+    deleteCustomPrice($data['company_id'], $data['product_id']);
+    $product = getProduct($data['product_id']);
+    $unitPrice = $product['unit_price'];
+    if ($unitPrice) {
+        $customPrice = getCustomPriceSettings($data['company_id']);
+        if ($customPrice && $customPrice['valid']) {
+            $unitPrice -= $unitPrice * $customPrice['discount'] / 100;
+            $unitPrice *= $customPrice['multiplier'];
+        }
+    }
+    header('Content-Type: application/json');
+    echo json_encode(
+        [
+            'status' => 'ok',
+            'unit_price' => $unitPrice
+        ]
+    );
+    break;
+
 case 'add_reminder_fees' :
     include 'add_reminder_fees.php';
     $invoiceId = getRequest('id', 0);
@@ -127,6 +262,7 @@ case 'add_reminder_fees' :
     } else {
         $ret = ['status' => 'ok'];
     }
+    header('Content-Type: application/json');
     echo json_encode($ret);
     break;
 
@@ -149,13 +285,13 @@ case 'get_invoice_defaults' :
     break;
 
 case 'get_table_columns' :
-    if (!sesAdminAccess()) {
-        header('HTTP/1.1 403 Forbidden');
-        break;
-    }
     $table = getRequest('table', '');
     if (!$table) {
         header('HTTP/1.1 400 Bad Request');
+        break;
+    }
+    if (!sesAdminAccess() && 'account_statement' !== $table) {
+        header('HTTP/1.1 403 Forbidden');
         break;
     }
     // account_statement is a pseudo table for account statement "import"
@@ -186,14 +322,14 @@ case 'get_table_columns' :
         break;
     }
 
-    if (!table_valid($table)) {
+    if (!tableNameValid($table)) {
         header('HTTP/1.1 400 Bad Request');
         die('Invalid table name');
     }
 
     header('Content-Type: application/json');
     echo '{"columns":[';
-    $res = mysqli_query_check("select * from {prefix}$table where 1=2");
+    $res = dbQueryCheck("select * from {prefix}$table where 1=2");
     $field_count = mysqli_num_fields($res);
     for ($i = 0; $i < $field_count; $i ++) {
         $field_def = mysqli_fetch_field($res);
@@ -207,24 +343,27 @@ case 'get_table_columns' :
     if ('company' === $table || 'company_contact' === $table) {
         echo ",\n";
         echo json_encode(['name' => 'tags']);
+    } elseif ('custom_price_map' === $table) {
+        echo ",\n";
+        echo json_encode(['name' => 'company_id']);
     }
     echo "\n]}";
     break;
 
 case 'get_import_preview' :
-    if (!sesAdminAccess()) {
-        header('HTTP/1.1 403 Forbidden');
-        break;
-    }
     $table = getRequest('table', '');
     if ($table == 'account_statement') {
         include 'import_statement.php';
         $import = new ImportStatement();
     } else {
+        if (!sesAdminAccess()) {
+            header('HTTP/1.1 403 Forbidden');
+            break;
+        }
         include 'import.php';
         $import = new ImportFile();
     }
-    $import->create_import_preview();
+    $import->createImportPreview();
     break;
 
 case 'get_list' :
@@ -266,11 +405,12 @@ case 'get_list' :
     $search = getRequest('search', []);
     $filter = empty($search['value']) ? '' : $search['value'];
     $where = getRequest('where', '');
+    $companyId = 'product' === $strList ? getRequest('company_id', null) : null;
 
     header('Content-Type: application/json');
     echo createJSONList(
         $listFunc, $strList, $startRow, $rowCount, $sort, $filter, $where,
-        intval(getRequest('draw', 1)), $tableId
+        intval(getRequest('draw', 1)), $tableId, $companyId
     );
     Memory::set(
         $tableId,
@@ -296,7 +436,7 @@ case 'get_selectlist' :
         break;
     }
 
-    if (!table_valid($table)) {
+    if (!tableNameValid($table)) {
         header('HTTP/1.1 400 Bad Request');
         die('Invalid table name');
     }
@@ -345,7 +485,7 @@ case 'get_stock_balance_rows' :
     if (!$productId) {
         break;
     }
-    $rows = db_param_query(
+    $rows = dbParamQuery(
         <<<EOT
 SELECT l.time, u.name, l.stock_change, l.description FROM {prefix}stock_balance_log l
 INNER JOIN {prefix}users u ON l.user_id=u.id WHERE product_id=? ORDER BY time DESC
@@ -362,8 +502,25 @@ EOT
     <td><?php echo miscRound2Decim($row['stock_change'])?></td>
     <td><?php echo $row['description']?></td>
 </tr>
-<?php
+        <?php
     }
+    break;
+
+case 'get_send_api_services':
+    header('Content-Type: application/json');
+    echo getSendApiServices(getRequest('invoice_id'), getRequest('base_id'));
+    break;
+
+case 'add_invoice_attachment':
+    if (!sesWriteAccess()) {
+        header('HTTP/1.1 403 Forbidden');
+        break;
+    }
+    addInvoiceAttachment();
+    break;
+
+case 'get_invoice_attachments':
+    printJSONRecords('invoice_attachment', 'invoice_id', 'order_no');
     break;
 
 case 'noop' :
@@ -383,6 +540,15 @@ if (defined('_PROFILING_') && is_callable('tideways_disable')) {
     );
 }
 
+/**
+ * Output a JSON record
+ *
+ * @param string $table    Table name
+ * @param int    $id       Record ID
+ * @param array  $warnings Warnings to include in the output
+ *
+ * @return void
+ */
 function printJSONRecord($table, $id = false, $warnings = null)
 {
     if ($id === false) {
@@ -403,14 +569,46 @@ function printJSONRecord($table, $id = false, $warnings = null)
         }
 
         $query = "$select $from $where";
-        $rows = db_param_query($query, [$id]);
+        $rows = dbParamQuery($query, [$id]);
         if (!$rows) {
             header('HTTP/1.1 404 Not Found');
             return;
         }
         $row = $rows[0];
-        if ($table == 'users') {
+        switch ($table) {
+        case '{prefix}users':
             unset($row['password']);
+            break;
+        case '{prefix}attachment':
+        case '{prefix}invoice_attachment':
+            unset($row['filedata']);
+            $row['filesize_readable'] = fileSizeToHumanReadable($row['filesize']);
+            break;
+        case '{prefix}base':
+            unset($row['logo_filedata']);
+            break;
+        }
+
+        // Include any custom price for a product
+        if ($table == '{prefix}product' && ($companyId = getRequest('company_id'))) {
+            $customPriceSettings = getCustomPriceSettings($companyId);
+            if (empty($customPriceSettings['valid'])) {
+                $customPriceSettings = null;
+            }
+            $customPrice = null;
+            if ($customPriceSettings) {
+                $customPrice = getCustomPrice($companyId, $id);
+                if (!$customPrice) {
+                    $unitPrice = $row['unit_price'];
+                    $unitPrice -= $unitPrice * $customPriceSettings['discount']
+                        / 100;
+                    $unitPrice *= $customPriceSettings['multiplier'];
+                    $customPrice = [
+                        'unit_price' => $unitPrice
+                    ];
+                }
+            }
+            $row['custom_price'] = $customPrice ? $customPrice : null;
         }
 
         // Fetch tags
@@ -422,21 +620,31 @@ function printJSONRecord($table, $id = false, $warnings = null)
 
         header('Content-Type: application/json');
         $row['warnings'] = $warnings;
-        if ($table == '{prefix}base') {
-            unset($row['logo_filedata']);
-        }
         echo json_encode($row);
     }
 }
 
+/**
+ * Output multiple records
+ *
+ * @param string $table       Table name
+ * @param string $parentIdCol Parent ID column name
+ * @param string $sort        Sort rules
+ *
+ * @return void
+ */
 function printJSONRecords($table, $parentIdCol, $sort)
 {
     $select = 'SELECT t.*';
     $from = "FROM {prefix}$table t";
 
     if ($table == 'invoice_row') {
-        // Include product name, product code and row type name
-        $select .= ", CASE WHEN LENGTH(p.product_code) = 0 THEN IFNULL(p.product_name, '') ELSE CONCAT_WS(' ', p.product_code, IFNULL(p.product_name, '')) END as product_id_text";
+        // Include product name, product code, product weight and row type name
+        $select .= <<<EOT
+, CASE WHEN LENGTH(p.product_code) = 0 THEN IFNULL(p.product_name, '')
+  ELSE CONCAT_WS(' ', p.product_code, IFNULL(p.product_name, ''))
+  END as product_id_text, p.weight as product_weight
+EOT;
         $from .= ' LEFT OUTER JOIN {prefix}product p on (p.id = t.product_id)';
         $select .= ', rt.name as type_id_text';
         $from .= ' LEFT OUTER JOIN {prefix}row_type rt on (rt.id = t.type_id)';
@@ -449,7 +657,9 @@ function printJSONRecords($table, $parentIdCol, $sort)
         $where .= " WHERE t.$parentIdCol=?";
         $params[] = $id;
     }
-    if (!getSetting('show_deleted_records')) {
+    if (!getSetting('show_deleted_records') && 'send_api_config' !== $table
+        && 'attachment' !== $table && 'invoice_attachment' !== $table
+    ) {
         if ($where) {
             $where .= ' AND t.deleted=0';
         } else {
@@ -461,7 +671,7 @@ function printJSONRecords($table, $parentIdCol, $sort)
     if ($sort) {
         $query .= " order by $sort";
     }
-    $rows = db_param_query($query, $params);
+    $rows = dbParamQuery($query, $params);
     header('Content-Type: application/json');
     echo '{"records":[';
     $first = true;
@@ -484,12 +694,24 @@ function printJSONRecords($table, $parentIdCol, $sort)
         } elseif ($table == 'company_contact') {
             $row['tags'] = getTags('contact', $row['id']);
         }
+        if ('attachment' === $table || 'invoice_attachment' === $table) {
+            unset($row['filedata']);
+            $row['filesize_readable'] = fileSizeToHumanReadable($row['filesize']);
+        }
 
         echo json_encode($row);
     }
     echo "\n]}";
 }
 
+/**
+ * Save a record
+ *
+ * @param string $table         Table name
+ * @param string $parentKeyName Parent ID column name
+ *
+ * @return void
+ */
 function saveJSONRecord($table, $parentKeyName)
 {
     if (!sesWriteAccess()) {
@@ -497,7 +719,13 @@ function saveJSONRecord($table, $parentKeyName)
         return;
     }
 
-    $data = json_decode(file_get_contents('php://input'), true);
+    list($contentType) = explode(';', $_SERVER['CONTENT_TYPE']);
+    if ($contentType === 'application/json') {
+        $data = json_decode(file_get_contents('php://input'), true);
+    } else {
+        // If we don't have a JSON request, assume we have POST data
+        $data = $_POST;
+    }
     if (!$data) {
         header('HTTP/1.1 400 Bad Request');
         return;
@@ -516,11 +744,21 @@ function saveJSONRecord($table, $parentKeyName)
         unset($data['onPrint']);
     }
 
+    // Allow partial update for invoice attachments. This is a safety check since the
+    // partial update mechanism might hide issues with other record types.
+    $partial = !$new && 'invoice_attachment' === $table;
+
     $warnings = '';
-    $res = saveFormData(
-        $strTable, $id, $astrFormElements, $data, $warnings, $parentKeyName,
-        $parentKeyName ? $data[$parentKeyName] : false, $onPrint
-    );
+    try {
+        $res = saveFormData(
+            $strTable, $id, $astrFormElements, $data, $warnings, $parentKeyName,
+            $parentKeyName ? $data[$parentKeyName] : false, $onPrint, $partial
+        );
+    } catch (Exception $e) {
+        header('Content-Type: application/json');
+        echo json_encode(['error' => $e->getMessage()]);
+        return;
+    }
     if ($res !== true) {
         if ($warnings) {
             header('HTTP/1.1 409 Conflict');
@@ -536,7 +774,14 @@ function saveJSONRecord($table, $parentKeyName)
     printJSONRecord($strTable, $id, $warnings);
 }
 
-function DeleteJSONRecord($table)
+/**
+ * Delete a record
+ *
+ * @param string $table Table name
+ *
+ * @return void
+ */
+function deleteJSONRecord($table)
 {
     if (!sesWriteAccess()) {
         header('HTTP/1.1 403 Forbidden');
@@ -553,6 +798,11 @@ function DeleteJSONRecord($table)
     }
 }
 
+/**
+ * Update multiple rows
+ *
+ * @return void
+ */
 function updateMultipleRows()
 {
     if (!sesWriteAccess()) {
@@ -592,6 +842,11 @@ function updateMultipleRows()
     return json_encode(['status' => 'ok']);
 }
 
+/**
+ * Update row order based on POST data
+ *
+ * @return void
+ */
 function updateRowOrder()
 {
     if (!sesWriteAccess()) {
@@ -606,7 +861,7 @@ function updateRowOrder()
     }
 
     foreach ($request['order'] as $id => $orderNo) {
-        db_param_query(
+        dbParamQuery(
             "UPDATE {prefix}{$request['table']} SET order_no=? WHERE id=?",
             [$orderNo, $id]
         );
@@ -615,6 +870,13 @@ function updateRowOrder()
     return json_encode(['status' => 'ok']);
 }
 
+/**
+ * Output total sums for invoice list
+ *
+ * @param string $where Where clause
+ *
+ * @return void
+ */
 function getInvoiceListTotal($where)
 {
     global $dblink;
@@ -655,7 +917,7 @@ function getInvoiceListTotal($where)
     $sql = "SELECT sum(it.row_total) as total_sum from $strTable $strJoin $strWhereClause";
 
     $sum = 0;
-    $rows = db_param_query($sql, $arrQueryParams);
+    $rows = dbParamQuery($sql, $arrQueryParams);
     if ($rows) {
         $sum = $rows[0]['total_sum'];
     }
@@ -667,6 +929,15 @@ function getInvoiceListTotal($where)
     echo json_encode($result);
 }
 
+/**
+ * Update product stock balance
+ *
+ * @param int    $productId Product ID
+ * @param int    $change    Change in balance
+ * @param string $desc      Change description
+ *
+ * @return void
+ */
 function updateStockBalance($productId, $change, $desc)
 {
     $missing = [];
@@ -681,7 +952,7 @@ function updateStockBalance($productId, $change, $desc)
         return json_encode(['missing_fields' => $missing]);
     }
 
-    $rows = db_param_query(
+    $rows = dbParamQuery(
         'SELECT stock_balance FROM {prefix}product WHERE id=?',
         [$productId]
     );
@@ -693,11 +964,11 @@ function updateStockBalance($productId, $change, $desc)
     $row = $rows[0];
     $balance = $row['stock_balance'];
     $balance += $change;
-    db_param_query(
+    dbParamQuery(
         'UPDATE {prefix}product SET stock_balance=? where id=?',
         [$balance, $productId]
     );
-    db_param_query(
+    dbParamQuery(
         <<<EOT
 INSERT INTO {prefix}stock_balance_log
 (user_id, product_id, stock_change, description) VALUES (?, ?, ?, ?)
@@ -713,22 +984,69 @@ EOT
     return json_encode(['status' => 'ok', 'new_stock_balance' => $balance]);
 }
 
-function get_max_invoice_number($invoiceId, $baseId, $perYear)
+/**
+ * Get send API services for the given invoice and base
+ *
+ * @param int $invoiceId Invoice ID
+ * @param int $baseId    Base ID
+ *
+ * @return string
+ */
+function getSendApiServices($invoiceId, $baseId)
 {
-    if ($baseId !== null) {
-        $sql = 'SELECT max(cast(invoice_no as unsigned integer)) as maxnum FROM {prefix}invoice WHERE deleted=0 AND id!=? AND base_id=?';
-        $params = [
-            $invoiceId,
-            $baseId
+    $templateCandidates = dbParamQuery(
+        'SELECT * FROM {prefix}print_template WHERE deleted=0 and type=? and inactive=0 ORDER BY order_no',
+        [isOffer($invoiceId) ? 'offer' : 'invoice']
+    );
+    $templates = [];
+    foreach ($templateCandidates as $candidate) {
+        $printer = getInvoicePrinter($candidate['filename']);
+        if (null === $printer) {
+            continue;
+        }
+        $uses = class_uses($printer);
+        if (in_array('InvoicePrinterEmailTrait', $uses)
+            || $printer instanceof InvoicePrinterFinvoiceSOAP
+            || $printer instanceof InvoicePrinterBlank
+        ) {
+            continue;
+        }
+        $templates[] = $candidate;
+    }
+
+    $services = [];
+    foreach (getSendApiConfigs($baseId) as $config) {
+        $urlBase = [
+            'func' => 'send_api',
+            'invoice_id' => $invoiceId,
+            'api_id' => $config['id']
         ];
-    } else {
-        $sql = 'SELECT max(cast(invoice_no as unsigned integer)) as maxnum FROM {prefix}invoice WHERE deleted=0 AND id!=?';
-        $params = [$invoiceId];
+        $items = [];
+        foreach ($templates as $template) {
+            $item = $urlBase;
+            $item['template_id'] = $template['id'];
+            $items[] = [
+                'href' => http_build_query($item),
+                'name' => Translator::translate($template['name'])
+            ];
+        }
+        $services[] = [
+            'name' => $config['name'] ? $config['name'] : $config['method'],
+            'items' => $items
+        ];
     }
-    if ($perYear) {
-        $sql .= ' AND invoice_date >= ' . date('Y') . '0101';
-    }
-    $rows = db_param_query($sql, $params);
-    return $rows[0]['maxnum'];
+
+    return json_encode(['services' => $services]);
 }
 
+/**
+ * Add an attachment to an invoice and return the new record
+ *
+ * @return string
+ */
+function addInvoiceAttachment()
+{
+    $newId = addAttachmentToInvoice(getRequest('id'), getRequest('invoice_id'));
+    printJSONRecord('invoice_attachment', $newId);
+
+}
