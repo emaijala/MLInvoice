@@ -17,6 +17,9 @@
 
 require_once 'htmlfuncs.php';
 require_once 'miscfuncs.php';
+ # Include the Autoloader (see "Libraries" for install instructions)
+require 'vendor/autoload.php';
+use Mailgun\Mailgun; 
 
 trait InvoicePrinterEmailTrait
 {
@@ -216,9 +219,11 @@ $(document).ready(function() {
         $headers = $message->getHeaders();
         $headers->addTextHeader('X-Mailer', 'MLInvoice');
 
+        
         $settings = isset($GLOBALS['mlinvoice_mail_settings'])
             ? $GLOBALS['mlinvoice_mail_settings'] : [];
 
+        
         if (!isset($settings['send_method']) || 'mail' === $settings['send_method']
         ) {
             $transport = Swift_MailTransport::newInstance();
@@ -242,6 +247,54 @@ $(document).ready(function() {
                 $transport->setStreamOptions($smtp['stream_context_options']);
             }
         }
+        elseif ('mailgun' === $settings['send_method'])
+        {
+            $mailgun = empty($settings['mailgun']) ? [] : $settings['mailgun'];          
+            # Instantiate the client.
+            $mgClient = new Mailgun($mailgun['key'], new \Http\Adapter\Guzzle6\Client());
+            //$mgClient = new Mailgun($mailgun['key']);
+            $domain = $mailgun['domain'];
+
+            # Make the call to the client.
+            $mgMessage=array();
+            $mgMessage['from']=$this->emailFrom;
+            $mgMessage['to']= $this->emailTo;
+            $mgMessage['subject'] = $this->emailSubject;
+            if ($this->emailCC)
+            {
+            $mgMessage['cc'] = $this->emailCC;
+            }
+            if ($this->emailBCC)
+            {
+            $mgMessage['bcc'] = $this->emailBCC;
+            }
+            $mgMessage['text'] = $this->emailBody;
+            $data = $pdf->Output("/tmp/".$filename, 'F');
+            $mgAttachment=array(
+                'attachment' => array("/tmp/".$filename),
+            );
+            $result = $mgClient->sendMessage($domain,
+                $mgMessage,$mgAttachment);
+               
+            if (!$result) {
+                $this->showEmailForm(Translator::translate('EmailFailed'));
+                return;
+            }
+            if (is_callable([$this, 'emailSent'])) {
+            $this->emailSent();
+        }
+        $_SESSION['formMessage'] = 'EmailSent';
+        header(
+            'Location: index.php?func='
+            . sanitize(getRequest('func', 'open_invoices'))
+            . "&list=invoices&form=invoice&id={$this->invoiceId}"
+        );
+            return;
+            
+  
+        }
+           
+        
         $mailer = Swift_Mailer::newInstance($transport);
 
         try {
