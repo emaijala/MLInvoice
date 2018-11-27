@@ -21,7 +21,7 @@
         "swiftmailer/swiftmailer": "^5.4",
         "tecnickcom/tcpdf": "^6.2",
         "guzzlehttp/guzzle": "^6.3",
-        "phpseclib/phpseclib": "^2.0",        
+        "phpseclib/phpseclib": "^2.0"
     },
     "suggest": {
         "mailgun/mailgun-php": "^2.6",
