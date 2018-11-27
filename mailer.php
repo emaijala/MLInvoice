@@ -31,12 +31,6 @@ require_once 'settings.php';
 # Include the Autoloader (see "Libraries" for install instructions)
 use Mailgun\Mailgun; 
 
-/*if ('mailgun' === $settings['send_method'])
-{
-    require 'vendor/autoload.php';
-    
-}*/
-
  /**
   * Email handling
   *
@@ -81,7 +75,7 @@ class Mailer
     public function sendEmail($from, $to, $cc, $bcc, $subject, $body, $attachments)
     {
         mb_internal_encoding('UTF-8');
-        
+
         $message = Swift_Message::newInstance(
             $subject,
             $this->getFlowedBody($body),

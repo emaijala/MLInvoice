@@ -89,6 +89,3 @@ composeria asennettuna, käy osoitteessa https://getcomposer.org/.
 
 Julkaistut versiot osoitteessa https://www.labs.fi/mlinvoice_installation.php
 sisältävät ulkoiset riippuvuudet.
-
-MailGun support
-sudo -u www-data composer require mailgun/mailgun-php php-http/guzzle6-adapter  guzzlehttp/psr7
