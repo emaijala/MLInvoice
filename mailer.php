@@ -28,7 +28,7 @@
 require_once 'translator.php';
 require_once 'settings.php';
 
-# Include the Autoloader (see "Libraries" for install instructions)
+// Include the Autoloader (see "Libraries" for install instructions)
 use Mailgun\Mailgun; 
 
  /**
@@ -152,48 +152,39 @@ class Mailer
             if (!empty($smtp['stream_context_options'])) {
                 $transport->setStreamOptions($smtp['stream_context_options']);
             }
-        }
-        elseif ('mailgun' === $settings['send_method'])
-        {
-            $mailgun = empty($settings['mailgun']) ? [] : $settings['mailgun'];          
-            # Instantiate the client.
-            $mgClient = new Mailgun($mailgun['key'], new \Http\Adapter\Guzzle6\Client());
-            //$mgClient = new Mailgun($mailgun['key']);
+        } elseif ('mailgun' === $settings['send_method']) {
+            $mailgun = empty($settings['mailgun']) ? [] : $settings['mailgun'];                      
+            $mgClient = new Mailgun($mailgun['key'], new \Http\Adapter\Guzzle6\Client());            
             $domain = $mailgun['domain'];
 
-            # Make the call to the client.
             $mgMessage=array();
             $mgMessage['from']=$from;
             $mgMessage['to']= $to;
             $mgMessage['subject'] = $subject;
-            if ($cc)
-            {
-            $mgMessage['cc'] = $cc;
+            if ($cc) {
+                $mgMessage['cc'] = $cc;
             }
-            if ($bcc)
-            {
-            $mgMessage['bcc'] = $bcc;
+            if ($bcc) {
+                $mgMessage['bcc'] = $bcc;
             }
-            $mgMessage['text'] = $body;
-            /*$data = $pdf->Output("/tmp/".$filename, 'F');*/
+            $mgMessage['text'] = $body;            
             $mgA=[];
 
             foreach ($attachments as $current) {
-                array_push($mgA,['fileContent'=>$current['data'], 'filename'=>$current['filename']]);
+                array_push($mgA, ['fileContent'=>$current['data'], 'filename'=>$current['filename']]);
             }
             
             $mgAttachment=array(
                 'attachment' => $mgA,
             );
-            $result = $mgClient->sendMessage($domain,
-                $mgMessage,$mgAttachment);
+            $result = $mgClient->sendMessage($domain, $mgMessage, $mgAttachment);
               
-                if (!$result) {
-                    $this->error = Translator::translate('EmailFailed');
-                    return false;
-                }            
-                return true;            
-    }
+            if (!$result) {
+                $this->error = Translator::translate('EmailFailed');
+                return false;
+            }            
+            return true;            
+        }
 
         $mailer = Swift_Mailer::newInstance($transport);
 
