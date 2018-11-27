@@ -11,7 +11,10 @@
     "require": {
         "michelf/php-markdown": "^1.7.0",
         "swiftmailer/swiftmailer": "^5.4.6",
-        "tecnickcom/tcpdf": "^6.2.12"
+        "tecnickcom/tcpdf": "^6.2.12",
+        "mailgun/mailgun-php": "^2.6",
+        "php-http/guzzle6-adapter": "^1.1",
+        "guzzlehttp/psr7": "^1.4"
     },
     "require-dev": {
         "squizlabs/php_codesniffer": "^2.8"
