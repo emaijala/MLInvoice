@@ -38,7 +38,6 @@ require_once 'mailer.php';
  * @license  http://opensource.org/licenses/gpl-2.0.php GNU General Public License
  * @link     http://labs.fi/mlinvoice.eng.php
  */
-
 trait InvoicePrinterEmailTrait
 {
     protected $emailFrom = '';
@@ -302,6 +301,7 @@ $(document).ready(function() {
             $this->emailBody,
             $emailAttachments
         );
+
         if ($result) {
             $this->showEmailForm($mailer->getErrorMessage());
         }
