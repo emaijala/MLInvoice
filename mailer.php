@@ -69,7 +69,6 @@ class Mailer
      *
      * @return bool Success
      */
-
     public function sendWithMailgun($from, $to, $cc, $bcc, $subject, $body, $attachments)
     {
         $settings = isset($GLOBALS['mlinvoice_mail_settings'])
