@@ -77,7 +77,6 @@ function sesCreateSession($strLogin, $strPasswd, $strCsrf)
         $rows = dbParamQuery($strQuery, [$strLogin]);
         if ($rows) {
             $row = $rows[0];
-            error_log($strPasswd." = ". $row['passwd']);
             if (!password_verify($strPasswd, $row['passwd'])
                 && $strPasswd != $row['passwd']
             ) {

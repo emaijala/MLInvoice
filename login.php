@@ -233,7 +233,7 @@ if (getSetting('password_recovery')) {
     ?>
                 <p>
                   <a href="recover.php">
-                    <?php echo Translator::translate('ForgotPassword') ?>
+                    <?php echo Translator::translate('ForgotPassword')?>
                   </a>
                 </p>
     <?php
