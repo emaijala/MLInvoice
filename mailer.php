@@ -69,9 +69,11 @@ class Mailer
      *
      * @return bool Success
      */
-
     public function sendWithMailgun($from, $to, $cc, $bcc, $subject, $body, $attachments)
     {
+        $settings = isset($GLOBALS['mlinvoice_mail_settings'])
+        ? $GLOBALS['mlinvoice_mail_settings'] : [];
+        
         if (empty($settings['mailgun'])) {
             $this->error = Translator::translate('EmailFailed');
             return false;
