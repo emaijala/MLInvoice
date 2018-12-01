@@ -1222,6 +1222,7 @@ EOT;
         // VAT Breakdown
         if ($this->senderData['vat_registered']
             && getSetting('invoice_show_vat_breakdown')
+            && $this->groupedVATs
         ) {
             $pdf->SetFont('Helvetica', '', 9);
             $pdf->SetXY($this->left, $startY + 5);
