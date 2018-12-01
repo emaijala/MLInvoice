@@ -68,15 +68,21 @@ class Setup
             $password = $_POST['password'];
             $prefix = $_POST['prefix'];
             $adminPassword = $_POST['adminpass'];
+            $adminPassword2 = $_POST['adminpass2'];
             $lang = $_POST['lang'];
             $defaultlang = $_POST['defaultlang'];
             $encryptionKey = $_POST['encryptionkey'];
 
             if (empty($lang)) {
                 $formMessage = 'At least one language must be selected';
-            } elseif (strlen($encryptionKey) < 32) {
+            }
+            if (strlen($encryptionKey) < 32) {
                 $formMessage = 'Encryption key must be at least 32 characters';
-            } else {
+            }
+            if ($adminPassword !== $adminPassword2) {
+                $formMessage = 'Password for the admin user does not match the verification';
+            }
+            if ('' === $formMessage) {
                 $initParams = compact(
                     'host', 'database', 'username', 'password', 'prefix', 'lang',
                     'defaultlang', 'encryptionKey'
@@ -103,11 +109,9 @@ class Setup
                                 $this->errorMsg = 'Could not write to config.php';
                             } else {
                                 if (!$tablesExist) {
-                                    if ($this->createDatabaseTables($adminPassword)) {
-                                        $setupComplete = true;
-                                    }
+                                    $setupComplete = $this->createDatabaseTables($adminPassword);
                                 } else {
-                                    $setupComplete = true;
+                                    $setupComplete = empty($adminPassword) || $this->updateAdminPassword($adminPassword);
                                 }
                             }
                         }
@@ -224,11 +228,17 @@ class Setup
                     </div>
                     <div class="ui-widget ui-widget-content ui-corner-all" style="padding: 10px; margin-bottom: 10px;">
                         <p>
-                            Please enter also a password for the 'admin' user that you can use to log in after setup is complete.
+                            A user called 'admin' will be automatically created and can be used as the login user.
+                            Please enter a password for 'admin' that you can use to log in after setup is complete.
                         </p>
                         <p>
-                            <label>Password for the 'admin' user (new databases only):<br>
+                            <label>Password for the 'admin' user for logging in to MLInvoice (optional if the database already exists):<br>
                                 <input type="password" name="adminpass" value="<?php echo htmlentities($adminPassword)?>">
+                            </label>
+                        </p>
+                        <p>
+                            <label>Verify the password for the 'admin' user:<br>
+                                <input type="password" name="adminpass2" value="<?php echo htmlentities($adminPassword2)?>">
                             </label>
                         </p>
                     </div>
@@ -453,12 +463,12 @@ class Setup
      */
     protected function checkDatabaseTables($db, $prefix)
     {
-        $res = mysqli_query($db, "SHOW TABLES LIKE '" . $prefix . "_%'");
+        $res = mysqli_query($db, "SHOW TABLES LIKE '" . $prefix . "_invoice'");
         if (false === $res) {
             $this->errorMsg = mysqli_error($db);
             return false;
         }
-        if (mysqli_fetch_row($res)) {
+        if ($row = mysqli_fetch_row($res)) {
             return true;
         }
         return false;
@@ -489,15 +499,31 @@ class Setup
         }
 
         if ('' !== $adminPassword) {
-            $res = mysqli_query(
-                $db,
-                'UPDATE '  . _DB_PREFIX_ . "_users SET passwd = '"
-                . password_hash($adminPassword, PASSWORD_DEFAULT) . "' WHERE "
-                . "login = 'admin'"
-            );
-            if (false === $res) {
-                die(mysqli_error($db));
-            }
+            $this->updateAdminPassword($adminPassword);
+        }
+
+        return true;
+    }
+
+    /**
+     * Update password for the admin user
+     *
+     * @param string $adminPassword New password
+     *
+     * @return bool
+     */
+    protected function updateAdminPassword($adminPassword = '')
+    {
+        include_once 'config.php';
+        $db = $this->initDatabaseConnection();
+        $res = mysqli_query(
+            $db,
+            'UPDATE '  . _DB_PREFIX_ . "_users SET passwd = '"
+            . password_hash($adminPassword, PASSWORD_DEFAULT) . "' WHERE "
+            . "login = 'admin'"
+        );
+        if (false === $res) {
+            die(mysqli_error($db));
         }
 
         return true;
