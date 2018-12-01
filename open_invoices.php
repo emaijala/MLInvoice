@@ -99,7 +99,7 @@ function createOpenInvoiceList()
         createList(
             'open_invoices', 'invoice', 'resultlist_open_invoices',
             Translator::translate('LabelOpenInvoices'),
-            "i.state_id IN ($open) AND i.archived=0", true
+            "i.state_id IN ($open) AND i.archived=0", true, false, 'invoice'
         );
     }
 
@@ -107,7 +107,7 @@ function createOpenInvoiceList()
         createList(
             'open_invoices', 'invoice', 'resultlist_unpaid_invoices',
             Translator::translate('LabelUnpaidInvoices'),
-            "i.state_id IN ($unpaid) AND i.archived=0", true, true
+            "i.state_id IN ($unpaid) AND i.archived=0", true, true, 'invoice'
         );
     }
 
@@ -115,7 +115,7 @@ function createOpenInvoiceList()
         createList(
             'open_invoices', 'offer', 'resultlist_offers',
             Translator::translate('LabelUnfinishedOffers'),
-            "i.state_id IN ($openOffers) AND i.archived=0", true
+            "i.state_id IN ($openOffers) AND i.archived=0", true, false, 'offer'
         );
     }
 }

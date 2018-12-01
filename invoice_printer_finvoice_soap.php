@@ -56,13 +56,13 @@ class InvoicePrinterFinvoiceSOAP extends InvoicePrinterXSLT
         parent::transform('create_finvoice_soap_envelope.xsl');
 
         $headers = [
-            'Content-Type: text/xml; charset=ISO-8859-15'
+            'Content-Type' => 'text/xml; charset=ISO-8859-15'
         ];
         $filename = $this->getPrintoutFileName();
         if ($this->printStyle) {
-            $headers[] = "Content-Disposition: inline; filename=$filename";
+            $headers['Content-Disposition'] = "inline; filename=$filename";
         } else {
-            $headers[] = "Content-Disposition: attachment; filename=$filename";
+            $headers['Content-Disposition'] = "attachment; filename=$filename";
         }
         return [
             'headers' => $headers,

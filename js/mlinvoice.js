@@ -1312,13 +1312,26 @@ var MLInvoice = (function MLInvoice() {
     });
   }
 
-  function _setupMultiEdit() {
+  function _setupListMultiSelect() {
     $('a.actionlink.update-selected-rows').click(function editSelectedClick() {
       var list = $(this).data('list');
       var ids = $(this).closest('.list_container').find('.cb-select-row:checked').map(function mapChecked() {
         return 'id[]=' + encodeURIComponent(this.value);
       }).get();
       window.location.href = '?func=multiedit&list=' + encodeURIComponent(list) + '&' + ids.join('&');
+      return false;
+    });
+
+    $('.print-selected-rows .print-selected-item').click(function printSelectedClick() {
+      var ids = $(this).closest('.list_container').find('.cb-select-row:checked').map(function mapChecked() {
+        return 'id[]=' + encodeURIComponent(this.value);
+      }).get();
+      var target = 'invoice.php?template=' + encodeURIComponent($(this).data('templateId')) + '&' + ids.join('&');
+      if ($(this).data('style') === 'openwindow') {
+        window.open(target);
+      } else {
+        window.location.href = target;
+      }
       return false;
     });
   }
@@ -1337,7 +1350,7 @@ var MLInvoice = (function MLInvoice() {
     _initFormButtons();
     updateSendApiButtons();
     _setupInvoiceAttachments();
-    _setupMultiEdit();
+    _setupListMultiSelect();
   }
 
   return {

@@ -116,19 +116,63 @@ if (!$authenticated) {
     $printParameters[1] = $language;
 }
 
-$printer = getInvoicePrinter($printTemplateFile);
-$printer->init(
-    $intInvoiceId, $printParameters, $printOutputFileName,
-    $dateOverride, $printTemplate, $authenticated
-);
-$printer->printInvoice();
+if ($authenticated && is_array($intInvoiceId)) {
 
-if ($authenticated && sesWriteAccess()) {
-    dbParamQuery(
-        'UPDATE {prefix}invoice SET print_date=? where id=?',
-        [
-            date('Ymd'),
-            $intInvoiceId
-        ]
+    if (!sesWriteAccess()) {
+        die('Write access required for printing multiple');
+    }
+
+    include_once 'pdf.php';
+    $mainPdf = new PDF('P', 'mm', 'A4', _CHARSET_ == 'UTF-8', _CHARSET_, false);
+    foreach ($intInvoiceId as $singleId) {
+        $printer = getInvoicePrinter($printTemplateFile);
+        $uses = class_uses($printer);
+        if (in_array('InvoicePrinterEmailTrait', $uses)
+            || $printer instanceof InvoicePrinterXSLT
+            || $printer instanceof InvoicePrinterBlank
+        ) {
+            die('Cannot print multiple with the given print template');
+        }
+
+        verifyInvoiceDataForPrinting($singleId);
+
+        $printer->init(
+            $singleId, $printParameters, $printOutputFileName,
+            $dateOverride, $printTemplate, $authenticated
+        );
+
+        $pdfResult = $printer->createPrintout();
+
+        // Import PDF
+        $pageCount = $mainPdf->setSourceFile(
+            \setasign\Fpdi\PdfParser\StreamReader::createByString($pdfResult['data'])
+        );
+        for ($i = 1; $i <= $pageCount; $i++) {
+            $tplx = $mainPdf->importPage($i);
+            $size = $mainPdf->getTemplateSize($tplx);
+            $mainPdf->AddPage('P', array($size['width'], $size['height']));
+            $mainPdf->useTemplate($tplx);
+        }
+
+        if ($authenticated && sesWriteAccess()) {
+            updateInvoicePrintDate($singleId);
+        }
+    }
+    $filename = Translator::Translate('File') . '_' . date('Y-m-d_H:i:s') . '.pdf';
+    $pdfResult['headers']['Content-Disposition'] = 'inline; filename="' . $filename . '"';
+    foreach ($pdfResult['headers'] as $header => $value) {
+        header("$header: $value");
+    }
+    echo $mainPdf->Output('', 'S');
+} else {
+    $printer = getInvoicePrinter($printTemplateFile);
+    $printer->init(
+        $intInvoiceId, $printParameters, $printOutputFileName,
+        $dateOverride, $printTemplate, $authenticated
     );
+    $printer->printInvoice();
+
+    if ($authenticated && sesWriteAccess()) {
+        updateInvoicePrintDate($intInvoiceId);
+    }
 }

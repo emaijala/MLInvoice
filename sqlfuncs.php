@@ -424,6 +424,81 @@ function getInvoice($id)
 }
 
 /**
+ * Update invoice's print date
+ *
+ * @param int $id Invoice ID
+ *
+ * @return void
+ */
+function updateInvoicePrintDate($id)
+{
+    dbParamQuery(
+        'UPDATE {prefix}invoice SET print_date=? where id=?',
+        [
+            date('Ymd'),
+            $id
+        ]
+    );
+}
+
+/**
+ * Verify that the given invoice has invoice number and reference number for printing
+ * as required in the settings
+ *
+ * @param array $id Invoice ID
+ *
+ * @return void
+ */
+function verifyInvoiceDataForPrinting($id)
+{
+    if (isOffer($id)) {
+        return;
+    }
+
+    $needInvNo = getSetting('invoice_add_number');
+    $needRefNo = getSetting('invoice_add_reference_number');
+
+    if (!$needInvNo && !$needRefNo) {
+        return;
+    }
+
+    dbQueryCheck(
+        'LOCK TABLES {prefix}invoice WRITE, {prefix}settings READ'
+        . ', {prefix}company READ'
+    );
+    $rows = dbParamQuery(
+        'SELECT invoice_no, ref_number, base_id, company_id, invoice_date,'
+        . "interval_type FROM {prefix}invoice WHERE id=?",
+        [$id]
+    );
+    $data = isset($rows[0]) ? $rows[0] : null;
+    if (($needInvNo && empty($data['invoice_no']))
+        || ($needRefNo && empty($data['ref_number']))
+    ) {
+        $defaults = getInvoiceDefaults(
+            $id, $data['base_id'], $data['company_id'],
+            dateConvDBDate2Date($data['invoice_date']), $data['interval_type'],
+            $data['invoice_no']
+        );
+        $sql = "UPDATE {prefix}invoice SET";
+        $updateStrings = [];
+        $params = [];
+        if ($needInvNo && empty($data['invoice_no'])) {
+            $updateStrings[] = 'invoice_no=?';
+            $params[] = $defaults['invoice_no'];
+        }
+        if ($needRefNo && empty($data['ref_number'])) {
+            $updateStrings[] = 'ref_number=?';
+            $params[] = $defaults['ref_no'];
+        }
+        $sql .= ' ' . implode(', ', $updateStrings) . ' WHERE id=?';
+        $params[] = $id;
+        dbParamQuery($sql, $params);
+    }
+    dbQueryCheck('UNLOCK TABLES');
+}
+
+/**
  * Get a base
  *
  * @param int $id Base ID

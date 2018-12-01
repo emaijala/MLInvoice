@@ -220,10 +220,10 @@ td.button {
   vertical-align: top;
 }
 
-td.button .dropdownmenu.ui-widget-content, .send-buttons .dropdownmenu.ui-widget-content {
+td.button .dropdownmenu.ui-widget-content, .send-buttons .dropdownmenu.ui-widget-content, .selection-buttons .dropdownmenu.ui-widget-content {
   border: 0
 }
-.send-buttons .dropdownmenu {
+.send-buttons .dropdownmenu, .selection-buttons .dropdownmenu {
   display: inline-block;
 }
 

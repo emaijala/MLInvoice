@@ -317,93 +317,95 @@ function saveFormData($table, &$primaryKey, &$formElements, &$values, &$warnings
         return $missingValues;
     }
 
-    $strFields = implode(', ', $fields);
-    $strInsert = implode(', ', $insert);
-    $strUpdateFields = implode(', ', $updateFields);
+    if ($fields) {
+        $strFields = implode(', ', $fields);
+        $strInsert = implode(', ', $insert);
+        $strUpdateFields = implode(', ', $updateFields);
 
-    dbQueryCheck('SET AUTOCOMMIT = 0');
-    dbQueryCheck('BEGIN');
-    try {
-        // Special case for invoice rows - update product stock balance
-        if (isset($values['invoice_id'])) {
-            $invoiceId = $values['invoice_id'];
-        } elseif ($table == '{prefix}invoice_row') {
-            $rows = dbParamQuery(
-                'SELECT invoice_id FROM {prefix}invoice_row WHERE id=?',
-                [$primaryKey]
-            );
-            $invoiceId = isset($rows[0]['invoice_id'])
-                ? $rows[0]['invoice_id'] : null;
-        }
-        if ($table == '{prefix}invoice_row' && !isOffer($invoiceId)) {
-            updateProductStockBalance(
-                isset($primaryKey) ? $primaryKey : null,
-                isset($values['product_id']) ? $values['product_id'] : null,
-                $values['pcs']
-            );
-        }
-
-        if (!isset($primaryKey) || !$primaryKey) {
-            if ($parentKeyName) {
-                $strFields .= ", $parentKeyName";
-                $strInsert .= ', ?';
-                $arrValues[] = $parentKey;
-            }
-            $strQuery = "INSERT INTO $table ($strFields) VALUES ($strInsert)";
-            dbParamQuery($strQuery, $arrValues, 'exception');
-            $primaryKey = mysqli_insert_id($dblink);
-        } else {
-            // Special case for invoice - update product stock balance for all
-            // invoice rows if the invoice was previously deleted
-            if ($table == '{prefix}invoice' && !isOffer($primaryKey)) {
-                $checkValues = dbParamQuery(
-                    'SELECT deleted FROM {prefix}invoice WHERE id=?',
+        dbQueryCheck('SET AUTOCOMMIT = 0');
+        dbQueryCheck('BEGIN');
+        try {
+            // Special case for invoice rows - update product stock balance
+            if (isset($values['invoice_id'])) {
+                $invoiceId = $values['invoice_id'];
+            } elseif ($table == '{prefix}invoice_row') {
+                $rows = dbParamQuery(
+                    'SELECT invoice_id FROM {prefix}invoice_row WHERE id=?',
                     [$primaryKey]
                 );
-                if ($checkValues[0]['deleted']) {
-                    $rows = dbParamQuery(
-                        'SELECT product_id, pcs FROM {prefix}invoice_row WHERE invoice_id=? AND deleted=0',
-                        [$primaryKey]
-                    );
-                    foreach ($rows as $row) {
-                        updateProductStockBalance(
-                            null, $row['product_id'], $row['pcs']
-                        );
-                    }
-                }
+                $invoiceId = isset($rows[0]['invoice_id'])
+                    ? $rows[0]['invoice_id'] : null;
+            }
+            if ($table == '{prefix}invoice_row' && !isOffer($invoiceId)) {
+                updateProductStockBalance(
+                    isset($primaryKey) ? $primaryKey : null,
+                    isset($values['product_id']) ? $values['product_id'] : null,
+                    $values['pcs']
+                );
             }
 
-            if ('{prefix}send_api_config' === $table
-                || '{prefix}attachment' === $table
-                || '{prefix}invoice_attachment' === $table
-            ) {
-                $strQuery = "UPDATE $table SET $strUpdateFields WHERE id=?";
+            if (!isset($primaryKey) || !$primaryKey) {
+                if ($parentKeyName) {
+                    $strFields .= ", $parentKeyName";
+                    $strInsert .= ', ?';
+                    $arrValues[] = $parentKey;
+                }
+                $strQuery = "INSERT INTO $table ($strFields) VALUES ($strInsert)";
+                dbParamQuery($strQuery, $arrValues, 'exception');
+                $primaryKey = mysqli_insert_id($dblink);
             } else {
-                $strQuery = "UPDATE $table SET $strUpdateFields, deleted=0 WHERE id=?";
+                // Special case for invoice - update product stock balance for all
+                // invoice rows if the invoice was previously deleted
+                if ($table == '{prefix}invoice' && !isOffer($primaryKey)) {
+                    $checkValues = dbParamQuery(
+                        'SELECT deleted FROM {prefix}invoice WHERE id=?',
+                        [$primaryKey]
+                    );
+                    if ($checkValues[0]['deleted']) {
+                        $rows = dbParamQuery(
+                            'SELECT product_id, pcs FROM {prefix}invoice_row WHERE invoice_id=? AND deleted=0',
+                            [$primaryKey]
+                        );
+                        foreach ($rows as $row) {
+                            updateProductStockBalance(
+                                null, $row['product_id'], $row['pcs']
+                            );
+                        }
+                    }
+                }
+
+                if ('{prefix}send_api_config' === $table
+                    || '{prefix}attachment' === $table
+                    || '{prefix}invoice_attachment' === $table
+                ) {
+                    $strQuery = "UPDATE $table SET $strUpdateFields WHERE id=?";
+                } else {
+                    $strQuery = "UPDATE $table SET $strUpdateFields, deleted=0 WHERE id=?";
+                }
+                $arrValues[] = $primaryKey;
+                dbParamQuery($strQuery, $arrValues, 'exception');
             }
-            $arrValues[] = $primaryKey;
-            dbParamQuery($strQuery, $arrValues, 'exception');
+            if ($table === '{prefix}company') {
+                saveTags(
+                    'company',
+                    $primaryKey,
+                    !empty($values['tags']) ? $values['tags'] : ''
+                );
+            } elseif ($table === '{prefix}company_contact') {
+                saveTags(
+                    'contact',
+                    $primaryKey,
+                    !empty($values['tags']) ? $values['tags'] : ''
+                );
+            }
+        } catch (Exception $e) {
+            dbQueryCheck('ROLLBACK');
+            dbQueryCheck('SET AUTOCOMMIT = 1');
+            die($e->getMessage());
         }
-        if ($table === '{prefix}company') {
-            saveTags(
-                'company',
-                $primaryKey,
-                !empty($values['tags']) ? $values['tags'] : ''
-            );
-        } elseif ($table === '{prefix}company_contact') {
-            saveTags(
-                'contact',
-                $primaryKey,
-                !empty($values['tags']) ? $values['tags'] : ''
-            );
-        }
-    } catch (Exception $e) {
-        dbQueryCheck('ROLLBACK');
+        dbQueryCheck('COMMIT');
         dbQueryCheck('SET AUTOCOMMIT = 1');
-        die($e->getMessage());
     }
-    dbQueryCheck('COMMIT');
-    dbQueryCheck('SET AUTOCOMMIT = 1');
 
     // Special case for invoices - check for duplicate invoice numbers
     if ($table == '{prefix}invoice' && isset($values['invoice_no'])
@@ -430,46 +432,8 @@ function saveFormData($table, &$primaryKey, &$formElements, &$values, &$warnings
 
     // Special case for invoices - check, according to settings, that the invoice has
     // an invoice number and a reference number
-    if ($table == '{prefix}invoice' && $onPrint && !isOffer($primaryKey)
-        && (getSetting('invoice_add_number')
-        || getSetting('invoice_add_reference_number'))
-    ) {
-        dbQueryCheck(
-            'LOCK TABLES {prefix}invoice WRITE, {prefix}settings READ'
-            . ', {prefix}company READ'
-        );
-        $rows = dbParamQuery(
-            'SELECT invoice_no, ref_number, base_id, company_id, invoice_date,'
-            . "interval_type FROM $table WHERE id=?",
-            [$primaryKey]
-        );
-        $data = isset($rows[0]) ? $rows[0] : null;
-        $needInvNo = getSetting('invoice_add_number');
-        $needRefNo = getSetting('invoice_add_reference_number');
-        if (($needInvNo && empty($data['invoice_no']))
-            || ($needRefNo && empty($data['ref_number']))
-        ) {
-            $defaults = getInvoiceDefaults(
-                $primaryKey, $data['base_id'], $data['company_id'],
-                dateConvDBDate2Date($data['invoice_date']), $data['interval_type'],
-                $data['invoice_no']
-            );
-            $sql = "UPDATE {prefix}invoice SET";
-            $updateStrings = [];
-            $params = [];
-            if ($needInvNo && empty($data['invoice_no'])) {
-                $updateStrings[] = 'invoice_no=?';
-                $params[] = $defaults['invoice_no'];
-            }
-            if ($needRefNo && empty($data['ref_number'])) {
-                $updateStrings[] = 'ref_number=?';
-                $params[] = $defaults['ref_no'];
-            }
-            $sql .= ' ' . implode(', ', $updateStrings) . ' WHERE id=?';
-            $params[] = $primaryKey;
-            dbParamQuery($sql, $params);
-        }
-        dbQueryCheck('UNLOCK TABLES');
+    if ($table == '{prefix}invoice' && $onPrint && !isOffer($primaryKey)) {
+        verifyInvoiceDataForPrinting($primaryKey);
     }
 
     return true;

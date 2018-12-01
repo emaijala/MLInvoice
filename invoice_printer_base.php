@@ -639,8 +639,8 @@ EOT;
         }
 
         $result = $this->createPrintout();
-        foreach ($result['headers'] as $header) {
-            header($header);
+        foreach ($result['headers'] as $header => $value) {
+            header("$header: $value");
         }
         echo $result['data'];
     }
@@ -714,16 +714,8 @@ EOT;
             $this->printSummary();
         }
 
-        $filename = basename($this->getPrintOutFileName());
         return [
-            'headers' => [
-                'Content-Type: application/pdf',
-                'Cache-Control: private, must-revalidate, post-check=0, pre-check=0, max-age=1',
-                'Pragma: public',
-                'Expires: Mon, 26 Jul 1997 05:00:00 GMT',
-                'Last-Modified: ' . gmdate('D, d M Y H:i:s') . ' GMT',
-                'Content-Disposition: inline; filename="' . $filename . '"'
-            ],
+            'headers' => $this->getHttpHeaders(),
             'data' => $this->getPdfData()
         ];
     }
@@ -2743,11 +2735,31 @@ EOT;
             for ($i = 1; $i <= $pageCount; $i++) {
                 $tplx = $pdf->importPage($i);
                 $size = $pdf->getTemplateSize($tplx);
-                $pdf->AddPage('P', array($size['w'], $size['h']));
+                $pdf->AddPage('P', [$size['width'], $size['height']]);
+                $pdf->printHeader(false);
+                $pdf->printFooter(false);
                 $pdf->useTemplate($tplx);
             }
         }
 
         return $pdf->Output('', 'S');
+    }
+
+    /**
+     * Get HTTP headers for printout
+     *
+     * @return array
+     */
+    protected function getHttpHeaders()
+    {
+        $filename = basename($this->getPrintOutFileName());
+        return [
+            'Content-Type' => 'application/pdf',
+            'Cache-Control' => 'private, must-revalidate, post-check=0, pre-check=0, max-age=1',
+            'Pragma' => 'public',
+            'Expires' => 'Mon, 26 Jul 1997 05:00:00 GMT',
+            'Last-Modified' => gmdate('D, d M Y H:i:s') . ' GMT',
+            'Content-Disposition' => 'inline; filename="' . $filename . '"'
+        ];
     }
 }

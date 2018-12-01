@@ -56,16 +56,8 @@ class InvoicePrinterBlank extends InvoicePrinterBase
         $this->printSeparatorLine();
         $this->printForeword();
 
-        $filename = basename($this->getPrintOutFileName());
         return [
-            'headers' => [
-                'Content-Type: application/pdf',
-                'Cache-Control: private, must-revalidate, post-check=0, pre-check=0, max-age=1',
-                'Pragma: public',
-                'Expires: Mon, 26 Jul 1997 05:00:00 GMT',
-                'Last-Modified: ' . gmdate('D, d M Y H:i:s') . ' GMT',
-                'Content-Disposition: inline; filename="' . $filename . '"'
-            ],
+            'headers' => $this->getHttpHeaders(),
             'data' => $this->pdf->Output('', 'S')
         ];
     }

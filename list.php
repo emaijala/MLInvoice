@@ -43,13 +43,14 @@ use Michelf\Markdown;
  * @param string $prefilter        Prefilter
  * @param bool   $invoiceTotal     Whether to display invoice total
  * @param bool   $highlightOverdue Whether to highlight overdue rows
+ * @param string $printType        Print template type for printing multiple
  *
  * @return void
  */
 function createList($strFunc, $strList, $strTableName = '', $strTitleOverride = '',
-    $prefilter = '', $invoiceTotal = false, $highlightOverdue = false
+    $prefilter = '', $invoiceTotal = false, $highlightOverdue = false,
+    $printType = ''
 ) {
-
     $strWhereClause = $prefilter ? $prefilter : getRequest('where', '');
 
     include 'list_switch.php';
@@ -60,6 +61,29 @@ function createList($strFunc, $strList, $strTableName = '', $strTitleOverride = 
 
     if (!$strTable) {
         return;
+    }
+
+    $printTemplates = [];
+    if ($printType) {
+        $templateCandidates = dbParamQuery(
+            'SELECT * FROM {prefix}print_template WHERE deleted=0 and type=? and inactive=0 ORDER BY order_no',
+            [$printType]
+        );
+        $templates = [];
+        foreach ($templateCandidates as $candidate) {
+            $printer = getInvoicePrinter($candidate['filename']);
+            if (null === $printer) {
+                continue;
+            }
+            $uses = class_uses($printer);
+            if (in_array('InvoicePrinterEmailTrait', $uses)
+                || $printer instanceof InvoicePrinterXSLT
+                || $printer instanceof InvoicePrinterBlank
+            ) {
+                continue;
+            }
+            $printTemplates[] = $candidate;
+        }
     }
 
     if ($strListFilter) {
@@ -79,7 +103,7 @@ function createList($strFunc, $strList, $strTableName = '', $strTitleOverride = 
     if (!$strTableName) {
         $strTableName = "list_$strList";
     }
-    $strTableName .= '_v2';
+    $strTableName .= '_2';
 
     if ($strTitleOverride) {
         $strTitle = $strTitleOverride;
@@ -388,8 +412,23 @@ function createList($strFunc, $strList, $strTableName = '', $strTitleOverride = 
         <div class="selection-buttons fg-toolbar ui-widget">
             <?php echo Translator::translate('ForSelected')?>:
             <input type="submit" value="<?php echo Translator::translate('Edit')?>" class="update-selected-rows selected-row-button ui-button ui-corner-all ui-widget">
-
-            </input>
+            <?php if ($printTemplates) { ?>
+                <ul class="dropdownmenu list-selected">
+                    <li class="print-selected-rows selected-row-button ui-button ui-corner-all"><?php echo Translator::translate('Print')?>...
+                        <ul>
+                            <?php foreach ($printTemplates as $template) { ?>
+                                <li>
+                                    <div class="print-selected-item"
+                                      data-template-id="<?php echo htmlentities($template['id'])?>"
+                                      data-style="<?php echo $template['new_window'] ? 'openwindow' : 'redirect'?>">
+                                        <?php echo Translator::translate($template['name'])?>
+                                    </div>
+                                </li>
+                            <?php } ?>
+                        </ul>
+                    </li>
+                </ul>
+            <?php } ?>
         </div>
     </form>
         <?php
