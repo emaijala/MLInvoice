@@ -2704,13 +2704,13 @@ EOT;
     protected function getPdfData()
     {
         $pdf = $this->pdf;
-        $pdf->printHeader(false);
-        $pdf->printFooter(false);
         foreach ($this->attachments as $attachment) {
             $attachment = getInvoiceAttachment($attachment['id']);
             if ('application/pdf' !== $attachment['mimetype']) {
                 // Import image
                 $pdf->AddPage();
+                $pdf->printHeader(false);
+                $pdf->printFooter(false);
                 $pdf->Image(
                     '@' . $attachment['filedata'],
                     $this->left,
