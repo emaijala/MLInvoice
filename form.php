@@ -31,6 +31,7 @@ require_once 'miscfuncs.php';
 require_once 'datefuncs.php';
 require_once 'translator.php';
 require_once 'form_funcs.php';
+require_once 'form_config.php';
 require_once 'sessionfuncs.php';
 require_once "memory.php";
 
@@ -45,9 +46,9 @@ require_once "memory.php";
  */
 function createForm($strFunc, $strList, $strForm)
 {
-    include 'form_switch.php';
+    $formConfig = getFormConfig($strForm);
 
-    if (!sesAccessLevel($levelsAllowed) && !sesAdminAccess()) {
+    if (!sesAccessLevel($formConfig['accessLevels']) && !sesAdminAccess()) {
         ?>
 <div class="form_container ui-widget-content">
         <?php echo Translator::translate('NoAccess') . "\n"?>
@@ -84,13 +85,13 @@ function createForm($strFunc, $strList, $strForm)
     }
 
     if ('new' === $action) {
-        $readOnlyForm = false;
+        $formConfig['readOnly'] = false;
     }
 
     $redirect = getRequest('redirect', null);
     if (isset($redirect)) {
         // Redirect after save
-        foreach ($astrFormElements as $elem) {
+        foreach ($formConfig['fields'] as $elem) {
             if ($elem['name'] == $redirect) {
                 if ($elem['style'] == 'redirect') {
                     $newLocation = str_replace(
@@ -105,8 +106,8 @@ function createForm($strFunc, $strList, $strForm)
         }
     }
 
-    if ('delete' === $action && $intKeyValue && !$readOnlyForm) {
-        deleteRecord($strTable, $intKeyValue);
+    if ('delete' === $action && $intKeyValue && !$formConfig['readOnly']) {
+        deleteRecord($formConfig['table'], $intKeyValue);
         unset($intKeyValue);
         unset($astrValues);
         if (getSetting('auto_close_after_delete')) {
@@ -124,7 +125,7 @@ function createForm($strFunc, $strList, $strForm)
     }
 
     if (isset($intKeyValue) && $intKeyValue) {
-        $res = fetchRecord($strTable, $intKeyValue, $astrFormElements, $astrValues);
+        $res = fetchRecord($formConfig['table'], $intKeyValue, $formConfig['fields'], $astrValues);
         if ($res === 'deleted') {
             $strMessage .= Translator::translate('DeletedRecord') . '<br>';
         } elseif ($res === 'notfound') {
@@ -142,7 +143,7 @@ EOT;
         unset($astrValues['id']);
         $id = 0;
         $res = saveFormData(
-            $strTable, $id, $astrFormElements, $astrValues, $warnings
+            $formConfig['table'], $id, $formConfig['fields'], $astrValues, $warnings
         );
         if ($res === true) {
             $qs = preg_replace('/&id=\w*/', "&id=$id", $_SERVER['QUERY_STRING']);
@@ -154,7 +155,7 @@ EOT;
     }
 
     if (!isset($astrValues)) {
-        $astrValues = getFormDefaultValues($astrFormElements);
+        $astrValues = getFormDefaultValues($formConfig['fields']);
     }
     ?>
 
@@ -172,8 +173,8 @@ EOT;
 
     <?php
     createFormButtons(
-        $strForm, $intKeyValue ? false : true, $copyLinkOverride, true, $readOnlyForm,
-        $extraButtons, true
+        $strForm, $intKeyValue ? false : true, $formConfig['copyLink'], true, $formConfig['readOnly'],
+        $formConfig['extraButtons'], true
     );
 
     if ($strForm == 'invoice' && !empty($astrValues['next_interval_date'])
@@ -185,17 +186,17 @@ EOT;
     </div>
         <?php
     }
-    if (!sesWriteAccess() || $readOnlyForm) {
+    if (!sesWriteAccess() || $formConfig['readOnly']) {
         $formDataAttrs[] = 'read-only';
     }
-    $dataAttrs = empty($formDataAttrs) ? '' : ' '
+    $dataAttrs = empty($formConfig['dataAttrs']) ? '' : ' '
         . implode(
             ' ',
             array_map(
                 function ($s) {
                     return "data-$s";
                 },
-                $formDataAttrs
+                $formConfig['dataAttrs']
             )
         );
     ?>
@@ -217,8 +218,8 @@ EOT;
     $prevPosition = false;
     $prevColSpan = 1;
     $rowOpen = false;
-    $formFieldMode = sesWriteAccess() && !$readOnlyForm ? 'MODIFY' : 'READONLY';
-    foreach ($astrFormElements as $elem) {
+    $formFieldMode = sesWriteAccess() && !$formConfig['readOnly'] ? 'MODIFY' : 'READONLY';
+    foreach ($formConfig['fields'] as $elem) {
         if ($elem['type'] === false) {
             continue;
         }
@@ -322,7 +323,7 @@ EOT;
             echo '<div id="dispatch_date_buttons"></div>';
             $haveChildForm = true;
             createIForm(
-                $astrFormElements, $elem,
+                $formConfig['fields'], $elem,
                 isset($intKeyValue) ? $intKeyValue : 0, $intKeyValue ? false : true, $strForm
             );
             break;
@@ -511,7 +512,7 @@ function save_record(redirect_url, redir_style, on_print)
   var formdata = new FormData();
 
     <?php
-    foreach ($astrFormElements as $elem) {
+    foreach ($formConfig['fields'] as $elem) {
         if ($elem['name']
             && !in_array(
                 $elem['type'],
@@ -553,7 +554,7 @@ function save_record(redirect_url, redir_style, on_print)
     formdata.append('onPrint', on_print);
   }
   $.ajax({
-    'url': "json.php?func=put_<?php echo $strJSONType?>",
+    'url': "json.php?func=put_<?php echo $formConfig['jsonType']?>",
     'type': 'POST',
     'dataType': 'json',
     'data': formdata,
@@ -566,7 +567,7 @@ function save_record(redirect_url, redir_style, on_print)
       if (data.missing_fields) {
         MLInvoice.errormsg('<?php echo Translator::translate('ErrValueMissing')?>: ' + data.missing_fields);
       } else {
-        <?php if ($strJSONType == 'invoice') { ?>
+        <?php if ($formConfig['jsonType'] == 'invoice') { ?>
           if (typeof on_print !== 'undefined' && on_print) {
             $('input#invoice_no').val(data.invoice_no);
             $('input#ref_number').val(data.ref_number);
@@ -597,10 +598,10 @@ function save_record(redirect_url, redir_style, on_print)
 </script>
 
     <?php
-    createFormButtons($strForm, $intKeyValue ? false : true, $copyLinkOverride, false, $readOnlyForm, '', false);
+    createFormButtons($strForm, $intKeyValue ? false : true, $formConfig['copyLink'], false, $formConfig['readOnly'], '', false);
     echo "  </div>\n";
 
-    if ($addressAutocomplete && getSetting('address_autocomplete')) {
+    if ($formConfig['addressAutocomplete'] && getSetting('address_autocomplete')) {
         ?>
   <script type="text/javascript">
   $(document).ready(function() {
@@ -655,12 +656,8 @@ function init_rows()
 {
   $('.cb-select-all').prop('checked', false);
     <?php
-    $subFormElements = getFormElements($elem['name']);
-    $strParentKey = getFormParentKey($elem['name']);
-    $clearRowValuesAfterAdd = getFormClearRowValuesAfterAdd($elem['name']);
-    $onAfterRowAdded = getFormOnAfterRowAdded($elem['name']);
-    $formJSONType = getFormJSONType($elem['name']);
-    foreach ($subFormElements as $subElem) {
+    $subFormConfig = getFormConfig($elem['name']);
+    foreach ($subFormConfig['fields'] as $subElem) {
         if ($subElem['type'] != 'LIST') {
             continue;
         }
@@ -706,7 +703,7 @@ function init_rows()
 EOT;
     }
 
-    foreach ($subFormElements as $subElem) {
+    foreach ($subFormConfig['fields'] as $subElem) {
         if (true
             && in_array(
                 $subElem['type'],
@@ -895,7 +892,7 @@ function save_row(form_id)
   var form = document.getElementById(form_id);
   var obj = new Object();
         <?php
-        foreach ($subFormElements as $subElem) {
+        foreach ($subFormConfig['fields'] as $subElem) {
             if (true
                 && !in_array(
                     $subElem['type'],
@@ -928,7 +925,7 @@ function save_row(form_id)
     obj.id = form.row_id.value;
   }
   $.ajax({
-    'url': "json.php?func=put_<?php echo $formJSONType?>",
+    'url': "json.php?func=put_<?php echo $subFormConfig['jsonType']?>",
     'type': 'POST',
     'dataType': 'json',
     'data': JSON.stringify(obj),
@@ -952,10 +949,10 @@ function save_row(form_id)
           $("#popup_edit").dialog('close');
         if (!obj.id)
         {
-            <?php echo $onAfterRowAdded?>
+            <?php echo $subFormConfig['onAfterRowAdded']?>
         <?php
 
-        foreach ($subFormElements as $subElem) {
+        foreach ($subFormConfig['fields'] as $subElem) {
             if (true
                 && !in_array(
                     $subElem['type'],
@@ -974,7 +971,7 @@ function save_row(form_id)
           var fld = document.getElementById(form_id + '_<?php echo $subElem['name']?>');
           document.getElementById('iform_<?php echo $subElem['name']?>').value = parseInt(fld.value) + 5;
                     <?php
-                } elseif ($clearRowValuesAfterAdd && $subElem['type'] != 'INTDATE') {
+                } elseif ($subFormConfig['clearAfterRowAdded'] && $subElem['type'] != 'INTDATE') {
                     if ($subElem['type'] == 'LIST') {
                         ?>
           document.getElementById('iform_<?php echo $subElem['name']?>').selectedIndex = -1;
@@ -1007,7 +1004,7 @@ function modify_rows(form_id)
   var form = document.getElementById(form_id);
   var obj = new Object();
         <?php
-        foreach ($subFormElements as $subElem) {
+        foreach ($subFormConfig['fields'] as $subElem) {
             if (true
                 && !in_array(
                     $subElem['type'],
@@ -1043,7 +1040,7 @@ function modify_rows(form_id)
         }
         ?>
   var req = new Object();
-  req.table = '<?php echo $formJSONType?>';
+  req.table = '<?php echo $subFormConfig['jsonType']?>';
   req.ids = $('.cb-select-row:checked').map(function() { return this.value; }).get();
   req.changes = obj;
   $.ajax({
@@ -1066,7 +1063,7 @@ function modify_rows(form_id)
 function update_row_order()
 {
   var req = new Object();
-  req.table = '<?php echo $formJSONType?>';
+  req.table = '<?php echo $subFormConfig['jsonType']?>';
   req.order = {};
   var orderno = 5;
   $('.cb-select-row').each(function() {
@@ -1088,11 +1085,11 @@ function update_row_order()
 
 function delete_selected_rows()
 {
-  var table = '<?php echo $formJSONType?>';
+  var table = '<?php echo $subFormConfig['jsonType']?>';
   var req = new Object();
   req.id = $('.cb-select-row:checked').map(function() { return this.value; }).get();
   $.ajax({
-    'url': "json.php?func=delete_<?php echo $formJSONType?>",
+    'url': "json.php?func=delete_<?php echo $subFormConfig['jsonType']?>",
     'type': 'POST',
     'dataType': 'json',
     'data': req,
@@ -1108,7 +1105,7 @@ function delete_row(form_id)
   var form = document.getElementById(form_id);
   var id = form.row_id.value;
   $.ajax({
-    'url': "json.php?func=delete_<?php echo $formJSONType?>&id=" + id,
+    'url': "json.php?func=delete_<?php echo $subFormConfig['jsonType']?>&id=" + id,
     'type': 'GET',
     'dataType': 'json',
     'contentType': 'application/json; charset=utf-8',
@@ -1125,7 +1122,7 @@ function popup_editor(event, title, id, copy_row)
   startChanging();
   $('#iform_popup .modification-indicator').addClass('hidden');
   $('#iform_popup input').data('modified', '');
-  $.getJSON('json.php?func=get_<?php echo $formJSONType?>&id=' + id, function(json) {
+  $.getJSON('json.php?func=get_<?php echo $subFormConfig['jsonType']?>&id=' + id, function(json) {
     if (!json.id) return;
     var form = document.getElementById('iform_popup');
 
@@ -1134,7 +1131,7 @@ function popup_editor(event, title, id, copy_row)
     else
       form.row_id.value = id;
         <?php
-        foreach ($subFormElements as $subElem) {
+        foreach ($subFormConfig['fields'] as $subElem) {
             if (true
                 && in_array(
                     $subElem['type'],
@@ -1228,7 +1225,7 @@ function popup_editor(event, title, id, copy_row)
       buttons["<?php echo Translator::translate('Delete')?>"] = function() { if(confirm('<?php echo Translator::translate('ConfirmDelete')?>')==true) { delete_row('iform_popup'); } return false; };
     }
     buttons["<?php echo Translator::translate('Close')?>"] = function() { $("#popup_edit").dialog('close'); };
-    $("#popup_edit").dialog({ modal: true, width: <?php echo 'send_api_config' === $formJSONType ? 1200 : 1050?>, height: 180, resizable: true,
+    $("#popup_edit").dialog({ modal: true, width: <?php echo 'send_api_config' === $subFormConfig['jsonType'] ? 1200 : 1050?>, height: 180, resizable: true,
       buttons: buttons,
       title: title,
     });
@@ -1244,7 +1241,7 @@ function multi_editor(event, title)
   $('#iform_popup select').data('modified', 0);
   var form = document.getElementById('iform_popup');
         <?php
-        foreach ($subFormElements as $subElem) {
+        foreach ($subFormConfig['fields'] as $subElem) {
             if (in_array($subElem['type'], ['HID_INT', 'SECHID_INT', 'CONST_HID_INT', 'BUTTON', 'NEWLINE', 'ROWSUM'])) {
                 continue;
             }
@@ -1325,7 +1322,7 @@ function multi_editor(event, title)
         <?php
     }
 
-    foreach ($subFormElements as $subElem) {
+    foreach ($subFormConfig['fields'] as $subElem) {
         if (true
             && !in_array(
                 $subElem['type'],
@@ -1362,7 +1359,7 @@ function multi_editor(event, title)
             <?php
         }
 
-        foreach ($subFormElements as $subElem) {
+        foreach ($subFormConfig['fields'] as $subElem) {
             if (true
                 && !in_array(
                     $subElem['type'],
@@ -1426,12 +1423,12 @@ function multi_editor(event, title)
                     style="display: none; width: 900px; overflow: hidden">
                     <form method="post" name="iform_popup" id="iform_popup">
                         <input type="hidden" name="row_id" value=""> <input type="hidden"
-                            name="<?php echo $strParentKey?>"
+                            name="<?php echo $subFormConfig['parentKey']?>"
                             value="<?php echo $intKeyValue?>">
                         <table class="iform">
                             <tr>
         <?php
-        foreach ($subFormElements as $elem) {
+        foreach ($subFormConfig['fields'] as $elem) {
             if (true
                 && !in_array(
                     $elem['type'],

@@ -30,7 +30,6 @@ require_once 'settings.php';
 require_once 'vendor/autoload.php';
 
 $strListTableAlias = '';
-$strOrder = '';
 $levelsAllowed = [
     ROLE_USER,
     ROLE_BACKUPMGR
@@ -1228,7 +1227,6 @@ case 'invoice_rows' :
     $strTable = '{prefix}invoice_row';
     $strJSONType = 'invoice_row';
     $strParentKey = 'invoice_id';
-    $strOrder = 'ORDER BY {prefix}invoice_row.order_no, {prefix}invoice_row.row_date';
 
     switch (getSetting('invoice_clear_row_values_after_add')) {
     case 0 :

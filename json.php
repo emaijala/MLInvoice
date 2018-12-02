@@ -42,6 +42,7 @@ require_once 'form_funcs.php';
 require_once 'translator.php';
 require_once 'settings.php';
 require_once 'memory.php';
+require_once 'form_config.php';
 
 sesVerifySession(false);
 
@@ -734,9 +735,9 @@ function saveJSONRecord($table, $parentKeyName)
     $strFunc = '';
     $strList = '';
     $id = isset($data['id']) ? $data['id'] : false;
-    include 'form_switch.php';
     $new = $id ? false : true;
     unset($data['id']);
+    $formConfig = getFormConfig($strForm);
 
     $onPrint = false;
     if (isset($data['onPrint'])) {
@@ -751,7 +752,7 @@ function saveJSONRecord($table, $parentKeyName)
     $warnings = '';
     try {
         $res = saveFormData(
-            $strTable, $id, $astrFormElements, $data, $warnings, $parentKeyName,
+            $formConfig['table'], $id, $formConfig['fields'], $data, $warnings, $parentKeyName,
             $parentKeyName ? $data[$parentKeyName] : false, $onPrint, $partial
         );
     } catch (Exception $e) {
@@ -771,7 +772,7 @@ function saveJSONRecord($table, $parentKeyName)
     if ($new) {
         header('HTTP/1.1 201 Created');
     }
-    printJSONRecord($strTable, $id, $warnings);
+    printJSONRecord($formConfig['table'], $id, $warnings);
 }
 
 /**
@@ -819,7 +820,7 @@ function updateMultipleRows()
     $strForm = $request['table'];
     $strFunc = '';
     $strList = '';
-    include 'form_switch.php';
+    $formConfig = getFormConfig($strForm);
 
     $warnings = '';
     foreach ($request['ids'] as $id) {
@@ -827,7 +828,7 @@ function updateMultipleRows()
         // Set fields anew for every row since saveFormData returns the whole record
         $data = $request['changes'];
         $res = saveFormData(
-            '{prefix}' . $request['table'], $id, $astrFormElements, $data, $warnings,
+            '{prefix}' . $request['table'], $id, $formConfig['fields'], $data, $warnings,
             false, false, false, true
         );
         if ($res !== true) {

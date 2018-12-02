@@ -30,6 +30,7 @@ require_once 'config.php';
 require_once 'miscfuncs.php';
 require_once 'sessionfuncs.php';
 require_once 'version.php';
+require_once 'form_config.php';
 
 /**
  * Multi-record edit
@@ -59,7 +60,7 @@ class MultiEdit
         $strForm = getRequest('form', '');
         $list = getRequest('list', '');
 
-        include 'form_switch.php';
+        $formConfig = getFormConfig($strForm);
 
         $messages = [];
         $errors = [];
@@ -82,7 +83,7 @@ class MultiEdit
                 $changeCount = 0;
                 foreach ((array)$ids as $id) {
                     $result = saveFormData(
-                        $strTable, $id, $astrFormElements, $changes, $warnings,
+                        $formConfig['table'], $id, $formConfig['fields'], $changes, $warnings,
                         '', null, false, true
                     );
                     if (true !== $result) {
@@ -133,7 +134,7 @@ class MultiEdit
             <input type="hidden" name="id[]" value="<?php echo htmlentities($id)?>">
             <?php
         }
-        foreach ($astrFormElements as $elem) {
+        foreach ($formConfig['fields'] as $elem) {
             if ($elem['type'] === false || !empty($elem['read_only'])) {
                 continue;
             }

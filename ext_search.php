@@ -31,6 +31,7 @@ require_once 'sqlfuncs.php';
 require_once 'sessionfuncs.php';
 require_once 'miscfuncs.php';
 require_once 'datefuncs.php';
+require_once 'form_config.php';
 
 sesVerifySession();
 
@@ -62,7 +63,7 @@ if ($strFields !== false) {
     $astrSelectedFields = [];
 }
 
-require 'form_switch.php';
+$formConfig = getFormConfig($strForm);
 
 for ($j = 0; $j < count($astrSelectedFields); $j ++) {
     $tmpDelete = getPost('delete_' . $astrSelectedFields[$j] . '_x', false);
@@ -73,32 +74,30 @@ for ($j = 0; $j < count($astrSelectedFields); $j ++) {
 
 $strFields = implode(',', $astrSelectedFields);
 
-for ($j = 0; $j < count($astrFormElements); $j ++) {
-    if ($astrFormElements[$j]['type'] == 'RESULT'
-        && $astrFormElements[$j]['name'] != ''
-    ) {
-        $astrFormElements[$j]['type'] = 'TEXT';
+foreach ($formConfig['fields'] as &$field) {
+    if ($field['type'] == 'RESULT' && $field['name'] != '') {
+        $field['type'] = 'TEXT';
     }
 }
 
 $listValues = [];
-for ($j = 0; $j < count($astrFormElements); $j ++) {
-    if ($astrFormElements[$j]['type'] != ''
-        && $astrFormElements[$j]['type'] != 'LABEL'
-        && $astrFormElements[$j]['type'] != 'HID_INT'
-        && $astrFormElements[$j]['type'] != 'IFORM'
-        && $astrFormElements[$j]['type'] != 'BUTTON'
-        && $astrFormElements[$j]['type'] != 'JSBUTTON'
-        && $astrFormElements[$j]['type'] != 'DROPDOWNMENU'
-        && !in_array($astrFormElements[$j]['name'], $astrSelectedFields, true)
+foreach ($formConfig['fields'] as $field) {
+    if ($field['type'] != ''
+        && $field['type'] != 'LABEL'
+        && $field['type'] != 'HID_INT'
+        && $field['type'] != 'IFORM'
+        && $field['type'] != 'BUTTON'
+        && $field['type'] != 'JSBUTTON'
+        && $field['type'] != 'DROPDOWNMENU'
+        && !in_array($field['name'], $astrSelectedFields, true)
     ) {
-        $listValues[$astrFormElements[$j]['name']] = str_replace(
+        $listValues[$field['name']] = str_replace(
             '<br>', ' ',
-            Translator::translate($astrFormElements[$j]['label'])
+            Translator::translate($field['label'])
         );
     }
-    $strControlType = $astrFormElements[$j]['type'];
-    $strControlName = $astrFormElements[$j]['name'];
+    $strControlType = $field['type'];
+    $strControlName = $field['name'];
 
     if ($strControlType == 'IFORM' || $strControlType == 'BUTTON') {
         $astrValues[$strControlName] = '';
@@ -122,9 +121,8 @@ $comparisonValues = [
 $strOnLoad = '';
 if ($blnSearch || $blnSave) {
     $strWhereClause = '';
-    for ($j = 0; $j < count($astrFormElements); $j ++) {
-        $elem = $astrFormElements[$j];
-        $name = $elem['name'];
+    foreach ($formConfig['fields'] as $field) {
+        $name = $field['name'];
         if (in_array($name, $astrSelectedFields, true)) {
             $strSearchOperator = getPost("operator_$name", '');
             if ($strSearchOperator) {
@@ -133,27 +131,28 @@ if ($blnSearch || $blnSave) {
             $strSearchMatch = getPost("searchmatch_$name", '=');
 
             // do LIKE || NOT LIKE search to elements with text or varchar datatype
-            if ($elem['type'] == 'TEXT' || $elem['type'] == 'AREA') {
+            if ($field['type'] == 'TEXT' || $field['type'] == 'AREA') {
                 if ($strSearchMatch == '=') {
                     $strSearchMatch = 'LIKE';
                 } else {
                     $strSearchMatch = 'NOT LIKE';
                 }
                 $strSearchValue = "'%" . addcslashes($astrValues[$name], "'\\") . "%'";
-            } elseif ($astrFormElements[$j]['type'] == 'INT'
-                || $astrFormElements[$j]['type'] == 'LIST'
-                || $astrFormElements[$j]['type'] == 'SELECT'
-                || $astrFormElements[$j]['type'] == 'SEARCHLIST'
-                || $astrFormElements[$j]['type'] == 'TAGS'
+            } elseif ($field['type'] == 'INT'
+                || $field['type'] == 'LIST'
+                || $field['type'] == 'SELECT'
+                || $field['type'] == 'SEARCHLIST'
+                || $field['type'] == 'TAGS'
             ) {
                 $strSearchValue = $astrValues[$name];
-            } elseif ($astrFormElements[$j]['type'] == 'CHECK') {
+            } elseif ($field['type'] == 'CHECK') {
                 $strSearchValue = $astrValues[$name] ? 1 : 0;
-            } elseif ($astrFormElements[$j]['type'] == 'INTDATE') {
+            } elseif ($field['type'] == 'INTDATE') {
                 $strSearchValue = dateConvDate2DBDate($astrValues[$name]);
             }
             if ($strSearchValue) {
-                $strWhereClause .= "$strSearchOperator$strListTableAlias$name $strSearchMatch $strSearchValue";
+                $tableAlias = $formConfig['tableAlias'];
+                $strWhereClause .= "$strSearchOperator$tableAlias$name $strSearchMatch $strSearchValue";
             }
         }
     }
@@ -214,22 +213,22 @@ $(function() {
 <?php
 
 $fieldCount = 0;
-for ($j = 0; $j < count($astrFormElements); $j ++) {
-    if (in_array($astrFormElements[$j]['name'], $astrSelectedFields, true)) {
+foreach ($formConfig['fields'] as $field) {
+    if (in_array($field['name'], $astrSelectedFields, true)) {
         $strSearchMatch = getPost(
-            'searchmatch_' . $astrFormElements[$j]['name'],
+            'searchmatch_' . $field['name'],
             '='
         );
-        if ($astrFormElements[$j]['style'] == 'xxlong') {
-            $astrFormElements[$j]['style'] = 'long';
+        if ($field['style'] == 'xxlong') {
+            $field['style'] = 'long';
         }
 
         if (++$fieldCount > 1) {
             $strSelectedOperator = getPost(
-                'operator_' . $astrFormElements[$j]['name'], 'AND'
+                'operator_' . $field['name'], 'AND'
             );
             $strOperator = htmlListBox(
-                'operator_' . $astrFormElements[$j]['name'],
+                'operator_' . $field['name'],
                 [
                     'AND' => Translator::translate('SearchAND'),
                     'OR' => Translator::translate('SearchOR')
@@ -246,26 +245,26 @@ for ($j = 0; $j < count($astrFormElements); $j ++) {
         ?>
             <tr class="search_row">
               <td class="label">
-                <?php echo Translator::translate($astrFormElements[$j]['label'])?>
+                <?php echo Translator::translate($field['label'])?>
               </td>
               <td class="field">
-                <?php echo htmlListBox('searchmatch_' . $astrFormElements[$j]['name'], $comparisonValues, $strSearchMatch, '', 0)?>
+                <?php echo htmlListBox('searchmatch_' . $field['name'], $comparisonValues, $strSearchMatch, '', 0)?>
               </td>
               <td class="field">
                 <?php
                 echo htmlFormElement(
-                    $astrFormElements[$j]['name'], $astrFormElements[$j]['type'],
-                    $astrValues[$astrFormElements[$j]['name']],
-                    $astrFormElements[$j]['style'], $astrFormElements[$j]['listquery'],
-                    'MODIFY', $astrFormElements[$j]['parent_key'], '', [], '',
-                    isset($astrFormElements[$j]['options']) ? $astrFormElements[$j]['options'] : null
+                    $field['name'], $field['type'],
+                    $astrValues[$field['name']],
+                    $field['style'], $field['listquery'],
+                    'MODIFY', $field['parent_key'], '', [], '',
+                    isset($field['options']) ? $field['options'] : null
                 );
                 ?>
               </td>
               <td>
                 <?php
                     $inputName = 'delete_'
-                    . $astrFormElements[$j]['name'] . '_x';
+                    . $field['name'] . '_x';
                 ?>
                 <input type="hidden" name="<?php echo $inputName?>"value="0">
                 <a class="tinyactionlink form-submit" href="#" title="<?php echo Translator::translate('DelRow')?>"
