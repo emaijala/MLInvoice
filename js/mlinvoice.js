@@ -327,7 +327,8 @@ var MLInvoice = (function MLInvoice() {
           data: {
             maxResults: 1,
             businessId: businessId
-          }
+          },
+          global: false
         }
       ).done(function ytjSearchDone(data) {
         if ('undefined' === typeof data.results[0]) {
@@ -343,7 +344,8 @@ var MLInvoice = (function MLInvoice() {
               data: {
                 maxResults: 1,
                 name: term
-              }
+              },
+              global: false
             }
           ).done(function ytjSearchDone2(data) {
             if ('undefined' === typeof data.results[0]) {
