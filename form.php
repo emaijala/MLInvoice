@@ -847,7 +847,7 @@ EOT;
     }
 
     MLInvoice.updateRowSelectedState();
-    $('.cb-select-row').click(MLInvoice.updateRowSelectedState);
+    $('.cb-select-row').click(function selectRowClick() { MLInvoice.updateRowSelectedState($(this).closest('.list_container')); });
 
     $('#itable tr')
       .mouseover(function() { $(this).find('.sort-handle').removeClass('hidden'); })
