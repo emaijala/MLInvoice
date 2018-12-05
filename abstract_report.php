@@ -65,7 +65,7 @@ abstract class AbstractReport
             'payment_date' => ['name' => 'PaymentDateInterval'],
             'base' => [
                 'name' => 'Biller',
-                'sql' => 'SELECT name FROM {prefix}base WHERE id = ?'
+                'sql' => 'SELECT name as v FROM {prefix}base WHERE id = ?'
             ],
             'company' => [
                 'name' => 'Client',
