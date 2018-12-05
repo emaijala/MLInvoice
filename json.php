@@ -43,6 +43,7 @@ require_once 'translator.php';
 require_once 'settings.php';
 require_once 'memory.php';
 require_once 'form_config.php';
+require_once 'list_config.php';
 
 sesVerifySession(false);
 
@@ -380,9 +381,8 @@ case 'get_list' :
 
     $tableId = getRequest('tableid', '');
 
-    include 'list_switch.php';
-
-    if (!$strTable) {
+    $listConfig = getListConfig($strList);
+    if (!$listConfig) {
         header('HTTP/1.1 400 Bad Request');
         die('Invalid table name');
     }
@@ -392,12 +392,12 @@ case 'get_list' :
     $sort = [];
     $columns = getRequest('columns', []);
     if ($orderCols = getRequest('order', [])) {
-        for ($i = 0; $i < count($orderCols); $i ++) {
-            if (!isset($orderCols[$i]['column'])) {
+        foreach ($orderCols as $orderCol) {
+            if (!isset($orderCol['column'])) {
                 continue;
             }
-            $sortColumn = $orderCols[$i]['column'];
-            $sortDir = $orderCols[$i]['dir'];
+            $sortColumn = $orderCol['column'];
+            $sortDir = $orderCol['dir'];
             $sort[] = [
                 $sortColumn => $sortDir === 'desc' ? 'desc' : 'asc'
             ];
@@ -884,7 +884,7 @@ function getInvoiceListTotal($where)
     $strFunc = 'invoices';
     $strList = 'invoice';
 
-    include 'list_switch.php';
+    $listConfig = getListConfig($strList);
 
     $strWhereClause = '';
     $joinOp = 'WHERE';
@@ -910,12 +910,12 @@ function getInvoiceListTotal($where)
             $joinOp = ' AND';
         }
     }
-    if (!getSetting('show_deleted_records')) {
-        $strWhereClause .= "$joinOp $strDeletedField=0";
+    if (!getSetting('show_deleted_records') && $listConfig['deletedField']) {
+        $strWhereClause .= "$joinOp {$listConfig['deletedField']}=0";
         $joinOp = ' AND';
     }
 
-    $sql = "SELECT sum(it.row_total) as total_sum from $strTable $strJoin $strWhereClause";
+    $sql = "SELECT sum(it.row_total) as total_sum from {$listConfig['table']} {$listConfig['displayJoin']} $strWhereClause";
 
     $sum = 0;
     $rows = dbParamQuery($sql, $arrQueryParams);

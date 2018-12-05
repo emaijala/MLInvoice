@@ -242,7 +242,7 @@ if ($strFunc == 'system' && $operation == 'export' && sesAdminAccess()) {
         if ($strFunc == 'open_invoices') {
             createOpenInvoiceList();
         } elseif ($strFunc == 'archived_invoices') {
-            createList('archived_invoices', 'invoice', 'archived_invoices', '');
+            createList('archived_invoices', 'archived_invoices', 'archived_invoices', '');
         } else {
             if ($strList == 'settings') {
                 createSettingsList();

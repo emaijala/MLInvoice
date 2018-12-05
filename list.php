@@ -30,6 +30,7 @@ require_once "sqlfuncs.php";
 require_once "miscfuncs.php";
 require_once "datefuncs.php";
 require_once "memory.php";
+require_once "list_config.php";
 
 use Michelf\Markdown;
 
@@ -53,13 +54,12 @@ function createList($strFunc, $strList, $strTableName = '', $strTitleOverride = 
 ) {
     $strWhereClause = $prefilter ? $prefilter : getRequest('where', '');
 
-    include 'list_switch.php';
-
     if (!$strList) {
         $strList = $strFunc;
     }
 
-    if (!$strTable) {
+    $listConfig = getListConfig($strList);
+    if (!$listConfig) {
         return;
     }
 
@@ -86,17 +86,17 @@ function createList($strFunc, $strList, $strTableName = '', $strTitleOverride = 
         }
     }
 
-    if ($strListFilter) {
+    if ($listConfig['listFilter']) {
         if ($strWhereClause) {
             // Special case: don't apply archived filter for invoices if search terms
             // already contain archived status
             if ($strList != 'invoices'
                 || strpos($strWhereClause, 'i.archived') === false
             ) {
-                $strWhereClause .= " AND $strListFilter";
+                $strWhereClause .= " AND {$listConfig['listFilter']}";
             }
         } else {
-            $strWhereClause = $strListFilter;
+            $strWhereClause = $listConfig['listFilter'];
         }
     }
 
@@ -105,11 +105,7 @@ function createList($strFunc, $strList, $strTableName = '', $strTitleOverride = 
     }
     $strTableName .= '_2';
 
-    if ($strTitleOverride) {
-        $strTitle = $strTitleOverride;
-    } else {
-        $strTitle = '';
-    }
+    $strTitle = $listConfig['title'];
 
     $params = [
         'listfunc' => $strFunc,
@@ -177,7 +173,7 @@ function createList($strFunc, $strList, $strTableName = '', $strTitleOverride = 
     <?php
     $hasRowSelection = false;
     $i = 1;
-    foreach ($astrShowFields as $key => $field) {
+    foreach ($listConfig['fields'] as $field) {
         if ('HIDDEN' === $field['type']) {
             continue;
         }
@@ -185,6 +181,7 @@ function createList($strFunc, $strList, $strTableName = '', $strTitleOverride = 
         $strWidth = isset($field['width']) ? ($field['width'] . 'px') : '';
         $sortable = !isset($field['sort']) || $field['sort'] ? 'true' : 'false';
         $class = $customPriceSettings && $customPriceSettings['valid']
+            && 'custom_price' === $field['name']
             ? 'editable' : '';
         ?>
         {
@@ -209,7 +206,7 @@ function createList($strFunc, $strList, $strTableName = '', $strTitleOverride = 
           for (var i = 0, len = json.data.length; i < len; i++) {
             <?php
             $i = 1;
-            foreach ($astrShowFields as $key => $field) {
+            foreach ($listConfig['fields'] as $field) {
                 if ('HIDDEN' === $field['type']) {
                     continue;
                 }
@@ -388,7 +385,7 @@ function createList($strFunc, $strList, $strTableName = '', $strTitleOverride = 
                 <th>ID</th>
                 <th>Link</th>
     <?php
-    foreach ($astrShowFields as $field) {
+    foreach ($listConfig['fields'] as $field) {
         if ('HIDDEN' === $field['type']) {
             continue;
         }
@@ -458,20 +455,19 @@ function createList($strFunc, $strList, $strTableName = '', $strTitleOverride = 
 function createJSONList($strFunc, $strList, $startRow, $rowCount, $sort, $filter,
     $where, $requestId, $listId, $companyId = null
 ) {
-    include "list_switch.php";
-
     global $dblink;
 
-    if (!sesAccessLevel($levelsAllowed) && !sesAdminAccess()) {
+    $listConfig = getListConfig($strList);
+    if (!$listConfig) {
+        return;
+    }
+
+    if (!sesAccessLevel($listConfig['accessLevels']) && !sesAdminAccess()) {
         ?>
 <div class="form_container ui-widget-content">
         <?php echo Translator::translate('NoAccess') . "\n"?>
   </div>
         <?php
-        return;
-    }
-
-    if (!$strTable) {
         return;
     }
 
@@ -487,7 +483,7 @@ function createJSONList($strFunc, $strList, $startRow, $rowCount, $sort, $filter
 
     // Total count
     $fullQuery
-        = "SELECT COUNT(*) AS cnt FROM $strTable $strCountJoin $strWhereClause";
+        = "SELECT COUNT(*) AS cnt FROM {$listConfig['table']} $strCountJoin $strWhereClause";
     $rows = dbParamQuery($fullQuery, $queryParams);
     $totalCount = $filteredCount = $rows[0]['cnt'];
 
@@ -498,7 +494,7 @@ function createJSONList($strFunc, $strList, $startRow, $rowCount, $sort, $filter
 
         // Filtered count
         $fullQuery
-            = "SELECT COUNT(*) as cnt FROM $strTable $strCountJoin $strWhereClause";
+            = "SELECT COUNT(*) as cnt FROM {$listConfig['table']} $strCountJoin $strWhereClause";
         $rows = dbParamQuery($fullQuery, $queryParams);
         $filteredCount = $rows[0]['cnt'];
     }
@@ -514,11 +510,11 @@ function createJSONList($strFunc, $strList, $startRow, $rowCount, $sort, $filter
     }
 
     // Build the final select clause
-    $strSelectClause = $strPrimaryKey;
-    if ($strDeletedField) {
-        $strSelectClause .= ", $strDeletedField";
+    $strSelectClause = $listConfig['primaryKey'];
+    if ($listConfig['deletedField']) {
+        $strSelectClause .= ", {$listConfig['deletedField']}";
     }
-    foreach ($astrShowFields as $field) {
+    foreach ($listConfig['fields'] as $field) {
         if ('HIDDEN' === $field['type'] || !empty($field['virtual'])) {
             continue;
         }
@@ -529,12 +525,12 @@ function createJSONList($strFunc, $strList, $startRow, $rowCount, $sort, $filter
         // Include any custom prices
         $strSelectClause .= <<<EOT
 , (SELECT unit_price FROM {prefix}custom_price_map pm WHERE pm.custom_price_id = ?
-AND pm.product_id = $strTable.id) custom_unit_price
+AND pm.product_id = {$listConfig['table']}.id) custom_unit_price
 EOT;
         $queryParams[] = $customPrices['id'];
     }
 
-    $fullQuery = "SELECT $strSelectClause FROM $strTable $strJoin"
+    $fullQuery = "SELECT $strSelectClause FROM {$listConfig['table']} $strJoin"
         . " $strWhereClause$strGroupBy";
 
     $order = [];
@@ -553,14 +549,16 @@ EOT;
     $astrPrimaryKeys = [];
     $records = [];
     $highlight = getRequest('highlight_overdue', false);
+    $idField = $listConfig['primaryKey'];
+    $deletedField = $listConfig['deletedField'];
     foreach ($rows as $row) {
-        $astrPrimaryKeys[] = $row[$strPrimaryKey];
-        $deleted = ($strDeletedField && $row[$strDeletedField]) ? ' deleted' : '';
-        $strLink = "?func=$strFunc&list=$strList&form=$strMainForm"
-            . '&listid=' . urlencode($listId) . '&id=' . $row[$strPrimaryKey];
-        $resultValues = [$row[$strPrimaryKey], $strLink];
+        $astrPrimaryKeys[] = $row[$idField];
+        $deleted = ($deletedField && $row[$deletedField]) ? ' deleted' : '';
+        $strLink = "?func=$strFunc&list=$strList&form={$listConfig['mainForm']}"
+            . '&listid=' . urlencode($listId) . '&id=' . $row[$idField];
+        $resultValues = [$row[$idField], $strLink];
         $rowClass = '';
-        foreach ($astrShowFields as $field) {
+        foreach ($listConfig['fields'] as $field) {
             if ('HIDDEN' === $field['type']) {
                 continue;
             }
@@ -642,7 +640,6 @@ EOT;
         'data' => $records
     ];
     return json_encode($results);
-
 }
 
 /**
@@ -661,9 +658,9 @@ EOT;
 function createListQueryParams($strFunc, $strList, $startRow, $rowCount, $sort,
     $filter, $where
 ) {
-    include "list_switch.php";
-
     global $dblink;
+
+    $listConfig = getListConfig($strList);
 
     $terms = '';
     $joinOp = '';
@@ -705,20 +702,16 @@ EOT;
         }
     }
 
-    if (!getSetting('show_deleted_records') && $strDeletedField) {
-        $terms .= "$joinOp $strDeletedField=0";
+    if (!getSetting('show_deleted_records') && $listConfig['deletedField']) {
+        $terms .= "$joinOp {$listConfig['deletedField']}=0";
         $joinOp = ' AND';
     }
 
     $filteredParams = $arrQueryParams;
     if ($filter) {
         $filteredTerms = "$terms $joinOp (" .
-             createWhereClause($astrSearchFields, $filter, $filteredParams) . ')';
+             createWhereClause($listConfig['searchFields'], $filter, $filteredParams) . ')';
         $joinOp = ' AND';
-    }
-
-    if (!isset($strCountJoin)) {
-        $strCountJoin = $strJoin;
     }
 
     // Sort options
@@ -726,7 +719,7 @@ EOT;
     // Filter out hidden fields
     $shownFields = array_values(
         array_filter(
-            $astrShowFields,
+            $listConfig['fields'],
             function ($val) {
                 return 'HIDDEN' !== $val['type'];
             }
@@ -751,14 +744,14 @@ EOT;
     }
 
     $result = [
-        'table' => $strTable,
-        'primaryKey' => $strPrimaryKey,
+        'table' => $listConfig['table'],
+        'primaryKey' => $listConfig['primaryKey'],
         'terms' => $terms,
         'params' => $arrQueryParams,
         'order' => implode(',', $orderBy),
-        'group' => $strGroupBy,
-        'join' => $strJoin,
-        'countJoin' => isset($strCountJoin) ? $strCountJoin : $strJoin
+        'group' => $listConfig['groupBy'],
+        'join' => $listConfig['displayJoin'],
+        'countJoin' => $listConfig['countJoin'] ? $listConfig['countJoin'] : $listConfig['displayJoin']
     ];
     if (isset($filteredTerms)) {
         $result['filteredTerms'] = $filteredTerms;
@@ -784,9 +777,9 @@ function createJSONSelectList($strList, $startRow, $rowCount, $filter, $sort,
     $id = null
 ) {
     global $dblink;
-    include "list_switch.php";
 
-    if (empty($id) && !sesAccessLevel($levelsAllowed) && !sesAdminAccess()) {
+    $listConfig = getListConfig($strList);
+    if (empty($id) && !sesAccessLevel($listConfig['accessLevels']) && !sesAdminAccess()) {
         ?>
 <div class="form_container ui-widget-content">
         <?php echo Translator::translate('NoAccess') . "\n"?>
@@ -803,7 +796,7 @@ function createJSONSelectList($strList, $startRow, $rowCount, $filter, $sort,
         $sortValid = 0;
         $sortFields = explode(',', $sort);
         foreach ($sortFields as $sortField) {
-            foreach ($astrShowFields as $field) {
+            foreach ($listConfig['fields'] as $field) {
                 if ($sortField === $field['name']) {
                     ++$sortValid;
                     break;
@@ -815,7 +808,7 @@ function createJSONSelectList($strList, $startRow, $rowCount, $filter, $sort,
             die('Invalid sort type');
         }
     } else {
-        foreach ($astrShowFields as $field) {
+        foreach ($listConfig['fields'] as $field) {
             if ($field['name'] == 'order_no') {
                 $sort = 'order_no';
             }
@@ -831,14 +824,12 @@ function createJSONSelectList($strList, $startRow, $rowCount, $filter, $sort,
     $strWhereClause = '';
 
     if (!getSetting('show_deleted_records') && empty($id)
-        && !empty($strDeletedField)
+        && !empty($listConfig['deletedField'])
     ) {
-        $strWhereClause = " WHERE $strDeletedField=0";
+        $strWhereClause = " WHERE {$listConfig['deletedField']}=0";
     }
 
-    if ($strGroupBy) {
-        $strGroupBy = " GROUP BY $strGroupBy";
-    }
+    $strGroupBy = $listConfig['groupBy'] ? " GROUP BY {$listConfig['groupBy']}" : '';
 
     // Add Filter
     if ($filter) {
@@ -854,7 +845,7 @@ function createJSONSelectList($strList, $startRow, $rowCount, $filter, $sort,
         if ($filter) {
             $strWhereClause .= ($strWhereClause ? ' AND ' : ' WHERE ')
                 . createWhereClause(
-                    $astrSearchFields, $filter, $arrQueryParams,
+                    $listConfig['searchFields'], $filter, $arrQueryParams,
                     !getSetting('dynamic_select_search_in_middle')
                 );
         }
@@ -873,9 +864,9 @@ function createJSONSelectList($strList, $startRow, $rowCount, $filter, $sort,
     }
 
     // Build the final select clause
-    $strSelectClause = !empty($strDeletedField) ? "$strPrimaryKey, $strDeletedField"
-        : $strPrimaryKey;
-    foreach ($astrShowFields as $field) {
+    $strSelectClause = $listConfig['deletedField'] ? "{$listConfig['primaryKey']}, {$listConfig['deletedField']}"
+        : $listConfig['primaryKey'];
+    foreach ($listConfig['fields'] as $field) {
         if (!empty($field['virtual'])) {
             continue;
         }
@@ -884,9 +875,9 @@ function createJSONSelectList($strList, $startRow, $rowCount, $filter, $sort,
     }
 
     // Sort any exact matches first
-    if ($astrSearchFields && $filter) {
+    if ($listConfig['searchFields'] && $filter) {
         $fields = [];
-        foreach ($astrSearchFields as $searchField) {
+        foreach ($listConfig['searchFields'] as $searchField) {
             if (in_array($searchField['type'], ['TEXT', 'INT', 'PRIMARY'])) {
                 $fields[] = $searchField['name'];
             }
@@ -912,13 +903,13 @@ function createJSONSelectList($strList, $startRow, $rowCount, $filter, $sort,
             // Include any custom prices
             $strSelectClause .= <<<EOT
 , (SELECT unit_price FROM {prefix}custom_price_map pm WHERE pm.custom_price_id = ?
-AND pm.product_id = $strTable.id) custom_unit_price
+AND pm.product_id = {$listConfig['table']}.id) custom_unit_price
 EOT;
             array_unshift($arrQueryParams, $customPrices['id']);
         }
     }
 
-    $fullQuery = "SELECT $strSelectClause FROM $strTable $strWhereClause$strGroupBy";
+    $fullQuery = "SELECT $strSelectClause FROM {$listConfig['table']} $strWhereClause{$listConfig['groupBy']}";
     if ($sort) {
         $fullQuery .= " ORDER BY $sort";
     }
@@ -942,7 +933,7 @@ EOT;
         $desc1 = [];
         $desc2 = [];
         $desc3 = [];
-        foreach ($astrShowFields as $field) {
+        foreach ($listConfig['fields'] as $field) {
             if (!isset($field['select']) || !$field['select']) {
                 continue;
             }
@@ -1055,7 +1046,7 @@ EOT;
         }
 
         $records[] = [
-            'id' => $row[$strPrimaryKey],
+            'id' => $row[$listConfig['primaryKey']],
             'descriptions' => $descriptions,
             'text' => implode(' ', $resultValues)
         ];

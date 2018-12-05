@@ -164,8 +164,8 @@ EOT;
     <iframe id="popup_dlg_iframe" src="about:blank" style="width: 100%; height: 100%; overflow: hidden; border: 0"></iframe>
 </div>
     <?php
-    if (isset($popupHTML)) {
-        echo $popupHTML;
+    if ($formConfig['popupHTML']) {
+        echo $formConfig['popupHTML'];
     }
     ?>
 
@@ -442,7 +442,7 @@ $(document).ready(function() {
     }
     if ($strForm == 'product') {
         ?>
-  update_stock_balance_log();
+  MLInvoice.updateStockBalanceLog();
         <?php
     }
     if (sesWriteAccess()) {

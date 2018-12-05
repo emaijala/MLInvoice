@@ -1,6 +1,6 @@
 <?php
 /**
- * Form configuration
+ * List configuration
  *
  * PHP version 5
  *
@@ -27,33 +27,29 @@
  */
 
 /**
- * Get form configuration
+ * Get list configuration
  *
- * @param string $form Form name
+ * @param string $list List name
  *
  * @return array
  */
-function getFormConfig($form)
+function getListConfig($list)
 {
-    $strForm = $form;
-    include 'form_switch.php';
+    $strList = $list;
+    include 'list_switch.php';
 
-    return [
+    return $strTable ? [
         'title' => isset($locTitle) ? $locTitle : '',
-        'readOnly' => $readOnlyForm,
         'accessLevels' => $levelsAllowed,
         'table' => $strTable,
-        'parentKey' => isset($strParentKey) ? $strParentKey : null,
-        'jsonType' => $strJSONType,
-        'tableAlias' => $strListTableAlias,
-        'copyLink' => $copyLinkOverride,
-        'extraButtons' => $extraButtons,
-        'fields' => $astrFormElements,
-        'dataAttrs' => $formDataAttrs,
+        'displayJoin' => $strJoin,
+        'countJoin' => isset($strCountJoin) ? $strCountJoin : null,
+        'groupBy' => $strGroupBy,
+        'listFilter' => $strListFilter,
+        'primaryKey' => $strPrimaryKey,
+        'deletedField' => $strDeletedField,
+        'fields' => $astrShowFields,
         'searchFields' => isset($astrSearchFields) ? $astrSearchFields : null,
-        'addressAutocomplete' => $addressAutocomplete,
-        'clearAfterRowAdded' => $clearRowValuesAfterAdd,
-        'onAfterRowAdded' => $onAfterRowAdded,
-        'popupHTML' => isset($popupHTML) ? $popupHTML : ''
-    ];
+        'mainForm' => $strMainForm,
+    ] : [];
 }

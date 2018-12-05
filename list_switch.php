@@ -26,7 +26,7 @@
  * @license  http://opensource.org/licenses/gpl-2.0.php GNU General Public License
  * @link     http://labs.fi/mlinvoice.eng.php
  */
- $strTable = '';
+$strTable = '';
 $strJoin = '';
 $strListFilter = '';
 $strGroupBy = '';
@@ -35,7 +35,7 @@ $levelsAllowed = [
     ROLE_USER,
     ROLE_BACKUPMGR
 ];
-switch ($strList ? $strList : $strFunc) {
+switch ($strList) {
 
 /***********************************************************************
  LISTS
@@ -52,10 +52,6 @@ case 'companies' :
             'name' => 'company_id',
             'type' => 'TEXT'
         ]
-    ];
-    $astrHiddenSearchField = [
-        'name' => 'type_id',
-        'type' => 'INT'
     ];
     $strPrimaryKey = 'id';
     $strDeletedField = 'deleted';
@@ -128,7 +124,7 @@ case 'invoices':
 case 'offer':
     $levelsAllowed[] = ROLE_READONLY;
 
-    $strListFilter = ($strFunc == 'archived_invoices') ? 'i.archived = 1'
+    $strListFilter = 'archived_invoices' === $strList ? 'i.archived = 1'
         : 'i.archived = 0';
     $strTable = '{prefix}invoice i';
     $strJoin = 'LEFT OUTER JOIN {prefix}base b on i.base_id=b.id ' .
@@ -834,7 +830,7 @@ case 'session_type' :
 
 case 'user' :
     $levelsAllowed = [
-        99
+        ROLE_ADMIN
     ];
     $strTable = '{prefix}users';
     $astrSearchFields = [

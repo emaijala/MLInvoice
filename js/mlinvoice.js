@@ -1137,6 +1137,11 @@ var MLInvoice = (function MLInvoice() {
     if ($('#company_id.select2').val()) {
       _onChangeCompany();
     }
+    // Stock balance
+    $('.update-stock-balance').click(function updateStockBalanceClick() {
+      updateStockBalance();
+      return false;
+    });
   }
 
   function updateSendApiButtons()
@@ -1355,6 +1360,63 @@ var MLInvoice = (function MLInvoice() {
     _setupListMultiSelect();
   }
 
+  function updateStockBalance()
+  {
+    var buttons = {};
+    buttons[translate('Save')] = function onSaveStockBalance() {
+      saveStockBalance();
+    };
+    buttons[translate('Close')] = function onCloseStockBalance() {
+      $('#update_stock_balance').dialog('close');
+    };
+    $('#update_stock_balance').dialog(
+      {
+        modal: true, width: 400, height: 240, resizable: false, zIndex: 900,
+        buttons: buttons,
+        title: translate('UpdateStockBalance'),
+      }
+    );
+  }
+
+  function saveStockBalance()
+  {
+    $.ajax({
+      url: 'json.php?func=update_stock_balance',
+      type: 'POST',
+      data: {
+        product_id: $('#record_id').val(),
+        stock_balance_change: document.getElementById('stock_balance_change').value.replace(translate('DecimalSeparator'), '.'),
+        stock_balance_change_desc: document.getElementById('stock_balance_change_desc').value
+      },
+      success: function updateStockBalanceDone(data) {
+        if (data.missing_fields) {
+          alert(translate('ErrValueMissing') + ': ' + data.missing_fields);
+        } else {
+          var new_balance = parseFloat(data.new_stock_balance).toFixed(2).replace('.', translate('DecimalSeparator'));
+          $('#stock_balance').val(new_balance);
+          updateStockBalanceLog();
+          $('#update_stock_balance').dialog('close');
+        }
+      }
+    });
+  }
+
+  function updateStockBalanceLog()
+  {
+    $('#stock_balance_change_log  > tbody > tr').slice(1).remove();
+    $.ajax({
+      url: 'json.php?func=get_stock_balance_rows',
+      type: 'POST',
+      data: {
+        product_id: $('#record_id').val(),
+      },
+      success: function getStockBalanceRowsDone(data) {
+        $('#stock_balance_change_log').append(data);
+      }
+    });
+  }
+
+
   return {
     init: init,
     addTranslation: addTranslation,
@@ -1379,6 +1441,8 @@ var MLInvoice = (function MLInvoice() {
     calculateInvoiceRowSummary: calculateInvoiceRowSummary,
     updateSendApiButtons: updateSendApiButtons,
     clearMessages: clearMessages,
-    ajaxErrorHandler: ajaxErrorHandler
+    ajaxErrorHandler: ajaxErrorHandler,
+    updateStockBalance: updateStockBalance,
+    updateStockBalanceLog: updateStockBalanceLog
   }
 })();

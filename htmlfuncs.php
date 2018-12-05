@@ -134,7 +134,9 @@ function htmlPageStart($strTitle = '', $arrExtraScripts = [])
         'RemoveAttachment',
         'LargeFile',
         'SendToClient',
-        'Description'
+        'Description',
+        'Save',
+        'UpdateStockBalance'
     ];
 
     $res = dbQueryCheck(

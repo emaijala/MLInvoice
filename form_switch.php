@@ -418,27 +418,14 @@ case 'product' :
     if (sesWriteAccess()) {
         $locStockBalanceChange = Translator::translate('StockBalanceChange');
         $locStockBalanceChangeDescription = Translator::translate('StockBalanceChangeDescription');
-        $locUpdateStockBalance = Translator::translate('UpdateStockBalance');
-        $locSave = Translator::translate('Save');
-        $locClose = Translator::translate('Close');
-        $locTitle = Translator::translate('UpdateStockBalance');
-        $locMissing = Translator::translate('ErrValueMissing');
-        $locDecimalSeparator = Translator::translate('DecimalSeparator');
         $popupHTML = <<<EOS
-<script type="text/javascript" src="js/stock_balance.js"></script>
 <div id="update_stock_balance" class="form_container ui-widget-content" style="display: none">
   <div class="medium_label">$locStockBalanceChange</div> <div class="field"><input type='TEXT' id="stock_balance_change" class='short'></div>
   <div class="medium_label">$locStockBalanceChangeDescription</div> <div class="field"><textarea id="stock_balance_change_desc" class="large"></textarea></div>
   </div>
 EOS;
 
-        $updateStockBalanceCode = <<<EOS
-<a class="formbuttonlink" href="#"
-  onclick="update_stock_balance({'save': '$locSave', 'close': '$locClose', 'title': '$locTitle', 'missing': '$locMissing: ', 'decimal_separator': '$locDecimalSeparator'})">
-    $locUpdateStockBalance
-</a>
-
-EOS;
+        $updateStockBalanceCode = '<a class="formbuttonlink update-stock-balance" href="#">' . Translator::translate('UpdateStockBalance') . '</a>';
     }
 
     $barcodeTypes = [
