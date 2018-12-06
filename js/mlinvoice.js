@@ -1320,15 +1320,6 @@ var MLInvoice = (function MLInvoice() {
   }
 
   function _setupListMultiSelect() {
-    $('a.actionlink.update-selected-rows').click(function editSelectedClick() {
-      var list = $(this).data('list');
-      var ids = $(this).closest('.list_container').find('.cb-select-row:checked').map(function mapChecked() {
-        return 'id[]=' + encodeURIComponent(this.value);
-      }).get();
-      window.location.href = '?func=multiedit&list=' + encodeURIComponent(list) + '&' + ids.join('&');
-      return false;
-    });
-
     $('.print-selected-rows .print-selected-item').click(function printSelectedClick() {
       var ids = $(this).closest('.list_container').find('.cb-select-row:checked').map(function mapChecked() {
         return 'id[]=' + encodeURIComponent(this.value);

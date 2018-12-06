@@ -25,7 +25,7 @@
  * @license  http://opensource.org/licenses/gpl-2.0.php GNU General Public License
  * @link     http://labs.fi/mlinvoice.eng.php
  */
-use Michelf\Markdown;
+require_once 'markdown.php';
 
 /**
  * Extended TCPDF class
@@ -63,6 +63,7 @@ class PDF extends \setasign\Fpdi\Tcpdf\Fpdi
     protected $marginSubsequent = null;
     protected $printHeader = true;
     protected $printFooter = true;
+    protected $markdownParser = null;
 
     /**
      * This method is used to render the page header.
@@ -175,7 +176,10 @@ class PDF extends \setasign\Fpdi\Tcpdf\Fpdi
                 $maxh
             );
         } else {
-            $html = Markdown::defaultTransform($txt);
+            if (null === $this->markdownParser) {
+                $this->markdownParser = new MLMarkdown();
+            }
+            $html = $this->markdownParser->transform($txt);
             $this->writeHTMLCell(
                 $w,
                 $h,

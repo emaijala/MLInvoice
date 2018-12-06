@@ -38,7 +38,7 @@ require_once 'crypt.php';
  *
  * @return array
  */
-function getFormDefaultValues(&$formElements, $parentKey = false)
+function getFormDefaultValues($formElements, $parentKey = false)
 {
     $values = [];
 
@@ -110,7 +110,7 @@ function getFormDefaultValue($elem, $parentKey)
  *
  * @return mixed
  */
-function saveFormData($table, &$primaryKey, &$formElements, &$values, &$warnings,
+function saveFormData($table, &$primaryKey, $formElements, &$values, &$warnings,
     $parentKeyName = '', $parentKey = false, $onPrint = false, $partial = false
 ) {
     global $dblink;
@@ -452,7 +452,7 @@ function saveFormData($table, &$primaryKey, &$formElements, &$values, &$warnings
  *
  * @return mixed
  */
-function fetchRecord($table, $primaryKey, &$formElements, &$values)
+function fetchRecord($table, $primaryKey, $formElements, &$values)
 {
     $result = true;
     $strQuery = "SELECT * FROM $table WHERE id=?";

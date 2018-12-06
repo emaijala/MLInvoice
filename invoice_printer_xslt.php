@@ -29,8 +29,7 @@ require_once 'invoice_printer_base.php';
 require_once 'htmlfuncs.php';
 require_once 'miscfuncs.php';
 require_once 'pdf.php';
-
-use Michelf\Markdown;
+require_once 'markdown.php';
 
 /**
  * XSLT invoice
@@ -262,7 +261,7 @@ EOT
     {
         // Preprocess invoice rows
         if (getSetting('printout_markdown')) {
-            $markdown = new Markdown();
+            $markdown = new MLMarkdown();
         } else {
             $markdown = null;
         }

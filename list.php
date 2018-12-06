@@ -26,13 +26,12 @@
  * @license  http://opensource.org/licenses/gpl-2.0.php GNU General Public License
  * @link     http://labs.fi/mlinvoice.eng.php
  */
-require_once "sqlfuncs.php";
-require_once "miscfuncs.php";
-require_once "datefuncs.php";
-require_once "memory.php";
-require_once "list_config.php";
-
-use Michelf\Markdown;
+require_once 'sqlfuncs.php';
+require_once 'miscfuncs.php';
+require_once 'datefuncs.php';
+require_once 'memory.php';
+require_once 'list_config.php';
+require_once 'markdown.php';
 
 /**
  * Create a list
@@ -105,7 +104,7 @@ function createList($strFunc, $strList, $strTableName = '', $strTitleOverride = 
     }
     $strTableName .= '_2';
 
-    $strTitle = $listConfig['title'];
+    $strTitle = $strTitleOverride ? $strTitleOverride : $listConfig['title'];
 
     $params = [
         'listfunc' => $strFunc,
@@ -408,7 +407,7 @@ function createList($strFunc, $strList, $strTableName = '', $strTitleOverride = 
         ?>
         <div class="selection-buttons fg-toolbar ui-widget">
             <?php echo Translator::translate('ForSelected')?>:
-            <input type="submit" value="<?php echo Translator::translate('Edit')?>" class="update-selected-rows selected-row-button ui-button ui-corner-all ui-widget">
+            <input type="submit" value="<?php echo Translator::translate('Edit')?>" class="selected-row-button update-selected-rows ui-button ui-corner-all ui-widget">
             <?php if ($printTemplates) { ?>
                 <ul class="dropdownmenu list-selected">
                     <li class="print-selected-rows selected-row-button ui-button ui-corner-all"><?php echo Translator::translate('Print')?>...
@@ -1034,13 +1033,16 @@ EOT;
         }
 
         $markdown = getSetting('printout_markdown');
+        if ($markdown) {
+            $markdownParser = new MLMarkdown();
+        }
         foreach ($resultValues as &$resultValue) {
-            $resultValue = $markdown ? Markdown::defaultTransform($resultValue)
+            $resultValue = $markdown ? $markdownParser->transform($resultValue)
                 : htmlspecialchars($resultValue);
             $resultValue = preg_replace('/<p>(.*)<\/p>/', '$1', $resultValue);
         }
         foreach ($descriptions as &$description) {
-            $description = $markdown ? Markdown::defaultTransform($description)
+            $description = $markdown ? $markdownParser->transform($description)
                 : htmlspecialchars($description);
             $description = preg_replace('/<p>(.*)<\/p>/', '$1', $description);
         }

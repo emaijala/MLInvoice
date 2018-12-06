@@ -1,10 +1,10 @@
 <?php
 /**
- * List configuration
+ * Extended TCPDF class
  *
  * PHP version 5
  *
- * Copyright (C) 2018 Ere Maijala
+ * Copyright (C) Ere Maijala 2010-2018.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2,
@@ -26,30 +26,15 @@
  * @link     http://labs.fi/mlinvoice.eng.php
  */
 
-/**
- * Get list configuration
- *
- * @param string $list List name
- *
- * @return array
- */
-function getListConfig($list)
+class MLMarkdown extends \Michelf\Markdown
 {
-    $strList = $list;
-    include 'list_switch.php';
+	/**
+	 * Constructor function. Initialize appropriate member variables.
+	 * @return void
+	 */
+	public function __construct() {
+        parent::__construct();
 
-    return $strTable ? [
-        'title' => isset($strTitle) ? $strTitle : '',
-        'accessLevels' => $levelsAllowed,
-        'table' => $strTable,
-        'displayJoin' => $strJoin,
-        'countJoin' => isset($strCountJoin) ? $strCountJoin : null,
-        'groupBy' => $strGroupBy,
-        'listFilter' => $strListFilter,
-        'primaryKey' => $strPrimaryKey,
-        'deletedField' => $strDeletedField,
-        'fields' => $astrShowFields,
-        'searchFields' => isset($astrSearchFields) ? $astrSearchFields : null,
-        'mainForm' => $strMainForm,
-    ] : [];
+        //$this->hard_wrap = true;
+    }
 }

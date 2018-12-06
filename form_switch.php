@@ -51,7 +51,8 @@ if (!isset($strList)) {
 
 switch ($strForm) {
 
-case 'company' :
+case 'company':
+case 'companies':
     $strTable = '{prefix}company';
     $strJSONType = 'company';
     $strParentKey = 'company_id';
