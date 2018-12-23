@@ -25,6 +25,7 @@
  * @license  http://opensource.org/licenses/gpl-2.0.php GNU General Public License
  * @link     http://labs.fi/mlinvoice.eng.php
  */
+require_once 'vendor/autoload.php';
 
 // buffered, so we can redirect later if necessary
 ini_set('implicit_flush', 'Off');
