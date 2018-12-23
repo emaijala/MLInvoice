@@ -1,10 +1,10 @@
 <?php
 /**
- * Extended TCPDF class
+ * Extended Markdown class
  *
  * PHP version 5
  *
- * Copyright (C) Ere Maijala 2010-2018.
+ * Copyright (C) Ere Maijala 2018.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2,
@@ -25,16 +25,28 @@
  * @license  http://opensource.org/licenses/gpl-2.0.php GNU General Public License
  * @link     http://labs.fi/mlinvoice.eng.php
  */
+require_once 'vendor/autoload.php';
 
+/**
+ * Markdown
+ *
+ * @category MLInvoice
+ * @package  MLInvoice\Base
+ * @author   Ere Maijala <ere@labs.fi>
+ * @license  http://opensource.org/licenses/gpl-2.0.php GNU General Public License
+ * @link     http://labs.fi/mlinvoice.eng.php
+ */
 class MLMarkdown extends \Michelf\Markdown
 {
-	/**
-	 * Constructor function. Initialize appropriate member variables.
-	 * @return void
-	 */
-	public function __construct() {
+    /**
+     * Constructor function. Initialize appropriate member variables.
+     *
+     * @return void
+     */
+    public function __construct()
+    {
         parent::__construct();
 
-        //$this->hard_wrap = true;
+        $this->hard_wrap = true;
     }
 }
