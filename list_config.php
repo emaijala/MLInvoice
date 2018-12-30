@@ -50,6 +50,6 @@ function getListConfig($list)
         'deletedField' => $strDeletedField,
         'fields' => $astrShowFields,
         'searchFields' => isset($astrSearchFields) ? $astrSearchFields : null,
-        'mainForm' => $strMainForm,
+        'mainForm' => isset($strMainForm) ? $strMainForm : '',
     ] : [];
 }

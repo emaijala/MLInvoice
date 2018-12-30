@@ -63,7 +63,7 @@ if ($strFields !== false) {
     $astrSelectedFields = [];
 }
 
-$formConfig = getFormConfig($strForm);
+$formConfig = getFormConfig($strForm, 'ext_search');
 
 for ($j = 0; $j < count($astrSelectedFields); $j ++) {
     $tmpDelete = getPost('delete_' . $astrSelectedFields[$j] . '_x', false);

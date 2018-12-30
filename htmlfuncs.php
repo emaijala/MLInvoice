@@ -71,7 +71,7 @@ function htmlPageStart($strTitle = '', $arrExtraScripts = [])
         "js/date-$lang.js",
         'jquery/js/jquery.daterangepicker.js',
         'js/mlinvoice.js',
-        'js/functions.js',
+        'js/mlinvoice-form.js',
         'select2/select2.min.js',
         'js/formdata.min.js'
     ];
@@ -136,7 +136,18 @@ function htmlPageStart($strTitle = '', $arrExtraScripts = [])
         'SendToClient',
         'Description',
         'Save',
-        'UpdateStockBalance'
+        'UpdateStockBalance',
+        'YesButton',
+        'NoButton',
+        'Edit',
+        'Copy',
+        'TotalExcludingVAT',
+        'TotalVAT',
+        'TotalIncludingVAT',
+        'TotalToPay',
+        'RowCopy',
+        'RowModification',
+        'PartialPayment'
     ];
 
     $res = dbQueryCheck(
@@ -254,7 +265,7 @@ function htmlMainTabs($func)
         [
             'name' => 'company',
             'title' => 'ShowClientNavi',
-            'action' => 'companies',
+            'action' => 'company',
             'levels_allowed' => [
                 ROLE_USER,
                 ROLE_BACKUPMGR
@@ -672,12 +683,12 @@ EOT;
 
         case 'redirect':
             $strHref = '#';
-            $strOnClick = "onclick=\"save_record('$strListQuery', 'redirect'); return false;\"";
+            $strOnClick = "onclick=\"MLInvoice.Form.saveRecord('$strListQuery', 'redirect'); return false;\"";
             break;
 
         case 'openwindow':
             $strHref = '#';
-            $strOnClick = "onclick=\"save_record('$strListQuery', 'openwindow'); return false;\"";
+            $strOnClick = "onclick=\"MLInvoice.Form.saveRecord('$strListQuery', 'openwindow'); return false;\"";
             break;
 
         default:
@@ -758,7 +769,7 @@ EOT;
     case 'FILE':
         $strFormElement = '<input type="file" class="' . $strStyle . '" ' .
              'id="' . $strName . '" name="' . $strName .
-             "\"$astrAdditionalAttributes$readOnly></input>\n";
+             "\"$astrAdditionalAttributes$readOnly>\n";
         break;
 
     default :

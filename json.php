@@ -121,7 +121,7 @@ case 'get_companies':
     printJSONRecords('company', '', 'company_name');
     break;
 
-case 'get_company_contacts' :
+case 'get_company_contacts':
     printJSONRecords('company_contact', 'company_id', 'contact_person');
     break;
 
@@ -737,7 +737,7 @@ function saveJSONRecord($table, $parentKeyName)
     $id = isset($data['id']) ? $data['id'] : false;
     $new = $id ? false : true;
     unset($data['id']);
-    $formConfig = getFormConfig($strForm);
+    $formConfig = getFormConfig($strForm, 'json');
 
     $onPrint = false;
     if (isset($data['onPrint'])) {
@@ -820,7 +820,7 @@ function updateMultipleRows()
     $strForm = $request['table'];
     $strFunc = '';
     $strList = '';
-    $formConfig = getFormConfig($strForm);
+    $formConfig = getFormConfig($strForm, 'json');
 
     $warnings = '';
     foreach ($request['ids'] as $id) {

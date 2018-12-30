@@ -272,6 +272,23 @@ function isOffer($invoiceId)
 }
 
 /**
+ * Check if an invoice record is open
+ *
+ * @param int $invoiceId Invoice ID
+ *
+ * @return bool
+ */
+function isInvoiceOpen($invoiceId)
+{
+    $rows = dbParamQuery(
+        'SELECT id FROM {prefix}invoice_state WHERE invoice_open=1 AND id IN ('
+        . 'SELECT state_id FROM {prefix}invoice WHERE id=?)',
+        [$invoiceId]
+    );
+    return $rows ? true : false;
+}
+
+/**
  * Check if an invoice row belongs to an offer
  *
  * @param int $invoiceRowId Invoice row ID

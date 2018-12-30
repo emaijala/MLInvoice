@@ -183,6 +183,14 @@ function saveFormData($table, &$primaryKey, $formElements, &$values, &$warnings,
                     continue;
                 }
             }
+        } else {
+            if (!$elem['allow_null'] && !$primaryKey && !isset($_FILES[$name])) {
+                if ($missingValues) {
+                    $missingValues .= ', ';
+                }
+                $missingValues .= Translator::translate($elem['label']);
+                continue;
+            }
         }
 
         if ('FILE' !== $type) {

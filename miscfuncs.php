@@ -331,7 +331,7 @@ function getPostRequest($strKey, $varDefault = null)
  */
 function getPageTitle($strFunc, $strList, $strForm)
 {
-    switch ($strFunc) {
+    switch ($strFunc ? $strFunc : $strList) {
     case 'open_invoices':
         if ($strForm) {
             if (getRequest('offer')
@@ -358,7 +358,7 @@ function getPageTitle($strFunc, $strList, $strForm)
             return Translator::translate('ArchivedInvoices');
         }
         break;
-    case 'companies':
+    case 'company':
         if ($strForm) {
             return Translator::translate('Client');
         } else {

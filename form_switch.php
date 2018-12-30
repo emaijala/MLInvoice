@@ -35,7 +35,6 @@ $levelsAllowed = [
     ROLE_BACKUPMGR
 ];
 $copyLinkOverride = '';
-$strJSONType = '';
 $clearRowValuesAfterAdd = false;
 $onAfterRowAdded = '';
 $readOnlyForm = false;
@@ -52,9 +51,7 @@ if (!isset($strList)) {
 switch ($strForm) {
 
 case 'company':
-case 'companies':
     $strTable = '{prefix}company';
-    $strJSONType = 'company';
     $strParentKey = 'company_id';
     $addressAutocomplete = true;
     $astrSearchFields = [
@@ -311,7 +308,7 @@ case 'companies':
             'allow_null' => true
         ],
         [
-            'name' => 'company_contacts',
+            'name' => 'company_contact',
             'label' => 'Contacts',
             'type' => 'IFORM',
             'style' => 'full',
@@ -323,9 +320,7 @@ case 'companies':
     break;
 
 case 'company_contact' :
-case 'company_contacts' :
     $strTable = '{prefix}company_contact';
-    $strJSONType = 'company_contact';
     $strParentKey = 'company_id';
     $clearRowValuesAfterAdd = true;
     $astrFormElements = [
@@ -408,7 +403,6 @@ case 'company_contacts' :
 
 case 'product' :
     $strTable = '{prefix}product';
-    $strJSONType = 'product';
     $astrSearchFields = [
         [
             'name' => 'product_name',
@@ -640,7 +634,6 @@ case 'invoice' :
     $strTable = '{prefix}invoice';
     $strListTableAlias = 'i.'; // this is for the search function
     $strParentKey = 'invoice_id';
-    $strJSONType = 'invoice';
     $addressAutocomplete = true;
     $defaultState = 1;
     $isOffer = false;
@@ -732,7 +725,7 @@ EOT;
         $locMissing = Translator::translate('ErrValueMissing');
         $addCompanyCode = <<<EOS
 <a class="formbuttonlink" href="#"
-  onclick="add_company({'save': '$locSave', 'close': '$locClose', 'title': '$locTitle', 'missing': '$locMissing: '})">
+  onclick="MLInvoice.Form.addCompany({'save': '$locSave', 'close': '$locClose', 'title': '$locTitle', 'missing': '$locMissing: '})">
     $locNew
 </a>
 
@@ -754,12 +747,7 @@ EOS;
         if (!$isOffer) {
             $companyOnChange = '_onChangeCompany';
 
-            $locPartialPayment = Translator::translate('PartialPayment');
-            $locDecimalSeparator = Translator::translate('DecimalSeparator');
-            $addPartialPaymentCode = "add_partial_payment({'save': '$locSave', 'close': '$locClose',"
-                . " 'title': '{$locPartialPayment}', 'missing': '$locMissing: ', "
-                . "'partial_payment': '{$locPartialPayment}', 'decimal_separator': '{$locDecimalSeparator}'});"
-                . " return false;";
+            $addPartialPaymentCode = "MLInvoice.Form.addPartialPayment(); return false;";
 
             $locPaymentAmount = Translator::translate('PaymentAmount');
             $locPaymentDate = Translator::translate('PayDate');
@@ -1200,7 +1188,7 @@ EOF;
     }
 
     $astrFormElements[] = [
-        'name' => 'invoice_rows',
+        'name' => 'invoice_row',
         'label' => 'InvRows',
         'type' => 'IFORM',
         'style' => 'xfull',
@@ -1211,9 +1199,7 @@ EOF;
     break;
 
 case 'invoice_row' :
-case 'invoice_rows' :
     $strTable = '{prefix}invoice_row';
-    $strJSONType = 'invoice_row';
     $strParentKey = 'invoice_id';
 
     switch (getSetting('invoice_clear_row_values_after_add')) {
@@ -1356,7 +1342,6 @@ case 'invoice_rows' :
 /* SYSTEM FORMS */
 case 'base' :
     $strTable = '{prefix}base';
-    $strJSONType = 'base';
     $addressAutocomplete = true;
 
     $locTitle = Translator::translate('BaseLogoTitle');
@@ -1780,7 +1765,7 @@ EOF;
             'allow_null' => true
         ],
         [
-            'name' => 'send_api_configs',
+            'name' => 'send_api_config',
             'label' => 'SendAPISettings',
             'type' => 'IFORM',
             'style' => 'full',
@@ -1792,9 +1777,7 @@ EOF;
     break;
 
 case 'send_api_config':
-case 'send_api_configs':
     $strTable = '{prefix}send_api_config';
-    $strJSONType = 'send_api_config';
     $strParentKey = 'base_id';
     $clearRowValuesAfterAdd = true;
     $astrFormElements = [
@@ -1885,7 +1868,6 @@ case 'invoice_state':
         ROLE_ADMIN
     ];
     $strTable = '{prefix}invoice_state';
-    $strJSONType = 'invoice_state';
 
     $intId = isset($id) ? $id : getRequest('id', false);
     $readOnly = ($intId && $intId <= 8);
@@ -1936,7 +1918,6 @@ case 'invoice_type':
         ROLE_ADMIN
     ];
     $strTable = '{prefix}invoice_type';
-    $strJSONType = 'invoice_type';
 
     $intId = isset($id) ? $id : getRequest('id', false);
     $astrFormElements = [
@@ -1970,7 +1951,6 @@ case 'row_type' :
         ROLE_ADMIN
     ];
     $strTable = '{prefix}row_type';
-    $strJSONType = 'row_type';
 
     $astrFormElements = [
         [
@@ -1995,7 +1975,6 @@ case 'session_type' :
         ROLE_ADMIN
     ];
     $strTable = '{prefix}session_type';
-    $strJSONType = 'session_type';
 
     $intId = getRequest('id', false);
     if ($intId && $intId <= 4) {
@@ -2032,7 +2011,6 @@ case 'delivery_terms' :
         ROLE_ADMIN
     ];
     $strTable = '{prefix}delivery_terms';
-    $strJSONType = 'delivery_terms';
 
     $astrFormElements = [
         [
@@ -2057,7 +2035,6 @@ case 'delivery_method' :
         ROLE_ADMIN
     ];
     $strTable = '{prefix}delivery_method';
-    $strJSONType = 'delivery_method';
 
     $astrFormElements = [
         [
@@ -2079,7 +2056,6 @@ case 'delivery_method' :
 
 case 'default_value' :
     $strTable = '{prefix}default_value';
-    $strJSONType = 'default_value';
 
     $astrFormElements = [
         [
@@ -2131,7 +2107,6 @@ case 'default_value' :
 
 case 'attachment':
     $strTable = '{prefix}attachment';
-    $strJSONType = 'attachment';
 
     $intId = isset($id) ? $id : getRequest('id', false);
     if ($intId) {
@@ -2195,7 +2170,6 @@ EOT;
 
 case 'invoice_attachment':
     $strTable = '{prefix}invoice_attachment';
-    $strJSONType = 'invoice_attachment';
     $strParentKey = 'invoice_id';
 
     $astrFormElements = [
@@ -2271,7 +2245,6 @@ case 'user' :
         ROLE_ADMIN
     ];
     $strTable = '{prefix}users';
-    $strJSONType = 'user';
     $astrFormElements = [
         [
             'name' => 'name',
@@ -2316,7 +2289,6 @@ case 'user' :
 
 case 'print_template' :
     $strTable = '{prefix}print_template';
-    $strJSONType = 'print_template';
 
     $elem_attributes = '';
     $astrFormElements = [

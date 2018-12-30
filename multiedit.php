@@ -60,7 +60,7 @@ class MultiEdit
         $strForm = getRequest('form', '');
         $list = getRequest('list', '');
 
-        $formConfig = getFormConfig($strForm);
+        $formConfig = getFormConfig($strForm, 'multiedit');
 
         $messages = [];
         $errors = [];

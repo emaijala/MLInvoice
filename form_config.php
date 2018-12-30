@@ -30,21 +30,23 @@
  * Get form configuration
  *
  * @param string $form Form name
+ * @param string $func Current function
  *
  * @return array
  */
-function getFormConfig($form)
+function getFormConfig($form, $func)
 {
     $strForm = $form;
+    $strFunc = $func;
     include 'form_switch.php';
 
     return [
+        'type' => $strForm,
         'title' => isset($locTitle) ? $locTitle : '',
         'readOnly' => $readOnlyForm,
         'accessLevels' => $levelsAllowed,
         'table' => $strTable,
         'parentKey' => isset($strParentKey) ? $strParentKey : null,
-        'jsonType' => $strJSONType,
         'tableAlias' => $strListTableAlias,
         'copyLink' => $copyLinkOverride,
         'extraButtons' => $extraButtons,

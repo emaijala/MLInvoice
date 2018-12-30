@@ -41,7 +41,6 @@ switch ($strList) {
  LISTS
  ***********************************************************************/
 case 'company' :
-case 'companies' :
     $strTable = '{prefix}company';
     $astrSearchFields = [
         [
@@ -318,7 +317,6 @@ case 'base' :
             'header' => 'Email'
         ]
     ];
-    // array('name');
     $strMainForm = 'base';
     $strTitle = 'Bases';
     break;

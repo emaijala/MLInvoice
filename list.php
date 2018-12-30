@@ -224,7 +224,7 @@ function createList($strFunc, $strList, $strTableName = '', $strTitleOverride = 
                     <?php
                 } elseif ('INTDATE' === $field['type']) {
                     ?>
-                    json.data[i][<?php echo $i?>] = formatDate(json.data[i][<?php echo $i?>]);
+                    json.data[i][<?php echo $i?>] = MLInvoice.formatDate(json.data[i][<?php echo $i?>]);
                     <?php
                 } elseif ('CHECKBOX' === $field['type']) {
                     $hasRowSelection = true;
@@ -669,7 +669,7 @@ function createListQueryParams($strFunc, $strList, $startRow, $rowCount, $sort,
         $boolean = '';
         while (extractSearchTerm($where, $field, $operator, $term, $nextBool)) {
             if ('tags' === $field) {
-                $tagTable = 'companies' === $strList ? 'company' : 'contact';
+                $tagTable = 'company' === $strList ? 'company' : 'contact';
                 foreach (explode(',', $term) as $i => $current) {
                     $subQuery = <<<EOT
 SELECT {$tagTable}_id FROM {prefix}{$tagTable}_tag_link

@@ -260,7 +260,7 @@ function createFuncMenu($strFunc)
         ];
         break;
 
-    case 'companies':
+    case 'company':
         $blnShowSearch = true;
         $strOpenForm = 'company';
         $strFormName = 'company';
