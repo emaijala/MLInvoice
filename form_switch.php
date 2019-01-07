@@ -420,7 +420,7 @@ case 'product' :
   </div>
 EOS;
 
-        $updateStockBalanceCode = '<a class="formbuttonlink update-stock-balance" href="#">' . Translator::translate('UpdateStockBalance') . '</a>';
+        $updateStockBalanceCode = '<a class="formbuttonlink ui-button ui-corner-all ui-widget update-stock-balance" href="#">' . Translator::translate('UpdateStockBalance') . '</a>';
     }
 
     $barcodeTypes = [
@@ -653,7 +653,7 @@ case 'invoice' :
         if ($isOffer) {
             $locCopyAsInvoice = Translator::translate('CopyAsInvoice');
             $extraButtons = <<<EOT
-<a class="actionlink" href="copy_invoice.php?func=$strFunc&list=$strList&id=$intInvoiceId&invoice=1">$locCopyAsInvoice</a>
+<a class="actionlink ui-button ui-corner-all ui-widget" href="copy_invoice.php?func=$strFunc&list=$strList&id=$intInvoiceId&invoice=1">$locCopyAsInvoice</a>
 
 EOT;
         }
@@ -709,7 +709,7 @@ EOT;
 
     if (sesWriteAccess()) {
         $locUpdateDates = Translator::translate('UpdateDates');
-        $updateDates = '<a class="formbuttonlink update-dates" href="#">' . $locUpdateDates . '</a>';
+        $updateDates = '<a class="formbuttonlink ui-button ui-corner-all ui-widget update-dates" href="#">' . $locUpdateDates . '</a>';
 
         $locNew = Translator::translate('New') . '...';
         $locClientName = Translator::translate('ClientName');
@@ -724,7 +724,7 @@ EOT;
         $locTitle = Translator::translate('NewClient');
         $locMissing = Translator::translate('ErrValueMissing');
         $addCompanyCode = <<<EOS
-<a class="formbuttonlink" href="#"
+<a class="formbuttonlink ui-button ui-corner-all ui-widget" href="#"
   onclick="MLInvoice.Form.addCompany({'save': '$locSave', 'close': '$locClose', 'title': '$locTitle', 'missing': '$locMissing: '})">
     $locNew
 </a>
@@ -787,7 +787,7 @@ EOS;
         $markPaidToday .= <<<EOS
 $('.save_button').addClass('ui-state-highlight'); return false;
 EOS;
-        $markPaidTodayButton = '<a class="formbuttonlink" href="#" onclick="' .
+        $markPaidTodayButton = '<a class="formbuttonlink ui-button ui-corner-all ui-widget" href="#" onclick="' .
              $markPaidToday . '">' . Translator::translate('MarkAsPaidToday') . '</a>';
         if (getSetting('invoice_mark_paid_when_payment_date_set')) {
             $markPaidTodayEvent = <<<EOF
@@ -887,7 +887,7 @@ EOF;
         if (!getSetting('invoice_add_number')
             || !getSetting('invoice_add_reference_number')
         ) {
-            $updateInvoiceNr = '<a class="formbuttonlink update-invoice-nr" href="#">'
+            $updateInvoiceNr = '<a class="formbuttonlink ui-button ui-corner-all ui-widget update-invoice-nr" href="#">'
                 . Translator::translate('GetInvoiceNr') . '</a>';
         }
     }
@@ -2112,7 +2112,7 @@ case 'attachment':
     if ($intId) {
         $showAttachment = Translator::translate('ShowAttachment');
         $extraButtons = <<<EOT
-    <a class="actionlink" href="attachment.php?id=$intId" target="_blank">$showAttachment</a>
+    <a class="actionlink ui-button ui-corner-all ui-widget" href="attachment.php?id=$intId" target="_blank">$showAttachment</a>
 
 EOT;
     }

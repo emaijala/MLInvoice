@@ -85,7 +85,7 @@ foreach ($rows as $row) {
                         </td>
                         <td>
                             <input type="hidden" name="delete_<?php echo $intID?>_x" value="0">
-                            <a class="tinyactionlink form-submit" href="#" data-set-field="delete_<?php echo $intID?>_x"> X </a>
+                            <a class="tinyactionlink ui-button ui-corner-all ui-widget form-submit" href="#" data-set-field="delete_<?php echo $intID?>_x"> X </a>
                         </td>
                     </tr>
     <?php
@@ -106,7 +106,7 @@ if (!isset($intID)) {
                     <table>
                         <tr>
                             <td>
-                              <a class="actionlink popup-close" href="#">
+                              <a class="actionlink ui-button ui-corner-all ui-widget popup-close" href="#">
                                 <?php echo Translator::translate('Close')?>
                               </a>
                             </td>

@@ -234,10 +234,10 @@ trait InvoicePrinterEmailTrait
                     ?>
                 </div>
                 <div class="form_buttons" style="clear: both">
-                    <a class="actionlink" onclick="$('#email_send').val(1); $('#email_form').submit(); return false;" href="#">
+                    <a class="actionlink ui-button ui-corner-all ui-widget" onclick="$('#email_send').val(1); $('#email_form').submit(); return false;" href="#">
                         <?php echo Translator::translate('Send')?>
                     </a>
-                    <a class="actionlink" onclick="if (window.opener) { window.close(); } else { history.back(); } return false;" href="#">
+                    <a class="actionlink ui-button ui-corner-all ui-widget" onclick="if (window.opener) { window.close(); } else { history.back(); } return false;" href="#">
                         <?php echo Translator::translate('Cancel')?>
                     </a>
                     <span id="spinner" style="display: none"><img src="images/spinner.gif" alt=""></span>

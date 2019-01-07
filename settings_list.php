@@ -210,7 +210,7 @@ function createSettingsListButtons()
 {
     ?>
 <div class="form_buttons" style="clear: both">
-    <a class="actionlink save_button form-submit" href="#" data-set-field="saveact">
+    <a class="actionlink ui-button ui-corner-all ui-widget save_button form-submit" href="#" data-set-field="saveact">
         <?php echo Translator::translate('Save')?>
     </a>
 </div>

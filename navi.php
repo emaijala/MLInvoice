@@ -147,7 +147,7 @@ function createFuncMenu($strFunc)
             break;
         }
         if ($strNewText) {
-            $strNewButton = "<br/><br/><a class=\"buttonlink new_button\""
+            $strNewButton = "<br/><br/><a class=\"buttonlink ui-button ui-corner-all ui-widget new_button\""
                 . " href=\"?func=system&amp;list=$strList&amp;form=$strList\">$strNewText</a>";
         }
         break;
@@ -213,7 +213,7 @@ function createFuncMenu($strFunc)
                 break;
             }
             if ($strNewText) {
-                $strNewButton = "<br/><br/><a class=\"buttonlink\" "
+                $strNewButton = "<br/><br/><a class=\"buttonlink ui-button ui-corner-all ui-widget\" "
                     . "href=\"?func=settings&amp;list=$strList&amp;form=$strList\">$strNewText</a>";
             }
         }
@@ -266,7 +266,7 @@ function createFuncMenu($strFunc)
         $strFormName = 'company';
         $strFormSwitch = 'company';
         $astrNaviLinks = [];
-        $strNewButton = '<a class="buttonlink" href="?func=companies&amp;form=company">'
+        $strNewButton = '<a class="buttonlink ui-button ui-corner-all ui-widget" href="?func=companies&amp;form=company">'
              . Translator::translate('NewClient') . '</a>';
         break;
 
@@ -298,9 +298,9 @@ function createFuncMenu($strFunc)
             ];
         }
         if ($strFunc != 'archived_invoices') {
-            $strNewButton = ' <a class="buttonlink" href="?func=invoices&amp;form=invoice&amp;offer=1">' .
+            $strNewButton = ' <a class="buttonlink ui-button ui-corner-all ui-widget" href="?func=invoices&amp;form=invoice&amp;offer=1">' .
                  Translator::translate('NewOffer') . '</a>';
-            $strNewButton .= '<a class="buttonlink" href="?func=invoices&amp;form=invoice">' .
+            $strNewButton .= '<a class="buttonlink ui-button ui-corner-all ui-widget" href="?func=invoices&amp;form=invoice">' .
                  Translator::translate('NewInvoice') . '</a>';
             $astrNaviLinks[] = [
                 'href' => 'index.php?func=import_statement',
@@ -372,16 +372,16 @@ function createFuncMenu($strFunc)
                     $class = ' ui-state-highlight';
                 }
                 ?>
-        <a class="buttonlink<?php echo $class?>"
+        <a class="buttonlink ui-button ui-corner-all ui-widget<?php echo $class?>"
             href="<?php echo $strHref?>"><?php echo $link['text']?></a>
                 <?php
             }
         }
         if ($blnShowSearch) {
             ?>
-        <a class="buttonlink" href="#"
+        <a class="buttonlink ui-button ui-corner-all ui-widget" href="#"
             onClick="openSearchWindow('ext', event); return false;"><?php echo Translator::translate('ExtSearch')?></a>
-        <a class="buttonlink" href="#"
+        <a class="buttonlink ui-button ui-corner-all ui-widget" href="#"
             onClick="openSearchWindow('quick', event); return false;"><?php echo Translator::translate('QuickSearch')?></a>
             <?php
         }

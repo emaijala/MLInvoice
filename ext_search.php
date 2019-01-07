@@ -267,7 +267,7 @@ foreach ($formConfig['fields'] as $field) {
                     . $field['name'] . '_x';
                 ?>
                 <input type="hidden" name="<?php echo $inputName?>"value="0">
-                <a class="tinyactionlink form-submit" href="#" title="<?php echo Translator::translate('DelRow')?>"
+                <a class="tinyactionlink ui-button ui-corner-all ui-widget form-submit" href="#" title="<?php echo Translator::translate('DelRow')?>"
                   data-set-field="<?php echo $inputName?>">X
                 </a>
               </td>
@@ -289,11 +289,11 @@ foreach ($formConfig['fields'] as $field) {
               <td colspan="4"
                 style="text-align: center; padding-top: 8px; padding-bottom: 8px">
                 <input type="hidden" name="search_x" value="0">
-                <a class="actionlink form-submit" href="#"
+                <a class="actionlink ui-button ui-corner-all ui-widget form-submit" href="#"
                     data-set-field="search_x">
                     <?php echo Translator::translate('Search')?>
                 </a>
-                <a class="actionlink popup-close" href="#">
+                <a class="actionlink ui-button ui-corner-all ui-widget popup-close" href="#">
                     <?php echo Translator::translate('Close')?>
                 </a>
               </td>
@@ -323,7 +323,7 @@ if ($blnSave && $strSearchName) {
               </td>
               <td colspan="2">
                 <input type="hidden" name="save_x" value="0">
-                <a class="actionlink form-submit" href="#" data-set-field="save_x">
+                <a class="actionlink ui-button ui-corner-all ui-widget form-submit" href="#" data-set-field="save_x">
                 <?php echo Translator::translate('SaveSearch')?>
                 </a>
               </td>

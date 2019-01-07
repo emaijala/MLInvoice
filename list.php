@@ -351,10 +351,10 @@ function createList($strFunc, $strList, $strTableName = '', $strTitleOverride = 
                 </div>
                 <div class="label medium_label">
                     <?php if (sesWriteAccess()) { ?>
-                        <a class="actionlink save-button" href="#">
+                        <a class="actionlink ui-button ui-corner-all ui-widget save-button" href="#">
                             <?php echo Translator::translate('Save')?>
                         </a>
-                        <a class="actionlink delete-button" href="#">
+                        <a class="actionlink ui-button ui-corner-all ui-widget delete-button" href="#">
                             <?php echo Translator::translate('Delete')?>
                         </a>
                     <?php } ?>

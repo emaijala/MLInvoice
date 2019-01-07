@@ -721,7 +721,7 @@ EOT;
                  "status=no,toolbar=no'); return false;\"";
             break;
         }
-        $strFormElement = "<a class=\"formbuttonlink\" href=\"$strHref\" $strOnClick$astrAdditionalAttributes>" .
+        $strFormElement = "<a class=\"formbuttonlink ui-button ui-corner-all ui-widget\" href=\"$strHref\" $strOnClick$astrAdditionalAttributes>" .
              htmlspecialchars(Translator::translate($strTitle)) . "</a>\n";
         break;
 
@@ -733,7 +733,7 @@ EOT;
                 $strListQuery = str_replace('_ID_', $strValue, $strListQuery);
             }
             $strOnClick = "onClick=\"$strListQuery\"";
-            $strFormElement = "<a class=\"formbuttonlink\" href=\"#\" $strOnClick$astrAdditionalAttributes>" .
+            $strFormElement = "<a class=\"formbuttonlink ui-button ui-corner-all ui-widget\" href=\"#\" $strOnClick$astrAdditionalAttributes>" .
                  htmlspecialchars(Translator::translate($strTitle)) . "</a>\n";
         }
         break;

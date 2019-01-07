@@ -270,10 +270,10 @@ class InvoiceReport extends AbstractReport
         ?>
         </div>
         <div class="unlimited_label">
-            <a class="actionlink form-submit" href="#" data-form-target="">
+            <a class="actionlink ui-button ui-corner-all ui-widget form-submit" href="#" data-form-target="">
                 <?php echo Translator::translate('CreateReport')?>
             </a>
-            <a class="actionlink form-submit" href="#" data-form-target="_blank">
+            <a class="actionlink ui-button ui-corner-all ui-widget form-submit" href="#" data-form-target="_blank">
                 <?php echo Translator::translate('CreateReportInNewWindow')?>
             </a>
         </div>

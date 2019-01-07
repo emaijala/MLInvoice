@@ -254,7 +254,7 @@ MLInvoice.addModule('Form', function mlinvoiceForm() {
         });
 
         if (!readOnly) {
-          var editButton = $('<a/>').addClass('tinyactionlink row-edit-button')
+          var editButton = $('<a/>').addClass('tinyactionlink ui-button ui-corner-all ui-widget row-edit-button')
             .attr('href', '#')
             .text(MLInvoice.translate('Edit'))
             .click(function editRowClick(event) {
@@ -265,7 +265,7 @@ MLInvoice.addModule('Form', function mlinvoiceForm() {
             .append(editButton)
             .appendTo(tr);
 
-          var copyButton = $('<a/>').addClass('tinyactionlink row-copy-button')
+          var copyButton = $('<a/>').addClass('tinyactionlink ui-button ui-corner-all ui-widget row-copy-button')
             .attr('href', '#')
             .data('id', parentId)
             .text(MLInvoice.translate('Copy'))
@@ -345,8 +345,6 @@ MLInvoice.addModule('Form', function mlinvoiceForm() {
       $('#itable tr')
         .mouseover(function onTrMouseOver() { $(this).find('.sort-handle').removeClass('hidden'); })
         .mouseout(function onTrMouseOut() { $(this).find('.sort-handle').addClass('hidden'); });
-
-      $('a[class~="tinyactionlink"]').button();
 
       if (!readOnly && 'invoice' === formType) {
         $('#itable > tbody').sortable({

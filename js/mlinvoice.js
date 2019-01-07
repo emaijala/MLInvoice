@@ -1162,11 +1162,6 @@ var MLInvoice = (function MLInvoice() {
         });
       }
     });
-    // Buttons
-    $('a.actionlink').not('.ui-state-disabled').button();
-    $('a.tinyactionlink').button();
-    $('a.buttonlink').button();
-    $('a.formbuttonlink').button();
     // Main tabs
     $('#maintabs ul li').hover(
       function onHover() {
@@ -1277,7 +1272,7 @@ var MLInvoice = (function MLInvoice() {
           _maxAttachmentOrderNo = item.order_no;
         }
         var $attachment = $('<div/>').addClass('attachment');
-        var $remove = $('<a/>').addClass('tinyactionlink remove-attachment ui-button ui-corner-all ui-widget')
+        var $remove = $('<a/>').addClass('tinyactionlink ui-button ui-corner-all ui-widget remove-attachment')
           .text(' X ')
           .attr('title', translate('RemoveAttachment'))
           .click(function removeAttachment() {

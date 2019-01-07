@@ -675,7 +675,7 @@ function createIForm($mainFormConfig, $formConfig, $elem, $intKeyValue, $newReco
         if ($strForm == 'invoice') {
             ?>
               <td class="button" colspan="2">
-                <a class="tinyactionlink row-add-button" href="#"
+                <a class="tinyactionlink ui-button ui-corner-all ui-widget row-add-button" href="#"
                   onclick="MLInvoice.Form.saveRow('iform'); return false;">
                     <?php echo Translator::translate('AddRow')?>
                 </a>
@@ -684,7 +684,7 @@ function createIForm($mainFormConfig, $formConfig, $elem, $intKeyValue, $newReco
         } else {
             ?>
               <td class="button" colspan="2">
-                <a class="tinyactionlink row-add-button" href="#"
+                <a class="tinyactionlink ui-button ui-corner-all ui-widget row-add-button" href="#"
                   onclick="MLInvoice.Form.saveRow('iform'); return false;">
                     <?php echo Translator::translate('AddRow')?>
                 </a>
@@ -776,7 +776,7 @@ function createFormButtons($form, $new, $copyLinkOverride, $spinner, $readOnlyFo
     <?php
     if (!$readOnlyForm) {
         ?>
-      <a class="actionlink save_button" href="#">
+      <a class="actionlink ui-button ui-corner-all ui-widget save_button" href="#">
         <?php echo Translator::translate('Save')?>
       </a>
         <?php
@@ -785,13 +785,13 @@ function createFormButtons($form, $new, $copyLinkOverride, $spinner, $readOnlyFo
     if (!$new) {
         if ($copyLinkOverride) {
             ?>
-            <a class="actionlink" href="<?php echo $copyLinkOverride?>">
+            <a class="actionlink ui-button ui-corner-all ui-widget" href="<?php echo $copyLinkOverride?>">
                 <?php echo Translator::translate('Copy')?>
             </a>
             <?php
         } else {
             ?>
-            <a class="actionlink form-submit" href="#" data-set-field="action=copy">
+            <a class="actionlink ui-button ui-corner-all ui-widget form-submit" href="#" data-set-field="action=copy">
                 <?php echo Translator::translate('Copy')?>
             </a>
             <?php
@@ -799,13 +799,13 @@ function createFormButtons($form, $new, $copyLinkOverride, $spinner, $readOnlyFo
         $newLink = 'index.php?' . $_SERVER['QUERY_STRING'];
         $newLink = preg_replace('/&id=\w*/', '', $newLink);
         ?>
-        <a class="actionlink" href="<?php echo $newLink?>">
+        <a class="actionlink ui-button ui-corner-all ui-widget" href="<?php echo $newLink?>">
             <?php echo Translator::translate('New')?>
         </a>
         <?php
         if (!$readOnlyForm) {
             ?>
-            <a class="actionlink form-submit" href="#" data-form="admin_form" data-set-field="action=delete"
+            <a class="actionlink ui-button ui-corner-all ui-widget form-submit" href="#" data-form="admin_form" data-set-field="action=delete"
               data-confirm="ConfirmDelete">
                 <?php echo Translator::translate('Delete')?>
             </a>
@@ -818,12 +818,12 @@ function createFormButtons($form, $new, $copyLinkOverride, $spinner, $readOnlyFo
     if ($form === 'company') {
         if (!$readOnlyForm) {
             ?>
-            <a class="actionlink ytj_search_button" href="#"><?php echo Translator::translate('SearchYTJ')?></a>
+            <a class="actionlink ui-button ui-corner-all ui-widget ytj_search_button" href="#"><?php echo Translator::translate('SearchYTJ')?></a>
             <?php
         }
         if ($top && !$new) {
             ?>
-            <a id="cover-letter-button" class="actionlink" href="#">
+            <a id="cover-letter-button" class="actionlink ui-button ui-corner-all ui-widget" href="#">
                 <?php echo Translator::translate('PrintCoverLetter')?>
             </a>
             <div id="cover-letter-form" class="ui-corner-all hidden">
@@ -863,7 +863,7 @@ function createFormButtons($form, $new, $copyLinkOverride, $spinner, $readOnlyFo
         ?>
         <span class="send-buttons">
         </span>
-        <a id="attachments-button" class="actionlink" href="#">
+        <a id="attachments-button" class="actionlink ui-button ui-corner-all ui-widget" href="#">
             <?php echo Translator::translate('Attachments')?>
             (<span class="attachment-count"><?php echo $attachmentCount?></span>)
             <span class="dropdown-open">&#9660;</span>
@@ -897,7 +897,7 @@ function createFormButtons($form, $new, $copyLinkOverride, $spinner, $readOnlyFo
                     <div class="attachments">
                         <?php foreach (getAttachments() as $attachment) { ?>
                             <div class="attachment">
-                                <a class="tinyactionlink add-attachment" data-id="<?php echo $attachment['id']?>"
+                                <a class="tinyactionlink ui-button ui-corner-all ui-widget add-attachment" data-id="<?php echo $attachment['id']?>"
                                     title="<?php echo Translator::translate('AddAttachment')?>"> + </a>
                                 <div class="attachment-fileinfo">
                                 <?php
@@ -977,21 +977,21 @@ function createListNavigationLinks($listId, $currentId)
     echo '<span class="prev-next">';
     if (null !== $previous) {
         $link = preg_replace('/&id=\d+/', "&id=$previous", $qs);
-        echo '<a href="?' . $link . '" class="actionlink">'
+        echo '<a href="?' . $link . '" class="actionlink ui-button ui-corner-all ui-widget">'
             . Translator::translate('Previous')
             . '</a> ';
     } else {
-        echo '<a class="actionlink ui-button ui-corner-all ui-state-disabled">'
+        echo '<a class="actionlink ui-button ui-corner-all ui-widget ui-button ui-corner-all ui-state-disabled">'
             . Translator::translate('Previous')
             . '</a> ';
     }
     if (null !== $next) {
         $link = preg_replace('/&id=\d+/', "&id=$next", $qs);
-        echo '<a href="?' . $link . '" class="actionlink ui-button">'
+        echo '<a href="?' . $link . '" class="actionlink ui-button ui-corner-all ui-widget ui-button">'
             . Translator::translate('Next')
             . '</a> ';
     } else {
-        echo '<a class="actionlink ui-button ui-corner-all ui-state-disabled">'
+        echo '<a class="actionlink ui-button ui-corner-all ui-widget ui-button ui-corner-all ui-state-disabled">'
             . Translator::translate('Next')
             . '</a> ';
     }
