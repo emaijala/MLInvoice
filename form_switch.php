@@ -816,7 +816,7 @@ EOF;
         $printStyle = $row['new_window'] ? 'openwindow' : 'redirect';
 
         if (sesWriteAccess()) {
-            $printFunc = "MLInvoice.printInvoice('$templateId', '$strFunc', '$printStyle'); return false;";
+            $printFunc = "MLInvoice.Form.printInvoice('$templateId', '$strFunc', '$printStyle'); return false;";
         } else {
             // Check if this print template is safe for read-only use
             $printer = getInvoicePrinter($row['filename']);
