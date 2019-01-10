@@ -838,9 +838,21 @@ EOT;
         if (!empty($recipientData['email'])
             && getSetting('invoice_show_recipient_email')
         ) {
-            $pdf->SetY($pdf->GetY() + 4);
-            $pdf->setX($this->recipientAddressX);
-            $pdf->multiCellMD($width, 5, $recipientData['email'], 'L');
+            $link = '<a style="color: black; text-decoration: none" href="mailto:'
+                . htmlentities($recipientData['email'])
+                . '">' . htmlentities($recipientData['email']) . '</a>';
+            $pdf->WriteHTMLCell(
+                $width,
+                5,
+                $this->recipientAddressX,
+                $pdf->GetY() + 4,
+                $link,
+                0,
+                1,
+                false,
+                true,
+                'L'
+            );
         }
 
         $this->recipientMaxY = $pdf->GetY();
