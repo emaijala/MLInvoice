@@ -540,7 +540,80 @@ var MLInvoice = (function MLInvoice() {
     _setupCoverLetterForm();
     _setupCustomPricesForm();
     _setupListMultiSelect();
+    _setupFormButtons();
     _initDone = true;
+  }
+
+  function _setupFormButtons() {
+    $('a.form-submit').click(function formButtonClick() {
+      var $a = $(this);
+
+      var confirmAction = $a.data('confirm');
+      if (confirmAction && !confirm(MLInvoice.translate(confirmAction))) {
+        return false;
+      }
+
+      var formName = $a.data('form');
+      var $form = formName ? $('#' + formName) : $('form');
+      var target = $a.data('formTarget');
+      if (typeof target !== 'undefined') {
+        $form.attr('target', target);
+      }
+      var setField = $a.data('setField');
+      if (typeof setField !== 'undefined') {
+        var setValue = '1';
+        var parts = setField.split('=', 2);
+        if (parts.length === 2) {
+          setField = parts[0];
+          setValue = parts[1];
+        }
+        $form.find('[name=' + setField + ']').val(setValue);
+      }
+      $('.save_button').removeClass('ui-state-highlight');
+      $form.submit();
+      return false;
+    });
+    $('a.popup-close').click(function popupCloseClick() {
+      window.close();
+      return false;
+    });
+    $('a.update-dates').click(function updateDatesClick() {
+      $.getJSON(
+        'json.php?func=get_invoice_defaults',
+        {
+          id: $('#record_id').val(),
+          invoice_no: $('#invoice_no').val(),
+          invoice_date: $('#invoice_date').val(),
+          base_id: $('#base_id').val(),
+          company_id: $('#company_id').val(),
+          interval_type: $('#interval_type').val()
+        }, function getInvoiceDefaultsDone(json) {
+          $('#invoice_date').val(json.date);
+          $('#due_date').val(json.due_date);
+          $('#next_interval_date').val(json.next_interval_date);
+          $('.save_button').addClass('ui-state-highlight');
+        }
+      );
+      return false;
+    });
+    $('a.update-invoice-nr').click(function updateInvoiceNrClick() {
+      $.getJSON(
+        'json.php?func=get_invoice_defaults',
+        {
+          id: $('#record_id').val(),
+          invoice_no: $('#invoice_no').val(),
+          invoice_date: $('#invoice_date').val(),
+          base_id: $('#base_id').val(),
+          company_id: $('#company_id').val(),
+          interval_type: $('#interval_type').val()
+        }, function getInvoiceDefaultsDone(json) {
+          $('#invoice_no').val(json.invoice_no);
+          $('#ref_number').val(json.ref_no);
+          $('.save_button').addClass('ui-state-highlight');
+        }
+      );
+      return false;
+    });
   }
 
   function formatDate(date)
