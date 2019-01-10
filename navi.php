@@ -266,7 +266,7 @@ function createFuncMenu($strFunc)
         $strFormName = 'company';
         $strFormSwitch = 'company';
         $astrNaviLinks = [];
-        $strNewButton = '<a class="buttonlink ui-button ui-corner-all ui-widget" href="?func=companies&amp;form=company">'
+        $strNewButton = '<a class="buttonlink ui-button ui-corner-all ui-widget" href="?func=company&amp;form=company">'
              . Translator::translate('NewClient') . '</a>';
         break;
 

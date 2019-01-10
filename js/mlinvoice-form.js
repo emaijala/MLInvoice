@@ -223,7 +223,7 @@ MLInvoice.addModule('Form', function mlinvoiceForm() {
     if (company_id.val() === '') {
       $('#company_id_label').text($('#company_id_label').text());
     } else {
-      $('#company_id_label').html('<a href="index.php?func=companies&list=&form=company&id=' + company_id.val() + '">' + $('#company_id_label').text() + '</a>');
+      $('#company_id_label').html('<a href="index.php?func=company&list=&form=company&id=' + company_id.val() + '">' + $('#company_id_label').text() + '</a>');
     }
   }
 
