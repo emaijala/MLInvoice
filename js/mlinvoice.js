@@ -532,6 +532,10 @@ var MLInvoice = (function MLInvoice() {
     if (_keepAliveEnabled) {
       window.setTimeout(_keepAlive, 60 * 1000);
     }
+
+    // Init menus
+    $('.dropdownmenu').menu({}).find('li:first').addClass('formbuttonlink ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only');
+
     _setupSelectAll();
     _setupCoverLetterForm();
     _setupCustomPricesForm();

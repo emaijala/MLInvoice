@@ -45,9 +45,6 @@ MLInvoice.addModule('Form', function mlinvoiceForm() {
     $('#company_id.linked').change(_setupCompanyLink);
     _setupCompanyLink($('#company_id.linked'));
 
-    // Init menus
-    $('.dropdownmenu').menu({}).find('li:first').addClass('formbuttonlink ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only');
-
     _setupYtjSearch();
     _setupDefaultTextSelection();
     _setupSelect2();
