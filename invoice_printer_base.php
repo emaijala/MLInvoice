@@ -943,8 +943,10 @@ EOT;
         if ($invoiceData['reference']) {
             $data['YourReference'] = $invoiceData['reference'];
         }
-        if ($this->printStyle == 'invoice'
-            && getSetting('invoice_show_delivery_info_in_invoice')
+        if (($this->printStyle == 'invoice'
+            && getSetting('invoice_show_delivery_info_in_invoice'))
+            || ($this->printStyle == 'dispatch'
+            && getSetting('dispatch_note_show_delivery_info'))
         ) {
             if ($invoiceData['delivery_terms']) {
                 $data['DeliveryTerms'] = [

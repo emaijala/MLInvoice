@@ -467,5 +467,13 @@ $arrSettings = [
         'position' => 1,
         'default' => 0,
         'allow_null' => true
+    ],
+    'dispatch_note_show_delivery_info' => [
+        'label' => 'SettingDispatchNoteShowDeliveryInfo',
+        'type' => 'CHECK',
+        'style' => 'medium',
+        'position' => 1,
+        'default' => 0,
+        'allow_null' => true
     ]
 ];
