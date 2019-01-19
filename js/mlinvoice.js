@@ -549,7 +549,7 @@ var MLInvoice = (function MLInvoice() {
       var $a = $(this);
 
       var confirmAction = $a.data('confirm');
-      if (confirmAction && !confirm(MLInvoice.translate(confirmAction))) {
+      if (confirmAction && !confirm(translate(confirmAction))) {
         return false;
       }
 
