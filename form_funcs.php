@@ -253,7 +253,7 @@ function saveFormData($table, &$primaryKey, $formElements, &$values, &$warnings,
                 : null;
             break;
         case 'CHECK':
-            $arrValues[] = $value ? 1 : 0;
+            $arrValues[] = $value && 'false' !== $value ? 1 : 0;
             break;
         case 'INTDATE':
             if ($value) {
