@@ -28,15 +28,15 @@
 require_once 'translator.php';
 require_once 'settings.php';
 
- /**
-  * Email handling
-  *
-  * @category MLInvoice
-  * @package  MLInvoice\Base
-  * @author   Ere Maijala <ere@labs.fi>
-  * @license  http://opensource.org/licenses/gpl-2.0.php GNU General Public License
-  * @link     http://labs.fi/mlinvoice.eng.php
-  */
+/**
+ * Email handling
+ *
+ * @category MLInvoice
+ * @package  MLInvoice\Base
+ * @author   Ere Maijala <ere@labs.fi>
+ * @license  http://opensource.org/licenses/gpl-2.0.php GNU General Public License
+ * @link     http://labs.fi/mlinvoice.eng.php
+ */
 class Mailer
 {
     /**
@@ -57,6 +57,60 @@ class Mailer
     }
 
     /**
+     * Send email through mailgun
+     *
+     * @param string $from        "From" address
+     * @param array  $to          "To" addresses
+     * @param array  $cc          "CC" addresses
+     * @param array  $bcc         "BCC" addresses
+     * @param string $subject     Subject
+     * @param string $body        Message body
+     * @param string $attachments Attachments
+     *
+     * @return bool Success
+     */
+    public function sendWithMailgun($from, $to, $cc, $bcc, $subject, $body, $attachments)
+    {
+        $settings = isset($GLOBALS['mlinvoice_mail_settings'])
+        ? $GLOBALS['mlinvoice_mail_settings'] : [];
+        
+        if (empty($settings['mailgun'])) {
+            $this->error = Translator::translate('EmailFailed');
+            return false;
+        }
+        $mailgun = $settings['mailgun'];
+        $mgClient = new \Mailgun\Mailgun($mailgun['key'], new \Http\Adapter\Guzzle6\Client());
+        $domain = $mailgun['domain'];
+
+        $mgMessage = array();
+        $mgMessage['from'] = $from;
+        $mgMessage['to'] = $to;
+        $mgMessage['subject'] = $subject;
+        if ($cc) {
+            $mgMessage['cc'] = $cc;
+        }
+        if ($bcc) {
+            $mgMessage['bcc'] = $bcc;
+        }
+        $mgMessage['text'] = $body;
+        $mgA = [];
+
+        foreach ($attachments as $current) {
+            array_push($mgA, ['fileContent' => $current['data'], 'filename' => $current['filename']]);
+        }
+
+        $mgAttachment = array(
+            'attachment' => $mgA,
+        );
+        $result = $mgClient->sendMessage($domain, $mgMessage, $mgAttachment);
+        if (!$result) {
+            $this->error = Translator::translate('EmailFailed');
+            return false;
+        }
+        return true;
+    }
+
+    /**
      * Send email
      *
      * @param string $from        "From" address
@@ -72,6 +126,13 @@ class Mailer
     public function sendEmail($from, $to, $cc, $bcc, $subject, $body, $attachments)
     {
         mb_internal_encoding('UTF-8');
+
+        $settings = isset($GLOBALS['mlinvoice_mail_settings'])
+        ? $GLOBALS['mlinvoice_mail_settings'] : [];
+
+        if ('mailgun' === $settings['send_method']) {
+            return $this->sendWithMailgun($from, $to, $cc, $bcc, $subject, $body, $attachments);
+        }
 
         $message = Swift_Message::newInstance(
             $subject,
@@ -124,16 +185,13 @@ class Mailer
         $headers = $message->getHeaders();
         $headers->addTextHeader('X-Mailer', 'MLInvoice');
 
-        $settings = isset($GLOBALS['mlinvoice_mail_settings'])
-            ? $GLOBALS['mlinvoice_mail_settings'] : [];
-
         if (!isset($settings['send_method']) || 'mail' === $settings['send_method']
         ) {
             $transport = Swift_MailTransport::newInstance();
         } elseif ('sendmail' === $settings['send_method']) {
             $command = empty($settings['sendmail']['command'])
-                ? '/usr/sbin/sendmail -bs'
-                : $settings['sendmail']['command'];
+            ? '/usr/sbin/sendmail -bs'
+            : $settings['sendmail']['command'];
             $transport = Swift_SendmailTransport::newInstance($command);
         } elseif ('smtp' === $settings['send_method']) {
             $smtp = empty($settings['smtp']) ? [] : $settings['smtp'];
@@ -150,6 +208,7 @@ class Mailer
                 $transport->setStreamOptions($smtp['stream_context_options']);
             }
         }
+
         $mailer = Swift_Mailer::newInstance($transport);
 
         try {
@@ -160,7 +219,7 @@ class Mailer
             }
         } catch (Exception $e) {
             $this->error = Translator::translate('EmailFailed') . ': '
-                . $e->getMessage();
+            . $e->getMessage();
             return false;
         }
         return true;

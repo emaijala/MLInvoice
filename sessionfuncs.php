@@ -78,7 +78,7 @@ function sesCreateSession($strLogin, $strPasswd, $strCsrf)
         if ($rows) {
             $row = $rows[0];
             if (!password_verify($strPasswd, $row['passwd'])
-                && md5($strPasswd) != $row['passwd']
+                && $strPasswd != $row['passwd']
             ) {
                 // Delay so that brute-force attacks become unpractical
                 sleep(2);
