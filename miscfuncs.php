@@ -5,7 +5,7 @@
  * PHP version 5
  *
  * Copyright (C) 2004-2008 Samu Reinikainen
- * Copyright (C) 2010-2018 Ere Maijala
+ * Copyright (C) 2010-2019 Ere Maijala
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2,
@@ -263,6 +263,23 @@ function miscCalcCheckNo($intValue)
     $intCheckNo = ceil($intSum / 10) * 10 - $intSum;
 
     return $intCheckNo;
+}
+
+/**
+ * Create an RF reference from a Finnish reference number
+ *
+ * @param string $refNr Finnish reference number
+ *
+ * @return string
+ */
+function createRFReference($refNr)
+{
+    $remainder = ($refNr . '271500') % 97;
+    $check = 98 - $remainder;
+    if ($check < 10) {
+        $check = "0$check";
+    }
+    return "RF$check$refNr";
 }
 
 /**
@@ -767,7 +784,13 @@ function getInvoiceDefaults($invoiceId, $baseId, $companyId, $invoiceDate,
     if ($invoiceNumber < 100) {
         $invoiceNumber = 100; // min ref number length is 3 + check digit, make sure invoice number matches that
     }
+
     $refNr = $invoiceNumber . miscCalcCheckNo($invoiceNumber);
+    if (getSetting('invoice_create_rf_references')) {
+        // RF Reference
+        $refNr = createRFReference($refNr);
+    }
+
     $strDate = date(Translator::translate('DateFormat'));
     $strDueDate = date(
         Translator::translate('DateFormat'),

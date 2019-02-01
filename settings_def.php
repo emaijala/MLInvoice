@@ -4,7 +4,7 @@
  *
  * PHP version 5
  *
- * Copyright (C) Ere Maijala 2010-2018.
+ * Copyright (C) Ere Maijala 2010-2019.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2,
@@ -226,6 +226,14 @@ $arrSettings = [
         'style' => 'medium',
         'position' => 1,
         'default' => 1,
+        'allow_null' => true
+    ],
+    'invoice_create_rf_references' => [
+        'label' => 'SettingInvoiceCreateRFReferences',
+        'type' => 'CHECK',
+        'style' => 'medium',
+        'position' => 1,
+        'default' => 0,
         'allow_null' => true
     ],
 
