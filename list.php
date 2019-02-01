@@ -122,7 +122,7 @@ function createList($strFunc, $strList, $strTableName = '', $strTitleOverride = 
     }
     $customPriceSettings = null;
     if (!empty($companyId)) {
-        $params['company_id'] = $companyId;
+        $params['company'] = $companyId;
         $customPriceSettings = getCustomPriceSettings($companyId);
     }
 
@@ -362,6 +362,11 @@ function createList($strFunc, $strList, $strTableName = '', $strTitleOverride = 
             </div>
             <?php } ?>
     </div>
+    <script>
+    $(document).ready(function () {
+        MLInvoice.Form.setupSelect2();
+    });
+    </script>
     <?php } ?>
 
 <div class="list_container">

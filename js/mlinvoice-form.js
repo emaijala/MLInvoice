@@ -47,7 +47,7 @@ MLInvoice.addModule('Form', function mlinvoiceForm() {
 
     _setupYtjSearch();
     _setupDefaultTextSelection();
-    _setupSelect2();
+    setupSelect2();
     _setupInvoiceAttachments();
     _updateSendApiButtons();
   }
@@ -344,7 +344,7 @@ MLInvoice.addModule('Form', function mlinvoiceForm() {
     });
   }
 
-  function _setupSelect2(_container) {
+  function setupSelect2(_container) {
     var container = 'undefined' === typeof _container ? 'body' : _container;
 
     var callbacks = {
@@ -1463,7 +1463,7 @@ MLInvoice.addModule('Form', function mlinvoiceForm() {
           break;
         }
       });
-      _setupSelect2($('#popup_edit'));
+      setupSelect2($('#popup_edit'));
 
       var buttons = {};
       buttons[MLInvoice.translate('Save')] = function onClickSave() {
@@ -1521,7 +1521,7 @@ MLInvoice.addModule('Form', function mlinvoiceForm() {
       }
     });
     form.find('.modification-indicator').addClass('hidden');
-    _setupSelect2($('#popup_edit'));
+    setupSelect2($('#popup_edit'));
 
     var buttons = {};
     var that = this;
@@ -1773,6 +1773,7 @@ MLInvoice.addModule('Form', function mlinvoiceForm() {
     updateStockBalance: updateStockBalance,
     updateStockBalanceLog: updateStockBalanceLog,
     printInvoice: printInvoice,
-    updateDispatchByDateButtons: updateDispatchByDateButtons
+    updateDispatchByDateButtons: updateDispatchByDateButtons,
+    setupSelect2: setupSelect2
   };
 });

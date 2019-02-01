@@ -406,7 +406,7 @@ case 'get_list' :
     $search = getRequest('search', []);
     $filter = empty($search['value']) ? '' : $search['value'];
     $where = getRequest('where', '');
-    $companyId = 'product' === $strList ? getRequest('company_id', null) : null;
+    $companyId = 'product' === $strList ? getRequest('company', null) : null;
 
     header('Content-Type: application/json');
     echo createJSONList(
