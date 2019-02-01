@@ -1312,9 +1312,9 @@ case 'invoice_row' :
             'label' => 'RowNr',
             'type' => 'INT',
             'style' => 'tiny',
-            'listquery' => 'SELECT max(order_no)+5 FROM {prefix}invoice_row WHERE deleted=0 AND invoice_id=_PARENTID_',
+            'listquery' => 'SELECT max(order_no)+1 FROM {prefix}invoice_row WHERE deleted=0 AND invoice_id=_PARENTID_',
             'position' => 0,
-            'default' => 'ADD+5',
+            'default' => 'ADD+1',
             'allow_null' => true
         ],
         [

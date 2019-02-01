@@ -1265,9 +1265,13 @@ MLInvoice.addModule('Form', function mlinvoiceForm() {
               subFormConfig.onAfterRowAdded();
             }
             $.each(subFormConfig.fields, function updateAfterSave(i, field) {
-              var value = form.find('[name=' + field.name + ']');
-              if (typeof field.default !== 'undefined' && String(field.default).indexOf('ADD') !== -1) {
-                value.val(parseInt(value.val(), 10) + 5);
+              var value = form.find('[name=' + formId + '_' + field.name + ']');
+              if (typeof field.default !== 'undefined' && String(field.default).startsWith('ADD+')) {
+                value.val(parseInt(value.val(), 10) + parseInt(String(field.default).substr(4)));
+              } else if (typeof field.default !== 'undefined' && field.default === 'DATE_NOW') {
+                var today = new Date();
+                var dbdate = today.toISOString().replace(/-/g, '').substr(0, 8);
+                value.val(MLInvoice.formatDate(dbdate));
               } else if (subFormConfig.clearAfterRowAdded) {
                 switch (field.type) {
                 case 'LIST':

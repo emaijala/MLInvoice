@@ -73,11 +73,17 @@ function getFormDefaultValue($elem, $parentKey)
             Translator::translate('DateFormat'),
             mktime(0, 0, 0, date('m'), date('d') + $atmpValues[1], date('Y'))
         );
-    } elseif (strstr($elem['default'], 'ADD')) {
+    } elseif (strncmp($elem['default'], 'ADD+', 4) === 0) {
         $strQuery = str_replace('_PARENTID_', $parentKey, $elem['listquery']);
         $res = dbQueryCheck($strQuery);
         $intAdd = dbFetchValue($res);
-        return isset($intAdd) ? $intAdd : 5;
+        if (isset($intAdd)) {
+            return $intAdd;
+        }
+        $intAdd = substr($elem['default'], 4);
+        if (ctype_digit($intAdd)) {
+            return $intAdd;
+        }
     } elseif ($elem['default'] === 'POST') {
         // POST has special treatment in iform
         return '';
