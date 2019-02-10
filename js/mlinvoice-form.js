@@ -911,6 +911,7 @@ MLInvoice.addModule('Form', function mlinvoiceForm() {
           formdata.append(field.name, value.get(0).files[0]);
         }
         break;
+      case 'SELECT':
       case 'SEARCHLIST':
       case 'INTDATE':
       case 'LIST':
