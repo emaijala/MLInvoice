@@ -116,11 +116,9 @@ if ($strFunc == 'system' && getRequest('operation', '') == 'dbdump'
 
 $extraJs = [];
 if ($strFunc == 'reports') {
-    $extraJs[] = 'datatables/dataTables.buttons.min.js';
-    $extraJs[] = 'datatables/buttons.html5.min.js';
-    $extraJs[] = 'js/jszip.min.js';
-    $extraJs[] = 'js/pdfmake.min.js';
-    $extraJs[] = 'js/vfs_fonts.js';
+    $extraJs[] = 'datatables/JSZip-2.5.0/jszip.min.js';
+    $extraJs[] = 'datatables/pdfmake-0.1.36/pdfmake.min.js';
+    $extraJs[] = 'datatables/pdfmake-0.1.36//vfs_fonts.js';
 }
 
 echo htmlPageStart($title, $extraJs);

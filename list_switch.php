@@ -5,7 +5,7 @@
  * PHP version 5
  *
  * Copyright (C) 2004-2008 Samu Reinikainen
- * Copyright (C) 2010-2018 Ere Maijala
+ * Copyright (C) 2010-2019 Ere Maijala
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2,
@@ -165,6 +165,17 @@ LEFT OUTER JOIN (
   ON (it.invoice_id=i.id)
 EOT;
     }
+
+    $intervalOptions = [
+        '0' => Translator::translate('InvoiceIntervalNone'),
+        '2' => Translator::translate('InvoiceIntervalMonth'),
+        '3' => Translator::translate('InvoiceIntervalYear')
+    ];
+    for ($i = 4; $i <= 8; $i++) {
+        $intervalOptions[(string)$i]
+            = sprintf(Translator::translate('InvoiceIntervalMonths'), $i - 2);
+    }
+
     $astrSearchFields = [
         [
             'name' => $strList === 'offer' ? 'i.id' : 'i.invoice_no',
@@ -207,6 +218,14 @@ EOT;
             'header' => 'HeaderInvoiceDate'
         ],
         [
+            'name' => 'i.payment_date',
+            'width' => 80,
+            'type' => 'INTDATE',
+            'order' => 'DESC',
+            'header' => 'HeaderInvoicePaymentDate',
+            'visible' => ($strList ? $strList : $strFunc) == 'archived_invoices'
+        ],
+        [
             'name' => 'i.due_date',
             'width' => 80,
             'type' => 'INTDATE',
@@ -245,10 +264,32 @@ EOT;
             'translate' => true
         ],
         [
+            'name' => 'i.interval_type',
+            'width' => 60,
+            'type' => 'TEXT',
+            'header' => 'HeaderInvoiceIntervalType',
+            'mappings' => $intervalOptions,
+            'visible' => false,
+        ],
+        [
+            'name' => 'i.next_interval_date',
+            'width' => 60,
+            'type' => 'INTDATE',
+            'header' => 'HeaderInvoiceNextIntervalDate',
+            'visible' => false,
+        ],
+        [
             'name' => 'i.ref_number',
             'width' => 100,
             'type' => 'TEXT',
             'header' => 'HeaderInvoiceReference'
+        ],
+        [
+            'name' => 'i.reference',
+            'width' => 100,
+            'type' => 'TEXT',
+            'header' => 'HeaderInvoiceClientsReference',
+            'visible' => false
         ],
         [
             'name' => '.total_price',
@@ -258,20 +299,6 @@ EOT;
             'header' => 'HeaderInvoiceTotal'
         ]
     ];
-    if (($strList ? $strList : $strFunc) == 'archived_invoices') {
-        array_splice(
-            $astrShowFields, 2, 0,
-            [
-                [
-                    'name' => 'i.payment_date',
-                    'width' => 80,
-                    'type' => 'INTDATE',
-                    'order' => 'DESC',
-                    'header' => 'HeaderInvoicePaymentDate'
-                ]
-            ]
-        );
-    }
     $strGroupBy = 'i.id, i.deleted, i.invoice_date, i.due_date, i.invoice_no,'
         . ' b.name, c.company_name, i.name, s.name, i.ref_number';
     $strMainForm = 'invoice';
@@ -686,7 +713,6 @@ case 'default_value' :
                 'afterword' => 'Afterword',
                 'email' => 'Email'
             ]
-
         ],
         [
             'name' => 'name',

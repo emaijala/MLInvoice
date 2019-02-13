@@ -65,7 +65,11 @@ function htmlPageStart($strTitle = '', $arrExtraScripts = [])
         'jquery/js/jquery-2.2.4.min.js',
         'jquery/js/jquery.cookie.js',
         'jquery/js/jquery-ui.min.js',
-        'datatables/jquery.dataTables.min.js',
+        'datatables/DataTables-1.10.18/js/jquery.dataTables.min.js',
+        'datatables/DataTables-1.10.18/js/dataTables.jqueryui.min.js',
+        'datatables/Buttons-1.5.4/js/dataTables.buttons.min.js',
+        'datatables/Buttons-1.5.4/js/buttons.html5.min.js',
+        'datatables/Buttons-1.5.4/js/buttons.colVis.min.js',
         'jquery/js/jquery.floatingmessage.js',
         'js/date.js',
         "js/date-$lang.js",
@@ -90,7 +94,7 @@ function htmlPageStart($strTitle = '', $arrExtraScripts = [])
     $css = [
         $theme,
         'jquery/css/ui.daterangepicker.css',
-        'datatables/buttons.dataTables.min.css',
+        'datatables/Buttons-1.5.4/css/buttons.dataTables.min.css',
         'select2/select2.css',
         'css/style.css'
     ];

@@ -417,13 +417,18 @@ var table = $('.report-table.datatable').DataTable({
     'footerCallback': function (row, data, start, end, display) {
         var api = this.api(), data;
 
+        var _intVal = function ( s ) {
+            var integer = parseInt( s, 10 );
+            return !isNaN(integer) ? integer : null;
+        };
+
         $([5]).each(function(i, column) {
             // Total over all pages
             var total = api
                 .column(column)
                 .data()
                 .reduce(function (a, b) {
-                    return intVal(a) + intVal(b);
+                    return _intVal(a) + _intVal(b);
                 }, 0);
 
 
@@ -432,7 +437,7 @@ var table = $('.report-table.datatable').DataTable({
                 .column(column, { page: 'current'})
                 .data()
                 .reduce(function (a, b) {
-                    return intVal(a) + intVal(b);
+                    return _intVal(a) + _intVal(b);
                 }, 0);
 
             // Update footer

@@ -182,12 +182,14 @@ function createList($strFunc, $strList, $strTableName = '', $strTitleOverride = 
         $class = $customPriceSettings && $customPriceSettings['valid']
             && 'custom_price' === $field['name']
             ? 'editable' : '';
+        $visible = !isset($field['visible']) || $field['visible'] ? 'true' : 'false';
         ?>
         {
             targets: [ <?php echo $i?> ],
             width: '<?php echo $strWidth?>',
             sortable: <?php echo $sortable?>,
-            className: '<?php echo $class?>'
+            className: '<?php echo $class?>',
+            visible: <?php echo $visible?>
         },
         <?php
     }
@@ -255,14 +257,24 @@ function createList($strFunc, $strList, $strTableName = '', $strTitleOverride = 
                 MLInvoice.updateRowSelectedState($container);
             });
             MLInvoice.updateRowSelectedState($container);
-        });
-        <?php
-    } else {
-        ?>
-        ;
+        })
         <?php
     }
     ?>
+    ;
+    var $table = $('#<?php echo $strTableName?>');
+    var buttons = new $.fn.dataTable.Buttons($table.DataTable(), {
+        buttons: [
+            {
+                text: '|||',
+                titleAttr: '<?php echo Translator::translate('Columns')?>',
+                extend: 'colvis',
+                columns: ':gt(2)'
+            }
+        ]
+    });
+    $table.DataTable().buttons().container().appendTo($table.siblings('.fg-toolbar:first', $table.DataTable().table().container()));
+
     $(document).on('click', '#<?php echo $strTableName?> tbody tr', function(e) {
       if ($(e.target).hasClass('cb-select-row') || $(e.target).find('.cb-select-row').length > 0) {
         return;

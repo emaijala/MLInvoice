@@ -310,35 +310,6 @@ var MLInvoice = (function MLInvoice() {
     });
   }
 
-  function _sortMulti(_a, _b)
-  {
-    var a = _a.replace(/<.*?>/g, '');
-    var b = _b.replace(/<.*?>/g, '');
-    var date_re = /^(\d{1,2})\.(\d{1,2})\.(\d{4})$/;
-    var am = a.match(date_re);
-    var bm = b.match(date_re);
-    if (am && bm) {
-      var ad = am[3] + '.' + am[2] + '.' + am[1];
-      var bd = bm[3] + '.' + bm[2] + '.' + bm[1];
-      if (ad !== bd) {
-        return ad < bd ? -1 : 1;
-      }
-      return 0;
-    }
-    var float_re = /^\\d+[\\.\\,]?\\d*$/;
-    if (a.match(float_re) && b.match(float_re)) {
-      a = parseFloat(a);
-      b = parseFloat(b);
-    } else {
-      a = a.toLowerCase();
-      b = b.toLowerCase();
-    }
-    if (a !== b) {
-      return a < b ? -1 : 1;
-    }
-    return 0;
-  }
-
   function clearMessages()
   {
     $('.ui-floating-message').trigger('destroy');
@@ -501,15 +472,6 @@ var MLInvoice = (function MLInvoice() {
     $(document).ajaxError(function onAjaxError(event, request) {
       ajaxErrorHandler(request);
     });
-
-    // Datatables sorting
-    jQuery.fn.dataTableExt.oSort['html-multi-asc'] = function htmlSortAsc(a, b) {
-      return _sortMulti(a, b);
-    };
-
-    jQuery.fn.dataTableExt.oSort['html-multi-desc'] = function htmlSortDesc(a, b) {
-      return -_sortMulti(a, b);
-    };
   }
 
   function _setupListMultiSelect() {
