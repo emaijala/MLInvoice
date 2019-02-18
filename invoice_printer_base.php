@@ -2458,6 +2458,16 @@ EOT;
         );
         // Handle additional placeholders
         $filename = $this->replacePlaceholders($filename);
+        if (function_exists('iconv')) {
+            $filename = iconv(_CHARSET_, 'ASCII//TRANSLIT//IGNORE', $filename);
+            $filename = str_replace(["'", '"', ' '], ['', '', '_'], $filename);
+        } else {
+            $filename = str_replace(
+                ['å', 'ä', 'ö', 'Å', 'Ä', 'Ö', 'ü', 'Ü', ' '],
+                ['a', 'a', 'o', 'A', 'A', 'O', 'u', 'U', '_'],
+                $filename
+            );
+        }
         $filename = filter_var($filename, FILTER_SANITIZE_URL);
         return $filename;
     }
