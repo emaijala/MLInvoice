@@ -5,7 +5,7 @@
  * PHP version 5
  *
  * Copyright (C) 2004-2008 Samu Reinikainen
- * Copyright (C) 2010-2018 Ere Maijala
+ * Copyright (C) 2010-2019 Ere Maijala
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2,
@@ -371,6 +371,7 @@ function saveTags($type, $id, $tags)
     if ($tags) {
         // Save tags
         foreach (explode(',', $tags) as $tag) {
+            $tag = trim($tag);
             $rows = dbParamQuery(
                 "SELECT id FROM {prefix}${type}_tag WHERE tag=?",
                 [$tag]

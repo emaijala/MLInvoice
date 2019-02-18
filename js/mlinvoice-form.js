@@ -917,6 +917,7 @@ MLInvoice.addModule('Form', function mlinvoiceForm() {
       case 'LIST':
       case 'TEXT':
       case 'AREA':
+      case 'TAGS':
         formdata.append(field.name, value.val());
         break;
       }
