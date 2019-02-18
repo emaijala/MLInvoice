@@ -120,6 +120,8 @@ class InvoiceReport extends AbstractReport
           $('input[name=grouping]').removeAttr('disabled');
       }
     });
+
+    MLInvoice.Form.setupSelect2();
   });
   </script>
 
@@ -294,6 +296,7 @@ class InvoiceReport extends AbstractReport
         $invoiceDateRange = getRequest('date', '');
         $invoiceRowDateRange = getRequest('row_date', '');
         $paymentDateRange = getRequest('payment_date', '');
+        $companyTags = getRequest('tags', '');
         ?>
             <div class="medium_label"><?php echo Translator::translate('InvoiceDateInterval')?></div>
             <div class="field">
@@ -319,41 +322,22 @@ class InvoiceReport extends AbstractReport
             <div class="field">
                 <?php echo htmlFormElement('company', 'LIST', $intCompanyId, 'medium', 'SELECT id, company_name FROM {prefix}company WHERE deleted=0 ORDER BY company_name', 'MODIFY', false)?>
             </div>
+
+            <div class="medium_label"><?php echo Translator::translate('Tags')?></div>
+            <div class="field">
+                <?php echo htmlFormElement('tags', 'TAGS', $companyTags, 'noemptyvalue long', 'table=company_tag&sort=tag', 'MODIFY', false)?>
+            </div>
         <?php
     }
 
     /**
      * Create a limit query
      *
-     * @return string
+     * @return array
      */
     protected function createLimitQuery()
     {
-        $strQuery = '';
-        $arrParams = [];
-
-        $intBaseId = getRequest('base', false);
-        if ($intBaseId) {
-            $strQuery .= ' AND i.base_id = ?';
-            $arrParams[] = $intBaseId;
-        }
-        $intCompanyId = getRequest('company', false);
-        if ($intCompanyId) {
-            $strQuery .= ' AND i.company_id = ?';
-            $arrParams[] = $intCompanyId;
-        }
-
-        $dateRange = explode(' - ', getRequest('date', ''));
-        $startDate = $dateRange[0];
-        $endDate = isset($dateRange[1]) ? $dateRange[1] : $startDate;
-        if ($startDate) {
-            $strQuery .= ' AND i.invoice_date >= ?';
-            $arrParams[] = dateConvDate2DBDate($startDate);
-        }
-        if ($endDate) {
-            $strQuery .= ' AND i.invoice_date <= ?';
-            $arrParams[] = dateConvDate2DBDate($endDate);
-        }
+        list($strQuery, $arrParams) = parent::createLimitQuery();
 
         $paymentDateRange = explode(' - ', getRequest('payment_date', ''));
         $paymentStartDate = $paymentDateRange[0];

@@ -50,6 +50,58 @@ abstract class AbstractReport
     abstract public function createReport();
 
     /**
+     * Create a limit query
+     *
+     * @return array
+     */
+    protected function createLimitQuery()
+    {
+        $strQuery = '';
+        $arrParams = [];
+
+        $intBaseId = getRequest('base', false);
+        if ($intBaseId) {
+            $strQuery .= ' AND i.base_id = ?';
+            $arrParams[] = $intBaseId;
+        }
+        $intCompanyId = getRequest('company', false);
+        if ($intCompanyId) {
+            $strQuery .= ' AND i.company_id = ?';
+            $arrParams[] = $intCompanyId;
+        }
+
+        $dateRange = explode(' - ', getRequest('date', ''));
+        $startDate = $dateRange[0];
+        $endDate = isset($dateRange[1]) ? $dateRange[1] : $startDate;
+        if ($startDate) {
+            $strQuery .= ' AND i.invoice_date >= ?';
+            $arrParams[] = dateConvDate2DBDate($startDate);
+        }
+        if ($endDate) {
+            $strQuery .= ' AND i.invoice_date <= ?';
+            $arrParams[] = dateConvDate2DBDate($endDate);
+        }
+
+        if ($tags = getRequest('tags')) {
+            $tagsQuery = [];
+            foreach (explode(',', $tags) as $tag) {
+                $tag = trim($tag);
+                $tagsQuery[] = <<<EOT
+c.id IN (
+    SELECT ctl.company_id FROM {prefix}company_tag_link ctl WHERE ctl.tag_id=(
+        SELECT ct.id FROM {prefix}company_tag ct WHERE ct.tag=?
+    )
+)
+EOT;
+                $arrParams[] = $tag;
+            }
+            $strQuery .= ' AND (' . implode(' OR ', $tagsQuery) . ')';
+        }
+
+        return [$strQuery, $arrParams];
+    }
+
+    /**
      * Get a string with the selected parameters
      *
      * @param bool $html Whether to return the parameters as HTML
@@ -63,6 +115,7 @@ abstract class AbstractReport
             'accounting_date' => ['name' => 'DateInterval'],
             'row_date' => ['name' => 'InvoiceRowDateInterval'],
             'payment_date' => ['name' => 'PaymentDateInterval'],
+            'tags' => ['name' => 'Tags'],
             'base' => [
                 'name' => 'Biller',
                 'sql' => 'SELECT name as v FROM {prefix}base WHERE id = ?'

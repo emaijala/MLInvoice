@@ -62,12 +62,14 @@ class ProductReport extends AbstractReport
         $intCompanyId = getRequest('company', false);
         $intProductId = getRequest('product', false);
         $dateRange = getRequest('date', '');
+        $companyTags = getRequest('tags', '');
         ?>
 
 <script type="text/javascript">
   $(document).ready(function() {
     $('input[class~="hasDateRangePicker"]')
         .daterangepicker(<?php echo Translator::translate('DateRangePickerOptions')?>);
+    MLInvoice.Form.setupSelect2();
   });
   </script>
 
@@ -112,6 +114,11 @@ class ProductReport extends AbstractReport
                 'MODIFY', false
             );
             ?>
+        </div>
+
+        <div class="medium_label"><?php echo Translator::translate('Tags')?></div>
+        <div class="field">
+            <?php echo htmlFormElement('tags', 'TAGS', $companyTags, 'noemptyvalue long', 'table=company_tag&sort=tag', 'MODIFY', false)?>
         </div>
 
         <div class="medium_label"><?php echo Translator::translate('Product')?></div>
@@ -191,24 +198,12 @@ class ProductReport extends AbstractReport
 
         $arrParams = [];
 
-        $strQuery = 'SELECT i.id ' . 'FROM {prefix}invoice i ' . 'WHERE i.deleted=0';
+        $strQuery = 'SELECT i.id ' . 'FROM {prefix}invoice i '
+            . ' LEFT OUTER JOIN {prefix}company c ON c.id = i.company_id'
+            . ' WHERE i.deleted=0';
 
-        if ($startDate) {
-            $strQuery .= ' AND i.invoice_date >= ?';
-            $arrParams[] = $startDate;
-        }
-        if ($endDate) {
-            $strQuery .= ' AND i.invoice_date <= ?';
-            $arrParams[] = $endDate;
-        }
-        if ($intBaseId) {
-            $strQuery .= ' AND i.base_id = ?';
-            $arrParams[] = $intBaseId;
-        }
-        if ($intCompanyId) {
-            $strQuery .= ' AND i.company_id = ?';
-            $arrParams[] = $intCompanyId;
-        }
+        list($limitQuery, $arrParams) = $this->createLimitQuery();
+        $strQuery .= " $limitQuery";
 
         $strQuery2 = '';
         $strQuery3 = 'SELECT id, name ' .
