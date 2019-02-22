@@ -99,6 +99,10 @@ function htmlPageStart($strTitle = '', $arrExtraScripts = [])
         'css/style.css'
     ];
 
+    if (file_exists('css/custom.css')) {
+        $css[] = 'css/custom.css';
+    }
+
     foreach ($css as &$style) {
         $style = '  <link rel="stylesheet" type="text/css" href="'
             . addFileTimestamp($style) . '">';
