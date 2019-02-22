@@ -420,7 +420,7 @@ $(document).ready(function() {
     }
     if ($strForm == 'product') {
         ?>
-  MLInvoice.updateStockBalanceLog();
+  MLInvoice.Form.updateStockBalanceLog();
         <?php
     }
     if (sesWriteAccess()) {
