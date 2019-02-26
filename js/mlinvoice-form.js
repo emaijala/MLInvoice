@@ -1360,7 +1360,7 @@ MLInvoice.addModule('Form', function mlinvoiceForm() {
     var orderno = 5;
     $('.cb-select-row').each(function eachRow() {
       req.order[this.value] = orderno;
-      orderno += 5;
+      orderno++;
     });
     $.ajax({
       'url': 'json.php?func=update_row_order',
