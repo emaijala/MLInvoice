@@ -74,8 +74,7 @@ function htmlPageStart($strTitle = '', $arrExtraScripts = [])
         'js/date.js',
         "js/date-$lang.js",
         'jquery/js/jquery.daterangepicker.js',
-        'js/mlinvoice.js',
-        'js/mlinvoice-form.js',
+        'js/mlinvoice.min.js',
         'select2/select2.min.js',
         'js/formdata.min.js'
     ];
@@ -96,7 +95,8 @@ function htmlPageStart($strTitle = '', $arrExtraScripts = [])
         'jquery/css/ui.daterangepicker.css',
         'datatables/Buttons-1.5.4/css/buttons.dataTables.min.css',
         'select2/select2.css',
-        'css/style.css'
+        'css/style.css',
+        'css/table.css'
     ];
 
     if (file_exists('css/custom.css')) {
