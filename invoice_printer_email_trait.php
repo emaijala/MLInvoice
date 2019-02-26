@@ -233,7 +233,7 @@ trait InvoicePrinterEmailTrait
                     echo $filenames ? implode('<br>', $filenames) : '-';
                     ?>
                 </div>
-                <div class="form_buttons" style="clear: both">
+                <div class="form_buttons">
                     <a class="actionlink ui-button ui-corner-all ui-widget" onclick="$('#email_send').val(1); $('#email_form').submit(); return false;" href="#">
                         <?php echo Translator::translate('Send')?>
                     </a>

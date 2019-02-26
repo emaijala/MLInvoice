@@ -112,22 +112,22 @@ if ($maxPacket < $maxUploadSize) {
 
 echo htmlPageStart();
 ?>
-<div class="form_container ui-widget-content">
+<div class="form_container ui-widget-content base-logo">
     <div class="message"><?php echo $messages?></div>
 
     <div class="form ui-widget">
-        <div style="margin-bottom: 10px">
+        <div class="image-link">
             <img class="image" src="?func=view&amp;id=<?php echo $baseId?>">
         </div>
         <form id="form_upload" enctype="multipart/form-data"
             action="base_logo.php" method="POST">
             <input type="hidden" name="func" value="upload"> <input type="hidden"
                 name="id" value="<?php echo $baseId?>">
-            <div class="label" style="clear: both; margin-top: 10px; margin-bottom: 10px"><?php printf(Translator::translate('BaseLogo'), $maxFileSize)?></div>
+            <div class="label file"><?php printf(Translator::translate('BaseLogo'), $maxFileSize)?></div>
             <div class="long">
                 <input name="logo" type="file">
             </div>
-            <div class="form_buttons" style="clear: both">
+            <div class="form_buttons">
                 <input type="submit"
                     value="<?php echo Translator::translate('BaseSaveLogo')?>">
             </div>
@@ -136,7 +136,7 @@ echo htmlPageStart();
             action="base_logo.php" method="POST">
             <input type="hidden" name="func" value="clear"> <input type="hidden"
                 name="id" value="<?php echo $baseId?>">
-            <div class="form_buttons" style="clear: both">
+            <div class="form_buttons">
                 <input type="submit"
                     value="<?php echo Translator::translate('BaseEraseLogo')?>">
             </div>

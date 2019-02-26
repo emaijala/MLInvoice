@@ -231,16 +231,16 @@ class ProductStockReport extends AbstractReport
           <th class="label">
             <?php echo Translator::translate('Product')?>
           </th>
-          <th class="label" style="text-align: right">
+          <th class="label sum">
             <?php echo Translator::translate('UnitPrice')?>
           </th>
-          <th class="label" style="text-align: right">
+          <th class="label sum">
             <?php echo Translator::translate('PurchasePrice')?>
           </th>
-          <th class="label" style="text-align: right">
+          <th class="label sum">
             <?php echo Translator::translate('StockBalance')?>
           </th>
-          <th class="label" style="text-align: right">
+          <th class="label sum">
             <?php echo Translator::translate('StockValue')?>
           </th>
         </tr>
@@ -310,16 +310,16 @@ class ProductStockReport extends AbstractReport
                 <?php echo $strProduct?>
             </a>
         </td>
-        <td class="input" style="text-align: right">
+        <td class="input sum">
             <?php echo miscRound2Decim($unitPrice)?>
         </td>
-        <td class="input" style="text-align: right">
+        <td class="input sum">
             <?php echo miscRound2Decim($purchasePrice)?>
         </td>
-        <td class="input" style="text-align: right">
+        <td class="input sum">
             <?php echo miscRound2Decim($stockBalance)?>
         </td>
-        <td class="input" style="text-align: right">
+        <td class="input sum">
             <?php echo miscRound2Decim($stockBalance * $purchasePrice)?>
         </td>
       </tr>
@@ -363,12 +363,11 @@ class ProductStockReport extends AbstractReport
         ?>
       <tr>
         <?php if ($colSpan > 0) { ?>
-        <td class="input total_sum" colspan="<?php echo $colSpan?>"
-                style="text-align: right">
+        <td class="input sum total_sum" colspan="<?php echo $colSpan?>">
             <?php echo Translator::translate('Total')?>
         </td>
         <?php } ?>
-        <td class="input total_sum" style="text-align: right">
+        <td class="input sum total_sum">
             &nbsp;<?php echo miscRound2Decim($stockValue)?>
         </td>
       </tr>
@@ -444,8 +443,8 @@ var table = $('.report-table.datatable').DataTable({
             pageTotal = MLInvoice.formatCurrency(pageTotal/100);
             total = MLInvoice.formatCurrency(total/100);
             $(api.column(column).footer()).html(
-                '<div style="float: right"><?php echo Translator::translate('VisiblePage') ?>&nbsp;'
-                + pageTotal + '</div><br><div style="float: right"><?php echo Translator::translate('Total') ?>&nbsp;'
+                '<div class="list-footer-summary"><?php echo Translator::translate('VisiblePage') ?>&nbsp;'
+                + pageTotal + '</div><br><div class="list-footer-summary"><?php echo Translator::translate('Total') ?>&nbsp;'
                 + total + '</div>'
             );
         });

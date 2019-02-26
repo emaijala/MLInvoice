@@ -175,7 +175,7 @@ class Setup
             <?php
         } elseif ($this->errorMsg) {
             ?>
-            <div class="ui-widget" style="padding: 30px 30px 0 30px;">
+            <div class="ui-widget setup-form">
                 Please correct the following issues before trying to continue:
             </div>
             <div class="message ui-widget ui-state-error">
@@ -190,13 +190,13 @@ class Setup
                     <?php echo $formMessage?>
                 </div>
             <?php } ?>
-            <div class="ui-widget form" style="padding: 30px;">
+            <div class="ui-widget form setup-form">
                 <h1>Welcome</h1>
                 <p>
                     Some initial settings are needed before continuing.
                 </p>
                 <form method="POST" autocomplete="off">
-                    <div class="ui-widget ui-widget-content ui-corner-all" style="padding: 10px; margin-bottom: 10px;">
+                    <div class="ui-widget ui-widget-content ui-corner-all setup-group">
                         <p>
                             Please enter the following database connection settings.
                         </p>
@@ -226,7 +226,7 @@ class Setup
                             </label>
                         </p>
                     </div>
-                    <div class="ui-widget ui-widget-content ui-corner-all" style="padding: 10px; margin-bottom: 10px;">
+                    <div class="ui-widget ui-widget-content ui-corner-all setup-group">
                         <p>
                             A user called 'admin' will be automatically created and can be used as the login user.
                             Please enter a password for 'admin' that you can use to log in after setup is complete.
@@ -242,7 +242,7 @@ class Setup
                             </label>
                         </p>
                     </div>
-                    <div class="ui-widget ui-widget-content ui-corner-all" style="padding: 10px; margin-bottom: 10px;">
+                    <div class="ui-widget ui-widget-content ui-corner-all setup-group">
                         <p>
                             Please enter an encryption key that is used to encrypt e.g. passwords for mail sending services.
                             The key must be something secret and at least 32 characters long.
@@ -253,7 +253,7 @@ class Setup
                             </label>
                         </p>
                     </div>
-                    <div class="ui-widget ui-widget-content ui-corner-all" style="padding: 10px">
+                    <div class="ui-widget ui-widget-content ui-corner-all setup-group">
                         <p>
                             Finally, please choose the user interface languages that can be selected on login.
                         </p>

@@ -351,10 +351,10 @@ EOT;
 
   </script>
 
-<div class="form_container">
+<div class="form_container export">
     <h1><?php echo Translator::translate('Export')?></h1>
-    <span id="imessage" style="display: none"></span> <span id="spinner"
-        style="visibility: hidden"><img src="images/spinner.gif" alt=""></span>
+    <span id="imessage" style="display: none"></span>
+    <span id="spinner" style="visibility: hidden"><img src="images/spinner.gif" alt=""></span>
     <form id="export_form" name="export_form" method="GET">
         <input type="hidden" name="func" value="system"> <input type="hidden"
             name="operation" value="export">
@@ -455,7 +455,7 @@ EOT;
         </div>
         <div id="columns" class="field"></div>
 
-        <div class="form_buttons" style="clear: both">
+        <div class="form_buttons">
             <input type="submit" value="<?php echo Translator::translate('ExportDo')?>">
         </div>
     </form>

@@ -202,7 +202,7 @@ EOT;
     protected function addInvoiceStateSelection()
     {
         ?>
-        <div style="float: left; margin-right: 20px;">
+        <div class="invoice-states">
             <div class="medium_label"><?php echo Translator::translate('PrintReportStates')?></div>
         <?php
         $strQuery = 'SELECT id, name, invoice_offer FROM {prefix}invoice_state WHERE deleted=0'

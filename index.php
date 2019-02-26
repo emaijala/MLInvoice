@@ -4,7 +4,7 @@
  *
  * PHP version 5
  *
- * Copyright (C) 2010-2018 Ere Maijala
+ * Copyright (C) 2010-2019 Ere Maijala
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2,
@@ -128,6 +128,7 @@ echo htmlPageStart($title, $extraJs);
     <div class="pagewrapper ui-widget-content">
         <div class="ui-widget">
             <?php echo htmlMainTabs($strFunc); ?>
+            <div id="content">
 <?php
 
 $level = 1;
@@ -251,7 +252,8 @@ if ($strFunc == 'system' && $operation == 'export' && sesAdminAccess()) {
     }
 }
 ?>
-</div>
+            </div>
+        </div>
     </div>
 </body>
 </html>

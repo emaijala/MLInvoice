@@ -132,7 +132,7 @@ if (isset($upgradeMessage)) {
     <?php
 }
 ?>
-        <div class="ui-widget form" style="padding: 30px;">
+        <div class="ui-widget form login-form">
 
 <?php
 if (isset($languages)) {
@@ -155,13 +155,13 @@ if (isset($languages)) {
                 <input type="hidden" name="backlink" value="<?php echo $backlink?>">
                 <input type="hidden" name="csrf" id="csrf" value="<?php echo $csrf?>">
                 <p>
-                    <span style="width: 100px; display: inline-block;">
+                    <span class="label">
                         <?php echo Translator::translate('UserID')?>
                     </span>
                     <input class="medium" name="login" id="login" type="text" value="">
                 </p>
                 <p>
-                    <span style="width: 100px; display: inline-block;">
+                    <span class="label">
                         <?php echo Translator::translate('Password')?>
                     </span>
                     <input class="medium" name="passwd" id="passwd" type="password" value="">

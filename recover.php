@@ -134,6 +134,7 @@ echo htmlPageStart('');
                 </li>
             </ul>
         </div>
+        <div class="content recover-form">
 
 <?php
 if (isset($message)) {
@@ -153,7 +154,7 @@ if (isset($message)) {
 }
 if (empty($completed)) {
     ?>
-        <div class="ui-widget form" style="padding: 30px;">
+        <div class="ui-widget form">
             <h1><?php echo Translator::translate('RecoverAccount')?></h1>
             <form method="post" name="recover_form">
     <?php
@@ -161,13 +162,13 @@ if (empty($completed)) {
         ?>
                 <input type="hidden" name="token" value="<?php echo htmlentities($token)?>">
                 <p>
-                    <span style="width: 140px; display: inline-block;">
+                    <span class="label">
                         <?php echo Translator::translate('UserID')?>
                     </span>
                     <?php echo htmlentities($user['login'])?>
                 </p>
                 <p>
-                    <span style="width: 140px; display: inline-block;">
+                    <span class="label">
                         <?php echo Translator::translate('NewPassword')?>
                     </span>
                     <input class="medium" name="password" id="password" type="password" value="">
@@ -176,7 +177,7 @@ if (empty($completed)) {
     } else {
         ?>
                 <p>
-                    <span style="width: 140px; display: inline-block;">
+                    <span class="label">
                         <?php echo Translator::translate('UserIdOrEmail')?>
                     </span>
                     <input class="medium" name="userid" id="userid" type="text" value="">
@@ -194,11 +195,12 @@ if (empty($completed)) {
     <?php
 }
 ?>
-        <div class="ui-widget" style="padding-left: 30px; padding-right: 30px">
+        <div class="ui-widget">
             <p>
                 <a href="login.php"><?php echo Translator::translate('BackToLogin')?></a>
             </p>
         </div>
     </div>
+</div>
 </body>
 </html>

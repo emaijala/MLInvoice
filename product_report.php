@@ -359,22 +359,22 @@ class ProductReport extends AbstractReport
             <th class="label">
             <?php echo Translator::translate('Product')?>
             </th>
-            <th class="label" style="text-align: right">
+            <th class="label sum">
             <?php echo Translator::translate('PCS')?>
             </th>
-            <th class="label" style="text-align: right">
+            <th class="label sum">
             <?php echo Translator::translate('Unit')?>
             </th>
-            <th class="label" style="text-align: right">
+            <th class="label sum">
             <?php echo Translator::translate('VATLess')?>
             </th>
-            <th class="label" style="text-align: right">
+            <th class="label sum">
             <?php echo str_replace(' ', '&nbsp;', Translator::translate('VATPercent'))?>
             </th>
-            <th class="label" style="text-align: right">
+            <th class="label sum">
             <?php echo Translator::translate('VATPart')?>
             </th>
-            <th class="label" style="text-align: right">
+            <th class="label sum">
             <?php echo Translator::translate('WithVAT')?>
             </th>
         </tr>
@@ -462,22 +462,22 @@ class ProductReport extends AbstractReport
                 <?php echo $strProduct?>
             <?php } ?>
         </td>
-            <td class="input" style="text-align: right">
+            <td class="input sum">
             <?php echo miscRound2Decim($intCount)?>
         </td>
-            <td class="input" style="text-align: left">
+            <td class="input sum">
             <?php echo htmlspecialchars($strUnit)?>
         </td>
-            <td class="input" style="text-align: right">
+            <td class="input sum">
             <?php echo miscRound2Decim($intSum)?>
         </td>
-            <td class="input" style="text-align: right">
+            <td class="input sum">
             <?php echo miscRound2Decim($intVATPercent, 1)?>
         </td>
-            <td class="input" style="text-align: right">
+            <td class="input sum">
             <?php echo miscRound2Decim($intVAT)?>
         </td>
-            <td class="input" style="text-align: right">
+            <td class="input sum">
             <?php echo miscRound2Decim($intSumVAT)?>
         </td>
         </tr>
@@ -519,17 +519,17 @@ class ProductReport extends AbstractReport
             <td class="input total_sum">
             <?php echo Translator::translate('Total')?>
         </td>
-            <td class="input total_sum" style="text-align: right">&nbsp;</td>
-            <td class="input total_sum" style="text-align: right">&nbsp;</td>
-            <td class="input total_sum" style="text-align: right">&nbsp;</td>
-            <td class="input total_sum" style="text-align: right">
+            <td class="input sum total_sum">&nbsp;</td>
+            <td class="input sum total_sum">&nbsp;</td>
+            <td class="input sum total_sum">&nbsp;</td>
+            <td class="input sum total_sum">
             <?php echo miscRound2Decim($intTotSum)?>
         </td>
-            <td class="input total_sum" style="text-align: right">&nbsp;</td>
-            <td class="input total_sum" style="text-align: right">
+            <td class="input sum total_sum">&nbsp;</td>
+            <td class="input sum total_sum">
             <?php echo miscRound2Decim($intTotVAT)?>
         </td>
-            <td class="input total_sum" style="text-align: right">
+            <td class="input sum total_sum">
             <?php echo miscRound2Decim($intTotSumVAT)?>
         </td>
         </tr>
@@ -606,9 +606,9 @@ var table = $('.report-table.datatable').DataTable({
             pageTotal = MLInvoice.formatCurrency(pageTotal/100);
             total = MLInvoice.formatCurrency(total/100);
             $(api.column(column).footer()).html(
-                '<div style="float: right"><?php echo Translator::translate('VisiblePage') ?>&nbsp;'
+                '<div class="list-footer-summary><?php echo Translator::translate('VisiblePage') ?>&nbsp;'
                 + pageTotal
-                + '</div><br><div style="float: right"><?php echo Translator::translate('Total') ?>&nbsp;'
+                + '</div><br><div class="list-footer-summary"><?php echo Translator::translate('Total') ?>&nbsp;'
                 + total + '</div>'
             );
         });

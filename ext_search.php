@@ -286,8 +286,7 @@ foreach ($formConfig['fields'] as $field) {
               </td>
             </tr>
             <tr>
-              <td colspan="4"
-                style="text-align: center; padding-top: 8px; padding-bottom: 8px">
+              <td colspan="4" class="ext-search-buttons">
                 <input type="hidden" name="search_x" value="0">
                 <a class="actionlink ui-button ui-corner-all ui-widget form-submit" href="#"
                     data-set-field="search_x">

@@ -63,7 +63,7 @@ echo htmlPageStart();
             <form method="post"
                 action="quick_search.php?func=<?php echo $strFunc?>" target="_self"
                 name="search_form">
-                <table style="width: 100%">
+                <table class="quick-search">
                     <tr>
                         <td class="sublabel" colspan="4">
     <?php echo Translator::translate('LabelQuickSearch')?><br> <br>
@@ -102,17 +102,15 @@ if (!isset($intID)) {
 ?>
 </table>
 
-                <center>
-                    <table>
-                        <tr>
-                            <td>
-                              <a class="actionlink ui-button ui-corner-all ui-widget popup-close" href="#">
-                                <?php echo Translator::translate('Close')?>
-                              </a>
-                            </td>
-                        </tr>
-                    </table>
-                </center>
+                <table>
+                    <tr>
+                        <td>
+                            <a class="actionlink ui-button ui-corner-all ui-widget popup-close" href="#">
+                            <?php echo Translator::translate('Close')?>
+                            </a>
+                        </td>
+                    </tr>
+                </table>
             </form>
         </div>
     </div>

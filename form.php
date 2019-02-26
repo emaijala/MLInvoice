@@ -159,9 +159,8 @@ EOT;
     }
     ?>
 
-<div id="popup_dlg"
-    style="display: none; width: 900px; overflow: hidden">
-    <iframe id="popup_dlg_iframe" src="about:blank" style="width: 100%; height: 100%; overflow: hidden; border: 0"></iframe>
+<div id="popup_dlg" style="display: none">
+    <iframe id="popup_dlg_iframe" src="about:blank"></iframe>
 </div>
     <?php
     if ($formConfig['popupHTML']) {
@@ -697,8 +696,7 @@ function createIForm($mainFormConfig, $formConfig, $elem, $intKeyValue, $newReco
                     </table>
                 </form>
                 </div>
-                <div id="popup_edit"
-                    style="display: none; width: 900px; overflow: hidden">
+                <div id="popup_edit" style="display: none;">
                     <form method="post" name="iform_popup" id="iform_popup" data-popup="1">
                         <table class="iform">
                             <tr>
@@ -845,7 +843,7 @@ function createFormButtons($form, $new, $copyLinkOverride, $spinner, $readOnlyFo
                     <?php echo htmlFormElement('foreword', 'AREA', '', 'large', '');?>
                     <span class="select-default-text" data-type="foreword" data-target="foreword"></span>
                 </div>
-                <div class="form_buttons" style="clear: both">
+                <div class="form_buttons">
                     <input type="submit" class="ui-button ui-corner-all" value="<?php echo Translator::translate('Print')?>">
                     <input type="button" class="ui-button ui-corner-all close-btn" value="<?php echo Translator::translate('Close')?>">
                 </div>
