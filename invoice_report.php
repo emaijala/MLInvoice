@@ -129,11 +129,11 @@ class InvoiceReport extends AbstractReport
     <div class="unlimited_label">
         <strong><?php echo Translator::translate($this->reportName)?></strong>
     </div>
-    <?php if (!empty($this->description)) { ?>
+        <?php if (!empty($this->description)) { ?>
     <div class="unlimited_label">
         <p><?php echo $this->description ?></p>
     </div>
-    <?php } ?>
+        <?php } ?>
 </div>
 
 <div class="form_container ui-widget-content ui-helper-clearfix">
