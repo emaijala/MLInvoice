@@ -127,7 +127,7 @@ function createForm($strFunc, $strList, $strForm)
     if (isset($intKeyValue) && $intKeyValue) {
         $res = fetchRecord($formConfig['table'], $intKeyValue, $formConfig['fields'], $astrValues);
         if ($res === 'deleted') {
-            $strMessage .= Translator::translate('DeletedRecord') . '<br>';
+            $strMessage .= Translator::translate('DeletedRecord');
         } elseif ($res === 'notfound') {
             $msg = Translator::translate('RecordNotFound');
             echo <<<EOT
