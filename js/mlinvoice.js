@@ -374,7 +374,7 @@ var MLInvoice = (function MLInvoice() {
 
   function calcRowSum(row)
   {
-    var items = row.pcs;
+    var items = row.partial_payment ? 1 : row.pcs;
     var price = row.price;
     var discount = row.discount || 0;
     var discountAmount = row.discount_amount || 0;
