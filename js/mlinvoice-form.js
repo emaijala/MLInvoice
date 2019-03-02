@@ -52,20 +52,20 @@ MLInvoice.addModule('Form', function mlinvoiceForm() {
     _updateSendApiButtons();
   }
 
-  function updateDispatchByDateButtons() {
+  function updateDispatchByDateButtons(rows) {
     if (MLInvoice.getDispatchNotePrintStyle() === 'none' || MLInvoice.isOfferStatus($('#state_id').val())) {
       return;
     }
     var container = $('#dispatch_date_buttons');
     container.empty();
     var dates = [];
-    $('#iform td').each(function handleCol(i, td) {
-      var field = $(td);
-      if (field.data('field') === 'row_date') {
-        var date = MLInvoice.parseDate(field.text());
-        if (dates.indexOf(date) === -1) {
-          dates.push(date);
-        }
+    $.each(rows, function handleRow(i, row) {
+      if (row.reminder_row || row.partial_payment) {
+        return true;
+      }
+      console.log(row);
+      if (dates.indexOf(row.row_date) === -1) {
+        dates.push(row.row_date);
       }
     });
     dates.sort();
@@ -1206,7 +1206,7 @@ MLInvoice.addModule('Form', function mlinvoiceForm() {
       }
 
       if (subFormConfig.dispatchByDateButtons) {
-        that.updateDispatchByDateButtons();
+        that.updateDispatchByDateButtons(json.records);
       }
     });
   }
