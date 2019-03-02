@@ -63,7 +63,6 @@ MLInvoice.addModule('Form', function mlinvoiceForm() {
       if (row.reminder_row || row.partial_payment) {
         return true;
       }
-      console.log(row);
       if (dates.indexOf(row.row_date) === -1) {
         dates.push(row.row_date);
       }
@@ -1095,18 +1094,20 @@ MLInvoice.addModule('Form', function mlinvoiceForm() {
             .append(editButton)
             .appendTo(tr);
 
-          var copyButton = $('<a/>').addClass('tinyactionlink ui-button ui-corner-all ui-widget row-copy-button')
-            .attr('href', '#')
-            .data('id', parentId)
-            .text(MLInvoice.translate('Copy'))
-            .click(function copyRowClick(event) {
-              that.popupEditor(event, MLInvoice.translate('RowCopy'), record.id, true);
-              return false;
-            });
+          if (subFormConfig.type !== 'invoice_row' || !record.reminder_row) {
+            var copyButton = $('<a/>').addClass('tinyactionlink ui-button ui-corner-all ui-widget row-copy-button')
+              .attr('href', '#')
+              .data('id', parentId)
+              .text(MLInvoice.translate('Copy'))
+              .click(function copyRowClick(event) {
+                that.popupEditor(event, MLInvoice.translate('RowCopy'), record.id, true);
+                return false;
+              });
 
-          $('<td/>').addClass('button')
-            .append(copyButton)
-            .appendTo(tr);
+            $('<td/>').addClass('button')
+              .append(copyButton)
+              .appendTo(tr);
+          }
         }
         $table.append(tr);
       });
