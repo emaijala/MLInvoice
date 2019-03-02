@@ -894,7 +894,7 @@ EOF;
 
     $locReminderFeesAdded = Translator::translate('ReminderFeesAdded');
     $addReminderFees = "$.getJSON('json.php?func=add_reminder_fees&amp;id=' + document.getElementById('record_id').value, function(json) {"
-        . " if (json.errors) { MLInvoice.errormsg(json.errors); } else { MLInvoice.showmsg('$locReminderFeesAdded'); } init_rows(); });"
+        . " if (json.errors) { MLInvoice.errormsg(json.errors); } else { MLInvoice.infomsg('$locReminderFeesAdded'); } MLInvoice.Form.initRows(); });"
         . " return false;";
 
     $intervalOptions = [
