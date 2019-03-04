@@ -450,6 +450,11 @@ function saveFormData($table, &$primaryKey, $formElements, &$values, &$warnings,
         verifyInvoiceDataForPrinting($primaryKey);
     }
 
+    // Special case for invoices: store base_id to session as a default invoicer
+    if ('{prefix}invoice' === $table && !empty($values['base_id'])) {
+        $_SESSION['default_base_id'] = $values['base_id'];
+    }
+
     return true;
 }
 

@@ -868,13 +868,19 @@ EOF;
     $baseCnt = dbParamQuery(
         'SELECT count(*) as cnt from {prefix}base WHERE deleted=0 AND inactive=0'
     );
-    if ($baseCnt[0]['cnt'] == 1) {
+    if ($baseCnt[0]['cnt'] == 1 || !empty($_SESSION['default_base_id'])) {
         $prefix = $isOffer ? 'offer' : 'invoice';
-        $baseData = dbParamQuery(
-            "SELECT ID, invoice_default_info info, {$prefix}_default_foreword foreword,"
-            . " {$prefix}_default_afterword afterword from {prefix}base WHERE deleted=0 AND inactive=0"
-        );
-        $defaultValues['base'] = $baseData[0]['ID'];
+        $baseSql = "SELECT id, invoice_default_info info, {$prefix}_default_foreword foreword,"
+                . " {$prefix}_default_afterword afterword from {prefix}base";
+        $baseParams = [];
+        if ($baseCnt[0]['cnt'] == 1) {
+            $baseSql .= ' WHERE deleted=0 AND inactive=0';
+        } else {
+            $baseSql .= ' WHERE id=?';
+            $baseParams[] = $_SESSION['default_base_id'];
+        }
+        $baseData = dbParamQuery($baseSql, $baseParams);
+        $defaultValues['base'] = $baseData[0]['id'];
         $defaultValues['info'] = $baseData[0]['info'];
         $defaultValues['foreword'] = $baseData[0]['foreword'];
         $defaultValues['afterword'] = $baseData[0]['afterword'];
