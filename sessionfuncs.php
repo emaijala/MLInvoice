@@ -46,6 +46,8 @@ define('ROLE_ADMIN', 99);
  */
 function sesCreateSession($strLogin, $strPasswd, $strCsrf)
 {
+    // Delay so that brute-force attacks become unpractical
+    sleep(2);
     if ($strLogin && $strPasswd) {
         if (!isset($_SESSION['csrf']) || !isset($_SESSION['csrfip'])) {
             error_log('No key information in session, timeout or session problem');
@@ -53,9 +55,7 @@ function sesCreateSession($strLogin, $strPasswd, $strCsrf)
         }
         $csrfIp = $_SESSION['csrfip'];
         if ($_SERVER['REMOTE_ADDR'] != $csrfIp) {
-            // Delay so that brute-force attacks become unpractical
             error_log("Login failed for $strLogin due to IP address change");
-            sleep(2);
             return 'FAIL';
         }
 
@@ -95,9 +95,7 @@ function sesCreateSession($strLogin, $strPasswd, $strCsrf)
             return 'OK';
         }
     }
-    // Delay so that brute-force attacks become unpractical
     error_log('Login failed due to missing user name or password');
-    sleep(2);
     return 'FAIL';
 }
 

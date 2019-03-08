@@ -108,6 +108,7 @@ if ($strLogon) {
 }
 
 $csrf = sesCreateCsrf();
+sleep(2);
 
 echo htmlPageStart('');
 ?>
