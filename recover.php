@@ -82,7 +82,8 @@ $userId = getPost('userid', false);
 if ($userId) {
     $user = getUserByLoginId($userId);
     if (!$user) {
-        $errorMessage = Translator::translate('AccountNotFound');
+        $message = Translator::translate('RecoveryInstructionsSent');
+        $completed = true;
     } else {
         if (!empty($user['email'])) {
             $newToken = updateUserToken($user['id']);
@@ -115,9 +116,11 @@ if ($userId) {
                 $errorMessage = $mailer->getErrorMessage();
             } else {
                 $message = Translator::translate('RecoveryInstructionsSent');
+                $completed = true;
             }
         } else {
-            $errorMessage = Translator::translate('AccountNotFound');
+            $message = Translator::translate('RecoveryInstructionsSent');
+            $completed = true;
         }
     }
 }
@@ -126,7 +129,7 @@ echo htmlPageStart('');
 ?>
 
 <body>
-    <div class="pagewrapper ui-widget ui-widget-content login">
+    <div class="pagewrapper ui-widget ui-widget-content">
         <div id="maintabs" class="navi ui-widget-header ui-tabs">
             <ul class="ui-tabs-nav ui-helper-clearfix ui-corner-all">
                 <li class="functionlink ui-state-default ui-corner-top ui-tabs-selected ui-state-active">
@@ -154,7 +157,7 @@ if (isset($message)) {
 }
 if (empty($completed)) {
     ?>
-        <div class="ui-widget form">
+        <div class="ui-widget form login">
             <h1><?php echo Translator::translate('RecoverAccount')?></h1>
             <form method="post" name="recover_form">
     <?php

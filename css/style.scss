@@ -95,6 +95,10 @@ div.message {
 .login-form, .logout-form, .recover-form {
   padding: 30px;
 }
+.recover-form .message {
+  padding: 8px;
+  display: block;
+}
 
 .login-form .label {
   display: inline-block;
