@@ -46,10 +46,59 @@ MLInvoice.addModule('Form', function mlinvoiceForm() {
     _setupCompanyLink($('#company_id.linked'));
 
     _setupYtjSearch();
+    _setupMarkdownEditor();
     _setupDefaultTextSelection();
     setupSelect2();
     _setupInvoiceAttachments();
     _updateSendApiButtons();
+  }
+
+  function _setupMarkdownEditor() {
+    $('textarea.markdown').each(function initMarkdown() {
+      var mde = new SimpleMDE({
+        element: this,
+        autoDownloadFontAwesome: false,
+        indentWithTabs: false,
+        forceSync: true,
+        spellChecker: false,
+        status: false,
+        toolbarTips: false,
+        toolbar: [
+          'bold', 'italic',
+          {
+            name: 'headingc',
+            action: SimpleMDE.toggleHeadingSmaller,
+            className: 'fa fa-heading',
+            title: 'Heading'
+          },
+          '|',
+          'quote',
+          'unordered-list',
+          'ordered-list',
+          '|',
+          'preview',
+          'side-by-side',
+          'fullscreen',
+          '|'
+        ]
+      });
+      mde.codemirror.options.extraKeys['Tab'] = false;
+      mde.codemirror.options.extraKeys['Shift-Tab'] = false;
+      $(this).data('simplemde', mde);
+      var $toolbar = $(this).siblings('.editor-toolbar');
+      $toolbar.data('height', $toolbar.height());
+      $toolbar.css('height', 0);
+      mde.codemirror.on('focus', function onFocus() {
+        $toolbar.animate({'height': $toolbar.data('height') + 'px'}, 250);
+      });
+      mde.codemirror.on('blur', function onFocus() {
+        $toolbar.animate({'height': 0}, 250);
+      });
+      mde.codemirror.on('change', function onMdeChange() {
+        startChanging();
+        $('.save_button').addClass('ui-state-highlight');
+      });
+    });
   }
 
   function updateDispatchByDateButtons(rows) {
@@ -333,8 +382,14 @@ MLInvoice.addModule('Form', function mlinvoiceForm() {
             $('#' + target).append(input);
             $('#' + target).submit();
           } else {
-            $('#' + target).val(data.content);
-            $('#' + target).change();
+            var $field = $('#' + target);
+            var mde = $field.data('simplemde');
+            if (mde) {
+              mde.value(data.content);
+            } else {
+              $('#' + target).val(data.content);
+              $('#' + target).change();
+            }
           }
         }).fail(function getDefaultValueFail(jqXHR, textStatus) {
           window.alert('Request failed: ' + jqXHR.status + ' - ' + textStatus);

@@ -5,7 +5,7 @@
  * PHP version 5
  *
  * Copyright (C) 2004-2008 Samu Reinikainen
- * Copyright (C) 2010-2018 Ere Maijala
+ * Copyright (C) 2010-2019 Ere Maijala
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2,
@@ -47,6 +47,7 @@ if (!isset($strFunc)) {
 if (!isset($strList)) {
     $strList = '';
 }
+$mdClass = getSetting('printout_markdown') ? ' markdown' : '';
 
 switch ($strForm) {
 
@@ -269,7 +270,7 @@ case 'company':
             'name' => 'invoice_default_foreword',
             'label' => 'InvoiceDefaultForeword',
             'type' => 'AREA',
-            'style' => 'large',
+            'style' => "large$mdClass",
             'position' => 1,
             'allow_null' => true
         ],
@@ -277,7 +278,7 @@ case 'company':
             'name' => 'invoice_default_afterword',
             'label' => 'InvoiceDefaultAfterword',
             'type' => 'AREA',
-            'style' => 'large',
+            'style' => "large$mdClass",
             'position' => 2,
             'allow_null' => true
         ],
@@ -285,7 +286,7 @@ case 'company':
             'name' => 'offer_default_foreword',
             'label' => 'OfferDefaultForeword',
             'type' => 'AREA',
-            'style' => 'large',
+            'style' => "large$mdClass",
             'position' => 1,
             'allow_null' => true
         ],
@@ -293,7 +294,7 @@ case 'company':
             'name' => 'offer_default_afterword',
             'label' => 'OfferDefaultAfterword',
             'type' => 'AREA',
-            'style' => 'large',
+            'style' => "large$mdClass",
             'position' => 2,
             'allow_null' => true
         ],
@@ -1098,7 +1099,7 @@ EOF;
             'name' => 'info',
             'label' => 'VisibleInfo',
             'type' => 'AREA',
-            'style' => 'wide',
+            'style' => "wide$mdClass",
             'position' => 1,
             'attached_elem' => '<span class="select-default-text" data-type="info" data-target="info"></span>',
             'default' => $defaultValues['info'],
@@ -1108,7 +1109,7 @@ EOF;
             'name' => 'internal_info',
             'label' => 'InternalInfo',
             'type' => 'AREA',
-            'style' => 'wide',
+            'style' => "wide$mdClass",
             'position' => 2,
             'allow_null' => true
         ],
@@ -1116,7 +1117,7 @@ EOF;
             'name' => 'foreword',
             'label' => 'Foreword',
             'type' => 'AREA',
-            'style' => 'wide',
+            'style' => "wide$mdClass",
             'position' => 1,
             'attached_elem' => '<span class="select-default-text" data-type="foreword" data-target="foreword"></span>',
             'default' => $defaultValues['foreword'],
@@ -1126,7 +1127,7 @@ EOF;
             'name' => 'afterword',
             'label' => 'Afterword',
             'type' => 'AREA',
-            'style' => 'wide',
+            'style' => "wide$mdClass",
             'position' => 2,
             'attached_elem' => '<span class="select-default-text" data-type="afterword" data-target="afterword"></span>',
             'default' => $defaultValues['afterword'],
@@ -1586,7 +1587,7 @@ EOF;
             'name' => 'invoice_default_info',
             'label' => 'InvoiceDefaultInfo',
             'type' => 'AREA',
-            'style' => 'medium',
+            'style' => "large$mdClass",
             'position' => 1,
             'allow_null' => true
         ],
@@ -1594,7 +1595,7 @@ EOF;
             'name' => 'invoice_default_foreword',
             'label' => 'InvoiceDefaultForeword',
             'type' => 'AREA',
-            'style' => 'large',
+            'style' => "large$mdClass",
             'position' => 1,
             'allow_null' => true
         ],
@@ -1602,7 +1603,7 @@ EOF;
             'name' => 'invoice_default_afterword',
             'label' => 'InvoiceDefaultAfterword',
             'type' => 'AREA',
-            'style' => 'large',
+            'style' => "large$mdClass",
             'position' => 2,
             'allow_null' => true
         ],
@@ -1610,7 +1611,7 @@ EOF;
             'name' => 'offer_default_foreword',
             'label' => 'OfferDefaultForeword',
             'type' => 'AREA',
-            'style' => 'large',
+            'style' => "large$mdClass",
             'position' => 1,
             'allow_null' => true
         ],
@@ -1618,7 +1619,7 @@ EOF;
             'name' => 'offer_default_afterword',
             'label' => 'OfferDefaultAfterword',
             'type' => 'AREA',
-            'style' => 'large',
+            'style' => "large$mdClass",
             'position' => 2,
             'allow_null' => true
         ],
@@ -2097,7 +2098,7 @@ case 'default_value' :
             'name' => 'content',
             'label' => 'Content',
             'type' => 'AREA',
-            'style' => 'xxlarge',
+            'style' => "xxlarge$mdClass",
             'position' => 0
         ],
         [

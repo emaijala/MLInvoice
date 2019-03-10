@@ -76,8 +76,12 @@ function htmlPageStart($strTitle = '', $arrExtraScripts = [])
         'jquery/js/jquery.daterangepicker.js',
         'js/mlinvoice.min.js',
         'select2/select2.min.js',
-        'js/formdata.min.js'
+        'js/formdata.min.js',
     ];
+
+    if (getSetting('printout_markdown')) {
+        $scripts[] = 'js/simplemde.min.js';
+    }
 
     if (file_exists("select2/select2_locale_$lang.js")) {
         $scripts[] = "select2/select2_locale_$lang.js";
@@ -95,6 +99,8 @@ function htmlPageStart($strTitle = '', $arrExtraScripts = [])
         'jquery/css/ui.daterangepicker.css',
         'datatables/Buttons-1.5.4/css/buttons.dataTables.min.css',
         'select2/select2.css',
+        'fontawesome-free-5.7.2-web/css/all.min.css',
+        getSetting('printout_markdown') ? 'css/simplemde.min.css' : '',
         'css/style.css',
         'css/table.css'
     ];
@@ -104,6 +110,9 @@ function htmlPageStart($strTitle = '', $arrExtraScripts = [])
     }
 
     foreach ($css as &$style) {
+        if (empty($style)) {
+            continue;
+        }
         $style = '  <link rel="stylesheet" type="text/css" href="'
             . addFileTimestamp($style) . '">';
     }

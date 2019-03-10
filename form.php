@@ -350,18 +350,24 @@ EOT;
           </td>
                 <?php
             }
+            $contentsClasses = htmlentities(strtolower($elem['type']))
+                . ' ' . $elem['style']
+                . (isset($elem['attached_elem']) ? ' attached' : '');
             ?>
-          <td class="field"
-                    <?php echo $strColspan ? " $strColspan" : ''?>>
-            <?php
+          <td class="field"<?php echo $strColspan ? " $strColspan" : ''?>>
+            <div class="field-contents <?php echo $contentsClasses?>">
+                <?php
 
-            echo htmlFormElement(
-                $elem['name'], $elem['type'], $value,
-                $elem['style'], $elem['listquery'], $fieldMode,
-                isset($elem['parent_key']) ? $elem['parent_key'] : '', '', [],
-                isset($elem['elem_attributes']) ? $elem['elem_attributes'] : '',
-                isset($elem['options']) ? $elem['options'] : null
-            );
+                echo htmlFormElement(
+                    $elem['name'], $elem['type'], $value,
+                    $elem['style'], $elem['listquery'], $fieldMode,
+                    isset($elem['parent_key']) ? $elem['parent_key'] : '', '', [],
+                    isset($elem['elem_attributes']) ? $elem['elem_attributes'] : '',
+                    isset($elem['options']) ? $elem['options'] : null
+                );
+                ?>
+            </div>
+            <?php
             if (isset($elem['attached_elem'])) {
                 echo '            ' . $elem['attached_elem'] . "\n";
             }

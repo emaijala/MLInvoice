@@ -180,6 +180,14 @@ abstract class InvoicePrinterBase
             'width' => 20,
             'autofit' => true
         ],
+        'pieces' => [
+            'heading' => 'RowPieces',
+            'valuemethod' => 'getRowPieces',
+            'visible' => true,
+            'align' => 'R',
+            'width' => 20,
+            'autofit' => true
+        ],
         'price' => [
             'heading' => 'RowPrice',
             'valuemethod' => 'getRowPrice',
@@ -191,14 +199,6 @@ abstract class InvoicePrinterBase
         'discount' => [
             'heading' => 'RowDiscount',
             'valuemethod' => 'getRowDiscount',
-            'visible' => true,
-            'align' => 'R',
-            'width' => 20,
-            'autofit' => true
-        ],
-        'pieces' => [
-            'heading' => 'RowPieces',
-            'valuemethod' => 'getRowPieces',
             'visible' => true,
             'align' => 'R',
             'width' => 20,
