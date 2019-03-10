@@ -22,3 +22,4 @@ tcpdf/cache/*
 vendor
 .php_cs.cache
 db_data/*
+node_modules
