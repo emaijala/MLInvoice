@@ -494,9 +494,18 @@ textarea.email_body {
   .CodeMirror, .CodeMirror-scroll {
     min-height: 80px;
   }
-  .CodeMirror {
-    min-width: 320px;
-    padding: 0;
+  .CodeMirror:not(.CodeMirror-fullscreen), .editor-toolbar:not(.fullscreen) {
+    width: 340px;
+    padding-left: 2px;
+    padding-right: 2px;
+  }
+  .editor-toolbar {
+    max-height: 50px;
+    transition: max-height 50ms ease-in-out;
+    &.collapsed:not(.fullscreen) {
+      max-height: 0px;
+      transition: max-height 50ms ease-in-out 50ms;
+    }
   }
   &.xxlarge {
     .CodeMirror, .CodeMirror-scroll {

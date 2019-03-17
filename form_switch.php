@@ -456,8 +456,8 @@ EOS;
         [
             'name' => 'product_name',
             'label' => 'ProductName',
-            'type' => 'TEXT',
-            'style' => 'medium',
+            'type' => 'AREA',
+            'style' => "large$mdClass",
             'position' => 1,
             'default' => '',
             'allow_null' => true
@@ -523,8 +523,8 @@ EOS;
         [
             'name' => 'description',
             'label' => 'ProductDescription',
-            'type' => 'TEXT',
-            'style' => 'long',
+            'type' => 'AREA',
+            'style' => "large$mdClass",
             'position' => 1,
             'allow_null' => true
         ],
