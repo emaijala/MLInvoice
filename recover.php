@@ -80,50 +80,57 @@ if ($token) {
 
 $userId = getPost('userid', false);
 if ($userId) {
-    $user = getUserByLoginId($userId);
-    if (!$user) {
-        $message = Translator::translate('RecoveryInstructionsSent');
-        $completed = true;
+    if (CSRF_OK !== sesCheckCsrf(getPost('csrf'))) {
+        $message = Translator::translate('LoginTimeout');
     } else {
-        if (!empty($user['email'])) {
-            $newToken = updateUserToken($user['id']);
-            $scheme = $_SERVER['REQUEST_SCHEME'];
-            $url = "$scheme://" . $_SERVER['SERVER_NAME'];
-            $port = $_SERVER['SERVER_PORT'];
-            if (('http' === $scheme && 80 != $port)
-                || ('https' === $scheme && 443 != $port)
-            ) {
-                $url .= ":$port";
-            }
-            $url .= $_SERVER['REQUEST_URI'];
-            $url .= (strpos($url, '?') === false ? '?' : '&');
-            $url .= 'token=' . $newToken;
+        $user = getUserByLoginId($userId);
+        if (!$user) {
+            $message = Translator::translate('RecoveryInstructionsSent');
+            $completed = true;
+        } else {
+            if (!empty($user['email'])) {
+                $newToken = updateUserToken($user['id']);
+                $scheme = $_SERVER['REQUEST_SCHEME'];
+                $url = "$scheme://" . $_SERVER['SERVER_NAME'];
+                $port = $_SERVER['SERVER_PORT'];
+                if (('http' === $scheme && 80 != $port)
+                    || ('https' === $scheme && 443 != $port)
+                ) {
+                    $url .= ":$port";
+                }
+                $url .= $_SERVER['REQUEST_URI'];
+                $url .= (strpos($url, '?') === false ? '?' : '&');
+                $url .= 'token=' . $newToken;
 
-            $mailer = new Mailer();
-            $result = $mailer->sendEmail(
-                $user['email'],
-                $user['email'],
-                [],
-                [],
-                Translator::translate('RecoverAccountEmailSubject'),
-                Translator::translate(
-                    'RecoverAccountEmailBody',
-                    ['%%url%%' => $url]
-                ),
-                []
-            );
-            if (!$result) {
-                $errorMessage = $mailer->getErrorMessage();
+                $mailer = new Mailer();
+                $result = $mailer->sendEmail(
+                    $user['email'],
+                    $user['email'],
+                    [],
+                    [],
+                    Translator::translate('RecoverAccountEmailSubject'),
+                    Translator::translate(
+                        'RecoverAccountEmailBody',
+                        ['%%url%%' => $url]
+                    ),
+                    []
+                );
+                if (!$result) {
+                    $errorMessage = $mailer->getErrorMessage();
+                } else {
+                    $message = Translator::translate('RecoveryInstructionsSent');
+                    $completed = true;
+                }
             } else {
                 $message = Translator::translate('RecoveryInstructionsSent');
                 $completed = true;
             }
-        } else {
-            $message = Translator::translate('RecoveryInstructionsSent');
-            $completed = true;
         }
     }
 }
+
+sleep(2);
+$csrf = sesCreateCsrf();
 
 echo htmlPageStart('');
 ?>
@@ -160,6 +167,7 @@ if (empty($completed)) {
         <div class="ui-widget form login">
             <h1><?php echo Translator::translate('RecoverAccount')?></h1>
             <form method="post" name="recover_form">
+                <input type="hidden" name="csrf" value="<?php echo htmlentities($csrf)?>">
     <?php
     if ($token && !empty($user)) {
         ?>
