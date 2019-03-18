@@ -1,4 +1,4 @@
-/* global MLInvoice, $, google */
+/* global MLInvoice, $, google, SimpleMDE */
 MLInvoice.addModule('Form', function mlinvoiceForm() {
   var _formConfig = {};
   var _subFormConfig = {};
@@ -64,7 +64,8 @@ MLInvoice.addModule('Form', function mlinvoiceForm() {
         status: false,
         toolbarTips: false,
         toolbar: [
-          'bold', 'italic',
+          'bold',
+          'italic',
           {
             name: 'headingc',
             action: SimpleMDE.toggleHeadingSmaller,
@@ -82,7 +83,7 @@ MLInvoice.addModule('Form', function mlinvoiceForm() {
           '|'
         ]
       });
-      mde.codemirror.options.extraKeys['Tab'] = false;
+      mde.codemirror.options.extraKeys.Tab = false;
       mde.codemirror.options.extraKeys['Shift-Tab'] = false;
       $(this).data('simplemde', mde);
       var $toolbar = $(this).siblings('.editor-toolbar');
