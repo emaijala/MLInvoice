@@ -1,4 +1,6 @@
-@import url('table.css');
+$fa-font-path: "../fontawesome-free-5.7.2-web/webfonts";
+@import '../fontawesome-free-5.7.2-web/scss/fontawesome.scss';
+@import '../fontawesome-free-5.7.2-web/scss/solid.scss';
 
 html {
   height: 100%;
@@ -236,9 +238,9 @@ tr.summary td {
 }
 
 .iform td.sort-col {
-  width: 1.2em;
-  letter-spacing: -5px;
+  width: 0.8em;
   cursor: grab;
+  padding-left: 0.5em;
 }
 
 th {

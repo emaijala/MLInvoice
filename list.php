@@ -266,7 +266,7 @@ function createList($strFunc, $strList, $strTableName = '', $strTitleOverride = 
     var buttons = new $.fn.dataTable.Buttons($table.DataTable(), {
         buttons: [
             {
-                text: '|||',
+                text: '<i class="fa fa-columns"></i><span class="sr-only"><?php echo Translator::translate('Columns')?></span>',
                 titleAttr: '<?php echo Translator::translate('Columns')?>',
                 extend: 'colvis',
                 columns: ':gt(2)'

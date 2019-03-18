@@ -1051,7 +1051,7 @@ MLInvoice.addModule('Form', function mlinvoiceForm() {
       $.each(json.records, function addItemRow(i, record) {
         var tr = $('<tr/>').addClass('item-row');
         if (!readOnly && 'invoice' === formType) {
-          $('<td class="sort-col"><span class="sort-handle hidden">&#x25B2;&#x25BC;</span>')
+          $('<td class="sort-col"><span class="sort-handle hidden"><i class="fa fa-sort"></i><span class="sr-only">' + MLInvoice.translate('Sort') + '</span></span>')
             .appendTo(tr);
           var selectRow = MLInvoice.translate('SelectRow');
           var input = $('<input/>')
