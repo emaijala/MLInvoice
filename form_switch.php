@@ -47,7 +47,7 @@ if (!isset($strFunc)) {
 if (!isset($strList)) {
     $strList = '';
 }
-$mdClass = getSetting('printout_markdown') ? ' markdown' : '';
+$mdClass = getSetting('printout_markdown') && getSetting('markdown_editor') ? ' markdown' : '';
 
 switch ($strForm) {
 

@@ -440,6 +440,14 @@ $arrSettings = [
         'default' => 0,
         'allow_null' => true
     ],
+    'markdown_editor' => [
+        'label' => 'SettingMarkdownEditor',
+        'type' => 'CHECK',
+        'style' => 'medium',
+        'position' => 1,
+        'default' => 1,
+        'allow_null' => true
+    ],
     'pdf_link_base_url' => [
         'label' => 'SettingPDFLinkTemplate',
         'type' => 'TEXT',
