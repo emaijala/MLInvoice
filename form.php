@@ -870,8 +870,8 @@ function createFormButtons($form, $new, $copyLinkOverride, $spinner, $readOnlyFo
         <a id="attachments-button" class="actionlink ui-button ui-corner-all ui-widget" href="#">
             <?php echo Translator::translate('Attachments')?>
             (<span class="attachment-count"><?php echo $attachmentCount?></span>)
-            <span class="dropdown-open"><i class="fa fa-angle-down"></i><span class="sr-only"><?php echo Translator::translate('Show')?></span></span>
-            <span class="dropdown-close hidden"><i class="fa fa-angle-up"></i><span class="sr-only"><?php echo Translator::translate('Hide')?></span></span>
+            <span class="dropdown-open"><i class="fa fa-caret-down"></i><span class="sr-only"><?php echo Translator::translate('Show')?></span></span>
+            <span class="dropdown-close hidden"><i class="fa fa-caret-up"></i><span class="sr-only"><?php echo Translator::translate('Hide')?></span></span>
         </a>
         <?php
     }
