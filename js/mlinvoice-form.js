@@ -846,15 +846,6 @@ MLInvoice.addModule('Form', function mlinvoiceForm() {
 
   function _toggleAttachmentForm(open)
   {
-    if (open) {
-      $('#attachments-button .dropdown-open').hide();
-      $('#attachments-button .dropdown-close').show();
-      $('#attachments-form').removeClass('hidden');
-    } else {
-      $('#attachments-button .dropdown-open').show();
-      $('#attachments-button .dropdown-close').hide();
-      $('#attachments-form').addClass('hidden');
-    }
   }
 
   function _setupInvoiceAttachments() {
@@ -863,10 +854,10 @@ MLInvoice.addModule('Form', function mlinvoiceForm() {
     $('#attachments-button').click(function attachmentsClick() {
       if ($('#attachments-form').hasClass('hidden')) {
         _updateAttachmentList();
-        _toggleAttachmentForm(true);
-      } else {
-        _toggleAttachmentForm(false);
       }
+      $('#attachments-button .dropdown-open').toggleClass('hidden');
+      $('#attachments-button .dropdown-close').toggleClass('hidden');
+      $('#attachments-form').toggleClass('hidden');
     });
     $('a.add-attachment').click(function addAttachmentClick() {
       $.ajax({
