@@ -844,10 +844,6 @@ MLInvoice.addModule('Form', function mlinvoiceForm() {
     });
   }
 
-  function _toggleAttachmentForm(open)
-  {
-  }
-
   function _setupInvoiceAttachments() {
     var invoiceId = $('#attachments-form').data('invoiceId');
 
