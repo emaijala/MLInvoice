@@ -70,8 +70,14 @@ abstract class InvoicePrinterBase
     protected $recipientAddressY = 0;
     protected $partialPayments = 0;
     protected $dateOverride = false;
-    protected $allowSeparateStatement = true;
     protected $roundRowPrices = false;
+
+    /**
+     * Whether a separate invoice statement is allowed
+     *
+     * @var bool
+     */
+    protected $allowSeparateStatement = true;
 
     /**
      * Invoice type data
@@ -487,7 +493,9 @@ EOT;
         ksort($this->groupedVATs);
 
         $this->separateStatement = ($this->printStyle == 'invoice') &&
-             getSetting('invoice_separate_statement');
+             getSetting('invoice_separate_statement') == 1;
+        $this->allowSeparateStatement = ($this->printStyle == 'invoice') &&
+             getSetting('invoice_separate_statement') == 0;
 
         $this->refNumber = isset($invoiceData['ref_number'])
             ? formatRefNumber($invoiceData['ref_number']) : '';

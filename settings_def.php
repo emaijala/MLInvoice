@@ -104,6 +104,22 @@ $arrSettings = [
         'default' => 1,
         'allow_null' => true
     ],
+    'printout_markdown' => [
+        'label' => 'SettingMarkdown',
+        'type' => 'CHECK',
+        'style' => 'medium',
+        'position' => 1,
+        'default' => 0,
+        'allow_null' => true
+    ],
+    'markdown_editor' => [
+        'label' => 'SettingMarkdownEditor',
+        'type' => 'CHECK',
+        'style' => 'medium',
+        'position' => 1,
+        'default' => 1,
+        'allow_null' => true
+    ],
 
     'invoice_sep' => [
         'label' => 'SettingInvoices',
@@ -345,11 +361,16 @@ $arrSettings = [
     ],
     'invoice_separate_statement' => [
         'label' => 'SettingInvoiceSeparateStatement',
-        'type' => 'CHECK',
-        'style' => 'medium',
+        'type' => 'SELECT',
+        'style' => 'xlong noemptyvalue',
         'position' => 1,
         'default' => 0,
-        'allow_null' => true
+        'allow_null' => true,
+        'options' => [
+            0 => 'SettingInvoiceSeparateStatementIfNoSpace',
+            1 => 'SettingInvoiceSeparateStatementAlways',
+            2 => 'SettingInvoiceSeparateStatementNever'
+        ]
     ],
     'invoice_show_info_in_form' => [
         'label' => 'SettingInvoiceShowInfoInForm',
@@ -430,22 +451,6 @@ $arrSettings = [
         'style' => 'currency',
         'position' => 1,
         'default' => 85,
-        'allow_null' => true
-    ],
-    'printout_markdown' => [
-        'label' => 'SettingMarkdown',
-        'type' => 'CHECK',
-        'style' => 'medium',
-        'position' => 1,
-        'default' => 0,
-        'allow_null' => true
-    ],
-    'markdown_editor' => [
-        'label' => 'SettingMarkdownEditor',
-        'type' => 'CHECK',
-        'style' => 'medium',
-        'position' => 1,
-        'default' => 1,
         'allow_null' => true
     ],
     'pdf_link_base_url' => [
