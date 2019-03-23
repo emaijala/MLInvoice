@@ -149,7 +149,7 @@ div.medium_label {
   margin-bottom: 8px;
   clear: left;
   padding-top: 2px;
-  .attached {
+  &.attached {
     clear: none;
   }
 }
