@@ -369,7 +369,7 @@ EOT;
             </div>
             <?php
             if (isset($elem['attached_elem'])) {
-                echo '            ' . $elem['attached_elem'] . "\n";
+                echo $elem['attached_elem'] . "\n";
             }
             ?>
           </td>
