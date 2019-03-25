@@ -502,6 +502,7 @@ textarea.email_body {
   }
   .CodeMirror, .CodeMirror-scroll {
     min-height: 80px;
+    height: 80px;
   }
   .CodeMirror:not(.CodeMirror-fullscreen), .editor-toolbar:not(.fullscreen) {
     width: 340px;
@@ -519,6 +520,7 @@ textarea.email_body {
   &.xxlarge {
     .CodeMirror, .CodeMirror-scroll {
       min-height: 200px;
+      height: 200px;
     }
   }
 }
