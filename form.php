@@ -223,6 +223,14 @@ EOT;
             continue;
         }
         $style = $elem['style'] !== '' ? ' ' . $elem['style'] : '';
+        $fieldClass = '';
+        $fieldClassAttr = '';
+
+        if (!empty($elem['hidden'])) {
+            $style .= ' hidden';
+            $fieldClass = ' hidden';
+            $fieldClassAttr = ' class="hidden"';
+        }
 
         $fieldMode = isset($elem['read_only']) && $elem['read_only'] ? 'READONLY' : $formFieldMode;
 
@@ -277,7 +285,7 @@ EOT;
         } elseif (in_array($elem['type'], ['BUTTON', 'JSBUTTON', 'DROPDOWNMENU'])) {
             $intColspan = 1;
             ?>
-          <td class="button">
+          <td class="button<?php echo $fieldClass?>">
             <?php
 
             echo htmlFormElement(
@@ -294,7 +302,7 @@ EOT;
         } elseif ($elem['type'] == 'FILLER') {
             $intColspan = 1;
             ?>
-          <td>&nbsp;</td>
+          <td<?php echo $fieldClassAttr?>>&nbsp;</td>
             <?php
         } elseif ($elem['type'] == 'HID_INT' || strstr($elem['type'], 'HID_')) {
             echo htmlFormElement(
@@ -304,7 +312,7 @@ EOT;
             );
         } elseif ($elem['type'] == 'IMAGE') {
             ?>
-          <td class="image" colspan="<?php echo $intColspan?>">
+          <td class="image<?php echo $fieldClass?>" colspan="<?php echo $intColspan?>">
             <?php echo htmlFormElement(
                 $elem['name'], $elem['type'], $astrValues[$elem['name']],
                 $elem['style'], $elem['listquery'], $fieldMode, $elem['parent_key'],
@@ -335,7 +343,7 @@ EOT;
             }
             if ($elem['type'] == 'AREA') {
                 ?>
-          <td class="toplabel"><?php echo Translator::translate($elem['label'])?></td>
+          <td class="toplabel<?php echo $style?>"><?php echo Translator::translate($elem['label'])?></td>
                 <?php
             } else {
                 ?>
@@ -354,7 +362,7 @@ EOT;
                 . ' ' . $elem['style']
                 . (isset($elem['attached_elem']) ? ' attached' : '');
             ?>
-          <td class="field"<?php echo $strColspan ? " $strColspan" : ''?>>
+          <td class="field<?php echo $fieldClass?>"<?php echo $strColspan ? " $strColspan" : ''?>>
             <div class="field-contents <?php echo $contentsClasses?>">
                 <?php
 

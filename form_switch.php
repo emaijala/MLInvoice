@@ -647,9 +647,7 @@ case 'invoice' :
     ];
     $intInvoiceId = getRequest('id', 0);
     if ($intInvoiceId) {
-        if (!isset($isOffer)) {
-            $isOffer = isOffer($intInvoiceId);
-        }
+        $isOffer = isOffer($intInvoiceId);
 
         if ($isOffer) {
             $locCopyAsInvoice = Translator::translate('CopyAsInvoice');
@@ -960,28 +958,31 @@ EOF;
             'name' => 'reference',
             'label' => 'ClientsReference',
             'type' => 'TEXT',
-            'style' => 'medium' . ($isOffer ? ' hidden' : ''),
+            'style' => 'medium',
             'position' => 2,
-            'allow_null' => true
+            'allow_null' => true,
+            'hidden' => $isOffer,
         ],
         [
             'name' => 'invoice_no',
             'label' => 'InvoiceNumber',
             'type' => 'INT',
-            'style' => 'medium hidezerovalue' . ($isOffer ? ' hidden' : ''),
+            'style' => 'medium hidezerovalue',
             'position' => 1,
             'default' => null,
-            'allow_null' => true
+            'allow_null' => true,
+            'hidden' => $isOffer,
         ],
         [
             'name' => 'ref_number',
             'label' => 'ReferenceNumber',
             'type' => 'TEXT',
-            'style' => 'medium hidezerovalue' . ($isOffer ? ' hidden' : ''),
+            'style' => 'medium hidezerovalue',
             'position' => 2,
             'default' => null,
             'attached_elem' => $updateInvoiceNr,
-            'allow_null' => true
+            'allow_null' => true,
+            'hidden' => $isOffer,
         ],
         [
             'name' => 'invoice_date',
@@ -1004,20 +1005,22 @@ EOF;
             'name' => 'interval_type',
             'label' => 'InvoiceIntervalType',
             'type' => 'SELECT',
-            'style' => 'long' . ($isOffer ? ' hidden' : ''),
+            'style' => 'long',
             'position' => 1,
             'options' => $intervalOptions,
             'default' => '0',
-            'allow_null' => true
+            'allow_null' => true,
+            'hidden' => $isOffer,
         ],
         [
             'name' => 'next_interval_date',
             'label' => 'InvoiceNextIntervalDate',
             'type' => 'INTDATE',
-            'style' => 'date' . ($isOffer ? ' hidden' : ''),
+            'style' => 'date',
             'position' => 2,
             'default' => '',
-            'allow_null' => true
+            'allow_null' => true,
+            'hidden' => $isOffer,
         ],
         [
             'name' => 'state_id',
@@ -1032,11 +1035,12 @@ EOF;
             'name' => 'payment_date',
             'label' => 'PayDate',
             'type' => 'INTDATE',
-            'style' => 'date' . ($isOffer ? ' hidden' : ''),
+            'style' => 'date',
             'position' => 2,
             'allow_null' => true,
             'attached_elem' => $markPaidTodayButton,
-            'elem_attributes' => 'onchange="' . $markPaidTodayEvent . '" data-no-future="1"'
+            'elem_attributes' => 'onchange="' . $markPaidTodayEvent . '" data-no-future="1"',
+            'hidden' => $isOffer,
         ],
         [
             'name' => 'archived',
@@ -1051,20 +1055,22 @@ EOF;
             'name' => 'type_id',
             'label' => 'InvoiceType',
             'type' => 'SEARCHLIST',
-            'style' => 'long' . ($isOffer ? ' hidden' : ''),
+            'style' => 'long',
             'listquery' => 'table=invoice_type&sort=order_no,name',
             'position' => 2,
             'default' => null,
-            'allow_null' => true
+            'allow_null' => true,
+            'hidden' => $isOffer,
         ],
         [
             'name' => 'delivery_time',
             'label' => 'DeliveryTime',
             'type' => 'TEXT',
-            'style' => 'medium hidezerovalue' . (!$isOffer ? ' hidden' : ''),
+            'style' => 'medium hidezerovalue',
             'position' => 3,
             'default' => null,
-            'allow_null' => true
+            'allow_null' => true,
+            'hidden' => !$isOffer,
         ],
         [
             'name' => 'delivery_terms_id',
