@@ -51,7 +51,7 @@ EOM
 %{__install} -d -m755 $RPM_BUILD_ROOT%{_datadir}/%{name}
 
 %{__install} -m644 *.php *.ico *.xsl *.xsd config.php.sample $RPM_BUILD_ROOT%{_datadir}/%{name}
-%{__cp} -a css datatables db_data fontawesome-free-5.7.2-web images jquery js lang node_modules select2 send_api tests themes vendor $RPM_BUILD_ROOT%{_datadir}/%{name}
+%{__cp} -a css datatables db_data fontawesome-free-5.7.2-web images jquery js lang select2 send_api tests themes vendor $RPM_BUILD_ROOT%{_datadir}/%{name}
 
 %clean
 %{__rm} -rf $RPM_BUILD_ROOT
