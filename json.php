@@ -42,6 +42,8 @@ require_once 'form_funcs.php';
 require_once 'translator.php';
 require_once 'settings.php';
 require_once 'memory.php';
+require_once 'form_config.php';
+require_once 'list_config.php';
 
 sesVerifySession(false);
 
@@ -56,6 +58,7 @@ case 'get_invoice_row':
 case 'get_base':
 case 'get_print_template':
 case 'get_invoice_state':
+case 'get_invoice_type':
 case 'get_row_type':
 case 'get_print_template':
 case 'get_company':
@@ -63,6 +66,7 @@ case 'get_session_type':
 case 'get_delivery_terms':
 case 'get_delivery_method':
 case 'get_default_value':
+case 'get_attachment':
 case 'get_send_api_config':
     printJSONRecord(substr($strFunc, 4));
     break;
@@ -76,6 +80,7 @@ case 'put_invoice':
 case 'put_base':
 case 'put_print_template':
 case 'put_invoice_state':
+case 'put_invoice_type':
 case 'put_row_type':
 case 'put_print_template':
 case 'put_user':
@@ -83,12 +88,16 @@ case 'put_session_type':
 case 'put_delivery_terms':
 case 'put_delivery_method':
 case 'put_default_value':
+case 'put_attachment':
+case 'put_invoice_attachment':
     saveJSONRecord(substr($strFunc, 4), '');
     break;
 
 case 'delete_invoice_row':
 case 'delete_default_value':
 case 'delete_send_api_config':
+case 'delete_attachment':
+case 'delete_invoice_attachment':
     deleteJSONRecord(substr($strFunc, 7));
     break;
 
@@ -112,7 +121,7 @@ case 'get_companies':
     printJSONRecords('company', '', 'company_name');
     break;
 
-case 'get_company_contacts' :
+case 'get_company_contacts':
     printJSONRecords('company_contact', 'company_id', 'contact_person');
     break;
 
@@ -372,9 +381,8 @@ case 'get_list' :
 
     $tableId = getRequest('tableid', '');
 
-    include 'list_switch.php';
-
-    if (!$strTable) {
+    $listConfig = getListConfig($strList);
+    if (!$listConfig) {
         header('HTTP/1.1 400 Bad Request');
         die('Invalid table name');
     }
@@ -384,12 +392,12 @@ case 'get_list' :
     $sort = [];
     $columns = getRequest('columns', []);
     if ($orderCols = getRequest('order', [])) {
-        for ($i = 0; $i < count($orderCols); $i ++) {
-            if (!isset($orderCols[$i]['column'])) {
+        foreach ($orderCols as $orderCol) {
+            if (!isset($orderCol['column'])) {
                 continue;
             }
-            $sortColumn = $orderCols[$i]['column'];
-            $sortDir = $orderCols[$i]['dir'];
+            $sortColumn = $orderCol['column'];
+            $sortDir = $orderCol['dir'];
             $sort[] = [
                 $sortColumn => $sortDir === 'desc' ? 'desc' : 'asc'
             ];
@@ -398,7 +406,7 @@ case 'get_list' :
     $search = getRequest('search', []);
     $filter = empty($search['value']) ? '' : $search['value'];
     $where = getRequest('where', '');
-    $companyId = 'product' === $strList ? getRequest('company_id', null) : null;
+    $companyId = 'product' === $strList ? getRequest('company', null) : null;
 
     header('Content-Type: application/json');
     echo createJSONList(
@@ -504,6 +512,18 @@ case 'get_send_api_services':
     echo getSendApiServices(getRequest('invoice_id'), getRequest('base_id'));
     break;
 
+case 'add_invoice_attachment':
+    if (!sesWriteAccess()) {
+        header('HTTP/1.1 403 Forbidden');
+        break;
+    }
+    addInvoiceAttachment();
+    break;
+
+case 'get_invoice_attachments':
+    printJSONRecords('invoice_attachment', 'invoice_id', 'order_no');
+    break;
+
 case 'noop' :
     // Session keep-alive
     header('HTTP/1.1 204 No Content');
@@ -556,8 +576,18 @@ function printJSONRecord($table, $id = false, $warnings = null)
             return;
         }
         $row = $rows[0];
-        if ($table == 'users') {
+        switch ($table) {
+        case '{prefix}users':
             unset($row['password']);
+            break;
+        case '{prefix}attachment':
+        case '{prefix}invoice_attachment':
+            unset($row['filedata']);
+            $row['filesize_readable'] = fileSizeToHumanReadable($row['filesize']);
+            break;
+        case '{prefix}base':
+            unset($row['logo_filedata']);
+            break;
         }
 
         // Include any custom price for a product
@@ -591,9 +621,6 @@ function printJSONRecord($table, $id = false, $warnings = null)
 
         header('Content-Type: application/json');
         $row['warnings'] = $warnings;
-        if ($table == '{prefix}base') {
-            unset($row['logo_filedata']);
-        }
         echo json_encode($row);
     }
 }
@@ -631,7 +658,9 @@ EOT;
         $where .= " WHERE t.$parentIdCol=?";
         $params[] = $id;
     }
-    if (!getSetting('show_deleted_records') && 'send_api_config' !== $table) {
+    if (!getSetting('show_deleted_records') && 'send_api_config' !== $table
+        && 'attachment' !== $table && 'invoice_attachment' !== $table
+    ) {
         if ($where) {
             $where .= ' AND t.deleted=0';
         } else {
@@ -666,6 +695,10 @@ EOT;
         } elseif ($table == 'company_contact') {
             $row['tags'] = getTags('contact', $row['id']);
         }
+        if ('attachment' === $table || 'invoice_attachment' === $table) {
+            unset($row['filedata']);
+            $row['filesize_readable'] = fileSizeToHumanReadable($row['filesize']);
+        }
 
         echo json_encode($row);
     }
@@ -687,7 +720,13 @@ function saveJSONRecord($table, $parentKeyName)
         return;
     }
 
-    $data = json_decode(file_get_contents('php://input'), true);
+    list($contentType) = explode(';', $_SERVER['CONTENT_TYPE']);
+    if ($contentType === 'application/json') {
+        $data = json_decode(file_get_contents('php://input'), true);
+    } else {
+        // If we don't have a JSON request, assume we have POST data
+        $data = $_POST;
+    }
     if (!$data) {
         header('HTTP/1.1 400 Bad Request');
         return;
@@ -696,9 +735,9 @@ function saveJSONRecord($table, $parentKeyName)
     $strFunc = '';
     $strList = '';
     $id = isset($data['id']) ? $data['id'] : false;
-    include 'form_switch.php';
     $new = $id ? false : true;
     unset($data['id']);
+    $formConfig = getFormConfig($strForm, 'json');
 
     $onPrint = false;
     if (isset($data['onPrint'])) {
@@ -706,11 +745,15 @@ function saveJSONRecord($table, $parentKeyName)
         unset($data['onPrint']);
     }
 
+    // Allow partial update for invoice attachments. This is a safety check since the
+    // partial update mechanism might hide issues with other record types.
+    $partial = !$new && 'invoice_attachment' === $table;
+
     $warnings = '';
     try {
         $res = saveFormData(
-            $strTable, $id, $astrFormElements, $data, $warnings, $parentKeyName,
-            $parentKeyName ? $data[$parentKeyName] : false, $onPrint
+            $formConfig['table'], $id, $formConfig['fields'], $data, $warnings, $parentKeyName,
+            $parentKeyName ? $data[$parentKeyName] : false, $onPrint, $partial
         );
     } catch (Exception $e) {
         header('Content-Type: application/json');
@@ -729,7 +772,7 @@ function saveJSONRecord($table, $parentKeyName)
     if ($new) {
         header('HTTP/1.1 201 Created');
     }
-    printJSONRecord($strTable, $id, $warnings);
+    printJSONRecord($formConfig['table'], $id, $warnings);
 }
 
 /**
@@ -777,7 +820,7 @@ function updateMultipleRows()
     $strForm = $request['table'];
     $strFunc = '';
     $strList = '';
-    include 'form_switch.php';
+    $formConfig = getFormConfig($strForm, 'json');
 
     $warnings = '';
     foreach ($request['ids'] as $id) {
@@ -785,7 +828,7 @@ function updateMultipleRows()
         // Set fields anew for every row since saveFormData returns the whole record
         $data = $request['changes'];
         $res = saveFormData(
-            '{prefix}' . $request['table'], $id, $astrFormElements, $data, $warnings,
+            '{prefix}' . $request['table'], $id, $formConfig['fields'], $data, $warnings,
             false, false, false, true
         );
         if ($res !== true) {
@@ -841,7 +884,7 @@ function getInvoiceListTotal($where)
     $strFunc = 'invoices';
     $strList = 'invoice';
 
-    include 'list_switch.php';
+    $listConfig = getListConfig($strList);
 
     $strWhereClause = '';
     $joinOp = 'WHERE';
@@ -867,12 +910,12 @@ function getInvoiceListTotal($where)
             $joinOp = ' AND';
         }
     }
-    if (!getSetting('show_deleted_records')) {
-        $strWhereClause .= "$joinOp $strDeletedField=0";
+    if (!getSetting('show_deleted_records') && $listConfig['deletedField']) {
+        $strWhereClause .= "$joinOp {$listConfig['deletedField']}=0";
         $joinOp = ' AND';
     }
 
-    $sql = "SELECT sum(it.row_total) as total_sum from $strTable $strJoin $strWhereClause";
+    $sql = "SELECT sum(it.row_total) as total_sum from {$listConfig['table']} {$listConfig['displayJoin']} $strWhereClause";
 
     $sum = 0;
     $rows = dbParamQuery($sql, $arrQueryParams);
@@ -995,4 +1038,16 @@ function getSendApiServices($invoiceId, $baseId)
     }
 
     return json_encode(['services' => $services]);
+}
+
+/**
+ * Add an attachment to an invoice and return the new record
+ *
+ * @return string
+ */
+function addInvoiceAttachment()
+{
+    $newId = addAttachmentToInvoice(getRequest('id'), getRequest('invoice_id'));
+    printJSONRecord('invoice_attachment', $newId);
+
 }

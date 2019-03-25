@@ -263,7 +263,14 @@
       </EpiBeneficiaryPartyDetails>
     </EpiPartyDetails>
     <EpiPaymentInstructionDetails>
+  <xsl:choose>
+    <xsl:when test="invoicetype/identifier">
+      <EpiPaymentInstructionId><xsl:value-of select="invoicetype/identifier"/></EpiPaymentInstructionId>
+    </xsl:when>
+    <xsl:otherwise>
       <EpiPaymentInstructionId><xsl:value-of select="invoice_no"/></EpiPaymentInstructionId>
+    </xsl:otherwise>
+  </xsl:choose>
   <xsl:choose>
     <xsl:when test="substring(formatted_ref_number, 1, 2) = 'RF'">
       <EpiRemittanceInfoIdentifier IdentificationSchemeName="ISO"><xsl:value-of select="formatted_ref_number"/></EpiRemittanceInfoIdentifier>

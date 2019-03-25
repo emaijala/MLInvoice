@@ -65,15 +65,23 @@ function htmlPageStart($strTitle = '', $arrExtraScripts = [])
         'jquery/js/jquery-2.2.4.min.js',
         'jquery/js/jquery.cookie.js',
         'jquery/js/jquery-ui.min.js',
-        'datatables/jquery.dataTables.min.js',
+        'datatables/DataTables-1.10.18/js/jquery.dataTables.min.js',
+        'datatables/DataTables-1.10.18/js/dataTables.jqueryui.min.js',
+        'datatables/Buttons-1.5.4/js/dataTables.buttons.min.js',
+        'datatables/Buttons-1.5.4/js/buttons.html5.min.js',
+        'datatables/Buttons-1.5.4/js/buttons.colVis.min.js',
         'jquery/js/jquery.floatingmessage.js',
         'js/date.js',
         "js/date-$lang.js",
         'jquery/js/jquery.daterangepicker.js',
-        'js/mlinvoice.js',
-        'js/functions.js',
-        'select2/select2.min.js'
+        'js/mlinvoice.min.js',
+        'select2/select2.min.js',
+        'js/formdata.min.js',
     ];
+
+    if (getSetting('printout_markdown')) {
+        $scripts[] = 'js/simplemde.min.js';
+    }
 
     if (file_exists("select2/select2_locale_$lang.js")) {
         $scripts[] = "select2/select2_locale_$lang.js";
@@ -89,12 +97,21 @@ function htmlPageStart($strTitle = '', $arrExtraScripts = [])
     $css = [
         $theme,
         'jquery/css/ui.daterangepicker.css',
-        'datatables/buttons.dataTables.min.css',
+        'datatables/Buttons-1.5.4/css/buttons.dataTables.min.css',
         'select2/select2.css',
-        'css/style.css'
+        getSetting('printout_markdown') ? 'css/simplemde.min.css' : '',
+        'css/style.css',
+        'css/table.css'
     ];
 
+    if (file_exists('css/custom.css')) {
+        $css[] = 'css/custom.css';
+    }
+
     foreach ($css as &$style) {
+        if (empty($style)) {
+            continue;
+        }
         $style = '  <link rel="stylesheet" type="text/css" href="'
             . addFileTimestamp($style) . '">';
     }
@@ -126,7 +143,28 @@ function htmlPageStart($strTitle = '', $arrExtraScripts = [])
         'ConfirmDelete',
         'UnsavedData',
         'Close',
-        'PrereleaseVersion'
+        'PrereleaseVersion',
+        'Attachments',
+        'NoEntries',
+        'ErrValueMissing',
+        'RemoveAttachment',
+        'LargeFile',
+        'SendToClient',
+        'Description',
+        'Save',
+        'UpdateStockBalance',
+        'YesButton',
+        'NoButton',
+        'Edit',
+        'Copy',
+        'TotalExcludingVAT',
+        'TotalVAT',
+        'TotalIncludingVAT',
+        'TotalToPay',
+        'RowCopy',
+        'RowModification',
+        'PartialPayment',
+        'Sort'
     ];
 
     $res = dbQueryCheck(
@@ -244,7 +282,7 @@ function htmlMainTabs($func)
         [
             'name' => 'company',
             'title' => 'ShowClientNavi',
-            'action' => 'companies',
+            'action' => 'company',
             'levels_allowed' => [
                 ROLE_USER,
                 ROLE_BACKUPMGR
@@ -662,12 +700,12 @@ EOT;
 
         case 'redirect':
             $strHref = '#';
-            $strOnClick = "onclick=\"save_record('$strListQuery', 'redirect'); return false;\"";
+            $strOnClick = "onclick=\"MLInvoice.Form.saveRecord('$strListQuery', 'redirect'); return false;\"";
             break;
 
         case 'openwindow':
             $strHref = '#';
-            $strOnClick = "onclick=\"save_record('$strListQuery', 'openwindow'); return false;\"";
+            $strOnClick = "onclick=\"MLInvoice.Form.saveRecord('$strListQuery', 'openwindow'); return false;\"";
             break;
 
         default:
@@ -700,7 +738,7 @@ EOT;
                  "status=no,toolbar=no'); return false;\"";
             break;
         }
-        $strFormElement = "<a class=\"formbuttonlink\" href=\"$strHref\" $strOnClick$astrAdditionalAttributes>" .
+        $strFormElement = "<a class=\"formbuttonlink ui-button ui-corner-all ui-widget\" href=\"$strHref\" $strOnClick$astrAdditionalAttributes>" .
              htmlspecialchars(Translator::translate($strTitle)) . "</a>\n";
         break;
 
@@ -712,7 +750,7 @@ EOT;
                 $strListQuery = str_replace('_ID_', $strValue, $strListQuery);
             }
             $strOnClick = "onClick=\"$strListQuery\"";
-            $strFormElement = "<a class=\"formbuttonlink\" href=\"#\" $strOnClick$astrAdditionalAttributes>" .
+            $strFormElement = "<a class=\"formbuttonlink ui-button ui-corner-all ui-widget\" href=\"#\" $strOnClick$astrAdditionalAttributes>" .
                  htmlspecialchars(Translator::translate($strTitle)) . "</a>\n";
         }
         break;
@@ -743,6 +781,12 @@ EOT;
         $strListQuery = str_replace('_ID_', $strValue, $strListQuery);
         $strFormElement = "<img class=\"$strStyle\" src=\"$strListQuery\" title=\"" .
              htmlspecialchars(Translator::translate($strTitle)) . "\"></div>\n";
+        break;
+
+    case 'FILE':
+        $strFormElement = '<input type="file" class="' . $strStyle . '" ' .
+             'id="' . $strName . '" name="' . $strName .
+             "\"$astrAdditionalAttributes$readOnly>\n";
         break;
 
     default :

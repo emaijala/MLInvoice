@@ -18,4 +18,4 @@ cache:
     - .php_cs.cache
 
 script:
-- vendor/bin/phing travis -Dphp-cs-fixer-extra-params="--cache-file=.php_cs.cache/.php_cs.cache"
+- vendor/bin/phing ci -Dphp-cs-fixer-extra-params="--cache-file=.php_cs.cache/.php_cs.cache"

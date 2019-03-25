@@ -64,6 +64,13 @@ function createFuncMenu($strFunc)
                 ]
             ],
             [
+                'href' => 'list=invoice_type',
+                'text' => Translator::translate('InvoiceTypes'),
+                'levels_allowed' => [
+                    ROLE_ADMIN
+                ]
+            ],
+            [
                 'href' => 'list=row_type',
                 'text' => Translator::translate('RowTypes'),
                 'levels_allowed' => [
@@ -124,22 +131,23 @@ function createFuncMenu($strFunc)
         $strNewText = '';
         $strList = getRequest('list', '');
         switch ($strList) {
-        case 'user' :
+        case 'user':
             $strNewText = Translator::translate('NewUser');
             break;
-        case 'session_type' :
+        case 'session_type':
             $strNewText = Translator::translate('NewSessionType');
             break;
-        case 'invoice_state' :
-        case 'row_type' :
-        case 'delivery_terms' :
-        case 'delivery_method' :
-        case 'print_template' :
+        case 'invoice_state':
+        case 'invoice_type':
+        case 'row_type':
+        case 'delivery_terms':
+        case 'delivery_method':
+        case 'print_template':
             $strNewText = Translator::translate('AddNew');
             break;
         }
         if ($strNewText) {
-            $strNewButton = "<br/><br/><a class=\"buttonlink new_button\""
+            $strNewButton = "<br/><br/><a class=\"buttonlink ui-button ui-corner-all ui-widget new_button\""
                 . " href=\"?func=system&amp;list=$strList&amp;form=$strList\">$strNewText</a>";
         }
         break;
@@ -176,6 +184,14 @@ function createFuncMenu($strFunc)
                     ROLE_USER,
                     ROLE_BACKUPMGR
                 ]
+            ],
+            [
+                'href' => 'list=attachment',
+                'text' => Translator::translate('Attachments'),
+                'levels_allowed' => [
+                    ROLE_USER,
+                    ROLE_BACKUPMGR
+                ]
             ]
         ];
         $strNewText = '';
@@ -192,9 +208,12 @@ function createFuncMenu($strFunc)
             case 'default_value':
                 $strNewText = Translator::translate('NewDefaultValue');
                 break;
+            case 'attachment':
+                $strNewText = Translator::translate('NewAttachment');
+                break;
             }
             if ($strNewText) {
-                $strNewButton = "<br/><br/><a class=\"buttonlink\" "
+                $strNewButton = "<br/><br/><a class=\"buttonlink ui-button ui-corner-all ui-widget\" "
                     . "href=\"?func=settings&amp;list=$strList&amp;form=$strList\">$strNewText</a>";
             }
         }
@@ -241,13 +260,13 @@ function createFuncMenu($strFunc)
         ];
         break;
 
-    case 'companies':
+    case 'company':
         $blnShowSearch = true;
         $strOpenForm = 'company';
         $strFormName = 'company';
         $strFormSwitch = 'company';
         $astrNaviLinks = [];
-        $strNewButton = '<a class="buttonlink" href="?func=companies&amp;form=company">'
+        $strNewButton = '<a class="buttonlink ui-button ui-corner-all ui-widget" href="?func=company&amp;form=company">'
              . Translator::translate('NewClient') . '</a>';
         break;
 
@@ -279,9 +298,9 @@ function createFuncMenu($strFunc)
             ];
         }
         if ($strFunc != 'archived_invoices') {
-            $strNewButton = ' <a class="buttonlink" href="?func=invoices&amp;form=invoice&amp;offer=1">' .
+            $strNewButton = ' <a class="buttonlink ui-button ui-corner-all ui-widget" href="?func=invoices&amp;form=invoice&amp;offer=1">' .
                  Translator::translate('NewOffer') . '</a>';
-            $strNewButton .= '<a class="buttonlink" href="?func=invoices&amp;form=invoice">' .
+            $strNewButton .= '<a class="buttonlink ui-button ui-corner-all ui-widget" href="?func=invoices&amp;form=invoice">' .
                  Translator::translate('NewInvoice') . '</a>';
             $astrNaviLinks[] = [
                 'href' => 'index.php?func=import_statement',
@@ -353,16 +372,16 @@ function createFuncMenu($strFunc)
                     $class = ' ui-state-highlight';
                 }
                 ?>
-        <a class="buttonlink<?php echo $class?>"
+        <a class="buttonlink ui-button ui-corner-all ui-widget<?php echo $class?>"
             href="<?php echo $strHref?>"><?php echo $link['text']?></a>
                 <?php
             }
         }
         if ($blnShowSearch) {
             ?>
-        <a class="buttonlink" href="#"
+        <a class="buttonlink ui-button ui-corner-all ui-widget" href="#"
             onClick="openSearchWindow('ext', event); return false;"><?php echo Translator::translate('ExtSearch')?></a>
-        <a class="buttonlink" href="#"
+        <a class="buttonlink ui-button ui-corner-all ui-widget" href="#"
             onClick="openSearchWindow('quick', event); return false;"><?php echo Translator::translate('QuickSearch')?></a>
             <?php
         }

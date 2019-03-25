@@ -5,7 +5,7 @@
  * PHP version 5
  *
  * Copyright (C) 2004-2008 Samu Reinikainen
- * Copyright (C) 2010-2018 Ere Maijala
+ * Copyright (C) 2010-2019 Ere Maijala
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2,
@@ -26,21 +26,21 @@
  * @license  http://opensource.org/licenses/gpl-2.0.php GNU General Public License
  * @link     http://labs.fi/mlinvoice.eng.php
  */
- $strTable = '';
+$strTable = '';
 $strJoin = '';
 $strListFilter = '';
 $strGroupBy = '';
+$strDeletedField = '';
 $levelsAllowed = [
     ROLE_USER,
     ROLE_BACKUPMGR
 ];
-switch ($strList ? $strList : $strFunc) {
+switch ($strList) {
 
 /***********************************************************************
  LISTS
  ***********************************************************************/
 case 'company' :
-case 'companies' :
     $strTable = '{prefix}company';
     $astrSearchFields = [
         [
@@ -52,13 +52,18 @@ case 'companies' :
             'type' => 'TEXT'
         ]
     ];
-    $astrHiddenSearchField = [
-        'name' => 'type_id',
-        'type' => 'INT'
-    ];
     $strPrimaryKey = 'id';
     $strDeletedField = 'deleted';
     $astrShowFields = [
+        [
+            'name' => 'id',
+            'width' => 20,
+            'type' => 'CHECKBOX',
+            'order' => 'DESC',
+            'header' => '<input class="cb-select-all" type="checkbox" value=""></input>',
+            'class' => 'cb-select-row',
+            'sort' => false
+        ],
         [
             'name' => 'company_name',
             'width' => 150,
@@ -118,7 +123,7 @@ case 'invoices':
 case 'offer':
     $levelsAllowed[] = ROLE_READONLY;
 
-    $strListFilter = ($strFunc == 'archived_invoices') ? 'i.archived = 1'
+    $strListFilter = 'archived_invoices' === $strList ? 'i.archived = 1'
         : 'i.archived = 0';
     $strTable = '{prefix}invoice i';
     $strJoin = 'LEFT OUTER JOIN {prefix}base b on i.base_id=b.id ' .
@@ -160,6 +165,17 @@ LEFT OUTER JOIN (
   ON (it.invoice_id=i.id)
 EOT;
     }
+
+    $intervalOptions = [
+        '0' => Translator::translate('InvoiceIntervalNone'),
+        '2' => Translator::translate('InvoiceIntervalMonth'),
+        '3' => Translator::translate('InvoiceIntervalYear')
+    ];
+    for ($i = 4; $i <= 8; $i++) {
+        $intervalOptions[(string)$i]
+            = sprintf(Translator::translate('InvoiceIntervalMonths'), $i - 2);
+    }
+
     $astrSearchFields = [
         [
             'name' => $strList === 'offer' ? 'i.id' : 'i.invoice_no',
@@ -186,11 +202,28 @@ EOT;
     $strDeletedField = 'i.deleted';
     $astrShowFields = [
         [
+            'name' => 'i.id',
+            'width' => 20,
+            'type' => 'CHECKBOX',
+            'order' => 'DESC',
+            'header' => '<input class="cb-select-all" type="checkbox" value=""></input>',
+            'class' => 'cb-select-row',
+            'sort' => false
+        ],
+        [
             'name' => 'i.invoice_date',
             'width' => 80,
             'type' => 'INTDATE',
             'order' => 'DESC',
             'header' => 'HeaderInvoiceDate'
+        ],
+        [
+            'name' => 'i.payment_date',
+            'width' => 80,
+            'type' => 'INTDATE',
+            'order' => 'DESC',
+            'header' => 'HeaderInvoicePaymentDate',
+            'visible' => ($strList ? $strList : $strFunc) == 'archived_invoices'
         ],
         [
             'name' => 'i.due_date',
@@ -231,10 +264,32 @@ EOT;
             'translate' => true
         ],
         [
+            'name' => 'i.interval_type',
+            'width' => 60,
+            'type' => 'TEXT',
+            'header' => 'HeaderInvoiceIntervalType',
+            'mappings' => $intervalOptions,
+            'visible' => false,
+        ],
+        [
+            'name' => 'i.next_interval_date',
+            'width' => 60,
+            'type' => 'INTDATE',
+            'header' => 'HeaderInvoiceNextIntervalDate',
+            'visible' => false,
+        ],
+        [
             'name' => 'i.ref_number',
             'width' => 100,
             'type' => 'TEXT',
             'header' => 'HeaderInvoiceReference'
+        ],
+        [
+            'name' => 'i.reference',
+            'width' => 100,
+            'type' => 'TEXT',
+            'header' => 'HeaderInvoiceClientsReference',
+            'visible' => false
         ],
         [
             'name' => '.total_price',
@@ -244,20 +299,6 @@ EOT;
             'header' => 'HeaderInvoiceTotal'
         ]
     ];
-    if (($strList ? $strList : $strFunc) == 'archived_invoices') {
-        array_splice(
-            $astrShowFields, 2, 0,
-            [
-                [
-                    'name' => 'i.payment_date',
-                    'width' => 80,
-                    'type' => 'INTDATE',
-                    'order' => 'DESC',
-                    'header' => 'HeaderInvoicePaymentDate'
-                ]
-            ]
-        );
-    }
     $strGroupBy = 'i.id, i.deleted, i.invoice_date, i.due_date, i.invoice_no,'
         . ' b.name, c.company_name, i.name, s.name, i.ref_number';
     $strMainForm = 'invoice';
@@ -303,7 +344,6 @@ case 'base' :
             'header' => 'Email'
         ]
     ];
-    // array('name');
     $strMainForm = 'base';
     $strTitle = 'Bases';
     break;
@@ -338,6 +378,42 @@ case 'invoice_state' :
     $strTitle = 'InvoiceStates';
     break;
 
+case 'invoice_type' :
+    $strTable = '{prefix}invoice_type';
+    $astrSearchFields = [
+        [
+            'name' => "name'",
+            'type' => 'TEXT'
+        ]
+    ];
+    $strPrimaryKey = 'id';
+    $strDeletedField = 'deleted';
+    $astrShowFields = [
+        [
+            'name' => 'order_no',
+            'width' => 150,
+            'type' => 'TEXT',
+            'header' => 'OrderNr'
+        ],
+        [
+            'name' => 'identifier',
+            'width' => 150,
+            'type' => 'TEXT',
+            'header' => 'Identifier',
+            'select' => true
+        ],
+        [
+            'name' => 'name',
+            'width' => 450,
+            'type' => 'TEXT',
+            'header' => 'Name',
+            'select' => true
+        ]
+    ];
+    $strMainForm = 'invoice_type';
+    $strTitle = 'InvoiceTypes';
+    break;
+
 case 'product' :
     $strTable = '{prefix}product';
     $astrSearchFields = [
@@ -357,6 +433,15 @@ case 'product' :
     $strPrimaryKey = 'id';
     $strDeletedField = 'deleted';
     $astrShowFields = [
+        [
+            'name' => 'id',
+            'width' => 20,
+            'type' => 'CHECKBOX',
+            'order' => 'DESC',
+            'header' => '<input class="cb-select-all" type="checkbox" value=""></input>',
+            'class' => 'cb-select-row',
+            'sort' => false
+        ],
         [
             'name' => 'order_no',
             'width' => 150,
@@ -420,7 +505,8 @@ case 'product' :
             'header' => 'ClientsPrice',
             'decimals' => getSetting('unit_price_decimals'),
             'virtual' => true,
-            'select' => true
+            'select' => true,
+            'sort' => false
         ],
         [
             'name' => 'discount',
@@ -627,7 +713,6 @@ case 'default_value' :
                 'afterword' => 'Afterword',
                 'email' => 'Email'
             ]
-
         ],
         [
             'name' => 'name',
@@ -639,6 +724,56 @@ case 'default_value' :
     ];
     $strMainForm = 'default_value';
     $strTitle = 'DefaultValues';
+    break;
+
+case 'attachment':
+    $strTable = '{prefix}attachment';
+    $astrSearchFields = [
+        [
+            'name' => 'name',
+            'type' => 'TEXT'
+        ],
+        [
+            'name' => 'description',
+            'type' => 'TEXT'
+        ],
+    ];
+    $strPrimaryKey = 'id';
+    $astrShowFields = [
+        [
+            'name' => 'order_no',
+            'width' => 150,
+            'type' => 'TEXT',
+            'header' => 'OrderNr'
+        ],
+        [
+            'name' => 'name',
+            'width' => 200,
+            'type' => 'TEXT',
+            'header' => 'Name'
+        ],
+        [
+            'name' => 'date',
+            'width' => 100,
+            'type' => 'INTDATE',
+            'header' => 'Date'
+        ],
+        [
+            'name' => 'filename',
+            'width' => 200,
+            'type' => 'TEXT',
+            'header' => 'File'
+        ],
+        [
+            'name' => 'filesize',
+            'width' => 200,
+            'type' => 'INT',
+            'callback' => 'fileSizeToHumanReadable',
+            'header' => 'HeaderFileSize'
+        ]
+    ];
+    $strMainForm = 'attachment';
+    $strTitle = 'Attachments';
     break;
 
 case 'company_tag' :
@@ -682,27 +817,6 @@ case 'contact_tag' :
     ];
     break;
 
-case 'company_tag' :
-    $strTable = '{prefix}company_tag';
-    $astrSearchFields = [
-        [
-            'name' => 'tag',
-            'type' => 'TEXT'
-        ]
-    ];
-    $strPrimaryKey = 'id';
-    $astrShowFields = [
-        [
-            'name' => 'tag',
-            'width' => 450,
-            'type' => 'TEXT',
-            'header' => '',
-            'select' => true
-        ]
-    ];
-    $strMainForm = 'company';
-    break;
-
 /***********************************************************************
  SYSTEM
  ***********************************************************************/
@@ -740,7 +854,7 @@ case 'session_type' :
 
 case 'user' :
     $levelsAllowed = [
-        99
+        ROLE_ADMIN
     ];
     $strTable = '{prefix}users';
     $astrSearchFields = [

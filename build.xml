@@ -5,8 +5,8 @@
   <property name="php-cs-fixer-rules" value="no_spaces_after_function_name,no_trailing_whitespace,no_unused_imports,lowercase_keywords,encoding,no_spaces_inside_parenthesis,no_closing_tag,visibility_required,no_empty_statement,no_extra_consecutive_blank_lines,no_blank_lines_after_class_opening,no_blank_lines_after_phpdoc,binary_operator_spaces,no_singleline_whitespace_before_semicolons,ternary_operator_spaces,phpdoc_no_access,no_leading_import_slash" />
   <property name="php-cs-fixer-extra-params" value=""/>
 
-  <!-- Travis Tasks -->
-  <target name="travis" description="Travis tasks">
+  <!-- CI Checks -->
+  <target name="ci" description="CI checks">
     <!-- Call standard tasks -->
     <phingcall target="eslint"/>
     <phingcall target="phpcs-n"/>
@@ -15,10 +15,10 @@
 
   <!-- eslint -->
   <target name="eslint">
-    <exec command="eslint js/functions.js js/mlinvoice.js js/stock_balance.js" escape="false" checkreturn="true" passthru="true" />
+    <exec command="eslint js/mlinvoice.js js/mlinvoice-form.js" escape="false" checkreturn="true" passthru="true" />
   </target>
   <target name="eslint-fix">
-    <exec command="eslint js/functions.js js/mlinvoice.js js/stock_balance.js --fix" escape="false" checkreturn="true" passthru="true" />
+    <exec command="eslint js/mlinvoice.js js/mlinvoice-form.js --fix" escape="false" checkreturn="true" passthru="true" />
   </target>
 
   <!-- PHP CodeSniffer -->

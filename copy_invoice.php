@@ -179,6 +179,9 @@ if ($intInvoiceId) {
         foreach ($rows as $row) {
             if ($boolRefund) {
                 $row['pcs'] = -$row['pcs'];
+                if ($row['partial_payment']) {
+                    $row['price'] = -$row['price'];
+                }
             } else if ($row['reminder_row']) {
                 continue;
             }

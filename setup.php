@@ -68,15 +68,21 @@ class Setup
             $password = $_POST['password'];
             $prefix = $_POST['prefix'];
             $adminPassword = $_POST['adminpass'];
+            $adminPassword2 = $_POST['adminpass2'];
             $lang = $_POST['lang'];
             $defaultlang = $_POST['defaultlang'];
             $encryptionKey = $_POST['encryptionkey'];
 
             if (empty($lang)) {
                 $formMessage = 'At least one language must be selected';
-            } elseif (strlen($encryptionKey) < 32) {
+            }
+            if (strlen($encryptionKey) < 32) {
                 $formMessage = 'Encryption key must be at least 32 characters';
-            } else {
+            }
+            if ($adminPassword !== $adminPassword2) {
+                $formMessage = 'Password for the admin user does not match the verification';
+            }
+            if ('' === $formMessage) {
                 $initParams = compact(
                     'host', 'database', 'username', 'password', 'prefix', 'lang',
                     'defaultlang', 'encryptionKey'
@@ -103,11 +109,9 @@ class Setup
                                 $this->errorMsg = 'Could not write to config.php';
                             } else {
                                 if (!$tablesExist) {
-                                    if ($this->createDatabaseTables($adminPassword)) {
-                                        $setupComplete = true;
-                                    }
+                                    $setupComplete = $this->createDatabaseTables($adminPassword);
                                 } else {
-                                    $setupComplete = true;
+                                    $setupComplete = empty($adminPassword) || $this->updateAdminPassword($adminPassword);
                                 }
                             }
                         }
@@ -171,7 +175,7 @@ class Setup
             <?php
         } elseif ($this->errorMsg) {
             ?>
-            <div class="ui-widget" style="padding: 30px 30px 0 30px;">
+            <div class="ui-widget setup-form">
                 Please correct the following issues before trying to continue:
             </div>
             <div class="message ui-widget ui-state-error">
@@ -186,13 +190,13 @@ class Setup
                     <?php echo $formMessage?>
                 </div>
             <?php } ?>
-            <div class="ui-widget form" style="padding: 30px;">
+            <div class="ui-widget form setup-form">
                 <h1>Welcome</h1>
                 <p>
                     Some initial settings are needed before continuing.
                 </p>
                 <form method="POST" autocomplete="off">
-                    <div class="ui-widget ui-widget-content ui-corner-all" style="padding: 10px; margin-bottom: 10px;">
+                    <div class="ui-widget ui-widget-content ui-corner-all setup-group">
                         <p>
                             Please enter the following database connection settings.
                         </p>
@@ -217,22 +221,28 @@ class Setup
                             </label>
                         </p>
                         <p>
-                            <label>Database table name prefix:<br>
+                            <label>Database table name prefix (note that an underscore will be appended to the prefix automatically):<br>
                                 <input type="text" name="prefix" value="<?php echo htmlentities($prefix)?>">
                             </label>
                         </p>
                     </div>
-                    <div class="ui-widget ui-widget-content ui-corner-all" style="padding: 10px; margin-bottom: 10px;">
+                    <div class="ui-widget ui-widget-content ui-corner-all setup-group">
                         <p>
-                            Please enter also a password for the 'admin' user that you can use to log in after setup is complete.
+                            A user called 'admin' will be automatically created and can be used as the login user.
+                            Please enter a password for 'admin' that you can use to log in after setup is complete.
                         </p>
                         <p>
-                            <label>Password for the 'admin' user (new databases only):<br>
+                            <label>Password for the 'admin' user for logging in to MLInvoice (optional if the database already exists):<br>
                                 <input type="password" name="adminpass" value="<?php echo htmlentities($adminPassword)?>">
                             </label>
                         </p>
+                        <p>
+                            <label>Verify the password for the 'admin' user:<br>
+                                <input type="password" name="adminpass2" value="<?php echo htmlentities($adminPassword2)?>">
+                            </label>
+                        </p>
                     </div>
-                    <div class="ui-widget ui-widget-content ui-corner-all" style="padding: 10px; margin-bottom: 10px;">
+                    <div class="ui-widget ui-widget-content ui-corner-all setup-group">
                         <p>
                             Please enter an encryption key that is used to encrypt e.g. passwords for mail sending services.
                             The key must be something secret and at least 32 characters long.
@@ -243,7 +253,7 @@ class Setup
                             </label>
                         </p>
                     </div>
-                    <div class="ui-widget ui-widget-content ui-corner-all" style="padding: 10px">
+                    <div class="ui-widget ui-widget-content ui-corner-all setup-group">
                         <p>
                             Finally, please choose the user interface languages that can be selected on login.
                         </p>
@@ -453,12 +463,12 @@ class Setup
      */
     protected function checkDatabaseTables($db, $prefix)
     {
-        $res = mysqli_query($db, "SHOW TABLES LIKE '" . $prefix . "_%'");
+        $res = mysqli_query($db, "SHOW TABLES LIKE '" . $prefix . "_invoice'");
         if (false === $res) {
             $this->errorMsg = mysqli_error($db);
             return false;
         }
-        if (mysqli_fetch_row($res)) {
+        if ($row = mysqli_fetch_row($res)) {
             return true;
         }
         return false;
@@ -489,15 +499,31 @@ class Setup
         }
 
         if ('' !== $adminPassword) {
-            $res = mysqli_query(
-                $db,
-                'UPDATE '  . _DB_PREFIX_ . "_users SET passwd = '"
-                . password_hash($adminPassword, PASSWORD_DEFAULT) . "' WHERE "
-                . "login = 'admin'"
-            );
-            if (false === $res) {
-                die(mysqli_error($db));
-            }
+            $this->updateAdminPassword($adminPassword);
+        }
+
+        return true;
+    }
+
+    /**
+     * Update password for the admin user
+     *
+     * @param string $adminPassword New password
+     *
+     * @return bool
+     */
+    protected function updateAdminPassword($adminPassword = '')
+    {
+        include_once 'config.php';
+        $db = $this->initDatabaseConnection();
+        $res = mysqli_query(
+            $db,
+            'UPDATE '  . _DB_PREFIX_ . "_users SET passwd = '"
+            . password_hash($adminPassword, PASSWORD_DEFAULT) . "' WHERE "
+            . "login = 'admin'"
+        );
+        if (false === $res) {
+            die(mysqli_error($db));
         }
 
         return true;

@@ -167,14 +167,13 @@ class ImportFile
         }
         ?>
     <h1><?php echo Translator::translate('ImportFileSelection')?></h1>
-    <span id="imessage" style="display: none"></span> <span id="spinner"
-        style="visibility: hidden"><img src="images/spinner.gif" alt=""></span>
+    <span id="imessage" style="display: none"></span>
+    <span id="spinner" style="visibility: hidden"><img src="images/spinner.gif" alt=""></span>
     <form id="form_import" enctype="multipart/form-data" method="POST">
         <input type="hidden" name="func"
             value="<?php echo htmlentities(getRequest('func', ''))?>"> <input
             type="hidden" name="operation" value="import">
-        <div class="label"
-            style="clear: both; margin-top: 10px; margin-bottom: 4px">
+        <div class="label file">
             <input type="radio" id="ft_upload" name="filetype" value="upload"
                 checked="checked"><label for="ft_upload"><?php printf(Translator::translate('ImportUploadFile'), $maxFileSize)?></label>
         </div>
@@ -182,12 +181,12 @@ class ImportFile
             <input name="data" type="file">
         </div>
         <?php if ($this->allowServerFile) {?>
-        <div class="label" style="clear: both; margin-top: 10px">
+        <div class="label file">
             <input type="radio" id="ft_server" name="filetype"
                 value="server_file"><label for="ft_server"><?php echo Translator::translate('ImportUseServerFile')?></label>
         </div>
         <?php }?>
-      <div class="form_buttons" style="clear: both">
+      <div class="form_buttons">
             <input type="submit" value="<?php echo Translator::translate('ImportNext')?>">
         </div>
     </form>
@@ -1092,7 +1091,7 @@ function select_preset()
             </table>
         </div>
 
-        <div class="form_buttons" style="clear: both">
+        <div class="form_buttons">
             <button name="import" type="submit" value="preview"><?php echo Translator::translate('ImportButtonPreview')?></button>
             <button name="import" type="submit" value="import"><?php echo Translator::translate('ImportButtonImport')?></button>
         </div>

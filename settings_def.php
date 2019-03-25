@@ -4,7 +4,7 @@
  *
  * PHP version 5
  *
- * Copyright (C) Ere Maijala 2010-2018.
+ * Copyright (C) Ere Maijala 2010-2019.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2,
@@ -98,6 +98,22 @@ $arrSettings = [
     ],
     'password_recovery' => [
         'label' => 'SettingPasswordRecovery',
+        'type' => 'CHECK',
+        'style' => 'medium',
+        'position' => 1,
+        'default' => 1,
+        'allow_null' => true
+    ],
+    'printout_markdown' => [
+        'label' => 'SettingMarkdown',
+        'type' => 'CHECK',
+        'style' => 'medium',
+        'position' => 1,
+        'default' => 0,
+        'allow_null' => true
+    ],
+    'markdown_editor' => [
+        'label' => 'SettingMarkdownEditor',
         'type' => 'CHECK',
         'style' => 'medium',
         'position' => 1,
@@ -228,6 +244,14 @@ $arrSettings = [
         'default' => 1,
         'allow_null' => true
     ],
+    'invoice_create_rf_references' => [
+        'label' => 'SettingInvoiceCreateRFReferences',
+        'type' => 'CHECK',
+        'style' => 'medium',
+        'position' => 1,
+        'default' => 0,
+        'allow_null' => true
+    ],
 
     'printing_sep' => [
         'label' => 'SettingPrinting',
@@ -337,11 +361,16 @@ $arrSettings = [
     ],
     'invoice_separate_statement' => [
         'label' => 'SettingInvoiceSeparateStatement',
-        'type' => 'CHECK',
-        'style' => 'medium',
+        'type' => 'SELECT',
+        'style' => 'xlong noemptyvalue',
         'position' => 1,
         'default' => 0,
-        'allow_null' => true
+        'allow_null' => true,
+        'options' => [
+            0 => 'SettingInvoiceSeparateStatementIfNoSpace',
+            1 => 'SettingInvoiceSeparateStatementAlways',
+            2 => 'SettingInvoiceSeparateStatementNever'
+        ]
     ],
     'invoice_show_info_in_form' => [
         'label' => 'SettingInvoiceShowInfoInForm',
@@ -424,14 +453,6 @@ $arrSettings = [
         'default' => 85,
         'allow_null' => true
     ],
-    'printout_markdown' => [
-        'label' => 'SettingMarkdown',
-        'type' => 'CHECK',
-        'style' => 'medium',
-        'position' => 1,
-        'default' => 0,
-        'allow_null' => true
-    ],
     'pdf_link_base_url' => [
         'label' => 'SettingPDFLinkTemplate',
         'type' => 'TEXT',
@@ -462,6 +483,14 @@ $arrSettings = [
 
     'dispatch_note_show_barcodes' => [
         'label' => 'SettingDispatchNoteShowBarcodes',
+        'type' => 'CHECK',
+        'style' => 'medium',
+        'position' => 1,
+        'default' => 0,
+        'allow_null' => true
+    ],
+    'dispatch_note_show_delivery_info' => [
+        'label' => 'SettingDispatchNoteShowDeliveryInfo',
         'type' => 'CHECK',
         'style' => 'medium',
         'position' => 1,

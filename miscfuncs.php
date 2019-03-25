@@ -5,7 +5,7 @@
  * PHP version 5
  *
  * Copyright (C) 2004-2008 Samu Reinikainen
- * Copyright (C) 2010-2018 Ere Maijala
+ * Copyright (C) 2010-2019 Ere Maijala
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2,
@@ -266,6 +266,23 @@ function miscCalcCheckNo($intValue)
 }
 
 /**
+ * Create an RF reference from a Finnish reference number
+ *
+ * @param string $refNr Finnish reference number
+ *
+ * @return string
+ */
+function createRFReference($refNr)
+{
+    $remainder = ($refNr . '271500') % 97;
+    $check = 98 - $remainder;
+    if ($check < 10) {
+        $check = "0$check";
+    }
+    return "RF$check$refNr";
+}
+
+/**
  * Get a POST request value
  *
  * @param string $strKey     Parameter name
@@ -275,6 +292,9 @@ function miscCalcCheckNo($intValue)
  */
 function getPost($strKey, $varDefault = null)
 {
+    if ($strKey === '') {
+        return $_POST;
+    }
     return isset($_POST[$strKey]) ? gpcStripSlashes($_POST[$strKey]) : $varDefault;
 }
 
@@ -328,7 +348,7 @@ function getPostRequest($strKey, $varDefault = null)
  */
 function getPageTitle($strFunc, $strList, $strForm)
 {
-    switch ($strFunc) {
+    switch ($strFunc ? $strFunc : $strList) {
     case 'open_invoices':
         if ($strForm) {
             if (getRequest('offer')
@@ -355,7 +375,7 @@ function getPageTitle($strFunc, $strList, $strForm)
             return Translator::translate('ArchivedInvoices');
         }
         break;
-    case 'companies':
+    case 'company':
         if ($strForm) {
             return Translator::translate('Client');
         } else {
@@ -383,6 +403,8 @@ function getPageTitle($strFunc, $strList, $strForm)
                 return Translator::translate('Product');
             case 'default_value':
                 return Translator::translate('DefaultValue');
+            case 'attachment':
+                return Translator::translate('Attachment');
             default:
                 return Translator::translate('Settings');
             }
@@ -396,6 +418,8 @@ function getPageTitle($strFunc, $strList, $strForm)
                 return Translator::translate('Products');
             case 'default_value':
                 return Translator::translate('DefaultValues');
+            case 'attachment':
+                return Translator::translate('Attachments');
             default:
                 return Translator::translate('Settings');
             }
@@ -404,38 +428,42 @@ function getPageTitle($strFunc, $strList, $strForm)
     case 'system':
         if ($strForm) {
             switch ($strForm) {
-            case 'user' :
+            case 'user':
                 return Translator::translate('User');
-            case 'session_type' :
+            case 'session_type':
                 return Translator::translate('SessionType');
-            case 'row_type' :
+            case 'row_type':
                 return Translator::translate('RowType');
-            case 'print_template' :
+            case 'print_template':
                 return Translator::translate('PrintTemplate');
-            case 'invoice_state' :
+            case 'invoice_state':
                 return Translator::translate('InvoiceState');
-            case 'delivery_terms' :
+            case 'invoice_type':
+                return Translator::translate('InvoiceType');
+            case 'delivery_terms':
                 return Translator::translate('DeliveryTerms');
-            case 'delivery_method' :
+            case 'delivery_method':
                 return Translator::translate('DeliveryMethod');
             default :
                 return Translator::translate('System');
             }
         } else {
             switch ($strList) {
-            case 'user' :
+            case 'user':
                 return Translator::translate('Users');
-            case 'session_type' :
+            case 'session_type':
                 return Translator::translate('SessionTypes');
-            case 'row_type' :
+            case 'row_type':
                 return Translator::translate('RowTypes');
-            case 'print_template' :
+            case 'print_template':
                 return Translator::translate('PrintTemplates');
-            case 'invoice_state' :
+            case 'invoice_state':
                 return Translator::translate('InvoiceStates');
-            case 'delivery_terms' :
+            case 'invoice_type':
+                return Translator::translate('InvoiceTypes');
+            case 'delivery_terms':
                 return Translator::translate('DeliveryTerms');
-            case 'delivery_method' :
+            case 'delivery_method':
                 return Translator::translate('DeliveryMethods');
             default :
                 return Translator::translate('System');
@@ -446,6 +474,8 @@ function getPageTitle($strFunc, $strList, $strForm)
         return Translator::translate('ImportAccountStatement');
     case 'profile':
         return Translator::translate('Profile');
+    case 'multiedit':
+        return Translator::translate('EditMultiple');
     }
     return '';
 }
@@ -525,7 +555,7 @@ function fileSizeToHumanReadable($value)
         $value /= 1024;
         ++$idx;
     }
-    return round($value, 2) . ' ' . $suffixes[$idx];
+    return miscRound2Decim($value, 2) . ' ' . $suffixes[$idx];
 }
 
 /**
@@ -754,7 +784,13 @@ function getInvoiceDefaults($invoiceId, $baseId, $companyId, $invoiceDate,
     if ($invoiceNumber < 100) {
         $invoiceNumber = 100; // min ref number length is 3 + check digit, make sure invoice number matches that
     }
+
     $refNr = $invoiceNumber . miscCalcCheckNo($invoiceNumber);
+    if (getSetting('invoice_create_rf_references')) {
+        // RF Reference
+        $refNr = createRFReference($refNr);
+    }
+
     $strDate = date(Translator::translate('DateFormat'));
     $strDueDate = date(
         Translator::translate('DateFormat'),

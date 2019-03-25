@@ -121,7 +121,7 @@ function createSettingsList()
     </script>
 
     <?php createSettingsListButtons()?>
-    <div class="form">
+    <div class="form settings-list">
         <form method="post" name="admin_form" id="admin_form">
     <?php
     foreach ($arrSettings as $name => $elem) {
@@ -162,26 +162,26 @@ function createSettingsList()
         }
         if ($elemType == 'CHECK') {
             ?>
-        <div class="field" style="clear: both">
+        <div class="field">
             <?php
             echo htmlFormElement(
                 $name, $elemType, $value, $elem['style'], '', 'MODIFY', '', '', [],
                 isset($elem['elem_attributes']) ? $elem['elem_attributes'] : '', $options
             );
             ?>
-        <label for="<?php echo $name?>">
+          <label for="<?php echo $name?>">
             <?php echo Translator::translate($elem['label'])?>
-        </label>
+          </label>
         </div>
             <?php
         } else {
             ?>
-            <div class="label" style="clear: both">
+            <div class="label">
                 <label for="<?php echo $name?>">
                     <?php echo Translator::translate($elem['label'])?>
                 </label>
             </div>
-            <div class="field" style="clear: both">
+            <div class="field">
             <?php
             echo htmlFormElement(
                 $name, $elemType, $value, $elem['style'], '', 'MODIFY', '', '', [],
@@ -209,8 +209,8 @@ function createSettingsList()
 function createSettingsListButtons()
 {
     ?>
-<div class="form_buttons" style="clear: both">
-    <a class="actionlink save_button form-submit" href="#" data-set-field="saveact">
+<div class="form_buttons">
+    <a class="actionlink ui-button ui-corner-all ui-widget save_button form-submit" href="#" data-set-field="saveact">
         <?php echo Translator::translate('Save')?>
     </a>
 </div>

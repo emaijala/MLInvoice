@@ -63,7 +63,7 @@ echo htmlPageStart();
             <form method="post"
                 action="quick_search.php?func=<?php echo $strFunc?>" target="_self"
                 name="search_form">
-                <table style="width: 100%">
+                <table class="quick-search">
                     <tr>
                         <td class="sublabel" colspan="4">
     <?php echo Translator::translate('LabelQuickSearch')?><br> <br>
@@ -85,7 +85,7 @@ foreach ($rows as $row) {
                         </td>
                         <td>
                             <input type="hidden" name="delete_<?php echo $intID?>_x" value="0">
-                            <a class="tinyactionlink form-submit" href="#" data-set-field="delete_<?php echo $intID?>_x"> X </a>
+                            <a class="tinyactionlink ui-button ui-corner-all ui-widget form-submit" href="#" data-set-field="delete_<?php echo $intID?>_x"> X </a>
                         </td>
                     </tr>
     <?php
@@ -102,17 +102,15 @@ if (!isset($intID)) {
 ?>
 </table>
 
-                <center>
-                    <table>
-                        <tr>
-                            <td>
-                              <a class="actionlink popup-close" href="#">
-                                <?php echo Translator::translate('Close')?>
-                              </a>
-                            </td>
-                        </tr>
-                    </table>
-                </center>
+                <table>
+                    <tr>
+                        <td>
+                            <a class="actionlink ui-button ui-corner-all ui-widget popup-close" href="#">
+                            <?php echo Translator::translate('Close')?>
+                            </a>
+                        </td>
+                    </tr>
+                </table>
             </form>
         </div>
     </div>

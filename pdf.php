@@ -25,7 +25,7 @@
  * @license  http://opensource.org/licenses/gpl-2.0.php GNU General Public License
  * @link     http://labs.fi/mlinvoice.eng.php
  */
-use Michelf\Markdown;
+require_once 'markdown.php';
 
 /**
  * Extended TCPDF class
@@ -36,7 +36,7 @@ use Michelf\Markdown;
  * @license  http://opensource.org/licenses/gpl-2.0.php GNU General Public License
  * @link     http://labs.fi/mlinvoice.eng.php
  */
-class PDF extends TCPDF
+class PDF extends \setasign\Fpdi\Tcpdf\Fpdi
 {
     public $headerLeft = '', $headerCenter = '', $headerRight = '';
     public $footerLeft = '', $footerCenter = '', $footerRight = '';
@@ -61,6 +61,9 @@ class PDF extends TCPDF
     protected $savedPageBreakTrigger = null;
     protected $savedbMargin = null;
     protected $marginSubsequent = null;
+    protected $printHeader = true;
+    protected $printFooter = true;
+    protected $markdownParser = null;
 
     /**
      * This method is used to render the page header.
@@ -71,7 +74,9 @@ class PDF extends TCPDF
     // @codingStandardsIgnoreLine
     public function Header()
     {
-        if ($this->PageNo() == 1 && !$this->printHeaderOnFirstPage) {
+        if (!$this->printHeader
+            || ($this->PageNo() == 1 && !$this->printHeaderOnFirstPage)
+        ) {
             return;
         }
         $this->SetY($this->headerTopMargin);
@@ -102,7 +107,9 @@ class PDF extends TCPDF
     // @codingStandardsIgnoreLine
     public function Footer()
     {
-        if ($this->PageNo() == 1 && !$this->printFooterOnFirstPage) {
+        if (!$this->printFooter()
+            || ($this->PageNo() == 1 && !$this->printFooterOnFirstPage)
+        ) {
             return;
         }
         $this->SetY(-$this->footerBottomMargin);
@@ -169,7 +176,10 @@ class PDF extends TCPDF
                 $maxh
             );
         } else {
-            $html = Markdown::defaultTransform($txt);
+            if (null === $this->markdownParser) {
+                $this->markdownParser = new MLMarkdown();
+            }
+            $html = $this->markdownParser->transform($txt);
             $this->writeHTMLCell(
                 $w,
                 $h,
@@ -231,6 +241,36 @@ class PDF extends TCPDF
         $this->AutoPageBreak = $this->savedAutoBreakState;
         $this->PageBreakTrigger = $this->savedPageBreakTrigger;
         $this->bMargin = $this->savedbMargin;
+    }
+
+    /**
+     * Get/set if printing of header is enabled
+     *
+     * @param bool $newValue If defined, sets the value
+     *
+     * @return bool Current setting
+     */
+    public function printHeader($newValue = null)
+    {
+        if (null !== $newValue) {
+            $this->printHeader = $newValue;
+        }
+        return $this->printHeader;
+    }
+
+    /**
+     * Get/set if printing of footer is enabled
+     *
+     * @param bool $newValue If defined, sets the value
+     *
+     * @return bool Current setting
+     */
+    public function printFooter($newValue = null)
+    {
+        if (null !== $newValue) {
+            $this->printFooter = $newValue;
+        }
+        return $this->printFooter;
     }
 
     /**

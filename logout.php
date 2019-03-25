@@ -58,7 +58,7 @@ echo htmlPageStart();
             </ul>
         </div>
 
-        <div class="ui-widget" style="padding: 30px;">
+        <div class="ui-widget logout-form">
 
             <h1><?php echo Translator::translate('ThankYou')?></h1>
             <p>

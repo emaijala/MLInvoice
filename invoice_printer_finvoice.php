@@ -50,13 +50,13 @@ class InvoicePrinterFinvoice extends InvoicePrinterXSLT
         $this->xsltParams['printTransmissionDetails'] = false;
         parent::transform('create_finvoice.xsl', 'Finvoice.xsd');
         $headers = [
-            'Content-Type: text/xml; charset=ISO-8859-15'
+            'Content-Type' => 'text/xml; charset=ISO-8859-15'
         ];
         $filename = $this->getPrintoutFileName();
         if ($this->printStyle) {
-            $headers[] = "Content-Disposition: inline; filename=$filename";
+            $headers['Content-Disposition'] = "inline; filename=$filename";
         } else {
-            $headers[] = "Content-Disposition: attachment; filename=$filename";
+            $headers['Content-Disposition'] = "attachment; filename=$filename";
         }
         return [
             'headers' => $headers,
@@ -114,15 +114,17 @@ class InvoicePrinterFinvoice extends InvoicePrinterXSLT
                     $current = [];
                 }
                 $pos = 0;
-                while ($part = mb_substr($word, $pos, 100)) {
+                while ($part = mb_substr($word, $pos, 100, 'UTF-8')) {
                     $result[] = $part;
                     $pos += 100;
                 }
                 continue;
             }
-            $chunkLen = mb_strlen(implode(' ', $current), 'UTF-8');
-            if ($chunkLen + $wordLen > 100) {
-                $result[] = implode(' ', $current);
+            $chunk = implode(' ', $current);
+            $chunkLen = mb_strlen($chunk, 'UTF-8');
+            // Split if current chunk + space + word is over 100 characters
+            if ($chunkLen + $wordLen + 1 > 100) {
+                $result[] = $chunk;
                 $current = [];
             }
             $current[] = $word;

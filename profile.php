@@ -43,7 +43,7 @@ require_once 'version.php';
 class Profile
 {
     /**
-     * Start the updater
+     * View the profile form
      *
      * @return void
      */

@@ -1,0 +1,20 @@
+{
+    "name": "mlinvoice",
+    "description": "Development tools",
+    "license": "GPL-2.0",
+    "repository": {
+      "type": "git",
+      "url": "http://github.com/emaijala/MLInvoice"
+    },
+    "bugs": {
+      "url": "http://github.com/emaijala/MLInvoice/issues"
+    },
+    "dependencies": {
+      "grunt": "^1.0.3",
+      "grunt-contrib-sass": "^1.0.0",
+      "grunt-contrib-uglify": "^4.0.0"
+    },
+    "devDependencies": {
+      "grunt-contrib-watch": "^1.1.0"
+    }
+}

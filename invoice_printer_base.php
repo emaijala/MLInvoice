@@ -62,15 +62,29 @@ abstract class InvoicePrinterBase
     protected $discountedRows = false;
     protected $groupedVATs = [];
     protected $recipientMaxY = 0;
-    protected $invoiceRowMaxY = 185;
+    protected $invoiceRowMaxY = 270;
+    protected $invoiceRowMaxYFirstPage = 185;
     protected $senderAddressX = 0;
     protected $senderAddressY = 0;
     protected $recipientAddressX = 0;
     protected $recipientAddressY = 0;
     protected $partialPayments = 0;
     protected $dateOverride = false;
-    protected $allowSeparateStatement = true;
     protected $roundRowPrices = false;
+
+    /**
+     * Whether a separate invoice statement is allowed
+     *
+     * @var bool
+     */
+    protected $allowSeparateStatement = true;
+
+    /**
+     * Invoice type data
+     *
+     * @var array
+     */
+    protected $invoiceTypeData = null;
 
     /**
      * Left of the main content
@@ -172,6 +186,14 @@ abstract class InvoicePrinterBase
             'width' => 20,
             'autofit' => true
         ],
+        'pieces' => [
+            'heading' => 'RowPieces',
+            'valuemethod' => 'getRowPieces',
+            'visible' => true,
+            'align' => 'R',
+            'width' => 20,
+            'autofit' => true
+        ],
         'price' => [
             'heading' => 'RowPrice',
             'valuemethod' => 'getRowPrice',
@@ -183,14 +205,6 @@ abstract class InvoicePrinterBase
         'discount' => [
             'heading' => 'RowDiscount',
             'valuemethod' => 'getRowDiscount',
-            'visible' => true,
-            'align' => 'R',
-            'width' => 20,
-            'autofit' => true
-        ],
-        'pieces' => [
-            'heading' => 'RowPieces',
-            'valuemethod' => 'getRowPieces',
             'visible' => true,
             'align' => 'R',
             'width' => 20,
@@ -265,6 +279,13 @@ abstract class InvoicePrinterBase
      * @var bool
      */
     protected $includeBankInFooter = false;
+
+    /**
+     * Attachments
+     *
+     * @var array
+     */
+    protected $attachments = [];
 
     /**
      * Constructor
@@ -368,10 +389,16 @@ abstract class InvoicePrinterBase
                 ir.description DESC
 EOT;
             $invoiceRowData = dbParamQuery($strQuery, $queryParams);
+
+            $invoiceTypeData = getInvoiceType($invoiceData['type_id']);
+
+            $this->attachments = getInvoiceAttachments($invoiceId, true);
         } else {
             $invoiceData = [];
             $invoiceRowData = [];
             $senderData = [];
+            $invoiceTypeData = [];
+            $this->attachments = [];
         }
 
         if (empty($recipientData)) {
@@ -409,6 +436,7 @@ EOT;
         $this->invoiceData = $invoiceData;
         $this->invoiceRowData = $invoiceRowData;
         $this->recipientContactData = $recipientContactData;
+        $this->invoiceTypeData = $invoiceTypeData;
 
         Translator::setActiveLanguage('non-default', $this->printLanguage);
 
@@ -465,7 +493,9 @@ EOT;
         ksort($this->groupedVATs);
 
         $this->separateStatement = ($this->printStyle == 'invoice') &&
-             getSetting('invoice_separate_statement');
+             getSetting('invoice_separate_statement') == 1;
+        $this->allowSeparateStatement = ($this->printStyle == 'invoice') &&
+             getSetting('invoice_separate_statement') == 0;
 
         $this->refNumber = isset($invoiceData['ref_number'])
             ? formatRefNumber($invoiceData['ref_number']) : '';
@@ -559,7 +589,7 @@ EOT;
         }
 
         if ('invoice' !== $this->printStyle) {
-            $this->invoiceRowMaxY = 270;
+            $this->invoiceRowMaxYFirstPage = $this->invoiceRowMaxY;
         }
     }
 
@@ -617,8 +647,8 @@ EOT;
         }
 
         $result = $this->createPrintout();
-        foreach ($result['headers'] as $header) {
-            header($header);
+        foreach ($result['headers'] as $header => $value) {
+            header("$header: $value");
         }
         echo $result['data'];
     }
@@ -677,7 +707,7 @@ EOT;
             && !$this->separateStatement
             && $this->allowSeparateStatement
         ) {
-            if ($this->pdf->getY() > $this->invoiceRowMaxY
+            if ($this->pdf->getY() > $this->invoiceRowMaxYFirstPage
                 || $this->pdf->getPage() > 1
             ) {
                 $this->pdf = $savePdf;
@@ -692,18 +722,31 @@ EOT;
             $this->printSummary();
         }
 
-        $filename = basename($this->getPrintOutFileName());
         return [
-            'headers' => [
-                'Content-Type: application/pdf',
-                'Cache-Control: private, must-revalidate, post-check=0, pre-check=0, max-age=1',
-                'Pragma: public',
-                'Expires: Mon, 26 Jul 1997 05:00:00 GMT',
-                'Last-Modified: ' . gmdate('D, d M Y H:i:s') . ' GMT',
-                'Content-Disposition: inline; filename="' . $filename . '"'
-            ],
-            'data' => $this->pdf->Output('', 'S')
+            'headers' => $this->getHttpHeaders(),
+            'data' => $this->getPdfData()
         ];
+    }
+
+    /**
+     * Get a title for the current print style
+     *
+     * @return string
+     */
+    public function getHeaderTitle()
+    {
+        if ($this->printStyle == 'dispatch') {
+            return $this->translate('DispatchNoteHeader');
+        } elseif ($this->printStyle == 'receipt') {
+            return $this->translate('ReceiptHeader');
+        } elseif ($this->invoiceData['state_id'] == 5) {
+            return $this->translate('FirstReminderHeader');
+        } elseif ($this->invoiceData['state_id'] == 6) {
+            return $this->translate('SecondReminderHeader');
+        } elseif ($this->invoiceData['refunded_invoice_no'] || $this->totalSum < 0) {
+            return $this->translate('CreditInvoiceHeader');
+        }
+        return $this->translate('InvoiceHeader');
     }
 
     /**
@@ -803,9 +846,21 @@ EOT;
         if (!empty($recipientData['email'])
             && getSetting('invoice_show_recipient_email')
         ) {
-            $pdf->SetY($pdf->GetY() + 4);
-            $pdf->setX($this->recipientAddressX);
-            $pdf->multiCellMD($width, 5, $recipientData['email'], 'L');
+            $link = '<a style="color: black; text-decoration: none" href="mailto:'
+                . htmlentities($recipientData['email'])
+                . '">' . htmlentities($recipientData['email']) . '</a>';
+            $pdf->WriteHTMLCell(
+                $width,
+                5,
+                $this->recipientAddressX,
+                $pdf->GetY() + 4,
+                $link,
+                0,
+                1,
+                false,
+                true,
+                'L'
+            );
         }
 
         $this->recipientMaxY = $pdf->GetY();
@@ -896,8 +951,10 @@ EOT;
         if ($invoiceData['reference']) {
             $data['YourReference'] = $invoiceData['reference'];
         }
-        if ($this->printStyle == 'invoice'
-            && getSetting('invoice_show_delivery_info_in_invoice')
+        if (($this->printStyle == 'invoice'
+            && getSetting('invoice_show_delivery_info_in_invoice'))
+            || ($this->printStyle == 'dispatch'
+            && getSetting('dispatch_note_show_delivery_info'))
         ) {
             if ($invoiceData['delivery_terms']) {
                 $data['DeliveryTerms'] = [
@@ -911,7 +968,14 @@ EOT;
                     'type' => 'multicell'
                 ];
             }
+            if (!empty($invoiceData['delivery_address'])) {
+                $data['DeliveryAddress'] = [
+                    'value' => $invoiceData['delivery_address'],
+                    'type' => 'multicellnonmd'
+                ];
+            }
         }
+
         if (!empty($invoiceData['info'])) {
             $data['AdditionalInformation'] = [
                 'value' => $this->replacePlaceholders($invoiceData['info']),
@@ -960,7 +1024,9 @@ EOT;
         foreach ($data as $key => $current) {
             $value = is_array($current) ? $current['value'] : $current;
             $type = !empty($current['type']) ? $current['type'] : 'normal';
-            if ('normal' === $type || 'multicell' === $type) {
+            if ('normal' === $type || 'multicell' === $type
+                || 'multicellnonmd' === $type
+            ) {
                 $pdf->SetX($this->infoLeft);
                 $pdf->Cell(
                     $this->infoHeadingsWidth,
@@ -978,6 +1044,8 @@ EOT;
                 $pdf->Cell($this->infoTextWidth, 4, $value, 0, 1);
             } elseif ('multicell' === $type) {
                 $pdf->multiCellMD($this->infoTextWidth, 4, $value, 'L', 1, 0, true);
+            } elseif ('multicellnonmd' === $type) {
+                $pdf->multiCell($this->infoTextWidth, 4, $value, 0, 'L');
             } elseif ('textonly' === $type) {
                 $pdf->SetXY($this->infoLeft, $pdf->getY() + 2);
                 $pdf->multiCellMD(
@@ -1135,7 +1203,7 @@ EOT;
             $maxY = $this->printRow($pdf, $row);
             if (!$this->separateStatement && $this->printStyle == 'invoice'
                 && $this->allowSeparateStatement
-                && $pdf->GetY() > $this->invoiceRowMaxY
+                && $pdf->GetY() > $this->invoiceRowMaxYFirstPage
             ) {
                 return false;
             }
@@ -1168,6 +1236,7 @@ EOT;
         // VAT Breakdown
         if ($this->senderData['vat_registered']
             && getSetting('invoice_show_vat_breakdown')
+            && $this->groupedVATs
         ) {
             $pdf->SetFont('Helvetica', '', 9);
             $pdf->SetXY($this->left, $startY + 5);
@@ -1436,13 +1505,24 @@ EOT;
         if ($row['price'] == 0 && $row['pcs'] == 0
             && $this->columnDefs['description']['visible']
         ) {
+            // Move from left to where the description column begins
+            $x = $this->left;
+            foreach ($this->columnDefs as $key => $column) {
+                if ('description' === $key) {
+                    break;
+                }
+                if ($column['visible']) {
+                    $x += $column['width'];
+                }
+            }
+
             $value = call_user_func(
                 [$this, $this->columnDefs['description']['valuemethod']], $row
             );
             $maxHeight = isset($this->columnDefs['description']['maxheight'])
                 ? $this->columnDefs['description']['maxheight'] : 0;
 
-            $pdf->setX($this->left);
+            $pdf->setX($x);
             $pdf->multiCellMD(
                 $this->width,
                 4,
@@ -1600,8 +1680,9 @@ EOT;
      */
     protected function getRowSequenceNumber($row)
     {
-        return getSetting('invoice_show_sequential_number') == 1
+        $sequence = getSetting('invoice_show_sequential_number') == 1
             ? $row['sequence'] : $row['order_no'];
+        return $sequence >= 0 ? $sequence : '';
     }
 
     /**
@@ -2385,29 +2466,18 @@ EOT;
         );
         // Handle additional placeholders
         $filename = $this->replacePlaceholders($filename);
+        if (function_exists('iconv')) {
+            $filename = iconv(_CHARSET_, 'ASCII//TRANSLIT//IGNORE', $filename);
+            $filename = str_replace(["'", '"', ' '], ['', '', '_'], $filename);
+        } else {
+            $filename = str_replace(
+                ['å', 'ä', 'ö', 'Å', 'Ä', 'Ö', 'ü', 'Ü', ' '],
+                ['a', 'a', 'o', 'A', 'A', 'O', 'u', 'U', '_'],
+                $filename
+            );
+        }
         $filename = filter_var($filename, FILTER_SANITIZE_URL);
         return $filename;
-    }
-
-    /**
-     * Get a title for the current print style
-     *
-     * @return string
-     */
-    public function getHeaderTitle()
-    {
-        if ($this->printStyle == 'dispatch') {
-            return $this->translate('DispatchNoteHeader');
-        } elseif ($this->printStyle == 'receipt') {
-            return $this->translate('ReceiptHeader');
-        } elseif ($this->invoiceData['state_id'] == 5) {
-            return $this->translate('FirstReminderHeader');
-        } elseif ($this->invoiceData['state_id'] == 6) {
-            return $this->translate('SecondReminderHeader');
-        } elseif ($this->invoiceData['refunded_invoice_no'] || $this->totalSum < 0) {
-            return $this->translate('CreditInvoiceHeader');
-        }
-        return $this->translate('InvoiceHeader');
     }
 
     /**
@@ -2648,5 +2718,80 @@ EOT;
     {
         $data = $this->getRecipientNameAndAddress();
         return $data['address'];
+    }
+
+    /**
+     * Get the PDF data as a string
+     *
+     * @return string
+     */
+    protected function getPdfData()
+    {
+        $pdf = $this->pdf;
+        foreach ($this->attachments as $attachment) {
+            $attachment = getInvoiceAttachment($attachment['id']);
+            if ('application/pdf' !== $attachment['mimetype']) {
+                // Import image
+                $pdf->AddPage();
+                $pdf->printHeader(false);
+                $pdf->printFooter(false);
+                $pdf->Image(
+                    '@' . $attachment['filedata'],
+                    $this->left,
+                    $this->autoPageBreakMargin,
+                    $this->width,
+                    0,
+                    '',
+                    '',
+                    'B',
+                    false,
+                    300,
+                    'C'
+                );
+                $pdf->SetXY($this->left, $pdf->GetY() + 5);
+                $pdf->SetFont('Helvetica', '', 10);
+                $pdf->multiCellMD(
+                    $this->width,
+                    5,
+                    $attachment['name'] ? $attachment['name']
+                        : $attachment['filename'],
+                    'L'
+                );
+                continue;
+            }
+            // Import PDF
+            $pageCount = $pdf->setSourceFile(
+                \setasign\Fpdi\PdfParser\StreamReader
+                    ::createByString($attachment['filedata'])
+            );
+            for ($i = 1; $i <= $pageCount; $i++) {
+                $tplx = $pdf->importPage($i);
+                $size = $pdf->getTemplateSize($tplx);
+                $pdf->AddPage('P', [$size['width'], $size['height']]);
+                $pdf->printHeader(false);
+                $pdf->printFooter(false);
+                $pdf->useTemplate($tplx);
+            }
+        }
+
+        return $pdf->Output('', 'S');
+    }
+
+    /**
+     * Get HTTP headers for printout
+     *
+     * @return array
+     */
+    protected function getHttpHeaders()
+    {
+        $filename = basename($this->getPrintOutFileName());
+        return [
+            'Content-Type' => 'application/pdf',
+            'Cache-Control' => 'private, must-revalidate, post-check=0, pre-check=0, max-age=1',
+            'Pragma' => 'public',
+            'Expires' => 'Mon, 26 Jul 1997 05:00:00 GMT',
+            'Last-Modified' => gmdate('D, d M Y H:i:s') . ' GMT',
+            'Content-Disposition' => 'inline; filename="' . $filename . '"'
+        ];
     }
 }

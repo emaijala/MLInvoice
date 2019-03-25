@@ -129,8 +129,11 @@ trait InvoicePrinterEmailTrait
             return;
         }
 
+        // Don't merge attachments to the invoice PDF
+        $attachments = $this->attachments;
+        $this->attachments = [];
         $result = $this->createPrintout();
-        $this->sendEmail($result);
+        $this->sendEmail($result, $attachments);
     }
 
     /**
@@ -216,22 +219,25 @@ trait InvoicePrinterEmailTrait
                 <div class="medium_label"><?php echo Translator::translate('EmailAttachments')?></div>
                 <div class="field">
                     <?php
+                    $filenames = [];
                     if (!isset($this->printParams['attachment'])
                         || $this->printParams['attachment']
                     ) {
                         $filename = $this->outputFileName ? $this->outputFileName
                             : getSetting('invoice_pdf_filename');
-                        echo $this->getPrintOutFileName($filename);
-                    } else {
-                        echo '-';
+                        $filenames[] = htmlentities($this->getPrintOutFileName($filename));
                     }
+                    foreach ($this->attachments as $attachment) {
+                        $filenames[] = htmlentities($attachment['filename']);
+                    }
+                    echo $filenames ? implode('<br>', $filenames) : '-';
                     ?>
                 </div>
-                <div class="form_buttons" style="clear: both">
-                    <a class="actionlink" onclick="$('#email_send').val(1); $('#email_form').submit(); return false;" href="#">
+                <div class="form_buttons">
+                    <a class="actionlink ui-button ui-corner-all ui-widget" onclick="$('#email_send').val(1); $('#email_form').submit(); return false;" href="#">
                         <?php echo Translator::translate('Send')?>
                     </a>
-                    <a class="actionlink" onclick="if (window.opener) { window.close(); } else { history.back(); } return false;" href="#">
+                    <a class="actionlink ui-button ui-corner-all ui-widget" onclick="if (window.opener) { window.close(); } else { history.back(); } return false;" href="#">
                         <?php echo Translator::translate('Cancel')?>
                     </a>
                     <span id="spinner" style="display: none"><img src="images/spinner.gif" alt=""></span>
@@ -254,26 +260,35 @@ $(document).ready(function() {
     /**
      * Send email
      *
-     * @param array $printout Printout data
+     * @param array $printout    Printout data
+     * @param array $attachments Attachments
      *
      * @return void
      */
-    protected function sendEmail($printout)
+    protected function sendEmail($printout, $attachments)
     {
         mb_internal_encoding('UTF-8');
 
-        $attachments = [];
+        $emailAttachments = [];
         if (!isset($this->printParams['attachment'])
             || $this->printParams['attachment']
         ) {
             $filename = $this->outputFileName ? $this->outputFileName
                 : getSetting('invoice_pdf_filename');
             $filename = $this->getPrintOutFileName($filename);
-            $attachments[] = [
+            $emailAttachments[] = [
                 'filename' => $filename,
                 'data' => $printout['data'],
                 'mimetype' => 'application/pdf'
             ];
+            foreach ($attachments as $attachment) {
+                $attachment = getInvoiceAttachment($attachment['id']);
+                $emailAttachments[] = [
+                    'filename' => $attachment['filename'],
+                    'data' => $attachment['filedata'],
+                    'mimetype' => $attachment['mimetype']
+                ];
+            }
         }
 
         $mailer = new Mailer();
@@ -284,7 +299,7 @@ $(document).ready(function() {
             $this->emailBCC,
             $this->emailSubject,
             $this->emailBody,
-            $attachments
+            $emailAttachments
         );
 
         if ($result) {

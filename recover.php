@@ -80,53 +80,63 @@ if ($token) {
 
 $userId = getPost('userid', false);
 if ($userId) {
-    $user = getUserByLoginId($userId);
-    if (!$user) {
-        $errorMessage = Translator::translate('AccountNotFound');
+    if (CSRF_OK !== sesCheckCsrf(getPost('csrf'))) {
+        $message = Translator::translate('LoginTimeout');
     } else {
-        if (!empty($user['email'])) {
-            $newToken = updateUserToken($user['id']);
-            $scheme = $_SERVER['REQUEST_SCHEME'];
-            $url = "$scheme://" . $_SERVER['SERVER_NAME'];
-            $port = $_SERVER['SERVER_PORT'];
-            if (('http' === $scheme && 80 != $port)
-                || ('https' === $scheme && 443 != $port)
-            ) {
-                $url .= ":$port";
-            }
-            $url .= $_SERVER['REQUEST_URI'];
-            $url .= (strpos($url, '?') === false ? '?' : '&');
-            $url .= 'token=' . $newToken;
+        $user = getUserByLoginId($userId);
+        if (!$user) {
+            $message = Translator::translate('RecoveryInstructionsSent');
+            $completed = true;
+        } else {
+            if (!empty($user['email'])) {
+                $newToken = updateUserToken($user['id']);
+                $scheme = $_SERVER['REQUEST_SCHEME'];
+                $url = "$scheme://" . $_SERVER['SERVER_NAME'];
+                $port = $_SERVER['SERVER_PORT'];
+                if (('http' === $scheme && 80 != $port)
+                    || ('https' === $scheme && 443 != $port)
+                ) {
+                    $url .= ":$port";
+                }
+                $url .= $_SERVER['REQUEST_URI'];
+                $url .= (strpos($url, '?') === false ? '?' : '&');
+                $url .= 'token=' . $newToken;
 
-            $mailer = new Mailer();
-            $result = $mailer->sendEmail(
-                $user['email'],
-                $user['email'],
-                [],
-                [],
-                Translator::translate('RecoverAccountEmailSubject'),
-                Translator::translate(
-                    'RecoverAccountEmailBody',
-                    ['%%url%%' => $url]
-                ),
-                []
-            );
-            if (!$result) {
-                $errorMessage = $mailer->getErrorMessage();
+                $mailer = new Mailer();
+                $result = $mailer->sendEmail(
+                    $user['email'],
+                    $user['email'],
+                    [],
+                    [],
+                    Translator::translate('RecoverAccountEmailSubject'),
+                    Translator::translate(
+                        'RecoverAccountEmailBody',
+                        ['%%url%%' => $url]
+                    ),
+                    []
+                );
+                if (!$result) {
+                    $errorMessage = $mailer->getErrorMessage();
+                } else {
+                    $message = Translator::translate('RecoveryInstructionsSent');
+                    $completed = true;
+                }
             } else {
                 $message = Translator::translate('RecoveryInstructionsSent');
+                $completed = true;
             }
-        } else {
-            $errorMessage = Translator::translate('AccountNotFound');
         }
     }
 }
+
+sleep(2);
+$csrf = sesCreateCsrf();
 
 echo htmlPageStart('');
 ?>
 
 <body>
-    <div class="pagewrapper ui-widget ui-widget-content login">
+    <div class="pagewrapper ui-widget ui-widget-content">
         <div id="maintabs" class="navi ui-widget-header ui-tabs">
             <ul class="ui-tabs-nav ui-helper-clearfix ui-corner-all">
                 <li class="functionlink ui-state-default ui-corner-top ui-tabs-selected ui-state-active">
@@ -134,6 +144,7 @@ echo htmlPageStart('');
                 </li>
             </ul>
         </div>
+        <div class="content recover-form">
 
 <?php
 if (isset($message)) {
@@ -153,21 +164,22 @@ if (isset($message)) {
 }
 if (empty($completed)) {
     ?>
-        <div class="ui-widget form" style="padding: 30px;">
+        <div class="ui-widget form login">
             <h1><?php echo Translator::translate('RecoverAccount')?></h1>
             <form method="post" name="recover_form">
+                <input type="hidden" name="csrf" value="<?php echo htmlentities($csrf)?>">
     <?php
     if ($token && !empty($user)) {
         ?>
                 <input type="hidden" name="token" value="<?php echo htmlentities($token)?>">
                 <p>
-                    <span style="width: 140px; display: inline-block;">
+                    <span class="label">
                         <?php echo Translator::translate('UserID')?>
                     </span>
                     <?php echo htmlentities($user['login'])?>
                 </p>
                 <p>
-                    <span style="width: 140px; display: inline-block;">
+                    <span class="label">
                         <?php echo Translator::translate('NewPassword')?>
                     </span>
                     <input class="medium" name="password" id="password" type="password" value="">
@@ -176,7 +188,7 @@ if (empty($completed)) {
     } else {
         ?>
                 <p>
-                    <span style="width: 140px; display: inline-block;">
+                    <span class="label">
                         <?php echo Translator::translate('UserIdOrEmail')?>
                     </span>
                     <input class="medium" name="userid" id="userid" type="text" value="">
@@ -194,11 +206,12 @@ if (empty($completed)) {
     <?php
 }
 ?>
-        <div class="ui-widget" style="padding-left: 30px; padding-right: 30px">
+        <div class="ui-widget">
             <p>
                 <a href="login.php"><?php echo Translator::translate('BackToLogin')?></a>
             </p>
         </div>
     </div>
+</div>
 </body>
 </html>

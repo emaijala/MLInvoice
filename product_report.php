@@ -62,12 +62,14 @@ class ProductReport extends AbstractReport
         $intCompanyId = getRequest('company', false);
         $intProductId = getRequest('product', false);
         $dateRange = getRequest('date', '');
+        $companyTags = getRequest('tags', '');
         ?>
 
 <script type="text/javascript">
   $(document).ready(function() {
     $('input[class~="hasDateRangePicker"]')
         .daterangepicker(<?php echo Translator::translate('DateRangePickerOptions')?>);
+    MLInvoice.Form.setupSelect2();
   });
   </script>
 
@@ -114,6 +116,11 @@ class ProductReport extends AbstractReport
             ?>
         </div>
 
+        <div class="medium_label"><?php echo Translator::translate('Tags')?></div>
+        <div class="field">
+            <?php echo htmlFormElement('tags', 'TAGS', $companyTags, 'noemptyvalue long', 'table=company_tag&sort=tag', 'MODIFY', false)?>
+        </div>
+
         <div class="medium_label"><?php echo Translator::translate('Product')?></div>
         <div class="field">
             <?php
@@ -153,10 +160,10 @@ class ProductReport extends AbstractReport
         ?>
 
         <div class="unlimited_label">
-            <a class="actionlink form-submit" href="#" data-form-target="">
+            <a class="actionlink ui-button ui-corner-all ui-widget form-submit" href="#" data-form-target="">
                 <?php echo Translator::translate('CreateReport')?>
             </a>
-            <a class="actionlink form-submit" href="#" data-form-target="_blank">
+            <a class="actionlink ui-button ui-corner-all ui-widget form-submit" href="#" data-form-target="_blank">
                 <?php echo Translator::translate('CreateReportInNewWindow')?>
             </a>
         </div>
@@ -191,24 +198,12 @@ class ProductReport extends AbstractReport
 
         $arrParams = [];
 
-        $strQuery = 'SELECT i.id ' . 'FROM {prefix}invoice i ' . 'WHERE i.deleted=0';
+        $strQuery = 'SELECT i.id ' . 'FROM {prefix}invoice i '
+            . ' LEFT OUTER JOIN {prefix}company c ON c.id = i.company_id'
+            . ' WHERE i.deleted=0';
 
-        if ($startDate) {
-            $strQuery .= ' AND i.invoice_date >= ?';
-            $arrParams[] = $startDate;
-        }
-        if ($endDate) {
-            $strQuery .= ' AND i.invoice_date <= ?';
-            $arrParams[] = $endDate;
-        }
-        if ($intBaseId) {
-            $strQuery .= ' AND i.base_id = ?';
-            $arrParams[] = $intBaseId;
-        }
-        if ($intCompanyId) {
-            $strQuery .= ' AND i.company_id = ?';
-            $arrParams[] = $intCompanyId;
-        }
+        list($limitQuery, $arrParams) = $this->createLimitQuery();
+        $strQuery .= " $limitQuery";
 
         $strQuery2 = '';
         $strQuery3 = 'SELECT id, name ' .
@@ -364,22 +359,22 @@ class ProductReport extends AbstractReport
             <th class="label">
             <?php echo Translator::translate('Product')?>
             </th>
-            <th class="label" style="text-align: right">
+            <th class="label sum">
             <?php echo Translator::translate('PCS')?>
             </th>
-            <th class="label" style="text-align: right">
+            <th class="label sum">
             <?php echo Translator::translate('Unit')?>
             </th>
-            <th class="label" style="text-align: right">
+            <th class="label sum">
             <?php echo Translator::translate('VATLess')?>
             </th>
-            <th class="label" style="text-align: right">
+            <th class="label sum">
             <?php echo str_replace(' ', '&nbsp;', Translator::translate('VATPercent'))?>
             </th>
-            <th class="label" style="text-align: right">
+            <th class="label sum">
             <?php echo Translator::translate('VATPart')?>
             </th>
-            <th class="label" style="text-align: right">
+            <th class="label sum">
             <?php echo Translator::translate('WithVAT')?>
             </th>
         </tr>
@@ -467,22 +462,22 @@ class ProductReport extends AbstractReport
                 <?php echo $strProduct?>
             <?php } ?>
         </td>
-            <td class="input" style="text-align: right">
+            <td class="input sum">
             <?php echo miscRound2Decim($intCount)?>
         </td>
-            <td class="input" style="text-align: left">
+            <td class="input sum">
             <?php echo htmlspecialchars($strUnit)?>
         </td>
-            <td class="input" style="text-align: right">
+            <td class="input sum">
             <?php echo miscRound2Decim($intSum)?>
         </td>
-            <td class="input" style="text-align: right">
+            <td class="input sum">
             <?php echo miscRound2Decim($intVATPercent, 1)?>
         </td>
-            <td class="input" style="text-align: right">
+            <td class="input sum">
             <?php echo miscRound2Decim($intVAT)?>
         </td>
-            <td class="input" style="text-align: right">
+            <td class="input sum">
             <?php echo miscRound2Decim($intSumVAT)?>
         </td>
         </tr>
@@ -524,17 +519,17 @@ class ProductReport extends AbstractReport
             <td class="input total_sum">
             <?php echo Translator::translate('Total')?>
         </td>
-            <td class="input total_sum" style="text-align: right">&nbsp;</td>
-            <td class="input total_sum" style="text-align: right">&nbsp;</td>
-            <td class="input total_sum" style="text-align: right">&nbsp;</td>
-            <td class="input total_sum" style="text-align: right">
+            <td class="input sum total_sum">&nbsp;</td>
+            <td class="input sum total_sum">&nbsp;</td>
+            <td class="input sum total_sum">&nbsp;</td>
+            <td class="input sum total_sum">
             <?php echo miscRound2Decim($intTotSum)?>
         </td>
-            <td class="input total_sum" style="text-align: right">&nbsp;</td>
-            <td class="input total_sum" style="text-align: right">
+            <td class="input sum total_sum">&nbsp;</td>
+            <td class="input sum total_sum">
             <?php echo miscRound2Decim($intTotVAT)?>
         </td>
-            <td class="input total_sum" style="text-align: right">
+            <td class="input sum total_sum">
             <?php echo miscRound2Decim($intTotSumVAT)?>
         </td>
         </tr>
@@ -584,13 +579,18 @@ var table = $('.report-table.datatable').DataTable({
     'footerCallback': function (row, data, start, end, display) {
         var api = this.api(), data;
 
+        var _intVal = function ( s ) {
+            var integer = parseInt( s, 10 );
+            return !isNaN(integer) ? integer : null;
+        };
+
         $([4, 6, 7]).each(function(i, column) {
             // Total over all pages
             var total = api
                 .column(column)
                 .data()
                 .reduce(function (a, b) {
-                    return intVal(a) + intVal(b);
+                    return _intVal(a) + _intVal(b);
                 }, 0);
 
 
@@ -599,16 +599,16 @@ var table = $('.report-table.datatable').DataTable({
                 .column(column, { page: 'current'})
                 .data()
                 .reduce(function (a, b) {
-                    return intVal(a) + intVal(b);
+                    return _intVal(a) + _intVal(b);
                 }, 0);
 
             // Update footer
             pageTotal = MLInvoice.formatCurrency(pageTotal/100);
             total = MLInvoice.formatCurrency(total/100);
             $(api.column(column).footer()).html(
-                '<div style="float: right"><?php echo Translator::translate('VisiblePage') ?>&nbsp;'
+                '<div class="list-footer-summary><?php echo Translator::translate('VisiblePage') ?>&nbsp;'
                 + pageTotal
-                + '</div><br><div style="float: right"><?php echo Translator::translate('Total') ?>&nbsp;'
+                + '</div><br><div class="list-footer-summary"><?php echo Translator::translate('Total') ?>&nbsp;'
                 + total + '</div>'
             );
         });

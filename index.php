@@ -4,7 +4,7 @@
  *
  * PHP version 5
  *
- * Copyright (C) 2010-2018 Ere Maijala
+ * Copyright (C) 2010-2019 Ere Maijala
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2,
@@ -116,11 +116,9 @@ if ($strFunc == 'system' && getRequest('operation', '') == 'dbdump'
 
 $extraJs = [];
 if ($strFunc == 'reports') {
-    $extraJs[] = 'datatables/dataTables.buttons.min.js';
-    $extraJs[] = 'datatables/buttons.html5.min.js';
-    $extraJs[] = 'js/jszip.min.js';
-    $extraJs[] = 'js/pdfmake.min.js';
-    $extraJs[] = 'js/vfs_fonts.js';
+    $extraJs[] = 'datatables/JSZip-2.5.0/jszip.min.js';
+    $extraJs[] = 'datatables/pdfmake-0.1.36/pdfmake.min.js';
+    $extraJs[] = 'datatables/pdfmake-0.1.36//vfs_fonts.js';
 }
 
 echo htmlPageStart($title, $extraJs);
@@ -130,10 +128,11 @@ echo htmlPageStart($title, $extraJs);
     <div class="pagewrapper ui-widget-content">
         <div class="ui-widget">
             <?php echo htmlMainTabs($strFunc); ?>
+            <div id="content">
 <?php
 
 $level = 1;
-if ($strList && ($strFunc == 'settings' || $strFunc == 'system')) {
+if ($strList && ($strFunc == 'settings' || $strFunc == 'system' || $strFunc == 'multiedit')) {
     ++$level;
 }
 if ($strForm) {
@@ -226,6 +225,11 @@ if ($strFunc == 'system' && $operation == 'export' && sesAdminAccess()) {
     include_once 'profile.php';
     $profile = new Profile();
     $profile->launch();
+} elseif ($strFunc == 'multiedit') {
+    createFuncMenu($strFunc);
+    include_once 'multiedit.php';
+    $multiedit = new MultiEdit();
+    $multiedit->launch();
 } else {
     if ($strForm) {
         if ($strFunc == 'settings') {
@@ -237,7 +241,7 @@ if ($strFunc == 'system' && $operation == 'export' && sesAdminAccess()) {
         if ($strFunc == 'open_invoices') {
             createOpenInvoiceList();
         } elseif ($strFunc == 'archived_invoices') {
-            createList('archived_invoices', 'invoice', 'archived_invoices', '');
+            createList('archived_invoices', 'archived_invoices', 'archived_invoices', '');
         } else {
             if ($strList == 'settings') {
                 createSettingsList();
@@ -248,7 +252,8 @@ if ($strFunc == 'system' && $operation == 'export' && sesAdminAccess()) {
     }
 }
 ?>
-</div>
+            </div>
+        </div>
     </div>
 </body>
 </html>

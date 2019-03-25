@@ -28,8 +28,8 @@
 require_once 'invoice_printer_base.php';
 require_once 'htmlfuncs.php';
 require_once 'miscfuncs.php';
-
-use Michelf\Markdown;
+require_once 'pdf.php';
+require_once 'markdown.php';
 
 /**
  * XSLT invoice
@@ -92,6 +92,55 @@ EOT
         $this->arrayToXML($invoiceData, $invoice);
         $rows = $invoice->addChild('rows');
         $this->arrayToXML($this->getInvoiceRowData(), $rows, 'row');
+        $type = $invoice->addChild('invoicetype');
+        $this->arrayToXML($this->invoiceTypeData, $type, 'invoicetype');
+
+        if ($this->attachments) {
+            $attachments = $invoice->addChild('attachments');
+            foreach ($this->attachments as $attachment) {
+                $attachment = getInvoiceAttachment($attachment['id']);
+
+                $xmlAttachment = $attachments->addChild('attachment');
+                $xmlAttachment->addChild(
+                    'name',
+                    $attachment['name'] ? $attachment['name'] : $attachment['filename']
+                );
+                $xmlAttachment->addChild('mimetype', $attachment['mimetype']);
+                $xmlAttachment->addChild('filesize', $attachment['filesize']);
+                $xmlAttachment->addChild('filename', $attachment['filename']);
+
+                if ('application/pdf' !== $attachment['mimetype']) {
+                    // Image to PDF
+                    $pdf = new PDF('P', 'mm', 'A4', _CHARSET_ == 'UTF-8', _CHARSET_, false);
+                    $pdf->AddPage();
+                    $pdf->Image(
+                        '@' . $attachment['filedata'],
+                        $this->left,
+                        $this->autoPageBreakMargin,
+                        $this->width,
+                        0,
+                        '',
+                        '',
+                        'B',
+                        false,
+                        300,
+                        'C'
+                    );
+                    $pdf->SetXY($this->left, $pdf->GetY() + 5);
+                    $pdf->SetFont('Helvetica', '', 10);
+                    $pdf->multiCellMD(
+                        $this->width,
+                        5,
+                        $attachment['name'] ? $attachment['name']
+                            : $attachment['filename'],
+                        'L'
+                    );
+                    $xmlAttachment->addChild('filedata', base64_encode($pdf->Output('', 'S')));
+                } else {
+                    $xmlAttachment->addChild('filedata', base64_encode($attachment['filedata']));
+                }
+            }
+        }
 
         include 'settings_def.php';
         $settingsData = [];
@@ -136,6 +185,7 @@ EOT
         foreach ($this->xsltParams as $param => $value) {
             $xsltproc->setParameter('', $param, $value);
         }
+
         $domDoc = dom_import_simplexml($xml)->ownerDocument;
         $this->xml = $xsltproc->transformToXML($domDoc);
 
@@ -211,8 +261,7 @@ EOT
     {
         // Preprocess invoice rows
         if (getSetting('printout_markdown')) {
-            $markdown = new Markdown();
-            $markdown->no_entities = true;
+            $markdown = new MLMarkdown();
         } else {
             $markdown = null;
         }
@@ -222,8 +271,16 @@ EOT
             if ($markdown) {
                 foreach (['product_name', 'product_code', 'description'] as $key) {
                     if (!empty($data[$key])) {
-                        $data[$key]
-                            = trim(strip_tags($markdown->transform($data[$key])));
+                        $markdownData = $markdown->transform($data[$key]);
+                        $data[$key] = trim(
+                            strip_tags(
+                                html_entity_decode(
+                                    $markdownData,
+                                    ENT_COMPAT | ENT_HTML401,
+                                    'UTF-8'
+                                )
+                            )
+                        );
                     }
                 }
             }

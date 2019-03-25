@@ -35,6 +35,10 @@ define('ROLE_USER', 1);
 define('ROLE_BACKUPMGR', 90);
 define('ROLE_ADMIN', 99);
 
+define('CSRF_OK', 0);
+define('CSRF_ERR_FAIL', 1);
+define('CSRF_ERR_IP', 2);
+
 /**
  * Create a session
  *
@@ -46,23 +50,15 @@ define('ROLE_ADMIN', 99);
  */
 function sesCreateSession($strLogin, $strPasswd, $strCsrf)
 {
+    // Delay so that brute-force attacks become unpractical
+    sleep(2);
     if ($strLogin && $strPasswd) {
-        if (!isset($_SESSION['csrf']) || !isset($_SESSION['csrfip'])) {
-            error_log('No key information in session, timeout or session problem');
-            return 'TIMEOUT';
-        }
-        $csrfIp = $_SESSION['csrfip'];
-        if ($_SERVER['REMOTE_ADDR'] != $csrfIp) {
-            // Delay so that brute-force attacks become unpractical
+        $res = sesCheckCsrf($strCsrf);
+        if (CSRF_ERR_IP === $res) {
             error_log("Login failed for $strLogin due to IP address change");
-            sleep(2);
             return 'FAIL';
-        }
-
-        $csrf = $_SESSION['csrf'];
-        unset($_SESSION['csrf']);
-        $csrfTime = $_SESSION['csrftime'];
-        if ($csrf !== $strCsrf || time() - $csrfTime > 300) {
+        } elseif (CSRF_ERR_FAIL === $res) {
+            $csrfTime = isset($_SESSION['csrftime']) ? $_SESSION['csrftime'] : time();
             error_log(
                 'Key not found or timeout, ' . (time() - $csrfTime)
                 . ' seconds since login form was created'
@@ -95,10 +91,35 @@ function sesCreateSession($strLogin, $strPasswd, $strCsrf)
             return 'OK';
         }
     }
-    // Delay so that brute-force attacks become unpractical
     error_log('Login failed due to missing user name or password');
-    sleep(2);
     return 'FAIL';
+}
+
+/**
+ * Check a CSRF token
+ *
+ * @param string $csrf Token
+ *
+ * @return int
+ */
+function sesCheckCsrf($csrf)
+{
+    if (!isset($_SESSION['csrf']) || !isset($_SESSION['csrfip'])) {
+        return CSRF_ERR_FAIL;
+    }
+    $csrfIp = $_SESSION['csrfip'];
+    if ($_SERVER['REMOTE_ADDR'] != $csrfIp) {
+        return CSRF_ERR_IP;
+    }
+
+    $storedCsrf = $_SESSION['csrf'];
+    unset($_SESSION['csrf']);
+    $csrfTime = $_SESSION['csrftime'];
+    if ($storedCsrf !== $csrf || time() - $csrfTime > 300) {
+        return CSRF_ERR_FAIL;
+    }
+
+    return CSRF_OK;
 }
 
 /**

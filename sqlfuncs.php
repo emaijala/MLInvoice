@@ -5,7 +5,7 @@
  * PHP version 5
  *
  * Copyright (C) 2004-2008 Samu Reinikainen
- * Copyright (C) 2010-2018 Ere Maijala
+ * Copyright (C) 2010-2019 Ere Maijala
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2,
@@ -272,6 +272,23 @@ function isOffer($invoiceId)
 }
 
 /**
+ * Check if an invoice record is open
+ *
+ * @param int $invoiceId Invoice ID
+ *
+ * @return bool
+ */
+function isInvoiceOpen($invoiceId)
+{
+    $rows = dbParamQuery(
+        'SELECT id FROM {prefix}invoice_state WHERE invoice_open=1 AND id IN ('
+        . 'SELECT state_id FROM {prefix}invoice WHERE id=?)',
+        [$invoiceId]
+    );
+    return $rows ? true : false;
+}
+
+/**
  * Check if an invoice row belongs to an offer
  *
  * @param int $invoiceRowId Invoice row ID
@@ -354,6 +371,7 @@ function saveTags($type, $id, $tags)
     if ($tags) {
         // Save tags
         foreach (explode(',', $tags) as $tag) {
+            $tag = trim($tag);
             $rows = dbParamQuery(
                 "SELECT id FROM {prefix}${type}_tag WHERE tag=?",
                 [$tag]
@@ -421,6 +439,81 @@ function getInvoice($id)
         [$id]
     );
     return $rows ? $rows[0] : [];
+}
+
+/**
+ * Update invoice's print date
+ *
+ * @param int $id Invoice ID
+ *
+ * @return void
+ */
+function updateInvoicePrintDate($id)
+{
+    dbParamQuery(
+        'UPDATE {prefix}invoice SET print_date=? where id=?',
+        [
+            date('Ymd'),
+            $id
+        ]
+    );
+}
+
+/**
+ * Verify that the given invoice has invoice number and reference number for printing
+ * as required in the settings
+ *
+ * @param array $id Invoice ID
+ *
+ * @return void
+ */
+function verifyInvoiceDataForPrinting($id)
+{
+    if (isOffer($id)) {
+        return;
+    }
+
+    $needInvNo = getSetting('invoice_add_number');
+    $needRefNo = getSetting('invoice_add_reference_number');
+
+    if (!$needInvNo && !$needRefNo) {
+        return;
+    }
+
+    dbQueryCheck(
+        'LOCK TABLES {prefix}invoice WRITE, {prefix}settings READ'
+        . ', {prefix}company READ'
+    );
+    $rows = dbParamQuery(
+        'SELECT invoice_no, ref_number, base_id, company_id, invoice_date,'
+        . "interval_type FROM {prefix}invoice WHERE id=?",
+        [$id]
+    );
+    $data = isset($rows[0]) ? $rows[0] : null;
+    if (($needInvNo && empty($data['invoice_no']))
+        || ($needRefNo && empty($data['ref_number']))
+    ) {
+        $defaults = getInvoiceDefaults(
+            $id, $data['base_id'], $data['company_id'],
+            dateConvDBDate2Date($data['invoice_date']), $data['interval_type'],
+            $data['invoice_no']
+        );
+        $sql = "UPDATE {prefix}invoice SET";
+        $updateStrings = [];
+        $params = [];
+        if ($needInvNo && empty($data['invoice_no'])) {
+            $updateStrings[] = 'invoice_no=?';
+            $params[] = $defaults['invoice_no'];
+        }
+        if ($needRefNo && empty($data['ref_number'])) {
+            $updateStrings[] = 'ref_number=?';
+            $params[] = $defaults['ref_no'];
+        }
+        $sql .= ' ' . implode(', ', $updateStrings) . ' WHERE id=?';
+        $params[] = $id;
+        dbParamQuery($sql, $params);
+    }
+    dbQueryCheck('UNLOCK TABLES');
 }
 
 /**
@@ -812,6 +905,136 @@ function getMaxInvoiceNumber($invoiceId, $baseId, $perYear)
 }
 
 /**
+ * Get an invoice type
+ *
+ * @param int $id Invoice type ID
+ *
+ * @return array
+ */
+function getInvoiceType($id)
+{
+    $rows = dbParamQuery(
+        'SELECT * FROM {prefix}invoice_type WHERE id=?',
+        [$id]
+    );
+    return $rows ? $rows[0] : [];
+}
+
+/**
+ * Get an attachment
+ *
+ * @param int $id Attachment ID
+ *
+ * @return array
+ */
+function getAttachment($id)
+{
+    $rows = dbParamQuery(
+        'SELECT * FROM {prefix}attachment WHERE id=?',
+        [$id]
+    );
+    return $rows ? $rows[0] : [];
+}
+
+/**
+ * Get attachments
+ *
+ * @return array
+ */
+function getAttachments()
+{
+    $rows = dbParamQuery(
+        'SELECT id, name, description, date, filename, filesize, mimetype FROM {prefix}attachment'
+    );
+    return $rows ? $rows : [];
+}
+
+/**
+ * Get attachment count for invoice
+ *
+ * @param int $id Invoice ID
+ *
+ * @return int
+ */
+function getInvoiceAttachmentCount($id)
+{
+    $rows = dbParamQuery(
+        'SELECT count(*) as cnt FROM {prefix}invoice_attachment WHERE invoice_id=?',
+        [$id]
+    );
+    return $rows[0]['cnt'];
+}
+
+/**
+ * Get attachments for invoice
+ *
+ * @param int  $id       Invoice ID
+ * @param bool $sendable Whether to return only sendable attachments
+ *
+ * @return int
+ */
+function getInvoiceAttachments($id, $sendable)
+{
+    $sendable = $sendable ? ' AND send=1' : '';
+    $rows = dbParamQuery(
+        <<<EOT
+SELECT id, name, description, date, filename, filesize, mimetype
+  FROM {prefix}invoice_attachment
+  WHERE invoice_id=?$sendable
+  ORDER BY order_no, id
+EOT
+        ,
+        [$id]
+    );
+    return $rows ? $rows : [];
+}
+
+/**
+ * Get an invoice attachment
+ *
+ * @param int $id Invoice attachment ID
+ *
+ * @return array
+ */
+function getInvoiceAttachment($id)
+{
+    $rows = dbParamQuery(
+        'SELECT * FROM {prefix}invoice_attachment WHERE id=?',
+        [$id]
+    );
+    return $rows ? $rows[0] : [];
+}
+
+/**
+ * Add an existing attachment to an invoice
+ *
+ * @param int $id        Attachment ID
+ * @param int $invoiceId Invoice ID
+ *
+ * @return int
+ */
+function addAttachmentToInvoice($id, $invoiceId)
+{
+    global $dblink;
+
+    $rows = dbParamQuery(
+        'SELECT max(order_no) as orderno FROM {prefix}invoice_attachment WHERE invoice_id=?',
+        [$invoiceId]
+    );
+    $newOrderNo = $rows ? $rows[0]['orderno'] + 5 : 0;
+
+    $sql = <<<EOT
+INSERT INTO {prefix}invoice_attachment
+(invoice_id, name, mimetype, description, date, filename, filesize, filedata, order_no)
+SELECT ?, name, mimetype, description, date, filename, filesize, filedata, ?
+FROM {prefix}attachment WHERE id=?
+EOT;
+    dbParamQuery($sql, [$invoiceId, $newOrderNo, $id]);
+
+    return mysqli_insert_id($dblink);
+}
+
+/**
  * Delete a record by ID
  *
  * @param string $table Table name
@@ -840,7 +1063,10 @@ function deleteRecord($table, $id)
                 updateProductStockBalance($row['id'], null, null);
             }
         }
-        if ('{prefix}send_api_config' === $table) {
+        if ('{prefix}send_api_config' === $table
+            || '{prefix}attachment' === $table
+            || '{prefix}invoice_attachment' === $table
+        ) {
             $query = "DELETE FROM $table WHERE id=?";
         } else {
             $query = "UPDATE $table SET deleted=1 WHERE id=?";
@@ -1962,6 +2188,81 @@ EOT
                 'ALTER TABLE {prefix}company ADD COLUMN offer_default_foreword text NULL',
                 'ALTER TABLE {prefix}company ADD COLUMN offer_default_afterword text NULL',
                 "REPLACE INTO {prefix}state (id, data) VALUES ('version', '61')"
+            ]
+        );
+    }
+
+    if ($version < 62) {
+        $updates = array_merge(
+            $updates,
+            [
+                <<<EOT
+CREATE TABLE {prefix}invoice_type (
+    id int(11) NOT NULL auto_increment,
+    deleted tinyint NOT NULL default 0,
+    identifier varchar(255) default NULL,
+    name varchar(255) default NULL,
+    order_no int(11) default NULL,
+    PRIMARY KEY (id)
+) ENGINE=INNODB CHARACTER SET utf8 COLLATE utf8_swedish_ci;
+EOT
+                ,
+                'ALTER TABLE {prefix}invoice ADD COLUMN type_id int(11) default NULL',
+                'ALTER TABLE {prefix}invoice ADD CONSTRAINT FOREIGN KEY (type_id) REFERENCES {prefix}invoice_type(id)',
+                "REPLACE INTO {prefix}state (id, data) VALUES ('version', '62')"
+            ]
+        );
+    }
+
+    if ($version < 63) {
+        $updates = array_merge(
+            $updates,
+            [
+                'ALTER TABLE {prefix}company ADD COLUMN delivery_address text default NULL',
+                'ALTER TABLE {prefix}invoice ADD COLUMN delivery_address text default NULL',
+                "REPLACE INTO {prefix}state (id, data) VALUES ('version', '63')"
+            ]
+        );
+    }
+
+    if ($version < 64) {
+        $updates = array_merge(
+            $updates,
+            [
+                <<<EOT
+CREATE TABLE {prefix}attachment (
+    id int(11) NOT NULL auto_increment,
+    name varchar(255) NOT NULL,
+    mimetype varchar(255) NOT NULL,
+    description varchar(255) default NULL,
+    date int(11) default NULL,
+    filename varchar(255) NOT NULL,
+    filesize integer(11) NULL,
+    filedata longblob NOT NULL,
+    order_no int(11) default NULL,
+    PRIMARY KEY (id)
+) ENGINE=INNODB CHARACTER SET utf8 COLLATE utf8_swedish_ci;
+EOT
+                ,
+                <<<EOT
+CREATE TABLE {prefix}invoice_attachment (
+    id int(11) NOT NULL auto_increment,
+    invoice_id int(11) NOT NULL,
+    name varchar(255) NOT NULL,
+    mimetype varchar(255) NOT NULL,
+    description varchar(255) default NULL,
+    date int(11) default NULL,
+    filename varchar(255) NOT NULL,
+    filesize integer(11) NULL,
+    filedata longblob NOT NULL,
+    order_no int(11) default NULL,
+    send tinyint NOT NULL default 0,
+    PRIMARY KEY (id),
+    FOREIGN KEY (invoice_id) REFERENCES {prefix}invoice(id) ON DELETE CASCADE
+) ENGINE=INNODB CHARACTER SET utf8 COLLATE utf8_swedish_ci;
+EOT
+                ,
+                "REPLACE INTO {prefix}state (id, data) VALUES ('version', '64')"
             ]
         );
     }

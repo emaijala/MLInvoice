@@ -1,4 +1,4 @@
-# Minimal Apache example site configuration
+# Minimal Apache configuration for MLInvoice
 <VirtualHost *:80>
     DocumentRoot "/usr/local/mlinvoice"
 
