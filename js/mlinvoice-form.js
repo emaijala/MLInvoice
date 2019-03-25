@@ -713,7 +713,7 @@ MLInvoice.addModule('Form', function mlinvoiceForm() {
     }
     var form = $('#admin_form');
     if (typeof form.data('readOnly') === 'undefined') {
-      this.saveRecord(target, printStyle, true);
+      MLInvoice.Form.saveRecord(target, printStyle, true);
     } else if (printStyle === 'openwindow') {
       window.open(target);
     } else {
@@ -730,7 +730,7 @@ MLInvoice.addModule('Form', function mlinvoiceForm() {
 
     var form = $('#admin_form');
     if (typeof form.data('readOnly') === 'undefined') {
-      this.saveRecord(url, '', true);
+      MLInvoice.Form.saveRecord(url, '', true);
     } else {
       window.location.href = url;
     }
