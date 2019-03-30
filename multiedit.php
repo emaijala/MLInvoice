@@ -4,7 +4,7 @@
  *
  * PHP version 5
  *
- * Copyright (C) Ere Maijala 2018.
+ * Copyright (C) Ere Maijala 2018-2019.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2,
@@ -56,7 +56,6 @@ class MultiEdit
             die('Invalid request');
         }
 
-        $isOffer = isOffer((array)$ids[0]);
         $strForm = getRequest('form', '');
         $list = getRequest('list', '');
 
@@ -193,10 +192,11 @@ class MultiEdit
     <script type="text/javascript">
     $(document).ready(function() {
         $('input[type="text"],input[type="hidden"],input[type="checkbox"]:not(.cb-select-row):not(.cb-select-all),select:not(.dropdownmenu),textarea')
-            .change(function() {
-                var name = $(this).attr('name');
-                $('#select_' + name).prop('checked', true);
-            });
+        .change(function() {
+            var name = $(this).attr('name');
+            $('#select_' + name).prop('checked', true);
+        });
+        MLInvoice.Form.setupSelect2();
     });
     </script>
 
