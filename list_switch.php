@@ -254,7 +254,7 @@ EOT;
             'name' => 'i.name',
             'width' => 100,
             'type' => 'TEXT',
-            'header' => 'HeaderInvoiceName'
+            'header' => 'offer' === $strList ? 'HeaderOfferName' : 'HeaderInvoiceName'
         ],
         [
             'name' => 's.name',
