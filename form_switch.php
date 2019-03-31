@@ -630,7 +630,8 @@ EOS;
     ];
     break;
 
-case 'invoice' :
+case 'invoice':
+case 'offer':
     $levelsAllowed[] = ROLE_READONLY;
     $strTable = '{prefix}invoice';
     $strListTableAlias = 'i.'; // this is for the search function
@@ -647,6 +648,7 @@ case 'invoice' :
     ];
     $intInvoiceId = getRequest('id', 0);
     if ($intInvoiceId) {
+        $intInvoiceId = is_array($intInvoiceId) ? $intInvoiceId[0] : $intInvoiceId;
         $isOffer = isOffer($intInvoiceId);
 
         if ($isOffer) {
@@ -694,7 +696,7 @@ EOT;
             }
         }
     } else {
-        if (getRequest('offer', false)) {
+        if (getRequest('offer', false) || getRequest('form', '') === 'offer') {
             $defaultState = getInitialOfferState();
             $isOffer = true;
         }

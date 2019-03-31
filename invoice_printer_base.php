@@ -2732,7 +2732,7 @@ EOT;
             $attachment = getInvoiceAttachment($attachment['id']);
             if ('application/pdf' !== $attachment['mimetype']) {
                 // Import image
-                $pdf->AddPage();
+                $pdf->AddPage('P');
                 $pdf->printHeader(false);
                 $pdf->printFooter(false);
                 $pdf->Image(
@@ -2767,7 +2767,7 @@ EOT;
             for ($i = 1; $i <= $pageCount; $i++) {
                 $tplx = $pdf->importPage($i);
                 $size = $pdf->getTemplateSize($tplx);
-                $pdf->AddPage('P', [$size['width'], $size['height']]);
+                $pdf->AddPage($size['orientation'], [$size['width'], $size['height']]);
                 $pdf->printHeader(false);
                 $pdf->printFooter(false);
                 $pdf->useTemplate($tplx);
