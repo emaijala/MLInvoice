@@ -803,7 +803,7 @@ function createFormButtons($form, $new, $copyLinkOverride, $spinner, $readOnlyFo
             <?php
         } else {
             ?>
-            <a class="actionlink ui-button ui-corner-all ui-widget form-submit" href="#" data-set-field="action=copy">
+            <a class="actionlink ui-button ui-corner-all ui-widget form-submit" href="#" data-form="admin_form" data-set-field="action=copy">
                 <?php echo Translator::translate('Copy')?>
             </a>
             <?php
