@@ -300,7 +300,7 @@ function createFuncMenu($strFunc)
         if ($strFunc != 'archived_invoices') {
             $strNewButton = ' <a class="buttonlink ui-button ui-corner-all ui-widget" href="?func=invoices&amp;form=invoice&amp;offer=1">' .
                  Translator::translate('NewOffer') . '</a>';
-            $strNewButton .= '<a class="buttonlink ui-button ui-corner-all ui-widget" href="?func=invoices&amp;form=invoice">' .
+            $strNewButton .= ' <a class="buttonlink ui-button ui-corner-all ui-widget" href="?func=invoices&amp;form=invoice">' .
                  Translator::translate('NewInvoice') . '</a>';
             $astrNaviLinks[] = [
                 'href' => 'index.php?func=import_statement',
