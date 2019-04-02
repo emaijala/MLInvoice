@@ -694,6 +694,7 @@ MLInvoice.addModule('Form', function mlinvoiceForm() {
         });
         $heading.append($menuitems);
         $buttons.append($ul);
+        $buttons.append(' ');
       });
       $('.send-buttons .dropdownmenu').each(function initMenu() {
         $(this).menu({}).find('li:first').addClass('formbuttonlink ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only');
