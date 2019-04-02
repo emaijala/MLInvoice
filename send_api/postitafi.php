@@ -69,6 +69,13 @@ class Postitafi
      */
     public function send($invoice, $template)
     {
+        if (empty($this->apiConfig['password'])) {
+            return [
+                'success' => false,
+                'message' => 'Postita.fi password missing from settings'
+            ];
+        }
+
         $printTemplateFile = $template['filename'];
         $printParameters = $template['parameters'];
         $printOutputFileName = $template['output_filename'];
