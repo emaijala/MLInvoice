@@ -5,7 +5,7 @@
  * PHP version 5
  *
  * Copyright (C) 2004-2008 Samu Reinikainen
- * Copyright (C) Ere Maijala 2010-2018.
+ * Copyright (C) Ere Maijala 2010-2019.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2,
@@ -194,6 +194,14 @@ abstract class InvoicePrinterBase
             'width' => 20,
             'autofit' => true
         ],
+        'type' => [
+            'heading' => '',
+            'valuemethod' => 'getRowItemType',
+            'visible' => true,
+            'align' => 'L',
+            'width' => 10,
+            'autofit' => true
+        ],
         'price' => [
             'heading' => 'RowPrice',
             'valuemethod' => 'getRowPrice',
@@ -208,14 +216,6 @@ abstract class InvoicePrinterBase
             'visible' => true,
             'align' => 'R',
             'width' => 20,
-            'autofit' => true
-        ],
-        'type' => [
-            'heading' => '',
-            'valuemethod' => 'getRowItemType',
-            'visible' => true,
-            'align' => 'L',
-            'width' => 10,
             'autofit' => true
         ],
         'totalvatless' => [
