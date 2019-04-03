@@ -2247,7 +2247,7 @@ EOT;
             } else {
                 $mlp = 10 ** $decimals;
                 $value *= $mlp;
-                $value = (int)$value;
+                $value = round($value);
                 $value /= $mlp;
             }
         }
