@@ -1275,6 +1275,8 @@ MLInvoice.addModule('Form', function mlinvoiceForm() {
       case 'LIST':
       case 'TEXT':
       case 'AREA':
+      case 'PASSWD':
+      case 'PASSWD_STORED':
         obj[field.name] = value.val();
         break;
       }
