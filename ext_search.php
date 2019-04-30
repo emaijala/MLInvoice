@@ -332,5 +332,8 @@ if ($blnSave && $strSearchName) {
       </form>
     </div>
   </div>
+  <script>
+    MLInvoice.Form.setupSelect2();
+  </script>
 </body>
 </html>
