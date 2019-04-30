@@ -64,6 +64,8 @@ EOM
 %{_datadir}/%{name}
 
 %changelog
+* Tue Apr 30 2019 Ere Maijala <ere@labs.fi> - 1.20.5
+- updated for version 1.20.5
 * Thu Apr 4 2019 Ere Maijala <ere@labs.fi> - 1.20.4
 - updated for version 1.20.4
 * Tue Apr 2 2019 Ere Maijala <ere@labs.fi> - 1.20.3
