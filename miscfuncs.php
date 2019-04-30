@@ -299,42 +299,29 @@ function getPost($strKey, $varDefault = null)
 }
 
 /**
- * Get a request value
+ * Get a query parameter value
  *
  * @param string $strKey     Parameter name
  * @param mixed  $varDefault Default value
  *
  * @return mixed
  */
-function getRequest($strKey, $varDefault = null)
-{
-    return isset($_REQUEST[$strKey]) ? gpcStripSlashes($_REQUEST[$strKey]) : $varDefault;
-}
-
-/**
- * Get a GET request value
- *
- * @param string $strKey     Parameter name
- * @param mixed  $varDefault Default value
- *
- * @return mixed
- */
-function getGet($strKey, $varDefault = null)
+function getQuery($strKey, $varDefault = null)
 {
     return isset($_GET[$strKey]) ? gpcStripSlashes($_GET[$strKey]) : $varDefault;
 }
 
 /**
- * Get a POST or GET request value
+ * Get a POST request or query parameter value
  *
  * @param string $strKey     Parameter name
  * @param mixed  $varDefault Default value
  *
  * @return mixed
  */
-function getPostRequest($strKey, $varDefault = null)
+function getPostOrQuery($strKey, $varDefault = null)
 {
-    return getPost($strKey, getRequest($strKey, $varDefault));
+    return getPost($strKey, getQuery($strKey, $varDefault));
 }
 
 /**
@@ -351,8 +338,8 @@ function getPageTitle($strFunc, $strList, $strForm)
     switch ($strFunc ? $strFunc : $strList) {
     case 'open_invoices':
         if ($strForm) {
-            if (getRequest('offer')
-                || (($invId = getRequest('id')) && isOffer($invId))
+            if (getPostOrQuery('offer')
+                || (($invId = getPostOrQuery('id')) && isOffer($invId))
             ) {
                 return Translator::translate('Offer');
             }

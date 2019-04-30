@@ -62,7 +62,7 @@ trait InvoicePrinterEmailTrait
         $recipientData = $this->recipientData;
         $invoiceData = $this->invoiceData;
 
-        $defaultId = getRequest('default_body_text');
+        $defaultId = getPostOrQuery('default_body_text');
         $defaultValue = $defaultId ? getDefaultValue($defaultId, true) : null;
         $defaultSettings = $this->parseDefaultSettings($defaultValue);
 
@@ -86,7 +86,7 @@ trait InvoicePrinterEmailTrait
         }
 
         $this->emailFrom = !empty($defaultSettings['from'])
-            ? $defaultSettings['from'] : getRequest('email_from', '');
+            ? $defaultSettings['from'] : getPostOrQuery('email_from', '');
         if (!$this->emailFrom) {
             if (!empty($senderData['invoice_email_from'])) {
                 $this->emailFrom = $senderData['invoice_email_from'];
@@ -94,11 +94,11 @@ trait InvoicePrinterEmailTrait
                 $this->emailFrom = $senderData['email'];
             }
         }
-        $this->emailTo = getRequest('email_to', $defaultRecipient);
+        $this->emailTo = getPostOrQuery('email_to', $defaultRecipient);
         $this->emailCC = !empty($defaultSettings['cc'])
-            ? $defaultSettings['cc'] : getRequest('email_cc', '');
+            ? $defaultSettings['cc'] : getPostOrQuery('email_cc', '');
         $this->emailBCC = !empty($defaultSettings['bcc'])
-            ? $defaultSettings['bcc'] : getRequest(
+            ? $defaultSettings['bcc'] : getPostOrQuery(
                 'email_bcc',
                 isset($senderData['invoice_email_bcc'])
                 ? $senderData['invoice_email_bcc'] : ''
@@ -106,7 +106,7 @@ trait InvoicePrinterEmailTrait
         $this->emailSubject = $this->replacePlaceholders(
             !empty($defaultSettings['subject'])
                 ? $defaultSettings['subject']
-                : getRequest('email_subject', $this->getDefaultSubject())
+                : getPostOrQuery('email_subject', $this->getDefaultSubject())
         );
 
         $emailBody = '';
@@ -116,10 +116,10 @@ trait InvoicePrinterEmailTrait
 
         $this->emailBody = $this->replacePlaceholders(
             $emailBody ? $emailBody
-                : getRequest('email_body', $this->getDefaultBody())
+                : getPostOrQuery('email_body', $this->getDefaultBody())
         );
 
-        $send = getRequest('email_send', '');
+        $send = getPostOrQuery('email_send', '');
         if (!$send || !$this->emailFrom || !$this->emailTo || !$this->emailSubject
             || !$this->emailBody
         ) {
@@ -186,10 +186,10 @@ trait InvoicePrinterEmailTrait
             <h1><?php echo Translator::translate('SendEmail')?></h1>
             <?php if ($errorMsg) echo '<div class="ui-state-error-text">' . $errorMsg . "<br><br></div>\n";?>
             <form method="POST" id="email_form">
-                <input type="hidden" name="id" value="<?php echo htmlspecialchars(getRequest('id', ''))?>">
-                <input type="hidden" name="template" value="<?php echo htmlspecialchars(getRequest('template', ''))?>">
+                <input type="hidden" name="id" value="<?php echo htmlspecialchars(getPostOrQuery('id', ''))?>">
+                <input type="hidden" name="template" value="<?php echo htmlspecialchars(getPostOrQuery('template', ''))?>">
                 <input type="hidden" id="email_send" name="email_send" value="0">
-                <input type="hidden" name="func" value="<?php echo htmlspecialchars(getRequest('func', ''))?>">
+                <input type="hidden" name="func" value="<?php echo htmlspecialchars(getPostOrQuery('func', ''))?>">
 
                 <div class="medium_label"><?php echo Translator::translate('EmailFrom')?></div>
                 <div class="field">
@@ -246,11 +246,12 @@ trait InvoicePrinterEmailTrait
         </div>
     </div>
 </body>
-<script type="text/javascript">
+<script>
 $(document).ready(function() {
     $('#email_form').submit(function() {
         $('#spinner').show();
     });
+    MLInvoice.Form.setupDefaultTextSelection();
 });
 </script>
 </html>
@@ -312,7 +313,7 @@ $(document).ready(function() {
         $_SESSION['formMessage'] = 'EmailSent';
         header(
             'Location: index.php?func='
-            . sanitize(getRequest('func', 'open_invoices'))
+            . sanitize(getPostOrQuery('func', 'open_invoices'))
             . "&list=invoices&form=invoice&id={$this->invoiceId}"
         );
     }

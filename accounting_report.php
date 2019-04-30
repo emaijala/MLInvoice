@@ -54,10 +54,10 @@ class AccountingReport extends InvoiceReport
      */
     protected function addLimitSelection()
     {
-        $intBaseId = getRequest('base', false);
-        $intCompanyId = getRequest('company', false);
-        $dateRange = getRequest('date', '');
-        $companyTags = getRequest('tags', '');
+        $intBaseId = getPostOrQuery('base', false);
+        $intCompanyId = getPostOrQuery('company', false);
+        $dateRange = getPostOrQuery('date', '');
+        $companyTags = getPostOrQuery('tags', '');
         ?>
             <div class="medium_label">
                 <?php echo Translator::translate('DateInterval')?>
@@ -105,7 +105,7 @@ class AccountingReport extends InvoiceReport
     {
         list($query, $params) = parent::createLimitQuery();
 
-        $dateRange = explode(' - ', getRequest('accounting_date', ''));
+        $dateRange = explode(' - ', getPostOrQuery('accounting_date', ''));
         $startDate = $dateRange[0];
         $endDate = isset($dateRange[1]) ? $dateRange[1] : $startDate;
         if ($startDate) {

@@ -37,8 +37,8 @@ sesVerifySession();
 
 require_once 'translator.php';
 
-$strFunc = getRequest('func', '');
-$strForm = getRequest('form', '');
+$strFunc = getPostOrQuery('func', '');
+$strForm = getPostOrQuery('form', '');
 if ($strFunc == 'open_invoices') {
     $strFunc = 'invoices';
 }
@@ -183,7 +183,7 @@ if ($blnSearch || $blnSave) {
 echo htmlPageStart();
 ?>
 <body onload="<?php echo $strOnLoad?>">
-    <script type="text/javascript">
+    <script>
 <!--
 $(function() {
   $('input[class~="hasCalendar"]').datepicker();
@@ -332,5 +332,8 @@ if ($blnSave && $strSearchName) {
       </form>
     </div>
   </div>
+  <script>
+    MLInvoice.Form.setupSelect2();
+  </script>
 </body>
 </html>

@@ -56,8 +56,8 @@ class MultiEdit
             die('Invalid request');
         }
 
-        $strForm = getRequest('form', '');
-        $list = getRequest('list', '');
+        $strForm = getPostOrQuery('form', '');
+        $list = getPostOrQuery('list', '');
 
         $formConfig = getFormConfig($strForm, 'multiedit');
 
@@ -189,7 +189,7 @@ class MultiEdit
         </div>
     </div>
 
-    <script type="text/javascript">
+    <script>
     $(document).ready(function() {
         $('input[type="text"],input[type="hidden"],input[type="checkbox"]:not(.cb-select-row):not(.cb-select-all),select:not(.dropdownmenu),textarea')
         .change(function() {

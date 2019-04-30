@@ -57,9 +57,9 @@ require_once 'sqlfuncs.php';
 
 sesVerifySession();
 
-$strFunc = sanitize(getRequest('func', 'open_invoices'));
-$strList = sanitize(getRequest('list', ''));
-$strForm = sanitize(getRequest('form', ''));
+$strFunc = sanitize(getPostOrQuery('func', 'open_invoices'));
+$strList = sanitize(getPostOrQuery('list', ''));
+$strForm = sanitize(getPostOrQuery('form', ''));
 
 if (!$strFunc) {
     $strFunc = 'open_invoices';
@@ -72,9 +72,9 @@ if ($strFunc == 'logout') {
 
 if ($strFunc == 'send_api') {
     include_once 'apiclient.php';
-    $invoiceId = getRequest('invoice_id');
-    $apiId = getRequest('api_id');
-    $templateId = getRequest('template_id');
+    $invoiceId = getPostOrQuery('invoice_id');
+    $apiId = getPostOrQuery('api_id');
+    $templateId = getPostOrQuery('template_id');
     $invoice = getInvoice($invoiceId);
     $client = new ApiClient($apiId, $invoiceId, $templateId);
     $result = $client->send();
@@ -102,7 +102,7 @@ if (!$strFunc && $strForm) {
 
 $title = getPageTitle($strFunc, $strList, $strForm);
 
-if ($strFunc == 'system' && getRequest('operation', '') == 'dbdump'
+if ($strFunc == 'system' && getPostOrQuery('operation', '') == 'dbdump'
     && sesAccessLevel(
         [
             ROLE_BACKUPMGR,
@@ -166,7 +166,7 @@ if ($strFunc == 'open_invoices' && !$strForm) {
         $address = defined('_UPDATE_ADDRESS_') ? _UPDATE_ADDRESS_
         : 'https://www.labs.fi/mlinvoice_version.php';
         ?>
-  <script type="text/javascript">
+  <script>
     $(document).ready(function() {
         MLInvoice.checkForUpdates('<?php echo $address?>', '<?php echo $softwareVersion?>');
     });
@@ -175,7 +175,7 @@ if ($strFunc == 'open_invoices' && !$strForm) {
     }
 }
 
-$operation = getRequest('operation', '');
+$operation = getPostOrQuery('operation', '');
 if ($strFunc == 'system' && $operation == 'export' && sesAdminAccess()) {
     createFuncMenu($strFunc);
     include_once 'export.php';

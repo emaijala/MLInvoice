@@ -59,18 +59,18 @@ abstract class AbstractReport
         $strQuery = '';
         $arrParams = [];
 
-        $intBaseId = getRequest('base', false);
+        $intBaseId = getPostOrQuery('base', false);
         if ($intBaseId) {
             $strQuery .= ' AND i.base_id = ?';
             $arrParams[] = $intBaseId;
         }
-        $intCompanyId = getRequest('company', false);
+        $intCompanyId = getPostOrQuery('company', false);
         if ($intCompanyId) {
             $strQuery .= ' AND i.company_id = ?';
             $arrParams[] = $intCompanyId;
         }
 
-        $dateRange = explode(' - ', getRequest('date', ''));
+        $dateRange = explode(' - ', getPostOrQuery('date', ''));
         $startDate = $dateRange[0];
         $endDate = isset($dateRange[1]) ? $dateRange[1] : $startDate;
         if ($startDate) {
@@ -82,7 +82,7 @@ abstract class AbstractReport
             $arrParams[] = dateConvDate2DBDate($endDate);
         }
 
-        if ($tags = getRequest('tags')) {
+        if ($tags = getPostOrQuery('tags')) {
             $tagsQuery = [];
             foreach (explode(',', $tags) as $tag) {
                 $tag = trim($tag);
@@ -181,7 +181,7 @@ EOT;
         $states = [];
         while ($row = mysqli_fetch_assoc($res)) {
             $stateId = $row['id'];
-            if (getRequest("stateid_$stateId", false)) {
+            if (getPostOrQuery("stateid_$stateId", false)) {
                 $states[] = Translator::translate($row['name']);
             }
         }
@@ -212,7 +212,7 @@ EOT;
         while ($row = mysqli_fetch_assoc($intRes)) {
             $intStateId = $row['id'];
             $strStateName = Translator::translate($row['name']);
-            $strChecked = getRequest("stateid_$intStateId", $row['invoice_offer'] ? false : true) ? ' checked' : '';
+            $strChecked = getPostOrQuery("stateid_$intStateId", $row['invoice_offer'] ? false : true) ? ' checked' : '';
             if (!$first) {
                 echo "      <div class=\"medium_label\"></div>\n";
             }

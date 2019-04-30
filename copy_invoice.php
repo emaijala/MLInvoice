@@ -51,11 +51,11 @@ if (!sesWriteAccess()) {
     return;
 }
 
-$intInvoiceId = getRequest('id', false);
-$boolRefund = getRequest('refund', false);
-$strFunc = getRequest('func', '');
-$strList = getRequest('list', '');
-$isOffer = !getRequest('invoice', false) && isOffer($intInvoiceId);
+$intInvoiceId = getPostOrQuery('id', false);
+$boolRefund = getPostOrQuery('refund', false);
+$strFunc = getPostOrQuery('func', '');
+$strList = getPostOrQuery('list', '');
+$isOffer = !getPostOrQuery('invoice', false) && isOffer($intInvoiceId);
 
 if ($intInvoiceId) {
     if ($boolRefund) {

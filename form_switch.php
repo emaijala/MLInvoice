@@ -646,7 +646,7 @@ case 'offer':
     $arrRefundingInvoice = [
         'allow_null' => true
     ];
-    $intInvoiceId = getRequest('id', 0);
+    $intInvoiceId = getPostOrQuery('id', 0);
     if ($intInvoiceId) {
         $intInvoiceId = is_array($intInvoiceId) ? $intInvoiceId[0] : $intInvoiceId;
         $isOffer = isOffer($intInvoiceId);
@@ -696,7 +696,7 @@ EOT;
             }
         }
     } else {
-        if (getRequest('offer', false) || getRequest('form', '') === 'offer') {
+        if (getPostOrQuery('offer', false) || getPostOrQuery('form', '') === 'offer') {
             $defaultState = getInitialOfferState();
             $isOffer = true;
         }
@@ -1884,7 +1884,7 @@ case 'invoice_state':
     ];
     $strTable = '{prefix}invoice_state';
 
-    $intId = isset($id) ? $id : getRequest('id', false);
+    $intId = isset($id) ? $id : getPostOrQuery('id', false);
     $readOnly = ($intId && $intId <= 8);
     $astrFormElements = [
         [
@@ -1934,7 +1934,7 @@ case 'invoice_type':
     ];
     $strTable = '{prefix}invoice_type';
 
-    $intId = isset($id) ? $id : getRequest('id', false);
+    $intId = isset($id) ? $id : getPostOrQuery('id', false);
     $astrFormElements = [
         [
             'name' => 'identifier',
@@ -1991,7 +1991,7 @@ case 'session_type' :
     ];
     $strTable = '{prefix}session_type';
 
-    $intId = getRequest('id', false);
+    $intId = getPostOrQuery('id', false);
     if ($intId && $intId <= 4) {
         $readOnlyForm = true;
     }
@@ -2123,7 +2123,7 @@ case 'default_value' :
 case 'attachment':
     $strTable = '{prefix}attachment';
 
-    $intId = isset($id) ? $id : getRequest('id', false);
+    $intId = isset($id) ? $id : getPostOrQuery('id', false);
     if ($intId) {
         $showAttachment = Translator::translate('ShowAttachment');
         $extraButtons = <<<EOT

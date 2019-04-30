@@ -115,11 +115,15 @@ class InvoicePrinterOrderConfirmation extends InvoicePrinterBase
             // This shouldn't happen, but try to be safe...
             $paymentDays = getPaymentDays($invoiceData['company_id']);
         }
-        $data['TermsOfPayment'] = $this->getTermsOfPayment(
-            $paymentDays
-        );
+        $data['TermsOfPayment'] = [
+            'value' => $this->getTermsOfPayment($paymentDays),
+            'type' => 'multicell'
+        ];
         if ($invoiceData['reference']) {
-            $data['YourReference'] = $invoiceData['reference'];
+            $data['YourReference'] = [
+                'value' => $invoiceData['reference'],
+                'type' => 'multicell'
+            ];
         }
         if ($invoiceData['delivery_terms']) {
             $data['DeliveryTerms'] = [

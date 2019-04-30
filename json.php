@@ -47,7 +47,7 @@ require_once 'list_config.php';
 
 sesVerifySession(false);
 
-$strFunc = getRequest('func', '');
+$strFunc = getPostOrQuery('func', '');
 
 switch ($strFunc) {
 case 'get_company':
@@ -151,7 +151,7 @@ case 'put_invoice_row' :
 
 case 'get_custom_prices':
     $customPrice = getCustomPriceSettings(
-        getRequest('companyId')
+        getPostOrQuery('companyId')
     );
     header('Content-Type: application/json');
     echo json_encode($customPrice);
@@ -194,8 +194,8 @@ case 'delete_custom_prices':
 
 case 'get_custom_price':
     $customPrice = getCustomPrice(
-        getRequest('company_id'),
-        getRequest('product_id')
+        getPostOrQuery('company_id'),
+        getPostOrQuery('product_id')
     );
     header('Content-Type: application/json');
     echo json_encode($customPrice);
@@ -257,7 +257,7 @@ case 'delete_custom_price':
 
 case 'add_reminder_fees' :
     include 'add_reminder_fees.php';
-    $invoiceId = getRequest('id', 0);
+    $invoiceId = getPostOrQuery('id', 0);
     $errors = addReminderFees($invoiceId);
     if ($errors) {
         $ret = ['status' => 'error', 'errors' => $errors];
@@ -269,14 +269,14 @@ case 'add_reminder_fees' :
     break;
 
 case 'get_invoice_defaults' :
-    $baseId = getRequest('base_id', 0);
-    $companyId = getRequest('company_id', 0);
-    $invoiceId = getRequest('id', 0);
-    $invoiceDate = getRequest(
+    $baseId = getPostOrQuery('base_id', 0);
+    $companyId = getPostOrQuery('company_id', 0);
+    $invoiceId = getPostOrQuery('id', 0);
+    $invoiceDate = getPostOrQuery(
         'invoice_date', dateConvDBDate2Date(date('Y') . '0101')
     );
-    $intervalType = getRequest('interval_type', 0);
-    $invoiceNumber = getRequest('invoice_no', 0);
+    $intervalType = getPostOrQuery('interval_type', 0);
+    $invoiceNumber = getPostOrQuery('invoice_no', 0);
 
     $defaults = getInvoiceDefaults(
         $invoiceId, $baseId, $companyId, $invoiceDate, $intervalType, $invoiceNumber
@@ -287,7 +287,7 @@ case 'get_invoice_defaults' :
     break;
 
 case 'get_table_columns' :
-    $table = getRequest('table', '');
+    $table = getPostOrQuery('table', '');
     if (!$table) {
         header('HTTP/1.1 400 Bad Request');
         break;
@@ -353,7 +353,7 @@ case 'get_table_columns' :
     break;
 
 case 'get_import_preview' :
-    $table = getRequest('table', '');
+    $table = getPostOrQuery('table', '');
     if ($table == 'account_statement') {
         include 'import_statement.php';
         $import = new ImportStatement();
@@ -371,15 +371,15 @@ case 'get_import_preview' :
 case 'get_list' :
     include 'list.php';
 
-    $listFunc = getRequest('listfunc', '');
+    $listFunc = getPostOrQuery('listfunc', '');
 
-    $strList = getRequest('table', '');
+    $strList = getPostOrQuery('table', '');
     if (!$strList) {
         header('HTTP/1.1 400 Bad Request');
         die('Table must be defined');
     }
 
-    $tableId = getRequest('tableid', '');
+    $tableId = getPostOrQuery('tableid', '');
 
     $listConfig = getListConfig($strList);
     if (!$listConfig) {
@@ -387,11 +387,11 @@ case 'get_list' :
         die('Invalid table name');
     }
 
-    $startRow = intval(getRequest('start', -1));
-    $rowCount = intval(getRequest('length', -1));
+    $startRow = intval(getPostOrQuery('start', -1));
+    $rowCount = intval(getPostOrQuery('length', -1));
     $sort = [];
-    $columns = getRequest('columns', []);
-    if ($orderCols = getRequest('order', [])) {
+    $columns = getPostOrQuery('columns', []);
+    if ($orderCols = getPostOrQuery('order', [])) {
         foreach ($orderCols as $orderCol) {
             if (!isset($orderCol['column'])) {
                 continue;
@@ -403,15 +403,15 @@ case 'get_list' :
             ];
         }
     }
-    $search = getRequest('search', []);
+    $search = getPostOrQuery('search', []);
     $filter = empty($search['value']) ? '' : $search['value'];
-    $where = getRequest('where', '');
-    $companyId = 'product' === $strList ? getRequest('company', null) : null;
+    $where = getPostOrQuery('where', '');
+    $companyId = 'product' === $strList ? getPostOrQuery('company', null) : null;
 
     header('Content-Type: application/json');
     echo createJSONList(
         $listFunc, $strList, $startRow, $rowCount, $sort, $filter, $where,
-        intval(getRequest('draw', 1)), $tableId, $companyId
+        intval(getPostOrQuery('draw', 1)), $tableId, $companyId
     );
     Memory::set(
         $tableId,
@@ -422,7 +422,7 @@ case 'get_list' :
     break;
 
 case 'get_invoice_total_sum' :
-    $where = getRequest('where', '');
+    $where = getPostOrQuery('where', '');
 
     header('Content-Type: application/json');
     echo getInvoiceListTotal($where);
@@ -431,7 +431,7 @@ case 'get_invoice_total_sum' :
 case 'get_selectlist' :
     include 'list.php';
 
-    $table = getRequest('table', '');
+    $table = getPostOrQuery('table', '');
     if (!$table) {
         header('HTTP/1.1 400 Bad Request (table)');
         break;
@@ -442,12 +442,12 @@ case 'get_selectlist' :
         die('Invalid table name');
     }
 
-    $pageLen = intval(getRequest('pagelen', 10));
-    $page = intval(getRequest('page', 1)) - 1;
-    $filter = getRequest('q', '');
-    $sort = getRequest('sort', '');
-    $id = getRequest('id', '');
-    $type = getRequest('type', '');
+    $pageLen = intval(getPostOrQuery('pagelen', 10));
+    $page = intval(getPostOrQuery('page', 1)) - 1;
+    $filter = getPostOrQuery('q', '');
+    $sort = getPostOrQuery('sort', '');
+    $id = getPostOrQuery('id', '');
+    $type = getPostOrQuery('type', '');
 
     if ($type) {
         $filter = [$filter, $type];
@@ -474,15 +474,15 @@ case 'update_stock_balance' :
         header('HTTP/1.1 403 Forbidden');
         break;
     }
-    $productId = getRequest('product_id', 0);
-    $change = getRequest('stock_balance_change', 0);
-    $desc = getRequest('stock_balance_change_desc', '');
+    $productId = getPostOrQuery('product_id', 0);
+    $change = getPostOrQuery('stock_balance_change', 0);
+    $desc = getPostOrQuery('stock_balance_change_desc', '');
     header('Content-Type: application/json');
     echo updateStockBalance($productId, $change, $desc);
     break;
 
 case 'get_stock_balance_rows' :
-    $productId = getRequest('product_id', 0);
+    $productId = getPostOrQuery('product_id', 0);
     if (!$productId) {
         break;
     }
@@ -509,7 +509,7 @@ EOT
 
 case 'get_send_api_services':
     header('Content-Type: application/json');
-    echo getSendApiServices(getRequest('invoice_id'), getRequest('base_id'));
+    echo getSendApiServices(getPostOrQuery('invoice_id'), getPostOrQuery('base_id'));
     break;
 
 case 'add_invoice_attachment':
@@ -553,7 +553,7 @@ if (defined('_PROFILING_') && is_callable('tideways_disable')) {
 function printJSONRecord($table, $id = false, $warnings = null)
 {
     if ($id === false) {
-        $id = getRequest('id', '');
+        $id = getPostOrQuery('id', '');
     }
     if ($id) {
         if (substr($table, 0, 8) != '{prefix}') {
@@ -591,7 +591,7 @@ function printJSONRecord($table, $id = false, $warnings = null)
         }
 
         // Include any custom price for a product
-        if ($table == '{prefix}product' && ($companyId = getRequest('company_id'))) {
+        if ($table == '{prefix}product' && ($companyId = getPostOrQuery('company_id'))) {
             $customPriceSettings = getCustomPriceSettings($companyId);
             if (empty($customPriceSettings['valid'])) {
                 $customPriceSettings = null;
@@ -653,7 +653,7 @@ EOT;
 
     $where = '';
     $params = [];
-    $id = getRequest('parent_id', '');
+    $id = getPostOrQuery('parent_id', '');
     if ($id && $parentIdCol) {
         $where .= " WHERE t.$parentIdCol=?";
         $params[] = $id;
@@ -789,7 +789,7 @@ function deleteJSONRecord($table)
         return;
     }
 
-    $ids = getRequest('id', '');
+    $ids = getPostOrQuery('id', '');
     if ($ids) {
         foreach ((array)$ids as $id) {
             deleteRecord("{prefix}$table", $id);
@@ -1047,7 +1047,7 @@ function getSendApiServices($invoiceId, $baseId)
  */
 function addInvoiceAttachment()
 {
-    $newId = addAttachmentToInvoice(getRequest('id'), getRequest('invoice_id'));
+    $newId = addAttachmentToInvoice(getPostOrQuery('id'), getPostOrQuery('invoice_id'));
     printJSONRecord('invoice_attachment', $newId);
 
 }

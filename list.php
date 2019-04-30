@@ -51,7 +51,7 @@ function createList($strFunc, $strList, $strTableName = '', $strTitleOverride = 
     $prefilter = '', $invoiceTotal = false, $highlightOverdue = false,
     $printType = ''
 ) {
-    $strWhereClause = $prefilter ? $prefilter : getRequest('where', '');
+    $strWhereClause = $prefilter ? $prefilter : getPostOrQuery('where', '');
 
     if (!$strList) {
         $strList = $strFunc;
@@ -118,7 +118,7 @@ function createList($strFunc, $strList, $strTableName = '', $strTitleOverride = 
         $params['highlight_overdue'] = 1;
     }
     if ('product' === $strList) {
-        $companyId = getRequest('company');
+        $companyId = getPostOrQuery('company');
     }
     $customPriceSettings = null;
     if (!empty($companyId)) {
@@ -127,7 +127,7 @@ function createList($strFunc, $strList, $strTableName = '', $strTitleOverride = 
     }
 
     ?>
-<script type="text/javascript">
+<script>
 
   $(document).ready(function() {
     <?php
@@ -151,7 +151,7 @@ function createList($strFunc, $strList, $strTableName = '', $strTitleOverride = 
     <?php } ?>
 
     $('#<?php echo $strTableName?>')
-    <?php if (!getRequest('bc')) { ?>
+    <?php if (!getPostOrQuery('bc')) { ?>
     .on('stateLoaded.dt', function () {
       var table = $('#<?php echo $strTableName?>').DataTable();
       if (table.search() != '' || table.page() != 0) {
@@ -231,7 +231,7 @@ function createList($strFunc, $strList, $strTableName = '', $strTitleOverride = 
                 } elseif ('CHECKBOX' === $field['type']) {
                     $hasRowSelection = true;
                     ?>
-                    json.data[i][<?php echo $i?>] = '<input<?php echo $class?> name="id[]" type="checkbox" value="' + json.data[i][<?php echo $i?>] + '"></input>';
+                    json.data[i][<?php echo $i?>] = '<input<?php echo $class?> name="id[]" type="checkbox" value="' + json.data[i][<?php echo $i?>] + '">';
                     <?php
                 } else {
                     ?>
@@ -298,7 +298,7 @@ function createList($strFunc, $strList, $strTableName = '', $strTitleOverride = 
         </div>
         <div class="field">
             <?php echo htmlFormElement(
-                'company_id', 'SEARCHLIST', getRequest('company'), 'long',
+                'company_id', 'SEARCHLIST', getPostOrQuery('company'), 'long',
                 'table=company&sort=company_name,company_id', 'MODIFY', null, '', [],
                 '_onChangeCompanyReload'
             );?>
@@ -564,7 +564,7 @@ EOT;
 
     $astrPrimaryKeys = [];
     $records = [];
-    $highlight = getRequest('highlight_overdue', false);
+    $highlight = getPostOrQuery('highlight_overdue', false);
     $idField = $listConfig['primaryKey'];
     $deletedField = $listConfig['deletedField'];
     foreach ($rows as $row) {
@@ -911,7 +911,7 @@ function createJSONSelectList($strList, $startRow, $rowCount, $filter, $sort,
 
     $customPrices = null;
     if ('product' === $strList) {
-        $companyId = getRequest('company');
+        $companyId = getPostOrQuery('company');
         if (!empty($companyId)) {
             $customPrices = getCustomPriceSettings($companyId);
         }

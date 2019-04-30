@@ -509,12 +509,13 @@ textarea.email_body {
     padding-left: 2px;
     padding-right: 2px;
   }
-  .editor-toolbar {
-    max-height: 50px;
-    transition: max-height 50ms ease-in-out;
-    &.collapsed:not(.fullscreen) {
-      max-height: 0px;
-      transition: max-height 50ms ease-in-out 50ms;
+  .editor-toolbar:not(.fullscreen) {
+    height: 40px;
+    &::before {
+      margin-bottom: 2px;
+    }
+    &::after {
+      margin-top: 2px;
     }
   }
   &.xxlarge {

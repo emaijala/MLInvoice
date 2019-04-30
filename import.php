@@ -124,7 +124,7 @@ class ImportFile
             return;
         }
 
-        $filetype = getRequest('filetype', '');
+        $filetype = getPostOrQuery('filetype', '');
 
         $error = '';
         if ($filetype == 'upload') {
@@ -147,7 +147,7 @@ class ImportFile
             $error = Translator::translate('ErrImportFileNotFound');
         }
 
-        $importMode = getRequest('import', '');
+        $importMode = getPostOrQuery('import', '');
         if (($importMode == 'import' || $importMode == 'preview')
             && isset($_SESSION['import_file'])
         ) {
@@ -171,7 +171,7 @@ class ImportFile
     <span id="spinner" style="visibility: hidden"><img src="images/spinner.gif" alt=""></span>
     <form id="form_import" enctype="multipart/form-data" method="POST">
         <input type="hidden" name="func"
-            value="<?php echo htmlentities(getRequest('func', ''))?>"> <input
+            value="<?php echo htmlentities(getPostOrQuery('func', ''))?>"> <input
             type="hidden" name="operation" value="import">
         <div class="label file">
             <input type="radio" id="ft_upload" name="filetype" value="upload"
@@ -201,13 +201,13 @@ class ImportFile
      */
     public function createImportPreview()
     {
-        $charset = getRequest('charset', 'UTF-8');
-        $table = getRequest('table', '');
-        $format = getRequest('format', '');
-        $fieldDelimiter = getRequest('field_delim', 'comma');
-        $enclosureChar = getRequest('enclosure_char', 'doublequote');
-        $rowDelimiter = getRequest('row_delim', 'lf');
-        $skipRows = getRequest('skip_rows', 0);
+        $charset = getPostOrQuery('charset', 'UTF-8');
+        $table = getPostOrQuery('table', '');
+        $format = getPostOrQuery('format', '');
+        $fieldDelimiter = getPostOrQuery('field_delim', 'comma');
+        $enclosureChar = getPostOrQuery('enclosure_char', 'doublequote');
+        $rowDelimiter = getPostOrQuery('row_delim', 'lf');
+        $skipRows = getPostOrQuery('skip_rows', 0);
 
         if (!$charset || !$table || !$format || !$fieldDelimiter || !$enclosureChar
             || !$rowDelimiter
@@ -674,7 +674,7 @@ class ImportFile
             $enclosure_char = $selected;
         }
         ?>
-<script type="text/javascript">
+<script>
 
 g_presets = <?php echo json_encode($this->presets) . ';'?>
 
@@ -895,7 +895,7 @@ function select_preset()
     <span id="imessage" style="display: none"></span> <span id="spinner"
        style="visibility: hidden"><img src="images/spinner.gif" alt=""></span>
     <form id="import_form" name="import_form" method="GET">
-        <input type="hidden" name="func" value="<?php echo htmlentities(getRequest('func', ''))?>">
+        <input type="hidden" name="func" value="<?php echo htmlentities(getPostOrQuery('func', ''))?>">
         <input type="hidden" name="operation" value="import">
         <?php
         if ($this->presets) {
@@ -946,7 +946,7 @@ function select_preset()
         <?php
         if ($this->tableName) {
             ?>
-        <input id="sel_table" name="table" type="hidden" value="<?php echo htmlentities($this->tableName)?>"></input>
+        <input id="sel_table" name="table" type="hidden" value="<?php echo htmlentities($this->tableName)?>">
             <?php
         } else {
             ?>
@@ -1058,14 +1058,12 @@ function select_preset()
         <div class="field">
             <input id="decimal_separator" name="decimal_separator" maxlength="1"
                 value="<?php echo htmlentities($decimalSeparator)?>"
-                onchange="settings_changed()"></input>
+                onchange="settings_changed()">
         </div>
 
         <div class="medium_label"><?php echo Translator::translate('ImportSkipRows')?></div>
         <div class="field">
-            <input id="skip_rows" name="skip_rows"
-                onchange="settings_changed(); update_mapping_table()" value="0">
-            </input>
+            <input id="skip_rows" name="skip_rows" onchange="settings_changed(); update_mapping_table()" value="0">
         </div>
 
         <?php if ($this->duplicateControl) { ?>
@@ -1417,17 +1415,17 @@ function select_preset()
         // Disable output buffering
         ob_end_flush();
 
-        $charset = getRequest('charset', 'UTF-8');
-        $table = getRequest('table', '');
-        $format = getRequest('format', '');
-        $fieldDelimiter = getRequest('field_delim', 'comma');
-        $enclosureChar = getRequest('enclosure_char', 'doublequote');
-        $rowDelimiter = getRequest('row_delim', 'lf');
-        $duplicateMode = getRequest('duplicate_processing', '');
-        $duplicateCheckColumns = getRequest('column', []);
-        $columnMappings = getRequest('map_column', []);
-        $skipRows = getRequest('skip_rows', 0);
-        $decimalSeparator = getRequest('decimal_separator', ',');
+        $charset = getPostOrQuery('charset', 'UTF-8');
+        $table = getPostOrQuery('table', '');
+        $format = getPostOrQuery('format', '');
+        $fieldDelimiter = getPostOrQuery('field_delim', 'comma');
+        $enclosureChar = getPostOrQuery('enclosure_char', 'doublequote');
+        $rowDelimiter = getPostOrQuery('row_delim', 'lf');
+        $duplicateMode = getPostOrQuery('duplicate_processing', '');
+        $duplicateCheckColumns = getPostOrQuery('column', []);
+        $columnMappings = getPostOrQuery('map_column', []);
+        $skipRows = getPostOrQuery('skip_rows', 0);
+        $decimalSeparator = getPostOrQuery('decimal_separator', ',');
 
         if (!$charset || !$format || !$fieldDelimiter || !$enclosureChar
             || !$rowDelimiter

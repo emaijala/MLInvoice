@@ -109,14 +109,21 @@ class InvoicePrinterOffer extends InvoicePrinterBase
         if (!empty($validUntilSuffix)) {
             $strDueDate .= " $validUntilSuffix";
         }
-        $data['ValidUntil'] = $strDueDate;
+        $data['ValidUntil'] = [
+            'value' => $strDueDate,
+            'type' => 'multicell'
+        ];
 
         $paymentDays = getPaymentDays($invoiceData['company_id']);
-        $data['TermsOfPayment'] = $this->getTermsOfPayment(
-            $paymentDays
-        );
+        $data['TermsOfPayment'] = [
+            'value' => $this->getTermsOfPayment($paymentDays),
+            'type' => 'multicell'
+        ];
         if ($invoiceData['reference']) {
-            $data['YourReference'] = $invoiceData['reference'];
+            $data['YourReference'] = [
+                'value' => $invoiceData['reference'],
+                'type' => 'multicell'
+            ];
         }
         if ($invoiceData['delivery_terms']) {
             $data['DeliveryTerms'] = [
