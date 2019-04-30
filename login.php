@@ -52,7 +52,7 @@ $strLogin = getPost('login', false);
 $strPasswd = getPost('passwd', false);
 $strCsrf = getPost('csrf', false);
 $strLogon = getPost('logon', '');
-$backlink = getRequest('backlink', '0');
+$backlink = getPostOrQuery('backlink', '0');
 
 if (defined('_UI_LANGUAGE_SELECTION_')) {
     $languages = [];
@@ -60,7 +60,7 @@ if (defined('_UI_LANGUAGE_SELECTION_')) {
         $lang = explode('=', $lang, 2);
         $languages[$lang[0]] = $lang[1];
     }
-    $language = getRequest('lang', '');
+    $language = getPostOrQuery('lang', '');
     if ($language && isset($languages[$language])) {
         $_SESSION['sesLANG'] = $language;
     }

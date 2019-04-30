@@ -57,8 +57,8 @@ function createForm($strFunc, $strList, $strForm)
         return;
     }
 
-    $action = getPostRequest('action', false);
-    $intKeyValue = getPostRequest('id', false);
+    $action = getPostOrQuery('action', false);
+    $intKeyValue = getPostOrQuery('id', false);
     if (!$intKeyValue) {
         $action = 'new';
     }
@@ -88,7 +88,7 @@ function createForm($strFunc, $strList, $strForm)
         $formConfig['readOnly'] = false;
     }
 
-    $redirect = getRequest('redirect', null);
+    $redirect = getPostOrQuery('redirect', null);
     if (isset($redirect)) {
         // Redirect after save
         foreach ($formConfig['fields'] as $elem) {
@@ -210,6 +210,15 @@ EOT;
             <input type="hidden" id="invoice_vatless" value="0">
         <?php
     }
+    foreach ($formConfig['fields'] as $elem) {
+        if ($elem['type'] == 'HID_INT' || strstr($elem['type'], 'HID_')) {
+            echo htmlFormElement(
+                $elem['name'], $elem['type'], $astrValues[$elem['name']],
+                $elem['style'], $elem['listquery'], 'READONLY', $elem['parent_key'],
+                $elem['label']
+            );
+        }
+    }
     ?>
             <table>
     <?php
@@ -305,11 +314,7 @@ EOT;
           <td<?php echo $fieldClassAttr?>>&nbsp;</td>
             <?php
         } elseif ($elem['type'] == 'HID_INT' || strstr($elem['type'], 'HID_')) {
-            echo htmlFormElement(
-                $elem['name'], $elem['type'], $astrValues[$elem['name']],
-                $elem['style'], $elem['listquery'], $fieldMode, $elem['parent_key'],
-                $elem['label']
-            );
+            // Done outside the table
         } elseif ($elem['type'] == 'IMAGE') {
             ?>
           <td class="image<?php echo $fieldClass?>" colspan="<?php echo $intColspan?>">
@@ -844,7 +849,7 @@ function createFormButtons($form, $new, $copyLinkOverride, $spinner, $readOnlyFo
             </div>
             <div id="cover-letter-form-inner">
                 <form action="coverletter.php" method="POST">
-                <input type="hidden" name="company" value="<?php echo getRequest('id')?>">
+                <input type="hidden" name="company" value="<?php echo getPostOrQuery('id')?>">
                 <div class="medium_label"><?php echo Translator::translate('Sender')?></div>
                 <div class="field">
                     <?php echo htmlFormElement(
@@ -868,7 +873,7 @@ function createFormButtons($form, $new, $copyLinkOverride, $spinner, $readOnlyFo
         }
     }
 
-    $id = getRequest('id', '');
+    $id = getPostOrQuery('id', '');
 
     if ($form === 'invoice' && $top && !$new) {
         $attachmentCount = GetInvoiceAttachmentCount($id);
@@ -884,7 +889,7 @@ function createFormButtons($form, $new, $copyLinkOverride, $spinner, $readOnlyFo
         <?php
     }
 
-    if ($id && ($listId = getRequest('listid', ''))) {
+    if ($id && ($listId = getPostOrQuery('listid', ''))) {
         createListNavigationLinks($listId, $id);
     }
 

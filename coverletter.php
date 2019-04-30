@@ -41,9 +41,9 @@ require_once 'pdf.php';
 require_once 'datefuncs.php';
 require_once 'miscfuncs.php';
 
-$baseId = getRequest('base', false);
-$companyId = getRequest('company', false);
-$foreword = getRequest('foreword', '');
+$baseId = getPostOrQuery('base', false);
+$companyId = getPostOrQuery('company', false);
+$foreword = getPostOrQuery('foreword', '');
 
 $strQuery = 'SELECT * FROM {prefix}company WHERE id=?';
 $rows = dbParamQuery($strQuery, [$companyId]);

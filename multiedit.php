@@ -56,8 +56,8 @@ class MultiEdit
             die('Invalid request');
         }
 
-        $strForm = getRequest('form', '');
-        $list = getRequest('list', '');
+        $strForm = getPostOrQuery('form', '');
+        $list = getPostOrQuery('list', '');
 
         $formConfig = getFormConfig($strForm, 'multiedit');
 

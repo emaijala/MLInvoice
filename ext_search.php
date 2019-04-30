@@ -37,8 +37,8 @@ sesVerifySession();
 
 require_once 'translator.php';
 
-$strFunc = getRequest('func', '');
-$strForm = getRequest('form', '');
+$strFunc = getPostOrQuery('func', '');
+$strForm = getPostOrQuery('form', '');
 if ($strFunc == 'open_invoices') {
     $strFunc = 'invoices';
 }

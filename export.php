@@ -57,15 +57,15 @@ class ExportData
      */
     public function launch()
     {
-        $charset = getRequest('charset', 'UTF-8');
-        $table = getRequest('table', '');
-        $format = getRequest('format', '');
-        $fieldDelimiter = getRequest('field_delim', ',');
-        $enclosureChar = getRequest('enclosure_char', '"');
-        $rowDelimiter = getRequest('row_delim', "\n");
-        $columns = getRequest('column', '');
-        $childRows = getRequest('child_rows', '');
-        $deletedRecords = getRequest('deleted', false);
+        $charset = getPostOrQuery('charset', 'UTF-8');
+        $table = getPostOrQuery('table', '');
+        $format = getPostOrQuery('format', '');
+        $fieldDelimiter = getPostOrQuery('field_delim', ',');
+        $enclosureChar = getPostOrQuery('enclosure_char', '"');
+        $rowDelimiter = getPostOrQuery('row_delim', "\n");
+        $columns = getPostOrQuery('column', '');
+        $childRows = getPostOrQuery('child_rows', '');
+        $deletedRecords = getPostOrQuery('deleted', false);
 
         if ($table && $format && $columns) {
             if (!tableNameValid($table)) {

@@ -94,17 +94,17 @@ class InvoiceReport extends AbstractReport
      */
     public function createReport()
     {
-        $strReport = getRequest('report', '');
+        $strReport = getPostOrQuery('report', '');
 
         if ($strReport) {
             $this->printReport();
             return;
         }
 
-        $fields = getRequest('fields[]', []);
-        $rowTypes = getRequest('row_types', 'all');
-        $format = getRequest('format', 'html');
-        $grouping = getRequest('grouping', '');
+        $fields = getPostOrQuery('fields[]', []);
+        $rowTypes = getPostOrQuery('row_types', 'all');
+        $format = getPostOrQuery('format', 'html');
+        $grouping = getPostOrQuery('grouping', '');
         ?>
 
 <script>
@@ -139,7 +139,7 @@ class InvoiceReport extends AbstractReport
 <div class="form_container ui-widget-content ui-helper-clearfix">
     <form method="get" id="params" name="params">
         <input name="func" type="hidden" value="reports"> <input name="form"
-            type="hidden" value="<?php echo getRequest('form', 'invoice') ?>"> <input name="report" type="hidden"
+            type="hidden" value="<?php echo getPostOrQuery('form', 'invoice') ?>"> <input name="report" type="hidden"
             value="1">
 
         <div class="report-settings">
@@ -294,12 +294,12 @@ class InvoiceReport extends AbstractReport
      */
     protected function addLimitSelection()
     {
-        $intBaseId = getRequest('base', false);
-        $intCompanyId = getRequest('company', false);
-        $invoiceDateRange = getRequest('date', '');
-        $invoiceRowDateRange = getRequest('row_date', '');
-        $paymentDateRange = getRequest('payment_date', '');
-        $companyTags = getRequest('tags', '');
+        $intBaseId = getPostOrQuery('base', false);
+        $intCompanyId = getPostOrQuery('company', false);
+        $invoiceDateRange = getPostOrQuery('date', '');
+        $invoiceRowDateRange = getPostOrQuery('row_date', '');
+        $paymentDateRange = getPostOrQuery('payment_date', '');
+        $companyTags = getPostOrQuery('tags', '');
         ?>
             <div class="medium_label"><?php echo Translator::translate('InvoiceDateInterval')?></div>
             <div class="field">
@@ -342,7 +342,7 @@ class InvoiceReport extends AbstractReport
     {
         list($strQuery, $arrParams) = parent::createLimitQuery();
 
-        $paymentDateRange = explode(' - ', getRequest('payment_date', ''));
+        $paymentDateRange = explode(' - ', getPostOrQuery('payment_date', ''));
         $paymentStartDate = $paymentDateRange[0];
         $paymentEndDate = isset($paymentDateRange[1]) ? $paymentDateRange[1] : '';
         if ($paymentStartDate) {
@@ -364,10 +364,10 @@ class InvoiceReport extends AbstractReport
      */
     protected function printReport()
     {
-        $grouping = getRequest('grouping', '');
-        $format = getRequest('format', 'html');
-        $printFields = getRequest('fields', []);
-        $rowTypes = getRequest('row_types', 'all');
+        $grouping = getPostOrQuery('grouping', '');
+        $format = getPostOrQuery('format', 'html');
+        $printFields = getPostOrQuery('fields', []);
+        $rowTypes = getPostOrQuery('row_types', 'all');
 
         $rowsNeeded = 'vat' === $grouping || 'product' === $grouping;
         $strQuery = 'SELECT i.id, i.invoice_no, i.invoice_date, i.due_date,'
@@ -394,7 +394,7 @@ class InvoiceReport extends AbstractReport
             $intStateId = $row['id'];
             $strStateName = $row['name'];
             $strTemp = "stateid_$intStateId";
-            $tmpSelected = getRequest($strTemp, false);
+            $tmpSelected = getPostOrQuery($strTemp, false);
             if ($tmpSelected) {
                 $strQuery2 .= 'i.state_id = ? OR ';
                 $arrParams[] = $intStateId;
@@ -422,7 +422,7 @@ class InvoiceReport extends AbstractReport
             $strQuery .= ' ORDER BY invoice_date, invoice_no';
         }
 
-        $rowDateRange = explode(' - ', getRequest('row_date', ''));
+        $rowDateRange = explode(' - ', getPostOrQuery('row_date', ''));
         $rowStartDate = $rowDateRange[0];
         $rowEndDate = isset($rowDateRange[1]) ? $rowDateRange[1] : $rowStartDate;
         if ($rowStartDate) {

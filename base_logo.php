@@ -33,8 +33,8 @@ require_once 'htmlfuncs.php';
 
 sesVerifySession();
 
-$func = getRequest('func', 'view');
-$baseId = getRequest('id', null);
+$func = getPostOrQuery('func', 'view');
+$baseId = getPostOrQuery('id', null);
 
 if (!isset($baseId) || !is_numeric($baseId) || !isset($func)) {
     exit();

@@ -51,18 +51,18 @@ class ProductReport extends AbstractReport
      */
     public function createReport()
     {
-        $strReport = getRequest('report', '');
+        $strReport = getPostOrQuery('report', '');
 
         if ($strReport) {
             $this->printReport();
             return;
         }
 
-        $intBaseId = getRequest('base', false);
-        $intCompanyId = getRequest('company', false);
-        $intProductId = getRequest('product', false);
-        $dateRange = getRequest('date', '');
-        $companyTags = getRequest('tags', '');
+        $intBaseId = getPostOrQuery('base', false);
+        $intCompanyId = getPostOrQuery('company', false);
+        $intProductId = getPostOrQuery('product', false);
+        $dateRange = getPostOrQuery('date', '');
+        $companyTags = getPostOrQuery('tags', '');
         ?>
 
 <script>
@@ -179,13 +179,13 @@ class ProductReport extends AbstractReport
      */
     protected function printReport()
     {
-        $intStateID = getRequest('stateid', false);
-        $intBaseId = getRequest('base', false);
-        $intCompanyId = getRequest('company', false);
-        $intProductId = getRequest('product', false);
-        $format = getRequest('format', 'html');
+        $intStateID = getPostOrQuery('stateid', false);
+        $intBaseId = getPostOrQuery('base', false);
+        $intCompanyId = getPostOrQuery('company', false);
+        $intProductId = getPostOrQuery('product', false);
+        $format = getPostOrQuery('format', 'html');
 
-        $dateRange = explode(' - ', getRequest('date', ''));
+        $dateRange = explode(' - ', getPostOrQuery('date', ''));
         $startDate = $dateRange[0];
         $endDate = isset($dateRange[1]) ? $dateRange[1] : $startDate;
 
@@ -213,7 +213,7 @@ class ProductReport extends AbstractReport
             $intStateId = $row['id'];
             $strStateName = $row['name'];
             $strTemp = "stateid_$intStateId";
-            $tmpSelected = getRequest($strTemp, false) ? true : false;
+            $tmpSelected = getPostOrQuery($strTemp, false) ? true : false;
             if ($tmpSelected) {
                 $strQuery2 .= ' i.state_id = ? OR ';
                 $arrParams[] = $intStateId;

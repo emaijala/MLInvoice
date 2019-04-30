@@ -34,13 +34,13 @@ ob_start();
 require_once 'sessionfuncs.php';
 
 $authenticated = true;
-$intInvoiceId = getRequest('id', false);
-$printTemplate = getRequest('t', false);
+$intInvoiceId = getPostOrQuery('id', false);
+$printTemplate = getPostOrQuery('t', false);
 $dateOverride = false;
-$language = getRequest('l', false);
-$uuid = getRequest('i', false);
-$hash = getRequest('c', false);
-$ts = getRequest('s', false);
+$language = getPostOrQuery('l', false);
+$uuid = getPostOrQuery('i', false);
+$hash = getPostOrQuery('c', false);
+$ts = getPostOrQuery('s', false);
 if (false === $printTemplate || false === $language || false === $uuid
     || false === $hash || false === $ts
 ) {
@@ -60,8 +60,8 @@ require_once 'datefuncs.php';
 require_once 'miscfuncs.php';
 
 if ($authenticated) {
-    $printTemplate = getRequest('template', 1);
-    $dateOverride = getRequest('date', false);
+    $printTemplate = getPostOrQuery('template', 1);
+    $dateOverride = getPostOrQuery('date', false);
     if (!is_string($dateOverride) || !ctype_digit($dateOverride)
         || strlen($dateOverride) != 8
     ) {

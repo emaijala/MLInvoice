@@ -51,14 +51,14 @@ class ProductStockReport extends AbstractReport
      */
     public function createReport()
     {
-        $strReport = getRequest('report', '');
+        $strReport = getPostOrQuery('report', '');
 
         if ($strReport) {
             $this->printReport();
             return;
         }
 
-        $intProductId = getRequest('product', false);
+        $intProductId = getPostOrQuery('product', false);
         ?>
 
 <div class="form_container ui-widget-content ui-helper-clearfix">
@@ -134,9 +134,9 @@ class ProductStockReport extends AbstractReport
      */
     protected function printReport()
     {
-        $intProductId = getRequest('product', false);
-        $format = getRequest('format', 'html');
-        $purchasePrice = getRequest('purchase_price', false);
+        $intProductId = getPostOrQuery('product', false);
+        $format = getPostOrQuery('format', 'html');
+        $purchasePrice = getPostOrQuery('purchase_price', false);
 
         $arrParams = [];
 

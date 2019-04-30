@@ -61,7 +61,7 @@ class Updater
             return false;
         }
 
-        $this->stage = (int)getRequest('stage', 0);
+        $this->stage = (int)getPostOrQuery('stage', 0);
         switch ($this->stage) {
         case 0:
             $this->preFlightCheck();

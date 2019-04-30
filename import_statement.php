@@ -377,7 +377,7 @@ class ImportStatement extends ImportFile
         $date = date(
             'Ymd',
             DateTime::createFromFormat(
-                getRequest('date_format', 'd.m.Y'), $row['date']
+                getPostOrQuery('date_format', 'd.m.Y'), $row['date']
             )->getTimestamp()
         );
         $amount = trim($row['amount']);
@@ -402,7 +402,7 @@ class ImportStatement extends ImportFile
             return Translator::translate('ImportStatementFieldMissing');
         }
 
-        $format = getRequest('format', '');
+        $format = getPostOrQuery('format', '');
         if ($format == 'fixed' && isset($row['correction']) && $row['correction']) {
             $msg = str_replace(
                 '{refnr}', $refnr, Translator::translate('ImportStatementNoCorrections')
@@ -418,13 +418,13 @@ class ImportStatement extends ImportFile
             . ' WHERE i.Deleted=0 AND REPLACE(i.ref_number, " ", "") = ?';
         $params = [$refnr];
 
-        $baseId = getRequest('base_id', '');
+        $baseId = getPostOrQuery('base_id', '');
         if ($baseId) {
             $sql .= ' AND i.base_id = ?';
             $params[] = $baseId;
         }
 
-        $ignorePaid = getRequest('ignore_paid', '');
+        $ignorePaid = getPostOrQuery('ignore_paid', '');
         if ($ignorePaid) {
             $sql .= ' AND ist.invoice_unpaid = 1';
         }
@@ -470,7 +470,7 @@ class ImportStatement extends ImportFile
         $totalToPay = $rowTotal + $partialPayments;
 
         if (miscRound2Decim($totalToPay) != miscRound2Decim($amount)) {
-            if (getRequest('partial_payments', false)
+            if (getPostOrQuery('partial_payments', false)
                 && miscRound2Decim($totalToPay) > miscRound2Decim($amount)
             ) {
                 if ($mode == 'import') {
@@ -519,7 +519,7 @@ EOT;
             }
         }
 
-        $archive = $row['interval_type'] == 0 && getRequest('archive', '');
+        $archive = $row['interval_type'] == 0 && getPostOrQuery('archive', '');
 
         if ($mode == 'import') {
             $sql = 'UPDATE {prefix}invoice SET state_id=3, payment_date=?';

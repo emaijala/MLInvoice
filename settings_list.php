@@ -50,7 +50,7 @@ function createSettingsList()
 
     $messages = '';
 
-    $blnSave = getPostRequest('saveact', false) ? true : false;
+    $blnSave = getPostOrQuery('saveact', false) ? true : false;
     if ($blnSave) {
         foreach ($arrSettings as $name => $elem) {
             $type = $elem['type'];

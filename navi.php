@@ -129,7 +129,7 @@ function createFuncMenu($strFunc)
             ]
         ];
         $strNewText = '';
-        $strList = getRequest('list', '');
+        $strList = getPostOrQuery('list', '');
         switch ($strList) {
         case 'user':
             $strNewText = Translator::translate('NewUser');
@@ -195,9 +195,9 @@ function createFuncMenu($strFunc)
             ]
         ];
         $strNewText = '';
-        $form = getRequest('form', '');
+        $form = getPostOrQuery('form', '');
         if (!$form) {
-            $strList = getRequest('list', '');
+            $strList = getPostOrQuery('list', '');
             switch ($strList) {
             case 'base':
                 $strNewText = Translator::translate('NewBase');
@@ -364,10 +364,10 @@ function createFuncMenu($strFunc)
                 }
                 parse_str($urlParams, $linkParts);
                 if ((!isset($linkParts['func'])
-                    || getRequest('func', '') == $linkParts['func']) && (!isset($linkParts['list'])
-                    || getRequest('list', '') == $linkParts['list']) && (!isset($linkParts['form'])
-                    || getRequest('form', '') == $linkParts['form']) && (!isset($linkParts['operation'])
-                    || getRequest('operation', '') == $linkParts['operation'])
+                    || getPostOrQuery('func', '') == $linkParts['func']) && (!isset($linkParts['list'])
+                    || getPostOrQuery('list', '') == $linkParts['list']) && (!isset($linkParts['form'])
+                    || getPostOrQuery('form', '') == $linkParts['form']) && (!isset($linkParts['operation'])
+                    || getPostOrQuery('operation', '') == $linkParts['operation'])
                 ) {
                     $class = ' ui-state-highlight';
                 }

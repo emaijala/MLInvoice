@@ -58,7 +58,7 @@ if (!getSetting('password_recovery')) {
     return;
 }
 
-$token = getRequest('token');
+$token = getPostOrQuery('token');
 if ($token) {
     $tokenTime = intval(substr($token, -10));
     if (time() - $tokenTime > 3600) {
@@ -68,7 +68,7 @@ if ($token) {
         if (!$user) {
             $errorMessage = Translator::translate('AccountNotFound');
         } else {
-            $password = getRequest('password', false);
+            $password = getPostOrQuery('password', false);
             if (false !== $password) {
                 updateUserPassword($user['id'], $password);
                 $message = Translator::translate('PasswordChanged');
