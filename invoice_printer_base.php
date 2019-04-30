@@ -930,9 +930,10 @@ EOT;
                 // This shouldn't happen, but try to be safe...
                 $paymentDays = getPaymentDays($invoiceData['company_id']);
             }
-            $data['TermsOfPayment'] = $this->getTermsOfPayment(
-                $paymentDays
-            );
+            $data['TermsOfPayment'] = [
+                'value' => $this->getTermsOfPayment($paymentDays),
+                'type' => 'multicell'
+            ];
             $data['PeriodForComplaints'] = $this->getPeriodForComplaints();
             $data['PenaltyInterest'] = $this->formatNumber(
                 getSetting('invoice_penalty_interest'), 1, true
@@ -949,7 +950,10 @@ EOT;
         }
 
         if ($invoiceData['reference']) {
-            $data['YourReference'] = $invoiceData['reference'];
+            $data['YourReference'] = [
+                'value' => $invoiceData['reference'],
+                'type' => 'multicell'
+            ];
         }
         if (($this->printStyle == 'invoice'
             && getSetting('invoice_show_delivery_info_in_invoice'))
