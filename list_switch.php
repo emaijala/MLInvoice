@@ -60,7 +60,7 @@ case 'company' :
             'width' => 20,
             'type' => 'CHECKBOX',
             'order' => 'DESC',
-            'header' => '<input class="cb-select-all" type="checkbox" value=""></input>',
+            'header' => '<input class="cb-select-all" type="checkbox" value="">',
             'class' => 'cb-select-row',
             'sort' => false
         ],
@@ -206,7 +206,7 @@ EOT;
             'width' => 20,
             'type' => 'CHECKBOX',
             'order' => 'DESC',
-            'header' => '<input class="cb-select-all" type="checkbox" value=""></input>',
+            'header' => '<input class="cb-select-all" type="checkbox" value="">',
             'class' => 'cb-select-row',
             'sort' => false
         ],
@@ -438,7 +438,7 @@ case 'product' :
             'width' => 20,
             'type' => 'CHECKBOX',
             'order' => 'DESC',
-            'header' => '<input class="cb-select-all" type="checkbox" value=""></input>',
+            'header' => '<input class="cb-select-all" type="checkbox" value="">',
             'class' => 'cb-select-row',
             'sort' => false
         ],

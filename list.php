@@ -231,7 +231,7 @@ function createList($strFunc, $strList, $strTableName = '', $strTitleOverride = 
                 } elseif ('CHECKBOX' === $field['type']) {
                     $hasRowSelection = true;
                     ?>
-                    json.data[i][<?php echo $i?>] = '<input<?php echo $class?> name="id[]" type="checkbox" value="' + json.data[i][<?php echo $i?>] + '"></input>';
+                    json.data[i][<?php echo $i?>] = '<input<?php echo $class?> name="id[]" type="checkbox" value="' + json.data[i][<?php echo $i?>] + '">';
                     <?php
                 } else {
                     ?>
