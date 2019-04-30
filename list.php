@@ -127,7 +127,7 @@ function createList($strFunc, $strList, $strTableName = '', $strTitleOverride = 
     }
 
     ?>
-<script type="text/javascript">
+<script>
 
   $(document).ready(function() {
     <?php

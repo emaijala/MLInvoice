@@ -315,7 +315,7 @@ function createFuncMenu($strFunc)
     }
 
     ?>
-<script type="text/javascript">
+<script>
   function openSearchWindow(mode, event) {
       x = event.screenX;
       y = event.screenY;

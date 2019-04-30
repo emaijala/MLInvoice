@@ -99,7 +99,7 @@ function createSettingsList()
     <div class="ui-widget ui-state-error"><?php echo $messages?></div>
     <?php }?>
 
-    <script type="text/javascript">
+    <script>
     <!--
     $(document).ready(function() {
       $('input[class~="hasCalendar"]').datepicker();

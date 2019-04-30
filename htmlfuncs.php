@@ -89,7 +89,7 @@ function htmlPageStart($strTitle = '', $arrExtraScripts = [])
 
     $scripts = array_merge($scripts, $arrExtraScripts);
     foreach ($scripts as &$script) {
-        $script = '  <script type="text/javascript" src="'
+        $script = '  <script src="'
             . addFileTimestamp($script) . '"></script>';
     }
     $scriptLinks = implode("\n", $scripts);
@@ -225,7 +225,7 @@ $xUACompatible  <title>$strTitle</title>
   <link rel="shortcut icon" href="$favicon" type="image/x-icon">
 $cssLinks
 $scriptLinks
-  <script type="text/javascript">
+  <script>
 MLInvoice.addTranslations($jsTranslations);
 MLInvoice.setDispatchNotePrintStyle('$dispatchNotePrintStyle');
 MLInvoice.setOfferStatuses($offerStatuses);

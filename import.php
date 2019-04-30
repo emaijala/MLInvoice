@@ -674,7 +674,7 @@ class ImportFile
             $enclosure_char = $selected;
         }
         ?>
-<script type="text/javascript">
+<script>
 
 g_presets = <?php echo json_encode($this->presets) . ';'?>
 

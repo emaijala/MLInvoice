@@ -107,7 +107,7 @@ class InvoiceReport extends AbstractReport
         $grouping = getRequest('grouping', '');
         ?>
 
-<script type="text/javascript">
+<script>
   $(document).ready(function() {
     $('input[class~="hasDateRangePicker"]').each(function() {
       $(this).daterangepicker(<?php echo Translator::translate('DateRangePickerOptions')?>);
@@ -1208,7 +1208,7 @@ class InvoiceReport extends AbstractReport
         if ($format == 'table') {
             $sumColumns = [$sumStartCol, $sumStartCol + 1, $sumStartCol + 2, $sumStartCol + 3];
             ?>
-<script type="text/javascript">
+<script>
 var table = $('.report-table.datatable').DataTable({
     'language': {
             <?php echo Translator::translate('TableTexts')?>

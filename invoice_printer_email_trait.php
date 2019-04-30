@@ -246,7 +246,7 @@ trait InvoicePrinterEmailTrait
         </div>
     </div>
 </body>
-<script type="text/javascript">
+<script>
 $(document).ready(function() {
     $('#email_form').submit(function() {
         $('#spinner').show();

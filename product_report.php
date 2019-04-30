@@ -65,7 +65,7 @@ class ProductReport extends AbstractReport
         $companyTags = getRequest('tags', '');
         ?>
 
-<script type="text/javascript">
+<script>
   $(document).ready(function() {
     $('input[class~="hasDateRangePicker"]')
         .daterangepicker(<?php echo Translator::translate('DateRangePickerOptions')?>);
@@ -568,7 +568,7 @@ class ProductReport extends AbstractReport
         <?php
         if ($format == 'table') {
             ?>
-<script type="text/javascript">
+<script>
 var table = $('.report-table.datatable').DataTable({
     'language': {
             <?php echo Translator::translate('TableTexts')?>

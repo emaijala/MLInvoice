@@ -183,7 +183,7 @@ if ($blnSearch || $blnSave) {
 echo htmlPageStart();
 ?>
 <body onload="<?php echo $strOnLoad?>">
-    <script type="text/javascript">
+    <script>
 <!--
 $(function() {
   $('input[class~="hasCalendar"]').datepicker();

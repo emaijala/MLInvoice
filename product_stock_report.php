@@ -405,7 +405,7 @@ class ProductStockReport extends AbstractReport
         <?php
         if ($format == 'table') {
             ?>
-<script type="text/javascript">
+<script>
 var table = $('.report-table.datatable').DataTable({
     'language': {
             <?php echo Translator::translate('TableTexts')?>

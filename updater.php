@@ -534,7 +534,7 @@ EOT;
         $this->message($message);
         $message = Translator::translate($message);
         echo <<<EOT
-<script type="text/javascript">
+<script>
     $(document).ready(function () {
         setTimeout(function () { window.location = '$target'; }, 2000);
     });

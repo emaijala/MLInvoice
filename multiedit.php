@@ -189,7 +189,7 @@ class MultiEdit
         </div>
     </div>
 
-    <script type="text/javascript">
+    <script>
     $(document).ready(function() {
         $('input[type="text"],input[type="hidden"],input[type="checkbox"]:not(.cb-select-row):not(.cb-select-all),select:not(.dropdownmenu),textarea')
         .change(function() {

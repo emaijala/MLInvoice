@@ -166,7 +166,7 @@ if ($strFunc == 'open_invoices' && !$strForm) {
         $address = defined('_UPDATE_ADDRESS_') ? _UPDATE_ADDRESS_
         : 'https://www.labs.fi/mlinvoice_version.php';
         ?>
-  <script type="text/javascript">
+  <script>
     $(document).ready(function() {
         MLInvoice.checkForUpdates('<?php echo $address?>', '<?php echo $softwareVersion?>');
     });

@@ -256,7 +256,7 @@ EOT;
         }
 
         ?>
-<script type="text/javascript">
+<script>
 
   $(document).ready(function() {
     $('#imessage').ajaxStart(function() {
