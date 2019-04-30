@@ -86,14 +86,6 @@ MLInvoice.addModule('Form', function mlinvoiceForm() {
       mde.codemirror.options.extraKeys.Tab = false;
       mde.codemirror.options.extraKeys['Shift-Tab'] = false;
       $(this).data('simplemde', mde);
-      var $toolbar = $(this).siblings('.editor-toolbar');
-      /*$toolbar.addClass('collapsed');
-      mde.codemirror.on('focus', function onFocus() {
-        $toolbar.removeClass('collapsed');
-      });
-      mde.codemirror.on('blur', function onFocus() {
-        $toolbar.addClass('collapsed');
-      });*/
       mde.codemirror.on('change', function onMdeChange() {
         startChanging();
         $('.save_button').addClass('ui-state-highlight');
