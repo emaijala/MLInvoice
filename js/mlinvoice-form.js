@@ -47,7 +47,7 @@ MLInvoice.addModule('Form', function mlinvoiceForm() {
 
     _setupYtjSearch();
     _setupMarkdownEditor();
-    _setupDefaultTextSelection();
+    setupDefaultTextSelection();
     setupSelect2();
     _setupInvoiceAttachments();
     _updateSendApiButtons();
@@ -327,7 +327,7 @@ MLInvoice.addModule('Form', function mlinvoiceForm() {
     });
   }
 
-  function _setupDefaultTextSelection() {
+  function setupDefaultTextSelection() {
     $('.select-default-text').each(function setupDefaultText() {
       var target = $(this).data('target');
       var formParam = $(this).data('sendFormParam');
@@ -1826,6 +1826,7 @@ MLInvoice.addModule('Form', function mlinvoiceForm() {
     updateStockBalanceLog: updateStockBalanceLog,
     printInvoice: printInvoice,
     updateDispatchByDateButtons: updateDispatchByDateButtons,
-    setupSelect2: setupSelect2
+    setupSelect2: setupSelect2,
+    setupDefaultTextSelection: setupDefaultTextSelection
   };
 });

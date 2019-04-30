@@ -251,6 +251,7 @@ $(document).ready(function() {
     $('#email_form').submit(function() {
         $('#spinner').show();
     });
+    MLInvoice.Form.setupDefaultTextSelection();
 });
 </script>
 </html>
