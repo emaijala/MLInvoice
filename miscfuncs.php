@@ -108,6 +108,19 @@ function miscRound2Decim($value, $decimals = 2, $decimalSeparator = null,
 }
 
 /**
+ * Round a value to given decimals using the US separators
+ *
+ * @param float $value    Value
+ * @param int   $decimals Number of decimals
+ *
+ * @return string
+ */
+function miscRound2US($value, $decimals = 2)
+{
+    return miscRound2Decim($value, $decimals, '.', ',');
+}
+
+/**
  * Round a value to maximum of given decimals. Drop any unnecessary decimals.
  *
  * @param float  $value             Value

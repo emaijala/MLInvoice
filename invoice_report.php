@@ -4,7 +4,7 @@
  *
  * PHP version 5
  *
- * Copyright (C) 2010-2018 Ere Maijala
+ * Copyright (C) 2010-2019 Ere Maijala
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2,
@@ -887,16 +887,16 @@ class InvoiceReport extends AbstractReport
         }
         if (in_array('sums', $printFields)) {
             ?>
-        <td class="input sum">
+        <td class="input sum" data-export="<?php echo miscRound2US($intRowSum)?>">
             <?php echo miscRound2Decim($intRowSum)?>
         </td>
-            <td class="input sum">
+            <td class="input sum" data-export="<?php echo miscRound2US($intRowVAT)?>">
             <?php echo miscRound2Decim($intRowVAT)?>
         </td>
-            <td class="input sum">
+            <td class="input sum" data-export="<?php echo miscRound2US($intRowSumVAT)?>">
             <?php echo miscRound2Decim($intRowSumVAT)?>
         </td>
-            <td class="input sum">
+            <td class="input sum" data-export="<?php echo miscRound2US($rowTotalToPay)?>">
             <?php echo miscRound2Decim($rowTotalToPay)?>
         </td>
             <?php
@@ -1219,9 +1219,10 @@ var table = $('.report-table.datatable').DataTable({
     'footerCallback': function (row, data, start, end, display) {
         var api = this.api(), data;
 
-        var _intVal = function ( s ) {
-            var integer = parseInt( s, 10 );
-            return !isNaN(integer) ? integer : null;
+        var sep = MLInvoice.translate('DecimalSeparator');
+        var _currencyVal = function (s) {
+            var result = parseFloat(String(s).replace(sep, '.'), 10);
+            return !isNaN(result) ? result : 0;
         };
 
         $([<?php echo implode(', ', $sumColumns)?>]).each(function(i, column) {
@@ -1230,7 +1231,7 @@ var table = $('.report-table.datatable').DataTable({
                 .column(column)
                 .data()
                 .reduce(function (a, b) {
-                    return _intVal(a) + _intVal(b);
+                    return _currencyVal(a) + _currencyVal(b);
                 }, 0);
 
             // Total over this page
@@ -1238,12 +1239,12 @@ var table = $('.report-table.datatable').DataTable({
                 .column(column, { page: 'current'})
                 .data()
                 .reduce(function (a, b) {
-                    return _intVal(a) + _intVal(b);
+                    return _currencyVal(a) + _currencyVal(b);
                 }, 0);
 
             // Update footer
-            pageTotal = MLInvoice.formatCurrency(pageTotal/100);
-            total = MLInvoice.formatCurrency(total/100);
+            pageTotal = MLInvoice.formatCurrency(pageTotal);
+            total = MLInvoice.formatCurrency(total);
             $(api.column(column).footer()).html(
                 '<div class="list-footer-summary"><?php echo Translator::translate('VisiblePage') ?>&nbsp;'
                 + pageTotal + '</div><br><div class="list-footer-summary"><?php echo Translator::translate('Total') ?>&nbsp;'
@@ -1253,13 +1254,7 @@ var table = $('.report-table.datatable').DataTable({
     }
 });
 
-var buttons = new $.fn.dataTable.Buttons(table, {
-    buttons: [
-        'copy', 'csv', 'excel', 'pdf'
-    ]
-});
-
-table.buttons().container().appendTo($('.fg-toolbar', table.table().container()));
+MLInvoice.initTableExportButtons(table);
 </script>
             <?php
         }
