@@ -1029,13 +1029,18 @@ function augmentListInfo($listId, $listInfo, $startRow, $rowCount)
 {
     $params = $listInfo['queryParams'];
     $join = $params['join'];
-    $where = 'WHERE ' . (isset($params['filteredTerms']) ? $params['filteredTerms']
-        : $params['terms']);
+    if (isset($params['filteredTerms'])) {
+        $queryTerms = $params['filteredTerms'];
+        $queryParams = $params['filteredParams'];
+    } else {
+        $queryTerms = $params['terms'];
+        $queryParams = $params['params'];
+    }
     $groupBy = !empty($params['group']) ? " GROUP BY {$params['group']}" : '';
     $primaryKey = $params['primaryKey'];
 
     $fullQuery = "SELECT $primaryKey FROM {$params['table']} $join"
-        . " $where$groupBy";
+        . " WHERE $queryTerms$groupBy";
 
     if ($params['order']) {
         $fullQuery .= ' ORDER BY ' . $params['order'];
@@ -1046,7 +1051,7 @@ function augmentListInfo($listId, $listInfo, $startRow, $rowCount)
     }
 
     $ids = [];
-    $rows = dbParamQuery($fullQuery, $params['params'], false, true);
+    $rows = dbParamQuery($fullQuery, $queryParams, false, true);
     foreach ($rows as $row) {
         $ids[] = $row[$primaryKey];
     }
