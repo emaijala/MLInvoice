@@ -81,8 +81,9 @@ class MultiEdit
                 // Execute changes
                 $changeCount = 0;
                 foreach ((array)$ids as $id) {
+                    $fieldData = $changes;
                     $result = saveFormData(
-                        $formConfig['table'], $id, $formConfig['fields'], $changes, $warnings,
+                        $formConfig['table'], $id, $formConfig['fields'], $fieldData, $warnings,
                         '', null, false, true
                     );
                     if (true !== $result) {
