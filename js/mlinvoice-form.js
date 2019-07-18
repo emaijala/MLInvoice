@@ -54,6 +54,11 @@ MLInvoice.addModule('Form', function mlinvoiceForm() {
   }
 
   function setupMarkdownEditor() {
+    var ua = navigator.userAgent.toLowerCase();
+    if (ua.indexOf('android') > -1) {
+      // Disable MDE on Android due to problems with cursor handling
+      return;
+    }
     $('textarea.markdown').each(function initMarkdown() {
       var mde = new EasyMDE({
         element: this,
