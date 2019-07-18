@@ -80,7 +80,7 @@ function htmlPageStart($strTitle = '', $arrExtraScripts = [])
     ];
 
     if (getSetting('printout_markdown')) {
-        $scripts[] = 'js/simplemde.min.js';
+        $scripts[] = 'js/easymde.min.js';
     }
 
     if (file_exists("select2/select2_locale_$lang.js")) {
@@ -99,7 +99,7 @@ function htmlPageStart($strTitle = '', $arrExtraScripts = [])
         'jquery/css/ui.daterangepicker.css',
         'datatables/Buttons-1.5.4/css/buttons.dataTables.min.css',
         'select2/select2.css',
-        getSetting('printout_markdown') ? 'css/simplemde.min.css' : '',
+        getSetting('printout_markdown') ? 'css/easymde.min.css' : '',
         'css/style.css',
         'css/table.css'
     ];

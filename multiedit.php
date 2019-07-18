@@ -198,6 +198,13 @@ class MultiEdit
             $('#select_' + name).prop('checked', true);
         });
         MLInvoice.Form.setupSelect2();
+        MLInvoice.Form.setupMarkdownEditor();
+        $('textarea.markdown').each(function() {
+            var name = $(this).attr('name');
+            $(this).data('mde').codemirror.on('change', function() {
+                $('#select_' + name).prop('checked', true);
+            });
+        });
     });
     </script>
 

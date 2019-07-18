@@ -1,4 +1,4 @@
-/* global MLInvoice, $, google, SimpleMDE */
+/* global MLInvoice, $, google, EasyMDE */
 MLInvoice.addModule('Form', function mlinvoiceForm() {
   var _formConfig = {};
   var _subFormConfig = {};
@@ -46,20 +46,20 @@ MLInvoice.addModule('Form', function mlinvoiceForm() {
     _setupCompanyLink($('#company_id.linked'));
 
     _setupYtjSearch();
-    _setupMarkdownEditor();
+    setupMarkdownEditor();
     setupDefaultTextSelection();
     setupSelect2();
     _setupInvoiceAttachments();
     _updateSendApiButtons();
   }
 
-  function _setupMarkdownEditor() {
+  function setupMarkdownEditor() {
     $('textarea.markdown').each(function initMarkdown() {
-      var mde = new SimpleMDE({
+      var mde = new EasyMDE({
         element: this,
         autoDownloadFontAwesome: false,
         indentWithTabs: false,
-        forceSync: true,
+        forceSync: false,
         spellChecker: false,
         status: false,
         toolbarTips: false,
@@ -68,7 +68,7 @@ MLInvoice.addModule('Form', function mlinvoiceForm() {
           'italic',
           {
             name: 'headingc',
-            action: SimpleMDE.toggleHeadingSmaller,
+            action: EasyMDE.toggleHeadingSmaller,
             className: 'fa fa-heading',
             title: 'Heading'
           },
@@ -85,7 +85,7 @@ MLInvoice.addModule('Form', function mlinvoiceForm() {
       });
       mde.codemirror.options.extraKeys.Tab = false;
       mde.codemirror.options.extraKeys['Shift-Tab'] = false;
-      $(this).data('simplemde', mde);
+      $(this).data('mde', mde);
       mde.codemirror.on('change', function onMdeChange() {
         startChanging();
         $('.save_button').addClass('ui-state-highlight');
@@ -375,7 +375,7 @@ MLInvoice.addModule('Form', function mlinvoiceForm() {
             $('#' + target).submit();
           } else {
             var $field = $('#' + target);
-            var mde = $field.data('simplemde');
+            var mde = $field.data('mde');
             if (mde) {
               mde.value(data.content);
             } else {
@@ -950,9 +950,16 @@ MLInvoice.addModule('Form', function mlinvoiceForm() {
       case 'INTDATE':
       case 'LIST':
       case 'TEXT':
-      case 'AREA':
       case 'TAGS':
         formdata.append(field.name, value.val());
+        break;
+      case 'AREA':
+        if (value.hasClass('markdown')) {
+          var mde = value.data('mde');
+          formdata.append(field.name, mde.value());
+        } else {
+          formdata.append(field.name, value.val());
+        }
         break;
       }
     });
@@ -1266,10 +1273,17 @@ MLInvoice.addModule('Form', function mlinvoiceForm() {
       case 'INTDATE':
       case 'LIST':
       case 'TEXT':
-      case 'AREA':
       case 'PASSWD':
       case 'PASSWD_STORED':
         obj[field.name] = value.val();
+        break;
+      case 'AREA':
+        if (value.hasClass('markdown')) {
+          var mde = value.data('mde');
+          obj[field.name] = mde.value();
+        } else {
+          obj[field.name] = value.val();
+        }
         break;
       }
     });
@@ -1326,8 +1340,15 @@ MLInvoice.addModule('Form', function mlinvoiceForm() {
                 case 'INT':
                 case 'INTDATE':
                 case 'TEXT':
-                case 'AREA':
                   value.val('');
+                  break;
+                case 'AREA':
+                  if (value.hasClass('markdown')) {
+                    var mde = value.data('mde');
+                    mde.value('');
+                  } else {
+                    value.val('');
+                  }
                   break;
                 }
               }
@@ -1361,8 +1382,15 @@ MLInvoice.addModule('Form', function mlinvoiceForm() {
       case 'LIST':
       case 'INTDATE':
       case 'TEXT':
-      case 'AREA':
         obj[field.name] = elem.val();
+        break;
+      case 'AREA':
+        if (elem.hasClass('markdown')) {
+          var mde = elem.data('mde');
+          obj[field.name] = mde.value();
+        } else {
+          obj[field.name] = elem.val();
+        }
         break;
       }
     });
@@ -1502,8 +1530,15 @@ MLInvoice.addModule('Form', function mlinvoiceForm() {
           break;
         case 'LIST':
         case 'TEXT':
-        case 'AREA':
           elem.val(json[field.name]);
+          break;
+        case 'AREA':
+          if (elem.hasClass('markdown')) {
+            var mde = elem.data('mde');
+            mde.value(json[field.name]);
+          } else {
+            elem.val(json[field.name]);
+          }
           break;
         }
       });
@@ -1559,8 +1594,15 @@ MLInvoice.addModule('Form', function mlinvoiceForm() {
       case 'INTDATE':
       case 'LIST':
       case 'TEXT':
-      case 'AREA':
         elem.val('');
+        break;
+      case 'AREA':
+        if (elem.hasClass('markdown')) {
+          var mde = elem.data('mde');
+          mde.value('');
+        } else {
+          elem.val('');
+        }
         break;
       }
     });
@@ -1819,6 +1861,7 @@ MLInvoice.addModule('Form', function mlinvoiceForm() {
     printInvoice: printInvoice,
     updateDispatchByDateButtons: updateDispatchByDateButtons,
     setupSelect2: setupSelect2,
-    setupDefaultTextSelection: setupDefaultTextSelection
+    setupDefaultTextSelection: setupDefaultTextSelection,
+    setupMarkdownEditor: setupMarkdownEditor
   };
 });
