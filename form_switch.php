@@ -869,7 +869,7 @@ EOF;
     $baseCnt = dbParamQuery(
         'SELECT count(*) as cnt from {prefix}base WHERE deleted=0 AND inactive=0'
     );
-    if ($baseCnt[0]['cnt'] == 1 || !empty($_SESSION['default_base_id'])) {
+    if ($baseCnt[0]['cnt'] == 1 || (getSetting('remember_last_base') && !empty($_SESSION['default_base_id']))) {
         $prefix = $isOffer ? 'offer' : 'invoice';
         $baseSql = "SELECT id, invoice_default_info info, {$prefix}_default_foreword foreword,"
                 . " {$prefix}_default_afterword afterword from {prefix}base";
