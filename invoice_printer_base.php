@@ -972,12 +972,12 @@ EOT;
                     'type' => 'multicell'
                 ];
             }
-            if (!empty($invoiceData['delivery_address'])) {
-                $data['DeliveryAddress'] = [
-                    'value' => $invoiceData['delivery_address'],
-                    'type' => 'multicellnonmd'
-                ];
-            }
+        }
+        if (!empty($invoiceData['delivery_address'])) {
+            $data['DeliveryAddress'] = [
+                'value' => $invoiceData['delivery_address'],
+                'type' => 'multicellnonmd'
+            ];
         }
 
         if (!empty($invoiceData['info'])) {
@@ -1137,7 +1137,8 @@ EOT;
         $pdf->multiCellMD(
             180,
             5,
-            $this->translate('SeeSeparateStatement'),
+            empty($this->invoiceRowData) ? ''
+                : $this->translate('SeeSeparateStatement'),
             'L'
         );
     }
