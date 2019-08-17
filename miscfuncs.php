@@ -642,16 +642,6 @@ function createVATID($id)
 }
 
 /**
- * Get our path
- *
- * @return string
- */
-function getSelfPath()
-{
-    return _PROTOCOL_ . $_SERVER['HTTP_HOST'] . getSelfDirectory();
-}
-
-/**
  * Get our directory
  *
  * @return string
