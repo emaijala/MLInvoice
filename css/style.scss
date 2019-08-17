@@ -503,14 +503,17 @@ textarea.email_body {
   .CodeMirror, .CodeMirror-scroll {
     min-height: 80px;
     height: 80px;
+    box-sizing: content-box;
   }
   .CodeMirror:not(.CodeMirror-fullscreen), .editor-toolbar:not(.fullscreen) {
     width: 340px;
     padding-left: 2px;
     padding-right: 2px;
+    opacity: .6;
+    border-top-left-radius: 0;
+    border-top-right-radius: 0;
   }
   .editor-toolbar:not(.fullscreen) {
-    height: 40px;
     &::before {
       margin-bottom: 2px;
     }

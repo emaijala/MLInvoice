@@ -49,6 +49,28 @@ function htmlPageStart($strTitle = '', $arrExtraScripts = [])
     // always modified
     header('Last-Modified: ' . gmdate('D, d M Y H:i:s') . ' GMT');
 
+    if (defined('_FORCE_HTTPS_') && _FORCE_HTTPS_) {
+        // Check if we are using a secure connection and redirect if necessary
+        if (empty($_SERVER['HTTPS']) || 'off' === $_SERVER['HTTPS']) {
+            $url = 'https://';
+            if (!empty($_SERVER['HTTP_HOST'])) {
+                $host = $_SERVER['HTTP_HOST'];
+                // Attempt to support the typical alternatice port combination
+                $host = str_replace(':8080', ':8443', $host);
+                $url .= $host;
+            } else {
+                $url .= $_SERVER['SERVER_NAME'];
+                // Attempt to support the typical alternatice port combination
+                if ($_SERVER['SERVER_PORT'] == 8080) {
+                    $url .= ':8443';
+                }
+            }
+            $url .= $_SERVER['REQUEST_URI'];
+            header("Location: $url");
+            exit();
+        }
+    }
+
     $charset = (_CHARSET_ == 'UTF-8') ? 'UTF-8' : 'ISO-8859-15';
     if (isset($_SERVER['HTTP_USER_AGENT'])
         && strpos($_SERVER['HTTP_USER_AGENT'], 'MSIE') !== false
@@ -80,7 +102,7 @@ function htmlPageStart($strTitle = '', $arrExtraScripts = [])
     ];
 
     if (getSetting('printout_markdown')) {
-        $scripts[] = 'js/simplemde.min.js';
+        $scripts[] = 'js/easymde.min.js';
     }
 
     if (file_exists("select2/select2_locale_$lang.js")) {
@@ -99,7 +121,7 @@ function htmlPageStart($strTitle = '', $arrExtraScripts = [])
         'jquery/css/ui.daterangepicker.css',
         'datatables/Buttons-1.5.4/css/buttons.dataTables.min.css',
         'select2/select2.css',
-        getSetting('printout_markdown') ? 'css/simplemde.min.css' : '',
+        getSetting('printout_markdown') ? 'css/easymde.min.css' : '',
         'css/style.css',
         'css/table.css'
     ];

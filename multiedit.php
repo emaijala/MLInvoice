@@ -81,8 +81,9 @@ class MultiEdit
                 // Execute changes
                 $changeCount = 0;
                 foreach ((array)$ids as $id) {
+                    $fieldData = $changes;
                     $result = saveFormData(
-                        $formConfig['table'], $id, $formConfig['fields'], $changes, $warnings,
+                        $formConfig['table'], $id, $formConfig['fields'], $fieldData, $warnings,
                         '', null, false, true
                     );
                     if (true !== $result) {
@@ -197,6 +198,13 @@ class MultiEdit
             $('#select_' + name).prop('checked', true);
         });
         MLInvoice.Form.setupSelect2();
+        MLInvoice.Form.setupMarkdownEditor();
+        $('textarea.markdown').each(function() {
+            var name = $(this).attr('name');
+            $(this).data('mde').codemirror.on('change', function() {
+                $('#select_' + name).prop('checked', true);
+            });
+        });
     });
     </script>
 

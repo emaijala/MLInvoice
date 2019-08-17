@@ -80,10 +80,9 @@ define('_PAGE_TITLE_', 'MLInvoice');
 // Käytettävän jQuery UI-teeman sijainti
 //define('_UI_THEME_LOCATION_', 'jquery/css/theme/jquery-ui-1.10.0.custom.min.css');
 
-// Whether to use http or https. Set only if automatic detection fails
-// http vai https - vaihda vain jos automaattinen valinta alla ei toimi
-define('_PROTOCOL_', isset($_SERVER['HTTPS']) ? 'https://' : 'http://');
-//define('_PROTOCOL_', 'http://');
+// Whether to force use of https. Disabled by default.
+// Pakotetaanko yhteys https:ään. Oletuksena pois päältä.
+//define('_FORCE_HTTPS_', true);
 
 // Filename used when importing data into database using the Import function
 // Tietojen tuontiin palvelimelta käytettävä tiedosto

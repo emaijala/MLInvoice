@@ -586,6 +586,39 @@ var MLInvoice = (function MLInvoice() {
       : '';
   }
 
+  function initTableExportButtons(table) {
+    var buttons = new $.fn.dataTable.Buttons(table, {
+      buttons: [
+        'copy',
+        'csv',
+        $.extend(
+          true,
+          {},
+          {
+            exportOptions: {
+              format: {
+                body: function formatCell (data, row, column, node) {
+                  var exp = $(node).data('export');
+                  if (typeof exp !== 'undefined') {
+                    return exp;
+                  }
+                  var sort = $(node).data('sort');
+                  return typeof sort !== 'undefined' ? sort : data;
+                }
+              }
+            }
+          },
+          {
+            extend: 'excelHtml5'
+          }
+        ),
+        'pdf'
+      ]
+    });
+
+    buttons.container().appendTo($('.fg-toolbar', table.table().container()));
+  }
+
   return {
     init: init,
     addTranslation: addTranslation,
@@ -609,6 +642,7 @@ var MLInvoice = (function MLInvoice() {
     ajaxErrorHandler: ajaxErrorHandler,
     parseDate: parseDate,
     formatDate: formatDate,
-    addModule: addModule
+    addModule: addModule,
+    initTableExportButtons: initTableExportButtons
   }
 })();

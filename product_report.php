@@ -4,7 +4,7 @@
  *
  * PHP version 5
  *
- * Copyright (C) 2010-2018 Ere Maijala
+ * Copyright (C) 2010-2019 Ere Maijala
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2,
@@ -462,22 +462,22 @@ class ProductReport extends AbstractReport
                 <?php echo $strProduct?>
             <?php } ?>
         </td>
-            <td class="input sum">
+            <td class="input sum" data-export="<?php echo miscRound2US($intCount)?>">
             <?php echo miscRound2Decim($intCount)?>
         </td>
             <td class="input sum">
             <?php echo htmlspecialchars($strUnit)?>
         </td>
-            <td class="input sum">
+            <td class="input sum" data-export="<?php echo miscRound2US($intSum)?>">
             <?php echo miscRound2Decim($intSum)?>
         </td>
-            <td class="input sum">
+            <td class="input sum" data-export="<?php echo miscRound2US($intVATPercent)?>">
             <?php echo miscRound2Decim($intVATPercent, 1)?>
         </td>
-            <td class="input sum">
+            <td class="input sum" data-export="<?php echo miscRound2US($intVAT)?>">
             <?php echo miscRound2Decim($intVAT)?>
         </td>
-            <td class="input sum">
+            <td class="input sum" data-export="<?php echo miscRound2US($intSumVAT)?>">
             <?php echo miscRound2Decim($intSumVAT)?>
         </td>
         </tr>
@@ -579,8 +579,8 @@ var table = $('.report-table.datatable').DataTable({
     'footerCallback': function (row, data, start, end, display) {
         var api = this.api(), data;
 
-        var _intVal = function ( s ) {
-            var integer = parseInt( s, 10 );
+        var _intVal = function (s) {
+            var integer = parseInt(s, 10);
             return !isNaN(integer) ? integer : null;
         };
 
@@ -615,13 +615,7 @@ var table = $('.report-table.datatable').DataTable({
     }
 });
 
-var buttons = new $.fn.dataTable.Buttons(table, {
-    buttons: [
-        'copy', 'csv', 'excel', 'pdf'
-    ]
-});
-
-table.buttons().container().appendTo($('.fg-toolbar', table.table().container()));
+MLInvoice.initTableExportButtons(table);
 </script>
             <?php
         }

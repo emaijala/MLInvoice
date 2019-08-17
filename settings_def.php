@@ -120,6 +120,14 @@ $arrSettings = [
         'default' => 1,
         'allow_null' => true
     ],
+    'remember_last_base' => [
+        'label' => 'SettingRememberLastBase',
+        'type' => 'CHECK',
+        'style' => 'medium',
+        'position' => 1,
+        'default' => 1,
+        'allow_null' => true
+    ],
 
     'invoice_sep' => [
         'label' => 'SettingInvoices',
