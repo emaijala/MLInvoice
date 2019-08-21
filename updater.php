@@ -343,6 +343,9 @@ class Updater
     {
         $this->heading('UpdateDatabaseHeading');
 
+        // Try to disable maximum execution time
+        set_time_limit(0);
+
         $result = true;
         switch (verifyDatabase()) {
         case 'OK':

@@ -955,6 +955,7 @@ MLInvoice.addModule('Form', function mlinvoiceForm() {
       case 'INTDATE':
       case 'LIST':
       case 'TEXT':
+      case 'PASSWD':
       case 'TAGS':
         formdata.append(field.name, value.val());
         break;

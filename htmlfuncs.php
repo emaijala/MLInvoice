@@ -38,7 +38,7 @@ require_once 'sqlfuncs.php';
  *
  * @return string HTML content
  */
-function htmlPageStart($strTitle = '', $arrExtraScripts = [])
+function htmlPageStart($strTitle = '', $arrExtraScripts = [], $loggedIn = true)
 {
     // These are to prevent browser & proxy caching
     // HTTP/1.1
@@ -234,7 +234,7 @@ function htmlPageStart($strTitle = '', $arrExtraScripts = [])
     }
     $offerStatuses = json_encode($offerStatuses);
 
-    $keepAlive = getSetting('session_keepalive') ? 'true' : 'false';
+    $keepAlive = $loggedIn && getSetting('session_keepalive') ? 'true' : 'false';
     $lang = Translator::translate('HTMLLanguageCode');
     $currencyDecimals = getSetting('unit_price_decimals');
 
