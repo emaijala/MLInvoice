@@ -42,7 +42,7 @@ require_once 'translator.php';
 
 sesEndSession();
 
-echo htmlPageStart();
+echo htmlPageStart('', [], false);
 
 ?>
 

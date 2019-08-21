@@ -110,7 +110,7 @@ if ($strLogon) {
 sleep(2);
 $csrf = sesCreateCsrf();
 
-echo htmlPageStart('');
+echo htmlPageStart('', [], false);
 ?>
 
 <body onload="document.getElementById('login').focus();">
