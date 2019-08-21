@@ -35,6 +35,7 @@ require_once 'sqlfuncs.php';
  *
  * @param string $strTitle        Page title
  * @param array  $arrExtraScripts Extra scripts to add
+ * @param bool   $loggedIn        Whether the user is logged in
  *
  * @return string HTML content
  */
