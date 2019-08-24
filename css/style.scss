@@ -500,10 +500,15 @@ textarea.email_body {
   &.date.attached {
     margin-top: 2px;
   }
-  .CodeMirror, .CodeMirror-scroll {
+  .CodeMirror:not(.CodeMirror-fullscreen) {
     min-height: 80px;
     height: 80px;
     box-sizing: content-box;
+    .CodeMirror-scroll {
+      min-height: 80px;
+      height: 80px;
+      box-sizing: content-box;
+    }
   }
   .CodeMirror:not(.CodeMirror-fullscreen), .editor-toolbar:not(.fullscreen) {
     width: 340px;
@@ -522,9 +527,13 @@ textarea.email_body {
     }
   }
   &.xxlarge {
-    .CodeMirror, .CodeMirror-scroll {
+    .CodeMirror:not(.CodeMirror-fullscreen) {
       min-height: 200px;
       height: 200px;
+      .CodeMirror-scroll {
+        min-height: 200px;
+        height: 200px;
+      }
     }
   }
 }
