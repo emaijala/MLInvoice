@@ -62,6 +62,7 @@ MLInvoice.addModule('Form', function mlinvoiceForm() {
     $('textarea.markdown').each(function initMarkdown() {
       var mde = new EasyMDE({
         element: this,
+        minHeight: '50px',
         autoDownloadFontAwesome: false,
         indentWithTabs: false,
         forceSync: false,
@@ -962,7 +963,7 @@ MLInvoice.addModule('Form', function mlinvoiceForm() {
       case 'AREA':
         if (value.hasClass('markdown')) {
           var mde = value.data('mde');
-          formdata.append(field.name, mde.value());
+          formdata.append(field.name, (typeof mde !== 'undefined') ? mde.value() : value.val());
         } else {
           formdata.append(field.name, value.val());
         }
@@ -1286,7 +1287,7 @@ MLInvoice.addModule('Form', function mlinvoiceForm() {
       case 'AREA':
         if (value.hasClass('markdown')) {
           var mde = value.data('mde');
-          obj[field.name] = mde.value();
+          obj[field.name] = (typeof mde !== 'undefined') ? mde.value() : value.val();
         } else {
           obj[field.name] = value.val();
         }
@@ -1351,7 +1352,11 @@ MLInvoice.addModule('Form', function mlinvoiceForm() {
                 case 'AREA':
                   if (value.hasClass('markdown')) {
                     var mde = value.data('mde');
-                    mde.value('');
+                    if (typeof mde !== 'undefined') {
+                      mde.value('');
+                    } else {
+                      value.val('');
+                    }
                   } else {
                     value.val('');
                   }
@@ -1393,7 +1398,7 @@ MLInvoice.addModule('Form', function mlinvoiceForm() {
       case 'AREA':
         if (elem.hasClass('markdown')) {
           var mde = elem.data('mde');
-          obj[field.name] = mde.value();
+          obj[field.name] = (typeof mde !== 'undefined') ? mde.value() : elem.val();
         } else {
           obj[field.name] = elem.val();
         }
@@ -1541,7 +1546,11 @@ MLInvoice.addModule('Form', function mlinvoiceForm() {
         case 'AREA':
           if (elem.hasClass('markdown')) {
             var mde = elem.data('mde');
-            mde.value(json[field.name]);
+            if (typeof mde !== 'undefined') {
+              mde.value(json[field.name]);
+            } else {
+              elem.val(json[field.name]);
+            }
           } else {
             elem.val(json[field.name]);
           }
@@ -1605,7 +1614,11 @@ MLInvoice.addModule('Form', function mlinvoiceForm() {
       case 'AREA':
         if (elem.hasClass('markdown')) {
           var mde = elem.data('mde');
-          mde.value('');
+          if (typeof mde !== 'undefined') {
+            mde.value('');
+          } else {
+            elem.val('');
+          }
         } else {
           elem.val('');
         }
