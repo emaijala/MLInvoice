@@ -320,7 +320,7 @@ case 'company':
     ];
     break;
 
-case 'company_contact' :
+case 'company_contact':
     $strTable = '{prefix}company_contact';
     $strParentKey = 'company_id';
     $clearRowValuesAfterAdd = true;
@@ -402,7 +402,7 @@ case 'company_contact' :
     ];
     break;
 
-case 'product' :
+case 'product':
     $strTable = '{prefix}product';
     $astrSearchFields = [
         [
@@ -1213,7 +1213,7 @@ EOF;
     ];
     break;
 
-case 'invoice_row' :
+case 'invoice_row':
     $strTable = '{prefix}invoice_row';
     $strParentKey = 'invoice_id';
 
@@ -1355,7 +1355,7 @@ case 'invoice_row' :
     break;
 
 /* SYSTEM FORMS */
-case 'base' :
+case 'base':
     $strTable = '{prefix}base';
     $addressAutocomplete = true;
 
@@ -1961,7 +1961,7 @@ case 'invoice_type':
     ];
     break;
 
-case 'row_type' :
+case 'row_type':
     $levelsAllowed = [
         ROLE_ADMIN
     ];
@@ -1985,7 +1985,7 @@ case 'row_type' :
     ];
     break;
 
-case 'session_type' :
+case 'session_type':
     $levelsAllowed = [
         ROLE_ADMIN
     ];
@@ -2021,7 +2021,7 @@ case 'session_type' :
     ];
     break;
 
-case 'delivery_terms' :
+case 'delivery_terms':
     $levelsAllowed = [
         ROLE_ADMIN
     ];
@@ -2045,7 +2045,7 @@ case 'delivery_terms' :
     ];
     break;
 
-case 'delivery_method' :
+case 'delivery_method':
     $levelsAllowed = [
         ROLE_ADMIN
     ];
@@ -2069,7 +2069,7 @@ case 'delivery_method' :
     ];
     break;
 
-case 'default_value' :
+case 'default_value':
     $strTable = '{prefix}default_value';
 
     $astrFormElements = [
@@ -2255,7 +2255,7 @@ case 'invoice_attachment':
     ];
     break;
 
-case 'user' :
+case 'user':
     $levelsAllowed = [
         ROLE_ADMIN
     ];
@@ -2302,7 +2302,7 @@ case 'user' :
     ];
     break;
 
-case 'print_template' :
+case 'print_template':
     $strTable = '{prefix}print_template';
 
     $elem_attributes = '';
@@ -2311,7 +2311,7 @@ case 'print_template' :
             'name' => 'type',
             'label' => 'PrintTemplateType',
             'type' => 'LIST',
-            'style' => 'medium noemptyvalue',
+            'style' => 'medium noemptyvalue translated',
             'listquery' => [
                 'invoice' => 'PrintTemplateTypeInvoice',
                 'offer' => 'PrintTemplateTypeOffer'
