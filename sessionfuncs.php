@@ -37,7 +37,6 @@ define('ROLE_ADMIN', 99);
 
 define('CSRF_OK', 0);
 define('CSRF_ERR_FAIL', 1);
-define('CSRF_ERR_IP', 2);
 
 /**
  * Create a session
@@ -54,10 +53,7 @@ function sesCreateSession($strLogin, $strPasswd, $strCsrf)
     sleep(2);
     if ($strLogin && $strPasswd) {
         $res = sesCheckCsrf($strCsrf);
-        if (CSRF_ERR_IP === $res) {
-            error_log("Login failed for $strLogin due to IP address change");
-            return 'FAIL';
-        } elseif (CSRF_ERR_FAIL === $res) {
+        if (CSRF_ERR_FAIL === $res) {
             $csrfTime = isset($_SESSION['csrftime']) ? $_SESSION['csrftime'] : time();
             error_log(
                 'Key not found or timeout, ' . (time() - $csrfTime)
@@ -104,12 +100,8 @@ function sesCreateSession($strLogin, $strPasswd, $strCsrf)
  */
 function sesCheckCsrf($csrf)
 {
-    if (!isset($_SESSION['csrf']) || !isset($_SESSION['csrfip'])) {
+    if (!isset($_SESSION['csrf'])) {
         return CSRF_ERR_FAIL;
-    }
-    $csrfIp = $_SESSION['csrfip'];
-    if ($_SERVER['REMOTE_ADDR'] != $csrfIp) {
-        return CSRF_ERR_IP;
     }
 
     $storedCsrf = $_SESSION['csrf'];
@@ -176,7 +168,6 @@ function sesCreateCsrf()
 {
     $_SESSION['csrf'] = createRandomString(20);
     $_SESSION['csrftime'] = time();
-    $_SESSION['csrfip'] = $_SERVER['REMOTE_ADDR'];
     return $_SESSION['csrf'];
 }
 

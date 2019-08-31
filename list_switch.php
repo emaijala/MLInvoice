@@ -40,7 +40,7 @@ switch ($strList) {
 /***********************************************************************
  LISTS
  ***********************************************************************/
-case 'company' :
+case 'company':
     $strTable = '{prefix}company';
     $astrSearchFields = [
         [
@@ -50,7 +50,11 @@ case 'company' :
         [
             'name' => 'company_id',
             'type' => 'TEXT'
-        ]
+        ],
+        [
+            'name' => 'email',
+            'type' => 'TEXT'
+        ],
     ];
     $strPrimaryKey = 'id';
     $strDeletedField = 'deleted';
@@ -308,13 +312,25 @@ EOT;
 /***********************************************************************
  SETTINGS
  ***********************************************************************/
-case 'base' :
+case 'base':
     $strTable = '{prefix}base';
     $astrSearchFields = [
         [
             'name' => 'name',
             'type' => 'TEXT'
-        ]
+        ],
+        [
+            'name' => 'company_id',
+            'type' => 'TEXT'
+        ],
+        [
+            'name' => 'contact_person',
+            'type' => 'TEXT'
+        ],
+        [
+            'name' => 'email',
+            'type' => 'TEXT'
+        ],
     ];
     $strPrimaryKey = 'id';
     $strDeletedField = 'deleted';
@@ -348,11 +364,11 @@ case 'base' :
     $strTitle = 'Bases';
     break;
 
-case 'invoice_state' :
+case 'invoice_state':
     $strTable = '{prefix}invoice_state';
     $astrSearchFields = [
         [
-            'name' => "name'",
+            'name' => 'name',
             'type' => 'TEXT'
         ]
     ];
@@ -378,11 +394,15 @@ case 'invoice_state' :
     $strTitle = 'InvoiceStates';
     break;
 
-case 'invoice_type' :
+case 'invoice_type':
     $strTable = '{prefix}invoice_type';
     $astrSearchFields = [
         [
-            'name' => "name'",
+            'name' => 'identifier',
+            'type' => 'TEXT'
+        ],
+        [
+            'name' => 'name',
             'type' => 'TEXT'
         ]
     ];
@@ -414,7 +434,7 @@ case 'invoice_type' :
     $strTitle = 'InvoiceTypes';
     break;
 
-case 'product' :
+case 'product':
     $strTable = '{prefix}product';
     $astrSearchFields = [
         [
@@ -426,9 +446,13 @@ case 'product' :
             'type' => 'TEXT'
         ],
         [
+            'name' => 'description',
+            'type' => 'TEXT'
+        ],
+        [
             'name' => 'product_group',
             'type' => 'TEXT'
-        ]
+        ],
     ];
     $strPrimaryKey = 'id';
     $strDeletedField = 'deleted';
@@ -535,7 +559,7 @@ case 'product' :
     $strTitle = 'Products';
     break;
 
-case 'row_type' :
+case 'row_type':
     $strTable = '{prefix}row_type';
     $astrSearchFields = [
         [
@@ -564,7 +588,7 @@ case 'row_type' :
     $strTitle = 'RowTypes';
     break;
 
-case 'delivery_terms' :
+case 'delivery_terms':
     $strTable = '{prefix}delivery_terms';
     $astrSearchFields = [
         [
@@ -592,7 +616,7 @@ case 'delivery_terms' :
     $strTitle = 'DeliveryTerms';
     break;
 
-case 'delivery_method' :
+case 'delivery_method':
     $strTable = '{prefix}delivery_method';
     $astrSearchFields = [
         [
@@ -620,13 +644,17 @@ case 'delivery_method' :
     $strTitle = 'DeliveryMethod';
     break;
 
-case 'print_template' :
+case 'print_template':
     $strTable = '{prefix}print_template';
     $astrSearchFields = [
         [
             'name' => 'name',
             'type' => 'TEXT'
-        ]
+        ],
+        [
+            'name' => 'filename',
+            'type' => 'TEXT'
+        ],
     ];
     $strPrimaryKey = 'id';
     $strDeletedField = 'deleted';
@@ -681,7 +709,7 @@ case 'print_template' :
     $strTitle = 'PrintTemplates';
     break;
 
-case 'default_value' :
+case 'default_value':
     $strTable = '{prefix}default_value';
     $astrSearchFields = [
         [
@@ -689,7 +717,11 @@ case 'default_value' :
             'type' => 'TEXT'
         ],
         [
-            'name' => 'contents',
+            'name' => 'content',
+            'type' => 'TEXT'
+        ],
+        [
+            'name' => 'additional',
             'type' => 'TEXT'
         ],
     ];
@@ -737,6 +769,10 @@ case 'attachment':
             'name' => 'description',
             'type' => 'TEXT'
         ],
+        [
+            'name' => 'filename',
+            'type' => 'TEXT'
+        ],
     ];
     $strPrimaryKey = 'id';
     $astrShowFields = [
@@ -776,7 +812,7 @@ case 'attachment':
     $strTitle = 'Attachments';
     break;
 
-case 'company_tag' :
+case 'company_tag':
     $strTable = '{prefix}company_tag';
     $astrSearchFields = [
         [
@@ -797,7 +833,7 @@ case 'company_tag' :
     $strMainForm = 'company';
     break;
 
-case 'contact_tag' :
+case 'contact_tag':
     $strTable = '{prefix}contact_tag';
     $astrSearchFields = [
         [
@@ -820,7 +856,7 @@ case 'contact_tag' :
 /***********************************************************************
  SYSTEM
  ***********************************************************************/
-case 'session_type' :
+case 'session_type':
     $levelsAllowed = [
         99
     ];
@@ -852,7 +888,7 @@ case 'session_type' :
     $strTitle = 'SessionTypes';
     break;
 
-case 'user' :
+case 'user':
     $levelsAllowed = [
         ROLE_ADMIN
     ];
@@ -861,7 +897,15 @@ case 'user' :
         [
             'name' => 'name',
             'type' => 'TEXT'
-        ]
+        ],
+        [
+            'name' => 'email',
+            'type' => 'TEXT'
+        ],
+        [
+            'name' => 'login',
+            'type' => 'TEXT'
+        ],
     ];
     $strPrimaryKey = 'id';
     $strDeletedField = 'deleted';
@@ -877,7 +921,13 @@ case 'user' :
             'width' => 250,
             'type' => 'TEXT',
             'header' => 'LoginName'
-        ]
+        ],
+        [
+            'name' => 'email',
+            'width' => 250,
+            'type' => 'TEXT',
+            'header' => 'Email'
+        ],
     ];
     $strMainForm = 'user';
     $strTitle = 'Users';
