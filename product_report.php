@@ -603,8 +603,8 @@ var table = $('.report-table.datatable').DataTable({
                 }, 0);
 
             // Update footer
-            pageTotal = MLInvoice.formatCurrency(pageTotal/100);
-            total = MLInvoice.formatCurrency(total/100);
+            pageTotal = MLInvoice.formatCurrency(pageTotal);
+            total = MLInvoice.formatCurrency(total);
             $(api.column(column).footer()).html(
                 '<div class="list-footer-summary><?php echo Translator::translate('VisiblePage') ?>&nbsp;'
                 + pageTotal
