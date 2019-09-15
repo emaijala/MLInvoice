@@ -820,3 +820,32 @@ function getInvoiceDefaults($invoiceId, $baseId, $companyId, $invoiceDate,
         'next_interval_date' => $nextIntervalDate
     ];
 }
+
+/**
+ * Get mime type from a file name
+ *
+ * @param string $path     Path to the file
+ * @param string $filename The real filename
+ *
+ * @return string
+ */
+function getMimeType($path, $filename)
+{
+    if (is_callable('mime_content_type')) {
+        return mime_content_type($path);
+    }
+
+    // If mime_content_type is not callable, handle only the types we really care of
+    $extension = pathinfo($filename, PATHINFO_EXTENSION);
+    switch ($extension) {
+    case 'jpg':
+    case 'jpeg':
+        return 'image/jpeg';
+    case 'png':
+        return 'image/png';
+    case 'pdf':
+        return 'application/pdf';
+    default:
+        return $extension;
+    }
+}

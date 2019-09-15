@@ -283,7 +283,9 @@ function saveFormData($table, &$primaryKey, $formElements, &$values, &$warnings,
                 return false;
             }
 
-            $mimetype = mime_content_type($_FILES[$name]['tmp_name']);
+            $mimetype = getMimeType(
+                $_FILES[$name]['tmp_name'], $_FILES[$name]['name']
+            );
             if (!empty($elem['mimetypes'])
                 && !in_array($mimetype, $elem['mimetypes'])
             ) {
