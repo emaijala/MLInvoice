@@ -837,7 +837,7 @@ function getMimeType($path, $filename)
 
     // If mime_content_type is not callable, handle only the types we really care of
     $extension = pathinfo($filename, PATHINFO_EXTENSION);
-    switch ($extension) {
+    switch (strtolower($extension)) {
     case 'jpg':
     case 'jpeg':
         return 'image/jpeg';
