@@ -928,7 +928,8 @@ function createFormButtons($form, $new, $copyLinkOverride, $spinner, $readOnlyFo
                         <?php } ?>
                     </div>
                     <div class="attachment-new">
-                        <div class="medium_label"><?php echo Translator::translate('NewAttachment')?></div>
+                        <?php $maxFileSize = fileSizeToHumanReadable(getMaxUploadSize()); ?>
+                        <div class="unlimited_label"><?php echo Translator::translate('NewAttachmentWithSize', ['%%maxsize%%' => $maxFileSize])?></div>
                         <div class="field">
                             <?php echo htmlFormElement('new-attachment-file', 'FILE', '', 'long');?>
                         </div>

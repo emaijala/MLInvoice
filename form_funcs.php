@@ -280,7 +280,7 @@ function saveFormData($table, &$primaryKey, $formElements, &$values, &$warnings,
             }
             if ($_FILES[$name]['error'] != UPLOAD_ERR_OK) {
                 $warnings = Translator::translate('ErrFileUploadFailed')
-                    . '(' . $_FILES[$name]['error'] . ')';
+                    . ' (' . $_FILES[$name]['error'] . ')';
                 return false;
             }
 

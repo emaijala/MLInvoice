@@ -2170,7 +2170,10 @@ EOT;
         ],
         [
             'name' => 'filedata',
-            'label' => 'File',
+            'label' => Translator::Translate(
+                'FileWithSize',
+                ['%%maxsize%%' => fileSizeToHumanReadable(getMaxUploadSize())]
+            ),
             'type' => 'FILE',
             'style' => 'large',
             'position' => 1,
@@ -2233,7 +2236,10 @@ case 'invoice_attachment':
         ],
         [
             'name' => 'filedata',
-            'label' => 'File',
+            'label' => Translator::Translate(
+                'FileWithSize',
+                ['%%maxsize%%' => fileSizeToHumanReadable(getMaxUploadSize())]
+            ),
             'type' => 'FILE',
             'style' => 'large',
             'position' => 1,
