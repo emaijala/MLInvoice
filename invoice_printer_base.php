@@ -579,9 +579,6 @@ EOT;
 
         if (!$this->discountedRows) {
             $this->columnDefs['discount']['visible'] = false;
-        } elseif ('invoice' === $this->printStyle) {
-            $this->left -= 3;
-            $this->width += 6;
         }
 
         if (getSetting('invoice_row_description_first_line_only', false)) {
