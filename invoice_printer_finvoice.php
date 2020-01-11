@@ -74,7 +74,7 @@ class InvoicePrinterFinvoice extends InvoicePrinterXSLT
         $rows = parent::getInvoiceRowData();
 
         // Split long invoice rows
-        $newData = [];
+        $newRows = [];
         foreach ($rows as $data) {
             if (mb_strlen($data['row_description'], 'UTF-8') > 100) {
                 $parts = $this->splitDescription($data['row_description']);
