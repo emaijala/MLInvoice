@@ -849,3 +849,23 @@ function getMimeType($path, $filename)
         return $extension;
     }
 }
+
+/**
+ * Get list type based on current function
+ *
+ * @param string $func Function
+ *
+ * @return string
+ */
+function getListFromFunc($func)
+{
+    // Func is typically plural, but list singular. Adjust as necessary.
+    $list = $func;
+    if (!in_array($list, ['delivery_terms', 'settings'])
+        && substr($list, -1) === 's'
+    ) {
+        $list = substr($list, 0, -1);
+    }
+
+    return $list;
+}

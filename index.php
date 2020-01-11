@@ -70,6 +70,10 @@ if ($strFunc == 'logout') {
     exit();
 }
 
+if (!$strList) {
+    $strList = getListFromFunc($strFunc);
+}
+
 if ($strFunc == 'send_api') {
     include_once 'apiclient.php';
     $invoiceId = getPostOrQuery('invoice_id');

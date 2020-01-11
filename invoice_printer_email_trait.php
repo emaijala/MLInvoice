@@ -314,7 +314,7 @@ $(document).ready(function() {
         header(
             'Location: index.php?func='
             . sanitize(getPostOrQuery('func', 'open_invoices'))
-            . "&list=invoices&form=invoice&id={$this->invoiceId}"
+            . "&list=invoice&form=invoice&id={$this->invoiceId}"
         );
     }
 

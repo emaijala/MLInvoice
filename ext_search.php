@@ -42,7 +42,7 @@ $strForm = getPostOrQuery('form', '');
 if ($strFunc == 'open_invoices') {
     $strFunc = 'invoices';
 }
-$strList = $strFunc;
+$strList = getListFromFunc($strFunc);
 
 $blnSearch = getPost('search_x', false) ? true : false;
 $blnSave = getPost('save_x', false) ? true : false;
