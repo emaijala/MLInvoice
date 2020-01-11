@@ -240,8 +240,10 @@ if ($strFunc == 'system' && $operation == 'export' && sesAdminAccess()) {
         createFuncMenu($strFunc);
         if ($strFunc == 'open_invoices') {
             createOpenInvoiceList();
+        } elseif ($strFunc == 'invoices') {
+            createList($strFunc, $strList, '', '', '', false, false, 'invoice');
         } elseif ($strFunc == 'archived_invoices') {
-            createList('archived_invoices', 'archived_invoices', 'archived_invoices', '');
+            createList('archived_invoices', 'archived_invoices', 'archived_invoices', '', '', false, false, 'invoice');
         } else {
             if ($strList == 'settings') {
                 createSettingsList();
