@@ -163,7 +163,7 @@ function createList($strFunc, $strList, $strTableName = '', $strTitleOverride = 
       stateDuration: 0,
       jQueryUI: true,
       pageLength: 10,
-      lengthMenu: [ [10, 25, 50, 100, -1], [10, 25, 50, 100, "<?php echo Translator::translate('All')?>"] ],
+      lengthMenu: [ [10, 25, 50, 100, 500, -1], [10, 25, 50, 100, 500, "<?php echo Translator::translate('All')?>"] ],
       pagingType: "full_numbers",
       columnDefs: [
     <?php
