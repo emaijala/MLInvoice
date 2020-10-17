@@ -73,7 +73,7 @@ class Mailer
     {
         mb_internal_encoding('UTF-8');
 
-        $message = Swift_Message::newInstance(
+        $message = new Swift_Message(
             $subject,
             $this->getFlowedBody($body),
             'text/plain; format="flowed"'
@@ -115,7 +115,7 @@ class Mailer
         }
 
         foreach ($attachments as $current) {
-            $attachment = Swift_Attachment::newInstance(
+            $attachment = new Swift_Attachment(
                 $current['data'], $current['filename'], $current['mimetype']
             );
             $message->attach($attachment);
@@ -129,15 +129,20 @@ class Mailer
 
         if (!isset($settings['send_method']) || 'mail' === $settings['send_method']
         ) {
-            $transport = Swift_MailTransport::newInstance();
+            $result = $this->sendWithMail($message);
+            if (!$result) {
+                $this->error = Translator::translate('EmailFailed');
+                return false;
+            }
+            return true;
         } elseif ('sendmail' === $settings['send_method']) {
             $command = empty($settings['sendmail']['command'])
                 ? '/usr/sbin/sendmail -bs'
                 : $settings['sendmail']['command'];
-            $transport = Swift_SendmailTransport::newInstance($command);
+            $transport = new Swift_SendmailTransport($command);
         } elseif ('smtp' === $settings['send_method']) {
             $smtp = empty($settings['smtp']) ? [] : $settings['smtp'];
-            $transport = Swift_SmtpTransport::newInstance(
+            $transport = new Swift_SmtpTransport(
                 $smtp['host'], $smtp['port'], $smtp['security']
             );
             if (!empty($smtp['username'])) {
@@ -150,7 +155,7 @@ class Mailer
                 $transport->setStreamOptions($smtp['stream_context_options']);
             }
         }
-        $mailer = Swift_Mailer::newInstance($transport);
+        $mailer = new Swift_Mailer($transport);
 
         try {
             $result = $mailer->send($message);
@@ -164,6 +169,55 @@ class Mailer
             return false;
         }
         return true;
+    }
+
+    /**
+     * Send email using PHP's mail function
+     *
+     * Partially lifted from Swift 5.x MailTransport
+     *
+     * @param Swift_Message $message Message to send
+     *
+     * @return bool
+     */
+    protected function sendWithMail(Swift_Message $message)
+    {
+        $toHeader = $message->getHeaders()->get('To');
+        $subjectHeader = $message->getHeaders()->get('Subject');
+
+        $to = $toHeader ? $toHeader->getFieldBody() : '';
+        $subject = $subjectHeader ? $subjectHeader->getFieldBody() : '';
+
+        // Remove headers that would otherwise be duplicated by the mail function
+        $message->getHeaders()->remove('To');
+        $message->getHeaders()->remove('Subject');
+
+        $messageStr = $message->toString();
+
+        // Separate headers from body
+        if (false !== $endHeaders = strpos($messageStr, "\r\n\r\n")) {
+            $headers = substr($messageStr, 0, $endHeaders) . "\r\n"; //Keep last EOL
+            $body = substr($messageStr, $endHeaders + 4);
+        } else {
+            $headers = $messageStr . "\r\n";
+            $body = '';
+        }
+
+        if ("\r\n" !== PHP_EOL) {
+            // Non-windows (not using SMTP)
+            $headers = str_replace("\r\n", PHP_EOL, $headers);
+            $subject = str_replace("\r\n", PHP_EOL, $subject);
+            $body = str_replace("\r\n", PHP_EOL, $body);
+            $to = str_replace("\r\n", PHP_EOL, $to);
+        } else {
+            // Windows, using SMTP
+            $headers = str_replace("\r\n.", "\r\n..", $headers);
+            $subject = str_replace("\r\n.", "\r\n..", $subject);
+            $body = str_replace("\r\n.", "\r\n..", $body);
+            $to = str_replace("\r\n.", "\r\n..", $to);
+        }
+
+        return mail($to, $subject, $body, $headers);
     }
 
     /**
