@@ -449,7 +449,7 @@ class ImportStatement extends ImportFile
             return Translator::translate(
                 'ImportStatementInvoiceAlreadyPaid',
                 [
-                    '{id}' =>  $row['id'],
+                    '{id}' => $row['id'],
                     '{refnr}' => $refnr,
                     '{payment_date}'
                         => dateConvDBDate2Date($row['payment_date']) ?: '-'
