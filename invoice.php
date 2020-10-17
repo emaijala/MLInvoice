@@ -166,6 +166,9 @@ if ($authenticated && is_array($intInvoiceId)) {
     echo $mainPdf->Output('', 'S');
 } else {
     $printer = getInvoicePrinter($printTemplateFile);
+    if (null === $printer) {
+        die("Could not read print template '$printTemplateFile'");
+    }
     $printer->init(
         $intInvoiceId, $printParameters, $printOutputFileName,
         $dateOverride, $printTemplate, $authenticated
