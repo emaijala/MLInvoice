@@ -744,7 +744,7 @@ function createIForm($mainFormConfig, $formConfig, $elem, $intKeyValue, $newReco
                 <?php
             } elseif ($elem['type'] == 'SECHID_INT') {
                 ?>
-            <input type="hidden" name="<?php echo 'iform_popup_' . $elem['name']?>" value="<?php echo gpcStripSlashes($astrValues[$elem['name']])?>">
+            <input type="hidden" name="<?php echo 'iform_popup_' . $elem['name']?>" value="<?php echo htmlspecialchars($astrValues[$elem['name']])?>">
                 <?php
             } elseif ($elem['type'] == 'BUTTON') {
                 ?>
