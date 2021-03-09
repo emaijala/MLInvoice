@@ -28,36 +28,6 @@
  */
 
 /**
- * Add slashes if magic quotes are not enabled
- *
- * @param string $strString String
- *
- * @return string
- */
-function gpcAddSlashes($strString)
-{
-    if (!get_magic_quotes_gpc()) {
-        return addslashes($strString);
-    }
-    return $strString;
-}
-
-/**
- * Remove slashes if magic quotes are enabled
- *
- * @param string $strString String
- *
- * @return string
- */
-function gpcStripSlashes($strString)
-{
-    if (get_magic_quotes_gpc() && is_string($strString)) {
-        return stripslashes($strString);
-    }
-    return $strString;
-}
-
-/**
  * Decode UTF-8 if current charset is something else
  *
  * @param string $str String
@@ -308,7 +278,7 @@ function getPost($strKey, $varDefault = null)
     if ($strKey === '') {
         return $_POST;
     }
-    return isset($_POST[$strKey]) ? gpcStripSlashes($_POST[$strKey]) : $varDefault;
+    return isset($_POST[$strKey]) ? $_POST[$strKey] : $varDefault;
 }
 
 /**
@@ -321,7 +291,7 @@ function getPost($strKey, $varDefault = null)
  */
 function getQuery($strKey, $varDefault = null)
 {
-    return isset($_GET[$strKey]) ? gpcStripSlashes($_GET[$strKey]) : $varDefault;
+    return isset($_GET[$strKey]) ? $_GET[$strKey] : $varDefault;
 }
 
 /**
