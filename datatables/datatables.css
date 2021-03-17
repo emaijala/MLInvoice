@@ -4,10 +4,10 @@
  *
  * To rebuild or modify this file with the latest versions of the included
  * software please visit:
- *   https://datatables.net/download/#ju/jszip-2.5.0/pdfmake-0.1.36/dt-1.10.18/b-1.5.4/b-colvis-1.5.4/b-html5-1.5.4/b-print-1.5.4/r-2.2.2
+ *   https://datatables.net/download/#dt/dt-1.10.23/b-1.6.5/r-2.2.6/sl-1.3.1
  *
  * Included libraries:
- *   JSZip 2.5.0, pdfmake 0.1.36, DataTables 1.10.18, Buttons 1.5.4, Column visibility 1.5.4, HTML5 export 1.5.4, Print view 1.5.4, Responsive 2.2.2
+ *   DataTables 1.10.23, Buttons 1.6.5, Responsive 2.2.6, Select 1.3.1
  */
 
 /*
@@ -33,6 +33,7 @@ table.dataTable tfoot th {
 table.dataTable thead th,
 table.dataTable thead td {
   padding: 10px 18px;
+  border-bottom: 1px solid #111;
 }
 table.dataTable thead th:active,
 table.dataTable thead td:active {
@@ -41,6 +42,32 @@ table.dataTable thead td:active {
 table.dataTable tfoot th,
 table.dataTable tfoot td {
   padding: 10px 18px 6px 18px;
+  border-top: 1px solid #111;
+}
+table.dataTable thead .sorting,
+table.dataTable thead .sorting_asc,
+table.dataTable thead .sorting_desc,
+table.dataTable thead .sorting_asc_disabled,
+table.dataTable thead .sorting_desc_disabled {
+  cursor: pointer;
+  *cursor: hand;
+  background-repeat: no-repeat;
+  background-position: center right;
+}
+table.dataTable thead .sorting {
+  background-image: url("DataTables-1.10.23/images/sort_both.png");
+}
+table.dataTable thead .sorting_asc {
+  background-image: url("DataTables-1.10.23/images/sort_asc.png");
+}
+table.dataTable thead .sorting_desc {
+  background-image: url("DataTables-1.10.23/images/sort_desc.png");
+}
+table.dataTable thead .sorting_asc_disabled {
+  background-image: url("DataTables-1.10.23/images/sort_asc_disabled.png");
+}
+table.dataTable thead .sorting_desc_disabled {
+  background-image: url("DataTables-1.10.23/images/sort_desc_disabled.png");
 }
 table.dataTable tbody tr {
   background-color: #ffffff;
@@ -160,7 +187,7 @@ table.dataTable.nowrap th, table.dataTable.nowrap td {
 }
 table.dataTable.compact thead th,
 table.dataTable.compact thead td {
-  padding: 4px 17px 4px 4px;
+  padding: 4px 17px;
 }
 table.dataTable.compact tfoot th,
 table.dataTable.compact tfoot td {
@@ -260,12 +287,23 @@ table.dataTable td {
 .dataTables_wrapper .dataTables_length {
   float: left;
 }
+.dataTables_wrapper .dataTables_length select {
+  border: 1px solid #aaa;
+  border-radius: 3px;
+  padding: 5px;
+  background-color: transparent;
+  padding: 4px;
+}
 .dataTables_wrapper .dataTables_filter {
   float: right;
   text-align: right;
 }
 .dataTables_wrapper .dataTables_filter input {
-  margin-left: 0.5em;
+  border: 1px solid #aaa;
+  border-radius: 3px;
+  padding: 5px;
+  background-color: transparent;
+  margin-left: 3px;
 }
 .dataTables_wrapper .dataTables_info {
   clear: both;
@@ -413,7 +451,7 @@ table.dataTable td {
 
 @media screen and (max-width: 767px) {
   .dataTables_wrapper .dataTables_info,
-  .dataTables_wrapper .dataTables_paginate {
+.dataTables_wrapper .dataTables_paginate {
     float: none;
     text-align: center;
   }
@@ -423,73 +461,13 @@ table.dataTable td {
 }
 @media screen and (max-width: 640px) {
   .dataTables_wrapper .dataTables_length,
-  .dataTables_wrapper .dataTables_filter {
+.dataTables_wrapper .dataTables_filter {
     float: none;
     text-align: center;
   }
   .dataTables_wrapper .dataTables_filter {
     margin-top: 0.5em;
   }
-}
-table.dataTable thead th div.DataTables_sort_wrapper {
-  position: relative;
-}
-table.dataTable thead th div.DataTables_sort_wrapper span {
-  position: absolute;
-  top: 50%;
-  margin-top: -8px;
-  right: -18px;
-}
-table.dataTable thead th.ui-state-default,
-table.dataTable tfoot th.ui-state-default {
-  border-left-width: 0;
-}
-table.dataTable thead th.ui-state-default:first-child,
-table.dataTable tfoot th.ui-state-default:first-child {
-  border-left-width: 1px;
-}
-
-/*
- * Control feature layout
- */
-.dataTables_wrapper .dataTables_paginate .fg-button {
-  box-sizing: border-box;
-  display: inline-block;
-  min-width: 1.5em;
-  padding: 0.5em;
-  margin-left: 2px;
-  text-align: center;
-  text-decoration: none !important;
-  cursor: pointer;
-  *cursor: hand;
-  border: 1px solid transparent;
-}
-.dataTables_wrapper .dataTables_paginate .fg-button:active {
-  outline: none;
-}
-.dataTables_wrapper .dataTables_paginate .fg-button:first-child {
-  border-top-left-radius: 3px;
-  border-bottom-left-radius: 3px;
-}
-.dataTables_wrapper .dataTables_paginate .fg-button:last-child {
-  border-top-right-radius: 3px;
-  border-bottom-right-radius: 3px;
-}
-.dataTables_wrapper .ui-widget-header {
-  font-weight: normal;
-}
-.dataTables_wrapper .ui-toolbar {
-  padding: 8px;
-}
-.dataTables_wrapper.no-footer .dataTables_scrollBody {
-  border-bottom: none;
-}
-.dataTables_wrapper .dataTables_length,
-.dataTables_wrapper .dataTables_filter,
-.dataTables_wrapper .dataTables_info,
-.dataTables_wrapper .dataTables_processing,
-.dataTables_wrapper .dataTables_paginate {
-  color: inherit;
 }
 
 
@@ -553,23 +531,159 @@ div.dt-button-collection-title {
   font-size: 0.9em;
 }
 
+div.dt-button-collection-title:empty {
+  display: none;
+}
+
+button.dt-button,
+div.dt-button,
+a.dt-button,
+input.dt-button {
+  position: relative;
+  display: inline-block;
+  box-sizing: border-box;
+  margin-right: 0.333em;
+  margin-bottom: 0.333em;
+  padding: 0.5em 1em;
+  border: 1px solid rgba(0, 0, 0, 0.3);
+  border-radius: 2px;
+  cursor: pointer;
+  font-size: 0.88em;
+  line-height: 1.6em;
+  color: black;
+  white-space: nowrap;
+  overflow: hidden;
+  background-color: rgba(0, 0, 0, 0.1);
+  /* Fallback */
+  background: -webkit-linear-gradient(top, rgba(230, 230, 230, 0.1) 0%, rgba(0, 0, 0, 0.1) 100%);
+  /* Chrome 10+, Saf5.1+, iOS 5+ */
+  background: -moz-linear-gradient(top, rgba(230, 230, 230, 0.1) 0%, rgba(0, 0, 0, 0.1) 100%);
+  /* FF3.6 */
+  background: -ms-linear-gradient(top, rgba(230, 230, 230, 0.1) 0%, rgba(0, 0, 0, 0.1) 100%);
+  /* IE10 */
+  background: -o-linear-gradient(top, rgba(230, 230, 230, 0.1) 0%, rgba(0, 0, 0, 0.1) 100%);
+  /* Opera 11.10+ */
+  background: linear-gradient(to bottom, rgba(230, 230, 230, 0.1) 0%, rgba(0, 0, 0, 0.1) 100%);
+  filter: progid:DXImageTransform.Microsoft.gradient(GradientType=0,StartColorStr='rgba(230, 230, 230, 0.1)', EndColorStr='rgba(0, 0, 0, 0.1)');
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+  text-decoration: none;
+  outline: none;
+  text-overflow: ellipsis;
+}
+button.dt-button.disabled,
+div.dt-button.disabled,
+a.dt-button.disabled,
+input.dt-button.disabled {
+  cursor: default;
+  opacity: 0.4;
+}
+button.dt-button:active:not(.disabled), button.dt-button.active:not(.disabled),
+div.dt-button:active:not(.disabled),
+div.dt-button.active:not(.disabled),
+a.dt-button:active:not(.disabled),
+a.dt-button.active:not(.disabled),
+input.dt-button:active:not(.disabled),
+input.dt-button.active:not(.disabled) {
+  background-color: rgba(0, 0, 0, 0.1);
+  /* Fallback */
+  background: -webkit-linear-gradient(top, rgba(179, 179, 179, 0.1) 0%, rgba(0, 0, 0, 0.1) 100%);
+  /* Chrome 10+, Saf5.1+, iOS 5+ */
+  background: -moz-linear-gradient(top, rgba(179, 179, 179, 0.1) 0%, rgba(0, 0, 0, 0.1) 100%);
+  /* FF3.6 */
+  background: -ms-linear-gradient(top, rgba(179, 179, 179, 0.1) 0%, rgba(0, 0, 0, 0.1) 100%);
+  /* IE10 */
+  background: -o-linear-gradient(top, rgba(179, 179, 179, 0.1) 0%, rgba(0, 0, 0, 0.1) 100%);
+  /* Opera 11.10+ */
+  background: linear-gradient(to bottom, rgba(179, 179, 179, 0.1) 0%, rgba(0, 0, 0, 0.1) 100%);
+  filter: progid:DXImageTransform.Microsoft.gradient(GradientType=0,StartColorStr='rgba(179, 179, 179, 0.1)', EndColorStr='rgba(0, 0, 0, 0.1)');
+  box-shadow: inset 1px 1px 3px #999999;
+}
+button.dt-button:active:not(.disabled):hover:not(.disabled), button.dt-button.active:not(.disabled):hover:not(.disabled),
+div.dt-button:active:not(.disabled):hover:not(.disabled),
+div.dt-button.active:not(.disabled):hover:not(.disabled),
+a.dt-button:active:not(.disabled):hover:not(.disabled),
+a.dt-button.active:not(.disabled):hover:not(.disabled),
+input.dt-button:active:not(.disabled):hover:not(.disabled),
+input.dt-button.active:not(.disabled):hover:not(.disabled) {
+  box-shadow: inset 1px 1px 3px #999999;
+  background-color: rgba(0, 0, 0, 0.1);
+  /* Fallback */
+  background: -webkit-linear-gradient(top, rgba(128, 128, 128, 0.1) 0%, rgba(0, 0, 0, 0.1) 100%);
+  /* Chrome 10+, Saf5.1+, iOS 5+ */
+  background: -moz-linear-gradient(top, rgba(128, 128, 128, 0.1) 0%, rgba(0, 0, 0, 0.1) 100%);
+  /* FF3.6 */
+  background: -ms-linear-gradient(top, rgba(128, 128, 128, 0.1) 0%, rgba(0, 0, 0, 0.1) 100%);
+  /* IE10 */
+  background: -o-linear-gradient(top, rgba(128, 128, 128, 0.1) 0%, rgba(0, 0, 0, 0.1) 100%);
+  /* Opera 11.10+ */
+  background: linear-gradient(to bottom, rgba(128, 128, 128, 0.1) 0%, rgba(0, 0, 0, 0.1) 100%);
+  filter: progid:DXImageTransform.Microsoft.gradient(GradientType=0,StartColorStr='rgba(128, 128, 128, 0.1)', EndColorStr='rgba(0, 0, 0, 0.1)');
+}
+button.dt-button:hover,
+div.dt-button:hover,
+a.dt-button:hover,
+input.dt-button:hover {
+  text-decoration: none;
+}
+button.dt-button:hover:not(.disabled),
+div.dt-button:hover:not(.disabled),
+a.dt-button:hover:not(.disabled),
+input.dt-button:hover:not(.disabled) {
+  border: 1px solid #666;
+  background-color: rgba(0, 0, 0, 0.1);
+  /* Fallback */
+  background: -webkit-linear-gradient(top, rgba(153, 153, 153, 0.1) 0%, rgba(0, 0, 0, 0.1) 100%);
+  /* Chrome 10+, Saf5.1+, iOS 5+ */
+  background: -moz-linear-gradient(top, rgba(153, 153, 153, 0.1) 0%, rgba(0, 0, 0, 0.1) 100%);
+  /* FF3.6 */
+  background: -ms-linear-gradient(top, rgba(153, 153, 153, 0.1) 0%, rgba(0, 0, 0, 0.1) 100%);
+  /* IE10 */
+  background: -o-linear-gradient(top, rgba(153, 153, 153, 0.1) 0%, rgba(0, 0, 0, 0.1) 100%);
+  /* Opera 11.10+ */
+  background: linear-gradient(to bottom, rgba(153, 153, 153, 0.1) 0%, rgba(0, 0, 0, 0.1) 100%);
+  filter: progid:DXImageTransform.Microsoft.gradient(GradientType=0,StartColorStr='rgba(153, 153, 153, 0.1)', EndColorStr='rgba(0, 0, 0, 0.1)');
+}
+button.dt-button:focus:not(.disabled),
+div.dt-button:focus:not(.disabled),
+a.dt-button:focus:not(.disabled),
+input.dt-button:focus:not(.disabled) {
+  border: 1px solid #426c9e;
+  text-shadow: 0 1px 0 #c4def1;
+  outline: none;
+  background-color: #79ace9;
+  /* Fallback */
+  background: -webkit-linear-gradient(top, #d1e2f7 0%, #79ace9 100%);
+  /* Chrome 10+, Saf5.1+, iOS 5+ */
+  background: -moz-linear-gradient(top, #d1e2f7 0%, #79ace9 100%);
+  /* FF3.6 */
+  background: -ms-linear-gradient(top, #d1e2f7 0%, #79ace9 100%);
+  /* IE10 */
+  background: -o-linear-gradient(top, #d1e2f7 0%, #79ace9 100%);
+  /* Opera 11.10+ */
+  background: linear-gradient(to bottom, #d1e2f7 0%, #79ace9 100%);
+  filter: progid:DXImageTransform.Microsoft.gradient(GradientType=0,StartColorStr='#d1e2f7', EndColorStr='#79ace9');
+}
+
+.dt-button embed {
+  outline: none;
+}
+
 div.dt-buttons {
   position: relative;
   float: left;
 }
-div.dt-buttons .dt-button {
-  margin-right: 0;
+div.dt-buttons.buttons-right {
+  float: right;
 }
-div.dt-buttons .dt-button span.ui-icon {
-  display: inline-block;
-  vertical-align: middle;
-  margin-top: -2px;
+
+div.dataTables_layout_cell div.dt-buttons {
+  float: none;
 }
-div.dt-buttons .dt-button:active {
-  outline: none;
-}
-div.dt-buttons .dt-button:hover > span {
-  background-color: rgba(0, 0, 0, 0.05);
+div.dataTables_layout_cell div.dt-buttons.buttons-right {
+  float: none;
 }
 
 div.dt-button-collection {
@@ -581,36 +695,43 @@ div.dt-button-collection {
   padding: 8px 8px 4px 8px;
   border: 1px solid #ccc;
   border: 1px solid rgba(0, 0, 0, 0.4);
-  background-color: #f3f3f3;
-  background-color: rgba(255, 255, 255, 0.3);
+  background-color: white;
   overflow: hidden;
   z-index: 2002;
   border-radius: 5px;
   box-shadow: 3px 3px 5px rgba(0, 0, 0, 0.3);
-  z-index: 2002;
-  -webkit-column-gap: 8px;
-  -moz-column-gap: 8px;
-  -ms-column-gap: 8px;
-  -o-column-gap: 8px;
-  column-gap: 8px;
-  -webkit-column-gap: 0;
-  -moz-column-gap: 0;
-  -ms-column-gap: 0;
-  -o-column-gap: 0;
-  column-gap: 0;
+  box-sizing: border-box;
 }
-div.dt-button-collection .dt-button {
+div.dt-button-collection button.dt-button,
+div.dt-button-collection div.dt-button,
+div.dt-button-collection a.dt-button {
   position: relative;
   left: 0;
   right: 0;
   width: 100%;
   display: block;
   float: none;
-  margin-right: 0;
   margin-bottom: 4px;
+  margin-right: 0;
 }
-div.dt-button-collection .dt-button:hover > span {
-  background-color: rgba(0, 0, 0, 0.05);
+div.dt-button-collection button.dt-button:active:not(.disabled), div.dt-button-collection button.dt-button.active:not(.disabled),
+div.dt-button-collection div.dt-button:active:not(.disabled),
+div.dt-button-collection div.dt-button.active:not(.disabled),
+div.dt-button-collection a.dt-button:active:not(.disabled),
+div.dt-button-collection a.dt-button.active:not(.disabled) {
+  background-color: #dadada;
+  /* Fallback */
+  background: -webkit-linear-gradient(top, #f0f0f0 0%, #dadada 100%);
+  /* Chrome 10+, Saf5.1+, iOS 5+ */
+  background: -moz-linear-gradient(top, #f0f0f0 0%, #dadada 100%);
+  /* FF3.6 */
+  background: -ms-linear-gradient(top, #f0f0f0 0%, #dadada 100%);
+  /* IE10 */
+  background: -o-linear-gradient(top, #f0f0f0 0%, #dadada 100%);
+  /* Opera 11.10+ */
+  background: linear-gradient(to bottom, #f0f0f0 0%, #dadada 100%);
+  filter: progid:DXImageTransform.Microsoft.gradient(GradientType=0,StartColorStr='#f0f0f0', EndColorStr='#dadada');
+  box-shadow: inset 1px 1px 3px #666;
 }
 div.dt-button-collection.fixed {
   position: fixed;
@@ -620,7 +741,7 @@ div.dt-button-collection.fixed {
   border-radius: 0;
 }
 div.dt-button-collection.fixed.two-column {
-  margin-left: -150px;
+  margin-left: -200px;
 }
 div.dt-button-collection.fixed.three-column {
   margin-left: -225px;
@@ -628,12 +749,22 @@ div.dt-button-collection.fixed.three-column {
 div.dt-button-collection.fixed.four-column {
   margin-left: -300px;
 }
-div.dt-button-collection > * {
+div.dt-button-collection > :last-child {
+  display: block !important;
+  -webkit-column-gap: 8px;
+  -moz-column-gap: 8px;
+  -ms-column-gap: 8px;
+  -o-column-gap: 8px;
+  column-gap: 8px;
+}
+div.dt-button-collection > :last-child > * {
   -webkit-column-break-inside: avoid;
   break-inside: avoid;
 }
 div.dt-button-collection.two-column {
-  width: 300px;
+  width: 400px;
+}
+div.dt-button-collection.two-column > :last-child {
   padding-bottom: 1px;
   -webkit-column-count: 2;
   -moz-column-count: 2;
@@ -643,6 +774,8 @@ div.dt-button-collection.two-column {
 }
 div.dt-button-collection.three-column {
   width: 450px;
+}
+div.dt-button-collection.three-column > :last-child {
   padding-bottom: 1px;
   -webkit-column-count: 3;
   -moz-column-count: 3;
@@ -652,6 +785,8 @@ div.dt-button-collection.three-column {
 }
 div.dt-button-collection.four-column {
   width: 600px;
+}
+div.dt-button-collection.four-column > :last-child {
   padding-bottom: 1px;
   -webkit-column-count: 4;
   -moz-column-count: 4;
@@ -731,44 +866,44 @@ table.dataTable.dtr-inline.collapsed > tbody > tr > th.child:before,
 table.dataTable.dtr-inline.collapsed > tbody > tr > td.dataTables_empty:before {
   display: none !important;
 }
-table.dataTable.dtr-inline.collapsed > tbody > tr[role="row"] > td:first-child,
-table.dataTable.dtr-inline.collapsed > tbody > tr[role="row"] > th:first-child {
+table.dataTable.dtr-inline.collapsed > tbody > tr[role="row"] > td.dtr-control,
+table.dataTable.dtr-inline.collapsed > tbody > tr[role="row"] > th.dtr-control {
   position: relative;
   padding-left: 30px;
   cursor: pointer;
 }
-table.dataTable.dtr-inline.collapsed > tbody > tr[role="row"] > td:first-child:before,
-table.dataTable.dtr-inline.collapsed > tbody > tr[role="row"] > th:first-child:before {
-  top: 9px;
-  left: 4px;
-  height: 14px;
-  width: 14px;
+table.dataTable.dtr-inline.collapsed > tbody > tr[role="row"] > td.dtr-control:before,
+table.dataTable.dtr-inline.collapsed > tbody > tr[role="row"] > th.dtr-control:before {
+  top: 50%;
+  left: 5px;
+  height: 1em;
+  width: 1em;
+  margin-top: -9px;
   display: block;
   position: absolute;
   color: white;
-  border: 2px solid white;
-  border-radius: 14px;
-  box-shadow: 0 0 3px #444;
+  border: 0.15em solid white;
+  border-radius: 1em;
+  box-shadow: 0 0 0.2em #444;
   box-sizing: content-box;
   text-align: center;
   text-indent: 0 !important;
   font-family: 'Courier New', Courier, monospace;
-  line-height: 14px;
+  line-height: 1em;
   content: '+';
   background-color: #31b131;
 }
-table.dataTable.dtr-inline.collapsed > tbody > tr.parent > td:first-child:before,
-table.dataTable.dtr-inline.collapsed > tbody > tr.parent > th:first-child:before {
+table.dataTable.dtr-inline.collapsed > tbody > tr.parent > td.dtr-control:before,
+table.dataTable.dtr-inline.collapsed > tbody > tr.parent > th.dtr-control:before {
   content: '-';
   background-color: #d33333;
 }
-table.dataTable.dtr-inline.collapsed.compact > tbody > tr > td:first-child,
-table.dataTable.dtr-inline.collapsed.compact > tbody > tr > th:first-child {
+table.dataTable.dtr-inline.collapsed.compact > tbody > tr > td.dtr-control,
+table.dataTable.dtr-inline.collapsed.compact > tbody > tr > th.dtr-control {
   padding-left: 27px;
 }
-table.dataTable.dtr-inline.collapsed.compact > tbody > tr > td:first-child:before,
-table.dataTable.dtr-inline.collapsed.compact > tbody > tr > th:first-child:before {
-  top: 5px;
+table.dataTable.dtr-inline.collapsed.compact > tbody > tr > td.dtr-control:before,
+table.dataTable.dtr-inline.collapsed.compact > tbody > tr > th.dtr-control:before {
   left: 4px;
   height: 14px;
   width: 14px;
@@ -776,33 +911,39 @@ table.dataTable.dtr-inline.collapsed.compact > tbody > tr > th:first-child:befor
   line-height: 14px;
   text-indent: 3px;
 }
+table.dataTable.dtr-column > tbody > tr > td.dtr-control,
+table.dataTable.dtr-column > tbody > tr > th.dtr-control,
 table.dataTable.dtr-column > tbody > tr > td.control,
 table.dataTable.dtr-column > tbody > tr > th.control {
   position: relative;
   cursor: pointer;
 }
+table.dataTable.dtr-column > tbody > tr > td.dtr-control:before,
+table.dataTable.dtr-column > tbody > tr > th.dtr-control:before,
 table.dataTable.dtr-column > tbody > tr > td.control:before,
 table.dataTable.dtr-column > tbody > tr > th.control:before {
   top: 50%;
   left: 50%;
-  height: 16px;
-  width: 16px;
-  margin-top: -10px;
-  margin-left: -10px;
+  height: 0.8em;
+  width: 0.8em;
+  margin-top: -0.5em;
+  margin-left: -0.5em;
   display: block;
   position: absolute;
   color: white;
-  border: 2px solid white;
-  border-radius: 14px;
-  box-shadow: 0 0 3px #444;
+  border: 0.15em solid white;
+  border-radius: 1em;
+  box-shadow: 0 0 0.2em #444;
   box-sizing: content-box;
   text-align: center;
   text-indent: 0 !important;
   font-family: 'Courier New', Courier, monospace;
-  line-height: 14px;
+  line-height: 1em;
   content: '+';
   background-color: #31b131;
 }
+table.dataTable.dtr-column > tbody > tr.parent td.dtr-control:before,
+table.dataTable.dtr-column > tbody > tr.parent th.dtr-control:before,
 table.dataTable.dtr-column > tbody > tr.parent td.control:before,
 table.dataTable.dtr-column > tbody > tr.parent th.control:before {
   content: '-';
@@ -896,6 +1037,113 @@ div.dtr-modal div.dtr-modal-background {
 @media screen and (max-width: 767px) {
   div.dtr-modal div.dtr-modal-display {
     width: 95%;
+  }
+}
+
+
+table.dataTable tbody > tr.selected,
+table.dataTable tbody > tr > .selected {
+  background-color: #B0BED9;
+}
+table.dataTable.stripe tbody > tr.odd.selected,
+table.dataTable.stripe tbody > tr.odd > .selected, table.dataTable.display tbody > tr.odd.selected,
+table.dataTable.display tbody > tr.odd > .selected {
+  background-color: #acbad4;
+}
+table.dataTable.hover tbody > tr.selected:hover,
+table.dataTable.hover tbody > tr > .selected:hover, table.dataTable.display tbody > tr.selected:hover,
+table.dataTable.display tbody > tr > .selected:hover {
+  background-color: #aab7d1;
+}
+table.dataTable.order-column tbody > tr.selected > .sorting_1,
+table.dataTable.order-column tbody > tr.selected > .sorting_2,
+table.dataTable.order-column tbody > tr.selected > .sorting_3,
+table.dataTable.order-column tbody > tr > .selected, table.dataTable.display tbody > tr.selected > .sorting_1,
+table.dataTable.display tbody > tr.selected > .sorting_2,
+table.dataTable.display tbody > tr.selected > .sorting_3,
+table.dataTable.display tbody > tr > .selected {
+  background-color: #acbad5;
+}
+table.dataTable.display tbody > tr.odd.selected > .sorting_1, table.dataTable.order-column.stripe tbody > tr.odd.selected > .sorting_1 {
+  background-color: #a6b4cd;
+}
+table.dataTable.display tbody > tr.odd.selected > .sorting_2, table.dataTable.order-column.stripe tbody > tr.odd.selected > .sorting_2 {
+  background-color: #a8b5cf;
+}
+table.dataTable.display tbody > tr.odd.selected > .sorting_3, table.dataTable.order-column.stripe tbody > tr.odd.selected > .sorting_3 {
+  background-color: #a9b7d1;
+}
+table.dataTable.display tbody > tr.even.selected > .sorting_1, table.dataTable.order-column.stripe tbody > tr.even.selected > .sorting_1 {
+  background-color: #acbad5;
+}
+table.dataTable.display tbody > tr.even.selected > .sorting_2, table.dataTable.order-column.stripe tbody > tr.even.selected > .sorting_2 {
+  background-color: #aebcd6;
+}
+table.dataTable.display tbody > tr.even.selected > .sorting_3, table.dataTable.order-column.stripe tbody > tr.even.selected > .sorting_3 {
+  background-color: #afbdd8;
+}
+table.dataTable.display tbody > tr.odd > .selected, table.dataTable.order-column.stripe tbody > tr.odd > .selected {
+  background-color: #a6b4cd;
+}
+table.dataTable.display tbody > tr.even > .selected, table.dataTable.order-column.stripe tbody > tr.even > .selected {
+  background-color: #acbad5;
+}
+table.dataTable.display tbody > tr.selected:hover > .sorting_1, table.dataTable.order-column.hover tbody > tr.selected:hover > .sorting_1 {
+  background-color: #a2aec7;
+}
+table.dataTable.display tbody > tr.selected:hover > .sorting_2, table.dataTable.order-column.hover tbody > tr.selected:hover > .sorting_2 {
+  background-color: #a3b0c9;
+}
+table.dataTable.display tbody > tr.selected:hover > .sorting_3, table.dataTable.order-column.hover tbody > tr.selected:hover > .sorting_3 {
+  background-color: #a5b2cb;
+}
+table.dataTable.display tbody > tr:hover > .selected,
+table.dataTable.display tbody > tr > .selected:hover, table.dataTable.order-column.hover tbody > tr:hover > .selected,
+table.dataTable.order-column.hover tbody > tr > .selected:hover {
+  background-color: #a2aec7;
+}
+table.dataTable tbody td.select-checkbox,
+table.dataTable tbody th.select-checkbox {
+  position: relative;
+}
+table.dataTable tbody td.select-checkbox:before, table.dataTable tbody td.select-checkbox:after,
+table.dataTable tbody th.select-checkbox:before,
+table.dataTable tbody th.select-checkbox:after {
+  display: block;
+  position: absolute;
+  top: 1.2em;
+  left: 50%;
+  width: 12px;
+  height: 12px;
+  box-sizing: border-box;
+}
+table.dataTable tbody td.select-checkbox:before,
+table.dataTable tbody th.select-checkbox:before {
+  content: ' ';
+  margin-top: -6px;
+  margin-left: -6px;
+  border: 1px solid black;
+  border-radius: 3px;
+}
+table.dataTable tr.selected td.select-checkbox:after,
+table.dataTable tr.selected th.select-checkbox:after {
+  content: '\2714';
+  margin-top: -11px;
+  margin-left: -4px;
+  text-align: center;
+  text-shadow: 1px 1px #B0BED9, -1px -1px #B0BED9, 1px -1px #B0BED9, -1px 1px #B0BED9;
+}
+
+div.dataTables_wrapper span.select-info,
+div.dataTables_wrapper span.select-item {
+  margin-left: 0.5em;
+}
+
+@media screen and (max-width: 640px) {
+  div.dataTables_wrapper span.select-info,
+  div.dataTables_wrapper span.select-item {
+    margin-left: 0;
+    display: block;
   }
 }
 

@@ -2,10 +2,10 @@
 /**
  * Quick search
  *
- * PHP version 5
+ * PHP version 7
  *
- * Copyright (C) 2004-2008 Samu Reinikainen
- * Copyright (C) 2010-2018 Ere Maijala
+ * Copyright (C) Samu Reinikainen 2004-2008
+ * Copyright (C) Ere Maijala 2010-2021
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2,
@@ -58,8 +58,8 @@ echo htmlPageStart();
 ?>
 
 <body>
-    <div class="form_container ui-widget-content">
-        <div class="form ui-widget">
+    <div class="container-fluid">
+        <div class="form">
             <form method="post"
                 action="quick_search.php?func=<?php echo $strFunc?>" target="_self"
                 name="search_form">
@@ -85,7 +85,7 @@ foreach ($rows as $row) {
                         </td>
                         <td>
                             <input type="hidden" name="delete_<?php echo $intID?>_x" value="0">
-                            <a class="tinyactionlink ui-button ui-corner-all ui-widget form-submit" href="#" data-set-field="delete_<?php echo $intID?>_x"> X </a>
+                            <button type="button" class="btn btn-secondary btn-small form-submit" data-set-field="delete_<?php echo $intID?>_x"> X </button>
                         </td>
                     </tr>
     <?php
@@ -105,9 +105,9 @@ if (!isset($intID)) {
                 <table>
                     <tr>
                         <td>
-                            <a class="actionlink ui-button ui-corner-all ui-widget popup-close" href="#">
-                            <?php echo Translator::translate('Close')?>
-                            </a>
+                            <button type="button" class="btn btn-secondary popup-close">
+                              <?php echo Translator::translate('Close')?>
+                            </button>
                         </td>
                     </tr>
                 </table>

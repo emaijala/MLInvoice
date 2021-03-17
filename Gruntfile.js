@@ -6,7 +6,7 @@ module.exports = function(grunt) {
         atBegin: true
       },
       scss: {
-        files: 'css/*.scss',
+        files: ['css/*.scss', 'css/bootstrap/*.scss'],
         tasks: ['sass']
       },
       js: {
@@ -31,8 +31,7 @@ module.exports = function(grunt) {
           style: 'compressed'
         },
         files: {
-          'css/style.css': 'css/style.scss',
-          'css/table.css': 'css/table.scss',
+          'css/style.css': 'css/style.scss'
         }
       }
     }

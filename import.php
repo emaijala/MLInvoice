@@ -2,9 +2,9 @@
 /**
  * Import base class
  *
- * PHP version 5
+ * PHP version 7
  *
- * Copyright (C) 2010-2018 Ere Maijala
+ * Copyright (C) Ere Maijala 2010-2021
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2,
@@ -166,16 +166,19 @@ class ImportFile
             echo "<div class=\"error\">$error</div>\n";
         }
         ?>
-    <h1><?php echo Translator::translate('ImportFileSelection')?></h1>
-    <span id="imessage" style="display: none"></span>
-    <span id="spinner" style="visibility: hidden"><img src="images/spinner.gif" alt=""></span>
+    <h1>
+        <?php echo Translator::translate('ImportFileSelection')?>
+        <span id="spinner" class="hidden"><i class="fa fa-spinner fa-spin"></i></span>
+    </h1>
     <form id="form_import" enctype="multipart/form-data" method="POST">
         <input type="hidden" name="func"
             value="<?php echo htmlentities(getPostOrQuery('func', ''))?>"> <input
             type="hidden" name="operation" value="import">
         <div class="label file">
-            <input type="radio" id="ft_upload" name="filetype" value="upload"
-                checked="checked"><label for="ft_upload"><?php printf(Translator::translate('ImportUploadFile'), $maxFileSize)?></label>
+            <input class="form-check-input" type="radio" id="ft_upload" name="filetype" value="upload" checked="checked">
+            <label class="form-check-label" for="ft_upload">
+                <?php printf(Translator::translate('ImportUploadFile'), $maxFileSize)?>
+            </label>
         </div>
         <div class="long">
             <input name="data" type="file">
@@ -187,7 +190,7 @@ class ImportFile
         </div>
         <?php }?>
       <div class="form_buttons">
-            <input type="submit" value="<?php echo Translator::translate('ImportNext')?>">
+            <input type="submit" class="btn btn-primary" value="<?php echo Translator::translate('ImportNext')?>">
         </div>
     </form>
 </div>
@@ -679,15 +682,8 @@ class ImportFile
 g_presets = <?php echo json_encode($this->presets) . ';'?>
 
 $(document).ready(function() {
-  $('#imessage').ajaxStart(function() {
-    $('#spinner').css('visibility', 'visible');
-  });
-  $('#imessage').ajaxStop(function() {
-    $('#spinner').css('visibility', 'hidden');
-  });
-  $('#imessage').ajaxError(function(event, request, settings) {
+  $('document').ajaxError(function(event, request, settings) {
     alert('Server request failed: ' + request.status + ' - ' + request.statusText);
-    $('#spinner').css('visibility', 'hidden');
   });
   reset_columns();
   update_field_states();
@@ -892,8 +888,6 @@ function select_preset()
 
 <div class="form_container">
     <h1><?php echo Translator::translate('ImportFileParameters')?></h1>
-    <span id="imessage" style="display: none"></span> <span id="spinner"
-       style="visibility: hidden"><img src="images/spinner.gif" alt=""></span>
     <form id="import_form" name="import_form" method="GET">
         <input type="hidden" name="func" value="<?php echo htmlentities(getPostOrQuery('func', ''))?>">
         <input type="hidden" name="operation" value="import">
@@ -1083,15 +1077,15 @@ function select_preset()
         <?php $this->addCustomFormFields(); ?>
 
         <div class="unlimited_label"><?php echo Translator::translate('ImportColumnMapping')?></div>
-        <div class="column_mapping">
+        <div class="column_mapping mb-2 p-2">
             <div id="mapping_errors"></div>
             <table id="column_table">
             </table>
         </div>
 
         <div class="form_buttons">
-            <button name="import" type="submit" value="preview"><?php echo Translator::translate('ImportButtonPreview')?></button>
-            <button name="import" type="submit" value="import"><?php echo Translator::translate('ImportButtonImport')?></button>
+            <button name="import" class="btn btn-primary" type="submit" value="preview"><?php echo Translator::translate('ImportButtonPreview')?></button>
+            <button name="import" class="btn btn-primary" type="submit" value="import"><?php echo Translator::translate('ImportButtonImport')?></button>
         </div>
     </form>
 </div>

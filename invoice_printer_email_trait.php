@@ -2,9 +2,9 @@
 /**
  * Email invoice trait
  *
- * PHP version 5
+ * PHP version 7
  *
- * Copyright (C) 2010-2018 Ere Maijala
+ * Copyright (C) Ere Maijala 2010-2021
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2,
@@ -179,12 +179,12 @@ trait InvoicePrinterEmailTrait
         echo htmlPageStart(Translator::translate('SendEmail'));
         ?>
 <body>
-    <div class="pagewrapper ui-widget ui-widget-content">
+    <div class="pagewrapper mb-4">
         <?php echo htmlMainTabs('open_invoices'); ?>
 
-        <div id="email_form_container" class="form_container">
+        <div id="email_form_container" class="container-fluid form_container">
             <h1><?php echo Translator::translate('SendEmail')?></h1>
-            <?php if ($errorMsg) echo '<div class="ui-state-error-text">' . $errorMsg . "<br><br></div>\n";?>
+            <?php if ($errorMsg) echo '<div class="alert alert-danger" role="alert">' . $errorMsg . "<br><br></div>\n";?>
             <form method="POST" id="email_form">
                 <input type="hidden" name="id" value="<?php echo htmlspecialchars(getPostOrQuery('id', ''))?>">
                 <input type="hidden" name="template" value="<?php echo htmlspecialchars(getPostOrQuery('template', ''))?>">
@@ -193,23 +193,23 @@ trait InvoicePrinterEmailTrait
 
                 <div class="medium_label"><?php echo Translator::translate('EmailFrom')?></div>
                 <div class="field">
-                    <input type="text" id="email_from" name="email_from" class="medium" value="<?php echo htmlspecialchars($this->emailFrom)?>">
+                    <input type="text" id="email_from" name="email_from" class="form-control medium" value="<?php echo htmlspecialchars($this->emailFrom)?>">
                 </div>
                 <div class="medium_label"><?php echo Translator::translate('EmailTo')?></div>
                 <div class="field">
-                    <input type="text" id="email_to" name="email_to" class="medium" value="<?php echo htmlspecialchars($this->emailTo)?>">
+                    <input type="text" id="email_to" name="email_to" class="form-control medium" value="<?php echo htmlspecialchars($this->emailTo)?>">
                 </div>
                 <div class="medium_label"><?php echo Translator::translate('EmailCC')?></div>
                 <div class="field">
-                    <input type="text" id="email_cc" name="email_cc" class="medium" value="<?php echo htmlspecialchars($this->emailCC)?>">
+                    <input type="text" id="email_cc" name="email_cc" class="form-control medium" value="<?php echo htmlspecialchars($this->emailCC)?>">
                 </div>
                 <div class="medium_label"><?php echo Translator::translate('EmailBCC')?></div>
                 <div class="field">
-                    <input type="text" id="email_bcc" name="email_bcc" class="medium" value="<?php echo htmlspecialchars($this->emailBCC)?>">
+                    <input type="text" id="email_bcc" name="email_bcc" class="form-control medium" value="<?php echo htmlspecialchars($this->emailBCC)?>">
                 </div>
                 <div class="medium_label"><?php echo Translator::translate('EmailSubject')?></div>
                 <div class="field">
-                    <input type="text" id="email_subject" name="email_subject" class="medium" value="<?php echo htmlspecialchars($this->emailSubject)?>">
+                    <input type="text" id="email_subject" name="email_subject" class="form-control medium" value="<?php echo htmlspecialchars($this->emailSubject)?>">
                 </div>
                 <div class="medium_label"><?php echo Translator::translate('EmailBody')?></div>
                 <div class="field">
@@ -234,13 +234,13 @@ trait InvoicePrinterEmailTrait
                     ?>
                 </div>
                 <div class="form_buttons">
-                    <a class="actionlink ui-button ui-corner-all ui-widget" onclick="$('#email_send').val(1); $('#email_form').submit(); return false;" href="#">
+                    <button type="button" class="btn btn-primary form-submit" data-set-field="email_send=1">
                         <?php echo Translator::translate('Send')?>
-                    </a>
-                    <a class="actionlink ui-button ui-corner-all ui-widget" onclick="if (window.opener) { window.close(); } else { history.back(); } return false;" href="#">
+                    </button>
+                    <button type="button" class="btn btn-secondary" data-form-cancel>
                         <?php echo Translator::translate('Cancel')?>
-                    </a>
-                    <span id="spinner" style="display: none"><img src="images/spinner.gif" alt=""></span>
+                    </button>
+                    <span id="spinner" class="hidden"><i class="fa fa-spinner fa-spin"></i></span>
                 </div>
             </form>
         </div>
@@ -249,7 +249,7 @@ trait InvoicePrinterEmailTrait
 <script>
 $(document).ready(function() {
     $('#email_form').submit(function() {
-        $('#spinner').show();
+        $('#spinner').removeClass('hidden');
     });
     MLInvoice.Form.setupDefaultTextSelection();
 });

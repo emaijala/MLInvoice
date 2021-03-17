@@ -2,10 +2,10 @@
 /**
  * Form display
  *
- * PHP version 5
+ * PHP version 7
  *
- * Copyright (C) 2004-2008 Samu Reinikainen
- * Copyright (C) 2010-2018 Ere Maijala
+ * Copyright (C) Samu Reinikainen 2004-2008
+ * Copyright (C) Ere Maijala 2010-2021
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2,
@@ -50,7 +50,7 @@ function createForm($strFunc, $strList, $strForm)
 
     if (!sesAccessLevel($formConfig['accessLevels']) && !sesAdminAccess()) {
         ?>
-<div class="form_container ui-widget-content">
+<div class="form_container">
         <?php echo Translator::translate('NoAccess') . "\n"?>
   </div>
         <?php
@@ -65,7 +65,7 @@ function createForm($strFunc, $strList, $strForm)
 
     if ($action && !sesWriteAccess()) {
         ?>
-<div class="form_container ui-widget-content">
+<div class="form_container">
         <?php echo Translator::translate('NoAccess') . "\n"?>
   </div>
         <?php
@@ -117,7 +117,7 @@ function createForm($strFunc, $strList, $strForm)
             return;
         }
         ?>
-<div class="form_container ui-widget-content">
+<div class="form_container">
         <?php echo Translator::translate('RecordDeleted') . "\n"?>
   </div>
         <?php
@@ -159,8 +159,19 @@ EOT;
     }
     ?>
 
-<div id="popup_dlg" style="display: none">
-    <iframe id="popup_dlg_iframe" src="about:blank"></iframe>
+<div id="popup_dlg" class="modal" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title">-</h2>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="<?php echo Translator::translate('Close')?>"></button>
+            </div>
+            <div class="modal-body"></div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal"><?php echo Translator::translate('Close')?></button>
+            </div>
+        </div>
+    </div>
 </div>
     <?php
     if ($formConfig['popupHTML']) {
@@ -172,15 +183,14 @@ EOT;
 
     <?php
     createFormButtons(
-        $strForm, $intKeyValue ? false : true, $formConfig['copyLink'], true, $formConfig['readOnly'],
-        $formConfig['extraButtons'], true
+        $strForm, $formConfig, $intKeyValue ? false : true, true, true
     );
 
     if ($strForm == 'invoice' && !empty($astrValues['next_interval_date'])
         && strDate2UnixTime($astrValues['next_interval_date']) <= time()
     ) {
         ?>
-    <div class="ui-state-highlight ui-border-all message">
+    <div class="alert alert-warning message" role="alert">
         <?php echo Translator::translate('CreateCopyForNextInvoice')?>
     </div>
         <?php
@@ -219,13 +229,8 @@ EOT;
             );
         }
     }
-    ?>
-            <table>
-    <?php
     $childFormConfig = false;
     $prevPosition = false;
-    $prevColSpan = 1;
-    $rowOpen = false;
     $formFieldMode = sesWriteAccess() && !$formConfig['readOnly'] ? 'MODIFY' : 'READONLY';
     foreach ($formConfig['fields'] as $elem) {
         if ($elem['type'] === false) {
@@ -243,60 +248,39 @@ EOT;
 
         $fieldMode = isset($elem['read_only']) && $elem['read_only'] ? 'READONLY' : $formFieldMode;
 
-        if ($elem['type'] == 'LABEL') {
-            if ($rowOpen) {
-                echo "        </tr>\n";
-            }
-            $rowOpen = false;
+        if ($elem['type'] == 'HEADING') {
             ?>
-        <tr>
-          <td class="ui-widget-header ui-state-default sublabel$style" colspan="4">
-            <?php echo Translator::translate($elem['label'])?>
-          </td>
-                </tr>
+            <div class="sublabel<?php echo $style?> mt-4"<?php echo empty($elem['name']) ? '' : (' id="' . $elem['name'] . '"')?>>
+              <h2><?php echo Translator::translate($elem['label'])?></h2>
+            </div>
+            <?php
+            continue;
+        } elseif ($elem['type'] == 'LABEL') {
+            ?>
+            <div class="sublabel<?php echo $style?>"<?php echo empty($elem['name']) ? '' : (' id="' . $elem['name'] . '"')?>>
+              <?php echo Translator::translate($elem['label'])?>
+            </div>
             <?php
             continue;
         }
 
         if ($elem['position'] == 0 || $elem['position'] <= $prevPosition) {
+            echo '        <div class="clear-row"></div>';
             $prevPosition = 0;
-            $prevColSpan = 1;
-            echo "        </tr>\n";
-            $rowOpen = false;
         }
 
-        if ($elem['type'] != 'IFORM') {
-            if (!$rowOpen) {
-                $rowOpen = true;
-                echo "        <tr>\n";
-            }
-            if ($prevPosition !== false && $elem['position'] > 0) {
-                for ($i = $prevPosition + $prevColSpan; $i < $elem['position']; $i ++) {
-                    echo "          <td class=\"label\">&nbsp;</td>\n";
-                }
-            }
-
-            if ($elem['position'] == 0 && !strstr($elem['type'], 'HID_')) {
-                $strColspan = 'colspan="3"';
-                $intColspan = 3;
-            } elseif ($elem['position'] == 1 && !strstr($elem['type'], 'HID_')) {
-                $strColspan = '';
-                $intColspan = 2;
-            } else {
-                $intColspan = 2;
-            }
-        }
+        $contentsClasses = htmlentities(strtolower($elem['type']))
+            . ' ' . $elem['style']
+            . (isset($elem['attached_elem']) ? ' attached' : '');
 
         if (!$intKeyValue
             && in_array($elem['type'], ['BUTTON', 'JSBUTTON', 'IMAGE', 'DROPDOWNMENU'])
         ) {
-            echo '          <td class="label$style">&nbsp;</td>';
+            echo '          <div class="label$style">&nbsp;</div>';
         } elseif (in_array($elem['type'], ['BUTTON', 'JSBUTTON', 'DROPDOWNMENU'])) {
-            $intColspan = 1;
             ?>
-          <td class="button<?php echo $fieldClass?>">
+          <div class="form-field button<?php echo $fieldClass?>">
             <?php
-
             echo htmlFormElement(
                 $elem['name'], $elem['type'],
                 isset($astrValues[$elem['name']]) ? $astrValues[$elem['name']] : '',
@@ -306,18 +290,14 @@ EOT;
                 isset($elem['options']) ? $elem['options'] : null
             )
             ?>
-          </td>
-            <?php
-        } elseif ($elem['type'] == 'FILLER') {
-            $intColspan = 1;
-            ?>
-          <td<?php echo $fieldClassAttr?>>&nbsp;</td>
+          </div>
             <?php
         } elseif ($elem['type'] == 'HID_INT' || strstr($elem['type'], 'HID_')) {
-            // Done outside the table
+            // Already done above
         } elseif ($elem['type'] == 'IMAGE') {
             ?>
-          <td class="image<?php echo $fieldClass?>" colspan="<?php echo $intColspan?>">
+          <div class="field image<?php echo $fieldClass?>">
+            <div class="field-contents <?php echo $contentsClasses?>">
             <?php echo htmlFormElement(
                 $elem['name'], $elem['type'], $astrValues[$elem['name']],
                 $elem['style'], $elem['listquery'], $fieldMode, $elem['parent_key'],
@@ -325,14 +305,11 @@ EOT;
                 isset($elem['elem_attributes']) ? $elem['elem_attributes'] : '',
                 isset($elem['options']) ? $elem['options'] : null
             ); ?>
-          </td>
+            </div>
+          </div>
             <?php
         } elseif ($elem['type'] == 'IFORM') {
-            if ($rowOpen) {
-                echo "        </tr>\n";
-            }
-            echo "      </table>\n      </form>\n";
-            echo '<div id="dispatch_date_buttons"></div>';
+            echo "      </form>\n";
             $childFormConfig = getFormConfig($elem['name'], $strFunc);
             createIForm(
                 $formConfig, $childFormConfig, $elem,
@@ -342,17 +319,20 @@ EOT;
             );
             break;
         } else {
+            ?>
+        <div class="field<?php echo $fieldClass?>">
+            <?php
             $value = $astrValues[$elem['name']];
             if ($elem['style'] == 'measurement') {
                 $value = $value ? miscRound2Decim($value, 2) : '';
             }
             if ($elem['type'] == 'AREA') {
                 ?>
-          <td class="toplabel<?php echo $style?>"><?php echo Translator::translate($elem['label'])?></td>
+          <label for="<?php echo htmlentities($elem['name'])?>" class="toplabel<?php echo $style?>"><?php echo Translator::translate($elem['label'])?></label>
                 <?php
             } else {
                 ?>
-          <td id="<?php echo htmlentities($elem['name']) . '_label' ?>" class="label<?php echo $style?>"
+          <label id="<?php echo htmlentities($elem['name'])?>_label" for="<?php echo htmlentities($elem['name'])?>" class="label<?php echo $style?>"
                 <?php
                 if (isset($elem['title'])) {
                     echo ' title="' . Translator::translate($elem['title']) . '"';
@@ -360,17 +340,12 @@ EOT;
                 echo '>';
                 echo Translator::translate($elem['label'])
                 ?>
-          </td>
+          </label>
                 <?php
             }
-            $contentsClasses = htmlentities(strtolower($elem['type']))
-                . ' ' . $elem['style']
-                . (isset($elem['attached_elem']) ? ' attached' : '');
             ?>
-          <td class="field<?php echo $fieldClass?>"<?php echo $strColspan ? " $strColspan" : ''?>>
             <div class="field-contents <?php echo $contentsClasses?>">
                 <?php
-
                 echo htmlFormElement(
                     $elem['name'], $elem['type'], $value,
                     $elem['style'], $elem['listquery'], $fieldMode,
@@ -379,42 +354,42 @@ EOT;
                     isset($elem['options']) ? $elem['options'] : null
                 );
                 ?>
+                <?php
+                if (isset($elem['attached_elem']) && $elem['type'] !== 'AREA') {
+                    echo $elem['attached_elem'] . "\n";
+                }
+                ?>
             </div>
             <?php
-            if (isset($elem['attached_elem'])) {
+            if (isset($elem['attached_elem']) && $elem['type'] === 'AREA') {
                 echo $elem['attached_elem'] . "\n";
             }
             ?>
-          </td>
+        </div>
             <?php
         }
         $prevPosition = is_int($elem['position']) ? $elem['position'] : 0;
         if ($prevPosition == 0) {
             $prevPosition = 255;
         }
-        $prevColSpan = $intColspan;
     }
-
     if (!$childFormConfig) {
-        if ($rowOpen) {
-            echo "        </tr>\n";
-        }
-        echo "      </table>\n      </form>\n";
+        echo "      </form>\n";
     }
     if ($strForm == 'product') {
         // Special case for product: show stock balance change log
         ?>
-      <div class="iform ui-corner-tl ui-corner-bl ui-corner-br ui-corner-tr ui-helper-clearfix" id="stock_balance_log">
-        <div class="ui-corner-tl ui-corner-tr fg-toolbar ui-toolbar ui-widget-header">
+      <div class="card p-2 mb-2 iform clearfix" id="stock_balance_log">
+        <h2>
             <?php echo Translator::translate('StockBalanceUpdates')?>
-        </div>
-        <table id="stock_balance_change_log" class="iform">
-        <tr>
-            <th class="medium"><?php echo Translator::translate('HeaderChangeLogDateTime')?></th>
-            <th class="medium"><?php echo Translator::translate('HeaderChangeLogUser')?></th>
-            <th class="small"><?php echo Translator::translate('HeaderChangeLogAmount')?></th>
-            <th class="long"><?php echo Translator::translate('HeaderChangeLogDescription')?></th>
-        </tr>
+        </h2>
+        <table id="stock_balance_change_log" class="table">
+            <tr>
+                <th class="medium"><?php echo Translator::translate('HeaderChangeLogDateTime')?></th>
+                <th class="medium"><?php echo Translator::translate('HeaderChangeLogUser')?></th>
+                <th class="small"><?php echo Translator::translate('HeaderChangeLogAmount')?></th>
+                <th class="long"><?php echo Translator::translate('HeaderChangeLogDescription')?></th>
+            </tr>
         </table>
       </div>
         <?php
@@ -428,12 +403,12 @@ $(document).ready(function() {
     <?php
     if ($strMessage) {
         ?>
-  MLInvoice.infomsg("<?php echo htmlentities($strMessage)?>");
+  MLInvoice.infomsg(<?php echo json_encode($strMessage)?>);
         <?php
     }
     if ($strErrorMessage) {
         ?>
-      MLInvoice.errormsg("<?php echo htmlentities($strErrorMessage)?>");
+      MLInvoice.errormsg(<?php echo json_encode($strErrorMessage)?>);
         <?php
     }
     if ($strForm == 'product') {
@@ -552,7 +527,7 @@ $(document).ready(function() {
 </script>
 
     <?php
-    createFormButtons($strForm, $intKeyValue ? false : true, $formConfig['copyLink'], false, $formConfig['readOnly'], '', false);
+    createFormButtons($strForm, $formConfig, $intKeyValue ? false : true, false, false);
     echo "  </div>\n";
 
     if ($formConfig['addressAutocomplete'] && getSetting('address_autocomplete')) {
@@ -569,6 +544,87 @@ $(document).ready(function() {
     $('head').append(s);
   });
   </script>
+        <?php
+    }
+
+    if ('invoice' === $strForm) {
+        ?>
+        <div id="quick_add_company" class="modal" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-scrollable">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h2 class="modal-title"><?php echo Translator::translate('NewClient')?></h2>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="<?php echo Translator::translate('Close')?>"></button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="medium_label"><?php echo Translator::translate('ClientName')?></div>
+                        <div class="field"><input type="text" id="quick_name" class='form-control medium'></div>
+                        <div class="medium_label"><?php echo Translator::translate('ClientVATID')?></div>
+                        <div class="field"><input type="text" id="quick_vat_id" class='form-control medium'></div>
+                        <div class="medium_label"><?php echo Translator::translate('Email')?></div>
+                        <div class="field"><input type="text" id="quick_email" class='form-control medium'></div>
+                        <div class="medium_label"><?php echo Translator::translate('Phone')?></div>
+                        <div class="field"><input type="text" id="quick_phone" class='form-control medium'></div>
+                        <div class="medium_label"><?php echo Translator::translate('StreetAddr')?></div>
+                        <div class="field"><input type="text" id="quick_street_address" class='form-control medium'></div>
+                        <div class="medium_label"><?php echo Translator::translate('ZipCode')?></div>
+                        <div class="field"><input type="text" id="quick_zip_code" class='form-control medium'></div>
+                        <div class="medium_label"><?php echo Translator::translate('City')?></div>
+                        <div class="field"><input type="text" id="quick_city" class='form-control medium'></div>
+                        <div class="medium_label"><?php echo Translator::translate('Country')?></div>
+                        <div class="field"><input type="text" id="quick_country" class='form-control medium'></div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal"><?php echo Translator::translate('Cancel')?></button>
+                        <button type="button" class="btn btn-primary" data-save-company><?php echo Translator::translate('Save')?></button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="add_partial_payment" class="modal" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-scrollable">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h2 class="modal-title"><?php echo Translator::translate('PartialPayment')?></h2>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="<?php echo Translator::translate('Close')?>"></button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="medium_label"><?php echo Translator::translate('PaymentAmount')?></div>
+                        <div class="field"><input type="text" id="add_partial_payment_amount" class='form-control medium'></div>
+                        <div class="medium_label"><?php echo Translator::translate('PayDate')?></div>
+                        <div class="field"><input type="text" id="add_partial_payment_date" class='form-control date hasCalendar'></div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal"><?php echo Translator::translate('Cancel')?></button>
+                        <button type="button" class="btn btn-primary" data-save-partial-payment><?php echo Translator::translate('Save')?></button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <?php
+    } elseif ('product' === $strForm) {
+        ?>
+        <div id="update_stock_balance" class="modal" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-scrollable">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h2 class="modal-title"><?php echo Translator::translate('PartialPayment')?></h2>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="<?php echo Translator::translate('Close')?>"></button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="medium_label"><?php echo Translator::translate('StockBalanceChange')?></div> <div class="field">
+                        <input type="text" id="stock_balance_change" class='form-control short'></div>
+                        <div class="medium_label"><?php echo Translator::translate('StockBalanceChangeDescription')?></div>
+                        <div class="field"><textarea id="stock_balance_change_desc" class="form-control large"></textarea></div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal"><?php echo Translator::translate('Cancel')?></button>
+                        <button type="button" class="btn btn-primary" data-save-stock-balance-change><?php echo Translator::translate('Save')?></button>
+                    </div>
+                </div>
+            </div>
+        </div>
         <?php
     }
 }
@@ -589,11 +645,9 @@ $(document).ready(function() {
 function createIForm($mainFormConfig, $formConfig, $elem, $intKeyValue, $newRecord, $strForm, $strFunc)
 {
     ?>
-        <div class="iform list_container <?php echo $elem['style']?>ui-corner-tl ui-corner-bl ui-corner-br ui-corner-tr ui-helper-clearfix"
+        <div class="mb-2 p-2 border list_container <?php echo $elem['style']?> clearfix"
           id="<?php echo $elem['name']?>" <?php echo $elem['elem_attributes'] ? ' ' . $elem['elem_attributes'] : ''?>>
-            <div class="ui-corner-tl ui-corner-tr fg-toolbar ui-toolbar ui-widget-header">
-                <?php echo Translator::translate($elem['label'])?>
-            </div>
+            <h2><?php echo Translator::translate($elem['label'])?></h2>
     <?php
     if ($newRecord) {
         ?>
@@ -606,15 +660,15 @@ function createIForm($mainFormConfig, $formConfig, $elem, $intKeyValue, $newReco
     }
     ?>
                 <form method="post" name="iform" id="iform">
-                    <table class="iform" id="itable">
+                    <table class="iform<?php echo 'invoice' === $strForm ? ' iform-sort-select' : ''?>" id="itable">
                         <thead>
                             <tr>
     <?php
     if ($strForm == 'invoice' && sesWriteAccess()) {
         $selectAll = Translator::translate('SelectAll');
         ?>
-        <th class="label ui-state-default sort-col"> </th>
-        <th class="label ui-state-default select-row"><input type="checkbox" class="cb-select-all" title="<?php echo $selectAll?>" aria-label="<?php echo $selectAll?>"></th>
+        <th class="label sort-col"> </th>
+        <th class="label select-row"><input type="checkbox" class="cb-select-all" title="<?php echo $selectAll?>" aria-label="<?php echo $selectAll?>"></th>
         <?php
     }
 
@@ -632,14 +686,14 @@ function createIForm($mainFormConfig, $formConfig, $elem, $intKeyValue, $newReco
             )
         ) {
             ?>
-                <th class="label ui-state-default <?php echo strtolower($subElem['style'])?>_label">
+                <th class="label <?php echo strtolower($subElem['style'])?>">
                     <?php echo Translator::translate($subElem['label'])?>
                 </th>
             <?php
         }
     }
     ?>
-                            <th class="label ui-state-default" colspan="2"></th>
+                              <th class="label"></th>
                             </tr>
                         </thead>
                         <tbody>
@@ -674,7 +728,7 @@ function createIForm($mainFormConfig, $formConfig, $elem, $intKeyValue, $newReco
                     $value = '';
                 }
                 ?>
-              <td class="label <?php echo strtolower($subElem['style'])?>_label">
+              <td class="label <?php echo strtolower($subElem['style'])?>">
                 <?php
                 echo htmlFormElement(
                     'iform_' . $subElem['name'], $subElem['type'], $value,
@@ -686,38 +740,34 @@ function createIForm($mainFormConfig, $formConfig, $elem, $intKeyValue, $newReco
                 <?php
             } elseif ($subElem['type'] == 'ROWSUM') {
                 ?>
-              <td class="label <?php echo strtolower($subElem['style'])?>_label">&nbsp;</td>
+              <td class="label <?php echo strtolower($subElem['style'])?>">&nbsp;</td>
                 <?php
             }
         }
-        if ($strForm == 'invoice') {
-            ?>
-              <td class="button" colspan="2">
-                <a class="tinyactionlink ui-button ui-corner-all ui-widget row-add-button" href="#"
-                  onclick="MLInvoice.Form.saveRow('iform'); return false;">
-                    <?php echo Translator::translate('AddRow')?>
-                </a>
-              </td>
-            <?php
-        } else {
-            ?>
-              <td class="button" colspan="2">
-                <a class="tinyactionlink ui-button ui-corner-all ui-widget row-add-button" href="#"
-                  onclick="MLInvoice.Form.saveRow('iform'); return false;">
-                    <?php echo Translator::translate('AddRow')?>
-                </a>
-              </td>
-            <?php
-        }
         ?>
-            </tr>
+                                <td class="button">
+                                    <a role="button" class="btn btn-outline-primary btn-sm row-add-button" href="#"
+                                        data-iform-save-row="iform"
+                                        title="<?php echo Translator::translate('AddRow')?>">
+                                        <i class="fa fa-plus"></i>
+                                    </a>
+                                </td>
+                            </tr>
                         </tbody>
                     </table>
                 </form>
-                </div>
-                <div id="popup_edit" style="display: none;">
-                    <form method="post" name="iform_popup" id="iform_popup" data-popup="1">
-                        <table class="iform">
+        </div>
+
+<div id="popup_edit" class="modal" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-xl">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title">-</h2>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="<?php echo Translator::translate('Close')?>"></button>
+            </div>
+            <div class="modal-body">
+                <form method="post" name="iform_popup" id="iform_popup" data-popup="1">
+                    <table class="iform-popup">
                             <tr>
         <?php
         foreach ($formConfig['fields'] as $elem) {
@@ -735,11 +785,17 @@ function createIForm($mainFormConfig, $formConfig, $elem, $intKeyValue, $newReco
                 )
             ) {
                 ?>
-            <td class="label <?php echo strtolower($elem['style'])?>_label">
-                <?php echo Translator::translate($elem['label'])?><br>
-                <?php echo htmlFormElement('iform_popup_' . $elem['name'], $elem['type'], '', $elem['style'], $elem['listquery'], 'MODIFY', 0, '', [], $elem['elem_attributes'])?>
-                <br/>
-                <span class="modification-indicator ui-state-highlight hidden"><?php echo Translator::translate('Modified')?></span>&nbsp;
+            <td class="label <?php echo strtolower($elem['style'])?>">
+                <?php echo Translator::translate($elem['label'])?>
+                <div class="field-container">
+                  <?php echo htmlFormElement('iform_popup_' . $elem['name'], $elem['type'], '', $elem['style'], $elem['listquery'], 'MODIFY', 0, '', [], $elem['elem_attributes'])?>
+                </div>
+                <div class="modification-indicator hidden">
+                    <span class="modification-text"><?php echo Translator::translate('Modified')?></span>
+                    <button type="button" class="btn btn-small btn-outline-secondary clear" aria-label="<?php echo Translator::translate('Clear')?>">
+                        <i class="fa fa-undo" aria-hidden="true"></i>
+                    </button>
+                </div>
             </td>
                 <?php
             } elseif ($elem['type'] == 'SECHID_INT') {
@@ -748,7 +804,7 @@ function createIForm($mainFormConfig, $formConfig, $elem, $intKeyValue, $newReco
                 <?php
             } elseif ($elem['type'] == 'BUTTON') {
                 ?>
-            <td class="label">&nbsp;</td>
+            <td class="label button">&nbsp;</td>
                 <?php
             }
         }
@@ -757,43 +813,60 @@ function createIForm($mainFormConfig, $formConfig, $elem, $intKeyValue, $newReco
           </tr>
                         </table>
                     </form>
-                </div>
-                <div id="popup_date_edit" style="display: none; width: 300px; overflow: hidden">
-                    <form method="post" name="form_date_popup" id="form_date_popup">
-                        <input id="popup_date_edit_field" type="text" class="medium hasCalendar">
-                    </form>
-                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal"><?php echo Translator::translate('Cancel')?></button>
+                <span class="edit-single-buttons">
+                    <button type="button" class="btn btn-secondary" data-iform-delete-row="iform_popup"><?php echo Translator::translate('Delete')?></button>
+                    <button type="button" class="btn btn-secondary" data-iform-copy-row="iform_popup"><?php echo Translator::translate('SaveAsCopy')?></button>
+                    <button type="button" class="btn btn-primary" data-iform-save-row="iform_popup"><?php echo Translator::translate('Save')?></button>
+                </span>
+                <span class="edit-multi-buttons">
+                    <button type="button" class="btn btn-primary" data-iform-save-rows="iform_popup"><?php echo Translator::translate('Save')?></button>
+                </span>
+            </div>
+        </div>
+    </div>
+</div>
+
+            <div id="popup_date_edit" style="display: none; width: 300px; overflow: hidden">
+                <form method="post" name="form_date_popup" id="form_date_popup">
+                    <input id="popup_date_edit_field" type="text" class="form-control medium hasCalendar">
+                </form>
+            </div>
     <?php
 }
 
 /**
  * Create form buttons
  *
- * @param string $form             Form name
- * @param bool   $new              Whether a new record is being added
- * @param string $copyLinkOverride Override command for copy record link
- * @param bool   $spinner          Whether to add a spinner
- * @param bool   $readOnlyForm     Whether the form is read-only
- * @param string $extraButtons     Any extra buttons
- * @param bool   $top              Whether adding top buttons
+ * @param string $form       Form name
+ * @param array  $formConfig Form configuration
+ * @param bool   $new        Whether a new record is being added
+ * @param bool   $top        Whether adding top buttons
  *
  * @return void
  */
-function createFormButtons($form, $new, $copyLinkOverride, $spinner, $readOnlyForm,
-    $extraButtons, $top
-) {
+function createFormButtons($form, $formConfig, $new, $top)
+{
+    $id = getPostOrQuery('id', '');
+    $listId = getPostOrQuery('listid', '');
+
+    $copyLinkOverride = $formConfig['copyLink'];
+    $readOnlyForm = $formConfig['readOnly'];
+    $extraButtons = $formConfig['extraButtons'];
     if (!sesWriteAccess()) {
         ?>
-    <div class="form_buttons"></div>
+    <div class="btn-set" role="group"></div>
         <?php
         return;
     }
     ?>
-    <div class="form_buttons">
+    <div class="btn-set" role="group">
     <?php
     if (!$readOnlyForm) {
         ?>
-      <a class="actionlink ui-button ui-corner-all ui-widget save_button" href="#">
+      <a role="button" class="btn btn-outline-primary save_button" href="#">
         <?php echo Translator::translate('Save')?>
       </a>
         <?php
@@ -802,27 +875,50 @@ function createFormButtons($form, $new, $copyLinkOverride, $spinner, $readOnlyFo
     if (!$new) {
         if ($copyLinkOverride) {
             ?>
-            <a class="actionlink ui-button ui-corner-all ui-widget" href="<?php echo $copyLinkOverride?>">
+            <a role="button" class="btn btn-secondary" href="<?php echo $copyLinkOverride?>">
                 <?php echo Translator::translate('Copy')?>
             </a>
             <?php
         } else {
             ?>
-            <a class="actionlink ui-button ui-corner-all ui-widget form-submit" href="#" data-form="admin_form" data-set-field="action=copy">
+            <a role="button" class="btn btn-secondary form-submit" href="#" data-form="admin_form" data-set-field="action=copy">
                 <?php echo Translator::translate('Copy')?>
             </a>
             <?php
         }
         $newLink = 'index.php?' . $_SERVER['QUERY_STRING'];
         $newLink = preg_replace('/&id=\w*/', '', $newLink);
-        ?>
-        <a class="actionlink ui-button ui-corner-all ui-widget" href="<?php echo $newLink?>">
-            <?php echo Translator::translate('New')?>
-        </a>
-        <?php
+        $newLink = preg_replace('/&offer=\w*/', '', $newLink);
+        $newLink = htmlspecialchars($newLink);
+        if ('invoice' === $form) {
+            $idSuffix = $top ? '' : '-bottom';
+            ?>
+            <a role="button" class="dropdown-toggle btn btn-secondary" href="#" data-bs-toggle="dropdown" id="dropdown-button-new<?php echo $idSuffix?>" aria-expanded="false">
+                <?php echo Translator::translate('New')?>
+            </a>
+            <ul class="dropdown-menu" aria-labelledby="dropdown-button-new<?php echo $idSuffix?>">
+                <li class="dropdown-item">
+                    <a role="button" class="dropdown-item" href="<?php echo $newLink?>">
+                        <?php echo Translator::translate('NewInvoice')?>
+                    </a>
+                </li>
+                <li class="dropdown-item">
+                    <a role="button" class="dropdown-item" href="<?php echo $newLink?>&amp;offer=1">
+                        <?php echo Translator::translate('NewOffer')?>
+                    </a>
+                </li>
+            </ul>
+            <?php
+        } else {
+            ?>
+            <a role="button" class="btn btn-secondary" href="<?php echo $newLink?>">
+                <?php echo Translator::translate('New')?>
+            </a>
+            <?php
+        }
         if (!$readOnlyForm) {
             ?>
-            <a class="actionlink ui-button ui-corner-all ui-widget form-submit" href="#" data-form="admin_form" data-set-field="action=delete"
+            <a role="button" class="btn btn-secondary" href="#" data-form="admin_form" data-set-field="action=delete"
               data-confirm="ConfirmDelete">
                 <?php echo Translator::translate('Delete')?>
             </a>
@@ -835,86 +931,96 @@ function createFormButtons($form, $new, $copyLinkOverride, $spinner, $readOnlyFo
     if ($form === 'company') {
         if (!$readOnlyForm) {
             ?>
-            <a class="actionlink ui-button ui-corner-all ui-widget ytj_search_button" href="#"><?php echo Translator::translate('SearchYTJ')?></a>
-            <?php
-        }
-        if ($top && !$new) {
-            ?>
-            <a id="cover-letter-button" class="actionlink ui-button ui-corner-all ui-widget" href="#">
-                <?php echo Translator::translate('PrintCoverLetter')?>
-            </a>
-            <div id="cover-letter-form" class="ui-corner-all hidden">
-            <div class="ui-corner-tl ui-corner-tr fg-toolbar ui-toolbar ui-widget-header">
-                <?php echo Translator::translate('PrintCoverLetter')?>
-            </div>
-            <div id="cover-letter-form-inner">
-                <form action="coverletter.php" method="POST">
-                <input type="hidden" name="company" value="<?php echo getPostOrQuery('id')?>">
-                <div class="medium_label"><?php echo Translator::translate('Sender')?></div>
-                <div class="field">
-                    <?php echo htmlFormElement(
-                        'base', 'LIST', '', 'long noemptyvalue',
-                        'SELECT id, name FROM {prefix}base WHERE deleted=0 AND inactive=0 ORDER BY name, id'
-                    );?>
-                </div>
-                <div class="medium_label"><?php echo Translator::translate('Foreword')?></div>
-                <div class="field">
-                    <?php echo htmlFormElement('foreword', 'AREA', '', 'large', '');?>
-                    <span class="select-default-text" data-type="foreword" data-target="foreword"></span>
-                </div>
-                <div class="form_buttons">
-                    <input type="submit" class="ui-button ui-corner-all" value="<?php echo Translator::translate('Print')?>">
-                    <input type="button" class="ui-button ui-corner-all close-btn" value="<?php echo Translator::translate('Close')?>">
-                </div>
-                </form>
-            </div>
-        </div>
+            <a role="button" class="btn btn-secondary ytj_search_button" href="#"><?php echo Translator::translate('SearchYTJ')?></a>
             <?php
         }
     }
+    ?>
+    </div>
+    <?php
+    if ($form === 'company' && $top && !$new) {
+        ?>
+        <div class="btn-set">
+            <a role="button" id="cover-letter-button" class="btn btn-secondary" href="#">
+                <?php echo Translator::translate('PrintCoverLetter')?>
+            </a>
+            <a role="button" class="btn btn-secondary" href="?func=invoices&amp;form=invoice&amp;company_id=<?php echo $id?>">
+                <?php echo Translator::translate('AddInvoice')?>
+            </a>
+            <a role="button" class="btn btn-secondary" href="?func=invoices&amp;form=invoice&amp;company_id=<?php echo $id?>&amp;offer=1">
+                <?php echo Translator::translate('AddOffer')?>
+            </a>
+        </div>
+        <?php
+    }
 
-    $id = getPostOrQuery('id', '');
+    if ($id && $listId) {
+        createListNavigationLinks($listId, $id);
+    }
+
+    if ($top && !$new && 'company' === $form) {
+        ?>
+        <div id="cover-letter-form" class="card hidden">
+            <div class="card-body">
+                <div class="card-title">
+                    <?php echo Translator::translate('PrintCoverLetter')?>
+                </div>
+                <div id="cover-letter-form-inner">
+                    <form action="coverletter.php" method="POST">
+                    <input type="hidden" name="company" value="<?php echo getPostOrQuery('id')?>">
+                    <div class="medium_label"><?php echo Translator::translate('Sender')?></div>
+                    <div class="field">
+                        <?php echo htmlFormElement(
+                            'base', 'LIST', '', 'long noemptyvalue',
+                            'SELECT id, name FROM {prefix}base WHERE deleted=0 AND inactive=0 ORDER BY name, id'
+                        );?>
+                    </div>
+                    <div class="medium_label"><?php echo Translator::translate('Foreword')?></div>
+                    <div class="field">
+                        <?php echo htmlFormElement('foreword', 'AREA', '', 'large', '');?>
+                        <span class="select-default-text" data-type="foreword" data-target="foreword"></span>
+                    </div>
+                    <div class="btn-set" role="group">
+                        <input type="submit" class="btn btn-primary" value="<?php echo Translator::translate('Print')?>">
+                        <input type="button" class="btn btn-secondary close-btn" value="<?php echo Translator::translate('Close')?>">
+                    </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+        <?php
+    }
 
     if ($form === 'invoice' && $top && !$new) {
         $attachmentCount = GetInvoiceAttachmentCount($id);
         ?>
-        <span class="send-buttons">
-        </span>
-        <a id="attachments-button" class="actionlink ui-button ui-corner-all ui-widget" href="#">
-            <?php echo Translator::translate('Attachments')?>
-            (<span class="attachment-count"><?php echo $attachmentCount?></span>)
-            <span class="dropdown-open"><i class="fa fa-caret-down"></i><span class="sr-only"><?php echo Translator::translate('Show')?></span></span>
-            <span class="dropdown-close hidden"><i class="fa fa-caret-up"></i><span class="sr-only"><?php echo Translator::translate('Hide')?></span></span>
-        </a>
+        <div class="btn-set">
+            <button type="button" id="attachments-button" class="btn btn-secondary" aria-expanded="false">
+                <?php echo Translator::translate('Attachments')?>
+                (<span class="attachment-count"><?php echo $attachmentCount?></span>)
+                <span class="dropdown-open"><i class="fa fa-caret-down"></i><span class="sr-only"><?php echo Translator::translate('Show')?></span></span>
+                <span class="dropdown-close hidden"><i class="fa fa-caret-up"></i><span class="sr-only"><?php echo Translator::translate('Hide')?></span></span>
+            </button>
+        </div>
+        <div class="btn-set send-buttons hidden"></div>
         <?php
-    }
-
-    if ($id && ($listId = getPostOrQuery('listid', ''))) {
-        createListNavigationLinks($listId, $id);
-    }
-
-    if ($spinner) {
-        echo '     <span id="spinner" class="hidden"><img src="images/spinner.gif" alt=""></span>' .
-            "\n";
     }
 
     if ($form === 'invoice' && $top && !$new) {
         ?>
-        <div id="attachments-form" class="ui-widget-content ui-corner-all hidden" data-invoice-id="<?php echo $id?>">
-            <div class="ui-corner-tl ui-corner-tr fg-toolbar ui-toolbar ui-widget-header">
-                <?php echo Translator::translate('Attachments')?>
-            </div>
-            <div id="attachments-form-inner">
-                <h1>
+        <div id="attachments-form" class="card p-2 hidden" data-invoice-id="<?php echo $id?>">
+            <h2 class="card-title"><?php echo Translator::translate('Attachments')?></h2>
+            <div class="card-body attachments-form-inner">
+                <h3>
                     <?php echo Translator::translate('AddedAttachments')?>
-                </h1>
+                </h3>
                 <div class="attachment-list"></div>
-                <h1><?php echo Translator::translate('AddAttachment')?></h1>
+                <h3><?php echo Translator::translate('AddAttachment')?></h3>
                 <div class="attachment-add">
                     <div class="attachments">
                         <?php foreach (getAttachments() as $attachment) { ?>
                             <div class="attachment">
-                                <a class="tinyactionlink ui-button ui-corner-all ui-widget add-attachment" data-id="<?php echo $attachment['id']?>"
+                                <a role="button" class="btn btn-primary btn-sm add-attachment" data-id="<?php echo $attachment['id']?>"
                                     title="<?php echo Translator::translate('AddAttachment')?>"> + </a>
                                 <div class="attachment-fileinfo">
                                 <?php
@@ -940,7 +1046,62 @@ function createFormButtons($form, $new, $copyLinkOverride, $spinner, $readOnlyFo
         <?php
     }
     ?>
-    </div>
+    <?php
+    if ($top) {
+        foreach ($formConfig['buttonGroups'] as $buttonGroup) {
+            ?>
+            <div class="btn-set" role="group">
+            <?php
+            $rendered = [];
+            foreach ($buttonGroup['buttons'] as $button) {
+                $attrs = '';
+                foreach ($button['attrs'] ?? [] as $key => $value) {
+                    $attrs .= " $key=\"" . htmlentities($value) . '"';
+                }
+                $rendered[] = '<a role="button" id="' . $button['name'] . '-button" class="btn btn-secondary" href="' . htmlentities($button['url'])
+                    . '"' . $attrs . '>' . Translator::translate($button['label']) . '</a>';
+            }
+            $overflow = $buttonGroup['overflow'] ?? false;
+            if ($overflow) {
+                $renderedOverflow = array_splice($rendered, $overflow - 1);
+            }
+            echo implode(' ', $rendered);
+            if ($renderedOverflow ?? false) {
+                ?>
+                    <a role="button" class="dropdown-toggle btn btn-secondary" href="#" id="dropdown-button-overflow" data-bs-toggle="dropdown" aria-expanded="false">
+                        <?php echo Translator::translate($buttonGroup['overflow-label'] ?? 'More')?>
+                    </a>
+                    <ul class="dropdown-menu" aria-labelledby="dropdown-button-overflow">
+                        <?php
+                        foreach ($renderedOverflow as $button) {
+                            ?>
+                            <li class="dropdown-item">
+                                <?php echo str_replace('btn btn-secondary', 'dropdown-item', $button)?>
+                            </li>
+                            <?php
+                        }
+                        ?>
+                    </ul>
+                <?php
+            }
+            ?>
+            </div>
+            <?php
+        }
+    }
+
+    if ($form === 'invoice' && $top && !$new) {
+        echo '<div id="dispatch_date_buttons" class="btn-set"></div>';
+    }
+
+    if ($top) {
+        echo '     <span id="spinner" class="hidden"><i class="fa fa-spinner fa-spin"></i></span>' .
+            "\n";
+    }
+
+    ?>
+
+    <div class="clear-row"></div>
     <?php
 }
 
@@ -992,28 +1153,28 @@ function createListNavigationLinks($listId, $currentId)
         $next = $listInfo['ids'][$pos + 1];
     }
     $qs = $_SERVER['QUERY_STRING'];
-    echo '<span class="prev-next">';
+    echo '<div class="btn-set">';
     if (null !== $previous) {
         $link = preg_replace('/&id=\d+/', "&id=$previous", $qs);
-        echo '<a href="?' . $link . '" class="actionlink ui-button ui-corner-all ui-widget">'
+        echo '<a role="button" href="?' . $link . '" class="btn btn-outline-secondary">'
             . Translator::translate('Previous')
             . '</a> ';
     } else {
-        echo '<a class="actionlink ui-button ui-corner-all ui-widget ui-button ui-corner-all ui-state-disabled">'
+        echo '<a role="button" class="btn btn-outline-secondary disabled" aria-disabled="true">'
             . Translator::translate('Previous')
             . '</a> ';
     }
     if (null !== $next) {
         $link = preg_replace('/&id=\d+/', "&id=$next", $qs);
-        echo '<a href="?' . $link . '" class="actionlink ui-button ui-corner-all ui-widget ui-button">'
+        echo '<a role="button" href="?' . $link . '" class="btn btn-outline-secondary">'
             . Translator::translate('Next')
             . '</a> ';
     } else {
-        echo '<a class="actionlink ui-button ui-corner-all ui-widget ui-button ui-corner-all ui-state-disabled">'
+        echo '<a role="button" class="btn btn-light disabled" aria-disabled="true">'
             . Translator::translate('Next')
             . '</a> ';
     }
-    echo '</span>';
+    echo '</div>';
 }
 
 /**

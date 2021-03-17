@@ -2,9 +2,9 @@
 /**
  * Basic configuration
  *
- * PHP version 5
+ * PHP version 7
  *
- * Copyright (C) 2010-2018 Ere Maijala
+ * Copyright (C) Ere Maijala 2010-2021
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2,
@@ -76,10 +76,6 @@ define('_CHARSET_', 'UTF-8');
 // Sivujen otsikko
 define('_PAGE_TITLE_', 'MLInvoice');
 
-// jQuery UI theme location
-// Käytettävän jQuery UI-teeman sijainti
-//define('_UI_THEME_LOCATION_', 'jquery/css/theme/jquery-ui-1.10.0.custom.min.css');
-
 // Whether to force use of https. Disabled by default.
 // Pakotetaanko yhteys https:ään. Oletuksena pois päältä.
 //define('_FORCE_HTTPS_', true);
@@ -142,8 +138,7 @@ $GLOBALS['mlinvoice_mail_settings'] = [
 // information that's written into PHP's error log may include credentials etc.
 //define('_SQL_DEBUG_', true);
 
-// Uncomment the following line to enable profiling with Tideways.
-// See https://tideways.io/profiler/xhprof-for-php7-php5.6 for more information.
+// Uncomment the following line to enable profiling with XHProf.
 //define('_PROFILING_', true);
 
 // N.B.! Other settings can be found in the UI (Settings -> General Settings)

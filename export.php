@@ -2,9 +2,9 @@
 /**
  * Export
  *
- * PHP version 5
+ * PHP version 7
  *
- * Copyright (C) 2010-2018 Ere Maijala
+ * Copyright (C) Ere Maijala 2010-2021
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2,
@@ -259,15 +259,8 @@ EOT;
 <script>
 
   $(document).ready(function() {
-    $('#imessage').ajaxStart(function() {
-      $('#spinner').css('visibility', 'visible');
-    });
-    $('#imessage').ajaxStop(function() {
-      $('#spinner').css('visibility', 'hidden');
-    });
-    $('#imessage').ajaxError(function(event, request, settings) {
+    $(document).ajaxError(function(event, request, settings) {
       alert('Server request failed: ' + request.status + ' - ' + request.statusText);
-      $('#spinner').css('visibility', 'hidden');
     });
     update_field_states();
     reset_columns();
@@ -352,9 +345,10 @@ EOT;
   </script>
 
 <div class="form_container export">
-    <h1><?php echo Translator::translate('Export')?></h1>
-    <span id="imessage" style="display: none"></span>
-    <span id="spinner" style="visibility: hidden"><img src="images/spinner.gif" alt=""></span>
+    <h1>
+        <?php echo Translator::translate('Export')?>
+        <span id="spinner" class="hidden" aria-hidden="true"><i class="fa fa-spinner fa-spin"></i></span>
+    </h1>
     <form id="export_form" name="export_form" method="GET">
         <input type="hidden" name="func" value="system"> <input type="hidden"
             name="operation" value="export">
@@ -448,15 +442,13 @@ EOT;
             <input id="deleted" name="deleted" type="checkbox">
         </div>
 
-        <div class="medium_label"><?php echo Translator::translate('ExportColumns')?> <input
-                type="button"
-                value="<?php echo Translator::translate('ExportAddAllColumns')?>"
-                onclick="add_all_columns()">
+        <div class="medium_label"><?php echo Translator::translate('ExportColumns')?>
+        <input type="button" class="btn btn-secondary" value="<?php echo Translator::translate('ExportAddAllColumns')?>" onclick="add_all_columns()">
         </div>
-        <div id="columns" class="field"></div>
+        <div id="columns" class="field clearfix"></div>
 
         <div class="form_buttons">
-            <input type="submit" value="<?php echo Translator::translate('ExportDo')?>">
+            <input type="submit" class="btn btn-primary" value="<?php echo Translator::translate('ExportDo')?>">
         </div>
     </form>
 </div>

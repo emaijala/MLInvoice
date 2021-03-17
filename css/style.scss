@@ -1,14 +1,18 @@
+@import "bootstrap/bootstrap";
+
 $fa-font-path: "../fontawesome-free-5.7.2-web/webfonts";
-@import '../fontawesome-free-5.7.2-web/scss/fontawesome.scss';
-@import '../fontawesome-free-5.7.2-web/scss/solid.scss';
+@import '../fontawesome-free-5.7.2-web/scss/fontawesome';
+@import '../fontawesome-free-5.7.2-web/scss/solid';
+
+@import "variables";
 
 html {
   height: 100%;
+  font-size: 0.8rem;
 }
 
 body {
   margin: 0;
-  font-size: 62.5%;
   height: 100%;
 }
 
@@ -18,8 +22,8 @@ content::after {
   display: table;
 }
 
-.ui-widget-content {
-  border: 0;
+.navbar {
+  background-color: #eef1f8;
 }
 
 form {
@@ -28,7 +32,13 @@ form {
 }
 
 h1 {
-  font-size: 1.1em;
+  font-size: 1.2rem;
+}
+h2 {
+  font-size: 1.1rem;
+}
+h3 {
+  font-size: 1rem;
 }
 
 div.pagewrapper {
@@ -40,16 +50,9 @@ div.navi {
   border-bottom: 1px solid #DDDDDD;
 }
 
-div.breadcrumbs {
-  margin: 6px 0 6px 8px;
-  padding-left: 2px;
-  border: 0;
-  float: left;
-}
-
 div.breadcrumbs a {
   font-weight: bold;
-  font-size: 1.1em;
+  font-size: 1.1rem;
 }
 
 span.prev-next {
@@ -59,7 +62,7 @@ span.prev-next {
 div#version {
   float: right;
   margin-top: 4px;
-  margin-right: 10px;
+  margin-right: 1rem;
 }
 
 div.function_navi {
@@ -67,25 +70,91 @@ div.function_navi {
   padding: 4px 0px 4px 10px;
 }
 
-div.form_buttons {
-  clear: both;
-	margin-top: 10px;
-  margin-bottom: 10px;
+#admin_form {
+  display: flex;
+  flex-wrap: wrap;
+  box-sizing: border-box;
+  .field:not(.hidden) {
+    display: flex;
+    flex: 1 1 500px;
+
+    .toplabel {
+      align-self: flex-start;
+    }
+
+    align-items: center;
+
+    margin-right: 20px;
+    box-sizing: border-box;
+
+    label {
+      flex: 0 0 30%;
+      padding-right: 8px;
+    }
+    .field-contents {
+      &:not(.markdown, .check) {
+        display: flex;
+      }
+      &.markdown {
+        padding-right: 4px;
+      }
+      &.image {
+        flex: 0 0 100%;
+      }
+      flex: 0 1 70%;
+      .select2-container, .editor-toolbar, .CodeMirror-wrap {
+        width: 100%;
+      }
+      .select2-container {
+        margin-top: 2px;
+        &.linked {
+          width: 60%;
+        }
+      }
+      .short {
+        width: 60px;
+      }
+      .medium, .date {
+        width: 150px;
+      }
+      .long {
+        width: 240px;
+      }
+      textarea.wide {
+        height: 100px;
+        width: 100%;
+      }
+      textarea.email_body {
+        width: 100%;
+      }
+      &.attached {
+        button {
+          margin-left: 6px;
+        }
+      }
+    }
+    .select-default-text {
+      flex: 0 0 20px;
+      align-self: normal;
+      margin-left: 2px;
+    }
+  }
+  .sublabel, .clear-row {
+    flex: 0 0 100%;
+  }
+  @media (min-width: $form-split-width) {
+    .field:not(.hidden) {
+      max-width: min(calc(50% - 20px), 600px);
+    }
+  }
 }
 
 .list_container {
-  margin: 10px;
-  display: table;
+  margin-top: 10px;
 }
 .iform.list_container {
   margin-left: 0;
   margin-right: 0;
-}
-
-div.message {
-  margin: 2px;
-  padding: 2px;
-  display: inline-block;
 }
 
 .login div.message {
@@ -97,19 +166,14 @@ div.message {
 .login-form, .logout-form, .recover-form {
   padding: 30px;
 }
-.recover-form .message {
-  padding: 8px;
-  display: block;
-}
-
-.login-form .label {
-  display: inline-block;
-  width: 100px;
-}
-
-.recover-form .label {
-  display: inline-block;
-  width: 130px;
+.recover-form {
+  .message {
+    padding: 8px;
+    display: block;
+  }
+  .form-control {
+    width: 160px;
+  }
 }
 
 .profile div.message {
@@ -123,10 +187,10 @@ span.message {
 }
 
 div.form_container {
-  padding: 8px;
-  margin: 0;
-  border: 0;
   clear: both;
+  .btn-group {
+    margin-bottom: 0.5rem;
+  }
 }
 
 div.tiny_label {
@@ -155,19 +219,16 @@ div.medium_label {
 }
 
 div.unlimited_label {
-  float: left;
   margin-bottom: 8px;
   clear: left;
-  font-size: 1.1em;
+  font-size: 1.1rem;
 }
 
 div.field {
-  float: left;
   margin-bottom: 8px;
 }
 
 div.static-field {
-  float: left;
   margin-bottom: 8px;
   padding-top: 2px;
 }
@@ -194,38 +255,16 @@ table.list {
 table.iform {
   margin: 0px;
   padding: 0px;
+
+  td {
+    min-height: 1.8rem;
+  }
 }
 
-table.iform_pop {
+table.iform_popup {
   border: 0;
   margin: 0px;
   padding: 0px;
-}
-
-.iform tr:nth-child(odd) {
-  background-color: transparent;
-}
-.iform tr.item-row:nth-child(odd):hover {
-  background: rgb(0, 0, 0) transparent;
-  background: rgba(0, 0, 0, 0.1);
-  cursor: pointer;
-}
-
-.iform tr[class=summary]:nth-child(even) td {
-  background-color: transparent;
-}
-.iform tr:nth-child(even) td {
-  background: rgb(0, 0, 0) transparent;
-  background: rgba(0, 0, 0, 0.03);
-}
-.iform tr.item-row:nth-child(even):hover {
-  background: rgb(0, 0, 0) transparent;
-  background: rgba(0, 0, 0, 0.1);
-}
-
-.iform tr:nth-child(even) td.button {
-  background: rgb(0, 0, 0) transparent;
-  background: rgba(0, 0, 0, 0);
 }
 
 tr.summary td {
@@ -233,26 +272,8 @@ tr.summary td {
   background-color: transparent;
 }
 
-.iform td.button {
-  vertical-align: middle;
-}
-
-.iform td.sort-col {
-  width: 0.8em;
-  cursor: grab;
-  padding-left: 0.5em;
-}
-
 th {
   text-align: left;
-}
-
-.toplabel {
-  vertical-align: top;
-}
-
-.iform td.deleted {
-  text-decoration: line-through;
 }
 
 td {
@@ -262,13 +283,6 @@ td {
 
 td.button {
   vertical-align: top;
-}
-
-td.button .dropdownmenu.ui-widget-content, .send-buttons .dropdownmenu.ui-widget-content, .selection-buttons .dropdownmenu.ui-widget-content {
-  border: 0
-}
-.send-buttons .dropdownmenu, .selection-buttons .dropdownmenu {
-  display: inline-block;
 }
 
 td.field {
@@ -282,7 +296,6 @@ td.error {
 .sublabel {
   padding: 2px 2px 2px 2px;
   clear: both;
-  margin-top: 20px;
   margin-bottom: 8px;
 }
 td.reportsublabel {
@@ -291,87 +304,292 @@ td.reportsublabel {
   clear: both;
   margin-top: 10px;
 }
-.iform {
-  td.tiny {
+.iform, .iform-popup, #custom-prices, .multi-edit-form {
+  .date, .date_label {
+    width: 90px;
+  }
+  .tiny, .tiny_label {
     width: 40px;
   }
-  td.tiny_label {
-    width: 40px;
-  }
-  td.xshort {
+  .xshort, .xshort_label {
     width: 55px;
   }
-  td.xshort_label {
-    width: 55px;
+  .mediumshort, .mediumshort_label {
+    width: 80px;
   }
-  td.short {
-    width: 70px;
+  .medium, .medium_label {
+    width: 180px;
   }
-  td.short_label {
-    width: 70px;
-  }
-  td.date_label {
-    width: 75px;
-  }
-  td.small_label {
-    width: 100px;
-  }
-  th.small, td.small {
-    width: 100px;
-  }
-  .date {
-    width: 75px;
-  }
-  th.medium, td.medium {
-    width: 160px;
-  }
-  td.medium_label {
-    width: 160px;
-  }
-  th.long, td.long {
+  .long, .long_label {
     width: 240px;
   }
-  td.long_label {
-    width: 240px;
-  }
-  td.currency {
-    width: 60px;
+  .currency, .currency_label {
+    width: 80px;
     padding-right: 8px;
     text-align: right;
   }
-  td.currency_label {
+  .count, .count_label {
     width: 60px;
-    padding-right: 8px;
-  }
-  td.count {
-    width: 60px;
-    text-align: right;
     padding-right: 4px;
-  }
-  td.count_label {
-    width: 60px;
-  }
-  td.measurement {
-    width: 60px;
     text-align: right;
-    padding-right: 4px;
   }
-  td.measurement_label {
+  .measurement, .measurement_label {
     width: 60px;
-  }
-  td.percent {
-    width: 30px;
-    text-align: right;
     padding-right: 4px;
-  }
-  td.percent_label {
-    width: 30px;
+    text-align: right;
   }
   .cb-select-row {
     width: 15px;
     padding: 0;
   }
+  .summary-heading {
+    text-align: right;
+  }
 }
+
+.iform, .iform-popup {
+  @media only screen and (max-width: $iform-collapse-max-width) {
+    & {
+      width: 100%;
+    }
+
+    tr:first-child {
+      td:last-child {
+        margin-bottom: 1rem;
+      }
+    }
+    tr:not(:first-child) {
+      border-top: 1px solid $secondary;
+    }
+    td.button {
+      padding-bottom: 0.4rem;
+    }
+    tr {
+      td.sort-col {
+        background: rgba(0, 0, 0, 0);
+      }
+    }
+    td.select-row {
+      margin-top: -1.5rem;
+    }
+
+    td, th {
+      display: block;
+      width: 100% !important;
+      min-height: 1rem;
+    }
+
+    .count, .currency, .summary-heading {
+      text-align: lefT;
+    }
+  }
+
+  &.iform-sort-select {
+    @media only screen and (max-width: $iform-collapse-max-width) {
+      tbody tr:first-child {
+        td:nth-child(-n+2) {
+          display: none;
+        }
+      }
+    }
+  }
+}
+
+.iform {
+  td.deleted {
+    text-decoration: line-through;
+  }
+  tr:not:nth-child(odd) {
+    background-color: transparent;
+  }
+  tr.item-row:nth-child(odd):hover {
+    background: rgba(0, 0, 0, 0.1);
+    cursor: pointer;
+  }
+
+  tr.summary {
+    &:nth-child(even) td {
+      background-color: transparent;
+    }
+  }
+  tr:nth-child(even) {
+    background: rgba(0, 0, 0, 0.03);
+  }
+  tr.item-row:nth-child(even):hover {
+    background: rgba(0, 0, 0, 0.1);
+  }
+
+  tr:nth-child(even) td.button {
+    background: rgba(0, 0, 0, 0);
+  }
+
+  tr.summary {
+     background: rgba(0, 0, 0, 0);
+  }
+
+  td.button {
+    vertical-align: middle;
+    white-space: nowrap;
+  }
+
+  td.sort-col {
+    min-width: 1.2rem;
+    cursor: grab;
+    padding-left: 0.4rem;
+  }
+
+  .sort-handle {
+    display: none;
+  }
+  tr:hover {
+    .sort-handle {
+      display: initial;
+    }
+  }
+
+  @media only screen and (min-width: $iform-collapse-min-width) and (max-width: $iform-narrow-width) {
+    td.sort-col {
+      min-width: 1rem;
+      padding-left: 0.1rem;
+    }
+    .xshort, .xshort_label {
+      width: 45px;
+    }
+    .short, .short_label {
+      width: 50px;
+    }
+    .mediumshort, .mediumshort_label {
+      width: 70px;
+    }
+    .medium, .medium_label {
+      width: 80px;
+    }
+    .count, .count_label {
+      width: 50px;
+    }
+    .currency, .currency_label {
+      width: 65px;
+    }
+  }
+
+  @media only screen and (max-width: $iform-collapse-max-width) {
+    td, th {
+      display: block;
+      width: calc(100% - 10rem) !important;
+      margin-left: 10rem;
+
+      & > div:not(.hidden) {
+        display: inline-block;
+      }
+    }
+
+    td[data-th]:before {
+      float: left;
+      margin-left: -10rem;
+      content: attr(data-th);
+    }
+
+    .sort-col {
+      height: 0;
+    }
+    .sort-handle {
+      position: relative;
+      left: -10rem;
+      top: 2px;
+    }
+    .label.row-summary {
+      display: none;
+    }
+    .modify-controls {
+      margin-bottom: 1rem;
+    }
+  }
+
+  &.iform-sort-select {
+    @media only screen and (max-width: $iform-collapse-max-width) {
+      thead th:not(:first-child) {
+        display: none;
+      }
+    }
+  }
+  &:not(.iform-sort-select) {
+    @media only screen and (max-width: $iform-collapse-max-width) {
+      thead th {
+        display: none;
+      }
+    }
+  }
+  tbody tr:first-child, tbody tr:last-child {
+    border-bottom: 1px solid $gray-600;
+    td {
+      padding-bottom: 4px;
+      margin-bottom: 4px;
+    }
+  }
+}
+
+.iform-popup {
+  td {
+    vertical-align: top;
+    height: 10rem;
+    .field-container {
+      min-height: 3rem;
+    }
+    .modification-indicator {
+      text-align: left;
+      .modification-text {
+        vertical-align: middle;
+        color: $white;
+        background-color: $success;
+        padding: 0.3rem;
+      }
+      button {
+        margin-top: 0.5rem;
+      }
+    }
+  }
+  @media only screen and (max-width: $iform-collapse-max-width) {
+    td, th {
+      display: block;
+      width: 100% !important;
+      height: initial;
+    }
+  }
+
+  @media only screen and (min-width: $iform-collapse-min-width) and (max-width: $iform-popup-narrow-width) {
+    .xshort, .xshort_label {
+      width: 45px;
+    }
+    .short, .short_label {
+      width: 50px;
+    }
+    .mediumshort, .mediumshort_label {
+      width: 70px;
+    }
+    .medium, .medium_label {
+      width: 80px;
+    }
+    .count, .count_label {
+      width: 50px;
+    }
+    .currency, .currency_label {
+      width: 65px;
+    }
+  }
+
+}
+
+.multi-edit-form {
+  .field {
+    width: 340px;
+    float: left;
+  }
+  textarea.wide {
+    height: 100px;
+    width: 260px;
+  }
+}
+
 td.row_sum {
   border-top: 1px solid gray;
   padding-bottom: 8px;
@@ -404,40 +622,6 @@ input {
   padding: 0px 0px 0px 0px;
 }
 
-input.tiny {
-  width: 30px;
-}
-input.short {
-  width: 60px;
-}
-input.small {
-  width: 100px;
-}
-input.date {
-  width: 160px;
-}
-input.medium {
-  width: 160px;
-}
-input.long {
-  width: 240px;
-}
-input.xlong {
-  width: 400px;
-}
-input.count {
-  width: 60px;
-}
-input.currency {
-  width: 60px;
-}
-input.measurement {
-  width: 60px;
-}
-input.percent {
-  width: 60px;
-}
-
 select {
   padding: 0px 0px 0px 0px;
 }
@@ -445,58 +629,18 @@ select {
 select.normal {
   padding: 0px 0px 0px 0px;
 }
-select.small {
-  width: 100px;
-}
-select.medium, div.medium {
-  width: 160px;
-}
-select.long {
-  width: 240px;
-}
-select.xlong {
-  width: 360px;
-}
 
 textarea {
   padding: 0px 0px 0px 0px;
   border: 1px solid #ddd;
 }
 
-textarea.small {
-  height: 40px;
-  width: 200px;
-}
-textarea.medium {
-  height: 60px;
-  width: 200px;
-}
-textarea.wide {
-  height: 60px;
-  width: 300px;
-}
-textarea.large {
-  height: 80px;
-  width: 300px;
-}
-textarea.xlarge {
-  height: 80px;
-  width: 400px;
-}
-textarea.xxlarge {
-  height: 200px;
-  width: 500px;
-}
 textarea.email_body {
   height: 200px;
   width: 500px;
   font-family: Monaco, "Lucida Console", "Courier New", Courier, monospace;
 }
 .field-contents {
-  &.attached {
-    float: left;
-    margin-right: 6px;
-  }
   &.date.attached {
     margin-top: 2px;
   }
@@ -514,11 +658,11 @@ textarea.email_body {
     width: 340px;
     padding-left: 2px;
     padding-right: 2px;
-    opacity: .6;
     border-top-left-radius: 0;
     border-top-right-radius: 0;
   }
   .editor-toolbar:not(.fullscreen) {
+    box-sizing: initial;
     &::before {
       margin-bottom: 2px;
     }
@@ -541,7 +685,6 @@ textarea.email_body {
 div.iform {
   padding: 0px 0px 0px 0px;
   margin-top: 8px;
-  border: 1px solid gray;
   display: table;
 }
 
@@ -549,6 +692,10 @@ div.column_mapping {
   border: 1px solid gray;
   clear: both;
   overflow: auto;
+}
+
+div#columns {
+  margin-top: 1.5rem;
 }
 
 a {
@@ -596,18 +743,7 @@ img.image {
   padding: 4px;
 }
 
-.ui-floating-message {
-  display: table;
-}
-
-.ui-floating-message div {
-  text-align: center;
-  display: table-cell;
-  vertical-align: middle;
-}
-
 .search_row {
-  background: rgb(0, 0, 0) transparent;
   background: rgba(0, 0, 0, 0.05);
 }
 
@@ -622,25 +758,13 @@ img.image {
 	min-width: 250px;
 }
 
-.table_header {
-	font-weight: bold;
-	margin-bottom: 1em;
-}
-
-.select2-search input, .select2-results {
-	font-size: 1.2em;
-	font-family: Verdana,Arial,sans-serif;
-}
-
 #column_table {
   tr:nth-child(even) {
-    background: rgb(0, 0, 0) transparent;
     background: rgba(0, 0, 0, 0.05);
     cursor: pointer;
   }
 
   tr:nth-child(odd) {
-    background: rgb(0, 0, 0) transparent;
     background: rgba(0, 0, 0, 0.0);
     cursor: pointer;
   }
@@ -652,14 +776,18 @@ img.image {
 }
 
 .select-description {
-  padding-left: 1.5em;
+  padding-left: 1.5rem;
   text-overflow: ellipsis;
   white-space: nowrap;
   overflow: hidden;
 }
 
 .bigdrop {
-  max-width: 80em;
+  max-width: 40rem;
+
+  @media only screen and (max-width: 1160px) {
+    max-width: 20rem;
+  }
 }
 
 .hidden {
@@ -673,6 +801,11 @@ img.image {
 
 #cover-letter-form-inner {
   padding: 16px;
+}
+
+.attachments-dropdown-menu {
+  min-width: 40rem;
+  padding: 0.5rem;
 }
 
 #attachments-form {
@@ -710,6 +843,10 @@ img.image {
 .attachment-new {
   margin-top: 8px;
   height: 24px;
+  div {
+    float: left;
+    margin-right: 0.5rem;
+  }
 }
 
 .attachment-name, .attachment-send {
@@ -739,7 +876,6 @@ img.image {
 #custom-prices {
   .label {
     float: left;
-    margin-top: 5px;
     margin-right: 8px;
   }
   .field {
@@ -748,20 +884,6 @@ img.image {
 }
 .not-valid {
   text-decoration: line-through;
-}
-#profile-link {
-  float: right;
-  margin-right: 10px;
-  margin-top: 3px;
-
-  &:hover {
-    border: 0;
-    font-weight: bold;
-  }
-}
-#dispatch_date_buttons a {
-  display: inline-block;
-  margin-top: 4px;
 }
 span.info {
   display: inline-block;
@@ -791,26 +913,10 @@ span.info {
   margin-right: 20px;
 }
 
-.form_buttons {
-  clear: both;
-}
-
 .ext-search-buttons {
   text-align: center;
   padding-top: 8px;
   padding-bottom: 8px;
-}
-
-#popup_dlg, #popup_edit {
-  width: 900px;
-  overflow: hidden;
-}
-
-#popup_dlg_iframe {
-  width: 100%;
-  height: 100%;
-  overflow: hidden;
-  border: 0;
 }
 
 .report-settings {
@@ -826,17 +932,51 @@ table.quick-search {
   width: 100%;
 }
 
-.settings-list .field, .settings-list .label {
-  clear: both;
+.settings-list, .report-settings {
+  .field, .label {
+    .xlarge {
+      height: 80px;
+      width: 400px;
+    }
+    .short {
+      width: 70px;
+    }
+    .medium {
+      width: 160px;
+    }
+    .long {
+      width: 240px;
+    }
+    .xlong {
+      width: 400px;
+    }
+  }
+}
+
+.settings-list h2 {
+  margin-top: 1.5rem;
+}
+
+.report-settings .field, .report-setting .label {
+  float: left;
 }
 
 .setup-form {
   padding: 30px 30px 0 30px;
+
+  h1 {
+    font-size: 1.6rem;
+  }
+  h2 {
+    font-size: 1.3rem;
+  }
 }
 
 .setup-group {
-  padding: 10px;
-  margin-bottom: 10px;
+  margin-bottom: 3rem;
+  &:first-child {
+    margin-top: 3rem;
+  }
 }
 
 .clearfix::after {
@@ -845,4 +985,32 @@ table.quick-search {
   display: table;
 }
 
-@import 'table.scss';
+.clear-row {
+  clear: both;
+}
+
+.btn-set:not(.hidden) {
+  position: relative;
+	display: inline-flex;
+  vertical-align: middle;
+  margin-bottom: .5rem;
+
+  >.btn:not(:last-child) {
+    margin-right: 0.25rem;
+  }
+}
+.btn-set:not(:last-child) {
+  margin-right: 0.75rem;
+}
+
+#email_form input.form-control {
+  width: 240px;
+}
+
+.login-form, .profile-form {
+  input.form-control {
+    width: 160px;
+  }
+}
+
+@import "table";

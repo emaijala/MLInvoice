@@ -1,4 +1,4 @@
-/* global MLInvoice, $, google, EasyMDE */
+/* global MLInvoice, $, bootstrap, EasyMDE, google, Sortable */
 MLInvoice.addModule('Form', function mlinvoiceForm() {
   var _formConfig = {};
   var _subFormConfig = {};
@@ -19,31 +19,65 @@ MLInvoice.addModule('Form', function mlinvoiceForm() {
       .find('input[type="text"]:not([name="payment_date"]),input[type="hidden"],input[type="checkbox"]:not([name="archived"]),select:not(.dropdownmenu),textarea')
       .one('change', startChanging);
 
-    $('.save_button').click(function onClickSave() {
+    $('.save_button').on('click', function onClickSave() {
       MLInvoice.Form.saveRecord();
       return false;
     });
 
-    $('#base_id').change(updateBaseDefaults);
-    $('#state_id').change(updateBaseDefaults);
+    $('#base_id').on('change', updateBaseDefaults);
+    $('#state_id').on('change', updateBaseDefaults);
 
     // Company info
     if ($('#company_id.select2').val()) {
       _onChangeCompany();
     }
     // Stock balance
-    $('.update-stock-balance').click(function updateStockBalanceClick() {
-      updateStockBalance();
-      return false;
-    });
+    $('.update-stock-balance').on('click', _updateStockBalance);
 
     // Link from base label
-    $('#base_id.linked').change(_setupBaseLink);
+    $('#base_id.linked').on('change', _setupBaseLink);
     _setupBaseLink($('#base_id.linked'));
 
     // Link from company label
-    $('#company_id.linked').change(_setupCompanyLink);
+    $('#company_id.linked').on('change', _setupCompanyLink);
     _setupCompanyLink($('#company_id.linked'));
+
+    $('[data-add-reminder-fees]').on('click', _addReminderFees);
+    $('[data-add-partial-payment]').on('click', _addPartialPayment);
+    $('[data-save-partial-payment]').on('click', _savePartialPayment);
+    $('[data-quick-add-company]').on('click', _addCompany);
+    $('[data-save-company]').on('click', _saveCompany);
+    $('[data-save-stock-balance-change]').on('click', _saveStockBalance);
+
+    var that = this;
+    $('[data-iform-copy-row]').on('click', function onClickCopy() {
+      that.saveRow($(this).data('iform-copy-row'), true);
+      return false;
+    });
+    $('[data-iform-save-row]').on('click', function onClickSave() {
+      that.saveRow($(this).data('iform-save-row'));
+      return false;
+    });
+    $('[data-iform-delete-row]').on('click', function onClickDelete() {
+      if (confirm(MLInvoice.translate('ConfirmDelete')) === true) {
+        that.deleteRow($(this).data('iform-delete-row'));
+      }
+      return false;
+    });
+    $('[data-iform-save-rows]').on('click', function onClickSaveRows() {
+      that.modifyRows($(this).data('iform-save-rows'));
+      return false;
+    });
+    $('.modification-indicator .clear').on('click', function onClearModification() {
+      var $ind = $(this).closest('.modification-indicator');
+      $ind.addClass('hidden');
+      var $container = $ind.closest('td');
+      $container.find('input[type="text"],input[type="hidden"]:not(.select-default-text),input[type="checkbox"],select:not(.dropdownmenu),textarea').data('modified', 0);
+      $container.find('input[type="text"],input[type="hidden"]:not(.select-default-text),textarea').val('');
+      $container.find('input[type="checkbox"]').prop('checked', false);
+      $container.find('select:not(.dropdownmenu)').val('');
+      $container.find('input.select2').select2('val', null);
+    });
 
     _setupYtjSearch();
     setupMarkdownEditor();
@@ -51,6 +85,7 @@ MLInvoice.addModule('Form', function mlinvoiceForm() {
     setupSelect2();
     _setupInvoiceAttachments();
     _updateSendApiButtons();
+    _setupPrintButtons();
   }
 
   function setupMarkdownEditor() {
@@ -94,7 +129,7 @@ MLInvoice.addModule('Form', function mlinvoiceForm() {
       $(this).data('mde', mde);
       mde.codemirror.on('change', function onMdeChange() {
         startChanging();
-        $('.save_button').addClass('ui-state-highlight');
+        MLInvoice.highlightButton('.save_button', true);
       });
     });
   }
@@ -121,36 +156,25 @@ MLInvoice.addModule('Form', function mlinvoiceForm() {
     };
     for (var i in dates) {
       if (dates.hasOwnProperty(i)) {
-        var link = $('<a class="formbuttonlink ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only"/>');
         var date = dates[i];
+        var link = $('<a class="btn btn-outline-secondary" role="button">')
+          .text(MLInvoice.translate('SettingDispatchNotes') + ' ' + MLInvoice.formatDate(date));
         link.data('date', date);
-        link.click(onLinkClick);
-        $('<span class="ui-button-text"/>').text(MLInvoice.translate('SettingDispatchNotes') + ' ' + MLInvoice.formatDate(date)).appendTo(link);
+        link.on('click', onLinkClick);
         container.append(link);
         container.append(' ');
       }
     }
   }
 
-  function updateStockBalance()
+  function _updateStockBalance()
   {
-    var buttons = {};
-    buttons[MLInvoice.translate('Save')] = function onSaveStockBalance() {
-      saveStockBalance();
-    };
-    buttons[MLInvoice.translate('Close')] = function onCloseStockBalance() {
-      $('#update_stock_balance').dialog('close');
-    };
-    $('#update_stock_balance').dialog(
-      {
-        modal: true, width: 400, height: 240, resizable: false, zIndex: 900,
-        buttons: buttons,
-        title: MLInvoice.translate('UpdateStockBalance'),
-      }
-    );
+    var $dlg = $('#update_stock_balance');
+    var bsModal = new bootstrap.Modal($dlg.get(0));
+    bsModal.show();
   }
 
-  function saveStockBalance()
+  function _saveStockBalance()
   {
     $.ajax({
       url: 'json.php?func=update_stock_balance',
@@ -167,7 +191,7 @@ MLInvoice.addModule('Form', function mlinvoiceForm() {
           var new_balance = parseFloat(data.new_stock_balance).toFixed(2).replace('.', MLInvoice.translate('DecimalSeparator'));
           $('#stock_balance').val(new_balance);
           updateStockBalanceLog();
-          $('#update_stock_balance').dialog('close');
+          bootstrap.Modal.getInstance($('#update_stock_balance').get(0)).hide();
         }
       }
     });
@@ -193,7 +217,7 @@ MLInvoice.addModule('Form', function mlinvoiceForm() {
     if (button.length === 0) {
       return;
     }
-    button.click(function ytjSearch() {
+    button.on('click', function ytjSearch() {
       var term = $('#company_id').val();
       if (!term) {
         term = $('#company_name').val();
@@ -273,7 +297,7 @@ MLInvoice.addModule('Form', function mlinvoiceForm() {
   }
 
   function _fillCompanyForm(data) {
-    $('#company_id').val(data.businessId).change();
+    $('#company_id').val(data.businessId).trigger('change');
     $('#company_name').val(data.name);
     $.each(data.addresses, function handleAddress(idx, address) {
       if (1 !== address.version) {
@@ -386,7 +410,7 @@ MLInvoice.addModule('Form', function mlinvoiceForm() {
               mde.value(data.content);
             } else {
               $('#' + target).val(data.content);
-              $('#' + target).change();
+              $('#' + target).trigger('change');
             }
           }
         }).fail(function getDefaultValueFail(jqXHR, textStatus) {
@@ -407,6 +431,13 @@ MLInvoice.addModule('Form', function mlinvoiceForm() {
     };
     $(container).find('.select2').each(function setupSelect2Field() {
       var field = $(this);
+      if (field.attr('id')) {
+        var $label = $('label[for=' + field.attr('id') + ']');
+        if ($label.length) {
+          // Redirect label to the select2 field
+          $label.attr('for', 's2id_' + $label.attr('for'));
+        }
+      }
       var tags = field.hasClass('tags');
       var query = field.data('query');
       var showEmpty = field.data('showEmpty');
@@ -470,7 +501,7 @@ MLInvoice.addModule('Form', function mlinvoiceForm() {
         dropdownCssClass: 'bigdrop',
         dropdownAutoWidth: true,
         escapeMarkup: function escapeString(m) { return m; },
-        width: 'element'
+        width: 'style'
       };
 
       if (tags) {
@@ -510,7 +541,7 @@ MLInvoice.addModule('Form', function mlinvoiceForm() {
 
       var select2 = field.select2(options);
       if (onChange && 'function' === typeof callbacks[onChange]) {
-        select2.change(callbacks[onChange]);
+        select2.on('change', callbacks[onChange]);
       }
     });
   }
@@ -592,8 +623,11 @@ MLInvoice.addModule('Form', function mlinvoiceForm() {
       _selectedProduct = json;
       if (!json || !json.id) return;
 
+      var changeEvent = new Event('change');
       if (json.description !== '' || document.getElementById(form_id + '_description').value === (null !== _defaultDescription ? _defaultDescription : '')) {
-        document.getElementById(form_id + '_description').value = json.description;
+        var el = document.getElementById(form_id + '_description');
+        el.value = json.description;
+        el.dispatchEvent(changeEvent);
       }
       _defaultDescription = json.description;
 
@@ -602,21 +636,36 @@ MLInvoice.addModule('Form', function mlinvoiceForm() {
         var item = type_id.options[i];
         if (item.value === (json.type_id === null ? '' : String(json.type_id))) {
           item.selected = true;
+          type_id.dispatchEvent(changeEvent);
           break;
         }
       }
       var unitPrice = json.custom_price && json.custom_price.unit_price !== null
         ? json.custom_price.unit_price : json.unit_price;
-      document.getElementById(form_id + '_price').value = json.unit_price ? MLInvoice.formatCurrency(unitPrice) : '';
-      document.getElementById(form_id + '_discount').value = json.discount ? json.discount.replace('.', ',') : '';
-      document.getElementById(form_id + '_discount_amount').value = json.discount_amount ? MLInvoice.formatCurrency(json.discount_amount) : '';
+      var elem = document.getElementById(form_id + '_price');
+      elem.value = json.unit_price ? MLInvoice.formatCurrency(unitPrice) : '';
+      elem.dispatchEvent(changeEvent);
+
+      elem = document.getElementById(form_id + '_discount');
+      elem.value = json.discount ? json.discount.replace('.', ',') : '';
+      elem.dispatchEvent(changeEvent);
+
+      elem = document.getElementById(form_id + '_discount_amount');
+      elem.value = json.discount_amount ? MLInvoice.formatCurrency(json.discount_amount) : '';
+      elem.dispatchEvent(changeEvent);
+
+      var vatElem = document.getElementById(form_id + '_vat');
+      var vatIncludedElem = document.getElementById(form_id + '_vat_included');
       if ($('#invoice_vatless').val() === '0') {
-        document.getElementById(form_id + '_vat').value = json.vat_percent ? json.vat_percent.replace('.', ',') : '';
-        document.getElementById(form_id + '_vat_included').checked = !!((json.vat_included && json.vat_included === 1));
+        elem = document.getElementById(form_id + '_vat');
+        vatElem.value = json.vat_percent ? json.vat_percent.replace('.', ',') : '';
+        vatIncludedElem.checked = !!((json.vat_included && json.vat_included === 1));
       } else {
-        document.getElementById(form_id + '_vat').value = '0';
-        document.getElementById(form_id + '_vat_included').checked = false;
+        vatElem.value = '0';
+        vatIncludedElem.checked = false;
       }
+      vatElem.dispatchEvent(changeEvent);
+      vatIncludedElem.dispatchEvent(changeEvent);
     });
   }
 
@@ -634,11 +683,12 @@ MLInvoice.addModule('Form', function mlinvoiceForm() {
       $('#company_id_label>span.info').remove();
       return;
     }
-    var info = $('<span/>').addClass('info ui-state-highlight ui-corner-all')
-      .attr('title', content).text(' ').click(function infoClick() {
+    $('<span/>')
+      .addClass('info')
+      .attr('title', content).text(' ').on('click', function infoClick() {
         alert(content);
-      });
-    info.appendTo($('#company_id_label'));
+      })
+      .appendTo($('#company_id_label'));
   }
 
   function getSelectedProductDefaults(form_id) {
@@ -668,35 +718,41 @@ MLInvoice.addModule('Form', function mlinvoiceForm() {
     if ($buttons.length === 0) {
       return;
     }
-    $buttons.html('');
+    $buttons.html('').addClass('hidden');
     var baseId = String($('#base_id').val());
     if (baseId === '') {
       return;
     }
     $.getJSON('json.php?func=get_send_api_services', {invoice_id: String($('#record_id').val()), base_id: baseId}, function getSendApiButtonsDone(json) {
       $.each(json.services, function addService(idx, service) {
-        var $ul = $('<ul class="dropdownmenu"/>');
-        var $heading = $('<li/>');
-        $heading.text(service.name + '...');
-        $ul.append($heading);
-        var $menuitems = $('<ul/>');
+
+        $('<a class="btn btn-secondary dropdown-toggle" href="#" role="button" id="dropdown-button-send-' + idx + '" data-bs-toggle="dropdown" aria-expanded="false">')
+          .text(service.name + '...')
+          .appendTo($buttons);
+
+        var $menuitems = $('<ul class="dropdown-menu" aria-labelledby="dropdown-button-send-' + idx + '">');
         $.each(service.items, function addItem(idx2, item) {
-          var $li = $('<li/>');
-          $li.click(function liClick() {
+          var $li = $('<li class="dropdown-item">')
+            .text(item.name);
+          $li.on('click', function liClick() {
             _sendPrintout('?' + item.href);
           });
-          var $name = $('<div>');
-          $name.text(item.name);
-          $li.append($name);
           $menuitems.append($li);
         });
-        $heading.append($menuitems);
-        $buttons.append($ul);
+        $buttons.append($menuitems);
         $buttons.append(' ');
+        $buttons.removeClass('hidden');
       });
-      $('.send-buttons .dropdownmenu').each(function initMenu() {
-        $(this).menu({}).find('li:first').addClass('formbuttonlink ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only');
-      });
+    });
+  }
+
+  function _setupPrintButtons() {
+    $('[data-print-id]').on('click', function print() {
+      var $button = $(this);
+      var id = $button.data('print-id');
+      var func = $button.data('func');
+      var style = $button.data('print-style');
+      MLInvoice.Form.printInvoice(id, func, style);
     });
   }
 
@@ -780,10 +836,10 @@ MLInvoice.addModule('Form', function mlinvoiceForm() {
           _maxAttachmentOrderNo = item.order_no;
         }
         var $attachment = $('<div/>').addClass('attachment');
-        var $remove = $('<a/>').addClass('tinyactionlink ui-button ui-corner-all ui-widget remove-attachment')
+        var $remove = $('<a role="button" class="btn btn-primary btn-sm remove-attachment">')
           .text(' X ')
           .attr('title', MLInvoice.translate('RemoveAttachment'))
-          .click(function removeAttachment() {
+          .on('click', function removeAttachment() {
             $.getJSON('json.php?func=delete_invoice_attachment&id=' + item.id, function removeAttachmentDone() {
               _updateAttachmentList();
             });
@@ -791,7 +847,7 @@ MLInvoice.addModule('Form', function mlinvoiceForm() {
         $remove.appendTo($attachment);
 
         var $send = $('<input>').attr('type', 'checkbox').data('id', item.id).prop('checked', item.send);
-        $send.change(function onSendChange() {
+        $send.on('change', function onSendChange() {
           $.ajax({
             url: 'json.php?func=put_invoice_attachment',
             data: {
@@ -804,12 +860,12 @@ MLInvoice.addModule('Form', function mlinvoiceForm() {
         });
         var $cbLabel = $('<label/>').addClass('attachment-send');
         $send.appendTo($cbLabel);
-        $('<span/>').text(MLInvoice.translate('SendToClient')).appendTo($cbLabel);
+        $('<span/>').text(' ' + MLInvoice.translate('SendToClient')).appendTo($cbLabel);
         $cbLabel.appendTo($attachment);
 
-        var $input = $('<input/>').addClass('attachment-name').attr('type', 'text').data('id', item.id).val(item.name)
+        var $input = $('<input/>').addClass('form-control attachment-name').attr('type', 'text').data('id', item.id).val(item.name)
           .attr('placeholder', MLInvoice.translate('Description'));
-        $input.change(function onNameChange() {
+        $input.on('change', function onNameChange() {
           $.ajax({
             url: 'json.php?func=put_invoice_attachment',
             data: {
@@ -846,7 +902,8 @@ MLInvoice.addModule('Form', function mlinvoiceForm() {
   function _setupInvoiceAttachments() {
     var invoiceId = $('#attachments-form').data('invoiceId');
 
-    $('#attachments-button').click(function attachmentsClick() {
+    $('#attachments-button').on('click', function attachmentsClick() {
+      $(this).attr('aria-expanded', $(this).attr('aria-expanded') === 'true' ? 'false' : 'true');
       if ($('#attachments-form').hasClass('hidden')) {
         _updateAttachmentList();
       }
@@ -854,7 +911,7 @@ MLInvoice.addModule('Form', function mlinvoiceForm() {
       $('#attachments-button .dropdown-close').toggleClass('hidden');
       $('#attachments-form').toggleClass('hidden');
     });
-    $('a.add-attachment').click(function addAttachmentClick() {
+    $('a.add-attachment').on('click', function addAttachmentClick() {
       $.ajax({
         url: 'json.php?func=add_invoice_attachment&id=' + $(this).data('id') + '&invoice_id=' + invoiceId,
         type: 'POST',
@@ -864,7 +921,7 @@ MLInvoice.addModule('Form', function mlinvoiceForm() {
         }
       });
     });
-    $('#new-attachment-file').change(function addNewAttachment() {
+    $('#new-attachment-file').on('change', function addNewAttachment() {
       if (this.files.length > 0) {
         var formdata = new FormData();
         formdata.append('filedata', this.files[0]);
@@ -994,7 +1051,7 @@ MLInvoice.addModule('Form', function mlinvoiceForm() {
               $('input#ref_number').val(data.ref_number);
             }
           }
-          $('.save_button').removeClass('ui-state-highlight');
+          MLInvoice.highlightButton('.save_button', false);
           MLInvoice.infomsg(MLInvoice.translate('RecordSaved'), 2000);
           if (redirectUrl) {
             if ('openwindow' === redirectStyle) {
@@ -1035,17 +1092,19 @@ MLInvoice.addModule('Form', function mlinvoiceForm() {
     }
     var readOnly = _formConfig.readOnly;
     var formType = _formConfig.type;
-    var parentId = _formConfig.id;
     var subFormConfig = _subFormConfig;
     var listItems = _listItems;
     var that = this;
     $.getJSON('json.php?func=' + func + '&parent_id=' + _formConfig.id, function handleRows(json) {
       var $table = $('#itable');
       $('#itable > tbody > tr[id!=form_row]').remove();
+      $('#itable > tfoot').remove();
+      var $body = $table.find('tbody');
+
       $.each(json.records, function addItemRow(i, record) {
         var tr = $('<tr/>').addClass('item-row');
         if (!readOnly && 'invoice' === formType) {
-          $('<td class="sort-col"><span class="sort-handle hidden"><i class="fa fa-sort"></i><span class="sr-only">' + MLInvoice.translate('Sort') + '</span></span>')
+          $('<td class="sort-col"><span class="sort-handle"><i class="fa fa-sort"></i><span class="sr-only">' + MLInvoice.translate('Sort') + '</span></span>')
             .appendTo(tr);
           var selectRow = MLInvoice.translate('SelectRow');
           var input = $('<input/>')
@@ -1053,7 +1112,7 @@ MLInvoice.addModule('Form', function mlinvoiceForm() {
             .attr('type', 'checkbox')
             .attr('title', selectRow)
             .attr('aria-label', selectRow)
-            .click(function selectRowClick() { MLInvoice.updateRowSelectedState($(this).closest('.list_container')); });
+            .on('click', function selectRowClick() { MLInvoice.updateRowSelectedState($(this).closest('.list_container')); });
           input.val(record.id);
           var tdSelect = $('<td class="select-row"/>');
           tdSelect.append(input);
@@ -1063,6 +1122,7 @@ MLInvoice.addModule('Form', function mlinvoiceForm() {
         $.each(subFormConfig.fields, function eachField(idx, field) {
           var td = $('<td/>').addClass(field.style + (record.deleted ? ' deleted' : ''));
           td.data('field', field.name);
+          td.data('th', field.name);
           var fieldData = record[field.name];
           switch (field.type) {
           case 'LIST':
@@ -1093,14 +1153,14 @@ MLInvoice.addModule('Form', function mlinvoiceForm() {
             break;
           case 'INT':
             if (typeof field.decimals !== 'undefined') {
-              td.text(fieldData ? MLInvoice.formatCurrency(fieldData, field.decimals) : '');
+              td.text(fieldData ? MLInvoice.formatCurrency(fieldData, field.decimals) : ' ');
             } else {
-              td.text(fieldData ? String(fieldData).replace('.', MLInvoice.translate('DecimalSeparator')) : '');
+              td.text(fieldData ? String(fieldData).replace('.', MLInvoice.translate('DecimalSeparator')) : ' ');
             }
             td.appendTo(tr);
             break;
           case 'INTDATE':
-            td.text(fieldData !== null ? MLInvoice.formatDate(fieldData) : '');
+            td.text(fieldData !== null ? MLInvoice.formatDate(fieldData) : ' ');
             td.appendTo(tr);
             break;
           case 'CHECK':
@@ -1112,7 +1172,7 @@ MLInvoice.addModule('Form', function mlinvoiceForm() {
             var sum = MLInvoice.formatCurrency(rowSum.sum);
             var VAT = MLInvoice.formatCurrency(rowSum.VAT);
             var sumVAT = MLInvoice.formatCurrency(rowSum.sumVAT);
-            var title = MLInvoice.translate('VATLess') + ': ' + sum + ' &ndash; ' + MLInvoice.translate('VATPart') + ': ' + VAT;
+            var title = MLInvoice.translate('VATLess') + ': ' + sum + ' + ' + MLInvoice.translate('VATPart') + ': ' + VAT;
             var sumSpan = $('<span/>').attr('title', title).text(sumVAT);
             td.append(sumSpan);
             td.appendTo(tr);
@@ -1132,46 +1192,34 @@ MLInvoice.addModule('Form', function mlinvoiceForm() {
         });
 
         if (!readOnly) {
-          var editButton = $('<a/>').addClass('tinyactionlink ui-button ui-corner-all ui-widget row-edit-button')
+          var editButton = $('<a/>').addClass('btn btn-outline-secondary btn-sm row-edit-button')
+            .attr('role', 'button')
             .attr('href', '#')
-            .text(MLInvoice.translate('Edit'))
-            .click(function editRowClick(event) {
-              that.popupEditor(event, MLInvoice.translate('RowModification'), record.id, false);
+            .attr('title', MLInvoice.translate('Edit'))
+            .html('<i class="fa fa-edit"></i>')
+            .on('click', function editRowClick(event) {
+              that.popupEditor(event, MLInvoice.translate('RowModification'), record.id);
               return false;
             });
           $('<td/>').addClass('button')
             .append(editButton)
             .appendTo(tr);
-
-          if (subFormConfig.type !== 'invoice_row' || !record.reminder_row) {
-            var copyButton = $('<a/>').addClass('tinyactionlink ui-button ui-corner-all ui-widget row-copy-button')
-              .attr('href', '#')
-              .data('id', parentId)
-              .text(MLInvoice.translate('Copy'))
-              .click(function copyRowClick(event) {
-                that.popupEditor(event, MLInvoice.translate('RowCopy'), record.id, true);
-                return false;
-              });
-
-            $('<td/>').addClass('button')
-              .append(copyButton)
-              .appendTo(tr);
-          }
         }
-        $table.append(tr);
+        $body.append(tr);
       });
 
       if ('invoice_row' === subFormConfig.type) {
+        var $footer = $('<tfoot>').appendTo($table);
         var summary = _calculateInvoiceRowSummary(json.records);
         var trSummary = $('<tr/>').addClass('summary');
-        var modifyCol = $('<td/>').addClass('input').attr('colspan', '6').attr('rowspan', '2');
+        var modifyCol = $('<td/>').addClass('input modify-controls').attr('colspan', '6').attr('rowspan', '2');
         if (!readOnly) {
           modifyCol.text(MLInvoice.translate('ForSelected') + ': ');
           $('<button/>')
             .attr('id', 'delete-selected-rows')
-            .addClass('selected-row-button ui-button ui-corner-all ui-widget')
+            .addClass('btn btn-secondary selected-row-button')
             .text(MLInvoice.translate('Delete'))
-            .click(function deleteSelectedClick() {
+            .on('click', function deleteSelectedClick() {
               that.deleteSelectedRows();
               return false;
             })
@@ -1179,9 +1227,9 @@ MLInvoice.addModule('Form', function mlinvoiceForm() {
           modifyCol.append($('<span/>').text(' '));
           $('<button/>')
             .attr('id', 'update-selected-rows')
-            .addClass('selected-row-button ui-button ui-corner-all ui-widget')
+            .addClass('btn btn-secondary selected-row-button')
             .text(MLInvoice.translate('Modify'))
-            .click(function updateSelectedClick(event) {
+            .on('click', function updateSelectedClick(event) {
               that.multiEditor(event, MLInvoice.translate('ModifySelectedRows'));
               return false;
             })
@@ -1189,65 +1237,73 @@ MLInvoice.addModule('Form', function mlinvoiceForm() {
         }
         modifyCol.appendTo(trSummary);
 
-        $('<td/>').addClass('input').attr('colspan', '6').attr('align', 'right').text(MLInvoice.translate('TotalExcludingVAT')).appendTo(trSummary);
-        $('<td/>').addClass('input currency').attr('align', 'right').text(MLInvoice.formatCurrency(summary.totSum)).appendTo(trSummary);
+        $('<td/>').addClass('input summary-heading').attr('colspan', '7').text(MLInvoice.translate('TotalExcludingVAT')).appendTo(trSummary);
+        $('<td/>').addClass('input currency').text(MLInvoice.formatCurrency(summary.totSum)).appendTo(trSummary);
         $('<td/>').attr('colspan', '2').appendTo(trSummary);
-        $table.append(trSummary);
+        $footer.append(trSummary);
 
         trSummary = $('<tr/>').addClass('summary');
-        $('<td/>').addClass('input').attr('colspan', '6').attr('align', 'right').text(MLInvoice.translate('TotalVAT')).appendTo(trSummary);
-        $('<td/>').addClass('input currency').attr('align', 'right').text(MLInvoice.formatCurrency(summary.totVAT)).appendTo(trSummary);
+        $('<td/>').addClass('input summary-heading').attr('colspan', '7').text(MLInvoice.translate('TotalVAT')).appendTo(trSummary);
+        $('<td/>').addClass('input currency').text(MLInvoice.formatCurrency(summary.totVAT)).appendTo(trSummary);
         $('<td/>').attr('colspan', '2').appendTo(trSummary);
-        $table.append(trSummary);
+        $footer.append(trSummary);
 
         trSummary = $('<tr/>').addClass('summary');
-        $('<td/>').addClass('input').attr('colspan', '12').attr('align', 'right').text(MLInvoice.translate('TotalIncludingVAT')).appendTo(trSummary);
-        $('<td/>').addClass('input currency').attr('align', 'right').text(MLInvoice.formatCurrency(summary.totSumVAT)).appendTo(trSummary);
+        $('<td/>').addClass('input summary-heading').attr('colspan', '13').text(MLInvoice.translate('TotalIncludingVAT')).appendTo(trSummary);
+        $('<td/>').addClass('input currency').text(MLInvoice.formatCurrency(summary.totSumVAT)).appendTo(trSummary);
         $('<td/>').attr('colspan', '2').appendTo(trSummary);
-        $table.append(trSummary);
+        $footer.append(trSummary);
 
         trSummary = $('<tr/>').addClass('summary');
-        $('<td/>').addClass('input').attr('colspan', '12').attr('align', 'right').text(MLInvoice.translate('TotalToPay')).appendTo(trSummary);
-        $('<td/>').addClass('input currency').attr('align', 'right').text(MLInvoice.formatCurrency(summary.totSumVAT + summary.partialPayments)).appendTo(trSummary);
+        $('<td/>').addClass('input summary-heading').attr('colspan', '13').text(MLInvoice.translate('TotalToPay')).appendTo(trSummary);
+        $('<td/>').addClass('input currency').text(MLInvoice.formatCurrency(summary.totSumVAT + summary.partialPayments)).appendTo(trSummary);
         $('<td/>').attr('colspan', '2').appendTo(trSummary);
-        $table.append(trSummary);
+        $footer.append(trSummary);
 
         if (summary.totWeight > 0) {
           trSummary = $('<tr/>').addClass('summary');
-          $('<td/>').addClass('input').attr('colspan', '12').attr('align', 'right').text(MLInvoice.translate('ProductWeight')).appendTo(trSummary);
-          $('<td/>').addClass('input currency').attr('align', 'right').text(MLInvoice.formatCurrency(summary.totWeight, 3)).appendTo(trSummary);
+          $('<td/>').addClass('input summary-heading').attr('colspan', '13').text(MLInvoice.translate('ProductWeight')).appendTo(trSummary);
+          $('<td/>').addClass('input currency').text(MLInvoice.formatCurrency(summary.totWeight, 3)).appendTo(trSummary);
           $('<td/>').attr('colspan', '2').appendTo(trSummary);
-          $table.append(trSummary);
+          $footer.append(trSummary);
         }
       }
       MLInvoice.updateRowSelectedState();
 
-      $('#itable tr')
-        .mouseover(function onTrMouseOver() { $(this).find('.sort-handle').removeClass('hidden'); })
-        .mouseout(function onTrMouseOut() { $(this).find('.sort-handle').addClass('hidden'); });
+      var $headings = $table.find('thead th');
+      $table.find('tbody tr:not(.summary)').each(function handleRow() {
+        var $cols = $(this).find('td');
+        for (var i = 0; i < $cols.length; i++) {
+          // Use attr() instead of data(), the latter won't do it
+          $($cols.get(i)).attr('data-th', $($headings.get(i)).text().trim() + ' ');
+        }
+      });
 
       if (!readOnly && 'invoice' === formType) {
-        $('#itable > tbody').sortable({
-          axis: 'y',
-          handle: '.sort-col',
-          items: 'tr.item-row',
-          stop: function onSortStop() {
-            that.updateRowOrder();
+        Sortable.create(
+          $('#itable > tbody').get(0),
+          {
+            direction: 'vertical',
+            draggable: 'tr.item-row',
+            handle: '.sort-col',
+            onEnd: function onSortStop() {
+              that.updateRowOrder();
+            }
           }
-        });
+        );
       }
 
       $('#iform')
         .find('input[type="text"],input[type="hidden"],input[type="checkbox"]:not(.cb-select-row):not(.cb-select-all),select:not(.dropdownmenu),textarea')
-        .change(function onRowFieldChange() { $('.row-add-button').addClass('ui-state-highlight'); });
+        .on('change', function onRowFieldChange() { MLInvoice.highlightButton('.row-add-button', true); });
       $('#iform')
         .find('input[type="text"],input[type="hidden"],input[type="checkbox"],select:not(.dropdownmenu),textarea')
         .one('change', startChanging);
 
       $('#iform_popup')
         .find('input[type="text"],input[type="hidden"]:not(.select-default-text),input[type="checkbox"],select:not(.dropdownmenu),textarea')
-        .change(function onPopupFieldChange() {
-          $(this).parent().find('.modification-indicator').removeClass('hidden');
+        .on('change', function onPopupFieldChange() {
+          $(this).parent().parent().find('.modification-indicator').removeClass('hidden');
           $(this).data('modified', 1);
         });
 
@@ -1261,11 +1317,12 @@ MLInvoice.addModule('Form', function mlinvoiceForm() {
     });
   }
 
-  function saveRow(formId)
+  function saveRow(formId, copy)
   {
     MLInvoice.clearMessages();
     var form = $('#' + formId);
     var obj = {};
+    var rowId = (typeof copy !== 'undefined' && copy) ? 0 : form.data('rowId');
     $.each(_subFormConfig.fields, function processField(i, field) {
       var value = form.find('[name=' + formId + '_' + field.name + ']');
       switch (field.type) {
@@ -1295,7 +1352,6 @@ MLInvoice.addModule('Form', function mlinvoiceForm() {
       }
     });
     obj[_subFormConfig.parentKey] = _formConfig.id;
-    var rowId = form.data('rowId');
     if (rowId) {
       obj.id = rowId;
     }
@@ -1316,10 +1372,10 @@ MLInvoice.addModule('Form', function mlinvoiceForm() {
           MLInvoice.errormsg(MLInvoice.translate('ErrValueMissing') + ': ' + data.missing_fields);
         } else {
           MLInvoice.infomsg(MLInvoice.translate('RecordSaved'), 2000);
-          form.find('.row-add-button').removeClass('ui-state-highlight');
+          MLInvoice.highlightButton('.row-add-button', false);
           that.initRows();
           if (form.data('popup')) {
-            $('#popup_edit').dialog('close');
+            bootstrap.Modal.getInstance($('#popup_edit').get(0)).hide();
           }
           if (!obj.id) {
             if (subFormConfig.onAfterRowAdded !== '') {
@@ -1422,7 +1478,7 @@ MLInvoice.addModule('Form', function mlinvoiceForm() {
         if (data.missing_fields) {
           MLInvoice.errormsg(MLInvoice.translate('ErrValueMissing') + ': ' + data.missing_fields);
         } else {
-          $("#popup_edit").dialog('close');
+          bootstrap.Modal.getInstance($('#popup_edit').get(0)).hide();
           MLInvoice.Form.initRows();
         }
       }
@@ -1480,30 +1536,25 @@ MLInvoice.addModule('Form', function mlinvoiceForm() {
       'success': function onDeleteSuccess() {
         MLInvoice.Form.initRows();
         if (formId == 'iform_popup') {
-          $('#popup_edit').dialog('close');
+          bootstrap.Modal.getInstance($('#popup_edit').get(0)).hide();
         }
       }
     });
   }
 
-  function popupEditor(event, title, id, copyRow)
+  function popupEditor(event, title, id)
   {
     startChanging();
     $('#iform_popup .modification-indicator').addClass('hidden');
     $('#iform_popup input').data('modified', '');
     var subFormConfig = _subFormConfig;
-    var that = this;
     $.getJSON('json.php?func=get_' + _subFormConfig.type + '&id=' + id, function initPopupEditor(json) {
       if (!json.id) {
         return;
       }
       var form = $('#iform_popup');
 
-      if (copyRow) {
-        form.data('rowId', '');
-      } else {
-        form.data('rowId', id);
-      }
+      form.data('rowId', id);
       $.each(subFormConfig.fields, function initPopupFields(i, field) {
         var elem = form.find('[name=iform_popup_' + field.name + ']');
         switch (field.type) {
@@ -1511,9 +1562,7 @@ MLInvoice.addModule('Form', function mlinvoiceForm() {
           elem.prop('checked', json[field.name] ? 1 : 0);
           break;
         case 'INT':
-          if (copyRow && field.default && field.default.indexOf('ADD') !== -1) {
-            elem.val(parseInt(json[field.name], 10) + 5);
-          } else if (typeof field.decimals !== 'undefined') {
+          if (typeof field.decimals !== 'undefined') {
             elem.val(json[field.name] ? MLInvoice.formatCurrency(json[field.name], field.decimals) : '');
           } else {
             elem.val(json[field.name] ? String(json[field.name]).replace('.', MLInvoice.translate('DecimalSeparator')) : '');
@@ -1557,31 +1606,14 @@ MLInvoice.addModule('Form', function mlinvoiceForm() {
           break;
         }
       });
-      setupSelect2($('#popup_edit'));
+      var $popup = $('#popup_edit');
+      $popup.find('.modal-title').text(title);
+      setupSelect2($popup);
+      $popup.find('.edit-single-buttons').removeClass('hidden');
+      $popup.find('.edit-multi-buttons').addClass('hidden');
 
-      var buttons = {};
-      buttons[MLInvoice.translate('Save')] = function onClickSave() {
-        that.saveRow('iform_popup');
-      };
-      if (!copyRow) {
-        buttons[MLInvoice.translate('Delete')] = function onClickDelete() {
-          if (confirm(MLInvoice.translate('ConfirmDelete')) === true) {
-            that.deleteRow('iform_popup');
-          }
-          return false;
-        };
-      }
-      buttons[MLInvoice.translate('Close')] = function onClickClose() {
-        $('#popup_edit').dialog('close');
-      };
-      $('#popup_edit').dialog({
-        modal: true,
-        width: subFormConfig.popupWidth,
-        height: 180,
-        resizable: true,
-        buttons: buttons,
-        title: title
-      });
+      var bsModal = new bootstrap.Modal($popup.get(0));
+      bsModal.show();
     });
   }
 
@@ -1626,24 +1658,14 @@ MLInvoice.addModule('Form', function mlinvoiceForm() {
       }
     });
     form.find('.modification-indicator').addClass('hidden');
-    setupSelect2($('#popup_edit'));
+    var $popup = $('#popup_edit');
+    $popup.find('.modal-title').text(title);
+    setupSelect2($popup);
+    $popup.find('.edit-single-buttons').addClass('hidden');
+    $popup.find('.edit-multi-buttons').removeClass('hidden');
 
-    var buttons = {};
-    var that = this;
-    buttons[MLInvoice.translate('Save')] = function onClickSave() {
-      that.modifyRows('iform_popup');
-    };
-    buttons[MLInvoice.translate('Close')] = function onClickClose() {
-      $('#popup_edit').dialog('close');
-    };
-    $('#popup_edit').dialog({
-      modal: true,
-      width: _subFormConfig.popupWidth,
-      height: 180,
-      resizable: true,
-      buttons: buttons,
-      title: title,
-    });
+    var bsModal = new bootstrap.Modal($popup.get(0));
+    bsModal.show();
   }
 
   function startChanging()
@@ -1654,25 +1676,18 @@ MLInvoice.addModule('Form', function mlinvoiceForm() {
     }
   }
 
-  function addCompany(translations)
+  function _addCompany()
   {
-    var buttons = {};
-    buttons[translations.save] = function onSaveCompany() {
-      _saveCompany(translations);
-    };
-    buttons[translations.close] = function onCloseCompany() {
-      $('#quick_add_company').dialog('close');
-    };
-    $('#quick_add_company').dialog({ modal: true, width: 420, height: 320, resizable: false, zIndex: 900,
-      buttons: buttons,
-      title: translations.title,
-    });
+    var $dlg = $('#quick_add_company');
+    var bsModal = new bootstrap.Modal($dlg.get(0));
+    bsModal.show();
   }
 
-  function _saveCompany(translations)
+  function _saveCompany()
   {
     var obj = {};
     obj.company_name = document.getElementById('quick_name').value;
+    obj.company_id = document.getElementById('quick_vat_id').value;
     obj.email = document.getElementById('quick_email').value;
     obj.phone = document.getElementById('quick_phone').value;
     obj.street_address = document.getElementById('quick_street_address').value;
@@ -1687,10 +1702,10 @@ MLInvoice.addModule('Form', function mlinvoiceForm() {
       contentType: 'application/json; charset=utf-8',
       success: function putCompanyDone(data) {
         if (data.missing_fields) {
-          alert(translations.missing + data.missing_fields);
+          alert(MLInvoice.translate('ErrValueMissing') + ': ' + data.missing_fields);
         } else {
           _initCompanyList(data.id);
-          $('#quick_add_company').dialog('close');
+          bootstrap.Modal.getInstance($('#quick_add_company').get(0)).hide();
         }
       }
     });
@@ -1714,19 +1729,26 @@ MLInvoice.addModule('Form', function mlinvoiceForm() {
   }
 
 
-  function addPartialPayment()
+  function _addPartialPayment()
   {
-    var buttons = {};
-    buttons[MLInvoice.translate('Save')] = function onSavePartialPayment() {
-      _savePartialPayment();
-    };
-    buttons[MLInvoice.translate('Close')] = function onClosePartialPayment() {
-      $('#add_partial_payment').dialog('close');
-    };
-    $('#add_partial_payment').dialog({ modal: true, width: 420, height: 160, resizable: false, zIndex: 900,
-      buttons: buttons,
-      title: MLInvoice.translate('PartialPayment')
-    });
+    var $dlg = $('#add_partial_payment');
+    var bsModal = new bootstrap.Modal($dlg.get(0));
+    bsModal.show();
+  }
+
+  function _addReminderFees()
+  {
+    $.getJSON(
+      'json.php?func=add_reminder_fees&id=' + $('#record_id').val(),
+      function onAddReminderFeesDone(json) {
+        if (json.errors) {
+          MLInvoice.errormsg(json.errors);
+        } else {
+          MLInvoice.infomsg(MLInvoice.translate('ReminderFeesAdded'));
+        }
+        MLInvoice.Form.initRows();
+      }
+    );
   }
 
   function _savePartialPayment()
@@ -1752,7 +1774,7 @@ MLInvoice.addModule('Form', function mlinvoiceForm() {
           alert(MLInvoice.translate('ErrValueMissing') + ': ' + data.missing_fields);
         } else {
           MLInvoice.Form.initRows();
-          $('#add_partial_payment').dialog('close');
+          bootstrap.Modal.getInstance($('#add_partial_payment').get(0)).hide();
         }
       }
     });
@@ -1872,10 +1894,7 @@ MLInvoice.addModule('Form', function mlinvoiceForm() {
     popupEditor: popupEditor,
     multiEditor: multiEditor,
     modifyRows: modifyRows,
-    addCompany: addCompany,
-    addPartialPayment: addPartialPayment,
     getSelectedProductDefaults: getSelectedProductDefaults,
-    updateStockBalance: updateStockBalance,
     updateStockBalanceLog: updateStockBalanceLog,
     printInvoice: printInvoice,
     updateDispatchByDateButtons: updateDispatchByDateButtons,

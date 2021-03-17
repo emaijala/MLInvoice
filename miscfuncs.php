@@ -2,10 +2,10 @@
 /**
  * Miscellaneous functions
  *
- * PHP version 5
+ * PHP version 7
  *
- * Copyright (C) 2004-2008 Samu Reinikainen
- * Copyright (C) 2010-2019 Ere Maijala
+ * Copyright (C) Samu Reinikainen 2004-2008
+ * Copyright (C) Ere Maijala 2010-2021
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2,
@@ -310,13 +310,14 @@ function getPostOrQuery($strKey, $varDefault = null)
 /**
  * Get page title
  *
- * @param string $strFunc Function
- * @param string $strList List
- * @param string $strForm Form
+ * @param string $strFunc   Function
+ * @param string $strList   List
+ * @param string $strForm   Form
+ * @param string $operation Operation
  *
  * @return string
  */
-function getPageTitle($strFunc, $strList, $strForm)
+function getPageTitle($strFunc, $strList, $strForm, $operation)
 {
     switch ($strFunc ? $strFunc : $strList) {
     case 'open_invoices':
@@ -328,21 +329,26 @@ function getPageTitle($strFunc, $strList, $strForm)
             }
             return Translator::translate('Invoice');
         } else {
-            return Translator::translate('OpenAndUnpaidInvoices');
+            return Translator::translate('OpenAndUnpaid');
         }
         break;
     case 'invoices':
         if ($strForm) {
             return Translator::translate('Invoice');
         } else {
-            return Translator::translate('Invoices');
+            return Translator::translate('AllNonArchived');
         }
         break;
     case 'archived_invoices':
         if ($strForm) {
+            if (getPostOrQuery('offer')
+                || (($invId = getPostOrQuery('id')) && isOffer($invId))
+            ) {
+                return Translator::translate('Offer');
+            }
             return Translator::translate('Invoice');
         } else {
-            return Translator::translate('ArchivedInvoices');
+            return Translator::translate('Archive');
         }
         break;
     case 'company':
@@ -352,18 +358,14 @@ function getPageTitle($strFunc, $strList, $strForm)
             return Translator::translate('Clients');
         }
         break;
-    case 'reports':
-        switch ($strForm) {
-        case 'invoice' :
-            return Translator::translate('InvoiceReport');
-        case 'product' :
-            return Translator::translate('ProductReport');
-        case 'product_stock' :
-            return Translator::translate('ProductStockReport');
-        default :
-            return Translator::translate('Reports');
-        }
-        break;
+    case 'accounting_report':
+        return Translator::translate('AccountingReport');
+    case 'invoice_report':
+        return Translator::translate('InvoiceReport');
+    case 'product_report':
+        return Translator::translate('ProductReport');
+    case 'product_stock_report':
+        return Translator::translate('ProductStockReport');
     case 'settings':
         if ($strForm) {
             switch ($strForm) {
@@ -396,51 +398,55 @@ function getPageTitle($strFunc, $strList, $strForm)
         }
         break;
     case 'system':
-        if ($strForm) {
-            switch ($strForm) {
-            case 'user':
-                return Translator::translate('User');
-            case 'session_type':
-                return Translator::translate('SessionType');
-            case 'row_type':
-                return Translator::translate('RowType');
-            case 'print_template':
-                return Translator::translate('PrintTemplate');
-            case 'invoice_state':
-                return Translator::translate('InvoiceState');
-            case 'invoice_type':
-                return Translator::translate('InvoiceType');
-            case 'delivery_terms':
-                return Translator::translate('DeliveryTerms');
-            case 'delivery_method':
-                return Translator::translate('DeliveryMethod');
-            default :
-                return Translator::translate('System');
-            }
-        } else {
-            switch ($strList) {
-            case 'user':
-                return Translator::translate('Users');
-            case 'session_type':
-                return Translator::translate('SessionTypes');
-            case 'row_type':
-                return Translator::translate('RowTypes');
-            case 'print_template':
-                return Translator::translate('PrintTemplates');
-            case 'invoice_state':
-                return Translator::translate('InvoiceStates');
-            case 'invoice_type':
-                return Translator::translate('InvoiceTypes');
-            case 'delivery_terms':
-                return Translator::translate('DeliveryTerms');
-            case 'delivery_method':
-                return Translator::translate('DeliveryMethods');
-            default :
-                return Translator::translate('System');
-            }
+        switch ($strForm ?? '') {
+        case 'user':
+            return Translator::translate('User');
+        case 'session_type':
+            return Translator::translate('SessionType');
+        case 'row_type':
+            return Translator::translate('RowType');
+        case 'print_template':
+            return Translator::translate('PrintTemplate');
+        case 'invoice_state':
+            return Translator::translate('InvoiceState');
+        case 'invoice_type':
+            return Translator::translate('InvoiceType');
+        case 'delivery_terms':
+            return Translator::translate('DeliveryTerms');
+        case 'delivery_method':
+            return Translator::translate('DeliveryMethod');
         }
-        break;
-    case 'import_statement' :
+        switch ($strList) {
+        case 'user':
+            return Translator::translate('Users');
+        case 'session_type':
+            return Translator::translate('SessionTypes');
+        case 'row_type':
+            return Translator::translate('RowTypes');
+        case 'print_template':
+            return Translator::translate('PrintTemplates');
+        case 'invoice_state':
+            return Translator::translate('InvoiceStates');
+        case 'invoice_type':
+            return Translator::translate('InvoiceTypes');
+        case 'delivery_terms':
+            return Translator::translate('DeliveryTerms');
+        case 'delivery_method':
+            return Translator::translate('DeliveryMethods');
+        }
+        switch ($operation) {
+        case 'backup':
+        case 'dbdump':
+            return Translator::translate('BackupDatabase');
+        case 'import':
+            return Translator::translate('ImportData');
+        case 'export':
+            return Translator::translate('ExportData');
+        case 'update':
+            return Translator::translate('Update');
+        }
+        return Translator::translate('System');
+    case 'import_statement':
         return Translator::translate('ImportAccountStatement');
     case 'profile':
         return Translator::translate('Profile');
@@ -512,12 +518,12 @@ function getMaxUploadSize()
 function fileSizeToHumanReadable($value)
 {
     $suffixes = [
-        'B',
-        'KB',
-        'MB',
-        'GB',
-        'TB',
-        'PB'
+        'SizeB',
+        'SizeKB',
+        'SizeMB',
+        'SizeGB',
+        'SizeTB',
+        'SizePB'
     ];
 
     $idx = 0;
@@ -525,7 +531,7 @@ function fileSizeToHumanReadable($value)
         $value /= 1024;
         ++$idx;
     }
-    return miscRound2Decim($value, 2) . ' ' . $suffixes[$idx];
+    return miscRound2Decim($value, 0) . ' ' . Translator::translate($suffixes[$idx]);
 }
 
 /**

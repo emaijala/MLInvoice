@@ -2,9 +2,9 @@
 /**
  * Logo handling
  *
- * PHP version 5
+ * PHP version 7
  *
- * Copyright (C) 2010-2018 Ere Maijala
+ * Copyright (C) Ere Maijala 2010-2021
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2,
@@ -36,26 +36,27 @@ sesVerifySession();
 $func = getPostOrQuery('func', 'view');
 $baseId = getPostOrQuery('id', null);
 
-if (!isset($baseId) || !is_numeric($baseId) || !isset($func)) {
+if (!sesAdminAccess() || !isset($baseId) || !is_numeric($baseId) || !isset($func)) {
     exit();
 }
 
-$messages = '';
+$message = '';
+$error = '';
 
 if ($func == 'clear') {
     dbParamQuery(
         'UPDATE {prefix}base set logo_filename=null, logo_filesize=null, logo_filetype=null, logo_filedata=null WHERE id=?',
         [$baseId]
     );
-    $messages .= Translator::translate('BaseLogoErased') . "<br>\n";
+    $message = Translator::translate('BaseLogoErased');
 } elseif ($func == 'upload') {
     if ($_FILES['logo']['error'] != UPLOAD_ERR_OK) {
-        $messages .= Translator::translate('ErrFileUploadFailed') . "<br>\n";
+        $error = Translator::translate('ErrFileUploadFailed');
     } else {
         $imageInfo = getimagesize($_FILES['logo']['tmp_name']);
         if (!$imageInfo || !in_array($imageInfo['mime'], ['image/jpeg','image/png'])
         ) {
-            $messages .= Translator::translate('ErrFileTypeInvalid') . "<br>\n";
+            $message = Translator::translate('ErrFileTypeInvalid');
         } else {
             $file = fopen($_FILES['logo']['tmp_name'], 'rb');
             if ($file === false) {
@@ -74,8 +75,8 @@ if ($func == 'clear') {
                     $baseId
                 ]
             );
-            $messages .= Translator::translate('BaseLogoSaved') . ' (' .
-                 fileSizeToHumanReadable($fsize) . ")<br>\n";
+            $message = Translator::translate('BaseLogoSaved') . ' ('
+                . fileSizeToHumanReadable($fsize) . ')';
         }
     }
 } elseif ($func == 'view') {
@@ -110,38 +111,36 @@ if ($maxPacket < $maxUploadSize) {
     $maxFileSize = fileSizeToHumanReadable($maxUploadSize);
 }
 
-echo htmlPageStart();
-?>
-<div class="form_container ui-widget-content base-logo">
-    <div class="message"><?php echo $messages?></div>
+$hasImage = getBaseLogoSize($baseId) > 0;
 
-    <div class="form ui-widget">
+?>
+<div class="form_container base-logo">
+    <?php if ($message) { ?>
+        <div class="alert alert-success" role="alert"><?php echo $message?></div>
+    <?php } ?>
+    <?php if ($error) { ?>
+        <div class="alert alert-danger" role="alert"><?php echo $error?></div>
+    <?php } ?>
+
+    <div class="form">
         <div class="image-link">
-            <img class="image" src="?func=view&amp;id=<?php echo $baseId?>">
+            <?php if ($hasImage) { ?>
+                <img class="image" src="base_logo.php?func=view&amp;id=<?php echo $baseId?>">
+            <?php } else { ?>
+                <?php echo Translator::translate('BaseLogoNotSet')?>
+            <?php } ?>
         </div>
-        <form id="form_upload" enctype="multipart/form-data"
-            action="base_logo.php" method="POST">
-            <input type="hidden" name="func" value="upload"> <input type="hidden"
-                name="id" value="<?php echo $baseId?>">
+        <form id="form_upload" enctype="multipart/form-data" action="base_logo.php" method="POST">
+            <input type="hidden" name="func" value="upload">
+            <input type="hidden" name="id" value="<?php echo $baseId?>">
             <div class="label file"><?php printf(Translator::translate('BaseLogo'), $maxFileSize)?></div>
-            <div class="long">
+            <div class="long mb-2">
                 <input name="logo" type="file">
             </div>
-            <div class="form_buttons">
-                <input type="submit"
-                    value="<?php echo Translator::translate('BaseSaveLogo')?>">
-            </div>
-        </form>
-        <form id="form_erase" enctype="multipart/form-data"
-            action="base_logo.php" method="POST">
-            <input type="hidden" name="func" value="clear"> <input type="hidden"
-                name="id" value="<?php echo $baseId?>">
-            <div class="form_buttons">
-                <input type="submit"
-                    value="<?php echo Translator::translate('BaseEraseLogo')?>">
-            </div>
+            <input type="submit" class="btn btn-primary" value="<?php echo Translator::translate('BaseSaveLogo')?>">
+            <a href="base_logo.php?func=clear&amp;id=<?php echo $baseId?>" role="button" class="btn btn-secondary<?php echo $hasImage ? '' : ' disabled'?>">
+                <?php echo Translator::translate('BaseEraseLogo')?>
+            </a>
         </form>
     </div>
 </div>
-</body>
-</html>

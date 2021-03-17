@@ -2,10 +2,10 @@
 /**
  * Extended search
  *
- * PHP version 5
+ * PHP version 7
  *
- * Copyright (C) 2004-2008 Samu Reinikainen
- * Copyright (C) 2010-2018 Ere Maijala
+ * Copyright (C) Samu Reinikainen 2004-2008
+ * Copyright (C) Ere Maijala 2010-2021
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2,
@@ -83,8 +83,10 @@ foreach ($formConfig['fields'] as &$field) {
 $listValues = [];
 foreach ($formConfig['fields'] as $field) {
     if ($field['type'] != ''
+        && $field['type'] != 'HEADING'
         && $field['type'] != 'LABEL'
         && $field['type'] != 'HID_INT'
+        && $field['type'] != 'HID_UUID'
         && $field['type'] != 'IFORM'
         && $field['type'] != 'BUTTON'
         && $field['type'] != 'JSBUTTON'
@@ -101,7 +103,7 @@ foreach ($formConfig['fields'] as $field) {
 
     if ($strControlType == 'IFORM' || $strControlType == 'BUTTON') {
         $astrValues[$strControlName] = '';
-    } elseif ($strControlType != 'LABEL') {
+    } elseif ($strControlType != 'LABEL' && $strControlType != 'HEADING') {
         if ($strControlType == 'INTDATE') {
             $astrValues[$strControlName] = getPost($strControlName, '');
         } else {
@@ -183,15 +185,8 @@ if ($blnSearch || $blnSave) {
 echo htmlPageStart();
 ?>
 <body onload="<?php echo $strOnLoad?>">
-    <script>
-<!--
-$(function() {
-  $('input[class~="hasCalendar"]').datepicker();
-});
--->
-</script>
-  <div class="form_container ui-widget-content">
-    <div class="form ui-widget">
+  <div class="container-fluid">
+    <div class="form">
       <form method="post"
         action="ext_search.php?func=<?php echo $strFunc?>&amp;form=<?php echo $strForm?>"
         target="_self" name="search_form">
@@ -267,9 +262,9 @@ foreach ($formConfig['fields'] as $field) {
                     . $field['name'] . '_x';
                 ?>
                 <input type="hidden" name="<?php echo $inputName?>"value="0">
-                <a class="tinyactionlink ui-button ui-corner-all ui-widget form-submit" href="#" title="<?php echo Translator::translate('DelRow')?>"
+                <button type="button" class="btn btn-secondary btn-small form-submit" title="<?php echo Translator::translate('DelRow')?>"
                   data-set-field="<?php echo $inputName?>">X
-                </a>
+                </button>
               </td>
             </tr>
         <?php
@@ -288,13 +283,12 @@ foreach ($formConfig['fields'] as $field) {
             <tr>
               <td colspan="4" class="ext-search-buttons">
                 <input type="hidden" name="search_x" value="0">
-                <a class="actionlink ui-button ui-corner-all ui-widget form-submit" href="#"
-                    data-set-field="search_x">
+                <button type="button" class="btn btn-secondary form-submit" data-set-field="search_x">
                     <?php echo Translator::translate('Search')?>
-                </a>
-                <a class="actionlink ui-button ui-corner-all ui-widget popup-close" href="#">
+                </button>
+                <button type="button" class="btn btn-secondary popup-close">
                     <?php echo Translator::translate('Close')?>
-                </a>
+                </button>
               </td>
             </tr>
             <tr>
@@ -317,14 +311,14 @@ if ($blnSave && $strSearchName) {
               <td class="label">
                 <?php echo Translator::translate('SearchName')?>
               </td>
-              <td class="field"><input class="medium" type="text"
+              <td class="field"><input class="form-control medium" type="text"
                 name="searchname" value="<?php echo $strSearchName?>">
               </td>
               <td colspan="2">
                 <input type="hidden" name="save_x" value="0">
-                <a class="actionlink ui-button ui-corner-all ui-widget form-submit" href="#" data-set-field="save_x">
-                <?php echo Translator::translate('SaveSearch')?>
-                </a>
+                <button type="button" class="btn btn-primary form-submit" data-set-field="save_x">
+                  <?php echo Translator::translate('SaveSearch')?>
+                </button>
               </td>
             </tr>
           </tbody>

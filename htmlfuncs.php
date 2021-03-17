@@ -2,10 +2,10 @@
 /**
  * HTML functions
  *
- * PHP version 5
+ * PHP version 7
  *
- * Copyright (C) 2004-2008 Samu Reinikainen
- * Copyright (C) 2010-2018 Ere Maijala
+ * Copyright (C) Samu Reinikainen 2004-2008
+ * Copyright (C) Ere Maijala 2010-2021
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2,
@@ -73,33 +73,25 @@ function htmlPageStart($strTitle = '', $arrExtraScripts = [], $loggedIn = true)
     }
 
     $charset = (_CHARSET_ == 'UTF-8') ? 'UTF-8' : 'ISO-8859-15';
-    if (isset($_SERVER['HTTP_USER_AGENT'])
-        && strpos($_SERVER['HTTP_USER_AGENT'], 'MSIE') !== false
-    ) {
-        $xUACompatible = "  <meta http-equiv=\"X-UA-Compatible\" content=\"IE=edge\">\n";
-    } else {
-        $xUACompatible = '';
-    }
-    $theme = defined('_UI_THEME_LOCATION_') ? _UI_THEME_LOCATION_ : 'jquery/css/theme/jquery-ui.min.css';
     $lang = isset($_SESSION['sesLANG']) ? $_SESSION['sesLANG'] : 'fi-FI';
     $datePickerOptions = Translator::translate('DatePickerOptions');
 
     $scripts = [
-        'jquery/js/jquery-2.2.4.min.js',
-        'jquery/js/jquery.cookie.js',
-        'jquery/js/jquery-ui.min.js',
-        'datatables/DataTables-1.10.18/js/jquery.dataTables.min.js',
-        'datatables/DataTables-1.10.18/js/dataTables.jqueryui.min.js',
-        'datatables/Buttons-1.5.4/js/dataTables.buttons.min.js',
-        'datatables/Buttons-1.5.4/js/buttons.html5.min.js',
-        'datatables/Buttons-1.5.4/js/buttons.colVis.min.js',
-        'jquery/js/jquery.floatingmessage.js',
-        'js/date.js',
-        "js/date-$lang.js",
-        'jquery/js/jquery.daterangepicker.js',
+        'vendor/twbs/bootstrap/dist/js/bootstrap.bundle.js',
+        'vendor/components/jquery/jquery.min.js',
+        'datatables/datatables.min.js',
+        'js/vendor/dataTables.bootstrap5.min.js',
+        'datatables/Responsive-2.2.6/js/responsive.bootstrap4.min.js',
+        'datatables/Buttons-1.6.5/js/dataTables.buttons.min.js',
+        'datatables/Buttons-1.6.5/js/buttons.html5.min.js',
+        'datatables/Buttons-1.6.5/js/buttons.colVis.min.js',
+        'js/vendor/moment.min.js',
+        'js/vendor/daterangepicker.min.js',
         'js/mlinvoice.min.js',
         'select2/select2.min.js',
         'js/formdata.min.js',
+        'js/vendor/js.cookie-2.2.1.min.js',
+        'js/vendor/Sortable.min.js',
     ];
 
     if (getSetting('printout_markdown')) {
@@ -118,13 +110,12 @@ function htmlPageStart($strTitle = '', $arrExtraScripts = [], $loggedIn = true)
     $scriptLinks = implode("\n", $scripts);
 
     $css = [
-        $theme,
-        'jquery/css/ui.daterangepicker.css',
-        'datatables/Buttons-1.5.4/css/buttons.dataTables.min.css',
+        'css/vendor/daterangepicker.css',
+        'css/vendor/dataTables.bootstrap5.min.css',
+        'datatables/Buttons-1.6.5/css/buttons.dataTables.min.css',
         'select2/select2.css',
         getSetting('printout_markdown') ? 'css/easymde.min.css' : '',
         'css/style.css',
-        'css/table.css'
     ];
 
     if (file_exists('css/custom.css')) {
@@ -187,7 +178,10 @@ function htmlPageStart($strTitle = '', $arrExtraScripts = [], $loggedIn = true)
         'RowCopy',
         'RowModification',
         'PartialPayment',
-        'Sort'
+        'Sort',
+        'ReminderFeesAdded',
+        'VATLess',
+        'VATPart',
     ];
 
     $res = dbQueryCheck(
@@ -227,13 +221,7 @@ function htmlPageStart($strTitle = '', $arrExtraScripts = [], $loggedIn = true)
         }
     }
 
-    $res = dbQueryCheck(
-        'SELECT id FROM {prefix}invoice_state WHERE invoice_offer=1'
-    );
-    while ($row = mysqli_fetch_assoc($res)) {
-        $offerStatuses[] = $row['id'];
-    }
-    $offerStatuses = json_encode($offerStatuses);
+    $offerStates = json_encode(getOfferStateIds());
 
     $keepAlive = $loggedIn && getSetting('session_keepalive') ? 'true' : 'false';
     $lang = Translator::translate('HTMLLanguageCode');
@@ -244,19 +232,21 @@ function htmlPageStart($strTitle = '', $arrExtraScripts = [], $loggedIn = true)
 <html lang="$lang">
 <head>
   <meta http-equiv="Content-Type" content="text/html; charset=$charset">
-$xUACompatible  <title>$strTitle</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>$strTitle</title>
   <link rel="shortcut icon" href="$favicon" type="image/x-icon">
 $cssLinks
 $scriptLinks
   <script>
 MLInvoice.addTranslations($jsTranslations);
 MLInvoice.setDispatchNotePrintStyle('$dispatchNotePrintStyle');
-MLInvoice.setOfferStatuses($offerStatuses);
+MLInvoice.setOfferStates($offerStates);
 MLInvoice.setKeepAlive($keepAlive);
 MLInvoice.setCurrencyDecimals($currencyDecimals);
+MLInvoice.setDatePickerDefaults($datePickerOptions);
 $(document).ready(function() {
   MLInvoice.init();
-  $.datepicker.setDefaults($datePickerOptions);
+
 });
   </script>
 </head>
@@ -274,8 +264,6 @@ EOT;
  */
 function htmlMainTabs($func)
 {
-    $user = !empty($_SESSION['sesUSERID']) ? getUserById($_SESSION['sesUSERID'])
-        : [];
     $normalMenuRights = [
         ROLE_READONLY,
         ROLE_USER,
@@ -283,23 +271,81 @@ function htmlMainTabs($func)
     ];
     $astrMainButtons = [
         [
-            'name' => 'invoice',
-            'title' => 'ShowInvoiceNavi',
-            'action' => 'open_invoices',
+            'title' => 'InvoicesAndOffers',
+            'action' => 'invoices',
             'levels_allowed' => [
                 ROLE_READONLY,
                 ROLE_USER,
                 ROLE_BACKUPMGR
-            ]
-        ],
-        [
-            'name' => 'archive',
-            'title' => 'ShowArchiveNavi',
-            'action' => 'archived_invoices',
-            'levels_allowed' => [
-                ROLE_READONLY,
-                ROLE_USER,
-                ROLE_BACKUPMGR
+            ],
+            'submenu' => [
+                [
+                    'title' => 'OpenAndUnpaid',
+                    'action' => 'open_invoices',
+                    'levels_allowed' => [
+                        ROLE_READONLY,
+                        ROLE_USER,
+                        ROLE_BACKUPMGR
+                    ],
+                ],
+                [
+                    'title' => 'AllNonArchived',
+                    'action' => 'invoices',
+                    'levels_allowed' => [
+                        ROLE_READONLY,
+                        ROLE_USER,
+                        ROLE_BACKUPMGR,
+                    ],
+                ],
+                [
+                    'title' => 'ShowArchivedInvoicesNavi',
+                    'action' => 'archived_invoices',
+                    'levels_allowed' => [
+                        ROLE_READONLY,
+                        ROLE_USER,
+                        ROLE_BACKUPMGR
+                    ],
+                ],
+                [
+                    'title' => 'ShowArchivedOffersNavi',
+                    'action' => 'archived_offers',
+                    'levels_allowed' => [
+                        ROLE_READONLY,
+                        ROLE_USER,
+                        ROLE_BACKUPMGR
+                    ],
+                ],
+                [
+                    'title' => 'ImportAccountStatement',
+                    'action' => 'import_statement',
+                    'levels_allowed' => [
+                        ROLE_USER,
+                        ROLE_BACKUPMGR,
+                    ],
+                ],
+                [
+                    'title' => 'NewInvoice',
+                    'action' => [
+                        'func' => 'invoices',
+                        'form' => 'invoice',
+                    ],
+                    'levels_allowed' => [
+                        ROLE_USER,
+                        ROLE_BACKUPMGR,
+                    ],
+                ],
+                [
+                    'title' => 'NewOffer',
+                    'action' => [
+                        'func' => 'invoices',
+                        'form' => 'invoice',
+                        'offer' => '1',
+                    ],
+                    'levels_allowed' => [
+                        ROLE_USER,
+                        ROLE_BACKUPMGR,
+                    ],
+                ],
             ]
         ],
         [
@@ -309,17 +355,54 @@ function htmlMainTabs($func)
             'levels_allowed' => [
                 ROLE_USER,
                 ROLE_BACKUPMGR
-            ]
+            ],
         ],
         [
             'name' => 'reports',
             'title' => 'ShowReportNavi',
-            'action' => 'reports',
             'levels_allowed' => [
                 ROLE_READONLY,
                 ROLE_USER,
                 ROLE_BACKUPMGR
-            ]
+            ],
+            'submenu' => [
+                [
+                    'title' => 'InvoiceReport',
+                    'action' => 'invoice_report',
+                    'levels_allowed' => [
+                        ROLE_READONLY,
+                        ROLE_USER,
+                        ROLE_BACKUPMGR
+                    ]
+                ],
+                [
+                    'title' => 'ProductReport',
+                    'action' => 'product_report',
+                    'levels_allowed' => [
+                        ROLE_READONLY,
+                        ROLE_USER,
+                        ROLE_BACKUPMGR
+                    ]
+                ],
+                [
+                    'title' => 'ProductStockReport',
+                    'action' => 'product_stock_report',
+                    'levels_allowed' => [
+                        ROLE_READONLY,
+                        ROLE_USER,
+                        ROLE_BACKUPMGR
+                    ]
+                ],
+                [
+                    'title' => 'AccountingReport',
+                    'action' => 'accounting_report',
+                    'levels_allowed' => [
+                        ROLE_READONLY,
+                        ROLE_USER,
+                        ROLE_BACKUPMGR
+                    ]
+                ]
+            ],
         ],
         [
             'name' => 'settings',
@@ -329,6 +412,59 @@ function htmlMainTabs($func)
             'levels_allowed' => [
                 ROLE_USER,
                 ROLE_BACKUPMGR
+            ],
+            'submenu' => [
+                [
+                    'title' => 'GeneralSettings',
+                    'action' => 'settings',
+                    'levels_allowed' => [
+                        ROLE_ADMIN
+                    ]
+                ],
+                [
+                    'title' => 'Bases',
+                    'action' => [
+                        'func' => 'settings',
+                        'list' => 'base',
+                    ],
+                    'levels_allowed' => [
+                        ROLE_USER,
+                        ROLE_BACKUPMGR
+                    ]
+                ],
+                [
+                    'title' => 'Products',
+                    'action' => [
+                        'func' => 'settings',
+                        'list' => 'product',
+                    ],
+                    'levels_allowed' => [
+                        ROLE_USER,
+                        ROLE_BACKUPMGR
+                    ]
+                ],
+                [
+                    'title' => 'DefaultValues',
+                    'action' => [
+                        'func' => 'settings',
+                        'list' => 'default_value',
+                    ],
+                    'levels_allowed' => [
+                        ROLE_USER,
+                        ROLE_BACKUPMGR
+                    ]
+                ],
+                [
+                    'title' => 'Attachments',
+                    'action' => [
+                        'func' => 'settings',
+                        'list' => 'attachment',
+                    ],
+                    'levels_allowed' => [
+                        ROLE_USER,
+                        ROLE_BACKUPMGR
+                    ]
+                ]
             ]
         ],
         [
@@ -338,46 +474,235 @@ function htmlMainTabs($func)
             'levels_allowed' => [
                 ROLE_BACKUPMGR,
                 ROLE_ADMIN
-            ]
+            ],
+            'submenu' => [
+                [
+                    'title' => 'Users',
+                    'action' => [
+                        'func' => 'system',
+                        'list' => 'user',
+                    ],
+                    'levels_allowed' => [
+                        ROLE_ADMIN
+                    ]
+                ],
+                [
+                    'title' => 'InvoiceStates',
+                    'action' => [
+                        'func' => 'system',
+                        'list' => 'invoice_state',
+                    ],
+                    'levels_allowed' => [
+                        ROLE_ADMIN
+                    ]
+                ],
+                [
+                    'title' => 'InvoiceTypes',
+                    'action' => [
+                        'func' => 'system',
+                        'list' => 'invoice_type',
+                    ],
+                    'levels_allowed' => [
+                        ROLE_ADMIN
+                    ]
+                ],
+                [
+                    'title' => 'RowTypes',
+                    'action' => [
+                        'func' => 'system',
+                        'list' => 'row_type',
+                    ],
+                    'levels_allowed' => [
+                        ROLE_ADMIN
+                    ]
+                ],
+                [
+                    'title' => 'DeliveryTerms',
+                    'action' => [
+                        'func' => 'system',
+                        'list' => 'delivery_terms',
+                    ],
+                    'levels_allowed' => [
+                        ROLE_ADMIN
+                    ]
+                ],
+                [
+                    'title' => 'DeliveryMethods',
+                    'action' => [
+                        'func' => 'system',
+                        'list' => 'delivery_method',
+                    ],
+                    'levels_allowed' => [
+                        ROLE_ADMIN
+                    ]
+                ],
+                [
+                    'title' => 'PrintTemplates',
+                    'action' => [
+                        'func' => 'system',
+                        'list' => 'print_template'
+                    ],
+                    'levels_allowed' => [
+                        ROLE_ADMIN
+                    ]
+                ],
+                [
+                    'title' => 'BackupDatabase',
+                    'action' => [
+                        'func' => 'system',
+                        'operation' => 'backup',
+                    ],
+                    'levels_allowed' => [
+                        ROLE_BACKUPMGR,
+                        ROLE_ADMIN
+                    ]
+                ],
+                [
+                    'title' => 'ImportData',
+                    'action' => [
+                        'func' => 'system',
+                        'operation' => 'import',
+                    ],
+                    'levels_allowed' => [
+                        ROLE_ADMIN
+                    ]
+                ],
+                [
+                    'title' => 'ExportData',
+                    'action' => [
+                        'func' => 'system',
+                        'operation' => 'export',
+                    ],
+                    'levels_allowed' => [
+                        ROLE_ADMIN
+                    ]
+                ],
+                [
+                    'title' => 'Update',
+                    'action' => [
+                        'func' => 'system',
+                        'operation' => 'update',
+                    ],
+                    'levels_allowed' => [
+                        ROLE_ADMIN
+                    ]
+                ]
+            ],
         ],
-        [
-            'name' => 'logout',
-            'title' => 'Logout',
-            'action' => 'logout',
-            'levels_allowed' => null
-        ]
     ];
 
-    ?>
-            <div id="maintabs" class="navi ui-widget-header ui-tabs">
-              <ul class="ui-tabs-nav ui-helper-clearfix ui-corner-all">
-    <?php
-    foreach ($astrMainButtons as $button) {
-        $strButton = '<li class="functionlink ui-state-default ui-corner-top';
-        if ($button['action'] == $func
-            || ($button['action'] == 'open_invoices' && $func == 'invoices')
-        ) {
-            $strButton .= ' ui-tabs-selected ui-state-active';
-        }
-        $strButton .= '"><a class="ui-tabs-anchor functionlink" href="index.php?func='
-        . $button['action'] . '">';
-        $strButton .= Translator::translate($button['title']) . '</a></li>';
+    createNavBar($astrMainButtons, $func);
+}
 
-        if (!isset($button['levels_allowed'])
-            || sesAccessLevel($button['levels_allowed']) || sesAdminAccess()
+/**
+ * Create the navigation menu
+ *
+ * @param array  $buttons     Buttons
+ * @param string $currentFunc Currently active action
+ *
+ * @return void
+ */
+function createNavBar($buttons, $currentFunc = '')
+{
+    ?>
+            <nav class="navbar navbar-expand-md navbar-light border-bottom mb-2">
+              <div class="container-fluid">
+                <a class="navbar-brand" href="index.php?func=open_invoices">MLInvoice</a>
+                <button class="navbar-toggler" type="button"
+                  data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent"
+                  aria-controls="navbarSupportedContent" aria-expanded="false"
+                  aria-label="<?php echo Translator::translate('ToggleMenu')?>"
+                >
+                  <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="collapse navbar-collapse" id="navbarSupportedContent">
+                  <ul class="navbar-nav mr-auto">
+    <?php
+    foreach ($buttons as $i => $button) {
+        if (isset($button['levels_allowed'])
+            && !sesAccessLevel($button['levels_allowed']) && !sesAdminAccess()
         ) {
-            echo "      $strButton\n";
+            continue;
+        }
+        if ($submenu = $button['submenu'] ?? []) {
+            ?>
+            <li class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle" href="#" id="navbar-dropdown-<?php echo $button['action'] ?? $i ?>" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+              <?php echo Translator::translate($button['title'])?>
+            </a>
+            <ul class="dropdown-menu" aria-labelledby="navbar-dropdown-<?php echo $button['action'] ?? $i ?>">
+                <?php
+                foreach ($submenu as $item) {
+                    if (isset($item['levels_allowed'])
+                        && !sesAccessLevel($item['levels_allowed']) && !sesAdminAccess()
+                    ) {
+                        continue;
+                    }
+                    $href = '';
+                    if ($item['action'] ?? '') {
+                        if (is_string($item['action'])) {
+                            $href = ' href="index.php?func=' . $item['action'] . '"';
+                        } else {
+                            $href = ' href="index.php?' . http_build_query($item['action'], null, '&amp;') . '"';
+                        }
+                    } elseif ($item['link'] ?? '') {
+                        $href = ' href="' . htmlspecialchars($item['link']) . '"';
+                    }
+                    ?>
+                    <li>
+                        <a class="dropdown-item"<?php echo $href?>>
+                            <?php echo Translator::translate($item['title'])?>
+                        </a>
+                    </li>
+                    <?php
+                }
+                ?>
+            </ul>
+          </li>
+            <?php
+        } else {
+            $href = '';
+            if ($button['action'] ?? '') {
+                $href = ' href="index.php?func=' . $button['action'] . '"';
+            } elseif ($button['link'] ?? '') {
+                $href = ' href="' . htmlspecialchars($button['link']) . '"';
+            }
+            ?>
+            <li class="nav-item">
+                <a class="nav-link"<?php echo $href?>>
+                    <?php echo Translator::translate($button['title'])?>
+                </a>
+            </li>
+            <?php
         }
     }
     ?>
-                <li id="profile-link">
-                  <a href="index.php?func=profile">
-                    <?php echo $user && $user['name'] ? $user['name'] : Translator::translate('Profile'); ?>
-                  </a>
-                </li>
-              </ul>
-            </div>
+                 </ul>
     <?php
+    $user = !empty($_SESSION['sesUSERID'])
+        ? getUserById($_SESSION['sesUSERID']) : [];
+    if ($user) {
+        ?>
+                  <hr class="d-md-none text-black-50">
+                  <ul class="navbar-nav ms-md-auto">
+                    <li class="nav-item">
+                      <a class="nav-link" href="index.php?func=profile">
+                        <?php echo $user && $user['name'] ? $user['name'] : Translator::translate('Profile'); ?>
+                      </a>
+                    </li>
+                    <li class="nav-item">
+                      <a class="nav-link" href="index.php?func=logout">
+                        <?php echo Translator::translate('Logout'); ?>
+                      </a>
+                    </li>
+                  </ul>
+        <?php
+    }
+    ?>
+                </div>
+              </div>
+            </nav>
+        <?php
 }
 
 /**
@@ -551,14 +876,14 @@ function htmlFormElement($strName, $strType, $strValue, $strStyle, $strListQuery
             $autocomplete = '';
         }
 
-        $strFormElement = "<input type=\"text\" class=\"$strStyle\"$autocomplete " .
+        $strFormElement = "<input type=\"text\" class=\"form-control $strStyle\"$autocomplete " .
              "id=\"$strName\" name=\"$strName\" value=\"" .
              htmlspecialchars($strValue) . "\"$astrAdditionalAttributes$readOnly>\n";
         break;
 
     case 'PASSWD':
     case 'PASSWD_STORED':
-        $strFormElement = "<input type=\"password\" class=\"$strStyle\" " .
+        $strFormElement = "<input type=\"password\" class=\"form-control $strStyle\" " .
              "id=\"$strName\" name=\"$strName\" value=\"\"$astrAdditionalAttributes$readOnly>\n";
         break;
 
@@ -583,13 +908,13 @@ function htmlFormElement($strName, $strType, $strValue, $strStyle, $strListQuery
         if ($hideZero && $strValue == 0) {
             $strValue = '';
         }
-        $strFormElement = "<input type=\"text\" class=\"$strStyle\" " .
+        $strFormElement = "<input type=\"text\" class=\"form-control $strStyle\" " .
              "id=\"$strName\" name=\"$strName\" value=\"" .
              htmlspecialchars($strValue) . "\"$astrAdditionalAttributes$readOnly>\n";
         break;
 
     case 'INTDATE':
-        $strFormElement = "<input type=\"text\" class=\"$strStyle hasCalendar\" " .
+        $strFormElement = "<input type=\"text\" class=\"form-control $strStyle hasCalendar\" " .
              "autocomplete=\"off\" id=\"$strName\" name=\"$strName\" value=\"" .
              htmlspecialchars($strValue) . "\"$astrAdditionalAttributes$readOnly>\n";
         break;
@@ -602,7 +927,7 @@ function htmlFormElement($strName, $strType, $strValue, $strStyle, $strListQuery
         break;
 
     case 'AREA':
-        $strFormElement = '<textarea rows="24" cols="80" class="' . $strStyle . '" ' .
+        $strFormElement = '<textarea class="form-control ' . $strStyle . '" ' .
              'id="' . $strName . '" name="' . $strName .
              "\"$astrAdditionalAttributes$readOnly>" . $strValue . "</textarea>\n";
         break;
@@ -641,7 +966,7 @@ function htmlFormElement($strName, $strType, $strValue, $strStyle, $strListQuery
                 );
             }
         } else {
-            $strFormElement = "<input type=\"text\" class=\"$strStyle\" " .
+            $strFormElement = "<input type=\"text\" class=\"form-control $strStyle\" " .
                  "id=\"$strName\" name=\"$strName\" value=\"" .
                 htmlspecialchars(
                     getSQLListBoxSelectedValue($strListQuery, $strValue, $translate)
@@ -661,10 +986,10 @@ function htmlFormElement($strName, $strType, $strValue, $strStyle, $strListQuery
             $onChange = $astrAdditionalAttributes ? trim($astrAdditionalAttributes) : '';
             $encodedQuery = htmlspecialchars($strListQuery);
             $strFormElement = <<<EOT
-<input type="hidden" class="$strStyle select2" id="$strName" name="$strName" value="$strValue" data-query="$encodedQuery" data-show-empty="$showEmpty" data-on-change="$onChange"/>
+<input type="text" class="$strStyle select2" id="$strName" name="$strName" value="$strValue" data-query="$encodedQuery" data-show-empty="$showEmpty" data-on-change="$onChange"/>
 EOT;
         } else {
-            $strFormElement = "<input type=\"text\" class=\"$strStyle\" " .
+            $strFormElement = "<input type=\"text\" class=\"form-control $strStyle\" " .
                  "id=\"$strName\" name=\"$strName\" value=\"" .
                 htmlspecialchars(
                     getSearchListSelectedValue($strListQuery, $strValue, false)
@@ -684,7 +1009,7 @@ EOT;
                 false, $astrAdditionalAttributes, $translate
             );
         } else {
-            $strFormElement = "<input type=\"text\" class=\"$strStyle\" " .
+            $strFormElement = "<input type=\"text\" class=\"form-control $strStyle\" " .
                 "id=\"$strName\" name=\"$strName\" value=\"" . htmlspecialchars(
                     getListBoxSelectedValue($options, $strValue, $translate)
                 ) .
@@ -705,7 +1030,7 @@ EOT;
 <input type="hidden" class="$strStyle select2 tags" id="$strName" name="$strName" value="$strValue" data-query="$encodedQuery" data-show-empty="$showEmpty" data-on-change="$onChange"/>
 EOT;
         } else {
-            $strFormElement = "<input type=\"text\" class=\"$strStyle\" " .
+            $strFormElement = "<input type=\"text\" class=\"form-control $strStyle\" " .
                  "id=\"$strName\" name=\"$strName\" value=\"" .
                  htmlspecialchars($strValue) .
                  "\"$astrAdditionalAttributes$readOnly>\n";
@@ -761,7 +1086,7 @@ EOT;
                  "status=no,toolbar=no'); return false;\"";
             break;
         }
-        $strFormElement = "<a class=\"formbuttonlink ui-button ui-corner-all ui-widget\" href=\"$strHref\" $strOnClick$astrAdditionalAttributes>" .
+        $strFormElement = "<a class=\"btn btn-secondary formbuttonlink\" href=\"$strHref\" $strOnClick$astrAdditionalAttributes>" .
              htmlspecialchars(Translator::translate($strTitle)) . "</a>\n";
         break;
 
@@ -773,7 +1098,7 @@ EOT;
                 $strListQuery = str_replace('_ID_', $strValue, $strListQuery);
             }
             $strOnClick = "onClick=\"$strListQuery\"";
-            $strFormElement = "<a class=\"formbuttonlink ui-button ui-corner-all ui-widget\" href=\"#\" $strOnClick$astrAdditionalAttributes>" .
+            $strFormElement = "<a class=\"btn btn-secondary formbuttonlink\" href=\"#\" $strOnClick$astrAdditionalAttributes>" .
                  htmlspecialchars(Translator::translate($strTitle)) . "</a>\n";
         }
         break;
@@ -802,12 +1127,12 @@ EOT;
 
     case 'IMAGE':
         $strListQuery = str_replace('_ID_', $strValue, $strListQuery);
-        $strFormElement = "<img class=\"$strStyle\" src=\"$strListQuery\" title=\"" .
-             htmlspecialchars(Translator::translate($strTitle)) . "\"></div>\n";
+        $strFormElement = "<img id=\"$strName\" class=\"$strStyle\" src=\"$strListQuery\" title=\"" .
+             htmlspecialchars(Translator::translate($strTitle)) . "\">\n";
         break;
 
     case 'FILE':
-        $strFormElement = '<input type="file" class="' . $strStyle . '" ' .
+        $strFormElement = '<input type="file" class="form-control ' . $strStyle . '" ' .
              'id="' . $strName . '" name="' . $strName .
              "\"$astrAdditionalAttributes$readOnly>\n";
         break;

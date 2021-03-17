@@ -2,7 +2,7 @@
 /**
  * Settings definitions
  *
- * PHP version 5
+ * PHP version 7
  *
  * Copyright (C) Ere Maijala 2010-2019.
  *
@@ -28,7 +28,7 @@
 $arrSettings = [
     'start_sep' => [
         'label' => 'Settings',
-        'type' => 'LABEL'
+        'type' => 'HEADING'
     ],
 
     'auto_close_after_delete' => [
@@ -67,7 +67,7 @@ $arrSettings = [
     'unit_price_decimals' => [
         'label' => 'SettingUnitPriceDecimals',
         'type' => 'INT',
-        'style' => 'currency',
+        'style' => 'short',
         'position' => 1,
         'default' => 2,
         'allow_null' => true
@@ -131,7 +131,7 @@ $arrSettings = [
 
     'invoice_sep' => [
         'label' => 'SettingInvoices',
-        'type' => 'LABEL'
+        'type' => 'HEADING'
     ],
 
     'invoice_numbering_per_base' => [
@@ -186,7 +186,7 @@ $arrSettings = [
     'invoice_default_vat_percent' => [
         'label' => 'SettingInvoiceDefaultVATPercent',
         'type' => 'PERCENT',
-        'style' => 'percent',
+        'style' => 'short',
         'position' => 1,
         'default' => 24,
         'allow_null' => false
@@ -194,7 +194,7 @@ $arrSettings = [
     'invoice_payment_days' => [
         'label' => 'SettingInvoicePaymentDays',
         'type' => 'INT',
-        'style' => 'tiny',
+        'style' => 'short',
         'position' => 1,
         'default' => 14,
         'allow_null' => false
@@ -218,7 +218,7 @@ $arrSettings = [
     'invoice_penalty_interest' => [
         'label' => 'SettingInvoicePenaltyInterestPercent',
         'type' => 'PERCENT',
-        'style' => 'percent',
+        'style' => 'short',
         'position' => 1,
         'default' => 8,
         'allow_null' => false
@@ -226,7 +226,7 @@ $arrSettings = [
     'invoice_notification_fee' => [
         'label' => 'SettingInvoiceNotificationFee',
         'type' => 'CURRENCY',
-        'style' => 'currency',
+        'style' => 'short',
         'position' => 1,
         'default' => 5,
         'allow_null' => false
@@ -263,7 +263,7 @@ $arrSettings = [
 
     'printing_sep' => [
         'label' => 'SettingPrinting',
-        'type' => 'LABEL'
+        'type' => 'HEADING'
     ],
 
     'invoice_add_number' => [
@@ -424,7 +424,7 @@ $arrSettings = [
     'invoice_address_x_offset' => [
         'label' => 'SettingInvoiceSenderAddressXOffset',
         'type' => 'INT',
-        'style' => 'currency',
+        'style' => 'short',
         'position' => 1,
         'default' => 0,
         'allow_null' => true
@@ -432,7 +432,7 @@ $arrSettings = [
     'invoice_address_y_offset' => [
         'label' => 'SettingInvoiceSenderAddressYOffset',
         'type' => 'INT',
-        'style' => 'currency',
+        'style' => 'short',
         'position' => 1,
         'default' => 0,
         'allow_null' => true
@@ -440,7 +440,7 @@ $arrSettings = [
     'invoice_recipient_address_x_offset' => [
         'label' => 'SettingInvoiceRecipientAddressXOffset',
         'type' => 'INT',
-        'style' => 'currency',
+        'style' => 'short',
         'position' => 1,
         'default' => 0,
         'allow_null' => true
@@ -448,7 +448,7 @@ $arrSettings = [
     'invoice_recipient_address_y_offset' => [
         'label' => 'SettingInvoiceRecipientAddressYOffset',
         'type' => 'INT',
-        'style' => 'currency',
+        'style' => 'short',
         'position' => 1,
         'default' => 0,
         'allow_null' => true
@@ -456,7 +456,7 @@ $arrSettings = [
     'invoice_address_max_width' => [
         'label' => 'SettingInvoiceAddressMaxWidth',
         'type' => 'INT',
-        'style' => 'currency',
+        'style' => 'short',
         'position' => 1,
         'default' => 85,
         'allow_null' => true
@@ -472,7 +472,7 @@ $arrSettings = [
 
     'order_confirmation_sep' => [
         'label' => 'SettingOrderConfirmations',
-        'type' => 'LABEL'
+        'type' => 'HEADING'
     ],
 
     'order_confirmation_terms' => [
@@ -486,7 +486,7 @@ $arrSettings = [
 
     'dispatch_note_sep' => [
         'label' => 'SettingDispatchNotes',
-        'type' => 'LABEL'
+        'type' => 'HEADING'
     ],
 
     'dispatch_note_show_barcodes' => [

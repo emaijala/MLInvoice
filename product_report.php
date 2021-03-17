@@ -2,9 +2,9 @@
 /**
  * Product report
  *
- * PHP version 5
+ * PHP version 7
  *
- * Copyright (C) 2010-2019 Ere Maijala
+ * Copyright (C) Ere Maijala 2010-2021
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2,
@@ -68,102 +68,98 @@ class ProductReport extends AbstractReport
 <script>
   $(document).ready(function() {
     $('input[class~="hasDateRangePicker"]')
-        .daterangepicker(<?php echo Translator::translate('DateRangePickerOptions')?>);
+        .daterangepicker(MLInvoice.getDateRangePickerDefaults());
     MLInvoice.Form.setupSelect2();
   });
   </script>
 
-<div class="form_container ui-widget-content ui-helper-clearfix">
+<div class="form_container">
     <form method="get" id="params" name="params">
-        <input name="func" type="hidden" value="reports"> <input name="form"
-            type="hidden" value="product"> <input name="report" type="hidden"
-            value="1">
+        <input name="func" type="hidden" value="<?php echo getPostOrQuery('func', 'product_report') ?>">
+        <input name="report" type="hidden" value="1">
 
-        <div class="unlimited_label">
-            <h1><?php echo Translator::translate('ProductReport')?></h1>
-        </div>
+        <div class="report-settings">
+            <div class="medium_label">
+                <?php echo Translator::translate('InvoiceDateInterval')?>
+            </div>
+            <div class="field">
+                <?php
+                echo htmlFormElement(
+                    'date', 'TEXT', "$dateRange", 'medium hasDateRangePicker', '', 'MODIFY', false
+                );
+                ?>
+            </div>
 
-        <div class="medium_label">
-            <?php echo Translator::translate('InvoiceDateInterval')?>
-        </div>
-        <div class="field">
-            <?php
-            echo htmlFormElement(
-                'date', 'TEXT', "$dateRange", 'medium hasDateRangePicker', '', 'MODIFY', false
-            );
-            ?>
-        </div>
+            <div class="medium_label"><?php echo Translator::translate('Biller')?></div>
+            <div class="field">
+                <?php
+                echo htmlFormElement(
+                    'base', 'LIST', $intBaseId, 'medium',
+                    'SELECT id, name FROM {prefix}base WHERE deleted=0 ORDER BY name',
+                    'MODIFY', false
+                );
+                ?>
+            </div>
 
-        <div class="medium_label"><?php echo Translator::translate('Biller')?></div>
-        <div class="field">
-            <?php
-            echo htmlFormElement(
-                'base', 'LIST', $intBaseId, 'medium',
-                'SELECT id, name FROM {prefix}base WHERE deleted=0 ORDER BY name',
-                'MODIFY', false
-            );
-            ?>
-        </div>
+            <div class="medium_label"><?php echo Translator::translate('Client')?></div>
+            <div class="field">
+                <?php
+                echo htmlFormElement(
+                    'company', 'LIST', $intCompanyId, 'medium',
+                    'SELECT id, company_name FROM {prefix}company WHERE deleted=0 ORDER BY company_name',
+                    'MODIFY', false
+                );
+                ?>
+            </div>
 
-        <div class="medium_label"><?php echo Translator::translate('Client')?></div>
-        <div class="field">
-            <?php
-            echo htmlFormElement(
-                'company', 'LIST', $intCompanyId, 'medium',
-                'SELECT id, company_name FROM {prefix}company WHERE deleted=0 ORDER BY company_name',
-                'MODIFY', false
-            );
-            ?>
-        </div>
+            <div class="medium_label"><?php echo Translator::translate('Tags')?></div>
+            <div class="field">
+                <?php echo htmlFormElement('tags', 'TAGS', $companyTags, 'noemptyvalue long', 'table=company_tag&sort=tag', 'MODIFY', false)?>
+            </div>
 
-        <div class="medium_label"><?php echo Translator::translate('Tags')?></div>
-        <div class="field">
-            <?php echo htmlFormElement('tags', 'TAGS', $companyTags, 'noemptyvalue long', 'table=company_tag&sort=tag', 'MODIFY', false)?>
-        </div>
+            <div class="medium_label"><?php echo Translator::translate('Product')?></div>
+            <div class="field">
+                <?php
+                echo htmlFormElement(
+                    'product', 'LIST', $intProductId, 'medium',
+                    'SELECT id, product_name FROM {prefix}product WHERE deleted=0 ORDER BY product_name',
+                    'MODIFY', false
+                );
+                ?>
+            </div>
 
-        <div class="medium_label"><?php echo Translator::translate('Product')?></div>
-        <div class="field">
-            <?php
-            echo htmlFormElement(
-                'product', 'LIST', $intProductId, 'medium',
-                'SELECT id, product_name FROM {prefix}product WHERE deleted=0 ORDER BY product_name',
-                'MODIFY', false
-            );
-            ?>
+            <div class="medium_label"><?php echo Translator::translate('PrintFormat')?></div>
+            <div class="field">
+                <label>
+                    <input type="radio" id="format-table" name="format" value="table" checked="checked">
+                    <?php echo Translator::translate('PrintFormatTable')?>
+                </label>
+            </div>
+            <div class="medium_label"></div>
+            <div class="field">
+                <label>
+                    <input type="radio" id="format-html" name="format" value="html">
+                    <?php echo Translator::translate('PrintFormatHTML')?>
+                </label>
+            </div>
+            <div class="medium_label"></div>
+            <div class="field">
+                <label>
+                    <input type="radio" id="format-pdf" name="format" value="pdf">
+                    <?php echo Translator::translate('PrintFormatPDF')?>
+                </label>
+            </div>
+            <div class="field_sep"></div>
         </div>
-
-        <div class="medium_label"><?php echo Translator::translate('PrintFormat')?></div>
-        <div class="field">
-            <label>
-                <input type="radio" id="format-table" name="format" value="table" checked="checked">
-                <?php echo Translator::translate('PrintFormatTable')?>
-            </label>
-        </div>
-        <div class="medium_label"></div>
-        <div class="field">
-            <label>
-                <input type="radio" id="format-html" name="format" value="html">
-                <?php echo Translator::translate('PrintFormatHTML')?>
-            </label>
-        </div>
-        <div class="medium_label"></div>
-        <div class="field">
-            <label>
-                <input type="radio" id="format-pdf" name="format" value="pdf">
-                <?php echo Translator::translate('PrintFormatPDF')?>
-            </label>
-        </div>
-        <div class="field_sep"></div>
-
         <?php
         $this->addInvoiceStateSelection();
         ?>
 
         <div class="unlimited_label">
-            <a class="actionlink ui-button ui-corner-all ui-widget form-submit" href="#" data-form-target="">
+            <a role="button" class="btn btn-primary form-submit" href="#" data-form-target="">
                 <?php echo Translator::translate('CreateReport')?>
             </a>
-            <a class="actionlink ui-button ui-corner-all ui-widget form-submit" href="#" data-form-target="_blank">
+            <a role="button" class="btn btn-primary form-submit" href="#" data-form-target="_blank">
                 <?php echo Translator::translate('CreateReportInNewWindow')?>
             </a>
         </div>
@@ -337,7 +333,7 @@ class ProductReport extends AbstractReport
         }
         ?>
   <div class="report">
-    <table class="report-table">
+    <table class="report-table mb-4">
       <tr>
         <td>
           <div class="unlimited_label">
@@ -350,7 +346,7 @@ class ProductReport extends AbstractReport
       </tr>
     </table>
 
-    <table class="report-table<?php echo $format == 'table' ? ' datatable' : '' ?>">
+    <table class="table border table-striped table-bordered table-hover report-table<?php echo $format == 'table' ? ' datatable' : '' ?>">
       <thead>
         <tr>
             <th class="label">
@@ -574,7 +570,6 @@ var table = $('.report-table.datatable').DataTable({
             <?php echo Translator::translate('TableTexts')?>
     },
     'pageLength': 50,
-    'jQueryUI': true,
     'pagingType': 'full_numbers',
     'footerCallback': function (row, data, start, end, display) {
         var api = this.api(), data;

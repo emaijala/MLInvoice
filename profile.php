@@ -2,9 +2,9 @@
 /**
  * Profile page
  *
- * PHP version 5
+ * PHP version 7
  *
- * Copyright (C) Ere Maijala 2018.
+ * Copyright (C) Ere Maijala 2018-2021
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2,
@@ -86,15 +86,15 @@ class Profile
         }
         $user = getUserById($_SESSION['sesUSERID']);
         ?>
-    <div class="pagewrapper ui-widget ui-widget-content profile">
-        <div class="form_container">
+    <div class="pagewrapper profile mb-4">
+        <div class="form_container profile-form">
             <?php foreach ($errors as $message) {?>
-                <div class="message ui-corner-all ui-state-error">
+                <div class="alert alert-danger message">
                     <?php echo $message?>
                 </div>
             <?php } ?>
             <?php foreach ($messages as $message) {?>
-                <div class="message ui-corner-all ui-state-highlight">
+                <div class="alert alert-success">
                     <?php echo $message?>
                 </div>
             <?php } ?>
@@ -112,13 +112,13 @@ class Profile
               <label for="name"><?php echo Translator::translate('Name')?></label>
             </div>
             <div class="field">
-              <input type="text" name="name" id="name" value="<?php echo htmlentities($user['name'])?>">
+              <input type="text" name="name" id="name" class="form-control medium" value="<?php echo htmlentities($user['name'])?>">
             </div>
             <div class="medium_label">
               <label for="email"><?php echo Translator::translate('Email')?></label>
             </div>
             <div class="field">
-              <input type="text" name="email" id="email" value="<?php echo htmlentities($user['email'])?>">
+              <input type="text" name="email" id="email" class="form-control" value="<?php echo htmlentities($user['email'])?>">
             </div>
             <div class="field_sep"></div>
 
@@ -129,26 +129,26 @@ class Profile
               <label for="oldpassword"><?php echo Translator::translate('CurrentPassword')?></label>
             </div>
             <div class="field">
-              <input type="password" name="oldpassword" id="oldpassword" value="">
+              <input type="password" name="oldpassword" id="oldpassword" class="form-control" value="">
             </div>
             <div class="medium_label">
               <label for="newpassword"><?php echo Translator::translate('NewPassword')?></label>
             </div>
             <div class="field">
-              <input type="password" name="newpassword" id="newpassword" value="">
+              <input type="password" name="newpassword" id="newpassword" class="form-control" value="">
             </div>
             <div class="medium_label">
               <label for="newpassword2"><?php echo Translator::translate('ConfirmNewPassword')?></label>
             </div>
             <div class="field">
-              <input type="password" name="newpassword2" id="newpassword2" value="">
+              <input type="password" name="newpassword2" id="newpassword2" class="form-control" value="">
             </div>
 
             <div class="unlimited_label">
-              <input type="submit" name="submit" class="ui-button ui-corner-all" value="<?php echo Translator::translate('Save')?>">
+              <input type="submit" name="submit" class="btn btn-primary" value="<?php echo Translator::translate('Save')?>">
             </div>
 
-            <div class="ui-helper-clearfix"></div>
+            <div class="clearfix"></div>
           </form>
         </div>
     </div>

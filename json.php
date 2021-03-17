@@ -2,10 +2,10 @@
 /**
  * JSON API
  *
- * PHP version 5
+ * PHP version 7
  *
- * Copyright (C) 2004-2008 Samu Reinikainen
- * Copyright (C) 2010-2018 Ere Maijala
+ * Copyright (C) Samu Reinikainen 2004-2008
+ * Copyright (C) Ere Maijala 2010-2021
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2,
@@ -32,8 +32,8 @@ set_error_handler('handleError');
 require_once 'vendor/autoload.php';
 require_once 'config.php';
 
-if (defined('_PROFILING_') && is_callable('tideways_enable')) {
-    tideways_enable(TIDEWAYS_FLAGS_CPU + TIDEWAYS_FLAGS_MEMORY);
+if (defined('_PROFILING_') && is_callable('xhprof_enable')) {
+    xhprof_enable();
 }
 
 require_once 'sqlfuncs.php';
@@ -534,8 +534,8 @@ default :
     header('HTTP/1.1 404 Not Found');
 }
 
-if (defined('_PROFILING_') && is_callable('tideways_disable')) {
-    $data = tideways_disable();
+if (defined('_PROFILING_') && is_callable('xhprof_disable')) {
+    $data = xhprof_disable();
     file_put_contents(
         sys_get_temp_dir() . '/' . uniqid() . '.mlinvoice-json.xhprof',
         serialize($data)
@@ -587,7 +587,7 @@ function printJSONRecord($table, $id = false, $warnings = null)
             $row['filesize_readable'] = fileSizeToHumanReadable($row['filesize']);
             break;
         case '{prefix}base':
-            unset($row['logo_filedata']);
+            $row['logo_filedata'] = base64_encode($row['logo_filedata']);
             break;
         }
 

@@ -2,9 +2,9 @@
 /**
  * Password recovery
  *
- * PHP version 5
+ * PHP version 7
  *
- * Copyright (C) Ere Maijala 2018.
+ * Copyright (C) Ere Maijala 2018-2021
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2,
@@ -47,8 +47,8 @@ if (!getSetting('password_recovery')) {
     echo htmlPageStart();
     ?>
 <body>
-    <div class="ui-widget">
-        <div class="form_container ui-widget-content">
+    <div class="container-fluid">
+        <div class="form_container">
             Unavailable
         </div>
     </div>
@@ -129,34 +129,29 @@ if ($userId) {
     }
 }
 
-sleep(2);
+usleep(rand(500, 2000) * 1000);
 $csrf = sesCreateCsrf();
 
 echo htmlPageStart('');
 ?>
 
 <body>
-    <div class="pagewrapper ui-widget ui-widget-content">
-        <div id="maintabs" class="navi ui-widget-header ui-tabs">
-            <ul class="ui-tabs-nav ui-helper-clearfix ui-corner-all">
-                <li class="functionlink ui-state-default ui-corner-top ui-tabs-selected ui-state-active">
-                    <a class="ui-tabs-anchor functionlink"><?php echo Translator::translate('RecoverAccount')?></a>
-                </li>
-            </ul>
-        </div>
+    <div class="pagewrapper mb-4">
+        <?php createNavBar([], '')?>
+
         <div class="content recover-form">
 
 <?php
 if (isset($message)) {
     ?>
-            <div class="message ui-widget ui-state-highlight">
+            <div class="alert alert-success message">
                 <?php echo $message?>
             </div>
             <br />
     <?php
 } elseif (isset($errorMessage)) {
     ?>
-        <div class="message ui-widget ui-state-error">
+        <div class="alert alert-danger message">
             <?php echo $errorMessage?>
         </div>
         <br />
@@ -164,7 +159,7 @@ if (isset($message)) {
 }
 if (empty($completed)) {
     ?>
-        <div class="ui-widget form login">
+        <div class="form login">
             <h1><?php echo Translator::translate('RecoverAccount')?></h1>
             <form method="post" name="recover_form">
                 <input type="hidden" name="csrf" value="<?php echo htmlentities($csrf)?>">
@@ -182,7 +177,7 @@ if (empty($completed)) {
                     <span class="label">
                         <?php echo Translator::translate('NewPassword')?>
                     </span>
-                    <input class="medium" name="password" id="password" type="password" value="">
+                    <input class="form-control medium" name="password" id="password" type="password" value="">
                 </p>
         <?php
     } else {
@@ -191,14 +186,14 @@ if (empty($completed)) {
                     <span class="label">
                         <?php echo Translator::translate('UserIdOrEmail')?>
                     </span>
-                    <input class="medium" name="userid" id="userid" type="text" value="">
+                    <input class="form-control medium" name="userid" id="userid" type="text" value="">
                 </p>
         <?php
     }
     ?>
 
                 <p>
-                <input class="ui-button ui-corner-all ui-widget" type="submit" name="logon"
+                <input class="btn btn-primary" type="submit" name="logon"
                     value="<?php echo Translator::translate('Continue')?>">
                 </p>
             </form>
@@ -206,7 +201,7 @@ if (empty($completed)) {
     <?php
 }
 ?>
-        <div class="ui-widget">
+        <div>
             <p>
                 <a href="login.php"><?php echo Translator::translate('BackToLogin')?></a>
             </p>

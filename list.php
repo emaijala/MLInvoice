@@ -2,10 +2,10 @@
 /**
  * List displays
  *
- * PHP version 5
+ * PHP version 7
  *
- * Copyright (C) 2004-2008 Samu Reinikainen
- * Copyright (C) 2010-2018 Ere Maijala
+ * Copyright (C) Samu Reinikainen 2004-2008
+ * Copyright (C) Ere Maijala 2010-2021
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2,
@@ -98,7 +98,7 @@ function createList($strFunc, $strList, $strTableName = '', $strTitleOverride = 
     if (!$strTableName) {
         $strTableName = "list_$strList";
     }
-    $strTableName .= '_2';
+    $strTableName .= '_3';
 
     $strTitle = $strTitleOverride ? $strTitleOverride : $listConfig['title'];
 
@@ -161,7 +161,6 @@ function createList($strFunc, $strList, $strTableName = '', $strTitleOverride = 
       },
       stateSave: true,
       stateDuration: 0,
-      jQueryUI: true,
       pageLength: 10,
       lengthMenu: [ [10, 25, 50, 100, 500, -1], [10, 25, 50, 100, 500, "<?php echo Translator::translate('All')?>"] ],
       pagingType: "full_numbers",
@@ -196,6 +195,13 @@ function createList($strFunc, $strList, $strTableName = '', $strTitleOverride = 
       order: [[ 3, 'asc' ]],
       processing: true,
       serverSide: true,
+      scrollX: false,
+      responsive: {
+        details: {
+          display: $.fn.dataTable.Responsive.display.childRowImmediate
+        }
+      },
+      autoWidth: true,
       ajax: {
         url: 'json.php?func=get_list',
         data: <?php echo json_encode($params) ?>,
@@ -228,7 +234,7 @@ function createList($strFunc, $strList, $strTableName = '', $strTitleOverride = 
                 } elseif ('CHECKBOX' === $field['type']) {
                     $hasRowSelection = true;
                     ?>
-                    json.data[i][<?php echo $i?>] = '<input<?php echo $class?> name="id[]" type="checkbox" value="' + json.data[i][<?php echo $i?>] + '">';
+                    json.data[i][<?php echo $i?>] = ' <input<?php echo $class?> name="id[]" type="checkbox" value="' + json.data[i][<?php echo $i?>] + '">';
                     <?php
                 } else {
                     ?>
@@ -250,8 +256,9 @@ function createList($strFunc, $strList, $strTableName = '', $strTitleOverride = 
         .on('draw.dt', function () {
             var $container = $(this).closest('.list_container');
             $container.find('input.cb-select-all').prop('checked', false);
-            $container.find('input.cb-select-row').click(function() {
+            $container.find('input.cb-select-row').off('click').on('click', function(event) {
                 MLInvoice.updateRowSelectedState($container);
+                event.stopPropagation();
             });
             MLInvoice.updateRowSelectedState($container);
         })
@@ -270,7 +277,7 @@ function createList($strFunc, $strList, $strTableName = '', $strTitleOverride = 
             }
         ]
     });
-    $table.DataTable().buttons().container().appendTo($table.siblings('.fg-toolbar:first', $table.DataTable().table().container()));
+    $table.DataTable().buttons().container().appendTo($('#<?php echo $strTableName?>_length'));
 
     $(document).on('click', '#<?php echo $strTableName?> tbody tr', function(e) {
       if ($(e.target).hasClass('cb-select-row') || $(e.target).find('.cb-select-row').length > 0) {
@@ -289,7 +296,7 @@ function createList($strFunc, $strList, $strTableName = '', $strTitleOverride = 
     <?php
     if ('product' === $strList) {
         ?>
-    <div id="custom-prices" class="function_navi ui-helper-clearfix">
+    <div id="custom-prices" class="function_navi clearfix">
         <div class="medium_label label">
             <?php echo Translator::translate('ClientSpecificPrices')?>
         </div>
@@ -307,13 +314,13 @@ function createList($strFunc, $strList, $strTableName = '', $strTitleOverride = 
                 </div>
                 <?php if (sesWriteAccess()) { ?>
                     <div class="field">
-                        <button id="add-custom-prices" class="ui-button ui-corner-all ui-widget">
+                        <button id="add-custom-prices" class="btn btn-secondary">
                             <?php echo Translator::translate('Define')?>
                         </button>
                     </div>
                 <?php } ?>
             </div>
-            <div id="custom-prices-form" class="ui-helper-clearfix<?php echo !$customPriceSettings ? ' hidden' : ''?>">
+            <div id="custom-prices-form" class="clearfix<?php echo !$customPriceSettings ? ' hidden' : ''?>">
                 <div class="label medium_label">
                     <?php echo Translator::translate('DiscountPercent')?>
                 </div>
@@ -324,7 +331,7 @@ function createList($strFunc, $strList, $strTableName = '', $strTitleOverride = 
                             ? miscRound2OptDecim(
                                 $customPriceSettings['discount']
                             ) : 0,
-                        'percent'
+                        'currency'
                     );?>
                 </div>
                 <div class="label medium_label">
@@ -352,18 +359,18 @@ function createList($strFunc, $strList, $strTableName = '', $strTitleOverride = 
                             ) : '',
                         'date'
                         . (!$customPriceSettings || $customPriceSettings['valid']
-                            ? '' : ' ui-state-error')
+                            ? '' : ' text-danger')
                     );?>
                     <?php if ($customPriceSettings && !$customPriceSettings['valid']) { ?>
-                        <i class="ui-icon ui-icon-alert"></i>
+                        <i class="fa fa-exclamation-triangle text-danger"></i>
                     <?php } ?>
                 </div>
                 <div class="label medium_label">
                     <?php if (sesWriteAccess()) { ?>
-                        <a class="actionlink ui-button ui-corner-all ui-widget save-button" href="#">
+                        <a role="button" class="btn btn-secondary save-button" href="#">
                             <?php echo Translator::translate('Save')?>
                         </a>
-                        <a class="actionlink ui-button ui-corner-all ui-widget delete-button" href="#">
+                        <a role="button" class="btn btn-secondary delete-button" href="#">
                             <?php echo Translator::translate('Delete')?>
                         </a>
                     <?php } ?>
@@ -389,10 +396,12 @@ function createList($strFunc, $strList, $strTableName = '', $strTitleOverride = 
         <?php
     }
     ?>
-    <div id="<?php echo $strTableName?>_title" class="table_header">
-        <?php echo Translator::translate($strTitle)?>
-    </div>
-    <table id="<?php echo $strTableName?>" class="list">
+    <?php if ($strTitle) { ?>
+        <h2 id="<?php echo $strTableName?>_title" class="mb-2">
+            <?php echo Translator::translate($strTitle)?>
+        </h2>
+    <?php } ?>
+    <table id="<?php echo $strTableName?>" class="table table-striped table-bordered table-hover list nowrap">
         <thead>
             <tr>
                 <th>ID</th>
@@ -419,24 +428,27 @@ function createList($strFunc, $strList, $strTableName = '', $strTitleOverride = 
     <?php
     if ($hasRowSelection) {
         ?>
-        <div class="selection-buttons fg-toolbar ui-widget">
+        <div class="selection-buttons">
             <?php echo Translator::translate('ForSelected')?>:
-            <input type="submit" value="<?php echo Translator::translate('Edit')?>" class="selected-row-button update-selected-rows ui-button ui-corner-all ui-widget">
+            <input type="submit" value="<?php echo Translator::translate('Edit')?>" class="btn btn-secondary btn-sm selected-row-button update-selected-rows">
             <?php if ($printTemplates) { ?>
-                <ul class="dropdownmenu list-selected">
-                    <li class="print-selected-rows selected-row-button ui-button ui-corner-all"><?php echo Translator::translate('Print')?>...
-                        <ul>
-                            <?php foreach ($printTemplates as $template) { ?>
-                                <li>
-                                    <div class="print-selected-item"
-                                      data-template-id="<?php echo htmlentities($template['id'])?>"
-                                      data-style="<?php echo $template['new_window'] ? 'openwindow' : 'redirect'?>">
-                                        <?php echo Translator::translate($template['name'])?>
-                                    </div>
-                                </li>
-                            <?php } ?>
-                        </ul>
-                    </li>
+                <a role="button" class="btn btn-secondary btn-sm dropdown-toggle selected-row-button" href="#"
+                    id="<?php echo $strTableName?>-dropdown-selected-actions" data-bs-toggle="dropdown" aria-expanded="false">
+                    <?php echo Translator::translate('Print')?>...
+                </a>
+                <ul class="dropdown-menu print-selected-rows" aria-labelledby="<?php echo $strTableName?>-dropdown-selected-actions">
+                    <?php foreach ($printTemplates as $template) { ?>
+                        <li>
+                            <div class="dropdown-item">
+                                <a role="button" class="btn print-selected-item"
+                                    data-template-id="<?php echo htmlentities($template['id'])?>"
+                                    data-style="<?php echo $template['new_window'] ? 'openwindow' : 'redirect'?>"
+                                >
+                                    <?php echo Translator::translate($template['name'])?>
+                                </a>
+                            </div>
+                        </li>
+                    <?php } ?>
                 </ul>
             <?php } ?>
         </div>
@@ -477,7 +489,7 @@ function createJSONList($strFunc, $strList, $startRow, $rowCount, $sort, $filter
 
     if (!sesAccessLevel($listConfig['accessLevels']) && !sesAdminAccess()) {
         ?>
-<div class="form_container ui-widget-content">
+<div class="form_container">
         <?php echo Translator::translate('NoAccess') . "\n"?>
   </div>
         <?php
@@ -697,7 +709,7 @@ EOT;
                     $terms .= "$boolean id IN (" . $subQuery . ')';
                     $arrQueryParams[] = str_replace("%-", "%", $current);
                 }
-            } elseif (strcasecmp($operator, 'IN') === 0) {
+            } elseif (strcasecmp($operator, 'IN') === 0 || strcasecmp($operator, 'NOT IN') === 0) {
                 $terms .= "$boolean$field $operator " .
                      mysqli_real_escape_string($dblink, $term);
             } else {
@@ -794,7 +806,7 @@ function createJSONSelectList($strList, $startRow, $rowCount, $filter, $sort,
     $listConfig = getListConfig($strList);
     if (empty($id) && !sesAccessLevel($listConfig['accessLevels']) && !sesAdminAccess()) {
         ?>
-<div class="form_container ui-widget-content">
+<div class="form_container">
         <?php echo Translator::translate('NoAccess') . "\n"?>
   </div>
         <?php

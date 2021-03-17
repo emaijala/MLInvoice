@@ -2,9 +2,9 @@
 /**
  * Login page
  *
- * PHP version 5
+ * PHP version 7
  *
- * Copyright (C) 2010-2018 Ere Maijala
+ * Copyright (C) Ere Maijala 2010-2021
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2,
@@ -107,47 +107,40 @@ if ($strLogon) {
     }
 }
 
-sleep(2);
+usleep(rand(500, 2000) * 1000);
 $csrf = sesCreateCsrf();
 
 echo htmlPageStart('', [], false);
 ?>
 
-<body onload="document.getElementById('login').focus();">
-    <div class="pagewrapper ui-widget ui-widget-content login">
-        <div id="maintabs" class="navi ui-widget-header ui-tabs">
-            <ul class="ui-tabs-nav ui-helper-clearfix ui-corner-all">
-                <li class="functionlink ui-state-default ui-corner-top ui-tabs-selected ui-state-active">
-                    <a class="ui-tabs-anchor functionlink"><?php echo Translator::translate('Login')?></a>
-                </li>
-            </ul>
-        </div>
-
+<body>
+    <div class="pagewrapper login mb-4">
 <?php
+
+$actions = [];
+if (isset($languages)) {
+    foreach ($languages as $code => $name) {
+        if ($code == $_SESSION['sesLANG']) {
+            continue;
+        }
+        $actions[] = [
+            'title' => htmlspecialchars($name),
+            'link' => "login.php?lang=$code"
+        ];
+    }
+}
+
+createNavBar($actions, '');
 if (isset($upgradeMessage)) {
     ?>
-        <div class="message ui-widget <?php echo isset($upgradeFailed) ? 'ui-state-error' : 'ui-state-highlight'?>">
+        <div class="message alert <?php echo isset($upgradeFailed) ? 'alert-danger' : 'alert-success'?>">
             <?php echo $upgradeMessage?>
         </div>
         <br />
     <?php
 }
 ?>
-        <div class="ui-widget form login-form">
-
-<?php
-if (isset($languages)) {
-    foreach ($languages as $code => $name) {
-        if ($code == $_SESSION['sesLANG']) {
-            continue;
-        }
-        ?>
-<a href="login.php?lang=<?php echo $code?>"><?php echo htmlspecialchars($name)?></a><br />
-        <?php
-    }
-    echo '<br/>';
-}
-?>
+        <div class="form login-form">
             <h1><?php echo Translator::translate('Welcome')?></h1>
             <p>
                 <span id="loginmsg"><?php echo $strMessage?></span>
@@ -159,16 +152,16 @@ if (isset($languages)) {
                     <span class="label">
                         <?php echo Translator::translate('UserID')?>
                     </span>
-                    <input class="medium" name="login" id="login" type="text" value="">
+                    <input class="form-control medium" name="login" id="login" type="text" value="">
                 </p>
                 <p>
                     <span class="label">
                         <?php echo Translator::translate('Password')?>
                     </span>
-                    <input class="medium" name="passwd" id="passwd" type="password" value="">
+                    <input class="form-control medium" name="passwd" id="passwd" type="password" value="">
                 </p>
                 <p>
-                <input class="ui-button ui-corner-all ui-widget" type="submit" name="logon"
+                <input class="btn btn-primary" type="submit" name="logon"
                     value="<?php echo Translator::translate('Login')?>">
                 </p>
 <?php

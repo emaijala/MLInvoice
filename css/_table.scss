@@ -1,0 +1,126 @@
+/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+ * dataTables display
+ */
+
+tr.overdue td:nth-child(2) {
+  background-color: #FFCCDD;
+}
+
+tr.overdue7 td:nth-child(2) {
+  background-color: #FF99AA;
+}
+
+tr.overdue14 td:nth-child(2) {
+  background-color: #FF5566;
+}
+
+tr.deleted {
+	text-decoration: line-through;
+}
+
+tr.custom-price td.editable {
+	font-weight: bold;
+}
+td.editable {
+  cursor: cell;
+}
+td.editable:not(.editing)::before {
+  content: '\270e ';
+  font-size: 120%;
+}
+
+/*
+ * Sorting classes for columns
+ */
+/* For the standard odd/even */
+tr.even {
+	td.sorting_1 {
+  	background: rgb(0, 0, 0) transparent;
+  	background: rgba(0, 0, 0, 0.1);
+	}
+	td.sorting_2 {
+		background: rgb(0, 0, 0) transparent;
+		background: rgba(0, 0, 0, 0.06);
+	}
+	td.sorting_3 {
+		background: rgb(0, 0, 0) transparent;
+		background: rgba(0, 0, 0, 0.03);
+	}
+}
+tr.odd {
+	td.sorting_1 {
+	  background: rgb(0, 0, 0) transparent;
+	  background: rgba(0, 0, 0, 0.08);
+	}
+	td.sorting_2 {
+		background: rgb(0, 0, 0) transparent;
+		background: rgba(0, 0, 0, 0.04);
+	}
+	td.sorting_3 {
+		background: rgb(0, 0, 0) transparent;
+		background: rgba(0, 0, 0, 0.02);
+	}
+}
+
+tr.overdue td:nth-child(2) {
+	&.sorting_1, &.sorting_2, &.sorting_3 {
+  	background-color: #FFCCDD;
+	}
+}
+tr.overdue7 td:nth-child(2) {
+	&.sorting_1, &.sorting_2, &.sorting_3 {
+  	background-color: #FF99AA;
+	}
+}
+tr.overdue14 td:nth-child(2) {
+	&.sorting_1, &.sorting_2, &.sorting_3 {
+	  background-color: #FF5566;
+	}
+}
+
+table.dataTable > thead {
+	.sorting::before, .sorting::after,
+	.sorting_asc::before, .sorting_asc::after,
+	.sorting_desc::before, .sorting_desc::after,
+	.sorting_asc_disabled::before, .sorting_asc_disabled::after,
+	.sorting_desc_disabled::before, .sorting_desc_disabled::after {
+		margin-bottom: -0.4rem;
+	}
+}
+
+div.dt-buttons {
+	position: initial;
+	float: none;
+	display: inline-block;
+	margin-left: 2rem;
+}
+
+div.dataTables_wrapper div.dataTables_info {
+	padding-top: 0.5rem;
+}
+
+table.dataTable.dtr-inline.collapsed {
+	tbody tr:not(.child) td:first-child::before {
+		display: inline-block;
+		width: 1rem;
+		font-weight: bold;
+		content: '+';
+	}
+
+ 	tbody tr.parent td.dtr-control::before {
+		display: inline-block;
+		width: 1rem;
+		font-weight: bold;
+		content: '-';
+	}
+
+	thead th:first-child::before {
+		display: inline-block;
+		width: 1rem;
+		content: ' ';
+	}
+}
+
+.table td {
+	cursor: pointer;
+}

@@ -2,9 +2,9 @@
 /**
  * XSLT invoice
  *
- * PHP version 5
+ * PHP version 7
  *
- * Copyright (C) 2010-2018 Ere Maijala
+ * Copyright (C) Ere Maijala 2010-2021
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2,
@@ -145,7 +145,9 @@ EOT
         include 'settings_def.php';
         $settingsData = [];
         foreach ($arrSettings as $key => $value) {
-            if (substr($key, 0, 8) == 'invoice_' && $value['type'] != 'LABEL') {
+            if (substr($key, 0, 8) == 'invoice_' && $value['type'] != 'LABEL'
+                && $value['type'] != 'HEADING'
+            ) {
                 switch ($key) {
                 case 'invoice_terms_of_payment' :
                     $settingsData[$key] = $this->getTermsOfPayment(

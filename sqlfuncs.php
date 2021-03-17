@@ -2,10 +2,10 @@
 /**
  * Database functions
  *
- * PHP version 5
+ * PHP version 7
  *
- * Copyright (C) 2004-2008 Samu Reinikainen
- * Copyright (C) 2010-2019 Ere Maijala
+ * Copyright (C) Samu Reinikainen 2004-2008
+ * Copyright (C) Ere Maijala 2010-2021
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2,
@@ -77,7 +77,7 @@ function extractSearchTerm(&$searchTerms, &$field, &$operator, &$term, &$boolean
             $matches
         )
     ) {
-        if (!preg_match('/^([\w\.\_]+)\s+(IN)\s+(.+)/', $searchTerms, $matches)) {
+        if (!preg_match('/^([\w\.\_]+)\s+(NOT IN|IN)\s+(.+)/', $searchTerms, $matches)) {
             return false;
         }
     }
@@ -327,6 +327,23 @@ function getInitialOfferState()
 }
 
 /**
+ * Get all offer state id's
+ *
+ * @return array
+ */
+function getOfferStateIds()
+{
+    $result = [];
+    $res = dbQueryCheck(
+        'SELECT id FROM {prefix}invoice_state WHERE invoice_offer=1'
+    );
+    while ($row = mysqli_fetch_assoc($res)) {
+        $result[] = $row['id'];
+    }
+    return $result;
+}
+
+/**
  * Get tags for a record
  *
  * @param string $type Record type (company, contact)
@@ -533,6 +550,31 @@ function getBase($id)
         [$id]
     );
     return $rows ? $rows[0] : [];
+}
+
+/**
+ * Get logo size for a base
+ *
+ * @param int $id Base ID
+ *
+ * @return int
+ */
+function getBaseLogoSize($id)
+{
+    $rows = dbParamQuery(
+        'SELECT logo_filename, logo_filesize, logo_filetype, logo_filedata FROM {prefix}base WHERE id=?',
+        [$id]
+    );
+    if ($rows) {
+        $row = $rows[0];
+        if (isset($row['logo_filename']) && isset($row['logo_filesize'])
+            && isset($row['logo_filetype']) && isset($row['logo_filedata'])
+        ) {
+            return $row['logo_filesize'];
+        }
+    }
+
+    return 0;
 }
 
 /**

@@ -2,9 +2,9 @@
 /**
  * Logo handling
  *
- * PHP version 5
+ * PHP version 7
  *
- * Copyright (C) 2010-2018 Ere Maijala
+ * Copyright (C) Ere Maijala 2010-2021
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2,
@@ -40,8 +40,8 @@ if (!sesWriteAccess()) {
     echo htmlPageStart();
     ?>
 <body>
-    <div class="ui-widget">
-        <div class="form_container ui-widget-content">
+    <div class="container-fluid">
+        <div class="form_container">
             <?php echo Translator::translate('NoAccess') . "\n"?>
         </div>
     </div>
@@ -71,10 +71,10 @@ if ($intInvoiceId) {
         echo htmlPageStart();
         ?>
 <body>
-    <div class="ui-widget">
-        <div class="form_container ui-widget-content">
-        <?php echo Translator::translate('RecordNotFound') . "\n"?>
-    </div>
+    <div class="container-fluid">
+        <div class="form_container">
+            <?php echo Translator::translate('RecordNotFound')?>
+        </div>
     </div>
 </body>
 </html>

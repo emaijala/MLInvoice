@@ -2,9 +2,9 @@
 /**
  * Initial setup
  *
- * PHP version 5
+ * PHP version 7
  *
- * Copyright (C) 2018 Ere Maijala
+ * Copyright (C) Ere Maijala 2018-2021
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2,
@@ -127,16 +127,7 @@ class Setup
         // always modified
         header('Last-Modified: ' . gmdate('D, d M Y H:i:s') . ' GMT');
 
-        if (isset($_SERVER['HTTP_USER_AGENT'])
-            && strpos($_SERVER['HTTP_USER_AGENT'], 'MSIE') !== false
-        ) {
-            $xUACompatible = "  <meta http-equiv=\"X-UA-Compatible\" content=\"IE=edge\">\n";
-        } else {
-            $xUACompatible = '';
-        }
-
         $css = [
-            'jquery/css/theme/jquery-ui.min.css',
             'css/style.css'
         ];
 
@@ -151,34 +142,32 @@ class Setup
 <html lang="en-US">
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-        <?php echo $xUACompatible?>    <title>Setup</title>
+    <title>Setup</title>
     <link rel="shortcut icon" href="favicon.ico" type="image/x-icon">
         <?php echo $cssLinks?>
 </head>
 <body>
-    <div class="pagewrapper ui-widget ui-widget-content login">
-        <div id="maintabs" class="navi ui-widget-header ui-tabs">
-            <ul class="ui-tabs-nav ui-helper-clearfix ui-corner-all">
-                <li class="functionlink ui-state-default ui-corner-top ui-tabs-selected ui-state-active">
-                    <a class="ui-tabs-anchor functionlink">Setup</a>
-                </li>
-            </ul>
-        </div>
+    <div class="pagewrapper login mb-4">
+        <nav class="navbar navbar-expand-md navbar-light border-bottom mb-2">
+            <div class="container-fluid">
+                <a class="navbar-brand" href="#">MLInvoice</a>
+            </div>
+        </nav>
 
         <?php
         if ($setupComplete) {
             ?>
-            <div class="message ui-widger ui-state-information">
+            <div class="alert alert-success">
                 Setup complete. <a href="login.php">Continue to login</a>.
             </div>
             <br />
             <?php
         } elseif ($this->errorMsg) {
             ?>
-            <div class="ui-widget setup-form">
+            <div class="setup-form">
                 Please correct the following issues before trying to continue:
             </div>
-            <div class="message ui-widget ui-state-error">
+            <div class="alert alert-danger message">
                 <?php echo $this->errorMsg?>
             </div>
             <br />
@@ -186,17 +175,18 @@ class Setup
         } else {
             ?>
             <?php if ($formMessage) { ?>
-                <div class="message ui-widget ui-state-error">
+                <div class="alert alert-danger message">
                     <?php echo $formMessage?>
                 </div>
             <?php } ?>
-            <div class="ui-widget form setup-form">
+            <div class="form setup-form">
                 <h1>Welcome</h1>
                 <p>
                     Some initial settings are needed before continuing.
                 </p>
                 <form method="POST" autocomplete="off">
-                    <div class="ui-widget ui-widget-content ui-corner-all setup-group">
+                    <div class="setup-group">
+                        <h2>Database Connection</h2>
                         <p>
                             Please enter the following database connection settings.
                         </p>
@@ -226,7 +216,8 @@ class Setup
                             </label>
                         </p>
                     </div>
-                    <div class="ui-widget ui-widget-content ui-corner-all setup-group">
+                    <div class="setup-group">
+                        <h2>Admin User</h2>
                         <p>
                             A user called 'admin' will be automatically created and can be used as the login user.
                             Please enter a password for 'admin' that you can use to log in after setup is complete.
@@ -242,7 +233,8 @@ class Setup
                             </label>
                         </p>
                     </div>
-                    <div class="ui-widget ui-widget-content ui-corner-all setup-group">
+                    <div class="setup-group">
+                        <h2>Encryption Key</h2>
                         <p>
                             Please enter an encryption key that is used to encrypt e.g. passwords for mail sending services.
                             The key must be something secret and at least 32 characters long.
@@ -253,7 +245,8 @@ class Setup
                             </label>
                         </p>
                     </div>
-                    <div class="ui-widget ui-widget-content ui-corner-all setup-group">
+                    <div class="setup-group">
+                        <h2>Languages</h2>
                         <p>
                             Finally, please choose the user interface languages that can be selected on login.
                         </p>
@@ -284,7 +277,7 @@ class Setup
                         </p>
                     </div>
                     <p>
-                        <button type="submit">Continue</button>
+                        <button type="submit" class="btn btn-primary">Continue</button>
                     </p>
                 </form>
             </div>
@@ -432,22 +425,22 @@ class Setup
             $password = _DB_PASSWORD_;
         }
 
-        $db = mysqli_connect($host, $username, $password);
+        $db = @mysqli_connect($host, $username, $password);
 
         if (mysqli_connect_errno()) {
-            $this->errorMsg = mysqli_connect_error();
+            $this->errorMsg = 'Database connection failed: ' . mysqli_connect_error();
             return false;
         }
         if (!mysqli_select_db($db, $database)) {
-            $this->errorMsg = mysqli_error($db);
+            $this->errorMsg = 'Database selection failed: ' . mysqli_error($db);
             return false;
         }
         if (false === mysqli_query($db, 'SET NAMES \'utf8\'')) {
-            $this->errorMsg = mysqli_error($db);
+            $this->errorMsg = 'Database UTF-8 selection failed: ' . mysqli_error($db);
             return false;
         }
         if (false === mysqli_query($db, 'SET AUTOCOMMIT=1')) {
-            $this->errorMsg = mysqli_error($db);
+            $this->errorMsg = 'Database autocommit setup failed: ' . mysqli_error($db);
             return false;
         }
         return $db;
@@ -465,7 +458,7 @@ class Setup
     {
         $res = mysqli_query($db, "SHOW TABLES LIKE '" . $prefix . "_invoice'");
         if (false === $res) {
-            $this->errorMsg = mysqli_error($db);
+            $this->errorMsg = 'Could not fetch table list: ' . mysqli_error($db);
             return false;
         }
         if ($row = mysqli_fetch_row($res)) {
@@ -491,7 +484,7 @@ class Setup
 
         $res = mysqli_multi_query($db, $createCommands);
         if (false === $res) {
-            $this->errorMsg = mysqli_error($db);
+            $this->errorMsg = 'Could not create database tables: ' . mysqli_error($db);
             return false;
         }
         while (mysqli_more_results($db)) {
@@ -523,7 +516,7 @@ class Setup
             . "login = 'admin'"
         );
         if (false === $res) {
-            die(mysqli_error($db));
+            die('Updating admin password failed: ' . mysqli_error($db));
         }
 
         return true;

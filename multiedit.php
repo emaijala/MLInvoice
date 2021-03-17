@@ -2,7 +2,7 @@
 /**
  * Multi-record edit
  *
- * PHP version 5
+ * PHP version 7
  *
  * Copyright (C) Ere Maijala 2018-2019.
  *
@@ -115,21 +115,21 @@ class MultiEdit
         }
 
         ?>
-    <div class="pagewrapper ui-widget ui-widget-content profile">
-        <div class="form_container">
+    <div class="pagewrapper profile mb-4">
+        <div class="form_container multi-edit-form">
           <h1><?php echo Translator::translate('EditingMultiple', ['%%count%%' => count($ids)])?></h1>
 
           <?php
             foreach ($errors as $message) {
                 ?>
-            <div class="message ui-corner-all ui-state-error">
+            <div class="message alert alert-danger">
                 <?php echo $message?>
             </div>
                 <?php
             }
             foreach ($messages as $message) {
                 ?>
-            <div class="message ui-corner-all ui-state-highlight">
+            <div class="message alert alert-success">
                 <?php echo $message?>
             </div>
                 <?php
@@ -154,6 +154,13 @@ class MultiEdit
             }
 
             switch ($elem['type']) {
+            case 'HEADING':
+                ?>
+                <div class="unlimited_label">
+                    <h2><?php echo Translator::translate($elem['label'])?></h2>
+                </div>
+                <?php
+                break;
             case 'LABEL':
                 ?>
                 <div class="unlimited_label">
@@ -176,7 +183,7 @@ class MultiEdit
                 <div class="medium_label attached">
                   <label for="select_<?php echo $elem['name']?>"><?php echo Translator::translate($elem['label'])?></label>
                 </div>
-                <div class="field">
+                <div class="field <?php echo $elem['style']?>">
                     <?php echo htmlFormElement(
                         $elem['name'], $elem['type'], '',
                         $elem['style'], $elem['listquery'], 'MODIFY',
@@ -191,7 +198,7 @@ class MultiEdit
         }
         ?>
             <div class="unlimited_label">
-              <input type="submit" name="submit" class="ui-button ui-corner-all" value="<?php echo Translator::translate('Save')?>">
+              <input type="submit" name="submit" class="btn btn-primary" value="<?php echo Translator::translate('Save')?>">
             </div>
         <?php
         // Put id's last so that if the parameter list is truncated, it won't affect other parameters.
@@ -202,7 +209,7 @@ class MultiEdit
         }
         ?>
 
-            <div class="ui-helper-clearfix"></div>
+            <div class="clearfix"></div>
           </form>
         </div>
     </div>

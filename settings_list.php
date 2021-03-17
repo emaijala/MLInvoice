@@ -2,10 +2,10 @@
 /**
  * Settings form
  *
- * PHP version 5
+ * PHP version 7
  *
- * Copyright (C) 2004-2008 Samu Reinikainen
- * Copyright (C) 2010-2018 Ere Maijala
+ * Copyright (C) Samu Reinikainen 2004-2008
+ * Copyright (C) Ere Maijala 2010-2021
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2,
@@ -39,7 +39,7 @@ function createSettingsList()
 {
     if (!sesAdminAccess()) {
         ?>
-<div class="form_container ui-widget-content">
+<div class="form_container">
         <?php echo Translator::translate('NoAccess') . "\n"?>
   </div>
         <?php
@@ -55,7 +55,7 @@ function createSettingsList()
         foreach ($arrSettings as $name => $elem) {
             $type = $elem['type'];
             $label = $elem['label'];
-            if ($type == 'LABEL') {
+            if ($type == 'HEADING') {
                 continue;
             }
 
@@ -94,43 +94,34 @@ function createSettingsList()
         }
     }
     ?>
-<div class="form_container ui-widget-content">
+<div class="form_container">
     <?php if ($messages) {?>
-    <div class="ui-widget ui-state-error"><?php echo $messages?></div>
+        <div class="alert alert-danger"><?php echo $messages?></div>
     <?php }?>
 
     <script>
     <!--
     $(document).ready(function() {
-      $('input[class~="hasCalendar"]').datepicker();
-      $('iframe[class~="resizable"]').load(function() {
-        var iframe = $(this);
-        var body = iframe.contents().find("body");
-        var newHeight = body.outerHeight(true) + 10;
-        // Leave room for calendar popup
-        if (newHeight < 250)
-          newHeight = 250;
-        iframe.css("height", newHeight + 'px');
-        body.css("overflow", "hidden");
-      });
-      $('#admin_form')
+      $('#settings_form')
         .find('input[type="text"],input[type="checkbox"],select,textarea')
-        .change(function() { $('.save_button').addClass('unsaved'); });
+        .on('change', function() {
+            MLInvoice.highlightButton('.save_button', true);
+        });
     });
     -->
     </script>
 
     <?php createSettingsListButtons()?>
     <div class="form settings-list">
-        <form method="post" name="admin_form" id="admin_form">
+        <form method="post" name="settings_form" id="settings_form">
     <?php
     foreach ($arrSettings as $name => $elem) {
         $elemType = $elem['type'];
-        if ($elemType == 'LABEL') {
+        if ($elemType == 'HEADING') {
             ?>
-        <div class="sublabel ui-widget-header ui-state-default">
+        <h2>
             <?php echo Translator::translate($elem['label'])?>
-        </div>
+        </h2>
             <?php
             continue;
         }
@@ -184,7 +175,7 @@ function createSettingsList()
             <div class="field">
             <?php
             echo htmlFormElement(
-                $name, $elemType, $value, $elem['style'], '', 'MODIFY', '', '', [],
+                $name, $elemType, $value, $elem['style'] ?? '', '', 'MODIFY', '', '', [],
                 isset($elem['elem_attributes']) ? $elem['elem_attributes'] : '', $options
             );
             ?>
@@ -209,8 +200,8 @@ function createSettingsList()
 function createSettingsListButtons()
 {
     ?>
-<div class="form_buttons">
-    <a class="actionlink ui-button ui-corner-all ui-widget save_button form-submit" href="#" data-set-field="saveact">
+<div class="btn-set form_buttons">
+    <a class="btn btn-outline-primary save_button form-submit" href="#" data-set-field="saveact">
         <?php echo Translator::translate('Save')?>
     </a>
 </div>

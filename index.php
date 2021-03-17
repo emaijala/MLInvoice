@@ -2,9 +2,9 @@
 /**
  * Main script
  *
- * PHP version 5
+ * PHP version 7
  *
- * Copyright (C) 2010-2019 Ere Maijala
+ * Copyright (C) Ere Maijala 2010-2021
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2,
@@ -39,8 +39,8 @@ if (!file_exists(__DIR__ . DIRECTORY_SEPARATOR . 'config.php')) {
 
 require_once 'config.php';
 
-if (defined('_PROFILING_') && is_callable('tideways_enable')) {
-    tideways_enable(TIDEWAYS_FLAGS_CPU + TIDEWAYS_FLAGS_MEMORY);
+if (defined('_PROFILING_') && is_callable('xhprof_enable')) {
+    xhprof_enable();
 }
 
 require_once 'vendor/autoload.php';
@@ -104,7 +104,7 @@ if (!$strFunc && $strForm) {
     $strFunc = 'invoices';
 }
 
-$title = getPageTitle($strFunc, $strList, $strForm);
+$title = getPageTitle($strFunc, $strList, $strForm, sanitize(getPostOrQuery('operation', '')));
 
 if ($strFunc == 'system' && getPostOrQuery('operation', '') == 'dbdump'
     && sesAccessLevel(
@@ -119,7 +119,7 @@ if ($strFunc == 'system' && getPostOrQuery('operation', '') == 'dbdump'
 }
 
 $extraJs = [];
-if ($strFunc == 'reports') {
+if (substr($strFunc, -7) === '_report') {
     $extraJs[] = 'datatables/JSZip-2.5.0/jszip.min.js';
     $extraJs[] = 'datatables/pdfmake-0.1.36/pdfmake.min.js';
     $extraJs[] = 'datatables/pdfmake-0.1.36//vfs_fonts.js';
@@ -129,41 +129,41 @@ echo htmlPageStart($title, $extraJs);
 ?>
 
 <body>
-    <div class="pagewrapper ui-widget-content">
-        <div class="ui-widget">
-            <?php echo htmlMainTabs($strFunc); ?>
-            <div id="content">
+    <div class="pagewrapper mb-4">
+        <?php echo htmlMainTabs($strFunc); ?>
+        <div id="content" class="container-fluid">
 <?php
 
 $level = 1;
-if ($strList && ($strFunc == 'settings' || $strFunc == 'system' || $strFunc == 'multiedit')) {
+if ($strList && $strFunc == 'multiedit') {
     ++$level;
 }
 if ($strForm) {
     ++$level;
 }
 $arrHistory = updateNavigationHistory($title, $_SERVER['QUERY_STRING'], $level);
-
-$strBreadcrumbs = '';
-foreach ($arrHistory as $arrHE) {
-    if ($strBreadcrumbs) {
-        $strBreadcrumbs .= '&gt; ';
-    }
-    $url = $arrHE['url'] . '&bc=1';
-    $strBreadcrumbs .= '<a href="index.php?' .
-         str_replace('&', '&amp;', $url) . '">' . $arrHE['title'] .
-         '</a>&nbsp;';
-}
-
 ?>
-  <div class="breadcrumbs">
-    <?php echo $strBreadcrumbs . "\n"?>
-  </div>
+  <nav aria-label="<?php echo Translator::translate('Breadcrumbs')?>">
+    <ol class="breadcrumb">
+        <?php foreach ($arrHistory as $entry) { ?>
+            <?php $url = str_replace('&', '&amp;', $entry['url']) . '&amp;bc=1'; ?>
+            <?php if ($entry['active']) { ?>
+                <li class="breadcrumb-item active" aria-current="page">
+                    <h1 class="d-inline"><?php echo $entry['title']?></h1>
+                </li>
+            <?php } else { ?>
+                <li class="breadcrumb-item">
+                    <a href="index.php?<?php echo $url?>"><?php echo $entry['title']?></a>
+                </li>
+            <?php } ?>
+        <?php } ?>
+    </ol>
+  </nav>
 <?php
 if ($strFunc == 'open_invoices' && !$strForm) {
     ?>
   <div id="version">
-    MLInvoice <?php echo $softwareVersion?>
+    v<?php echo $softwareVersion?>
   </div>
     <?php
     if (getSetting('check_updates')) {
@@ -178,76 +178,74 @@ if ($strFunc == 'open_invoices' && !$strForm) {
         <?php
     }
 }
+if (!$strForm) {
+    createFuncMenu($strFunc);
+}
 
 $operation = getPostOrQuery('operation', '');
 if ($strFunc == 'system' && $operation == 'export' && sesAdminAccess()) {
-    createFuncMenu($strFunc);
     include_once 'export.php';
     $export = new ExportData();
     $export->launch();
 } elseif ($strFunc == 'system' && $operation == 'import' && sesAdminAccess()) {
-    createFuncMenu($strFunc);
     include_once 'import.php';
     $import = new ImportFile();
     $import->launch();
 } elseif ($strFunc == 'system' && $operation == 'update' && sesAdminAccess()) {
-    createFuncMenu($strFunc);
     include_once 'updater.php';
     $updater = new Updater();
     $updater->launch();
+} elseif ($strFunc == 'system' && $operation == 'backup'
+    && sesAccessLevel(
+        [
+            ROLE_BACKUPMGR,
+            ROLE_ADMIN
+        ]
+    )
+) {
+    include_once 'backup.php';
+    $backup = new Backup();
+    $backup->launch();
 } elseif ($strFunc == 'import_statement') {
-    createFuncMenu($strFunc);
     include_once 'import_statement.php';
     $import = new ImportStatement();
     $import->launch();
-} elseif ($strFunc === 'reports') {
-    createFuncMenu($strFunc);
-    switch ($strForm) {
-    case 'invoice' :
-        include_once 'invoice_report.php';
-        $invoiceReport = new InvoiceReport();
-        $invoiceReport->createReport();
-        break;
-    case 'product' :
-        include_once 'product_report.php';
-        $productReport = new ProductReport();
-        $productReport->createReport();
-        break;
-    case 'product_stock' :
-        include_once 'product_stock_report.php';
-        $productStockReport = new ProductStockReport();
-        $productStockReport->createReport();
-        break;
-    case 'accounting' :
-        include_once 'accounting_report.php';
-        $accountingReport = new AccountingReport();
-        $accountingReport->createReport();
-        break;
-    }
+} elseif ($strFunc === 'invoice_report') {
+    include_once 'invoice_report.php';
+    $invoiceReport = new InvoiceReport();
+    $invoiceReport->createReport();
+} elseif ($strFunc === 'product_report') {
+    include_once 'product_report.php';
+    $productReport = new ProductReport();
+    $productReport->createReport();
+} elseif ($strFunc === 'product_stock_report') {
+    include_once 'product_stock_report.php';
+    $productStockReport = new ProductStockReport();
+    $productStockReport->createReport();
+} elseif ($strFunc === 'accounting_report') {
+    include_once 'accounting_report.php';
+    $accountingReport = new AccountingReport();
+    $accountingReport->createReport();
 } elseif ($strFunc == 'profile') {
-    createFuncMenu($strFunc);
     include_once 'profile.php';
     $profile = new Profile();
     $profile->launch();
 } elseif ($strFunc == 'multiedit') {
-    createFuncMenu($strFunc);
     include_once 'multiedit.php';
     $multiedit = new MultiEdit();
     $multiedit->launch();
 } else {
     if ($strForm) {
-        if ($strFunc == 'settings') {
-            createFuncMenu($strFunc);
-        }
         createForm($strFunc, $strList, $strForm);
     } else {
-        createFuncMenu($strFunc);
         if ($strFunc == 'open_invoices') {
             createOpenInvoiceList();
         } elseif ($strFunc == 'invoices') {
             createList($strFunc, $strList, '', '', '', false, false, 'invoice');
         } elseif ($strFunc == 'archived_invoices') {
             createList('archived_invoices', 'archived_invoices', 'archived_invoices', '', '', false, false, 'invoice');
+        } elseif ($strFunc == 'archived_offers') {
+            createList('archived_offers', 'archived_offers', 'archived_offers', '', '', false, false, 'invoice');
         } else {
             if ($strList == 'settings') {
                 createSettingsList();
@@ -258,15 +256,14 @@ if ($strFunc == 'system' && $operation == 'export' && sesAdminAccess()) {
     }
 }
 ?>
-            </div>
         </div>
     </div>
 </body>
 </html>
 
 <?php
-if (defined('_PROFILING_') && is_callable('tideways_disable')) {
-    $data = tideways_disable();
+if (defined('_PROFILING_') && is_callable('xhprof_disable')) {
+    $data = xhprof_disable();
     file_put_contents(
         sys_get_temp_dir() . '/' . uniqid() . '.mlinvoice-index.xhprof',
         serialize($data)

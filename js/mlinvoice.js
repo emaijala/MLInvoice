@@ -1,13 +1,14 @@
-/* global $, jQuery */
+/* global $, bootstrap, Cookies, moment */
 /* exported MLInvoice */
 var MLInvoice = (function MLInvoice() {
   var _modules = [];
   var _initDone = false;
   var _translations = {};
   var _dispatchNotePrintStyle = 'none';
-  var _offerStatuses = [];
+  var _offerStates = [];
   var _keepAliveEnabled = true;
   var _currencyDecimals = 2;
+  var _datePickerDefaults = {};
 
   function addTranslation(key, value) {
     _translations[key] = value;
@@ -49,15 +50,32 @@ var MLInvoice = (function MLInvoice() {
   }
 
   function getDispatchNotePrintStyle() {
-    return _dispatchNotePrintStyle
+    return _dispatchNotePrintStyle;
   }
 
-  function setOfferStatuses(statuses) {
-    _offerStatuses = statuses;
+  function setDatePickerDefaults(defaults) {
+    _datePickerDefaults = defaults;
+  }
+
+  function getDatePickerDefaults() {
+    var settings = _datePickerDefaults;
+    settings.singleDatePicker = true;
+    settings.ranges = null;
+    settings.showCustomRangeLabel = false;
+    settings.autoApply = true;
+    return settings;
+  }
+
+  function getDateRangePickerDefaults() {
+    return _datePickerDefaults;
+  }
+
+  function setOfferStates(states) {
+    _offerStates = states;
   }
 
   function isOfferStatus(status) {
-    return _offerStatuses.indexOf(status) !== -1;
+    return _offerStates.indexOf(status) !== -1;
   }
 
   function parseDate(dateString, _sep) {
@@ -109,7 +127,7 @@ var MLInvoice = (function MLInvoice() {
   function ajaxErrorHandler(XMLHTTPReq) {
     $('#spinner').addClass('hidden');
     if (XMLHTTPReq.status == 409) {
-      errormsg(jQuery.parseJSON(XMLHTTPReq.responseText).warnings);
+      errormsg(JSON.parse(XMLHTTPReq.responseText).warnings);
     } else {
       errormsg('Error trying to access the server: ' + XMLHTTPReq.status + ' - ' + XMLHTTPReq.statusText);
     }
@@ -117,7 +135,7 @@ var MLInvoice = (function MLInvoice() {
   }
 
   function _setupSelectAll() {
-    $('.cb-select-all').click(function selectAllClick() {
+    $('.cb-select-all').off('click').on('click', function selectAllClick() {
       var table = $(this).closest('table');
       table.find('.cb-select-row').prop('checked', $(this).prop('checked'));
       updateRowSelectedState(table.closest('.list_container'));
@@ -125,20 +143,20 @@ var MLInvoice = (function MLInvoice() {
   }
 
   function _setupCoverLetterForm() {
-    $('#cover-letter-button').click(function coverLetterClick() {
+    $('#cover-letter-button').on('click', function coverLetterClick() {
       $('#cover-letter-form').toggleClass('hidden');
     });
-    $('#cover-letter-form .close-btn').click(function coverLetterCloseClick() {
+    $('#cover-letter-form .close-btn').on('click', function coverLetterCloseClick() {
       $('#cover-letter-form').addClass('hidden');
     });
   }
 
   function _setupCustomPricesForm() {
-    $('#add-custom-prices').click(function addCustomPricesClick() {
+    $('#add-custom-prices').on('click', function addCustomPricesClick() {
       $('#no-custom-prices').addClass('hidden');
       $('#custom-prices-form').removeClass('hidden');
     });
-    $('#custom-prices-form .save-button').click(function saveCustomPricesClick() {
+    $('#custom-prices-form .save-button').on('click', function saveCustomPricesClick() {
       var form = $('#custom-prices-form');
       var values = {
         company_id: $('#company_id').val(),
@@ -159,7 +177,7 @@ var MLInvoice = (function MLInvoice() {
       });
       return false;
     });
-    $('#custom-prices-form .delete-button').click(function deleteCustomPricesClick() {
+    $('#custom-prices-form .delete-button').on('click', function deleteCustomPricesClick() {
       if (!confirm(translate('ConfirmDelete'))) {
         return;
       }
@@ -202,7 +220,7 @@ var MLInvoice = (function MLInvoice() {
     var saveEdit = function saveEdit() {
       var $input = $item.find('input');
       $input.css('width', $item.innerWidth() - 36)
-      $item.append('<img src="images/spinner.gif" alt="">');
+      $item.append('<i class="fa fa-spinner fa-spin"></i>');
       var value = String($input.val());
       if (value === origValue) {
         cancelEdit();
@@ -239,7 +257,7 @@ var MLInvoice = (function MLInvoice() {
 
     var $input = $('<input/>').attr('type', 'text').attr('value', origValue)
       .css('width', $item.innerWidth() - 12)
-      .keydown(function customPriceKeyDown(event) {
+      .on('keydown', function customPriceKeyDown(event) {
         if (event.which === 13) {
           $(this).data('handled', true);
           saveEdit();
@@ -251,24 +269,24 @@ var MLInvoice = (function MLInvoice() {
           var index = $editables.index(cell);
           if (event.shiftKey) {
             if (index > 0) {
-              $editables[index - 1].click();
+              $($editables[index - 1]).trigger('click');
             }
           } else if ($editables.length > index + 1) {
-            $editables[index + 1].click();
+            $($editables[index + 1]).trigger('click');
           }
           return false;
         }
       })
-      .click(function customPriceClick() {
+      .on('click', function customPriceClick() {
         return false;
       })
-      .blur(function customPriceBlur(/*event*/) {
+      .on('blur', function customPriceBlur(/*event*/) {
         if (!$(this).data('handled')) {
           saveEdit();
         }
       });
     $item.empty().addClass('editing').append($input);
-    $input.select().focus();
+    $input.trigger('select').trigger('focus');
     return false;
   }
 
@@ -277,53 +295,65 @@ var MLInvoice = (function MLInvoice() {
     var disabled = $container.find('.cb-select-row:checked').length === 0;
     if (disabled) {
       $container.find('.selected-row-button').attr('disabled', 'disabled');
-      $container.find('.selected-row-button').addClass('ui-state-disabled');
+      $container.find('.selected-row-button').addClass('disabled');
     } else {
       $container.find('.selected-row-button').removeAttr('disabled');
-      $container.find('.selected-row-button').removeClass('ui-state-disabled');
+      $container.find('.selected-row-button').removeClass('disabled');
     }
   }
 
-  function infomsg(msg, timeout)
+  function infomsg(msg, timeout, colorClasses)
   {
-    $.floatingMessage('<span>' + msg + '</span>', {
-      position: 'top-right',
-      className: 'ui-widget ui-state-highlight',
-      show: 'show',
-      hide: 'fade',
-      stuffEaseTime: 200,
-      moveEaseTime: 0,
-      time: typeof(timeout) != 'undefined' ? timeout : 10000
-    });
+    var $toast = $('<div class="toast align-items-center" role="alert" aria-live="polite" aria-atomic="true">');
+    if (typeof colorClasses !== 'undefined') {
+      $toast.addClass(colorClasses);
+    } else {
+      $toast.addClass('text-white bg-success');
+    }
+    var $flex = $('<div class="d-flex">')
+      .appendTo($toast);
+    $('<div class="toast-body">')
+      .text(msg)
+      .appendTo($flex);
+    $('<button type="button" class="btn-close m-auto me-2" data-bs-dismiss="toast">')
+      .attr('aria-label', translate('Close'))
+      .appendTo($flex);
+
+    var $toastContainer = $('#toasts');
+    if ($toastContainer.length === 0) {
+      $toastContainer = $('<div id="toasts" aria-live="polite" class="toast-container position-fixed p-3 top-0 end-0" style="z-index: 5">')
+        .appendTo($('body'));
+    }
+
+    $toast.appendTo($toastContainer);
+
+    var options = {
+      autohide: typeof timeout !== 'undefined',
+      delay: typeof timeout !== 'undefined' ? timeout : 0
+    };
+    var toast = new bootstrap.Toast($toast.get(0), options);
+    toast.show();
   }
 
   function errormsg(msg, timeout)
   {
-    $.floatingMessage('<span>' + msg + '</span>', {
-      position: 'top-right',
-      className: 'ui-widget ui-state-error',
-      show: 'show',
-      hide: 'fade',
-      stuffEaseTime: 200,
-      moveEaseTime: 0,
-      time: typeof timeout !== 'undefined' ? timeout : 10000
-    });
+    infomsg(msg, timeout, 'text-white bg-danger');
   }
 
   function clearMessages()
   {
-    $('.ui-floating-message').trigger('destroy');
+    $('#toasts').html('');
   }
 
   function checkForUpdates(url, currentVersion)
   {
-    if ($.cookie('updateversion') && $.cookie('currentversion') === currentVersion) {
-      _updateVersionMessage($.parseJSON($.cookie('updateversion')), currentVersion);
+    if (Cookies.get('updateversion') && Cookies.get('currentversion') === currentVersion) {
+      _updateVersionMessage(JSON.parse(Cookies.get('updateversion')), currentVersion);
       return;
     }
     $.getJSON(url + '?callback=?', function getVersionInfoDone(data) {
       _updateVersionMessage(data, currentVersion);
-      $.cookie('currentversion', currentVersion);
+      Cookies.set('currentversion', currentVersion);
     });
   }
 
@@ -369,7 +399,7 @@ var MLInvoice = (function MLInvoice() {
     } else if (result < 0) {
       $('<span/>').text(translate('PrereleaseVersion')).appendTo('#version');
     }
-    $.cookie('updateversion', JSON.stringify(data), { expires: 1 });
+    Cookies.set('updateversion', JSON.stringify(data), { expires: 1 });
   }
 
   function calcRowSum(row)
@@ -402,18 +432,59 @@ var MLInvoice = (function MLInvoice() {
     };
   }
 
-  function popupDialog(url, on_close, dialog_title, event, width, height)
+  function setModalBody(html)
   {
-    var buttons = {};
-    buttons[translate('Close')] = function popupClose() {
-      $("#popup_dlg").dialog('close');
-    };
-    $("#popup_dlg").find("#popup_dlg_iframe").html('');
-    $("#popup_dlg").dialog({ modal: true, width: width, height: height, resizable: true,
-      buttons: buttons,
-      title: dialog_title,
-      'close': function onPopupClose() { eval(on_close); } // eslint-disable-line no-eval
-    }).find("#popup_dlg_iframe").attr("src", url);
+    var $body = $('#popup_dlg .modal-body');
+    $body.html(html);
+    $body.find('form').on('submit', function handleSubmit(event) {
+      var $form = $(this);
+      var method = $form.attr('method') || 'GET';
+      var action = $form.attr('action') || '';
+      var formData = new FormData(this);
+      $.ajax({
+        type: method,
+        url: action,
+        processData: false,
+        contentType: false,
+        data: formData,
+        success: function onSuccess(data) {
+          setModalBody(data);
+        },
+        error: function onError() {
+          MLInvoice.errormsg('Request failed');
+        }
+      });
+      event.preventDefault();
+      return false;
+    });
+
+    $body.find('a').off('click').on('click', function handleLink(event) {
+      var $a = $(this);
+      var url = $a.attr('href');
+      $.get(url, setModalBody)
+        .fail(function handleError() {
+          MLInvoice.errormsg('Request failed');
+        });
+      event.preventDefault();
+      return false;
+    });
+  }
+
+  function popupDialog(url, on_close, dialog_title)
+  {
+    var $dlg = $('#popup_dlg');
+    var $body = $dlg.find('.modal-body');
+    $body.html('<i class="fa fa-spinner fa-spin"></i>');
+    $dlg.find('.modal-title').text(dialog_title);
+    $dlg.off('hidden.bs.modal').on('hidden.bs.modal', on_close);
+
+    var bsModal = new bootstrap.Modal($dlg.get(0));
+    bsModal.show();
+
+    $.get(url, setModalBody)
+      .fail(function handleError() {
+        MLInvoice.errormsg('Dialog contents could not be loaded');
+      });
 
     return true;
   }
@@ -422,16 +493,16 @@ var MLInvoice = (function MLInvoice() {
   {
     // Calendar fields
     $('input.hasCalendar').each(function setupCalendar() {
-      var settings = {};
+      var settings = getDatePickerDefaults();
       if ($(this).data('noFuture')) {
-        settings.maxDate = 0;
+        settings.maxDate = moment();
       }
-      $(this).datepicker(settings);
+      $(this).daterangepicker(settings);
     });
     // Date fields
     $('input.date').each(function setupDate() {
       if ($(this).data('noFuture')) {
-        $(this).change(function changeDate() {
+        $(this).on('change', function changeDate() {
           var val = $(this).val();
           if (val.length === 10) {
             var dt = new Date(parseDate(val, '-'));
@@ -442,22 +513,13 @@ var MLInvoice = (function MLInvoice() {
         });
       }
     });
-    // Main tabs
-    $('#maintabs ul li').hover(
-      function onHover() {
-        $(this).addClass('ui-state-hover');
-      },
-      function onBlur() {
-        $(this).removeClass('ui-state-hover');
-      }
-    );
     // Page exit data confirmation
     $('#admin_form').find('input[type="text"],input[type="hidden"]:not(.select-default-text),input[type="checkbox"],select:not(.dropdownmenu),textarea')
-      .change(function onFormFieldChange() {
-        $('.save_button').addClass('ui-state-highlight');
+      .on('change', function onFormFieldChange() {
+        highlightButton('.save_button', true);
       });
-    $(window).bind('beforeunload', function onBeforeUnload(e) {
-      if ($('.save_button').hasClass('ui-state-highlight') || $('.row-add-button').hasClass('ui-state-highlight')) {
+    $(window).on('beforeunload', function onBeforeUnload(e) {
+      if (isHighlighted('.save_button') || isHighlighted('.row-add-button')) {
         e.returnValue = translate('UnsavedData');
         return e.returnValue;
       }
@@ -475,7 +537,7 @@ var MLInvoice = (function MLInvoice() {
   }
 
   function _setupListMultiSelect() {
-    $('.print-selected-rows .print-selected-item').click(function printSelectedClick() {
+    $('.print-selected-rows .print-selected-item').on('click', function printSelectedClick() {
       var ids = $(this).closest('.list_container').find('.cb-select-row:checked').map(function mapChecked() {
         return 'id[]=' + encodeURIComponent(this.value);
       }).get();
@@ -495,9 +557,6 @@ var MLInvoice = (function MLInvoice() {
       window.setTimeout(_keepAlive, 60 * 1000);
     }
 
-    // Init menus
-    $('.dropdownmenu').menu({}).find('li:first').addClass('formbuttonlink ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only');
-
     _setupSelectAll();
     _setupCoverLetterForm();
     _setupCustomPricesForm();
@@ -507,7 +566,7 @@ var MLInvoice = (function MLInvoice() {
   }
 
   function _setupFormButtons() {
-    $('a.form-submit').click(function formButtonClick() {
+    $('.form-submit').on('click', function formButtonClick() {
       var $a = $(this);
 
       var confirmAction = $a.data('confirm');
@@ -531,15 +590,22 @@ var MLInvoice = (function MLInvoice() {
         }
         $form.find('[name=' + setField + ']').val(setValue);
       }
-      $('.save_button').removeClass('ui-state-highlight');
-      $form.submit();
+      highlightButton('.save_button', false);
+      $form.trigger('submit');
       return false;
     });
-    $('a.popup-close').click(function popupCloseClick() {
+    $('button.popup-close').on('click', function popupCloseClick() {
       window.close();
       return false;
     });
-    $('a.update-dates').click(function updateDatesClick() {
+    $('[data-form-cancel]').on('click', function formCancel() {
+      if (window.opener) {
+        window.close();
+      } else {
+        history.back();
+      }
+    });
+    $('a.update-dates').on('click', function updateDatesClick() {
       $.getJSON(
         'json.php?func=get_invoice_defaults',
         {
@@ -553,12 +619,12 @@ var MLInvoice = (function MLInvoice() {
           $('#invoice_date').val(json.date);
           $('#due_date').val(json.due_date);
           $('#next_interval_date').val(json.next_interval_date);
-          $('.save_button').addClass('ui-state-highlight');
+          highlightButton('.save_button', true);
         }
       );
       return false;
     });
-    $('a.update-invoice-nr').click(function updateInvoiceNrClick() {
+    $('a.update-invoice-nr').on('click', function updateInvoiceNrClick() {
       $.getJSON(
         'json.php?func=get_invoice_defaults',
         {
@@ -571,7 +637,7 @@ var MLInvoice = (function MLInvoice() {
         }, function getInvoiceDefaultsDone(json) {
           $('#invoice_no').val(json.invoice_no);
           $('#ref_number').val(json.ref_no);
-          $('.save_button').addClass('ui-state-highlight');
+          highlightButton('.save_button', true);
         }
       );
       return false;
@@ -616,8 +682,50 @@ var MLInvoice = (function MLInvoice() {
       ]
     });
 
-    buttons.container().appendTo($('.fg-toolbar', table.table().container()));
+    buttons.container().appendTo($('#DataTables_Table_0_length'));
   }
+
+  function highlightButton(_button, highlight)
+  {
+    var $button = $(_button);
+    var className = 'primary';
+    if ($button.hasClass('btn-secondary')) {
+      className = 'secondary';
+    }
+    if (highlight) {
+      $button.removeClass('btn-outline-' + className).addClass('btn-' + className).addClass('text-light');
+    } else {
+      $button.removeClass('btn-' + className).removeClass('text-light').addClass('btn-outline-' + className);
+    }
+  }
+
+  function isHighlighted(_button)
+  {
+    var $button = $(_button);
+    return $button.hasClass('btn-primary') || $button.hasClass('btn-secondary');
+  }
+
+  function updateBaseLogo()
+  {
+    var $logo = $('#logo');
+    var $noLogo = $('#no_logo');
+    var id = $('#record_id').val();
+    if (!id) {
+      return;
+    }
+    $.get('json.php?func=get_base&id=' + id, function handleResult(data) {
+      if (data.logo_filename && data.logo_filesize && data.logo_filetype && data.logo_filedata) {
+        $logo.find('img')
+          .attr('src', 'data:image/' + data.logo_filetype + ';base64,' + data.logo_filedata)
+        $logo.removeClass('hidden');
+        $noLogo.addClass('hidden');
+      } else {
+        $logo.addClass('hidden');
+        $noLogo.removeClass('hidden');
+      }
+    });
+  }
+
 
   return {
     init: init,
@@ -625,7 +733,10 @@ var MLInvoice = (function MLInvoice() {
     addTranslations: addTranslations,
     setDispatchNotePrintStyle: setDispatchNotePrintStyle,
     getDispatchNotePrintStyle: getDispatchNotePrintStyle,
-    setOfferStatuses: setOfferStatuses,
+    setDatePickerDefaults: setDatePickerDefaults,
+    getDatePickerDefaults: getDatePickerDefaults,
+    getDateRangePickerDefaults: getDateRangePickerDefaults,
+    setOfferStates: setOfferStates,
     isOfferStatus: isOfferStatus,
     translate: translate,
     formatCurrency: formatCurrency,
@@ -643,6 +754,8 @@ var MLInvoice = (function MLInvoice() {
     parseDate: parseDate,
     formatDate: formatDate,
     addModule: addModule,
-    initTableExportButtons: initTableExportButtons
+    initTableExportButtons: initTableExportButtons,
+    highlightButton: highlightButton,
+    updateBaseLogo: updateBaseLogo
   }
 })();

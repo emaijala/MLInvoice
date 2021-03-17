@@ -2,9 +2,9 @@
 /**
  * Form handling
  *
- * PHP version 5
+ * PHP version 7
  *
- * Copyright (C) 2010-2018 Ere Maijala
+ * Copyright (C) Ere Maijala 2010-2021
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2,
@@ -166,6 +166,7 @@ function saveFormData($table, &$primaryKey, $formElements, &$values, &$warnings,
                     'ROWSUM',
                     'NEWLINE',
                     'LABEL',
+                    'HEADING',
                     'TAGS'
                 ]
             )
@@ -492,9 +493,7 @@ function fetchRecord($table, $primaryKey, $formElements, &$values)
         $type = $elem['type'];
         $name = $elem['name'];
 
-        if (!$type || $type == 'LABEL' || $type == 'FILLER'
-            || $type == 'DROPDOWNMENU'
-        ) {
+        if (!$type || $type == 'LABEL' || $type == 'DROPDOWNMENU' || $type == 'HEADING') {
             continue;
         }
 

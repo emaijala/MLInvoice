@@ -2,10 +2,10 @@
 /**
  * Form config
  *
- * PHP version 5
+ * PHP version 7
  *
- * Copyright (C) 2004-2008 Samu Reinikainen
- * Copyright (C) 2010-2019 Ere Maijala
+ * Copyright (C) Samu Reinikainen 2004-2008
+ * Copyright (C) Ere Maijala 2010-2021
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2,
@@ -369,7 +369,7 @@ case 'company_contact':
             'name' => 'phone',
             'label' => 'Phone',
             'type' => 'TEXT',
-            'style' => 'small',
+            'style' => 'mediumshort',
             'position' => 0,
             'allow_null' => true
         ],
@@ -377,7 +377,7 @@ case 'company_contact':
             'name' => 'gsm',
             'label' => 'GSM',
             'type' => 'TEXT',
-            'style' => 'small',
+            'style' => 'mediumshort',
             'position' => 0,
             'allow_null' => true
         ],
@@ -412,16 +412,7 @@ case 'product':
     ];
 
     if (sesWriteAccess()) {
-        $locStockBalanceChange = Translator::translate('StockBalanceChange');
-        $locStockBalanceChangeDescription = Translator::translate('StockBalanceChangeDescription');
-        $popupHTML = <<<EOS
-<div id="update_stock_balance" class="form_container ui-widget-content" style="display: none">
-  <div class="medium_label">$locStockBalanceChange</div> <div class="field"><input type='TEXT' id="stock_balance_change" class='short'></div>
-  <div class="medium_label">$locStockBalanceChangeDescription</div> <div class="field"><textarea id="stock_balance_change_desc" class="large"></textarea></div>
-  </div>
-EOS;
-
-        $updateStockBalanceCode = '<a class="formbuttonlink ui-button ui-corner-all ui-widget update-stock-balance" href="#">' . Translator::translate('UpdateStockBalance') . '</a>';
+        $updateStockBalanceCode = '<button type="button" class="btn btn-secondary update-stock-balance">' . Translator::translate('UpdateStockBalance') . '</button>';
     }
 
     $barcodeTypes = [
@@ -566,7 +557,7 @@ EOS;
             'name' => 'discount',
             'label' => 'DiscountPercent',
             'type' => 'INT',
-            'style' => 'percent',
+            'style' => 'currency',
             'position' => 1,
             'decimals' => 1,
             'allow_null' => true
@@ -584,7 +575,7 @@ EOS;
             'name' => 'vat_percent',
             'label' => 'VATPercent',
             'type' => 'INT',
-            'style' => 'short',
+            'style' => 'currency',
             'position' => 1,
             'default' => getSetting('invoice_default_vat_percent'),
             'decimals' => 1
@@ -654,7 +645,7 @@ case 'offer':
         if ($isOffer) {
             $locCopyAsInvoice = Translator::translate('CopyAsInvoice');
             $extraButtons = <<<EOT
-<a class="actionlink ui-button ui-corner-all ui-widget" href="copy_invoice.php?func=$strFunc&list=$strList&id=$intInvoiceId&invoice=1">$locCopyAsInvoice</a>
+<a role="button" class="btn btn-secondary" href="copy_invoice.php?func=$strFunc&amp;list=$strList&amp;id=$intInvoiceId&amp;invoice=1">$locCopyAsInvoice</button>
 
 EOT;
         }
@@ -706,61 +697,16 @@ EOT;
     $getInvoiceNr = '';
     $updateDates = '';
     $addCompanyCode = '';
-    $addPartialPaymentCode = '';
 
     if (sesWriteAccess()) {
         $locUpdateDates = Translator::translate('UpdateDates');
-        $updateDates = '<a class="formbuttonlink ui-button ui-corner-all ui-widget update-dates" href="#">' . $locUpdateDates . '</a>';
+        $updateDates = '<button type="button" class="btn btn-outline-secondary update-dates">' . $locUpdateDates . '</button>';
 
         $locNew = Translator::translate('New') . '...';
-        $locClientName = Translator::translate('ClientName');
-        $locEmail = Translator::translate('Email');
-        $locPhone = Translator::translate('Phone');
-        $locAddress = Translator::translate('StreetAddr');
-        $locZip = Translator::translate('ZipCode');
-        $locCity = Translator::translate('City');
-        $locCountry = Translator::translate('Country');
-        $locSave = Translator::translate('Save');
-        $locClose = Translator::translate('Close');
-        $locTitle = Translator::translate('NewClient');
-        $locMissing = Translator::translate('ErrValueMissing');
-        $addCompanyCode = <<<EOS
-<a class="formbuttonlink ui-button ui-corner-all ui-widget" href="#"
-  onclick="MLInvoice.Form.addCompany({'save': '$locSave', 'close': '$locClose', 'title': '$locTitle', 'missing': '$locMissing: '})">
-    $locNew
-</a>
-
-EOS;
-
-        $popupHTML = <<<EOS
-<div id="quick_add_company" class="form_container ui-widget-content" style="display: none">
-  <div class="medium_label">$locClientName</div> <div class="field"><input type='TEXT' id="quick_name" class='medium'></div>
-  <div class="medium_label">$locEmail</div> <div class="field"><input type='TEXT' id="quick_email" class='medium'></div>
-  <div class="medium_label">$locPhone</div> <div class="field"><input type='TEXT' id="quick_phone" class='medium'></div>
-  <div class="medium_label">$locAddress</div> <div class="field"><input type='TEXT' id="quick_street_address" class='medium'></div>
-  <div class="medium_label">$locZip</div> <div class="field"><input type='TEXT' id="quick_zip_code" class='medium'></div>
-  <div class="medium_label">$locCity</div> <div class="field"><input type='TEXT' id="quick_city" class='medium'></div>
-  <div class="medium_label">$locCountry</div> <div class="field"><input type='TEXT' id="quick_country" class='medium'></div>
-</div>
-
-EOS;
+        $addCompanyCode = '<button type="button" class="btn btn-outline-secondary" data-quick-add-company>' . $locNew . '</button>';
 
         if (!$isOffer) {
             $companyOnChange = '_onChangeCompany';
-
-            $addPartialPaymentCode = "MLInvoice.Form.addPartialPayment(); return false;";
-
-            $locPaymentAmount = Translator::translate('PaymentAmount');
-            $locPaymentDate = Translator::translate('PayDate');
-            $popupHTML .= <<<EOS
-<div id="add_partial_payment" class="form_container ui-widget-content" style="display: none">
-  <div class="medium_label">{$locPaymentAmount}</div>
-    <div class="field"><input type='TEXT' id="add_partial_payment_amount" class='medium'></div>
-  <div class="medium_label">{$locPaymentDate}</div>
-  <div class="field"><input type='TEXT' id="add_partial_payment_date" class='date hasCalendar'></div>
-</div>
-
-EOS;
 
             if (getSetting('invoice_warn_if_noncurrent_date')) {
                 $formDataAttrs[] = 'check-invoice-date';
@@ -786,10 +732,10 @@ if ($('#interval_type').val() == 0) { $('#archived').prop('checked', true); }
 EOS;
         }
         $markPaidToday .= <<<EOS
-$('.save_button').addClass('ui-state-highlight'); return false;
+MLInvoice.highlightButton('.save_button', true); return false;
 EOS;
-        $markPaidTodayButton = '<a class="formbuttonlink ui-button ui-corner-all ui-widget" href="#" onclick="' .
-             $markPaidToday . '">' . Translator::translate('MarkAsPaidToday') . '</a>';
+        $markPaidTodayButton = '<button type="button" class="btn btn-outline-secondary" onclick="' .
+             $markPaidToday . '">' . Translator::translate('MarkAsPaidToday') . '</button>';
         if (getSetting('invoice_mark_paid_when_payment_date_set')) {
             $markPaidTodayEvent = <<<EOF
 if ($(this).val()) { $markPaidToday }
@@ -800,64 +746,6 @@ EOF;
     } else {
         $markPaidTodayEvent = '';
         $markPaidTodayButton = '';
-    }
-
-    // Print buttons
-    $printButtons = [];
-    $printButtons2 = [];
-    $rows = dbParamQuery(
-        'SELECT * FROM {prefix}print_template WHERE deleted=0 and type=? and inactive=0 ORDER BY order_no',
-        [$isOffer ? 'offer' : 'invoice']
-    );
-    $templateCount = count($rows);
-    $templateFirstCol = 3;
-    $rowNum = 0;
-    foreach ($rows as $row) {
-        $templateId = $row['id'];
-        $printStyle = $row['new_window'] ? 'openwindow' : 'redirect';
-
-        if (sesWriteAccess()) {
-            $printFunc = "MLInvoice.Form.printInvoice('$templateId', '$strFunc', '$printStyle'); return false;";
-        } else {
-            // Check if this print template is safe for read-only use
-            $printer = getInvoicePrinter($row['filename']);
-            if (null === $printer || !$printer->getReadOnlySafe()) {
-                continue;
-            }
-
-            if ($printStyle == 'openwindow') {
-                $printFunc = "window.open('invoice.php?id=_ID_&amp;template=$templateId&amp;func=$strFunc'); return false;";
-            } else {
-                $printFunc = "window.location = 'invoice.php?id=_ID_&amp;template=$templateId&amp;func=$strFunc'; return false;";
-            }
-        }
-
-        $arr = [
-            'name' => "print$templateId",
-            'label' => $row['name'],
-            'type' => 'JSBUTTON',
-            'style' => $printStyle,
-            'listquery' => $printFunc,
-            'position' => 3,
-            'allow_null' => true
-        ];
-        if (++$rowNum > $templateFirstCol) {
-            $arr['position'] = 4;
-            $printButtons2[] = $arr;
-        } else {
-            $printButtons[] = $arr;
-        }
-    }
-
-    if (count($printButtons2) > 3) {
-         $printButtons2[2] = [
-             'name' => 'printmenu',
-             'label' => 'PrintOther',
-             'type' => 'DROPDOWNMENU',
-             'style' => '',
-             'position' => 4,
-             'options' => array_splice($printButtons2, 2)
-         ];
     }
 
     $defaultValues = [
@@ -894,8 +782,8 @@ EOF;
         if (!getSetting('invoice_add_number')
             || !getSetting('invoice_add_reference_number')
         ) {
-            $updateInvoiceNr = '<a class="formbuttonlink ui-button ui-corner-all ui-widget update-invoice-nr" href="#">'
-                . Translator::translate('GetInvoiceNr') . '</a>';
+            $updateInvoiceNr = '<button type="button" class="btn btn-outline-secondary update-invoice-nr">'
+                . Translator::translate('GetInvoiceNr') . '</button>';
         }
     }
 
@@ -954,7 +842,8 @@ EOF;
             'position' => 1,
             'allow_null' => true,
             'attached_elem' => $addCompanyCode,
-            'elem_attributes' => $companyOnChange
+            'elem_attributes' => $companyOnChange,
+            'default' => getQuery('company_id', null)
         ],
         [
             'name' => 'reference',
@@ -1141,76 +1030,119 @@ EOF;
             'default' => $defaultValues['afterword'],
             'allow_null' => true
         ],
-
-        !sesWriteAccess() || $isOffer ? [
-            'name' => 'refundinvoice',
-            'label' => '',
-            'type' => 'FILLER',
-            'position' => 1
-        ] : [
-            'name' => 'refundinvoice',
-            'label' => 'RefundInvoice',
-            'type' => 'BUTTON',
-            'style' => 'redirect',
-            'listquery' => "copy_invoice.php?func=$strFunc&list=$strList&id=_ID_&refund=1",
-            'position' => 1,
-            'default' => false,
-            'allow_null' => true
-        ],
-        $arrRefundedInvoice,
-        isset($printButtons[0]) ? $printButtons[0] : [],
-        isset($printButtons2[0]) ? $printButtons2[0] : [],
-        !sesWriteAccess() || $isOffer ? [
-            'name' => 'addreminderfees',
-            'label' => '',
-            'type' => 'FILLER',
-            'position' => 1
-        ] : [
-            'name' => 'addreminderfees',
-            'label' => 'AddReminderFees',
-            'type' => 'JSBUTTON',
-            'style' => 'redirect',
-            'listquery' => $addReminderFees,
-            'position' => 1,
-            'default' => false,
-            'allow_null' => true
-        ],
-        $arrRefundingInvoice,
-        isset($printButtons[1]) ? $printButtons[1] : [],
-        isset($printButtons2[1]) ? $printButtons2[1] : [],
-        !sesWriteAccess() || $isOffer ? [
-            'name' => 'addpartialpayment',
-            'label' => '',
-            'type' => 'FILLER',
-            'position' => 1
-        ] : [
-            'name' => 'addpartialpayment',
-            'label' => 'AddPartialPayment',
-            'type' => 'JSBUTTON',
-            'style' => 'redirect',
-            'listquery' => $addPartialPaymentCode,
-            'position' => 1,
-            'default' => false,
-            'allow_null' => true
+        [
+            'name' => 'invoice_row',
+            'label' => 'InvRows',
+            'type' => 'IFORM',
+            'style' => 'xfull',
+            'position' => 0,
+            'allow_null' => true,
+            'parent_key' => 'invoice_id'
         ],
     ];
 
-    for ($i = 2; $i < count($printButtons); $i ++) {
-        $astrFormElements[] = $printButtons[$i];
-        if (isset($printButtons2[$i])) {
-            $astrFormElements[] = $printButtons2[$i];
+    $buttonGroups = [];
+
+    $group1 = [];
+    if (sesWriteAccess() && !$isOffer) {
+        $group1[] = [
+            'name' => 'refundinvoice',
+            'label' => 'RefundInvoice',
+            'url' => "copy_invoice.php?func=$strFunc&list=$strList&id=_ID_&refund=1",
+        ];
+    }
+    $query = 'SELECT id FROM {prefix}invoice WHERE deleted=0 AND refunded_invoice_id=?';
+    $rows = dbParamQuery($query, [$intInvoiceId]);
+    if ($rows) {
+        if ($refundingInvoiceId = $rows[0]['id']) {
+            $strBaseLink = '?' . preg_replace('/&id=\d*/', '', $_SERVER['QUERY_STRING']);
+            $group1[] = [
+                'name' => 'get',
+                'label' => 'ShowRefundingInvoice',
+                'url' => "$strBaseLink&id=$refundingInvoiceId",
+            ];
+        }
+    }
+    // ok to maintain links to deleted invoices too
+    $query = 'SELECT refunded_invoice_id FROM {prefix}invoice WHERE id=?';
+    $rows = dbParamQuery($query, [$intInvoiceId]);
+    if ($rows) {
+        if ($refundedInvoiceId = $rows[0]['refunded_invoice_id']) {
+            $strBaseLink = '?' . preg_replace('/&id=\d*/', '', $_SERVER['QUERY_STRING']);
+            $group1[] = [
+                'name' => 'get',
+                'label' => 'ShowRefundedInvoice',
+                'url' => "$strBaseLink&id=$refundedInvoiceId",
+                'position' => 2,
+                'allow_null' => true
+            ];
         }
     }
 
-    $astrFormElements[] = [
-        'name' => 'invoice_row',
-        'label' => 'InvRows',
-        'type' => 'IFORM',
-        'style' => 'xfull',
-        'position' => 0,
-        'allow_null' => true,
-        'parent_key' => 'invoice_id'
-    ];
+    if (sesWriteAccess() && !$isOffer) {
+        $group1[] = [
+            'name' => 'addreminderfees',
+            'label' => 'AddReminderFees',
+            'url' => '#',
+            'attrs' => [
+                'data-add-reminder-fees' => '1'
+            ],
+        ];
+        $group1[] = [
+            'name' => 'addpartialpayment',
+            'label' => 'AddPartialPayment',
+            'url' => '#',
+            'attrs' => [
+                'data-add-partial-payment' => '1'
+            ],
+        ];
+    }
+
+    if ($group1) {
+        $buttonGroups[] = [
+            'buttons' => $group1,
+        ];
+    }
+
+    $group2 = [];
+    $rows = dbParamQuery(
+        'SELECT * FROM {prefix}print_template WHERE deleted=0 and type=? and inactive=0 ORDER BY order_no',
+        [$isOffer ? 'offer' : 'invoice']
+    );
+    $templateCount = count($rows);
+    $templateFirstCol = 3;
+    $rowNum = 0;
+    foreach ($rows as $row) {
+        if (!sesWriteAccess()) {
+            // Check if this print template is safe for read-only use
+            $printer = getInvoicePrinter($row['filename']);
+            if (null === $printer || !$printer->getReadOnlySafe()) {
+                continue;
+            }
+        }
+        $templateId = $row['id'];
+        $printStyle = $row['new_window'] ? 'openwindow' : 'redirect';
+        $printFunc = null;
+        $attrs = [];
+        $attrs['data-print-id'] = $templateId;
+        $attrs['data-func'] = $strFunc;
+        $attrs['data-print-style'] = $printStyle;
+
+        $group2[] = [
+            'name' => "print$templateId",
+            'label' => $row['name'],
+            'url' => '#',
+            'attrs' => $attrs,
+        ];
+    }
+    if ($group2) {
+        $buttonGroups[] = [
+            'buttons' => $group2,
+            'overflow' => 5,
+            'overflow-label' => 'PrintOther',
+        ];
+    }
+
     break;
 
 case 'invoice_row':
@@ -1237,7 +1169,7 @@ case 'invoice_row':
         ],
         [
             'name' => 'product_id',
-            'label' => 'ProductName',
+            'label' => 'Product',
             'type' => 'SEARCHLIST',
             'style' => 'medium translated',
             'listquery' => 'table=product&sort=order_no,product_code,product_name',
@@ -1289,7 +1221,7 @@ case 'invoice_row':
             'name' => 'discount',
             'label' => 'DiscountPct',
             'type' => 'INT',
-            'style' => 'percent',
+            'style' => 'currency',
             'position' => 0,
             'default' => 0,
             'allow_null' => true
@@ -1308,7 +1240,7 @@ case 'invoice_row':
             'name' => 'vat',
             'label' => 'VAT',
             'type' => 'INT',
-            'style' => 'percent',
+            'style' => 'currency',
             'position' => 0,
             'default' => getSetting('invoice_default_vat_percent'),
             'allow_null' => false
@@ -1326,7 +1258,7 @@ case 'invoice_row':
             'name' => 'order_no',
             'label' => 'RowNr',
             'type' => 'INT',
-            'style' => 'tiny',
+            'style' => 'count',
             'listquery' => 'SELECT max(order_no)+1 FROM {prefix}invoice_row WHERE deleted=0 AND invoice_id=_PARENTID_',
             'position' => 0,
             'default' => 'ADD+1',
@@ -1336,7 +1268,7 @@ case 'invoice_row':
             'name' => 'partial_payment',
             'label' => 'PartialPayment',
             'type' => 'HID_INT',
-            'style' => 'xshort',
+            'style' => '',
             'position' => 0,
             'default' => 0,
             'allow_null' => true
@@ -1345,7 +1277,7 @@ case 'invoice_row':
             'name' => 'row_sum',
             'label' => 'RowTotal',
             'type' => 'ROWSUM',
-            'style' => 'currency',
+            'style' => 'currency row-summary',
             'position' => 0,
             'decimals' => 2,
             'allow_null' => true
@@ -1361,8 +1293,31 @@ case 'base':
 
     $locTitle = Translator::translate('BaseLogoTitle');
     $openPopJS = <<<EOF
-    MLInvoice.popupDialog('base_logo.php?func=edit&amp;id=_ID_', '$(\\'img\\').attr(\\'src\\', \\'base_logo.php?func=view&id=_ID_\\')', '$locTitle', event, 600, 400); return false;
+    MLInvoice.popupDialog('base_logo.php?func=edit&amp;id=_ID_', MLInvoice.updateBaseLogo, '$locTitle'); return false;
 EOF;
+
+    $baseId = isset($id) ? $id : getPostOrQuery('id', false);
+    $imageElement = [
+        'name' => 'logo',
+        'label' => '',
+        'type' => 'IMAGE',
+        'listquery' => getBaseLogoSize($baseId) ? 'base_logo.php?func=view&amp;id=_ID_' : '',
+        'style' => 'image',
+        'position' => 0,
+        'allow_null' => true
+    ];
+    $noImageElement = [
+        'name' => 'no_logo',
+        'label' => 'BaseLogoNotSet',
+        'type' => 'LABEL',
+        'position' => 0,
+        'allow_null' => true
+    ];
+    if (getBaseLogoSize($baseId)) {
+        $noImageElement['style'] = 'hidden';
+    } else {
+        $imageElement['style'] .= ' hidden';
+    }
 
     $astrFormElements = [
         [
@@ -1481,7 +1436,7 @@ EOF;
         [
             'name' => 'banksep1',
             'label' => 'FirstBank',
-            'type' => 'LABEL'
+            'type' => 'HEADING'
         ],
         [
             'name' => 'bank_name',
@@ -1515,7 +1470,7 @@ EOF;
         [
             'name' => 'banksep2',
             'label' => 'SecondBank',
-            'type' => 'LABEL'
+            'type' => 'HEADING'
         ],
         [
             'name' => 'bank_name2',
@@ -1552,7 +1507,7 @@ EOF;
         [
             'name' => 'banksep3',
             'label' => 'ThirdBank',
-            'type' => 'LABEL'
+            'type' => 'HEADING'
         ],
         [
             'name' => 'bank_name3',
@@ -1589,7 +1544,7 @@ EOF;
         [
             'name' => 'invoicesep',
             'label' => 'BaseInvoiceTexts',
-            'type' => 'LABEL'
+            'type' => 'HEADING'
         ],
         [
             'name' => 'invoice_default_info',
@@ -1635,7 +1590,7 @@ EOF;
             'name' => 'terms_of_payment',
             'label' => 'SettingInvoiceTermsOfPayment',
             'type' => 'TEXT',
-            'style' => 'large',
+            'style' => 'long',
             'position' => 1,
             'allow_null' => true
         ],
@@ -1643,14 +1598,14 @@ EOF;
             'name' => 'period_for_complaints',
             'label' => 'SettingInvoicePeriodForComplaints',
             'type' => 'TEXT',
-            'style' => 'large',
+            'style' => 'long',
             'position' => 2,
             'allow_null' => true
         ],
         [
             'name' => 'emailsep',
             'label' => 'BaseEmailTitle',
-            'type' => 'LABEL'
+            'type' => 'HEADING'
         ],
         [
             'name' => 'invoice_email_from',
@@ -1735,17 +1690,10 @@ EOF;
         [
             'name' => 'logosep',
             'label' => 'BaseLogoTitle',
-            'type' => 'LABEL'
+            'type' => 'HEADING'
         ],
-        [
-            'name' => 'logo',
-            'label' => '',
-            'type' => 'IMAGE',
-            'style' => 'image',
-            'listquery' => 'base_logo.php?func=view&amp;id=_ID_',
-            'position' => 0,
-            'allow_null' => true
-        ],
+        $imageElement,
+        $noImageElement,
         [
             'name' => 'edit_logo',
             'label' => 'BaseChangeImage',
@@ -1760,7 +1708,7 @@ EOF;
             'label' => 'BaseLogoLeft',
             'type' => 'INT',
             'style' => 'measurement',
-            'position' => 1,
+            'position' => 0,
             'allow_null' => true
         ],
         [
@@ -1768,7 +1716,7 @@ EOF;
             'label' => 'BaseLogoTop',
             'type' => 'INT',
             'style' => 'measurement',
-            'position' => 2,
+            'position' => 0,
             'allow_null' => true
         ],
         [
@@ -1776,7 +1724,7 @@ EOF;
             'label' => 'BaseLogoWidth',
             'type' => 'INT',
             'style' => 'measurement',
-            'position' => 1,
+            'position' => 0,
             'allow_null' => true
         ],
         [
@@ -2123,11 +2071,11 @@ case 'default_value':
 case 'attachment':
     $strTable = '{prefix}attachment';
 
-    $intId = isset($id) ? $id : getPostOrQuery('id', false);
+    $intId = (int)($id ?? getPostOrQuery('id', 0));
     if ($intId) {
         $showAttachment = Translator::translate('ShowAttachment');
         $extraButtons = <<<EOT
-    <a class="actionlink ui-button ui-corner-all ui-widget" href="attachment.php?id=$intId" target="_blank">$showAttachment</a>
+    <a role="button" class="btn btn-secondary" href="attachment.php?id=$intId" target="_blank">$showAttachment</a>
 
 EOT;
     }
@@ -2175,7 +2123,7 @@ EOT;
                 ['%%maxsize%%' => fileSizeToHumanReadable(getMaxUploadSize())]
             ),
             'type' => 'FILE',
-            'style' => 'large',
+            'style' => 'long',
             'position' => 1,
             'mimetypes' => [
                 'application/pdf',
@@ -2241,7 +2189,7 @@ case 'invoice_attachment':
                 ['%%maxsize%%' => fileSizeToHumanReadable(getMaxUploadSize())]
             ),
             'type' => 'FILE',
-            'style' => 'large',
+            'style' => 'long',
             'position' => 1,
             'mimetypes' => [
                 'application/pdf',
@@ -2301,7 +2249,7 @@ case 'user':
             'name' => 'type_id',
             'label' => 'Type',
             'type' => 'LIST',
-            'style' => 'medium translated',
+            'style' => 'long translated',
             'listquery' => 'SELECT id, name FROM {prefix}session_type WHERE deleted=0 ORDER BY order_no',
             'position' => 0
         ]

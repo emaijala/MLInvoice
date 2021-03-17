@@ -2,9 +2,9 @@
 /**
  * Invoice printer abstract base class
  *
- * PHP version 5
+ * PHP version 7
  *
- * Copyright (C) 2004-2008 Samu Reinikainen
+ * Copyright (C) Samu Reinikainen 2004-2008
  * Copyright (C) Ere Maijala 2010-2019.
  *
  * This program is free software; you can redistribute it and/or modify

@@ -2,10 +2,10 @@
 /**
  * List config
  *
- * PHP version 5
+ * PHP version 7
  *
- * Copyright (C) 2004-2008 Samu Reinikainen
- * Copyright (C) 2010-2019 Ere Maijala
+ * Copyright (C) Samu Reinikainen 2004-2008
+ * Copyright (C) Ere Maijala 2010-2021
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2,
@@ -118,17 +118,22 @@ case 'company':
         ]
     ];
     $strMainForm = 'company';
-    $strTitle = 'Clients';
     break;
 
 case 'invoice':
-case 'archived_invoice':
+case 'archived_invoices':
+case 'archived_offers':
 case 'invoice':
 case 'offer':
     $levelsAllowed[] = ROLE_READONLY;
 
-    $strListFilter = 'archived_invoices' === $strList ? 'i.archived = 1'
-        : 'i.archived = 0';
+    $strListFilter = 'i.archived = 0';
+    if ('archived_invoices' === $strList) {
+        $strListFilter = 'i.archived = 1 AND i.state_id NOT IN (' . implode(',', getOfferStateIds()) . ')';
+    } elseif ('archived_offers' === $strList) {
+        $strListFilter = 'i.archived = 1 AND i.state_id IN (' . implode(',', getOfferStateIds()) . ')';
+    }
+
     $strTable = '{prefix}invoice i';
     $strJoin = 'LEFT OUTER JOIN {prefix}base b on i.base_id=b.id ' .
          'LEFT OUTER JOIN {prefix}company c on i.company_id=c.id ' .
@@ -258,7 +263,7 @@ EOT;
             'name' => 'i.name',
             'width' => 100,
             'type' => 'TEXT',
-            'header' => 'offer' === $strList ? 'HeaderOfferName' : 'HeaderInvoiceName'
+            'header' => in_array($strList, ['offer', 'archived_offers']) ? 'HeaderOfferName' : 'HeaderInvoiceName'
         ],
         [
             'name' => 's.name',
@@ -306,7 +311,6 @@ EOT;
     $strGroupBy = 'i.id, i.deleted, i.invoice_date, i.due_date, i.invoice_no,'
         . ' b.name, c.company_name, i.name, s.name, i.ref_number';
     $strMainForm = 'invoice';
-    $strTitle = 'Invoices';
     break;
 
 /***********************************************************************
@@ -361,7 +365,6 @@ case 'base':
         ]
     ];
     $strMainForm = 'base';
-    $strTitle = 'Bases';
     break;
 
 case 'invoice_state':
@@ -391,7 +394,6 @@ case 'invoice_state':
     ];
     // array('order_no','name');
     $strMainForm = 'invoice_state';
-    $strTitle = 'InvoiceStates';
     break;
 
 case 'invoice_type':
@@ -431,7 +433,6 @@ case 'invoice_type':
         ]
     ];
     $strMainForm = 'invoice_type';
-    $strTitle = 'InvoiceTypes';
     break;
 
 case 'product':
@@ -468,34 +469,30 @@ case 'product':
         ],
         [
             'name' => 'order_no',
-            'width' => 150,
             'type' => 'TEXT',
             'header' => 'OrderNr'
         ],
         [
             'name' => 'product_code',
-            'width' => 150,
             'type' => 'TEXT',
             'header' => 'ProductCode',
             'select' => true
         ],
         [
             'name' => 'product_name',
-            'width' => 200,
             'type' => 'TEXT',
             'header' => 'ProductName',
             'select' => true
         ],
         [
             'name' => 'description',
-            'width' => 200,
             'type' => 'TEXT',
             'header' => 'ProductDescription',
-            'select' => true
+            'select' => true,
+            'visible' => false,
         ],
         [
             'name' => 'product_group',
-            'width' => 150,
             'type' => 'TEXT',
             'header' => 'ProductGroup',
             'select' => true
@@ -516,7 +513,6 @@ case 'product':
         ],
         [
             'name' => 'unit_price',
-            'width' => 100,
             'type' => 'CURRENCY',
             'header' => 'UnitPrice',
             'decimals' => getSetting('unit_price_decimals'),
@@ -524,7 +520,6 @@ case 'product':
         ],
         [
             'name' => 'custom_price',
-            'width' => 100,
             'type' => 'CURRENCY',
             'header' => 'ClientsPrice',
             'decimals' => getSetting('unit_price_decimals'),
@@ -534,20 +529,17 @@ case 'product':
         ],
         [
             'name' => 'discount',
-            'width' => 100,
             'type' => 'CURRENCY',
             'header' => 'DiscountPct'
         ],
         [
             'name' => 'discount_amount',
-            'width' => 100,
             'type' => 'CURRENCY',
             'header' => 'DiscountAmount',
             'decimals' => getSetting('unit_price_decimals')
         ],
         [
             'name' => 'stock_balance',
-            'width' => 100,
             'type' => 'CURRENCY',
             'header' => 'StockBalance',
             'decimals' => 2,
@@ -556,7 +548,6 @@ case 'product':
     ];
 
     $strMainForm = 'product';
-    $strTitle = 'Products';
     break;
 
 case 'row_type':
@@ -585,7 +576,6 @@ case 'row_type':
         ]
     ];
     $strMainForm = 'row_type';
-    $strTitle = 'RowTypes';
     break;
 
 case 'delivery_terms':
@@ -613,7 +603,6 @@ case 'delivery_terms':
         ]
     ];
     $strMainForm = 'delivery_terms';
-    $strTitle = 'DeliveryTerms';
     break;
 
 case 'delivery_method':
@@ -641,7 +630,6 @@ case 'delivery_method':
         ]
     ];
     $strMainForm = 'delivery_method';
-    $strTitle = 'DeliveryMethod';
     break;
 
 case 'print_template':
@@ -706,7 +694,6 @@ case 'print_template':
         ]
     ];
     $strMainForm = 'print_template';
-    $strTitle = 'PrintTemplates';
     break;
 
 case 'default_value':
@@ -755,7 +742,6 @@ case 'default_value':
         ]
     ];
     $strMainForm = 'default_value';
-    $strTitle = 'DefaultValues';
     break;
 
 case 'attachment':
@@ -809,7 +795,6 @@ case 'attachment':
         ]
     ];
     $strMainForm = 'attachment';
-    $strTitle = 'Attachments';
     break;
 
 case 'company_tag':
@@ -885,7 +870,6 @@ case 'session_type':
         ]
     ];
     $strMainForm = 'session_type';
-    $strTitle = 'SessionTypes';
     break;
 
 case 'user':
@@ -930,7 +914,6 @@ case 'user':
         ],
     ];
     $strMainForm = 'user';
-    $strTitle = 'Users';
     break;
 
 default :

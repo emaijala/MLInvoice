@@ -2,10 +2,10 @@
 /**
  * Session handling
  *
- * PHP version 5
+ * PHP version 7
  *
- * Copyright (C) 2004-2008 Samu Reinikainen
- * Copyright (C) 2010-2018 Ere Maijala
+ * Copyright (C) Samu Reinikainen 2004-2008
+ * Copyright (C) Ere Maijala 2010-2021
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2,
@@ -50,7 +50,7 @@ define('CSRF_ERR_FAIL', 1);
 function sesCreateSession($strLogin, $strPasswd, $strCsrf)
 {
     // Delay so that brute-force attacks become unpractical
-    sleep(2);
+    usleep(rand(500, 2000) * 1000);
     if ($strLogin && $strPasswd) {
         $res = sesCheckCsrf($strCsrf);
         if (CSRF_ERR_FAIL === $res) {
@@ -73,7 +73,7 @@ function sesCreateSession($strLogin, $strPasswd, $strCsrf)
                 && md5($strPasswd) != $row['passwd']
             ) {
                 // Delay so that brute-force attacks become unpractical
-                sleep(2);
+                usleep(rand(500, 2000) * 1000);
                 error_log("Login failed for $strLogin");
                 return 'FAIL';
             }

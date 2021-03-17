@@ -2,9 +2,9 @@
 /**
  * Invoice report
  *
- * PHP version 5
+ * PHP version 7
  *
- * Copyright (C) 2010-2019 Ere Maijala
+ * Copyright (C) Ere Maijala 2010-2021
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2,
@@ -110,7 +110,7 @@ class InvoiceReport extends AbstractReport
 <script>
   $(document).ready(function() {
     $('input[class~="hasDateRangePicker"]').each(function() {
-      $(this).daterangepicker(<?php echo Translator::translate('DateRangePickerOptions')?>);
+      $(this).daterangepicker(MLInvoice.getDateRangePickerDefaults()).val('');
     });
 
     $('input[name=format]').click(function() {
@@ -126,9 +126,6 @@ class InvoiceReport extends AbstractReport
   </script>
 
 <div class="form_container">
-    <div class="unlimited_label">
-        <strong><?php echo Translator::translate($this->reportName)?></strong>
-    </div>
         <?php if (!empty($this->description)) { ?>
     <div class="unlimited_label">
         <p><?php echo $this->description ?></p>
@@ -136,11 +133,10 @@ class InvoiceReport extends AbstractReport
         <?php } ?>
 </div>
 
-<div class="form_container ui-widget-content ui-helper-clearfix">
+<div class="form_container">
     <form method="get" id="params" name="params">
-        <input name="func" type="hidden" value="reports"> <input name="form"
-            type="hidden" value="<?php echo getPostOrQuery('form', 'invoice') ?>"> <input name="report" type="hidden"
-            value="1">
+        <input name="func" type="hidden" value="<?php echo getPostOrQuery('func', 'invoice_report') ?>">
+        <input name="report" type="hidden" value="1">
 
         <div class="report-settings">
         <?php
@@ -275,10 +271,10 @@ class InvoiceReport extends AbstractReport
         ?>
         </div>
         <div class="unlimited_label form_buttons">
-            <a class="actionlink ui-button ui-corner-all ui-widget form-submit" href="#" data-form-target="">
+            <a role="button" class="btn btn-primary form-submit" href="#" data-form-target="">
                 <?php echo Translator::translate('CreateReport')?>
             </a>
-            <a class="actionlink ui-button ui-corner-all ui-widget form-submit" href="#" data-form-target="_blank">
+            <a role="button" class="btn btn-primary form-submit" href="#" data-form-target="_blank">
                 <?php echo Translator::translate('CreateReportInNewWindow')?>
             </a>
         </div>
@@ -681,7 +677,7 @@ class InvoiceReport extends AbstractReport
         }
         ?>
   <div class="report">
-    <table class="report-table">
+    <table class="report-table mb-4">
       <tr>
         <td>
           <div class="unlimited_label">
@@ -696,7 +692,7 @@ class InvoiceReport extends AbstractReport
       </tr>
     </table>
 
-    <table class="report-table<?php echo $format == 'table' ? ' datatable' : '' ?>">
+    <table class="table border table-striped table-bordered table-hover report-table<?php echo $format == 'table' ? ' datatable' : '' ?>">
       <thead>
         <tr>
         <?php
@@ -1214,7 +1210,6 @@ var table = $('.report-table.datatable').DataTable({
             <?php echo Translator::translate('TableTexts')?>
     },
     'pageLength': 50,
-    'jQueryUI': true,
     'pagingType': 'full_numbers',
     'footerCallback': function (row, data, start, end, display) {
         var api = this.api(), data;

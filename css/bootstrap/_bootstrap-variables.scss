@@ -1,0 +1,36 @@
+// Navbar colors
+$navbar-light-color:                rgba($black, .9);
+$navbar-light-hover-color:          rgba($black, .9);
+$navbar-light-active-color:         rgba($black, 1);
+$navbar-light-disabled-color:       rgba($black, .3);
+
+// Toast
+$toast-font-size: 1rem;
+
+// Theme colors
+$primary: #0d6eed;
+$secondary: #486699;
+$success: #196764;
+
+$theme-colors: (
+  "primary":    $primary,
+  "secondary":  $secondary,
+  "success":    $success,
+  "info":       $info,
+  "warning":    $warning,
+  "danger":     $danger,
+  "light":      $light,
+  "dark":       $dark
+);
+
+$grid-breakpoints: (
+  xs: 0,
+  sm: 576px,
+  md: 768px,
+  lg: 961px,
+  xl: 1200px,
+  xxl: 1400px
+);
+
+$modal-md: 560px;
+$modal-lg: 840px;

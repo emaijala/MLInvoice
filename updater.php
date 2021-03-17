@@ -2,9 +2,9 @@
 /**
  * Self-updating mechanism
  *
- * PHP version 5
+ * PHP version 7
  *
- * Copyright (C) Ere Maijala 2017.
+ * Copyright (C) Ere Maijala 2017-2021
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2,
@@ -459,7 +459,7 @@ class Updater
     protected function heading($str)
     {
         $str = Translator::translate($str);
-        echo "<div class=\"form_container\"><h3>$str</h3></div>";
+        echo "<div class=\"form_container\"><h2>$str</h2></div>";
     }
 
     /**
@@ -474,7 +474,7 @@ class Updater
         $msg = Translator::translate($msg);
         echo <<<EOT
 <div class="form_container">
-  <div class="ui-state-highlight ui-border-all message">
+  <div class="alert alert-success message">
     $msg
   </div>
 </div>
@@ -493,7 +493,7 @@ EOT;
         $msg = Translator::translate($msg);
         echo <<<EOT
 <div class="form_container">
-  <div class="ui-state-error ui-border-all message">
+  <div class="alert alert-danger message">
     $msg
   </div>
 </div>
@@ -516,7 +516,7 @@ EOT;
         $message = Translator::translate($message);
         echo <<<EOT
 <div class="form_container">
-  <a class="buttonlink ui-button ui-corner-all ui-widget" href="$target">$message</a>
+  <a role="button" class="btn btn-primary" href="$target">$message</a>
 </div>
 EOT;
     }

@@ -2,9 +2,9 @@
 /**
  * Extended Markdown class
  *
- * PHP version 5
+ * PHP version 7
  *
- * Copyright (C) Ere Maijala 2018.
+ * Copyright (C) Ere Maijala 2018-2021
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2,

@@ -2,10 +2,10 @@
 /**
  * Logout page
  *
- * PHP version 5
+ * PHP version 7
  *
- * Copyright (C) 2004-2008 Samu Reinikainen
- * Copyright (C) 2010-2018 Ere Maijala
+ * Copyright (C) Samu Reinikainen 2004-2008
+ * Copyright (C) Ere Maijala 2010-2021
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2,
@@ -40,25 +40,16 @@ sesVerifySession();
 
 require_once 'translator.php';
 
-sesEndSession();
-
 echo htmlPageStart('', [], false);
 
 ?>
 
 <body>
-    <div class="pagewrapper ui-widget ui-widget-content">
-        <div id="maintabs" class="navi ui-widget-header ui-tabs">
-            <ul class="ui-tabs-nav ui-helper-clearfix ui-corner-all">
-                <li class="functionlink ui-state-default ui-corner-top">
-                    <a class="ui-tabs-anchor functionlink" href="login.php">
-                        <?php echo Translator::translate('Login')?>
-                    </a>
-                </li>
-            </ul>
-        </div>
-
-        <div class="ui-widget logout-form">
+    <div class="pagewrapper mb-4">
+<?php
+createNavBar([], '');
+?>
+        <div class="logout-form">
 
             <h1><?php echo Translator::translate('ThankYou')?></h1>
             <p>
@@ -75,3 +66,6 @@ echo htmlPageStart('', [], false);
     </div>
 </body>
 </html>
+
+<?php
+sesEndSession();
