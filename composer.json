@@ -15,6 +15,7 @@
     },
     "require": {
         "components/jquery": "^3.5.1",
+        "fortawesome/font-awesome": "^5.15.3",
         "michelf/php-markdown": "^1.9.0",
         "ramsey/uuid": "^4.1.1",
         "setasign/fpdi": "^2.3.4",

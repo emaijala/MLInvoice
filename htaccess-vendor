@@ -1,14 +1,14 @@
 <IfModule !mod_authz_core.c>
   Order deny,allow
   Deny from all
-  <Files "*.js">
+  <Files ~ "\.(js|ttf|woff|woff2)$">
     Allow from all
   </Files>
 </IfModule>
 
 <IfModule mod_authz_core.c>
   Require all denied
-  <Files "*.js">
+  <Files ~ "\.(js|ttf|woff|woff2)$">
     Require all granted
   </Files>
 </IfModule>
