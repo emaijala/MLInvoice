@@ -1095,8 +1095,7 @@ function createFormButtons($form, $formConfig, $new, $top)
     }
 
     if ($top) {
-        echo '     <span id="spinner" class="hidden"><i class="fa fa-spinner fa-spin"></i></span>' .
-            "\n";
+        echo '<span id="spinner" class="hidden" aria-hidden="true"><span class="spinner-border spinner-border-sm" role="status"></span></span>';
     }
 
     ?>

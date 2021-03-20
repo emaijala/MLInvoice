@@ -168,7 +168,7 @@ class ImportFile
         ?>
     <h1>
         <?php echo Translator::translate('ImportFileSelection')?>
-        <span id="spinner" class="hidden"><i class="fa fa-spinner fa-spin"></i></span>
+        <span id="spinner" class="hidden" aria-hidden="true"><span class="spinner-border spinner-border-sm" role="status"></span></span>
     </h1>
     <form id="form_import" enctype="multipart/form-data" method="POST">
         <input type="hidden" name="func"

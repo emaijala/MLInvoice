@@ -347,7 +347,7 @@ EOT;
 <div class="form_container export">
     <h1>
         <?php echo Translator::translate('Export')?>
-        <span id="spinner" class="hidden" aria-hidden="true"><i class="fa fa-spinner fa-spin"></i></span>
+        <span id="spinner" class="hidden" aria-hidden="true"><span class="spinner-border spinner-border-sm" role="status"></span></span>
     </h1>
     <form id="export_form" name="export_form" method="GET">
         <input type="hidden" name="func" value="system"> <input type="hidden"

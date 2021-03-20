@@ -240,7 +240,7 @@ trait InvoicePrinterEmailTrait
                     <button type="button" class="btn btn-secondary" data-form-cancel>
                         <?php echo Translator::translate('Cancel')?>
                     </button>
-                    <span id="spinner" class="hidden"><i class="fa fa-spinner fa-spin"></i></span>
+                    <span id="spinner" class="hidden" aria-hidden="true"><span class="spinner-border spinner-border-sm" role="status"></span></span>
                 </div>
             </form>
         </div>
