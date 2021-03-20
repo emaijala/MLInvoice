@@ -19,7 +19,7 @@ Thumbs.db
 config.php
 tcpdf/cache/*
 !tcpdf/cache/empty
-vendor
+/vendor
 .php_cs.cache
 db_data/*
 node_modules
