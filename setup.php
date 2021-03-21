@@ -26,6 +26,8 @@
  * @link     http://labs.fi/mlinvoice.eng.php
  */
 
+use phpseclib\Crypt\Random;
+
 /**
  * Initial setup
  *
@@ -53,7 +55,7 @@ class Setup
     {
         $formMessage = '';
         $setupComplete = false;
-        list($host, $database, $username, $password, $prefix, $lang, $defaultlang, $encryptionKey)
+        list($host, $database, $username, $password, $prefix, $lang, $defaultlang, $encryptionKey, $encryptionKeyGenerated)
             = $this->getConfigDefaults();
         $adminPassword = '';
         if (isset($_POST['host']) && isset($_POST['database'])
@@ -72,6 +74,7 @@ class Setup
             $lang = $_POST['lang'];
             $defaultlang = $_POST['defaultlang'];
             $encryptionKey = $_POST['encryptionkey'];
+            $encryptionKeyGenerated = false;
 
             if (empty($lang)) {
                 $formMessage = 'At least one language must be selected';
@@ -239,9 +242,14 @@ class Setup
                             Please enter an encryption key that is used to encrypt e.g. passwords for mail sending services.
                             The key must be something secret and at least 32 characters long.
                         </p>
+                        <?php if ($encryptionKeyGenerated) { ?>
+                            <p>
+                                A key has been automatically generated. Usually there is no need to modify the key.
+                            </p>
+                        <?php } ?>
                         <p>
                             <label>Encryption key:<br>
-                                <input type="text" name="encryptionkey" value="<?php echo htmlentities($encryptionKey)?>">
+                                <input type="text" name="encryptionkey" class="form-control long" value="<?php echo htmlentities($encryptionKey)?>">
                             </label>
                         </p>
                     </div>
@@ -306,6 +314,7 @@ class Setup
         $lang = [];
         $defaultlang = 'fi-FI';
         $encryptionKey = '';
+        $encryptionKeyGenerated = false;
 
         $config = file_get_contents(__DIR__ . DIRECTORY_SEPARATOR . 'config.php.sample');
         if (false === $config) {
@@ -339,7 +348,22 @@ class Setup
             $encryptionKey = $matches[1];
         }
 
-        return [$host, $database, $username, $password, $prefix, $lang, $defaultlang, $encryptionKey];
+        if (!$encryptionKey || 'replacewithsomethingsecure' === $encryptionKey) {
+            $encryptionKey = trim(base64_encode(Random::string(32)), '=');
+            $encryptionKeyGenerated = true;
+        }
+
+        return [
+            $host,
+            $database,
+            $username,
+            $password,
+            $prefix,
+            $lang,
+            $defaultlang,
+            $encryptionKey,
+            $encryptionKeyGenerated
+        ];
     }
 
     /**
