@@ -192,27 +192,27 @@ class Setup
                         </p>
                         <p>
                             <label>Database server host:<br>
-                                <input type="text" name="host" value="<?php echo htmlentities($host)?>">
+                                <input type="text" name="host" class="form-control medium" value="<?php echo htmlentities($host)?>">
                             </label>
                         </p>
                         <p>
                             <label>Database name:<br>
-                                <input type="text" name="database" value="<?php echo htmlentities($database)?>">
+                                <input type="text" name="database" class="form-control medium" value="<?php echo htmlentities($database)?>">
                             </label>
                         </p>
                         <p>
                             <label>Database username:<br>
-                                <input type="text" name="username" value="<?php echo htmlentities($username)?>">
+                                <input type="text" name="username" class="form-control medium" value="<?php echo htmlentities($username)?>">
                             </label>
                         </p>
                         <p>
                             <label>Database password:<br>
-                                <input type="password" name="password" value="<?php echo htmlentities($password)?>">
+                                <input type="password" name="password" class="form-control medium" value="<?php echo htmlentities($password)?>">
                             </label>
                         </p>
                         <p>
                             <label>Database table name prefix (note that an underscore will be appended to the prefix automatically):<br>
-                                <input type="text" name="prefix" value="<?php echo htmlentities($prefix)?>">
+                                <input type="text" name="prefix" class="form-control medium" value="<?php echo htmlentities($prefix)?>">
                             </label>
                         </p>
                     </div>
@@ -224,12 +224,12 @@ class Setup
                         </p>
                         <p>
                             <label>Password for the 'admin' user for logging in to MLInvoice (optional if the database already exists):<br>
-                                <input type="password" name="adminpass" value="<?php echo htmlentities($adminPassword)?>">
+                                <input type="password" name="adminpass" class="form-control medium" value="<?php echo htmlentities($adminPassword)?>">
                             </label>
                         </p>
                         <p>
                             <label>Verify the password for the 'admin' user:<br>
-                                <input type="password" name="adminpass2" value="<?php echo htmlentities($adminPassword2)?>">
+                                <input type="password" name="adminpass2" class="form-control medium" value="<?php echo htmlentities($adminPassword2)?>">
                             </label>
                         </p>
                     </div>

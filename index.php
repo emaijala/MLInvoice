@@ -30,6 +30,8 @@
 ini_set('implicit_flush', 'Off');
 ob_start();
 
+require_once 'vendor/autoload.php';
+
 if (!file_exists(__DIR__ . DIRECTORY_SEPARATOR . 'config.php')) {
     include_once 'setup.php';
     $setup = new Setup();
@@ -43,7 +45,6 @@ if (defined('_PROFILING_') && is_callable('xhprof_enable')) {
     xhprof_enable();
 }
 
-require_once 'vendor/autoload.php';
 require_once 'sessionfuncs.php';
 require_once 'navi.php';
 require_once 'list.php';
