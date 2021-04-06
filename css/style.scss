@@ -432,9 +432,8 @@ td.reportsublabel {
   }
 
   td.sort-col {
-    min-width: 1.2rem;
+    min-width: 1.8rem;
     cursor: grab;
-    padding-left: 0.4rem;
   }
 
   .sort-handle {
@@ -447,10 +446,6 @@ td.reportsublabel {
   }
 
   @media only screen and (min-width: $iform-collapse-min-width) and (max-width: $iform-narrow-width) {
-    td.sort-col {
-      min-width: 1rem;
-      padding-left: 0.1rem;
-    }
     .xshort, .xshort_label {
       width: 45px;
     }
@@ -879,6 +874,9 @@ img.image {
   }
   .field {
     margin-right: 8px;
+  }
+  .form-control {
+    display: initial;
   }
 }
 .not-valid {

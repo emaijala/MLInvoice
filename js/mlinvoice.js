@@ -219,7 +219,7 @@ var MLInvoice = (function MLInvoice() {
 
     var saveEdit = function saveEdit() {
       var $input = $item.find('input');
-      $input.css('width', $item.innerWidth() - 36)
+      $input.css('width', ($item.innerWidth() - 36) + 'px');
       $item.append('<i class="icon-spinner animate-spin"></i>');
       var value = String($input.val());
       if (value === origValue) {
@@ -256,7 +256,7 @@ var MLInvoice = (function MLInvoice() {
     }
 
     var $input = $('<input/>').attr('type', 'text').attr('value', origValue)
-      .css('width', $item.innerWidth() - 12)
+      .css('width', ($item.innerWidth() - 24) + 'px')
       .on('keydown', function customPriceKeyDown(event) {
         if (event.which === 13) {
           $(this).data('handled', true);
