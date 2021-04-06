@@ -995,12 +995,12 @@ function createFormButtons($form, $formConfig, $new, $top)
         $attachmentCount = GetInvoiceAttachmentCount($id);
         ?>
         <div class="btn-set">
-            <button type="button" id="attachments-button" class="btn btn-secondary" aria-expanded="false">
+            <a id="attachments-button" class="btn btn-secondary" role="button" aria-expanded="false">
                 <?php echo Translator::translate('Attachments')?>
                 (<span class="attachment-count"><?php echo $attachmentCount?></span>)
                 <span class="dropdown-open"><i class="icon-down-dir"></i><span class="visually-hidden"><?php echo Translator::translate('Show')?></span></span>
                 <span class="dropdown-close hidden"><i class="icon-up-dir"></i><span class="visually-hidden"><?php echo Translator::translate('Hide')?></span></span>
-            </button>
+            </a>
         </div>
         <div class="btn-set send-buttons hidden"></div>
         <?php
