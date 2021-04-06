@@ -9,6 +9,7 @@ var MLInvoice = (function MLInvoice() {
   var _keepAliveEnabled = true;
   var _currencyDecimals = 2;
   var _datePickerDefaults = {};
+  var _dateFormat = 'dd.mm.yyyy';
 
   function addTranslation(key, value) {
     _translations[key] = value;
@@ -83,7 +84,8 @@ var MLInvoice = (function MLInvoice() {
       return null;
     }
     var sep = typeof _sep === 'undefined' ? '' : _sep
-    return dateString.substr(6, 4) + sep + dateString.substr(3, 2) + sep + dateString.substr(0, 2);
+    var date = moment(dateString, _dateFormat);
+    return date.format('YYYY' + sep + 'MM' + sep + 'DD');
   }
 
   function _parseFloat(value) {
@@ -122,6 +124,10 @@ var MLInvoice = (function MLInvoice() {
 
   function setCurrencyDecimals(value) {
     _currencyDecimals = value;
+  }
+
+  function setDateFormat(value) {
+    _dateFormat = value.toUpperCase();
   }
 
   function ajaxErrorHandler(XMLHTTPReq) {
@@ -647,9 +653,10 @@ var MLInvoice = (function MLInvoice() {
   function formatDate(date)
   {
     var dateString = new String(date);
-    return dateString.length === 8
-      ? dateString.substr(6, 2) + '.' + dateString.substr(4, 2) + '.' + dateString.substr(0, 4)
-      : '';
+    if (dateString.length === 8) {
+      dateString = dateString.substr(0, 4) + '-' + dateString.substr(4, 2) + '-' + dateString.substr(6, 2);
+    }
+    return moment(dateString).format(_dateFormat);
   }
 
   function initTableExportButtons(table) {
@@ -746,6 +753,7 @@ var MLInvoice = (function MLInvoice() {
     errormsg: errormsg,
     editUnitPrice: editUnitPrice,
     setCurrencyDecimals: setCurrencyDecimals,
+    setDateFormat: setDateFormat,
     checkForUpdates: checkForUpdates,
     calcRowSum: calcRowSum,
     popupDialog: popupDialog,

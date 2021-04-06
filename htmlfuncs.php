@@ -226,6 +226,7 @@ function htmlPageStart($strTitle = '', $arrExtraScripts = [], $loggedIn = true)
     $keepAlive = $loggedIn && getSetting('session_keepalive') ? 'true' : 'false';
     $lang = Translator::translate('HTMLLanguageCode');
     $currencyDecimals = getSetting('unit_price_decimals');
+    $dateFormat = Translator::translate('DateFormat');
 
     $strHtmlStart = <<<EOT
 <!DOCTYPE html>
@@ -243,6 +244,7 @@ MLInvoice.setDispatchNotePrintStyle('$dispatchNotePrintStyle');
 MLInvoice.setOfferStates($offerStates);
 MLInvoice.setKeepAlive($keepAlive);
 MLInvoice.setCurrencyDecimals($currencyDecimals);
+MLInvoice.setDateFormat('$dateFormat');
 MLInvoice.setDatePickerDefaults($datePickerOptions);
 $(document).ready(function() {
   MLInvoice.init();
