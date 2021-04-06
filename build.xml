@@ -37,10 +37,12 @@
 
   <!-- php-cs-fixer (first task applies fixes, second task simply checks if they are needed) -->
   <target name="php-cs-fixer">
-    <exec command="vendor/bin/php-cs-fixer fix --rules=${php-cs-fixer-rules} -vvv ${php-cs-fixer-extra-params} ." passthru="true" escape="false" />
+    <mkdir dir=".php_cs.cache" />
+    <exec command="vendor/bin/php-cs-fixer fix --rules=${php-cs-fixer-rules} -vvv --cache-file=.php_cs.cache/.php_cs.cache ${php-cs-fixer-extra-params} ." passthru="true" escape="false" />
   </target>
 
   <target name="php-cs-fixer-dryrun">
-    <exec command="vendor/bin/php-cs-fixer fix --rules=${php-cs-fixer-rules} --dry-run -vvv --diff ${php-cs-fixer-extra-params} ." passthru="true" escape="false" checkreturn="true" />
+    <mkdir dir=".php_cs.cache" />
+    <exec command="vendor/bin/php-cs-fixer fix --rules=${php-cs-fixer-rules} --dry-run -vvv --cache-file=.php_cs.cache/.php_cs.cache --diff ${php-cs-fixer-extra-params} ." passthru="true" escape="false" checkreturn="true" />
   </target>
 </project>
