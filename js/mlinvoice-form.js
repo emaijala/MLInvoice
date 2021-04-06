@@ -105,22 +105,62 @@ MLInvoice.addModule('Form', function mlinvoiceForm() {
         status: false,
         toolbarTips: false,
         toolbar: [
-          'bold',
-          'italic',
+          {
+            name: "bold",
+            action: EasyMDE.toggleBold,
+            className: "icon-bold",
+            title: "Bold",
+          },
+          {
+            name: "italic",
+            action: EasyMDE.toggleItalic,
+            className: "icon-italic",
+            title: "Italic",
+          },
           {
             name: 'headingc',
             action: EasyMDE.toggleHeadingSmaller,
-            className: 'fa fa-heading',
+            className: 'icon-header',
             title: 'Heading'
           },
           '|',
-          'quote',
-          'unordered-list',
-          'ordered-list',
+          {
+            name: "blockquote",
+            action: EasyMDE.toggleBlockquote,
+            className: "icon-quote-left",
+            title: "Quote",
+          },
+          {
+            name: "unordered-list",
+            action: EasyMDE.toggleUnorderedList,
+            className: "icon-list-bullet",
+            title: "Unordered list",
+          },
+          {
+            name: "ordered-list",
+            action: EasyMDE.toggleOrderedList,
+            className: "icon-list-numbered",
+            title: "Ordered list",
+          },
           '|',
-          'preview',
-          'side-by-side',
-          'fullscreen',
+          {
+            name: "preview",
+            action: EasyMDE.togglePreview,
+            className: "icon-eye",
+            title: "Preview",
+          },
+          {
+            name: "side-by-side",
+            action: EasyMDE.toggleSideBySide,
+            className: "icon-columns",
+            title: "Side by side",
+          },
+          {
+            name: "fullscreen",
+            action: EasyMDE.toggleFullScreen,
+            className: "icon-resize-full-alt",
+            title: "Full screen",
+          },
           '|'
         ]
       });
@@ -1104,7 +1144,7 @@ MLInvoice.addModule('Form', function mlinvoiceForm() {
       $.each(json.records, function addItemRow(i, record) {
         var tr = $('<tr/>').addClass('item-row');
         if (!readOnly && 'invoice' === formType) {
-          $('<td class="sort-col"><span class="sort-handle"><i class="fa fa-sort"></i><span class="sr-only">' + MLInvoice.translate('Sort') + '</span></span>')
+          $('<td class="sort-col"><span class="sort-handle"><i class="icon-sort"></i><span class="visually-hidden">' + MLInvoice.translate('Sort') + '</span></span>')
             .appendTo(tr);
           var selectRow = MLInvoice.translate('SelectRow');
           var input = $('<input/>')
@@ -1196,7 +1236,7 @@ MLInvoice.addModule('Form', function mlinvoiceForm() {
             .attr('role', 'button')
             .attr('href', '#')
             .attr('title', MLInvoice.translate('Edit'))
-            .html('<i class="fa fa-edit"></i>')
+            .html('<i class="icon-pencil"></i>')
             .on('click', function editRowClick(event) {
               that.popupEditor(event, MLInvoice.translate('RowModification'), record.id);
               return false;

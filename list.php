@@ -270,7 +270,7 @@ function createList($strFunc, $strList, $strTableName = '', $strTitleOverride = 
     var buttons = new $.fn.dataTable.Buttons($table.DataTable(), {
         buttons: [
             {
-                text: '<i class="fa fa-columns"></i><span class="sr-only"><?php echo Translator::translate('Columns')?></span>',
+                text: '<i class="icon-columns"></i><span class="visually-hidden"><?php echo Translator::translate('Columns')?></span>',
                 titleAttr: '<?php echo Translator::translate('Columns')?>',
                 extend: 'colvis',
                 columns: ':gt(2)'
@@ -362,7 +362,7 @@ function createList($strFunc, $strList, $strTableName = '', $strTitleOverride = 
                             ? '' : ' text-danger')
                     );?>
                     <?php if ($customPriceSettings && !$customPriceSettings['valid']) { ?>
-                        <i class="fa fa-exclamation-triangle text-danger"></i>
+                        <i class="icon-attention text-danger"></i>
                     <?php } ?>
                 </div>
                 <div class="label medium_label">

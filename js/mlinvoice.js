@@ -220,7 +220,7 @@ var MLInvoice = (function MLInvoice() {
     var saveEdit = function saveEdit() {
       var $input = $item.find('input');
       $input.css('width', $item.innerWidth() - 36)
-      $item.append('<i class="fa fa-spinner fa-spin"></i>');
+      $item.append('<i class="icon-spinner animate-spin"></i>');
       var value = String($input.val());
       if (value === origValue) {
         cancelEdit();
@@ -474,7 +474,7 @@ var MLInvoice = (function MLInvoice() {
   {
     var $dlg = $('#popup_dlg');
     var $body = $dlg.find('.modal-body');
-    $body.html('<i class="fa fa-spinner fa-spin"></i>');
+    $body.html('<i class="icon-spinner animate-spin"></i>');
     $dlg.find('.modal-title').text(dialog_title);
     $dlg.off('hidden.bs.modal').on('hidden.bs.modal', on_close);
 

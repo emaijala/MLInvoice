@@ -749,7 +749,7 @@ function createIForm($mainFormConfig, $formConfig, $elem, $intKeyValue, $newReco
                                     <a role="button" class="btn btn-outline-primary btn-sm row-add-button" href="#"
                                         data-iform-save-row="iform"
                                         title="<?php echo Translator::translate('AddRow')?>">
-                                        <i class="fa fa-plus"></i>
+                                        <i class="icon-plus"></i>
                                     </a>
                                 </td>
                             </tr>
@@ -793,7 +793,7 @@ function createIForm($mainFormConfig, $formConfig, $elem, $intKeyValue, $newReco
                 <div class="modification-indicator hidden">
                     <span class="modification-text"><?php echo Translator::translate('Modified')?></span>
                     <button type="button" class="btn btn-small btn-outline-secondary clear" aria-label="<?php echo Translator::translate('Clear')?>">
-                        <i class="fa fa-undo" aria-hidden="true"></i>
+                        <i class="icon-undo" aria-hidden="true"></i>
                     </button>
                 </div>
             </td>
@@ -998,8 +998,8 @@ function createFormButtons($form, $formConfig, $new, $top)
             <button type="button" id="attachments-button" class="btn btn-secondary" aria-expanded="false">
                 <?php echo Translator::translate('Attachments')?>
                 (<span class="attachment-count"><?php echo $attachmentCount?></span>)
-                <span class="dropdown-open"><i class="fa fa-caret-down"></i><span class="sr-only"><?php echo Translator::translate('Show')?></span></span>
-                <span class="dropdown-close hidden"><i class="fa fa-caret-up"></i><span class="sr-only"><?php echo Translator::translate('Hide')?></span></span>
+                <span class="dropdown-open"><i class="icon-down-dir"></i><span class="visually-hidden"><?php echo Translator::translate('Show')?></span></span>
+                <span class="dropdown-close hidden"><i class="icon-up-dir"></i><span class="visually-hidden"><?php echo Translator::translate('Hide')?></span></span>
             </button>
         </div>
         <div class="btn-set send-buttons hidden"></div>
