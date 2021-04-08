@@ -227,6 +227,11 @@ function htmlPageStart($strTitle = '', $arrExtraScripts = [], $loggedIn = true)
     $lang = Translator::translate('HTMLLanguageCode');
     $currencyDecimals = getSetting('unit_price_decimals');
     $dateFormat = Translator::translate('DateFormat');
+    $dateFormat = str_replace(
+        ['d', 'm', 'j', 'n', 'Y', 'y'],
+        ['DD', 'MM', 'D', 'M', 'YYYY', 'YY'],
+        $dateFormat
+    );
 
     $strHtmlStart = <<<EOT
 <!DOCTYPE html>

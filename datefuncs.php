@@ -43,7 +43,7 @@ function dateConvDBDate2Date($intDate, $format = '')
     $mon = substr($intDate, 4, 2);
     $year = substr($intDate, 0, 4);
     return date(
-        $format ? $format : Translator::translate('DateFormat'),
+        $format ?: Translator::translate('DateFormat'),
         mktime(0, 0, 0, $mon, $day, $year)
     );
 }

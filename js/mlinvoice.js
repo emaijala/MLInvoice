@@ -63,7 +63,9 @@ var MLInvoice = (function MLInvoice() {
     settings.singleDatePicker = true;
     settings.ranges = null;
     settings.showCustomRangeLabel = false;
+    settings.showDropdowns = true;
     settings.autoApply = true;
+    settings.autoUpdateInput = false;
     return settings;
   }
 
@@ -83,8 +85,8 @@ var MLInvoice = (function MLInvoice() {
     if (!dateString) {
       return null;
     }
-    var sep = typeof _sep === 'undefined' ? '' : _sep
     var date = moment(dateString, _dateFormat);
+    var sep = typeof _sep === 'undefined' ? '' : _sep
     return date.format('YYYY' + sep + 'MM' + sep + 'DD');
   }
 
@@ -500,10 +502,14 @@ var MLInvoice = (function MLInvoice() {
     // Calendar fields
     $('input.hasCalendar').each(function setupCalendar() {
       var settings = getDatePickerDefaults();
-      if ($(this).data('noFuture')) {
+      var $input = $(this);
+      if ($input.data('noFuture')) {
         settings.maxDate = moment();
       }
-      $(this).daterangepicker(settings);
+      $input.daterangepicker(settings, function applyDatePick(start) {
+        $input.val(start.format(_dateFormat));
+        $input.trigger('change');
+      });
     });
     // Date fields
     $('input.date').each(function setupDate() {
