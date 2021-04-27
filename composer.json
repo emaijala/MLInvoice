@@ -22,7 +22,7 @@
         "tecnickcom/tcpdf": "^6.4.1",
         "twbs/bootstrap": "^5.0.0-beta3",
         "guzzlehttp/guzzle": "^7.3.0",
-        "phpseclib/phpseclib": "^2.0.29"
+        "phpseclib/phpseclib": "^2.0.31"
     },
     "require-dev": {
         "friendsofphp/php-cs-fixer": "^v2.16.4",
