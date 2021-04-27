@@ -729,8 +729,11 @@ img.image {
   margin: 20px;
 }
 
-.form_buttons img {
-  vertical-align: middle;
+.form_buttons {
+  margin-top: 0.5rem;
+  img {
+    vertical-align: middle;
+  }
 }
 
 .fg-toolbar {
@@ -954,8 +957,14 @@ table.quick-search {
   margin-top: 1.5rem;
 }
 
-.report-settings .field, .report-setting .label {
-  float: left;
+.report-settings, #import_form, #export_form {
+  .field, .label {
+    float: left;
+  }
+}
+
+#export_form #columns {
+  clear: both;
 }
 
 .setup-form {

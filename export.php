@@ -442,10 +442,14 @@ EOT;
             <input id="deleted" name="deleted" type="checkbox">
         </div>
 
-        <div class="medium_label"><?php echo Translator::translate('ExportColumns')?>
-        <input type="button" class="btn btn-secondary" value="<?php echo Translator::translate('ExportAddAllColumns')?>" onclick="add_all_columns()">
+        <div class="clearfix"></div>
+
+        <h2><?php echo Translator::translate('ExportColumns')?></h2>
+
+        <div class="field">
+          <input type="button" class="btn btn-secondary" value="<?php echo Translator::translate('ExportAddAllColumns')?>" onclick="add_all_columns()">
         </div>
-        <div id="columns" class="field clearfix"></div>
+        <div id="columns"></div>
 
         <div class="form_buttons">
             <input type="submit" class="btn btn-primary" value="<?php echo Translator::translate('ExportDo')?>">
