@@ -156,26 +156,29 @@ function createFuncMenu($strFunc)
   }
 </script>
     <?php
-    if ($blnShowSearch || $strNewButton) {
+    if ($blnShowSearch) {
         ?>
+        <div class="btn-set">
+            <a role="button" class="btn btn-secondary" href="#" onClick="openSearchWindow('ext', event); return false;">
+                <?php echo Translator::translate('ExtSearch')?>
+            </a>
+            <a role="button" class="btn btn-secondary" href="#" onClick="openSearchWindow('quick', event); return false;">
+                <?php echo Translator::translate('QuickSearch')?>
+            </a>
+        </div>
         <?php
-        if ($blnShowSearch) {
-            ?>
-            <div class="btn-set">
-                <a role="button" class="btn btn-secondary" href="#" onClick="openSearchWindow('ext', event); return false;">
-                    <?php echo Translator::translate('ExtSearch')?>
-                </a>
-                <a role="button" class="btn btn-secondary" href="#" onClick="openSearchWindow('quick', event); return false;">
-                    <?php echo Translator::translate('QuickSearch')?>
-                </a>
-            </div>
-            <?php
-        }
-        if (sesWriteAccess() && $strNewButton) {
-            echo "<div class=\"btn-set\">$strNewButton</div>\n";
-        }
+    }
+    if (sesWriteAccess() && 'open_invoices' === $strFunc) {
         ?>
+        <div class="btn-set">
+            <a role="button" class="btn btn-secondary" href="?func=import_statement">
+                <?php echo Translator::translate('ImportAccountStatement')?>
+            </a>
+        </div>
         <?php
+    }
+    if (sesWriteAccess() && $strNewButton) {
+        echo "<div class=\"btn-set\">$strNewButton</div>\n";
     }
 }
 
