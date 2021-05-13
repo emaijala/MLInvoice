@@ -12,7 +12,9 @@
   "dependencies": {
     "grunt": "^1.4.0",
     "grunt-contrib-sass": "^2.0.0",
-    "grunt-contrib-uglify": "^5.0.1"
+    "grunt-contrib-uglify": "^5.0.1",
+    "lodash": "^4.17.21",
+    "websocket-extensions": "0.1.4"
   },
   "devDependencies": {
     "grunt-contrib-watch": "^1.1.0"
