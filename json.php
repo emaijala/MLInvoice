@@ -273,8 +273,10 @@ case 'get_invoice_defaults' :
     $baseId = getPostOrQuery('base_id', 0);
     $companyId = getPostOrQuery('company_id', 0);
     $invoiceId = getPostOrQuery('id', 0);
-    $invoiceDate = getPostOrQuery(
-        'invoice_date', dateConvDBDate2Date(date('Y') . '0101')
+    $invoiceDate = convertDateFromApi(
+        getPostOrQuery(
+            'invoice_date', dateConvDBDate2Date(date('Y') . '-01-01')
+        )
     );
     $intervalType = getPostOrQuery('interval_type', 0);
     $invoiceNumber = getPostOrQuery('invoice_no', 0);
@@ -557,14 +559,14 @@ function printJSONRecord($table, $id = false, $warnings = null)
         $id = getPostOrQuery('id', '');
     }
     if ($id) {
-        if (substr($table, 0, 8) != '{prefix}') {
-            $table = "{prefix}$table";
+        if (substr($table, 0, 8) === '{prefix}') {
+            $table = substr($table, 8);
         }
         $select = 'SELECT t.*';
-        $from = "FROM $table t";
+        $from = "FROM {prefix}$table t";
         $where = 'WHERE t.id=?';
 
-        if ($table == '{prefix}invoice_row') {
+        if ($table === 'invoice_row') {
             // Include product name and code
             $select .= ", CASE WHEN LENGTH(p.product_code) = 0 THEN IFNULL(p.product_name, '') ELSE CONCAT_WS(' ', p.product_code, IFNULL(p.product_name, '')) END as product_id_text";
             $from .= ' LEFT OUTER JOIN {prefix}product p on (p.id = t.product_id)';
@@ -577,22 +579,10 @@ function printJSONRecord($table, $id = false, $warnings = null)
             return;
         }
         $row = $rows[0];
-        switch ($table) {
-        case '{prefix}users':
-            unset($row['password']);
-            break;
-        case '{prefix}attachment':
-        case '{prefix}invoice_attachment':
-            unset($row['filedata']);
-            $row['filesize_readable'] = fileSizeToHumanReadable($row['filesize']);
-            break;
-        case '{prefix}base':
-            $row['logo_filedata'] = base64_encode($row['logo_filedata']);
-            break;
-        }
+        $row = convertToApi($row, $table);
 
         // Include any custom price for a product
-        if ($table == '{prefix}product' && ($companyId = getPostOrQuery('company_id'))) {
+        if ($table === 'product' && ($companyId = getPostOrQuery('company_id'))) {
             $customPriceSettings = getCustomPriceSettings($companyId);
             if (empty($customPriceSettings['valid'])) {
                 $customPriceSettings = null;
@@ -611,13 +601,6 @@ function printJSONRecord($table, $id = false, $warnings = null)
                 }
             }
             $row['custom_price'] = $customPrice ? $customPrice : null;
-        }
-
-        // Fetch tags
-        if ($table == '{prefix}company') {
-            $row['tags'] = getTags('company', $id);
-        } elseif ($table == '{prefix}company_contact') {
-            $row['tags'] = getTags('contact', $id);
         }
 
         header('Content-Type: application/json');
@@ -684,26 +667,96 @@ EOT;
         } else {
             echo ",\n";
         }
-        if ($table == 'users') {
-            unset($row['password']);
-        }
-        if ($table == 'invoice_row') {
-            $row['type_id_text'] = Translator::translate($row['type_id_text']);
-        }
-        // Fetch tags
-        if ($table == 'company') {
-            $row['tags'] = getTags('company', $row['id']);
-        } elseif ($table == 'company_contact') {
-            $row['tags'] = getTags('contact', $row['id']);
-        }
-        if ('attachment' === $table || 'invoice_attachment' === $table) {
-            unset($row['filedata']);
-            $row['filesize_readable'] = fileSizeToHumanReadable($row['filesize']);
-        }
+        $row = convertToApi($row, $table);
 
         echo createResponse($row);
     }
     echo "\n]}";
+}
+
+/**
+ * Convert a record to API format
+ *
+ * @param array  $row   Record row
+ * @param string $table Table name
+ *
+ * @return array
+ */
+function convertToApi($row, $table)
+{
+    switch ($table) {
+    case 'base':
+        $row['logo_filedata'] = base64_encode($row['logo_filedata']);
+        break;
+    case 'attachment':
+    case 'invoice_attachment':
+        unset($row['filedata']);
+        $row['filesize_readable'] = fileSizeToHumanReadable($row['filesize']);
+        break;
+    case 'company':
+        $row['tags'] = getTags('company', $id);
+        break;
+    case 'company_contact':
+        $row['tags'] = getTags('contact', $id);
+        break;
+    case 'invoice_row':
+        $row['type_id_text'] = Translator::translate($row['type_id_text']);
+        break;
+    case 'users':
+        unset($row['password']);
+        break;
+    }
+
+    $formConfig = getFormConfig($table, '');
+    foreach ($formConfig[$fields] as $field) {
+        $name = $field['name'];
+        if ('INTDATE' === $field['type'] && isset($row[$name])) {
+            if (!empty($row[$name])) {
+                $row[$name] = substr($row[$name], 0, 4)
+                    . '-' . substr($row[$name], 4, 2)
+                    . '-' . substr($row[$name], 6, 2);
+            } else {
+                $row[$name] = '';
+            }
+        }
+    }
+
+    return $row;
+}
+
+/**
+ * Convert a record from API format
+ *
+ * @param array  $row   Record row
+ * @param string $table Table name
+ *
+ * @return array
+ */
+function convertFromApi($row, $table)
+{
+    $formConfig = getFormConfig($table, '');
+    foreach ($formConfig[$fields] as $field) {
+        $name = $field['name'];
+        if ('INTDATE' === $field['type'] && isset($row[$name])) {
+            $row[$name] = convertDateFromApi($row[$name]);
+        }
+    }
+    return $row;
+}
+
+/**
+ * Convert a date from API format to internal format
+ *
+ * @param string $date API date
+ *
+ * @return string
+ */
+function convertDateFromApi($date)
+{
+    if (!empty($date)) {
+        return \DateTime::parseFromFormat('Y-m-d', $date)->format('Ymd');
+    }
+    return '';
 }
 
 /**
@@ -749,6 +802,8 @@ function saveJSONRecord($table, $parentKeyName)
     // Allow partial update for invoice attachments. This is a safety check since the
     // partial update mechanism might hide issues with other record types.
     $partial = !$new && 'invoice_attachment' === $table;
+
+    $data = convertFromApi($data, $table);
 
     $warnings = '';
     try {

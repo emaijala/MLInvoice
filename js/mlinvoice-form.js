@@ -1,4 +1,4 @@
-/* global MLInvoice, $, bootstrap, EasyMDE, google, Sortable */
+/* global MLInvoice, $, bootstrap, EasyMDE, google, Sortable, moment */
 MLInvoice.addModule('Form', function mlinvoiceForm() {
   var _formConfig = {};
   var _subFormConfig = {};
@@ -608,13 +608,13 @@ MLInvoice.addModule('Form', function mlinvoiceForm() {
               {
                 id: $('#record_id').val(),
                 invoice_no: $('#invoice_no').val(),
-                invoice_date: $('#invoice_date').val(),
+                invoice_date: MLInvoice.parseDate($('#invoice_date').val(), '-'),
                 base_id: $('#base_id').val(),
                 company_id: $('#company_id').val(),
                 interval_type: $('#interval_type').val()
               },
               function getInvoiceDefaultsDone(data) {
-                $('#due_date').val(data.due_date);
+                $('#due_date').val(MLInvoice.formatDate(data.due_date));
               }
             );
           }
@@ -835,9 +835,8 @@ MLInvoice.addModule('Form', function mlinvoiceForm() {
   function _verifyPrintable() {
     var form = $('#admin_form');
     if (typeof form.data('checkInvoiceDate') !== 'undefined') {
-      var d = new Date();
-      var dt = $('#invoice_date').val().split('.');
-      if (parseInt(dt[0], 10) !== d.getDate() || parseInt(dt[1], 10) !== d.getMonth() + 1 || parseInt(dt[2], 10) !== d.getYear() + 1900) {
+      var invoiceDate = MLInvoice.parseDate($('#invoice_date').val(), '-');
+      if (invoiceDate !== moment().format('Y-m-d')) {
         if (!confirm(MLInvoice.translate('InvoiceDateNonCurrent'))) {
           return false;
         }
@@ -968,7 +967,7 @@ MLInvoice.addModule('Form', function mlinvoiceForm() {
         formdata.append('invoice_id', invoiceId);
         formdata.append('order_no', _maxAttachmentOrderNo + 5);
         $.ajax({
-          url: "json.php?func=put_invoice_attachment",
+          url: 'json.php?func=put_invoice_attachment',
           type: 'POST',
           dataType: 'json',
           data: formdata,
@@ -1048,9 +1047,11 @@ MLInvoice.addModule('Form', function mlinvoiceForm() {
           formdata.append(field.name, value.get(0).files[0]);
         }
         break;
+      case 'INTDATE':
+        formdata.append(field.name, this.parseDate(value.val(), '-'));
+        break;
       case 'SELECT':
       case 'SEARCHLIST':
-      case 'INTDATE':
       case 'LIST':
       case 'TEXT':
       case 'PASSWD':
@@ -1486,8 +1487,10 @@ MLInvoice.addModule('Form', function mlinvoiceForm() {
       case 'SEARCHLIST':
         obj[field.name] = elem.select2('data');
         break;
-      case 'LIST':
       case 'INTDATE':
+        obj[field.name] = MLInvoice.parseDate(elem.val(), '-');
+        break;
+      case 'LIST':
       case 'TEXT':
         obj[field.name] = elem.val();
         break;
@@ -1796,7 +1799,7 @@ MLInvoice.addModule('Form', function mlinvoiceForm() {
     var obj = {};
     obj.invoice_id = $('#record_id').val();
     obj.description = MLInvoice.translate('PartialPayment');
-    obj.row_date = $('#add_partial_payment_date').val();
+    obj.row_date = MLInvoice.parseDate($('#add_partial_payment_date').val(), '-');
     obj.price = -parseFloat($('#add_partial_payment_amount').val().replace(MLInvoice.translate('DecimalSeparator'), '.'));
     obj.pcs = 0;
     obj.vat = 0;

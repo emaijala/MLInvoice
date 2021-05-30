@@ -757,21 +757,21 @@ function getInvoiceDefaults($invoiceId, $baseId, $companyId, $invoiceDate,
         $refNr = createRFReference($refNr);
     }
 
-    $strDate = date(Translator::translate('DateFormat'));
+    $strDate = date('Y-m-d');
     $strDueDate = date(
-        Translator::translate('DateFormat'),
+        'Y-m-d',
         mktime(0, 0, 0, date('m'), date('d') + getPaymentDays($companyId), date('Y'))
     );
     switch ($intervalType) {
     case 2:
         $nextIntervalDate = date(
-            Translator::translate('DateFormat'),
+            'Y-m-d',
             mktime(0, 0, 0, date('m') + 1, date('d'), date('Y'))
         );
         break;
     case 3:
         $nextIntervalDate = date(
-            Translator::translate('DateFormat'),
+            'Y-m-d',
             mktime(0, 0, 0, date('m'), date('d'), date('Y') + 1)
         );
         break;
@@ -781,7 +781,7 @@ function getInvoiceDefaults($invoiceId, $baseId, $companyId, $invoiceDate,
     case 7:
     case 8:
         $nextIntervalDate = date(
-            Translator::translate('DateFormat'),
+            'Y-m-d',
             mktime(0, 0, 0, date('m') + $intervalType - 2, date('d'), date('Y'))
         );
         break;

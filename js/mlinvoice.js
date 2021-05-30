@@ -86,7 +86,7 @@ var MLInvoice = (function MLInvoice() {
       return null;
     }
     var date = moment(dateString, _dateFormat);
-    var sep = typeof _sep === 'undefined' ? '' : _sep
+    var sep = typeof _sep === 'undefined' ? '' : _sep;
     return date.format('YYYY' + sep + 'MM' + sep + 'DD');
   }
 
