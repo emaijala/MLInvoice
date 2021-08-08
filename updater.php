@@ -351,6 +351,9 @@ class Updater
             );
             foreach ($obsoleteFiles as $file) {
                 $file = trim($file);
+                if ('' === $file) {
+                    continue;
+                }
                 if (!unlink($file)) {
                     $this->error("Could not remove '$file'");
                 }
