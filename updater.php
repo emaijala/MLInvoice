@@ -565,7 +565,6 @@ EOT;
             $target .= '?func=system&operation=update&stage=' . ($this->stage + 1);
         }
         $this->message($message);
-        $message = Translator::translate($message);
         echo <<<EOT
 <script>
     $(document).ready(function () {
