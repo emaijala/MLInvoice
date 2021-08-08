@@ -50,6 +50,13 @@ class Updater
     protected $stage;
 
     /**
+     * File that contains the list of obsolete files
+     *
+     * @var string
+     */
+    protected $obsoleteFilesList = 'obsolete_files.txt';
+
+    /**
      * Start the updater
      *
      * @return void
@@ -141,11 +148,13 @@ class Updater
         $this->message('PrerequisitesOk');
 
         $this->message(
-            Translator::Translate(
+            Translator::translate(
                 'UpdatedVersionAvailable',
                 ['%%version%%' => $versionInfo['version']]
             )
         );
+
+        $this->message(Translator::translate('ObsoleteFilesWillBeRemoved'));
 
         $this->continuePrompt('StartUpdate');
 
@@ -331,6 +340,24 @@ class Updater
         }
         unlink($_SESSION['update_file']);
         $this->message('UpdateExtracted');
+
+        $this->message('RemovingObsoleteFiles');
+        if (!file_exists(__DIR__ . '/' . $this->obsoleteFilesList)) {
+            $this->error('Obsolete files list missing');
+        } else {
+            $obsoleteFiles = explode(
+                "\n",
+                file_get_contents(__DIR__ . '/' . $this->obsoleteFilesList)
+            );
+            foreach ($obsoleteFiles as $file) {
+                $file = trim($file);
+                if (!unlink($file)) {
+                    $this->error("Could not remove '$file'");
+                }
+            }
+            $this->message('ObsoleteFilesRemoved');
+        }
+
         $this->nextStage('UpgradingDatabase');
     }
 
