@@ -1048,7 +1048,7 @@ MLInvoice.addModule('Form', function mlinvoiceForm() {
         }
         break;
       case 'INTDATE':
-        formdata.append(field.name, this.parseDate(value.val(), '-'));
+        formdata.append(field.name, MLInvoice.parseDate(value.val(), '-', ''));
         break;
       case 'SELECT':
       case 'SEARCHLIST':
@@ -1092,6 +1092,7 @@ MLInvoice.addModule('Form', function mlinvoiceForm() {
               $('input#ref_number').val(data.ref_number);
             }
           }
+          $('.deleted-record-msg').remove();
           MLInvoice.highlightButton('.save_button', false);
           MLInvoice.infomsg(MLInvoice.translate('RecordSaved'), 2000);
           if (redirectUrl) {

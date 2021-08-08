@@ -81,9 +81,9 @@ var MLInvoice = (function MLInvoice() {
     return _offerStates.indexOf(status) !== -1;
   }
 
-  function parseDate(dateString, _sep) {
+  function parseDate(dateString, _sep, def) {
     if (!dateString) {
-      return null;
+      return typeof def === 'undefined' ? null : def;
     }
     var date = moment(dateString, _dateFormat);
     var sep = typeof _sep === 'undefined' ? '' : _sep;

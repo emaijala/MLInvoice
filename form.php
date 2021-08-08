@@ -117,21 +117,28 @@ function createForm($strFunc, $strList, $strForm)
             return;
         }
         ?>
-<div class="form_container">
+<div class="form_container alert alert-success">
         <?php echo Translator::translate('RecordDeleted') . "\n"?>
   </div>
         <?php
         return;
     }
 
+    $recordDeleted = false;
     if (isset($intKeyValue) && $intKeyValue) {
         $res = fetchRecord($formConfig['table'], $intKeyValue, $formConfig['fields'], $astrValues);
         if ($res === 'deleted') {
-            $strMessage .= Translator::translate('DeletedRecord');
+            $msg = Translator::translate('DeletedRecord');
+            echo <<<EOT
+<div class="form_container alert alert-warning deleted-record-msg">
+  <div class="message">$msg</div>
+</div>
+EOT;
+            $recordDeleted = true;
         } elseif ($res === 'notfound') {
             $msg = Translator::translate('RecordNotFound');
             echo <<<EOT
-<div class="form_container">
+<div class="form_container alert alert-danger">
   <div class="message">$msg</div>
 </div>
 EOT;
@@ -183,7 +190,7 @@ EOT;
 
     <?php
     createFormButtons(
-        $strForm, $formConfig, $intKeyValue ? false : true, true, true
+        $strForm, $formConfig, $intKeyValue ? false : true, true, $recordDeleted
     );
 
     if ($strForm == 'invoice' && !empty($astrValues['next_interval_date'])
@@ -527,7 +534,7 @@ $(document).ready(function() {
 </script>
 
     <?php
-    createFormButtons($strForm, $formConfig, $intKeyValue ? false : true, false, false);
+    createFormButtons($strForm, $formConfig, $intKeyValue ? false : true, false, $recordDeleted);
     echo "  </div>\n";
 
     if ($formConfig['addressAutocomplete'] && getSetting('address_autocomplete')) {
@@ -844,10 +851,11 @@ function createIForm($mainFormConfig, $formConfig, $elem, $intKeyValue, $newReco
  * @param array  $formConfig Form configuration
  * @param bool   $new        Whether a new record is being added
  * @param bool   $top        Whether adding top buttons
+ * @param bool   $deleted    Whether the record is deleted
  *
  * @return void
  */
-function createFormButtons($form, $formConfig, $new, $top)
+function createFormButtons($form, $formConfig, $new, $top, $deleted)
 {
     $id = getPostOrQuery('id', '');
     $listId = getPostOrQuery('listid', '');
@@ -916,9 +924,9 @@ function createFormButtons($form, $formConfig, $new, $top)
             </a>
             <?php
         }
-        if (!$readOnlyForm) {
+        if (!$readOnlyForm && !$deleted) {
             ?>
-            <a role="button" class="btn btn-secondary" href="#" data-form="admin_form" data-set-field="action=delete"
+            <a role="button" class="btn btn-secondary form-submit" href="#" data-form="admin_form" data-set-field="action=delete"
               data-confirm="ConfirmDelete">
                 <?php echo Translator::translate('Delete')?>
             </a>
