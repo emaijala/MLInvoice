@@ -39,9 +39,9 @@ function dateConvDBDate2Date($intDate, $format = '')
     if (!$intDate) {
         return '';
     }
-    $day = substr($intDate, 6);
-    $mon = substr($intDate, 4, 2);
-    $year = substr($intDate, 0, 4);
+    $day = intval(substr($intDate, 6));
+    $mon = intval(substr($intDate, 4, 2));
+    $year = intval(substr($intDate, 0, 4));
     return date(
         $format ?: Translator::translate('DateFormat'),
         mktime(0, 0, 0, $mon, $day, $year)

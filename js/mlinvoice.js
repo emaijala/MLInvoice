@@ -617,20 +617,21 @@ var MLInvoice = (function MLInvoice() {
         history.back();
       }
     });
-    $('a.update-dates').on('click', function updateDatesClick() {
+    var formatDateFunc = formatDate;
+    $('.update-dates').on('click', function updateDatesClick() {
       $.getJSON(
         'json.php?func=get_invoice_defaults',
         {
           id: $('#record_id').val(),
           invoice_no: $('#invoice_no').val(),
-          invoice_date: $('#invoice_date').val(),
+          invoice_date: parseDate($('#invoice_date').val(), '-', ''),
           base_id: $('#base_id').val(),
           company_id: $('#company_id').val(),
           interval_type: $('#interval_type').val()
         }, function getInvoiceDefaultsDone(json) {
-          $('#invoice_date').val(json.date);
-          $('#due_date').val(json.due_date);
-          $('#next_interval_date').val(json.next_interval_date);
+          $('#invoice_date').val(formatDateFunc(json.date));
+          $('#due_date').val(formatDateFunc(json.due_date));
+          $('#next_interval_date').val(json.next_interval_date ? formatDateFunc(json.next_interval_date) : '');
           highlightButton('.save_button', true);
         }
       );
@@ -642,7 +643,7 @@ var MLInvoice = (function MLInvoice() {
         {
           id: $('#record_id').val(),
           invoice_no: $('#invoice_no').val(),
-          invoice_date: $('#invoice_date').val(),
+          invoice_date: parseDate($('#invoice_date').val(), '-', ''),
           base_id: $('#base_id').val(),
           company_id: $('#company_id').val(),
           interval_type: $('#interval_type').val()

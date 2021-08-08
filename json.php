@@ -735,7 +735,7 @@ function convertToApi($row, $table)
 function convertFromApi($row, $table)
 {
     $formConfig = getFormConfig($table, '');
-    foreach ($formConfig[$fields] as $field) {
+    foreach ($formConfig['fields'] as $field) {
         $name = $field['name'];
         if ('INTDATE' === $field['type'] && isset($row[$name])) {
             $row[$name] = convertDateFromApi($row[$name]);
@@ -745,7 +745,7 @@ function convertFromApi($row, $table)
 }
 
 /**
- * Convert a date from API format to internal format
+ * Convert a date from API format to locale format
  *
  * @param string $date API date
  *
@@ -754,7 +754,8 @@ function convertFromApi($row, $table)
 function convertDateFromApi($date)
 {
     if (!empty($date)) {
-        return \DateTime::parseFromFormat('Y-m-d', $date)->format('Ymd');
+        return \DateTime::createFromFormat('Y-m-d', $date)
+            ->format(Translator::translate('DateFormat'));
     }
     return '';
 }
