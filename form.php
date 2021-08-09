@@ -1028,8 +1028,10 @@ function createFormButtons($form, $formConfig, $new, $top, $deleted)
                     <div class="attachments">
                         <?php foreach (getAttachments() as $attachment) { ?>
                             <div class="attachment">
-                                <a role="button" class="btn btn-primary btn-sm add-attachment" data-id="<?php echo $attachment['id']?>"
-                                    title="<?php echo Translator::translate('AddAttachment')?>"> + </a>
+                                <a role="button" class="btn btn-outline-primary btn-sm add-attachment" data-id="<?php echo $attachment['id']?>"
+                                  title="<?php echo Translator::translate('AddAttachment')?>" aria-label="<?php echo Translator::translate('AddAttachment')?>">
+                                    <i class="icon-plus"></i>
+                                </a>
                                 <div class="attachment-fileinfo">
                                 <?php
                                     echo $attachment['name'] . ' ('
