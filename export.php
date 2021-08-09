@@ -95,7 +95,7 @@ class ExportData
             ob_clean();
             $filename = Translator::translate("Table_$table", null, $table);
             switch ($format) {
-            case 'csv' :
+            case 'csv':
                 $field_delims = $this->importer->getFieldDelims();
                 $enclosure_chars = $this->importer->getEnclosureChars();
                 $row_delims = $this->importer->getRowDelims();
@@ -125,7 +125,7 @@ class ExportData
                 );
                 break;
 
-            case 'xml' :
+            case 'xml':
                 header('Content-type: text/xml');
                 header("Content-Disposition: attachment; filename=\"$filename.xml\"");
                 if ($charset == 'UTF-16') {
@@ -134,7 +134,7 @@ class ExportData
                 $this->outputString("<?xml version=\"1.0\"?>\n<records>\n", $charset);
                 break;
 
-            case 'json' :
+            case 'json':
                 header('Content-type: application/json');
                 header(
                     "Content-Disposition: attachment; filename=\"$filename.json\""
@@ -190,7 +190,7 @@ EOT;
                     }
                 }
                 switch ($format) {
-                case 'csv' :
+                case 'csv':
                     $this->outputString(
                         $this->createCsvString($data, $fieldDelimiter, $enclosureChar)
                         . $rowDelimiter,
@@ -198,7 +198,7 @@ EOT;
                     );
                     break;
 
-                case 'xml' :
+                case 'xml':
                     $str = "  <$table>\n";
                     foreach ($columns as $column) {
                         $str .= "    <$column>" . xmlEncode($data[$column]) .
@@ -228,7 +228,7 @@ EOT;
                     $this->outputString($str, $charset);
                     break;
 
-                case 'json' :
+                case 'json':
                     if ($childRows) {
                         $children = $this->getChildRows($table, $row['id']);
                         foreach ($children as $tag => $crows) {
@@ -245,10 +245,10 @@ EOT;
                 }
             }
             switch ($format) {
-            case 'xml' :
+            case 'xml':
                 $this->outputString("</records>\n");
                 break;
-            case 'json' :
+            case 'json':
                 echo("\n]}\n");
                 break;
             }

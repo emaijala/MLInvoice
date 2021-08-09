@@ -1698,10 +1698,10 @@ EOT;
     {
         $description = '';
         switch ($row['reminder_row']) {
-        case 1 :
+        case 1:
             $description = $this->translate('PenaltyInterestDesc');
             break;
-        case 2 :
+        case 2:
             $description = $this->translate('ReminderFeeDesc');
             break;
         default :
@@ -2311,28 +2311,28 @@ EOT;
                 break;
             case 'invoice':
                 switch ($pcparts[1]) {
-                case 'totalsum' :
+                case 'totalsum':
                     $values[] = $this->formatCurrency($this->totalSum);
                     break;
-                case 'totalvat' :
+                case 'totalvat':
                     $values[] = $this->formatCurrency($this->totalVAT);
                     break;
-                case 'totalsumvat' :
+                case 'totalsumvat':
                     $values[] = $this->formatCurrency($this->totalSumVAT);
                     break;
-                case 'totalunpaid' :
+                case 'totalunpaid':
                     $values[] = $this->formatCurrency(
                         $this->totalSumVAT - $this->partialPayments
                     );
                     break;
-                case 'ref_number' :
+                case 'ref_number':
                     $values[] = $this->refNumber;
                     break; // formatted reference number
-                case 'barcode' :
+                case 'barcode':
                     $values[] = $this->barcode;
                     break;
-                case 'printout_type' :
-                case 'printout_type_caps' :
+                case 'printout_type':
+                case 'printout_type_caps':
                     if ($this->printStyle == 'dispatch') {
                         $str = $this->translate('DispatchNote');
                     } elseif ($this->printStyle == 'receipt') {

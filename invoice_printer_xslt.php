@@ -149,12 +149,12 @@ EOT
                 && $value['type'] != 'HEADING'
             ) {
                 switch ($key) {
-                case 'invoice_terms_of_payment' :
+                case 'invoice_terms_of_payment':
                     $settingsData[$key] = $this->getTermsOfPayment(
                         getPaymentDays($invoiceData['company_id'])
                     );
                     break;
-                case 'invoice_pdf_filename' :
+                case 'invoice_pdf_filename':
                     $settingsData[$key] = $this->getPrintOutFileName(
                         getSetting('invoice_pdf_filename')
                     );
@@ -201,10 +201,10 @@ EOT
                 $errors = libxml_get_errors();
                 foreach ($errors as $error) {
                     switch ($error->level) {
-                    case LIBXML_ERR_WARNING :
+                    case LIBXML_ERR_WARNING:
                         $type = 'Warning';
                         break;
-                    case LIBXML_ERR_FATAL :
+                    case LIBXML_ERR_FATAL:
                         $type = 'Fatal';
                         break;
                     default :

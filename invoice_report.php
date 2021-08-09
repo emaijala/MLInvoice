@@ -443,13 +443,13 @@ class InvoiceReport extends AbstractReport
         $rows = dbParamQuery($strQuery, $arrParams);
         foreach ($rows as $row) {
             switch ($grouping) {
-            case 'state' :
+            case 'state':
                 $invoiceGroup = $row['state'];
                 break;
-            case 'month' :
+            case 'month':
                 $invoiceGroup = substr($row['invoice_date'], 4, 2);
                 break;
-            case 'client' :
+            case 'client':
                 $invoiceGroup = $row['name'];
                 break;
             case 'vat':

@@ -481,15 +481,15 @@ function phpIniValueToInteger($value)
     }
     $value = substr($value, 0, -1);
     switch ($unit) {
-    case 'P' :
+    case 'P':
         $value *= 1024;
-    case 'T' :
+    case 'T':
         $value *= 1024;
-    case 'G' :
+    case 'G':
         $value *= 1024;
-    case 'M' :
+    case 'M':
         $value *= 1024;
-    case 'K' :
+    case 'K':
         $value *= 1024;
     }
     return $value;

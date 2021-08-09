@@ -1357,10 +1357,10 @@ function select_preset()
         $duplicateMode, $importMode, $decimalSeparator, &$fieldDefs
     ) {
         switch ($parentTable) {
-        case 'invoice' :
+        case 'invoice':
             $childTable = 'invoice_row';
             break;
-        case 'company' :
+        case 'company':
             $childTable = 'company_contact';
             break;
         default :

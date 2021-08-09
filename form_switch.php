@@ -1150,12 +1150,12 @@ case 'invoice_row':
     $strParentKey = 'invoice_id';
 
     switch (getSetting('invoice_clear_row_values_after_add')) {
-    case 0 :
+    case 0:
         break;
-    case 1 :
+    case 1:
         $clearRowValuesAfterAdd = true;
         break;
-    case 2 :
+    case 2:
         $onAfterRowAdded = 'MLInvoice.getSelectedProductDefaults(form_id);';
     }
 

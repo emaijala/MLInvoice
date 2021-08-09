@@ -72,12 +72,12 @@ if (!isset($_SESSION['sesLANG'])) {
 require_once 'translator.php';
 
 switch (verifyDatabase()) {
-case 'OK' :
+case 'OK':
     break;
-case 'UPGRADED' :
+case 'UPGRADED':
     $upgradeMessage = Translator::translate('DatabaseUpgraded');
     break;
-case 'FAILED' :
+case 'FAILED':
     $upgradeFailed = true;
     $upgradeMessage = Translator::translate('DatabaseUpgradeFailed');
     break;
@@ -88,17 +88,17 @@ $strMessage = Translator::translate('WelcomeMessage');
 if ($strLogon) {
     if ($strLogin && $strPasswd) {
         switch (sesCreateSession($strLogin, $strPasswd, $strCsrf)) {
-        case 'OK' :
+        case 'OK':
             if ($backlink == '1' && isset($_SESSION['BACKLINK'])) {
                 header('Location: ' . $_SESSION['BACKLINK']);
             } else {
                 header('Location: index.php');
             }
             exit();
-        case 'FAIL' :
+        case 'FAIL':
             $strMessage = Translator::translate('InvalidCredentials');
             break;
-        case 'TIMEOUT' :
+        case 'TIMEOUT':
             $strMessage = Translator::translate('LoginTimeout');
             break;
         }

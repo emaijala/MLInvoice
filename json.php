@@ -126,27 +126,27 @@ case 'get_company_contacts':
     printJSONRecords('company_contact', 'company_id', 'contact_person');
     break;
 
-case 'delete_company_contact' :
+case 'delete_company_contact':
     deleteJSONRecord('company_contact');
     break;
 
-case 'put_company_contact' :
+case 'put_company_contact':
     saveJSONRecord('company_contact', 'company_id');
     break;
 
-case 'get_products' :
+case 'get_products':
     printJSONRecords('product', '', 'product_name');
     break;
 
-case 'get_row_types' :
+case 'get_row_types':
     printJSONRecords('row_type', '', 'order_no');
     break;
 
-case 'get_invoice_rows' :
+case 'get_invoice_rows':
     printJSONRecords('invoice_row', 'invoice_id', 'order_no');
     break;
 
-case 'put_invoice_row' :
+case 'put_invoice_row':
     saveJSONRecord('invoice_row', 'invoice_id');
     break;
 
@@ -256,7 +256,7 @@ case 'delete_custom_price':
     );
     break;
 
-case 'add_reminder_fees' :
+case 'add_reminder_fees':
     include 'add_reminder_fees.php';
     $invoiceId = getPostOrQuery('id', 0);
     $errors = addReminderFees($invoiceId);
@@ -269,7 +269,7 @@ case 'add_reminder_fees' :
     echo createResponse($ret);
     break;
 
-case 'get_invoice_defaults' :
+case 'get_invoice_defaults':
     $baseId = getPostOrQuery('base_id', 0);
     $companyId = getPostOrQuery('company_id', 0);
     $invoiceId = getPostOrQuery('id', 0);
@@ -289,7 +289,7 @@ case 'get_invoice_defaults' :
     echo createResponse($defaults);
     break;
 
-case 'get_table_columns' :
+case 'get_table_columns':
     $table = getPostOrQuery('table', '');
     if (!$table) {
         header('HTTP/1.1 400 Bad Request');
@@ -355,7 +355,7 @@ case 'get_table_columns' :
     echo "\n]}";
     break;
 
-case 'get_import_preview' :
+case 'get_import_preview':
     $table = getPostOrQuery('table', '');
     if ($table == 'account_statement') {
         include 'import_statement.php';
@@ -371,7 +371,7 @@ case 'get_import_preview' :
     $import->createImportPreview();
     break;
 
-case 'get_list' :
+case 'get_list':
     include 'list.php';
 
     $listFunc = getPostOrQuery('listfunc', '');
@@ -424,14 +424,14 @@ case 'get_list' :
     );
     break;
 
-case 'get_invoice_total_sum' :
+case 'get_invoice_total_sum':
     $where = getPostOrQuery('where', '');
 
     header('Content-Type: application/json');
     echo getInvoiceListTotal($where);
     break;
 
-case 'get_selectlist' :
+case 'get_selectlist':
     include 'list.php';
 
     $table = getPostOrQuery('table', '');
@@ -472,7 +472,7 @@ case 'update_row_order':
     echo updateRowOrder();
     break;
 
-case 'update_stock_balance' :
+case 'update_stock_balance':
     if (!sesWriteAccess()) {
         header('HTTP/1.1 403 Forbidden');
         break;
@@ -484,7 +484,7 @@ case 'update_stock_balance' :
     echo updateStockBalance($productId, $change, $desc);
     break;
 
-case 'get_stock_balance_rows' :
+case 'get_stock_balance_rows':
     $productId = getPostOrQuery('product_id', 0);
     if (!$productId) {
         break;
@@ -527,7 +527,7 @@ case 'get_invoice_attachments':
     printJSONRecords('invoice_attachment', 'invoice_id', 'order_no');
     break;
 
-case 'noop' :
+case 'noop':
     // Session keep-alive
     header('HTTP/1.1 204 No Content');
     break;

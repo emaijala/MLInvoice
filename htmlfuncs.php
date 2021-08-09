@@ -1047,7 +1047,7 @@ EOT;
     case 'BUTTON':
         $strListQuery = str_replace('_ID_', $strValue, $strListQuery);
         switch ($strStyle) {
-        case 'custom' :
+        case 'custom':
             $strListQuery = str_replace("'", '', $strListQuery);
             $strHref = $strListQuery;
             $strOnClick = '';
@@ -1065,22 +1065,22 @@ EOT;
 
         default:
             switch ($strStyle) {
-            case 'tiny' :
+            case 'tiny':
                 $strHW = 'height=1,width=1,';
                 break;
-            case 'small' :
+            case 'small':
                 $strHW = 'height=200,width=200,';
                 break;
-            case 'medium' :
+            case 'medium':
                 $strHW = 'height=400,width=400,';
                 break;
-            case 'large' :
+            case 'large':
                 $strHW = 'height=600,width=600,';
                 break;
-            case 'xlarge' :
+            case 'xlarge':
                 $strHW = 'height=800,width=650,';
                 break;
-            case 'full' :
+            case 'full':
                 $strHW = '';
                 break;
             default :
