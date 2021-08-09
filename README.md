@@ -65,6 +65,16 @@ Running with Vagrant
 There is a separate MLInvoice-Vagrant project that allows running MLInvoice under
 Vagrant. See https://github.com/emaijala/MLInvoice-Vagrant for more information.
 
+
+Information for Developers
+--------------------------
+
+- SASS is used to create the CSS files.
+- JS files are compiled to a single file.
+- `grunt watch` can be used to compile scss and js files as they change.
+- The custom icon set is created with Fontello from Font Awesome set.
+
+
 Suomeksi
 --------
 
