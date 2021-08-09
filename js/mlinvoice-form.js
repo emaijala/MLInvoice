@@ -723,9 +723,10 @@ MLInvoice.addModule('Form', function mlinvoiceForm() {
       $('#company_id_label>span.info').remove();
       return;
     }
-    $('<span/>')
-      .addClass('info')
-      .attr('title', content).text(' ').on('click', function infoClick() {
+    $('<a class="btn btn-outline-secondary btn-sm info" role="button"></a>')
+      .html('<i class="icon-info"></i>')
+      .attr('title', content)
+      .on('click', function infoClick() {
         alert(content);
       })
       .appendTo($('#company_id_label'));
@@ -875,9 +876,10 @@ MLInvoice.addModule('Form', function mlinvoiceForm() {
           _maxAttachmentOrderNo = item.order_no;
         }
         var $attachment = $('<div/>').addClass('attachment');
-        var $remove = $('<a role="button" class="btn btn-primary btn-sm remove-attachment">')
-          .text(' X ')
+        var $remove = $('<a role="button" class="btn btn-outline-primary btn-sm remove-attachment">')
+          .html('<i class="icon-minus"></i>')
           .attr('title', MLInvoice.translate('RemoveAttachment'))
+          .attr('aria-label', MLInvoice.translate('RemoveAttachment'))
           .on('click', function removeAttachment() {
             $.getJSON('json.php?func=delete_invoice_attachment&id=' + item.id, function removeAttachmentDone() {
               _updateAttachmentList();
@@ -950,7 +952,7 @@ MLInvoice.addModule('Form', function mlinvoiceForm() {
       $('#attachments-button .dropdown-close').toggleClass('hidden');
       $('#attachments-form').toggleClass('hidden');
     });
-    $('a.add-attachment').on('click', function addAttachmentClick() {
+    $('.add-attachment').on('click', function addAttachmentClick() {
       $.ajax({
         url: 'json.php?func=add_invoice_attachment&id=' + $(this).data('id') + '&invoice_id=' + invoiceId,
         type: 'POST',
@@ -1374,9 +1376,11 @@ MLInvoice.addModule('Form', function mlinvoiceForm() {
       case 'INT':
         obj[field.name] = value.val().replace(MLInvoice.translate('DecimalSeparator'), '.');
         break;
+      case 'INTDATE':
+        obj[field.name] = MLInvoice.parseDate(value.val(), '-', '');
+        break;
       case 'TAGS':
       case 'SEARCHLIST':
-      case 'INTDATE':
       case 'LIST':
       case 'TEXT':
       case 'PASSWD':

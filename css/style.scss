@@ -848,10 +848,11 @@ img.image {
 
 .attachment-name, .attachment-send {
   float: left;
-  margin: 4px 0 8px 4px;
+  margin: 5px 0 8px 4px;
 }
 .attachment-name {
-  margin-top: 3px;
+  margin-top: 0px;
+  width: 160px;
 }
 
 .attachment-fileinfo {
@@ -885,13 +886,9 @@ img.image {
 .not-valid {
   text-decoration: line-through;
 }
-span.info {
+a.info {
   display: inline-block;
   margin-left: 8px;
-  &:before {
-    content: "\2139";
-    font-size: 120%
-  }
 }
 
 .image-link {
