@@ -105,6 +105,13 @@ define('_SESSION_RESTRICT_PATH_', true);
 // Versiotarkistuksen osoite, jota käytetään, jos uusien versioiden tarkistus on käytössä yleisissä asetuksissa. Vaihda vain, jos välttämätöntä.
 //define('_UPDATE_ADDRESS_', 'https://www.labs.fi/mlinvoice_version.php');
 
+// Channel to use for new versions. By default the 'production' channel is used, and this is recommended for most users.
+// Available channels are:
+// 'production'  - Production releases
+// 'pre-release' - Production pre-releases, normally release candidates
+// 'beta'        - Beta test versions
+//define('_UPDATE_CHANNEL_', 'production');
+
 // Mail settings. By default the PHP mail() command is used, but an sendmail or an external SMTP server can be used by changing these settings.
 // Sähköpostiasetukset. Oletuksena käytetään PHP:n mail()-komentoa, mutta muokkaamalla näitä asetuksia voidaan käyttää sendmail-komentoa tai ulkoista SMTP-palvelinta.
 // See http://swiftmailer.org/docs/sending.html for more information on the settings for the mail component.
