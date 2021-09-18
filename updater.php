@@ -89,6 +89,31 @@ class Updater
     }
 
     /**
+     * Check for updates and return update information if an update is available
+     *
+     * @return array
+     */
+    public function checkForUpdates()
+    {
+        global $softwareVersion;
+
+        $versionInfo = $this->getVersionInfo();
+        if (!$versionInfo) {
+            return false;
+        }
+        $res = $this->compareVersionNumber(
+            $versionInfo['version'], $softwareVersion
+        );
+        if ($res <= 0) {
+            return [];
+        }
+        if ($res === 1) {
+            $versionInfo['majorUpdate'] = true;
+        }
+        return $versionInfo;
+    }
+
+    /**
      * Check that write permissions exist so that the update can be done, zip
      * functions are available and there is an update available.
      *
@@ -140,21 +165,42 @@ class Updater
         $res = $this->compareVersionNumber(
             $versionInfo['version'], $softwareVersion
         );
-        if (1 !== $res) {
+        if ($res <= 0) {
             $this->message('LatestVersion');
             return false;
         }
 
-        $this->message('PrerequisitesOk');
-
         $this->message(
             Translator::translate(
                 'UpdatedVersionAvailable',
-                ['%%version%%' => $versionInfo['version']]
+                [
+                    '%%version%%' => $versionInfo['version'],
+                    '%%currentversion%%' => $softwareVersion
+                ]
             )
         );
 
-        $this->message(Translator::translate('ObsoleteFilesWillBeRemoved'));
+        if (!empty($versionInfo['channel'])
+            && $versionInfo['channel'] !== 'production'
+        ) {
+            $this->message('UpdateFromChannel', ['%%channel%%' => _UPDATE_CHANNEL_]);
+        }
+
+        if ($res === 1) {
+            $this->message('UpdateMajorVersion');
+        }
+
+        if (!empty($versionInfo['url'])) {
+            $this->message(
+                '<a href="' . htmlentities($versionInfo['url']) . '" target="_blank">'
+                . Translator::Translate('UpdateInformation')
+                . '</a>'
+            );
+        }
+
+        $this->message('ObsoleteFilesWillBeRemoved');
+
+        $this->message('PrerequisitesOk');
 
         $this->continuePrompt('StartUpdate');
 
@@ -453,8 +499,13 @@ class Updater
      */
     protected function getVersionInfo()
     {
+        global $softwareVersion;
+
         $address = defined('_UPDATE_ADDRESS_') ? _UPDATE_ADDRESS_
             : 'https://www.labs.fi/mlinvoice_version.php';
+        $address .= strpos($address, '?') === false ? '?' : '&';
+        $address .= 'channel='
+            . (defined('_UPDATE_CHANNEL_') ? _UPDATE_CHANNEL_ : 'production');
 
         $client = new GuzzleHttp\Client();
         try {
@@ -476,6 +527,7 @@ class Updater
             $this->error('Could not parse version info: ' . $body);
             return false;
         }
+        $versionInfo['currentVersion'] = $softwareVersion;
         return $versionInfo;
     }
 
@@ -575,8 +627,10 @@ EOT;
     }
 
     /**
-     * Compare two version numbers and return 1 if v1 is higher than v2, -1 if lower
-     * and 0 if the versions are equal.
+     * Compare two version numbers and return a positive number if v1 is higher than
+     * v2, a negative number if v1 is lower than v2 and 0 if the versions are equal.
+     * The returned number signifies the level of change: 1 = major release,
+     * 2 = minor release, 3 = bugfix release.
      *
      * @param string $v1 First version number
      * @param string $v2 Second version number
@@ -599,7 +653,7 @@ EOT;
             if ($v1[$i] == $v2[$i]) {
                 continue;
             }
-            return $v1[$i] > $v2[$i] ? 1 : -1;
+            return strcmp((string)$v1[$i], (string)$v2[$i]) > 0 ? $i : -$i;
         }
         return 0;
     }

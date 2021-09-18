@@ -527,6 +527,13 @@ case 'get_invoice_attachments':
     printJSONRecords('invoice_attachment', 'invoice_id', 'order_no');
     break;
 
+case 'get_update_info':
+    include 'updater.php';
+    $updater = new Updater();
+    $res = $updater->checkForUpdates();
+    echo json_encode($res);
+    break;
+
 case 'noop':
     // Session keep-alive
     header('HTTP/1.1 204 No Content');

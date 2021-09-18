@@ -353,59 +353,34 @@ var MLInvoice = (function MLInvoice() {
     $('#toasts').html('');
   }
 
-  function checkForUpdates(url, currentVersion)
+  function checkForUpdates(currentVersion)
   {
     if (Cookies.get('updateversion') && Cookies.get('currentversion') === currentVersion) {
       _updateVersionMessage(JSON.parse(Cookies.get('updateversion')), currentVersion);
       return;
     }
-    $.getJSON(url + '?callback=?', function getVersionInfoDone(data) {
-      _updateVersionMessage(data, currentVersion);
+    $.getJSON('json.php?func=get_update_info', function getUpdateInfoDone(data) {
+      _updateVersionMessage(data);
       Cookies.set('currentversion', currentVersion);
     });
   }
 
-  function _compareVersionNumber(_v1, _v2)
+  function _updateVersionMessage(data)
   {
-    var v1 = _v1.split('.');
-    var v2 = _v2.split('.');
-
-    while (v1.length < v2.length) {
-      v1.push(0);
-    }
-    while (v2.length < v1.length) {
-      v2.push(0);
-    }
-
-    for (var i = 0; i < v1.length; i++)
-    {
-      if (v1[i] === v2[i]) {
-        continue;
-      }
-      return parseInt(v1[i]) > parseInt(v2[i]) ? 1 : -1;
-    }
-    return 0;
-  }
-
-  function _updateVersionMessage(data, currentVersion)
-  {
-    var result = _compareVersionNumber(data.version, currentVersion);
-    if (result > 0) {
+    if (typeof data.version !== 'undefined') {
       var title = translate(
         'UpdateAvailableTitle',
         {
           '{version}': data.version,
-          '{date}': data.date
+          '{date}': formatDate(date.date)
         }
       );
       var $span = $('<span/>').attr('title', title).text(translate('UpdateAvailable') + ' ');
-      $('<br/>').appendTo($span);
-      $('<a/>').attr('href', data.url).text(translate('UpdateInformation')).appendTo($span);
-      $('<br/>').appendTo($span);
-      $('<a/>').attr('href', 'index.php?func=system&operation=update').text(translate('UpdateNow')).appendTo($span);
+      $('<br>').appendTo($span);
+      $('<a>').attr('href', data.url).attr('target', '_blank').text(translate('UpdateInformation')).appendTo($span);
+      $('<br>').appendTo($span);
+      $('<a>').attr('href', 'index.php?func=system&operation=update').text(translate('UpdateNow')).appendTo($span);
       $span.appendTo('#version');
-    } else if (result < 0) {
-      $('<span/>').text(translate('PrereleaseVersion')).appendTo('#version');
     }
     Cookies.set('updateversion', JSON.stringify(data), { expires: 1 });
   }
