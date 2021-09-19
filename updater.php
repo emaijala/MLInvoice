@@ -183,7 +183,32 @@ class Updater
         if (!empty($versionInfo['channel'])
             && $versionInfo['channel'] !== 'production'
         ) {
-            $this->message('UpdateFromChannel', ['%%channel%%' => _UPDATE_CHANNEL_]);
+            $this->message(
+                Translator::translate(
+                    'UpdateFromChannel',
+                    ['%%channel%%' => _UPDATE_CHANNEL_]
+                )
+            );
+        }
+
+        if (!empty($versionInfo['requirements']['phpVersion'])) {
+            $res = version_compare(
+                PHP_VERSION,
+                $versionInfo['requirements']['phpVersion']
+            );
+            if ($res < 0) {
+                $this->error(
+                    Translator::translate(
+                        'UpdatePHPHigherVersionRequired',
+                        [
+                            '%%currentVersion%%' => PHP_VERSION,
+                            '%%requiredVersion%%'
+                                => $versionInfo['requirements']['phpVersion']
+                        ]
+                    )
+                );
+                return false;
+            }
         }
 
         if ($res === 1) {
