@@ -154,7 +154,6 @@ class Updater
                 . implode('<br>', $unwritables)
             );
             return false;
-
         }
 
         $versionInfo = $this->getVersionInfo();
@@ -162,10 +161,10 @@ class Updater
             $this->error('UpdateInfoRetrievalFailed');
             return false;
         }
-        $res = $this->compareVersionNumber(
+        $versionResult = $this->compareVersionNumber(
             $versionInfo['version'], $softwareVersion
         );
-        if ($res <= 0) {
+        if ($versionResult <= 0) {
             $this->message('LatestVersion');
             return false;
         }
@@ -211,7 +210,7 @@ class Updater
             }
         }
 
-        if ($res === 1) {
+        if ($versionResult === 1) {
             $this->message('UpdateMajorVersion');
         }
 
@@ -678,7 +677,8 @@ EOT;
             if ($v1[$i] == $v2[$i]) {
                 continue;
             }
-            return strcmp((string)$v1[$i], (string)$v2[$i]) > 0 ? $i : -$i;
+            return strcmp((string)$v1[$i], (string)$v2[$i]) > 0
+                ? ($i + 1) : (-$i - 1);
         }
         return 0;
     }
