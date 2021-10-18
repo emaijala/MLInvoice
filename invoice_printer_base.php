@@ -1774,7 +1774,7 @@ EOT;
             );
         }
 
-        return implode($discounts, ', ');
+        return implode(', ', $discounts);
     }
 
     /**
