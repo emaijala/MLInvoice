@@ -279,11 +279,14 @@ function saveFormData($table, &$primaryKey, $formElements, &$values, &$warnings,
                 continue 2;
             }
             if ($_FILES[$name]['error'] != UPLOAD_ERR_OK) {
-                $warnings = Translator::translate('ErrFileUploadFailed');
+                $warnings = Translator::translate('ErrFileUploadFailed')
+                    . ' (' . $_FILES[$name]['error'] . ')';
                 return false;
             }
 
-            $mimetype = mime_content_type($_FILES[$name]['tmp_name']);
+            $mimetype = getMimeType(
+                $_FILES[$name]['tmp_name'], $_FILES[$name]['name']
+            );
             if (!empty($elem['mimetypes'])
                 && !in_array($mimetype, $elem['mimetypes'])
             ) {

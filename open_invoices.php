@@ -55,7 +55,9 @@ function createOpenInvoiceList()
             Translator::translate('LabelInvoicesWithIntervalDue'),
             "i.interval_type > 0 AND i.next_interval_date <= $currentDate"
                 . " AND i.archived = 0",
-            true
+            true,
+            false,
+            'invoice'
         );
     }
 

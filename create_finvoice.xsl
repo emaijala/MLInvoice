@@ -3,7 +3,7 @@
 <!--
  This file is licensed under the MIT license.
 
- Copyright 2011-2017 Ere Maijala
+ Copyright 2011-2019 Ere Maijala
 
  Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
 
@@ -109,7 +109,7 @@
   <xsl:template match="recipient">
   <BuyerPartyDetails>
     <BuyerPartyIdentifier><xsl:value-of select="company_id"/></BuyerPartyIdentifier>
-    <BuyerOrganisationName><xsl:value-of select="company_name"/></BuyerOrganisationName>
+    <BuyerOrganisationName><xsl:value-of select="substring(company_name, 1, 70)"/></BuyerOrganisationName>
     <xsl:if test="vat_id!=''">
       <BuyerOrganisationTaxCode><xsl:value-of select="vat_id"/></BuyerOrganisationTaxCode>
     </xsl:if>
@@ -177,7 +177,15 @@
     </VatSpecificationDetails>
     </xsl:for-each>
     <xsl:if test="info!=''">
-    <InvoiceFreeText><xsl:value-of select="substring(info, 1, 512)"/></InvoiceFreeText>
+      <xsl:call-template name="chunk-field">
+        <xsl:with-param name="tag" select="'InvoiceFreeText'"/>
+        <xsl:with-param name="contents" select="info"/>
+        <!--
+          The real limit is 512, but at least some versions of libxslt have trouble with
+          long elements when outputting ISO-8859-15 with indent="yes". So, leave a bit of room.
+        -->
+        <xsl:with-param name="chunksize" select="448"/>
+      </xsl:call-template>
     </xsl:if>
     <PaymentTermsDetails>
       <PaymentTermsFreeText><xsl:value-of select="../settings/invoice_terms_of_payment"/></PaymentTermsFreeText>
@@ -309,4 +317,20 @@
     </xsl:choose>
   </xsl:template>
 
+  <xsl:template name="chunk-field">
+    <xsl:param name="tag" />
+    <xsl:param name="contents" />
+    <xsl:param name="chunksize" />
+
+    <xsl:element name="{$tag}">
+      <xsl:value-of select="substring($contents, 1, $chunksize)"/>
+    </xsl:element>
+    <xsl:if test="string-length($contents) > $chunksize">
+      <xsl:call-template name="chunk-field">
+        <xsl:with-param name="tag" select="$tag"/>
+        <xsl:with-param name="contents" select="substring($contents, $chunksize + 1)"/>
+        <xsl:with-param name="chunksize" select="$chunksize"/>
+      </xsl:call-template>
+    </xsl:if>
+  </xsl:template>
 </xsl:stylesheet>

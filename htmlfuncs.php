@@ -166,7 +166,6 @@ function htmlPageStart($strTitle = '', $arrExtraScripts = [], $loggedIn = true)
         'ConfirmDelete',
         'UnsavedData',
         'Close',
-        'PrereleaseVersion',
         'Attachments',
         'NoEntries',
         'ErrValueMissing',

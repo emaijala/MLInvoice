@@ -1403,7 +1403,7 @@ function select_preset()
     /**
      * Import a file
      *
-     * @param $string $importMode Mode ('preview' or 'import')
+     * @param string $importMode Mode ('preview' or 'import')
      *
      * @return void
      */

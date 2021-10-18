@@ -53,10 +53,6 @@ function createList($strFunc, $strList, $strTableName = '', $strTitleOverride = 
 ) {
     $strWhereClause = $prefilter ? $prefilter : getPostOrQuery('where', '');
 
-    if (!$strList) {
-        $strList = $strFunc;
-    }
-
     $listConfig = getListConfig($strList);
     if (!$listConfig) {
         return;
@@ -89,7 +85,7 @@ function createList($strFunc, $strList, $strTableName = '', $strTitleOverride = 
         if ($strWhereClause) {
             // Special case: don't apply archived filter for invoices if search terms
             // already contain archived status
-            if ($strList != 'invoices'
+            if ($strList != 'invoice'
                 || strpos($strWhereClause, 'i.archived') === false
             ) {
                 $strWhereClause .= " AND {$listConfig['listFilter']}";
@@ -167,6 +163,7 @@ function createList($strFunc, $strList, $strTableName = '', $strTitleOverride = 
       stateDuration: 0,
       jQueryUI: true,
       pageLength: 10,
+      lengthMenu: [ [10, 25, 50, 100, 500, -1], [10, 25, 50, 100, 500, "<?php echo Translator::translate('All')?>"] ],
       pagingType: "full_numbers",
       columnDefs: [
     <?php
@@ -388,7 +385,7 @@ function createList($strFunc, $strList, $strTableName = '', $strTitleOverride = 
         <form method="POST">
             <input type="hidden" name="func" value="multiedit">
             <input type="hidden" name="list" value="<?php echo htmlentities($strList)?>">
-            <input type="hidden" name="form" value="<?php echo htmlentities($strList === 'open_invoices' ? 'invoice' : $strList)?>">
+            <input type="hidden" name="form" value="<?php echo htmlentities($strList === 'open_invoice' ? 'invoice' : $strList)?>">
         <?php
     }
     ?>
@@ -868,9 +865,7 @@ function createJSONSelectList($strList, $startRow, $rowCount, $filter, $sort,
     }
 
     // Filter out inactive bases and companies
-    if (($strList == 'company' || $strList == 'companies' || $strList == 'base'
-        || $strList == 'bases') && empty($id)
-    ) {
+    if (($strList == 'company' || $strList == 'base') && empty($id)) {
         $strWhereClause .= ($strWhereClause ? ' AND ' : ' WHERE ') . 'inactive=0';
     }
 

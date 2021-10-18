@@ -98,6 +98,20 @@ class MultiEdit
                 }
                 $messages[] = Translator::Translate('RecordsUpdated', ['%%count%%' => $changeCount]);
             }
+        } else {
+            $maxInput = ini_get('max_input_vars');
+            if ($maxInput) {
+                $paramCount = 0;
+                foreach ($_GET as $param) {
+                    $paramCount += count((array)$param);
+                }
+                foreach ($_POST as $param) {
+                    $paramCount += count((array)$param);
+                }
+                if ($paramCount >= $maxInput) {
+                    $errors[] = Translator::Translate('RecordsMayBeMissingInUpdate');
+                }
+            }
         }
 
         ?>
@@ -129,11 +143,6 @@ class MultiEdit
               <input type="hidden" name="form" value="<?php echo htmlentities($strForm)?>">
               <input type="hidden" name="func" value="multiedit">
         <?php
-        foreach ((array)$ids as $id) {
-            ?>
-            <input type="hidden" name="id[]" value="<?php echo htmlentities($id)?>">
-            <?php
-        }
         foreach ($formConfig['fields'] as $elem) {
             if ($elem['type'] === false || !empty($elem['read_only'])) {
                 continue;
@@ -184,6 +193,14 @@ class MultiEdit
             <div class="unlimited_label">
               <input type="submit" name="submit" class="ui-button ui-corner-all" value="<?php echo Translator::translate('Save')?>">
             </div>
+        <?php
+        // Put id's last so that if the parameter list is truncated, it won't affect other parameters.
+        foreach ((array)$ids as $id) {
+            ?>
+            <input type="hidden" name="id[]" value="<?php echo htmlentities($id)?>">
+            <?php
+        }
+        ?>
 
             <div class="ui-helper-clearfix"></div>
           </form>

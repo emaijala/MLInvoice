@@ -26,7 +26,8 @@
  * @license  http://opensource.org/licenses/gpl-2.0.php GNU General Public License
  * @link     http://labs.fi/mlinvoice.eng.php
  */
-ini_set('display_errors', 0);
+$phpErrors = [];
+set_error_handler('handleError');
 
 require_once 'vendor/autoload.php';
 require_once 'config.php';
@@ -154,7 +155,7 @@ case 'get_custom_prices':
         getPostOrQuery('companyId')
     );
     header('Content-Type: application/json');
-    echo json_encode($customPrice);
+    echo createResponse($customPrice);
     break;
 
 case 'put_custom_prices':
@@ -174,7 +175,7 @@ case 'put_custom_prices':
         $data['valid_until']
     );
     header('Content-Type: application/json');
-    echo json_encode(['status' => 'ok']);
+    echo createResponse(['status' => 'ok']);
     break;
 
 case 'delete_custom_prices':
@@ -189,7 +190,7 @@ case 'delete_custom_prices':
     }
     deleteCustomPriceSettings($data['company_id']);
     header('Content-Type: application/json');
-    echo json_encode(['status' => 'ok']);
+    echo createResponse(['status' => 'ok']);
     break;
 
 case 'get_custom_price':
@@ -198,7 +199,7 @@ case 'get_custom_price':
         getPostOrQuery('product_id')
     );
     header('Content-Type: application/json');
-    echo json_encode($customPrice);
+    echo createResponse($customPrice);
     break;
 
 case 'put_custom_price':
@@ -218,7 +219,7 @@ case 'put_custom_price':
         $unitPrice
     );
     header('Content-Type: application/json');
-    echo json_encode(
+    echo createResponse(
         [
             'status' => 'ok',
             'unit_price' => $unitPrice
@@ -247,7 +248,7 @@ case 'delete_custom_price':
         }
     }
     header('Content-Type: application/json');
-    echo json_encode(
+    echo createResponse(
         [
             'status' => 'ok',
             'unit_price' => $unitPrice
@@ -265,7 +266,7 @@ case 'add_reminder_fees' :
         $ret = ['status' => 'ok'];
     }
     header('Content-Type: application/json');
-    echo json_encode($ret);
+    echo createResponse($ret);
     break;
 
 case 'get_invoice_defaults' :
@@ -283,7 +284,7 @@ case 'get_invoice_defaults' :
     );
 
     header('Content-Type: application/json');
-    echo json_encode($defaults);
+    echo createResponse($defaults);
     break;
 
 case 'get_table_columns' :
@@ -300,7 +301,7 @@ case 'get_table_columns' :
     if ($table == 'account_statement') {
         header('Content-Type: application/json');
         echo '{"columns":';
-        echo json_encode(
+        echo createResponse(
             [
                 [
                     'id' => 'date',
@@ -340,14 +341,14 @@ case 'get_table_columns' :
         } else {
             echo ",\n";
         }
-        echo json_encode(['name' => $field_def->name]);
+        echo createResponse(['name' => $field_def->name]);
     }
     if ('company' === $table || 'company_contact' === $table) {
         echo ",\n";
-        echo json_encode(['name' => 'tags']);
+        echo createResponse(['name' => 'tags']);
     } elseif ('custom_price_map' === $table) {
         echo ",\n";
-        echo json_encode(['name' => 'company_id']);
+        echo createResponse(['name' => 'company_id']);
     }
     echo "\n]}";
     break;
@@ -524,6 +525,13 @@ case 'get_invoice_attachments':
     printJSONRecords('invoice_attachment', 'invoice_id', 'order_no');
     break;
 
+case 'get_update_info':
+    include 'updater.php';
+    $updater = new Updater();
+    $res = $updater->checkForUpdates();
+    echo json_encode($res);
+    break;
+
 case 'noop' :
     // Session keep-alive
     header('HTTP/1.1 204 No Content');
@@ -621,7 +629,7 @@ function printJSONRecord($table, $id = false, $warnings = null)
 
         header('Content-Type: application/json');
         $row['warnings'] = $warnings;
-        echo json_encode($row);
+        echo createResponse($row);
     }
 }
 
@@ -700,7 +708,7 @@ EOT;
             $row['filesize_readable'] = fileSizeToHumanReadable($row['filesize']);
         }
 
-        echo json_encode($row);
+        echo createResponse($row);
     }
     echo "\n]}";
 }
@@ -757,7 +765,7 @@ function saveJSONRecord($table, $parentKeyName)
         );
     } catch (Exception $e) {
         header('Content-Type: application/json');
-        echo json_encode(['error' => $e->getMessage()]);
+        echo createResponse(['error' => $e->getMessage()]);
         return;
     }
     if ($res !== true) {
@@ -765,7 +773,7 @@ function saveJSONRecord($table, $parentKeyName)
             header('HTTP/1.1 409 Conflict');
         }
         header('Content-Type: application/json');
-        echo json_encode(['missing_fields' => $res, 'warnings' => $warnings]);
+        echo createResponse(['missing_fields' => $res, 'warnings' => $warnings]);
         return;
     }
 
@@ -795,7 +803,7 @@ function deleteJSONRecord($table)
             deleteRecord("{prefix}$table", $id);
         }
         header('Content-Type: application/json');
-        echo json_encode(['status' => 'ok']);
+        echo createResponse(['status' => 'ok']);
     }
 }
 
@@ -836,11 +844,11 @@ function updateMultipleRows()
                 header('HTTP/1.1 409 Conflict');
             }
             header('Content-Type: application/json');
-            return json_encode(['missing_fields' => $res, 'warnings' => $warnings]);
+            return createResponse(['missing_fields' => $res, 'warnings' => $warnings]);
         }
     }
 
-    return json_encode(['status' => 'ok']);
+    return createResponse(['status' => 'ok']);
 }
 
 /**
@@ -868,7 +876,7 @@ function updateRowOrder()
         );
     }
 
-    return json_encode(['status' => 'ok']);
+    return createResponse(['status' => 'ok']);
 }
 
 /**
@@ -927,7 +935,7 @@ function getInvoiceListTotal($where)
         'sum_rounded' => miscRound2Decim($sum, 2, '.', '')
     ];
 
-    echo json_encode($result);
+    echo createResponse($result);
 }
 
 /**
@@ -950,7 +958,7 @@ function updateStockBalance($productId, $change, $desc)
     }
 
     if ($missing) {
-        return json_encode(['missing_fields' => $missing]);
+        return createResponse(['missing_fields' => $missing]);
     }
 
     $rows = dbParamQuery(
@@ -958,7 +966,7 @@ function updateStockBalance($productId, $change, $desc)
         [$productId]
     );
     if (!$rows) {
-        return json_encode(
+        return createResponse(
             ['status' => 'error', 'errors' => Translator::translate('ErrInvalidValue')]
         );
     }
@@ -982,7 +990,7 @@ EOT
             $desc
         ]
     );
-    return json_encode(['status' => 'ok', 'new_stock_balance' => $balance]);
+    return createResponse(['status' => 'ok', 'new_stock_balance' => $balance]);
 }
 
 /**
@@ -1037,7 +1045,7 @@ function getSendApiServices($invoiceId, $baseId)
         ];
     }
 
-    return json_encode(['services' => $services]);
+    return createResponse(['services' => $services]);
 }
 
 /**
@@ -1050,4 +1058,37 @@ function addInvoiceAttachment()
     $newId = addAttachmentToInvoice(getPostOrQuery('id'), getPostOrQuery('invoice_id'));
     printJSONRecord('invoice_attachment', $newId);
 
+}
+
+/**
+ * Handle error without disturbing actual output
+ *
+ * @param string $errno   Error code number
+ * @param string $errstr  Error message
+ * @param string $errfile File where error occurred
+ * @param string $errline Line number of error
+ *
+ * @return bool           Always true to cancel default error handling
+ */
+function handleError($errno, $errstr, $errfile, $errline)
+{
+    global $phpErrors;
+    $phpErrors[] = "[$errno] $errstr at $errfile:$errline";
+    return true;
+}
+
+/**
+ * Format a response as a JSON array
+ *
+ * @param array $response Response
+ *
+ * @return string
+ */
+function createResponse($response)
+{
+    global $phpErrors;
+    if ($phpErrors) {
+        $response['php_errors'] = $phpErrors;
+    }
+    return json_encode($response);
 }

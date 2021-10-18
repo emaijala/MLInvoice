@@ -165,6 +165,9 @@ function createWhereClause($astrSearchFields, $strSearchTerms, &$arrQueryParams,
                     $strWhereClause .= $astrSearchFields[$j]['name'] . ' = ?'
                         . ' OR ';
                     $arrQueryParams[] = $astrTerms[$i];
+                } elseif ($astrSearchFields[$j]['type'] == 'CURRENCY') {
+                    $strWhereClause .= 'CAST(' . $astrSearchFields[$j]['name'] . ' AS CHAR) LIKE ? OR ';
+                    $arrQueryParams[] = $termPrefix . $astrTerms[$i] . '%';
                 } elseif ($astrSearchFields[$j]['type'] == 'PRIMARY'
                     && preg_match('/^([0-9]+)$/', $intID)
                 ) {

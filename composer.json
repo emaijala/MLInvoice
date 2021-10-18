@@ -1,5 +1,5 @@
 {
-    "name": "emaijala/MLInvoice",
+    "name": "emaijala/mlinvoice",
     "description": "Free web-based invoicing primarily for Finnish companies",
     "authors": [
         {
@@ -21,7 +21,7 @@
         "swiftmailer/swiftmailer": "^5.4",
         "tecnickcom/tcpdf": "^6.2",
         "guzzlehttp/guzzle": "^6.3",
-        "phpseclib/phpseclib": "^2.0"
+        "phpseclib/phpseclib": "^2.0.31"
     },
     "require-dev": {
         "friendsofphp/php-cs-fixer": "^v2.10.3",

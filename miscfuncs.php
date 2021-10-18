@@ -28,36 +28,6 @@
  */
 
 /**
- * Add slashes if magic quotes are not enabled
- *
- * @param string $strString String
- *
- * @return string
- */
-function gpcAddSlashes($strString)
-{
-    if (!get_magic_quotes_gpc()) {
-        return addslashes($strString);
-    }
-    return $strString;
-}
-
-/**
- * Remove slashes if magic quotes are enabled
- *
- * @param string $strString String
- *
- * @return string
- */
-function gpcStripSlashes($strString)
-{
-    if (get_magic_quotes_gpc() && is_string($strString)) {
-        return stripslashes($strString);
-    }
-    return $strString;
-}
-
-/**
  * Decode UTF-8 if current charset is something else
  *
  * @param string $str String
@@ -308,7 +278,7 @@ function getPost($strKey, $varDefault = null)
     if ($strKey === '') {
         return $_POST;
     }
-    return isset($_POST[$strKey]) ? gpcStripSlashes($_POST[$strKey]) : $varDefault;
+    return isset($_POST[$strKey]) ? $_POST[$strKey] : $varDefault;
 }
 
 /**
@@ -321,7 +291,7 @@ function getPost($strKey, $varDefault = null)
  */
 function getQuery($strKey, $varDefault = null)
 {
-    return isset($_GET[$strKey]) ? gpcStripSlashes($_GET[$strKey]) : $varDefault;
+    return isset($_GET[$strKey]) ? $_GET[$strKey] : $varDefault;
 }
 
 /**
@@ -819,4 +789,53 @@ function getInvoiceDefaults($invoiceId, $baseId, $companyId, $invoiceDate,
         'due_date' => $strDueDate,
         'next_interval_date' => $nextIntervalDate
     ];
+}
+
+/**
+ * Get mime type from a file name
+ *
+ * @param string $path     Path to the file
+ * @param string $filename The real filename
+ *
+ * @return string
+ */
+function getMimeType($path, $filename)
+{
+    if (is_callable('mime_content_type')) {
+        return mime_content_type($path);
+    }
+
+    // If mime_content_type is not callable, handle only the types we really care of
+    $extension = pathinfo($filename, PATHINFO_EXTENSION);
+    switch (strtolower($extension)) {
+    case 'jpg':
+    case 'jpeg':
+        return 'image/jpeg';
+    case 'png':
+        return 'image/png';
+    case 'pdf':
+        return 'application/pdf';
+    default:
+        return $extension;
+    }
+}
+
+/**
+ * Get list type based on current function
+ *
+ * @param string $func Function
+ *
+ * @return string
+ */
+function getListFromFunc($func)
+{
+    // Func is typically plural, but list singular. Adjust as necessary.
+    $list = $func;
+    if (!in_array($list, ['delivery_terms', 'settings'])
+        && substr($list, -1) === 's'
+    ) {
+        $list = substr($list, 0, -1);
+    }
+
+    return $list;
 }

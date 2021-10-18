@@ -1,20 +1,22 @@
 {
-    "name": "mlinvoice",
-    "description": "Development tools",
-    "license": "GPL-2.0",
-    "repository": {
-      "type": "git",
-      "url": "http://github.com/emaijala/MLInvoice"
-    },
-    "bugs": {
-      "url": "http://github.com/emaijala/MLInvoice/issues"
-    },
-    "dependencies": {
-      "grunt": "^1.0.3",
-      "grunt-contrib-sass": "^1.0.0",
-      "grunt-contrib-uglify": "^4.0.0"
-    },
-    "devDependencies": {
-      "grunt-contrib-watch": "^1.1.0"
-    }
+  "name": "mlinvoice",
+  "description": "Development tools",
+  "license": "GPL-2.0",
+  "repository": {
+    "type": "git",
+    "url": "http://github.com/emaijala/MLInvoice"
+  },
+  "bugs": {
+    "url": "http://github.com/emaijala/MLInvoice/issues"
+  },
+  "dependencies": {
+    "grunt": "^1.4.0",
+    "grunt-contrib-sass": "^2.0.0",
+    "grunt-contrib-uglify": "^5.0.1",
+    "lodash": "^4.17.21",
+    "websocket-extensions": "0.1.4"
+  },
+  "devDependencies": {
+    "grunt-contrib-watch": "^1.1.0"
+  }
 }

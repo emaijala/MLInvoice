@@ -70,6 +70,10 @@ if ($strFunc == 'logout') {
     exit();
 }
 
+if (!$strList) {
+    $strList = getListFromFunc($strFunc);
+}
+
 if ($strFunc == 'send_api') {
     include_once 'apiclient.php';
     $invoiceId = getPostOrQuery('invoice_id');
@@ -163,12 +167,10 @@ if ($strFunc == 'open_invoices' && !$strForm) {
   </div>
     <?php
     if (getSetting('check_updates')) {
-        $address = defined('_UPDATE_ADDRESS_') ? _UPDATE_ADDRESS_
-        : 'https://www.labs.fi/mlinvoice_version.php';
         ?>
   <script>
     $(document).ready(function() {
-        MLInvoice.checkForUpdates('<?php echo $address?>', '<?php echo $softwareVersion?>');
+        MLInvoice.checkForUpdates('<?php echo $softwareVersion?>');
     });
   </script>
         <?php
@@ -240,8 +242,10 @@ if ($strFunc == 'system' && $operation == 'export' && sesAdminAccess()) {
         createFuncMenu($strFunc);
         if ($strFunc == 'open_invoices') {
             createOpenInvoiceList();
+        } elseif ($strFunc == 'invoices') {
+            createList($strFunc, $strList, '', '', '', false, false, 'invoice');
         } elseif ($strFunc == 'archived_invoices') {
-            createList('archived_invoices', 'archived_invoices', 'archived_invoices', '');
+            createList('archived_invoices', 'archived_invoices', 'archived_invoices', '', '', false, false, 'invoice');
         } else {
             if ($strList == 'settings') {
                 createSettingsList();

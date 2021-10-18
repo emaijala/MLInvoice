@@ -446,8 +446,14 @@ class ImportStatement extends ImportFile
         $row = $rows[0];
 
         if (!$row['invoice_unpaid']) {
-            return str_replace(
-                '{refnr}', $refnr, Translator::translate('ImportStatementInvoiceAlreadyPaid')
+            return Translator::translate(
+                'ImportStatementInvoiceAlreadyPaid',
+                [
+                    '{id}' => $row['id'],
+                    '{refnr}' => $refnr,
+                    '{payment_date}'
+                        => dateConvDBDate2Date($row['payment_date']) ?: '-'
+                ]
             );
         }
 
