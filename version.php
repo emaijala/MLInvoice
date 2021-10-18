@@ -4,7 +4,7 @@
  *
  * PHP version 5
  *
- * Copyright (C) Ere Maijala 2010-2019.
+ * Copyright (C) Ere Maijala 2010-2021.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2,
@@ -25,4 +25,4 @@
  * @license  http://opensource.org/licenses/gpl-2.0.php GNU General Public License
  * @link     http://labs.fi/mlinvoice.eng.php
  */
-$softwareVersion = '1.21.2';
+$softwareVersion = '1.22.0';
