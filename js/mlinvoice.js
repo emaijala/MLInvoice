@@ -1,6 +1,6 @@
 /* global $, bootstrap, Cookies, moment */
 /* exported MLInvoice */
-var MLInvoice = (function MLInvoice() {
+var MLInvoice = (function CreateMLInvoice() {
   var _modules = [];
   var _initDone = false;
   var _translations = {};
@@ -9,7 +9,7 @@ var MLInvoice = (function MLInvoice() {
   var _keepAliveEnabled = true;
   var _currencyDecimals = 2;
   var _datePickerDefaults = {};
-  var _dateFormat = 'dd.mm.yyyy';
+  var _dateFormat = 'DD.MM.YYYY';
 
   function addTranslation(key, value) {
     _translations[key] = value;
@@ -126,6 +126,10 @@ var MLInvoice = (function MLInvoice() {
 
   function setCurrencyDecimals(value) {
     _currencyDecimals = value;
+  }
+
+  function getDateFormat() {
+    return _dateFormat;
   }
 
   function setDateFormat(value) {
@@ -372,7 +376,7 @@ var MLInvoice = (function MLInvoice() {
         'UpdateAvailableTitle',
         {
           '{version}': data.version,
-          '{date}': formatDate(date.date)
+          '{date}': formatDate(data.date)
         }
       );
       var $span = $('<span/>').attr('title', title).text(translate('UpdateAvailable') + ' ');
@@ -482,7 +486,7 @@ var MLInvoice = (function MLInvoice() {
         settings.maxDate = moment();
       }
       $input.daterangepicker(settings, function applyDatePick(start) {
-        $input.val(start.format(_dateFormat));
+        $input.val(start.format(MLInvoice.getDateFormat()));
         $input.trigger('change');
       });
     });
@@ -735,6 +739,7 @@ var MLInvoice = (function MLInvoice() {
     errormsg: errormsg,
     editUnitPrice: editUnitPrice,
     setCurrencyDecimals: setCurrencyDecimals,
+    getDateFormat: getDateFormat,
     setDateFormat: setDateFormat,
     checkForUpdates: checkForUpdates,
     calcRowSum: calcRowSum,
@@ -749,3 +754,7 @@ var MLInvoice = (function MLInvoice() {
     updateBaseLogo: updateBaseLogo
   }
 })();
+
+$(document).ready(function initMLInvoice() {
+  MLInvoice.init();
+});

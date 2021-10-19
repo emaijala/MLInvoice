@@ -837,7 +837,7 @@ MLInvoice.addModule('Form', function mlinvoiceForm() {
     var form = $('#admin_form');
     if (typeof form.data('checkInvoiceDate') !== 'undefined') {
       var invoiceDate = MLInvoice.parseDate($('#invoice_date').val(), '-');
-      if (invoiceDate !== moment().format('Y-m-d')) {
+      if (invoiceDate !== moment().format('YYYY-MM-DD')) {
         if (!confirm(MLInvoice.translate('InvoiceDateNonCurrent'))) {
           return false;
         }

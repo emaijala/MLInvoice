@@ -250,10 +250,6 @@ MLInvoice.setKeepAlive($keepAlive);
 MLInvoice.setCurrencyDecimals($currencyDecimals);
 MLInvoice.setDateFormat('$dateFormat');
 MLInvoice.setDatePickerDefaults($datePickerOptions);
-$(document).ready(function() {
-  MLInvoice.init();
-
-});
   </script>
 </head>
 EOT;
