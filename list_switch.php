@@ -123,6 +123,7 @@ case 'company':
 
 case 'invoice':
 case 'archived_invoice':
+case 'archived_invoices':
 case 'invoice':
 case 'offer':
     $levelsAllowed[] = ROLE_READONLY;
