@@ -278,7 +278,7 @@ class Updater
         set_time_limit(0);
 
         $filename = tempnam(sys_get_temp_dir(), 'mlinvoice') . '.zip';
-        $client = new GuzzleHttp\Client();
+        $client = new GuzzleHttp\Client($GLOBALS['mlinvoice_http_config'] ?? []);
         try {
             $res = $client->get(
                 $versionInfo['package'],
@@ -531,7 +531,7 @@ class Updater
         $address .= 'channel='
             . (defined('_UPDATE_CHANNEL_') ? _UPDATE_CHANNEL_ : 'production');
 
-        $client = new GuzzleHttp\Client();
+        $client = new GuzzleHttp\Client($GLOBALS['mlinvoice_http_config'] ?? []);
         try {
             $res = $client->get($address);
         } catch (Exception $e) {
