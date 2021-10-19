@@ -88,7 +88,7 @@ class Postitafi
         $result = $printer->createPrintout();
         $recipient = getCompany($invoice['company_id']);
 
-        $httpClient = new GuzzleHttp\Client();
+        $httpClient = new GuzzleHttp\Client($GLOBALS['mlinvoice_http_config'] ?? []);
 
         if ($printer instanceof InvoicePrinterFinvoice) {
             $pdfPrinter = GetInvoicePrinter('invoice_printer.php');

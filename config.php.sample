@@ -153,5 +153,12 @@ $GLOBALS['mlinvoice_mail_settings'] = [
 // See https://tideways.io/profiler/xhprof-for-php7-php5.6 for more information.
 //define('_PROFILING_', true);
 
+// Use the following settings to modify the HTTP client configuration:
+// See https://docs.guzzlephp.org/en/6.5/request-options.html for available options.
+// Make sure to only use options that apply globally, such as proxy or verify.
+$GLOBALS['mlinvoice_http_config'] = [
+//    'verify' => '/path/to/certificate/bundle.pem'
+];
+
 // N.B.! Other settings can be found in the UI (Settings -> General Settings)
 // HUOM! Muut asetukset löytyvät käyttöliittymästä kohdasta Asetukset - Yleiset asetukset
