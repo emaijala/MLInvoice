@@ -3,7 +3,7 @@
 <!--
  This file is licensed under the MIT license.
 
- Copyright 2011-2019 Ere Maijala
+ Copyright 2011-2021 Ere Maijala
 
  Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
 
@@ -21,7 +21,7 @@
   <xsl:text disable-output-escaping="yes">&lt;?xml-stylesheet type="text/xsl" href="</xsl:text><xsl:value-of select="$stylesheet"/><xsl:text disable-output-escaping="yes">"?&gt;&#10;</xsl:text>
   </xsl:if>
 
-<Finvoice Version="2.01" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="Finvoice2.01.xsd">
+<Finvoice Version="3.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="Finvoice3.0.xsd">
   <xsl:if test="$printTransmissionDetails">
     <MessageTransmissionDetails>
         <MessageSenderDetails>

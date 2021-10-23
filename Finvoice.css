@@ -1,4 +1,4 @@
-/* Modified 3.11.2012 15:45 */
+/* Modified 26.9.2017 */
 
 body
 {
@@ -93,7 +93,7 @@ table.invoiceRows
 	width:100%;
 	border-top:2px solid black;
 	border-bottom:2px solid black;
-	margin:2ex 0em 2ex 0em;
+	margin:2ex 0em 0em 0em;
 	border-collapse:collapse;
 }
 
@@ -127,9 +127,8 @@ td.InvoiceRow,  td.SubInvoiceRow {}
 
 td.RowAmount { text-align:right; }
 
-tr.groupSeparator td
-{
-	height:1em;
+tbody.groupBegins tr:first-child td {
+    padding-top: 1em;
 }
 
 tr.rowSeparator td
@@ -200,7 +199,7 @@ div.SpecificationDetails
 	border-bottom:1px solid black;
 }
 
-div.invoiceAnyPartyDetails { margin:2ex 0ex 0ex 0ex; }
+div.invoiceAnyPartyDetails {}
 
 div.PartialPaymentDetails { margin:2ex 0ex 0ex 0ex; }
 
@@ -234,4 +233,4 @@ div.stamps
 	border-top:2px solid black;
 }
 
-/*.isNewVersion { background-color:blue; color:yellow; }*/
+.isNew { background-color:yellow; }

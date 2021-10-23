@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
-<!-- Modified 6.11.2012 10:46 -->
+<!-- Modified 15.2.2018 -->
 <xsl:stylesheet version="1.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
 	<xsl:output method="html" doctype-public="-//W3C//DTD HTML 4.01 Transitional//EN" version="4.01" doctype-system="http://www.w3.org/TR/html4/loose.dtd"/>
 	<!-- InvoiceDetails/DefinitionDetails -tietojen tulostuspaikan valinta: 1=ylös, 2=alas-->
@@ -196,7 +196,7 @@
 	<xsl:variable name="txtCountryOfDestinationName">Kohdemaa</xsl:variable>
 	<xsl:variable name="txtOrderConfirmationIdentifier">Tilausvahvistus</xsl:variable>
 	<xsl:variable name="txtOrderConfirmationDate">Tilausvahvistuspäivä</xsl:variable>
-	<xsl:variable name="txtInvoiceTotalVatAmount">ALV yhteensä</xsl:variable>
+	<xsl:variable name="txtTotalVatAmount">ALV yhteensä</xsl:variable>
 	<xsl:variable name="txtOtherCurrencyAmountVatExcludedAmount">Laskun summa veroton valuutassa</xsl:variable>
 	<xsl:variable name="txtMonthlyAmount">Lyhennyserä</xsl:variable>
 	<xsl:variable name="txtSellerAccountText">Myyjän tiliöintitiedot</xsl:variable>
@@ -214,7 +214,24 @@
 	<xsl:variable name="txtControlStampText">Tarkastusmerkintä</xsl:variable>
 	<xsl:variable name="txtAcceptanceStampText">Hyväksymismerkintä</xsl:variable>
 	<xsl:variable name="txtAttachments">Laskulla on liitteitä.</xsl:variable>
-	<!-- Tekstit loppuivat -->
+	<xsl:variable name="txtInvoicedObjectID">Laskun kohde</xsl:variable>
+	<xsl:variable name="txtRowsTotalVatExcludedAmount">Rivit yhteensä veroton</xsl:variable>
+	<xsl:variable name="txtDiscountsTotalVatExcluded">Laskun alennus veroton</xsl:variable>
+	<xsl:variable name="txtChargesTotalVatExcluded">Laskun kulut veroton</xsl:variable>
+	<xsl:variable name="txtInvoiceTotalVatAccountingAmount">kirjanpitovaluutassa</xsl:variable>
+	<xsl:variable name="txtInvoicePaidAmount">Maksettu aiemmin</xsl:variable>
+	<xsl:variable name="txtVatPointDate">ALV-päivä</xsl:variable>
+	<xsl:variable name="txtBaseAmountCap">Summasta</xsl:variable>
+	<xsl:variable name="txtChargeDetails">Kulutiedot</xsl:variable>
+	<xsl:variable name="txtTenderReference">Tarjouksen viite</xsl:variable>
+	<xsl:variable name="txtCardNumber">Maksukortti</xsl:variable>
+	<xsl:variable name="txtCardHolderName">Kortinhaltija</xsl:variable>
+	<xsl:variable name="txtDDMandateReference">Suoraveloitusvaltakirja</xsl:variable>
+	<xsl:variable name="txtDDCreditorIdentifier">Suoraveloittaja</xsl:variable>
+	<xsl:variable name="txtDDAccountID">Veloitettava tili</xsl:variable>
+	<xsl:variable name="txtNetAmount">Netto</xsl:variable>
+	<xsl:variable name="txtCharge">Kulu</xsl:variable>
+  <!-- Tekstit loppuivat -->
 	<xsl:template match="Finvoice">
 		<html>
 			<head>
@@ -226,7 +243,10 @@
 						<xsl:with-param name="originText" select="InvoiceDetails/OriginText"/>
 					</xsl:call-template>
 					<xsl:text> - </xsl:text>
-					<xsl:value-of select="SellerPartyDetails/SellerOrganisationName"/>
+          <xsl:call-template name="OutputOneString">
+            <xsl:with-param name="str1" select="SellerPartyDetails/SellerOrganisationTradingName"/>
+            <xsl:with-param name="str2" select="SellerPartyDetails/SellerOrganisationName"/>
+          </xsl:call-template>
 					<xsl:text> - </xsl:text>
 					<xsl:call-template name="OutputDate"><xsl:with-param name="theDate" select="InvoiceDetails/InvoiceDate"/></xsl:call-template>
 				</title>
@@ -238,7 +258,13 @@
 						<xsl:with-param name="originCode" select="InvoiceDetails/OriginCode"/>
 						<xsl:with-param name="originText" select="InvoiceDetails/OriginText"/>
 					</xsl:call-template>
-				</div>
+          <xsl:if test="string-length(InvoiceDetails/InvoiceClassification/ClassificationText) != 0">
+            <br/>
+            <xsl:call-template name="OutputTextBR">
+              <xsl:with-param name="txtText" select="InvoiceDetails/InvoiceClassification/ClassificationText"/>
+            </xsl:call-template>
+          </xsl:if>
+        </div>
 				<table class="invoiceTop">
 						<tbody>
 							<tr>
@@ -261,14 +287,16 @@
 												</xsl:when>
 											</xsl:choose>
 											<xsl:call-template name="OutputTextBR">
-												<xsl:with-param name="isNewVersion" select="'1'"/>
 												<xsl:with-param name="txtTitle" select="SellerPartyDetails/SellerCode/@IdentifierType"/>
 												<xsl:with-param name="txtText" select="SellerPartyDetails/SellerCode"/>
 											</xsl:call-template>
 											<xsl:for-each select="SellerPartyDetails/SellerOrganisationName">
 												<xsl:call-template name="OutputCurrentTextBR"/>
 											</xsl:for-each>
-											<xsl:for-each select="SellerPartyDetails/SellerOrganisationDepartment">
+                      <xsl:call-template name="OutputTextBR">
+                        <xsl:with-param name="txtText" select="SellerPartyDetails/SellerOrganisationTradingName"/>
+                      </xsl:call-template>
+                      <xsl:for-each select="SellerPartyDetails/SellerOrganisationDepartment">
 												<xsl:call-template name="OutputCurrentTextBR"/>
 											</xsl:for-each>
 											<xsl:call-template name="OutputTextBR">
@@ -285,14 +313,11 @@
 													</xsl:call-template>
 												</xsl:with-param>
 											</xsl:call-template>
-											<xsl:call-template name="OutputTextBR">
-												<xsl:with-param name="txtText">
-													<xsl:call-template name="BuildCountryString">
-														<xsl:with-param name="theCountryCode" select="SellerPartyDetails/SellerPostalAddressDetails/CountryCode"/>
-														<xsl:with-param name="theCountryName" select="SellerPartyDetails/SellerPostalAddressDetails/CountryName"/>
-													</xsl:call-template>
-												</xsl:with-param>
-											</xsl:call-template>
+                      <xsl:call-template name="OutputCountry">
+                        <xsl:with-param name="theCountrySubdivision" select="SellerPartyDetails/SellerPostalAddressDetails/SellerCountrySubdivision"/>
+                        <xsl:with-param name="theCountryCode" select="SellerPartyDetails/SellerPostalAddressDetails/CountryCode"/>
+                        <xsl:with-param name="theCountryName" select="SellerPartyDetails/SellerPostalAddressDetails/CountryName"/>
+                      </xsl:call-template>
 											<xsl:call-template name="OutputTextBR">
 												<xsl:with-param name="txtTitle" select="$txtSiteCode"/>
 												<xsl:with-param name="txtText" select="SellerSiteCode"/>
@@ -326,9 +351,7 @@
 														<xsl:call-template name="OutputCurrentTextBR"/>
 													</xsl:for-each>
 													<xsl:for-each select="InvoiceRecipientPartyDetails/InvoiceRecipientDepartment">
-														<xsl:call-template name="OutputCurrentTextBR">
-															<xsl:with-param name="isNewVersion" select="'1'"/>
-														</xsl:call-template>
+														<xsl:call-template name="OutputCurrentTextBR"/>
 													</xsl:for-each>
 													<xsl:call-template name="OutputTextBR">
 														<xsl:with-param name="txtText" select="InvoiceRecipientPartyDetails/InvoiceRecipientPostalAddressDetails/InvoiceRecipientPostOfficeBoxIdentifier"/>
@@ -344,13 +367,10 @@
 															</xsl:call-template>
 														</xsl:with-param>
 													</xsl:call-template>
-													<xsl:call-template name="OutputTextBR">
-														<xsl:with-param name="txtText">
-															<xsl:call-template name="BuildCountryString">
-																<xsl:with-param name="theCountryCode" select="InvoiceRecipientPartyDetails/InvoiceRecipientPostalAddressDetails/CountryCode"/>
-																<xsl:with-param name="theCountryName" select="InvoiceRecipientPartyDetails/InvoiceRecipientPostalAddressDetails/CountryName"/>
-															</xsl:call-template>
-														</xsl:with-param>
+													<xsl:call-template name="OutputCountry">
+                            <xsl:with-param name="theCountrySubdivision" select="InvoiceRecipientPartyDetails/InvoiceRecipientPostalAddressDetails/InvoiceRecipientCountrySubdivision"/>
+                            <xsl:with-param name="theCountryCode" select="InvoiceRecipientPartyDetails/InvoiceRecipientPostalAddressDetails/CountryCode"/>
+														<xsl:with-param name="theCountryName" select="InvoiceRecipientPartyDetails/InvoiceRecipientPostalAddressDetails/CountryName"/>
 													</xsl:call-template>
 												</div>
 											</div>
@@ -363,19 +383,20 @@
 											</div>
 											<div class="data">
 												<xsl:call-template name="OutputTextBR">
-													<xsl:with-param name="isNewVersion" select="'1'"/>
 													<xsl:with-param name="txtTitle" select="$txtPartyIdentifier"/>
 													<xsl:with-param name="txtText" select="BuyerPartyDetails/BuyerPartyIdentifier"/>
 												</xsl:call-template>
 												<xsl:call-template name="OutputTextBR">
-													<xsl:with-param name="isNewVersion" select="'1'"/>
 													<xsl:with-param name="txtTitle" select="BuyerPartyDetails/BuyerCode/@IdentifierType"/>
 													<xsl:with-param name="txtText" select="BuyerPartyDetails/BuyerCode"/>
 												</xsl:call-template>
 												<xsl:for-each select="BuyerPartyDetails/BuyerOrganisationName">
 													<xsl:call-template name="OutputCurrentTextBR"/>
 												</xsl:for-each>
-												<xsl:for-each select="BuyerPartyDetails/BuyerOrganisationDepartment">
+                        <xsl:call-template name="OutputTextBR">
+                          <xsl:with-param name="txtText" select="BuyerPartyDetails/BuyerOrganisationTradingName"/>
+                        </xsl:call-template>
+                        <xsl:for-each select="BuyerPartyDetails/BuyerOrganisationDepartment">
 													<xsl:call-template name="OutputCurrentTextBR"/>
 												</xsl:for-each>
 												<xsl:call-template name="OutputTextBR">
@@ -392,13 +413,10 @@
 														</xsl:call-template>
 													</xsl:with-param>
 												</xsl:call-template>
-												<xsl:call-template name="OutputTextBR">
-													<xsl:with-param name="txtText">
-														<xsl:call-template name="BuildCountryString">
-															<xsl:with-param name="theCountryCode" select="BuyerPartyDetails/BuyerPostalAddressDetails/CountryCode"/>
-															<xsl:with-param name="theCountryName" select="BuyerPartyDetails/BuyerPostalAddressDetails/CountryName"/>
-														</xsl:call-template>
-													</xsl:with-param>
+												<xsl:call-template name="OutputCountry">
+                          <xsl:with-param name="theCountrySubdivision" select="BuyerPartyDetails/BuyerPostalAddressDetails/BuyerCountrySubdivision"/>
+                          <xsl:with-param name="theCountryCode" select="BuyerPartyDetails/BuyerPostalAddressDetails/CountryCode"/>
+													<xsl:with-param name="theCountryName" select="BuyerPartyDetails/BuyerPostalAddressDetails/CountryName"/>
 												</xsl:call-template>
 												<br/>
 												<xsl:call-template name="OutputTextBR">
@@ -473,7 +491,6 @@
 											<xsl:with-param name="txtText" select="InvoiceRecipientPartyDetails/InvoiceRecipientPartyIdentifier"/>
 										</xsl:call-template>
 										<xsl:call-template name="OutputTextBR">
-											<xsl:with-param name="isNewVersion" select="'1'"/>
 											<xsl:with-param name="txtTitle" select="InvoiceRecipientPartyDetails/InvoiceRecipientCode/@IdentifierType"/>
 											<xsl:with-param name="txtText" select="InvoiceRecipientPartyDetails/InvoiceRecipientCode"/>
 										</xsl:call-template>
@@ -505,11 +522,14 @@
 									<table class="invoiceTopRight">
 										<tbody>
 											<xsl:call-template name="OutputTitleDataRow">
-												<xsl:with-param name="isNewVersion" select="'1'"/>
 												<xsl:with-param name="theTitle" select="$txtEpiPaymentInstructionId"/>
 												<xsl:with-param name="theData" select="string(EpiDetails/EpiPaymentInstructionDetails/EpiPaymentInstructionId)"/>
 											</xsl:call-template>
-											<xsl:call-template name="OutputTitleDataRow">
+                      <xsl:call-template name="OutputTitleDataRow">
+                        <xsl:with-param name="theTitle" select="$txtInvoicedObjectID"/>
+                        <xsl:with-param name="theData" select="string(InvoiceDetails/InvoicedObjectID)"/>
+                      </xsl:call-template>
+                      <xsl:call-template name="OutputTitleDataRow">
 												<xsl:with-param name="theTitle" select="$txtInvoiceDate"/>
 												<xsl:with-param name="theData">
 													<xsl:call-template name="OutputDate"><xsl:with-param name="theDate" select="InvoiceDetails/InvoiceDate"/></xsl:call-template>
@@ -523,7 +543,29 @@
 												<xsl:with-param name="theTitle" select="$txtOriginalInvoice"/>
 												<xsl:with-param name="theData" select="string(InvoiceDetails/OriginalInvoiceNumber)"/>
 											</xsl:call-template>
-											<xsl:call-template name="OutputTitleDataRow">
+                      <xsl:call-template name="OutputTitleDataRow">
+                        <xsl:with-param name="theTitle" select="$txtOriginalInvoiceDate"/>
+                        <xsl:with-param name="theData">
+                          <xsl:call-template name="OutputDate">
+                            <xsl:with-param name="theDate" select="InvoiceDetails/OriginalInvoiceDate"/>
+                          </xsl:call-template>
+                        </xsl:with-param>
+                      </xsl:call-template>
+                      <xsl:for-each select="InvoiceDetails/OriginalInvoiceReference">
+                        <xsl:call-template name="OutputTitleDataRow">
+                          <xsl:with-param name="theTitle" select="$txtOriginalInvoice"/>
+                          <xsl:with-param name="theData" select="string(InvoiceNumber)"/>
+                        </xsl:call-template>
+                        <xsl:call-template name="OutputTitleDataRow">
+                          <xsl:with-param name="theTitle" select="$txtOriginalInvoiceDate"/>
+                          <xsl:with-param name="theData">
+                            <xsl:call-template name="OutputDate">
+                              <xsl:with-param name="theDate" select="InvoiceDate"/>
+                            </xsl:call-template>
+                          </xsl:with-param>
+                        </xsl:call-template>
+                      </xsl:for-each>
+                      <xsl:call-template name="OutputTitleDataRow">
 												<xsl:with-param name="theTitle" select="$txtInvoicingPeriod"/>
 												<xsl:with-param name="theData">
 													<xsl:call-template name="OutputDatePeriod">
@@ -561,12 +603,10 @@
 												<xsl:with-param name="theData" select="string(InvoiceDetails/OrdererName)"/>
 											</xsl:call-template>
 											<xsl:call-template name="OutputTitleDataRow">
-												<xsl:with-param name="isNewVersion" select="'1'"/>
 												<xsl:with-param name="theTitle" select="$txtOrderConfirmationIdentifier"/>
 												<xsl:with-param name="theData" select="string(InvoiceDetails/OrderConfirmationIdentifier)"/>
 											</xsl:call-template>
 											<xsl:call-template name="OutputTitleDataRow">
-												<xsl:with-param name="isNewVersion" select="'1'"/>
 												<xsl:with-param name="theTitle" select="$txtOrderConfirmationDate"/>
 												<xsl:with-param name="theData">
 													<xsl:call-template name="OutputDate"><xsl:with-param name="theDate" select="InvoiceDetails/OrderConfirmationDate"/></xsl:call-template>
@@ -595,13 +635,16 @@
 													<xsl:call-template name="OutputDate"><xsl:with-param name="theDate" select="InvoiceDetails/AgreementDate"/></xsl:call-template>
 												</xsl:with-param>
 											</xsl:call-template>
-											<!--
+                      <xsl:call-template name="OutputTitleDataRow">
+                        <xsl:with-param name="theTitle" select="$txtTenderReference"/>
+                        <xsl:with-param name="theData" select="string(InvoiceDetails/TenderReference)"/>
+                      </xsl:call-template>
+                      <!--
 											<xsl:call-template name="OutputTitleDataRow">
 												<xsl:with-param name="theTitle" select="$txtPartyIdentifier"/>
 												<xsl:with-param name="theData" select="string(BuyerPartyDetails/BuyerPartyIdentifier)"/>
 											</xsl:call-template>
 											<xsl:call-template name="OutputTitleDataRow">
-												<xsl:with-param name="isNewVersion" select="'1'"/>
 												<xsl:with-param name="theTitle" select="string(BuyerPartyDetails/BuyerCode/@IdentifierType)"/>
 												<xsl:with-param name="theData" select="string(BuyerPartyDetails/BuyerCode)"/>
 											</xsl:call-template>
@@ -615,7 +658,6 @@
 												<xsl:with-param name="theData" select="string(InvoiceDetails/BuyerReferenceIdentifier)"/>
 											</xsl:call-template>
 											<xsl:call-template name="OutputTitleDataRow">
-												<xsl:with-param name="isNewVersion" select="'1'"/>
 												<xsl:with-param name="theTitle" select="$txtSellersBuyerIdentifier"/>
 												<xsl:with-param name="theData" select="string(InvoiceDetails/SellersBuyerIdentifier)"/>
 											</xsl:call-template>
@@ -651,13 +693,14 @@
 												<xsl:with-param name="theTitle" select="$txtProjectRefId"/>
 												<xsl:with-param name="theData" select="string(InvoiceDetails/ProjectReferenceIdentifier)"/>
 											</xsl:call-template>
-											<xsl:call-template name="OutputTitleDataRowSeparator"/>
-											<xsl:call-template name="OutputTitleDataRow">
-												<xsl:with-param name="theClass" select="'EpiInstructedAmount'"/>
-												<xsl:with-param name="theTitle" select="$txtEpiInstructedAmount"/>
-												<xsl:with-param name="theData">
-													<xsl:call-template name="OutputAmount"><xsl:with-param name="theAmount" select="EpiDetails/EpiPaymentInstructionDetails/EpiInstructedAmount"/></xsl:call-template>
-												</xsl:with-param>
+                    </tbody>
+                    <tbody class="groupBegins">
+                      <xsl:call-template name="OutputTitleDataRow">
+											<xsl:with-param name="theClass" select="'EpiInstructedAmount'"/>
+											<xsl:with-param name="theTitle" select="$txtEpiInstructedAmount"/>
+											<xsl:with-param name="theData">
+												<xsl:call-template name="OutputAmount"><xsl:with-param name="theAmount" select="EpiDetails/EpiPaymentInstructionDetails/EpiInstructedAmount"/></xsl:call-template>
+											</xsl:with-param>
 											</xsl:call-template>
 											<xsl:call-template name="OutputTitleDataRow">
 												<xsl:with-param name="theClass" select="'EpiDateOptionDate'"/>
@@ -694,8 +737,41 @@
 													</xsl:call-template>
 												</xsl:with-param>
 											</xsl:call-template>
-											<xsl:call-template name="OutputTitleDataRowSeparator"/>
-											<xsl:call-template name="OutputTitleDataRow">
+                    </tbody>
+                    <xsl:if test="PaymentCardInfo">
+                      <tbody class="groupBegins">
+                        <xsl:call-template name="OutputTitleDataRow">
+                          <xsl:with-param name="theTitle" select="$txtCardNumber"/>
+                          <xsl:with-param name="theData" select="PaymentCardInfo/PrimaryAccountNumber"/>
+                        </xsl:call-template>
+                        <xsl:call-template name="OutputTitleDataRow">
+                          <xsl:with-param name="theTitle" select="$txtCardHolderName"/>
+                          <xsl:with-param name="theData" select="PaymentCardInfo/CardHolderName"/>
+                        </xsl:call-template>
+                      </tbody>
+                    </xsl:if>
+                    <xsl:if test="DirectDebitInfo">
+                      <tbody class="groupBegins">
+                        <xsl:call-template name="OutputTitleDataRow">
+                          <xsl:with-param name="theTitle" select="$txtDDMandateReference"/>
+                          <xsl:with-param name="theData" select="DirectDebitInfo/MandateReference"/>
+                        </xsl:call-template>
+                        <xsl:call-template name="OutputTitleDataRow">
+                          <xsl:with-param name="theTitle" select="$txtDDCreditorIdentifier"/>
+                          <xsl:with-param name="theData" select="DirectDebitInfo/CreditorIdentifier"/>
+                        </xsl:call-template>
+                        <xsl:call-template name="OutputTitleDataRow">
+                          <xsl:with-param name="theTitle" select="$txtDDAccountID"/>
+                          <xsl:with-param name="theData">
+                            <xsl:call-template name="OutputEpiAccountID">
+                              <xsl:with-param name="theAccount" select="DirectDebitInfo/DebitedAccountID"/>
+                            </xsl:call-template>
+                          </xsl:with-param>
+                        </xsl:call-template>
+                      </tbody>
+                    </xsl:if>
+                    <tbody class="groupBegins">
+                      <xsl:call-template name="OutputTitleDataRow">
 												<xsl:with-param name="theTitle" select="$txtCreditLimit"/>
 												<xsl:with-param name="theData">
 													<xsl:call-template name="OutputAmount"><xsl:with-param name="theAmount" select="InvoiceDetails/CreditLimitAmount"/></xsl:call-template>
@@ -717,240 +793,253 @@
 												</xsl:with-param>
 											</xsl:call-template>
 											<xsl:call-template name="OutputTitleDataRow">
-												<xsl:with-param name="isNewVersion" select="'1'"/>
 												<xsl:with-param name="theTitle" select="$txtMonthlyAmount"/>
 												<xsl:with-param name="theData">
 													<xsl:call-template name="OutputAmount"><xsl:with-param name="theAmount" select="InvoiceDetails/MonthlyAmount"/></xsl:call-template>
 												</xsl:with-param>
 											</xsl:call-template>
-											<xsl:if test="string-length(PaymentStatusDetails/PaymentStatusCode) != 0">
-												<xsl:call-template name="OutputTitleDataRowSeparator"/>
+                    </tbody>
+                    <xsl:if test="(string-length(PaymentStatusDetails/PaymentStatusCode) != 0) or (string-length(PaymentStatusDetails/PaymentMethodText) != 0) or (string-length(EpiPaymentInstructionDetails/EpiPaymentMeansText) != 0)">
+                      <tbody class="groupBegins">
+                        <xsl:if test="string-length(PaymentStatusDetails/PaymentStatusCode) != 0">
+                          <xsl:call-template name="OutputTitleDataRow">
+													  <xsl:with-param name="theTitle" select="$txtPaymentStatusCode"/>
+													  <xsl:with-param name="theData">
+														  <xsl:choose>
+															  <xsl:when test="PaymentStatusDetails/PaymentStatusCode = 'NOTPAID'">
+																  <xsl:value-of select="$txtPaymentStatusNotPaid"/>
+															  </xsl:when>
+															  <xsl:when test="PaymentStatusDetails/PaymentStatusCode = 'PARTLYPAID'">
+																  <xsl:value-of select="$txtPaymentStatusPartlyPaid"/>
+															  </xsl:when>
+															  <xsl:when test="PaymentStatusDetails/PaymentStatusCode = 'PAID'">
+																  <xsl:value-of select="$txtPaymentStatusPaid"/>
+															  </xsl:when>
+															  <xsl:otherwise>
+																  <xsl:value-of select="PaymentStatusDetails/PaymentStatusCode"/>
+															  </xsl:otherwise>
+														  </xsl:choose>
+													  </xsl:with-param>
+												  </xsl:call-template>
+                        </xsl:if>
+                        <xsl:call-template name="OutputTitleDataRow">
+                          <xsl:with-param name="theTitle" select="$txtPaymentMethodText"/>
+                          <xsl:with-param name="theData" select="string(PaymentStatusDetails/PaymentMethodText)"/>
+                        </xsl:call-template>
+                        <xsl:call-template name="OutputTitleDataRow">
+                          <xsl:with-param name="theTitle" select="$txtPaymentMethodText"/>
+                          <xsl:with-param name="theData" select="string(EpiDetails/EpiPaymentInstructionDetails/EpiPaymentMeansText)"/>
+                        </xsl:call-template>
+                      </tbody>
+                    </xsl:if>
+                    <xsl:for-each select="InvoiceDetails/PaymentTermsDetails">
+											<xsl:variable name="ptDetails">
 												<xsl:call-template name="OutputTitleDataRow">
-													<xsl:with-param name="theTitle" select="$txtPaymentStatusCode"/>
+													<xsl:with-param name="theTitle" select="$txtPaymentOverDueFineDetails"/>
 													<xsl:with-param name="theData">
-														<xsl:choose>
-															<xsl:when test="PaymentStatusDetails/PaymentStatusCode = 'NOTPAID'">
-																<xsl:value-of select="$txtPaymentStatusNotPaid"/>
-															</xsl:when>
-															<xsl:when test="PaymentStatusDetails/PaymentStatusCode = 'PARTLYPAID'">
-																<xsl:value-of select="$txtPaymentStatusPartlyPaid"/>
-															</xsl:when>
-															<xsl:when test="PaymentStatusDetails/PaymentStatusCode = 'PAID'">
-																<xsl:value-of select="$txtPaymentStatusPaid"/>
-															</xsl:when>
-															<xsl:otherwise>
-																<xsl:value-of select="PaymentStatusDetails/PaymentStatusCode"/>
-															</xsl:otherwise>
-														</xsl:choose>
+														<xsl:for-each select="PaymentOverDueFineDetails/PaymentOverDueFineFreeText">
+															<xsl:if test="position() != 1"><br/></xsl:if><xsl:value-of select="."/>
+														</xsl:for-each>
+													</xsl:with-param>
+												</xsl:call-template>
+                        <xsl:for-each select="FreeText">
+                          <xsl:call-template name="OutputTitleDataRow">
+                            <xsl:with-param name="theTitle" select="string(Header)"/>
+                            <xsl:with-param name="theData">
+                              <xsl:for-each select="Value">
+                                <xsl:if test="position() != 1">
+                                  <br/>
+                                </xsl:if>
+                                <xsl:value-of select="."/>
+                              </xsl:for-each>
+                            </xsl:with-param>
+                          </xsl:call-template>
+                        </xsl:for-each>
+												<xsl:call-template name="OutputTitleDataRow">
+													<xsl:with-param name="theTitle" select="$txtPaymentOverDueFine"/>
+													<xsl:with-param name="theData">
+														<xsl:call-template name="OutputPercentage">
+															<xsl:with-param name="thePercentage" select="PaymentOverDueFineDetails/PaymentOverDueFinePercent"/>
+														</xsl:call-template>
+													</xsl:with-param>
+												</xsl:call-template>
+												<xsl:call-template name="OutputTitleDataRow">
+													<xsl:with-param name="theTitle" select="$txtPaymentOverDueFine"/>
+													<xsl:with-param name="theData">
+														<xsl:call-template name="OutputAmount">
+															<xsl:with-param name="theAmount" select="PaymentOverDueFineDetails/PaymentOverDueFixedAmount"/>
+														</xsl:call-template>
+													</xsl:with-param>
+												</xsl:call-template>
+												<xsl:for-each select="PaymentTermsFreeText">
+													<xsl:call-template name="OutputTitleDataRow">
+														<xsl:with-param name="theTitle" select="$txtPaymentTermsFreeText"/>
+														<xsl:with-param name="theData" select="string(.)"/>
+													</xsl:call-template>
+												</xsl:for-each>
+												<xsl:call-template name="OutputTitleDataRow">
+													<xsl:with-param name="theTitle" select="$txtInvoiceDueDate"/>
+													<xsl:with-param name="theData">
+														<xsl:call-template name="OutputDate"><xsl:with-param name="theDate" select="InvoiceDueDate"/></xsl:call-template>
+													</xsl:with-param>
+												</xsl:call-template>
+												<xsl:call-template name="OutputTitleDataRow">
+													<xsl:with-param name="theTitle" select="$txtCashDiscountDate"/>
+													<xsl:with-param name="theData">
+														<xsl:call-template name="OutputDate"><xsl:with-param name="theDate" select="CashDiscountDate"/></xsl:call-template>
+													</xsl:with-param>
+												</xsl:call-template>
+												<xsl:call-template name="OutputTitleDataRow">
+													<xsl:with-param name="theTitle" select="$txtCashDiscountPercent"/>
+													<xsl:with-param name="theData">
+														<xsl:call-template name="OutputPercentage">
+															<xsl:with-param name="thePercentage" select="CashDiscountPercent"/>
+															<xsl:with-param name="suppressZero" select="'1'"/>
+															<xsl:with-param name="theBaseAmount" select="CashDiscountBaseAmount"/>
+														</xsl:call-template>
+													</xsl:with-param>
+												</xsl:call-template>
+												<!--<xsl:call-template name="OutputTitleDataRow">
+													<xsl:with-param name="theTitle" select="$txtCashDiscountBaseAmount"/>
+													<xsl:with-param name="theData">
+														<xsl:call-template name="OutputAmount"><xsl:with-param name="theAmount" select="CashDiscountBaseAmount"/></xsl:call-template>
+													</xsl:with-param>
+												</xsl:call-template>-->
+												<xsl:call-template name="OutputTitleDataRow">
+													<xsl:with-param name="theTitle" select="$txtCashDiscountAmount"/>
+													<xsl:with-param name="theData">
+														<xsl:call-template name="OutputAmount"><xsl:with-param name="theAmount" select="CashDiscountAmount"/></xsl:call-template>
+													</xsl:with-param>
+												</xsl:call-template>
+												<xsl:call-template name="OutputTitleDataRow">
+													<xsl:with-param name="theTitle" select="$txtCashDiscountExlVat"/>
+													<xsl:with-param name="theData">
+														<xsl:call-template name="OutputAmount"><xsl:with-param name="theAmount" select="CashDiscountExcludingVatAmount"/></xsl:call-template>
+													</xsl:with-param>
+												</xsl:call-template>
+												<xsl:for-each select="CashDiscountVatDetails">
+													<xsl:call-template name="OutputTitleDataRow">
+														<xsl:with-param name="theTitle" select="$txtCashDiscountVat"/>
+														<xsl:with-param name="theData">
+															<xsl:call-template name="OutputPercentage"><xsl:with-param name="thePercentage" select="CashDiscountVatPercent"/></xsl:call-template>
+															<xsl:text>: </xsl:text>
+															<xsl:call-template name="OutputAmount"><xsl:with-param name="theAmount" select="CashDiscountVatAmount"/></xsl:call-template>
+														</xsl:with-param>
+													</xsl:call-template>
+												</xsl:for-each>
+												<xsl:call-template name="OutputTitleDataRow">
+													<xsl:with-param name="theTitle" select="$txtReducedAmount"/>
+													<xsl:with-param name="theData">
+														<xsl:call-template name="OutputAmount"><xsl:with-param name="theAmount" select="ReducedInvoiceVatIncludedAmount"/></xsl:call-template>
+													</xsl:with-param>
+												</xsl:call-template>
+											</xsl:variable>
+											<xsl:if test="string-length($ptDetails) != 0">
+                        <tbody class="groupBegins">
+                          <xsl:copy-of select="$ptDetails"/>
+                        </tbody>
+											</xsl:if>
+										</xsl:for-each>
+										<xsl:variable name="invSender">
+											<xsl:for-each select="InvoiceSenderPartyDetails/InvoiceSenderOrganisationName">
+												<xsl:call-template name="OutputCurrentTextBR"/>
+											</xsl:for-each>
+											<xsl:call-template name="OutputTextBR">
+												<xsl:with-param name="txtTitle" select="$txtPartyIdentifier"/>
+												<xsl:with-param name="txtText" select="InvoiceSenderPartyDetails/InvoiceSenderPartyIdentifier"/>
+											</xsl:call-template>
+											<xsl:call-template name="OutputTextBR">
+												<xsl:with-param name="txtTitle" select="InvoiceSenderPartyDetails/InvoiceSenderCode/@IdentifierType"/>
+												<xsl:with-param name="txtText" select="InvoiceSenderPartyDetails/InvoiceSenderCode"/>
+											</xsl:call-template>
+											<xsl:call-template name="OutputTextBR">
+												<xsl:with-param name="txtTitle" select="$txtTaxCode"/>
+												<xsl:with-param name="txtText" select="InvoiceSenderPartyDetails/InvoiceSenderOrganisationTaxCode"/>
+											</xsl:call-template>
+										</xsl:variable>
+										<xsl:if test="string-length($invSender) != 0">
+                      <tbody class="groupBegins">
+                        <xsl:call-template name="OutputTitleDataRow">
+                          <xsl:with-param name="theTitle" select="$txtInvoiceSender"/>
+                          <xsl:with-param name="theData">
+                            <xsl:copy-of select="$invSender"/>
+                          </xsl:with-param>
+                        </xsl:call-template>
+                      </tbody>
+										</xsl:if>
+										<xsl:variable name="factoringInfo">
+											<xsl:call-template name="OutputTitleDataRow">
+												<xsl:with-param name="theTitle" select="$txtFactoringPartyName"/>
+												<xsl:with-param name="theData" select="string(FactoringAgreementDetails/FactoringPartyName)"/>
+											</xsl:call-template>
+											<xsl:if test="FactoringAgreementDetails/FactoringPartyPostalAddressDetails">
+												<xsl:call-template name="OutputTitleDataRow">
+													<xsl:with-param name="theData">
+														<xsl:call-template name="OutputTextBR">
+															<xsl:with-param name="txtText" select="FactoringAgreementDetails/FactoringPartyPostalAddressDetails/FactoringPartyPostOfficeBoxIdentifier"/>
+														</xsl:call-template>
+														<xsl:for-each select="FactoringAgreementDetails/FactoringPartyPostalAddressDetails/FactoringPartyStreetName">
+															<xsl:call-template name="OutputCurrentTextBR"/>
+														</xsl:for-each>
+														<xsl:call-template name="OutputTextBR">
+															<xsl:with-param name="txtText">
+																<xsl:call-template name="BuildString">
+																	<xsl:with-param name="txtText" select="FactoringAgreementDetails/FactoringPartyPostalAddressDetails/FactoringPartyPostCodeIdentifier"/>
+																	<xsl:with-param name="txtText2" select="FactoringAgreementDetails/FactoringPartyPostalAddressDetails/FactoringPartyTownName"/>
+																</xsl:call-template>
+															</xsl:with-param>
+														</xsl:call-template>
+														<xsl:call-template name="OutputCountry">
+                              <xsl:with-param name="theCountrySubdivision" select="FactoringAgreementDetails/FactoringPartyPostalAddressDetails/FactoringPartyCountrySubdivision"/>
+                              <xsl:with-param name="theCountryCode" select="FactoringAgreementDetails/FactoringPartyPostalAddressDetails/CountryCode"/>
+															<xsl:with-param name="theCountryName" select="FactoringAgreementDetails/FactoringPartyPostalAddressDetails/CountryName"/>
+														</xsl:call-template>
 													</xsl:with-param>
 												</xsl:call-template>
 											</xsl:if>
-											<xsl:if test="string-length(PaymentStatusDetails/PaymentMethodText) != 0">
-												<xsl:call-template name="OutputTitleDataRow">
-													<xsl:with-param name="isNewVersion" select="'1'"/>
-													<xsl:with-param name="theTitle" select="$txtPaymentMethodText"/>
-													<xsl:with-param name="theData" select="string(PaymentStatusDetails/PaymentMethodText)"/>
-												</xsl:call-template>
-											</xsl:if>
-											<xsl:for-each select="InvoiceDetails/PaymentTermsDetails">
-												<xsl:variable name="ptDetails">
-													<xsl:call-template name="OutputTitleDataRow">
-														<xsl:with-param name="theTitle" select="$txtPaymentOverDueFineDetails"/>
-														<xsl:with-param name="theData">
-															<xsl:for-each select="PaymentOverDueFineDetails/PaymentOverDueFineFreeText">
-																<xsl:if test="position() != 1"><br/></xsl:if><xsl:value-of select="."/>
-															</xsl:for-each>
-														</xsl:with-param>
-													</xsl:call-template>
-													<xsl:call-template name="OutputTitleDataRow">
-														<xsl:with-param name="theTitle" select="$txtPaymentOverDueFine"/>
-														<xsl:with-param name="theData">
-															<xsl:call-template name="OutputPercentage">
-																<xsl:with-param name="thePercentage" select="PaymentOverDueFineDetails/PaymentOverDueFinePercent"/>
-															</xsl:call-template>
-														</xsl:with-param>
-													</xsl:call-template>
-													<xsl:call-template name="OutputTitleDataRow">
-														<xsl:with-param name="theTitle" select="$txtPaymentOverDueFine"/>
-														<xsl:with-param name="theData">
-															<xsl:call-template name="OutputAmount">
-																<xsl:with-param name="theAmount" select="PaymentOverDueFineDetails/PaymentOverDueFixedAmount"/>
-															</xsl:call-template>
-														</xsl:with-param>
-													</xsl:call-template>
-													<xsl:for-each select="PaymentTermsFreeText">
-														<xsl:call-template name="OutputTitleDataRow">
-															<xsl:with-param name="theTitle" select="$txtPaymentTermsFreeText"/>
-															<xsl:with-param name="theData" select="string(.)"/>
-														</xsl:call-template>
-													</xsl:for-each>
-													<xsl:call-template name="OutputTitleDataRow">
-														<xsl:with-param name="isNewVersion" select="'1'"/>
-														<xsl:with-param name="theTitle" select="$txtInvoiceDueDate"/>
-														<xsl:with-param name="theData">
-															<xsl:call-template name="OutputDate"><xsl:with-param name="theDate" select="InvoiceDueDate"/></xsl:call-template>
-														</xsl:with-param>
-													</xsl:call-template>
-													<xsl:call-template name="OutputTitleDataRow">
-														<xsl:with-param name="theTitle" select="$txtCashDiscountDate"/>
-														<xsl:with-param name="theData">
-															<xsl:call-template name="OutputDate"><xsl:with-param name="theDate" select="CashDiscountDate"/></xsl:call-template>
-														</xsl:with-param>
-													</xsl:call-template>
-													<xsl:call-template name="OutputTitleDataRow">
-														<xsl:with-param name="theTitle" select="$txtCashDiscountPercent"/>
-														<xsl:with-param name="theData">
-															<xsl:call-template name="OutputPercentage">
-																<xsl:with-param name="thePercentage" select="CashDiscountPercent"/>
-																<xsl:with-param name="suppressZero" select="'1'"/>
-																<xsl:with-param name="theBaseAmount" select="CashDiscountBaseAmount"/>
-															</xsl:call-template>
-														</xsl:with-param>
-													</xsl:call-template>
-													<!--<xsl:call-template name="OutputTitleDataRow">
-														<xsl:with-param name="theTitle" select="$txtCashDiscountBaseAmount"/>
-														<xsl:with-param name="theData">
-															<xsl:call-template name="OutputAmount"><xsl:with-param name="theAmount" select="CashDiscountBaseAmount"/></xsl:call-template>
-														</xsl:with-param>
-													</xsl:call-template>-->
-													<xsl:call-template name="OutputTitleDataRow">
-														<xsl:with-param name="theTitle" select="$txtCashDiscountAmount"/>
-														<xsl:with-param name="theData">
-															<xsl:call-template name="OutputAmount"><xsl:with-param name="theAmount" select="CashDiscountAmount"/></xsl:call-template>
-														</xsl:with-param>
-													</xsl:call-template>
-													<xsl:call-template name="OutputTitleDataRow">
-														<xsl:with-param name="theTitle" select="$txtCashDiscountExlVat"/>
-														<xsl:with-param name="theData">
-															<xsl:call-template name="OutputAmount"><xsl:with-param name="theAmount" select="CashDiscountExcludingVatAmount"/></xsl:call-template>
-														</xsl:with-param>
-													</xsl:call-template>
-													<xsl:for-each select="CashDiscountVatDetails">
-														<xsl:call-template name="OutputTitleDataRow">
-															<xsl:with-param name="theTitle" select="$txtCashDiscountVat"/>
-															<xsl:with-param name="theData">
-																<xsl:call-template name="OutputPercentage"><xsl:with-param name="thePercentage" select="CashDiscountVatPercent"/></xsl:call-template>
-																<xsl:text>: </xsl:text>
-																<xsl:call-template name="OutputAmount"><xsl:with-param name="theAmount" select="CashDiscountVatAmount"/></xsl:call-template>
-															</xsl:with-param>
-														</xsl:call-template>
-													</xsl:for-each>
-													<xsl:call-template name="OutputTitleDataRow">
-														<xsl:with-param name="theTitle" select="$txtReducedAmount"/>
-														<xsl:with-param name="theData">
-															<xsl:call-template name="OutputAmount"><xsl:with-param name="theAmount" select="ReducedInvoiceVatIncludedAmount"/></xsl:call-template>
-														</xsl:with-param>
-													</xsl:call-template>
-												</xsl:variable>
-												<xsl:if test="string-length($ptDetails) != 0">
-													<xsl:call-template name="OutputTitleDataRowSeparator"/>
-													<xsl:copy-of select="$ptDetails"/>
-												</xsl:if>
-											</xsl:for-each>
-											<xsl:variable name="invSender">
-												<xsl:for-each select="InvoiceSenderPartyDetails/InvoiceSenderOrganisationName">
+											<xsl:call-template name="OutputTitleDataRow">
+												<xsl:with-param name="theTitle" select="$txtPartyIdentifier"/>
+												<xsl:with-param name="theData" select="string(FactoringAgreementDetails/FactoringPartyIdentifier)"/>
+											</xsl:call-template>
+											<xsl:call-template name="OutputTitleDataRow">
+												<xsl:with-param name="theTitle" select="$txtFactoringAgreementIdentifier"/>
+												<xsl:with-param name="theData" select="string(FactoringAgreementDetails/FactoringAgreementIdentifier)"/>
+											</xsl:call-template>
+											<xsl:call-template name="OutputTitleDataRow">
+												<xsl:with-param name="theTitle" select="$txtTransmissionListIdentifier"/>
+												<xsl:with-param name="theData" select="string(FactoringAgreementDetails/TransmissionListIdentifier)"/>
+											</xsl:call-template>
+											<xsl:call-template name="OutputTitleDataRow">
+												<xsl:with-param name="theTitle" select="$txtFactoringFreeText"/>
+												<xsl:with-param name="theData" select="string(FactoringAgreementDetails/EndorsementClauseCode)"/>
+											</xsl:call-template>
+											<xsl:variable name="fftxt">
+												<xsl:for-each select="FactoringAgreementDetails/FactoringFreeText">
 													<xsl:call-template name="OutputCurrentTextBR"/>
 												</xsl:for-each>
-												<xsl:call-template name="OutputTextBR">
-													<xsl:with-param name="txtTitle" select="$txtPartyIdentifier"/>
-													<xsl:with-param name="txtText" select="InvoiceSenderPartyDetails/InvoiceSenderPartyIdentifier"/>
-												</xsl:call-template>
-												<xsl:call-template name="OutputTextBR">
-													<xsl:with-param name="isNewVersion" select="'1'"/>
-													<xsl:with-param name="txtTitle" select="InvoiceSenderPartyDetails/InvoiceSenderCode/@IdentifierType"/>
-													<xsl:with-param name="txtText" select="InvoiceSenderPartyDetails/InvoiceSenderCode"/>
-												</xsl:call-template>
-												<xsl:call-template name="OutputTextBR">
-													<xsl:with-param name="isNewVersion" select="'1'"/>
-													<xsl:with-param name="txtTitle" select="$txtTaxCode"/>
-													<xsl:with-param name="txtText" select="InvoiceSenderPartyDetails/InvoiceSenderOrganisationTaxCode"/>
-												</xsl:call-template>
 											</xsl:variable>
-											<xsl:if test="string-length($invSender) != 0">
-												<xsl:call-template name="OutputTitleDataRowSeparator"/>
+											<xsl:if test="string-length($fftxt) != 0">
 												<xsl:call-template name="OutputTitleDataRow">
-													<xsl:with-param name="theTitle" select="$txtInvoiceSender"/>
-													<xsl:with-param name="theData"><xsl:copy-of select="$invSender"/></xsl:with-param>
-												</xsl:call-template>
-											</xsl:if>
-											<xsl:variable name="factoringInfo">
-												<xsl:call-template name="OutputTitleDataRow">
-													<xsl:with-param name="theTitle" select="$txtFactoringPartyName"/>
-													<xsl:with-param name="theData" select="string(FactoringAgreementDetails/FactoringPartyName)"/>
-												</xsl:call-template>
-												<xsl:if test="FactoringAgreementDetails/FactoringPartyPostalAddressDetails">
-													<xsl:call-template name="OutputTitleDataRow">
-														<xsl:with-param name="theData">
-															<xsl:call-template name="OutputTextBR">
-																<xsl:with-param name="txtText" select="FactoringAgreementDetails/FactoringPartyPostalAddressDetails/FactoringPartyPostOfficeBoxIdentifier"/>
-															</xsl:call-template>
-															<xsl:for-each select="FactoringAgreementDetails/FactoringPartyPostalAddressDetails/FactoringPartyStreetName">
-																<xsl:call-template name="OutputCurrentTextBR"/>
-															</xsl:for-each>
-															<xsl:call-template name="OutputTextBR">
-																<xsl:with-param name="txtText">
-																	<xsl:call-template name="BuildString">
-																		<xsl:with-param name="txtText" select="FactoringAgreementDetails/FactoringPartyPostalAddressDetails/FactoringPartyPostCodeIdentifier"/>
-																		<xsl:with-param name="txtText2" select="FactoringAgreementDetails/FactoringPartyPostalAddressDetails/FactoringPartyTownName"/>
-																	</xsl:call-template>
-																</xsl:with-param>
-															</xsl:call-template>
-															<xsl:call-template name="OutputTextBR">
-																<xsl:with-param name="txtText">
-																	<xsl:call-template name="BuildCountryString">
-																		<xsl:with-param name="theCountryCode" select="FactoringAgreementDetails/FactoringPartyPostalAddressDetails/CountryCode"/>
-																		<xsl:with-param name="theCountryName" select="FactoringAgreementDetails/FactoringPartyPostalAddressDetails/CountryName"/>
-																	</xsl:call-template>
-																</xsl:with-param>
-															</xsl:call-template>
-														</xsl:with-param>
-													</xsl:call-template>
-												</xsl:if>
-												<xsl:call-template name="OutputTitleDataRow">
-													<xsl:with-param name="theTitle" select="$txtPartyIdentifier"/>
-													<xsl:with-param name="theData" select="string(FactoringAgreementDetails/FactoringPartyIdentifier)"/>
-												</xsl:call-template>
-												<xsl:call-template name="OutputTitleDataRow">
-													<xsl:with-param name="isNewVersion" select="'1'"/>
-													<xsl:with-param name="theTitle" select="$txtFactoringAgreementIdentifier"/>
-													<xsl:with-param name="theData" select="string(FactoringAgreementDetails/FactoringAgreementIdentifier)"/>
-												</xsl:call-template>
-												<xsl:call-template name="OutputTitleDataRow">
-													<xsl:with-param name="isNewVersion" select="'1'"/>
-													<xsl:with-param name="theTitle" select="$txtTransmissionListIdentifier"/>
-													<xsl:with-param name="theData" select="string(FactoringAgreementDetails/TransmissionListIdentifier)"/>
-												</xsl:call-template>
-												<xsl:call-template name="OutputTitleDataRow">
-													<xsl:with-param name="isNewVersion" select="'1'"/>
 													<xsl:with-param name="theTitle" select="$txtFactoringFreeText"/>
-													<xsl:with-param name="theData" select="string(FactoringAgreementDetails/EndorsementClauseCode)"/>
+													<xsl:with-param name="emptyDataAlso" select="'1'"/>
 												</xsl:call-template>
-												<xsl:variable name="fftxt">
-													<xsl:for-each select="FactoringAgreementDetails/FactoringFreeText">
-														<xsl:call-template name="OutputCurrentTextBR"/>
-													</xsl:for-each>
-												</xsl:variable>
-												<xsl:if test="string-length($fftxt) != 0">
-													<xsl:call-template name="OutputTitleDataRow">
-														<xsl:with-param name="theTitle" select="$txtFactoringFreeText"/>
-														<xsl:with-param name="emptyDataAlso" select="'1'"/>
-													</xsl:call-template>
-													<tr>
-														<td class="data" colspan="2"><xsl:copy-of select="$fftxt"/></td>
-													</tr>
-												</xsl:if>
-											</xsl:variable>
-											<xsl:if test="string-length($factoringInfo) != 0">
-												<xsl:call-template name="OutputTitleDataRowSeparator"/>
-												<xsl:copy-of select="$factoringInfo"/>
-											</xsl:if>
-											<xsl:if test="string-length(AttachmentMessageDetails/AttachmentMessageIdentifier) != 0">
-												<xsl:call-template name="OutputTitleDataRowSeparator"/>
 												<tr>
-													<td class="title" colspan="2"><xsl:value-of select="$txtAttachments"/></td>
+													<td class="data" colspan="2"><xsl:copy-of select="$fftxt"/></td>
 												</tr>
 											</xsl:if>
-										</tbody>
+										</xsl:variable>
+										<xsl:if test="string-length($factoringInfo) != 0">
+                      <tbody class="groupBegins">
+                        <xsl:copy-of select="$factoringInfo"/>
+                      </tbody>
+										</xsl:if>
+										<xsl:if test="string-length(AttachmentMessageDetails/AttachmentMessageIdentifier) != 0">
+                      <tbody class="groupBegins">
+                        <tr>
+													<td class="title" colspan="2"><xsl:value-of select="$txtAttachments"/></td>
+												</tr>
+                      </tbody>
+                    </xsl:if>
 									</table>
 								</td>
 							</tr>
@@ -971,7 +1060,6 @@
 				<xsl:if test="string-length(normalize-space(InvoiceDetails/InvoiceVatFreeText)) != 0">
 					<div class="InvoiceFreeText">
 						<xsl:call-template name="OutputDataDiv">
-							<xsl:with-param name="isNewVersion" select="'1'"/>
 							<xsl:with-param name="theData" select="string(InvoiceDetails/InvoiceVatFreeText)"/>
 						</xsl:call-template>
 					</div>
@@ -995,83 +1083,254 @@
 					</tbody>
 				</table>
 				<table class="InvoiceDetails">
-					<tbody>
-						<xsl:if test="(//InvoiceDetails/DiscountDetails)">
-							<table class="DiscountDetails">
-								<tbody>
-									<xsl:call-template name="OutputTitleDataRow">
-										<xsl:with-param name="isNewVersion" select="'1'"/>
-										<xsl:with-param name="theTitle" select="$txtDiscountDetails"/>
-										<xsl:with-param name="emptyDataAlso" select="'1'"/>
-									</xsl:call-template>
-									<xsl:for-each select="//InvoiceDetails/DiscountDetails">
-										<tr>
-											<td><xsl:value-of select="FreeText"/></td>
-											<td><xsl:call-template name="OutputPercentage"><xsl:with-param name="thePercentage" select="Percent"/></xsl:call-template></td>
-											<td><xsl:call-template name="OutputAmount"><xsl:with-param name="theAmount" select="Amount"/></xsl:call-template></td>
-										</tr>
-									</xsl:for-each>
-								</tbody>
-							</table>
-							<xsl:call-template name="OutputTitleDataRowSeparator"/>
+          <tbody>
+						<xsl:if test="//InvoiceDetails/DiscountDetails or //InvoiceDetails/ChargeDetails">
+              <tr>
+                <td>
+                  <table class="DiscountDetails">
+                    <xsl:if test="//InvoiceDetails/DiscountDetails">
+                      <tbody class="groupBegins">
+                        <xsl:call-template name="OutputTitleDataRow">
+                          <xsl:with-param name="theTitle" select="$txtDiscountDetails"/>
+                          <xsl:with-param name="emptyDataAlso" select="'1'"/>
+                        </xsl:call-template>
+                        <xsl:for-each select="//InvoiceDetails/DiscountDetails">
+                          <tr>
+                            <td>
+                              <xsl:value-of select="FreeText"/>
+                            </td>
+                            <td>
+                              <xsl:call-template name="OutputPercentage">
+                                <xsl:with-param name="thePercentage" select="Percent"/>
+                              </xsl:call-template>
+                            </td>
+                            <td>
+                              <xsl:call-template name="OutputAmount">
+                                <xsl:with-param name="theAmount" select="Amount"/>
+                              </xsl:call-template>
+                            </td>
+                          </tr>
+                          <xsl:if test="BaseAmount or VatRatePercent">
+                            <tr>
+                              <td>
+                                <xsl:value-of select="$txtBaseAmountCap"/>
+                              </td>
+                              <td>
+                                <xsl:call-template name="OutputAmount">
+                                  <xsl:with-param name="theAmount" select="BaseAmount"/>
+                                </xsl:call-template>
+                              </td>
+                              <td>
+                                <xsl:value-of select="$txtVat"/>
+                                <xsl:text> </xsl:text>
+                                <xsl:call-template name="OutputPercentage">
+                                  <xsl:with-param name="thePercentage" select="VatRatePercent"/>
+                                </xsl:call-template>
+                                <xsl:if test="VatCategoryCode">
+                                  <xsl:text> (</xsl:text><xsl:value-of select="VatCategoryCode"/><xsl:text>)</xsl:text>
+                                </xsl:if>
+                              </td>
+                            </tr>
+                          </xsl:if>
+                        </xsl:for-each>
+                      </tbody>
+                    </xsl:if>
+                    <xsl:if test="(//InvoiceDetails/ChargeDetails)">
+                      <tbody class="groupBegins">
+                        <xsl:call-template name="OutputTitleDataRow">
+                          <xsl:with-param name="theTitle" select="$txtChargeDetails"/>
+                          <xsl:with-param name="emptyDataAlso" select="'1'"/>
+                        </xsl:call-template>
+                        <xsl:for-each select="//InvoiceDetails/ChargeDetails">
+                          <tr>
+                            <td>
+                              <xsl:value-of select="ReasonText"/>
+                            </td>
+                            <td>
+                              <xsl:call-template name="OutputPercentage">
+                                <xsl:with-param name="thePercentage" select="Percent"/>
+                              </xsl:call-template>
+                            </td>
+                            <td>
+                              <xsl:call-template name="OutputAmount">
+                                <xsl:with-param name="theAmount" select="Amount"/>
+                              </xsl:call-template>
+                            </td>
+                          </tr>
+                          <xsl:if test="BaseAmount or VatRatePercent">
+                            <tr>
+                              <td>
+                                <xsl:value-of select="$txtBaseAmountCap"/>
+                              </td>
+                              <td>
+                                <xsl:call-template name="OutputAmount">
+                                  <xsl:with-param name="theAmount" select="BaseAmount"/>
+                                </xsl:call-template>
+                              </td>
+                              <td>
+                                <xsl:value-of select="$txtVat"/>
+                                <xsl:text> </xsl:text>
+                                <xsl:call-template name="OutputPercentage">
+                                  <xsl:with-param name="thePercentage" select="VatRatePercent"/>
+                                </xsl:call-template>
+                              </td>
+                            </tr>
+                          </xsl:if>
+                        </xsl:for-each>
+                      </tbody>
+                    </xsl:if>
+                  </table>
+                </td>
+              </tr>
 						</xsl:if>
-						<tr>
+            <tr>
 							<td>
-								<xsl:if test="(//InvoiceDetails/VatSpecificationDetails)">
+                <xsl:variable name="hasDiscounts">
+                  <xsl:call-template name="IsAmountSet">
+                    <xsl:with-param name="theAmount" select="InvoiceDetails/DiscountsTotalVatExcludedAmount"/>
+                  </xsl:call-template>
+                </xsl:variable>
+                <xsl:variable name="hasCharges">
+                  <xsl:call-template name="IsAmountSet">
+                    <xsl:with-param name="theAmount" select="InvoiceDetails/ChargesTotalVatExcludedAmount"/>
+                  </xsl:call-template>
+                </xsl:variable>
+								<xsl:if test="(//InvoiceDetails/VatPoint/VatPointDate) or (//InvoiceDetails/VatSpecificationDetails) or ($hasDiscounts = 'true') or ($hasCharges = 'true')">
 									<table class="VatSpecificationDetails">
-										<tbody>
-											<xsl:call-template name="OutputTitleDataRow">
-												<xsl:with-param name="theTitle" select="$txtVatSpecification"/>
-												<xsl:with-param name="emptyDataAlso" select="'1'"/>
-											</xsl:call-template>
-											<xsl:call-template name="OutputTitleDataRow">
-												<xsl:with-param name="theTitle" select="$txtVatExcludedAmount"/>
-												<xsl:with-param name="theData">
-													<xsl:call-template name="OutputAmount"><xsl:with-param name="theAmount" select="InvoiceDetails/InvoiceTotalVatExcludedAmount"/></xsl:call-template>
-												</xsl:with-param>
-											</xsl:call-template>
-											<xsl:call-template name="OutputTitleDataRow">
-												<xsl:with-param name="isNewVersion" select="'1'"/>
-												<xsl:with-param name="theTitle" select="$txtInvoiceTotalVatAmount"/>
-												<xsl:with-param name="theData">
-													<xsl:call-template name="OutputAmount"><xsl:with-param name="theAmount" select="InvoiceDetails/InvoiceTotalVatAmount"/></xsl:call-template>
-												</xsl:with-param>
-											</xsl:call-template>
-											<xsl:for-each select="InvoiceDetails/VatSpecificationDetails">
-												<xsl:if test="(string-length(VatRatePercent) != 0) or (string-length(VatRateAmount) != 0)">
-													<xsl:variable name="theBaseAmount">
-														<xsl:call-template name="OutputAmount"><xsl:with-param name="theAmount" select="VatBaseAmount"/></xsl:call-template>
-													</xsl:variable>
-													<xsl:call-template name="OutputTitleDataRow">
-														<xsl:with-param name="theTitle">
-															<xsl:value-of select="$txtVat"/><xsl:text> </xsl:text>
-															<xsl:call-template name="OutputPercentage"><xsl:with-param name="thePercentage" select="VatRatePercent"/></xsl:call-template>
-															<xsl:text> </xsl:text><xsl:value-of select="VatCode"/>
-														</xsl:with-param>
-														<xsl:with-param name="theData">
-															<xsl:call-template name="OutputAmount"><xsl:with-param name="theAmount" select="VatRateAmount"/></xsl:call-template>
-															<xsl:if test="string-length($theBaseAmount)!=0"><xsl:text> </xsl:text>(<xsl:copy-of select="$theBaseAmount"/>)</xsl:if>
-														</xsl:with-param>
-													</xsl:call-template>
-												</xsl:if>
-												<xsl:for-each select="VatFreeText">
-													<xsl:if test="string-length(.) != 0">
-														<tr>
-															<td colspan="2" class="data VatFreeText">
-																<xsl:value-of select="."/>
-															</td>
-														</tr>
-													</xsl:if>
-												</xsl:for-each>
-											</xsl:for-each>
-										</tbody>
+                      <xsl:if test="($hasDiscounts = 'true') or ($hasCharges = 'true')">
+                        <tbody class="groupBegins">
+                          <xsl:call-template name="OutputTitleDataRow">
+                            <xsl:with-param name="theTitle" select="$txtRowsTotalVatExcludedAmount"/>
+                            <xsl:with-param name="theData">
+                              <xsl:call-template name="OutputAmount">
+                                <xsl:with-param name="theAmount" select="InvoiceDetails/RowsTotalVatExcludedAmount"/>
+                              </xsl:call-template>
+                            </xsl:with-param>
+                          </xsl:call-template>
+                          <xsl:if test="$hasDiscounts = 'true'">
+                            <xsl:call-template name="OutputTitleDataRow">
+                              <xsl:with-param name="theTitle" select="$txtDiscountsTotalVatExcluded"/>
+                              <xsl:with-param name="theData">
+                                <xsl:call-template name="OutputAmount">
+                                  <xsl:with-param name="theAmount" select="InvoiceDetails/DiscountsTotalVatExcludedAmount"/>
+                                </xsl:call-template>
+                              </xsl:with-param>
+                            </xsl:call-template>
+                          </xsl:if>
+                          <xsl:if test="$hasCharges = 'true'">
+                            <xsl:call-template name="OutputTitleDataRow">
+                              <xsl:with-param name="theTitle" select="$txtChargesTotalVatExcluded"/>
+                              <xsl:with-param name="theData">
+                                <xsl:call-template name="OutputAmount">
+                                  <xsl:with-param name="theAmount" select="InvoiceDetails/ChargesTotalVatExcludedAmount"/>
+                                </xsl:call-template>
+                              </xsl:with-param>
+                            </xsl:call-template>
+                          </xsl:if>
+                        </tbody>
+                      </xsl:if>
+                      <xsl:if test="//InvoiceDetails/VatPoint/VatPointDate or //InvoiceDetails/VatSpecificationDetails">
+                        <tbody class="groupBegins">
+                          <xsl:if test="//InvoiceDetails/VatPoint/VatPointDate">
+                            <xsl:call-template name="OutputTitleDataRow">
+                              <xsl:with-param name="theTitle" select="$txtVatPointDate"/>
+                              <xsl:with-param name="theData">
+                                <xsl:call-template name="OutputDate">
+                                  <xsl:with-param name="theDate" select="InvoiceDetails/VatPoint/VatPointDate"/>
+                                </xsl:call-template>
+                              </xsl:with-param>
+                            </xsl:call-template>
+                          </xsl:if>
+                          <xsl:if test="//InvoiceDetails/VatSpecificationDetails">
+                            <xsl:call-template name="OutputTitleDataRow">
+                              <xsl:with-param name="theTitle" select="$txtVatSpecification"/>
+                              <xsl:with-param name="emptyDataAlso" select="'1'"/>
+                            </xsl:call-template>
+                            <xsl:call-template name="OutputTitleDataRow">
+                              <xsl:with-param name="theTitle" select="$txtVatExcludedAmount"/>
+                              <xsl:with-param name="theData">
+                                <xsl:call-template name="OutputAmount">
+                                  <xsl:with-param name="theAmount" select="InvoiceDetails/InvoiceTotalVatExcludedAmount"/>
+                                </xsl:call-template>
+                              </xsl:with-param>
+                            </xsl:call-template>
+                            <xsl:call-template name="OutputTitleDataRow">
+                              <xsl:with-param name="theTitle" select="$txtTotalVatAmount"/>
+                              <xsl:with-param name="theData">
+                                <xsl:call-template name="OutputAmount">
+                                  <xsl:with-param name="theAmount" select="InvoiceDetails/InvoiceTotalVatAmount"/>
+                                </xsl:call-template>
+                              </xsl:with-param>
+                            </xsl:call-template>
+                            <xsl:if test="InvoiceDetails/InvoiceTotalVatAccountingAmount">
+                              <xsl:call-template name="OutputTitleDataRow">
+                                <xsl:with-param name="theTitle" select="$txtTotalVatAmount"/>
+                                <xsl:with-param name="theData">
+                                  <xsl:call-template name="OutputAmount">
+                                    <xsl:with-param name="theAmount" select="InvoiceDetails/InvoiceTotalVatAccountingAmount"/>
+                                  </xsl:call-template>
+                                  <xsl:text> </xsl:text>(<xsl:value-of select="$txtInvoiceTotalVatAccountingAmount"/>)
+                                </xsl:with-param>
+                              </xsl:call-template>
+                            </xsl:if>
+                            <xsl:for-each select="InvoiceDetails/VatSpecificationDetails">
+                              <xsl:if test="(string-length(VatRatePercent) != 0) or (string-length(VatRateAmount) != 0)">
+                                <xsl:variable name="theBaseAmount">
+                                  <xsl:call-template name="OutputAmount">
+                                    <xsl:with-param name="theAmount" select="VatBaseAmount"/>
+                                  </xsl:call-template>
+                                </xsl:variable>
+                                <xsl:call-template name="OutputTitleDataRow">
+                                  <xsl:with-param name="theTitle">
+                                    <xsl:value-of select="$txtVat"/>
+                                    <xsl:text> </xsl:text>
+                                    <xsl:call-template name="OutputPercentage">
+                                      <xsl:with-param name="thePercentage" select="VatRatePercent"/>
+                                    </xsl:call-template>
+                                    <xsl:text> </xsl:text>
+                                    <xsl:value-of select="VatCode"/>
+                                    <xsl:if test="VatExemptionReasonCode">
+                                      <xsl:text>/</xsl:text><xsl:value-of select="VatExemptionReasonCode"/>
+                                    </xsl:if>
+                                  </xsl:with-param>
+                                  <xsl:with-param name="theData">
+                                    <xsl:call-template name="OutputAmount">
+                                      <xsl:with-param name="theAmount" select="VatRateAmount"/>
+                                    </xsl:call-template>
+                                    <xsl:if test="string-length($theBaseAmount)!=0">
+                                      <xsl:text> </xsl:text>(<xsl:copy-of select="$theBaseAmount"/>)
+                                    </xsl:if>
+                                  </xsl:with-param>
+                                </xsl:call-template>
+                              </xsl:if>
+                              <xsl:for-each select="VatFreeText">
+                                <xsl:if test="string-length(.) != 0">
+                                  <tr>
+                                    <td colspan="2" class="data VatFreeText">
+                                      <xsl:value-of select="."/>
+                                    </td>
+                                  </tr>
+                                </xsl:if>
+                              </xsl:for-each>
+                            </xsl:for-each>
+                          </xsl:if>
+                        </tbody>
+                      </xsl:if>
 									</table>
 								</xsl:if>
 							</td>
 							<td>
 								<table class="invoiceTotal">
-									<tbody>
-										<xsl:call-template name="OutputTitleDataRow">
+									<tbody class="groupBegins">
+                    <xsl:call-template name="OutputTitleDataRow">
+                      <xsl:with-param name="theTitle" select="$txtInvoicePaidAmount"/>
+                      <xsl:with-param name="theData">
+                        <xsl:call-template name="OutputAmount">
+                          <xsl:with-param name="theAmount" select="InvoiceDetails/InvoicePaidAmount"/>
+                        </xsl:call-template>
+                      </xsl:with-param>
+                    </xsl:call-template>
+                    <xsl:call-template name="OutputTitleDataRow">
 											<xsl:with-param name="theTitle" select="$txtRounding"/>
 											<xsl:with-param name="theData">
 												<xsl:call-template name="OutputAmount"><xsl:with-param name="theAmount" select="InvoiceDetails/InvoiceTotalRoundoffAmount"/></xsl:call-template>
@@ -1093,7 +1352,6 @@
 											</xsl:with-param>
 										</xsl:call-template>
 										<xsl:call-template name="OutputTitleDataRow">
-											<xsl:with-param name="isNewVersion" select="'1'"/>
 											<xsl:with-param name="theTitle" select="$txtOtherCurrencyAmountVatExcludedAmount"/>
 											<xsl:with-param name="theData">
 												<xsl:call-template name="OutputAmount"><xsl:with-param name="theAmount" select="InvoiceDetails/OtherCurrencyAmountVatExcludedAmount"/></xsl:call-template>
@@ -1110,11 +1368,10 @@
 							</td>
 						</tr>
 						<xsl:if test="(string-length(InvoiceDetails/ShortProposedAccountIdentifier) != 0) or (string-length(InvoiceDetails/NormalProposedAccountIdentifier) != 0) or (string-length(InvoiceDetails/AccountDimensionText) != 0) or (string-length(InvoiceDetails/ProposedAccountText) != 0) or (string-length(InvoiceDetails/SellerAccountText) != 0)">
-							<tr>
-								<td>
+              <tr>
+                <td>
 									<table class="accounting">
-										<tbody>
-											<xsl:call-template name="OutputTitleDataRowSeparator"/>
+                    <tbody class="groupBegins">
 											<xsl:call-template name="OutputTitleDataRow">
 												<xsl:with-param name="theTitle" select="$txtShortProposedAccountIdentifier"/>
 												<xsl:with-param name="theData" select="string(InvoiceDetails/ShortProposedAccountIdentifier)"/>
@@ -1132,7 +1389,6 @@
 												<xsl:with-param name="theData" select="string(InvoiceDetails/AccountDimensionText)"/>
 											</xsl:call-template>
 											<xsl:call-template name="OutputTitleDataRow">
-												<xsl:with-param name="isNewVersion" select="'1'"/>
 												<xsl:with-param name="theTitle" select="$txtSellerAccountText"/>
 												<xsl:with-param name="theData" select="string(InvoiceDetails/SellerAccountText)"/>
 											</xsl:call-template>
@@ -1184,13 +1440,10 @@
 									</xsl:call-template>
 								</xsl:with-param>
 							</xsl:call-template>
-							<xsl:call-template name="OutputTextBR">
-								<xsl:with-param name="txtText">
-									<xsl:call-template name="BuildCountryString">
-										<xsl:with-param name="theCountryCode" select="DeliveryPartyDetails/DeliveryPostalAddressDetails/CountryCode"/>
-										<xsl:with-param name="theCountryName" select="DeliveryPartyDetails/DeliveryPostalAddressDetails/CountryName"/>
-									</xsl:call-template>
-								</xsl:with-param>
+							<xsl:call-template name="OutputCountry">
+                <xsl:with-param name="theCountrySubdivision" select="DeliveryPartyDetails/DeliveryPostalAddressDetails/DeliveryCountrySubdivision"/>
+                <xsl:with-param name="theCountryCode" select="DeliveryPartyDetails/DeliveryPostalAddressDetails/CountryCode"/>
+								<xsl:with-param name="theCountryName" select="DeliveryPartyDetails/DeliveryPostalAddressDetails/CountryName"/>
 							</xsl:call-template>
 							<xsl:call-template name="OutputTextBR">
 								<xsl:with-param name="txtText" select="DeliveryContactPersonName"/>
@@ -1212,12 +1465,10 @@
 								<xsl:with-param name="txtText" select="DeliveryPartyDetails/DeliveryPartyIdentifier"/>
 							</xsl:call-template>
 							<xsl:call-template name="OutputTextBR">
-								<xsl:with-param name="isNewVersion" select="'1'"/>
 								<xsl:with-param name="txtTitle" select="DeliveryPartyDetails/DeliveryCode/@IdentifierType"/>
 								<xsl:with-param name="txtText" select="DeliveryPartyDetails/DeliveryCode"/>
 							</xsl:call-template>
 							<xsl:call-template name="OutputTextBR">
-								<xsl:with-param name="isNewVersion" select="'1'"/>
 								<xsl:with-param name="txtTitle" select="$txtTaxCode"/>
 								<xsl:with-param name="txtText" select="DeliveryPartyDetails/DeliveryOrganisationTaxCode"/>
 							</xsl:call-template>
@@ -1240,13 +1491,10 @@
 							<xsl:call-template name="OutputTextBR">
 								<xsl:with-param name="txtText" select="DeliveryDetails/DelivererIdentifier"/>
 							</xsl:call-template>
-							<xsl:call-template name="OutputTextBR">
-								<xsl:with-param name="txtText">
-									<xsl:call-template name="BuildCountryString">
-										<xsl:with-param name="theCountryCode" select="DeliveryDetails/DelivererCountryCode"/>
-										<xsl:with-param name="theCountryName" select="DeliveryDetails/DelivererCountryName"/>
-									</xsl:call-template>
-								</xsl:with-param>
+							<xsl:call-template name="OutputCountry">
+                <xsl:with-param name="theCountrySubdivision" select="DeliveryDetails/DelivererCountrySubdivision"/>
+                <xsl:with-param name="theCountryCode" select="DeliveryDetails/DelivererCountryCode"/>
+								<xsl:with-param name="theCountryName" select="DeliveryDetails/DelivererCountryName"/>
 							</xsl:call-template>
 						</xsl:with-param>
 					</xsl:call-template>
@@ -1286,7 +1534,6 @@
 						<xsl:with-param name="theData" select="string(DeliveryDetails/WaybillIdentifier)"/>
 					</xsl:call-template>
 					<xsl:call-template name="OutputColContent">
-						<xsl:with-param name="isNewVersion" select="'1'"/>
 						<xsl:with-param name="theTitle" select="$txtWaybillTypeCode"/>
 						<xsl:with-param name="theData" select="string(DeliveryDetails/WaybillTypeCode)"/>
 					</xsl:call-template>
@@ -1299,7 +1546,6 @@
 						<xsl:with-param name="theData" select="string(DeliveryDetails/DeliveryNoteIdentifier)"/>
 					</xsl:call-template>
 					<xsl:call-template name="OutputColContent">
-						<xsl:with-param name="isNewVersion" select="'1'"/>
 						<xsl:with-param name="theTitle" select="$txtCountryOfOrigin"/>
 						<xsl:with-param name="theData" select="string(DeliveryDetails/CountryOfOrigin)"/>
 					</xsl:call-template>
@@ -1312,7 +1558,6 @@
 						</xsl:with-param>
 					</xsl:call-template>
 					<xsl:call-template name="OutputColContent">
-						<xsl:with-param name="isNewVersion" select="'1'"/>
 						<xsl:with-param name="theTitle" select="$txtCountryOfDestinationName"/>
 						<xsl:with-param name="theData" select="string(DeliveryDetails/CountryOfDestinationName)"/>
 					</xsl:call-template>
@@ -1336,7 +1581,6 @@
 								<xsl:call-template name="OutputCurrentTextBR"/>
 							</xsl:for-each>
 							<xsl:call-template name="OutputTextBR">
-								<xsl:with-param name="isNewVersion" select="'1'"/>
 								<xsl:with-param name="txtText" select="DeliveryDetails/ShipmentPartyDetails/ShipmentPostalAddressDetails/ShipmentPostOfficeBoxIdentifier"/>
 							</xsl:call-template>
 							<xsl:for-each select="DeliveryDetails/ShipmentPartyDetails/ShipmentPostalAddressDetails/ShipmentStreetName">
@@ -1350,31 +1594,24 @@
 									</xsl:call-template>
 								</xsl:with-param>
 							</xsl:call-template>
-							<xsl:call-template name="OutputTextBR">
-								<xsl:with-param name="isNewVersion" select="'1'"/>
-								<xsl:with-param name="txtText">
-									<xsl:call-template name="BuildCountryString">
-										<xsl:with-param name="theCountryCode" select="DeliveryDetails/ShipmentPartyDetails/ShipmentPostalAddressDetails/CountryCode"/>
-										<xsl:with-param name="theCountryName" select="DeliveryDetails/ShipmentPartyDetails/ShipmentPostalAddressDetails/CountryName"/>
-									</xsl:call-template>
-								</xsl:with-param>
+							<xsl:call-template name="OutputCountry">
+                <xsl:with-param name="theCountrySubdivision" select="DeliveryDetails/ShipmentPartyDetails/ShipmentPostalAddressDetails/ShipmentCountrySubdivision"/>
+                <xsl:with-param name="theCountryCode" select="DeliveryDetails/ShipmentPartyDetails/ShipmentPostalAddressDetails/CountryCode"/>
+								<xsl:with-param name="theCountryName" select="DeliveryDetails/ShipmentPartyDetails/ShipmentPostalAddressDetails/CountryName"/>
 							</xsl:call-template>
 							<xsl:call-template name="OutputTextBR">
 								<xsl:with-param name="txtTitle" select="$txtPartyIdentifier"/>
 								<xsl:with-param name="txtText" select="DeliveryDetails/ShipmentPartyDetails/ShipmentPartyIdentifier"/>
 							</xsl:call-template>
 							<xsl:call-template name="OutputTextBR">
-								<xsl:with-param name="isNewVersion" select="'1'"/>
 								<xsl:with-param name="txtTitle" select="DeliveryDetails/ShipmentPartyDetails/ShipmentCode/@IdentifierType"/>
 								<xsl:with-param name="txtText" select="DeliveryDetails/ShipmentPartyDetails/ShipmentCode"/>
 							</xsl:call-template>
 							<xsl:call-template name="OutputTextBR">
-								<xsl:with-param name="isNewVersion" select="'1'"/>
 								<xsl:with-param name="txtTitle" select="$txtTaxCode"/>
 								<xsl:with-param name="txtText" select="DeliveryDetails/ShipmentPartyDetails/ShipmentOrganisationTaxCode"/>
 							</xsl:call-template>
 							<xsl:call-template name="OutputTextBR">
-								<xsl:with-param name="isNewVersion" select="'1'"/>
 								<xsl:with-param name="txtTitle" select="$txtSiteCode"/>
 								<xsl:with-param name="txtText" select="DeliveryDetails/ShipmentPartyDetails/ShipmentSiteCode"/>
 							</xsl:call-template>
@@ -1384,20 +1621,16 @@
 						<xsl:with-param name="theTitle" select="$txtManufacturer"/>
 						<xsl:with-param name="theData">
 							<xsl:call-template name="OutputTextBR">
-								<xsl:with-param name="isNewVersion" select="'1'"/>
 								<xsl:with-param name="txtTitle" select="$txtPartyIdentifier"/>
 								<xsl:with-param name="txtText" select="DeliveryDetails/ManufacturerIdentifier"/>
 							</xsl:call-template>
 							<xsl:for-each select="DeliveryDetails/ManufacturerName">
 								<xsl:call-template name="OutputCurrentTextBR"/>
 							</xsl:for-each>
-							<xsl:call-template name="OutputTextBR">
-								<xsl:with-param name="txtText">
-									<xsl:call-template name="BuildCountryString">
-										<xsl:with-param name="theCountryCode" select="DeliveryDetails/ManufacturerCountryCode"/>
-										<xsl:with-param name="theCountryName" select="DeliveryDetails/ManufacturerCountryName"/>
-									</xsl:call-template>
-								</xsl:with-param>
+							<xsl:call-template name="OutputCountry">
+                <xsl:with-param name="theCountrySubdivision" select="DeliveryDetails/ManufacturerCountrySubdivision"/>
+                <xsl:with-param name="theCountryCode" select="DeliveryDetails/ManufacturerCountryCode"/>
+								<xsl:with-param name="theCountryName" select="DeliveryDetails/ManufacturerCountryName"/>
 							</xsl:call-template>
 						</xsl:with-param>
 					</xsl:call-template>
@@ -1475,13 +1708,10 @@
 				</xsl:if>
 				<xsl:variable name="countAPD" select="count(AnyPartyDetails)"/>
 				<xsl:if test="$countAPD != 0">
-					<div class="invoiceAnyPartyDetails">
-						<table class="AnyPartyDetails">
+          <div class="invoiceAnyPartyDetails">
+            <table class="AnyPartyDetails">
 							<xsl:for-each select="AnyPartyDetails">
 								<xsl:if test="position() mod 2 != 0">
-									<xsl:if test="position() != 1">
-										<xsl:call-template name="OutputTitleDataRowSeparator"/>
-									</xsl:if>
 									<tr>
 										<td>
 											<xsl:call-template name="OutputInvoiceAnyPartyDetails"/>
@@ -1518,7 +1748,7 @@
 											<table class="PartialPaymentDetail">
 												<tbody>
 													<xsl:if test="PaidVatExcludedAmount">
-														<tr class="isNewVersion">
+														<tr>
 															<td class="data titlePad"><xsl:value-of select="$txtPaidVatExcludedAmount"/>:</td>
 															<td class="data alignRight"><xsl:call-template name="OutputAmountWithoutCurrency"><xsl:with-param name="theAmount" select="PaidVatExcludedAmount"/></xsl:call-template></td>
 														</tr>
@@ -1534,7 +1764,7 @@
 											<table class="PartialPaymentDetail">
 												<tbody>
 													<xsl:if test="UnPaidVatExcludedAmount">
-														<tr class="isNewVersion">
+														<tr>
 															<td class="data titlePad"><xsl:value-of select="$txtUnPaidVatExcludedAmount"/>:</td>
 															<td class="data alignRight"><xsl:call-template name="OutputAmountWithoutCurrency"><xsl:with-param name="theAmount" select="UnPaidVatExcludedAmount"/></xsl:call-template></td>
 														</tr>
@@ -1634,9 +1864,11 @@
 						<tbody>
 							<tr>
 								<td>
-									<xsl:value-of select="SellerPartyDetails/SellerOrganisationName"/>
-									<br/>
-									<xsl:call-template name="OutputTextBR">
+									<xsl:value-of select="SellerPartyDetails/SellerOrganisationName"/><br/>
+                  <xsl:call-template name="OutputTextBR">
+                    <xsl:with-param name="txtText" select="SellerPartyDetails/SellerOrganisationTradingName"/>
+                  </xsl:call-template>
+                  <xsl:call-template name="OutputTextBR">
 										<xsl:with-param name="txtText" select="SellerInformationDetails/SellerOfficialPostalAddressDetails/SellerOfficialStreetName"/>
 									</xsl:call-template>
 									<xsl:call-template name="OutputTextBR">
@@ -1647,18 +1879,18 @@
 											</xsl:call-template>
 										</xsl:with-param>
 									</xsl:call-template>
-									<xsl:call-template name="OutputTextBR">
-										<xsl:with-param name="txtText">
-											<xsl:call-template name="BuildCountryString">
-												<xsl:with-param name="theCountryCode" select="SellerInformationDetails/SellerOfficialPostalAddressDetails/CountryCode"/>
-												<xsl:with-param name="theCountryName" select="SellerInformationDetails/SellerOfficialPostalAddressDetails/CountryName"/>
-											</xsl:call-template>
-										</xsl:with-param>
+									<xsl:call-template name="OutputCountry">
+                    <xsl:with-param name="theCountrySubdivision" select="SellerInformationDetails/SellerOfficialPostalAddressDetails/SellerOfficialCountrySubdivision"/>
+                    <xsl:with-param name="theCountryCode" select="SellerInformationDetails/SellerOfficialPostalAddressDetails/CountryCode"/>
+										<xsl:with-param name="theCountryName" select="SellerInformationDetails/SellerOfficialPostalAddressDetails/CountryName"/>
 									</xsl:call-template>
 									<xsl:call-template name="OutputTextBR">
 										<xsl:with-param name="txtText" select="SellerInformationDetails/SellerFreeText"/>
 									</xsl:call-template>
-								</td>
+                  <xsl:call-template name="OutputTextBR">
+                    <xsl:with-param name="txtText" select="SellerInformationDetails/SellerAdditionalLegalInfo"/>
+                  </xsl:call-template>
+                </td>
 								<td>
 									<xsl:call-template name="OutputTextBR">
 										<xsl:with-param name="txtTitle" select="$txtPhoneNumber"/>
@@ -1723,11 +1955,9 @@
 										</xsl:with-param>
 									</xsl:call-template>
 									<xsl:call-template name="OutputTextBR">
-										<xsl:with-param name="isNewVersion" select="'1'"/>
 										<xsl:with-param name="txtText" select="SellerInformationDetails/SellerTaxRegistrationText"/>
 									</xsl:call-template>
 									<xsl:call-template name="OutputTextBR">
-										<xsl:with-param name="isNewVersion" select="'1'"/>
 										<xsl:with-param name="txtTitle" select="$txtOrganisationUnitNumber"/>
 										<xsl:with-param name="txtText" select="SellerOrganisationUnitNumber"/>
 									</xsl:call-template>
@@ -1745,7 +1975,10 @@
 												</xsl:call-template>
 											</xsl:with-param>
 										</xsl:call-template>
-									</xsl:for-each>
+                    <xsl:call-template name="OutputTextBR">
+                      <xsl:with-param name="txtText" select="SellerAccountName"/>
+                    </xsl:call-template>
+                  </xsl:for-each>
 								</td>
 							</tr>
 						</tbody>
@@ -1876,9 +2109,11 @@
 					</xsl:otherwise>
 				</xsl:choose>
 			</xsl:when>
+      <!--
 			<xsl:when test="($strScheme = 'BBAN') and ($lenAccount = 14) and (string-length(translate($strAccount, '0123456789', '')) = 0)">
 				<xsl:value-of select="substring($strAccount, 1, 6)"/>-<xsl:value-of select="substring($strAccount, 7, 8)"/>
 			</xsl:when>
+      -->
 			<xsl:otherwise>
 				<xsl:value-of select="$strAccount"/>
 			</xsl:otherwise>
@@ -1886,49 +2121,84 @@
 	</xsl:template>
 	<!-- Template, joka tulostaa rahasumman rahayksikön kera. -->
 	<xsl:template name="OutputAmount">
-		<xsl:param name="theAmount"/>
+    <xsl:param name="isNew"/>
+    <xsl:param name="theAmount"/>
 		<xsl:param name="suppressCurrency"/>
 		<xsl:variable name="strAmount" select="string($theAmount)"/>
 		<xsl:if test="string-length($strAmount) != 0">
-			<xsl:value-of select="$strAmount"/>
-			<xsl:if test="string-length($suppressCurrency) = 0">
-				<xsl:variable name="strCurrency" select="string($theAmount/@AmountCurrencyIdentifier)"/>
-				<xsl:if test="string-length($strCurrency) != 0">
-					<xsl:text> </xsl:text>
-					<xsl:choose>
-						<xsl:when test="$strCurrency = 'EUR'">
-							<xsl:value-of select="$txtEur"/>
-						</xsl:when>
-						<xsl:otherwise>
-							<xsl:value-of select="$strCurrency"/>
-						</xsl:otherwise>
-					</xsl:choose>
-				</xsl:if>
-			</xsl:if>
-		</xsl:if>
+      <xsl:choose>
+        <xsl:when test="string-length($isNew) != 0">
+          <xsl:element name="span">
+            <xsl:attribute name="class">isNew</xsl:attribute>
+            <xsl:call-template name="_OutputAmount">
+              <xsl:with-param name="theAmount" select="$theAmount"/>
+              <xsl:with-param name="suppressCurrency" select="$suppressCurrency"/>
+            </xsl:call-template>
+          </xsl:element>
+        </xsl:when>
+        <xsl:otherwise>
+          <xsl:call-template name="_OutputAmount">
+            <xsl:with-param name="theAmount" select="$theAmount"/>
+            <xsl:with-param name="suppressCurrency" select="$suppressCurrency"/>
+          </xsl:call-template>
+        </xsl:otherwise>
+      </xsl:choose>
+    </xsl:if>
 	</xsl:template>
-	<xsl:template name="OutputAmountWithoutCurrency">
-		<xsl:param name="theAmount"/>
+  <xsl:template name="_OutputAmount">
+    <xsl:param name="theAmount"/>
+    <xsl:param name="suppressCurrency"/>
+    <xsl:variable name="strAmount" select="string($theAmount)"/>
+    <xsl:if test="string-length($strAmount) != 0">
+      <xsl:value-of select="$strAmount"/>
+      <xsl:if test="string-length($suppressCurrency) = 0">
+        <xsl:variable name="strCurrency" select="string($theAmount/@AmountCurrencyIdentifier)"/>
+        <xsl:if test="string-length($strCurrency) != 0">
+          <xsl:text> </xsl:text>
+          <xsl:choose>
+            <xsl:when test="$strCurrency = 'EUR'">
+              <xsl:value-of select="$txtEur"/>
+            </xsl:when>
+            <xsl:otherwise>
+              <xsl:value-of select="$strCurrency"/>
+            </xsl:otherwise>
+          </xsl:choose>
+        </xsl:if>
+      </xsl:if>
+    </xsl:if>
+  </xsl:template>
+  <xsl:template name="OutputAmountWithoutCurrency">
+    <xsl:param name="isNew"/>
+    <xsl:param name="theAmount"/>
 		<xsl:call-template name="OutputAmount">
-			<xsl:with-param name="theAmount" select="$theAmount"/>
+      <xsl:with-param name="isNew" select="$isNew"/>
+      <xsl:with-param name="theAmount" select="$theAmount"/>
 			<xsl:with-param name="suppressCurrency" select="'1'"/>
 		</xsl:call-template>
 	</xsl:template>
 	<xsl:template name="OutputUnitAmountWithoutCurrency">
-		<xsl:param name="theAmount"/>
+    <xsl:param name="isNew"/>
+    <xsl:param name="theAmount"/>
 		<xsl:variable name="strAmount">
 			<xsl:call-template name="OutputAmount">
-				<xsl:with-param name="theAmount" select="$theAmount"/>
+        <xsl:with-param name="isNew" select="$isNew"/>
+        <xsl:with-param name="theAmount" select="$theAmount"/>
 				<xsl:with-param name="suppressCurrency" select="'1'"/>
 			</xsl:call-template>
 		</xsl:variable>
 		<xsl:if test="string-length($strAmount) != 0">
-			<xsl:value-of select="$strAmount"/>
-			<xsl:variable name="strUnitCode" select="string($theAmount/@UnitPriceUnitCode)"/>
-			<xsl:if test="string-length($strUnitCode) != 0">
-				<xsl:text> / </xsl:text><xsl:value-of select="$strUnitCode"/>
-			</xsl:if>
-		</xsl:if>
+      <xsl:call-template name="OutputSomething">
+        <xsl:with-param name="isNew" select="$isNew"/>
+        <xsl:with-param name="theDataCopy">
+          <xsl:copy-of select="$strAmount"/>
+          <xsl:variable name="strUnitCode" select="string($theAmount/@UnitPriceUnitCode)"/>
+          <xsl:if test="string-length($strUnitCode) != 0">
+            <xsl:text> / </xsl:text>
+            <xsl:value-of select="$strUnitCode"/>
+          </xsl:if>
+        </xsl:with-param>
+      </xsl:call-template>
+    </xsl:if>
 	</xsl:template>
 	<xsl:template name="OutputPercentage">
 		<xsl:param name="thePercentage"/>
@@ -2015,9 +2285,7 @@
 	<xsl:template name="OutputLink">
 		<xsl:param name="link_a"/>
 		<xsl:param name="text"/>
-		<xsl:element name="a">
-			<xsl:attribute name="href"><xsl:value-of select="$link_a"/></xsl:attribute>
-			<xsl:attribute name="target"><xsl:text>_blank</xsl:text></xsl:attribute>
+		<xsl:variable name="linkText">
 			<xsl:choose>
 				<xsl:when test="string-length($text) != 0">
 					<xsl:value-of select="$text"/>
@@ -2026,7 +2294,19 @@
 					<xsl:value-of select="$txtLink"/>
 				</xsl:otherwise>
 			</xsl:choose>
-		</xsl:element>
+		</xsl:variable>
+		<xsl:choose>
+			<xsl:when test="contains($link_a, '@') or contains($link_a, '%40')">
+				<xsl:value-of select="$linkText"/>: <xsl:value-of select="$link_a"/>
+			</xsl:when>
+			<xsl:otherwise>
+				<xsl:element name="a">
+					<xsl:attribute name="href"><xsl:value-of select="$link_a"/></xsl:attribute>
+					<xsl:attribute name="target"><xsl:text>_blank</xsl:text></xsl:attribute>
+					<xsl:value-of select="$linkText"/>
+				</xsl:element>
+			</xsl:otherwise>
+		</xsl:choose>
 	</xsl:template>
 	<!-- Template, joka osaa tulostaa tekstin neljän merkin ryhminä. -->
 	<xsl:template name="OutputGrouped4">
@@ -2196,11 +2476,13 @@
 	<xsl:template name="OutputRow">
 		<xsl:param name="styleName"/>
 		<xsl:param name="addEmptyRow"/>
-		<xsl:param name="articleIdentifier"/>
-		<xsl:param name="articleGroupIdentifier"/>
+    <xsl:param name="invoicedObjectID"/>
+    <xsl:param name="articleIdentifier"/>
+		<xsl:param name="articleGroupIdentifiers"/>
 		<xsl:param name="articleName"/>
 		<xsl:param name="articleInfoUrlText"/>
-		<xsl:param name="buyerArticleIdentifier"/>
+    <xsl:param name="articleDescription"/>
+    <xsl:param name="buyerArticleIdentifier"/>
 		<xsl:param name="eanCode"/>
 		<xsl:param name="rowRegistrationNumberIdentifier"/>
 		<xsl:param name="serialNumberIdentifier"/>
@@ -2217,14 +2499,18 @@
 		<xsl:param name="startDate"/>
 		<xsl:param name="endDate"/>
 		<xsl:param name="unitPriceAmount"/>
-		<xsl:param name="unitPriceVatIncludedAmount"/>
+    <xsl:param name="unitPriceDiscountAmount"/>
+    <xsl:param name="unitPriceNetAmount"/>
+    <xsl:param name="unitPriceVatIncludedAmount"/>
 		<xsl:param name="unitPriceBaseQuantity"/>
 		<xsl:param name="rowIdentifier"/>
 		<xsl:param name="rowIdentifierUrlText"/>
 		<xsl:param name="rowOrderPositionIdentifier"/>
 		<xsl:param name="rowIdentifierDate"/>
 		<xsl:param name="originalInvoiceNumber"/>
-		<xsl:param name="rowOrdererName"/>
+    <xsl:param name="originalInvoiceDate"/>
+    <xsl:param name="originalInvoiceRefs"/>
+    <xsl:param name="rowOrdererName"/>
 		<xsl:param name="rowSalesPersonName"/>
 		<xsl:param name="rowOrderConfirmationIdentifier"/>
 		<xsl:param name="rowOrderConfirmationDate"/>
@@ -2239,7 +2525,8 @@
 		<xsl:param name="rowRequestOfQuotationIdentifierUrlText"/>
 		<xsl:param name="rowPriceListIdentifier"/>
 		<xsl:param name="rowPriceListIdentifierUrlText"/>
-		<xsl:param name="rowProjectReferenceIdentifier"/>
+    <xsl:param name="rowBuyerReferenceIdentifier"/>
+    <xsl:param name="rowProjectReferenceIdentifier"/>
 		<xsl:param name="rowModeOfTransportIdentifier"/>
 		<xsl:param name="rowTerminalAddressText"/>
 		<xsl:param name="rowTransportInformationDate"/>
@@ -2250,8 +2537,9 @@
 		<xsl:param name="rowDeliveryNoteIdentifier"/>
 		<xsl:param name="rowDelivererIdentifier"/>
 		<xsl:param name="rowDelivererName"/>
-		<xsl:param name="rowDelivererCountryCode"/>
-		<xsl:param name="rowDelivererCountryName"/>
+    <xsl:param name="rowDelivererCountrySubdivision"/>
+    <xsl:param name="rowDelivererCountryCode"/>
+    <xsl:param name="rowDelivererCountryName"/>
 		<xsl:param name="rowCountryOfOrigin"/>
 		<xsl:param name="rowPlaceOfDischarge"/>
 		<xsl:param name="rowCountryOfDestinationName"/>
@@ -2260,7 +2548,8 @@
 		<xsl:param name="rowManufacturerArticleIdentifier"/>
 		<xsl:param name="rowManufacturerIdentifier"/>
 		<xsl:param name="rowManufacturerName"/>
-		<xsl:param name="rowManufacturerCountryCode"/>
+    <xsl:param name="rowManufacturerCountrySubdivision"/>
+    <xsl:param name="rowManufacturerCountryCode"/>
 		<xsl:param name="rowManufacturerCountryName"/>
 		<xsl:param name="rowManufacturerOrderIdentifier"/>
 		<xsl:param name="rowPackageLength"/>
@@ -2281,7 +2570,8 @@
 		<xsl:param name="rowCalculatedQuantity"/>
 		<xsl:param name="rowAveragePriceAmount"/>
 		<xsl:param name="rowDiscounts"/>
-		<xsl:param name="rowVatRatePercent"/>
+    <xsl:param name="rowChargeDetails"/>
+    <xsl:param name="rowVatRatePercent"/>
 		<xsl:param name="rowVatCode"/>
 		<xsl:param name="rowVatAmount"/>
 		<xsl:param name="rowVatExcludedAmount"/>
@@ -2304,9 +2594,16 @@
 								<xsl:with-param name="link" select="$articleInfoUrlText"/>
 								<xsl:with-param name="text" select="$articleName"/>
 							</xsl:call-template>
+              <xsl:if test="string-length(normalize-space($articleDescription)) != 0">
+                <br/><xsl:value-of select="$articleDescription"/>
+              </xsl:if>
 						</xsl:with-param>
 					</xsl:call-template>
-					<xsl:call-template name="OutputColContent">
+          <xsl:call-template name="OutputColContent">
+            <xsl:with-param name="theTitle" select="$txtInvoicedObjectID"/>
+            <xsl:with-param name="theData" select="string($invoicedObjectID)"/>
+          </xsl:call-template>
+          <xsl:call-template name="OutputColContent">
 						<xsl:with-param name="theTitle" select="$txtRowIdentifier"/>
 						<xsl:with-param name="theData">
 							<xsl:call-template name="BuildString">
@@ -2316,7 +2613,6 @@
 						</xsl:with-param>
 					</xsl:call-template>
 					<xsl:call-template name="OutputColContent">
-						<xsl:with-param name="isNewVersion" select="'1'"/>
 						<xsl:with-param name="theTitle" select="$txtRowOrderPositionIdentifier"/>
 						<xsl:with-param name="theData" select="string($rowOrderPositionIdentifier)"/>
 					</xsl:call-template>
@@ -2361,7 +2657,6 @@
 					</xsl:variable>
 					<xsl:if test="$rowOrderCIdDate != '0'">
 						<xsl:call-template name="OutputColContent">
-							<xsl:with-param name="isNewVersion" select="'1'"/>
 							<xsl:with-param name="theTitle" select="$txtOrderConfirmationIdentifier"/>
 							<xsl:with-param name="theData">
 								<xsl:value-of select="$rowOrderConfirmationIdentifier"/>
@@ -2386,7 +2681,6 @@
 						</xsl:with-param>
 					</xsl:call-template>
 					<xsl:call-template name="OutputColContent">
-						<xsl:with-param name="isNewVersion" select="'1'"/>
 						<xsl:with-param name="theTitle" select="$txtCreditRequestedQuantity"/>
 						<xsl:with-param name="theData">
 							<xsl:for-each select="$creditRequestedQuantity">
@@ -2395,7 +2689,6 @@
 						</xsl:with-param>
 					</xsl:call-template>
 					<xsl:call-template name="OutputColContent">
-						<xsl:with-param name="isNewVersion" select="'1'"/>
 						<xsl:with-param name="theTitle" select="$txtReturnedQuantity"/>
 						<xsl:with-param name="theData">
 							<xsl:for-each select="$returnedQuantity">
@@ -2424,20 +2717,39 @@
 						<xsl:with-param name="theTitle" select="$txtOriginalInvoice"/>
 						<xsl:with-param name="theData" select="string($originalInvoiceNumber)"/>
 					</xsl:call-template>
-					<xsl:call-template name="OutputColContent">
+          <xsl:call-template name="OutputColContent">
+            <xsl:with-param name="theTitle" select="$txtOriginalInvoiceDate"/>
+            <xsl:with-param name="theData">
+              <xsl:call-template name="OutputDate">
+                <xsl:with-param name="theDate" select="$originalInvoiceDate"/>
+              </xsl:call-template>
+            </xsl:with-param>
+          </xsl:call-template>
+          <xsl:for-each select="$originalInvoiceRefs">
+            <xsl:call-template name="OutputColContent">
+              <xsl:with-param name="theTitle" select="$txtOriginalInvoice"/>
+              <xsl:with-param name="theData" select="InvoiceNumber"/>
+            </xsl:call-template>
+            <xsl:call-template name="OutputColContent">
+              <xsl:with-param name="theTitle" select="$txtOriginalInvoiceDate"/>
+              <xsl:with-param name="theData">
+                <xsl:call-template name="OutputDate">
+                  <xsl:with-param name="theDate" select="InvoiceDate"/>
+                </xsl:call-template>
+              </xsl:with-param>
+            </xsl:call-template>
+          </xsl:for-each>
+          <xsl:call-template name="OutputColContent">
 						<xsl:with-param name="theTitle" select="$txtManufacturer"/>
 						<xsl:with-param name="theData">
 							<xsl:for-each select="$rowManufacturerName"><xsl:call-template name="OutputCurrentTextBR"/></xsl:for-each>
 							<xsl:call-template name="OutputTextBR">
 								<xsl:with-param name="txtText" select="string($rowManufacturerIdentifier)"/>
 							</xsl:call-template>
-							<xsl:call-template name="OutputTextBR">
-								<xsl:with-param name="txtTextCopy">
-									<xsl:call-template name="BuildCountryString">
-										<xsl:with-param name="theCountryCode" select="$rowManufacturerCountryCode"/>
-										<xsl:with-param name="theCountryName" select="$rowManufacturerCountryName"/>
-									</xsl:call-template>
-								</xsl:with-param>
+							<xsl:call-template name="OutputCountry">
+                <xsl:with-param name="theCountrySubdivision" select="$rowManufacturerCountrySubdivision"/>
+                <xsl:with-param name="theCountryCode" select="$rowManufacturerCountryCode"/>
+								<xsl:with-param name="theCountryName" select="$rowManufacturerCountryName"/>
 							</xsl:call-template>
 						</xsl:with-param>
 					</xsl:call-template>
@@ -2552,7 +2864,11 @@
 							</xsl:call-template>
 						</xsl:with-param>
 					</xsl:call-template>
-					<xsl:call-template name="OutputColContent">
+          <xsl:call-template name="OutputColContent">
+            <xsl:with-param name="theTitle" select="$txtBuyerReference"/>
+            <xsl:with-param name="theData" select="string($rowBuyerReferenceIdentifier)"/>
+          </xsl:call-template>
+          <xsl:call-template name="OutputColContent">
 						<xsl:with-param name="theTitle" select="$txtProjectRefId"/>
 						<xsl:with-param name="theData" select="string($rowProjectReferenceIdentifier)"/>
 					</xsl:call-template>
@@ -2592,10 +2908,12 @@
 							</xsl:call-template>
 						</xsl:with-param>
 					</xsl:call-template>
-					<xsl:call-template name="OutputColContent">
-						<xsl:with-param name="theTitle" select="$txtArticleGroupIdentifier"/>
-						<xsl:with-param name="theData" select="string($articleGroupIdentifier)"/>
-					</xsl:call-template>
+					<xsl:for-each select="$articleGroupIdentifiers">
+						<xsl:call-template name="OutputColContent">
+							<xsl:with-param name="theTitle" select="$txtArticleGroupIdentifier"/>
+							<xsl:with-param name="theData" select="."/>
+						</xsl:call-template>
+					</xsl:for-each>
 					<xsl:call-template name="OutputColContent">
 						<xsl:with-param name="theTitle" select="$txtEanCode"/>
 						<xsl:with-param name="theData" select="string($eanCode)"/>
@@ -2615,13 +2933,10 @@
 							<xsl:call-template name="OutputTextBR">
 								<xsl:with-param name="txtText" select="string($rowDelivererIdentifier)"/>
 							</xsl:call-template>
-							<xsl:call-template name="OutputTextBR">
-								<xsl:with-param name="txtTextCopy">
-									<xsl:call-template name="BuildCountryString">
-										<xsl:with-param name="theCountryCode" select="$rowDelivererCountryCode"/>
-										<xsl:with-param name="theCountryName" select="$rowDelivererCountryName"/>
-									</xsl:call-template>
-								</xsl:with-param>
+							<xsl:call-template name="OutputCountry">
+                <xsl:with-param name="theCountrySubdivision" select="$rowDelivererCountrySubdivision"/>
+                <xsl:with-param name="theCountryCode" select="$rowDelivererCountryCode"/>
+								<xsl:with-param name="theCountryName" select="$rowDelivererCountryName"/>
 							</xsl:call-template>
 						</xsl:with-param>
 					</xsl:call-template>
@@ -2634,7 +2949,6 @@
 						<xsl:with-param name="theData" select="string($rowTerminalAddressText)"/>
 					</xsl:call-template>
 					<xsl:call-template name="OutputColContent">
-						<xsl:with-param name="isNewVersion" select="'1'"/>
 						<xsl:with-param name="theTitle" select="$txtTransportInformationDate"/>
 						<xsl:with-param name="theData">
 							<xsl:call-template name="OutputDate">
@@ -2647,7 +2961,6 @@
 						<xsl:with-param name="theData" select="string($rowWaybillIdentifier)"/>
 					</xsl:call-template>
 					<xsl:call-template name="OutputColContent">
-						<xsl:with-param name="isNewVersion" select="'1'"/>
 						<xsl:with-param name="theTitle" select="$txtWaybillTypeCode"/>
 						<xsl:with-param name="theData" select="string($rowWaybillTypeCode)"/>
 					</xsl:call-template>
@@ -2660,7 +2973,6 @@
 						<xsl:with-param name="theData" select="string($rowDeliveryNoteIdentifier)"/>
 					</xsl:call-template>
 					<xsl:call-template name="OutputColContent">
-						<xsl:with-param name="isNewVersion" select="'1'"/>
 						<xsl:with-param name="theTitle" select="$txtCountryOfOrigin"/>
 						<xsl:with-param name="theData" select="string($rowCountryOfOrigin)"/>
 					</xsl:call-template>
@@ -2669,7 +2981,6 @@
 						<xsl:with-param name="theData" select="string($rowPlaceOfDischarge)"/>
 					</xsl:call-template>
 					<xsl:call-template name="OutputColContent">
-						<xsl:with-param name="isNewVersion" select="'1'"/>
 						<xsl:with-param name="theTitle" select="$txtCountryOfDestinationName"/>
 						<xsl:with-param name="theData" select="string($rowCountryOfDestinationName)"/>
 					</xsl:call-template>
@@ -2681,7 +2992,6 @@
 					</xsl:call-template>
 					<xsl:for-each select="$rowCustomsInfo">
 						<xsl:call-template name="OutputColContent">
-							<xsl:with-param name="isNewVersion" select="'1'"/>
 							<xsl:with-param name="theTitle" select="$txtRowCustomsInfo"/>
 							<xsl:with-param name="theData">
 								<xsl:call-template name="OutputTextBR">
@@ -2691,14 +3001,11 @@
 									<xsl:with-param name="txtTitle" select="$txtCNCode"/>
 									<xsl:with-param name="txtText" select="CNCode"/>
 								</xsl:call-template>
-								<xsl:call-template name="OutputTextBR">
+								<xsl:call-template name="OutputCountry">
 									<xsl:with-param name="txtTitle" select="$txtCNOriginCountryName"/>
-									<xsl:with-param name="txtTextCopy">
-										<xsl:call-template name="BuildCountryString">
-											<xsl:with-param name="theCountryCode" select="CNOriginCountryCode"/>
-											<xsl:with-param name="theCountryName" select="CNOriginCountryName"/>
-										</xsl:call-template>
-									</xsl:with-param>
+                  <xsl:with-param name="theCountrySubdivision" select="CNOriginCountrySubdivision"/>
+                  <xsl:with-param name="theCountryCode" select="CNOriginCountryCode"/>
+									<xsl:with-param name="theCountryName" select="CNOriginCountryName"/>
 								</xsl:call-template>
 							</xsl:with-param>
 						</xsl:call-template>
@@ -2719,7 +3026,12 @@
 							</xsl:call-template>
 						</xsl:if>
 					</xsl:variable>
-					<xsl:variable name="formRowVatExcludedAmount">
+          <xsl:variable name="hasUPD">
+            <xsl:call-template name="IsAmountSet">
+              <xsl:with-param name="theAmount" select="$unitPriceDiscountAmount"/>
+            </xsl:call-template>
+          </xsl:variable>
+          <xsl:variable name="formRowVatExcludedAmount">
 						<xsl:call-template name="OutputAmountWithoutCurrency">
 							<xsl:with-param name="theAmount" select="$rowVatExcludedAmount"/>
 						</xsl:call-template>
@@ -2729,12 +3041,24 @@
 							<xsl:call-template name="OutputColContent">
 								<xsl:with-param name="theTitle" select="$txtUnitPriceAndAmount"/>
 								<xsl:with-param name="theData">
-									<xsl:call-template name="BuildString">
-										<xsl:with-param name="txtText" select="$formUnitPriceAmount"/>
-										<xsl:with-param name="txtText2">
-											<xsl:call-template name="OutputQuantity"><xsl:with-param name="theQuantity" select="$unitPriceBaseQuantity"/></xsl:call-template><xsl:text> =&gt; </xsl:text><xsl:value-of select="$formRowVatExcludedAmount"/>
-										</xsl:with-param>
-									</xsl:call-template>
+                  <xsl:value-of select="$formUnitPriceAmount"/><br/>
+                  <xsl:if test="$hasUPD = 'true'">
+                    <span class="title"><xsl:value-of select="$txtRowDiscount"/></span><xsl:text> </xsl:text>
+                    <xsl:call-template name="OutputUnitAmountWithoutCurrency">
+                      <xsl:with-param name="theAmount" select="$unitPriceDiscountAmount"/>
+                    </xsl:call-template>
+                    <br/>
+                    <span class="title"><xsl:value-of select="$txtNetAmount"/></span><xsl:text> </xsl:text>
+                    <xsl:call-template name="OutputUnitAmountWithoutCurrency">
+                      <xsl:with-param name="theAmount" select="$unitPriceNetAmount"/>
+                    </xsl:call-template>
+                    <br/>
+                  </xsl:if>
+                  <xsl:call-template name="OutputQuantity">
+                    <xsl:with-param name="theQuantity" select="$unitPriceBaseQuantity"/>
+                  </xsl:call-template>
+                  <xsl:text> =&gt; </xsl:text>
+                  <xsl:value-of select="$formRowVatExcludedAmount"/>
 								</xsl:with-param>
 							</xsl:call-template>
 						</xsl:when>
@@ -2782,6 +3106,16 @@
 					<xsl:if test="string-length(normalize-space($rowDiscounts)) != 0">
 						<xsl:copy-of select="$rowDiscounts"/>
 					</xsl:if>
+          <xsl:for-each select="$rowChargeDetails">
+            <xsl:call-template name="OutputRowCharge">
+              <xsl:with-param name="chargeNumber" select="position()"/>
+              <xsl:with-param name="vatExcludedAmount" select="Amount"/>
+              <xsl:with-param name="baseAmount" select="BaseAmount"/>
+              <xsl:with-param name="percentage" select="Percent"/>
+              <xsl:with-param name="reasonText" select="ReasonText"/>
+              <xsl:with-param name="reasonCode" select="ReasonCode"/>
+            </xsl:call-template>
+          </xsl:for-each>
 					<xsl:if test="(string-length($rowShortProposedAccountIdentifier) != 0) or (string-length($rowNormalProposedAccountIdentifier) != 0) or (string-length($rowAccountDimensionText) != 0) or (string-length($rowSellerAccountText) != 0)">
 						<xsl:variable name="accounts">
 							<xsl:if test="string-length($rowShortProposedAccountIdentifier) != 0">
@@ -2810,7 +3144,6 @@
 						<xsl:with-param name="theData" select="string($rowProposedAccountText)"/>
 					</xsl:call-template>
 					<xsl:call-template name="OutputColContent">
-						<xsl:with-param name="isNewVersion" select="'1'"/>
 						<xsl:with-param name="theTitle" select="$txtSellerAccountText"/>
 						<xsl:with-param name="theData" select="string($rowSellerAccountText)"/>
 					</xsl:call-template>
@@ -2842,21 +3175,18 @@
 					</xsl:call-template>
 					<xsl:if test="$rowTransactionDetails">
 						<xsl:call-template name="OutputColContent">
-							<xsl:with-param name="isNewVersion" select="'1'"/>
 							<xsl:with-param name="theTitle" select="$txtRowOtherCurrencyAmount"/>
 							<xsl:with-param name="theData">
 								<xsl:call-template name="OutputAmount"><xsl:with-param name="theAmount" select="$rowTransactionDetails/OtherCurrencyAmount"/></xsl:call-template>
 							</xsl:with-param>
 						</xsl:call-template>
 						<xsl:call-template name="OutputColContent">
-							<xsl:with-param name="isNewVersion" select="'1'"/>
 							<xsl:with-param name="theTitle" select="$txtExchangeRate"/>
 							<xsl:with-param name="theData">
 								<xsl:call-template name="OutputAmount"><xsl:with-param name="theAmount" select="$rowTransactionDetails/ExchangeRate"/></xsl:call-template>
 							</xsl:with-param>
 						</xsl:call-template>
 						<xsl:call-template name="OutputColContent">
-							<xsl:with-param name="isNewVersion" select="'1'"/>
 							<xsl:with-param name="theTitle" select="$txtExchangeDate"/>
 							<xsl:with-param name="theData">
 								<xsl:call-template name="OutputDate"><xsl:with-param name="theDate" select="$rowTransactionDetails/ExchangeDate"/></xsl:call-template>
@@ -2877,7 +3207,8 @@
 		<xsl:param name="rowDiscountTypeCode"/>
 		<xsl:param name="rowDiscountPercent"/>
 		<xsl:param name="rowDiscountAmount"/>
-		<xsl:variable name="strPercentage">
+    <xsl:param name="rowDiscountBaseAmount"/>
+    <xsl:variable name="strPercentage">
 			<xsl:call-template name="OutputPercentage"><xsl:with-param name="thePercentage" select="$rowDiscountPercent"/><xsl:with-param name="suppressZero" select="'1'"/></xsl:call-template>
 		</xsl:variable>
 		<xsl:if test="string-length(normalize-space($rowDiscountTypeText)) + string-length($strPercentage) + string-length(normalize-space($rowDiscountAmount)) != 0">
@@ -2889,7 +3220,7 @@
 							<xsl:value-of select="$rowDiscountTypeText"/><xsl:value-of select="$theTypecode"/>
 						</xsl:when>
 						<xsl:otherwise>
-							<xsl:value-of select="$txtRowDiscount"/><xsl:value-of select="$discountNumber"/><xsl:value-of select="$theTypecode"/>
+							<xsl:value-of select="$txtRowDiscount"/><xsl:text> </xsl:text><xsl:value-of select="$discountNumber"/><xsl:value-of select="$theTypecode"/>
 						</xsl:otherwise>
 					</xsl:choose>
 				</xsl:with-param>
@@ -2898,17 +3229,71 @@
 						<xsl:value-of select="$strPercentage"/><xsl:text>:  </xsl:text>
 					</xsl:if>
 					<xsl:call-template name="OutputAmount"><xsl:with-param name="theAmount" select="$rowDiscountAmount"/></xsl:call-template>
+          <xsl:if test="string-length(normalize-space($rowDiscountBaseAmount)) != 0">
+            <br/><xsl:value-of select="$txtBaseAmountCap"/><xsl:text>  </xsl:text>
+            <xsl:call-template name="OutputAmount">
+              <xsl:with-param name="theAmount" select="$rowDiscountBaseAmount"/>
+            </xsl:call-template>
+          </xsl:if>
 				</xsl:with-param>
 			</xsl:call-template>
 		</xsl:if>
 	</xsl:template>
-	<!-- Template, joka kokoaa merkkijonon. -->
+  <xsl:template name="OutputRowCharge">
+    <xsl:param name="chargeNumber"/>
+    <xsl:param name="vatExcludedAmount"/>
+    <xsl:param name="baseAmount"/>
+    <xsl:param name="percentage"/>
+    <xsl:param name="reasonText"/>
+    <xsl:param name="reasonCode"/>
+    <xsl:variable name="strPercentage">
+      <xsl:call-template name="OutputPercentage">
+        <xsl:with-param name="thePercentage" select="$percentage"/>
+        <xsl:with-param name="suppressZero" select="'1'"/>
+      </xsl:call-template>
+    </xsl:variable>
+    <xsl:variable name="strReasonCode">
+      <xsl:if test="string-length($reasonCode) != 0">
+        <xsl:text> (</xsl:text><xsl:value-of select="$reasonCode"/><xsl:text>)</xsl:text>
+      </xsl:if>
+    </xsl:variable>
+    <xsl:call-template name="OutputColContent">
+      <xsl:with-param name="theTitle">
+        <xsl:choose>
+          <xsl:when test="string-length(normalize-space($reasonText)) != 0">
+            <xsl:value-of select="$reasonText"/><xsl:value-of select="$strReasonCode"/>
+          </xsl:when>
+          <xsl:otherwise>
+            <xsl:value-of select="$txtCharge"/><xsl:text> </xsl:text><xsl:value-of select="$chargeNumber"/><xsl:value-of select="$strReasonCode"/>
+          </xsl:otherwise>
+        </xsl:choose>
+      </xsl:with-param>
+      <xsl:with-param name="theData">
+        <xsl:if test="string-length($strPercentage) != 0">
+          <xsl:value-of select="$strPercentage"/><xsl:text>:  </xsl:text>
+        </xsl:if>
+        <xsl:call-template name="OutputAmount">
+          <xsl:with-param name="theAmount" select="$vatExcludedAmount"/>
+        </xsl:call-template>
+        <xsl:if test="string-length(normalize-space($baseAmount)) != 0">
+          <br/>
+          <xsl:value-of select="$txtBaseAmountCap"/>
+          <xsl:text>  </xsl:text>
+          <xsl:call-template name="OutputAmount">
+            <xsl:with-param name="theAmount" select="$baseAmount"/>
+          </xsl:call-template>
+        </xsl:if>
+      </xsl:with-param>
+    </xsl:call-template>
+  </xsl:template>
+  <!-- Template, joka kokoaa merkkijonon. -->
 	<xsl:template name="BuildString">
 		<xsl:param name="txtTitle"/>
 		<xsl:param name="txtText"/>
 		<xsl:param name="txtTextUrl"/>
 		<xsl:param name="txtTextDelimiter"/>
-		<xsl:param name="txtText2"/>
+    <xsl:param name="useBrDelimiter"/>
+    <xsl:param name="txtText2"/>
 		<xsl:param name="txtText2NotAlone"/>
 		<xsl:if test="(string-length(normalize-space($txtText)) != 0) or ((string-length(normalize-space($txtText2))  != 0) and (string-length($txtText2NotAlone) = 0))">
 			<xsl:if test="string-length(normalize-space($txtTitle)) != 0">
@@ -2922,68 +3307,89 @@
 			</xsl:if>
 			<xsl:if test="string-length(normalize-space($txtText2)) != 0">
 				<xsl:if test="string-length(normalize-space($txtText)) != 0">
-					<xsl:text> </xsl:text>
-					<xsl:if test="string-length($txtTextDelimiter) != 0">
-						<xsl:value-of select="$txtTextDelimiter"/>
-						<xsl:text> </xsl:text>
-					</xsl:if>
+          <xsl:choose>
+            <xsl:when test="string-length($useBrDelimiter) != 0">
+              <br/>
+            </xsl:when>
+            <xsl:otherwise>
+              <xsl:text> </xsl:text>
+              <xsl:if test="string-length($txtTextDelimiter) != 0">
+                <xsl:copy-of select="$txtTextDelimiter"/>
+                <xsl:text> </xsl:text>
+              </xsl:if>
+            </xsl:otherwise>
+          </xsl:choose>
 				</xsl:if>
 				<xsl:value-of select="$txtText2"/>
 			</xsl:if>
 		</xsl:if>
 	</xsl:template>
-	<xsl:template name="BuildCountryString">
-		<xsl:param name="theCountryCode"/>
-		<xsl:param name="theCountryName"/>
-		<xsl:param name="buildFinland"/>
-		<xsl:variable name="ccode" select="string($theCountryCode)"/>
-		<xsl:if test="($ccode != 'FI') or (string-length($buildFinland) != 0)">
-			<xsl:value-of select="$theCountryName"/>
-			<!--
-			<xsl:call-template name="BuildString">
-				<xsl:with-param name="txtText" select="$theCountryCode"/>
-				<xsl:with-param name="txtTextDelimiter">/</xsl:with-param>
-				<xsl:with-param name="txtText2" select="$theCountryName"/>
-			</xsl:call-template>
-			-->
-		</xsl:if>
-	</xsl:template>
-	<xsl:template name="OutputSomething">
-		<xsl:param name="isNewVersion"/>
-		<xsl:param name="theDataCopy"/>
+  <xsl:template name="OutputCountry">
+    <xsl:param name="txtTitle"/>
+    <xsl:param name="theCountrySubdivision"/>
+    <xsl:param name="theCountryCode"/>
+    <xsl:param name="theCountryName"/>
+    <xsl:param name="buildFinland"/>
+    <xsl:variable name="ccode" select="string($theCountryCode)"/>
+    <xsl:if test="($ccode != 'FI') or (string-length($buildFinland) != 0)">
+      <xsl:variable name="countryRows">
+        <xsl:call-template name="OutputTextBR">
+          <xsl:with-param name="txtText" select="$theCountrySubdivision"/>
+        </xsl:call-template>
+        <xsl:call-template name="OutputOneString">
+          <xsl:with-param name="str1" select="$theCountryName"/>
+          <xsl:with-param name="str2" select="$theCountryCode"/>
+        </xsl:call-template>
+      </xsl:variable>
+      <xsl:if test="string-length($countryRows) != 0">
+        <xsl:if test="string-length(normalize-space($txtTitle)) != 0">
+          <xsl:value-of select="$txtTitle"/>
+          <xsl:text>: </xsl:text>
+          <br/>
+        </xsl:if>
+        <xsl:call-template name="OutputSomething">
+          <xsl:with-param name="theDataCopy" select="$countryRows"/>
+          <xsl:with-param name="appendBR" select="1"/>
+        </xsl:call-template>
+      </xsl:if>
+    </xsl:if>
+  </xsl:template>
+  <xsl:template name="OutputSomething">
+    <xsl:param name="isNew"/>
+    <xsl:param name="theDataCopy"/>
 		<xsl:param name="appendBR"/>
 		<xsl:if test="string-length($theDataCopy) != 0">
-			<xsl:choose>
-				<xsl:when test="string-length($isNewVersion) != 0">
-					<xsl:element name="span">
-						<xsl:attribute name="class">isNewVersion</xsl:attribute>
-						<xsl:copy-of select="$theDataCopy"/>
-					</xsl:element>
-					<xsl:if test="string-length($appendBR) != 0">
-						<br/>
-					</xsl:if>
-				</xsl:when>
-				<xsl:otherwise>
-					<xsl:copy-of select="$theDataCopy"/>
-					<xsl:if test="string-length($appendBR) != 0">
-						<br/>
-					</xsl:if>
-				</xsl:otherwise>
-			</xsl:choose>
-		</xsl:if>
+      <xsl:choose>
+        <xsl:when test="string-length($isNew) != 0">
+          <xsl:element name="span">
+            <xsl:attribute name="class">isNew</xsl:attribute>
+            <xsl:copy-of select="$theDataCopy"/>
+          </xsl:element>
+          <xsl:if test="string-length($appendBR) != 0">
+            <br/>
+          </xsl:if>
+        </xsl:when>
+        <xsl:otherwise>
+          <xsl:copy-of select="$theDataCopy"/>
+          <xsl:if test="string-length($appendBR) != 0">
+            <br/>
+          </xsl:if>
+        </xsl:otherwise>
+      </xsl:choose>
+    </xsl:if>
 	</xsl:template>
 	<!-- Template, joka tulostaa tekstin ja rivinvaihdon. -->
 	<xsl:template name="OutputCurrentTextBR">
-		<xsl:param name="isNewVersion"/>
-		<xsl:call-template name="OutputSomething">
-			<xsl:with-param name="isNewVersion" select="$isNewVersion"/>
-			<xsl:with-param name="theDataCopy" select="string(.)"/>
+    <xsl:param name="isNew"/>
+    <xsl:call-template name="OutputSomething">
+      <xsl:with-param name="isNew" select="$isNew"/>
+      <xsl:with-param name="theDataCopy" select="string(.)"/>
 			<xsl:with-param name="appendBR" select="'1'"/>
 		</xsl:call-template>
 	</xsl:template>
 	<xsl:template name="OutputTextBR">
-		<xsl:param name="isNewVersion"/>
-		<xsl:param name="txtTitle"/>
+    <xsl:param name="isNew"/>
+    <xsl:param name="txtTitle"/>
 		<xsl:param name="txtText"/>
 		<xsl:param name="txtTextCopy"/>
 		<xsl:variable name="theText">
@@ -3003,40 +3409,17 @@
 			</xsl:choose>
 		</xsl:variable>
 		<xsl:call-template name="OutputSomething">
-			<xsl:with-param name="isNewVersion" select="$isNewVersion"/>
-			<xsl:with-param name="theDataCopy" select="string($theText)"/>
+      <xsl:with-param name="isNew" select="$isNew"/>
+      <xsl:with-param name="theDataCopy" select="string($theText)"/>
 			<xsl:with-param name="appendBR" select="'1'"/>
 		</xsl:call-template>
 	</xsl:template>
-	<!--
-	<xsl:template name="OutputTextBR">
-		<xsl:param name="txtTitle"/>
-		<xsl:param name="txtText"/>
-		<xsl:param name="txtTextCopy"/>
-		<xsl:choose>
-			<xsl:when test="string-length(normalize-space($txtText)) != 0">
-				<xsl:if test="string-length(normalize-space($txtTitle)) != 0">
-					<xsl:value-of select="$txtTitle"/><xsl:text>: </xsl:text>
-				</xsl:if>
-				<xsl:value-of select="$txtText"/><br/>
-			</xsl:when>
-			<xsl:when test="string-length(normalize-space($txtTextCopy)) != 0">
-				<xsl:if test="string-length(normalize-space($txtTitle)) != 0">
-					<xsl:value-of select="$txtTitle"/><xsl:text>: </xsl:text>
-				</xsl:if>
-				<xsl:copy-of select="$txtTextCopy"/><br/>
-			</xsl:when>
-		</xsl:choose>
-	</xsl:template>
-	-->
 	<!-- Template, joka tulostaa dataa sisältävän DIVin. -->
 	<xsl:template name="OutputDataDiv">
-		<xsl:param name="isNewVersion"/>
 		<xsl:param name="theData"/>
 		<xsl:if test="string-length(normalize-space($theData)) != 0">
 			<div class="data">
 				<xsl:call-template name="OutputSomething">
-					<xsl:with-param name="isNewVersion" select="$isNewVersion"/>
 					<xsl:with-param name="theDataCopy" select="$theData"/>
 				</xsl:call-template>
 			</div>
@@ -3044,10 +3427,11 @@
 	</xsl:template>
 	<!-- Template, joka tulostaa AnyParty-tiedot. -->
 	<xsl:template name="OutputAnyPartyDetails">
-		<xsl:param name="info"/>
+    <xsl:param name="isRowOrSubRow"/>
+    <xsl:param name="info"/>
 		<xsl:param name="anyPartyText"/>
 		<xsl:param name="anyPartyTextAnyPartyCode"/>
-		<xsl:param name="anyPartyIdentifier"/>
+    <xsl:param name="anyPartyIdentifier"/>
 		<xsl:param name="anyPartyOrganisationName"/>
 		<xsl:param name="anyPartyOrganisationDepartment"/>
 		<xsl:param name="anyPartyOrganisationTaxCode"/>
@@ -3057,7 +3441,8 @@
 		<xsl:param name="anyPartyStreetName"/>
 		<xsl:param name="anyPartyTownName"/>
 		<xsl:param name="anyPartyPostCodeIdentifier"/>
-		<xsl:param name="countryCode"/>
+    <xsl:param name="countrySubdivision"/>
+    <xsl:param name="countryCode"/>
 		<xsl:param name="countryName"/>
 		<xsl:param name="anyPartyPostOfficeBoxIdentifier"/>
 		<xsl:param name="anyPartyContactPersonName"/>
@@ -3066,7 +3451,7 @@
 		<xsl:param name="anyPartyEmailaddressIdentifier"/>
 		<xsl:param name="anyPartyPhoneNumberIdentifier"/>
 		<table class="AnyParty">
-			<tbody>
+      <tbody class="groupBegins">
 				<xsl:element name="tr">
 					<td class="title" colspan="2">
 						<xsl:value-of select="$anyPartyText"/>
@@ -3085,13 +3470,11 @@
 				</xsl:call-template>
 				<xsl:if test="string-length($anyPartyCode) != 0">
 					<xsl:call-template name="OutputTitleDataRow">
-						<xsl:with-param name="isNewVersion" select="'1'"/>
-						<xsl:with-param name="theTitle" select="string($anyPartyCode/@IdentifierType)"/>
+            <xsl:with-param name="theTitle" select="string($anyPartyCode/@IdentifierType)"/>
 						<xsl:with-param name="theData" select="string($anyPartyCode)"/>
 					</xsl:call-template>
 				</xsl:if>
 				<xsl:call-template name="OutputTitleDataRow">
-					<xsl:with-param name="isNewVersion" select="'1'"/>
 					<xsl:with-param name="theTitle" select="$txtTaxCode"/>
 					<xsl:with-param name="theData" select="string($anyPartyOrganisationTaxCode)"/>
 				</xsl:call-template>
@@ -3123,13 +3506,10 @@
 								</xsl:call-template>
 							</xsl:with-param>
 						</xsl:call-template>
-						<xsl:call-template name="OutputTextBR">
-							<xsl:with-param name="txtTextCopy">
-								<xsl:call-template name="BuildCountryString">
-									<xsl:with-param name="theCountryCode" select="$countryCode"/>
-									<xsl:with-param name="theCountryName" select="$countryName"/>
-								</xsl:call-template>
-							</xsl:with-param>
+						<xsl:call-template name="OutputCountry">
+              <xsl:with-param name="theCountrySubdivision" select="$countrySubdivision"/>
+              <xsl:with-param name="theCountryCode" select="$countryCode"/>
+							<xsl:with-param name="theCountryName" select="$countryName"/>
 						</xsl:call-template>
 					</xsl:with-param>
 				</xsl:call-template>
@@ -3184,7 +3564,8 @@
 			<xsl:with-param name="anyPartyStreetName" select="AnyPartyPostalAddressDetails/AnyPartyStreetName"/>
 			<xsl:with-param name="anyPartyTownName" select="AnyPartyPostalAddressDetails/AnyPartyTownName"/>
 			<xsl:with-param name="anyPartyPostCodeIdentifier" select="AnyPartyPostalAddressDetails/AnyPartyPostCodeIdentifier"/>
-			<xsl:with-param name="countryCode" select="AnyPartyPostalAddressDetails/CountryCode"/>
+      <xsl:with-param name="countrySubdivision" select="AnyPartyPostalAddressDetails/AnyPartyCountrySubdivision"/>
+      <xsl:with-param name="countryCode" select="AnyPartyPostalAddressDetails/CountryCode"/>
 			<xsl:with-param name="countryName" select="AnyPartyPostalAddressDetails/CountryName"/>
 			<xsl:with-param name="anyPartyPostOfficeBoxIdentifier" select="AnyPartyPostalAddressDetails/AnyPartyPostOfficeBoxIdentifier"/>
 			<xsl:with-param name="anyPartyContactPersonName" select="AnyPartyContactPersonName"/>
@@ -3197,19 +3578,22 @@
 	<!-- Template, joka tulostaa RowAnyPartyDetails-tiedot. -->
 	<xsl:template name="OutputRowAnyPartyDetails">
 		<xsl:call-template name="OutputAnyPartyDetails">
-			<xsl:with-param name="info" select="$txtInvoiceRow"/>
+      <xsl:with-param name="isRowOrSubRow" select="'x'"/>
+      <xsl:with-param name="info" select="$txtInvoiceRow"/>
 			<xsl:with-param name="anyPartyText" select="RowAnyPartyText"/>
 			<xsl:with-param name="anyPartyTextAnyPartyCode" select="RowAnyPartyText/@AnyPartyCode"/>
 			<xsl:with-param name="anyPartyIdentifier" select="RowAnyPartyIdentifier"/>
 			<xsl:with-param name="anyPartyOrganisationName" select="RowAnyPartyOrganisationName"/>
 			<xsl:with-param name="anyPartyOrganisationDepartment" select="RowAnyPartyOrganisationDepartment"/>
 			<xsl:with-param name="anyPartyOrganisationTaxCode" select="RowAnyPartyOrganisationTaxCode"/>
-			<xsl:with-param name="anyPartyOrganisationUnitNumber" select="RowAnyPartyOrganisationUnitNumber"/>
+      <xsl:with-param name="anyPartyCode" select="RowAnyPartyCode"/>
+      <xsl:with-param name="anyPartyOrganisationUnitNumber" select="RowAnyPartyOrganisationUnitNumber"/>
 			<xsl:with-param name="anyPartySiteCode" select="RowAnyPartySiteCode"/>
 			<xsl:with-param name="anyPartyStreetName" select="RowAnyPartyPostalAddressDetails/RowAnyPartyStreetName"/>
 			<xsl:with-param name="anyPartyTownName" select="RowAnyPartyPostalAddressDetails/RowAnyPartyTownName"/>
 			<xsl:with-param name="anyPartyPostCodeIdentifier" select="RowAnyPartyPostalAddressDetails/RowAnyPartyPostCodeIdentifier"/>
-			<xsl:with-param name="countryCode" select="RowAnyPartyPostalAddressDetails/CountryCode"/>
+      <xsl:with-param name="countrySubdivision" select="RowAnyPartyPostalAddressDetails/RowAnyPartyCountrySubdivision"/>
+      <xsl:with-param name="countryCode" select="RowAnyPartyPostalAddressDetails/CountryCode"/>
 			<xsl:with-param name="countryName" select="RowAnyPartyPostalAddressDetails/CountryName"/>
 			<xsl:with-param name="anyPartyPostOfficeBoxIdentifier" select="RowAnyPartyPostalAddressDetails/RowAnyPartyPostOfficeBoxIdentifier"/>
 		</xsl:call-template>
@@ -3217,19 +3601,22 @@
 	<!-- Template, joka tulostaa SubRowAnyPartyDetails-tiedot. -->
 	<xsl:template name="OutputSubRowAnyPartyDetails">
 		<xsl:call-template name="OutputAnyPartyDetails">
-			<xsl:with-param name="info"/>
+      <xsl:with-param name="isRowOrSubRow" select="'x'"/>
+      <xsl:with-param name="info"/>
 			<xsl:with-param name="anyPartyText" select="SubRowAnyPartyText"/>
 			<xsl:with-param name="anyPartyTextAnyPartyCode" select="SubRowAnyPartyText/@AnyPartyCode"/>
 			<xsl:with-param name="anyPartyIdentifier" select="SubRowAnyPartyIdentifier"/>
 			<xsl:with-param name="anyPartyOrganisationName" select="SubRowAnyPartyOrganisationName"/>
 			<xsl:with-param name="anyPartyOrganisationDepartment" select="SubRowAnyPartyOrganisationDepartment"/>
 			<xsl:with-param name="anyPartyOrganisationTaxCode" select="SubRowAnyPartyOrganisationTaxCode"/>
-			<xsl:with-param name="anyPartyOrganisationUnitNumber" select="SubRowAnyPartyOrganisationUnitNumber"/>
+      <xsl:with-param name="anyPartyCode" select="SubRowAnyPartyCode"/>
+      <xsl:with-param name="anyPartyOrganisationUnitNumber" select="SubRowAnyPartyOrganisationUnitNumber"/>
 			<xsl:with-param name="anyPartySiteCode" select="SubRowAnyPartySiteCode"/>
 			<xsl:with-param name="anyPartyStreetName" select="SubRowAnyPartyPostalAddressDetails/SubRowAnyPartyStreetName"/>
 			<xsl:with-param name="anyPartyTownName" select="SubRowAnyPartyPostalAddressDetails/SubRowAnyPartyTownName"/>
 			<xsl:with-param name="anyPartyPostCodeIdentifier" select="SubRowAnyPartyPostalAddressDetails/SubRowAnyPartyPostCodeIdentifier"/>
-			<xsl:with-param name="countryCode" select="SubRowAnyPartyPostalAddressDetails/CountryCode"/>
+      <xsl:with-param name="countrySubdivision" select="SubRowAnyPartyPostalAddressDetails/SubRowAnyPartyCountrySubdivision"/>
+      <xsl:with-param name="countryCode" select="SubRowAnyPartyPostalAddressDetails/CountryCode"/>
 			<xsl:with-param name="countryName" select="SubRowAnyPartyPostalAddressDetails/CountryName"/>
 			<xsl:with-param name="anyPartyPostOfficeBoxIdentifier" select="SubRowAnyPartyPostalAddressDetails/SubRowAnyPartyPostOfficeBoxIdentifier"/>
 		</xsl:call-template>
@@ -3300,7 +3687,6 @@
 			</td>
 			<td class="multiData">
 				<xsl:call-template name="OutputColContent">
-					<xsl:with-param name="isNewVersion" select="'1'"/>
 					<xsl:with-param name="theTitle" select="$txtPaidVatExcludedAmount"/>
 					<xsl:with-param name="theData">
 						<xsl:call-template name="OutputAmount"><xsl:with-param name="theAmount" select="$paidVatExcludedAmount"/></xsl:call-template>
@@ -3319,7 +3705,6 @@
 					</xsl:with-param>
 				</xsl:call-template>
 				<xsl:call-template name="OutputColContent">
-					<xsl:with-param name="isNewVersion" select="'1'"/>
 					<xsl:with-param name="theTitle" select="$txtUnPaidVatExcludedAmount"/>
 					<xsl:with-param name="theData">
 						<xsl:call-template name="OutputAmount"><xsl:with-param name="theAmount" select="$unPaidVatExcludedAmount"/></xsl:call-template>
@@ -3400,24 +3785,24 @@
 		</xsl:element>
 	</xsl:template>
 	<xsl:template name="OutputColContent">
-		<xsl:param name="isNewVersion"/>
-		<xsl:param name="theTitle"/>
+    <xsl:param name="isNew"/>
+    <xsl:param name="theTitle"/>
 		<xsl:param name="theData"/>
 		<xsl:if test="string-length($theData)!=0">
 			<xsl:element name="div">
 				<xsl:attribute name="class">title</xsl:attribute>
 				<!--<xsl:copy-of select="$theTitle"/>-->
 				<xsl:call-template name="OutputSomething">
-					<xsl:with-param name="isNewVersion" select="$isNewVersion"/>
-					<xsl:with-param name="theDataCopy" select="$theTitle"/>
+          <xsl:with-param name="isNew" select="$isNew"/>
+          <xsl:with-param name="theDataCopy" select="$theTitle"/>
 				</xsl:call-template>
 			</xsl:element>
 			<xsl:element name="div">
 				<xsl:attribute name="class">data</xsl:attribute>
 				<!--<xsl:copy-of select="$theData"/>-->
 				<xsl:call-template name="OutputSomething">
-					<xsl:with-param name="isNewVersion" select="$isNewVersion"/>
-					<xsl:with-param name="theDataCopy" select="$theData"/>
+          <xsl:with-param name="isNew" select="$isNew"/>
+          <xsl:with-param name="theDataCopy" select="$theData"/>
 				</xsl:call-template>
 			</xsl:element>
 		</xsl:if>
@@ -3445,8 +3830,8 @@
 		</xsl:if>
 	</xsl:template>
 	<xsl:template name="OutputTitleDataRow">
-		<xsl:param name="isNewVersion"/>
-		<xsl:param name="theClass"/>
+    <xsl:param name="isNew"/>
+    <xsl:param name="theClass"/>
 		<xsl:param name="theTitle"/>
 		<xsl:param name="theTitleSeparator" select="':'"/>
 		<xsl:param name="theData"/>
@@ -3463,8 +3848,8 @@
 					<!--<xsl:if test="string-length($theTitle)!=0"><xsl:copy-of select="$theTitle"/><xsl:copy-of select="$theTitleSeparator"/></xsl:if>-->
 					<xsl:if test="string-length($theTitle)!=0">
 						<xsl:call-template name="OutputSomething">
-							<xsl:with-param name="isNewVersion" select="$isNewVersion"/>
-							<xsl:with-param name="theDataCopy"><xsl:copy-of select="$theTitle"/><xsl:copy-of select="$theTitleSeparator"/></xsl:with-param>
+              <xsl:with-param name="isNew" select="$isNew"/>
+              <xsl:with-param name="theDataCopy"><xsl:copy-of select="$theTitle"/><xsl:copy-of select="$theTitleSeparator"/></xsl:with-param>
 						</xsl:call-template>
 					</xsl:if>
 				</xsl:element>
@@ -3472,21 +3857,12 @@
 					<xsl:attribute name="class">data</xsl:attribute>
 					<!--<xsl:copy-of select="$theData"/>-->
 					<xsl:call-template name="OutputSomething">
-						<xsl:with-param name="isNewVersion" select="$isNewVersion"/>
-						<xsl:with-param name="theDataCopy" select="$theData"/>
+            <xsl:with-param name="isNew" select="$isNew"/>
+            <xsl:with-param name="theDataCopy" select="$theData"/>
 					</xsl:call-template>
 				</xsl:element>
 			</xsl:element>
 		</xsl:if>
-	</xsl:template>
-	<xsl:template name="OutputTitleDataRowSeparator">
-		<xsl:param name="theClass" select="'groupSeparator'"/>
-		<xsl:element name="tr">
-			<xsl:attribute name="class">
-				<xsl:value-of select="$theClass"/>
-			</xsl:attribute>
-			<xsl:element name="td"></xsl:element>
-		</xsl:element>
 	</xsl:template>
 	<xsl:template name="OutputDefinitionDetails">
 		<xsl:variable name="countDD" select="count(InvoiceDetails/DefinitionDetails)"/>
@@ -3593,7 +3969,8 @@
 				<xsl:with-param name="rowDiscountTypeCode" select="RowDiscountTypeCode"/>
 				<xsl:with-param name="rowDiscountPercent" select="RowDiscountPercent"/>
 				<xsl:with-param name="rowDiscountAmount" select="RowDiscountAmount"/>
-			</xsl:call-template>
+        <xsl:with-param name="rowDiscountBaseAmount" select="RowDiscountBaseAmount"/>
+      </xsl:call-template>
 		</xsl:variable>
 		<xsl:variable name="discountOffset">
 			<xsl:choose>
@@ -3610,20 +3987,23 @@
 					<xsl:with-param name="rowDiscountTypeCode" select="RowDiscountTypeCode"/>
 					<xsl:with-param name="rowDiscountPercent" select="RowDiscountPercent"/>
 					<xsl:with-param name="rowDiscountAmount" select="RowDiscountAmount"/>
-				</xsl:call-template>
+          <xsl:with-param name="rowDiscountBaseAmount" select="RowDiscountBaseAmount"/>
+        </xsl:call-template>
 			</xsl:for-each>
 		</xsl:variable>
-		<xsl:variable name="invoiceRowHTML">
+    <xsl:variable name="invoiceRowHTML">
 			<xsl:call-template name="OutputRow">
 				<xsl:with-param name="styleName">InvoiceRow</xsl:with-param>
 				<xsl:with-param name="addEmptyRow">
 					<xsl:if test="(position() != 1) or ($hasOverDue = 1)">1</xsl:if>
 				</xsl:with-param>
-				<xsl:with-param name="articleIdentifier" select="ArticleIdentifier"/>
-				<xsl:with-param name="articleGroupIdentifier" select="ArticleGroupIdentifier"/>
+        <xsl:with-param name="invoicedObjectID" select="InvoicedObjectID"/>
+        <xsl:with-param name="articleIdentifier" select="ArticleIdentifier"/>
+				<xsl:with-param name="articleGroupIdentifiers" select="ArticleGroupIdentifier"/>
 				<xsl:with-param name="articleName" select="ArticleName"/>
 				<xsl:with-param name="articleInfoUrlText" select="ArticleInfoUrlText"/>
-				<xsl:with-param name="buyerArticleIdentifier" select="BuyerArticleIdentifier"/>
+        <xsl:with-param name="articleDescription" select="ArticleDescription"/>
+        <xsl:with-param name="buyerArticleIdentifier" select="BuyerArticleIdentifier"/>
 				<xsl:with-param name="eanCode" select="EanCode"/>
 				<xsl:with-param name="rowRegistrationNumberIdentifier" select="RowRegistrationNumberIdentifier"/>
 				<xsl:with-param name="serialNumberIdentifier" select="SerialNumberIdentifier"/>
@@ -3640,14 +4020,18 @@
 				<xsl:with-param name="startDate" select="StartDate"/>
 				<xsl:with-param name="endDate" select="EndDate"/>
 				<xsl:with-param name="unitPriceAmount" select="UnitPriceAmount"/>
-				<xsl:with-param name="unitPriceVatIncludedAmount" select="UnitPriceVatIncludedAmount"/>
+        <xsl:with-param name="unitPriceDiscountAmount" select="UnitPriceDiscountAmount"/>
+        <xsl:with-param name="unitPriceNetAmount" select="UnitPriceNetAmount"/>
+        <xsl:with-param name="unitPriceVatIncludedAmount" select="UnitPriceVatIncludedAmount"/>
 				<xsl:with-param name="unitPriceBaseQuantity" select="UnitPriceBaseQuantity"/>
 				<xsl:with-param name="rowIdentifier" select="RowIdentifier"/>
 				<xsl:with-param name="rowIdentifierUrlText" select="RowIdentifierUrlText"/>
 				<xsl:with-param name="rowOrderPositionIdentifier" select="RowOrderPositionIdentifier"/>
 				<xsl:with-param name="rowIdentifierDate" select="RowIdentifierDate"/>
 				<xsl:with-param name="originalInvoiceNumber" select="OriginalInvoiceNumber"/>
-				<xsl:with-param name="rowOrdererName" select="RowOrdererName"/>
+        <xsl:with-param name="originalInvoiceDate" select="OriginalInvoiceDate"/>
+        <xsl:with-param name="originalInvoiceRefs" select="OriginalInvoiceReference"/>
+        <xsl:with-param name="rowOrdererName" select="RowOrdererName"/>
 				<xsl:with-param name="rowSalesPersonName" select="RowSalesPersonName"/>
 				<xsl:with-param name="rowOrderConfirmationIdentifier" select="RowOrderConfirmationIdentifier"/>
 				<xsl:with-param name="rowOrderConfirmationDate" select="RowOrderConfirmationDate"/>
@@ -3662,7 +4046,8 @@
 				<xsl:with-param name="rowRequestOfQuotationIdentifierUrlText" select="RowRequestOfQuotationIdentifierUrlText"/>
 				<xsl:with-param name="rowPriceListIdentifier" select="RowPriceListIdentifier"/>
 				<xsl:with-param name="rowPriceListIdentifierUrlText" select="RowPriceListIdentifierUrlText"/>
-				<xsl:with-param name="rowProjectReferenceIdentifier" select="RowProjectReferenceIdentifier"/>
+        <xsl:with-param name="rowBuyerReferenceIdentifier" select="RowBuyerReferenceIdentifier"/>
+        <xsl:with-param name="rowProjectReferenceIdentifier" select="RowProjectReferenceIdentifier"/>
 				<xsl:with-param name="rowModeOfTransportIdentifier" select="RowDeliveryDetails/RowModeOfTransportIdentifier"/>
 				<xsl:with-param name="rowTerminalAddressText" select="RowDeliveryDetails/RowTerminalAddressText"/>
 				<xsl:with-param name="rowTransportInformationDate" select="RowDeliveryDetails/RowTransportInformationDate"/>
@@ -3673,7 +4058,8 @@
 				<xsl:with-param name="rowDeliveryNoteIdentifier" select="RowDeliveryDetails/RowDeliveryNoteIdentifier"/>
 				<xsl:with-param name="rowDelivererIdentifier" select="RowDeliveryDetails/RowDelivererIdentifier"/>
 				<xsl:with-param name="rowDelivererName" select="RowDeliveryDetails/RowDelivererName"/>
-				<xsl:with-param name="rowDelivererCountryCode" select="RowDeliveryDetails/RowDelivererCountryCode"/>
+        <xsl:with-param name="rowDelivererCountrySubdivision" select="RowDeliveryDetails/RowDelivererCountrySubdivision"/>
+        <xsl:with-param name="rowDelivererCountryCode" select="RowDeliveryDetails/RowDelivererCountryCode"/>
 				<xsl:with-param name="rowDelivererCountryName" select="RowDeliveryDetails/RowDelivererCountryName"/>
 				<xsl:with-param name="rowCountryOfOrigin" select="RowDeliveryDetails/RowCountryOfOrigin"/>
 				<xsl:with-param name="rowPlaceOfDischarge" select="RowDeliveryDetails/RowPlaceOfDischarge"/>
@@ -3683,7 +4069,8 @@
 				<xsl:with-param name="rowManufacturerArticleIdentifier" select="RowDeliveryDetails/RowManufacturerArticleIdentifier"/>
 				<xsl:with-param name="rowManufacturerIdentifier" select="RowDeliveryDetails/RowManufacturerIdentifier"/>
 				<xsl:with-param name="rowManufacturerName" select="RowDeliveryDetails/RowManufacturerName"/>
-				<xsl:with-param name="rowManufacturerCountryCode" select="RowDeliveryDetails/RowManufacturerCountryCode"/>
+        <xsl:with-param name="rowManufacturerCountrySubdivision" select="RowDeliveryDetails/RowManufacturerCountrySubdivision"/>
+        <xsl:with-param name="rowManufacturerCountryCode" select="RowDeliveryDetails/RowManufacturerCountryCode"/>
 				<xsl:with-param name="rowManufacturerCountryName" select="RowDeliveryDetails/RowManufacturerCountryName"/>
 				<xsl:with-param name="rowManufacturerOrderIdentifier" select="RowDeliveryDetails/RowManufacturerOrderIdentifier"/>
 				<xsl:with-param name="rowPackageLength" select="RowDeliveryDetails/RowPackageDetails/RowPackageLength"/>
@@ -3704,7 +4091,8 @@
 				<xsl:with-param name="rowCalculatedQuantity" select="RowCalculatedQuantity"/>
 				<xsl:with-param name="rowAveragePriceAmount" select="RowAveragePriceAmount"/>
 				<xsl:with-param name="rowDiscounts" select="$discounts"/>
-				<xsl:with-param name="rowVatRatePercent" select="RowVatRatePercent"/>
+        <xsl:with-param name="rowChargeDetails" select="RowChargeDetails"/>
+        <xsl:with-param name="rowVatRatePercent" select="RowVatRatePercent"/>
 				<xsl:with-param name="rowVatCode" select="RowVatCode"/>
 				<xsl:with-param name="rowVatAmount" select="RowVatAmount"/>
 				<xsl:with-param name="rowVatExcludedAmount" select="RowVatExcludedAmount"/>
@@ -3738,9 +4126,6 @@
 					<table class="AnyPartyDetails">
 						<xsl:for-each select="RowAnyPartyDetails">
 							<xsl:if test="position() mod 2 != 0">
-								<xsl:if test="position() != 1">
-									<xsl:call-template name="OutputTitleDataRowSeparator"/>
-								</xsl:if>
 								<tr>
 									<td>
 										<xsl:call-template name="OutputRowAnyPartyDetails"/>
@@ -3818,7 +4203,8 @@
 					<xsl:with-param name="rowDiscountTypeCode" select="SubRowDiscountTypeCode"/>
 					<xsl:with-param name="rowDiscountPercent" select="SubRowDiscountPercent"/>
 					<xsl:with-param name="rowDiscountAmount" select="SubRowDiscountAmount"/>
-				</xsl:call-template>
+          <xsl:with-param name="rowDiscountBaseAmount" select="SubRowDiscountBaseAmount"/>
+        </xsl:call-template>
 			</xsl:variable>
 			<xsl:variable name="subDiscountOffset">
 				<xsl:choose>
@@ -3835,17 +4221,20 @@
 						<xsl:with-param name="rowDiscountTypeCode" select="SubRowDiscountTypeCode"/>
 						<xsl:with-param name="rowDiscountPercent" select="SubRowDiscountPercent"/>
 						<xsl:with-param name="rowDiscountAmount" select="SubRowDiscountAmount"/>
-					</xsl:call-template>
+            <xsl:with-param name="rowDiscountBaseAmount" select="SubRowDiscountBaseAmount"/>
+          </xsl:call-template>
 				</xsl:for-each>
 			</xsl:variable>
-			<xsl:call-template name="OutputRow">
+      <xsl:call-template name="OutputRow">
 				<xsl:with-param name="styleName">SubInvoiceRow</xsl:with-param>
 				<xsl:with-param name="addEmptyRow" select="'1'"/>
-				<xsl:with-param name="articleIdentifier" select="SubArticleIdentifier"/>
-				<xsl:with-param name="articleGroupIdentifier" select="SubArticleGroupIdentifier"/>
+        <xsl:with-param name="invoicedObjectID" select="SubInvoicedObjectID"/>
+        <xsl:with-param name="articleIdentifier" select="SubArticleIdentifier"/>
+				<xsl:with-param name="articleGroupIdentifiers" select="SubArticleGroupIdentifier"/>
 				<xsl:with-param name="articleName" select="SubArticleName"/>
 				<xsl:with-param name="articleInfoUrlText" select="SubArticleInfoUrlText"/>
-				<xsl:with-param name="buyerArticleIdentifier" select="SubBuyerArticleIdentifier"/>
+        <xsl:with-param name="articleDescription" select="SubArticleDescription"/>
+        <xsl:with-param name="buyerArticleIdentifier" select="SubBuyerArticleIdentifier"/>
 				<xsl:with-param name="eanCode" select="SubEanCode"/>
 				<xsl:with-param name="rowRegistrationNumberIdentifier" select="SubRowRegistrationNumberIdentifier"/>
 				<xsl:with-param name="serialNumberIdentifier" select="SubSerialNumberIdentifier"/>
@@ -3862,13 +4251,17 @@
 				<xsl:with-param name="startDate" select="SubStartDate"/>
 				<xsl:with-param name="endDate" select="SubEndDate"/>
 				<xsl:with-param name="unitPriceAmount" select="SubUnitPriceAmount"/>
-				<xsl:with-param name="unitPriceVatIncludedAmount" select="SubUnitPriceVatIncludedAmount"/>
+        <xsl:with-param name="unitPriceDiscountAmount" select="SubUnitPriceDiscountAmount"/>
+        <xsl:with-param name="unitPriceNetAmount" select="SubUnitPriceNetAmount"/>
+        <xsl:with-param name="unitPriceVatIncludedAmount" select="SubUnitPriceVatIncludedAmount"/>
 				<xsl:with-param name="unitPriceBaseQuantity" select="SubUnitPriceBaseQuantity"/>
 				<xsl:with-param name="rowIdentifier" select="SubRowIdentifier"/>
 				<xsl:with-param name="rowIdentifierUrlText" select="SubRowIdentifierUrlText"/>
 				<xsl:with-param name="rowIdentifierDate" select="SubRowIdentifierDate"/>
 				<xsl:with-param name="originalInvoiceNumber" select="SubOriginalInvoiceNumber"/>
-				<xsl:with-param name="rowOrdererName" select="SubRowOrdererName"/>
+        <xsl:with-param name="originalInvoiceDate" select="SubOriginalInvoiceDate"/>
+        <xsl:with-param name="originalInvoiceRefs" select="SubOriginalInvoiceReference"/>
+        <xsl:with-param name="rowOrdererName" select="SubRowOrdererName"/>
 				<xsl:with-param name="rowSalesPersonName" select="SubRowSalesPersonName"/>
 				<xsl:with-param name="rowOrderConfirmationIdentifier" select="SubRowOrderConfirmationIdentifier"/>
 				<xsl:with-param name="rowOrderConfirmationDate" select="SubRowOrderConfirmationDate"/>
@@ -3883,7 +4276,8 @@
 				<xsl:with-param name="rowRequestOfQuotationIdentifierUrlText" select="SubRowRequestOfQuotationIdentifierUrlText"/>
 				<xsl:with-param name="rowPriceListIdentifier" select="SubRowPriceListIdentifier"/>
 				<xsl:with-param name="rowPriceListIdentifierUrlText" select="SubRowPriceListIdentifierUrlText"/>
-				<xsl:with-param name="rowProjectReferenceIdentifier" select="SubRowProjectReferenceIdentifier"/>
+        <xsl:with-param name="rowBuyerReferenceIdentifier" select="SubRowBuyerReferenceIdentifier"/>
+        <xsl:with-param name="rowProjectReferenceIdentifier" select="SubRowProjectReferenceIdentifier"/>
 				<xsl:with-param name="rowTerminalAddressText" select="SubRowDeliveryDetails/SubRowTerminalAddressText"/>
 				<xsl:with-param name="rowWaybillIdentifier" select="SubRowDeliveryDetails/SubRowWaybillIdentifier"/>
 				<xsl:with-param name="rowWaybillTypeCode" select="SubRowDeliveryDetails/SubRowWaybillTypeCode"/>
@@ -3892,7 +4286,8 @@
 				<xsl:with-param name="rowDeliveryNoteIdentifier" select="SubRowDeliveryDetails/SubRowDeliveryNoteIdentifier"/>
 				<xsl:with-param name="rowDelivererIdentifier" select="SubRowDeliveryDetails/SubRowDelivererIdentifier"/>
 				<xsl:with-param name="rowDelivererName" select="SubRowDeliveryDetails/SubRowDelivererName"/>
-				<xsl:with-param name="rowDelivererCountryCode" select="SubRowDeliveryDetails/SubRowDelivererCountryCode"/>
+        <xsl:with-param name="rowDelivererCountrySubdivision" select="SubRowDeliveryDetails/SubRowDelivererCountrySubdivision"/>
+        <xsl:with-param name="rowDelivererCountryCode" select="SubRowDeliveryDetails/SubRowDelivererCountryCode"/>
 				<xsl:with-param name="rowDelivererCountryName" select="SubRowDeliveryDetails/SubRowDelivererCountryName"/>
 				<xsl:with-param name="rowPlaceOfDischarge" select="SubRowDeliveryDetails/SubRowPlaceOfDischarge"/>
 				<xsl:with-param name="rowFinalDestinationName" select="SubRowDeliveryDetails/SubRowFinalDestinationName"/>
@@ -3900,7 +4295,8 @@
 				<xsl:with-param name="rowManufacturerArticleIdentifier" select="SubRowDeliveryDetails/SubRowManufacturerArticleIdentifier"/>
 				<xsl:with-param name="rowManufacturerIdentifier" select="SubRowDeliveryDetails/SubRowManufacturerIdentifier"/>
 				<xsl:with-param name="rowManufacturerName" select="SubRowDeliveryDetails/SubRowManufacturerName"/>
-				<xsl:with-param name="rowManufacturerCountryCode" select="SubRowDeliveryDetails/SubRowManufacturerCountryCode"/>
+        <xsl:with-param name="rowManufacturerCountrySubdivision" select="SubRowDeliveryDetails/SubRowManufacturerCountrySubdivision"/>
+        <xsl:with-param name="rowManufacturerCountryCode" select="SubRowDeliveryDetails/SubRowManufacturerCountryCode"/>
 				<xsl:with-param name="rowManufacturerCountryName" select="SubRowDeliveryDetails/SubRowManufacturerCountryName"/>
 				<xsl:with-param name="rowManufacturerOrderIdentifier" select="SubRowDeliveryDetails/SubRowManufacturerOrderIdentifier"/>
 				<xsl:with-param name="rowPackageLength" select="SubRowDeliveryDetails/SubRowPackageDetails/SubRowPackageLength"/>
@@ -3921,7 +4317,8 @@
 				<xsl:with-param name="rowCalculatedQuantity" select="SubRowCalculatedQuantity"/>
 				<xsl:with-param name="rowAveragePriceAmount" select="SubRowAveragePriceAmount"/>
 				<xsl:with-param name="rowDiscounts" select="$subDiscounts"/>
-				<xsl:with-param name="rowVatRatePercent" select="SubRowVatRatePercent"/>
+        <xsl:with-param name="rowChargeDetails" select="SubRowChargeDetails"/>
+        <xsl:with-param name="rowVatRatePercent" select="SubRowVatRatePercent"/>
 				<xsl:with-param name="rowVatCode" select="SubRowVatCode"/>
 				<xsl:with-param name="rowVatAmount" select="SubRowVatAmount"/>
 				<xsl:with-param name="rowVatExcludedAmount" select="SubRowVatExcludedAmount"/>
@@ -3951,9 +4348,6 @@
 						<table class="AnyPartyDetails">
 							<xsl:for-each select="SubRowAnyPartyDetails">
 								<xsl:if test="position() mod 2 != 0">
-									<xsl:if test="position() != 1">
-										<xsl:call-template name="OutputTitleDataRowSeparator"/>
-									</xsl:if>
 									<tr>
 										<td>
 											<xsl:call-template name="OutputSubRowAnyPartyDetails"/>
@@ -3978,4 +4372,20 @@
 			</tr>
 		</xsl:for-each>
 	</xsl:template>
+  <xsl:template name="OutputOneString">
+    <xsl:param name="str1"/>
+    <xsl:param name="str2"/>
+    <xsl:choose>
+      <xsl:when test="string-length($str1) != 0">
+        <xsl:value-of select="$str1"/>
+      </xsl:when>
+      <xsl:when test="string-length($str2) != 0">
+        <xsl:value-of select="$str2"/>
+      </xsl:when>
+    </xsl:choose>
+  </xsl:template>
+  <xsl:template name="IsAmountSet">
+    <xsl:param name="theAmount"/>
+    <xsl:value-of select="contains($theAmount, '1') or contains($theAmount, '2') or contains($theAmount, '3') or contains($theAmount, '4') or contains($theAmount, '5') or contains($theAmount, '6') or contains($theAmount, '7') or contains($theAmount, '8') or contains($theAmount, '9')"/>
+  </xsl:template>
 </xsl:stylesheet>
