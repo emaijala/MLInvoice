@@ -167,7 +167,7 @@ if ($intInvoiceId) {
              implode(', ', array_keys($invoiceData)) . ') ' . 'VALUES (' .
              str_repeat('?, ', count($invoiceData) - 1) . '?)';
 
-        dbParamQuery($strQuery, $invoiceData, 'exception');
+        dbParamQuery($strQuery, array_values($invoiceData), 'exception');
         $intNewId = mysqli_insert_id($dblink);
         if (!$intNewId) {
             die('Could not get ID of the new invoice');
