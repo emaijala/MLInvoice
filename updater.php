@@ -634,24 +634,29 @@ EOT;
      */
     protected function compareVersionNumber($v1, $v2)
     {
-        $v1 = explode('.', $v1);
-        $v2 = explode('.', $v2);
+        $v1Arr = explode('.', $v1);
+        $v2Arr = explode('.', $v2);
+        while (count($v1Arr) < 3) {
+            $v1Arr[] = 0;
+        }
+        while (count($v2Arr) < 3) {
+            $v2Arr[] = 0;
+        }
 
-        while (count($v1) < count($v2)) {
-            $v1[] = 0;
+        if (\Composer\Semver\Comparator::EqualTo($v1, $v2)) {
+            return 0;
         }
-        while (count($v2) < count($v1)) {
-            $v2[] = 0;
+        if ($v1Arr[0] != $v2Arr[0]) {
+            $result = 1;
+        } elseif ($v1Arr[1] != $v2Arr[1]) {
+            $result = 2;
+        } else {
+            $result = 3;
+        }
+        if (\Composer\Semver\Comparator::LessThan($v1, $v2)) {
+            $result = -$result;
         }
 
-        for ($i = 0; $i < count($v1); $i++) {
-            if ($v1[$i] == $v2[$i]) {
-                continue;
-            }
-            return strcmp((string)$v1[$i], (string)$v2[$i]) > 0
-                ? ($i + 1) : (-$i - 1);
-        }
-        return 0;
+        return $result;
     }
-
 }
