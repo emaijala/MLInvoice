@@ -2,7 +2,7 @@
 
 VERSION=$1
 
-BRANCH=${2:-"master"}
+BRANCH=${2:-"dev"}
 
 echo "Branch $BRANCH"
 
