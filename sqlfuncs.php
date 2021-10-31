@@ -1154,6 +1154,7 @@ function dbParamQuery($query, $params = [], $noFail = false, $prefixed = false)
         $preparedStatements[$hash] = $statement;
     }
     if ($params) {
+        $params = array_values($params);
         $paramTypes = '';
         foreach ($params as &$v) {
             if (null === $v) {

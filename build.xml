@@ -8,9 +8,15 @@
   <!-- CI Checks -->
   <target name="ci" description="CI checks">
     <!-- Call standard tasks -->
+    <phingcall target="phpunit"/>
     <phingcall target="eslint"/>
     <phingcall target="phpcs-n"/>
     <phingcall target="php-cs-fixer-dryrun"/>
+  </target>
+
+  <!-- phpunit -->
+  <target name="phpunit">
+    <exec command="vendor/bin/phpunit tests" escape="false" checkreturn="true" passthru="true" />
   </target>
 
   <!-- eslint -->
