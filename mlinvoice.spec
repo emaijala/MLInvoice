@@ -1,5 +1,5 @@
 Name:		mlinvoice
-Version:	1.21.2
+Version:	2.0.0
 Release:	1%{?dist}
 Summary:	MLInvoice - Web application to create Finnish invoices
 Group:		Applications/Internet
@@ -11,7 +11,7 @@ Obsoletes: vllasku
 
 BuildRequires:	httpd
 Requires:	httpd
-Requires:	php >= 5.6.0
+Requires:	php >= 7.3.5
 %if 0%{?el5}
 Requires:	php-pecl-json
 %endif
@@ -22,12 +22,12 @@ Requires: php-mysqli
 BuildArch:	noarch
 
 %description
-MLInvoice is a web application written in PHP for printing offers, dispatch notes,
+MLInvoice is a web application written in PHP for handling offers, dispatch notes,
 invoices etc.
-It available in English, Finnish and Swedish. Among its features
+It is available in English, Finnish and Swedish. Among its features
 are automatic invoice numbering and reference calculation, pdf
-generation, customer database and unlimited number of user accounts.
-Data is stored in a MySQL database.
+generation, Finvoice support, customer database and unlimited number of user
+accounts. Data is stored in a MySQL database.
 
 %prep
 %setup -q -n %{name}-%{version}%{?prever}
@@ -51,7 +51,7 @@ EOM
 %{__install} -d -m755 $RPM_BUILD_ROOT%{_datadir}/%{name}
 
 %{__install} -m644 *.php *.ico *.xsl *.xsd config.php.sample $RPM_BUILD_ROOT%{_datadir}/%{name}
-%{__cp} -a css datatables db_data fontawesome-free-5.7.2-web images jquery js lang select2 send_api tests themes vendor $RPM_BUILD_ROOT%{_datadir}/%{name}
+%{__cp} -a css datatables db_data fonts images js lang select2 send_api tests themes vendor $RPM_BUILD_ROOT%{_datadir}/%{name}
 
 %clean
 %{__rm} -rf $RPM_BUILD_ROOT
@@ -64,6 +64,14 @@ EOM
 %{_datadir}/%{name}
 
 %changelog
+* Sun 31 Oct 2021 Ere Maijala <ere@labs.fi> - 2.0.0
+- updated for version 2.0.0
+* Sun 31 Oct 2021 Ere Maijala <ere@labs.fi> - 1.23.1
+- updated for version 1.23.1
+* Tue 19 Oct 2021 Ere Maijala <ere@labs.fi> - 1.23.0
+- updated for version 1.23.0
+* Mon 18 Oct 2021 Ere Maijala <ere@labs.fi> - 1.22.0
+- updated for version 1.22.0
 * Sat 31 Aug 2019 Ere Maijala <ere@labs.fi> - 1.21.2
 - updated for version 1.21.2
 * Wed 21 Aug 2019 Ere Maijala <ere@labs.fi> - 1.21.1
