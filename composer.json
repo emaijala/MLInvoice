@@ -14,6 +14,7 @@
         }
     },
     "require": {
+        "composer/semver": "3.2.6",
         "components/jquery": "^3.5.1",
         "michelf/php-markdown": "^1.9.0",
         "ramsey/uuid": "^4.1.1",
