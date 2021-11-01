@@ -841,21 +841,21 @@ class InvoiceReport extends AbstractReport
         }
         if (in_array('invoice_date', $printFields)) {
             ?>
-        <td class="input">
+        <td class="input" data-sort="<?php echo htmlspecialchars($row['invoice_date'])?>">
             <?php echo htmlspecialchars(dateConvDBDate2Date($row['invoice_date']))?>
         </td>
             <?php
         }
         if (in_array('due_date', $printFields)) {
             ?>
-        <td class="input">
+        <td class="input" data-sort="<?php echo htmlspecialchars($row['due_date'])?>">
             <?php echo htmlspecialchars(dateConvDBDate2Date($row['due_date']))?>
         </td>
             <?php
         }
         if (in_array('payment_date', $printFields)) {
             ?>
-        <td class="input">
+        <td class="input" data-sort="<?php echo htmlspecialchars($row['payment_date'])?>">
             <?php echo htmlspecialchars(dateConvDBDate2Date($row['payment_date']))?>
         </td>
             <?php
