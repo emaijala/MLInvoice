@@ -229,7 +229,7 @@ function createList($strFunc, $strList, $strTableName = '', $strTitleOverride = 
                     <?php
                 } elseif ('INTDATE' === $field['type']) {
                     ?>
-                    json.data[i][<?php echo $i?>] = MLInvoice.formatDate(json.data[i][<?php echo $i?>]);
+                    json.data[i][<?php echo $i?>] = null !== json.data[i][<?php echo $i?>] ? MLInvoice.formatDate(json.data[i][<?php echo $i?>]) : '';
                     <?php
                 } elseif ('CHECKBOX' === $field['type']) {
                     $hasRowSelection = true;
