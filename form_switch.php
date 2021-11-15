@@ -645,7 +645,7 @@ case 'offer':
         if ($isOffer) {
             $locCopyAsInvoice = Translator::translate('CopyAsInvoice');
             $extraButtons = <<<EOT
-<a role="button" class="btn btn-secondary" href="copy_invoice.php?func=$strFunc&amp;list=$strList&amp;id=$intInvoiceId&amp;invoice=1">$locCopyAsInvoice</button>
+<a role="button" class="btn btn-secondary" href="copy_invoice.php?func=$strFunc&amp;list=$strList&amp;id=$intInvoiceId&amp;invoice=1">$locCopyAsInvoice</a>
 
 EOT;
         }
