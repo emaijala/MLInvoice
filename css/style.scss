@@ -175,6 +175,11 @@ div.function_navi {
   }
 }
 
+.alert {
+  max-height: 400px;
+  overflow: scroll;
+}
+
 .profile div.message {
   padding: 8px;
   display: block;

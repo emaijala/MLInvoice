@@ -1,3 +1,5 @@
+$black:    #000;
+
 // Navbar colors
 $navbar-light-color:                rgba($black, .9);
 $navbar-light-hover-color:          rgba($black, .9);
@@ -7,11 +9,26 @@ $navbar-light-disabled-color:       rgba($black, .3);
 // Toast
 $toast-font-size: 1rem;
 
+// Alert
+$alert-bg-scale: -90%;
+
 // Theme colors
-$primary: #0d6eed;
+$gray-100: #f8f9fa !default;
+$gray-900: #212529 !default;
+
+$blue:    #0d4eda;
+$cyan:    #0dcaf0 !default;
+$red:     #dc3545 !default;
+$yellow:  #ffc107 !default;
+
+$primary: $blue;
 $secondary: #486699;
 $success: #196767;
-$alert-bg-scale: -90%;
+$info:          $cyan !default;
+$warning:       $yellow !default;
+$danger:        $red !default;
+$light:         $gray-100 !default;
+$dark:          $gray-900 !default;
 
 $theme-colors: (
   "primary":    $primary,

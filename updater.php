@@ -412,8 +412,10 @@ class Updater
         $this->message('UpdateExtracted');
 
         $this->message('RemovingObsoleteFiles');
+        $errors = [];
         if (!file_exists(__DIR__ . '/' . $this->obsoleteFilesList)) {
-            $this->error('Obsolete files list missing');
+            $this->error();
+            $errors[] = 'Obsolete files list missing';
         } else {
             $obsoleteFiles = explode(
                 "\n",
@@ -424,14 +426,22 @@ class Updater
                 if ('' === $file) {
                     continue;
                 }
-                if (!unlink($file)) {
-                    $this->error("Could not remove '$file'");
+                $absFile = __DIR__ . "/$file";
+                if (file_exists($absFile) && !@unlink($absFile)) {
+                    $errors[] = "Could not remove '$absFile'";
                 }
             }
-            $this->message('ObsoleteFilesRemoved');
+            if (!$errors) {
+                $this->message('ObsoleteFilesRemoved');
+            }
         }
 
-        $this->nextStage('UpgradingDatabase');
+        if ($errors) {
+            $this->error(implode('<br>', $errors));
+            $this->continuePrompt('ContinueToDatabaseUpgrade');
+        } else {
+            $this->nextStage('UpgradingDatabase');
+        }
     }
 
     /**
