@@ -56,10 +56,14 @@ var MLInvoice = (function CreateMLInvoice() {
 
   function setDatePickerDefaults(defaults) {
     _datePickerDefaults = defaults;
+    console.log("defaults: ");
+    console.log(_datePickerDefaults);
   }
 
   function getDatePickerDefaults() {
-    var settings = _datePickerDefaults;
+    var settings = {
+      ..._datePickerDefaults
+    };
     settings.singleDatePicker = true;
     settings.ranges = null;
     settings.showCustomRangeLabel = false;
@@ -70,7 +74,9 @@ var MLInvoice = (function CreateMLInvoice() {
   }
 
   function getDateRangePickerDefaults() {
-    return _datePickerDefaults;
+    return {
+      ..._datePickerDefaults
+    };
   }
 
   function setOfferStates(states) {
