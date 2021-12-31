@@ -150,6 +150,10 @@ div.function_navi {
 
 .list_container {
   margin-top: 10px;
+  max-width: 1400px;
+}
+.form .list_container {
+  max-width: none;
 }
 .iform.list_container {
   margin-left: 0;
