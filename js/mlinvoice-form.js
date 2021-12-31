@@ -1216,8 +1216,9 @@ MLInvoice.addModule('Form', function mlinvoiceForm() {
             var sum = MLInvoice.formatCurrency(rowSum.sum);
             var VAT = MLInvoice.formatCurrency(rowSum.VAT);
             var sumVAT = MLInvoice.formatCurrency(rowSum.sumVAT);
-            var title = MLInvoice.translate('VATLess') + ': ' + sum + ' + ' + MLInvoice.translate('VATPart') + ': ' + VAT;
-            var sumSpan = $('<span/>').attr('title', title).text(sumVAT);
+            var sumVAT2 = MLInvoice.formatCurrency(rowSum.sumVAT, 2);
+            var title = MLInvoice.translate('VATLess') + ': ' + sum + ' + ' + MLInvoice.translate('VATPart') + ': ' + VAT + ' = ' + sumVAT;
+            var sumSpan = $('<span/>').attr('title', title).text(sumVAT2);
             td.append(sumSpan);
             td.appendTo(tr);
             break;
