@@ -56,8 +56,6 @@ var MLInvoice = (function CreateMLInvoice() {
 
   function setDatePickerDefaults(defaults) {
     _datePickerDefaults = defaults;
-    console.log("defaults: ");
-    console.log(_datePickerDefaults);
   }
 
   function getDatePickerDefaults() {
