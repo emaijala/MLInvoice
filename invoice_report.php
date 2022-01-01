@@ -109,11 +109,7 @@ class InvoiceReport extends AbstractReport
 
 <script>
   $(document).ready(function() {
-    $('input[class~="hasDateRangePicker"]').each(function() {
-      $(this).daterangepicker(MLInvoice.getDateRangePickerDefaults()).val('');
-    });
-
-    $('input[name=format]').click(function() {
+    $('input[name=format]').on('click', function() {
       if ($('input[name=format]:checked').val() == 'table') {
         $('input[name=grouping]').attr('disabled', 'disabled');
       } else {

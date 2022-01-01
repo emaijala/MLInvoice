@@ -85,7 +85,7 @@ function htmlPageStart($strTitle = '', $arrExtraScripts = [], $loggedIn = true)
         'datatables/Buttons-1.6.5/js/dataTables.buttons.min.js',
         'datatables/Buttons-1.6.5/js/buttons.html5.min.js',
         'datatables/Buttons-1.6.5/js/buttons.colVis.min.js',
-        'js/vendor/moment.min.js',
+        'js/vendor/moment-with-locales.min.js',
         'js/vendor/daterangepicker.min.js',
         'js/mlinvoice.min.js',
         'select2/select2.min.js',
@@ -243,6 +243,7 @@ function htmlPageStart($strTitle = '', $arrExtraScripts = [], $loggedIn = true)
 $cssLinks
 $scriptLinks
   <script>
+moment.locale('$lang');
 MLInvoice.addTranslations($jsTranslations);
 MLInvoice.setDispatchNotePrintStyle('$dispatchNotePrintStyle');
 MLInvoice.setOfferStates($offerStates);

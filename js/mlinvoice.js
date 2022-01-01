@@ -59,9 +59,7 @@ var MLInvoice = (function CreateMLInvoice() {
   }
 
   function getDatePickerDefaults() {
-    var settings = {
-      ..._datePickerDefaults
-    };
+    var settings = Object.assign({}, _datePickerDefaults);
     settings.singleDatePicker = true;
     settings.ranges = null;
     settings.showCustomRangeLabel = false;
@@ -72,9 +70,11 @@ var MLInvoice = (function CreateMLInvoice() {
   }
 
   function getDateRangePickerDefaults() {
-    return {
-      ..._datePickerDefaults
-    };
+    var settings = Object.assign({}, _datePickerDefaults);
+    settings.autoApply = false;
+    settings.autoUpdateInput = false;
+    settings.alwaysShowCalendars = true;
+    return settings;
   }
 
   function setOfferStates(states) {
@@ -482,7 +482,7 @@ var MLInvoice = (function CreateMLInvoice() {
 
   function _initUI()
   {
-    // Calendar fields
+    // Date fields
     $('input.hasCalendar').each(function setupCalendar() {
       var settings = getDatePickerDefaults();
       var $input = $(this);
@@ -493,7 +493,24 @@ var MLInvoice = (function CreateMLInvoice() {
         $input.val(start.format(MLInvoice.getDateFormat()));
         $input.trigger('change');
       });
+      $input.on('cancel.daterangepicker', function clearDate() {
+        $input.val('');
+      });
     });
+
+    // Date range fields
+    $('input[class~="hasDateRangePicker"]').each(function setupDateRangeField() {
+      var $input = $(this);
+      $input.daterangepicker(MLInvoice.getDateRangePickerDefaults()).val('');
+      $input.on('apply.daterangepicker', function applyRangePick(ev, picker) {
+        $input.val(picker.startDate.format(MLInvoice.getDateFormat()) + ' - ' + picker.endDate.format(MLInvoice.getDateFormat()));
+        $input.trigger('change');
+      });
+      $input.on('cancel.daterangepicker', function clearRange() {
+        $input.val('');
+      });
+    });
+
     // Date fields
     $('input.date').each(function setupDate() {
       if ($(this).data('noFuture')) {

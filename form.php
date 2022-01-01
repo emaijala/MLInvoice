@@ -799,7 +799,8 @@ function createIForm($mainFormConfig, $formConfig, $elem, $intKeyValue, $newReco
                 </div>
                 <div class="modification-indicator hidden">
                     <span class="modification-text"><?php echo Translator::translate('Modified')?></span>
-                    <button type="button" class="btn btn-small btn-outline-secondary clear" title="<?php echo Translator::translate('Clear')?>" aria-label="<?php echo Translator::translate('Clear')?>">
+                    <button type="button" class="btn btn-small btn-outline-secondary clear"
+                      title="<?php echo Translator::translate('Clear')?>" aria-label="<?php echo Translator::translate('Clear')?>">
                         <i class="icon-ccw" aria-hidden="true"></i>
                     </button>
                 </div>

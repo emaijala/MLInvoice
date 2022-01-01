@@ -67,8 +67,6 @@ class ProductReport extends AbstractReport
 
 <script>
   $(document).ready(function() {
-    $('input[class~="hasDateRangePicker"]')
-        .daterangepicker(MLInvoice.getDateRangePickerDefaults());
     MLInvoice.Form.setupSelect2();
   });
   </script>
