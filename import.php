@@ -4,7 +4,7 @@
  *
  * PHP version 7
  *
- * Copyright (C) Ere Maijala 2010-2021
+ * Copyright (C) Ere Maijala 2010-2022
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2,
@@ -894,8 +894,9 @@ function select_preset()
         <?php
         if ($this->presets) {
             $presets = $this->presets;
-            $selectedPreset = null;
-            array_unshift($presets, ['name' => Translator::translate('ImportExportPresetNone'), 'value' => '']);
+            $none = ['name' => Translator::translate('ImportExportPresetNone'), 'value' => ''];
+            $selectedPreset = $none;
+            array_unshift($presets, $none);
             foreach ($presets as $preset) {
                 if (isset($preset['default_for']) && $format == $preset['default_for']) {
                     $selectedPreset = $preset;
@@ -916,7 +917,7 @@ function select_preset()
             <div class="field">
                 <select id="preset" name="preset" onchange="select_preset()">
                 <?php
-                foreach ($this->presets as $preset) {
+                foreach ($presets as $preset) {
                     echo "<option value=\"{$preset['value']}\""
                         . ($selectedPreset['value'] == $preset['value'] ? ' selected="selected"' : '')
                         . '>' . $preset['name'] . "</option>\n";
