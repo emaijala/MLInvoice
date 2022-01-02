@@ -5,7 +5,7 @@
  * PHP version 7
  *
  * Copyright (C) Samu Reinikainen 2004-2008
- * Copyright (C) Ere Maijala 2010-2021
+ * Copyright (C) Ere Maijala 2010-2022
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2,
@@ -646,7 +646,7 @@ function createNavBar($buttons, $currentFunc = '')
                         if (is_string($item['action'])) {
                             $href = ' href="index.php?func=' . $item['action'] . '"';
                         } else {
-                            $href = ' href="index.php?' . http_build_query($item['action'], null, '&amp;') . '"';
+                            $href = ' href="index.php?' . http_build_query($item['action'], '', '&amp;') . '"';
                         }
                     } elseif ($item['link'] ?? '') {
                         $href = ' href="' . htmlspecialchars($item['link']) . '"';
