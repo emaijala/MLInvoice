@@ -4,7 +4,7 @@
  *
  * PHP version 7
  *
- * Copyright (C) Ere Maijala 2010-2021
+ * Copyright (C) Ere Maijala 2010-2022
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2,
@@ -39,6 +39,13 @@ require_once 'import.php';
 class ImportStatement extends ImportFile
 {
     /**
+     * Reference number parsing regular expression
+     *
+     * @var string
+     */
+    protected $refNumberRegExp = '';
+
+    /**
      * Constructor
      */
     public function __construct()
@@ -59,21 +66,22 @@ class ImportStatement extends ImportFile
                 'name' => 'Osuuspankki',
                 'value' => 'Osuuspankki',
                 'selections' => [
-                    'charset' => 1,
+                    'charset' => 0,
                     'format' => 0,
                     'field_delim' => 1,
                     'enclosure_char' => 0,
                     'row_delim' => 0,
-                    'date_format' => 0
+                    'date_format' => 4
                 ],
                 'mappings' => [
                     'map_column1' => 1,
                     'map_column2' => 2,
-                    'map_column7' => 3
+                    'map_column8' => 3
                 ],
                 'values' => [
                     'decimal_separator' => ',',
-                    'skip_rows' => '0'
+                    'skip_rows' => '0',
+                    'ref_parse' => 'ref=(.+)',
                 ]
             ],
             [
@@ -176,6 +184,19 @@ class ImportStatement extends ImportFile
             ['name' => 'response_code', 'len' => 1]
         ];
         $this->fixedWidthName = 'KTL';
+    }
+
+    /**
+     * Import a file
+     *
+     * @param string $importMode Mode ('preview' or 'import')
+     *
+     * @return void
+     */
+    protected function importFile($importMode)
+    {
+        $this->refNumberRegExp = getPostOrQuery('ref_parse', '');
+        parent::importFile($importMode);
     }
 
     /**
@@ -318,6 +339,10 @@ class ImportStatement extends ImportFile
       <div class="field">
         <input type="checkbox" id="ignore_paid" name="ignore_paid" value="1">
       </div>
+      <div class="medium_label"><?php echo Translator::translate('ImportStatementRefNumberInterpretation')?></div>
+      <div class="field">
+        <input type="text" id="ref_parse" name="ref_parse" value="">
+      </div>
         <?php
     }
 
@@ -372,8 +397,20 @@ class ImportStatement extends ImportFile
             return Translator::translate('ImportStatementFieldMissing');
         }
 
+        // Parse reference number if necessary
+        if ($this->refNumberRegExp) {
+            if (!preg_match('/' . $this->refNumberRegExp . '/', $row['refnr'], $matches)) {
+                return Translator::translate('ImportStatementFieldMissing');
+            }
+            $row['refnr'] = $matches[1];
+        }
+
         $refnr = str_replace([' ', "'"], '', $row['refnr']);
         $refnr = ltrim($refnr, '0');
+        if ($refnr === '') {
+            return Translator::translate('ImportStatementFieldMissing');
+        }
+
         $date = date(
             'Ymd',
             DateTime::createFromFormat(
@@ -397,10 +434,6 @@ class ImportStatement extends ImportFile
             $amount /= 100;
         }
         $amount = floatval($amount);
-
-        if ($refnr === '') {
-            return Translator::translate('ImportStatementFieldMissing');
-        }
 
         $format = getPostOrQuery('format', '');
         if ($format == 'fixed' && isset($row['correction']) && $row['correction']) {
