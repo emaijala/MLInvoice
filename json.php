@@ -890,7 +890,8 @@ function updateMultipleRows()
     foreach ($request['ids'] as $id) {
         $id = (int)$id;
         // Set fields anew for every row since saveFormData returns the whole record
-        $data = $request['changes'];
+        $data = convertFromApi($request['changes'], $request['table']);
+
         $res = saveFormData(
             '{prefix}' . $request['table'], $id, $formConfig['fields'], $data, $warnings,
             false, false, false, true
