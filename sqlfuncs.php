@@ -2340,6 +2340,3 @@ EOT
     }
     return 'OK';
 }
-
-// Open database connection whenever this script is included
-initDbConnection();

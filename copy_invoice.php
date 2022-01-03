@@ -29,6 +29,7 @@ require_once 'htmlfuncs.php';
 require_once 'sqlfuncs.php';
 require_once 'sessionfuncs.php';
 
+initDbConnection();
 sesVerifySession();
 
 require_once 'translator.php';

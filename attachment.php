@@ -31,11 +31,12 @@ ini_set('implicit_flush', 'Off');
 ob_start();
 
 require_once 'sessionfuncs.php';
+require_once 'sqlfuncs.php';
 
+initDbConnection();
 sesVerifySession();
 
 require_once 'vendor/autoload.php';
-require_once 'sqlfuncs.php';
 require_once 'translator.php';
 require_once 'datefuncs.php';
 require_once 'miscfuncs.php';

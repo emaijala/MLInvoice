@@ -1,7 +1,6 @@
 <?php
 
-$finder = new PhpCsFixer\Finder();
-$finder
+$finder = PhpCsFixer\Finder::create()
     ->exclude('node_modules')
     ->in(__DIR__ . '/..');
 

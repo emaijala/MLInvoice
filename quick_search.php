@@ -32,6 +32,7 @@ require_once 'sessionfuncs.php';
 require_once 'miscfuncs.php';
 require_once 'datefuncs.php';
 
+initDbConnection();
 sesVerifySession();
 
 require_once 'translator.php';

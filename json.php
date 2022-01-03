@@ -46,6 +46,7 @@ require_once 'memory.php';
 require_once 'form_config.php';
 require_once 'list_config.php';
 
+initDbConnection();
 sesVerifySession(false);
 
 $strFunc = getPostOrQuery('func', '');

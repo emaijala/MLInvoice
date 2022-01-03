@@ -56,6 +56,7 @@ require_once 'settings_list.php';
 require_once 'version.php';
 require_once 'sqlfuncs.php';
 
+initDbConnection();
 sesVerifySession();
 
 $strFunc = sanitize(getPostOrQuery('func', 'open_invoices'));
