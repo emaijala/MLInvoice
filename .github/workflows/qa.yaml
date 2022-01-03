@@ -53,5 +53,8 @@ jobs:
       - name: Install composer dependencies
         run: composer install
 
+      - name: Create config.php
+        run: cp config.php.sample config.php
+
       - name: Run tests
         run: vendor/bin/phing ${{ matrix.phing_tasks }}
