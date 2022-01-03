@@ -538,8 +538,13 @@ class Updater
         $address = defined('_UPDATE_ADDRESS_') ? _UPDATE_ADDRESS_
             : 'https://www.labs.fi/mlinvoice_version.php';
         $address .= strpos($address, '?') === false ? '?' : '&';
-        $address .= 'channel='
-            . (defined('_UPDATE_CHANNEL_') ? _UPDATE_CHANNEL_ : 'production');
+        $address .= http_build_query(
+            [
+                'channel' => defined('_UPDATE_CHANNEL_')
+                    ? _UPDATE_CHANNEL_ : 'production',
+                'version' => $softwareVersion
+            ]
+        );
 
         $client = new GuzzleHttp\Client($GLOBALS['mlinvoice_http_config'] ?? []);
         try {
