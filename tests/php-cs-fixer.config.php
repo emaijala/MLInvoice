@@ -2,7 +2,7 @@
 
 $finder = new PhpCsFixer\Finder();
 $finder
-    ->exclude('node_modules')
+    ->exclude(__DIR__ . '/node_modules')
     ->in(__DIR__ . '/..');
 
 $rules = [
