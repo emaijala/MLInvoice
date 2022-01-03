@@ -1,8 +1,7 @@
 <?php
 
-$finder = new PhpCsFixer\Finder();
-$finder
-    ->exclude(__DIR__ . '/node_modules')
+$finder = PhpCsFixer\Finder::create()
+    ->notPath('/node_modules')
     ->in(__DIR__ . '/..');
 
 $rules = [
