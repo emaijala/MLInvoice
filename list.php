@@ -135,7 +135,7 @@ function createList($strFunc, $strList, $strTableName = '', $strTitleOverride = 
         data: <?php echo json_encode($params) ?>,
         type: 'POST'
       }).done(function(data) {
-        $('#<?php echo $strTableName?>_title').append(' ' + MLInvoice.translate('InvoicesTotal', {'%%sum%%': MLInvoice.formatCurrency(data['sum'])}));
+        $('#<?php echo $strTableName?>_title').append(' ' + MLInvoice.translate('InvoicesTotal', {'%%sum%%': MLInvoice.formatCurrency(data['sum'], 2)}));
       });
     });
         <?php
