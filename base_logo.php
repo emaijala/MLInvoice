@@ -31,6 +31,7 @@ require_once 'sessionfuncs.php';
 require_once 'translator.php';
 require_once 'htmlfuncs.php';
 
+initDbConnection();
 sesVerifySession();
 
 $func = getPostOrQuery('func', 'view');

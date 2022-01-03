@@ -33,6 +33,7 @@ require_once 'miscfuncs.php';
 require_once 'datefuncs.php';
 require_once 'form_config.php';
 
+initDbConnection();
 sesVerifySession();
 
 require_once 'translator.php';
