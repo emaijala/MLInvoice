@@ -181,7 +181,7 @@ class ProductReport extends AbstractReport
 
         $dateRange = explode(' - ', getPostOrQuery('date', ''));
         $startDate = $dateRange[0];
-        $endDate = isset($dateRange[1]) ? $dateRange[1] : $startDate;
+        $endDate = $dateRange[1] ?? $startDate;
 
         if ($startDate) {
             $startDate = dateConvDate2DBDate($startDate);
@@ -196,7 +196,7 @@ class ProductReport extends AbstractReport
             . ' LEFT OUTER JOIN {prefix}company c ON c.id = i.company_id'
             . ' WHERE i.deleted=0';
 
-        list($limitQuery, $arrParams) = $this->createLimitQuery();
+        [$limitQuery, $arrParams] = $this->createLimitQuery();
         $strQuery .= " $limitQuery";
 
         $strQuery2 = '';
@@ -266,7 +266,7 @@ class ProductReport extends AbstractReport
             $prevRow = $row;
 
             $productCount += $row['pcs'];
-            list($rowSum, $rowVAT, $rowSumVAT) = calculateRowSum($row);
+            [$rowSum, $rowVAT, $rowSumVAT] = calculateRowSum($row);
 
             $productSum += $rowSum;
             $productVAT += $rowVAT;

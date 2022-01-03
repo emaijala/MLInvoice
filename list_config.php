@@ -39,17 +39,17 @@ function getListConfig($list)
     include 'list_switch.php';
 
     return $strTable ? [
-        'title' => isset($strTitle) ? $strTitle : '',
+        'title' => $strTitle ?? '',
         'accessLevels' => $levelsAllowed,
         'table' => $strTable,
         'displayJoin' => $strJoin,
-        'countJoin' => isset($strCountJoin) ? $strCountJoin : null,
+        'countJoin' => $strCountJoin ?? null,
         'groupBy' => $strGroupBy,
         'listFilter' => $strListFilter,
         'primaryKey' => $strPrimaryKey,
         'deletedField' => $strDeletedField,
         'fields' => $astrShowFields,
-        'searchFields' => isset($astrSearchFields) ? $astrSearchFields : null,
-        'mainForm' => isset($strMainForm) ? $strMainForm : '',
+        'searchFields' => $astrSearchFields ?? null,
+        'mainForm' => $strMainForm ?? '',
     ] : [];
 }

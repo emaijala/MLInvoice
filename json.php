@@ -539,7 +539,7 @@ case 'noop':
     header('HTTP/1.1 204 No Content');
     break;
 
-default :
+default:
     header('HTTP/1.1 404 Not Found');
 }
 
@@ -782,7 +782,7 @@ function saveJSONRecord($table, $parentKeyName)
         return;
     }
 
-    list($contentType) = explode(';', $_SERVER['CONTENT_TYPE']);
+    [$contentType] = explode(';', $_SERVER['CONTENT_TYPE']);
     if ($contentType === 'application/json') {
         $data = json_decode(file_get_contents('php://input'), true);
     } else {
@@ -796,7 +796,7 @@ function saveJSONRecord($table, $parentKeyName)
     $strForm = $table;
     $strFunc = '';
     $strList = '';
-    $id = isset($data['id']) ? $data['id'] : false;
+    $id = $data['id'] ?? false;
     $new = $id ? false : true;
     unset($data['id']);
     $formConfig = getFormConfig($strForm, 'json');

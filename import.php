@@ -41,13 +41,21 @@ require_once 'settings.php';
 class ImportFile
 {
     protected $tableName = '';
+
     protected $allowServerFile = true;
+
     protected $duplicateControl = true;
+
     protected $dateFormat = false;
+
     protected $decimalSeparator = false;
+
     protected $ignoreEmptyRows = false;
+
     protected $presets = [];
+
     protected $requireDuplicateCheck = true;
+
     protected $mappingsForXml = false;
 
     /**
@@ -1243,7 +1251,7 @@ function select_preset()
         foreach ($row as $key => &$value) {
             if (isset($fieldDefs[$key])) {
                 $fieldDef = $fieldDefs[$key];
-                list($type) = explode('(', $fieldDef['Type'], 2);
+                [$type] = explode('(', $fieldDef['Type'], 2);
                 if ($decimalSeparator != '.'
                     && in_array($type, ['decimal', 'numeric', 'float', 'double'])
                 ) {
@@ -1364,7 +1372,7 @@ function select_preset()
         case 'company':
             $childTable = 'company_contact';
             break;
-        default :
+        default:
             die('Unsupported child table');
         }
         $childNum = 0;

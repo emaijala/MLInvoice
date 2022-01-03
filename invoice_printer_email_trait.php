@@ -41,10 +41,15 @@ require_once 'mailer.php';
 trait InvoicePrinterEmailTrait
 {
     protected $emailFrom = '';
+
     protected $emailTo = '';
+
     protected $emailCC = '';
+
     protected $emailBCC = '';
+
     protected $emailSubject = '';
+
     protected $emailBody = '';
 
     /**
@@ -66,8 +71,7 @@ trait InvoicePrinterEmailTrait
         $defaultValue = $defaultId ? getDefaultValue($defaultId, true) : null;
         $defaultSettings = $this->parseDefaultSettings($defaultValue);
 
-        $defaultRecipient = isset($recipientData['email'])
-            ? $recipientData['email'] : '';
+        $defaultRecipient = $recipientData['email'] ?? '';
         $recipients = [];
         $contacts = $this->getContactPersons();
         foreach ($contacts as $contact) {
@@ -100,8 +104,7 @@ trait InvoicePrinterEmailTrait
         $this->emailBCC = !empty($defaultSettings['bcc'])
             ? $defaultSettings['bcc'] : getPostOrQuery(
                 'email_bcc',
-                isset($senderData['invoice_email_bcc'])
-                ? $senderData['invoice_email_bcc'] : ''
+                $senderData['invoice_email_bcc'] ?? ''
             );
         $this->emailSubject = $this->replacePlaceholders(
             !empty($defaultSettings['subject'])
@@ -147,7 +150,7 @@ trait InvoicePrinterEmailTrait
         if ($this->printStyle == 'receipt') {
             $key = 'receipt_email_body';
         }
-        return isset($this->senderData[$key]) ? $this->senderData[$key] : '';
+        return $this->senderData[$key] ?? '';
     }
 
     /**
@@ -161,7 +164,7 @@ trait InvoicePrinterEmailTrait
         if ($this->printStyle == 'receipt') {
             $key = 'receipt_email_subject';
         }
-        return isset($this->senderData[$key]) ? $this->senderData[$key] : '';
+        return $this->senderData[$key] ?? '';
     }
 
     /**

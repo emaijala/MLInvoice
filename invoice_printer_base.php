@@ -44,32 +44,59 @@ require_once 'pdf.php';
 abstract class InvoicePrinterBase
 {
     protected $pdf = null;
+
     protected $invoiceId = null;
+
     protected $printStyle = '';
+
     protected $printLanguage = 'fi';
+
     protected $senderData = null;
+
     protected $recipientData = null;
+
     protected $recipientContactData = null;
+
     protected $invoiceData = null;
+
     protected $invoiceRowData = null;
+
     protected $separateStatement = false;
+
     protected $readOnlySafe = false;
+
     protected $refNumber = '';
+
     protected $barcode = '';
+
     protected $totalSum = 0;
+
     protected $totalVAT = 0;
+
     protected $totalSumVAT = 0;
+
     protected $discountedRows = false;
+
     protected $groupedVATs = [];
+
     protected $recipientMaxY = 0;
+
     protected $invoiceRowMaxY = 270;
+
     protected $invoiceRowMaxYFirstPage = 185;
+
     protected $senderAddressX = 0;
+
     protected $senderAddressY = 0;
+
     protected $recipientAddressX = 0;
+
     protected $recipientAddressY = 0;
+
     protected $partialPayments = 0;
+
     protected $dateOverride = false;
+
     protected $roundRowPrices = false;
 
     /**
@@ -420,7 +447,7 @@ EOT;
         $this->invoiceId = $invoiceId;
         $parameters = explode(',', $printParameters);
         $this->printStyle = $parameters[0];
-        $this->printLanguage = isset($parameters[1]) ? $parameters[1] : 'fi';
+        $this->printLanguage = $parameters[1] ?? 'fi';
         $this->printVirtualBarcode = isset($parameters[2]) ? ($parameters[2] == 'Y')
             : false;
         // Rest of the parameters are key=value style
@@ -458,7 +485,7 @@ EOT;
                 $rowSum = $rowSumVAT = $row['price'];
                 $rowVAT = 0;
             } else {
-                list($rowSum, $rowVAT, $rowSumVAT) = calculateRowSum($row);
+                [$rowSum, $rowVAT, $rowSumVAT] = calculateRowSum($row);
                 if ($row['vat_included']) {
                     $row['price'] /= (1 + $row['vat'] / 100);
                 }
@@ -686,7 +713,7 @@ EOT;
             $this->printForm();
         }
 
-        $savePdf = clone($this->pdf);
+        $savePdf = clone $this->pdf;
         if (!$this->separateStatement) {
             if ($this->printRows() || !$this->allowSeparateStatement) {
                 $this->printSummary();
@@ -1201,7 +1228,7 @@ EOT;
             if ($row['partial_payment'] && 'dispatch' === $this->printStyle) {
                 continue;
             }
-            $savePDF = clone($pdf);
+            $savePDF = clone $pdf;
             $maxY = $this->printRow($pdf, $row);
             if (!$this->separateStatement && $this->printStyle == 'invoice'
                 && $this->allowSeparateStatement
@@ -1521,8 +1548,7 @@ EOT;
             $value = call_user_func(
                 [$this, $this->columnDefs['description']['valuemethod']], $row
             );
-            $maxHeight = isset($this->columnDefs['description']['maxheight'])
-                ? $this->columnDefs['description']['maxheight'] : 0;
+            $maxHeight = $this->columnDefs['description']['maxheight'] ?? 0;
 
             $pdf->setX($x);
             $pdf->multiCellMD(
@@ -1553,7 +1579,7 @@ EOT;
             if ('fill' === $width) {
                 $width = $this->getColumnFillWidth($key);
             }
-            $maxHeight = isset($column['maxheight']) ? $column['maxheight'] : 0;
+            $maxHeight = $column['maxheight'] ?? 0;
             $pdf->setXY($curX, $rowY);
             if (!empty($column['autofit'])) {
                 $pdf->Cell(
@@ -1611,7 +1637,7 @@ EOT;
                 'fontsize' => 8,
                 'stretchtext' => 4
             ];
-            //
+
             if (!empty($row['barcode1']) && !empty($row['barcode1_type'])) {
                 $pdf->write1DBarcode(
                     $row['barcode1'],
@@ -1704,7 +1730,7 @@ EOT;
         case 2:
             $description = $this->translate('ReminderFeeDesc');
             break;
-        default :
+        default:
             if ($row['partial_payment']) {
                 $description = $this->translate('PartialPaymentDesc');
             } elseif ($row['product_name']) {
@@ -1747,7 +1773,7 @@ EOT;
      */
     protected function getRowPrice($row)
     {
-        $decimals = isset($row['price_decimals']) ? $row['price_decimals'] : 2;
+        $decimals = $row['price_decimals'] ?? 2;
         return $row['partial_payment'] ? ''
             : $this->formatCurrency(
                 $row['price'], $decimals, false, $this->roundRowPrices
@@ -1768,7 +1794,7 @@ EOT;
             $discounts[] = $this->formatCurrency($row['discount'], 2, true) . ' %';
         }
         if ((float)$row['discount_amount']) {
-            $decimals = isset($row['price_decimals']) ? $row['price_decimals'] : 2;
+            $decimals = $row['price_decimals'] ?? 2;
             $discounts[] = $this->formatCurrency(
                 $row['discount_amount'], $decimals
             );
@@ -2302,12 +2328,10 @@ EOT;
             $pcparts = explode(':', $placeholder);
             switch ($pcparts[0]) {
             case 'sender':
-                $values[] = isset($this->senderData[$pcparts[1]])
-                    ? $this->senderData[$pcparts[1]] : '';
+                $values[] = $this->senderData[$pcparts[1]] ?? '';
                 break;
             case 'recipient':
-                $values[] = isset($this->recipientData[$pcparts[1]])
-                    ? $this->recipientData[$pcparts[1]] : '';
+                $values[] = $this->recipientData[$pcparts[1]] ?? '';
                 break;
             case 'invoice':
                 switch ($pcparts[1]) {
@@ -2357,8 +2381,7 @@ EOT;
                     $url = getSetting('pdf_link_base_url');
                     if ($url) {
                         include_once 'hmac.php';
-                        $language = isset($pcparts[2])
-                            ? $pcparts[2] : $this->printLanguage;
+                        $language = $pcparts[2] ?? $this->printLanguage;
                         $uuid = $this->invoiceData['uuid'];
                         $ts = time();
                         $hash = HMAC::createHMAC(
@@ -2383,9 +2406,8 @@ EOT;
                         $values[] = '';
                     }
                     break;
-                default :
-                    $value = isset($this->invoiceData[$pcparts[1]])
-                        ? $this->invoiceData[$pcparts[1]] : '';
+                default:
+                    $value = $this->invoiceData[$pcparts[1]] ?? '';
                     if (substr($pcparts[1], -5) == '_date') {
                         $value = $this->formatDate($value);
                     }
@@ -2411,7 +2433,7 @@ EOT;
                 }
                 if ($contactVals) {
                     $values[] = implode(
-                        isset($pcparts[2]) ? $pcparts[2] : ' ', $contactVals
+                        $pcparts[2] ?? ' ', $contactVals
                     );
                 }
                 break;
@@ -2463,8 +2485,7 @@ EOT;
         // Replace the %d style placeholder
         $filename = sprintf(
             $filename ? $filename : $this->outputFileName,
-            isset($this->invoiceData['invoice_no'])
-                ? $this->invoiceData['invoice_no'] : ''
+            $this->invoiceData['invoice_no'] ?? ''
         );
         // Handle additional placeholders
         $filename = $this->replacePlaceholders($filename);
@@ -2696,7 +2717,7 @@ EOT;
         $parts = explode("\n", $address, 2);
         return [
             'name' => $parts[0],
-            'address' => isset($parts[1]) ? $parts[1] : ''
+            'address' => $parts[1] ?? ''
         ];
     }
 

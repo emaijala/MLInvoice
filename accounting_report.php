@@ -103,11 +103,11 @@ class AccountingReport extends InvoiceReport
      */
     protected function createLimitQuery()
     {
-        list($query, $params) = parent::createLimitQuery();
+        [$query, $params] = parent::createLimitQuery();
 
         $dateRange = explode(' - ', getPostOrQuery('accounting_date', ''));
         $startDate = $dateRange[0];
-        $endDate = isset($dateRange[1]) ? $dateRange[1] : $startDate;
+        $endDate = $dateRange[1] ?? $startDate;
         if ($startDate) {
             $query .= ' AND i.invoice_date >= ?';
             $params[] = dateConvDate2DBDate($startDate);

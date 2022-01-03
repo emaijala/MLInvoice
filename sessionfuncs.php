@@ -54,7 +54,7 @@ function sesCreateSession($strLogin, $strPasswd, $strCsrf)
     if ($strLogin && $strPasswd) {
         $res = sesCheckCsrf($strCsrf);
         if (CSRF_ERR_FAIL === $res) {
-            $csrfTime = isset($_SESSION['csrftime']) ? $_SESSION['csrftime'] : time();
+            $csrfTime = $_SESSION['csrftime'] ?? time();
             error_log(
                 'Key not found or timeout, ' . (time() - $csrfTime)
                 . ' seconds since login form was created'

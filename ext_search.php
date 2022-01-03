@@ -252,7 +252,7 @@ foreach ($formConfig['fields'] as $field) {
                     $astrValues[$field['name']],
                     $field['style'], $field['listquery'],
                     'MODIFY', $field['parent_key'], '', [], '',
-                    isset($field['options']) ? $field['options'] : null
+                    $field['options'] ?? null
                 );
                 ?>
               </td>

@@ -124,8 +124,7 @@ class Mailer
         $headers = $message->getHeaders();
         $headers->addTextHeader('X-Mailer', 'MLInvoice');
 
-        $settings = isset($GLOBALS['mlinvoice_mail_settings'])
-            ? $GLOBALS['mlinvoice_mail_settings'] : [];
+        $settings = $GLOBALS['mlinvoice_mail_settings'] ?? [];
 
         if (!isset($settings['send_method']) || 'mail' === $settings['send_method']
         ) {

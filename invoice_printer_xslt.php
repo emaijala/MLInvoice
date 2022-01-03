@@ -159,7 +159,7 @@ EOT
                         getSetting('invoice_pdf_filename')
                     );
                     break;
-                default :
+                default:
                     $settingsData[$key] = getSetting($key);
                 }
             }
@@ -207,7 +207,7 @@ EOT
                     case LIBXML_ERR_FATAL:
                         $type = 'Fatal';
                         break;
-                    default :
+                    default:
                         $type = 'Error';
                     }
                     echo "$type {$error->code}({$error->level}) at {$error->line}:{$error->column}: {$error->message}\n";

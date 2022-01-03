@@ -187,9 +187,9 @@ class MultiEdit
                     <?php echo htmlFormElement(
                         $elem['name'], $elem['type'], '',
                         $elem['style'], $elem['listquery'], 'MODIFY',
-                        isset($elem['parent_key']) ? $elem['parent_key'] : '', '', [],
-                        isset($elem['elem_attributes']) ? $elem['elem_attributes'] : '',
-                        isset($elem['options']) ? $elem['options'] : null
+                        $elem['parent_key'] ?? '', '', [],
+                        $elem['elem_attributes'] ?? '',
+                        $elem['options'] ?? null
                     );?>
                 </div>
                 <?php

@@ -916,6 +916,6 @@ case 'user':
     $strMainForm = 'user';
     break;
 
-default :
+default:
     break;
 }

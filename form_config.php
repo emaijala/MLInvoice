@@ -42,21 +42,21 @@ function getFormConfig($form, $func)
 
     return [
         'type' => $strForm,
-        'title' => isset($locTitle) ? $locTitle : '',
+        'title' => $locTitle ?? '',
         'readOnly' => $readOnlyForm,
         'accessLevels' => $levelsAllowed,
         'table' => $strTable,
-        'parentKey' => isset($strParentKey) ? $strParentKey : null,
+        'parentKey' => $strParentKey ?? null,
         'tableAlias' => $strListTableAlias,
         'copyLink' => $copyLinkOverride,
         'extraButtons' => $extraButtons,
         'fields' => $astrFormElements,
         'dataAttrs' => $formDataAttrs,
-        'searchFields' => isset($astrSearchFields) ? $astrSearchFields : null,
+        'searchFields' => $astrSearchFields ?? null,
         'addressAutocomplete' => $addressAutocomplete,
         'clearAfterRowAdded' => $clearRowValuesAfterAdd,
         'onAfterRowAdded' => $onAfterRowAdded,
-        'popupHTML' => isset($popupHTML) ? $popupHTML : '',
-        'buttonGroups' => isset($buttonGroups) ? $buttonGroups : [],
+        'popupHTML' => $popupHTML ?? '',
+        'buttonGroups' => $buttonGroups ?? [],
     ];
 }

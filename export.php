@@ -178,7 +178,7 @@ EOT;
                 $data = [];
                 foreach ($columns as $column) {
                     $value = $row[$column];
-                    if (is_null($value)) {
+                    if (null === $value) {
                         $data[$column] = '';
                     }
                     if ($value
@@ -238,7 +238,7 @@ EOT;
                     if ($first) {
                         $first = false;
                     } else {
-                        echo(",\n");
+                        echo ",\n";
                     }
                     $this->outputString(json_encode($data), $charset);
                     break;
@@ -249,7 +249,7 @@ EOT;
                 $this->outputString("</records>\n");
                 break;
             case 'json':
-                echo("\n]}\n");
+                echo "\n]}\n";
                 break;
             }
             exit();

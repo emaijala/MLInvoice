@@ -188,7 +188,7 @@ class Postitafi
             'PR' => 'Being processed',
             'SE' => 'Sent'
         ];
-        return isset($statuses[$status]) ? $statuses[$status] : $status;
+        return $statuses[$status] ?? $status;
     }
 
     /**

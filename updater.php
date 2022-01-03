@@ -391,7 +391,7 @@ class Updater
             return false;
         }
 
-        list($res, $filesWritten) = $this->extractZip($_SESSION['update_file']);
+        [$res, $filesWritten] = $this->extractZip($_SESSION['update_file']);
         if (!$res) {
             if ($filesWritten && !$this->extractZip($backupFile)) {
                 $this->error(
@@ -659,7 +659,7 @@ EOT;
         echo <<<EOT
 <script>
     $(document).ready(function () {
-        setTimeout(function () { window.location = '$target'; }, 2000);
+        setTimeout(function () { window.location = '$target';\u{a0}}, 2000);
     });
 </script>
 EOT;

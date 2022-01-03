@@ -332,11 +332,11 @@ class InvoiceReport extends AbstractReport
      */
     protected function createLimitQuery()
     {
-        list($strQuery, $arrParams) = parent::createLimitQuery();
+        [$strQuery, $arrParams] = parent::createLimitQuery();
 
         $paymentDateRange = explode(' - ', getPostOrQuery('payment_date', ''));
         $paymentStartDate = $paymentDateRange[0];
-        $paymentEndDate = isset($paymentDateRange[1]) ? $paymentDateRange[1] : '';
+        $paymentEndDate = $paymentDateRange[1] ?? '';
         if ($paymentStartDate) {
             $strQuery .= ' AND i.payment_date >= ?';
             $arrParams[] = dateConvDate2DBDate($paymentStartDate);
@@ -374,7 +374,7 @@ class InvoiceReport extends AbstractReport
             . ('product' === $grouping ? ' LEFT OUTER JOIN {prefix}product prd ON ir.product_id = prd.id' : '')
             . ' WHERE i.deleted=0';
 
-        list($limitQuery, $arrParams) = $this->createLimitQuery();
+        [$limitQuery, $arrParams] = $this->createLimitQuery();
 
         $strQuery .= " $limitQuery";
 
@@ -410,13 +410,13 @@ class InvoiceReport extends AbstractReport
         case 'product':
             $strQuery .= ' GROUP BY i.id, ir.product_id, ir.description ORDER BY prd.product_name, invoice_date, invoice_no';
             break;
-        default :
+        default:
             $strQuery .= ' ORDER BY invoice_date, invoice_no';
         }
 
         $rowDateRange = explode(' - ', getPostOrQuery('row_date', ''));
         $rowStartDate = $rowDateRange[0];
-        $rowEndDate = isset($rowDateRange[1]) ? $rowDateRange[1] : $rowStartDate;
+        $rowEndDate = $rowDateRange[1] ?? $rowStartDate;
         if ($rowStartDate) {
             $rowStartDate = dateConvDate2DBDate($rowStartDate);
         }
@@ -461,7 +461,7 @@ class InvoiceReport extends AbstractReport
                     }
                 }
                 break;
-            default :
+            default:
                 $invoiceGroup = false;
             }
 
@@ -483,7 +483,7 @@ class InvoiceReport extends AbstractReport
             if ($rowTypes != 'all') {
                 if ($rowTypes == 'normal') {
                     $strQuery .= ' AND ir.reminder_row = 0';
-                } else if ($rowTypes == 'reminder') {
+                } elseif ($rowTypes == 'reminder') {
                     $strQuery .= ' AND ir.reminder_row in (1, 2)';
                 }
             }
@@ -522,7 +522,7 @@ class InvoiceReport extends AbstractReport
                     continue;
                 }
 
-                list($intSum, $intVAT, $intSumVAT) = calculateRowSum($row2);
+                [$intSum, $intVAT, $intSumVAT] = calculateRowSum($row2);
 
                 $intRowSum += $intSum;
                 $intRowVAT += $intVAT;
@@ -830,7 +830,7 @@ class InvoiceReport extends AbstractReport
             ?>
         <td class="input" data-sort="<?php echo htmlspecialchars($row['invoice_no'])?>">
           <a href="index.php?func=invoices&list=invoice&form=invoice&id=<?php echo htmlspecialchars($row['id'])?>">
-            <?php echo('' != $row['invoice_no'] ? htmlspecialchars($row['invoice_no']) : '-')?>
+            <?php echo '' != $row['invoice_no'] ? htmlspecialchars($row['invoice_no']) : '-'?>
           </a>
         </td>
             <?php

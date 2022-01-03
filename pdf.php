@@ -38,31 +38,64 @@ require_once 'markdown.php';
  */
 class PDF extends \setasign\Fpdi\Tcpdf\Fpdi
 {
-    public $headerLeft = '', $headerCenter = '', $headerRight = '';
-    public $footerLeft = '', $footerCenter = '', $footerRight = '';
+    public $headerLeft = '';
+
+    public $headerCenter = '';
+
+    public $headerRight = '';
+
+    public $footerLeft = '';
+
+    public $footerCenter = '';
+
+    public $footerRight = '';
+
     public $printHeaderOnFirstPage = false;
+
     public $printFooterOnFirstPage = false;
+
     public $headerTopMargin = 10;
+
     public $headerLeftPos = 10;
+
     public $headerLeftWidth = 60;
+
     public $headerCenterPos = 75; // 105 - 60 / 2
+
     public $headerCenterWidth = 60;
+
     public $headerRightPos = 140;
+
     public $headerRightWidth = 60;
+
     public $footerBottomMargin = 17;
+
     public $footerLeftPos = 10;
+
     public $footerLeftWidth = 60;
+
     public $footerCenterPos = 75; // 105 - 60 / 2
+
     public $footerCenterWidth = 60;
+
     public $footerRightPos = 140;
+
     public $footerRightWidth = 60;
+
     public $markdown = false;
+
     protected $savedAutoBreakState = null;
+
     protected $savedPageBreakTrigger = null;
+
     protected $savedbMargin = null;
+
     protected $marginSubsequent = null;
+
     protected $printHeader = true;
+
     protected $printFooter = true;
+
     protected $markdownParser = null;
 
     /**

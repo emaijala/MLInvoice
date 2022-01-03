@@ -90,7 +90,7 @@ function getFormDefaultValue($elem, $parentKey)
     }
     $result = $elem['default'];
     if ($elem['type'] == 'INT') {
-        $decimals = isset($elem['decimals']) ? $elem['decimals'] : 2;
+        $decimals = $elem['decimals'] ?? 2;
         $result = miscRound2Decim($result, $decimals);
     }
     return $result;
@@ -323,7 +323,7 @@ function saveFormData($table, &$primaryKey, $formElements, &$values, &$warnings,
             $arrValues[] = fread($file, $fsize);
             fclose($file);
             break;
-        default :
+        default:
             $arrValues[] = null !== $value ? $value : '';
         }
         $fields[] = $name;
@@ -351,13 +351,12 @@ function saveFormData($table, &$primaryKey, $formElements, &$values, &$warnings,
                     'SELECT invoice_id FROM {prefix}invoice_row WHERE id=?',
                     [$primaryKey]
                 );
-                $invoiceId = isset($rows[0]['invoice_id'])
-                    ? $rows[0]['invoice_id'] : null;
+                $invoiceId = $rows[0]['invoice_id'] ?? null;
             }
             if ($table == '{prefix}invoice_row' && !isOffer($invoiceId)) {
                 updateProductStockBalance(
-                    isset($primaryKey) ? $primaryKey : null,
-                    isset($values['product_id']) ? $values['product_id'] : null,
+                    $primaryKey ?? null,
+                    $values['product_id'] ?? null,
                     $values['pcs']
                 );
             }
@@ -516,7 +515,7 @@ function fetchRecord($table, $primaryKey, $formElements, &$values)
                 $strReplName = strtolower(
                     substr($strReplName, 1, strrpos($strReplName, '_') - 1)
                 );
-                $values[$name] = isset($values[$strReplName]) ? $values[$strReplName] : '';
+                $values[$name] = $values[$strReplName] ?? '';
                 $elem['listquery'] = str_replace(
                     strtoupper($strReplName), 'ID', $elem['listquery']
                 );

@@ -48,8 +48,7 @@ class InvoicePrinterOrderConfirmationEmail extends InvoicePrinterOrderConfirmati
      */
     protected function getDefaultBody()
     {
-        return isset($this->senderData['order_confirmation_email_body'])
-            ? $this->senderData['order_confirmation_email_body'] : '';
+        return $this->senderData['order_confirmation_email_body'] ?? '';
     }
 
     /**
@@ -59,7 +58,6 @@ class InvoicePrinterOrderConfirmationEmail extends InvoicePrinterOrderConfirmati
      */
     protected function getDefaultSubject()
     {
-        return isset($this->senderData['order_confirmation_email_subject'])
-            ? $this->senderData['order_confirmation_email_subject'] : '';
+        return $this->senderData['order_confirmation_email_subject'] ?? '';
     }
 }

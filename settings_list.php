@@ -128,8 +128,8 @@ function createSettingsList()
         $value = getPost($name, null);
         if (!isset($value)) {
             if (isset($elem['session']) && $elem['session']) {
-                $value = isset($_SESSION[$name]) ? $_SESSION[$name]
-                    : (isset($elem['default'])
+                $value = $_SESSION[$name]
+                    ?? (isset($elem['default'])
                     ? condUtf8Decode($elem['default']) : '');
             } else {
                 $value = getSetting($name);
@@ -157,7 +157,7 @@ function createSettingsList()
             <?php
             echo htmlFormElement(
                 $name, $elemType, $value, $elem['style'], '', 'MODIFY', '', '', [],
-                isset($elem['elem_attributes']) ? $elem['elem_attributes'] : '', $options
+                $elem['elem_attributes'] ?? '', $options
             );
             ?>
           <label for="<?php echo $name?>">
@@ -176,7 +176,7 @@ function createSettingsList()
             <?php
             echo htmlFormElement(
                 $name, $elemType, $value, $elem['style'] ?? '', '', 'MODIFY', '', '', [],
-                isset($elem['elem_attributes']) ? $elem['elem_attributes'] : '', $options
+                $elem['elem_attributes'] ?? '', $options
             );
             ?>
       </div>

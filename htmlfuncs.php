@@ -73,7 +73,7 @@ function htmlPageStart($strTitle = '', $arrExtraScripts = [], $loggedIn = true)
     }
 
     $charset = (_CHARSET_ == 'UTF-8') ? 'UTF-8' : 'ISO-8859-15';
-    $lang = isset($_SESSION['sesLANG']) ? $_SESSION['sesLANG'] : 'fi-FI';
+    $lang = $_SESSION['sesLANG'] ?? 'fi-FI';
     $datePickerOptions = Translator::translate('DatePickerOptions');
 
     $scripts = [
@@ -823,7 +823,7 @@ function getSearchListSelectedValue($strQuery, $strSelected)
     $result = json_decode(
         createJSONSelectList($params['table'], 0, 1, '', '', $strSelected), true
     );
-    return isset($result['records'][0]['text']) ? $result['records'][0]['text'] : '';
+    return $result['records'][0]['text'] ?? '';
 }
 
 /**
@@ -1079,7 +1079,7 @@ EOT;
             case 'full':
                 $strHW = '';
                 break;
-            default :
+            default:
                 $strHW = '';
                 break;
             }
@@ -1140,7 +1140,7 @@ EOT;
              "\"$astrAdditionalAttributes$readOnly>\n";
         break;
 
-    default :
+    default:
         $strFormElement = "&nbsp;\n";
     }
 

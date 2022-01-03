@@ -72,7 +72,7 @@ abstract class AbstractReport
 
         $dateRange = explode(' - ', getPostOrQuery('date', ''));
         $startDate = $dateRange[0];
-        $endDate = isset($dateRange[1]) ? $dateRange[1] : $startDate;
+        $endDate = $dateRange[1] ?? $startDate;
         if ($startDate) {
             $strQuery .= ' AND i.invoice_date >= ?';
             $arrParams[] = dateConvDate2DBDate($startDate);

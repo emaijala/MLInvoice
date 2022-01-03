@@ -55,7 +55,7 @@ class Setup
     {
         $formMessage = '';
         $setupComplete = false;
-        list($host, $database, $username, $password, $prefix, $lang, $defaultlang, $encryptionKey, $encryptionKeyGenerated)
+        [$host, $database, $username, $password, $prefix, $lang, $defaultlang, $encryptionKey, $encryptionKeyGenerated]
             = $this->getConfigDefaults();
         $adminPassword = '';
         if (isset($_POST['host']) && isset($_POST['database'])
@@ -337,7 +337,7 @@ class Setup
         }
         if (preg_match("/define\('_UI_LANGUAGE_SELECTION_', '(.*?)'\)/", $config, $matches)) {
             foreach (explode('|', $matches[1]) as $choice) {
-                list($code) = explode('=', $choice);
+                [$code] = explode('=', $choice);
                 $lang[$code] = 'on';
             }
         }
@@ -413,7 +413,7 @@ class Setup
             ];
             $choices = [];
             foreach ($params['lang'] as $lang => $set) {
-                $choices[] = "$lang=" . (isset($langStrings[$lang]) ? $langStrings[$lang] : $lang);
+                $choices[] = "$lang=" . ($langStrings[$lang] ?? $lang);
             }
             $newVal = implode('|', $choices);
             $config = preg_replace(
@@ -535,7 +535,7 @@ class Setup
         $db = $this->initDatabaseConnection();
         $res = mysqli_query(
             $db,
-            'UPDATE '  . _DB_PREFIX_ . "_users SET passwd = '"
+            'UPDATE ' . _DB_PREFIX_ . "_users SET passwd = '"
             . password_hash($adminPassword, PASSWORD_DEFAULT) . "' WHERE "
             . "login = 'admin'"
         );

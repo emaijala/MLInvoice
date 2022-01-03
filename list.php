@@ -223,7 +223,7 @@ function createList($strFunc, $strList, $strTableName = '', $strTitleOverride = 
                     json.data[i][<?php echo $i?>] = MLInvoice.translate(json.data[i][<?php echo $i?>]);
                     <?php
                 } elseif ('CURRENCY' === $field['type']) {
-                    $decimals = isset($field['decimals']) ? $field['decimals'] : 2;
+                    $decimals = $field['decimals'] ?? 2;
                     ?>
                     json.data[i][<?php echo $i?>] = MLInvoice.formatCurrency(json.data[i][<?php echo $i?>], <?php echo $decimals?>);
                     <?php
@@ -544,7 +544,7 @@ function createJSONList($strFunc, $strList, $startRow, $rowCount, $sort, $filter
             continue;
         }
         $strSelectClause .= ', ' .
-             (isset($field['sql']) ? $field['sql'] : $field['name']);
+             ($field['sql'] ?? $field['name']);
     }
     if ('product' === $strList && $customPrices) {
         // Include any custom prices
@@ -616,7 +616,7 @@ EOT;
             } elseif ($field['type'] == 'CURRENCY') {
                 $value = miscRound2Decim(
                     $value,
-                    isset($field['decimals']) ? $field['decimals'] : 2,
+                    $field['decimals'] ?? 2,
                     '.', ''
                 );
             }
@@ -652,7 +652,7 @@ EOT;
         [
             'startRow' => $startRow,
             'rowCount' => $rowCount,
-            'recordCount' => isset($filteredCount) ? $filteredCount : $totalCount,
+            'recordCount' => $filteredCount ?? $totalCount,
             'ids' => $astrPrimaryKeys,
             'queryParams' => $params
         ]
@@ -661,7 +661,7 @@ EOT;
     $results = [
         'draw' => $requestId,
         'recordsTotal' => $totalCount,
-        'recordsFiltered' => isset($filteredCount) ? $filteredCount : $totalCount,
+        'recordsFiltered' => $filteredCount ?? $totalCount,
         'data' => $records
     ];
     return json_encode($results);
@@ -894,7 +894,7 @@ function createJSONSelectList($strList, $startRow, $rowCount, $filter, $sort,
             continue;
         }
         $strSelectClause .= ', ' .
-             (isset($field['sql']) ? $field['sql'] : $field['name']);
+             ($field['sql'] ?? $field['name']);
     }
 
     // Sort any exact matches first
@@ -974,7 +974,7 @@ EOT;
                 }
             } elseif ($field['type'] == 'CURRENCY') {
                 $value = miscRound2Decim(
-                    $value, isset($field['decimals']) ? $field['decimals'] : 2
+                    $value, $field['decimals'] ?? 2
                 );
             } elseif ($field['type'] == 'INTDATE') {
                 $value = dateConvDBDate2Date($value);
@@ -1026,7 +1026,7 @@ EOT;
                         if (null !== $unitPrice) {
                             $unitPrice = miscRound2Decim(
                                 $unitPrice,
-                                isset($field['decimals']) ? $field['decimals'] : 2
+                                $field['decimals'] ?? 2
                             );
                             if (!$customPrices['valid']) {
                                 $unitPrice

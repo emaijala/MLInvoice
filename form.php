@@ -290,11 +290,11 @@ EOT;
             <?php
             echo htmlFormElement(
                 $elem['name'], $elem['type'],
-                isset($astrValues[$elem['name']]) ? $astrValues[$elem['name']] : '',
+                $astrValues[$elem['name']] ?? '',
                 $elem['style'], $elem['listquery'],
                 $fieldMode, $elem['parent_key'], $elem['label'], [],
-                isset($elem['elem_attributes']) ? $elem['elem_attributes'] : '',
-                isset($elem['options']) ? $elem['options'] : null
+                $elem['elem_attributes'] ?? '',
+                $elem['options'] ?? null
             )
             ?>
           </div>
@@ -309,8 +309,8 @@ EOT;
                 $elem['name'], $elem['type'], $astrValues[$elem['name']],
                 $elem['style'], $elem['listquery'], $fieldMode, $elem['parent_key'],
                 $elem['label'], [],
-                isset($elem['elem_attributes']) ? $elem['elem_attributes'] : '',
-                isset($elem['options']) ? $elem['options'] : null
+                $elem['elem_attributes'] ?? '',
+                $elem['options'] ?? null
             ); ?>
             </div>
           </div>
@@ -320,7 +320,7 @@ EOT;
             $childFormConfig = getFormConfig($elem['name'], $strFunc);
             createIForm(
                 $formConfig, $childFormConfig, $elem,
-                isset($intKeyValue) ? $intKeyValue : 0, $intKeyValue ? false : true,
+                $intKeyValue ?? 0, $intKeyValue ? false : true,
                 $strForm,
                 $strFunc
             );
@@ -356,9 +356,9 @@ EOT;
                 echo htmlFormElement(
                     $elem['name'], $elem['type'], $value,
                     $elem['style'], $elem['listquery'], $fieldMode,
-                    isset($elem['parent_key']) ? $elem['parent_key'] : '', '', [],
-                    isset($elem['elem_attributes']) ? $elem['elem_attributes'] : '',
-                    isset($elem['options']) ? $elem['options'] : null
+                    $elem['parent_key'] ?? '', '', [],
+                    $elem['elem_attributes'] ?? '',
+                    $elem['options'] ?? null
                 );
                 ?>
                 <?php

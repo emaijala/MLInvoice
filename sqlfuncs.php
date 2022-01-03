@@ -509,7 +509,7 @@ function verifyInvoiceDataForPrinting($id)
         . "interval_type FROM {prefix}invoice WHERE id=?",
         [$id]
     );
-    $data = isset($rows[0]) ? $rows[0] : null;
+    $data = $rows[0] ?? null;
     if (($needInvNo && empty($data['invoice_no']))
         || ($needRefNo && empty($data['ref_number']))
     ) {
@@ -1308,7 +1308,7 @@ function handleDbError($query, $params, $noFail)
 function dbFetchValue($result)
 {
     $row = mysqli_fetch_row($result);
-    return isset($row[0]) ? $row[0] : null;
+    return $row[0] ?? null;
 }
 
 /**
@@ -1352,7 +1352,7 @@ function createDbDump()
     header("Content-Disposition: attachment; filename=\"$filename\"");
 
     if (_CHARSET_ == 'UTF-8') {
-        echo("SET NAMES 'utf8';\n\n");
+        echo "SET NAMES 'utf8';\n\n";
     }
 
     echo "SET FOREIGN_KEY_CHECKS=0;\n\n";
@@ -1402,7 +1402,7 @@ function createDbDump()
                 }
                 $value = $row[$i];
                 $type = $field_defs[$i]['Type'];
-                if (is_null($value)) {
+                if (null === $value) {
                     echo 'null';
                 } elseif (substr($type, 0, 3) == 'int'
                     || substr($type, 0, 7) == 'decimal'

@@ -150,7 +150,7 @@ if ($authenticated && is_array($intInvoiceId)) {
         for ($i = 1; $i <= $pageCount; $i++) {
             $tplx = $mainPdf->importPage($i);
             $size = $mainPdf->getTemplateSize($tplx);
-            $mainPdf->AddPage('P', array($size['width'], $size['height']));
+            $mainPdf->AddPage('P', [$size['width'], $size['height']]);
             $mainPdf->useTemplate($tplx);
         }
 

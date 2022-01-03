@@ -48,8 +48,7 @@ class InvoicePrinterOfferEmail extends InvoicePrinterOffer
      */
     protected function getDefaultBody()
     {
-        return isset($this->senderData['offer_email_body'])
-            ? $this->senderData['offer_email_body'] : '';
+        return $this->senderData['offer_email_body'] ?? '';
     }
 
     /**
@@ -59,8 +58,7 @@ class InvoicePrinterOfferEmail extends InvoicePrinterOffer
      */
     protected function getDefaultSubject()
     {
-        return isset($this->senderData['offer_email_subject'])
-            ? $this->senderData['offer_email_subject'] : '';
+        return $this->senderData['offer_email_subject'] ?? '';
     }
 
     /**

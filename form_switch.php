@@ -1296,7 +1296,7 @@ case 'base':
     MLInvoice.popupDialog('base_logo.php?func=edit&amp;id=_ID_', MLInvoice.updateBaseLogo, '$locTitle'); return false;
 EOF;
 
-    $baseId = isset($id) ? $id : getPostOrQuery('id', false);
+    $baseId = $id ?? getPostOrQuery('id', false);
     $imageElement = [
         'name' => 'logo',
         'label' => '',
@@ -1832,7 +1832,7 @@ case 'invoice_state':
     ];
     $strTable = '{prefix}invoice_state';
 
-    $intId = isset($id) ? $id : getPostOrQuery('id', false);
+    $intId = $id ?? getPostOrQuery('id', false);
     $readOnly = ($intId && $intId <= 8);
     $astrFormElements = [
         [
@@ -1882,7 +1882,7 @@ case 'invoice_type':
     ];
     $strTable = '{prefix}invoice_type';
 
-    $intId = isset($id) ? $id : getPostOrQuery('id', false);
+    $intId = $id ?? getPostOrQuery('id', false);
     $astrFormElements = [
         [
             'name' => 'identifier',

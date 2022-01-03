@@ -100,9 +100,8 @@ class Translator
      */
     public static function getActiveLanguage($domain)
     {
-        return isset(self::$activeLanguages[$domain])
-            ? self::$activeLanguages[$domain]
-            : '';
+        return self::$activeLanguages[$domain]
+            ?? '';
     }
 
     /**

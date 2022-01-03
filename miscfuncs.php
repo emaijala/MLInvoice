@@ -72,8 +72,8 @@ function miscRound2Decim($value, $decimals = 2, $decimalSeparator = null,
 ) {
     return number_format(
         $value, $decimals,
-        isset($decimalSeparator) ? $decimalSeparator : Translator::translate('DecimalSeparator'),
-        isset($thousandSeparator) ? $thousandSeparator : Translator::translate('ThousandSeparator')
+        $decimalSeparator ?? Translator::translate('DecimalSeparator'),
+        $thousandSeparator ?? Translator::translate('ThousandSeparator')
     );
 }
 
@@ -278,7 +278,7 @@ function getPost($strKey, $varDefault = null)
     if ($strKey === '') {
         return $_POST;
     }
-    return isset($_POST[$strKey]) ? $_POST[$strKey] : $varDefault;
+    return $_POST[$strKey] ?? $varDefault;
 }
 
 /**
@@ -291,7 +291,7 @@ function getPost($strKey, $varDefault = null)
  */
 function getQuery($strKey, $varDefault = null)
 {
-    return isset($_GET[$strKey]) ? $_GET[$strKey] : $varDefault;
+    return $_GET[$strKey] ?? $varDefault;
 }
 
 /**
@@ -785,7 +785,7 @@ function getInvoiceDefaults($invoiceId, $baseId, $companyId, $invoiceDate,
             mktime(0, 0, 0, date('m') + $intervalType - 2, date('d'), date('Y'))
         );
         break;
-    default :
+    default:
         $nextIntervalDate = '';
     }
     return [

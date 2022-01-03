@@ -182,7 +182,7 @@ if ($intInvoiceId) {
                 if ($row['partial_payment']) {
                     $row['price'] = -$row['price'];
                 }
-            } else if ($row['reminder_row']) {
+            } elseif ($row['reminder_row']) {
                 continue;
             }
             unset($row['id']);
