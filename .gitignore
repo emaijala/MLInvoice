@@ -20,7 +20,7 @@ config.php
 tcpdf/cache/*
 !tcpdf/cache/empty
 /vendor
-.php_cs.cache
+.php_cs_cache
 db_data/*
 node_modules
 css/custom.css

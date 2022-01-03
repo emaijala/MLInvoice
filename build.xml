@@ -2,11 +2,15 @@
 <project name="MLInvoice" basedir="." default="main">
   <property name="tmp" value="/tmp" />
   <property name="package"  value="${phing.project.name}" override="true" />
-  <property name="php-cs-fixer-rules" value="no_spaces_after_function_name,no_trailing_whitespace,no_unused_imports,lowercase_keywords,encoding,no_spaces_inside_parenthesis,no_closing_tag,visibility_required,no_empty_statement,no_extra_blank_lines,no_blank_lines_after_class_opening,no_blank_lines_after_phpdoc,binary_operator_spaces,no_singleline_whitespace_before_semicolons,ternary_operator_spaces,phpdoc_no_access,no_leading_import_slash" />
   <property name="php-cs-fixer-extra-params" value=""/>
 
-  <!-- CI Checks -->
-  <target name="ci" description="CI checks">
+  <!-- Main Target -->
+  <target name="main" description="main target">
+    <echo>No main build target. Use qa for normal tests.</echo>
+  </target>
+
+  <!-- QA Checks -->
+  <target name="qa" description="QA checks">
     <!-- Call standard tasks -->
     <phingcall target="phpunit"/>
     <phingcall target="eslint"/>
@@ -21,10 +25,10 @@
 
   <!-- eslint -->
   <target name="eslint">
-    <exec command="eslint js/mlinvoice.js js/mlinvoice-form.js" escape="false" checkreturn="true" passthru="true" />
+    <exec command="node_modules/.bin/eslint js/mlinvoice.js js/mlinvoice-form.js" escape="false" checkreturn="true" passthru="true" />
   </target>
   <target name="eslint-fix">
-    <exec command="eslint js/mlinvoice.js js/mlinvoice-form.js --fix" escape="false" checkreturn="true" passthru="true" />
+    <exec command="node_modules/.bin/eslint js/mlinvoice.js js/mlinvoice-form.js --fix" escape="false" checkreturn="true" passthru="true" />
   </target>
 
   <!-- PHP CodeSniffer -->
@@ -44,11 +48,11 @@
   <!-- php-cs-fixer (first task applies fixes, second task simply checks if they are needed) -->
   <target name="php-cs-fixer">
     <mkdir dir=".php_cs.cache" />
-    <exec command="vendor/bin/php-cs-fixer fix --rules=${php-cs-fixer-rules} -vvv --cache-file=.php_cs.cache/.php_cs.cache ${php-cs-fixer-extra-params} ." passthru="true" escape="false" />
+    <exec command="vendor/bin/php-cs-fixer fix --config=tests/php-cs-fixer.config.php -vvv ${php-cs-fixer-extra-params} ." passthru="true" escape="false" />
   </target>
 
   <target name="php-cs-fixer-dryrun">
     <mkdir dir=".php_cs.cache" />
-    <exec command="vendor/bin/php-cs-fixer fix --rules=${php-cs-fixer-rules} --dry-run -vvv --cache-file=.php_cs.cache/.php_cs.cache --diff ${php-cs-fixer-extra-params} ." passthru="true" escape="false" checkreturn="true" />
+    <exec command="vendor/bin/php-cs-fixer fix --config=tests/php-cs-fixer.config.php --dry-run -vvv --diff ${php-cs-fixer-extra-params} ." passthru="true" escape="false" checkreturn="true" />
   </target>
 </project>
