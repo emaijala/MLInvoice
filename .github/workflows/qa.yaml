@@ -53,6 +53,12 @@ jobs:
       - name: Install composer dependencies
         run: composer install
 
+      - name: Install NPM dependencies
+        uses: actions/setup-node@v2
+        with:
+          node-version: '16'
+        run: npm install
+
       - name: Create config.php
         run: cp config.php.sample config.php
 
