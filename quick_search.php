@@ -38,7 +38,7 @@ sesVerifySession();
 require_once 'translator.php';
 
 $strFunc = getPostOrQuery('func', '');
-if ($strFunc == 'open_invoices') {
+if ($strFunc == 'start_page') {
     $strFunc = 'invoices';
 }
 

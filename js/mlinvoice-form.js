@@ -192,7 +192,7 @@ MLInvoice.addModule('Form', function mlinvoiceForm() {
     dates.sort();
     var that = this;
     var onLinkClick = function linkClick() {
-      that.printInvoice(2, 'open_invoices', MLInvoice.getDispatchNotePrintStyle(), $(this).data('date'));
+      that.printInvoice(2, 'start_page', MLInvoice.getDispatchNotePrintStyle(), $(this).data('date'));
     };
     for (var i in dates) {
       if (dates.hasOwnProperty(i)) {

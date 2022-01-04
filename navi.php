@@ -168,7 +168,7 @@ function createFuncMenu($strFunc)
         </div>
         <?php
     }
-    if (sesWriteAccess() && 'open_invoices' === $strFunc) {
+    if (sesWriteAccess() && 'start_page' === $strFunc) {
         ?>
         <div class="btn-set">
             <a role="button" class="btn btn-secondary" href="?func=import_statement">

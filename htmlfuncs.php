@@ -283,8 +283,8 @@ function htmlMainTabs($func)
             ],
             'submenu' => [
                 [
-                    'title' => 'OpenAndUnpaid',
-                    'action' => 'open_invoices',
+                    'title' => 'StartPage',
+                    'action' => 'start_page',
                     'levels_allowed' => [
                         ROLE_READONLY,
                         ROLE_USER,
@@ -610,7 +610,7 @@ function createNavBar($buttons, $currentFunc = '')
     ?>
             <nav class="navbar navbar-expand-md navbar-light border-bottom mb-2">
               <div class="container-fluid">
-                <a class="navbar-brand" href="index.php?func=open_invoices">MLInvoice</a>
+                <a class="navbar-brand" href="index.php">MLInvoice</a>
                 <button class="navbar-toggler" type="button"
                   data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent"
                   aria-controls="navbarSupportedContent" aria-expanded="false"

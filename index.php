@@ -49,7 +49,7 @@ require_once 'sessionfuncs.php';
 require_once 'navi.php';
 require_once 'list.php';
 require_once 'form.php';
-require_once 'open_invoices.php';
+require_once 'start_page.php';
 require_once 'settings.php';
 require_once 'translator.php';
 require_once 'settings_list.php';
@@ -59,17 +59,18 @@ require_once 'sqlfuncs.php';
 initDbConnection();
 sesVerifySession();
 
-$strFunc = sanitize(getPostOrQuery('func', 'open_invoices'));
+$strFunc = sanitize(getPostOrQuery('func', '')) ?: 'start_page';
 $strList = sanitize(getPostOrQuery('list', ''));
 $strForm = sanitize(getPostOrQuery('form', ''));
-
-if (!$strFunc) {
-    $strFunc = 'open_invoices';
-}
 
 if ($strFunc == 'logout') {
     header('Location: logout.php');
     exit();
+}
+
+// Back-compatibility:
+if ('open_invoices' === $strFunc) {
+    $strFunc = 'start_page';
 }
 
 if (!$strList) {
@@ -162,7 +163,7 @@ $arrHistory = updateNavigationHistory($title, $_SERVER['QUERY_STRING'], $level);
     </ol>
   </nav>
 <?php
-if ($strFunc == 'open_invoices' && !$strForm) {
+if ($strFunc == 'start_page' && !$strForm) {
     ?>
   <div id="version">
     v<?php echo $softwareVersion?>
@@ -238,8 +239,8 @@ if ($strFunc == 'system' && $operation == 'export' && sesAdminAccess()) {
     if ($strForm) {
         createForm($strFunc, $strList, $strForm);
     } else {
-        if ($strFunc == 'open_invoices') {
-            createOpenInvoiceList();
+        if ($strFunc == 'start_page') {
+            createStartPage();
         } elseif ($strFunc == 'invoices') {
             createList($strFunc, $strList, '', '', '', false, false, 'invoice');
         } elseif ($strFunc == 'archived_invoices') {

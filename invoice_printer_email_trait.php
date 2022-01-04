@@ -183,7 +183,7 @@ trait InvoicePrinterEmailTrait
         ?>
 <body>
     <div class="pagewrapper mb-4">
-        <?php echo htmlMainTabs('open_invoices'); ?>
+        <?php echo htmlMainTabs('start_page'); ?>
 
         <div id="email_form_container" class="container-fluid form_container">
             <h1><?php echo Translator::translate('SendEmail')?></h1>
@@ -316,7 +316,7 @@ $(document).ready(function() {
         $_SESSION['formMessage'] = 'EmailSent';
         header(
             'Location: index.php?func='
-            . sanitize(getPostOrQuery('func', 'open_invoices'))
+            . sanitize(getPostOrQuery('func', ''))
             . "&list=invoice&form=invoice&id={$this->invoiceId}"
         );
     }

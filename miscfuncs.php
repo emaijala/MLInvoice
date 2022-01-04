@@ -320,7 +320,7 @@ function getPostOrQuery($strKey, $varDefault = null)
 function getPageTitle($strFunc, $strList, $strForm, $operation)
 {
     switch ($strFunc ? $strFunc : $strList) {
-    case 'open_invoices':
+    case 'start_page':
         if ($strForm) {
             if (getPostOrQuery('offer')
                 || (($invId = getPostOrQuery('id')) && isOffer($invId))
@@ -329,7 +329,7 @@ function getPageTitle($strFunc, $strList, $strForm, $operation)
             }
             return Translator::translate('Invoice');
         } else {
-            return Translator::translate('OpenAndUnpaid');
+            return Translator::translate('StartPage');
         }
         break;
     case 'invoices':
