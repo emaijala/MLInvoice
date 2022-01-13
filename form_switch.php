@@ -1291,17 +1291,21 @@ case 'base':
     $strTable = '{prefix}base';
     $addressAutocomplete = true;
 
+    $baseId = $id ?? intval(getPostOrQuery('id', false));
     $locTitle = Translator::translate('BaseLogoTitle');
-    $openPopJS = <<<EOF
-    MLInvoice.popupDialog('base_logo.php?func=edit&amp;id=_ID_', MLInvoice.updateBaseLogo, '$locTitle'); return false;
+    if ($baseId) {
+        $openPopJS = <<<EOF
+        MLInvoice.popupDialog('base_logo.php?func=edit&amp;id=$baseId', MLInvoice.updateBaseLogo, '$locTitle'); return false;
 EOF;
+    } else {
+        $openPopJS = '';
+    }
 
-    $baseId = $id ?? getPostOrQuery('id', false);
     $imageElement = [
         'name' => 'logo',
         'label' => '',
         'type' => 'IMAGE',
-        'listquery' => getBaseLogoSize($baseId) ? 'base_logo.php?func=view&amp;id=_ID_' : '',
+        'listquery' => getBaseLogoSize($baseId) ? "base_logo.php?func=view&amp;id=$baseId" : '',
         'style' => 'image',
         'position' => 0,
         'allow_null' => true
@@ -1694,12 +1698,19 @@ EOF;
         ],
         $imageElement,
         $noImageElement,
-        [
+        $openPopJS ? [
             'name' => 'edit_logo',
             'label' => 'BaseChangeImage',
             'type' => 'JSBUTTON',
             'style' => 'medium',
             'listquery' => $openPopJS,
+            'position' => 1,
+            'allow_null' => true
+        ] : [
+            'name' => 'edit_logo',
+            'label' => 'SaveRecordFirst',
+            'type' => 'LABEL',
+            'style' => 'medium',
             'position' => 1,
             'allow_null' => true
         ],
