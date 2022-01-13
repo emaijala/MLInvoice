@@ -637,7 +637,7 @@ case 'offer':
     $arrRefundingInvoice = [
         'allow_null' => true
     ];
-    $intInvoiceId = getPostOrQuery('id', 0);
+    $intInvoiceId = intval(getPostOrQuery('id', 0));
     if ($intInvoiceId) {
         $intInvoiceId = is_array($intInvoiceId) ? $intInvoiceId[0] : $intInvoiceId;
         $isOffer = isOffer($intInvoiceId);
@@ -775,7 +775,7 @@ EOF;
         $defaultValues['afterword'] = $baseData[0]['afterword'];
     }
 
-    $copyLinkOverride = is_string($intInvoiceId) ? "copy_invoice.php?func=$strFunc&amp;list=$strList&amp;id=$intInvoiceId" : '';
+    $copyLinkOverride = $intInvoiceId ? "copy_invoice.php?func=$strFunc&amp;list=$strList&amp;id=$intInvoiceId" : '';
 
     $updateInvoiceNr = null;
     if (sesWriteAccess() && !$isOffer) {
@@ -1044,11 +1044,11 @@ EOF;
     $buttonGroups = [];
 
     $group1 = [];
-    if (sesWriteAccess() && !$isOffer) {
+    if ($intInvoiceId && sesWriteAccess() && !$isOffer) {
         $group1[] = [
             'name' => 'refundinvoice',
             'label' => 'RefundInvoice',
-            'url' => "copy_invoice.php?func=$strFunc&list=$strList&id=_ID_&refund=1",
+            'url' => "copy_invoice.php?func=$strFunc&list=$strList&id=$intInvoiceId&refund=1",
         ];
     }
     $query = 'SELECT id FROM {prefix}invoice WHERE deleted=0 AND refunded_invoice_id=?';
