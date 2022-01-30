@@ -702,10 +702,10 @@ function convertToApi($row, $table)
         $row['filesize_readable'] = fileSizeToHumanReadable($row['filesize']);
         break;
     case 'company':
-        $row['tags'] = getTags('company', $id);
+        $row['tags'] = getTags('company', $row['id']);
         break;
     case 'company_contact':
-        $row['tags'] = getTags('contact', $id);
+        $row['tags'] = getTags('contact', $row['id']);
         break;
     case 'invoice_row':
         $row['type_id_text'] = Translator::translate($row['type_id_text']);
