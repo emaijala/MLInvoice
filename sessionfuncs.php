@@ -138,7 +138,7 @@ function sesVerifySession($redirect = true)
     if (!session_id()) {
         session_start();
     }
-    if (isset($_SESSION['REMOTE_ADDR'])
+    if (isset($_SESSION['sesUSERID']) && isset($_SESSION['REMOTE_ADDR'])
         && $_SESSION['REMOTE_ADDR'] == $_SERVER['REMOTE_ADDR']
     ) {
         $_SESSION['ACCESSTIME'] = time();
@@ -154,7 +154,7 @@ function sesVerifySession($redirect = true)
             header('Location: login.php');
         }
     } else {
-        header('HTTP/1.1 403 Forbidden');
+        header('HTTP/1.1 403 Session expired or not logged in');
     }
     exit();
 }

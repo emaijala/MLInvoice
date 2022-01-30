@@ -182,6 +182,7 @@ function htmlPageStart($strTitle = '', $arrExtraScripts = [], $loggedIn = true)
         'VATLess',
         'VATPart',
         'Info',
+        'ServerError'
     ];
 
     $res = dbQueryCheck(
