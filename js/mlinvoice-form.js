@@ -727,7 +727,7 @@ MLInvoice.addModule('Form', function mlinvoiceForm() {
       .html('<i class="icon-info"></i>')
       .attr('title', content)
       .on('click', function infoClick() {
-        alert(content);
+        MLInvoice.popupDialog(null, null, MLInvoice.translate('Info'), $('<div>').text(content).html().replace(/\n/g, '<br>'));
       })
       .appendTo($('#company_id_label'));
   }

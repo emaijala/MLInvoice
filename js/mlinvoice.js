@@ -461,21 +461,28 @@ var MLInvoice = (function CreateMLInvoice() {
     });
   }
 
-  function popupDialog(url, on_close, dialog_title)
+  function popupDialog(url, on_close, dialog_title, contents)
   {
     var $dlg = $('#popup_dlg');
     var $body = $dlg.find('.modal-body');
     $body.html('<i class="icon-spinner animate-spin"></i>');
     $dlg.find('.modal-title').text(dialog_title);
-    $dlg.off('hidden.bs.modal').on('hidden.bs.modal', on_close);
+    $dlg.off('hidden.bs.modal');
+    if (null !== on_close) {
+      $dlg.on('hidden.bs.modal', on_close);
+    }
 
     var bsModal = new bootstrap.Modal($dlg.get(0));
     bsModal.show();
 
-    $.get(url, setModalBody)
-      .fail(function handleError() {
-        MLInvoice.errormsg('Dialog contents could not be loaded');
-      });
+    if (null !== url) {
+      $.get(url, setModalBody)
+        .fail(function handleError() {
+          MLInvoice.errormsg('Dialog contents could not be loaded');
+        });
+    } else if (typeof contents !== 'undefined') {
+      setModalBody(contents);
+    }
 
     return true;
   }

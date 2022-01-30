@@ -181,6 +181,7 @@ function htmlPageStart($strTitle = '', $arrExtraScripts = [], $loggedIn = true)
         'ReminderFeesAdded',
         'VATLess',
         'VATPart',
+        'Info',
     ];
 
     $res = dbQueryCheck(
