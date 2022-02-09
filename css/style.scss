@@ -107,13 +107,16 @@ div.function_navi {
       .select2-container {
         margin-top: 2px;
         &.linked {
-          width: 60%;
+          max-width: 60%;
         }
       }
-      .short {
+      .short, .measurement {
         width: 60px;
       }
-      .medium, .date {
+      .medium {
+        width: 180px;
+      }
+      .date {
         width: 150px;
       }
       .long {

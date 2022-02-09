@@ -190,7 +190,7 @@ case 'company':
             'name' => 'zip_code',
             'label' => 'ZipCode',
             'type' => 'TEXT',
-            'style' => 'short',
+            'style' => 'medium',
             'position' => 2,
             'allow_null' => true
         ],
@@ -246,7 +246,7 @@ case 'company':
             'name' => 'billing_address',
             'label' => 'BillAddr',
             'type' => 'AREA',
-            'style' => 'medium',
+            'style' => 'wide',
             'position' => 1,
             'allow_null' => true
         ],
@@ -254,7 +254,7 @@ case 'company':
             'name' => 'delivery_address',
             'label' => 'DeliveryAddress',
             'type' => 'AREA',
-            'style' => 'medium',
+            'style' => 'wide',
             'position' => 2,
             'allow_null' => true
         ],
@@ -262,7 +262,7 @@ case 'company':
             'name' => 'info',
             'label' => 'Info',
             'type' => 'AREA',
-            'style' => 'medium',
+            'style' => 'wide',
             'position' => 1,
             'allow_null' => true
         ],
@@ -977,7 +977,7 @@ EOF;
             'name' => 'delivery_method_id',
             'label' => 'DeliveryMethod',
             'type' => 'LIST',
-            'style' => 'medium',
+            'style' => 'long',
             'listquery' => 'SELECT id, name FROM {prefix}delivery_method WHERE deleted=0 ORDER BY order_no;',
             'position' => 2,
             'default' => null,
@@ -1401,7 +1401,7 @@ EOF;
             'name' => 'zip_code',
             'label' => 'ZipCode',
             'type' => 'TEXT',
-            'style' => 'short',
+            'style' => 'medium',
             'position' => 2,
             'allow_null' => true
         ],
