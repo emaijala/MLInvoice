@@ -751,39 +751,39 @@ var MLInvoice = (function CreateMLInvoice() {
   {
     var api = dt.api();
 
-    var _floatVal = function (s) {
-        var fl = parseFloat(String(s).replace(/,/g, ''));
-        return !isNaN(fl) ? fl : 0;
+    var _floatVal = function _floatVal(s) {
+      var fl = parseFloat(String(s).replace(/,/g, ''));
+      return !isNaN(fl) ? fl : 0;
     };
 
-    $(columns).each(function(i, column) {
-        // Total over all pages
-        var total = 0;
-        api
-            .column(column)
-            .nodes()
-            .to$()
-            .each(function calcTotal() {
-                total += _floatVal($(this).data('export'));
-            });
+    $(columns).each(function processColumn(i, column) {
+      // Total over all pages
+      var total = 0;
+      api
+        .column(column)
+        .nodes()
+        .to$()
+        .each(function calcTotal() {
+          total += _floatVal($(this).data('export'));
+        });
 
-        // Total over this page
-        var pageTotal = 0;
-        api
-            .column(column, { page: 'current'})
-            .nodes()
-            .to$()
-            .each(function calcPageTotal() {
-                pageTotal += _floatVal($(this).data('export'));
-            });
+      // Total over this page
+      var pageTotal = 0;
+      api
+        .column(column, { page: 'current'})
+        .nodes()
+        .to$()
+        .each(function calcPageTotal() {
+          pageTotal += _floatVal($(this).data('export'));
+        });
 
-        // Update footer
-        pageTotal = MLInvoice.formatCurrency(pageTotal);
-        total = MLInvoice.formatCurrency(total);
-        $(api.column(column).footer()).html(
-            '<div class="list-footer-summary>' + translate('VisiblePage') + '&nbsp;' + pageTotal + '</div>'
-            + '<br><div class="list-footer-summary">' + translate('Total') + '&nbsp;' + total + '</div>'
-        );
+      // Update footer
+      pageTotal = MLInvoice.formatCurrency(pageTotal);
+      total = MLInvoice.formatCurrency(total);
+      $(api.column(column).footer()).html(
+        '<div class="list-footer-summary>' + translate('VisiblePage') + '&nbsp;' + pageTotal + '</div>' +
+        '<br><div class="list-footer-summary">' + translate('Total') + '&nbsp;' + total + '</div>'
+      );
     });
   }
 
