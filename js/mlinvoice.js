@@ -778,8 +778,8 @@ var MLInvoice = (function CreateMLInvoice() {
         });
 
       // Update footer
-      pageTotal = MLInvoice.formatCurrency(pageTotal);
-      total = MLInvoice.formatCurrency(total);
+      pageTotal = MLInvoice.formatCurrency(pageTotal, 2);
+      total = MLInvoice.formatCurrency(total, 2);
       $(api.column(column).footer()).html(
         '<div class="list-footer-summary>' + translate('VisiblePage') + '&nbsp;' + pageTotal + '</div>' +
         '<br><div class="list-footer-summary">' + translate('Total') + '&nbsp;' + total + '</div>'
