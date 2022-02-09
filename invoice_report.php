@@ -1208,40 +1208,7 @@ var table = $('.report-table.datatable').DataTable({
     'pageLength': 50,
     'pagingType': 'full_numbers',
     'footerCallback': function (row, data, start, end, display) {
-        var api = this.api(), data;
-
-        var sep = MLInvoice.translate('DecimalSeparator');
-        var _currencyVal = function (s) {
-            var result = parseFloat(String(s).replace(sep, '.'), 10);
-            return !isNaN(result) ? result : 0;
-        };
-
-        $([<?php echo implode(', ', $sumColumns)?>]).each(function(i, column) {
-            // Total over all pages
-            var total = api
-                .column(column)
-                .data()
-                .reduce(function (a, b) {
-                    return _currencyVal(a) + _currencyVal(b);
-                }, 0);
-
-            // Total over this page
-            var pageTotal = api
-                .column(column, { page: 'current'})
-                .data()
-                .reduce(function (a, b) {
-                    return _currencyVal(a) + _currencyVal(b);
-                }, 0);
-
-            // Update footer
-            pageTotal = MLInvoice.formatCurrency(pageTotal);
-            total = MLInvoice.formatCurrency(total);
-            $(api.column(column).footer()).html(
-                '<div class="list-footer-summary"><?php echo Translator::translate('VisiblePage') ?>&nbsp;'
-                + pageTotal + '</div><br><div class="list-footer-summary"><?php echo Translator::translate('Total') ?>&nbsp;'
-                + total + '</div>'
-            );
-        });
+        MLInvoice.createDataTablesTotalFooter(this, [<?php echo implode(', ', $sumColumns)?>]);
     }
 });
 
