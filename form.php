@@ -464,10 +464,13 @@ $(document).ready(function() {
                 'name' => $subElem['name'],
                 'style' => $subElem['style'],
                 'label' => $subElem['label'],
-                'allow_null' => $subElem['allow_null']
+                'allow_null' => $subElem['allow_null'],
             ];
             if (isset($subElem['default'])) {
                 $new['default'] = $subElem['default'];
+            }
+            if (isset($subElem['decimals'])) {
+                $new['decimals'] = $subElem['decimals'];
             }
             $subFormConfig['fields'][] = $new;
 
