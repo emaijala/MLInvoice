@@ -515,7 +515,7 @@ function verifyInvoiceDataForPrinting($id)
     ) {
         $defaults = getInvoiceDefaults(
             $id, $data['base_id'], $data['company_id'],
-            dateConvDBDate2Date($data['invoice_date']), $data['interval_type'],
+            dateConvDBDate2Ymd($data['invoice_date']), $data['interval_type'],
             $data['invoice_no']
         );
         $sql = "UPDATE {prefix}invoice SET";

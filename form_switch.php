@@ -721,7 +721,7 @@ EOT;
     }
 
     if (sesWriteAccess() && !$isOffer) {
-        $today = dateConvDBDate2Date(date('Ymd'));
+        $today = date('Y-m-d');
         $markPaidToday = "if ([1, 2, 5, 6, 7].indexOf(parseInt($('#state_id').val())) !== -1) {"
             . " $('#state_id').val(3); }"
             . " if (!$(this).is('#payment_date')) { $('#payment_date').val('$today'); }";
@@ -930,7 +930,7 @@ EOF;
             'position' => 2,
             'allow_null' => true,
             'attached_elem' => $markPaidTodayButton,
-            'elem_attributes' => 'onchange="' . $markPaidTodayEvent . '" data-no-future="1"',
+            'elem_attributes' => 'onchange="' . $markPaidTodayEvent . '" max="' . date('Y-m-d') . '"',
             'hidden' => $isOffer,
         ],
         [

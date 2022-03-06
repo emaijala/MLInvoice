@@ -601,9 +601,9 @@ $(document).ready(function() {
                     </div>
                     <div class="modal-body">
                         <div class="medium_label"><?php echo Translator::translate('PaymentAmount')?></div>
-                        <div class="field"><input type="text" id="add_partial_payment_amount" class='form-control medium'></div>
+                        <div class="field"><input type="text" id="add_partial_payment_amount" class="form-control medium"></div>
                         <div class="medium_label"><?php echo Translator::translate('PayDate')?></div>
-                        <div class="field"><input type="text" id="add_partial_payment_date" class='form-control date hasCalendar'></div>
+                        <div class="field"><input type="date" id="add_partial_payment_date" class="form-control date"></div>
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal"><?php echo Translator::translate('Cancel')?></button>
@@ -840,11 +840,6 @@ function createIForm($mainFormConfig, $formConfig, $elem, $intKeyValue, $newReco
     </div>
 </div>
 
-            <div id="popup_date_edit" style="display: none; width: 300px; overflow: hidden">
-                <form method="post" name="form_date_popup" id="form_date_popup">
-                    <input id="popup_date_edit_field" type="text" class="form-control medium hasCalendar">
-                </form>
-            </div>
     <?php
 }
 

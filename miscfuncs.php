@@ -697,12 +697,12 @@ function addFileTimestamp($filename)
 /**
  * Get default values for an invoice
  *
- * @param int $invoiceId     Invoice ID
- * @param int $baseId        Base ID
- * @param int $companyId     Company ID
- * @param int $invoiceDate   Invoice date
- * @param int $intervalType  Invoice interval
- * @param int $invoiceNumber Invoice number
+ * @param int    $invoiceId     Invoice ID
+ * @param int    $baseId        Base ID
+ * @param int    $companyId     Company ID
+ * @param string $invoiceDate   Invoice date
+ * @param int    $intervalType  Invoice interval
+ * @param int    $invoiceNumber Invoice number
  *
  * @return array
  */
@@ -723,7 +723,7 @@ function getInvoiceDefaults($invoiceId, $baseId, $companyId, $invoiceDate,
             $params[] = $baseId;
         }
         if ($perYear) {
-            $query .= ' AND invoice_date >= ' . dateConvDate2DBDate($invoiceDate);
+            $query .= ' AND invoice_date >= ' . dateConvYmd2DBDate($invoiceDate);
         }
 
         $rows = dbParamQuery($query, $params);

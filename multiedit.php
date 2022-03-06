@@ -216,7 +216,7 @@ class MultiEdit
 
     <script>
     $(document).ready(function() {
-        $('input[type="text"],input[type="hidden"],input[type="checkbox"]:not(.cb-select-row):not(.cb-select-all),select:not(.dropdownmenu),textarea')
+        $('input[type="text"],input[type="date"],input[type="hidden"],input[type="checkbox"]:not(.cb-select-row):not(.cb-select-all),select:not(.dropdownmenu),textarea')
         .change(function() {
             var name = $(this).attr('name');
             $('#select_' + name).prop('checked', true);

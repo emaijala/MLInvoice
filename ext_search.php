@@ -151,7 +151,7 @@ if ($blnSearch || $blnSave) {
             } elseif ($field['type'] == 'CHECK') {
                 $strSearchValue = $astrValues[$name] ? 1 : 0;
             } elseif ($field['type'] == 'INTDATE') {
-                $strSearchValue = dateConvDate2DBDate($astrValues[$name]);
+                $strSearchValue = dateConvYmd2DBDate($astrValues[$name]);
             }
             if ($strSearchValue) {
                 $tableAlias = $formConfig['tableAlias'];

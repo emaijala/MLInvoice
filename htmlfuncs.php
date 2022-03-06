@@ -74,7 +74,7 @@ function htmlPageStart($strTitle = '', $arrExtraScripts = [], $loggedIn = true)
 
     $charset = (_CHARSET_ == 'UTF-8') ? 'UTF-8' : 'ISO-8859-15';
     $lang = $_SESSION['sesLANG'] ?? 'fi-FI';
-    $datePickerOptions = Translator::translate('DatePickerOptions');
+    $dateRangePickerOptions = Translator::translate('DateRangePickerOptions');
 
     $scripts = [
         'vendor/twbs/bootstrap/dist/js/bootstrap.bundle.js',
@@ -254,7 +254,7 @@ MLInvoice.setOfferStates($offerStates);
 MLInvoice.setKeepAlive($keepAlive);
 MLInvoice.setCurrencyDecimals($currencyDecimals);
 MLInvoice.setDateFormat('$dateFormat');
-MLInvoice.setDatePickerDefaults($datePickerOptions);
+MLInvoice.setDateRangePickerDefaults($dateRangePickerOptions);
   </script>
 </head>
 EOT;
@@ -921,8 +921,8 @@ function htmlFormElement($strName, $strType, $strValue, $strStyle, $strListQuery
         break;
 
     case 'INTDATE':
-        $strFormElement = "<input type=\"text\" class=\"form-control $strStyle hasCalendar\" " .
-             "autocomplete=\"off\" id=\"$strName\" name=\"$strName\" value=\"" .
+        $strFormElement = "<input type=\"date\" class=\"form-control $strStyle\" " .
+             "id=\"$strName\" name=\"$strName\" value=\"" .
              htmlspecialchars($strValue) . "\"$astrAdditionalAttributes$readOnly>\n";
         break;
 

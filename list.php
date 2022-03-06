@@ -354,7 +354,7 @@ function createList($strFunc, $strList, $strTableName = '', $strTitleOverride = 
                     <?php echo htmlFormElement(
                         'valid_until', 'INTDATE',
                         $customPriceSettings
-                            ? dateConvDBDate2Date(
+                            ? dateConvDBDate2Ymd(
                                 $customPriceSettings['valid_until']
                             ) : '',
                         'date'

@@ -49,6 +49,24 @@ function dateConvDBDate2Date($intDate, $format = '')
 }
 
 /**
+ * Convert database date to Y-m-d
+ *
+ * @param int $intDate Date in database format
+ *
+ * @return string
+ */
+function dateConvDBDate2Ymd($intDate)
+{
+    if (!$intDate) {
+        return '';
+    }
+    $day = intval(substr($intDate, 6));
+    $mon = intval(substr($intDate, 4, 2));
+    $year = intval(substr($intDate, 0, 4));
+    return date('Y-m-d', mktime(0, 0, 0, $mon, $day, $year));
+}
+
+/**
  * Convert database timestamp to user-readable
  *
  * @param int    $dateTime Timestamp
@@ -77,6 +95,27 @@ function dateConvDBTimestamp2DateTime($dateTime, $format = '')
 function dateConvDate2DBDate($strDate)
 {
     $arr = date_parse_from_format(Translator::translate('DateFormat'), $strDate);
+    if (!$arr['year'] || !$arr['month'] || !$arr['day']
+        || !empty($arr['warnings'])
+    ) {
+        return null;
+    }
+    if ($arr['year'] < 100) {
+        $arr['year'] += 2000;
+    }
+    return sprintf('%04d%02d%02d', $arr['year'], $arr['month'], $arr['day']);
+}
+
+/**
+ * Convert Y-m-d date to database format
+ *
+ * @param string $strDate Date
+ *
+ * @return int|null
+ */
+function dateConvYmd2DBDate($strDate)
+{
+    $arr = date_parse_from_format('Y-m-d', $strDate);
     if (!$arr['year'] || !$arr['month'] || !$arr['day']
         || !empty($arr['warnings'])
     ) {

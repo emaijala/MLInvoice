@@ -16,7 +16,7 @@ MLInvoice.addModule('Form', function mlinvoiceForm() {
     _formConfig.modificationWarningShown = false;
 
     $('#admin_form')
-      .find('input[type="text"]:not([name="payment_date"]),input[type="hidden"],input[type="checkbox"]:not([name="archived"]),select:not(.dropdownmenu),textarea')
+      .find('input[type="text"],[type="date"]:not([name="payment_date"]),input[type="hidden"],input[type="checkbox"]:not([name="archived"]),select:not(.dropdownmenu),textarea')
       .one('change', startChanging);
 
     $('.save_button').on('click', function onClickSave() {
@@ -72,8 +72,8 @@ MLInvoice.addModule('Form', function mlinvoiceForm() {
       var $ind = $(this).closest('.modification-indicator');
       $ind.addClass('hidden');
       var $container = $ind.closest('td');
-      $container.find('input[type="text"],input[type="hidden"]:not(.select-default-text),input[type="checkbox"],select:not(.dropdownmenu),textarea').data('modified', 0);
-      $container.find('input[type="text"],input[type="hidden"]:not(.select-default-text),textarea').val('');
+      $container.find('input[type="text"],input[type="date"],input[type="hidden"]:not(.select-default-text),input[type="checkbox"],select:not(.dropdownmenu),textarea').data('modified', 0);
+      $container.find('input[type="text"],input[type="date"],input[type="hidden"]:not(.select-default-text),textarea').val('');
       $container.find('input[type="checkbox"]').prop('checked', false);
       $container.find('select:not(.dropdownmenu)').val('');
       $container.find('input.select2').select2('val', null);
@@ -608,13 +608,13 @@ MLInvoice.addModule('Form', function mlinvoiceForm() {
               {
                 id: $('#record_id').val(),
                 invoice_no: $('#invoice_no').val(),
-                invoice_date: MLInvoice.parseDate($('#invoice_date').val(), '-'),
+                invoice_date: $('#invoice_date').val(),
                 base_id: $('#base_id').val(),
                 company_id: $('#company_id').val(),
                 interval_type: $('#interval_type').val()
               },
               function getInvoiceDefaultsDone(data) {
-                $('#due_date').val(MLInvoice.formatDate(data.due_date));
+                $('#due_date').val(data.due_date);
               }
             );
           }
@@ -836,7 +836,7 @@ MLInvoice.addModule('Form', function mlinvoiceForm() {
   function _verifyPrintable() {
     var form = $('#admin_form');
     if (typeof form.data('checkInvoiceDate') !== 'undefined') {
-      var invoiceDate = MLInvoice.parseDate($('#invoice_date').val(), '-');
+      var invoiceDate = $('#invoice_date').val();
       if (invoiceDate !== moment().format('YYYY-MM-DD')) {
         if (!confirm(MLInvoice.translate('InvoiceDateNonCurrent'))) {
           return false;
@@ -1050,8 +1050,6 @@ MLInvoice.addModule('Form', function mlinvoiceForm() {
         }
         break;
       case 'INTDATE':
-        formdata.append(field.name, MLInvoice.parseDate(value.val(), '-', ''));
-        break;
       case 'SELECT':
       case 'SEARCHLIST':
       case 'LIST':
@@ -1339,14 +1337,14 @@ MLInvoice.addModule('Form', function mlinvoiceForm() {
       }
 
       $('#iform')
-        .find('input[type="text"],input[type="hidden"],input[type="checkbox"]:not(.cb-select-row):not(.cb-select-all),select:not(.dropdownmenu),textarea')
+        .find('input[type="text"],input[type="date"],input[type="hidden"],input[type="checkbox"]:not(.cb-select-row):not(.cb-select-all),select:not(.dropdownmenu),textarea')
         .on('change', function onRowFieldChange() { MLInvoice.highlightButton('.row-add-button', true); });
       $('#iform')
-        .find('input[type="text"],input[type="hidden"],input[type="checkbox"],select:not(.dropdownmenu),textarea')
+        .find('input[type="text"],input[type="date"],input[type="hidden"],input[type="checkbox"],select:not(.dropdownmenu),textarea')
         .one('change', startChanging);
 
       $('#iform_popup')
-        .find('input[type="text"],input[type="hidden"]:not(.select-default-text),input[type="checkbox"],select:not(.dropdownmenu),textarea')
+        .find('input[type="text"],input[type="date"],input[type="hidden"]:not(.select-default-text),input[type="checkbox"],select:not(.dropdownmenu),textarea')
         .on('change', function onPopupFieldChange() {
           $(this).parent().parent().find('.modification-indicator').removeClass('hidden');
           $(this).data('modified', 1);
@@ -1378,7 +1376,7 @@ MLInvoice.addModule('Form', function mlinvoiceForm() {
         obj[field.name] = value.val().replace(MLInvoice.translate('DecimalSeparator'), '.');
         break;
       case 'INTDATE':
-        obj[field.name] = MLInvoice.parseDate(value.val(), '-', '');
+        obj[field.name] = value.val();
         break;
       case 'TAGS':
       case 'SEARCHLIST':
@@ -1434,8 +1432,7 @@ MLInvoice.addModule('Form', function mlinvoiceForm() {
                 value.val(parseInt(value.val(), 10) + parseInt(String(field.default).substr(4)));
               } else if (typeof field.default !== 'undefined' && field.default === 'DATE_NOW') {
                 var today = new Date();
-                var dbdate = today.toISOString().replace(/-/g, '').substr(0, 8);
-                value.val(MLInvoice.formatDate(dbdate));
+                value.val(today.toISOString());
               } else if (subFormConfig.clearAfterRowAdded) {
                 switch (field.type) {
                 case 'LIST':
@@ -1494,8 +1491,6 @@ MLInvoice.addModule('Form', function mlinvoiceForm() {
         obj[field.name] = elem.select2('data');
         break;
       case 'INTDATE':
-        obj[field.name] = MLInvoice.parseDate(elem.val(), '-');
-        break;
       case 'LIST':
       case 'TEXT':
         obj[field.name] = elem.val();
@@ -1624,9 +1619,6 @@ MLInvoice.addModule('Form', function mlinvoiceForm() {
           };
           elem.select2('data', item);
           break;
-        case 'INTDATE':
-          elem.val(json[field.name] ? MLInvoice.formatDate(json[field.name]) : '');
-          break;
         case 'PASSWD_STORED':
           elem.val('');
           break;
@@ -1637,6 +1629,7 @@ MLInvoice.addModule('Form', function mlinvoiceForm() {
           });
           elem.select2('data', items);
           break;
+        case 'INTDATE':
         case 'LIST':
         case 'TEXT':
           elem.val(json[field.name]);
@@ -1805,7 +1798,7 @@ MLInvoice.addModule('Form', function mlinvoiceForm() {
     var obj = {};
     obj.invoice_id = $('#record_id').val();
     obj.description = MLInvoice.translate('PartialPayment');
-    obj.row_date = MLInvoice.parseDate($('#add_partial_payment_date').val(), '-');
+    obj.row_date = $('#add_partial_payment_date').val();
     obj.price = -parseFloat($('#add_partial_payment_amount').val().replace(MLInvoice.translate('DecimalSeparator'), '.'));
     obj.pcs = 0;
     obj.vat = 0;

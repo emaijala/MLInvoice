@@ -66,11 +66,11 @@ function getFormDefaultValue($elem, $parentKey)
         return null;
     }
     if ($elem['default'] === 'DATE_NOW') {
-        return date(Translator::translate('DateFormat'));
+        return date('Y-m-d');
     } elseif (strstr($elem['default'], 'DATE_NOW+')) {
         $atmpValues = explode('+', $elem['default']);
         return date(
-            Translator::translate('DateFormat'),
+            'Y-m-d',
             mktime(0, 0, 0, date('m'), date('d') + $atmpValues[1], date('Y'))
         );
     } elseif (strncmp($elem['default'], 'ADD+', 4) === 0) {
@@ -264,7 +264,7 @@ function saveFormData($table, &$primaryKey, $formElements, &$values, &$warnings,
             break;
         case 'INTDATE':
             if ($value) {
-                $converted = dateConvDate2DBDate($value);
+                $converted = dateConvYmd2DBDate($value);
                 if (null === $converted) {
                     $warnings = Translator::translate('ErrInvalidValue') . ': '
                         . Translator::translate($elem['label']);
@@ -522,7 +522,7 @@ function fetchRecord($table, $primaryKey, $formElements, &$values)
             }
             break;
         case 'INTDATE':
-            $values[$name] = dateConvDBDate2Date($row[$name]);
+            $values[$name] = dateConvDBDate2Ymd($row[$name]);
             break;
         case 'INT':
             if (isset($elem['decimals'])) {

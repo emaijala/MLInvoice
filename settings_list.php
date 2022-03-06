@@ -103,7 +103,7 @@ function createSettingsList()
     <!--
     $(document).ready(function() {
       $('#settings_form')
-        .find('input[type="text"],input[type="checkbox"],select,textarea')
+        .find('input[type="text"],input[type="date"],input[type="checkbox"],select,textarea')
         .on('change', function() {
             MLInvoice.highlightButton('.save_button', true);
         });

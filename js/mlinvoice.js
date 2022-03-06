@@ -8,7 +8,7 @@ var MLInvoice = (function CreateMLInvoice() {
   var _offerStates = [];
   var _keepAliveEnabled = true;
   var _currencyDecimals = 2;
-  var _datePickerDefaults = {};
+  var _dateRangePickerDefaults = {};
   var _dateFormat = 'DD.MM.YYYY';
 
   function addTranslation(key, value) {
@@ -54,23 +54,12 @@ var MLInvoice = (function CreateMLInvoice() {
     return _dispatchNotePrintStyle;
   }
 
-  function setDatePickerDefaults(defaults) {
-    _datePickerDefaults = defaults;
-  }
-
-  function getDatePickerDefaults() {
-    var settings = Object.assign({}, _datePickerDefaults);
-    settings.singleDatePicker = true;
-    settings.ranges = null;
-    settings.showCustomRangeLabel = false;
-    settings.showDropdowns = true;
-    settings.autoApply = true;
-    settings.autoUpdateInput = false;
-    return settings;
+  function setDateRangePickerDefaults(defaults) {
+    _dateRangePickerDefaults = defaults;
   }
 
   function getDateRangePickerDefaults() {
-    var settings = Object.assign({}, _datePickerDefaults);
+    var settings = Object.assign({}, _dateRangePickerDefaults);
     settings.autoApply = false;
     settings.autoUpdateInput = false;
     settings.alwaysShowCalendars = true;
@@ -83,15 +72,6 @@ var MLInvoice = (function CreateMLInvoice() {
 
   function isOfferStatus(status) {
     return _offerStates.indexOf(status) !== -1;
-  }
-
-  function parseDate(dateString, _sep, def) {
-    if (!dateString) {
-      return typeof def === 'undefined' ? null : def;
-    }
-    var date = moment(dateString, _dateFormat);
-    var sep = typeof _sep === 'undefined' ? '' : _sep;
-    return date.format('YYYY' + sep + 'MM' + sep + 'DD');
   }
 
   function _parseFloat(value) {
@@ -178,7 +158,7 @@ var MLInvoice = (function CreateMLInvoice() {
         company_id: $('#company_id').val(),
         discount: _parseFloat(form.find('#discount').val()),
         multiplier: _parseFloat(form.find('#multiplier').val()),
-        valid_until: parseDate(form.find('#valid_until').val())
+        valid_until: form.find('#valid_until').val()
       };
       $.ajax({
         url: 'json.php?func=put_custom_prices',
@@ -489,22 +469,6 @@ var MLInvoice = (function CreateMLInvoice() {
 
   function _initUI()
   {
-    // Date fields
-    $('input.hasCalendar').each(function setupCalendar() {
-      var settings = getDatePickerDefaults();
-      var $input = $(this);
-      if ($input.data('noFuture')) {
-        settings.maxDate = moment();
-      }
-      $input.daterangepicker(settings, function applyDatePick(start) {
-        $input.val(start.format(MLInvoice.getDateFormat()));
-        $input.trigger('change');
-      });
-      $input.on('cancel.daterangepicker', function clearDate() {
-        $input.val('');
-      });
-    });
-
     // Date range fields
     $('input[class~="hasDateRangePicker"]').each(function setupDateRangeField() {
       var $input = $(this);
@@ -518,22 +482,8 @@ var MLInvoice = (function CreateMLInvoice() {
       });
     });
 
-    // Date fields
-    $('input.date').each(function setupDate() {
-      if ($(this).data('noFuture')) {
-        $(this).on('change', function changeDate() {
-          var val = $(this).val();
-          if (val.length === 10) {
-            var dt = new Date(parseDate(val, '-'));
-            if (dt > new Date()) {
-              errormsg(translate('FutureDateEntered'));
-            }
-          }
-        });
-      }
-    });
     // Page exit data confirmation
-    $('#admin_form').find('input[type="text"],input[type="hidden"]:not(.select-default-text),input[type="checkbox"],select:not(.dropdownmenu),textarea')
+    $('#admin_form').find('input[type="text"],input[type="date"],input[type="hidden"]:not(.select-default-text),input[type="checkbox"],select:not(.dropdownmenu),textarea')
       .on('change', function onFormFieldChange() {
         highlightButton('.save_button', true);
       });
@@ -624,21 +574,20 @@ var MLInvoice = (function CreateMLInvoice() {
         history.back();
       }
     });
-    var formatDateFunc = formatDate;
     $('.update-dates').on('click', function updateDatesClick() {
       $.getJSON(
         'json.php?func=get_invoice_defaults',
         {
           id: $('#record_id').val(),
           invoice_no: $('#invoice_no').val(),
-          invoice_date: parseDate($('#invoice_date').val(), '-', ''),
+          invoice_date: $('#invoice_date').val(),
           base_id: $('#base_id').val(),
           company_id: $('#company_id').val(),
           interval_type: $('#interval_type').val()
         }, function getInvoiceDefaultsDone(json) {
-          $('#invoice_date').val(formatDateFunc(json.date));
-          $('#due_date').val(formatDateFunc(json.due_date));
-          $('#next_interval_date').val(json.next_interval_date ? formatDateFunc(json.next_interval_date) : '');
+          $('#invoice_date').val(json.date);
+          $('#due_date').val(json.due_date);
+          $('#next_interval_date').val(json.next_interval_date ? json.next_interval_date : '');
           highlightButton('.save_button', true);
         }
       );
@@ -650,7 +599,7 @@ var MLInvoice = (function CreateMLInvoice() {
         {
           id: $('#record_id').val(),
           invoice_no: $('#invoice_no').val(),
-          invoice_date: parseDate($('#invoice_date').val(), '-', ''),
+          invoice_date: $('#invoice_date').val(),
           base_id: $('#base_id').val(),
           company_id: $('#company_id').val(),
           interval_type: $('#interval_type').val()
@@ -793,8 +742,7 @@ var MLInvoice = (function CreateMLInvoice() {
     addTranslations: addTranslations,
     setDispatchNotePrintStyle: setDispatchNotePrintStyle,
     getDispatchNotePrintStyle: getDispatchNotePrintStyle,
-    setDatePickerDefaults: setDatePickerDefaults,
-    getDatePickerDefaults: getDatePickerDefaults,
+    setDateRangePickerDefaults: setDateRangePickerDefaults,
     getDateRangePickerDefaults: getDateRangePickerDefaults,
     setOfferStates: setOfferStates,
     isOfferStatus: isOfferStatus,
@@ -813,7 +761,6 @@ var MLInvoice = (function CreateMLInvoice() {
     popupDialog: popupDialog,
     clearMessages: clearMessages,
     ajaxErrorHandler: ajaxErrorHandler,
-    parseDate: parseDate,
     formatDate: formatDate,
     addModule: addModule,
     initTableExportButtons: initTableExportButtons,

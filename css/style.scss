@@ -317,7 +317,11 @@ td.reportsublabel {
 }
 .iform, .iform-popup, #custom-prices, .multi-edit-form, .setup-form {
   .date, .date_label {
-    width: 90px;
+    width: 110px;
+  }
+  .date {
+    padding-left: 4px;
+    padding-right: 4px;
   }
   .tiny, .tiny_label {
     width: 40px;

@@ -274,11 +274,7 @@ case 'get_invoice_defaults':
     $baseId = getPostOrQuery('base_id', 0);
     $companyId = getPostOrQuery('company_id', 0);
     $invoiceId = getPostOrQuery('id', 0);
-    $invoiceDate = convertDateFromApi(
-        getPostOrQuery(
-            'invoice_date', dateConvDBDate2Date(date('Y') . '-01-01')
-        )
-    );
+    $invoiceDate = getPostOrQuery('invoice_date', date('Y-m-d'));
     $intervalType = getPostOrQuery('interval_type', 0);
     $invoiceNumber = getPostOrQuery('invoice_no', 0);
 
@@ -716,16 +712,10 @@ function convertToApi($row, $table)
     }
 
     $formConfig = getFormConfig($table, '');
-    foreach ($formConfig[$fields] as $field) {
+    foreach ($formConfig['fields'] as $field) {
         $name = $field['name'];
         if ('INTDATE' === $field['type'] && isset($row[$name])) {
-            if (!empty($row[$name])) {
-                $row[$name] = substr($row[$name], 0, 4)
-                    . '-' . substr($row[$name], 4, 2)
-                    . '-' . substr($row[$name], 6, 2);
-            } else {
-                $row[$name] = '';
-            }
+            $row[$name] = dateConvDBDate2Ymd($row[$name]);
         }
     }
 
@@ -742,30 +732,7 @@ function convertToApi($row, $table)
  */
 function convertFromApi($row, $table)
 {
-    $formConfig = getFormConfig($table, '');
-    foreach ($formConfig['fields'] as $field) {
-        $name = $field['name'];
-        if ('INTDATE' === $field['type'] && isset($row[$name])) {
-            $row[$name] = convertDateFromApi($row[$name]);
-        }
-    }
     return $row;
-}
-
-/**
- * Convert a date from API format to locale format
- *
- * @param string $date API date
- *
- * @return string
- */
-function convertDateFromApi($date)
-{
-    if (!empty($date)) {
-        return \DateTime::createFromFormat('Y-m-d', $date)
-            ->format(Translator::translate('DateFormat'));
-    }
-    return '';
 }
 
 /**
