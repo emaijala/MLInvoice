@@ -483,7 +483,7 @@ var MLInvoice = (function CreateMLInvoice() {
     });
 
     // Page exit data confirmation
-    $('#admin_form').find('input[type="text"],input[type="date"],input[type="hidden"]:not(.select-default-text),input[type="checkbox"],select:not(.dropdownmenu),textarea')
+    $('#form').find('input[type="text"],input[type="date"],input[type="hidden"]:not(.select-default-text),input[type="checkbox"],select:not(.dropdownmenu),textarea')
       .on('change', function onFormFieldChange() {
         highlightButton('.save_button', true);
       });

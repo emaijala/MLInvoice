@@ -4,7 +4,7 @@
  *
  * PHP version 7
  *
- * Copyright (C) Ere Maijala 2018-2019.
+ * Copyright (C) Ere Maijala 2018-2022.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2,
@@ -83,7 +83,7 @@ class MultiEdit
                 foreach ((array)$ids as $id) {
                     $fieldData = $changes;
                     $result = saveFormData(
-                        $formConfig['table'], $id, $formConfig['fields'], $fieldData, $warnings,
+                        $formConfig['table'], $id, $formConfig, $fieldData, $warnings,
                         '', null, false, true
                     );
                     if (true !== $result) {

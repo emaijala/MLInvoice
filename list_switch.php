@@ -321,7 +321,7 @@ case 'base':
     $astrSearchFields = [
         [
             'name' => 'name',
-            'type' => 'TEXT'
+            'type' => 'TEXT',
         ],
         [
             'name' => 'company_id',
@@ -343,13 +343,15 @@ case 'base':
             'name' => 'name',
             'width' => 200,
             'type' => 'TEXT',
-            'header' => 'BaseName'
+            'header' => 'BaseName',
+            'select' => true,
         ],
         [
             'name' => 'company_id',
             'width' => 100,
             'type' => 'TEXT',
-            'header' => 'ClientVATID'
+            'header' => 'ClientVATID',
+            'select' => true,
         ],
         [
             'name' => 'contact_person',

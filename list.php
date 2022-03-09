@@ -957,7 +957,7 @@ EOT;
         $desc2 = [];
         $desc3 = [];
         foreach ($listConfig['fields'] as $field) {
-            if (!isset($field['select']) || !$field['select']) {
+            if (empty($field['select'])) {
                 continue;
             }
             $name = $field['name'];

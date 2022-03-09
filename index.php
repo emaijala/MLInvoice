@@ -235,6 +235,10 @@ if ($strFunc == 'system' && $operation == 'export' && sesAdminAccess()) {
     include_once 'multiedit.php';
     $multiedit = new MultiEdit();
     $multiedit->launch();
+} elseif ($strFunc == 'search') {
+    include_once 'search.php';
+    $search = new Search();
+    $search->launch();
 } else {
     if ($strForm) {
         createForm($strFunc, $strList, $strForm);

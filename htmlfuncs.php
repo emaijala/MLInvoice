@@ -87,12 +87,18 @@ function htmlPageStart($strTitle = '', $arrExtraScripts = [], $loggedIn = true)
         'datatables/Buttons-1.6.5/js/buttons.colVis.min.js',
         'js/vendor/moment-with-locales.min.js',
         'js/vendor/daterangepicker.min.js',
-        'js/mlinvoice.min.js',
         'select2/select2.min.js',
         'js/formdata.min.js',
         'js/vendor/js.cookie-2.2.1.min.js',
         'js/vendor/Sortable.min.js',
     ];
+
+    if (defined('_JS_DEBUG_')) {
+        $scripts[] = 'js/mlinvoice.js';
+        $scripts[] = 'js/mlinvoice-form.js';
+    } else {
+        $scripts[] = 'js/mlinvoice.min.js';
+    }
 
     if (getSetting('printout_markdown')) {
         $scripts[] = 'js/easymde.min.js';
@@ -715,34 +721,40 @@ function createNavBar($buttons, $currentFunc = '')
 /**
  * Create Html-listbox
  *
- * @param string $strName                  Listbox name
- * @param array  $astrValues               Listbox values => descriptions
- * @param string $strSelected              Selected value
- * @param string $strStyle                 Style
- * @param bool   $blnSubmitOnChange        Whether to submit the form when value is
- *                                         changed
- * @param bool   $blnShowEmpty             Whether to show "empty" value
- * @param string $astrAdditionalAttributes Any additional attributes
- * @param bool   $translate                Whether the options are translated
+ * @param string      $strName         Listbox name
+ * @param array       $astrValues      Listbox values => descriptions
+ * @param string      $strSelected     Selected value
+ * @param string      $strStyle        Style
+ * @param bool        $submitOnChange  Whether to submit the form when value is
+ *                                     changed
+ *
+ * @param bool|string $showEmpty       Whether to show "empty" value (string for
+ *                                     translated value)
+ * @param string      $additionalAttrs Any additional attributes
+ * @param bool        $translate       Whether the options are translated
  *
  * @return string HTML
  */
 function htmlListBox($strName, $astrValues, $strSelected, $strStyle = '',
-    $blnSubmitOnChange = false, $blnShowEmpty = true, $astrAdditionalAttributes = '',
+    $submitOnChange = false, $showEmpty = true, $additionalAttrs = '',
     $translate = false
 ) {
-
     $strOnChange = '';
-    if ($blnSubmitOnChange) {
+    if ($submitOnChange) {
         $strOnChange = " onchange='this.form.submit();'";
     }
-    if ($astrAdditionalAttributes) {
-        $astrAdditionalAttributes = " $astrAdditionalAttributes";
+    if ($additionalAttrs) {
+        $additionalAttrs = " $additionalAttrs";
     }
-    $strListBox = "<select class=\"$strStyle\" id=\"$strName\" name=\"$strName\"{$strOnChange}{$astrAdditionalAttributes}>\n";
-    if ($blnShowEmpty) {
+    $strListBox = "<select class=\"$strStyle\" id=\"$strName\" name=\"$strName\"{$strOnChange}{$additionalAttrs}>\n";
+    if ($showEmpty) {
+        if (true === $showEmpty) {
+            $showEmpty = ' - ';
+        } else {
+            $showEmpty = Translator::translate($showEmpty);
+        }
         $strListBox .= '<option value=""' . ($strSelected ? '' : ' selected') .
-             "> - </option>\n";
+             ">$showEmpty</option>\n";
     }
 
     foreach ($astrValues as $value => $desc) {

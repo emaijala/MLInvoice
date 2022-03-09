@@ -150,7 +150,7 @@ EOT;
         unset($astrValues['id']);
         $id = 0;
         $res = saveFormData(
-            $formConfig['table'], $id, $formConfig['fields'], $astrValues, $warnings
+            $formConfig['table'], $id, $formConfig, $astrValues, $warnings
         );
         if ($res === true) {
             $qs = preg_replace('/&id=\w*/', "&id=$id", $_SERVER['QUERY_STRING']);
@@ -217,7 +217,7 @@ EOT;
         );
     ?>
     <div class="form">
-        <form method="post" name="admin_form" id="admin_form"<?php echo $dataAttrs?>>
+        <form method="post" name="form" id="form"<?php echo $dataAttrs?>>
             <input type="hidden" name="action" value="">
             <input type="hidden" name="redirect" id="redirect" value="">
             <input type="hidden" id="record_id" name="id" value="<?php echo (isset($intKeyValue) && $intKeyValue) ? $intKeyValue : '' ?>">
@@ -888,7 +888,7 @@ function createFormButtons($form, $formConfig, $new, $top, $deleted)
             <?php
         } else {
             ?>
-            <a role="button" class="btn btn-secondary form-submit" href="#" data-form="admin_form" data-set-field="action=copy">
+            <a role="button" class="btn btn-secondary form-submit" href="#" data-form="form" data-set-field="action=copy">
                 <?php echo Translator::translate('Copy')?>
             </a>
             <?php
@@ -925,7 +925,7 @@ function createFormButtons($form, $formConfig, $new, $top, $deleted)
         }
         if (!$readOnlyForm && !$deleted) {
             ?>
-            <a role="button" class="btn btn-secondary form-submit" href="#" data-form="admin_form" data-set-field="action=delete"
+            <a role="button" class="btn btn-secondary form-submit" href="#" data-form="form" data-set-field="action=delete"
               data-confirm="ConfirmDelete">
                 <?php echo Translator::translate('Delete')?>
             </a>

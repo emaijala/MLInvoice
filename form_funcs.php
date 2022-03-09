@@ -4,7 +4,7 @@
  *
  * PHP version 7
  *
- * Copyright (C) Ere Maijala 2010-2021
+ * Copyright (C) Ere Maijala 2010-2022
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2,
@@ -106,7 +106,7 @@ function getFormDefaultValue($elem, $parentKey)
  *
  * @param string $table         Table name
  * @param int    $primaryKey    Primary key value
- * @param array  $formElements  Form elements
+ * @param array  $formConfig    Form configuration
  * @param array  $values        Values
  * @param array  $warnings      Any warnings encountered
  * @param string $parentKeyName Parent key field name, if any
@@ -116,7 +116,7 @@ function getFormDefaultValue($elem, $parentKey)
  *
  * @return mixed
  */
-function saveFormData($table, &$primaryKey, $formElements, &$values, &$warnings,
+function saveFormData($table, &$primaryKey, $formConfig, &$values, &$warnings,
     $parentKeyName = '', $parentKey = false, $onPrint = false, $partial = false
 ) {
     global $dblink;
@@ -136,7 +136,7 @@ function saveFormData($table, &$primaryKey, $formElements, &$values, &$warnings,
     }
 
     if ($partial) {
-        $res = fetchRecord($table, $primaryKey, $formElements, $origValues);
+        $res = fetchRecord($table, $primaryKey, $formConfig['fields'], $origValues);
         if ('notfound' === $res) {
             $warnings = "Row $primaryKey not found";
             return false;
@@ -149,28 +149,11 @@ function saveFormData($table, &$primaryKey, $formElements, &$values, &$warnings,
         unset($values['id']);
     }
 
-    foreach ($formElements as $elem) {
+    foreach ($formConfig['fields'] as $elem) {
         $type = $elem['type'];
 
-        if (true
-            && in_array(
-                $type,
-                [
-                    '',
-                    'IFORM',
-                    'RESULT',
-                    'BUTTON',
-                    'JSBUTTON',
-                    'DROPDOWNMENU',
-                    'IMAGE',
-                    'ROWSUM',
-                    'NEWLINE',
-                    'LABEL',
-                    'HEADING',
-                    'TAGS'
-                ]
-            )
-            || (isset($elem['read_only']) && $elem['read_only'])
+        if (!in_array($type, $formConfig['inputFieldTypes'])
+            || $elem['read_only'] ?? false
         ) {
             continue;
         }
