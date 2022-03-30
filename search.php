@@ -48,7 +48,7 @@ class Search
      *
      * @return void
      */
-    function launch()
+    function formAction()
     {
         $form = getPostOrQuery('form', '');
         if (!$form) {
@@ -74,16 +74,18 @@ class Search
             }
         }
 
-        $join = getQuery('join', 'AND');
+        $operator = getQuery('s_op', 'AND');
         ?>
 
 <div role="search">
   <form id="search_form" method="GET">
-    <div class="mb-2 p-2 group-join hidden">
-      <label for="join" class="form-label"><?php echo Translator::translate('GroupHandlingMethod')?></label>
-      <select id="join" name="join" class="form-select">
-        <option value="AND"<?php echo 'AND' === $join ? ' selected' : ''?>><?php echo Translator::translate('AllGroups')?></option>
-        <option value="OR"<?php echo 'OR' === $join ? ' selected' : ''?>><?php echo Translator::translate('AnyGroup')?></option>
+    <input type="hidden" name="func" value="results">
+    <input type="hidden" name="type" value="<?php echo htmlentities($form)?>">
+    <div class="mb-2 p-2 group-operator hidden">
+      <label for="operator" class="form-label"><?php echo Translator::translate('GroupHandlingMethod')?></label>
+      <select id="operator" name="s_op" class="form-select">
+        <option value="AND"<?php echo 'AND' === $operator ? ' selected' : ''?>><?php echo Translator::translate('AllGroups')?></option>
+        <option value="OR"<?php echo 'OR' === $operator ? ' selected' : ''?>><?php echo Translator::translate('AnyGroup')?></option>
       </select>
     </div>
     <div id="search_groups">
@@ -102,10 +104,10 @@ class Search
             <div class="fields">
             </div>
             <div class="mb-2 mt-4">
-            <?php echo htmlListBox('searchfield1', $listValues, '', 'form-select add-search-field', false, 'SelectSearchField'); ?>
+            <?php echo htmlListBox('', $listValues, '', 'form-select add-search-field', false, 'SelectSearchField'); ?>
             </div>
-            <div class="field-join mt-4 mb-4 hidden">
-              <select class="form-select join">
+            <div class="field-operator mt-4 mb-4 hidden">
+              <select class="form-select operator">
                 <option value="AND" selected><?php echo Translator::translate('AllFieldsMustMatch')?></option>
                 <option value="OR"><?php echo Translator::translate('AnyFieldMustMatch')?></option>
                 <option value="NOT"><?php echo Translator::translate('NoneOfTheFieldsMustMatch')?></option>
@@ -140,23 +142,23 @@ class Search
     let newGroup = template.content.cloneNode(true);
     let groupNode = newGroup.querySelector('.group');
     groupNode.dataset.group = ++groupCount;
-    console.log(groupNode.querySelector('.join'));
-    groupNode.querySelector('.join').name = 'join' + groupCount;
+    console.log(groupNode.querySelector('.operator'));
+    groupNode.querySelector('.operator').name = 's_op' + groupCount;
     document.querySelector('#search_groups').appendChild(newGroup);
-    updateGroupJoinVisibility();
+    updateGroupOpereatorVisibility();
     return false;
   }
 
   function deleteGroup() {
     this.closest('.group').remove();
-    updateGroupJoinVisibility();
+    updateGroupOperatorVisibility();
     return false;
   }
 
   function deleteSearchField() {
     let group = this.closest('.group');
     this.closest('.field').remove();
-    updateFieldJoinVisibility(group);
+    updateFieldOperatorVisibility(group);
     return false;
   }
 
@@ -193,12 +195,12 @@ class Search
         break;
     }
     if (null !== $input) {
-      $input.attr('name', 'field' + groupNum + '[]');
-      $input.appendTo($div);
       $('<input type="hidden">')
-        .attr('name', 'type' + groupNum + '[]')
+        .attr('name', 's_type' + groupNum + '[]')
         .val(field)
         .appendTo($div);
+      $input.attr('name', 's_field' + groupNum + '[]');
+      $input.appendTo($div);
       $deleteContainer = $('<div class="buttons">')
         .appendTo($fieldDiv);
       $('<a role="button" class="btn btn-outline-primary btn-sm delete-field">')
@@ -208,16 +210,16 @@ class Search
         .appendTo($deleteContainer);
       MLInvoice.Form.setupSelect2($div);
     }
-    updateFieldJoinVisibility(group);
+    updateFieldOperatorVisibility(group);
     return false;
   }
 
-  function updateFieldJoinVisibility(group) {
-    group.querySelector('.field-join').classList.toggle('hidden', group.querySelectorAll('.field').length < 2);
+  function updateFieldOperatorVisibility(group) {
+    group.querySelector('.field-operator').classList.toggle('hidden', group.querySelectorAll('.field').length < 2);
   }
 
-  function updateGroupJoinVisibility() {
-    document.querySelector('.group-join').classList.toggle('hidden', document.querySelectorAll('.group').length < 2);
+  function updateGroupOperatorVisibility() {
+    document.querySelector('.group-operator').classList.toggle('hidden', document.querySelectorAll('.group').length < 2);
   }
 
   function initExtendedSearch() {
@@ -249,5 +251,18 @@ class Search
 </script>
 
         <?php
+    }
+
+    /**
+     * Display search results
+     *
+     * @return void
+     */
+    function resultsAction()
+    {
+        include_once 'list.php';
+        $qb = createQueryBuilderFromRequest();
+        $type = getQuery('type');
+        createList($type, $type, "{$type}_results", 'Results', $qb, 'invoice' === $type);
     }
 }

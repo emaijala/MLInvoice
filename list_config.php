@@ -4,7 +4,7 @@
  *
  * PHP version 7
  *
- * Copyright (C) Ere Maijala 2018-2021
+ * Copyright (C) Ere Maijala 2018-2022
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2,
@@ -42,8 +42,9 @@ function getListConfig($list)
         'title' => $strTitle ?? '',
         'accessLevels' => $levelsAllowed,
         'table' => $strTable,
-        'displayJoin' => $strJoin,
-        'countJoin' => $strCountJoin ?? null,
+        'alias' => $tableAlias ?? null,
+        'displayJoins' => $displayJoins,
+        'countJoins' => $countJoins,
         'groupBy' => $strGroupBy,
         'listFilter' => $strListFilter,
         'primaryKey' => $strPrimaryKey,

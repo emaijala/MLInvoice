@@ -53,13 +53,28 @@ function createStartPage()
         createList(
             'start_page', 'invoice', 'resultlist_repeating_invoices',
             Translator::translate('LabelInvoicesWithIntervalDue'),
-            "i.interval_type > 0 AND i.next_interval_date <= $currentDate"
-                . " AND i.archived = 0",
+            -1,
             true,
             false,
             'invoice'
         );
     }
+
+/*    $db = getDb();
+    $db->
+
+    $queryOpen = $db->createQueryBuilder();
+    $queryOpen->select()
+
+        'join' => 'AND',
+        'group1' => [
+            'join' => 'OR',
+
+        ],
+        'group2' => [
+            ''
+        ]
+    ]*/
 
     $open = '';
     $res = dbQueryCheck(

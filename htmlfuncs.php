@@ -727,7 +727,6 @@ function createNavBar($buttons, $currentFunc = '')
  * @param string      $strStyle        Style
  * @param bool        $submitOnChange  Whether to submit the form when value is
  *                                     changed
- *
  * @param bool|string $showEmpty       Whether to show "empty" value (string for
  *                                     translated value)
  * @param string      $additionalAttrs Any additional attributes

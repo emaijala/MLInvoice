@@ -27,7 +27,8 @@
  * @link     http://labs.fi/mlinvoice.eng.php
  */
 $strTable = '';
-$strJoin = '';
+$countJoins = [];
+$displayJoins = [];
 $strListFilter = '';
 $strGroupBy = '';
 $strDeletedField = '';
@@ -134,45 +135,69 @@ case 'offer':
         $strListFilter = 'i.archived = 1 AND i.state_id IN (' . implode(',', getOfferStateIds()) . ')';
     }
 
-    $strTable = '{prefix}invoice i';
-    $strJoin = 'LEFT OUTER JOIN {prefix}base b on i.base_id=b.id ' .
-         'LEFT OUTER JOIN {prefix}company c on i.company_id=c.id ' .
-         'LEFT OUTER JOIN {prefix}invoice_state s on i.state_id=s.id ';
+    $strTable = 'invoice';
+    $tableAlias = 'i';
 
-    $strCountJoin = $strJoin;
+    $countJoins = $displayJoins = [
+        [
+            'type' => 'LEFT OUTER',
+            'table' => 'base',
+            'alias' => 'b',
+            'condition' => 'i.base_id = b.id',
+        ],
+        [
+            'type' => 'LEFT OUTER',
+            'table' => 'company',
+            'alias' => 'c',
+            'condition' => 'i.company_id = c.id',
+        ],
+        [
+            'type' => 'LEFT OUTER',
+            'table' => 'invoice_state',
+            'alias' => 's',
+            'condition' => 'i.state_id = s.id',
+        ],
+    ];
 
+    $prefix = _DB_PREFIX_ . '_';
     if (getSetting('invoice_display_vatless_price_in_list')) {
-        $strJoin .= <<<EOT
-LEFT OUTER JOIN (
-  SELECT ir.invoice_id,
-    CASE WHEN ir.vat_included = 0
-      THEN (ir.price * (1 - IFNULL(ir.discount, 0) / 100)
-        - IFNULL(ir.discount_amount, 0)) * ir.pcs
-      ELSE (ir.price * (1 - IFNULL(ir.discount, 0) / 100)
-        - IFNULL(ir.discount_amount, 0)) * ir.pcs / (1 + ir.vat / 100)
-    END as row_total
-  FROM {prefix}invoice_row ir
-  WHERE ir.deleted = 0) it
-  ON (it.invoice_id=i.id)
-EOT;
+        $displayJoins[] = [
+            'type' => 'LEFT OUTER',
+            'expr' => <<<EOT
+                (SELECT ir.invoice_id,
+                CASE WHEN ir.vat_included = 0
+                THEN (ir.price * (1 - IFNULL(ir.discount, 0) / 100)
+                    - IFNULL(ir.discount_amount, 0)) * ir.pcs
+                ELSE (ir.price * (1 - IFNULL(ir.discount, 0) / 100)
+                    - IFNULL(ir.discount_amount, 0)) * ir.pcs / (1 + ir.vat / 100)
+                END as row_total
+                FROM {$prefix}invoice_row ir
+                WHERE ir.deleted = 0)
+                EOT,
+            'alias' => 'it',
+            'condition' => 'i.id = it.invoice_id'
+        ];
     } else {
-        $strJoin .= <<<EOT
-LEFT OUTER JOIN (
-  SELECT ir.invoice_id,
-    CASE WHEN ir.partial_payment = 0 THEN
-      CASE WHEN ir.vat_included = 0
-        THEN (ir.price * (1 - IFNULL(ir.discount, 0) / 100)
-          - IFNULL(ir.discount_amount, 0)) * ir.pcs * (1 + ir.vat / 100)
-        ELSE (ir.price * (1 - IFNULL(ir.discount, 0) / 100)
-          - IFNULL(ir.discount_amount, 0)) * ir.pcs
-      END
-    ELSE
-      ir.price
-    END as row_total
-  FROM {prefix}invoice_row ir
-  WHERE ir.deleted = 0) it
-  ON (it.invoice_id=i.id)
-EOT;
+        $displayJoins[] = [
+            'type' => 'LEFT OUTER',
+            'expr' => <<<EOT
+                (SELECT ir.invoice_id,
+                CASE WHEN ir.partial_payment = 0 THEN
+                CASE WHEN ir.vat_included = 0
+                    THEN (ir.price * (1 - IFNULL(ir.discount, 0) / 100)
+                        - IFNULL(ir.discount_amount, 0)) * ir.pcs * (1 + ir.vat / 100)
+                    ELSE (ir.price * (1 - IFNULL(ir.discount, 0) / 100)
+                        - IFNULL(ir.discount_amount, 0)) * ir.pcs
+                    END
+                ELSE
+                    ir.price
+                END as row_total
+                FROM {$prefix}invoice_row ir
+                WHERE ir.deleted = 0)
+                EOT,
+            'alias' => 'it',
+            'on' => 'i.id = it.invoice_id'
+        ];
     }
 
     $intervalOptions = [
@@ -266,7 +291,8 @@ EOT;
             'header' => in_array($strList, ['offer', 'archived_offers']) ? 'HeaderOfferName' : 'HeaderInvoiceName'
         ],
         [
-            'name' => 's.name',
+            'name' => 'state',
+            'sql' => 's.name state',
             'width' => 120,
             'type' => 'TEXT',
             'header' => 'HeaderInvoiceState',
@@ -301,7 +327,7 @@ EOT;
             'visible' => false
         ],
         [
-            'name' => '.total_price',
+            'name' => 'total_price',
             'sql' => 'SUM(it.row_total) as total_price',
             'width' => 80,
             'type' => 'CURRENCY',

@@ -28,6 +28,8 @@
  */
 require_once 'config.php';
 
+use Doctrine\DBAL\QueryBuilder;
+
 $dblink = null;
 
 /**
@@ -1309,6 +1311,36 @@ function dbFetchValue($result)
 {
     $row = mysqli_fetch_row($result);
     return $row[0] ?? null;
+}
+
+/**
+ * Get a Doctrine database connection
+ *
+ * @return \Doctrine\DBAL\Connection
+ */
+function getDb(): \Doctrine\DBAL\Connection
+{
+    $connectionParams = [
+        'dbname' => _DB_NAME_,
+        'user' => _DB_USERNAME_,
+        'password' => _DB_PASSWORD_,
+        'host' => _DB_SERVER_,
+        'driver' => 'pdo_mysql',
+    ];
+    return \Doctrine\DBAL\DriverManager::getConnection($connectionParams);
+}
+
+/**
+ * Create a QueryBuilder from request parameters
+ *
+ * @param string $table   Table name
+ * @param array  $request Request params
+ *
+ * @return QueryBuilder
+ */
+function createQueryBuilderFromRequest(string $table, array $request): QueryBuilder
+{
+    return $qb;
 }
 
 /**

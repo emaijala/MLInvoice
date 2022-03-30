@@ -405,12 +405,12 @@ case 'get_list':
     }
     $search = getPostOrQuery('search', []);
     $filter = empty($search['value']) ? '' : $search['value'];
-    $where = getPostOrQuery('where', '');
+    $query = json_decode(getPostOrQuery('query', '{}'));
     $companyId = 'product' === $strList ? getPostOrQuery('company', null) : null;
 
     header('Content-Type: application/json');
     echo createJSONList(
-        $listFunc, $strList, $startRow, $rowCount, $sort, $filter, $where,
+        $listFunc, $strList, $startRow, $rowCount, $sort, $filter, $query,
         intval(getPostOrQuery('draw', 1)), $tableId, $companyId
     );
     Memory::set(
