@@ -499,7 +499,7 @@ function createJSONList($strFunc, $strList, $startRow, $rowCount, $sort, $filter
         $searchId
     );
 
-    $countQuery = $queryBuilders['fullQuery'];
+    $countQuery = $queryBuilders['countQuery'];
     $filteredQuery = $queryBuilders['filteredQuery'];
     $prefix = _DB_PREFIX_ . '_';
 
@@ -509,7 +509,7 @@ function createJSONList($strFunc, $strList, $startRow, $rowCount, $sort, $filter
     $totalCount = $filteredCount = $countQuery->executeQuery()->fetchOne();
 
     if ($filter) {
-        $filteredCountQuery = clone $filteredQuery;
+        $filteredCountQuery = $queryBuilders['filteredCountQuery'];
         $filteredCountQuery->select('count(*)')
             ->from($prefix . $listConfig['table'], $listConfig['alias']);
         $filteredCount = $filteredCountQuery->executeQuery()->fetchOne();
@@ -716,10 +716,30 @@ function createListQuery($strFunc, $strList, $startRow, $rowCount, $sort,
 
     switch ($searchId) {
     case -1: // repeating invoices
+        $currentDate = date('Ymd');
         $qb
             ->andWhere('i.interval_type > 0')
             ->andWhere('i.archived = 0')
             ->andWhere("i.next_interval_date <= $currentDate");
+        break;
+    case -2: // open invoices
+        $qb
+            ->andWhere('s.invoice_open = 1')
+            ->andWhere('s.invoice_offer = 0')
+            ->andWhere('i.archived = 0');
+        break;
+    case -3: // unpaid invoices
+        $qb
+            ->andWhere('s.invoice_open = 0')
+            ->andWhere('s.invoice_unpaid = 1')
+            ->andWhere('s.invoice_offer = 0')
+            ->andWhere('i.archived = 0');
+        break;
+    case -4: // open offers
+        $qb
+            ->andWhere('s.invoice_open = 1')
+            ->andWhere('s.invoice_offer = 1')
+            ->andWhere('i.archived = 0');
         break;
     }
 
@@ -727,21 +747,18 @@ function createListQuery($strFunc, $strList, $startRow, $rowCount, $sort,
         $qb->andWhere("{$listConfig['deletedField']}=0");
     }
 
+    $countQb = clone $qb;
+
+    // Add count join to count query builder:
+    addJoins($countQb, $listConfig['alias'], $listConfig['countJoins']);
+
     $filteredQb = clone $qb;
-
-    // Add count join to basic query builder:
-    addJoins($qb, $listConfig['alias'], $listConfig['countJoins']);
-
-    // Add display join to filtered query builder:
-    addJoins($filteredQb, $listConfig['alias'], $listConfig['displayJoins']);
-
-    if ($listConfig['groupBy']) {
-        $filteredQb->addGroupBy($listConfig['groupBy']);
-    }
-
     if ($filter) {
         $termPrefix = $leftAnchored ? '' : '%';
         foreach (explode(' ', $filter) as $term) {
+            if ('' === trim($term)) {
+                continue;
+            }
             $expressions = [];
             foreach ($listConfig['searchFields'] as $searchField) {
                 switch ($searchField['type']) {
@@ -766,77 +783,34 @@ function createListQuery($strFunc, $strList, $startRow, $rowCount, $sort,
                         $filteredQb->createNamedParameter("$termPrefix$term%")
                     );
                     break;
-                case 'PRIMARY':
-                    break;
+                default:
+                    continue 2;
                 }
             }
             $filteredQb->andWhere(call_user_func_array([$qb->expr(), 'or'], $expressions));
         }
     }
 
+    $filteredCountQb = clone $filteredQb;
+    // Add count join to filtered count query builder:
+    addJoins($filteredCountQb, $listConfig['alias'], $listConfig['countJoins']);
+
+    // Add display join to full and filtered query builder:
+    addJoins($qb, $listConfig['alias'], $listConfig['displayJoins']);
+    addJoins($filteredQb, $listConfig['alias'], $listConfig['displayJoins']);
+
+    // Add grouping:
+    if ($listConfig['groupBy']) {
+        $qb->addGroupBy($listConfig['groupBy']);
+        $filteredQb->addGroupBy($listConfig['groupBy']);
+    }
+
     return [
         'fullQuery' => $qb,
+        'countQuery' => $countQb,
         'filteredQuery' => $filteredQb,
+        'filteredCountQuery' => $filteredCountQb,
     ];
-
-
-
-    $fields = [
-        $listConfig['primaryKey']
-    ];
-    if ($listConfig['deletedField']) {
-        $fields[] = $listConfig['deletedField'];
-    }
-    foreach ($listConfig['fields'] as $field) {
-        if ('HIDDEN' === $field['type'] || !empty($field['virtual'])) {
-            continue;
-        }
-        $fields[] = ($field['sql'] ?? $field['name']);
-    }
-
-    $shownFields = array_values(
-        array_filter(
-            $listConfig['fields'],
-            function ($val) {
-                return 'HIDDEN' !== $val['type'];
-            }
-        )
-    );
-    foreach ($sort as $sortField) {
-        // Ignore invisible first columns
-        $column = key($sortField) - 2;
-        if (isset($shownFields[$column])) {
-            $fieldName = $shownFields[$column]['name'];
-            $direction = current($sortField) === 'desc' ? 'DESC' : 'ASC';
-            if (substr($fieldName, 0, 1) == '.') {
-                $fieldName = substr($fieldName, 1);
-            }
-            // Special case for natural ordering of invoice number and reference
-            // number
-            if (in_array($fieldName, ['i.invoice_no', 'i.ref_number'])) {
-                $qb->addOrderBy("LENGTH($fieldName)", $direction);
-            }
-            $qb->addOrderBy($fieldName, $direction);
-        }
-    }
-
-
-    $result = [
-        'table' => $listConfig['table'],
-        'primaryKey' => $listConfig['primaryKey'],
-        'terms' => $terms,
-        'params' => $arrQueryParams,
-        'order' => implode(',', $orderBy),
-        'group' => $listConfig['groupBy'],
-        'join' => $listConfig['displayJoin'],
-        'countJoin' => $listConfig['countJoin'] ? $listConfig['countJoin'] : $listConfig['displayJoin']
-    ];
-    if (isset($filteredTerms)) {
-        $result['filteredTerms'] = $filteredTerms;
-        $result['filteredParams'] = $filteredParams;
-    }
-
-    return $result;
 }
 
 /**

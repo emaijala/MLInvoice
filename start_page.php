@@ -60,79 +60,30 @@ function createStartPage()
         );
     }
 
-/*    $db = getDb();
-    $db->
-
-    $queryOpen = $db->createQueryBuilder();
-    $queryOpen->select()
-
-        'join' => 'AND',
-        'group1' => [
-            'join' => 'OR',
-
-        ],
-        'group2' => [
-            ''
-        ]
-    ]*/
-
-    $open = '';
-    $res = dbQueryCheck(
-        'SELECT id FROM {prefix}invoice_state WHERE invoice_open=1'
-        . ' AND invoice_offer=0'
+    createList(
+        'start_page', 'invoice', 'resultlist_open_invoices',
+        Translator::translate('LabelOpenInvoices'),
+        -2,
+        true,
+        false,
+        'invoice'
     );
-    while ($id = dbFetchValue($res)) {
-        if ($open) {
-            $open .= ', ';
-        }
-        $open .= $id;
-    }
 
-    $unpaid = '';
-    $res = dbQueryCheck(
-        'SELECT id FROM {prefix}invoice_state WHERE invoice_open=0'
-        . ' AND invoice_unpaid=1 AND invoice_offer=0'
+    createList(
+        'start_page', 'invoice', 'resultlist_unpaid_invoices',
+        Translator::translate('LabelUnpaidInvoices'),
+        -3,
+        true,
+        false,
+        'invoice'
     );
-    while ($id = dbFetchValue($res)) {
-        if ($unpaid) {
-            $unpaid .= ', ';
-        }
-        $unpaid .= $id;
-    }
 
-    $openOffers = '';
-    $res = dbQueryCheck(
-        'SELECT id FROM {prefix}invoice_state WHERE invoice_open=1'
-        . ' AND invoice_offer=1'
+    createList(
+        'start_page', 'offer', 'resultlist_offers',
+        Translator::translate('LabelUnfinishedOffers'),
+        -4,
+        true,
+        false,
+        'offer'
     );
-    while ($id = dbFetchValue($res)) {
-        if ($openOffers) {
-            $openOffers .= ', ';
-        }
-        $openOffers .= $id;
-    }
-
-    if ($open) {
-        createList(
-            'start_page', 'invoice', 'resultlist_open_invoices',
-            Translator::translate('LabelOpenInvoices'),
-            "i.state_id IN ($open) AND i.archived=0", true, false, 'invoice'
-        );
-    }
-
-    if ($unpaid) {
-        createList(
-            'start_page', 'invoice', 'resultlist_unpaid_invoices',
-            Translator::translate('LabelUnpaidInvoices'),
-            "i.state_id IN ($unpaid) AND i.archived=0", true, true, 'invoice'
-        );
-    }
-
-    if ($openOffers) {
-        createList(
-            'start_page', 'offer', 'resultlist_offers',
-            Translator::translate('LabelUnfinishedOffers'),
-            "i.state_id IN ($openOffers) AND i.archived=0", true, false, 'offer'
-        );
-    }
 }

@@ -48,7 +48,7 @@ class Search
      *
      * @return void
      */
-    function formAction()
+    public function formAction()
     {
         $form = getPostOrQuery('form', '');
         if (!$form) {
@@ -258,7 +258,7 @@ class Search
      *
      * @return void
      */
-    function resultsAction()
+    public function resultsAction()
     {
         include_once 'list.php';
         $qb = createQueryBuilderFromRequest();

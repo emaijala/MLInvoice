@@ -160,45 +160,7 @@ case 'offer':
     ];
 
     $prefix = _DB_PREFIX_ . '_';
-    if (getSetting('invoice_display_vatless_price_in_list')) {
-        $displayJoins[] = [
-            'type' => 'LEFT OUTER',
-            'expr' => <<<EOT
-                (SELECT ir.invoice_id,
-                CASE WHEN ir.vat_included = 0
-                THEN (ir.price * (1 - IFNULL(ir.discount, 0) / 100)
-                    - IFNULL(ir.discount_amount, 0)) * ir.pcs
-                ELSE (ir.price * (1 - IFNULL(ir.discount, 0) / 100)
-                    - IFNULL(ir.discount_amount, 0)) * ir.pcs / (1 + ir.vat / 100)
-                END as row_total
-                FROM {$prefix}invoice_row ir
-                WHERE ir.deleted = 0)
-                EOT,
-            'alias' => 'it',
-            'condition' => 'i.id = it.invoice_id'
-        ];
-    } else {
-        $displayJoins[] = [
-            'type' => 'LEFT OUTER',
-            'expr' => <<<EOT
-                (SELECT ir.invoice_id,
-                CASE WHEN ir.partial_payment = 0 THEN
-                CASE WHEN ir.vat_included = 0
-                    THEN (ir.price * (1 - IFNULL(ir.discount, 0) / 100)
-                        - IFNULL(ir.discount_amount, 0)) * ir.pcs * (1 + ir.vat / 100)
-                    ELSE (ir.price * (1 - IFNULL(ir.discount, 0) / 100)
-                        - IFNULL(ir.discount_amount, 0)) * ir.pcs
-                    END
-                ELSE
-                    ir.price
-                END as row_total
-                FROM {$prefix}invoice_row ir
-                WHERE ir.deleted = 0)
-                EOT,
-            'alias' => 'it',
-            'on' => 'i.id = it.invoice_id'
-        ];
-    }
+    $displayJoins[] = getInvoiceTotalJoinQuery();
 
     $intervalOptions = [
         '0' => Translator::translate('InvoiceIntervalNone'),
