@@ -75,6 +75,29 @@ class Search
         }
 
         $operator = getQuery('s_op', 'AND');
+        $searchGroups = [];
+        $request = $_GET + $_POST;
+        for ($group = 1; $group < 100; $group++) {
+            $groupOperator = $request["s_op$group"] ?? null;
+            if (null === $groupOperator) {
+                break;
+            }
+            $searchGroup = [
+                'operator' => $groupOperator,
+                'fields' => []
+            ];
+            foreach ($request["s_field$group"] as $i => $value) {
+                if (!($name = $request["s_type$group"][$i] ?? null)) {
+                    continue;
+                }
+                $searchGroup['fields'][] = [
+                    'name' => $name,
+                    'value' => $value,
+                ];
+            }
+            $searchGroups[] = $searchGroup;
+        }
+
         ?>
 
 <div role="search">
@@ -136,20 +159,24 @@ class Search
   let formConfig = <?php echo json_encode($formConfig); ?>;
   let groupCount = 0;
 
+  function addSearchGroup() {
+    addGroup();
+    return false;
+  }
+
   function addGroup() {
     let template = document.getElementById('template_group');
     let templateGroup = template.content.querySelector('div.group');
     let newGroup = template.content.cloneNode(true);
     let groupNode = newGroup.querySelector('.group');
     groupNode.dataset.group = ++groupCount;
-    console.log(groupNode.querySelector('.operator'));
     groupNode.querySelector('.operator').name = 's_op' + groupCount;
     document.querySelector('#search_groups').appendChild(newGroup);
-    updateGroupOpereatorVisibility();
-    return false;
+    updateGroupOperatorVisibility();
+    return groupNode;
   }
 
-  function deleteGroup() {
+  function deleteSearchGroup() {
     this.closest('.group').remove();
     updateGroupOperatorVisibility();
     return false;
@@ -163,14 +190,19 @@ class Search
   }
 
   function addSearchField() {
-    let group = this.closest('.group');
-    let groupNum = group.dataset.group;
     let $select = $(this);
-    let $fields = $select.parents('.group').find('.fields');
+    let $group = $select.closest('.group');
     let field = $select.val();
+    addField($group.get(0), field);
+    $select.val('');
+    return false;
+  }
+
+  function addField(group, field) {
+    let groupNum = group.dataset.group;
+    let $fields = $(group).find('.fields');
     let fieldNum = group.querySelectorAll('input').length + group.querySelectorAll('select').length + 1;
     let fieldConfig = formConfig.fields[field];
-    $select.val('');
 
     let $fieldDiv = $('<div class="mb-2 field">')
       .appendTo($fields);
@@ -211,7 +243,8 @@ class Search
       MLInvoice.Form.setupSelect2($div);
     }
     updateFieldOperatorVisibility(group);
-    return false;
+
+    return $input.get(0);
   }
 
   function updateFieldOperatorVisibility(group) {
@@ -222,7 +255,7 @@ class Search
     document.querySelector('.group-operator').classList.toggle('hidden', document.querySelectorAll('.group').length < 2);
   }
 
-  function initExtendedSearch() {
+  function initExtendedSearch(searchGroups) {
     $('#search_form').on(
       'change',
       '.add-search-field',
@@ -231,12 +264,12 @@ class Search
     $('#search_form').on(
       'click',
       '#add_group',
-      addGroup
+      addSearchGroup
     );
     $('#search_form').on(
       'click',
       '.delete-group',
-      deleteGroup
+      deleteSearchGroup
     );
     $('#search_form').on(
       'click',
@@ -244,10 +277,25 @@ class Search
       deleteSearchField
     );
 
-    addGroup();
+    if (0 === searchGroups.length) {
+      addGroup();
+    } else {
+      searchGroups.forEach(function handleGroup(group) {
+        let groupElem = addGroup();
+        groupElem.querySelector('.field-operator').value = group.operator;
+        group.fields.forEach(function handleField(field) {
+          let fieldElem = addField(groupElem, field.name);
+          if ('SEARCHLIST' === formConfig.fields[field.name].type) {
+            $(fieldElem).select2('val', field.value);
+          } else {
+            fieldElem.value = field.value;
+          }
+        });
+      });
+    }
   }
 
-  initExtendedSearch();
+  initExtendedSearch(<?php echo json_encode($searchGroups)?>);
 </script>
 
         <?php
@@ -261,8 +309,7 @@ class Search
     public function resultsAction()
     {
         include_once 'list.php';
-        $qb = createQueryBuilderFromRequest();
         $type = getQuery('type');
-        createList($type, $type, "{$type}_results", 'Results', $qb, 'invoice' === $type);
+        createList($type, $type, "{$type}_results", 'Results', null, 'invoice' === $type);
     }
 }

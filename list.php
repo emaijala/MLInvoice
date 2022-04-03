@@ -109,7 +109,7 @@ function createList($strFunc, $strList, $strTableName = '', $strTitleOverride = 
         array_filter(
             $_GET,
             function ($key) {
-                return strcmp($key, 's_', 2) === 0;
+                return strncmp($key, 's_', 2) === 0;
             },
             ARRAY_FILTER_USE_KEY
         )
@@ -461,18 +461,28 @@ function createList($strFunc, $strList, $strTableName = '', $strTitleOverride = 
  * @param string $strList   List
  * @param int    $startRow  Start row
  * @param int    $rowCount  Number of rows
- * @param string $sort      Table name
+ * @param array  $sort      Sort settings
  * @param string $filter    Quick filter
  * @param array  $query     Search query
  * @param int    $requestId Request ID
- * @param int    $listId    List ID
+ * @param string $listId    List ID
  * @param int    $companyId Company ID
  * @param int    $searchId  Saved search ID
  *
  * @return void
  */
-function createJSONList($strFunc, $strList, $startRow, $rowCount, $sort, $filter,
-    array $query, $requestId, $listId, $companyId = null, int $searchId = 0
+function createJSONList(
+    string $strFunc,
+    string $strList,
+    int $startRow,
+    int $rowCount,
+    array $sort,
+    string $filter,
+    array $query,
+    int $requestId,
+    string $listId,
+    int $companyId = null,
+    int $searchId = null
 ) {
     $listConfig = getListConfig($strList);
     if (!$listConfig) {
@@ -548,13 +558,6 @@ function createJSONList($strFunc, $strList, $startRow, $rowCount, $sort, $filter
 
     $filteredQuery->select($fields)
         ->from($prefix . $listConfig['table'], $listConfig['alias']);
-
-    if ($params['order']) {
-        foreach (explode(',', $params['order']) as $orderBy) {
-            $filteredQuery->addOrderBy($orderBy, '');
-        }
-    }
-    $filteredQuery->addOrderBy('id');
 
     if ($startRow >= 0 && $rowCount >= 0) {
         $filteredQuery->setFirstResult($startRow)->setMaxResults($rowCount);
@@ -669,8 +672,9 @@ function createJSONList($strFunc, $strList, $startRow, $rowCount, $sort, $filter
  * @param string $strList  List
  * @param int    $startRow Start row
  * @param int    $rowCount Number of rows
- * @param string $sort     Table name
+ * @param array  $sort     Sort settings
  * @param string $filter   Filter
+ * ££
  * @param array  $query    Query terms
  * @param int    $searchId Search ID
  *
@@ -805,6 +809,35 @@ function createListQuery($strFunc, $strList, $startRow, $rowCount, $sort,
         $filteredQb->addGroupBy($listConfig['groupBy']);
     }
 
+    // Add sort:
+    // Filter out hidden fields
+    $shownFields = array_values(
+        array_filter(
+            $listConfig['fields'],
+            function ($val) {
+                return 'HIDDEN' !== $val['type'];
+            }
+        )
+    );
+    foreach ($sort as $sortField) {
+        // Ignore invisible first columns
+        $column = $sortField['column'] - 2;
+        if (isset($shownFields[$column])) {
+            $fieldName = $shownFields[$column]['name'];
+            $direction = $sortField['direction'] === 'desc' ? 'DESC' : 'ASC';
+            if (substr($fieldName, 0, 1) == '.') {
+                $fieldName = substr($fieldName, 1);
+            }
+            // Special case for natural ordering of invoice number and reference
+            // number
+            if (in_array($fieldName, ['i.invoice_no', 'i.ref_number'])) {
+                $filteredQb->addOrderBy("LENGTH($fieldName)", $direction);
+            }
+            $filteredQb->addOrderBy($fieldName, $direction);
+        }
+    }
+    $filteredQb->addOrderBy($listConfig['alias'] . '.id', 'ASC');
+
     return [
         'fullQuery' => $qb,
         'countQuery' => $countQb,
@@ -848,7 +881,7 @@ function addJoins(QueryBuilder $qb, string $alias, array $joins): void
  * @param int    $startRow Start row
  * @param int    $rowCount Number of rows
  * @param string $filter   Filter
- * @param string $sort     Table name
+ * @param string $sort     Sort settings
  * @param int    $id       Item ID
  *
  * @return array

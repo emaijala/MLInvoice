@@ -398,14 +398,15 @@ case 'get_list':
             $sortColumn = $orderCol['column'];
             $sortDir = $orderCol['dir'];
             $sort[] = [
-                $sortColumn => $sortDir === 'desc' ? 'desc' : 'asc'
+                'column' => intval($sortColumn),
+                'direction' => $sortDir === 'desc' ? 'desc' : 'asc'
             ];
         }
     }
     $search = getPostOrQuery('search');
     $searchId = getPostOrQuery('searchId');
     $filter = empty($search['value']) ? '' : $search['value'];
-    $query = json_decode(getPostOrQuery('query', '{}'));
+    $query = json_decode(getPostOrQuery('query', '{}'), true);
     $companyId = 'product' === $strList ? getPostOrQuery('company', null) : null;
 
     header('Content-Type: application/json');
@@ -424,7 +425,7 @@ case 'get_list':
 
 case 'get_invoice_total_sum':
     $search = getPostOrQuery('searchId');
-    $query = json_decode(getPostOrQuery('query', '{}'));
+    $query = json_decode(getPostOrQuery('query', '{}'), true);
     header('Content-Type: application/json');
     $totals = getInvoiceListTotal(
         $query,
@@ -434,8 +435,6 @@ case 'get_invoice_total_sum':
     break;
 
 case 'get_selectlist':
-    include 'list.php';
-
     $table = getPostOrQuery('table', '');
     if (!$table) {
         header('HTTP/1.1 400 Bad Request (table)');
@@ -920,13 +919,14 @@ function updateRowOrder()
 function getInvoiceListTotal(array $query, int $searchId = null): array
 {
     $listConfig = getListConfig('invoice');
-    $queries = createListQuery('invoice', 'invoice', 0, 0, '', '', $query, $searchId);
+    $queries = createListQuery('invoice', 'invoice', 0, 0, [], '', $query, $searchId);
     $query = $queries['fullQuery'];
     $query
         ->select('sum(it.row_total)')
         ->from(_DB_PREFIX_ . '_' . $listConfig['table'], $listConfig['alias']);
-    // Reset grouping to get just a single line:
+    // Reset grouping and order to get just a single line:
     $query->add('groupBy', [], false);
+    $query->add('orderBy', [], false);
     $sum = $query->executeQuery()->fetchOne();
     return [
         'sum' => null !== $sum ? $sum : 0,
