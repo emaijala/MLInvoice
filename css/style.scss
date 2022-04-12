@@ -150,7 +150,15 @@ div.function_navi {
 }
 
 #search_form {
-  max-width: 500px;
+  max-width: 600px;
+
+  .card-header {
+    display: flex;
+
+    div {
+      flex: 1 1 auto;
+    }
+  }
 
   .fields {
     .field {

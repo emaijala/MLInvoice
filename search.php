@@ -60,6 +60,19 @@ class Search
                 if (isset($field['label'])) {
                     $field['label'] = Translator::translate($field['label']);
                 }
+                if ('LIST' === $field['type']) {
+                    if (is_string($field['listquery'])) {
+                        $values = [];
+                        $res = dbQueryCheck($field['listquery']);
+                        while ($row = mysqli_fetch_row($res)) {
+                            $values[$row[0]] = $row[1];
+                        }
+                        $field['options'] = $values;
+                    } else {
+                        $field['options'] = $field['listquery'];
+                    }
+                    $field['options'] = array_map('Translator::translate', $field['options']);
+                }
                 return $field;
             },
             $formConfig['fields']
@@ -104,37 +117,45 @@ class Search
   <form id="search_form" method="GET">
     <input type="hidden" name="func" value="results">
     <input type="hidden" name="type" value="<?php echo htmlentities($form)?>">
-    <div class="mb-2 p-2 group-operator hidden">
-      <label for="operator" class="form-label"><?php echo Translator::translate('GroupHandlingMethod')?></label>
-      <select id="operator" name="s_op" class="form-select">
-        <option value="AND"<?php echo 'AND' === $operator ? ' selected' : ''?>><?php echo Translator::translate('AllGroups')?></option>
-        <option value="OR"<?php echo 'OR' === $operator ? ' selected' : ''?>><?php echo Translator::translate('AnyGroup')?></option>
-      </select>
+    <div class="row mb-2 p-2 group-operator hidden">
+      <div class="col-sm-6">
+        <label for="operator" class="form-label"><?php echo Translator::translate('GroupHandlingMethod')?></label>
+        <select id="operator" name="s_op" class="form-select">
+          <option value="AND"<?php echo 'AND' === $operator ? ' selected' : ''?>><?php echo Translator::translate('AllGroups')?></option>
+          <option value="OR"<?php echo 'OR' === $operator ? ' selected' : ''?>><?php echo Translator::translate('AnyGroup')?></option>
+        </select>
+      </div>
     </div>
     <div id="search_groups">
       <template id="template_group">
         <div class="card mb-4 group">
           <div class="card-header">
-            <?php echo Translator::translate('Hakuryhmä')?>
-            <a href="#" role="button" class="btn btn-outline-primary btn-sm delete-group"
-              title="<?php echo Translator::translate('DeleteSearchGroup')?>"
-              aria-title="<?php echo Translator::translate('DeleteSearchGroup')?>"
-            >
-              <i class="icon-minus"></i>
-            </a>
+            <div><h2><?php echo Translator::translate('Hakuryhmä')?></h2></div>
+            <div>
+              <a href="#" role="button" class="btn btn-outline-primary btn-sm delete-group"
+                title="<?php echo Translator::translate('DeleteSearchGroup')?>"
+                aria-title="<?php echo Translator::translate('DeleteSearchGroup')?>"
+              >
+                <i class="icon-minus"></i>
+              </a>
+            </div>
           </div>
           <div class="card-body">
+            <div class="row justify-content-end controls">
+              <div class="col-sm-6 field-operator mt-2 mb-4 hidden">
+                <select class="form-select operator">
+                  <option value="AND" selected><?php echo Translator::translate('AllFieldsMustMatch')?></option>
+                  <option value="OR"><?php echo Translator::translate('AnyFieldMustMatch')?></option>
+                  <option value="NOT"><?php echo Translator::translate('NoneOfTheFieldsMustMatch')?></option>
+                </select>
+              </div>
+            </div>
             <div class="fields">
             </div>
-            <div class="mb-2 mt-4">
-            <?php echo htmlListBox('', $listValues, '', 'form-select add-search-field', false, 'SelectSearchField'); ?>
-            </div>
-            <div class="field-operator mt-4 mb-4 hidden">
-              <select class="form-select operator">
-                <option value="AND" selected><?php echo Translator::translate('AllFieldsMustMatch')?></option>
-                <option value="OR"><?php echo Translator::translate('AnyFieldMustMatch')?></option>
-                <option value="NOT"><?php echo Translator::translate('NoneOfTheFieldsMustMatch')?></option>
-              </select>
+            <div class="row justify-content-end controls">
+              <div class="col-sm-6 mb-2 mt-4">
+                <?php echo htmlListBox('', $listValues, '', 'form-select add-search-field', false, 'SelectSearchField'); ?>
+              </div>
             </div>
             <div class="mb-2">
             </div>
@@ -216,6 +237,7 @@ class Search
     switch (fieldConfig['type']) {
       case 'TEXT':
       case 'INT':
+      case 'AREA':
         $input = $('<input type="text" class="form-control medium">');
         break;
       case 'INTDATE':
@@ -225,6 +247,15 @@ class Search
         $input = $('<input type="text" class="select2-container select2" id="' + fieldId + '" value="" data-show-empty="1">')
           .data('query', fieldConfig.listquery);
         break;
+      case 'SELECT':
+      case 'LIST':
+        $input = $('<select class="form-control medium">');
+        $('<option>').attr('value', '').text('-').appendTo($input);
+        Object.getOwnPropertyNames(fieldConfig['options']).forEach(
+          function addOption(key) {
+            $('<option>').attr('value', key).text(fieldConfig['options'][key]).appendTo($input);
+          }
+        );
     }
     if (null !== $input) {
       $('<input type="hidden">')
@@ -308,8 +339,99 @@ class Search
      */
     public function resultsAction()
     {
-        include_once 'list.php';
         $type = getQuery('type');
-        createList($type, $type, "{$type}_results", 'Results', null, 'invoice' === $type);
+        $terms = htmlentities($this->getSearchDescription($type, $_GET))
+            ?: Translator::translate('NoSearchTerms');
+        $searchDesc = Translator::translate(
+            'ResultsForSearch',
+            ['%%description%%' => $terms]
+        );
+        include_once 'list.php';
+        createList($type, $type, "{$type}_results", $searchDesc, null, 'invoice' === $type);
+    }
+
+    /**
+     * Get a description string for search terms
+     *
+     * @param string $type    Search type
+     * @param array  $request Query parameters
+     *
+     * @return string
+     */
+    protected function getSearchDescription(string $type, array $request)
+    {
+        if (!($formConfig = getFormConfig($type, 'ext_search'))) {
+            return '';
+        }
+        $operator = $request['s_op'] ?? 'AND';
+        for ($group = 1; $group < 100; $group++) {
+            $groupOperator = $request["s_op$group"] ?? null;
+            if (null === $groupOperator) {
+                break;
+            }
+            $expressions = [];
+            foreach ($request["s_field$group"] ?? [] as $i => $value) {
+                if (!($type = $request["s_type$group"][$i] ?? null)) {
+                    continue;
+                }
+                $fieldConfig = $formConfig['fields'][$type] ?? [];
+                if ('tags' === $type) {
+                    $type = 'Tags';
+                } else {
+                    $type = $fieldConfig['label'] ?? null;
+                    if (!$type) {
+                        continue;
+                    }
+                }
+
+                switch ($fieldConfig['type']) {
+                case 'TEXT':
+                case 'INT':
+                case 'AREA':
+                    $value = "'$value'";
+                    break;
+                case 'INTDATE':
+                    $value = dateConvDBDate2Date(dateConvYmd2DBDate($value));
+                    break;
+                case 'SEARCHLIST':
+                    $value = "'" . trim(getSearchListSelectedValue($fieldConfig['listquery'], $value, false)) . "'";
+                    break;
+                case 'SELECT':
+                    $value = "'" . Translator::translate($fieldConfig['options'][$value] ?? '??') . "'";
+                    break;
+                case 'LIST':
+                    if (is_string($fieldConfig['listquery'])) {
+                        $values = [];
+                        $res = dbQueryCheck($fieldConfig['listquery']);
+                        while ($row = mysqli_fetch_row($res)) {
+                            $values[$row[0]] = $row[1];
+                        }
+                        $value = Translator::translate($values[$value] ?? '??');
+                    } else {
+                        $value = Translator::translate($fieldConfig['listquery'][$value] ?? '??');
+                    }
+                    $value = "'$value'";
+                    break;
+                }
+
+                $expressions[] = Translator::translate($type) . " = $value";
+            }
+            $groups[] = implode(
+                ' ' . Translator::translate('Search' . $groupOperator) . ' ',
+                $expressions
+            );
+        }
+        if (count($groups) > 1) {
+            $groups = array_map(
+                function ($s) {
+                    return "($s)";
+                },
+                $groups
+            );
+        }
+        return implode(
+            ' ' . Translator::translate('Search' . $operator) . ' ',
+            $groups
+        );
     }
 }

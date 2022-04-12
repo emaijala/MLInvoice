@@ -674,7 +674,6 @@ function createJSONList(
  * @param int    $rowCount Number of rows
  * @param array  $sort     Sort settings
  * @param string $filter   Filter
- * ££
  * @param array  $query    Query terms
  * @param int    $searchId Search ID
  *
