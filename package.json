@@ -10,14 +10,14 @@
     "url": "http://github.com/emaijala/MLInvoice/issues"
   },
   "dependencies": {
-    "grunt": "^1.5.2",
+    "grunt": "^1.5.3",
     "grunt-contrib-sass": "^2.0.0",
-    "grunt-contrib-uglify": "^5.0.1",
+    "grunt-contrib-uglify": "^5.2.1",
     "lodash": "^4.17.21",
     "websocket-extensions": "0.1.4"
   },
   "devDependencies": {
-    "eslint": "^8.6.0",
+    "eslint": "^8.13.0",
     "grunt-contrib-watch": "^1.1.0"
   }
 }
