@@ -50,11 +50,11 @@ class Search
      */
     public function formAction()
     {
-        $form = getPostOrQuery('form', '');
-        if (!$form) {
+        $type = getPostOrQuery('type', '');
+        if (!$type) {
             return;
         }
-        $formConfig = getFormConfig($form, 'ext_search');
+        $formConfig = getFormConfig($type, 'ext_search');
         $formConfig['fields'] = array_map(
             function ($field) {
                 if (isset($field['label'])) {
@@ -87,42 +87,19 @@ class Search
             }
         }
 
-        $operator = getQuery('s_op', 'AND');
-        $searchGroups = [];
-        $request = $_GET + $_POST;
-        for ($group = 1; $group < 100; $group++) {
-            $groupOperator = $request["s_op$group"] ?? null;
-            if (null === $groupOperator) {
-                break;
-            }
-            $searchGroup = [
-                'operator' => $groupOperator,
-                'fields' => []
-            ];
-            foreach ($request["s_field$group"] as $i => $value) {
-                if (!($name = $request["s_type$group"][$i] ?? null)) {
-                    continue;
-                }
-                $searchGroup['fields'][] = [
-                    'name' => $name,
-                    'value' => $value,
-                ];
-            }
-            $searchGroups[] = $searchGroup;
-        }
-
+        $searchGroups = $this->getSearchGroups($_GET + $_POST);
         ?>
 
 <div role="search">
   <form id="search_form" method="GET">
     <input type="hidden" name="func" value="results">
-    <input type="hidden" name="type" value="<?php echo htmlentities($form)?>">
+    <input type="hidden" name="type" value="<?php echo htmlentities($type)?>">
     <div class="row mb-2 p-2 group-operator hidden">
       <div class="col-sm-6">
         <label for="operator" class="form-label"><?php echo Translator::translate('GroupHandlingMethod')?></label>
         <select id="operator" name="s_op" class="form-select">
-          <option value="AND"<?php echo 'AND' === $operator ? ' selected' : ''?>><?php echo Translator::translate('AllGroups')?></option>
-          <option value="OR"<?php echo 'OR' === $operator ? ' selected' : ''?>><?php echo Translator::translate('AnyGroup')?></option>
+          <option value="AND"<?php echo 'AND' === $searchGroups['operator'] ? ' selected' : ''?>><?php echo Translator::translate('AllGroups')?></option>
+          <option value="OR"<?php echo 'OR' === $searchGroups['operator'] ? ' selected' : ''?>><?php echo Translator::translate('AnyGroup')?></option>
         </select>
       </div>
     </div>
@@ -146,7 +123,6 @@ class Search
                 <select class="form-select operator">
                   <option value="AND" selected><?php echo Translator::translate('AllFieldsMustMatch')?></option>
                   <option value="OR"><?php echo Translator::translate('AnyFieldMustMatch')?></option>
-                  <option value="NOT"><?php echo Translator::translate('NoneOfTheFieldsMustMatch')?></option>
                 </select>
               </div>
             </div>
@@ -214,12 +190,12 @@ class Search
     let $select = $(this);
     let $group = $select.closest('.group');
     let field = $select.val();
-    addField($group.get(0), field);
+    addField($group.get(0), field, 'eq');
     $select.val('');
     return false;
   }
 
-  function addField(group, field) {
+  function addField(group, field, selectedComparison) {
     let groupNum = group.dataset.group;
     let $fields = $(group).find('.fields');
     let fieldNum = group.querySelectorAll('input').length + group.querySelectorAll('select').length + 1;
@@ -234,10 +210,23 @@ class Search
       .text(fieldConfig.label)
       .appendTo($div);
     let $input = null;
+    let $comparison = null;
+    let comparisons = {
+      eq: { label: '<?php echo Translator::translate('SearchEqual')?>' },
+      ne: { label: '<?php echo Translator::translate('SearchNotEqual')?>' }
+    };
+    if ('INT' === fieldConfig['type'] || 'INTDATE' === fieldConfig['type']) {
+      comparisons.lt = { label: '<', title: '<?php echo Translator::translate('SearchLessThan')?>' };
+      comparisons.lte = { label: '<=', title: '<?php echo Translator::translate('SearchLessThanOrEqual')?>' };
+      comparisons.gt = { label: '>', title: '<?php echo Translator::translate('SearchGreaterThan')?>' };
+      comparisons.gte = { label: '>=', title: '<?php echo Translator::translate('SearchGreaterThanOrEqual')?>' };
+    };
     switch (fieldConfig['type']) {
       case 'TEXT':
-      case 'INT':
       case 'AREA':
+        $input = $('<input type="text" class="form-control medium">');
+        break;
+      case 'INT':
         $input = $('<input type="text" class="form-control medium">');
         break;
       case 'INTDATE':
@@ -262,8 +251,25 @@ class Search
         .attr('name', 's_type' + groupNum + '[]')
         .val(field)
         .appendTo($div);
+      let $row = $('<div class="row">').appendTo($div);
+      let $compCol = $('<div class="col-auto">').appendTo($row);
+      $comparison = $('<select class="form-select medium">')
+        .attr('name', 's_cmp' + groupNum + '[]')
+        .appendTo($compCol);
+      Object.getOwnPropertyNames(comparisons).forEach(
+        function addCmpOption(key) {
+          let $opt = $('<option>').attr('value', key).text(comparisons[key].label).appendTo($comparison);
+          if (typeof comparisons[key].title !== 'undefined') {
+            $opt.attr('title', comparisons[key].title);
+          }
+          if (key === selectedComparison) {
+            $opt.attr('selected', 'selected');
+          }
+        }
+      );
       $input.attr('name', 's_field' + groupNum + '[]');
-      $input.appendTo($div);
+      let $inputCol = $('<div class="col">').appendTo($row);
+      $input.appendTo($inputCol);
       $deleteContainer = $('<div class="buttons">')
         .appendTo($fieldDiv);
       $('<a role="button" class="btn btn-outline-primary btn-sm delete-field">')
@@ -313,9 +319,9 @@ class Search
     } else {
       searchGroups.forEach(function handleGroup(group) {
         let groupElem = addGroup();
-        groupElem.querySelector('.field-operator').value = group.operator;
+        groupElem.querySelector('.field-operator .operator').value = group.operator;
         group.fields.forEach(function handleField(field) {
-          let fieldElem = addField(groupElem, field.name);
+          let fieldElem = addField(groupElem, field.name, field.comparison);
           if ('SEARCHLIST' === formConfig.fields[field.name].type) {
             $(fieldElem).select2('val', field.value);
           } else {
@@ -326,7 +332,7 @@ class Search
     }
   }
 
-  initExtendedSearch(<?php echo json_encode($searchGroups)?>);
+  initExtendedSearch(<?php echo json_encode($searchGroups['groups'])?>);
 </script>
 
         <?php
@@ -351,6 +357,47 @@ class Search
     }
 
     /**
+     * Parse search groups from a request
+     *
+     * @param array $request Request parameters
+     *
+     * @return array
+     */
+    public function getSearchGroups(array $request): array
+    {
+        $searchGroups = [
+            'operator' => $request['s_op'] ?? 'AND',
+            'groups' => []
+        ];
+        for ($group = 1; $group < 100; $group++) {
+            $groupOperator = $request["s_op$group"] ?? null;
+            if (null === $groupOperator) {
+                break;
+            }
+            $searchGroup = [
+                'operator' => $groupOperator,
+                'fields' => []
+            ];
+            foreach ($request["s_field$group"] as $i => $value) {
+                if (!($name = $request["s_type$group"][$i] ?? null)) {
+                    continue;
+                }
+                if (!($comparison = $request["s_cmp$group"][$i] ?? null)) {
+                    continue;
+                }
+                $searchGroup['fields'][] = [
+                    'name' => $name,
+                    'value' => $value,
+                    'comparison' => $comparison,
+                ];
+            }
+            $searchGroups['groups'][] = $searchGroup;
+        }
+
+        return $searchGroups;
+    }
+
+    /**
      * Get a description string for search terms
      *
      * @param string $type    Search type
@@ -363,17 +410,13 @@ class Search
         if (!($formConfig = getFormConfig($type, 'ext_search'))) {
             return '';
         }
-        $operator = $request['s_op'] ?? 'AND';
-        for ($group = 1; $group < 100; $group++) {
-            $groupOperator = $request["s_op$group"] ?? null;
-            if (null === $groupOperator) {
-                break;
-            }
+        $searchGroups = $this->getSearchGroups($request);
+        $operator = $searchGroups['operator'];
+        foreach ($searchGroups['groups'] as $group) {
+            $groupOperator = $group['operator'];
             $expressions = [];
-            foreach ($request["s_field$group"] ?? [] as $i => $value) {
-                if (!($type = $request["s_type$group"][$i] ?? null)) {
-                    continue;
-                }
+            foreach ($group['fields'] as $field) {
+                $type = $field['name'];
                 $fieldConfig = $formConfig['fields'][$type] ?? [];
                 if ('tags' === $type) {
                     $type = 'Tags';
@@ -384,6 +427,7 @@ class Search
                     }
                 }
 
+                $value = $field['value'];
                 switch ($fieldConfig['type']) {
                 case 'TEXT':
                 case 'INT':
@@ -414,7 +458,15 @@ class Search
                     break;
                 }
 
-                $expressions[] = Translator::translate($type) . " = $value";
+                $joins = [
+                  'eq' => ' = ',
+                  'ne' => ' != ',
+                  'lt' => ' < ',
+                  'lte' => ' <= ',
+                  'gt' => ' > ',
+                  'gte' => ' >= '
+                ];
+                $expressions[] = Translator::translate($type) . ($joins[$field['comparison']] ?? ' = ') . $value;
             }
             $groups[] = implode(
                 ' ' . Translator::translate('Search' . $groupOperator) . ' ',

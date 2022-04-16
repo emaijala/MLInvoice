@@ -32,6 +32,7 @@ require_once 'datefuncs.php';
 require_once 'memory.php';
 require_once 'list_config.php';
 require_once 'markdown.php';
+require_once 'search.php';
 
 use Doctrine\DBAL\Query\QueryBuilder;
 
@@ -687,33 +688,56 @@ function createListQuery($strFunc, $strList, $startRow, $rowCount, $sort,
     $qb = getDb()->createQueryBuilder();
     $prefix = _DB_PREFIX_ . '_';
 
-    $operator = $request['s_op'] ?? 'AND';
-    for ($group = 1; $group < 100; $group++) {
-        $groupOperator = $request["s_op$group"] ?? null;
-        if (null === $groupOperator) {
-            break;
-        }
+    $search = new Search();
+    $searchGroups = $search->getSearchGroups($query);
+    $operator = $searchGroups['operator'];
+    foreach ($searchGroups['groups'] as $group) {
+        $groupOperator = $group['operator'];
         $expressions = [];
-        foreach ($request["s_field$group"] as $i => $value) {
-            if (!($type = $request["s_type$group"][$i] ?? null)) {
-                continue;
-            }
+        foreach ($group['fields'] as $field) {
+            $type = $field['name'];
             if ('tags' === $type) {
                 $tagTable = 'company' === $table ? 'company' : 'contact';
 
                 $qb->innerJoin("$prefix$table", "$prefix{$tagTable}_tag_link", 'tl');
                 $qb->innerJoin('tl', "$prefix{$tagTable}_tag", 'tag');
                 $expressions[] = $qb->expr()->in('tag.tag', explode(',', $value));
-            } elseif ('NOT' === $groupOperator) {
-                $expressions[] = $qb->expr()->neq($type, $qb->createNamedParameter($value));
             } else {
-                $expressions[] = $qb->expr()->eq($type, $qb->createNamedParameter($value));
+                $param = $qb->createNamedParameter($field['value']);
+                $type = $listConfig['alias'] . ".$type";
+                switch ($field['comparison']) {
+                case 'eq':
+                    $expressions[] = $qb->expr()->eq($type, $param);
+                    break;
+                case 'ne':
+                    $expressions[] = $qb->expr()->neq($type, $param);
+                    break;
+                case 'lt':
+                    $expressions[] = $qb->expr()->lt($type, $param);
+                    break;
+                case 'lte':
+                    $expressions[] = $qb->expr()->lte($type, $param);
+                    break;
+                case 'gt':
+                    $expressions[] = $qb->expr()->gt($type, $param);
+                    break;
+                case 'gte':
+                    $expressions[] = $qb->expr()->gte($type, $param);
+                    break;
+                }
             }
         }
+        $expressionSet = call_user_func_array(
+            [
+                $qb->expr(),
+                'OR' === $groupOperator ? 'or' : 'and'
+            ],
+            $expressions
+        );
         if ('OR' === $operator) {
-            $qb->orWhere($qb->expr()->or($expressions));
+            $qb->orWhere($expressionSet);
         } else {
-            $qb->andWhere($qb->expr()->and($expressions));
+            $qb->andWhere($expressionSet);
         }
     }
 

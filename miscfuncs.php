@@ -452,6 +452,10 @@ function getPageTitle($strFunc, $strList, $strForm, $operation)
         return Translator::translate('Profile');
     case 'multiedit':
         return Translator::translate('EditMultiple');
+    case 'search':
+        return Translator::translate('ExtSearch');
+    case 'results':
+        return Translator::translate('Results');
     }
     return '';
 }

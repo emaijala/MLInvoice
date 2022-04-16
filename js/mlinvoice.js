@@ -611,6 +611,26 @@ var MLInvoice = (function CreateMLInvoice() {
       );
       return false;
     });
+    $('[data-save-search]').on('click', function saveSearch() {
+      let parts = window.location.href.split('?');
+      if (typeof parts[1] === 'undefined') {
+        MLInvoice.errormsg('Cannot save an empty search');
+        return false;
+      }
+      query = '?' + parts[1];
+      query = query.replace(/([\?&]func=)results/, '$1save_search');
+      $.getJSON(
+        'json.php' + query,
+        function saveSearchDone(json) {
+          if (json.errors) {
+            MLInvoice.errormsg(json.errors);
+          } else {
+            MLInvoice.infomsg('searchSaved');
+          }
+        }
+      );
+      return false;
+    });
   }
 
   function formatDate(date)

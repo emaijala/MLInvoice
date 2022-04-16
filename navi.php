@@ -111,6 +111,7 @@ function createFuncMenu($strFunc)
     case 'invoice_report':
     case 'product_report':
     case 'product_stock_report':
+    case 'search':
         break;
 
     default:
@@ -125,41 +126,39 @@ function createFuncMenu($strFunc)
         break;
     }
 
-    ?>
-<script>
-  function openSearchWindow(mode, event) {
-      x = event.screenX;
-      y = event.screenY;
-      if( mode == 'ext' ) {
-          strLink = 'ext_search.php?func=<?php echo $strFunc?>&form=<?php echo $strFormName?>';
-          strLink = strLink + '<?php echo $strExtSearchTerm?>';
-          height = '400';
-          width = '600';
-          windowname = 'ext';
-      }
-      if( mode == 'quick' ) {
-          strLink = 'quick_search.php?func=<?php echo $strFunc?>';
-          height = '400';
-          width = '250';
-          windowname = 'quicksearch';
-      }
-
-      var win = window.open(
-          strLink, windowname,
-          'height='+height+',width='+width+',screenX=' + x + ',screenY=' + y
-          + ',left=' + x + ',top=' + y
-          + ',menubar=no,scrollbars=yes,status=no,toolbar=no'
-      );
-      win.focus();
-
-      return true;
-  }
-</script>
-    <?php
-    if ($blnShowSearch) {
+    if ('results' === $strFunc) {
+        $edit = preg_replace('/([\?&]func=)results/', "$1search", '?' . $_SERVER['QUERY_STRING']);
+        $save = '?' . $_SERVER['QUERY_STRING'] . '&save=1';
         ?>
         <div class="btn-set">
-            <a role="button" class="btn btn-secondary" href="#" onClick="openSearchWindow('ext', event); return false;">
+            <a role="button" class="btn btn-secondary" href="<?php echo htmlentities($edit) ?>">
+                <?php echo Translator::translate('EditSearch')?>
+            </a>
+            <a role="button" class="btn btn-secondary dropdown-toggle" data-bs-toggle="dropdown" href="#">
+                <?php echo Translator::translate('SaveSearch')?>
+            </a>
+            <div class="dropdown-menu">
+                <form class="px-4 py-3">
+                    <div class="mb-3">
+                        <label for="search_name" class="form-label">
+                            <?php echo Translator::translate('SearchName')?>
+                        </label>
+                        <input type="text" class="form-control" id="search_name" name="name">
+                    </div>
+                    <button type="submit" class="btn btn-primary" data-save-search>
+                        <?php echo Translator::translate('Save')?>
+                    </button>
+                </form>
+            </div>
+            <a role="button" class="btn btn-secondary" href="?func=search&amp;type=invoice">
+                <?php echo Translator::translate('NewSearch')?>
+            </a>
+        </div>
+        <?php
+    } elseif ($blnShowSearch) {
+        ?>
+        <div class="btn-set">
+            <a role="button" class="btn btn-secondary" href="?func=search&amp;type=invoice">
                 <?php echo Translator::translate('ExtSearch')?>
             </a>
             <a role="button" class="btn btn-secondary" href="#" onClick="openSearchWindow('quick', event); return false;">

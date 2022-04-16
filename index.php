@@ -141,7 +141,10 @@ $level = 1;
 if ($strList && $strFunc == 'multiedit') {
     ++$level;
 }
-if ($strForm) {
+if ($strForm && 'search' !== $strFunc) {
+    ++$level;
+}
+if ('results' === $strFunc) {
     ++$level;
 }
 $arrHistory = updateNavigationHistory($title, $_SERVER['QUERY_STRING'], $level);
