@@ -5,7 +5,7 @@
  * PHP version 7
  *
  * Copyright (C) Samu Reinikainen 2004-2008
- * Copyright (C) Ere Maijala 2010-2021
+ * Copyright (C) Ere Maijala 2010-2022
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2,
@@ -1048,6 +1048,44 @@ function getInvoiceAttachment($id)
     $rows = dbParamQuery(
         'SELECT * FROM {prefix}invoice_attachment WHERE id=?',
         [$id]
+    );
+    return $rows ? $rows[0] : [];
+}
+
+/**
+ * Get quick searches for the current user
+ *
+ * @param string $type Search type (func)
+ *
+ * @return array
+ */
+function getQuickSearches(string $type): array
+{
+    $rows = dbParamQuery(
+        <<<EOT
+SELECT *
+  FROM {prefix}quicksearch
+  WHERE (func=? OR func=?) AND user_id=?
+  ORDER BY name, id
+EOT
+        ,
+        [$type, 'company' === $type ? 'companies' : ($type . 's'), $_SESSION['sesUSERID']]
+    );
+    return $rows ? $rows : [];
+}
+
+/**
+ * Get a quick search
+ *
+ * @param int $id Quick search ID
+ *
+ * @return array
+ */
+function getQuickSearch($id)
+{
+    $rows = dbParamQuery(
+        'SELECT * FROM {prefix}quicksearch WHERE id=? AND user_id=?',
+        [$id, $_SESSION['sesUSERID']]
     );
     return $rows ? $rows[0] : [];
 }

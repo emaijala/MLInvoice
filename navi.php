@@ -44,7 +44,7 @@ function createFuncMenu($strFunc)
     $strNewButton = '';
     $strFormName = '';
     $strExtSearchTerm = '';
-    $blnShowSearch = false;
+    $searchType = '';
     switch ($strFunc) {
     case 'system':
         $strNewText = '';
@@ -98,7 +98,7 @@ function createFuncMenu($strFunc)
         break;
 
     case 'company':
-        $blnShowSearch = true;
+        $searchType = 'company';
         $strOpenForm = 'company';
         $strFormName = 'company';
         $strFormSwitch = 'company';
@@ -115,7 +115,7 @@ function createFuncMenu($strFunc)
         break;
 
     default:
-        $blnShowSearch = 'import_statement' !== $strFunc;
+        $searchType = 'import_statement' === $strFunc ? '' : 'invoice';
         $strFormName = 'invoice';
         if ($strFunc != 'archived_invoices' && $strFunc != 'import_statement') {
             $strNewButton = '<a role="button" class="btn btn-secondary" href="?func=invoices&amp;form=invoice">' .
@@ -127,16 +127,19 @@ function createFuncMenu($strFunc)
     }
 
     if ('results' === $strFunc) {
+        $searchType = getQuery('type', 'invoice');
         $edit = preg_replace('/([\?&]func=)results/', "$1search", '?' . $_SERVER['QUERY_STRING']);
-        $save = '?' . $_SERVER['QUERY_STRING'] . '&save=1';
+        $save = getSearchParamsFromRequest() ? ('?' . $_SERVER['QUERY_STRING'] . '&save=1') : false;
         ?>
         <div class="btn-set">
             <a role="button" class="btn btn-secondary" href="<?php echo htmlentities($edit) ?>">
                 <?php echo Translator::translate('EditSearch')?>
             </a>
-            <a role="button" class="btn btn-secondary dropdown-toggle" data-bs-toggle="dropdown" href="#">
-                <?php echo Translator::translate('SaveSearch')?>
-            </a>
+            <?php if ($save) { ?>
+                <a role="button" class="btn btn-secondary dropdown-toggle" data-bs-toggle="dropdown" href="#">
+                    <?php echo Translator::translate('SaveSearch')?>
+                </a>
+            <?php } ?>
             <div class="dropdown-menu">
                 <form class="px-4 py-3">
                     <div class="mb-3">
@@ -150,20 +153,19 @@ function createFuncMenu($strFunc)
                     </button>
                 </form>
             </div>
-            <a role="button" class="btn btn-secondary" href="?func=search&amp;type=invoice">
+            <a role="button" class="btn btn-secondary" href="?func=search&amp;type=<?php echo $searchType?>">
                 <?php echo Translator::translate('NewSearch')?>
             </a>
+            <?php createQuickSearchButton($searchType) ?>
         </div>
         <?php
-    } elseif ($blnShowSearch) {
+    } elseif ($searchType) {
         ?>
         <div class="btn-set">
-            <a role="button" class="btn btn-secondary" href="?func=search&amp;type=invoice">
+            <a role="button" class="btn btn-secondary" href="?func=search&amp;type=<?php echo $searchType?>">
                 <?php echo Translator::translate('ExtSearch')?>
             </a>
-            <a role="button" class="btn btn-secondary" href="#" onClick="openSearchWindow('quick', event); return false;">
-                <?php echo Translator::translate('QuickSearch')?>
-            </a>
+            <?php createQuickSearchButton($searchType) ?>
         </div>
         <?php
     }
@@ -209,4 +211,41 @@ function updateNavigationHistory($title, $url, $level)
     Memory::set('history', $arrNew);
 
     return $arrNew;
+}
+
+/**
+ * Create a quick search menu button
+ *
+ * @param string $type Search type
+ *
+ * @return void
+ */
+function createQuickSearchButton(string $type): void
+{
+    $searches = getQuickSearches($type);
+    ?>
+    <div class="dropdown">
+        <a id="quick-search-menu" role="button" class="btn btn-secondary dropdown-toggle" href="#" data-bs-toggle="dropdown" aria-expanded="false">
+            <?php echo Translator::translate('QuickSearch')?>
+        </a>
+        <ul class="dropdown-menu" aria-labelledby="quick-search-menu">
+            <?php if (!$searches) { ?>
+                <div class="m-2"><?php echo Translator::translate('NoQuickSearches')?></div>
+            <?php } else { ?>
+                <?php foreach ($searches as $search) { ?>
+                    <li>
+                        <a class="dropdown-item" href="?func=results&amp;search_id=<?php echo $search['id']?>">
+                            <?php echo htmlentities($search['name']) ?>
+                        </a>
+                    </li>
+                <?php } ?>
+                <li>
+                    <a class="dropdown-item" href="?func=edit_searches">
+                        <?php echo Translator::translate('EditSearches') ?>
+                    </a>
+                </li>
+            <?php } ?>
+        </ul>
+    </div>
+    <?php
 }

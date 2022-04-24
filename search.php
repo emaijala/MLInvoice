@@ -50,10 +50,11 @@ class Search
      */
     public function formAction()
     {
-        $type = getPostOrQuery('type', '');
-        if (!$type) {
+        if (!($searchData = $this->getSearchFromRequest())) {
             return;
         }
+        $type = $searchData['type'];
+        $searchGroups = $searchData['searchGroups'];
         $formConfig = getFormConfig($type, 'ext_search');
         $formConfig['fields'] = array_map(
             function ($field) {
@@ -87,7 +88,6 @@ class Search
             }
         }
 
-        $searchGroups = $this->getSearchGroups($_GET + $_POST);
         ?>
 
 <div role="search">
@@ -345,15 +345,62 @@ class Search
      */
     public function resultsAction()
     {
-        $type = getQuery('type');
-        $terms = htmlentities($this->getSearchDescription($type, $_GET))
-            ?: Translator::translate('NoSearchTerms');
+        if (!($searchData = $this->getSearchFromRequest())) {
+            return;
+        }
+        $type = $searchData['type'];
+
+        $terms = htmlentities(
+            $this->getSearchDescription($type, $searchData['searchGroups'])
+        ) ?: Translator::translate('NoSearchTerms');
         $searchDesc = Translator::translate(
             'ResultsForSearch',
             ['%%description%%' => $terms]
         );
         include_once 'list.php';
-        createList($type, $type, "{$type}_results", $searchDesc, null, 'invoice' === $type);
+        createList($type, $type, "{$type}_results", $searchDesc, $searchData['searchId'], 'invoice' === $type);
+    }
+
+    /**
+     * Save a search
+     *
+     * @param string $name         Search name
+     * @param array  $searchGroups Search groups
+     *
+     * @return array [success => (bool), errors => (string)]
+     */
+    public function saveSearch(string $name, array $searchGroups)
+    {
+        if ('' === $name) {
+            return [
+                'success' => false,
+                'errors' => Translator::translate('ErrorNoSearchName'),
+            ];
+        }
+        try {
+            $query = 'INSERT INTO {prefix}quicksearch(user_id, name, func, whereclause) '
+                . 'VALUES (?, ?, ?, ?)';
+            $jsonGroups = json_encode($searchGroups);
+            dbParamQuery(
+                $query,
+                [
+                    $_SESSION['sesUSERID'],
+                    $name,
+                    $searchGroups['type'],
+                    $jsonGroups
+                ]
+            );
+        } catch (\Exception $e) {
+            return [
+                'success' => false,
+                'errors' => $e->getMessage()
+            ];
+        }
+
+        return [
+            'success' => true,
+            'errors' => '',
+        ];
     }
 
     /**
@@ -366,6 +413,7 @@ class Search
     public function getSearchGroups(array $request): array
     {
         $searchGroups = [
+            'type' => $request['type'] ?? '',
             'operator' => $request['s_op'] ?? 'AND',
             'groups' => []
         ];
@@ -398,20 +446,139 @@ class Search
     }
 
     /**
+     * Convert a legacy search query
+     *
+     * @param string $type  Search type
+     * @param string $query Search query
+     *
+     * @return array
+     */
+    public function convertLegacySearch(string $type, string $query): array
+    {
+        $formConfig = getFormConfig($type, 'ext_search');
+
+        $groups = [
+          'operator' => 'AND',
+          'groups' => []
+        ];
+        if (!$query) {
+            return $groups;
+        }
+
+        $boolean = '';
+        $fields = [];
+        $query = urldecode($query);
+        while (extractSearchTerm($query, $field, $operator, $term, $nextBool)) {
+            if ('tags' === $field) {
+                $fields[] = [
+                    'name' => 'tags',
+                    'value' => $term,
+                    'comparison' => 'eq',
+                ];
+            } else {
+                $parts = explode('.', $field, 2);
+                if ($parts[0] . '.' === $formConfig['tableAlias'] && isset($parts[1])) {
+                    $field = $parts[1];
+                }
+                $comparisons = [
+                    '=' => 'eq',
+                    '!=' => 'ne',
+                    '<' => 'lt',
+                    '<=' => 'lte',
+                    '>' => 'gt',
+                    '>=' => 'gte',
+                    'LIKE' => 'eq',
+                    'NOT LIKE' => 'ne',
+                ];
+                $fields[] = [
+                    'name' => $field,
+                    'value' => str_replace("%-", "%", $term),
+                    'comparison' => $comparisons[$operator] ?? 'eq'
+                ];
+
+                if (!$nextBool) {
+                    break;
+                }
+                // If next boolean is different from current, add current fields
+                // and start adding a new group:
+                if ($boolean && $nextBool !== $boolean) {
+                    $groups['groups'][] = [
+                        'operator' => trim($boolean ?: 'AND'),
+                        'fields' => $fields
+                    ];
+                    $fields = [];
+                }
+
+                $boolean = $nextBool;
+            }
+        }
+        if ($fields) {
+            $groups['groups'][] = [
+                'operator' => trim($boolean ?: 'AND'),
+                'fields' => $fields
+            ];
+        }
+
+        return $groups;
+    }
+
+    /**
+     * Get search data from request params
+     *
+     * @return array
+     */
+    protected function getSearchFromRequest(): array
+    {
+        if ($searchId = getQuery('search_id')) {
+            return $this->getSavedSearch(intval($searchId));
+        }
+        $type = getQuery('type');
+        $searchGroups = $this->getSearchGroups($_GET);
+        return $type ? compact('type', 'searchGroups', 'searchId') : [];
+    }
+
+    /**
+     * Get a saved search
+     *
+     * @param int $searchId Search ID
+     *
+     * @return array
+     */
+    protected function getSavedSearch(int $searchId): array
+    {
+        if (!($search = getQuickSearch($searchId))) {
+            return [];
+        }
+        $type = $search['func'];
+        if ('companies' === $type) {
+            $type = 'company';
+        } elseif (substr($type, -1) === 's') {
+            $type = substr($type, 0, -1);
+        }
+        if (strncmp($search['whereclause'], '{', 1) === 0) {
+            $searchGroups = json_decode($search['whereclause'], true);
+        } else {
+            $searchGroups = $this->convertLegacySearch($type, $search['whereclause']);
+        }
+
+        return compact('type', 'searchGroups', 'searchId');
+    }
+
+    /**
      * Get a description string for search terms
      *
-     * @param string $type    Search type
-     * @param array  $request Query parameters
+     * @param string $type         Search type
+     * @param array  $searchGroups Search groups
      *
      * @return string
      */
-    protected function getSearchDescription(string $type, array $request)
+    protected function getSearchDescription(string $type, array $searchGroups)
     {
         if (!($formConfig = getFormConfig($type, 'ext_search'))) {
             return '';
         }
-        $searchGroups = $this->getSearchGroups($request);
         $operator = $searchGroups['operator'];
+        $groups = [];
         foreach ($searchGroups['groups'] as $group) {
             $groupOperator = $group['operator'];
             $expressions = [];

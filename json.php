@@ -535,6 +535,13 @@ case 'get_update_info':
     echo json_encode($res);
     break;
 
+case 'save_search':
+    include_once 'search.php';
+    $search = new Search();
+    $res = $search->saveSearch(getQuery('name'), $search->getSearchGroups($_GET));
+    echo json_encode($res);
+    break;
+
 case 'noop':
     // Session keep-alive
     header('HTTP/1.1 204 No Content');

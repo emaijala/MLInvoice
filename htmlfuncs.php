@@ -190,7 +190,8 @@ function htmlPageStart($strTitle = '', $arrExtraScripts = [], $loggedIn = true)
         'Info',
         'ServerError',
         'Total',
-        'VisiblePage'
+        'VisiblePage',
+        'SearchSaved',
     ];
 
     $res = dbQueryCheck(

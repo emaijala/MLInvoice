@@ -235,7 +235,7 @@ case 'offer':
             'header' => 'HeaderInvoiceNr'
         ],
         [
-            'name' => 'b.name',
+            'name' => 'b.name base_name',
             'width' => 150,
             'type' => 'TEXT',
             'header' => 'HeaderInvoiceBase'

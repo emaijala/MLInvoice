@@ -619,13 +619,14 @@ var MLInvoice = (function CreateMLInvoice() {
       }
       let query = '?' + parts[1];
       query = query.replace(/([?&]func=)results/, '$1save_search');
+      query += '&name=' + encodeURIComponent($('#search_name').val());
       $.getJSON(
         'json.php' + query,
         function saveSearchDone(json) {
           if (json.errors) {
             MLInvoice.errormsg(json.errors);
           } else {
-            MLInvoice.infomsg('searchSaved');
+            MLInvoice.infomsg(MLInvoice.translate('SearchSaved'));
           }
         }
       );

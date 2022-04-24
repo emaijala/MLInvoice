@@ -106,15 +106,7 @@ function createList($strFunc, $strList, $strTableName = '', $strTitleOverride = 
         $params['company'] = $companyId;
         $customPriceSettings = getCustomPriceSettings($companyId);
     }
-    $params['query'] = json_encode(
-        array_filter(
-            $_GET,
-            function ($key) {
-                return strncmp($key, 's_', 2) === 0;
-            },
-            ARRAY_FILTER_USE_KEY
-        )
-    );
+    $params['query'] = json_encode(getSearchParamsFromRequest());
 
     ?>
 <script>
@@ -689,7 +681,19 @@ function createListQuery($strFunc, $strList, $startRow, $rowCount, $sort,
     $prefix = _DB_PREFIX_ . '_';
 
     $search = new Search();
-    $searchGroups = $search->getSearchGroups($query);
+    if (null !== $searchId) {
+        $searchId = intval($searchId);
+        if (!($searchData = getQuickSearch($searchId))) {
+            return;
+        }
+        if (strncmp($searchData['whereclause'], '{', 1) === 0) {
+            $searchGroups = json_decode($searchData['whereclause'], true);
+        } else {
+            $searchGroups = $search->convertLegacySearch($strList, $searchData['whereclause']);
+        }
+    } else {
+        $searchGroups = $search->getSearchGroups($query);
+    }
     $operator = $searchGroups['operator'];
     foreach ($searchGroups['groups'] as $group) {
         $groupOperator = $group['operator'];
@@ -726,6 +730,9 @@ function createListQuery($strFunc, $strList, $startRow, $rowCount, $sort,
                     break;
                 }
             }
+        }
+        if (!$expressions) {
+            continue;
         }
         $expressionSet = call_user_func_array(
             [
