@@ -583,7 +583,7 @@ function createJSONList(
                 continue;
             }
 
-            $name = stripPrefix($field['name']);
+            $name = getFieldNameOrAlias($field['name']);
             if ('product' === $strList && 'custom_price' === $name) {
                 $value = $row['unit_price'];
                 if ($customPrices) {
@@ -1208,4 +1208,20 @@ function stripPrefix(string $fieldName): string
 {
     $parts = explode('.', $fieldName, 2);
     return $parts[1] ?? $parts[0];
+}
+
+/**
+ * Get field name or alias from a field specification
+ *
+ * Returns e.g. 'alias' from 'i.name alias'
+ *
+ * @param string $fieldSpec Field specification
+ *
+ * @return string
+ */
+function getFieldNameOrAlias(string $fieldSpec): string
+{
+    $parts = explode(' ', $fieldSpec);
+    $last = end($parts);
+    return stripPrefix($last);
 }
