@@ -63,11 +63,8 @@ require_once 'miscfuncs.php';
 
 if ($authenticated) {
     $printTemplate = getPostOrQuery('template', 1);
-    $dateOverride = getPostOrQuery('date', false);
-    if (!is_string($dateOverride) || !ctype_digit($dateOverride)
-        || strlen($dateOverride) != 8
-    ) {
-        $dateOverride = false;
+    if ($date = getPostOrQuery('date', false)) {
+        $dateOverride = dateConvYmd2DBDate($date);
     }
 } else {
     include_once 'hmac.php';
