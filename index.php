@@ -246,6 +246,10 @@ if ($strFunc == 'system' && $operation == 'export' && sesAdminAccess()) {
     include_once 'search.php';
     $search = new Search();
     $search->resultsAction();
+} elseif ($strFunc == 'edit_searches') {
+    include_once 'search.php';
+    $search = new Search();
+    $search->editSearchesAction();
 } else {
     if ($strForm) {
         createForm($strFunc, $strList, $strForm);

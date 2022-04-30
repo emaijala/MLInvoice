@@ -472,6 +472,8 @@ function getPageTitle($strFunc, $strList, $strForm, $operation)
         return Translator::translate('ExtSearch');
     case 'results':
         return Translator::translate('Results');
+    case 'edit_searches':
+        return Translator::translate('SavedSearches');
     }
     return '';
 }

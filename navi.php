@@ -112,6 +112,7 @@ function createFuncMenu($strFunc)
     case 'product_report':
     case 'product_stock_report':
     case 'search':
+    case 'edit_searches':
         break;
 
     default:
@@ -230,7 +231,7 @@ function createQuickSearchButton(string $type): void
         </a>
         <ul class="dropdown-menu" aria-labelledby="quick-search-menu">
             <?php if (!$searches) { ?>
-                <div class="m-2"><?php echo Translator::translate('NoQuickSearches')?></div>
+                <div class="m-2"><?php echo Translator::translate('NoSavedSearches')?></div>
             <?php } else { ?>
                 <?php foreach ($searches as $search) { ?>
                     <li>

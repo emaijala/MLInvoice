@@ -95,7 +95,7 @@ if (!isset($intID)) {
     ?>
 <tr>
                         <td class="label">
-        <?php echo Translator::translate('NoQuickSearches')?>
+        <?php echo Translator::translate('NoSavedSearches')?>
     </td>
                     </tr>
     <?php
