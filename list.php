@@ -681,7 +681,7 @@ function createListQuery($strFunc, $strList, $startRow, $rowCount, $sort,
     $prefix = _DB_PREFIX_ . '_';
 
     $search = new Search();
-    if (null !== $searchId) {
+    if (null !== $searchId && $searchId > 0) {
         $searchId = intval($searchId);
         if (!($searchData = getQuickSearch($searchId))) {
             return;
