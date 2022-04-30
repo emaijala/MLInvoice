@@ -10,7 +10,7 @@ module.exports = function(grunt) {
         tasks: ['sass']
       },
       js: {
-        files: ['js/mlinvoice.js', 'js/mlinvoice-form.js'],
+        files: ['js/mlinvoice.js', 'js/mlinvoice-form.js', 'js/mlinvoice-search.js'],
         tasks: ['uglify']
       }
     },
@@ -21,7 +21,7 @@ module.exports = function(grunt) {
       },
       build: {
         files: {
-          'js/mlinvoice.min.js': ['js/mlinvoice.js', 'js/mlinvoice-form.js']
+          'js/mlinvoice.min.js': ['js/mlinvoice.js', 'js/mlinvoice-form.js', 'js/mlinvoice-search.js']
         }
       }
     },

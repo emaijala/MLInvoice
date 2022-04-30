@@ -96,6 +96,7 @@ function htmlPageStart($strTitle = '', $arrExtraScripts = [], $loggedIn = true)
     if (defined('_JS_DEBUG_')) {
         $scripts[] = 'js/mlinvoice.js';
         $scripts[] = 'js/mlinvoice-form.js';
+        $scripts[] = 'js/mlinvoice-search.js';
     } else {
         $scripts[] = 'js/mlinvoice.min.js';
     }
@@ -192,6 +193,12 @@ function htmlPageStart($strTitle = '', $arrExtraScripts = [], $loggedIn = true)
         'Total',
         'VisiblePage',
         'SearchSaved',
+        'SearchEqual',
+        'SearchNotEqual',
+        'SearchLessThan',
+        'SearchLessThanOrEqual',
+        'SearchGreaterThan',
+        'SearchGreaterThanOrEqual'
     ];
 
     $res = dbQueryCheck(
