@@ -866,7 +866,10 @@ function createListQuery($strFunc, $strList, $startRow, $rowCount, $sort,
             $filteredQb->addOrderBy($fieldName, $direction);
         }
     }
-    $filteredQb->addOrderBy($listConfig['alias'] . '.id', 'ASC');
+    $filteredQb->addOrderBy(
+        $listConfig['alias'] ? ($listConfig['alias'] . '.id') : 'id',
+        'ASC'
+    );
 
     return [
         'fullQuery' => $qb,
@@ -880,12 +883,12 @@ function createListQuery($strFunc, $strList, $startRow, $rowCount, $sort,
  * Add joins to a QueryBuilder
  *
  * @param QueryBuilder $qb    QueryBuilder
- * @param string       $alias Main table alias
+ * @param ?string      $alias Main table alias
  * @param array        $joins Joins
  *
  * @return void
  */
-function addJoins(QueryBuilder $qb, string $alias, array $joins): void
+function addJoins(QueryBuilder $qb, ?string $alias, array $joins): void
 {
     $prefix = _DB_PREFIX_ . '_';
     foreach ($joins as $join) {

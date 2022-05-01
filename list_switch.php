@@ -42,7 +42,7 @@ switch ($strList) {
  LISTS
  ***********************************************************************/
 case 'company':
-    $strTable = '{prefix}company';
+    $strTable = 'company';
     $astrSearchFields = [
         [
             'name' => 'company_name',
@@ -305,7 +305,7 @@ case 'offer':
  SETTINGS
  ***********************************************************************/
 case 'base':
-    $strTable = '{prefix}base';
+    $strTable = 'base';
     $astrSearchFields = [
         [
             'name' => 'name',
@@ -358,7 +358,7 @@ case 'base':
     break;
 
 case 'invoice_state':
-    $strTable = '{prefix}invoice_state';
+    $strTable = 'invoice_state';
     $astrSearchFields = [
         [
             'name' => 'name',
@@ -387,7 +387,7 @@ case 'invoice_state':
     break;
 
 case 'invoice_type':
-    $strTable = '{prefix}invoice_type';
+    $strTable = 'invoice_type';
     $astrSearchFields = [
         [
             'name' => 'identifier',
@@ -426,7 +426,7 @@ case 'invoice_type':
     break;
 
 case 'product':
-    $strTable = '{prefix}product';
+    $strTable = 'product';
     $astrSearchFields = [
         [
             'name' => 'product_code',
@@ -541,7 +541,7 @@ case 'product':
     break;
 
 case 'row_type':
-    $strTable = '{prefix}row_type';
+    $strTable = 'row_type';
     $astrSearchFields = [
         [
             'name' => 'name',
@@ -569,7 +569,7 @@ case 'row_type':
     break;
 
 case 'delivery_terms':
-    $strTable = '{prefix}delivery_terms';
+    $strTable = 'delivery_terms';
     $astrSearchFields = [
         [
             'name' => 'name',
@@ -596,7 +596,7 @@ case 'delivery_terms':
     break;
 
 case 'delivery_method':
-    $strTable = '{prefix}delivery_method';
+    $strTable = 'delivery_method';
     $astrSearchFields = [
         [
             'name' => 'name',
@@ -623,7 +623,7 @@ case 'delivery_method':
     break;
 
 case 'print_template':
-    $strTable = '{prefix}print_template';
+    $strTable = 'print_template';
     $astrSearchFields = [
         [
             'name' => 'name',
@@ -687,7 +687,7 @@ case 'print_template':
     break;
 
 case 'default_value':
-    $strTable = '{prefix}default_value';
+    $strTable = 'default_value';
     $astrSearchFields = [
         [
             'name' => 'name',
@@ -735,7 +735,7 @@ case 'default_value':
     break;
 
 case 'attachment':
-    $strTable = '{prefix}attachment';
+    $strTable = 'attachment';
     $astrSearchFields = [
         [
             'name' => 'name',
@@ -788,7 +788,7 @@ case 'attachment':
     break;
 
 case 'company_tag':
-    $strTable = '{prefix}company_tag';
+    $strTable = 'company_tag';
     $astrSearchFields = [
         [
             'name' => 'tag',
@@ -809,7 +809,7 @@ case 'company_tag':
     break;
 
 case 'contact_tag':
-    $strTable = '{prefix}contact_tag';
+    $strTable = 'contact_tag';
     $astrSearchFields = [
         [
             'name' => 'tag',
@@ -835,7 +835,7 @@ case 'session_type':
     $levelsAllowed = [
         99
     ];
-    $strTable = '{prefix}session_type';
+    $strTable = 'session_type';
     $astrSearchFields = [
         [
             'name' => 'name',
@@ -866,7 +866,7 @@ case 'user':
     $levelsAllowed = [
         ROLE_ADMIN
     ];
-    $strTable = '{prefix}users';
+    $strTable = 'users';
     $astrSearchFields = [
         [
             'name' => 'name',

@@ -241,7 +241,7 @@ function createQuickSearchButton(string $type): void
                     </li>
                 <?php } ?>
                 <li>
-                    <a class="dropdown-item" href="?func=edit_searches">
+                    <a class="dropdown-item" href="?func=edit_searches&amp;type=<?php echo htmlentities($type)?>">
                         <?php echo Translator::translate('EditSearches') ?>
                     </a>
                 </li>

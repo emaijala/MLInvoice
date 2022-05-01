@@ -263,7 +263,7 @@ class Search
           <option value="invoice" <?php echo 'invoice' === $type ? 'selected' : ''?>>
             <?php echo Translator::translate('InvoicesAndOffers') ?>
           </option>
-          <option value="client" <?php echo 'client' === $type ? 'selected' : ''?>>
+          <option value="company" <?php echo 'company' === $type ? 'selected' : ''?>>
             <?php echo Translator::translate('Clients') ?>
           </option>
         </select>
