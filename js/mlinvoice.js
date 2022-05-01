@@ -567,6 +567,14 @@ var MLInvoice = (function CreateMLInvoice() {
       window.close();
       return false;
     });
+    $('[data-form-submit-on-change').on('change', function formSubmit() {
+      var $el = $(this);
+
+      var formName = $el.data('form');
+      var $form = formName ? $('#' + formName) : $('form');
+      $form.trigger('submit');
+      return false;
+    });
     $('[data-form-cancel]').on('click', function formCancel() {
       if (window.opener) {
         window.close();

@@ -1091,6 +1091,21 @@ function getQuickSearch($id)
 }
 
 /**
+ * Delete a quick search
+ *
+ * @param int $id Quick search ID
+ *
+ * @return void
+ */
+function deleteQuickSearch($id)
+{
+    dbParamQuery(
+        'DELETE FROM {prefix}quicksearch WHERE id=? AND user_id=?',
+        [$id, $_SESSION['sesUSERID']]
+    );
+}
+
+/**
  * Add an existing attachment to an invoice
  *
  * @param int $id        Attachment ID

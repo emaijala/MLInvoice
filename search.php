@@ -155,7 +155,6 @@ class Search
 <script>
   MLInvoice.Search.initSearchForm(<?php echo json_encode($formConfig); ?>, <?php echo json_encode($searchGroups['groups'])?>);
 </script>
-
         <?php
     }
 
@@ -222,6 +221,80 @@ class Search
             'success' => true,
             'errors' => '',
         ];
+    }
+
+    /**
+     * Edit searches
+     *
+     * @return void
+     */
+    public function editSearchesAction(): void
+    {
+        $type = getPostOrQuery('type', 'invoice');
+        $action = getPost('action');
+        if ('edit' === $action) {
+            $params = [
+                'func' => 'search',
+                'type' => $type,
+                'search_id' => getPost('search'),
+            ];
+            header('Location: index.php?' . http_build_query($params));
+            exit();
+        } elseif ('delete' === $action) {
+            deleteQuickSearch(getPost('search'));
+        } elseif ('search' === $action) {
+            $params = [
+              'func' => 'results',
+              'type' => $type,
+              'search_id' => getPost('search'),
+            ];
+            header('Location: index.php?' . http_build_query($params));
+            exit();
+        }
+?>
+<form method="POST">
+  <input type="hidden" name="func" value="edit_searches">
+  <input type="hidden" name="action" value="">
+  <div class="row">
+    <div class="col-4">
+      <div class="mb-3">
+        <label for="search_type" class="form-label"><?php echo Translator::translate('SavedSearchType')?></label>
+        <select id="search_type" name="type" class="form-select" size="2" data-form-submit-on-change>
+          <option value="invoice" <?php echo 'invoice' === $type ? 'selected' : ''?>>
+            <?php echo Translator::translate('InvoicesAndOffers') ?>
+          </option>
+          <option value="client" <?php echo 'client' === $type ? 'selected' : ''?>>
+            <?php echo Translator::translate('Clients') ?>
+          </option>
+        </select>
+      </div>
+      <div class="mb-1">
+        <label for="search" class="form-label"><?php echo Translator::translate('SavedSearches')?></label>
+        <select id="search" name="search" class="form-select" size="10">
+          <?php foreach (getQuickSearches($type) as $search) { ?>
+            <option value="<?php echo htmlentities($search['id'])?>"><?php echo htmlentities($search['name'])?></option>
+          <?php } ?>
+        </select>
+      </div>
+      <div>
+        <a role="button" class="btn btn-secondary form-submit" data-set-field="action=edit">
+          <?php echo Translator::translate('Edit') ?>
+        </a>
+        <a role="button" class="btn btn-secondary form-submit" data-set-field="action=delete">
+          <?php echo Translator::translate('Delete') ?>
+        </a>
+        <a role="button" class="btn btn-secondary form-submit" data-set-field="action=search">
+          <?php echo Translator::translate('Search') ?>
+        </a>
+      </div>
+    </div>
+    <div class="col-4">
+    </div>
+    <div class="col-4">
+    </div>
+  </div>
+</form>
+        <?php
     }
 
     /**
