@@ -66,7 +66,9 @@ MLInvoice.addModule('Search', function mlinvoiceSearch() {
       comparisons.lte = { label: '<=', title: MLInvoice.translate('SearchLessThanOrEqual') };
       comparisons.gt = { label: '>', title: MLInvoice.translate('SearchGreaterThan') };
       comparisons.gte = { label: '>=', title: MLInvoice.translate('SearchGreaterThanOrEqual') };
-    };
+    } else if ('CHECK' === fieldConfig['type']) {
+        delete comparisons.ne;
+    }
     switch (fieldConfig['type']) {
       case 'TEXT':
       case 'AREA':
@@ -91,6 +93,12 @@ MLInvoice.addModule('Search', function mlinvoiceSearch() {
             $('<option>').attr('value', key).text(fieldConfig['options'][key]).appendTo($input);
           }
         );
+        break;
+      case 'CHECK':
+        $input = $('<select class="form-control medium">');
+        $('<option>').attr('value', '0').prop('selected', 'selected').text(MLInvoice.translate('Unselected')).appendTo($input);
+        $('<option>').attr('value', '1').prop('selected', 'selected').text(MLInvoice.translate('Selected')).appendTo($input);
+        break;
     }
     if (null !== $input) {
       $('<input type="hidden">')
@@ -99,7 +107,7 @@ MLInvoice.addModule('Search', function mlinvoiceSearch() {
         .appendTo($div);
       let $row = $('<div class="row">').appendTo($div);
       let $compCol = $('<div class="col-auto">').appendTo($row);
-      $comparison = $('<select class="form-select medium">')
+      $comparison = $('<select class="form-select short">')
         .attr('name', 's_cmp' + groupNum + '[]')
         .appendTo($compCol);
       Object.getOwnPropertyNames(comparisons).forEach(
@@ -140,26 +148,10 @@ MLInvoice.addModule('Search', function mlinvoiceSearch() {
 
   function initSearchForm(formConfig, searchGroups) {
     this.formConfig = formConfig;
-    $('#search_form').on(
-      'change',
-      '.add-search-field',
-      addSearchField
-    );
-    $('#search_form').on(
-      'click',
-      '#add_group',
-      addSearchGroup
-    );
-    $('#search_form').on(
-      'click',
-      '.delete-group',
-      deleteSearchGroup
-    );
-    $('#search_form').on(
-      'click',
-      '.delete-field',
-      deleteSearchField
-    );
+    $('#search_form').on('change', '.add-search-field', addSearchField);
+    $('#search_form').on('click', '#add_group', addSearchGroup);
+    $('#search_form').on('click', '.delete-group', deleteSearchGroup);
+    $('#search_form').on('click', '.delete-field', deleteSearchField);
 
     if (0 === searchGroups.length) {
       addGroup();
@@ -172,6 +164,7 @@ MLInvoice.addModule('Search', function mlinvoiceSearch() {
           if ('SEARCHLIST' === formConfig.fields[field.name].type) {
             $(fieldElem).select2('val', field.value);
           } else {
+            console.log('Set value ' + field.value);
             fieldElem.value = field.value;
           }
         });

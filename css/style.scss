@@ -179,10 +179,17 @@ div.function_navi {
         padding-bottom: 0.375rem;
       }
     }
+    .short {
+      width: 90px;
+    }
   }
   .delete-group {
     float: right;
   }
+}
+
+.edit-searches label {
+  font-weight: 600;
 }
 
 .list_container {

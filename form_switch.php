@@ -823,8 +823,10 @@ EOF;
             = sprintf(Translator::translate('InvoiceIntervalMonths'), $i - 2);
     }
 
-    $stateQuery = 'SELECT id, name FROM {prefix}invoice_state WHERE deleted=0 AND ';
-    $stateQuery .= $isOffer ? 'invoice_offer=1' : 'invoice_offer!=1';
+    $stateQuery = 'SELECT id, name FROM {prefix}invoice_state WHERE deleted=0';
+    if ('ext_search' !== $strFunc) {
+        $stateQuery .= $isOffer ? ' AND invoice_offer=1' : ' AND invoice_offer!=1';
+    }
     $stateQuery .= ' ORDER BY order_no';
 
     $astrFormElements = [
@@ -848,7 +850,7 @@ EOF;
         ],
         [
             'name' => 'name',
-            'label' => $isOffer ? 'OfferName' : 'InvName',
+            'label' => 'ext_search' === $strFunc ? 'Name' : ($isOffer ? 'OfferName' : 'InvName'),
             'type' => 'TEXT',
             'style' => 'medium',
             'position' => 2,

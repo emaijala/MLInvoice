@@ -56,28 +56,7 @@ class Search
         $type = $searchData['type'];
         $searchGroups = $searchData['searchGroups'];
         $formConfig = getFormConfig($type, 'ext_search');
-        $formConfig['fields'] = array_map(
-            function ($field) {
-                if (isset($field['label'])) {
-                    $field['label'] = Translator::translate($field['label']);
-                }
-                if ('LIST' === $field['type']) {
-                    if (is_string($field['listquery'])) {
-                        $values = [];
-                        $res = dbQueryCheck($field['listquery']);
-                        while ($row = mysqli_fetch_row($res)) {
-                            $values[$row[0]] = $row[1];
-                        }
-                        $field['options'] = $values;
-                    } else {
-                        $field['options'] = $field['listquery'];
-                    }
-                    $field['options'] = array_map('Translator::translate', $field['options']);
-                }
-                return $field;
-            },
-            $formConfig['fields']
-        );
+        $formConfig['fields'] = $this->processFormConfigFields($formConfig['fields']);
         $listValues = [];
         foreach ($formConfig['fields'] as $field) {
             if (in_array($field['type'], $formConfig['searchFieldTypes'])) {
@@ -230,6 +209,10 @@ class Search
      */
     public function editSearchesAction(): void
     {
+        $descriptions = [
+          'invoice' => Translator::translate('InvoicesAndOffers'),
+          'company' => Translator::translate('Clients'),
+        ];
         $type = getPostOrQuery('type', 'invoice');
         $action = getPost('action');
         if ('edit' === $action) {
@@ -240,24 +223,62 @@ class Search
             ];
             header('Location: index.php?' . http_build_query($params));
             exit();
-        } elseif ('delete' === $action) {
-            deleteQuickSearch(getPost('search'));
+        } elseif ('delete' === $action && ($searchId = getPost('search') > 0)) {
+            deleteQuickSearch($searchId);
         } elseif ('search' === $action) {
             $params = [
-              'func' => 'results',
-              'type' => $type,
-              'search_id' => getPost('search'),
+                'func' => 'results',
+                'type' => $type,
+                'search_id' => getPost('search'),
             ];
             header('Location: index.php?' . http_build_query($params));
             exit();
+        } elseif (in_array($action, ['add_start', 'add_default_start'])
+            && ($searchId = getPost('search'))
+        ) {
+            $default = 'add_default_start' === $action;
+            $this->setStartPageSearches(
+                array_unique(
+                    array_merge(
+                        $this->getStartPageSearches($default),
+                        [$searchId]
+                    )
+                ),
+                $default
+            );
+        } elseif ('remove_start' === $action) {
+            $searchId = intval(getPost('start_page') ?? 0);
+            $this->setStartPageSearches(
+                array_diff(
+                    $this->getStartPageSearches(),
+                    [$searchId]
+                )
+            );
+        } elseif ('remove_default_start' === $action) {
+            $searchId = intval(getPost('default_start_page') ?? 0);
+            $this->setStartPageSearches(
+                array_diff(
+                    $this->getStartPageSearches(true),
+                    [$searchId]
+                ),
+                true
+            );
+        } elseif ('reset_start' === $action) {
+            $this->setStartPageSearches([]);
+        } elseif ('copy_to_default' === $action) {
+            $this->setStartPageSearches($this->getStartPageSearches(false), true);
+        } elseif ('copy_to_own' === $action) {
+            $this->setStartPageSearches($this->getStartPageSearches(true), false);
+        } elseif ('reset_default_start' === $action) {
+            $this->setStartPageSearches([], true);
         }
-?>
+        ?>
 <form method="POST">
   <input type="hidden" name="func" value="edit_searches">
   <input type="hidden" name="action" value="">
-  <div class="row">
-    <div class="col-4">
-      <div class="mb-3">
+  <div class="row edit-searches">
+    <div class="col-12">
+      <div class="col-12 col-md-3 mb-3">
         <label for="search_type" class="form-label"><?php echo Translator::translate('SavedSearchType')?></label>
         <select id="search_type" name="type" class="form-select" size="2" data-form-submit-on-change>
           <option value="invoice" <?php echo 'invoice' === $type ? 'selected' : ''?>>
@@ -268,15 +289,24 @@ class Search
           </option>
         </select>
       </div>
+    </div>
+    <div class="col-12 col-xl-6">
       <div class="mb-1">
         <label for="search" class="form-label"><?php echo Translator::translate('SavedSearches')?></label>
         <select id="search" name="search" class="form-select" size="10">
           <?php foreach (getQuickSearches($type) as $search) { ?>
             <option value="<?php echo htmlentities($search['id'])?>"><?php echo htmlentities($search['name'])?></option>
           <?php } ?>
+          <?php if ('invoice' === $type) { ?>
+            <option value="">--- <?php echo Translator::translate('PredefinedSearches')?> ---</option>
+            <option value="-1"><?php echo Translator::translate('LabelInvoicesWithIntervalDue')?></option>
+            <option value="-2"><?php echo Translator::translate('LabelOpenInvoices')?></option>
+            <option value="-3"><?php echo Translator::translate('LabelUnpaidInvoices')?></option>
+            <option value="-4"><?php echo Translator::translate('LabelUnfinishedOffers')?></option>
+          <?php } ?>
         </select>
       </div>
-      <div>
+      <div class="mb-3">
         <a role="button" class="btn btn-secondary form-submit" data-set-field="action=edit">
           <?php echo Translator::translate('Edit') ?>
         </a>
@@ -286,11 +316,69 @@ class Search
         <a role="button" class="btn btn-secondary form-submit" data-set-field="action=search">
           <?php echo Translator::translate('Search') ?>
         </a>
+        <a role="button" class="btn btn-secondary form-submit" data-set-field="action=add_start">
+          <?php echo Translator::translate('AddToStartPage') ?>
+        </a>
+        <a role="button" class="btn btn-secondary form-submit" data-set-field="action=add_default_start"<?php echo !sesAdminAccess() ? ' disabled' : ''?>>
+          <?php echo Translator::translate('AddToDefaultStartPage') ?>
+        </a>
       </div>
     </div>
-    <div class="col-4">
-    </div>
-    <div class="col-4">
+    <div class="col-12 col-xl-6">
+      <div class="mb-1">
+        <label for="start_page" class="form-label"><?php echo Translator::translate('OwnStartPage')?></label>
+        <select id="start_page" name="start_page" class="form-select" size="10">
+          <?php foreach ($this->getStartPageSearches(false) as $i => $id) { ?>
+                <?php
+                if (!($search = getQuickSearch($id))) {
+                    continue;
+                }
+                if ($typeDesc = $descriptions[$search['func']] ?? '') {
+                    $typeDesc = " ($typeDesc)";
+                }
+                ?>
+              <option value="<?php echo htmlentities($id)?>"<?php echo 0 === $i ? ' selected' : ''?>><?php echo htmlentities($search['name'] . $typeDesc)?></option>
+          <?php } ?>
+        </select>
+      </div>
+      <div class="mb-3">
+        <a role="button" class="btn btn-secondary form-submit" data-set-field="action=remove_start">
+          <?php echo Translator::translate('RemoveFromStartPage') ?>
+        </a>
+        <a role="button" class="btn btn-secondary form-submit" data-set-field="action=copy_to_default"<?php echo !sesAdminAccess() ? ' disabled' : ''?>>
+          <?php echo Translator::translate('CopyToDefaultStartPage') ?>
+        </a>
+        <a role="button" class="btn btn-secondary form-submit" data-set-field="action=reset_start">
+          <?php echo Translator::translate('ResetStartPage') ?>
+        </a>
+      </div>
+      <div class="mb-1">
+        <label for="default_start_page" class="form-label"><?php echo Translator::translate('DefaultStartPage')?></label>
+        <select id="default_start_page" name="default_start_page" class="form-select" size="10">
+          <?php foreach ($this->getStartPageSearches(true) as $i => $id) { ?>
+                <?php
+                if (!($search = getQuickSearch($id))) {
+                    continue;
+                }
+                if ($typeDesc = $descriptions[$search['func']] ?? '') {
+                    $typeDesc = " ($typeDesc)";
+                }
+                ?>
+                <option value="<?php echo htmlentities($id)?>"<?php echo 0 === $i ? ' selected' : ''?>><?php echo htmlentities($search['name'] . $typeDesc)?></option>
+          <?php } ?>
+        </select>
+      </div>
+      <div class="mb-3">
+        <a role="button" class="btn btn-secondary form-submit" data-set-field="action=remove_default_start"<?php echo !sesAdminAccess() ? ' disabled' : ''?>>
+          <?php echo Translator::translate('RemoveFromStartPage') ?>
+        </a>
+        <a role="button" class="btn btn-secondary form-submit" data-set-field="action=copy_to_own">
+          <?php echo Translator::translate('CopyToOwnStartPage') ?>
+        </a>
+        <a role="button" class="btn btn-secondary form-submit" data-set-field="action=reset_default_start"<?php echo !sesAdminAccess() ? ' disabled' : ''?>>
+          <?php echo Translator::translate('ResetStartPage') ?>
+        </a>
+      </div>
     </div>
   </div>
 </form>
@@ -417,6 +505,49 @@ class Search
     }
 
     /**
+     * Get searches active on the start page
+     *
+     * @param mixed $default True to get the default set for all users, false to get
+     *                       only the user-specific set, null to get user-specific
+     *                       or default if no user-specific set exists.
+     *
+     * @return array
+     */
+    public function getStartPageSearches($default = null): array
+    {
+        if (null === $default) {
+            $searches = getSetting('startPageSearches' . $_SESSION['sesUSERID'])
+                ?: getSetting('startPageSearches', '-1,-2,-3,-4');
+        } elseif (false === $default) {
+            $searches = getSetting(
+                'startPageSearches' . $_SESSION['sesUSERID']
+            );
+        } else {
+            $searches = getSetting('startPageSearches') ?: '-1,-2,-3,-4';
+        }
+        return array_filter(explode(',', $searches));
+    }
+
+    /**
+     * Set searches active on the start page
+     *
+     * @param array $searches Searches
+     * @param bool  $default  Whether to set the default set for all users
+     *
+     * @return void
+     */
+    protected function setStartPageSearches(array $searches, bool $default = false): void
+    {
+        $key = 'startPageSearches';
+        if (!$default) {
+            $key .= $_SESSION['sesUSERID'];
+        } elseif (!sesAdminAccess()) {
+            return;
+        }
+        setSetting($key, implode(',', $searches));
+    }
+
+    /**
      * Get search data from request params
      *
      * @return array
@@ -517,6 +648,9 @@ class Search
                     }
                     $value = "'$value'";
                     break;
+                case 'CHECK':
+                    $value = Translator::translate($value ? 'Selected' : 'Unselected');
+                    break;
                 }
 
                 $joins = [
@@ -545,6 +679,39 @@ class Search
         return implode(
             ' ' . Translator::translate('Search' . $operator) . ' ',
             $groups
+        );
+    }
+
+    /**
+     * Pre-process form config fields
+     *
+     * @param array $fields Form fields
+     *
+     * @return array
+     */
+    protected function processFormConfigFields($fields)
+    {
+        return array_map(
+            function ($field) {
+                if (isset($field['label'])) {
+                    $field['label'] = str_replace('<br>', ' ', Translator::translate($field['label']));
+                }
+                if ('LIST' === $field['type']) {
+                    if (is_string($field['listquery'])) {
+                        $values = [];
+                        $res = dbQueryCheck($field['listquery']);
+                        while ($row = mysqli_fetch_row($res)) {
+                            $values[$row[0]] = $row[1];
+                        }
+                        $field['options'] = $values;
+                    } else {
+                        $field['options'] = $field['listquery'];
+                    }
+                    $field['options'] = array_map('Translator::translate', $field['options']);
+                }
+                return $field;
+            },
+            $fields
         );
     }
 }

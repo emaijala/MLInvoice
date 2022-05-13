@@ -1081,13 +1081,157 @@ EOT
  *
  * @return array
  */
-function getQuickSearch($id)
+function getQuickSearch(int $id): array
 {
+    if ($id < 0) {
+        switch ($id) {
+        case -1: // repeating invoices
+            $label = 'LabelInvoicesWithIntervalDue';
+            $groups = [
+                [
+                    'operator' => 'AND',
+                    'fields' => [
+                        [
+                            'name' => 'interval_type',
+                            'value' => '0',
+                            'comparison' => 'ne'
+                        ],
+                        [
+                            'name' => 'archived',
+                            'value' => '0',
+                            'comparison' => 'eq'
+                        ],
+                        [
+                            'name' => 'next_interval_date',
+                            'value' => date('Y-m-d'),
+                            'comparison' => 'lte'
+                        ],
+                    ],
+                ],
+            ];
+            break;
+        case -2: // open invoices
+            $label = 'LabelOpenInvoices';
+            $stateFields = [];
+            $rows = dbParamQuery(
+                'SELECT id FROM {prefix}invoice_state WHERE invoice_open=1 AND invoice_offer=0'
+            );
+            foreach ($rows as $row) {
+                $stateFields[] = [
+                    'name' => 'state_id',
+                    'value' => $row['id'],
+                    'comparison' => 'eq',
+                ];
+            }
+            $groups = [
+                [
+                    'operator' => 'OR',
+                    'fields' => $stateFields,
+                ],
+                [
+                    'operator' => 'AND',
+                    'fields' => [
+                        [
+                            'name' => 'archived',
+                            'value' => '0',
+                            'comparison' => 'eq'
+                        ],
+                    ]
+                ]
+            ];
+            break;
+        case -3: // unpaid invoices
+            $label = 'LabelUnpaidInvoices';
+            $stateFields = [];
+            $rows = dbParamQuery(
+                'SELECT id FROM {prefix}invoice_state WHERE invoice_open=0 AND invoice_unpaid=1 AND invoice_offer=0'
+            );
+            foreach ($rows as $row) {
+                $stateFields[] = [
+                    'name' => 'state_id',
+                    'value' => $row['id'],
+                    'comparison' => 'eq',
+                ];
+            }
+            $groups = [
+                [
+                    'operator' => 'OR',
+                    'fields' => $stateFields,
+                ],
+                [
+                    'operator' => 'AND',
+                    'fields' => [
+                        [
+                            'name' => 'archived',
+                            'value' => '0',
+                            'comparison' => 'eq'
+                        ],
+                    ]
+                ]
+            ];
+            break;
+        case -4: // open offers
+            $label = 'LabelUnfinishedOffers';
+            $stateFields = [];
+            $rows = dbParamQuery(
+                'SELECT id FROM {prefix}invoice_state WHERE invoice_open=1 AND invoice_offer=1'
+            );
+            foreach ($rows as $row) {
+                $stateFields[] = [
+                    'name' => 'state_id',
+                    'value' => $row['id'],
+                    'comparison' => 'eq',
+                ];
+            }
+            $groups = [
+                [
+                    'operator' => 'OR',
+                    'fields' => $stateFields,
+                ],
+                [
+                    'operator' => 'AND',
+                    'fields' => [
+                        [
+                            'name' => 'archived',
+                            'value' => '0',
+                            'comparison' => 'eq'
+                        ],
+                    ]
+                ]
+            ];
+            break;
+        default:
+            throw new \Exception('Invalid search id');
+        }
+
+        return [
+            'id' => $id,
+            'user_id' => null,
+            'name' => Translator::translate($label),
+            'func' => 'invoice',
+            'whereclause' => json_encode(
+                [
+                    'type' => 'invoice',
+                    'operator' => 'AND',
+                    'groups' => $groups,
+                ]
+            )
+        ];
+    }
+
     $rows = dbParamQuery(
         'SELECT * FROM {prefix}quicksearch WHERE id=? AND user_id=?',
         [$id, $_SESSION['sesUSERID']]
     );
-    return $rows ? $rows[0] : [];
+    $result = $rows ? $rows[0] : [];
+    if ($result) {
+        if ('companies' === $result['func']) {
+            $result['func'] = 'company';
+        } elseif (substr($result['func'], -1) === 's') {
+            $result['func'] = substr($result['func'], 0, -1);
+        }
+    }
+    return $result;
 }
 
 /**

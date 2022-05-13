@@ -681,8 +681,7 @@ function createListQuery($strFunc, $strList, $startRow, $rowCount, $sort,
     $prefix = _DB_PREFIX_ . '_';
 
     $search = new Search();
-    if (null !== $searchId && $searchId > 0) {
-        $searchId = intval($searchId);
+    if (!empty($searchId)) {
         if (!($searchData = getQuickSearch($searchId))) {
             return;
         }
@@ -708,7 +707,9 @@ function createListQuery($strFunc, $strList, $startRow, $rowCount, $sort,
                 $expressions[] = $qb->expr()->in('tag.tag', explode(',', $value));
             } else {
                 $param = $qb->createNamedParameter($field['value']);
-                $type = $listConfig['alias'] . ".$type";
+                if ($listConfig['alias'] && strpos($type, '.') === false) {
+                    $type = $listConfig['alias'] . ".$type";
+                }
                 switch ($field['comparison']) {
                 case 'eq':
                     $expressions[] = $qb->expr()->eq($type, $param);
@@ -746,35 +747,6 @@ function createListQuery($strFunc, $strList, $startRow, $rowCount, $sort,
         } else {
             $qb->andWhere($expressionSet);
         }
-    }
-
-    switch ($searchId) {
-    case -1: // repeating invoices
-        $currentDate = date('Ymd');
-        $qb
-            ->andWhere('i.interval_type > 0')
-            ->andWhere('i.archived = 0')
-            ->andWhere("i.next_interval_date <= $currentDate");
-        break;
-    case -2: // open invoices
-        $qb
-            ->andWhere('s.invoice_open = 1')
-            ->andWhere('s.invoice_offer = 0')
-            ->andWhere('i.archived = 0');
-        break;
-    case -3: // unpaid invoices
-        $qb
-            ->andWhere('s.invoice_open = 0')
-            ->andWhere('s.invoice_unpaid = 1')
-            ->andWhere('s.invoice_offer = 0')
-            ->andWhere('i.archived = 0');
-        break;
-    case -4: // open offers
-        $qb
-            ->andWhere('s.invoice_open = 1')
-            ->andWhere('s.invoice_offer = 1')
-            ->andWhere('i.archived = 0');
-        break;
     }
 
     if (!getSetting('show_deleted_records') && $listConfig['deletedField']) {

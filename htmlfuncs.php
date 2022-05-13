@@ -198,7 +198,9 @@ function htmlPageStart($strTitle = '', $arrExtraScripts = [], $loggedIn = true)
         'SearchLessThan',
         'SearchLessThanOrEqual',
         'SearchGreaterThan',
-        'SearchGreaterThanOrEqual'
+        'SearchGreaterThanOrEqual',
+        'Selected',
+        'Unselected',
     ];
 
     $res = dbQueryCheck(
@@ -509,7 +511,18 @@ function htmlMainTabs($func)
                         ROLE_USER,
                         ROLE_BACKUPMGR
                     ]
-                ]
+                ],
+                [
+                    'title' => 'StartPageAndSavedSearches',
+                    'action' => [
+                        'func' => 'edit_searches',
+                        'type' => 'invoice',
+                    ],
+                    'levels_allowed' => [
+                        ROLE_USER,
+                        ROLE_BACKUPMGR
+                    ]
+                ],
             ]
         ],
         [

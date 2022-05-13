@@ -33,6 +33,7 @@ require_once 'datefuncs.php';
 require_once 'translator.php';
 require_once 'list.php';
 require_once 'settings.php';
+require_once 'search.php';
 
 /**
  * Create start page
@@ -41,49 +42,38 @@ require_once 'settings.php';
  */
 function createStartPage()
 {
-    $currentDate = date('Ymd');
-
-    $res = dbQueryCheck(
-        "select count(*) as cnt from {prefix}invoice i where i.deleted = 0"
-        . " AND i.interval_type > 0 AND i.next_interval_date <= $currentDate"
-        . " AND i.archived = 0"
-    );
-    $row = mysqli_fetch_assoc($res);
-    if ($row['cnt'] > 0) {
+    $search = new Search();
+    $searches = $search->getStartPageSearches();
+    foreach ($searches as $searchId) {
+        $searchId = intval($searchId);
+        $search = getQuickSearch($searchId);
+        if (null === $search) {
+            continue;
+        }
+        switch ($searchId) {
+        case -1:
+            $listName = 'resultlist_repeating_invoices';
+            break;
+        case -2:
+            $listName = 'resultlist_open_invoices';
+            break;
+        case -3:
+            $listName = 'resultlist_unpaid_invoices';
+            break;
+        case -4:
+            $listName = 'resultlist_offers';
+            break;
+        default:
+            $listName = "resultlist_$searchId";
+            break;
+        }
         createList(
-            'start_page', 'invoice', 'resultlist_repeating_invoices',
-            Translator::translate('LabelInvoicesWithIntervalDue'),
-            -1,
-            true,
+            'start_page', $search['func'], $listName,
+            $search['name'],
+            $searchId,
+            'invoice' === $search['func'],
             false,
-            'invoice'
+            $search['func']
         );
     }
-
-    createList(
-        'start_page', 'invoice', 'resultlist_open_invoices',
-        Translator::translate('LabelOpenInvoices'),
-        -2,
-        true,
-        false,
-        'invoice'
-    );
-
-    createList(
-        'start_page', 'invoice', 'resultlist_unpaid_invoices',
-        Translator::translate('LabelUnpaidInvoices'),
-        -3,
-        true,
-        false,
-        'invoice'
-    );
-
-    createList(
-        'start_page', 'offer', 'resultlist_offers',
-        Translator::translate('LabelUnfinishedOffers'),
-        -4,
-        true,
-        false,
-        'offer'
-    );
 }
