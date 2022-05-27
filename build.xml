@@ -25,10 +25,10 @@
 
   <!-- eslint -->
   <target name="eslint">
-    <exec command="node_modules/.bin/eslint js/mlinvoice.js js/mlinvoice-form.js" escape="false" checkreturn="true" passthru="true" />
+    <exec command="npx eslint js/mlinvoice.js js/mlinvoice-form.js" escape="false" checkreturn="true" passthru="true" />
   </target>
   <target name="eslint-fix">
-    <exec command="node_modules/.bin/eslint js/mlinvoice.js js/mlinvoice-form.js --fix" escape="false" checkreturn="true" passthru="true" />
+    <exec command="npx eslint js/mlinvoice.js js/mlinvoice-form.js --fix" escape="false" checkreturn="true" passthru="true" />
   </target>
 
   <!-- PHP CodeSniffer -->
