@@ -70,6 +70,8 @@ div.function_navi {
 }
 
 #form {
+  display: flex;
+  flex-wrap: wrap;
   box-sizing: border-box;
   .field:not(.hidden) {
     display: flex;
