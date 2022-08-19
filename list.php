@@ -1025,7 +1025,7 @@ EOT;
         }
     }
 
-    $fullQuery = "SELECT $strSelectClause FROM {$listConfig['table']} $strWhereClause{$listConfig['groupBy']}";
+    $fullQuery = "SELECT $strSelectClause FROM {prefix}{$listConfig['table']} $strWhereClause{$listConfig['groupBy']}";
     if ($sort) {
         $fullQuery .= " ORDER BY $sort";
     }
