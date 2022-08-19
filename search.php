@@ -517,7 +517,7 @@ class Search
     {
         if (null === $default) {
             $searches = getSetting('startPageSearches' . $_SESSION['sesUSERID'])
-                ?: getSetting('startPageSearches', '-1,-2,-3,-4');
+                ?: getSetting('startPageSearches') ?: '-1,-2,-3,-4';
         } elseif (false === $default) {
             $searches = getSetting(
                 'startPageSearches' . $_SESSION['sesUSERID']
