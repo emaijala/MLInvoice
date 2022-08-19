@@ -1015,11 +1015,11 @@ function createJSONSelectList($strList, $startRow, $rowCount, $filter, $sort,
         if (!empty($companyId)) {
             $customPrices = getCustomPriceSettings($companyId);
         }
-        if ($customPrices) {
+        if ($customPrices && false) {
             // Include any custom prices
             $strSelectClause .= <<<EOT
 , (SELECT unit_price FROM {prefix}custom_price_map pm WHERE pm.custom_price_id = ?
-AND pm.product_id = {$listConfig['table']}.id) custom_unit_price
+AND pm.product_id = {prefix}{$listConfig['table']}.id) custom_unit_price
 EOT;
             array_unshift($arrQueryParams, $customPrices['id']);
         }
