@@ -799,7 +799,7 @@ EOF;
     ];
     for ($i = 4; $i <= 8; $i++) {
         $intervalOptions[(string)$i]
-            = sprintf(Translator::translate('InvoiceIntervalMonths'), $i - 2);
+            = str_replace('%d', $i - 2, Translator::translate('InvoiceIntervalMonths'));
     }
 
     $stateQuery = 'SELECT id, name FROM {prefix}invoice_state WHERE deleted=0 AND ';

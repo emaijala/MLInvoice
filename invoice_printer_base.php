@@ -1014,9 +1014,10 @@ EOT;
         if ($this->printStyle == 'invoice') {
             if ($invoiceData['refunded_invoice_no']) {
                 $data['RefundsInvoice'] = [
-                    'value' => sprintf(
-                        $this->translate('RefundsInvoice'),
-                        $invoiceData['refunded_invoice_no']
+                    'value' => str_replace(
+                        '%d',
+                        $invoiceData['refunded_invoice_no'],
+                        $this->translate('RefundsInvoice')
                     ),
                     'type' => 'textonly'
                 ];
@@ -2099,9 +2100,10 @@ EOT;
         $pdf->SetXY($intStartX + 112.4, $intStartY + 18);
         $pdf->Cell(
             70, 5,
-            sprintf(
-                $this->translate('FormInvoiceNumber'),
-                $invoiceData['invoice_no']
+            str_replace(
+                '%d',
+                $invoiceData['invoice_no'],
+                $this->translate('FormInvoiceNumber')
             ),
             0, 1, 'L'
         );
@@ -2483,9 +2485,10 @@ EOT;
     protected function getPrintOutFileName($filename = '')
     {
         // Replace the %d style placeholder
-        $filename = sprintf(
-            $filename ? $filename : $this->outputFileName,
-            $this->invoiceData['invoice_no'] ?? ''
+        $filename = str_replace(
+            '%d',
+            $this->invoiceData['invoice_no'] ?? '',
+            $filename ? $filename : $this->outputFileName
         );
         // Handle additional placeholders
         $filename = $this->replacePlaceholders($filename);
@@ -2551,7 +2554,7 @@ EOT;
             $result = getSetting('invoice_terms_of_payment');
         }
         $result = $this->translate($result);
-        return sprintf($result, $paymentDays);
+        return str_replace('%d', $paymentDays, $result);
     }
 
     /**
