@@ -115,6 +115,8 @@ div.function_navi {
       }
       .medium {
         width: 180px;
+        // Ensure that select2 can't widen the field:
+        max-width: 180px;
       }
       .date {
         width: 150px;
@@ -237,6 +239,10 @@ div.unlimited_label {
 
 div.field {
   margin-bottom: 8px;
+
+  &.medium {
+    width: 180px;
+  }
 }
 
 div.static-field {
@@ -359,6 +365,9 @@ td.reportsublabel {
   }
   .summary-heading {
     text-align: right;
+  }
+  .select2-container {
+    width: 100%;
   }
 }
 

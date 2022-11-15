@@ -122,6 +122,9 @@ var MLInvoice = (function CreateMLInvoice() {
 
   function ajaxErrorHandler(XMLHTTPReq) {
     $('#spinner').addClass('hidden');
+    if (XMLHTTPReq.status === 0) {
+      return false;
+    }
     if (XMLHTTPReq.status == 409) {
       errormsg(JSON.parse(XMLHTTPReq.responseText).warnings);
     } else {

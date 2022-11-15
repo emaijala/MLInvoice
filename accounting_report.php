@@ -81,7 +81,7 @@ class AccountingReport extends InvoiceReport
             </div>
 
             <div class="medium_label"><?php echo Translator::translate('Tags')?></div>
-            <div class="field">
+            <div class="field medium">
                 <?php echo htmlFormElement('tags', 'TAGS', $companyTags, 'noemptyvalue long', 'table=company_tag&sort=tag', 'MODIFY', false)?>
             </div>
         <?php

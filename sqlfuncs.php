@@ -353,6 +353,19 @@ function getOfferStateIds()
  */
 function getTags($type, $id)
 {
+    return implode(',', getTagsArray($type, $id));
+}
+
+/**
+ * Get tags for a record
+ *
+ * @param string $type Record type (company, contact)
+ * @param int    $id   Record ID
+ *
+ * @return array
+ */
+function getTagsArray($type, $id)
+{
     $tags = [];
     $rows = dbParamQuery(
         <<<EOT
@@ -366,7 +379,7 @@ EOT
     foreach ($rows as $tagRow) {
         $tags[] = $tagRow['tag'];
     }
-    return implode(',', $tags);
+    return $tags;
 }
 
 /**
@@ -374,7 +387,7 @@ EOT
  *
  * @param string $type Record type (company, contact)
  * @param int    $id   Record ID
- * @param string $tags Comma-separated list of tags
+ * @param array  $tags Tags
  *
  * @return void
  */
@@ -390,7 +403,7 @@ function saveTags($type, $id, $tags)
     );
     if ($tags) {
         // Save tags
-        foreach (explode(',', $tags) as $tag) {
+        foreach ($tags as $tag) {
             $tag = trim($tag);
             $rows = dbParamQuery(
                 "SELECT id FROM {prefix}${type}_tag WHERE tag=?",

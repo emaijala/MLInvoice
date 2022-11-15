@@ -88,7 +88,7 @@ function htmlPageStart($strTitle = '', $arrExtraScripts = [], $loggedIn = true)
         'js/vendor/moment-with-locales.min.js',
         'js/vendor/daterangepicker.min.js',
         'js/mlinvoice.min.js',
-        'select2/select2.min.js',
+        'node_modules/select2/dist/js/select2.js',
         'js/formdata.min.js',
         'js/vendor/js.cookie-2.2.1.min.js',
         'js/vendor/Sortable.min.js',
@@ -113,7 +113,7 @@ function htmlPageStart($strTitle = '', $arrExtraScripts = [], $loggedIn = true)
         'css/vendor/daterangepicker.css',
         'css/vendor/dataTables.bootstrap5.min.css',
         'datatables/Buttons-1.6.5/css/buttons.dataTables.min.css',
-        'select2/select2.css',
+        'node_modules/select2/dist/css/select2.min.css',
         getSetting('printout_markdown') ? 'css/easymde.min.css' : '',
         'css/style.css',
     ];
@@ -990,10 +990,15 @@ function htmlFormElement($strName, $strType, $strValue, $strStyle, $strListQuery
                 $showEmpty = '0';
             }
             $strValue = htmlspecialchars($strValue);
+            $valueDesc = htmlspecialchars(
+                getSearchListSelectedValue($strListQuery, $strValue, false)
+            );
             $onChange = $astrAdditionalAttributes ? trim($astrAdditionalAttributes) : '';
             $encodedQuery = htmlspecialchars($strListQuery);
             $strFormElement = <<<EOT
-<input type="text" class="$strStyle select2" id="$strName" name="$strName" value="$strValue" data-query="$encodedQuery" data-show-empty="$showEmpty" data-on-change="$onChange"/>
+<select autocomplete="off" class="$strStyle select2" id="$strName" name="$strName" data-list-query="$encodedQuery" data-show-empty="$showEmpty" data-on-change="$onChange">
+  <option value="$strValue" selected>$valueDesc</option>
+</select>
 EOT;
         } else {
             $strFormElement = "<input type=\"text\" class=\"form-control $strStyle\" " .
@@ -1030,12 +1035,19 @@ EOT;
                 $strStyle = str_replace('noemptyvalue ', '', $strStyle);
                 $showEmpty = '0';
             }
-            $strValue = htmlspecialchars($strValue);
+            $values = $strValue ? explode(',', $strValue) : [];
             $onChange = $astrAdditionalAttributes ? trim($astrAdditionalAttributes) : '';
             $encodedQuery = htmlspecialchars($strListQuery);
             $strFormElement = <<<EOT
-<input type="hidden" class="$strStyle select2 tags" id="$strName" name="$strName" value="$strValue" data-query="$encodedQuery" data-show-empty="$showEmpty" data-on-change="$onChange"/>
+<select multiple autocomplete="off" class="$strStyle select2 tags" id="$strName" name="$strName" data-list-query="$encodedQuery" data-show-empty="$showEmpty" data-on-change="$onChange">
+
 EOT;
+            foreach ($values as $value) {
+                $value = htmlspecialchars($value);
+                $strFormElement .= '<option value="' . $value . '" selected>' . $value . "</option>\n";
+            }
+
+            $strFormElement .= '</select>';
         } else {
             $strFormElement = "<input type=\"text\" class=\"form-control $strStyle\" " .
                  "id=\"$strName\" name=\"$strName\" value=\"" .

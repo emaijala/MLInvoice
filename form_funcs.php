@@ -407,13 +407,13 @@ function saveFormData($table, &$primaryKey, $formElements, &$values, &$warnings,
                 saveTags(
                     'company',
                     $primaryKey,
-                    !empty($values['tags']) ? $values['tags'] : ''
+                    $values['tags'] ?? []
                 );
             } elseif ($table === '{prefix}company_contact') {
                 saveTags(
                     'contact',
                     $primaryKey,
-                    !empty($values['tags']) ? $values['tags'] : ''
+                    $values['tags'] ?? []
                 );
             }
         } catch (Exception $e) {
