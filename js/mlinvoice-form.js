@@ -15,7 +15,7 @@ MLInvoice.addModule('Form', function mlinvoiceForm() {
 
     _formConfig.modificationWarningShown = false;
 
-    $('#admin_form')
+    $('#form')
       .find('input[type="text"],[type="date"]:not([name="payment_date"]),input[type="hidden"],input[type="checkbox"]:not([name="archived"]),select:not(.dropdownmenu),textarea')
       .one('change', startChanging);
 
@@ -777,7 +777,7 @@ MLInvoice.addModule('Form', function mlinvoiceForm() {
     if (typeof date !== 'undefined') {
       target += '&date=' + date;
     }
-    var form = $('#admin_form');
+    var form = $('#form');
     if (typeof form.data('readOnly') === 'undefined') {
       MLInvoice.Form.saveRecord(target, printStyle, true);
     } else if (printStyle === 'openwindow') {
@@ -794,7 +794,7 @@ MLInvoice.addModule('Form', function mlinvoiceForm() {
       return false;
     }
 
-    var form = $('#admin_form');
+    var form = $('#form');
     if (typeof form.data('readOnly') === 'undefined') {
       MLInvoice.Form.saveRecord(url, '', true);
     } else {
@@ -804,7 +804,7 @@ MLInvoice.addModule('Form', function mlinvoiceForm() {
   }
 
   function _verifyPrintable() {
-    var form = $('#admin_form');
+    var form = $('#form');
     if (typeof form.data('checkInvoiceDate') !== 'undefined') {
       var invoiceDate = $('#invoice_date').val();
       if (invoiceDate !== moment().format('YYYY-MM-DD')) {
@@ -1003,7 +1003,7 @@ MLInvoice.addModule('Form', function mlinvoiceForm() {
   function saveRecord(redirectUrl, redirectStyle, onPrint)
   {
     MLInvoice.clearMessages();
-    var $form = $('#admin_form');
+    var $form = $('#form');
     var formdata = new FormData();
     $.each(_formConfig.fields, function processField(i, field) {
       var value = $form.find('[name=' + field.name + ']');

@@ -87,12 +87,19 @@ function htmlPageStart($strTitle = '', $arrExtraScripts = [], $loggedIn = true)
         'datatables/Buttons-1.6.5/js/buttons.colVis.min.js',
         'js/vendor/moment-with-locales.min.js',
         'js/vendor/daterangepicker.min.js',
-        'js/mlinvoice.min.js',
         'node_modules/select2/dist/js/select2.js',
         'js/formdata.min.js',
         'js/vendor/js.cookie-2.2.1.min.js',
         'js/vendor/Sortable.min.js',
     ];
+
+    if (defined('_JS_DEBUG_')) {
+        $scripts[] = 'js/mlinvoice.js';
+        $scripts[] = 'js/mlinvoice-form.js';
+        $scripts[] = 'js/mlinvoice-search.js';
+    } else {
+        $scripts[] = 'js/mlinvoice.min.js';
+    }
 
     if (getSetting('printout_markdown')) {
         $scripts[] = 'js/easymde.min.js';
@@ -184,7 +191,16 @@ function htmlPageStart($strTitle = '', $arrExtraScripts = [], $loggedIn = true)
         'Info',
         'ServerError',
         'Total',
-        'VisiblePage'
+        'VisiblePage',
+        'SearchSaved',
+        'SearchEqual',
+        'SearchNotEqual',
+        'SearchLessThan',
+        'SearchLessThanOrEqual',
+        'SearchGreaterThan',
+        'SearchGreaterThanOrEqual',
+        'Selected',
+        'Unselected',
     ];
 
     $res = dbQueryCheck(
@@ -353,6 +369,30 @@ function htmlMainTabs($func)
                         ROLE_BACKUPMGR,
                     ],
                 ],
+                [
+                    'title' => 'NewOffer',
+                    'action' => [
+                        'func' => 'invoices',
+                        'form' => 'invoice',
+                        'offer' => '1',
+                    ],
+                    'levels_allowed' => [
+                        ROLE_USER,
+                        ROLE_BACKUPMGR,
+                    ],
+                ],
+                [
+                    'title' => 'ExtSearch',
+                    'action' => [
+                        'func' => 'search',
+                        'form' => 'invoice',
+                    ],
+                    'levels_allowed' => [
+                        ROLE_READONLY,
+                        ROLE_USER,
+                        ROLE_BACKUPMGR,
+                    ],
+                ],
             ]
         ],
         [
@@ -471,7 +511,18 @@ function htmlMainTabs($func)
                         ROLE_USER,
                         ROLE_BACKUPMGR
                     ]
-                ]
+                ],
+                [
+                    'title' => 'StartPageAndSavedSearches',
+                    'action' => [
+                        'func' => 'edit_searches',
+                        'type' => 'invoice',
+                    ],
+                    'levels_allowed' => [
+                        ROLE_USER,
+                        ROLE_BACKUPMGR
+                    ]
+                ],
             ]
         ],
         [
@@ -715,34 +766,39 @@ function createNavBar($buttons, $currentFunc = '')
 /**
  * Create Html-listbox
  *
- * @param string $strName                  Listbox name
- * @param array  $astrValues               Listbox values => descriptions
- * @param string $strSelected              Selected value
- * @param string $strStyle                 Style
- * @param bool   $blnSubmitOnChange        Whether to submit the form when value is
- *                                         changed
- * @param bool   $blnShowEmpty             Whether to show "empty" value
- * @param string $astrAdditionalAttributes Any additional attributes
- * @param bool   $translate                Whether the options are translated
+ * @param string      $strName         Listbox name
+ * @param array       $astrValues      Listbox values => descriptions
+ * @param string      $strSelected     Selected value
+ * @param string      $strStyle        Style
+ * @param bool        $submitOnChange  Whether to submit the form when value is
+ *                                     changed
+ * @param bool|string $showEmpty       Whether to show "empty" value (string for
+ *                                     translated value)
+ * @param string      $additionalAttrs Any additional attributes
+ * @param bool        $translate       Whether the options are translated
  *
  * @return string HTML
  */
 function htmlListBox($strName, $astrValues, $strSelected, $strStyle = '',
-    $blnSubmitOnChange = false, $blnShowEmpty = true, $astrAdditionalAttributes = '',
+    $submitOnChange = false, $showEmpty = true, $additionalAttrs = '',
     $translate = false
 ) {
-
     $strOnChange = '';
-    if ($blnSubmitOnChange) {
+    if ($submitOnChange) {
         $strOnChange = " onchange='this.form.submit();'";
     }
-    if ($astrAdditionalAttributes) {
-        $astrAdditionalAttributes = " $astrAdditionalAttributes";
+    if ($additionalAttrs) {
+        $additionalAttrs = " $additionalAttrs";
     }
-    $strListBox = "<select class=\"$strStyle\" id=\"$strName\" name=\"$strName\"{$strOnChange}{$astrAdditionalAttributes}>\n";
-    if ($blnShowEmpty) {
+    $strListBox = "<select class=\"$strStyle\" id=\"$strName\" name=\"$strName\"{$strOnChange}{$additionalAttrs}>\n";
+    if ($showEmpty) {
+        if (true === $showEmpty) {
+            $showEmpty = ' - ';
+        } else {
+            $showEmpty = Translator::translate($showEmpty);
+        }
         $strListBox .= '<option value=""' . ($strSelected ? '' : ' selected') .
-             "> - </option>\n";
+             ">$showEmpty</option>\n";
     }
 
     foreach ($astrValues as $value => $desc) {

@@ -486,7 +486,7 @@ var MLInvoice = (function CreateMLInvoice() {
     });
 
     // Page exit data confirmation
-    $('#admin_form').find('input[type="text"],input[type="date"],input[type="hidden"]:not(.select-default-text),input[type="checkbox"],select:not(.dropdownmenu),textarea')
+    $('#form').find('input[type="text"],input[type="date"],input[type="hidden"]:not(.select-default-text),input[type="checkbox"],select:not(.dropdownmenu),textarea')
       .on('change', function onFormFieldChange() {
         highlightButton('.save_button', true);
       });
@@ -570,6 +570,14 @@ var MLInvoice = (function CreateMLInvoice() {
       window.close();
       return false;
     });
+    $('[data-form-submit-on-change').on('change', function formSubmit() {
+      var $el = $(this);
+
+      var formName = $el.data('form');
+      var $form = formName ? $('#' + formName) : $('form');
+      $form.trigger('submit');
+      return false;
+    });
     $('[data-form-cancel]').on('click', function formCancel() {
       if (window.opener) {
         window.close();
@@ -610,6 +618,27 @@ var MLInvoice = (function CreateMLInvoice() {
           $('#invoice_no').val(json.invoice_no);
           $('#ref_number').val(json.ref_no);
           highlightButton('.save_button', true);
+        }
+      );
+      return false;
+    });
+    $('[data-save-search]').on('click', function saveSearch() {
+      const parts = window.location.href.split('?');
+      if (typeof parts[1] === 'undefined') {
+        MLInvoice.errormsg('Cannot save an empty search');
+        return false;
+      }
+      let query = '?' + parts[1];
+      query = query.replace(/([?&]func=)results/, '$1save_search');
+      query += '&name=' + encodeURIComponent($('#search_name').val());
+      $.getJSON(
+        'json.php' + query,
+        function saveSearchDone(json) {
+          if (json.errors) {
+            MLInvoice.errormsg(json.errors);
+          } else {
+            MLInvoice.infomsg(MLInvoice.translate('SearchSaved'));
+          }
         }
       );
       return false;

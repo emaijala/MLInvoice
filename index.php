@@ -141,7 +141,10 @@ $level = 1;
 if ($strList && $strFunc == 'multiedit') {
     ++$level;
 }
-if ($strForm) {
+if ($strForm && 'search' !== $strFunc) {
+    ++$level;
+}
+if ('results' === $strFunc) {
     ++$level;
 }
 $arrHistory = updateNavigationHistory($title, $_SERVER['QUERY_STRING'], $level);
@@ -235,6 +238,18 @@ if ($strFunc == 'system' && $operation == 'export' && sesAdminAccess()) {
     include_once 'multiedit.php';
     $multiedit = new MultiEdit();
     $multiedit->launch();
+} elseif ($strFunc == 'search') {
+    include_once 'search.php';
+    $search = new Search();
+    $search->formAction();
+} elseif ($strFunc == 'results') {
+    include_once 'search.php';
+    $search = new Search();
+    $search->resultsAction();
+} elseif ($strFunc == 'edit_searches') {
+    include_once 'search.php';
+    $search = new Search();
+    $search->editSearchesAction();
 } else {
     if ($strForm) {
         createForm($strFunc, $strList, $strForm);

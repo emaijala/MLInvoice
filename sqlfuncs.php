@@ -5,7 +5,7 @@
  * PHP version 7
  *
  * Copyright (C) Samu Reinikainen 2004-2008
- * Copyright (C) Ere Maijala 2010-2021
+ * Copyright (C) Ere Maijala 2010-2022
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2,
@@ -27,6 +27,8 @@
  * @link     http://labs.fi/mlinvoice.eng.php
  */
 require_once 'config.php';
+
+use Doctrine\DBAL\QueryBuilder;
 
 $dblink = null;
 
@@ -1064,6 +1066,203 @@ function getInvoiceAttachment($id)
 }
 
 /**
+ * Get quick searches for the current user
+ *
+ * @param string $type Search type (func)
+ *
+ * @return array
+ */
+function getQuickSearches(string $type): array
+{
+    $rows = dbParamQuery(
+        <<<EOT
+SELECT *
+  FROM {prefix}quicksearch
+  WHERE (func=? OR func=?) AND user_id=?
+  ORDER BY name, id
+EOT
+        ,
+        [$type, 'company' === $type ? 'companies' : ($type . 's'), $_SESSION['sesUSERID']]
+    );
+    return $rows ? $rows : [];
+}
+
+/**
+ * Get a quick search
+ *
+ * @param int $id Quick search ID
+ *
+ * @return array
+ */
+function getQuickSearch(int $id): array
+{
+    if ($id < 0) {
+        switch ($id) {
+        case -1: // repeating invoices
+            $label = 'LabelInvoicesWithIntervalDue';
+            $groups = [
+                [
+                    'operator' => 'AND',
+                    'fields' => [
+                        [
+                            'name' => 'interval_type',
+                            'value' => '0',
+                            'comparison' => 'ne'
+                        ],
+                        [
+                            'name' => 'archived',
+                            'value' => '0',
+                            'comparison' => 'eq'
+                        ],
+                        [
+                            'name' => 'next_interval_date',
+                            'value' => date('Y-m-d'),
+                            'comparison' => 'lte'
+                        ],
+                    ],
+                ],
+            ];
+            break;
+        case -2: // open invoices
+            $label = 'LabelOpenInvoices';
+            $stateFields = [];
+            $rows = dbParamQuery(
+                'SELECT id FROM {prefix}invoice_state WHERE invoice_open=1 AND invoice_offer=0'
+            );
+            foreach ($rows as $row) {
+                $stateFields[] = [
+                    'name' => 'state_id',
+                    'value' => $row['id'],
+                    'comparison' => 'eq',
+                ];
+            }
+            $groups = [
+                [
+                    'operator' => 'OR',
+                    'fields' => $stateFields,
+                ],
+                [
+                    'operator' => 'AND',
+                    'fields' => [
+                        [
+                            'name' => 'archived',
+                            'value' => '0',
+                            'comparison' => 'eq'
+                        ],
+                    ]
+                ]
+            ];
+            break;
+        case -3: // unpaid invoices
+            $label = 'LabelUnpaidInvoices';
+            $stateFields = [];
+            $rows = dbParamQuery(
+                'SELECT id FROM {prefix}invoice_state WHERE invoice_open=0 AND invoice_unpaid=1 AND invoice_offer=0'
+            );
+            foreach ($rows as $row) {
+                $stateFields[] = [
+                    'name' => 'state_id',
+                    'value' => $row['id'],
+                    'comparison' => 'eq',
+                ];
+            }
+            $groups = [
+                [
+                    'operator' => 'OR',
+                    'fields' => $stateFields,
+                ],
+                [
+                    'operator' => 'AND',
+                    'fields' => [
+                        [
+                            'name' => 'archived',
+                            'value' => '0',
+                            'comparison' => 'eq'
+                        ],
+                    ]
+                ]
+            ];
+            break;
+        case -4: // open offers
+            $label = 'LabelUnfinishedOffers';
+            $stateFields = [];
+            $rows = dbParamQuery(
+                'SELECT id FROM {prefix}invoice_state WHERE invoice_open=1 AND invoice_offer=1'
+            );
+            foreach ($rows as $row) {
+                $stateFields[] = [
+                    'name' => 'state_id',
+                    'value' => $row['id'],
+                    'comparison' => 'eq',
+                ];
+            }
+            $groups = [
+                [
+                    'operator' => 'OR',
+                    'fields' => $stateFields,
+                ],
+                [
+                    'operator' => 'AND',
+                    'fields' => [
+                        [
+                            'name' => 'archived',
+                            'value' => '0',
+                            'comparison' => 'eq'
+                        ],
+                    ]
+                ]
+            ];
+            break;
+        default:
+            throw new \Exception('Invalid search id');
+        }
+
+        return [
+            'id' => $id,
+            'user_id' => null,
+            'name' => Translator::translate($label),
+            'func' => 'invoice',
+            'whereclause' => json_encode(
+                [
+                    'type' => 'invoice',
+                    'operator' => 'AND',
+                    'groups' => $groups,
+                ]
+            )
+        ];
+    }
+
+    $rows = dbParamQuery(
+        'SELECT * FROM {prefix}quicksearch WHERE id=? AND user_id=?',
+        [$id, $_SESSION['sesUSERID']]
+    );
+    $result = $rows ? $rows[0] : [];
+    if ($result) {
+        if ('companies' === $result['func']) {
+            $result['func'] = 'company';
+        } elseif (substr($result['func'], -1) === 's') {
+            $result['func'] = substr($result['func'], 0, -1);
+        }
+    }
+    return $result;
+}
+
+/**
+ * Delete a quick search
+ *
+ * @param int $id Quick search ID
+ *
+ * @return void
+ */
+function deleteQuickSearch($id)
+{
+    dbParamQuery(
+        'DELETE FROM {prefix}quicksearch WHERE id=? AND user_id=?',
+        [$id, $_SESSION['sesUSERID']]
+    );
+}
+
+/**
  * Add an existing attachment to an invoice
  *
  * @param int $id        Attachment ID
@@ -1090,6 +1289,56 @@ EOT;
     dbParamQuery($sql, [$invoiceId, $newOrderNo, $id]);
 
     return mysqli_insert_id($dblink);
+}
+
+/**
+ * Get join query to retrieve invoice total sum
+ *
+ * @return array
+ */
+function getInvoiceTotalJoinQuery()
+{
+    $prefix = _DB_PREFIX_ . '_';
+    if (getSetting('invoice_display_vatless_price_in_list')) {
+        $expr = <<<EOT
+            (SELECT ir.invoice_id,
+            CASE WHEN ir.partial_payment = 0 THEN
+            CASE WHEN ir.vat_included = 0
+                THEN (ir.price * (1 - IFNULL(ir.discount, 0) / 100)
+                    - IFNULL(ir.discount_amount, 0)) * ir.pcs
+                ELSE (ir.price * (1 - IFNULL(ir.discount, 0) / 100)
+                    - IFNULL(ir.discount_amount, 0)) * ir.pcs / (1 + ir.vat / 100)
+                END
+            ELSE
+                ir.price
+            END as row_total
+            FROM {$prefix}invoice_row ir
+            WHERE ir.deleted = 0)
+            EOT;
+    } else {
+        $expr = <<<EOT
+            (SELECT ir.invoice_id,
+            CASE WHEN ir.partial_payment = 0 THEN
+            CASE WHEN ir.vat_included = 0
+                THEN (ir.price * (1 - IFNULL(ir.discount, 0) / 100)
+                    - IFNULL(ir.discount_amount, 0)) * ir.pcs * (1 + ir.vat / 100)
+                ELSE (ir.price * (1 - IFNULL(ir.discount, 0) / 100)
+                    - IFNULL(ir.discount_amount, 0)) * ir.pcs
+                END
+            ELSE
+                ir.price
+            END as row_total
+            FROM {$prefix}invoice_row ir
+            WHERE ir.deleted = 0)
+            EOT;
+    }
+
+    return [
+        'type' => 'LEFT OUTER',
+        'expr' => $expr,
+        'alias' => 'it',
+        'condition' => 'i.id = it.invoice_id'
+    ];
 }
 
 /**
@@ -1322,6 +1571,36 @@ function dbFetchValue($result)
 {
     $row = mysqli_fetch_row($result);
     return $row[0] ?? null;
+}
+
+/**
+ * Get a Doctrine database connection
+ *
+ * @return \Doctrine\DBAL\Connection
+ */
+function getDb(): \Doctrine\DBAL\Connection
+{
+    $connectionParams = [
+        'dbname' => _DB_NAME_,
+        'user' => _DB_USERNAME_,
+        'password' => _DB_PASSWORD_,
+        'host' => _DB_SERVER_,
+        'driver' => 'pdo_mysql',
+    ];
+    return \Doctrine\DBAL\DriverManager::getConnection($connectionParams);
+}
+
+/**
+ * Create a QueryBuilder from request parameters
+ *
+ * @param string $table   Table name
+ * @param array  $request Request params
+ *
+ * @return QueryBuilder
+ */
+function createQueryBuilderFromRequest(string $table, array $request): QueryBuilder
+{
+    return $qb;
 }
 
 /**

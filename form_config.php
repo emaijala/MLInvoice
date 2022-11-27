@@ -40,6 +40,10 @@ function getFormConfig($form, $func)
     $strFunc = $func;
     include 'form_switch.php';
 
+    $fields = [];
+    foreach ($astrFormElements as $field) {
+        $fields[$field['name']] = $field;
+    }
     return [
         'type' => $strForm,
         'title' => $locTitle ?? '',
@@ -50,7 +54,7 @@ function getFormConfig($form, $func)
         'tableAlias' => $strListTableAlias,
         'copyLink' => $copyLinkOverride,
         'extraButtons' => $extraButtons,
-        'fields' => $astrFormElements,
+        'fields' => $fields,
         'dataAttrs' => $formDataAttrs,
         'searchFields' => $astrSearchFields ?? null,
         'addressAutocomplete' => $addressAutocomplete,
@@ -58,5 +62,7 @@ function getFormConfig($form, $func)
         'onAfterRowAdded' => $onAfterRowAdded,
         'popupHTML' => $popupHTML ?? '',
         'buttonGroups' => $buttonGroups ?? [],
+        'inputFieldTypes' => $inputFieldTypes,
+        'searchFieldTypes' => $searchFieldTypes,
     ];
 }

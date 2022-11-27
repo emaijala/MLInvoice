@@ -18,7 +18,7 @@
     "websocket-extensions": "0.1.4"
   },
   "devDependencies": {
-    "eslint": "^8.27.0",
+    "eslint": "^8.28.0",
     "grunt-contrib-watch": "^1.1.0"
   }
 }

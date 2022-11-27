@@ -27,7 +27,8 @@
  * @link     http://labs.fi/mlinvoice.eng.php
  */
 $strTable = '';
-$strJoin = '';
+$countJoins = [];
+$displayJoins = [];
 $strListFilter = '';
 $strGroupBy = '';
 $strDeletedField = '';
@@ -41,7 +42,7 @@ switch ($strList) {
  LISTS
  ***********************************************************************/
 case 'company':
-    $strTable = '{prefix}company';
+    $strTable = 'company';
     $astrSearchFields = [
         [
             'name' => 'company_name',
@@ -134,46 +135,32 @@ case 'offer':
         $strListFilter = 'i.archived = 1 AND i.state_id IN (' . implode(',', getOfferStateIds()) . ')';
     }
 
-    $strTable = '{prefix}invoice i';
-    $strJoin = 'LEFT OUTER JOIN {prefix}base b on i.base_id=b.id ' .
-         'LEFT OUTER JOIN {prefix}company c on i.company_id=c.id ' .
-         'LEFT OUTER JOIN {prefix}invoice_state s on i.state_id=s.id ';
+    $strTable = 'invoice';
+    $tableAlias = 'i';
 
-    $strCountJoin = $strJoin;
+    $countJoins = $displayJoins = [
+        [
+            'type' => 'LEFT OUTER',
+            'table' => 'base',
+            'alias' => 'b',
+            'condition' => 'i.base_id = b.id',
+        ],
+        [
+            'type' => 'LEFT OUTER',
+            'table' => 'company',
+            'alias' => 'c',
+            'condition' => 'i.company_id = c.id',
+        ],
+        [
+            'type' => 'LEFT OUTER',
+            'table' => 'invoice_state',
+            'alias' => 's',
+            'condition' => 'i.state_id = s.id',
+        ],
+    ];
 
-    if (getSetting('invoice_display_vatless_price_in_list')) {
-        $strJoin .= <<<EOT
-LEFT OUTER JOIN (
-  SELECT ir.invoice_id,
-    CASE WHEN ir.vat_included = 0
-      THEN (ir.price * (1 - IFNULL(ir.discount, 0) / 100)
-        - IFNULL(ir.discount_amount, 0)) * ir.pcs
-      ELSE (ir.price * (1 - IFNULL(ir.discount, 0) / 100)
-        - IFNULL(ir.discount_amount, 0)) * ir.pcs / (1 + ir.vat / 100)
-    END as row_total
-  FROM {prefix}invoice_row ir
-  WHERE ir.deleted = 0) it
-  ON (it.invoice_id=i.id)
-EOT;
-    } else {
-        $strJoin .= <<<EOT
-LEFT OUTER JOIN (
-  SELECT ir.invoice_id,
-    CASE WHEN ir.partial_payment = 0 THEN
-      CASE WHEN ir.vat_included = 0
-        THEN (ir.price * (1 - IFNULL(ir.discount, 0) / 100)
-          - IFNULL(ir.discount_amount, 0)) * ir.pcs * (1 + ir.vat / 100)
-        ELSE (ir.price * (1 - IFNULL(ir.discount, 0) / 100)
-          - IFNULL(ir.discount_amount, 0)) * ir.pcs
-      END
-    ELSE
-      ir.price
-    END as row_total
-  FROM {prefix}invoice_row ir
-  WHERE ir.deleted = 0) it
-  ON (it.invoice_id=i.id)
-EOT;
-    }
+    $prefix = _DB_PREFIX_ . '_';
+    $displayJoins[] = getInvoiceTotalJoinQuery();
 
     $intervalOptions = [
         '0' => Translator::translate('InvoiceIntervalNone'),
@@ -248,7 +235,7 @@ EOT;
             'header' => 'HeaderInvoiceNr'
         ],
         [
-            'name' => 'b.name',
+            'name' => 'b.name base_name',
             'width' => 150,
             'type' => 'TEXT',
             'header' => 'HeaderInvoiceBase'
@@ -266,7 +253,8 @@ EOT;
             'header' => in_array($strList, ['offer', 'archived_offers']) ? 'HeaderOfferName' : 'HeaderInvoiceName'
         ],
         [
-            'name' => 's.name',
+            'name' => 'state',
+            'sql' => 's.name state',
             'width' => 120,
             'type' => 'TEXT',
             'header' => 'HeaderInvoiceState',
@@ -301,7 +289,7 @@ EOT;
             'visible' => false
         ],
         [
-            'name' => '.total_price',
+            'name' => 'total_price',
             'sql' => 'SUM(it.row_total) as total_price',
             'width' => 80,
             'type' => 'CURRENCY',
@@ -317,11 +305,11 @@ EOT;
  SETTINGS
  ***********************************************************************/
 case 'base':
-    $strTable = '{prefix}base';
+    $strTable = 'base';
     $astrSearchFields = [
         [
             'name' => 'name',
-            'type' => 'TEXT'
+            'type' => 'TEXT',
         ],
         [
             'name' => 'company_id',
@@ -343,13 +331,15 @@ case 'base':
             'name' => 'name',
             'width' => 200,
             'type' => 'TEXT',
-            'header' => 'BaseName'
+            'header' => 'BaseName',
+            'select' => true,
         ],
         [
             'name' => 'company_id',
             'width' => 100,
             'type' => 'TEXT',
-            'header' => 'ClientVATID'
+            'header' => 'ClientVATID',
+            'select' => true,
         ],
         [
             'name' => 'contact_person',
@@ -368,7 +358,7 @@ case 'base':
     break;
 
 case 'invoice_state':
-    $strTable = '{prefix}invoice_state';
+    $strTable = 'invoice_state';
     $astrSearchFields = [
         [
             'name' => 'name',
@@ -397,7 +387,7 @@ case 'invoice_state':
     break;
 
 case 'invoice_type':
-    $strTable = '{prefix}invoice_type';
+    $strTable = 'invoice_type';
     $astrSearchFields = [
         [
             'name' => 'identifier',
@@ -436,7 +426,7 @@ case 'invoice_type':
     break;
 
 case 'product':
-    $strTable = '{prefix}product';
+    $strTable = 'product';
     $astrSearchFields = [
         [
             'name' => 'product_code',
@@ -551,7 +541,7 @@ case 'product':
     break;
 
 case 'row_type':
-    $strTable = '{prefix}row_type';
+    $strTable = 'row_type';
     $astrSearchFields = [
         [
             'name' => 'name',
@@ -579,7 +569,7 @@ case 'row_type':
     break;
 
 case 'delivery_terms':
-    $strTable = '{prefix}delivery_terms';
+    $strTable = 'delivery_terms';
     $astrSearchFields = [
         [
             'name' => 'name',
@@ -606,7 +596,7 @@ case 'delivery_terms':
     break;
 
 case 'delivery_method':
-    $strTable = '{prefix}delivery_method';
+    $strTable = 'delivery_method';
     $astrSearchFields = [
         [
             'name' => 'name',
@@ -633,7 +623,7 @@ case 'delivery_method':
     break;
 
 case 'print_template':
-    $strTable = '{prefix}print_template';
+    $strTable = 'print_template';
     $astrSearchFields = [
         [
             'name' => 'name',
@@ -697,7 +687,7 @@ case 'print_template':
     break;
 
 case 'default_value':
-    $strTable = '{prefix}default_value';
+    $strTable = 'default_value';
     $astrSearchFields = [
         [
             'name' => 'name',
@@ -745,7 +735,7 @@ case 'default_value':
     break;
 
 case 'attachment':
-    $strTable = '{prefix}attachment';
+    $strTable = 'attachment';
     $astrSearchFields = [
         [
             'name' => 'name',
@@ -798,7 +788,7 @@ case 'attachment':
     break;
 
 case 'company_tag':
-    $strTable = '{prefix}company_tag';
+    $strTable = 'company_tag';
     $astrSearchFields = [
         [
             'name' => 'tag',
@@ -819,7 +809,7 @@ case 'company_tag':
     break;
 
 case 'contact_tag':
-    $strTable = '{prefix}contact_tag';
+    $strTable = 'contact_tag';
     $astrSearchFields = [
         [
             'name' => 'tag',
@@ -845,7 +835,7 @@ case 'session_type':
     $levelsAllowed = [
         99
     ];
-    $strTable = '{prefix}session_type';
+    $strTable = 'session_type';
     $astrSearchFields = [
         [
             'name' => 'name',
@@ -876,7 +866,7 @@ case 'user':
     $levelsAllowed = [
         ROLE_ADMIN
     ];
-    $strTable = '{prefix}users';
+    $strTable = 'users';
     $astrSearchFields = [
         [
             'name' => 'name',

@@ -388,7 +388,9 @@ CREATE TABLE mlinvoice_quicksearch (
   func varchar(100) default NULL,
   form varchar(100) default NULL,
   whereclause text,
+  public int(1) NOT NULL DEFAULT 0,
   PRIMARY KEY (id),
+  UNIQUE KEY name_func (user_id, name, func),
   FOREIGN KEY (user_id) REFERENCES mlinvoice_users(id)
 ) ENGINE=INNODB CHARACTER SET utf8 COLLATE utf8_swedish_ci;
 

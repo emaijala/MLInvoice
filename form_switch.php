@@ -5,7 +5,7 @@
  * PHP version 7
  *
  * Copyright (C) Samu Reinikainen 2004-2008
- * Copyright (C) Ere Maijala 2010-2021
+ * Copyright (C) Ere Maijala 2010-2022
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2,
@@ -28,6 +28,27 @@
  */
 require_once 'settings.php';
 require_once 'vendor/autoload.php';
+
+$inputFieldTypes = [
+    'AREA',
+    'CHECK',
+    'FILE',
+    'INT',
+    'INTDATE',
+    'LIST',
+    'PASSWD_STORED',
+    'SEARCHLIST',
+    'TAGS',
+    'TEXT',
+];
+
+$searchFieldTypes = array_diff(
+    $inputFieldTypes,
+    [
+        'FILE',
+        'PASSWD_STORED'
+    ]
+);
 
 $strListTableAlias = '';
 $levelsAllowed = [
@@ -802,8 +823,10 @@ EOF;
             = str_replace('%d', $i - 2, Translator::translate('InvoiceIntervalMonths'));
     }
 
-    $stateQuery = 'SELECT id, name FROM {prefix}invoice_state WHERE deleted=0 AND ';
-    $stateQuery .= $isOffer ? 'invoice_offer=1' : 'invoice_offer!=1';
+    $stateQuery = 'SELECT id, name FROM {prefix}invoice_state WHERE deleted=0';
+    if ('ext_search' !== $strFunc) {
+        $stateQuery .= $isOffer ? ' AND invoice_offer=1' : ' AND invoice_offer!=1';
+    }
     $stateQuery .= ' ORDER BY order_no';
 
     $astrFormElements = [
@@ -819,15 +842,15 @@ EOF;
         [
             'name' => 'base_id',
             'label' => 'Biller',
-            'type' => 'LIST',
+            'type' => 'SEARCHLIST',
             'style' => 'long linked',
-            'listquery' => 'SELECT id, name FROM {prefix}base WHERE deleted=0 AND inactive=0 ORDER BY name, id',
+            'listquery' => 'table=base&sort=name,company_id',
             'position' => 1,
             'default' => $defaultValues['base']
         ],
         [
             'name' => 'name',
-            'label' => $isOffer ? 'OfferName' : 'InvName',
+            'label' => 'ext_search' === $strFunc ? 'Name' : ($isOffer ? 'OfferName' : 'InvName'),
             'type' => 'TEXT',
             'style' => 'medium',
             'position' => 2,
@@ -2344,7 +2367,6 @@ case 'print_template':
 
 // Clean up the array
 $akeys = [
-    'name',
     'type',
     'position',
     'style',
@@ -2355,6 +2377,9 @@ $akeys = [
     'elem_attributes'
 ];
 foreach ($astrFormElements as &$element) {
+    if (!isset($element['name'])) {
+        throw new \Exception('Element must have a name');
+    }
     foreach ($akeys as $key) {
         if (!isset($element[$key])) {
             $element[$key] = false;
