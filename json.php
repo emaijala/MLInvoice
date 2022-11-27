@@ -448,7 +448,8 @@ case 'get_selectlist':
 
     $pageLen = intval(getPostOrQuery('pagelen', 10));
     $page = intval(getPostOrQuery('page', 1)) - 1;
-    $filter = getPostOrQuery('q', '');
+    $q = getPostOrQuery('q', []);
+    $filter = $q['term'] ?? '';
     $sort = getPostOrQuery('sort', '');
     $id = getPostOrQuery('id', '');
     $type = getPostOrQuery('type', '');
@@ -709,10 +710,10 @@ function convertToApi($row, $table)
         $row['filesize_readable'] = fileSizeToHumanReadable($row['filesize']);
         break;
     case 'company':
-        $row['tags'] = getTags('company', $row['id']);
+        $row['tags'] = getTagsArray('company', $row['id']);
         break;
     case 'company_contact':
-        $row['tags'] = getTags('contact', $row['id']);
+        $row['tags'] = getTagsArray('contact', $row['id']);
         break;
     case 'invoice_row':
         $row['type_id_text'] = Translator::translate($row['type_id_text']);

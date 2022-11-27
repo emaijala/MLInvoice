@@ -4,7 +4,7 @@
  *
  * PHP version 7
  *
- * Copyright (C) Ere Maijala 2010-2021
+ * Copyright (C) Ere Maijala 2010-2022
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2,
@@ -109,13 +109,15 @@ class InvoiceReport extends AbstractReport
 
 <script>
   $(document).ready(function() {
-    $('input[name=format]').on('click', function() {
+    var toggleGrouping = function() {
       if ($('input[name=format]:checked').val() == 'table') {
         $('input[name=grouping]').attr('disabled', 'disabled');
       } else {
           $('input[name=grouping]').removeAttr('disabled');
       }
-    });
+    };
+    $('input[name=format]').on('click', toggleGrouping);
+    toggleGrouping();
 
     MLInvoice.Form.setupSelect2();
   });
@@ -319,7 +321,7 @@ class InvoiceReport extends AbstractReport
             </div>
 
             <div class="medium_label"><?php echo Translator::translate('Tags')?></div>
-            <div class="field">
+            <div class="field medium">
                 <?php echo htmlFormElement('tags', 'TAGS', $companyTags, 'noemptyvalue long', 'table=company_tag&sort=tag', 'MODIFY', false)?>
             </div>
         <?php
@@ -552,6 +554,7 @@ class InvoiceReport extends AbstractReport
             }
 
             if ($grouping && $currentGroup !== false && $currentGroup != $invoiceGroup) {
+                $groupTitle = '';
                 if ('vat' === $grouping) {
                     $groupTitle = Translator::translate('VAT') . ' '
                         . miscRound2Decim($currentGroup);

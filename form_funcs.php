@@ -213,9 +213,10 @@ function saveFormData($table, &$primaryKey, $formConfig, &$values, &$warnings,
             }
             $checkRows = dbParamQuery($query, $params);
             if ($checkRows) {
-                $warnings = sprintf(
-                    Translator::translate('DuplicateValue'),
-                    Translator::translate($elem['label'])
+                $warnings = str_replace(
+                    '%s',
+                    Translator::translate($elem['label']),
+                    Translator::translate('DuplicateValue')
                 );
                 return false;
             }
@@ -389,13 +390,13 @@ function saveFormData($table, &$primaryKey, $formConfig, &$values, &$warnings,
                 saveTags(
                     'company',
                     $primaryKey,
-                    !empty($values['tags']) ? $values['tags'] : ''
+                    $values['tags'] ?? []
                 );
             } elseif ($table === '{prefix}company_contact') {
                 saveTags(
                     'contact',
                     $primaryKey,
-                    !empty($values['tags']) ? $values['tags'] : ''
+                    $values['tags'] ?? []
                 );
             }
         } catch (Exception $e) {

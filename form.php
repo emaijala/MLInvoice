@@ -957,6 +957,9 @@ function createFormButtons($form, $formConfig, $new, $top, $deleted)
             <a role="button" class="btn btn-secondary" href="?func=invoices&amp;form=invoice&amp;company_id=<?php echo $id?>&amp;offer=1">
                 <?php echo Translator::translate('AddOffer')?>
             </a>
+            <a role="button" class="btn btn-secondary" href="?func=invoices&amp;where=i.company_id=<?php echo $id?>">
+                <?php echo Translator::translate('InvoicesAndOffers')?>
+            </a>
         </div>
         <?php
     }

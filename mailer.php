@@ -203,11 +203,14 @@ class Mailer
         }
 
         if ("\r\n" !== PHP_EOL) {
-            // Non-windows (not using SMTP)
-            $headers = str_replace("\r\n", PHP_EOL, $headers);
-            $subject = str_replace("\r\n", PHP_EOL, $subject);
-            $body = str_replace("\r\n", PHP_EOL, $body);
-            $to = str_replace("\r\n", PHP_EOL, $to);
+            // Non-windows (not using SMTP). Switch EOL to PHP's with PHP < 8 so that
+            // they're handled properly (PHP 8 doesn't work with this hack anymore):
+            if (PHP_MAJOR_VERSION <= 7) {
+                $headers = str_replace("\r\n", PHP_EOL, $headers);
+                $subject = str_replace("\r\n", PHP_EOL, $subject);
+                $body = str_replace("\r\n", PHP_EOL, $body);
+                $to = str_replace("\r\n", PHP_EOL, $to);
+            }
         } else {
             // Windows, using SMTP
             $headers = str_replace("\r\n.", "\r\n..", $headers);

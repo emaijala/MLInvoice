@@ -34,7 +34,8 @@
     },
     "scripts": {
         "post-install-cmd": [
-            "cp htaccess-vendor vendor/.htaccess"
+            "cp htaccess-vendor vendor/.htaccess",
+            "mkdir -p node_modules; cp htaccess-vendor node_modules/.htaccess"
         ],
         "qa": [
             "vendor/bin/phing qa"

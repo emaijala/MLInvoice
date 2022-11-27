@@ -393,7 +393,7 @@ MLInvoice.addModule('Form', function mlinvoiceForm() {
     $('.select-default-text').each(function setupDefaultText() {
       var target = $(this).data('target');
       var formParam = $(this).data('sendFormParam');
-      var select = $('<input type="hidden" class="select-default-text"/>').appendTo($(this));
+      var select = $('<select class="select-default-text"/>').appendTo($(this));
       select.select2({
         placeholder: '',
         ajax: {
@@ -415,7 +415,6 @@ MLInvoice.addModule('Form', function mlinvoiceForm() {
             return {results: records, more: data.moreAvailable};
           }
         },
-        dropdownCssClass: 'bigdrop',
         dropdownAutoWidth: true,
         escapeMarkup: function escapeString(m) { return m; },
         width: 'element',
@@ -479,16 +478,15 @@ MLInvoice.addModule('Form', function mlinvoiceForm() {
         }
       }
       var tags = field.hasClass('tags');
-      var query = field.data('query');
+      var query = field.data('listQuery');
       var showEmpty = field.data('showEmpty');
       var onChange = field.data('onChange');
       var options = {
         placeholder: '',
         ajax: {
           url: 'json.php?func=get_selectlist&' + query,
-          dataType: 'json',
           quietMillis: 200,
-          data: function getSelectListDone(term, page) {
+          data: function getSelectListParams(term, page) {
             var params = {
               q: term,
               pagelen: 50,
@@ -502,7 +500,7 @@ MLInvoice.addModule('Form', function mlinvoiceForm() {
             }
             return params;
           },
-          results: function processResults(data, page) {
+          processResults: function processResults(data, page) {
             var records = [];
             if (tags) {
               $(data.records).each(function processRecord() {
@@ -521,27 +519,18 @@ MLInvoice.addModule('Form', function mlinvoiceForm() {
             return {results: records, more: data.moreAvailable};
           }
         },
-        initSelection: function initSelection(element, callback) {
-          var id = $(element).val();
-          if (id !== '') {
-            $.ajax('json.php?func=get_selectlist&' + query + '&id=' + id, {
-              dataType: 'json'
-            }).done(function getSelectListDone(data) {
-              callback(data.records[0]);
-            });
-          }
-        },
-        formatResult: function formatResult(object) {
-          var text = object.text;
-          $(object.descriptions).each(function processDescription() {
-            text += '<div class="select-description">' + this + '</div>';
+        templateResult: function formatResult(state) {
+          var $text = $('<span/>');
+          $text.html(state.text);
+          $(state.descriptions).each(function processDescription() {
+            var $div = $('<div class="select-description"/>');
+            $div.html(this).appendTo($text);
           });
-          return text;
+          return $text;
         },
-        dropdownCssClass: 'bigdrop',
         dropdownAutoWidth: true,
-        escapeMarkup: function escapeString(m) { return m; },
-        width: 'style'
+        dropdownParent: $(container),
+        width: '100%'
       };
 
       if (tags) {
@@ -550,31 +539,12 @@ MLInvoice.addModule('Form', function mlinvoiceForm() {
           tokenSeparators: [','],
           createSearchChoice: function createChoice(term) {
             return {
-              id: $.trim(term),
-              text: $.trim(term) + ' (+)'
+              id: String.prototype.trim(term),
+              text: String.prototype.trim(term) + ' (+)'
             };
           },
-          initSelection: function initSelection(element, callback) {
-            var data = [];
-            var tagSet = element.val();
-            if (!tagSet) {
-              return data;
-            }
-            $(tagSet.split(',')).each(function handleTag() {
-              var val = $.trim(this);
-              if ('' !== val) {
-                data.push({
-                  id: this,
-                  text: this
-                });
-              }
-            });
-            callback(data);
-          },
-          formatSelection: function formatSelection(object) {
-            var text = object.text;
-            text = text.replace(/ \(\+\)$/, '');
-            return $('<div/>').text(text).html();
+          templateResult: function formatResult(state) {
+            return state.text;
           }
         });
       }
@@ -998,7 +968,7 @@ MLInvoice.addModule('Form', function mlinvoiceForm() {
       return;
     }
     $(input).attr('placeholder', '');
-    $(input).blur(function onBlur() {
+    $(input).on('blur', function onBlur() {
       var val = $(input).val();
       setTimeout(function deferInputUpdate() {
         $(input).val(val);
@@ -1055,8 +1025,12 @@ MLInvoice.addModule('Form', function mlinvoiceForm() {
       case 'LIST':
       case 'TEXT':
       case 'PASSWD':
-      case 'TAGS':
         formdata.append(field.name, value.val());
+        break;
+      case 'TAGS':
+        $.each(value.select2('data'), function processOptions(idx, opt) {
+          formdata.append(field.name + '[]', opt.id);
+        });
         break;
       case 'AREA':
         if (value.hasClass('markdown')) {
@@ -1378,13 +1352,18 @@ MLInvoice.addModule('Form', function mlinvoiceForm() {
       case 'INTDATE':
         obj[field.name] = value.val();
         break;
-      case 'TAGS':
       case 'SEARCHLIST':
       case 'LIST':
       case 'TEXT':
       case 'PASSWD':
       case 'PASSWD_STORED':
         obj[field.name] = value.val();
+        break;
+      case 'TAGS':
+        obj[field.name] = [];
+        $.each(value.select2('data'), function processOptions(idx, opt) {
+          obj[field.name].push(opt.id);
+        });
         break;
       case 'AREA':
         if (value.hasClass('markdown')) {
@@ -1440,6 +1419,10 @@ MLInvoice.addModule('Form', function mlinvoiceForm() {
                   break;
                 case 'SEARCHLIST':
                   value.select2('val', '');
+                  break;
+                case 'TAGS':
+                  value.find('option').remove();
+                  value.trigger('change');
                   break;
                 case 'CHECK':
                   value.prop('checked', false);
@@ -1623,11 +1606,12 @@ MLInvoice.addModule('Form', function mlinvoiceForm() {
           elem.val('');
           break;
         case 'TAGS':
-          var items = [];
-          $(json[field.name].split(',')).each(function eachTag() {
-            items.push({id: this, text: this});
+          elem.find('option').remove();
+          $(json[field.name]).each(function eachTag() {
+            var opt = new Option(this, this, true, true);
+            elem.append(opt);
           });
-          elem.select2('data', items);
+          elem.trigger('change');
           break;
         case 'INTDATE':
         case 'LIST':
@@ -1650,21 +1634,24 @@ MLInvoice.addModule('Form', function mlinvoiceForm() {
       });
       var $popup = $('#popup_edit');
       $popup.find('.modal-title').text(title);
-      setupSelect2($popup);
       $popup.find('.edit-single-buttons').removeClass('hidden');
       $popup.find('.edit-multi-buttons').addClass('hidden');
 
       var bsModal = new bootstrap.Modal($popup.get(0));
       bsModal.show();
+
+      // Setup select2 only after modal is shown to ensure it gets the correct parent:
+      setupSelect2($popup);
+
+      // Reset change indicators that could have been triggered during setup:
+      $('#iform_popup .modification-indicator').addClass('hidden');
+      $('#iform_popup input').data('modified', '');
     });
   }
 
   function multiEditor(event, title)
   {
     startChanging();
-    $('#iform_popup .modification-indicator').addClass('hidden');
-    $('#iform_popup input').data('modified', 0);
-    $('#iform_popup select').data('modified', 0);
     var form = $('#iform_popup');
     $.each(_subFormConfig.fields, function initPopupFields(i, field) {
       var elem = form.find('[name=iform_popup_' + field.name + ']');
@@ -1673,10 +1660,11 @@ MLInvoice.addModule('Form', function mlinvoiceForm() {
         elem.prop('checked', false);
         break;
       case 'SEARCHLIST':
-        elem.select2('data', {});
+        elem.val(null).trigger('change');
         break;
       case 'TAGS':
-        elem.select2('data', []);
+        elem.find('option').remove();
+        elem.trigger('change');
         break;
       case 'PASSWD_STORED':
       case 'INT':
@@ -1702,12 +1690,18 @@ MLInvoice.addModule('Form', function mlinvoiceForm() {
     form.find('.modification-indicator').addClass('hidden');
     var $popup = $('#popup_edit');
     $popup.find('.modal-title').text(title);
-    setupSelect2($popup);
     $popup.find('.edit-single-buttons').addClass('hidden');
     $popup.find('.edit-multi-buttons').removeClass('hidden');
 
     var bsModal = new bootstrap.Modal($popup.get(0));
     bsModal.show();
+
+    // Setup select2 only after modal is shown to ensure it gets the correct parent:
+    setupSelect2($popup);
+
+    $('#iform_popup .modification-indicator').addClass('hidden');
+    $('#iform_popup input').data('modified', 0);
+    $('#iform_popup select').data('modified', 0);
   }
 
   function startChanging()

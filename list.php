@@ -950,6 +950,7 @@ function createJSONSelectList($strList, $startRow, $rowCount, $filter, $sort,
     $strGroupBy = $listConfig['groupBy'] ? " GROUP BY {$listConfig['groupBy']}" : '';
 
     // Add Filter
+    $filter = trim($filter);
     if ($filter) {
         // For default_value there can be also the type in the filter
         if ($strList == 'default_value' && is_array($filter)) {
