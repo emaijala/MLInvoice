@@ -1827,7 +1827,7 @@ EOT;
     protected function getRowItemType($row)
     {
         return $row['partial_payment'] ? ''
-            : $this->translate($row['type']);
+            : $this->translate($row['type'] ?? '');
     }
 
     /**

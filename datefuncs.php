@@ -128,7 +128,7 @@ function dateConvYmd2DBDate($strDate)
 }
 
 /**
- * Convert user-readable date to unix time
+ * Convert Y-m-d date to unix time
  *
  * @param string $strDate Date
  *
@@ -136,7 +136,7 @@ function dateConvYmd2DBDate($strDate)
  */
 function strDate2UnixTime($strDate)
 {
-    $arr = date_parse_from_format(Translator::translate('DateFormat'), $strDate);
+    $arr = date_parse_from_format('Y-m-d', $strDate);
     return mktime(0, 0, 0, $arr['month'], $arr['day'], $arr['year']);
 }
 
