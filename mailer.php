@@ -80,14 +80,14 @@ class Mailer
         mb_internal_encoding('UTF-8');
 
         $headers = (new Headers())
-            ->addHeader('Content-Type', 'text/plain; format="flowed"')
             ->addHeader('X-Mailer', 'MLInvoice');
 
         $message = (new Email())
             ->setHeaders($headers)
             ->subject($subject)
-            ->text($this->getFlowedBody($body))
-            ->from($from);
+            ->from($from)
+            ->text($body);
+
         foreach (['to' => $to, 'cc' => $cc, 'bcc' => $bcc] as $func => $addresses) {
             if ($addresses) {
                 call_user_func_array(
@@ -107,40 +107,49 @@ class Mailer
 
         $settings = $GLOBALS['mlinvoice_mail_settings'] ?? [];
 
-        if ('mail' === ($settings['send_method'] ?? 'mail')) {
-            $transport = Transport::fromDsn('native://default');
-        } elseif ('sendmail' === $settings['send_method']) {
-            $dsn = 'sendmail://default';
-            if ($command = $settings['sendmail']['command'] ?? '') {
-                $dsn .= '?command=' . urlencode($command);
-            }
-            $transport = Transport::fromDsn($settings['dsn']);
-        } elseif ('smtp' === $settings['send_method']) {
-            $smtp = empty($settings['smtp']) ? [] : $settings['smtp'];
-            $dsn = ($smtp['security'] ?? '') === 'ssl' ? 'smtps://' : 'smtp://';
-            if ($username = $smtp['username'] ?? '') {
-                $dsn .= $username;
-            }
-            if ($password = $smtp['password'] ?? '') {
-                $dsn .= ":$password";
-            }
-            $dsn .= "@host";
-            if ($port = $smtp['port'] ?? '') {
-                $dsn .= ":$port";
-            }
-
-            $transport = Transport::fromDsn($settings['dsn']);
-            if (!empty($smtp['stream_context_options'])) {
-                $transport->getStream()->setStreamOptions(
-                    $smtp['stream_context_options']
-                );
-            }
-        } else {
-            $transport = Transport::fromDsn($settings['dsn']);
-        }
-        $mailer = new \Symfony\Component\Mailer\Mailer($transport);
-
         try {
+            switch ($settings['send_method'] ?? 'mail') {
+            case 'mail':
+                $transport = Transport::fromDsn('native://default');
+                break;
+            case 'sendmail':
+                $dsn = 'sendmail://default';
+                if ($command = $settings['sendmail']['command'] ?? '') {
+                    $dsn .= '?command=' . urlencode($command);
+                }
+                $transport = Transport::fromDsn($dsn);
+                break;
+            case 'smtp':
+                $smtp = empty($settings['smtp']) ? [] : $settings['smtp'];
+                $dsn = ($smtp['security'] ?? '') === 'ssl' ? 'smtps://' : 'smtp://';
+                if ($username = $smtp['username'] ?? '') {
+                    $dsn .= $username;
+                }
+                if ($password = $smtp['password'] ?? '') {
+                    $dsn .= ":$password";
+                }
+                $dsn .= '@' . $smtp['host'] ?? '';
+                if ($port = $smtp['port'] ?? '') {
+                    $dsn .= ":$port";
+                }
+
+                $transport = Transport::fromDsn($dsn);
+                if (!empty($smtp['stream_context_options'])
+                    && is_callable([$transport, 'getStream'])
+                ) {
+                    $transport->getStream()->setStreamOptions(
+                        $smtp['stream_context_options']
+                    );
+                }
+                break;
+            default:
+                if (empty($settings['dsn'])) {
+                    $this->error = 'dsn missing from mail settings; check config.php';
+                    return false;
+                }
+                $transport = Transport::fromDsn($settings['dsn']);
+            }
+            $mailer = new \Symfony\Component\Mailer\Mailer($transport);
             $mailer->send($message);
         } catch (Exception $e) {
             $this->error = Translator::translate('EmailFailed') . ': '
@@ -148,44 +157,6 @@ class Mailer
             return false;
         }
         return true;
-    }
-
-    /**
-     * Convert a message body to the flowed format
-     *
-     * @param string $body Message body
-     *
-     * @return string
-     */
-    protected function getFlowedBody($body)
-    {
-        $body = condUtf8Encode($body);
-
-        $lines = [];
-        foreach (explode(PHP_EOL, $body) as $paragraph) {
-            $line = '';
-            foreach (explode(' ', $paragraph) as $word) {
-                if (strlen($line) + strlen($word) > 66) {
-                    $lines[] = "$line ";
-                    $line = '';
-                }
-                if ($line) {
-                    $line .= " $word";
-                } elseif ($word) {
-                    $line = $word;
-                } else {
-                    $line = ' ';
-                }
-            }
-            $line = rtrim($line);
-            $line = preg_replace('/\s+' . PHP_EOL . '$/', PHP_EOL, $line);
-            $lines[] = rtrim($line, ' ');
-        }
-        $result = '';
-        foreach ($lines as $line) {
-            $result .= chunk_split($line, 998, PHP_EOL);
-        }
-        return $result;
     }
 
     /**
