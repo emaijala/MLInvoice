@@ -87,12 +87,18 @@ function htmlPageStart($strTitle = '', $arrExtraScripts = [], $loggedIn = true)
         'datatables/Buttons-1.6.5/js/buttons.colVis.min.js',
         'js/vendor/moment-with-locales.min.js',
         'js/vendor/daterangepicker.min.js',
-        'js/mlinvoice.min.js',
         'node_modules/select2/dist/js/select2.js',
         'js/formdata.min.js',
         'js/vendor/js.cookie-2.2.1.min.js',
         'js/vendor/Sortable.min.js',
     ];
+
+    if (defined('_JS_DEBUG_')) {
+        $scripts[] = 'js/mlinvoice.js';
+        $scripts[] = 'js/mlinvoice-form.js';
+    } else {
+        $scripts[] = 'js/mlinvoice.min.js';
+    }
 
     if (getSetting('printout_markdown')) {
         $scripts[] = 'js/easymde.min.js';
