@@ -882,17 +882,18 @@ function addJoins(QueryBuilder $qb, ?string $alias, array $joins): void
 /**
  * Create a JSON select list
  *
- * @param string $strList  List
- * @param int    $startRow Start row
- * @param int    $rowCount Number of rows
- * @param string $filter   Filter
- * @param string $sort     Sort settings
- * @param int    $id       Item ID
+ * @param string $strList    List
+ * @param int    $startRow   Start row
+ * @param int    $rowCount   Number of rows
+ * @param string $filter     Filter
+ * @param string $filterType Filter type
+ * @param string $sort       Sort settings
+ * @param int    $id         Item ID
  *
  * @return array
  */
-function createJSONSelectList($strList, $startRow, $rowCount, $filter, $sort,
-    $id = null
+function createJSONSelectList($strList, $startRow, $rowCount, $filter, $filterType,
+    $sort, $id = null
 ) {
     global $dblink;
 
@@ -947,27 +948,19 @@ function createJSONSelectList($strList, $startRow, $rowCount, $filter, $sort,
         $strWhereClause = " WHERE {$listConfig['deletedField']}=0";
     }
 
-    $strGroupBy = $listConfig['groupBy'] ? " GROUP BY {$listConfig['groupBy']}" : '';
-
     // Add Filter
-    $filter = trim($filter);
-    if ($filter) {
+    if ($filter = trim($filter)) {
         // For default_value there can be also the type in the filter
-        if ($strList == 'default_value' && is_array($filter)) {
-            if (count($filter) > 1) {
-                $strWhereClause .= ($strWhereClause ? ' AND ' : ' WHERE ')
-                    . 'type=?';
-                $arrQueryParams[] = $filter[1];
-            }
-            $filter = $filter[0];
-        }
-        if ($filter) {
+        if ($strList == 'default_value' && $filterType) {
             $strWhereClause .= ($strWhereClause ? ' AND ' : ' WHERE ')
-                . createWhereClause(
-                    $listConfig['searchFields'], $filter, $arrQueryParams,
-                    !getSetting('dynamic_select_search_in_middle')
-                );
+                . 'type=?';
+            $arrQueryParams[] = $filterType;
         }
+        $strWhereClause .= ($strWhereClause ? ' AND ' : ' WHERE ')
+            . createWhereClause(
+                $listConfig['searchFields'], $filter, $arrQueryParams,
+                !getSetting('dynamic_select_search_in_middle')
+            );
     }
 
     // Filter out inactive bases and companies
@@ -1172,12 +1165,7 @@ EOT;
         ];
     }
 
-    $results = [
-        'moreAvailable' => $moreAvailable,
-        'records' => $records,
-        'filter' => $filter
-    ];
-    return json_encode($results);
+    return compact('moreAvailable', 'records', 'filter');
 }
 
 /**

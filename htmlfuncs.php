@@ -880,9 +880,7 @@ function getSQLListBoxSelectedValue($strQuery, $strSelected)
 function getSearchListSelectedValue($strQuery, $strSelected)
 {
     parse_str($strQuery, $params);
-    $result = json_decode(
-        createJSONSelectList($params['table'], 0, 1, '', '', $strSelected), true
-    );
+    $result = createJSONSelectList($params['table'], 0, 1, '', '', '', $strSelected);
     return $result['records'][0]['text'] ?? '';
 }
 
@@ -1052,7 +1050,7 @@ function htmlFormElement($strName, $strType, $strValue, $strStyle, $strListQuery
             $onChange = $astrAdditionalAttributes ? trim($astrAdditionalAttributes) : '';
             $encodedQuery = htmlspecialchars($strListQuery);
             $strFormElement = <<<EOT
-<select autocomplete="off" class="$strStyle select2" id="$strName" name="$strName" data-list-query="$encodedQuery" data-show-empty="$showEmpty" data-on-change="$onChange">
+<select autocomplete="off" class="$strStyle js-searchlist" id="$strName" name="$strName" data-list-query="$encodedQuery" data-show-empty="$showEmpty" data-on-change="$onChange">
   <option value="$strValue" selected>$valueDesc</option>
 </select>
 EOT;
@@ -1095,7 +1093,7 @@ EOT;
             $onChange = $astrAdditionalAttributes ? trim($astrAdditionalAttributes) : '';
             $encodedQuery = htmlspecialchars($strListQuery);
             $strFormElement = <<<EOT
-<select multiple autocomplete="off" class="$strStyle select2 tags" id="$strName" name="$strName" data-list-query="$encodedQuery" data-show-empty="$showEmpty" data-on-change="$onChange">
+<select multiple autocomplete="off" class="$strStyle js-searchlist select2 tags" id="$strName" name="$strName" data-list-query="$encodedQuery" data-show-empty="$showEmpty" data-on-change="$onChange">
 
 EOT;
             foreach ($values as $value) {

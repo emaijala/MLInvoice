@@ -76,7 +76,7 @@ MLInvoice.addModule('Form', function mlinvoiceForm() {
       $container.find('input[type="text"],input[type="date"],input[type="hidden"]:not(.select-default-text),textarea').val('');
       $container.find('input[type="checkbox"]').prop('checked', false);
       $container.find('select:not(.dropdownmenu)').val('');
-      $container.find('input.select2').select2('val', null);
+      $container.find('input.searchlist').select2('val', null);
     });
 
     _setupYtjSearch();
@@ -398,9 +398,7 @@ MLInvoice.addModule('Form', function mlinvoiceForm() {
         placeholder: '',
         ajax: {
           url: 'json.php',
-          dataType: 'json',
-          quietMillis: 200,
-          data: function defaultTextDone(term, page) { // page is the one-based page number tracked by Select2
+          data: function defaultTextGetParams(term, page) { // page is the one-based page number tracked by Select2
             return {
               func: 'get_selectlist',
               table: 'default_value',
@@ -410,23 +408,23 @@ MLInvoice.addModule('Form', function mlinvoiceForm() {
               page: page, // page number
             };
           },
-          results: function processResults(data/*, page*/) {
+          processResults: function processResults(data/*, page*/) {
             var records = data.records;
             return {results: records, more: data.moreAvailable};
           }
         },
-        dropdownAutoWidth: true,
         escapeMarkup: function escapeString(m) { return m; },
-        width: 'element',
-        minimumResultsForSearch: -1
+        minimumResultsForSearch: -1,
+        dropdownAutoWidth: true,
+        width: '100%'
       });
       select.on('change', function selectChange() {
-        var id = select.select2('val');
+        var id = select.val();
         if (!id) {
           return;
         }
         // Reset selection so that the same entry can be re-selected at will
-        select.select2('val', null);
+        select.val(null).trigger('change');
         $.ajax(
           {
             url: 'json.php',
@@ -468,7 +466,7 @@ MLInvoice.addModule('Form', function mlinvoiceForm() {
       _onChangeProduct: _onChangeProduct,
       _onChangeCompanyReload: _onChangeCompanyReload
     };
-    $(container).find('.select2').each(function setupSelect2Field() {
+    $(container).find('.js-searchlist').each(function setupSelect2Field() {
       var field = $(this);
       if (field.attr('id')) {
         var $label = $('label[for=' + field.attr('id') + ']');
