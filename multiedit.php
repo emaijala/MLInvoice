@@ -186,7 +186,7 @@ class MultiEdit
                 <div class="field <?php echo $elem['style']?>">
                     <?php echo htmlFormElement(
                         $elem['name'], $elem['type'], '',
-                        $elem['style'], $elem['listquery'], 'MODIFY',
+                        str_replace('noemptyvalue', '', $elem['style']), $elem['listquery'], 'MODIFY',
                         $elem['parent_key'] ?? '', '', [],
                         $elem['elem_attributes'] ?? '',
                         $elem['options'] ?? null
