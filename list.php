@@ -5,7 +5,7 @@
  * PHP version 7
  *
  * Copyright (C) Samu Reinikainen 2004-2008
- * Copyright (C) Ere Maijala 2010-2021
+ * Copyright (C) Ere Maijala 2010-2022
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2,
@@ -32,6 +32,9 @@ require_once 'datefuncs.php';
 require_once 'memory.php';
 require_once 'list_config.php';
 require_once 'markdown.php';
+require_once 'search.php';
+
+use Doctrine\DBAL\Query\QueryBuilder;
 
 /**
  * Create a list
@@ -40,7 +43,7 @@ require_once 'markdown.php';
  * @param string $strList          List
  * @param string $strTableName     Table name
  * @param string $strTitleOverride Default title override
- * @param string $prefilter        Prefilter
+ * @param int    $searchId         Saved search id
  * @param bool   $invoiceTotal     Whether to display invoice total
  * @param bool   $highlightOverdue Whether to highlight overdue rows
  * @param string $printType        Print template type for printing multiple
@@ -48,11 +51,9 @@ require_once 'markdown.php';
  * @return void
  */
 function createList($strFunc, $strList, $strTableName = '', $strTitleOverride = '',
-    $prefilter = '', $invoiceTotal = false, $highlightOverdue = false,
+    int $searchId = null, $invoiceTotal = false, $highlightOverdue = false,
     $printType = ''
 ) {
-    $strWhereClause = $prefilter ? $prefilter : getPostOrQuery('where', '');
-
     $listConfig = getListConfig($strList);
     if (!$listConfig) {
         return;
@@ -81,20 +82,6 @@ function createList($strFunc, $strList, $strTableName = '', $strTitleOverride = 
         }
     }
 
-    if ($listConfig['listFilter']) {
-        if ($strWhereClause) {
-            // Special case: don't apply archived filter for invoices if search terms
-            // already contain archived status
-            if ($strList != 'invoice'
-                || strpos($strWhereClause, 'i.archived') === false
-            ) {
-                $strWhereClause .= " AND {$listConfig['listFilter']}";
-            }
-        } else {
-            $strWhereClause = $listConfig['listFilter'];
-        }
-    }
-
     if (!$strTableName) {
         $strTableName = "list_$strList";
     }
@@ -105,11 +92,9 @@ function createList($strFunc, $strList, $strTableName = '', $strTitleOverride = 
     $params = [
         'listfunc' => $strFunc,
         'table' => $strList,
-        'tableid' => $strTableName
+        'tableid' => $strTableName,
+        'searchId' => $searchId,
     ];
-    if ($strWhereClause) {
-        $params['where'] = $strWhereClause;
-    }
     if ($highlightOverdue) {
         $params['highlight_overdue'] = 1;
     }
@@ -121,6 +106,7 @@ function createList($strFunc, $strList, $strTableName = '', $strTitleOverride = 
         $params['company'] = $companyId;
         $customPriceSettings = getCustomPriceSettings($companyId);
     }
+    $params['query'] = json_encode(getSearchParamsFromRequest());
 
     ?>
 <script>
@@ -468,20 +454,29 @@ function createList($strFunc, $strList, $strTableName = '', $strTitleOverride = 
  * @param string $strList   List
  * @param int    $startRow  Start row
  * @param int    $rowCount  Number of rows
- * @param string $sort      Table name
- * @param string $filter    Filter
- * @param string $where     Where clause
+ * @param array  $sort      Sort settings
+ * @param string $filter    Quick filter
+ * @param array  $query     Search query
  * @param int    $requestId Request ID
- * @param int    $listId    List ID
+ * @param string $listId    List ID
  * @param int    $companyId Company ID
+ * @param int    $searchId  Saved search ID
  *
  * @return void
  */
-function createJSONList($strFunc, $strList, $startRow, $rowCount, $sort, $filter,
-    $where, $requestId, $listId, $companyId = null
+function createJSONList(
+    string $strFunc,
+    string $strList,
+    int $startRow,
+    int $rowCount,
+    array $sort,
+    string $filter,
+    array $query,
+    int $requestId,
+    string $listId,
+    int $companyId = null,
+    int $searchId = null
 ) {
-    global $dblink;
-
     $listConfig = getListConfig($strList);
     if (!$listConfig) {
         return;
@@ -496,32 +491,31 @@ function createJSONList($strFunc, $strList, $startRow, $rowCount, $sort, $filter
         return;
     }
 
-    $params = createListQueryParams(
-        $strFunc, $strList, $startRow, $rowCount, $sort, $filter, $where
+    $queryBuilders = createListQuery(
+        $strFunc,
+        $strList,
+        $startRow,
+        $rowCount,
+        $sort,
+        $filter,
+        $query,
+        $searchId
     );
 
-    $strJoin = $params['join'];
-    $strCountJoin = $params['countJoin'];
-    $strWhereClause = !empty($params['terms']) ? "WHERE {$params['terms']}" : '';
-    $strGroupBy = !empty($params['group']) ? " GROUP BY {$params['group']}" : '';
-    $queryParams = $params['params'];
+    $countQuery = $queryBuilders['countQuery'];
+    $filteredQuery = $queryBuilders['filteredQuery'];
+    $prefix = _DB_PREFIX_ . '_';
 
-    // Total count
-    $fullQuery
-        = "SELECT COUNT(*) AS cnt FROM {$listConfig['table']} $strCountJoin $strWhereClause";
-    $rows = dbParamQuery($fullQuery, $queryParams);
-    $totalCount = $filteredCount = $rows[0]['cnt'];
+    $countQuery->select('count(*)')
+        ->from($prefix . $listConfig['table'], $listConfig['alias']);
 
-    // Add Filter
-    if (isset($params['filteredTerms'])) {
-        $strWhereClause = 'WHERE ' . $params['filteredTerms'];
-        $queryParams = $params['filteredParams'];
+    $totalCount = $filteredCount = $countQuery->executeQuery()->fetchOne();
 
-        // Filtered count
-        $fullQuery
-            = "SELECT COUNT(*) as cnt FROM {$listConfig['table']} $strCountJoin $strWhereClause";
-        $rows = dbParamQuery($fullQuery, $queryParams);
-        $filteredCount = $rows[0]['cnt'];
+    if ($filter) {
+        $filteredCountQuery = $queryBuilders['filteredCountQuery'];
+        $filteredCountQuery->select('count(*)')
+            ->from($prefix . $listConfig['table'], $listConfig['alias']);
+        $filteredCount = $filteredCountQuery->executeQuery()->fetchOne();
     }
 
     $customPrices = null;
@@ -535,48 +529,41 @@ function createJSONList($strFunc, $strList, $startRow, $rowCount, $sort, $filter
     }
 
     // Build the final select clause
-    $strSelectClause = $listConfig['primaryKey'];
+    $fields = [
+        $listConfig['primaryKey']
+    ];
     if ($listConfig['deletedField']) {
-        $strSelectClause .= ", {$listConfig['deletedField']}";
+        $fields[] = $listConfig['deletedField'];
     }
     foreach ($listConfig['fields'] as $field) {
         if ('HIDDEN' === $field['type'] || !empty($field['virtual'])) {
             continue;
         }
-        $strSelectClause .= ', ' .
-             ($field['sql'] ?? $field['name']);
+        $fields[] = $field['sql'] ?? $field['name'];
     }
     if ('product' === $strList && $customPrices) {
         // Include any custom prices
-        $strSelectClause .= <<<EOT
-, (SELECT unit_price FROM {prefix}custom_price_map pm WHERE pm.custom_price_id = ?
-AND pm.product_id = {$listConfig['table']}.id) custom_unit_price
-EOT;
-        $queryParams[] = $customPrices['id'];
+        $fields[] = '(SELECT unit_price FROM {$prefix}custom_price_map pm'
+            . ' WHERE pm.custom_price_id = '
+            . $filteredQuery->createNamedParameter($customPrices['id'])
+            . " AND pm.product_id = {$listConfig['table']}.id) custom_unit_price";
     }
 
-    $fullQuery = "SELECT $strSelectClause FROM {$listConfig['table']} $strJoin"
-        . " $strWhereClause$strGroupBy";
-
-    $order = [];
-    if ($params['order']) {
-        $order = explode(',', $params['order']);
-    }
-    $order[] = 'id';
-    $fullQuery .= ' ORDER BY ' . implode(',', $order);
+    $filteredQuery->select($fields)
+        ->from($prefix . $listConfig['table'], $listConfig['alias']);
 
     if ($startRow >= 0 && $rowCount >= 0) {
-        $fullQuery .= " LIMIT $startRow, $rowCount";
+        $filteredQuery->setFirstResult($startRow)->setMaxResults($rowCount);
     }
 
-    $rows = dbParamQuery($fullQuery, $queryParams, false, true);
+    $result = $filteredQuery->executeQuery();
 
     $astrPrimaryKeys = [];
     $records = [];
     $highlight = getPostOrQuery('highlight_overdue', false);
-    $idField = $listConfig['primaryKey'];
-    $deletedField = $listConfig['deletedField'];
-    foreach ($rows as $row) {
+    $idField = stripPrefix($listConfig['primaryKey']);
+    $deletedField = stripPrefix($listConfig['deletedField']);
+    foreach ($result->fetchAllAssociative() as $row) {
         $astrPrimaryKeys[] = $row[$idField];
         $deleted = ($deletedField && $row[$deletedField]) ? ' deleted' : '';
         $strLink = "?func=$strFunc&list=$strList&form={$listConfig['mainForm']}"
@@ -588,7 +575,7 @@ EOT;
                 continue;
             }
 
-            $name = $field['name'];
+            $name = getFieldNameOrAlias($field['name']);
             if ('product' === $strList && 'custom_price' === $name) {
                 $value = $row['unit_price'];
                 if ($customPrices) {
@@ -619,13 +606,17 @@ EOT;
                     $field['decimals'] ?? 2,
                     '.', ''
                 );
+            } elseif ($field['type'] === 'INTDATE') {
+                if (0 === $value) {
+                    $value = null;
+                }
             }
 
             $resultValues[] = $value;
 
             // Special colouring for overdue invoices
-            if ($highlight && $name == 'i.due_date') {
-                $rowDue = dbDate2UnixTime($row['i.due_date']);
+            if ($highlight && $name == 'due_date') {
+                $rowDue = dbDate2UnixTime($row['due_date']);
                 if ($rowDue < mktime(0, 0, 0, date("m"), date("d") - 14, date("Y"))
                 ) {
                     $rowClass = ' overdue14';
@@ -668,79 +659,159 @@ EOT;
 }
 
 /**
- * Create list query parameters
+ * Create list query
  *
  * @param string $strFunc  Function
  * @param string $strList  List
  * @param int    $startRow Start row
  * @param int    $rowCount Number of rows
- * @param string $sort     Table name
+ * @param array  $sort     Sort settings
  * @param string $filter   Filter
- * @param string $where    Where clause
+ * @param array  $query    Query terms
+ * @param int    $searchId Search ID
  *
- * @return array
+ * @return QueryBuilder
  */
-function createListQueryParams($strFunc, $strList, $startRow, $rowCount, $sort,
-    $filter, $where
+function createListQuery($strFunc, $strList, $startRow, $rowCount, $sort,
+    $filter, array $query, int $searchId = null
 ) {
-    global $dblink;
-
     $listConfig = getListConfig($strList);
 
-    $terms = '';
-    $joinOp = '';
-    $arrQueryParams = [];
-    if ($where) {
-        // Validate and build query parameters
-        $boolean = '';
-        while (extractSearchTerm($where, $field, $operator, $term, $nextBool)) {
-            if ('tags' === $field) {
-                $tagTable = 'company' === $strList ? 'company' : 'contact';
-                foreach (explode(',', $term) as $i => $current) {
-                    $subQuery = <<<EOT
-SELECT {$tagTable}_id FROM {prefix}{$tagTable}_tag_link
-  WHERE tag_id = (
-    SELECT id FROM {prefix}{$tagTable}_tag WHERE tag = ?
-  )
-EOT;
-                    if ($i > 0) {
-                        $terms .= ' AND ';
-                    }
-                    $terms .= "$boolean id IN (" . $subQuery . ')';
-                    $arrQueryParams[] = str_replace("%-", "%", $current);
-                }
-            } elseif (strcasecmp($operator, 'IN') === 0 || strcasecmp($operator, 'NOT IN') === 0) {
-                $terms .= "$boolean$field $operator " .
-                     mysqli_real_escape_string($dblink, $term);
-            } else {
-                $terms .= "$boolean$field $operator ?";
-                $arrQueryParams[] = str_replace("%-", "%", $term);
-            }
-            if (!$nextBool) {
-                break;
-            }
-            $boolean = " $nextBool";
+    $qb = getDb()->createQueryBuilder();
+    $prefix = _DB_PREFIX_ . '_';
+
+    $search = new Search();
+    if (!empty($searchId)) {
+        if (!($searchData = getQuickSearch($searchId))) {
+            return;
         }
-        if ($terms) {
-            $terms = "($terms)";
-            $joinOp = ' AND';
+        if (strncmp($searchData['whereclause'], '{', 1) === 0) {
+            $searchGroups = json_decode($searchData['whereclause'], true);
+        } else {
+            $searchGroups = $search->convertLegacySearch($strList, $searchData['whereclause']);
+        }
+    } else {
+        $searchGroups = $search->getSearchGroups($query);
+    }
+    $operator = $searchGroups['operator'];
+    foreach ($searchGroups['groups'] as $group) {
+        $groupOperator = $group['operator'];
+        $expressions = [];
+        foreach ($group['fields'] as $field) {
+            $type = $field['name'];
+            if ('tags' === $type) {
+                $tagTable = 'company' === $table ? 'company' : 'contact';
+
+                $qb->innerJoin("$prefix$table", "$prefix{$tagTable}_tag_link", 'tl');
+                $qb->innerJoin('tl', "$prefix{$tagTable}_tag", 'tag');
+                $expressions[] = $qb->expr()->in('tag.tag', explode(',', $value));
+            } else {
+                $param = $qb->createNamedParameter($field['value']);
+                if ($listConfig['alias'] && strpos($type, '.') === false) {
+                    $type = $listConfig['alias'] . ".$type";
+                }
+                switch ($field['comparison']) {
+                case 'eq':
+                    $expressions[] = $qb->expr()->eq($type, $param);
+                    break;
+                case 'ne':
+                    $expressions[] = $qb->expr()->neq($type, $param);
+                    break;
+                case 'lt':
+                    $expressions[] = $qb->expr()->lt($type, $param);
+                    break;
+                case 'lte':
+                    $expressions[] = $qb->expr()->lte($type, $param);
+                    break;
+                case 'gt':
+                    $expressions[] = $qb->expr()->gt($type, $param);
+                    break;
+                case 'gte':
+                    $expressions[] = $qb->expr()->gte($type, $param);
+                    break;
+                }
+            }
+        }
+        if (!$expressions) {
+            continue;
+        }
+        $expressionSet = call_user_func_array(
+            [
+                $qb->expr(),
+                'OR' === $groupOperator ? 'or' : 'and'
+            ],
+            $expressions
+        );
+        if ('OR' === $operator) {
+            $qb->orWhere($expressionSet);
+        } else {
+            $qb->andWhere($expressionSet);
         }
     }
 
     if (!getSetting('show_deleted_records') && $listConfig['deletedField']) {
-        $terms .= "$joinOp {$listConfig['deletedField']}=0";
-        $joinOp = ' AND';
+        $qb->andWhere("{$listConfig['deletedField']}=0");
     }
 
-    $filteredParams = $arrQueryParams;
+    $countQb = clone $qb;
+
+    // Add count join to count query builder:
+    addJoins($countQb, $listConfig['alias'], $listConfig['countJoins']);
+
+    $filteredQb = clone $qb;
     if ($filter) {
-        $filteredTerms = "$terms $joinOp (" .
-             createWhereClause($listConfig['searchFields'], $filter, $filteredParams) . ')';
-        $joinOp = ' AND';
+        $termPrefix = $leftAnchored ? '' : '%';
+        foreach (explode(' ', $filter) as $term) {
+            if ('' === trim($term)) {
+                continue;
+            }
+            $expressions = [];
+            foreach ($listConfig['searchFields'] as $searchField) {
+                switch ($searchField['type']) {
+                case 'TEXT':
+                    $expressions[] = $qb->expr()->like(
+                        $searchField['name'],
+                        $filteredQb->createNamedParameter("$termPrefix$term%")
+                    );
+                    break;
+                case 'PRIMARY':
+                case 'INT':
+                    if (ctype_digit($term)) {
+                        $expressions[] = $qb->expr()->eq(
+                            $searchField['name'],
+                            $term
+                        );
+                    }
+                    break;
+                case 'CURRENCY':
+                    $expressions[] = $qb->expr()->like(
+                        'CAST(' . $searchField['name'] . ' AS CHAR)',
+                        $filteredQb->createNamedParameter("$termPrefix$term%")
+                    );
+                    break;
+                default:
+                    continue 2;
+                }
+            }
+            $filteredQb->andWhere(call_user_func_array([$qb->expr(), 'or'], $expressions));
+        }
     }
 
-    // Sort options
-    $orderBy = [];
+    $filteredCountQb = clone $filteredQb;
+    // Add count join to filtered count query builder:
+    addJoins($filteredCountQb, $listConfig['alias'], $listConfig['countJoins']);
+
+    // Add display join to full and filtered query builder:
+    addJoins($qb, $listConfig['alias'], $listConfig['displayJoins']);
+    addJoins($filteredQb, $listConfig['alias'], $listConfig['displayJoins']);
+
+    // Add grouping:
+    if ($listConfig['groupBy']) {
+        $qb->addGroupBy($listConfig['groupBy']);
+        $filteredQb->addGroupBy($listConfig['groupBy']);
+    }
+
+    // Add sort:
     // Filter out hidden fields
     $shownFields = array_values(
         array_filter(
@@ -752,54 +823,77 @@ EOT;
     );
     foreach ($sort as $sortField) {
         // Ignore invisible first columns
-        $column = key($sortField) - 2;
+        $column = $sortField['column'] - 2;
         if (isset($shownFields[$column])) {
             $fieldName = $shownFields[$column]['name'];
-            $direction = current($sortField) === 'desc' ? 'DESC' : 'ASC';
+            $direction = $sortField['direction'] === 'desc' ? 'DESC' : 'ASC';
             if (substr($fieldName, 0, 1) == '.') {
                 $fieldName = substr($fieldName, 1);
             }
             // Special case for natural ordering of invoice number and reference
             // number
             if (in_array($fieldName, ['i.invoice_no', 'i.ref_number'])) {
-                $orderBy[] = "LENGTH($fieldName) $direction";
+                $filteredQb->addOrderBy("LENGTH($fieldName)", $direction);
             }
-            $orderBy[] = "$fieldName $direction";
+            $filteredQb->addOrderBy($fieldName, $direction);
         }
     }
+    $filteredQb->addOrderBy(
+        $listConfig['alias'] ? ($listConfig['alias'] . '.id') : 'id',
+        'ASC'
+    );
 
-    $result = [
-        'table' => $listConfig['table'],
-        'primaryKey' => $listConfig['primaryKey'],
-        'terms' => $terms,
-        'params' => $arrQueryParams,
-        'order' => implode(',', $orderBy),
-        'group' => $listConfig['groupBy'],
-        'join' => $listConfig['displayJoin'],
-        'countJoin' => $listConfig['countJoin'] ? $listConfig['countJoin'] : $listConfig['displayJoin']
+    return [
+        'fullQuery' => $qb,
+        'countQuery' => $countQb,
+        'filteredQuery' => $filteredQb,
+        'filteredCountQuery' => $filteredCountQb,
     ];
-    if (isset($filteredTerms)) {
-        $result['filteredTerms'] = $filteredTerms;
-        $result['filteredParams'] = $filteredParams;
-    }
+}
 
-    return $result;
+/**
+ * Add joins to a QueryBuilder
+ *
+ * @param QueryBuilder $qb    QueryBuilder
+ * @param ?string      $alias Main table alias
+ * @param array        $joins Joins
+ *
+ * @return void
+ */
+function addJoins(QueryBuilder $qb, ?string $alias, array $joins): void
+{
+    $prefix = _DB_PREFIX_ . '_';
+    foreach ($joins as $join) {
+        switch ($join['type']) {
+        case 'LEFT OUTER':
+            $qb->leftJoin(
+                $alias,
+                $join['expr'] ?? ($prefix . $join['table']),
+                $join['alias'],
+                $join['condition']
+            );
+            break;
+        default:
+            throw new \Exception('Unhandled join type: ' . $join['type']);
+        }
+    }
 }
 
 /**
  * Create a JSON select list
  *
- * @param string $strList  List
- * @param int    $startRow Start row
- * @param int    $rowCount Number of rows
- * @param string $filter   Filter
- * @param string $sort     Table name
- * @param int    $id       Item ID
+ * @param string $strList    List
+ * @param int    $startRow   Start row
+ * @param int    $rowCount   Number of rows
+ * @param string $filter     Filter
+ * @param string $filterType Filter type
+ * @param string $sort       Sort settings
+ * @param int    $id         Item ID
  *
  * @return array
  */
-function createJSONSelectList($strList, $startRow, $rowCount, $filter, $sort,
-    $id = null
+function createJSONSelectList($strList, $startRow, $rowCount, $filter, $filterType,
+    $sort, $id = null
 ) {
     global $dblink;
 
@@ -854,27 +948,19 @@ function createJSONSelectList($strList, $startRow, $rowCount, $filter, $sort,
         $strWhereClause = " WHERE {$listConfig['deletedField']}=0";
     }
 
-    $strGroupBy = $listConfig['groupBy'] ? " GROUP BY {$listConfig['groupBy']}" : '';
-
     // Add Filter
-    $filter = trim($filter);
-    if ($filter) {
+    if ($filter = trim($filter)) {
         // For default_value there can be also the type in the filter
-        if ($strList == 'default_value' && is_array($filter)) {
-            if (count($filter) > 1) {
-                $strWhereClause .= ($strWhereClause ? ' AND ' : ' WHERE ')
-                    . 'type=?';
-                $arrQueryParams[] = $filter[1];
-            }
-            $filter = $filter[0];
-        }
-        if ($filter) {
+        if ($strList == 'default_value' && $filterType) {
             $strWhereClause .= ($strWhereClause ? ' AND ' : ' WHERE ')
-                . createWhereClause(
-                    $listConfig['searchFields'], $filter, $arrQueryParams,
-                    !getSetting('dynamic_select_search_in_middle')
-                );
+                . 'type=?';
+            $arrQueryParams[] = $filterType;
         }
+        $strWhereClause .= ($strWhereClause ? ' AND ' : ' WHERE ')
+            . createWhereClause(
+                $listConfig['searchFields'], $filter, $arrQueryParams,
+                !getSetting('dynamic_select_search_in_middle')
+            );
     }
 
     // Filter out inactive bases and companies
@@ -923,17 +1009,17 @@ function createJSONSelectList($strList, $startRow, $rowCount, $filter, $sort,
         if (!empty($companyId)) {
             $customPrices = getCustomPriceSettings($companyId);
         }
-        if ($customPrices) {
+        if ($customPrices && false) {
             // Include any custom prices
             $strSelectClause .= <<<EOT
 , (SELECT unit_price FROM {prefix}custom_price_map pm WHERE pm.custom_price_id = ?
-AND pm.product_id = {$listConfig['table']}.id) custom_unit_price
+AND pm.product_id = {prefix}{$listConfig['table']}.id) custom_unit_price
 EOT;
             array_unshift($arrQueryParams, $customPrices['id']);
         }
     }
 
-    $fullQuery = "SELECT $strSelectClause FROM {$listConfig['table']} $strWhereClause{$listConfig['groupBy']}";
+    $fullQuery = "SELECT $strSelectClause FROM {prefix}{$listConfig['table']} $strWhereClause{$listConfig['groupBy']}";
     if ($sort) {
         $fullQuery .= " ORDER BY $sort";
     }
@@ -958,7 +1044,7 @@ EOT;
         $desc2 = [];
         $desc3 = [];
         foreach ($listConfig['fields'] as $field) {
-            if (!isset($field['select']) || !$field['select']) {
+            if (empty($field['select'])) {
                 continue;
             }
             $name = $field['name'];
@@ -1079,10 +1165,34 @@ EOT;
         ];
     }
 
-    $results = [
-        'moreAvailable' => $moreAvailable,
-        'records' => $records,
-        'filter' => $filter
-    ];
-    return json_encode($results);
+    return compact('moreAvailable', 'records', 'filter');
+}
+
+/**
+ * Remove table or alias prefix from a field name
+ *
+ * @param string $fieldName Field name
+ *
+ * @return string
+ */
+function stripPrefix(string $fieldName): string
+{
+    $parts = explode('.', $fieldName, 2);
+    return $parts[1] ?? $parts[0];
+}
+
+/**
+ * Get field name or alias from a field specification
+ *
+ * Returns e.g. 'alias' from 'i.name alias'
+ *
+ * @param string $fieldSpec Field specification
+ *
+ * @return string
+ */
+function getFieldNameOrAlias(string $fieldSpec): string
+{
+    $parts = explode(' ', $fieldSpec);
+    $last = end($parts);
+    return stripPrefix($last);
 }

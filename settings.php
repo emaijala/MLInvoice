@@ -33,15 +33,17 @@ mb_internal_encoding(_CHARSET_);
 /**
  * Get a value for a setting
  *
- * @param string $name Setting
+ * @param string $name    Setting
+ * @param string $default Default if there's no default in known settings
+ * @param bool   $noCache Whether to skip cache
  *
  * @return mixed
  */
-function getSetting($name)
+function getSetting($name, $default = '', $noCache = false)
 {
     // The cache only lives for a single request to speed up repeated requests for a setting
     static $settingsCache = [];
-    if (isset($settingsCache[$name])) {
+    if (!$noCache && isset($settingsCache[$name])) {
         return $settingsCache[$name];
     }
 
@@ -64,7 +66,26 @@ function getSetting($name)
     }
     $settingsCache[$name] = isset($arrSettings[$name])
         && isset($arrSettings[$name]['default'])
-        ? condUtf8Decode($arrSettings[$name]['default']) : '';
+        ? condUtf8Decode($arrSettings[$name]['default']) : $default;
 
     return $settingsCache[$name];
+}
+
+/**
+ * Set a value for a setting
+ *
+ * @param string $name  Setting
+ * @param string $value Value
+ *
+ * @return void
+ */
+function setSetting(string $name, string $value)
+{
+    dbParamQuery('DELETE FROM {prefix}settings WHERE name=?', [$name]);
+    dbParamQuery(
+        'INSERT INTO {prefix}settings (name, value) VALUES (?, ?)',
+        [$name, $value]
+    );
+    // Flush cache:
+    getSetting($name, '', true);
 }

@@ -44,7 +44,7 @@ function createFuncMenu($strFunc)
     $strNewButton = '';
     $strFormName = '';
     $strExtSearchTerm = '';
-    $blnShowSearch = false;
+    $searchType = '';
     switch ($strFunc) {
     case 'system':
         $strNewText = '';
@@ -98,7 +98,7 @@ function createFuncMenu($strFunc)
         break;
 
     case 'company':
-        $blnShowSearch = true;
+        $searchType = 'company';
         $strOpenForm = 'company';
         $strFormName = 'company';
         $strFormSwitch = 'company';
@@ -111,10 +111,12 @@ function createFuncMenu($strFunc)
     case 'invoice_report':
     case 'product_report':
     case 'product_stock_report':
+    case 'search':
+    case 'edit_searches':
         break;
 
     default:
-        $blnShowSearch = 'import_statement' !== $strFunc;
+        $searchType = 'import_statement' === $strFunc ? '' : 'invoice';
         $strFormName = 'invoice';
         if ($strFunc != 'archived_invoices' && $strFunc != 'import_statement') {
             $strNewButton = '<a role="button" class="btn btn-secondary" href="?func=invoices&amp;form=invoice">' .
@@ -125,46 +127,46 @@ function createFuncMenu($strFunc)
         break;
     }
 
-    ?>
-<script>
-  function openSearchWindow(mode, event) {
-      x = event.screenX;
-      y = event.screenY;
-      if( mode == 'ext' ) {
-          strLink = 'ext_search.php?func=<?php echo $strFunc?>&form=<?php echo $strFormName?>';
-          strLink = strLink + '<?php echo $strExtSearchTerm?>';
-          height = '400';
-          width = '600';
-          windowname = 'ext';
-      }
-      if( mode == 'quick' ) {
-          strLink = 'quick_search.php?func=<?php echo $strFunc?>';
-          height = '400';
-          width = '250';
-          windowname = 'quicksearch';
-      }
-
-      var win = window.open(
-          strLink, windowname,
-          'height='+height+',width='+width+',screenX=' + x + ',screenY=' + y
-          + ',left=' + x + ',top=' + y
-          + ',menubar=no,scrollbars=yes,status=no,toolbar=no'
-      );
-      win.focus();
-
-      return true;
-  }
-</script>
-    <?php
-    if ($blnShowSearch) {
+    if ('results' === $strFunc) {
+        $searchType = getQuery('type', 'invoice');
+        $edit = preg_replace('/([\?&]func=)results/', "$1search", '?' . $_SERVER['QUERY_STRING']);
+        $save = getSearchParamsFromRequest() ? ('?' . $_SERVER['QUERY_STRING'] . '&save=1') : false;
         ?>
         <div class="btn-set">
-            <a role="button" class="btn btn-secondary" href="#" onClick="openSearchWindow('ext', event); return false;">
+            <a role="button" class="btn btn-secondary" href="<?php echo htmlentities($edit) ?>">
+                <?php echo Translator::translate('EditSearch')?>
+            </a>
+            <?php if ($save) { ?>
+                <a role="button" class="btn btn-secondary dropdown-toggle" data-bs-toggle="dropdown" href="#">
+                    <?php echo Translator::translate('SaveSearch')?>
+                </a>
+            <?php } ?>
+            <div class="dropdown-menu">
+                <form class="px-4 py-3">
+                    <div class="mb-3">
+                        <label for="search_name" class="form-label">
+                            <?php echo Translator::translate('SearchName')?>
+                        </label>
+                        <input type="text" class="form-control" id="search_name" name="name">
+                    </div>
+                    <button type="submit" class="btn btn-primary" data-save-search>
+                        <?php echo Translator::translate('Save')?>
+                    </button>
+                </form>
+            </div>
+            <a role="button" class="btn btn-secondary" href="?func=search&amp;type=<?php echo $searchType?>">
+                <?php echo Translator::translate('NewSearch')?>
+            </a>
+            <?php createQuickSearchButton($searchType) ?>
+        </div>
+        <?php
+    } elseif ($searchType) {
+        ?>
+        <div class="btn-set">
+            <a role="button" class="btn btn-secondary" href="?func=search&amp;type=<?php echo $searchType?>">
                 <?php echo Translator::translate('ExtSearch')?>
             </a>
-            <a role="button" class="btn btn-secondary" href="#" onClick="openSearchWindow('quick', event); return false;">
-                <?php echo Translator::translate('QuickSearch')?>
-            </a>
+            <?php createQuickSearchButton($searchType) ?>
         </div>
         <?php
     }
@@ -210,4 +212,41 @@ function updateNavigationHistory($title, $url, $level)
     Memory::set('history', $arrNew);
 
     return $arrNew;
+}
+
+/**
+ * Create a quick search menu button
+ *
+ * @param string $type Search type
+ *
+ * @return void
+ */
+function createQuickSearchButton(string $type): void
+{
+    $searches = getQuickSearches($type);
+    ?>
+    <div class="dropdown">
+        <a id="quick-search-menu" role="button" class="btn btn-secondary dropdown-toggle" href="#" data-bs-toggle="dropdown" aria-expanded="false">
+            <?php echo Translator::translate('QuickSearch')?>
+        </a>
+        <ul class="dropdown-menu" aria-labelledby="quick-search-menu">
+            <?php if (!$searches) { ?>
+                <div class="m-2"><?php echo Translator::translate('NoSavedSearches')?></div>
+            <?php } else { ?>
+                <?php foreach ($searches as $search) { ?>
+                    <li>
+                        <a class="dropdown-item" href="?func=results&amp;search_id=<?php echo $search['id']?>">
+                            <?php echo htmlentities($search['name']) ?>
+                        </a>
+                    </li>
+                <?php } ?>
+                <li>
+                    <a class="dropdown-item" href="?func=edit_searches&amp;type=<?php echo htmlentities($type)?>">
+                        <?php echo Translator::translate('EditSearches') ?>
+                    </a>
+                </li>
+            <?php } ?>
+        </ul>
+    </div>
+    <?php
 }

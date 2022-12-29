@@ -39,7 +39,6 @@ cd mlinvoice
 composer install --no-dev
 npm install
 grunt uglify sass
-rm -rf node_modules
 find . -type f -size 0 -delete
 cd ..
 zip -r $OUTPUT_FILE mlinvoice

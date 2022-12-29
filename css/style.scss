@@ -69,7 +69,7 @@ div.function_navi {
   padding: 4px 0px 4px 10px;
 }
 
-#admin_form {
+#form {
   display: flex;
   flex-wrap: wrap;
   box-sizing: border-box;
@@ -151,6 +151,49 @@ div.function_navi {
       max-width: min(calc(50% - 20px), 600px);
     }
   }
+}
+
+#search_form {
+  max-width: 600px;
+
+  .card-header {
+    display: flex;
+
+    div {
+      flex: 1 1 auto;
+    }
+  }
+
+  .fields {
+    .field {
+      display: flex;
+
+      .field-contents {
+        flex: 1;
+
+        .select2-container {
+          width: 100%;
+          padding-bottom: 0.375rem;
+        }
+      }
+      .buttons {
+        margin-left: 1rem;
+        margin-top: auto;
+        margin-bottom: 0.5rem;
+        padding-bottom: 0.375rem;
+      }
+    }
+    .short {
+      width: 90px;
+    }
+  }
+  .delete-group {
+    float: right;
+  }
+}
+
+.edit-searches label {
+  font-weight: 600;
 }
 
 .list_container {
@@ -340,6 +383,8 @@ td.reportsublabel {
   }
   .medium, .medium_label {
     width: 180px;
+    // Ensure that select2 can't widen the field:
+    max-width: 180px;
   }
   .long, .long_label {
     width: 240px;
@@ -482,6 +527,8 @@ td.reportsublabel {
     }
     .medium, .medium_label {
       width: 80px;
+      // Ensure that select2 can't widen the field:
+      max-width: 80px;
     }
     .count, .count_label {
       width: 50px;
@@ -587,6 +634,8 @@ td.reportsublabel {
     }
     .medium, .medium_label {
       width: 80px;
+      // Ensure that select2 can't widen the field:
+      max-width: 80px;
     }
     .count, .count_label {
       width: 50px;
@@ -638,14 +687,6 @@ td a.navilink:hover {
 }
 
 input {
-  padding: 0px 0px 0px 0px;
-}
-
-select {
-  padding: 0px 0px 0px 0px;
-}
-
-select.normal {
   padding: 0px 0px 0px 0px;
 }
 
@@ -795,6 +836,7 @@ img.image {
 .select-default-text {
   vertical-align: top;
   width: 20px;
+  display: inline-block;
 }
 
 .select-description {
@@ -935,12 +977,6 @@ a.info {
   margin-right: 20px;
 }
 
-.ext-search-buttons {
-  text-align: center;
-  padding-top: 8px;
-  padding-bottom: 8px;
-}
-
 .report-settings {
   float: left;
   margin-right: 20px;
@@ -1047,3 +1083,5 @@ table.quick-search {
 }
 
 @import "table";
+
+@inport "search";

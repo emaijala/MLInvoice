@@ -308,6 +308,22 @@ function getPostOrQuery($strKey, $varDefault = null)
 }
 
 /**
+ * Get search parameters from query parameters
+ *
+ * @return array;
+ */
+function getSearchParamsFromRequest()
+{
+    return array_filter(
+        $_GET,
+        function ($key) {
+            return strncmp($key, 's_', 2) === 0;
+        },
+        ARRAY_FILTER_USE_KEY
+    );
+}
+
+/**
  * Get page title
  *
  * @param string $strFunc   Function
@@ -452,6 +468,12 @@ function getPageTitle($strFunc, $strList, $strForm, $operation)
         return Translator::translate('Profile');
     case 'multiedit':
         return Translator::translate('EditMultiple');
+    case 'search':
+        return Translator::translate('ExtSearch');
+    case 'results':
+        return Translator::translate('Results');
+    case 'edit_searches':
+        return Translator::translate('SavedSearches');
     }
     return '';
 }

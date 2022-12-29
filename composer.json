@@ -17,6 +17,7 @@
         "php": ">=7.3.5",
         "composer/semver": "3.2.6",
         "components/jquery": "^3.6.0",
+        "doctrine/dbal": "^3.3.4",
         "guzzlehttp/guzzle": "^7.4.2",
         "michelf/php-markdown": "^1.9.1",
         "phpseclib/phpseclib": "^2.0.36",

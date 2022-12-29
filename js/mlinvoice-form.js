@@ -15,7 +15,7 @@ MLInvoice.addModule('Form', function mlinvoiceForm() {
 
     _formConfig.modificationWarningShown = false;
 
-    $('#admin_form')
+    $('#form')
       .find('input[type="text"],[type="date"]:not([name="payment_date"]),input[type="hidden"],input[type="checkbox"]:not([name="archived"]),select:not(.dropdownmenu),textarea')
       .one('change', startChanging);
 
@@ -76,7 +76,7 @@ MLInvoice.addModule('Form', function mlinvoiceForm() {
       $container.find('input[type="text"],input[type="date"],input[type="hidden"]:not(.select-default-text),textarea').val('');
       $container.find('input[type="checkbox"]').prop('checked', false);
       $container.find('select:not(.dropdownmenu)').val('');
-      $container.find('input.select2').select2('val', null);
+      $container.find('input.searchlist').select2('val', null);
     });
 
     _setupYtjSearch();
@@ -398,9 +398,7 @@ MLInvoice.addModule('Form', function mlinvoiceForm() {
         placeholder: '',
         ajax: {
           url: 'json.php',
-          dataType: 'json',
-          quietMillis: 200,
-          data: function defaultTextDone(term, page) { // page is the one-based page number tracked by Select2
+          data: function defaultTextGetParams(term, page) { // page is the one-based page number tracked by Select2
             return {
               func: 'get_selectlist',
               table: 'default_value',
@@ -410,23 +408,23 @@ MLInvoice.addModule('Form', function mlinvoiceForm() {
               page: page, // page number
             };
           },
-          results: function processResults(data/*, page*/) {
+          processResults: function processResults(data/*, page*/) {
             var records = data.records;
             return {results: records, more: data.moreAvailable};
           }
         },
-        dropdownAutoWidth: true,
         escapeMarkup: function escapeString(m) { return m; },
-        width: 'element',
-        minimumResultsForSearch: -1
+        minimumResultsForSearch: -1,
+        dropdownAutoWidth: true,
+        width: '100%'
       });
       select.on('change', function selectChange() {
-        var id = select.select2('val');
+        var id = select.val();
         if (!id) {
           return;
         }
         // Reset selection so that the same entry can be re-selected at will
-        select.select2('val', null);
+        select.val(null).trigger('change');
         $.ajax(
           {
             url: 'json.php',
@@ -468,7 +466,7 @@ MLInvoice.addModule('Form', function mlinvoiceForm() {
       _onChangeProduct: _onChangeProduct,
       _onChangeCompanyReload: _onChangeCompanyReload
     };
-    $(container).find('.select2').each(function setupSelect2Field() {
+    $(container).find('.js-searchlist').each(function setupSelect2Field() {
       var field = $(this);
       if (field.attr('id')) {
         var $label = $('label[for=' + field.attr('id') + ']');
@@ -777,7 +775,7 @@ MLInvoice.addModule('Form', function mlinvoiceForm() {
     if (typeof date !== 'undefined') {
       target += '&date=' + date;
     }
-    var form = $('#admin_form');
+    var form = $('#form');
     if (typeof form.data('readOnly') === 'undefined') {
       MLInvoice.Form.saveRecord(target, printStyle, true);
     } else if (printStyle === 'openwindow') {
@@ -794,7 +792,7 @@ MLInvoice.addModule('Form', function mlinvoiceForm() {
       return false;
     }
 
-    var form = $('#admin_form');
+    var form = $('#form');
     if (typeof form.data('readOnly') === 'undefined') {
       MLInvoice.Form.saveRecord(url, '', true);
     } else {
@@ -804,7 +802,7 @@ MLInvoice.addModule('Form', function mlinvoiceForm() {
   }
 
   function _verifyPrintable() {
-    var form = $('#admin_form');
+    var form = $('#form');
     if (typeof form.data('checkInvoiceDate') !== 'undefined') {
       var invoiceDate = $('#invoice_date').val();
       if (invoiceDate !== moment().format('YYYY-MM-DD')) {
@@ -1003,7 +1001,7 @@ MLInvoice.addModule('Form', function mlinvoiceForm() {
   function saveRecord(redirectUrl, redirectStyle, onPrint)
   {
     MLInvoice.clearMessages();
-    var $form = $('#admin_form');
+    var $form = $('#form');
     var formdata = new FormData();
     $.each(_formConfig.fields, function processField(i, field) {
       var value = $form.find('[name=' + field.name + ']');

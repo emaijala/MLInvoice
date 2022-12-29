@@ -5,7 +5,7 @@
  * PHP version 7
  *
  * Copyright (C) Samu Reinikainen 2004-2008
- * Copyright (C) Ere Maijala 2010-2021
+ * Copyright (C) Ere Maijala 2010-2022
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2,
@@ -45,6 +45,7 @@ require_once 'settings.php';
 require_once 'memory.php';
 require_once 'form_config.php';
 require_once 'list_config.php';
+require_once 'list.php';
 
 initDbConnection();
 sesVerifySession(false);
@@ -369,8 +370,6 @@ case 'get_import_preview':
     break;
 
 case 'get_list':
-    include 'list.php';
-
     $listFunc = getPostOrQuery('listfunc', '');
 
     $strList = getPostOrQuery('table', '');
@@ -399,19 +398,22 @@ case 'get_list':
             $sortColumn = $orderCol['column'];
             $sortDir = $orderCol['dir'];
             $sort[] = [
-                $sortColumn => $sortDir === 'desc' ? 'desc' : 'asc'
+                'column' => intval($sortColumn),
+                'direction' => $sortDir === 'desc' ? 'desc' : 'asc'
             ];
         }
     }
-    $search = getPostOrQuery('search', []);
+    $search = getPostOrQuery('search');
+    $searchId = getPostOrQuery('searchId');
     $filter = empty($search['value']) ? '' : $search['value'];
-    $where = getPostOrQuery('where', '');
+    $query = json_decode(getPostOrQuery('query', '{}'), true);
     $companyId = 'product' === $strList ? getPostOrQuery('company', null) : null;
 
     header('Content-Type: application/json');
     echo createJSONList(
-        $listFunc, $strList, $startRow, $rowCount, $sort, $filter, $where,
-        intval(getPostOrQuery('draw', 1)), $tableId, $companyId
+        $listFunc, $strList, $startRow, $rowCount, $sort, $filter, $query,
+        intval(getPostOrQuery('draw', 1)), $tableId, $companyId,
+        $searchId ? intval($searchId) : null
     );
     Memory::set(
         $tableId,
@@ -422,15 +424,17 @@ case 'get_list':
     break;
 
 case 'get_invoice_total_sum':
-    $where = getPostOrQuery('where', '');
-
+    $search = getPostOrQuery('searchId');
+    $query = json_decode(getPostOrQuery('query', '{}'), true);
     header('Content-Type: application/json');
-    echo getInvoiceListTotal($where);
+    $totals = getInvoiceListTotal(
+        $query,
+        $search ? intval($search) : null
+    );
+    echo createResponse($totals);
     break;
 
 case 'get_selectlist':
-    include 'list.php';
-
     $table = getPostOrQuery('table', '');
     if (!$table) {
         header('HTTP/1.1 400 Bad Request (table)');
@@ -448,15 +452,13 @@ case 'get_selectlist':
     $filter = $q['term'] ?? '';
     $sort = getPostOrQuery('sort', '');
     $id = getPostOrQuery('id', '');
-    $type = getPostOrQuery('type', '');
-
-    if ($type) {
-        $filter = [$filter, $type];
-    }
+    $filterType = getPostOrQuery('type', '');
 
     header('Content-Type: application/json');
-    echo createJSONSelectList(
-        $table, $page * $pageLen, $pageLen, $filter, $sort, $id
+    echo json_encode(
+        createJSONSelectList(
+            $table, $page * $pageLen, $pageLen, $filter, $filterType, $sort, $id
+        )
     );
     break;
 
@@ -529,6 +531,13 @@ case 'get_update_info':
     include 'updater.php';
     $updater = new Updater();
     $res = $updater->checkForUpdates();
+    echo json_encode($res);
+    break;
+
+case 'save_search':
+    include_once 'search.php';
+    $search = new Search();
+    $res = $search->saveSearch(getQuery('name'), $search->getSearchGroups($_GET));
     echo json_encode($res);
     break;
 
@@ -785,7 +794,7 @@ function saveJSONRecord($table, $parentKeyName)
     $warnings = '';
     try {
         $res = saveFormData(
-            $formConfig['table'], $id, $formConfig['fields'], $data, $warnings, $parentKeyName,
+            $formConfig['table'], $id, $formConfig, $data, $warnings, $parentKeyName,
             $parentKeyName ? $data[$parentKeyName] : false, $onPrint, $partial
         );
     } catch (Exception $e) {
@@ -862,7 +871,7 @@ function updateMultipleRows()
         $data = convertFromApi($request['changes'], $request['table']);
 
         $res = saveFormData(
-            '{prefix}' . $request['table'], $id, $formConfig['fields'], $data, $warnings,
+            '{prefix}' . $request['table'], $id, $formConfig, $data, $warnings,
             false, false, false, true
         );
         if ($res !== true) {
@@ -906,62 +915,29 @@ function updateRowOrder()
 }
 
 /**
- * Output total sums for invoice list
+ * Get total sums for invoice list
  *
- * @param string $where Where clause
+ * @param array $query    Query
+ * @param int   $searchId Search ID
  *
- * @return void
+ * @return array
  */
-function getInvoiceListTotal($where)
+function getInvoiceListTotal(array $query, int $searchId = null): array
 {
-    global $dblink;
-    $strFunc = 'invoices';
-    $strList = 'invoice';
-
-    $listConfig = getListConfig($strList);
-
-    $strWhereClause = '';
-    $joinOp = 'WHERE';
-    $arrQueryParams = [];
-    if ($where) {
-        // Validate and build query parameters
-        $boolean = '';
-        while (extractSearchTerm($where, $field, $operator, $term, $nextBool)) {
-            if (strcasecmp($operator, 'IN') === 0) {
-                $strWhereClause .= "$boolean$field $operator " .
-                     mysqli_real_escape_string($dblink, $term);
-            } else {
-                $strWhereClause .= "$boolean$field $operator ?";
-                $arrQueryParams[] = str_replace('%-', '%', $term);
-            }
-            if (!$nextBool) {
-                break;
-            }
-            $boolean = " $nextBool";
-        }
-        if ($strWhereClause) {
-            $strWhereClause = "WHERE ($strWhereClause)";
-            $joinOp = ' AND';
-        }
-    }
-    if (!getSetting('show_deleted_records') && $listConfig['deletedField']) {
-        $strWhereClause .= "$joinOp {$listConfig['deletedField']}=0";
-        $joinOp = ' AND';
-    }
-
-    $sql = "SELECT sum(it.row_total) as total_sum from {$listConfig['table']} {$listConfig['displayJoin']} $strWhereClause";
-
-    $sum = 0;
-    $rows = dbParamQuery($sql, $arrQueryParams);
-    if ($rows) {
-        $sum = $rows[0]['total_sum'];
-    }
-    $result = [
+    $listConfig = getListConfig('invoice');
+    $queries = createListQuery('invoice', 'invoice', 0, 0, [], '', $query, $searchId);
+    $query = $queries['fullQuery'];
+    $query
+        ->select('sum(it.row_total)')
+        ->from(_DB_PREFIX_ . '_' . $listConfig['table'], $listConfig['alias']);
+    // Reset grouping and order to get just a single line:
+    $query->add('groupBy', [], false);
+    $query->add('orderBy', [], false);
+    $sum = $query->executeQuery()->fetchOne();
+    return [
         'sum' => null !== $sum ? $sum : 0,
         'sum_rounded' => miscRound2Decim($sum, 2, '.', '')
     ];
-
-    echo createResponse($result);
 }
 
 /**
