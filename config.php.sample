@@ -132,17 +132,29 @@ $GLOBALS['mlinvoice_mail_settings'] = [
     // - Regular SMTP with authentication:
     'dsn' => 'USERNAME:PASSWORD@smtp.example.com:25',
 
-    // Amazon SES:
+    // Amazon SES SMTP:
     // 'dsn' => 'ses+smtp://USERNAME:PASSWORD@default',
+    // Amazon SES HTTPS:
+    // 'dsn' => 'ses+https://ACCESS_KEY:SECRET_KEY@default',
+    // Amazon SES API:
+    // 'dsn' => 'ses+api://ACCESS_KEY:SECRET_KEY@default',
 
     // Gmail:
     // 'dsn' => 'gmail+smtp://USERNAME:PASSWORD@default',
 
-    // Mailchimp Mandrill:
+    // Mailchimp Mandrill SMTP:
     // 'dsn' => 'mandrill+smtp://USERNAME:PASSWORD@default',
+    // Mailchimp Mandrill HTTPS:
+    // 'dsn' => 'mandrill+https://KEY@default',
+    // Mailchimp Mandrill API:
+    // 'dsn' => 'mandrill+api://KEY@default',
 
-    // Mailgun:
+    // Mailgun SMTP:
     // 'dsn' => 'mailgun+smtp://USERNAME:PASSWORD@default',
+    // Mailgun HTTPS:
+    // 'dsn' => 'mailgun+https://KEY:DOMAIN@default',
+    // Mailgun API:
+    // 'dsn' => 'mailgun+api://KEY:DOMAIN@default',
 
     // Settings to use with send_method 'sendmail'
     'sendmail' => [
