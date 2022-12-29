@@ -306,8 +306,9 @@ $(document).ready(function() {
             $emailAttachments
         );
 
-        if ($result) {
+        if (!$result) {
             $this->showEmailForm($mailer->getErrorMessage());
+            return;
         }
 
         if (is_callable([$this, 'emailSent'])) {

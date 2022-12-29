@@ -4,7 +4,7 @@
  *
  * PHP version 7
  *
- * Copyright (C) Ere Maijala 2018-2021
+ * Copyright (C) Ere Maijala 2018-2022
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2,
@@ -25,6 +25,11 @@
  * @license  http://opensource.org/licenses/gpl-2.0.php GNU General Public License
  * @link     http://labs.fi/mlinvoice.eng.php
  */
+
+use Symfony\Component\Mailer\Transport;
+use Symfony\Component\Mime\Email;
+use Symfony\Component\Mime\Header\Headers;
+
 require_once 'translator.php';
 require_once 'settings.php';
 
@@ -65,103 +70,87 @@ class Mailer
      * @param array  $bcc         "BCC" addresses
      * @param string $subject     Subject
      * @param string $body        Message body
-     * @param string $attachments Attachments
+     * @param array  $attachments Attachments
      *
      * @return bool Success
      */
     public function sendEmail($from, $to, $cc, $bcc, $subject, $body, $attachments)
     {
+        $this->error = '';
         mb_internal_encoding('UTF-8');
 
-        $message = new Swift_Message(
-            $subject,
-            $this->getFlowedBody($body),
-            'text/plain; format="flowed"'
-        );
+        $headers = (new Headers())
+            ->addHeader('X-Mailer', 'MLInvoice');
 
-        $this->error = '';
+        $message = (new Email())
+            ->setHeaders($headers)
+            ->subject($subject)
+            ->from($from)
+            ->text($body);
 
-        try {
-            $message->setFrom($this->extractNameAndAddress($from));
-        } catch (Swift_RfcComplianceException $e) {
-            $this->error = Translator::translate(
-                'InvalidEmailAddress', ['%%email%%' => $from]
-            );
-            return false;
-        }
-        try {
-            $message->setTo($this->extractAddresses($to));
-        } catch (Swift_RfcComplianceException $e) {
-            $this->error = Translator::translate(
-                'InvalidEmailAddress', ['%%email%%' => $to]
-            );
-            return false;
-        }
-        try {
-            $message->setCc($this->extractAddresses($cc));
-        } catch (Swift_RfcComplianceException $e) {
-            $this->error = Translator::translate(
-                'InvalidEmailAddress', ['%%email%%' => $cc]
-            );
-            return false;
-        }
-        try {
-            $message->setBcc($this->extractAddresses($bcc));
-        } catch (Swift_RfcComplianceException $e) {
-            $this->error = Translator::translate(
-                'InvalidEmailAddress', ['%%email%%' => $bcc]
-            );
-            return false;
+        foreach (['to' => $to, 'cc' => $cc, 'bcc' => $bcc] as $func => $addresses) {
+            if ($addresses) {
+                call_user_func_array(
+                    [$message, $func],
+                    $this->extractAddresses($addresses)
+                );
+            }
         }
 
         foreach ($attachments as $current) {
-            $attachment = new Swift_Attachment(
-                $current['data'], $current['filename'], $current['mimetype']
+            $message->attach(
+                $current['data'],
+                $current['filename'],
+                $current['mimetype']
             );
-            $message->attach($attachment);
         }
-
-        $headers = $message->getHeaders();
-        $headers->addTextHeader('X-Mailer', 'MLInvoice');
 
         $settings = $GLOBALS['mlinvoice_mail_settings'] ?? [];
 
-        if (!isset($settings['send_method']) || 'mail' === $settings['send_method']
-        ) {
-            $result = $this->sendWithMail($message);
-            if (!$result) {
-                $this->error = Translator::translate('EmailFailed');
-                return false;
-            }
-            return true;
-        } elseif ('sendmail' === $settings['send_method']) {
-            $command = empty($settings['sendmail']['command'])
-                ? '/usr/sbin/sendmail -bs'
-                : $settings['sendmail']['command'];
-            $transport = new Swift_SendmailTransport($command);
-        } elseif ('smtp' === $settings['send_method']) {
-            $smtp = empty($settings['smtp']) ? [] : $settings['smtp'];
-            $transport = new Swift_SmtpTransport(
-                $smtp['host'], $smtp['port'], $smtp['security']
-            );
-            if (!empty($smtp['username'])) {
-                $transport->setUsername($smtp['username']);
-            }
-            if (!empty($smtp['password'])) {
-                $transport->setPassword($smtp['password']);
-            }
-            if (!empty($smtp['stream_context_options'])) {
-                $transport->setStreamOptions($smtp['stream_context_options']);
-            }
-        }
-        $mailer = new Swift_Mailer($transport);
-
         try {
-            $result = $mailer->send($message);
-            if (!$result) {
-                $this->error = Translator::translate('EmailFailed');
-                return false;
+            switch ($settings['send_method'] ?? 'mail') {
+            case 'mail':
+                $transport = Transport::fromDsn('native://default');
+                break;
+            case 'sendmail':
+                $dsn = 'sendmail://default';
+                if ($command = $settings['sendmail']['command'] ?? '') {
+                    $dsn .= '?command=' . urlencode($command);
+                }
+                $transport = Transport::fromDsn($dsn);
+                break;
+            case 'smtp':
+                $smtp = empty($settings['smtp']) ? [] : $settings['smtp'];
+                $dsn = ($smtp['security'] ?? '') === 'ssl' ? 'smtps://' : 'smtp://';
+                if ($username = $smtp['username'] ?? '') {
+                    $dsn .= $username;
+                }
+                if ($password = $smtp['password'] ?? '') {
+                    $dsn .= ":$password";
+                }
+                $dsn .= '@' . $smtp['host'] ?? '';
+                if ($port = $smtp['port'] ?? '') {
+                    $dsn .= ":$port";
+                }
+
+                $transport = Transport::fromDsn($dsn);
+                if (!empty($smtp['stream_context_options'])
+                    && is_callable([$transport, 'getStream'])
+                ) {
+                    $transport->getStream()->setStreamOptions(
+                        $smtp['stream_context_options']
+                    );
+                }
+                break;
+            default:
+                if (empty($settings['dsn'])) {
+                    $this->error = 'dsn missing from mail settings; check config.php';
+                    return false;
+                }
+                $transport = Transport::fromDsn($settings['dsn']);
             }
+            $mailer = new \Symfony\Component\Mailer\Mailer($transport);
+            $mailer->send($message);
         } catch (Exception $e) {
             $this->error = Translator::translate('EmailFailed') . ': '
                 . $e->getMessage();
@@ -171,162 +160,18 @@ class Mailer
     }
 
     /**
-     * Send email using PHP's mail function
+     * Extract addresses to an array
      *
-     * Partially lifted from Swift 5.x MailTransport
-     *
-     * @param Swift_Message $message Message to send
-     *
-     * @return bool
-     */
-    protected function sendWithMail(Swift_Message $message)
-    {
-        $toHeader = $message->getHeaders()->get('To');
-        $subjectHeader = $message->getHeaders()->get('Subject');
-
-        $to = $toHeader ? $toHeader->getFieldBody() : '';
-        $subject = $subjectHeader ? $subjectHeader->getFieldBody() : '';
-
-        // Remove headers that would otherwise be duplicated by the mail function
-        $message->getHeaders()->remove('To');
-        $message->getHeaders()->remove('Subject');
-
-        $messageStr = $message->toString();
-
-        // Separate headers from body
-        if (false !== $endHeaders = strpos($messageStr, "\r\n\r\n")) {
-            $headers = substr($messageStr, 0, $endHeaders) . "\r\n"; //Keep last EOL
-            $body = substr($messageStr, $endHeaders + 4);
-        } else {
-            $headers = $messageStr . "\r\n";
-            $body = '';
-        }
-
-        if ("\r\n" !== PHP_EOL) {
-            // Non-windows (not using SMTP). Switch EOL to PHP's with PHP < 8 so that
-            // they're handled properly (PHP 8 doesn't work with this hack anymore):
-            if (PHP_MAJOR_VERSION <= 7) {
-                $headers = str_replace("\r\n", PHP_EOL, $headers);
-                $subject = str_replace("\r\n", PHP_EOL, $subject);
-                $body = str_replace("\r\n", PHP_EOL, $body);
-                $to = str_replace("\r\n", PHP_EOL, $to);
-            }
-        } else {
-            // Windows, using SMTP
-            $headers = str_replace("\r\n.", "\r\n..", $headers);
-            $subject = str_replace("\r\n.", "\r\n..", $subject);
-            $body = str_replace("\r\n.", "\r\n..", $body);
-            $to = str_replace("\r\n.", "\r\n..", $to);
-        }
-
-        return mail($to, $subject, $body, $headers);
-    }
-
-    /**
-     * Convert a message body to the flowed format
-     *
-     * @param string $body Message body
-     *
-     * @return string
-     */
-    protected function getFlowedBody($body)
-    {
-        $body = condUtf8Encode($body);
-
-        $lines = [];
-        foreach (explode(PHP_EOL, $body) as $paragraph) {
-            $line = '';
-            foreach (explode(' ', $paragraph) as $word) {
-                if (strlen($line) + strlen($word) > 66) {
-                    $lines[] = "$line ";
-                    $line = '';
-                }
-                if ($line) {
-                    $line .= " $word";
-                } elseif ($word) {
-                    $line = $word;
-                } else {
-                    $line = ' ';
-                }
-            }
-            $line = rtrim($line);
-            $line = preg_replace('/\s+' . PHP_EOL . '$/', PHP_EOL, $line);
-            $lines[] = rtrim($line, ' ');
-        }
-        $result = '';
-        foreach ($lines as $line) {
-            $result .= chunk_split($line, 998, PHP_EOL);
-        }
-        return $result;
-    }
-
-    /**
-     * Extract an email address from a string that may also contain a name
-     *
-     * @param string $address Email address
-     *
-     * @return string
-     */
-    protected function extractAddress($address)
-    {
-        if (preg_match('/<(.+)>/', $address, $matches)) {
-            return $matches[1];
-        }
-        return $address;
-    }
-
-    /**
-     * Extract name from an email address string
-     *
-     * @param string $address Email address
-     *
-     * @return string
-     */
-    protected function extractName($address)
-    {
-        if (preg_match('/(.+)\s*<.+>/', $address, $matches)) {
-            return $matches[1];
-        }
-        return '';
-    }
-
-    /**
-     * Extract name and address from an email address string
-     *
-     * @param string $address Email address
+     * @param string|array $addresses Email addresses
      *
      * @return array
      */
-    protected function extractNameAndAddress($address)
+    protected function extractAddresses($addresses): array
     {
-        $name = $this->extractName($address);
-        $address = $this->extractAddress($address);
-        return trim($name) === '' ? $address : [$address => $name];
-    }
-
-    /**
-     * Extract names and addresses from an array of email addresses
-     *
-     * @param array $addresses Email addresses
-     *
-     * @return array
-     */
-    protected function extractAddresses($addresses)
-    {
-        $result = [];
-        if ($addresses) {
-            if (is_string($addresses)) {
-                $addresses = array_map('trim', str_getcsv($addresses));
-            }
-            foreach ($addresses as $idx => $address) {
-                $name = $this->extractName($address);
-                $addr = $this->extractAddress($address);
-                if (trim($name) !== '') {
-                    $result[$addr] = $name;
-                } else {
-                    $result[$idx] = $addr;
-                }
-            }
+        if ($addresses && is_string($addresses)) {
+            $result = array_map('trim', str_getcsv($addresses));
+        } else {
+            $result = $addresses;
         }
         return $result;
     }

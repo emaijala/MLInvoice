@@ -4,7 +4,7 @@
  *
  * PHP version 7
  *
- * Copyright (C) Ere Maijala 2010-2021
+ * Copyright (C) Ere Maijala 2010-2022
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2,
@@ -117,9 +117,44 @@ $GLOBALS['mlinvoice_mail_settings'] = [
 
     // Method to use for sending email:
     // 'mail'     - Use PHP's mail() command (default)
+    // 'dsn'      - Use a DSN to select the service to use and its configuration. See below for supported options.
     // 'sendmail' - Use sendmail command
-    // 'smtp'     - Use an SMTP server
+    // 'smtp'     - Use an SMTP server (N.B. for legacy configuration support only, use dsn for new installations)
     'send_method' => 'mail',
+
+    // Available alternatives when send_method is 'dsn' (remove // from beginning and
+    // modify the rest). See https://symfony.com/doc/current/mailer.html#using-built-in-transports for more
+    // information:
+
+    // - Regular SMTP (the standard way of sending email):
+    // 'dsn' => 'smtp.example.com:25',
+
+    // - Regular SMTP with authentication:
+    'dsn' => 'USERNAME:PASSWORD@smtp.example.com:25',
+
+    // Amazon SES SMTP:
+    // 'dsn' => 'ses+smtp://USERNAME:PASSWORD@default',
+    // Amazon SES HTTPS:
+    // 'dsn' => 'ses+https://ACCESS_KEY:SECRET_KEY@default',
+    // Amazon SES API:
+    // 'dsn' => 'ses+api://ACCESS_KEY:SECRET_KEY@default',
+
+    // Gmail:
+    // 'dsn' => 'gmail+smtp://USERNAME:PASSWORD@default',
+
+    // Mailchimp Mandrill SMTP:
+    // 'dsn' => 'mandrill+smtp://USERNAME:PASSWORD@default',
+    // Mailchimp Mandrill HTTPS:
+    // 'dsn' => 'mandrill+https://KEY@default',
+    // Mailchimp Mandrill API:
+    // 'dsn' => 'mandrill+api://KEY@default',
+
+    // Mailgun SMTP:
+    // 'dsn' => 'mailgun+smtp://USERNAME:PASSWORD@default',
+    // Mailgun HTTPS:
+    // 'dsn' => 'mailgun+https://KEY:DOMAIN@default',
+    // Mailgun API:
+    // 'dsn' => 'mailgun+api://KEY:DOMAIN@default',
 
     // Settings to use with send_method 'sendmail'
     'sendmail' => [
