@@ -122,7 +122,6 @@ $GLOBALS['mlinvoice_mail_settings'] = [
     // 'smtp'     - Use an SMTP server (N.B. for legacy configuration support only, use dsn for new installations)
     'send_method' => 'mail',
 
-
     // Available alternatives when send_method is 'dsn' (remove // from beginning and
     // modify the rest). See https://symfony.com/doc/current/mailer.html#using-built-in-transports for more
     // information:
@@ -144,7 +143,6 @@ $GLOBALS['mlinvoice_mail_settings'] = [
 
     // Mailgun:
     // 'dsn' => 'mailgun+smtp://USERNAME:PASSWORD@default',
-
 
     // Settings to use with send_method 'sendmail'
     'sendmail' => [
