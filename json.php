@@ -448,15 +448,13 @@ case 'get_selectlist':
     $filter = $q['term'] ?? '';
     $sort = getPostOrQuery('sort', '');
     $id = getPostOrQuery('id', '');
-    $type = getPostOrQuery('type', '');
-
-    if ($type) {
-        $filter = [$filter, $type];
-    }
+    $filterType = getPostOrQuery('type', '');
 
     header('Content-Type: application/json');
-    echo createJSONSelectList(
-        $table, $page * $pageLen, $pageLen, $filter, $sort, $id
+    echo json_encode(
+        createJSONSelectList(
+            $table, $page * $pageLen, $pageLen, $filter, $filterType, $sort, $id
+        )
     );
     break;
 
