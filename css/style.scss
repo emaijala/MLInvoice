@@ -340,6 +340,8 @@ td.reportsublabel {
   }
   .medium, .medium_label {
     width: 180px;
+    // Ensure that select2 can't widen the field:
+    max-width: 180px;
   }
   .long, .long_label {
     width: 240px;
@@ -482,6 +484,8 @@ td.reportsublabel {
     }
     .medium, .medium_label {
       width: 80px;
+      // Ensure that select2 can't widen the field:
+      max-width: 80px;
     }
     .count, .count_label {
       width: 50px;
@@ -587,6 +591,8 @@ td.reportsublabel {
     }
     .medium, .medium_label {
       width: 80px;
+      // Ensure that select2 can't widen the field:
+      max-width: 80px;
     }
     .count, .count_label {
       width: 50px;
@@ -638,14 +644,6 @@ td a.navilink:hover {
 }
 
 input {
-  padding: 0px 0px 0px 0px;
-}
-
-select {
-  padding: 0px 0px 0px 0px;
-}
-
-select.normal {
   padding: 0px 0px 0px 0px;
 }
 
