@@ -124,6 +124,11 @@ div.function_navi {
       .long {
         width: 240px;
       }
+      &.long .select2 {
+        width: 240px;
+        // Ensure that select2 can't widen the field:
+        max-width: 240px;
+      }
       textarea.wide {
         height: 100px;
         width: 100%;
