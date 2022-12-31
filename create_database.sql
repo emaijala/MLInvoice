@@ -170,6 +170,7 @@ CREATE TABLE mlinvoice_company (
   invoice_default_afterword text NULL,
   offer_default_foreword text NULL,
   offer_default_afterword text NULL,
+  invoice_default_reference varchar(50) default NULL,
   PRIMARY KEY (id),
   FOREIGN KEY (type_id) REFERENCES mlinvoice_company_type(id),
   FOREIGN KEY (delivery_terms_id) REFERENCES mlinvoice_delivery_terms(id),

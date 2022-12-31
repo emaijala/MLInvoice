@@ -2605,6 +2605,16 @@ EOT
         );
     }
 
+    if ($version < 65) {
+        $updates = array_merge(
+            $updates,
+            [
+                'ALTER TABLE {prefix}company ADD COLUMN invoice_default_reference varchar(50) default NULL',
+                "REPLACE INTO {prefix}state (id, data) VALUES ('version', '65')"
+            ]
+        );
+    }
+
     // phpcs:enable Generic.Files.LineLength
     if (!empty($updates)) {
         dbQueryCheck('SET AUTOCOMMIT = 0');

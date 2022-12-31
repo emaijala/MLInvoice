@@ -591,6 +591,9 @@ MLInvoice.addModule('Form', function mlinvoiceForm() {
         if (json.info) {
           _addCompanyInfoTooltip(json.info);
         }
+        if (json.invoice_default_reference) {
+          $('#reference').val(json.invoice_default_reference);
+        }
         if (json.invoice_default_foreword) {
           MLInvoice.Form.setFieldVal('#foreword', json.invoice_default_foreword);
         }

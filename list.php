@@ -269,7 +269,11 @@ function createList($strFunc, $strList, $strTableName = '', $strTitleOverride = 
       if ($(e.target).hasClass('cb-select-row') || $(e.target).find('.cb-select-row').length > 0) {
         return;
       }
-      var data = $('#<?php echo $strTableName?>').dataTable().fnGetData(this);
+      var row = this;
+      if (row.classList.contains('child')) {
+        row = row.previousElementSibling;
+      }
+      var data = $('#<?php echo $strTableName?>').dataTable().fnGetData(row);
       if (e.button === 1 || e.ctrlKey || e.metaKey) {
         window.open(data[1], '_blank');
       } else {

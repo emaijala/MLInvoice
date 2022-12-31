@@ -288,6 +288,14 @@ case 'company':
             'allow_null' => true
         ],
         [
+            'name' => 'invoice_default_reference',
+            'label' => 'InvoiceDefaultReference',
+            'type' => 'TEXT',
+            'style' => 'medium',
+            'position' => 1,
+            'allow_null' => true
+        ],
+        [
             'name' => 'invoice_default_foreword',
             'label' => 'InvoiceDefaultForeword',
             'type' => 'AREA',
