@@ -28,7 +28,7 @@ MLInvoice.addModule('Form', function mlinvoiceForm() {
     $('#state_id').on('change', updateBaseDefaults);
 
     // Company info
-    if ($('#company_id.select2').val()) {
+    if ($('#company_id').val()) {
       _onChangeCompany();
     }
     // Stock balance
@@ -592,10 +592,10 @@ MLInvoice.addModule('Form', function mlinvoiceForm() {
           _addCompanyInfoTooltip(json.info);
         }
         if (json.invoice_default_foreword) {
-          $('#foreword').val(json.invoice_default_foreword);
+          MLInvoice.Form.setFieldVal('#foreword', json.invoice_default_foreword);
         }
         if (json.invoice_default_afterword) {
-          $('#afterword').val(json.invoice_default_afterword);
+          MLInvoice.Form.setFieldVal('#afterword', json.invoice_default_afterword);
         }
         if (json.invoice_vatless) {
           $('#invoice_vatless').val('1');
@@ -612,10 +612,10 @@ MLInvoice.addModule('Form', function mlinvoiceForm() {
           _addCompanyInfoTooltip(json.info);
         }
         if (json.offer_default_foreword) {
-          $('#foreword').val(json.offer_default_foreword);
+          MLInvoice.Form.setFieldVal('#foreword', json.offer_default_foreword);
         }
         if (json.offer_default_afterword) {
-          $('#afterword').val(json.offer_default_afterword);
+          MLInvoice.Form.setFieldVal('#afterword', json.offer_default_afterword);
         }
       }
     });
@@ -1404,7 +1404,8 @@ MLInvoice.addModule('Form', function mlinvoiceForm() {
               subFormConfig.onAfterRowAdded();
             }
             $.each(subFormConfig.fields, function updateAfterSave(i, field) {
-              var value = form.find('[name=' + formId + '_' + field.name + ']');
+              var valueSelector = '[name=' + formId + '_' + field.name + ']';
+              var value = form.find(valueSelector);
               if (typeof field.default !== 'undefined' && String(field.default).startsWith('ADD+')) {
                 value.val(parseInt(value.val(), 10) + parseInt(String(field.default).substr(4)));
               } else if (typeof field.default !== 'undefined' && field.default === 'DATE_NOW') {
@@ -1431,16 +1432,7 @@ MLInvoice.addModule('Form', function mlinvoiceForm() {
                   value.val('');
                   break;
                 case 'AREA':
-                  if (value.hasClass('markdown')) {
-                    var mde = value.data('mde');
-                    if (typeof mde !== 'undefined') {
-                      mde.value('');
-                    } else {
-                      value.val('');
-                    }
-                  } else {
-                    value.val('');
-                  }
+                  MLInvoice.Form.setFieldVal(valueSelector, '');
                   break;
                 }
               }
@@ -1449,6 +1441,33 @@ MLInvoice.addModule('Form', function mlinvoiceForm() {
         }
       }
     });
+  }
+
+  function getFieldVal(selector)
+  {
+    var $input = $(selector);
+    if ($input.hasClass('markdown')) {
+      var mde = $input.data('mde');
+      if (typeof mde !== 'undefined') {
+        return mde.value();
+      }
+    }
+    return $input.val();
+  }
+
+  function setFieldVal(selector, val)
+  {
+    var $input = $(selector);
+    if ($input.hasClass('markdown')) {
+      var mde = $input.data('mde');
+      if (typeof mde !== 'undefined') {
+        mde.value(val);
+      } else {
+        $input.val(val);
+      }
+    } else {
+      $input.val(val);
+    }
   }
 
   function modifyRows(formId)
@@ -1842,19 +1861,19 @@ MLInvoice.addModule('Form', function mlinvoiceForm() {
             }
             var prefix = state_data.invoice_offer == 1 ? 'offer' : 'invoice';
             if (data[prefix + '_default_foreword']) {
-              var oldfw = $('#foreword').val();
+              var oldfw = MLInvoice.Form.getFieldVal($('#foreword'));
               if (oldfw === '' || oldfw === data.invoice_default_foreword || oldfw === data.offer_default_foreword) {
-                $('#foreword').val(data[prefix + '_default_foreword']);
+                MLInvoice.Form.setFieldVal('#foreword', data[prefix + '_default_foreword']);
               }
             }
             if (data[prefix + '_default_afterword']) {
-              var oldaw = $('#afterword').val();
+              var oldaw = MLInvoice.Form.getFieldVal('#afterword');
               if (oldaw === '' || oldaw === data.invoice_default_afterword || oldaw === data.offer_default_afterword) {
-                $('#afterword').val(data[prefix + '_default_afterword']);
+                MLInvoice.Form.setFieldVal('#afterword', data[prefix + '_default_afterword']);
               }
             }
             if (data.invoice_default_info && $('#info').val() == '') {
-              $('#info').val(data.invoice_default_info);
+              MLInvoice.Form.setFieldVal('#info', data.invoice_default_info);
             }
           }
         });
@@ -1934,6 +1953,8 @@ MLInvoice.addModule('Form', function mlinvoiceForm() {
     updateDispatchByDateButtons: updateDispatchByDateButtons,
     setupSelect2: setupSelect2,
     setupDefaultTextSelection: setupDefaultTextSelection,
-    setupMarkdownEditor: setupMarkdownEditor
+    setupMarkdownEditor: setupMarkdownEditor,
+    getFieldVal: getFieldVal,
+    setFieldVal: setFieldVal
   };
 });
