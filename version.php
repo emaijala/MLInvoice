@@ -25,4 +25,4 @@
  * @license  http://opensource.org/licenses/gpl-2.0.php GNU General Public License
  * @link     http://labs.fi/mlinvoice.eng.php
  */
-$softwareVersion = '2.1.0-rc3';
+$softwareVersion = '2.1.0-rc4';
