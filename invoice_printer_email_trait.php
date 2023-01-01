@@ -65,7 +65,6 @@ trait InvoicePrinterEmailTrait
         }
         $senderData = $this->senderData;
         $recipientData = $this->recipientData;
-        $invoiceData = $this->invoiceData;
 
         $defaultId = getPostOrQuery('default_body_text');
         $defaultValue = $defaultId ? getDefaultValue($defaultId, true) : null;
@@ -132,11 +131,16 @@ trait InvoicePrinterEmailTrait
             return;
         }
 
-        // Don't merge attachments to the invoice PDF
-        $attachments = $this->attachments;
-        $this->attachments = [];
-        $result = $this->createPrintout();
-        $this->sendEmail($result, $attachments);
+        if (getSetting('merge_email_attachments')) {
+            $result = $this->createPrintout();
+            $this->sendEmail($result, []);
+        } else {
+            // Don't merge attachments to the invoice PDF
+            $attachments = $this->attachments;
+            $this->attachments = [];
+            $result = $this->createPrintout();
+            $this->sendEmail($result, $attachments);
+        }
     }
 
     /**
@@ -176,18 +180,21 @@ trait InvoicePrinterEmailTrait
      */
     protected function showEmailForm($errorMsg = '')
     {
-        $senderData = $this->senderData;
-        $recipientData = $this->recipientData;
-
         echo htmlPageStart(Translator::translate('SendEmail'));
         ?>
 <body>
     <div class="pagewrapper mb-4">
-        <?php echo htmlMainTabs('start_page'); ?>
+        <?php
+            echo htmlMainTabs('start_page');
+        ?>
 
         <div id="email_form_container" class="container-fluid form_container">
             <h1><?php echo Translator::translate('SendEmail')?></h1>
-            <?php if ($errorMsg) echo '<div class="alert alert-danger" role="alert">' . $errorMsg . "<br><br></div>\n";?>
+            <?php
+            if ($errorMsg) {
+                echo '<div class="alert alert-danger" role="alert">' . $errorMsg . "<br><br></div>\n";
+            }
+            ?>
             <form method="POST" id="email_form">
                 <input type="hidden" name="id" value="<?php echo htmlspecialchars(getPostOrQuery('id', ''))?>">
                 <input type="hidden" name="template" value="<?php echo htmlspecialchars(getPostOrQuery('template', ''))?>">
@@ -219,23 +226,33 @@ trait InvoicePrinterEmailTrait
                     <textarea id="emailBody" name="email_body" class="email_body" cols="80" rows="24"><?php echo htmlspecialchars($this->emailBody)?></textarea>
                     <span class="select-default-text" data-type="email" data-target="email_form" data-send-form-param="default_body_text"></span>
                 </div>
-                <div class="medium_label"><?php echo Translator::translate('EmailAttachments')?></div>
-                <div class="field">
-                    <?php
-                    $filenames = [];
-                    if (!isset($this->printParams['attachment'])
-                        || $this->printParams['attachment']
-                    ) {
-                        $filename = $this->outputFileName ? $this->outputFileName
-                            : getSetting('invoice_pdf_filename');
-                        $filenames[] = htmlentities($this->getPrintOutFileName($filename));
+                <?php
+                $filenames = [];
+                if (!isset($this->printParams['attachment'])
+                    || $this->printParams['attachment']
+                ) {
+                    $filename = $this->outputFileName ? $this->outputFileName
+                        : getSetting('invoice_pdf_filename');
+                    $filenames[] = htmlentities($this->getPrintOutFileName($filename));
+
+                    if (!getSetting('merge_email_attachments')) {
+                        foreach ($this->attachments as $attachment) {
+                            $filenames[] = $attachment['filename'];
+                        }
                     }
-                    foreach ($this->attachments as $attachment) {
-                        $filenames[] = htmlentities($attachment['filename']);
+
+                    foreach ($filenames as $i => $filename) {
+                        ?>
+                        <div class="medium_label">
+                            <?php echo $i === 0 ? Translator::translate('EmailAttachments') : ''?>
+                        </div>
+                        <div class="field"><?php echo htmlentities($filename)?></div>
+                        <?php
                     }
-                    echo $filenames ? implode('<br>', $filenames) : '-';
-                    ?>
-                </div>
+                }
+                ?>
+
+                <div class="clearfix"></div>
                 <div class="form_buttons">
                     <button type="button" class="btn btn-primary form-submit" data-set-field="email_send=1">
                         <?php echo Translator::translate('Send')?>
