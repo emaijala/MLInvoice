@@ -4,8 +4,6 @@ VERSION=$1
 
 BRANCH=${2:-"dev"}
 
-echo "Branch $BRANCH"
-
 if [[ ! "$VERSION"  ]]; then
   echo "Usage: $0 <version> [branch]"
   exit 1
@@ -39,8 +37,11 @@ cd mlinvoice
 composer install --no-dev
 npm install
 grunt uglify sass
+# Make sure to keep node_modules/.htaccess:
+rm -rf node_modules/*
+npm install --production
 find . -type f -size 0 -delete
 cd ..
 zip -r $OUTPUT_FILE mlinvoice
 
-echo "$OUTPUT_FILE successfully created"
+echo "$OUTPUT_FILE successfully created from branch $BRANCH"
