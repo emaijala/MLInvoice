@@ -2101,7 +2101,7 @@ EOT;
         $pdf->Cell(
             70, 5,
             str_replace(
-                '%d',
+                '{invoice_no}',
                 $invoiceData['invoice_no'],
                 $this->translate('FormInvoiceNumber')
             ),
