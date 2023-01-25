@@ -173,7 +173,7 @@ case 'put_custom_prices':
         $data['company_id'],
         $data['discount'],
         $data['multiplier'],
-        $data['valid_until']
+        dateConvYmd2DBDate($data['valid_until'])
     );
     header('Content-Type: application/json');
     echo createResponse(['status' => 'ok']);
