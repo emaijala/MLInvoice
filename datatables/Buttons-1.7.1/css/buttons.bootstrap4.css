@@ -62,60 +62,18 @@ div.dt-button-collection-title:empty {
   display: none;
 }
 
-div.dt-buttons {
-  position: relative;
-  float: left;
-}
-div.dt-buttons .dt-button {
-  margin-right: 0;
-}
-div.dt-buttons .dt-button span.ui-icon {
-  display: inline-block;
-  vertical-align: middle;
-  margin-top: -2px;
-}
-div.dt-buttons .dt-button:active {
-  outline: none;
-}
-div.dt-buttons .dt-button:hover > span {
-  background-color: rgba(0, 0, 0, 0.05);
-}
-
 div.dt-button-collection {
   position: absolute;
-  top: 0;
-  left: 0;
-  width: 150px;
-  margin-top: 3px;
-  padding: 8px 8px 4px 8px;
-  border: 1px solid #ccc;
-  border: 1px solid rgba(0, 0, 0, 0.4);
-  background-color: #f3f3f3;
-  background-color: rgba(255, 255, 255, 0.3);
-  overflow: hidden;
-  z-index: 2002;
-  border-radius: 5px;
-  box-shadow: 3px 3px 5px rgba(0, 0, 0, 0.3);
-  z-index: 2002;
-  -webkit-column-gap: 0;
-  -moz-column-gap: 0;
-  -ms-column-gap: 0;
-  -o-column-gap: 0;
-  column-gap: 0;
+  z-index: 2001;
 }
-div.dt-button-collection .dt-button {
-  position: relative;
-  left: 0;
-  right: 0;
-  width: 100%;
-  box-sizing: border-box;
+div.dt-button-collection div.dropdown-menu {
   display: block;
-  float: none;
-  margin-right: 0;
-  margin-bottom: 4px;
+  z-index: 2002;
+  min-width: 100%;
 }
-div.dt-button-collection .dt-button:hover > span {
-  background-color: rgba(0, 0, 0, 0.05);
+div.dt-button-collection div.dt-button-collection-title {
+  background-color: white;
+  border: 1px solid rgba(0, 0, 0, 0.15);
 }
 div.dt-button-collection.fixed {
   position: fixed;
@@ -181,6 +139,12 @@ div.dt-button-collection.four-column > :last-child {
 div.dt-button-collection .dt-button {
   border-radius: 0;
 }
+div.dt-button-collection.fixed {
+  max-width: none;
+}
+div.dt-button-collection.fixed:before, div.dt-button-collection.fixed:after {
+  display: none;
+}
 
 div.dt-button-background {
   position: fixed;
@@ -188,37 +152,28 @@ div.dt-button-background {
   left: 0;
   width: 100%;
   height: 100%;
-  background: rgba(0, 0, 0, 0.7);
-  /* Fallback */
-  background: -ms-radial-gradient(center, ellipse farthest-corner, rgba(0, 0, 0, 0.3) 0%, rgba(0, 0, 0, 0.7) 100%);
-  /* IE10 Consumer Preview */
-  background: -moz-radial-gradient(center, ellipse farthest-corner, rgba(0, 0, 0, 0.3) 0%, rgba(0, 0, 0, 0.7) 100%);
-  /* Firefox */
-  background: -o-radial-gradient(center, ellipse farthest-corner, rgba(0, 0, 0, 0.3) 0%, rgba(0, 0, 0, 0.7) 100%);
-  /* Opera */
-  background: -webkit-gradient(radial, center center, 0, center center, 497, color-stop(0, rgba(0, 0, 0, 0.3)), color-stop(1, rgba(0, 0, 0, 0.7)));
-  /* Webkit (Safari/Chrome 10) */
-  background: -webkit-radial-gradient(center, ellipse farthest-corner, rgba(0, 0, 0, 0.3) 0%, rgba(0, 0, 0, 0.7) 100%);
-  /* Webkit (Chrome 11+) */
-  background: radial-gradient(ellipse farthest-corner at center, rgba(0, 0, 0, 0.3) 0%, rgba(0, 0, 0, 0.7) 100%);
-  /* W3C Markup, IE10 Release Preview */
-  z-index: 2001;
+  z-index: 999;
 }
 
-@media screen and (max-width: 640px) {
+@media screen and (max-width: 767px) {
   div.dt-buttons {
-    float: none !important;
+    float: none;
+    width: 100%;
     text-align: center;
+    margin-bottom: 0.5em;
+  }
+  div.dt-buttons a.btn {
+    float: none;
   }
 }
-button.dt-button.processing,
-div.dt-button.processing,
-a.dt-button.processing {
+div.dt-buttons button.btn.processing,
+div.dt-buttons div.btn.processing,
+div.dt-buttons a.btn.processing {
   color: rgba(0, 0, 0, 0.2);
 }
-button.dt-button.processing:after,
-div.dt-button.processing:after,
-a.dt-button.processing:after {
+div.dt-buttons button.btn.processing:after,
+div.dt-buttons div.btn.processing:after,
+div.dt-buttons a.btn.processing:after {
   position: absolute;
   top: 50%;
   left: 50%;
@@ -227,7 +182,7 @@ a.dt-button.processing:after {
   margin: -8px 0 0 -8px;
   box-sizing: border-box;
   display: block;
-  content: ' ';
+  content: " ";
   border: 2px solid #282828;
   border-radius: 50%;
   border-left-color: transparent;
