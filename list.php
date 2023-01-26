@@ -547,10 +547,10 @@ function createJSONList(
     }
     if ('product' === $strList && $customPrices) {
         // Include any custom prices
-        $fields[] = '(SELECT unit_price FROM {$prefix}custom_price_map pm'
+        $fields[] = '(SELECT unit_price FROM ' . $prefix . 'custom_price_map pm'
             . ' WHERE pm.custom_price_id = '
             . $filteredQuery->createNamedParameter($customPrices['id'])
-            . " AND pm.product_id = {$listConfig['table']}.id) custom_unit_price";
+            . " AND pm.product_id = $prefix{$listConfig['table']}.id) custom_unit_price";
     }
 
     $filteredQuery->select($fields)
@@ -583,8 +583,8 @@ function createJSONList(
             if ('product' === $strList && 'custom_price' === $name) {
                 $value = $row['unit_price'];
                 if ($customPrices) {
-                    if (null !== $row['.custom_unit_price']) {
-                        $value = $row['.custom_unit_price'];
+                    if (null !== $row['custom_unit_price']) {
+                        $value = $row['custom_unit_price'];
                         $rowClass = 'custom-price';
                     } else {
                         $value -= $value * $customPrices['discount'] / 100;
