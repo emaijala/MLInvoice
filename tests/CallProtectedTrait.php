@@ -2,7 +2,7 @@
 /**
  * Trait that provides access to protected methods
  *
- * PHP version 5
+ * PHP version 7
  *
  * Copyright (C) Ere Maijala 2021.
  *

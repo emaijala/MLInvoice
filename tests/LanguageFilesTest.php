@@ -2,7 +2,7 @@
 /**
  * Language files tests
  *
- * PHP version 5
+ * PHP version 7
  *
  * Copyright (C) Ere Maijala 2022.
  *
