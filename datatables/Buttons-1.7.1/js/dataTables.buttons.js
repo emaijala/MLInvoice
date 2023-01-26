@@ -1,5 +1,5 @@
-/*! Buttons for DataTables 1.6.5
- * ©2016-2020 SpryMedia Ltd - datatables.net/license
+/*! Buttons for DataTables 1.7.1
+ * ©2016-2021 SpryMedia Ltd - datatables.net/license
  */
 
 (function( factory ){
@@ -585,7 +585,7 @@ $.extend( Buttons.prototype, {
 		}
 
 		// Make sure that the button is available based on whatever requirements
-		// it has. For example, Flash buttons require Flash
+		// it has. For example, PDF button require pdfmake
 		if ( config.available && ! config.available( dt, config ) ) {
 			return false;
 		}
@@ -1041,35 +1041,29 @@ $.extend( Buttons.prototype, {
 
 		// Align the popover relative to the DataTables container
 		// Useful for wide popovers such as SearchPanes
-		if (
-			position === 'absolute' &&
-			(
-				display.hasClass( options.rightAlignClassName ) ||
-				display.hasClass( options.leftAlignClassName ) ||
-				options.align === 'dt-container'
-			)
-		) {
-
+		if (position === 'absolute') {
+			// Align relative to the host button
 			var hostPosition = hostNode.position();
+			var buttonPosition = $(hostButton.node()).position();
 
 			display.css( {
-				top: hostPosition.top + hostNode.outerHeight(),
+				top: buttonPosition.top + hostNode.outerHeight(),
 				left: hostPosition.left
 			} );
 
 			// calculate overflow when positioned beneath
 			var collectionHeight = display.outerHeight();
 			var tableBottom = tableContainer.offset().top + tableContainer.height();
-			var listBottom = hostPosition.top + hostNode.outerHeight() + collectionHeight;
+			var listBottom = buttonPosition.top + hostNode.outerHeight() + collectionHeight;
 			var bottomOverflow = listBottom - tableBottom;
 
 			// calculate overflow when positioned above
-			var listTop = hostPosition.top - collectionHeight;
+			var listTop = buttonPosition.top - collectionHeight;
 			var tableTop = tableContainer.offset().top;
 			var topOverflow = tableTop - listTop;
 
 			// if bottom overflow is larger, move to the top because it fits better, or if dropup is requested
-			var moveTop = hostPosition.top - collectionHeight - 5;
+			var moveTop = buttonPosition.top - collectionHeight - 5;
 			if ( (bottomOverflow > topOverflow || options.dropup) && -moveTop < tableTop ) {
 				display.css( 'top', moveTop);
 			}
@@ -1088,93 +1082,66 @@ $.extend( Buttons.prototype, {
 			var buttonsLeft = hostNode.offset().left;
 			var buttonsWidth = hostNode.outerWidth()
 			var buttonsRight = buttonsLeft + buttonsWidth;
-			
-			// You've then got all the numbers you need to do some calculations and if statements,
-			//  so we can do some quick JS maths and apply it only once
-			// If it has the right align class OR the buttons are right aligned OR the button container is floated right,
-			//  then calculate left position for the popover to align the popover to the right hand
-			//  side of the button - check to see if the left of the popover is inside the table container.
-			// If not, move the popover so it is, but not more than it means that the popover is to the right of the table container
-			var popoverShuffle = 0;
-			if ( display.hasClass( options.rightAlignClassName )) {
-				popoverShuffle = buttonsRight - popoverRight;
-				if(tableLeft > (popoverLeft + popoverShuffle)){
-					var leftGap = tableLeft - (popoverLeft + popoverShuffle);
-					var rightGap = tableRight - (popoverRight + popoverShuffle);
+
+			if (
+				display.hasClass( options.rightAlignClassName ) ||
+				display.hasClass( options.leftAlignClassName ) ||
+				options.align === 'dt-container'
+			){
+				// You've then got all the numbers you need to do some calculations and if statements,
+				//  so we can do some quick JS maths and apply it only once
+				// If it has the right align class OR the buttons are right aligned OR the button container is floated right,
+				//  then calculate left position for the popover to align the popover to the right hand
+				//  side of the button - check to see if the left of the popover is inside the table container.
+				// If not, move the popover so it is, but not more than it means that the popover is to the right of the table container
+				var popoverShuffle = 0;
+				if ( display.hasClass( options.rightAlignClassName )) {
+					popoverShuffle = buttonsRight - popoverRight;
+					if(tableLeft > (popoverLeft + popoverShuffle)){
+						var leftGap = tableLeft - (popoverLeft + popoverShuffle);
+						var rightGap = tableRight - (popoverRight + popoverShuffle);
+		
+						if(leftGap > rightGap){
+							popoverShuffle += rightGap; 
+						}
+						else {
+							popoverShuffle += leftGap;
+						}
+					}
+				}
+				// else attempt to left align the popover to the button. Similar to above, if the popover's right goes past the table container's right,
+				//  then move it back, but not so much that it goes past the left of the table container
+				else {
+					popoverShuffle = tableLeft - popoverLeft;
 	
-					if(leftGap > rightGap){
-						popoverShuffle += rightGap; 
-					}
-					else {
-						popoverShuffle += leftGap;
+					if(tableRight < (popoverRight + popoverShuffle)){
+						var leftGap = tableLeft - (popoverLeft + popoverShuffle);
+						var rightGap = tableRight - (popoverRight + popoverShuffle);
+	
+						if(leftGap > rightGap ){
+							popoverShuffle += rightGap;
+						}
+						else {
+							popoverShuffle += leftGap;
+						}
+	
 					}
 				}
+	
+				display.css('left', display.position().left + popoverShuffle);
 			}
-			// else attempt to left align the popover to the button. Similar to above, if the popover's right goes past the table container's right,
-			//  then move it back, but not so much that it goes past the left of the table container
 			else {
-				popoverShuffle = tableLeft - popoverLeft;
+				var top = hostNode.offset().top
+				var popoverShuffle = 0;
 
-				if(tableRight < (popoverRight + popoverShuffle)){
-					var leftGap = tableLeft - (popoverLeft + popoverShuffle);
-					var rightGap = tableRight - (popoverRight + popoverShuffle);
+				popoverShuffle = options.align === 'button-right'
+					? buttonsRight - popoverRight
+					: buttonsLeft - popoverLeft;
 
-					if(leftGap > rightGap ){
-						popoverShuffle += rightGap;
-					}
-					else {
-						popoverShuffle += leftGap;
-					}
-
-				}
+				display.css('left', display.position().left + popoverShuffle);
 			}
-
-			display.css('left', display.position().left + popoverShuffle);
 			
-		}
-		else if (position === 'absolute') {
-			// Align relative to the host button
-			var hostPosition = hostNode.position();
-
-			display.css( {
-				top: hostPosition.top + hostNode.outerHeight(),
-				left: hostPosition.left
-			} );
-
-			// calculate overflow when positioned beneath
-			var collectionHeight = display.outerHeight();
-			var top = hostNode.offset().top
-			var popoverShuffle = 0;
-
-			// Get the size of the host buttons (left and width - and ...)
-			var buttonsLeft = hostNode.offset().left;
-			var buttonsWidth = hostNode.outerWidth()
-			var buttonsRight = buttonsLeft + buttonsWidth;
-
-			// Get the size of the popover (left and width - and ...)
-			var popoverLeft = display.offset().left;
-			var popoverWidth = content.width();
-			var popoverRight = popoverLeft + popoverWidth;
-
-			var moveTop = hostPosition.top - collectionHeight - 5;
-			var tableBottom = tableContainer.offset().top + tableContainer.height();
-			var listBottom = hostPosition.top + hostNode.outerHeight() + collectionHeight;
-			var bottomOverflow = listBottom - tableBottom;
-
-			// calculate overflow when positioned above
-			var listTop = hostPosition.top - collectionHeight;
-			var tableTop = tableContainer.offset().top;
-			var topOverflow = tableTop - listTop;
-
-			if ( (bottomOverflow > topOverflow || options.dropup) && -moveTop < tableTop ) {
-				display.css( 'top', moveTop);
-			}
-
-			popoverShuffle = options.align === 'button-right'
-				? buttonsRight - popoverRight
-				: buttonsLeft - popoverLeft;
-
-			display.css('left', display.position().left + popoverShuffle);
+			
 		}
 		else {
 			// Fix position - centre on screen
@@ -1464,6 +1431,41 @@ Buttons.buttonSelector = function ( insts, selector )
 	return ret;
 };
 
+/**
+ * Default function used for formatting output data.
+ * @param {*} str Data to strip
+ */
+Buttons.stripData = function ( str, config ) {
+	if ( typeof str !== 'string' ) {
+		return str;
+	}
+
+	// Always remove script tags
+	str = str.replace( /<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, '' );
+
+	// Always remove comments
+	str = str.replace( /<!\-\-.*?\-\->/g, '' );
+
+	if ( ! config || config.stripHtml ) {
+		str = str.replace( /<[^>]*>/g, '' );
+	}
+
+	if ( ! config || config.trim ) {
+		str = str.replace( /^\s+|\s+$/g, '' );
+	}
+
+	if ( ! config || config.stripNewlines ) {
+		str = str.replace( /\n/g, ' ' );
+	}
+
+	if ( ! config || config.decodeEntities ) {
+		_exportTextarea.innerHTML = str;
+		str = _exportTextarea.value;
+	}
+
+	return str;
+};
+
 
 /**
  * Buttons defaults. For full documentation, please refer to the docs/option
@@ -1485,10 +1487,7 @@ Buttons.defaults = {
 			className: ''
 		},
 		button: {
-			// Flash buttons will not work with `<button>` in IE - it has to be `<a>`
-			tag: 'ActiveXObject' in window ?
-				'a' :
-				'button',
+			tag: 'button',
 			className: 'dt-button',
 			active: 'active',
 			disabled: 'disabled'
@@ -1505,7 +1504,7 @@ Buttons.defaults = {
  * @type {string}
  * @static
  */
-Buttons.version = '1.6.5';
+Buttons.version = '1.7.1';
 
 
 $.extend( _dtButtons, {
@@ -1536,47 +1535,53 @@ $.extend( _dtButtons, {
 		if ( _dtButtons.copyHtml5 ) {
 			return 'copyHtml5';
 		}
-		if ( _dtButtons.copyFlash && _dtButtons.copyFlash.available( dt, conf ) ) {
-			return 'copyFlash';
-		}
 	},
 	csv: function ( dt, conf ) {
-		// Common option that will use the HTML5 or Flash export buttons
 		if ( _dtButtons.csvHtml5 && _dtButtons.csvHtml5.available( dt, conf ) ) {
 			return 'csvHtml5';
 		}
-		if ( _dtButtons.csvFlash && _dtButtons.csvFlash.available( dt, conf ) ) {
-			return 'csvFlash';
-		}
 	},
 	excel: function ( dt, conf ) {
-		// Common option that will use the HTML5 or Flash export buttons
 		if ( _dtButtons.excelHtml5 && _dtButtons.excelHtml5.available( dt, conf ) ) {
 			return 'excelHtml5';
 		}
-		if ( _dtButtons.excelFlash && _dtButtons.excelFlash.available( dt, conf ) ) {
-			return 'excelFlash';
-		}
 	},
 	pdf: function ( dt, conf ) {
-		// Common option that will use the HTML5 or Flash export buttons
 		if ( _dtButtons.pdfHtml5 && _dtButtons.pdfHtml5.available( dt, conf ) ) {
 			return 'pdfHtml5';
-		}
-		if ( _dtButtons.pdfFlash && _dtButtons.pdfFlash.available( dt, conf ) ) {
-			return 'pdfFlash';
 		}
 	},
 	pageLength: function ( dt ) {
 		var lengthMenu = dt.settings()[0].aLengthMenu;
-		var vals = Array.isArray( lengthMenu[0] ) ? lengthMenu[0] : lengthMenu;
-		var lang = Array.isArray( lengthMenu[0] ) ? lengthMenu[1] : lengthMenu;
+		var vals = [];
+		var lang = [];
 		var text = function ( dt ) {
 			return dt.i18n( 'buttons.pageLength', {
 				"-1": 'Show all rows',
 				_:    'Show %d rows'
 			}, dt.page.len() );
 		};
+
+		// Support for DataTables 1.x 2D array
+		if (Array.isArray( lengthMenu[0] )) {
+			vals = lengthMenu[0];
+			lang = lengthMenu[1];
+		}
+		else {
+			for (var i=0 ; i<lengthMenu.length ; i++) {
+				var option = lengthMenu[i];
+
+				// Support for DataTables 2 object in the array
+				if ($.isPlainObject(option)) {
+					vals.push(option.value);
+					lang.push(option.label);
+				}
+				else {
+					vals.push(option);
+					lang.push(option);
+				}
+			}
+		}
 
 		return {
 			extend: 'collection',
@@ -1980,9 +1985,6 @@ var _message = function ( dt, option, position )
 
 
 
-
-
-
 var _exportTextarea = $('<textarea/>')[0];
 var _exportData = function ( dt, inOpts )
 {
@@ -2000,49 +2002,17 @@ var _exportData = function ( dt, inOpts )
 		trim:           true,
 		format:         {
 			header: function ( d ) {
-				return strip( d );
+				return Buttons.stripData( d, config );
 			},
 			footer: function ( d ) {
-				return strip( d );
+				return Buttons.stripData( d, config );
 			},
 			body: function ( d ) {
-				return strip( d );
+				return Buttons.stripData( d, config );
 			}
 		},
 		customizeData: null
 	}, inOpts );
-
-	var strip = function ( str ) {
-		if ( typeof str !== 'string' ) {
-			return str;
-		}
-
-		// Always remove script tags
-		str = str.replace( /<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, '' );
-
-		// Always remove comments
-		str = str.replace( /<!\-\-.*?\-\->/g, '' );
-
-		if ( config.stripHtml ) {
-			str = str.replace( /<([^>'"]*('[^']*'|"[^"]*")?)*>/g, '' );
-		}
-
-		if ( config.trim ) {
-			str = str.replace( /^\s+|\s+$/g, '' );
-		}
-
-		if ( config.stripNewlines ) {
-			str = str.replace( /\n/g, ' ' );
-		}
-
-		if ( config.decodeEntities ) {
-			_exportTextarea.innerHTML = str;
-			str = _exportTextarea.value;
-		}
-
-		return str;
-	};
-
 
 	var header = dt.columns( config.columns ).indexes().map( function (idx) {
 		var el = dt.column( idx ).header();
