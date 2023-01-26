@@ -79,12 +79,17 @@ function htmlPageStart($strTitle = '', $arrExtraScripts = [], $loggedIn = true)
     $scripts = [
         'vendor/twbs/bootstrap/dist/js/bootstrap.bundle.js',
         'vendor/components/jquery/jquery.min.js',
-        'datatables/datatables.min.js',
-        'js/vendor/dataTables.bootstrap5.min.js',
-        'datatables/Responsive-2.2.6/js/responsive.bootstrap4.min.js',
-        'datatables/Buttons-1.7.1/js/dataTables.buttons.min.js',
-        'datatables/Buttons-1.7.1/js/buttons.html5.min.js',
-        'datatables/Buttons-1.7.1/js/buttons.colVis.min.js',
+
+        // DataTables:
+        'node_modules/datatables.net/js/jquery.dataTables.min.js',
+        'node_modules/datatables.net-bs5/js/dataTables.bootstrap5.min.js',
+        'node_modules/datatables.net-responsive/js/dataTables.responsive.min.js',
+        'node_modules/datatables.net-responsive-bs5/js/responsive.bootstrap5.min.js',
+        'node_modules/datatables.net-buttons/js/dataTables.buttons.js',
+        'node_modules/datatables.net-buttons/js/buttons.html5.min.js',
+        'node_modules/datatables.net-buttons-bs5/js/buttons.bootstrap5.min.js',
+        'node_modules/datatables.net-buttons/js/buttons.colVis.min.js',
+
         'js/vendor/moment-with-locales.min.js',
         'js/vendor/daterangepicker.min.js',
         'node_modules/select2/dist/js/select2.js',
@@ -118,8 +123,11 @@ function htmlPageStart($strTitle = '', $arrExtraScripts = [], $loggedIn = true)
 
     $css = [
         'css/vendor/daterangepicker.css',
-        'css/vendor/dataTables.bootstrap5.min.css',
-        'datatables/Buttons-1.7.1/css/buttons.dataTables.min.css',
+
+        // DataTables:
+        'node_modules/datatables.net-bs5/css/dataTables.bootstrap5.min.css',
+        'node_modules/datatables.net-buttons-bs5/css/buttons.bootstrap5.min.css',
+
         'node_modules/select2/dist/css/select2.min.css',
         getSetting('printout_markdown') ? 'css/easymde.min.css' : '',
         'css/style.css',

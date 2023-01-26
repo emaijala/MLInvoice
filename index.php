@@ -123,9 +123,9 @@ if ($strFunc == 'system' && getPostOrQuery('operation', '') == 'dbdump'
 
 $extraJs = [];
 if (substr($strFunc, -7) === '_report') {
-    $extraJs[] = 'datatables/JSZip-2.5.0/jszip.min.js';
-    $extraJs[] = 'datatables/pdfmake-0.1.36/pdfmake.min.js';
-    $extraJs[] = 'datatables/pdfmake-0.1.36//vfs_fonts.js';
+    $extraJs[] = 'node_modules/jszip/dist/jszip.min.js';
+    $extraJs[] = 'node_modules/pdfmake/build/pdfmake.min.js';
+    $extraJs[] = 'node_modules/pdfmake/build/vfs_fonts.js';
 }
 
 echo htmlPageStart($title, $extraJs);

@@ -263,7 +263,7 @@ function createList($strFunc, $strList, $strTableName = '', $strTitleOverride = 
             }
         ]
     });
-    $table.DataTable().buttons().container().appendTo($('#<?php echo $strTableName?>_length'));
+    buttons.container().appendTo($('#<?php echo $strTableName?>_length'));
 
     $(document).on('click', '#<?php echo $strTableName?> tbody tr', function(e) {
       if ($(e.target).hasClass('cb-select-row') || $(e.target).find('.cb-select-row').length > 0) {
