@@ -50,8 +50,15 @@
     <phingcall target="php-cs-fixer-dryrun"/>
   </target>
 
+  <!-- CI Checks -->
+  <target name="ci" description="CI tests">
+    <phingcall target="ci-setup"/>
+    <phingcall target="ci-codeception"/>
+    <phingcall target="ci-teardown"/>
+  </target>
+
   <!-- CI setup -->
-  <target name="setup-ci">
+  <target name="ci-setup">
     <!-- fail if there is existing configuration -->
     <if>
       <available file="${basedir}/running-ci" />
@@ -87,13 +94,14 @@
         </replaceregexp>
       </filterchain>
     </copy>
+    <append destFile="${basedir}/config.php" text="define('MLINVOICE_LOGIN_DELAY_MULTIPLIER', 0);" fixlastline="yes" />
 
     <!-- create flag file -->
     <touch file="${basedir}/running-ci" />
   </target>
 
   <!-- CI teardown -->
-  <target name="teardown-ci">
+  <target name="ci-teardown">
     <if>
       <not>
         <available file="${basedir}/running-ci" />
@@ -119,6 +127,11 @@
     <!-- remove configuration -->
     <delete file="${basedir}/running-ci" />
     <delete file="${basedir}/config.php" />
+  </target>
+
+  <!-- codeception -->
+  <target name="ci-codeception">
+    <exec command="vendor/bin/codecept run --steps" escape="false" checkreturn="true" passthru="true" />
   </target>
 
   <!-- phpunit -->
