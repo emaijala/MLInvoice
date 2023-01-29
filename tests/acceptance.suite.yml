@@ -1,0 +1,22 @@
+# Codeception Test Suite Configuration
+#
+# Suite for acceptance tests.
+# Perform tests in browser using the WebDriver or PhpBrowser.
+# If you need both WebDriver and PHPBrowser tests - create a separate suite.
+
+actor: AcceptanceTester
+modules:
+    enabled:
+        - WebDriver:
+            url: http://localhost:8080/mlinvoice
+            browser: firefox
+            window_size: 1400x768
+            path: ''
+            capabilities:
+                #acceptInsecureCerts: true # allow self-signed certificates
+                moz:firefoxOptions:
+                    args: ["-headless"] # Run Firefox in headless mode
+                    #prefs:
+                        #intl.accept_languages: "de-AT" # Set HTTP-Header `Accept-Language: de-AT` for requests
+        - \Helper\Acceptance
+step_decorators: ~

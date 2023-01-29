@@ -3,6 +3,38 @@
   <property name="tmp" value="/tmp" />
   <property name="package"  value="${phing.project.name}" override="true" />
   <property name="php-cs-fixer-extra-params" value=""/>
+  <property name="basedir"   value="${project.basedir}" override="true" />
+  <!--
+    Continuous integration test database settings.
+    *** N.B. Running CI will overwrite the database ***
+  -->
+  <property name="dbname" value="mlinvoice_test_987" />
+  <property name="dbuser" value="mlinvoicetest" />
+  <property name="dbpass" value="testpass" />
+  <property name="dbhost" value="localhost" />
+  <property name="dbrootuser" value="" /> <!-- not needed if using login credentials -->
+  <property name="dbrootpass" value="" /> <!-- not needed if using login credentials -->
+
+  <!-- We only need the credentials if the password is non-blank -->
+  <if>
+    <not>
+      <equals arg1="${dbrootuser}" arg2="" />
+    </not>
+    <then>
+      <property name="dbcredentials" value="-u ${dbrootuser}" />
+    </then>
+    <else>
+      <property name="dbcredentials" value="" />
+    </else>
+  </if>
+  <if>
+    <not>
+      <equals arg1="${dbrootpass}" arg2="" />
+    </not>
+    <then>
+      <property name="dbcredentials" value="${dbcredentials} -p ${dbrootpass}" />
+    </then>
+  </if>
 
   <!-- Main Target -->
   <target name="main" description="main target">
@@ -16,6 +48,77 @@
     <phingcall target="eslint"/>
     <phingcall target="phpcs-n"/>
     <phingcall target="php-cs-fixer-dryrun"/>
+  </target>
+
+  <!-- CI setup -->
+  <target name="setup-ci">
+    <!-- fail if there is existing configuration -->
+    <if>
+      <available file="${basedir}/running-ci" />
+      <then>
+        <fail>${basedir}/running-ci flag file already exists</fail>
+      </then>
+    </if>
+    <if>
+      <available file="${basedir}/config.php" />
+      <then>
+        <fail>config.php already exists</fail>
+      </then>
+    </if>
+
+    <!-- setup database -->
+    <exec command="mysqladmin -h ${dbhost} ${dbcredentials} -f drop ${dbname}" />
+    <exec command="mysqladmin -h ${dbhost} ${dbcredentials} create ${dbname}" checkreturn="true" passthru="true" />
+    <exec command="mysql -h ${dbhost} ${dbcredentials} -e &quot;DROP USER '${dbuser}'@'${dbhost}'&quot;" />
+    <exec command="mysql -h ${dbhost} ${dbcredentials} -e &quot;CREATE USER '${dbuser}'@'${dbhost}' IDENTIFIED BY '${dbpass}'&quot;" checkreturn="true" passthru="true" />
+    <exec command="mysql -h ${dbhost} ${dbcredentials} -e &quot;GRANT SELECT,INSERT,UPDATE,DELETE,ALTER,CREATE ON ${dbname}.* TO '${dbuser}'@'${dbhost}' WITH GRANT OPTION&quot;" checkreturn="true" passthru="true" />
+    <exec command="mysql -h ${dbhost} ${dbcredentials} -D ${dbname} &lt; ${basedir}/tests/fixtures/create_database_29.sql" checkreturn="true" passthru="true" />
+
+    <!-- update configuration -->
+    <copy file="${basedir}/config.php.sample" tofile="${basedir}/config.php" >
+      <filterchain>
+        <replaceregexp>
+          <regexp pattern="//define\('_UI_LANGUAGE_', 'en-US'\);" replace="define('_UI_LANGUAGE_', 'en-US');" />
+          <regexp pattern="define\('_DB_SERVER_', 'localhost'\)" replace="define('_DB_SERVER_', '${dbhost}')" />
+          <regexp pattern="define\('_DB_USERNAME_', 'mlinvoice'\)" replace="define('_DB_USERNAME_', '${dbuser}')" />
+          <regexp pattern="define\('_DB_PASSWORD_', ''\)" replace="define('_DB_PASSWORD_', '${dbpass}')" />
+          <regexp pattern="define\('_DB_NAME_', 'mlinvoice'\)" replace="define('_DB_NAME_', '${dbname}')" />
+          <regexp pattern="replacewithsomethingsecure" replace="thisisnotreallythatsecurebutokfortesting" />
+        </replaceregexp>
+      </filterchain>
+    </copy>
+
+    <!-- create flag file -->
+    <touch file="${basedir}/running-ci" />
+  </target>
+
+  <!-- CI teardown -->
+  <target name="teardown-ci">
+    <if>
+      <not>
+        <available file="${basedir}/running-ci" />
+      </not>
+      <then>
+        <fail>${basedir}/running-ci flag file does not exist</fail>
+      </then>
+    </if>
+
+    <if>
+      <not>
+        <available file="${basedir}/config.php" />
+      </not>
+      <then>
+        <fail>config.php does not exist</fail>
+      </then>
+    </if>
+
+    <!-- drop database and user -->
+    <exec command="mysqladmin -h ${dbhost} ${dbcredentials} -f drop ${dbname}" checkreturn="true" passthru="true" />
+    <exec command="mysql -h ${dbhost} ${dbcredentials} -e &quot;DROP USER '${dbuser}'@'${dbhost}'&quot;" passthru="true" />
+
+    <!-- remove configuration -->
+    <delete file="${basedir}/running-ci" />
+    <delete file="${basedir}/config.php" />
   </target>
 
   <!-- phpunit -->
