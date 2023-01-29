@@ -28,7 +28,7 @@ MLInvoice.addModule('Form', function mlinvoiceForm() {
     $('#state_id').on('change', updateBaseDefaults);
 
     // Company info
-    if ($('#company_id').val()) {
+    if ($('#company_id').val() && $('#company_id').data('onChange')) {
       _onChangeCompany();
     }
     // Stock balance
