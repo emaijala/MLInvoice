@@ -38,9 +38,37 @@ class BasicFunctionalityCest
         $I->fillField('Bank', 'Test Bank');
         $I->fillField('SWIFT/BIC', 'TESTBIC');
         $I->click('Save');
-        $I->see('Value missing: IBAN');
+        $I->waitForText('Value missing: IBAN');
         $I->fillField('IBAN', 'TESTIBAN');
         $I->click('Save');
         $I->amOnPage('/index.php?func=settings&list=base&form=base&id=1');
+    }
+
+    public function createClient(AcceptanceTester $I, Login $loginPage)
+    {
+        $loginPage->login();
+        $I->click('Clients');
+        $I->waitForJS("return $.active == 0;", 5);
+        $I->see('No records to display');
+        $I->click('New Client');
+        $I->click('Save');
+        $I->waitForText('Value missing: Client Name');
+        $I->fillField('Client Name', 'Invoice Client');
+        $I->fillField('VAT ID', '54321');
+        $I->fillField('Email', 'client@localhost');
+        $I->click('Save');
+        $I->amOnPage('/index.php?func=company&form=company&id=1');
+    }
+
+    public function createInvoice(AcceptanceTester $I, Login $loginPage)
+    {
+        $loginPage->login();
+        $I->click('Invoices and Offers');
+        $I->click('New Invoice');
+        $I->click('[aria-labelledby="select2-company_id-container"]');
+        $I->waitForElementVisible('#select2-company_id-results');
+        $I->click('#select2-company_id-results li:first-child');
+        $I->click('Save');
+        $I->amOnPage('/index.php?func=invoices&form=invoice&id=1');
     }
 }
