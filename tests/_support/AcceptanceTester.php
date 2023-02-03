@@ -23,4 +23,31 @@ class AcceptanceTester extends \Codeception\Actor
     /**
      * Define custom actions here
      */
+
+     public function select2Select(string $fieldId, int $index): void
+     {
+        $this->click('[aria-labelledby="select2-' . $fieldId . '-container"]');
+        $this->waitForElementVisible('#select2-' . $fieldId . '-results');
+        $this->click('#select2-' . $fieldId . '-results li:nth-child(' . $index . ')');
+     }
+
+    /**
+     * Wait for a field to have the given content
+     *
+     * @param string $field    Field selector
+     * @param string $contents Field contents to wait for
+     * @param int    $timeout  Timeout in seconds
+     *
+     * @throws \Codeception\Exception\ElementNotFound
+     */
+    public function waitForFieldContents(string $field, string $contents, $timeout = 5)
+    {
+        $this->waitForElementChange(
+            $field,
+            function ($element) use ($contents) {
+                return $element->getAttribute('value') === $contents;
+            },
+            $timeout
+        );
+    }
 }
