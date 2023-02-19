@@ -1,6 +1,10 @@
 <?php
 
+use Page\Acceptance\Client;
+use Page\Acceptance\Company;
+use Page\Acceptance\Invoice;
 use Page\Acceptance\Login;
+use Page\Acceptance\Product;
 
 class BasicFunctionalityCest
 {
@@ -24,83 +28,58 @@ class BasicFunctionalityCest
         $I->waitForJS("return $.active == 0;", 5);
     }
 
-    public function createCompany(AcceptanceTester $I, Login $loginPage)
+    public function createCompany(AcceptanceTester $I, Login $loginPage, Company $company)
     {
         $loginPage->login();
-        $I->click('Settings');
-        $I->click('Companies');
-        $I->waitForText('No records to display');
-        $I->click('New Company');
-        $I->fillField('Company Name', 'Invoicer');
-        $I->fillField('VAT ID', '12345');
-        $I->fillField('Bank', 'Test Bank');
-        $I->fillField('SWIFT/BIC', 'TESTBIC');
-        $I->click('Save');
-        $I->waitForText('Value missing: IBAN');
-        $I->fillField('IBAN', 'TESTIBAN');
-        $I->click('Save');
-        $I->seeInCurrentUrl('&id=1');
+        $company->add();
+        $I->seeCurrentUrlMatches('/&id=\d+/');
     }
 
-    public function createClient(AcceptanceTester $I, Login $loginPage)
+    public function createClient(AcceptanceTester $I, Login $loginPage, Client $client)
     {
         $loginPage->login();
-        $I->click('Clients');
-        $I->waitForText('No records to display');
-        $I->click('New Client');
-        $I->click('Save');
-        $I->waitForText('Value missing: Client Name');
-        $I->fillField('Client Name', 'Invoice Client');
-        $I->fillField('VAT ID', '54321');
-        $I->fillField('Email', 'client@localhost');
-        $I->click('Save');
-        $I->seeInCurrentUrl('&id=1');
+        $client->add();
+        $I->seeCurrentUrlMatches('/&id=\d+/');
     }
 
-    public function createProduct(AcceptanceTester $I, Login $loginPage)
+    public function createProduct(AcceptanceTester $I, Login $loginPage, Product $product)
     {
         $loginPage->login();
-        $I->click('Settings');
-        $I->click('Products');
-        $I->waitForText('No records to display');
-        $I->click('New Product');
-        $I->fillField('Product Code', 'P1');
-        $I->fillField('Product Name', 'Test Product');
-        $I->fillField('Product Description', 'Super product');
-        $I->fillField('Unit Price', '10,50');
-        $I->selectOption('#type_id', 'pcs');
-        $I->click('Save');
-        $I->seeInCurrentUrl('&id=1');
+        $product->add();
+        $I->seeCurrentUrlMatches('/&id=\d+/');
     }
 
     #[Depends('createCompany', 'createClient', 'createProduct')]
-    public function createInvoices(AcceptanceTester $I, Login $loginPage)
+    public function createInvoices(AcceptanceTester $I, Login $loginPage, Invoice $invoice)
     {
-        $I->amOnPage('/');
         $loginPage->login();
-        $I->click('Invoices and Offers');
-        $I->click('New Invoice');
-        $I->select2Select('company_id', 1);
-        $I->click('Save');
-        $I->seeInCurrentUrl('&id=1');
+        $invoice->add(1);
+        $I->seeInCurrentUrl('&id=');
+        $id = $I->grabFromCurrentUrl('/&id=(\d+)/');
 
         // Add row
-        $I->select2Select('iform_product_id', 1);
-        $I->waitForFieldContents('#iform_description', 'Super product');
-        $I->waitForFieldContents('#iform_price', '10.50');
-        $I->fillField('#iform_pcs', '2');
-        $I->click('.row-add-button');
+        $invoice->addRow(1, 2);
         $I->waitForText('26.04', 2, '#itable');
 
         // Copy
         $I->click('Copy');
-        $I->seeInCurrentUrl('&id=2');
+        $I->seeInCurrentUrl('&id=' . ($id + 1));
         $I->see('Invoicer 12345', '#select2-base_id-container');
         $I->see('Invoice Client 54321', '#select2-company_id-container');
 
         // Refund
         $I->click('Refund Invoice');
-        $I->seeInCurrentUrl('&id=3');
+        $I->seeInCurrentUrl('&id=' . ($id + 2));
         $I->waitForText('-26.04', 2, '#itable');
+    }
+
+    public function editInvoice(AcceptanceTester $I, Login $loginPage, Invoice $invoice)
+    {
+        $loginPage->login();
+        $invoice->add(1);
+        $invoice->addRow(1, 2);
+        $I->waitForText('26.04', 2, '#itable');
+        $invoice->editRow(4);
+        $I->waitForText('52.08', 2, '#itable');
     }
 }
