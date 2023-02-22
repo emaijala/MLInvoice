@@ -1,0 +1,16 @@
+AliasMatch /mlinvoice-test/(.*) /path/to/mlinvoice/$1
+
+<Directory /path/to/mlinvoice/>
+  RewriteEngine On
+  RewriteBase /mlinvoice
+  RewriteCond %{REQUEST_FILENAME} -s [OR]
+  RewriteCond %{REQUEST_FILENAME} -l [OR]
+  RewriteCond %{REQUEST_FILENAME} -d
+  RewriteRule ^.*$ - [NC,L]
+  RewriteRule ^.*$ index.php [NC,L]
+
+  LogLevel alert rewrite:trace8
+  Require all granted
+  SetEnv MLINVOICE_REMOTE_COVERAGE 1
+</Directory>
+

@@ -76,8 +76,12 @@ class BasicFunctionalityCest
         $loginPage->login();
         $invoice->add(1);
         $invoice->addRow(1, 2);
+        $I->waitForText('P1 Test Product', 2, '.item-row');
+        $I->waitForText('Super product', 2, '.item-row');
         $I->waitForText('26.04', 2, '#itable');
         $invoice->editRow(4);
+        $I->waitForText('P1 Test Product', 2, '.item-row');
+        $I->waitForText('Super product', 2, '.item-row');
         $I->waitForText('52.08', 2, '#itable');
     }
 }
