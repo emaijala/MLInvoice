@@ -131,7 +131,10 @@
 
   <!-- codeception -->
   <target name="ci-codeception">
-    <exec command="vendor/bin/codecept run --steps" escape="false" checkreturn="true" passthru="true" />
+    <exec command="vendor/bin/codecept --steps run" escape="false" checkreturn="true" passthru="true" />
+  </target>
+  <target name="ci-codeception-coverage">
+    <exec command="vendor/bin/codecept --steps --coverage-html run" escape="false" checkreturn="true" passthru="true" />
   </target>
 
   <!-- phpunit -->

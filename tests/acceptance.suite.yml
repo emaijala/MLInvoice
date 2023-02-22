@@ -8,7 +8,7 @@ actor: AcceptanceTester
 modules:
     enabled:
         - WebDriver:
-            url: http://localhost:8080/mlinvoice
+            url: http://localhost/mlinvoice-test
             browser: firefox
             window_size: 1400x1200
             path: ''

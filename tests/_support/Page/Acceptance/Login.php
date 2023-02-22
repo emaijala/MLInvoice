@@ -8,7 +8,7 @@ class Login
 
     public static $usernameField = '#login';
     public static $passwordField = '#passwd';
-    public static $loginButton = "form[name=login_form] input[type=submit]";
+    public static $loginButton = "#login_button";
 
     /**
      * Basic route example for your current URL
@@ -30,7 +30,7 @@ class Login
         $this->acceptanceTester = $I;
     }
 
-    public function login($name = 'admin', $password = 'suklaa')
+    public function login(string $name = 'admin', string $password = 'suklaa', string $wait = 'Start Page'): void
     {
         $I = $this->acceptanceTester;
 
@@ -38,5 +38,6 @@ class Login
         $I->fillField(static::$usernameField, $name);
         $I->fillField(static::$passwordField, $password);
         $I->click(static::$loginButton);
+        $I->waitForText($wait, 30);
     }
 }

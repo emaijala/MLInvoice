@@ -16,15 +16,13 @@ class BasicFunctionalityCest
     {
         $I->amOnPage('/');
         $I->dontSee('Database upgrade failed');
-        $loginPage->login('admin', 'wrong');
-        $I->see('Invalid user name or password.');
+        $loginPage->login('admin', 'wrong', 'Invalid user name or password.');
     }
 
     public function login(AcceptanceTester $I, Login $loginPage)
     {
         $I->dontSee('Database upgrade failed');
         $loginPage->login();
-        $I->see('Start Page');
         $I->waitForJS("return $.active == 0;", 5);
     }
 
