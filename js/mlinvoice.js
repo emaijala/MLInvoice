@@ -506,6 +506,13 @@ var MLInvoice = (function CreateMLInvoice() {
     $(document).ajaxError(function onAjaxError(event, request) {
       ajaxErrorHandler(request);
     });
+    // Focus select2 search field when opened
+    $(document).on('select2:open', () => {
+      var field = document.querySelector('.select2-container--open .select2-search__field');
+      if (field) {
+        field.focus();
+      }
+    });
   }
 
   function _setupListMultiSelect() {
