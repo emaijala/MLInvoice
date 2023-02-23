@@ -1,4 +1,4 @@
-/* global MLInvoice, $, bootstrap, EasyMDE, google, Sortable, moment */
+/* global MLInvoice, bootstrap, EasyMDE, google, Sortable, moment */
 MLInvoice.addModule('Form', function mlinvoiceForm() {
   var _formConfig = {};
   var _subFormConfig = {};
@@ -195,7 +195,7 @@ MLInvoice.addModule('Form', function mlinvoiceForm() {
       that.printInvoice(2, 'start_page', MLInvoice.getDispatchNotePrintStyle(), $(this).data('date'));
     };
     for (var i in dates) {
-      if (dates.hasOwnProperty(i)) {
+      if (Object.prototype.hasOwnProperty.call(dates, i)) {
         var date = dates[i];
         var link = $('<a class="btn btn-outline-secondary" role="button">')
           .text(MLInvoice.translate('SettingDispatchNotes') + ' ' + MLInvoice.formatDate(date));
@@ -316,7 +316,7 @@ MLInvoice.addModule('Form', function mlinvoiceForm() {
   function _setupBaseLink()
   {
     var base_id = $('#base_id.linked');
-    if (base_id.val() == '') {
+    if (base_id.val() === '') {
       $('#base_id_label').text($('#base_id_label').text());
     } else {
       $('#base_id_label').html('<a href="index.php?func=settings&list=base&form=base&id=' + base_id.val() + '">' + $('#base_id_label').text() + '</a>');
@@ -1587,7 +1587,7 @@ MLInvoice.addModule('Form', function mlinvoiceForm() {
       'contentType': 'application/json; charset=utf-8',
       'success': function onDeleteSuccess() {
         MLInvoice.Form.initRows();
-        if (formId == 'iform_popup') {
+        if (formId === 'iform_popup') {
           bootstrap.Modal.getInstance($('#popup_edit').get(0)).hide();
         }
       }
@@ -1863,10 +1863,10 @@ MLInvoice.addModule('Form', function mlinvoiceForm() {
           },
           'type': 'GET',
           'success': function getInvoiceStateDone(state_data) {
-            if (state_data.invoice_open == 0) {
+            if (state_data.invoice_open === 0) {
               return;
             }
-            var prefix = state_data.invoice_offer == 1 ? 'offer' : 'invoice';
+            var prefix = state_data.invoice_offer === 1 ? 'offer' : 'invoice';
             if (data[prefix + '_default_foreword']) {
               var oldfw = MLInvoice.Form.getFieldVal($('#foreword'));
               if (oldfw === '' || oldfw === data.invoice_default_foreword || oldfw === data.offer_default_foreword) {
@@ -1879,7 +1879,7 @@ MLInvoice.addModule('Form', function mlinvoiceForm() {
                 MLInvoice.Form.setFieldVal('#afterword', data[prefix + '_default_afterword']);
               }
             }
-            if (data.invoice_default_info && $('#info').val() == '') {
+            if (data.invoice_default_info && $('#info').val() === '') {
               MLInvoice.Form.setFieldVal('#info', data.invoice_default_info);
             }
           }
@@ -1919,7 +1919,7 @@ MLInvoice.addModule('Form', function mlinvoiceForm() {
       var sum = 0;
       var sumVAT = 0;
       var VAT = 0;
-      if (VATIncluded == 1) {
+      if (VATIncluded === 1) {
         sumVAT = items * price;
         sum = sumVAT / (1 + VATPercent / 100);
         VAT = sumVAT - sum;

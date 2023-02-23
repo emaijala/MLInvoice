@@ -10,17 +10,17 @@
     "url": "http://github.com/emaijala/MLInvoice/issues"
   },
   "dependencies": {
+    "datatables.net-bs5": "^1.13.2",
+    "datatables.net-buttons-bs5": "^2.3.4",
+    "datatables.net-responsive-bs5": "^2.4.0",
+    "datatables.net-select-bs5": "^1.6.0",
     "jszip": "^3.10.1",
     "pdfmake": "^0.2.7",
-    "datatables.net-bs5": "^1.13.1",
-    "datatables.net-buttons-bs5": "^2.3.3",
-    "datatables.net-responsive-bs5": "^2.4.0",
-    "datatables.net-select-bs5": "^1.5.0",
     "select2": "^4.0.13"
   },
   "devDependencies": {
-    "eslint": "^8.28.0",
-    "grunt": "^1.5.3",
+    "eslint": "^8.34.0",
+    "grunt": "^1.6.1",
     "grunt-contrib-sass": "^2.0.0",
     "grunt-contrib-uglify": "^5.2.2",
     "grunt-contrib-watch": "^1.1.0",

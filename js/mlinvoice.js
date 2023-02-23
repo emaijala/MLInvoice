@@ -1,4 +1,4 @@
-/* global $, bootstrap, Cookies, moment */
+/* global bootstrap, Cookies, moment */
 /* exported MLInvoice */
 var MLInvoice = (function CreateMLInvoice() {
   var _modules = [];
@@ -125,7 +125,7 @@ var MLInvoice = (function CreateMLInvoice() {
     if (XMLHTTPReq.status === 0) {
       return false;
     }
-    if (XMLHTTPReq.status == 409) {
+    if (XMLHTTPReq.status === 409) {
       errormsg(JSON.parse(XMLHTTPReq.responseText).warnings);
     } else {
       errormsg(translate('ServerError') + ': ' + XMLHTTPReq.status + ' - ' + XMLHTTPReq.statusText);
