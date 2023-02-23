@@ -378,18 +378,6 @@ function htmlMainTabs($func)
                     ],
                 ],
                 [
-                    'title' => 'NewOffer',
-                    'action' => [
-                        'func' => 'invoices',
-                        'form' => 'invoice',
-                        'offer' => '1',
-                    ],
-                    'levels_allowed' => [
-                        ROLE_USER,
-                        ROLE_BACKUPMGR,
-                    ],
-                ],
-                [
                     'title' => 'ExtSearch',
                     'action' => [
                         'func' => 'search',

@@ -70,13 +70,13 @@ MLInvoice.addModule('Form', function mlinvoiceForm() {
     });
     $('.modification-indicator .clear').on('click', function onClearModification() {
       var $ind = $(this).closest('.modification-indicator');
-      $ind.addClass('hidden');
       var $container = $ind.closest('td');
       $container.find('input[type="text"],input[type="date"],input[type="hidden"]:not(.select-default-text),input[type="checkbox"],select:not(.dropdownmenu),textarea').data('modified', 0);
       $container.find('input[type="text"],input[type="date"],input[type="hidden"]:not(.select-default-text),textarea').val('');
       $container.find('input[type="checkbox"]').prop('checked', false);
       $container.find('select:not(.dropdownmenu)').val('');
-      $container.find('input.searchlist').select2('val', null);
+      $container.find('select.js-searchlist').find('option').remove();
+      $ind.addClass('hidden');
     });
 
     _setupYtjSearch();
@@ -1321,6 +1321,10 @@ MLInvoice.addModule('Form', function mlinvoiceForm() {
       $('#iform_popup')
         .find('input[type="text"],input[type="date"],input[type="hidden"]:not(.select-default-text),input[type="checkbox"],select:not(.dropdownmenu),textarea')
         .on('change', function onPopupFieldChange() {
+          if ($('#popup_edit').find('.edit-multi-buttons').hasClass('hidden')) {
+            // Not multieditor
+            return;
+          }
           $(this).parent().parent().find('.modification-indicator').removeClass('hidden');
           $(this).data('modified', 1);
         });
@@ -1420,7 +1424,8 @@ MLInvoice.addModule('Form', function mlinvoiceForm() {
                   value.val([]);
                   break;
                 case 'SEARCHLIST':
-                  value.select2('val', '');
+                  value.find('option').remove();
+                  value.trigger('change');
                   break;
                 case 'TAGS':
                   value.find('option').remove();
@@ -1491,7 +1496,7 @@ MLInvoice.addModule('Form', function mlinvoiceForm() {
         obj[field.name] = elem.val().replace(MLInvoice.translate('DecimalSeparator'), '.');
         break;
       case 'SEARCHLIST':
-        obj[field.name] = elem.select2('data');
+        obj[field.name] = elem.val();
         break;
       case 'INTDATE':
       case 'LIST':
@@ -1616,11 +1621,9 @@ MLInvoice.addModule('Form', function mlinvoiceForm() {
           }
           break;
         case 'SEARCHLIST':
-          var item = {
-            id: json[field.name],
-            text: json[field.name + '_text']
-          };
-          elem.select2('data', item);
+          elem.find('option').remove();
+          elem.append(new Option(json[field.name + '_text'], json[field.name]));
+          elem.trigger('change');
           break;
         case 'PASSWD_STORED':
           elem.val('');
@@ -1680,7 +1683,8 @@ MLInvoice.addModule('Form', function mlinvoiceForm() {
         elem.prop('checked', false);
         break;
       case 'SEARCHLIST':
-        elem.val(null).trigger('change');
+        elem.find('option').remove();
+        elem.trigger('change');
         break;
       case 'TAGS':
         elem.find('option').remove();
