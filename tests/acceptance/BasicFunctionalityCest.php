@@ -8,8 +8,27 @@ use Page\Acceptance\Product;
 
 class BasicFunctionalityCest
 {
+    /**
+     * Product code 1
+     *
+     * @var string
+     */
+    protected $product1 = '';
+
+    /**
+     * Product code 2
+     *
+     * @var string
+     */
+    protected $product2 = '';
+
     public function _before(AcceptanceTester $I)
     {
+        if ($this->product1) {
+            return;
+        }
+        $this->product1 = 'A' . date('His') . 'A';
+        $this->product2 = 'B' . date('His') . 'B';
     }
 
     public function badLogin(AcceptanceTester $I, Login $loginPage)
@@ -43,7 +62,7 @@ class BasicFunctionalityCest
     public function createProduct(AcceptanceTester $I, Login $loginPage, Product $product)
     {
         $loginPage->login();
-        $product->add();
+        $product->add($this->product1);
         $I->seeCurrentUrlMatches('/&id=\d+/');
     }
 
@@ -56,7 +75,8 @@ class BasicFunctionalityCest
         $id = $I->grabFromCurrentUrl('/&id=(\d+)/');
 
         // Add row
-        $invoice->addRow(1, 2);
+        $invoice->addRow($this->product1, 2);
+        $I->waitForText("$this->product1 Test Product", 2, '.item-row');
         $I->waitForText('26.04', 2, '#itable');
 
         // Copy
@@ -71,17 +91,21 @@ class BasicFunctionalityCest
         $I->waitForText('-26.04', 2, '#itable');
     }
 
-    public function editInvoice(AcceptanceTester $I, Login $loginPage, Invoice $invoice)
+    #[Depends('createCompany', 'createClient', 'createProduct')]
+    public function editInvoice(AcceptanceTester $I, Login $loginPage, Invoice $invoice, Product $product)
     {
         $loginPage->login();
+        $product->add($this->product2);
         $invoice->add(1);
-        $invoice->addRow(1, 2);
-        $I->waitForText('P1 Test Product', 2, '.item-row');
+        $invoice->addRow($this->product1, 2);
+        $I->waitForText("$this->product1 Test Product", 2, '.item-row');
         $I->waitForText('Super product', 2, '.item-row');
         $I->waitForText('26.04', 2, '#itable');
-        $invoice->editRow(4);
-        $I->waitForText('P1 Test Product', 2, '.item-row');
+        $invoice->editRow(null, 4);
+        $I->waitForText("$this->product1 Test Product", 2, '.item-row');
         $I->waitForText('Super product', 2, '.item-row');
         $I->waitForText('52.08', 2, '#itable');
+        $invoice->editRow($this->product2, 4);
+        $I->waitForText("$this->product2 Test Product", 2, '.item-row');
     }
 }

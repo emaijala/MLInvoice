@@ -27,20 +27,23 @@ class Invoice
         $I->waitForElementNotVisible('#inewmessage');
     }
 
-    public function addRow(int $productId, int $pcs): void
+    public function addRow(string $productCode, int $pcs): void
     {
         $I = $this->acceptanceTester;
-        $I->select2Select('iform_product_id', $productId);
+        $I->select2SelectWithSearch('iform_product_id', $productCode);
         $I->waitForFieldContents('#iform_description', 'Super product');
         $I->waitForFieldContents('#iform_price', '10.50');
         $I->fillField('#iform_pcs', $pcs);
         $I->click('.row-add-button');
     }
 
-    public function editRow(int $pcs): void
+    public function editRow(?string $productCode, int $pcs): void
     {
         $I = $this->acceptanceTester;
         $I->click('.row-edit-button');
+        if ($productCode) {
+            $I->select2SelectWithSearch('iform_popup_product_id', $productCode);
+        }
         $I->fillField('#iform_popup_pcs', $pcs);
         $I->click('[data-iform-save-row=iform_popup]');
     }

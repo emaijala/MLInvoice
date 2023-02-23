@@ -20,16 +20,21 @@ class AcceptanceTester extends \Codeception\Actor
 {
     use _generated\AcceptanceTesterActions;
 
-    /**
-     * Define custom actions here
-     */
-
-     public function select2Select(string $fieldId, int $index): void
-     {
+    public function select2Select(string $fieldId, int $index): void
+    {
         $this->click('[aria-labelledby="select2-' . $fieldId . '-container"]');
         $this->waitForElementVisible('#select2-' . $fieldId . '-results');
         $this->click('#select2-' . $fieldId . '-results li:nth-child(' . $index . ')');
-     }
+    }
+
+    public function select2SelectWithSearch(string $fieldId, string $search): void
+    {
+        $this->click('[aria-labelledby="select2-' . $fieldId . '-container"]');
+        $this->waitForElementVisible('.select2-container--open .select2-search__field');
+        $this->type($search);
+        $this->waitForElementNotVisible('#select2-' . $fieldId . '-results .loading-results');
+        $this->click('#select2-' . $fieldId . '-results li:nth-child(1)');
+    }
 
     /**
      * Wait for a field to have the given content

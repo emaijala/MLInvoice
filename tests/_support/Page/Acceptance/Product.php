@@ -13,14 +13,14 @@ class Product
         $this->acceptanceTester = $I;
     }
 
-    public function add(): void
+    public function add(string $code): void
     {
         $I = $this->acceptanceTester;
         $I->click('Settings');
         $I->click('Products');
         $I->waitForText('New Product');
         $I->click('New Product');
-        $I->fillField('Product Code', 'P1');
+        $I->fillField('Product Code', $code);
         $I->fillField('Product Name', 'Test Product');
         $I->fillField('Product Description', 'Super product');
         $I->fillField('Unit Price', '10,50');
