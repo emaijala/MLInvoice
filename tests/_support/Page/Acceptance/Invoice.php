@@ -45,6 +45,6 @@ class Invoice
             $I->select2SelectWithSearch('iform_popup_product_id', $productCode);
         }
         $I->fillField('#iform_popup_pcs', $pcs);
-        $I->click('[data-iform-save-row=iform_popup]');
+        $I->click('.edit-single-buttons button[data-iform-save-row=iform_popup]');
     }
 }

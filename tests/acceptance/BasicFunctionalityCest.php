@@ -22,6 +22,13 @@ class BasicFunctionalityCest
      */
     protected $product2 = '';
 
+    /**
+     * Product code 3
+     *
+     * @var string
+     */
+    protected $product3 = '';
+
     public function _before(AcceptanceTester $I)
     {
         if ($this->product1) {
@@ -29,6 +36,7 @@ class BasicFunctionalityCest
         }
         $this->product1 = 'A' . date('His') . 'A';
         $this->product2 = 'B' . date('His') . 'B';
+        $this->product3 = 'C' . date('His') . 'C';
     }
 
     public function badLogin(AcceptanceTester $I, Login $loginPage)
@@ -96,16 +104,28 @@ class BasicFunctionalityCest
     {
         $loginPage->login();
         $product->add($this->product2);
+        $product->add($this->product3);
         $invoice->add(1);
         $invoice->addRow($this->product1, 2);
         $I->waitForText("$this->product1 Test Product", 2, '.item-row');
         $I->waitForText('Super product', 2, '.item-row');
         $I->waitForText('26.04', 2, '#itable');
+        // Single edit
         $invoice->editRow(null, 4);
         $I->waitForText("$this->product1 Test Product", 2, '.item-row');
         $I->waitForText('Super product', 2, '.item-row');
         $I->waitForText('52.08', 2, '#itable');
         $invoice->editRow($this->product2, 4);
         $I->waitForText("$this->product2 Test Product", 2, '.item-row');
+        // Multiedit
+        $invoice->addRow($this->product1, 2);
+        $I->click('.cb-select-all');
+        $I->click('#update-selected-rows');
+        $I->select2SelectWithSearch('iform_popup_product_id', $this->product3);
+        $I->fillField('#iform_popup_pcs', 10);
+        $I->click('.edit-multi-buttons button[data-iform-save-rows=iform_popup]');
+        $I->waitForText("$this->product3 Test Product", 2, '.item-row:nth-child(2)');
+        $I->waitForText("$this->product3 Test Product", 2, '.item-row:nth-child(3)');
+
     }
 }
