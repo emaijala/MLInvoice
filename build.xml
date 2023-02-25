@@ -86,7 +86,7 @@
     <exec command="mysql -h ${dbhost} ${dbcredentials} -D ${dbname} &lt; ${basedir}/tests/fixtures/create_database_29.sql" checkreturn="true" passthru="true" />
 
     <!-- update configuration -->
-    <copy file="${basedir}/config.php.sample" tofile="${basedir}/config.php" >
+    <copy file="${basedir}/config.php.sample" tofile="${basedir}/config.php" overwrite="true">
       <filterchain>
         <replaceregexp>
           <regexp pattern="//define\('_UI_LANGUAGE_', 'en-US'\);" replace="define('_UI_LANGUAGE_', 'en-US');" />
