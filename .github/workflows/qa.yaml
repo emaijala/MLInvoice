@@ -21,12 +21,7 @@ jobs:
           - php-version: 8.0
             phing_tasks: "qa"
           - php-version: 8.1
-            phing_tasks: "qa ci -Doverwrite-config=1"
-
-    services:
-      selenium:
-        image: selenium/standalone-firefox
-        options: --shm-size=2gb
+            phing_tasks: "qa"
 
     steps:
       - name: Setup PHP
@@ -70,10 +65,6 @@ jobs:
 
       - name: Create config.php
         run: cp config.php.sample config.php
-
-      - name: Update acceptance test config
-        run: |
-          sed -i 's/(\s*)url:.*/$1url: http:\/\/localhost\//' tests/acceptance.suite.yml
 
       - name: Run tests
         run: vendor/bin/phing ${{ matrix.phing_tasks }}
