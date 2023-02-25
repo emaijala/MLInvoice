@@ -72,7 +72,8 @@ jobs:
         run: cp config.php.sample config.php
 
       - name: Update acceptance test config
-        run: "sed -i 's/(\s*)url:.*/$1url: http:\/\/localhost\//' tests/acceptance.suite.yml"
+        run: |
+          sed -i 's/(\s*)url:.*/$1url: http:\/\/localhost\//' tests/acceptance.suite.yml
 
       - name: Run tests
         run: vendor/bin/phing ${{ matrix.phing_tasks }}
