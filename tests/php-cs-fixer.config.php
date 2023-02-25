@@ -2,6 +2,9 @@
 
 $finder = PhpCsFixer\Finder::create()
     ->exclude('node_modules')
+    ->exclude('tests/_output')
+    ->exclude('tests/_support')
+    ->notName('c3.php')
     ->in(__DIR__ . '/..');
 
 $rules = [

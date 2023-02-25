@@ -38,6 +38,10 @@ define('ROLE_ADMIN', 99);
 define('CSRF_OK', 0);
 define('CSRF_ERR_FAIL', 1);
 
+if (!defined('MLINVOICE_LOGIN_DELAY_MULTIPLIER')) {
+    define('MLINVOICE_LOGIN_DELAY_MULTIPLIER', 1);
+}
+
 /**
  * Create a session
  *
@@ -50,7 +54,7 @@ define('CSRF_ERR_FAIL', 1);
 function sesCreateSession($strLogin, $strPasswd, $strCsrf)
 {
     // Delay so that brute-force attacks become unpractical
-    usleep(rand(500, 2000) * 1000);
+    usleep(rand(500, 1000) * 1000 * MLINVOICE_LOGIN_DELAY_MULTIPLIER);
     if ($strLogin && $strPasswd) {
         $res = sesCheckCsrf($strCsrf);
         if (CSRF_ERR_FAIL === $res) {
@@ -73,7 +77,7 @@ function sesCreateSession($strLogin, $strPasswd, $strCsrf)
                 && md5($strPasswd) != $row['passwd']
             ) {
                 // Delay so that brute-force attacks become unpractical
-                usleep(rand(500, 2000) * 1000);
+                usleep(rand(500, 1000) * 1000 * MLINVOICE_LOGIN_DELAY_MULTIPLIER);
                 error_log("Login failed for $strLogin");
                 return 'FAIL';
             }

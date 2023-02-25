@@ -25,6 +25,11 @@
  * @license  http://opensource.org/licenses/gpl-2.0.php GNU General Public License
  * @link     http://labs.fi/mlinvoice.eng.php
  */
+if (($_SERVER['MLINVOICE_REMOTE_COVERAGE'] ?? $_SERVER['REDIRECT_MLINVOICE_REMOTE_COVERAGE'] ?? false)
+    && file_exists(__DIR__ . DIRECTORY_SEPARATOR . 'c3.php')
+) {
+    include_once __DIR__ . DIRECTORY_SEPARATOR . 'c3.php';
+}
 
 // buffered, so we can redirect later if necessary
 ini_set('implicit_flush', 'Off');

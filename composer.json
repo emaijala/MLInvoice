@@ -11,6 +11,9 @@
     "config": {
         "platform": {
             "php": "7.3.5"
+        },
+        "allow-plugins": {
+            "codeception/c3": false
         }
     },
     "require": {
@@ -32,15 +35,26 @@
         "twbs/bootstrap": "5.1.3"
     },
     "require-dev": {
+        "behat/mink": "1.10.0",
+        "dmore/chrome-mink-driver": "2.8.1",
         "friendsofphp/php-cs-fixer": "^v3.4.0",
-        "phing/phing" : "^2.16.3",
+        "phing/phing": "^2.16.3",
         "phpunit/phpunit": "9.5.10",
-        "squizlabs/php_codesniffer": "^3.5.6"
+        "squizlabs/php_codesniffer": "^3.5.6",
+        "codeception/c3": "^2.8.1",
+        "codeception/codeception": "^4.2",
+        "codeception/module-phpbrowser": "^1.0.0",
+        "codeception/module-asserts": "^1.0.0",
+        "codeception/module-webdriver": "^1.4"
     },
     "scripts": {
         "post-install-cmd": [
             "cp htaccess-vendor vendor/.htaccess",
-            "mkdir -p node_modules; cp htaccess-vendor node_modules/.htaccess"
+            "mkdir -p node_modules; cp htaccess-vendor node_modules/.htaccess",
+            "[ $COMPOSER_DEV_MODE -eq 0 ] || cp vendor/codeception/c3/c3.php ."
+        ],
+        "post-update-cmd": [
+            "@post-install-cmd"
         ],
         "qa": [
             "vendor/bin/phing qa"

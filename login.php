@@ -27,6 +27,12 @@
  */
 require_once 'vendor/autoload.php';
 
+if (($_SERVER['MLINVOICE_REMOTE_COVERAGE'] ?? $_SERVER['REDIRECT_MLINVOICE_REMOTE_COVERAGE'] ?? false)
+    && file_exists(__DIR__ . DIRECTORY_SEPARATOR . 'c3.php')
+) {
+    include_once __DIR__ . DIRECTORY_SEPARATOR . 'c3.php';
+}
+
 // buffered, so we can redirect later if necessary
 ini_set('implicit_flush', 'Off');
 ob_start();
@@ -38,10 +44,10 @@ if (!file_exists(__DIR__ . DIRECTORY_SEPARATOR . 'config.php')) {
     exit();
 }
 
+require_once 'config.php';
 require_once 'sessionfuncs.php';
 require_once 'sqlfuncs.php';
 require_once 'miscfuncs.php';
-require_once 'config.php';
 require_once 'htmlfuncs.php';
 
 if (!session_id()) {
@@ -107,7 +113,7 @@ if ($strLogon) {
     }
 }
 
-usleep(rand(500, 2000) * 1000);
+usleep(rand(500, 1000) * 1000 * MLINVOICE_LOGIN_DELAY_MULTIPLIER);
 $csrf = sesCreateCsrf();
 
 echo htmlPageStart('', [], false);
@@ -161,7 +167,7 @@ if (isset($upgradeMessage)) {
                     <input class="form-control medium" name="passwd" id="passwd" type="password" value="">
                 </p>
                 <p>
-                <input class="btn btn-primary" type="submit" name="logon"
+                <input id="login_button" class="btn btn-primary" type="submit" name="logon"
                     value="<?php echo Translator::translate('Login')?>">
                 </p>
 <?php
