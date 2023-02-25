@@ -86,7 +86,7 @@ class Search
       <template id="template_group">
         <div class="card mb-4 group">
           <div class="card-header">
-            <div><h2><?php echo Translator::translate('Hakuryhmä')?></h2></div>
+            <div><h2><?php echo Translator::translate('SearchGroup')?></h2></div>
             <div>
               <a href="#" role="button" class="btn btn-outline-primary btn-sm delete-group"
                 title="<?php echo Translator::translate('DeleteSearchGroup')?>"
