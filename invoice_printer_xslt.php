@@ -50,6 +50,13 @@ class InvoicePrinterXslt extends InvoicePrinterBase
     protected $xsltParams = [];
 
     /**
+     * Result XML
+     *
+     * @var string
+     */
+    protected $xml = '';
+
+    /**
      * Transform the invoice to XML
      *
      * @param string $xslt XSLT file name

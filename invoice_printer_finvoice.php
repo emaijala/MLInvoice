@@ -47,7 +47,7 @@ class InvoicePrinterFinvoice extends InvoicePrinterXSLT
      */
     public function createPrintout()
     {
-        $this->xsltParams['printTransmissionDetails'] = false;
+        $this->xsltParams['printTransmissionDetails'] = true;
         parent::transform('create_finvoice.xsl', 'Finvoice.xsd');
         $headers = [
             'Content-Type' => 'text/xml; charset=ISO-8859-15'
