@@ -74,11 +74,6 @@ var MLInvoice = (function CreateMLInvoice() {
     return _offerStates.indexOf(status) !== -1;
   }
 
-  function _parseFloat(value) {
-    var valueString = new String(value);
-    return valueString.replace(',', '.');
-  }
-
   function formatCurrency(value, _decimals) {
     var decimals = 'undefined' === typeof _decimals ? _currencyDecimals : _decimals;
     var decimalSep = translate('DecimalSeparator');
@@ -96,6 +91,12 @@ var MLInvoice = (function CreateMLInvoice() {
       }
     }
     return s;
+  }
+
+  function parseDecimal(value) {
+    var decimalSep = translate('DecimalSeparator');
+    var thousandSep = translate('ThousandSeparator', [], '');
+    return value.replace(thousandSep, '').replace(decimalSep, '.');
   }
 
   function _keepAlive() {
@@ -159,8 +160,8 @@ var MLInvoice = (function CreateMLInvoice() {
       var form = $('#custom-prices-form');
       var values = {
         company_id: $('#company_id').val(),
-        discount: _parseFloat(form.find('#discount').val()),
-        multiplier: _parseFloat(form.find('#multiplier').val()),
+        discount: parseDecimal(form.find('#discount').val()),
+        multiplier: parseDecimal(form.find('#multiplier').val()),
         valid_until: form.find('#valid_until').val()
       };
       $.ajax({
@@ -228,7 +229,7 @@ var MLInvoice = (function CreateMLInvoice() {
       var values = {
         company_id: $('#company_id').val(),
         product_id: rowValues[0],
-        unit_price: _parseFloat(value)
+        unit_price: parseDecimal(value)
       };
       $.ajax({
         url: 'json.php?func=' + ('' === value ? 'delete_custom_price' : 'put_custom_price'),
@@ -787,6 +788,7 @@ var MLInvoice = (function CreateMLInvoice() {
     isOfferStatus: isOfferStatus,
     translate: translate,
     formatCurrency: formatCurrency,
+    parseDecimal: parseDecimal,
     setKeepAlive: setKeepAlive,
     updateRowSelectedState: updateRowSelectedState,
     infomsg: infomsg,

@@ -771,13 +771,10 @@ function saveJSONRecord($table, $parentKeyName)
         header('HTTP/1.1 400 Bad Request');
         return;
     }
-    $strForm = $table;
-    $strFunc = '';
-    $strList = '';
     $id = $data['id'] ?? false;
     $new = $id ? false : true;
     unset($data['id']);
-    $formConfig = getFormConfig($strForm, 'json');
+    $formConfig = getFormConfig($table, 'json');
 
     $onPrint = false;
     if (isset($data['onPrint'])) {
