@@ -1054,11 +1054,7 @@ EOT;
         if ($markdown) {
             $markdownParser = new MLMarkdown();
         }
-        foreach ($resultValues as &$resultValue) {
-            $resultValue = $markdown ? $markdownParser->transform($resultValue)
-                : htmlspecialchars($resultValue);
-            $resultValue = preg_replace('/<p>(.*)<\/p>/', '$1', $resultValue);
-        }
+        // Encoding of actual result values is up to the consumer
         foreach ($descriptions as &$description) {
             $description = $markdown ? $markdownParser->transform($description)
                 : htmlspecialchars($description);

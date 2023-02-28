@@ -408,7 +408,7 @@ MLInvoice.addModule('Form', function mlinvoiceForm() {
               page: page, // page number
             };
           },
-          processResults: function processResults(data/*, page*/) {
+          processResults: function processResults(data) {
             var records = data.records;
             return {results: records, more: data.moreAvailable};
           }
@@ -481,6 +481,7 @@ MLInvoice.addModule('Form', function mlinvoiceForm() {
       var onChange = field.data('onChange');
       var options = {
         placeholder: '',
+        allowClear: showEmpty == 1,
         ajax: {
           url: 'json.php?func=get_selectlist&' + query,
           quietMillis: 200,
@@ -498,7 +499,7 @@ MLInvoice.addModule('Form', function mlinvoiceForm() {
             }
             return params;
           },
-          processResults: function processResults(data, page) {
+          processResults: function processResults(data) {
             var records = [];
             if (tags) {
               $(data.records).each(function processRecord() {
@@ -511,15 +512,12 @@ MLInvoice.addModule('Form', function mlinvoiceForm() {
             } else {
               records = data.records;
             }
-            if (showEmpty && page === 1 && data.filter === '') {
-              records.unshift({id: '', text: '-'});
-            }
             return {results: records, more: data.moreAvailable};
           }
         },
         templateResult: function formatResult(state) {
           var $text = $('<span/>');
-          $text.html(state.text);
+          $text.text(state.text);
           $(state.descriptions).each(function processDescription() {
             var $div = $('<div class="select-description"/>');
             $div.html(this).appendTo($text);
@@ -555,6 +553,9 @@ MLInvoice.addModule('Form', function mlinvoiceForm() {
   }
 
   function _onChangeCompany(eventData) {
+    if (!$('#company_id').val()) {
+      return;
+    }
     var initialLoad = typeof eventData === 'undefined';
     $('#invoice_vatless').val('0');
     _addCompanyInfoTooltip('');
@@ -605,6 +606,9 @@ MLInvoice.addModule('Form', function mlinvoiceForm() {
   }
 
   function _onChangeCompanyOffer() {
+    if (!$('#company_id').val()) {
+      return;
+    }
     _addCompanyInfoTooltip('');
     $.getJSON('json.php?func=get_company', {id: $('#company_id').val() }, function setCompanyData(json) {
       if (json) {
@@ -622,12 +626,16 @@ MLInvoice.addModule('Form', function mlinvoiceForm() {
   }
 
   function _onChangeProduct() {
-    if ('' === this.value) {
+    if (!this.value) {
       return;
     }
     var form_id = this.form.id;
+    var url = 'json.php?func=get_product&id=' + encodeURIComponent(this.value);
     var company_id = $('#company_id').val();
-    $.getJSON('json.php?func=get_product&id=' + this.value + '&company_id=' + company_id, function setProductData(json) {
+    if (company_id) {
+      url += '&company_id=' + encodeURIComponent(company_id);
+    }
+    $.getJSON(url, function setProductData(json) {
       _selectedProduct = json;
       if (!json || !json.id) return;
 
@@ -638,6 +646,7 @@ MLInvoice.addModule('Form', function mlinvoiceForm() {
         el.dispatchEvent(changeEvent);
       }
       _defaultDescription = json.description;
+      var decimalSep = MLInvoice.translate('DecimalSeparator');
 
       var type_id = document.getElementById(form_id + '_type_id');
       for (var i = 0; i < type_id.options.length; i++) {
@@ -655,7 +664,7 @@ MLInvoice.addModule('Form', function mlinvoiceForm() {
       elem.dispatchEvent(changeEvent);
 
       elem = document.getElementById(form_id + '_discount');
-      elem.value = json.discount ? json.discount.replace('.', ',') : '';
+      elem.value = json.discount ? json.discount.replace('.', decimalSep) : '';
       elem.dispatchEvent(changeEvent);
 
       elem = document.getElementById(form_id + '_discount_amount');
@@ -666,7 +675,7 @@ MLInvoice.addModule('Form', function mlinvoiceForm() {
       var vatIncludedElem = document.getElementById(form_id + '_vat_included');
       if ($('#invoice_vatless').val() === '0') {
         elem = document.getElementById(form_id + '_vat');
-        vatElem.value = json.vat_percent ? json.vat_percent.replace('.', ',') : '';
+        vatElem.value = json.vat_percent ? json.vat_percent.replace('.', decimalSep) : '';
         vatIncludedElem.checked = !!((json.vat_included && json.vat_included === 1));
       } else {
         vatElem.value = '0';
@@ -1010,7 +1019,7 @@ MLInvoice.addModule('Form', function mlinvoiceForm() {
         formdata.append(field.name, value.prop('checked'));
         break;
       case 'INT':
-        formdata.append(field.name, value.val().replace(MLInvoice.translate('DecimalSeparator'), '.'));
+        formdata.append(field.name, MLInvoice.parseDecimal(value.val()));
         break;
       case 'FILE':
         if (value.get(0).files.length > 0) {
@@ -1023,7 +1032,7 @@ MLInvoice.addModule('Form', function mlinvoiceForm() {
       case 'LIST':
       case 'TEXT':
       case 'PASSWD':
-        formdata.append(field.name, value.val());
+        formdata.append(field.name, value.val() !== null ? value.val() : '');
         break;
       case 'TAGS':
         $.each(value.select2('data'), function processOptions(idx, opt) {
@@ -1349,7 +1358,7 @@ MLInvoice.addModule('Form', function mlinvoiceForm() {
         obj[field.name] = value.prop('checked');
         break;
       case 'INT':
-        obj[field.name] = value.val().replace(MLInvoice.translate('DecimalSeparator'), '.');
+        obj[field.name] = MLInvoice.parseDecimal(value.val());
         break;
       case 'INTDATE':
         obj[field.name] = value.val();
@@ -1359,7 +1368,7 @@ MLInvoice.addModule('Form', function mlinvoiceForm() {
       case 'TEXT':
       case 'PASSWD':
       case 'PASSWD_STORED':
-        obj[field.name] = value.val();
+        obj[field.name] = value.val() !== null ? value.val() : '';
         break;
       case 'TAGS':
         obj[field.name] = [];
@@ -1422,11 +1431,9 @@ MLInvoice.addModule('Form', function mlinvoiceForm() {
                   break;
                 case 'SEARCHLIST':
                   value.find('option').remove();
-                  value.trigger('change');
                   break;
                 case 'TAGS':
                   value.find('option').remove();
-                  value.trigger('change');
                   break;
                 case 'CHECK':
                   value.prop('checked', false);
@@ -1493,7 +1500,7 @@ MLInvoice.addModule('Form', function mlinvoiceForm() {
         obj[field.name] = elem.val().replace(MLInvoice.translate('DecimalSeparator'), '.');
         break;
       case 'SEARCHLIST':
-        obj[field.name] = elem.val();
+        obj[field.name] = elem.val() !== null ? elem.val() : '';
         break;
       case 'INTDATE':
       case 'LIST':
@@ -1619,8 +1626,9 @@ MLInvoice.addModule('Form', function mlinvoiceForm() {
           break;
         case 'SEARCHLIST':
           elem.find('option').remove();
-          elem.append(new Option(json[field.name + '_text'], json[field.name]));
-          elem.trigger('change');
+          if (json[field.name]) {
+            elem.append(new Option(json[field.name + '_text'], json[field.name]));
+          }
           break;
         case 'PASSWD_STORED':
           elem.val('');
@@ -1631,7 +1639,6 @@ MLInvoice.addModule('Form', function mlinvoiceForm() {
             var opt = new Option(this, this, true, true);
             elem.append(opt);
           });
-          elem.trigger('change');
           break;
         case 'INTDATE':
         case 'LIST':
@@ -1681,11 +1688,9 @@ MLInvoice.addModule('Form', function mlinvoiceForm() {
         break;
       case 'SEARCHLIST':
         elem.find('option').remove();
-        elem.trigger('change');
         break;
       case 'TAGS':
         elem.find('option').remove();
-        elem.trigger('change');
         break;
       case 'PASSWD_STORED':
       case 'INT':
@@ -1840,8 +1845,8 @@ MLInvoice.addModule('Form', function mlinvoiceForm() {
   function updateBaseDefaults()
   {
     _updateSendApiButtons();
-    var baseId = String($('#base_id').val());
-    if (baseId === '') {
+    var baseId = $('#base_id').val();
+    if (!baseId) {
       return;
     }
 
