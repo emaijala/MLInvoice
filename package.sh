@@ -29,7 +29,7 @@ trap cleanup EXIT
 
 cd $MLINVOICE_DIR
 git archive --format zip --prefix mlinvoice/ --output $OUTPUT_FILE $BRANCH
-git log v1.10.0..HEAD --diff-filter=D --summary | grep 'delete mode' | cut -d " " -f 5- > $TMP_DIR/obsolete_files.txt
+git log v1.10.0..$BRANCH --diff-filter=D --summary | grep 'delete mode' | cut -d " " -f 5- > $TMP_DIR/obsolete_files.txt
 cd $TMP_DIR
 unzip $OUTPUT_FILE
 mv obsolete_files.txt mlinvoice/
