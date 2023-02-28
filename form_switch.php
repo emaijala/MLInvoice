@@ -820,7 +820,7 @@ EOF;
             'name' => 'base_id',
             'label' => 'Biller',
             'type' => 'LIST',
-            'style' => 'long linked',
+            'style' => 'long linked noemptyvalue',
             'listquery' => 'SELECT id, name FROM {prefix}base WHERE deleted=0 AND inactive=0 ORDER BY name, id',
             'position' => 1,
             'default' => $defaultValues['base']
