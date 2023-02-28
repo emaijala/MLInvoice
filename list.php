@@ -649,7 +649,14 @@ function createJSONList(
             'rowCount' => $rowCount,
             'recordCount' => $filteredCount ?? $totalCount,
             'ids' => $astrPrimaryKeys,
-            'queryParams' => $params
+            'createParams' => [
+                'func' => $strFunc,
+                'list' => $strList,
+                'sort' => $sort,
+                'filter' => $filter,
+                'query' => $query,
+                'searchId' => $searchId,
+            ],
         ]
     );
 

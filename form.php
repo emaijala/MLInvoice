@@ -1200,33 +1200,35 @@ function createListNavigationLinks($listId, $currentId)
  */
 function augmentListInfo($listId, $listInfo, $startRow, $rowCount)
 {
-    $params = $listInfo['queryParams'];
-    $join = $params['join'];
-    if (isset($params['filteredTerms'])) {
-        $queryTerms = $params['filteredTerms'];
-        $queryParams = $params['filteredParams'];
-    } else {
-        $queryTerms = $params['terms'];
-        $queryParams = $params['params'];
+    if (!($params = $listInfo['createParams'] ?? null)) {
+        return;
     }
-    $groupBy = !empty($params['group']) ? " GROUP BY {$params['group']}" : '';
-    $primaryKey = $params['primaryKey'];
+    $queries = createListQuery(
+        $params['func'],
+        $params['list'],
+        $startRow,
+        $rowCount,
+        $params['sort'],
+        $params['filter'],
+        $params['query'],
+        $params['searchId']
+    );
 
-    $fullQuery = "SELECT $primaryKey FROM {$params['table']} $join"
-        . " WHERE $queryTerms$groupBy";
+    $listConfig = getListConfig($params['list']);
+    $filteredQuery = $queries['filteredQuery'];
+    $prefix = _DB_PREFIX_ . '_';
+    $idField = $listConfig['primaryKey'];
 
-    if ($params['order']) {
-        $fullQuery .= ' ORDER BY ' . $params['order'];
-    }
-
+    $filteredQuery->select($idField)
+        ->from($prefix . $listConfig['table'], $listConfig['alias']);
     if ($startRow >= 0 && $rowCount >= 0) {
-        $fullQuery .= " LIMIT $startRow, $rowCount";
+        $filteredQuery->setFirstResult($startRow)->setMaxResults($rowCount);
     }
 
     $ids = [];
-    $rows = dbParamQuery($fullQuery, $queryParams, false, true);
-    foreach ($rows as $row) {
-        $ids[] = $row[$primaryKey];
+    $result = $filteredQuery->executeQuery();
+    foreach ($result->fetchAllAssociative() as $row) {
+        $ids[] = array_shift($row);
     }
 
     if ($listInfo['startRow'] > $startRow) {
