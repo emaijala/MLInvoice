@@ -29,6 +29,20 @@ class BasicFunctionalityCest
      */
     protected $product3 = '';
 
+    /**
+     * Product name
+     *
+     * @var string
+     */
+    protected $productName = 'Test <small> Product';
+
+    /**
+     * Product description
+     *
+     * @var string
+     */
+    protected $productDescription = 'Super <strong> product';
+
     public function _before(AcceptanceTester $I)
     {
         if ($this->product1) {
@@ -70,7 +84,7 @@ class BasicFunctionalityCest
     public function createProduct(AcceptanceTester $I, Login $loginPage, Product $product)
     {
         $loginPage->login();
-        $product->add($this->product1);
+        $product->add($this->product1, $this->productName, $this->productDescription);
         $I->seeCurrentUrlMatches('/&id=\d+/');
     }
 
@@ -83,8 +97,8 @@ class BasicFunctionalityCest
         $id = $I->grabFromCurrentUrl('/&id=(\d+)/');
 
         // Add row
-        $invoice->addRow($this->product1, 2);
-        $I->waitForText("$this->product1 Test Product", 2, '.item-row');
+        $invoice->addRow($this->product1, $this->productDescription, 2);
+        $I->waitForText("$this->product1 $this->productName", 2, '.item-row');
         $I->waitForText('26.04', 2, '#itable');
 
         // Copy
@@ -103,29 +117,34 @@ class BasicFunctionalityCest
     public function editInvoice(AcceptanceTester $I, Login $loginPage, Invoice $invoice, Product $product)
     {
         $loginPage->login();
-        $product->add($this->product2);
-        $product->add($this->product3);
+        $product->add($this->product2, $this->productName, $this->productDescription);
+        $product->add($this->product3, $this->productName, $this->productDescription);
         $invoice->add(1);
-        $invoice->addRow($this->product1, 2);
-        $I->waitForText("$this->product1 Test Product", 2, '.item-row');
-        $I->waitForText('Super product', 2, '.item-row');
+        $invoice->addRow($this->product1, $this->productDescription, 2);
+        $I->waitForText("$this->product1 $this->productName", 2, '.item-row td:nth-child(3)');
+        $I->waitForText($this->productDescription, 2, '.item-row td:nth-child(4)');
         $I->waitForText('26.04', 2, '#itable');
+
         // Single edit
         $invoice->editRow(null, 4);
-        $I->waitForText("$this->product1 Test Product", 2, '.item-row');
-        $I->waitForText('Super product', 2, '.item-row');
+        $I->waitForText("$this->product1 $this->productName", 2, '.item-row td:nth-child(3)');
+        $I->waitForText($this->productDescription, 2, '.item-row td:nth-child(4)');
         $I->waitForText('52.08', 2, '#itable');
         $invoice->editRow($this->product2, 4);
-        $I->waitForText("$this->product2 Test Product", 2, '.item-row');
+        $I->waitForText("$this->product2 $this->productName", 2, '.item-row td:nth-child(3)');
+        $invoice->editRow('', 1, 5.00);
+        $I->waitForEmpty('.item-row td:nth-child(3)');
+        $I->waitForText($this->productDescription, 2, '.item-row td:nth-child(4)');
+        $I->waitForText('6.20', 2, '.item-row td.row-summary');
+
         // Multiedit
-        $invoice->addRow($this->product1, 2);
+        $invoice->addRow($this->product1, $this->productDescription, 2);
         $I->click('.cb-select-all');
         $I->click('#update-selected-rows');
         $I->select2SelectWithSearch('iform_popup_product_id', $this->product3);
         $I->fillField('#iform_popup_pcs', 10);
         $I->click('.edit-multi-buttons button[data-iform-save-rows=iform_popup]');
-        $I->waitForText("$this->product3 Test Product", 2, '.item-row:nth-child(2)');
-        $I->waitForText("$this->product3 Test Product", 2, '.item-row:nth-child(3)');
-
+        $I->waitForText("$this->product3 $this->productName", 2, '.item-row:nth-child(2)');
+        $I->waitForText("$this->product3 $this->productName", 2, '.item-row:nth-child(3)');
     }
 }

@@ -20,6 +20,13 @@ class AcceptanceTester extends \Codeception\Actor
 {
     use _generated\AcceptanceTesterActions;
 
+    public function select2ClearSelection(string $fieldId): void
+    {
+        $selector = '[aria-labelledby="select2-' . $fieldId . '-container"] .select2-selection__clear';
+        $this->waitForElement($selector);
+        $this->click($selector);
+    }
+
     public function select2Select(string $fieldId, int $index): void
     {
         $this->click('[aria-labelledby="select2-' . $fieldId . '-container"]');
@@ -51,6 +58,25 @@ class AcceptanceTester extends \Codeception\Actor
             $field,
             function ($element) use ($contents) {
                 return $element->getAttribute('value') === $contents;
+            },
+            $timeout
+        );
+    }
+
+    /**
+     * Wait for an element to become empty
+     *
+     * @param string $selector Selector
+     * @param int    $timeout  Timeout in seconds
+     *
+     * @throws \Codeception\Exception\ElementNotFound
+     */
+    public function waitForEmpty(string $selector, $timeout = 5)
+    {
+        $this->waitForElementChange(
+            $selector,
+            function ($element) {
+                return trim($element->getText()) === '';
             },
             $timeout
         );

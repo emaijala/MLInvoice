@@ -13,7 +13,7 @@ class Product
         $this->acceptanceTester = $I;
     }
 
-    public function add(string $code): void
+    public function add(string $code, string $name, string $description): void
     {
         $I = $this->acceptanceTester;
         $I->click('Settings');
@@ -21,9 +21,9 @@ class Product
         $I->waitForText('New Product');
         $I->click('New Product');
         $I->fillField('Product Code', $code);
-        $I->fillField('Product Name', 'Test Product');
-        $I->fillField('Product Description', 'Super product');
-        $I->fillField('Unit Price', '10,50');
+        $I->fillField('Product Name', $name);
+        $I->fillField('Product Description', $description);
+        $I->fillField('Unit Price', '10.50');
         $I->selectOption('#type_id', 'pcs');
         $I->click('Save');
     }

@@ -27,24 +27,31 @@ class Invoice
         $I->waitForElementNotVisible('#inewmessage');
     }
 
-    public function addRow(string $productCode, int $pcs): void
+    public function addRow(string $productCode, string $productDesc, int $pcs): void
     {
         $I = $this->acceptanceTester;
         $I->select2SelectWithSearch('iform_product_id', $productCode);
-        $I->waitForFieldContents('#iform_description', 'Super product');
+        $I->waitForFieldContents('#iform_description', $productDesc);
         $I->waitForFieldContents('#iform_price', '10.50');
         $I->fillField('#iform_pcs', $pcs);
         $I->click('.row-add-button');
     }
 
-    public function editRow(?string $productCode, int $pcs): void
+    public function editRow(?string $productCode, int $pcs, string $price = ''): void
     {
         $I = $this->acceptanceTester;
         $I->click('.row-edit-button');
-        if ($productCode) {
-            $I->select2SelectWithSearch('iform_popup_product_id', $productCode);
+        if (null !== $productCode) {
+            if ('' === $productCode) {
+                $I->select2ClearSelection('iform_popup_product_id');
+            } else {
+                $I->select2SelectWithSearch('iform_popup_product_id', $productCode);
+            }
         }
         $I->fillField('#iform_popup_pcs', $pcs);
+        if ($price) {
+            $I->fillField('#iform_popup_price', $price);
+        }
         $I->click('.edit-single-buttons button[data-iform-save-row=iform_popup]');
     }
 }
