@@ -934,7 +934,7 @@ function htmlFormElement($strName, $strType, $strValue, $strStyle, $strListQuery
     case 'HID_UUID':
         $strFormElement = '<input type="hidden" ' .
              "id=\"$strName\" name=\"$strName\" value=\"" .
-             htmlspecialchars($strValue) . "\">\n";
+             htmlspecialchars($strValue ?? '') . "\">\n";
         break;
 
     case 'AREA':
@@ -993,7 +993,7 @@ function htmlFormElement($strName, $strType, $strValue, $strStyle, $strListQuery
                 $strStyle = str_replace(' noemptyvalue', '', $strStyle);
                 $showEmpty = '0';
             }
-            $strValue = htmlspecialchars($strValue);
+            $strValue = htmlspecialchars($strValue ?? '');
             $valueDesc = htmlspecialchars(
                 getSearchListSelectedValue($strListQuery, $strValue, false)
             );
