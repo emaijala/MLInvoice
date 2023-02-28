@@ -201,7 +201,7 @@ function saveFormData($table, &$primaryKey, $formElements, &$values, &$warnings,
         }
 
         if ('FILE' !== $type) {
-            if (isset($values[$name])) {
+            if (array_key_exists($name, $values)) {
                 if (empty($primaryKey) && '' === $values[$name]) {
                     $value = getFormDefaultValue($elem, $parentKey);
                 } else {
@@ -217,6 +217,11 @@ function saveFormData($table, &$primaryKey, $formElements, &$values, &$warnings,
 
         if (($type == 'PASSWD' || $type == 'PASSWD_STORED') && !$value) {
             continue; // Don't save empty password
+        }
+
+        if ('TAGS' === $type) {
+            // Tags are processed separately
+            continue;
         }
 
         if (isset($elem['unique']) && $elem['unique']) {
