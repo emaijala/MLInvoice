@@ -178,9 +178,6 @@ var MLInvoice = (function CreateMLInvoice() {
       return false;
     });
     $('#custom-prices-form .delete-button').on('click', function deleteCustomPricesClick() {
-      if (!confirm(translate('ConfirmDelete'))) {
-        return;
-      }
       var values = {
         company_id: $('#company_id').val(),
       };

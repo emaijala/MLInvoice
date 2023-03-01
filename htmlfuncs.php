@@ -169,7 +169,6 @@ function htmlPageStart($strTitle = '', $arrExtraScripts = [], $loggedIn = true)
         'FutureDateEntered',
         'RecordSaved',
         'RecordDeleted',
-        'ConfirmDelete',
         'UnsavedData',
         'Close',
         'Attachments',

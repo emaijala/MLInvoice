@@ -301,14 +301,12 @@ function createList($strFunc, $strList, $strTableName = '', $strTitleOverride = 
             <div id="no-custom-prices"<?php echo $customPriceSettings ? ' class="hidden"' : ''?>>
                 <div class="label">
                     <?php echo Translator::translate('NoClientSpecificPricesDefined')?>
-                </div>
-                <?php if (sesWriteAccess()) { ?>
-                    <div class="field">
+                    <?php if (sesWriteAccess()) { ?>
                         <button id="add-custom-prices" class="btn btn-secondary">
                             <?php echo Translator::translate('Define')?>
                         </button>
-                    </div>
-                <?php } ?>
+                    <?php } ?>
+                </div>
             </div>
             <div id="custom-prices-form" class="clearfix<?php echo !$customPriceSettings ? ' hidden' : ''?>">
                 <div class="label medium_label">
@@ -360,9 +358,16 @@ function createList($strFunc, $strList, $strTableName = '', $strTitleOverride = 
                         <a role="button" class="btn btn-secondary save-button" href="#">
                             <?php echo Translator::translate('Save')?>
                         </a>
-                        <a role="button" class="btn btn-secondary delete-button" href="#">
+                        <a role="button" class="btn btn-secondary" href="#" data-bs-toggle="dropdown" aria-expanded="false">
                             <?php echo Translator::translate('Delete')?>
                         </a>
+                        <ul class="dropdown-menu">
+                            <li>
+                                <a class="dropdown-item delete-button" href="#">
+                                    <?php echo Translator::translate('ConfirmDelete')?>
+                                </a>
+                            </li>
+                        </ul>
                     <?php } ?>
                 </div>
             </div>

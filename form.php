@@ -828,7 +828,14 @@ function createIForm($mainFormConfig, $formConfig, $elem, $intKeyValue, $newReco
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal"><?php echo Translator::translate('Cancel')?></button>
                 <span class="edit-single-buttons">
-                    <button type="button" class="btn btn-secondary" data-iform-delete-row="iform_popup"><?php echo Translator::translate('Delete')?></button>
+                    <button type="button" class="btn btn-secondary" data-bs-toggle="dropdown" aria-expanded="false"><?php echo Translator::translate('Delete')?></button>
+                    <ul class="dropdown-menu">
+                        <li>
+                            <a class="dropdown-item" href="#" data-iform-delete-row="iform_popup">
+                                <?php echo Translator::translate('ConfirmDelete')?>
+                            </a>
+                        </li>
+                    </ul>
                     <button type="button" class="btn btn-secondary" data-iform-copy-row="iform_popup"><?php echo Translator::translate('SaveAsCopy')?></button>
                     <button type="button" class="btn btn-primary" data-iform-save-row="iform_popup"><?php echo Translator::translate('Save')?></button>
                 </span>
@@ -925,10 +932,16 @@ function createFormButtons($form, $formConfig, $new, $top, $deleted)
         }
         if (!$readOnlyForm && !$deleted) {
             ?>
-            <a role="button" class="btn btn-secondary form-submit" href="#" data-form="form" data-set-field="action=delete"
-              data-confirm="ConfirmDelete">
+            <a role="button" class="btn btn-secondary" href="#" data-bs-toggle="dropdown" aria-expanded="false">
                 <?php echo Translator::translate('Delete')?>
             </a>
+            <ul class="dropdown-menu">
+                <li>
+                    <a class="dropdown-item form-submit" href="#" data-form="form" data-set-field="action=delete">
+                        <?php echo Translator::translate('ConfirmDelete')?>
+                    </a>
+                </li>
+            </ul>
             <?php
             if ($extraButtons) {
                 echo $extraButtons;

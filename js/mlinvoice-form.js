@@ -59,9 +59,7 @@ MLInvoice.addModule('Form', function mlinvoiceForm() {
       return false;
     });
     $('[data-iform-delete-row]').on('click', function onClickDelete() {
-      if (confirm(MLInvoice.translate('ConfirmDelete')) === true) {
-        that.deleteRow($(this).data('iform-delete-row'));
-      }
+      that.deleteRow($(this).data('iform-delete-row'));
       return false;
     });
     $('[data-iform-save-rows]').on('click', function onClickSaveRows() {
