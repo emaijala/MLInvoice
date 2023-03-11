@@ -631,18 +631,18 @@ function createJSONList(
                 $rowDue = dbDate2UnixTime($row['due_date']);
                 if ($rowDue < mktime(0, 0, 0, date("m"), date("d") - 14, date("Y"))
                 ) {
-                    $rowClass = ' overdue14';
+                    $rowClass = 'overdue14';
                 } elseif (true
                     && $rowDue < mktime(0, 0, 0, date("m"), date("d") - 7, date("Y"))
                 ) {
-                    $rowClass = ' overdue7';
+                    $rowClass = 'overdue7';
                 } elseif ($rowDue < mktime(0, 0, 0, date("m"), date("d"), date("Y"))
                 ) {
-                    $rowClass = ' overdue';
+                    $rowClass = 'overdue';
                 }
             }
         }
-        $class = "$rowClass$deleted";
+        $class = trim("$rowClass$deleted");
         if ($class) {
             $resultValues['DT_RowClass'] = $class;
         }

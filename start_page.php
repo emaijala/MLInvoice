@@ -72,7 +72,7 @@ function createStartPage()
             $search['name'],
             $searchId,
             'invoice' === $search['func'],
-            false,
+            'invoice' === $search['func'],
             $search['func']
         );
     }
