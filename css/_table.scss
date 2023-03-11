@@ -2,16 +2,25 @@
  * dataTables display
  */
 
-tr.overdue td:nth-child(2) {
+tr.overdue td.due-date {
   background-color: #FFCCDD;
+  &.sorting_1, &.sorting_2, &.sorting_3 {
+	background-color: #FFCCDD;
+  }
 }
 
-tr.overdue7 td:nth-child(2) {
+tr.overdue7 td.due-date {
   background-color: #FF99AA;
+  &.sorting_1, &.sorting_2, &.sorting_3 {
+	background-color: #FF99AA;
+  }
 }
 
-tr.overdue14 td:nth-child(2) {
+tr.overdue14 td.due-date {
   background-color: #FF5566;
+  &.sorting_1, &.sorting_2, &.sorting_3 {
+	background-color: #FF5566;
+  }
 }
 
 tr.deleted {
@@ -59,22 +68,6 @@ tr.odd {
 	td.sorting_3 {
 		background: rgb(0, 0, 0) transparent;
 		background: rgba(0, 0, 0, 0.02);
-	}
-}
-
-tr.overdue td:nth-child(2) {
-	&.sorting_1, &.sorting_2, &.sorting_3 {
-  	background-color: #FFCCDD;
-	}
-}
-tr.overdue7 td:nth-child(2) {
-	&.sorting_1, &.sorting_2, &.sorting_3 {
-  	background-color: #FF99AA;
-	}
-}
-tr.overdue14 td:nth-child(2) {
-	&.sorting_1, &.sorting_2, &.sorting_3 {
-	  background-color: #FF5566;
 	}
 }
 
