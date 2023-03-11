@@ -466,13 +466,6 @@ MLInvoice.addModule('Form', function mlinvoiceForm() {
     };
     $(container).find('.js-searchlist').each(function setupSelect2Field() {
       var field = $(this);
-      if (field.attr('id')) {
-        var $label = $('label[for=' + field.attr('id') + ']');
-        if ($label.length) {
-          // Redirect label to the select2 field
-          $label.attr('for', 's2id_' + $label.attr('for'));
-        }
-      }
       var tags = field.hasClass('tags');
       var query = field.data('listQuery');
       var showEmpty = field.data('showEmpty');
