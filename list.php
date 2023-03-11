@@ -175,9 +175,12 @@ function createList($strFunc, $strList, $strTableName = '', $strTitleOverride = 
         ++$i;
         $strWidth = isset($field['width']) ? ($field['width'] . 'px') : '';
         $sortable = !isset($field['sort']) || $field['sort'] ? 'true' : 'false';
-        $class = $customPriceSettings && $customPriceSettings['valid']
-            && 'custom_price' === $field['name']
-            ? 'editable' : '';
+        $class = '';
+        if ($customPriceSettings && $customPriceSettings['valid'] && 'custom_price' === $field['name']) {
+            $class = 'editable';
+        } elseif ('i.due_date' === $field['name']) {
+            $class = 'due-date';
+        }
         $visible = !isset($field['visible']) || $field['visible'] ? 'true' : 'false';
         ?>
         {
