@@ -16,15 +16,21 @@ class Invoice
         $this->acceptanceTester = $I;
     }
 
-    public function add(int $clientId): void
+    public function add($client): int
     {
         $I = $this->acceptanceTester;
         $I->click('Invoices and Offers');
         $I->click('New Invoice');
         $I->select2Select(static::$companyField, 1);
-        $I->select2Select(static::$clientField, $clientId);
+        if (is_int($client)) {
+            $I->select2Select(static::$clientField, $client);
+        } else {
+            $I->select2SelectWithSearch(static::$clientField, $client);
+        }
         $I->click('Save');
         $I->waitForElementNotVisible('#inewmessage');
+        $I->seeInCurrentUrl('&id=');
+        return $I->grabFromCurrentUrl('/&id=(\d+)/');
     }
 
     public function addRow(string $productCode, string $productDesc, int $pcs): void
@@ -53,5 +59,16 @@ class Invoice
             $I->fillField('#iform_popup_price', $price);
         }
         $I->click('.edit-single-buttons button[data-iform-save-row=iform_popup]');
+    }
+
+    public function copy(): int
+    {
+        $I = $this->acceptanceTester;
+        $currentId = $I->grabFromCurrentUrl('/&id=(\d+)/');
+        $I->click('Copy');
+        $I->waitForFieldContents('#record_id', $currentId + 1);
+        $newId = $I->grabFromCurrentUrl('/&id=(\d+)/');
+        $I->assertEquals($newId, $currentId + 1);
+        return $newId;
     }
 }

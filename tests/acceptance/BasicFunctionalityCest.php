@@ -5,6 +5,7 @@ use Page\Acceptance\Company;
 use Page\Acceptance\Invoice;
 use Page\Acceptance\Login;
 use Page\Acceptance\Product;
+use Page\Acceptance\Search;
 
 class BasicFunctionalityCest
 {
@@ -77,8 +78,7 @@ class BasicFunctionalityCest
     public function createClient(AcceptanceTester $I, Login $loginPage, Client $client)
     {
         $loginPage->login();
-        $client->add();
-        $I->seeCurrentUrlMatches('/&id=\d+/');
+        $client->addWithTest();
     }
 
     public function createProduct(AcceptanceTester $I, Login $loginPage, Product $product)
@@ -88,13 +88,13 @@ class BasicFunctionalityCest
         $I->seeCurrentUrlMatches('/&id=\d+/');
     }
 
-    #[Depends('createCompany', 'createClient', 'createProduct')]
-    public function createInvoices(AcceptanceTester $I, Login $loginPage, Invoice $invoice)
+    #[Depends('createCompany', 'createProduct')]
+    public function createInvoices(AcceptanceTester $I, Login $loginPage, Invoice $invoice, Client $client)
     {
         $loginPage->login();
-        $invoice->add(1);
-        $I->seeInCurrentUrl('&id=');
-        $id = $I->grabFromCurrentUrl('/&id=(\d+)/');
+        $clientName = 'The Client ' . time() . 's';
+        $client->add($clientName);
+        $id = $invoice->add($clientName);
 
         // Add row
         $invoice->addRow($this->product1, $this->productDescription, 2);
@@ -105,7 +105,7 @@ class BasicFunctionalityCest
         $I->click('Copy');
         $I->seeInCurrentUrl('&id=' . ($id + 1));
         $I->see('Invoicer 12345', '#select2-base_id-container');
-        $I->see('Invoice Client 54321', '#select2-company_id-container');
+        $I->see($clientName, '#select2-company_id-container');
 
         // Refund
         $I->click('Refund Invoice');
@@ -146,5 +146,46 @@ class BasicFunctionalityCest
         $I->click('.edit-multi-buttons button[data-iform-save-rows=iform_popup]');
         $I->waitForText("$this->product3 $this->productName", 2, '.item-row:nth-child(2)');
         $I->waitForText("$this->product3 $this->productName", 2, '.item-row:nth-child(3)');
+    }
+
+    public function searchAndNavigateInvoices(
+        AcceptanceTester $I,
+        Login $loginPage,
+        Client $client,
+        Invoice $invoice,
+        Search $search
+    ) {
+        $loginPage->login();
+        $clientName = 'Big Client ' . time() . 's';
+        $client->add($clientName);
+
+        // Create a number of invoices:
+        $ids[] = $invoice->add($clientName);
+        for ($i = 1; $i < 15; $i++) {
+            $ids[] = $invoice->copy();
+        }
+
+        // Search by client:
+        $search->searchByClient($clientName);
+
+        // Select first:
+        $I->click('tr.odd td:nth-child(2)');
+
+        // Check navigation buttons:
+        $I->waitForElement('.nav__previous--disabled');
+        $I->seeElement('.nav__next');
+
+        for ($i = 1; $i < 15; $i++) {
+            $id = $I->grabFromCurrentUrl('/&id=(\d+)/');
+            $I->assertContains((int)$id, $ids);
+            $I->click('.nav__next');
+            $I->waitForElementChange(
+                '#record_id',
+                function ($element) use ($id) {
+                    return $element->getAttribute('value') !== $id;
+                },
+                5
+            );
+        }
     }
 }

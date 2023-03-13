@@ -3,6 +3,10 @@ namespace Page\Acceptance;
 
 class Client
 {
+    public static $nameField = 'Client Name';
+    public static $vatField = 'VAT ID';
+    public static $emailField = 'Email';
+
     /**
      * @var \AcceptanceTester;
      */
@@ -13,17 +17,31 @@ class Client
         $this->acceptanceTester = $I;
     }
 
-    public function add(): void
+    public function add(string $name = 'Invoice Client'): int
+    {
+        return $this->doAdd(false, $name);
+    }
+
+    public function addWithTest(string $name = 'Invoice Client'): int
+    {
+        return $this->doAdd(true, $name);
+    }
+
+    protected function doAdd(bool $test, string $name): int
     {
         $I = $this->acceptanceTester;
         $I->click('Clients');
         $I->waitForText('New Client');
         $I->click('New Client');
+        if ($test) {
+            $I->click('Save');
+            $I->waitForText('Value missing: ' . static::$nameField);
+        }
+        $I->fillField(static::$nameField, $name);
+        $I->fillField(static::$vatField, '54321');
+        $I->fillField(static::$emailField, 'client@localhost');
         $I->click('Save');
-        $I->waitForText('Value missing: Client Name');
-        $I->fillField('Client Name', 'Invoice Client');
-        $I->fillField('VAT ID', '54321');
-        $I->fillField('Email', 'client@localhost');
-        $I->click('Save');
+        $I->seeCurrentUrlMatches('/&id=\d+/');
+        return $I->grabFromCurrentUrl('/&id=(\d+)/');
     }
 }
