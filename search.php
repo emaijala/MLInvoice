@@ -109,7 +109,12 @@ class Search
             </div>
             <div class="row justify-content-end controls">
               <div class="col-sm-6 mb-2 mt-4">
-                <?php echo htmlListBox('', $listValues, '', 'form-select add-search-field', false, 'SelectSearchField'); ?>
+                <select class="form-select add-search-field">
+                  <option value=""><?php echo Translator::translate('SelectSearchField') ?></option>
+                  <?php foreach ($listValues as $field => $name) { ?>
+                    <option value="<?php echo htmlspecialchars($field)?>"><?php echo htmlspecialchars($name)?></option>
+                  <?php } ?>
+                </select>
               </div>
             </div>
             <div class="mb-2">
