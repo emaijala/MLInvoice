@@ -150,9 +150,13 @@ if ($strForm && 'search' !== $strFunc) {
     ++$level;
 }
 if ('results' === $strFunc) {
-    ++$level;
+    $level += 0.5;
 }
-$arrHistory = updateNavigationHistory($title, $_SERVER['QUERY_STRING'], $level);
+$requestUri = $_SERVER['REQUEST_URI'];
+$query = $_SERVER['QUERY_STRING'];
+if (substr($requestUri, -1) === '/' || strpos($requestUri, 'index.php') !== false || strpos($query, 'func=') !== false) {
+    $arrHistory = updateNavigationHistory($strFunc, $title, $query, $level);
+}
 ?>
   <nav aria-label="<?php echo Translator::translate('Breadcrumbs')?>">
     <ol class="breadcrumb">

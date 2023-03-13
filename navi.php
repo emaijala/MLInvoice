@@ -187,13 +187,14 @@ function createFuncMenu($strFunc)
 /**
  * Update navigation history in session
  *
+ * @param string $func  Function
  * @param string $title Entry title
  * @param string $url   Entry url
  * @param int    $level Entry level
  *
  * @return Updated history
  */
-function updateNavigationHistory($title, $url, $level)
+function updateNavigationHistory($func, $title, $url, $level)
 {
     $arrNew = [];
     $history = Memory::get('history') ?: [];
@@ -204,6 +205,7 @@ function updateNavigationHistory($title, $url, $level)
         }
     }
     $arrNew[] = [
+        'func' => $func,
         'title' => $title,
         'url' => $url,
         'level' => $level,
