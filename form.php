@@ -1180,21 +1180,21 @@ function createListNavigationLinks($listId, $currentId)
     echo '<div class="btn-set">';
     if (null !== $previous) {
         $link = preg_replace('/&id=\d+/', "&id=$previous", $qs);
-        echo '<a role="button" href="?' . $link . '" class="btn btn-outline-secondary">'
+        echo '<a role="button" href="?' . $link . '" class="btn btn-outline-secondary nav__previous">'
             . Translator::translate('Previous')
             . '</a> ';
     } else {
-        echo '<a role="button" class="btn btn-outline-secondary disabled" aria-disabled="true">'
+        echo '<a role="button" class="btn btn-outline-secondary disabled nav__previous--disabled" aria-disabled="true">'
             . Translator::translate('Previous')
             . '</a> ';
     }
     if (null !== $next) {
         $link = preg_replace('/&id=\d+/', "&id=$next", $qs);
-        echo '<a role="button" href="?' . $link . '" class="btn btn-outline-secondary">'
+        echo '<a role="button" href="?' . $link . '" class="btn btn-outline-secondary nav__next">'
             . Translator::translate('Next')
             . '</a> ';
     } else {
-        echo '<a role="button" class="btn btn-light disabled" aria-disabled="true">'
+        echo '<a role="button" class="btn btn-light disabled nav__next--disabled" aria-disabled="true">'
             . Translator::translate('Next')
             . '</a> ';
     }
