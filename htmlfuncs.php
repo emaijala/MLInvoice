@@ -380,7 +380,7 @@ function htmlMainTabs($func)
                     'title' => 'ExtSearch',
                     'action' => [
                         'func' => 'search',
-                        'form' => 'invoice',
+                        'type' => 'invoice',
                     ],
                     'levels_allowed' => [
                         ROLE_READONLY,
