@@ -348,7 +348,7 @@ function getPageTitle($strFunc, $strList, $strForm, $operation)
             return Translator::translate('StartPage');
         }
         break;
-    case 'invoices':
+    case 'invoice':
         if ($strForm) {
             return Translator::translate('Invoice');
         } else {
@@ -471,7 +471,7 @@ function getPageTitle($strFunc, $strList, $strForm, $operation)
     case 'search':
         return Translator::translate('ExtSearch');
     case 'results':
-        return Translator::translate('Results');
+        return Translator::translate('SearchResults');
     case 'edit_searches':
         return Translator::translate('SavedSearches');
     }
