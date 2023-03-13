@@ -468,11 +468,11 @@ MLInvoice.addModule('Form', function mlinvoiceForm() {
       var field = $(this);
       var tags = field.hasClass('tags');
       var query = field.data('listQuery');
-      var showEmpty = field.data('showEmpty');
+      var showEmpty = parseInt(field.data('showEmpty')) === 1;
       var onChange = field.data('onChange');
       var options = {
         placeholder: '',
-        allowClear: showEmpty == 1,
+        allowClear: showEmpty,
         ajax: {
           url: 'json.php?func=get_selectlist&' + query,
           quietMillis: 200,
