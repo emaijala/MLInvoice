@@ -44,7 +44,7 @@ MLInvoice.addModule('Search', function mlinvoiceSearch() {
   function addField(group, field, selectedComparison) {
     let groupNum = group.dataset.group;
     let $fields = $(group).find('.fields');
-    let fieldNum = group.querySelectorAll('input').length + group.querySelectorAll('select').length + 1;
+    let fieldNum = group.querySelectorAll('.fields .field').length + 1;
     let fieldConfig = MLInvoice.Search.getFormConfig().fields[field];
 
     let $fieldDiv = $('<div class="mb-2 field">')
@@ -81,8 +81,8 @@ MLInvoice.addModule('Search', function mlinvoiceSearch() {
         $input = $('<input type="date" class="form-control date">');
         break;
       case 'SEARCHLIST':
-        $input = $('<input type="text" class="select2-container select2" id="' + fieldId + '" value="" data-show-empty="1">')
-          .data('query', fieldConfig.listquery);
+        $input = $('<select class="select2-container js-searchlist" id="' + fieldId + '" value="" data-show-empty="1">')
+          .data('list-query', fieldConfig.listquery);
         break;
       case 'SELECT':
       case 'LIST':
