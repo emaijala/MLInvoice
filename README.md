@@ -75,6 +75,7 @@ Information for Developers
 - The custom icon set is created with Fontello from Font Awesome set.
 - For acceptance tests, MLInvoice must be found at http://localhost/mlinvoice-test.
 - For coverage reports of acceptance tests, pcov needs to be installed (`pecl install pcov`) and Apache configuration from httpd_mlinvoice_test.conf.sample enabled so that c3 can be accessed via e.g. http://localhost/mlinvoice-test/c3/report/html. Run `vendor/bin/phing ci-setup ci-codeception-coverage ci-teardown` and check results in tests/_output/acceptance.remote.coverage/.
+- To run a specific test after ci-setup, run e.g. `vendor/bin/codecept --steps run acceptance BasicFunctionalityCest:login`
 
 
 Suomeksi
