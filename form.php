@@ -245,12 +245,10 @@ EOT;
         }
         $style = $elem['style'] !== '' ? ' ' . $elem['style'] : '';
         $fieldClass = '';
-        $fieldClassAttr = '';
 
         if (!empty($elem['hidden'])) {
             $style .= ' hidden';
             $fieldClass = ' hidden';
-            $fieldClassAttr = ' class="hidden"';
         }
 
         $fieldMode = isset($elem['read_only']) && $elem['read_only'] ? 'READONLY' : $formFieldMode;
