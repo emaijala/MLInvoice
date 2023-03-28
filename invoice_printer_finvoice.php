@@ -47,7 +47,16 @@ class InvoicePrinterFinvoice extends InvoicePrinterXSLT
      */
     public function createPrintout()
     {
-        $this->xsltParams['printTransmissionDetails'] = true;
+        // By default include transmission details if we have them all:
+        if (!empty($this->senderData['org_unit_number'])
+            && !empty($this->senderData['payment_intermediator'])
+            && !empty($this->recipientData['org_unit_number'])
+            && !empty($this->recipientData['payment_intermediator'])
+        ) {
+            $this->xsltParams['printTransmissionDetails'] = true;
+        } else {
+            $this->xsltParams['printTransmissionDetails'] = false;
+        }
         parent::transform('create_finvoice.xsl', 'Finvoice.xsd');
         $headers = [
             'Content-Type' => 'text/xml; charset=ISO-8859-15'
