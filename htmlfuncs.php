@@ -829,6 +829,9 @@ function getSQLListBoxSelectedValue($strQuery, $strSelected)
  */
 function getSearchListSelectedValue($strQuery, $strSelected)
 {
+    if ('' === $strSelected) {
+        return '';
+    }
     parse_str($strQuery, $params);
     $result = createJSONSelectList($params['table'], 0, 1, '', '', '', $strSelected);
     return $result['records'][0]['text'] ?? '';
