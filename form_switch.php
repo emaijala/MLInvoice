@@ -851,7 +851,7 @@ EOF;
             'name' => 'base_id',
             'label' => 'Biller',
             'type' => 'SEARCHLIST',
-            'style' => 'long linked noemptyvalue',
+            'style' => 'long linked' . ($defaultValues['base'] ? ' noemptyvalue' : ''),
             'listquery' => 'table=base&sort=name,company_id',
             'position' => 1,
             'default' => $defaultValues['base']
