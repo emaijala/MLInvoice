@@ -1784,7 +1784,8 @@ MLInvoice.addModule('Form', function mlinvoiceForm() {
           text += ' (' + record.company_id + ')';
         }
         var company_id = $('#company_id');
-        company_id.select2('data', {'id': record.id, 'text': text});
+        company_id.find('option').remove();
+        company_id.append(new Option(text, record.id));
         company_id.trigger('change');
       }
     );
