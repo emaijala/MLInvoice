@@ -4,7 +4,7 @@
  *
  * PHP version 7
  *
- * Copyright (C) Ere Maijala 2022
+ * Copyright (C) Ere Maijala 2022-2023
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2,
@@ -413,7 +413,7 @@ class Search
                 'operator' => $groupOperator,
                 'fields' => []
             ];
-            foreach ($request["s_field$group"] as $i => $value) {
+            foreach ($request["s_field$group"] ?? [] as $i => $value) {
                 if (!($name = $request["s_type$group"][$i] ?? null)) {
                     continue;
                 }
