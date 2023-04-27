@@ -160,6 +160,12 @@ function createList($strFunc, $strList, $strTableName = '', $strTitleOverride = 
         <?php echo Translator::translate('TableTexts')?>
       },
       stateSave: true,
+      stateLoadParams: function (settings, data) {
+        console.log(data);
+        if (data.length === -1) {
+            data.length = 10;
+        }
+      },
       stateDuration: 0,
       pageLength: 10,
       lengthMenu: [ [10, 25, 50, 100, 500, -1], [10, 25, 50, 100, 500, "<?php echo Translator::translate('All')?>"] ],
