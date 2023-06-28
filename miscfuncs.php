@@ -355,16 +355,30 @@ function getPageTitle($strFunc, $strList, $strForm, $operation)
             return Translator::translate('AllNonArchived');
         }
         break;
-    case 'archived_invoices':
+    case 'invoices':
         if ($strForm) {
-            if (getPostOrQuery('offer')
-                || (($invId = getPostOrQuery('id')) && isOffer($invId))
-            ) {
-                return Translator::translate('Offer');
-            }
             return Translator::translate('Invoice');
         } else {
-            return Translator::translate('Archive');
+            return Translator::translate('NonArchivedInvoices');
+        }
+    case 'archived_invoices':
+        if ($strForm) {
+            return Translator::translate('Invoice');
+        } else {
+            return Translator::translate('ArchivedInvoices');
+        }
+        break;
+    case 'offers':
+        if ($strForm) {
+            return Translator::translate('Offer');
+        } else {
+            return Translator::translate('NonArchivedOffers');
+        }
+    case 'archived_offers':
+        if ($strForm) {
+            return Translator::translate('Offer');
+        } else {
+            return Translator::translate('ArchivedOffers');
         }
         break;
     case 'company':

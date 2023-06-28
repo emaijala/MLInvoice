@@ -42,7 +42,7 @@ mb_internal_encoding(_CHARSET_);
 function getSetting($name, $default = '', $noCache = false)
 {
     // The cache only lives for a single request to speed up repeated requests for a setting
-    static $settingsCache = [];
+    $settingsCache = [];
     if (!$noCache && isset($settingsCache[$name])) {
         return $settingsCache[$name];
     }
@@ -87,5 +87,5 @@ function setSetting(string $name, string $value)
         [$name, $value]
     );
     // Flush cache:
-    getSetting($name, '', true);
+    getSetting($name, null, true);
 }

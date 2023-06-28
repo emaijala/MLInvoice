@@ -968,9 +968,21 @@ function createFormButtons($form, $formConfig, $new, $top, $deleted)
             <a role="button" class="btn btn-secondary" href="?func=invoices&amp;form=invoice&amp;company_id=<?php echo $id?>&amp;offer=1">
                 <?php echo Translator::translate('AddOffer')?>
             </a>
-            <a role="button" class="btn btn-secondary" href="?func=invoices&amp;where=i.company_id=<?php echo $id?>">
+            <a role="button" id="client_invoices_button" class="btn btn-secondary dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false" href="#">
                 <?php echo Translator::translate('InvoicesAndOffers')?>
             </a>
+            <ul class="dropdown-menu" aria-labelledby="client_invoices_button">
+                <li>
+                    <a class="dropdown-item" href="?func=results&type=invoice&s_type1[]=company_id&s_field1[]=<?php echo $id?>&s_type1[]=archived&s_field1[]=0">
+                        <?php echo Translator::translate('AllNonArchived')?>
+                    </a>
+                </li>
+                <li>
+                    <a class="dropdown-item" href="?func=results&type=invoice&s_type1[]=company_id&s_field1[]=<?php echo $id?>&s_type1[]=archived&s_field1[]=1">
+                        <?php echo Translator::translate('InvoicesAndOffers')?>
+                    </a>
+                </li>
+            </ul>
         </div>
         <?php
     }

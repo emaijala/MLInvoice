@@ -1098,7 +1098,7 @@ function getQuickSearch(int $id): array
 {
     if ($id < 0) {
         switch ($id) {
-        case -1: // repeating invoices
+        case Search::SEARCH_REPEATING_INVOICES:
             $label = 'LabelInvoicesWithIntervalDue';
             $groups = [
                 [
@@ -1123,23 +1123,12 @@ function getQuickSearch(int $id): array
                 ],
             ];
             break;
-        case -2: // open invoices
+        case Search::SEARCH_OPEN_INVOICES:
             $label = 'LabelOpenInvoices';
-            $stateFields = [];
-            $rows = dbParamQuery(
-                'SELECT id FROM {prefix}invoice_state WHERE invoice_open=1 AND invoice_offer=0'
-            );
-            foreach ($rows as $row) {
-                $stateFields[] = [
-                    'name' => 'state_id',
-                    'value' => $row['id'],
-                    'comparison' => 'eq',
-                ];
-            }
             $groups = [
                 [
                     'operator' => 'OR',
-                    'fields' => $stateFields,
+                    'fields' => getStateSearchFields('invoice_open=1 AND invoice_offer=0')
                 ],
                 [
                     'operator' => 'AND',
@@ -1153,23 +1142,12 @@ function getQuickSearch(int $id): array
                 ]
             ];
             break;
-        case -3: // unpaid invoices
+        case Search::SEARCH_UNPAID_INVOICES:
             $label = 'LabelUnpaidInvoices';
-            $stateFields = [];
-            $rows = dbParamQuery(
-                'SELECT id FROM {prefix}invoice_state WHERE invoice_open=0 AND invoice_unpaid=1 AND invoice_offer=0'
-            );
-            foreach ($rows as $row) {
-                $stateFields[] = [
-                    'name' => 'state_id',
-                    'value' => $row['id'],
-                    'comparison' => 'eq',
-                ];
-            }
             $groups = [
                 [
                     'operator' => 'OR',
-                    'fields' => $stateFields,
+                    'fields' => getStateSearchFields('invoice_open=0 AND invoice_unpaid=1 AND invoice_offer=0')
                 ],
                 [
                     'operator' => 'AND',
@@ -1183,23 +1161,12 @@ function getQuickSearch(int $id): array
                 ]
             ];
             break;
-        case -4: // open offers
+        case Search::SEARCH_OPEN_OFFERS:
             $label = 'LabelUnfinishedOffers';
-            $stateFields = [];
-            $rows = dbParamQuery(
-                'SELECT id FROM {prefix}invoice_state WHERE invoice_open=1 AND invoice_offer=1'
-            );
-            foreach ($rows as $row) {
-                $stateFields[] = [
-                    'name' => 'state_id',
-                    'value' => $row['id'],
-                    'comparison' => 'eq',
-                ];
-            }
             $groups = [
                 [
                     'operator' => 'OR',
-                    'fields' => $stateFields,
+                    'fields' => getStateSearchFields('invoice_open=1 AND invoice_offer=1'),
                 ],
                 [
                     'operator' => 'AND',
@@ -1207,6 +1174,82 @@ function getQuickSearch(int $id): array
                         [
                             'name' => 'archived',
                             'value' => '0',
+                            'comparison' => 'eq'
+                        ],
+                    ]
+                ]
+            ];
+            break;
+        case Search::SEARCH_NON_ARCHIVED_INVOICES:
+            $label = 'NonArchivedInvoices';
+            $groups = [
+                [
+                    'operator' => 'OR',
+                    'fields' => getStateSearchFields('invoice_offer=0'),
+                ],
+                [
+                    'operator' => 'AND',
+                    'fields' => [
+                        [
+                            'name' => 'archived',
+                            'value' => '0',
+                            'comparison' => 'eq'
+                        ],
+                    ]
+                ]
+            ];
+            break;
+        case Search::SEARCH_ARCHIVED_INVOICES:
+            $label = 'ArchivedInvoices';
+            $groups = [
+                [
+                    'operator' => 'OR',
+                    'fields' => getStateSearchFields('invoice_offer=0'),
+                ],
+                [
+                    'operator' => 'AND',
+                    'fields' => [
+                        [
+                            'name' => 'archived',
+                            'value' => '1',
+                            'comparison' => 'eq'
+                        ],
+                    ]
+                ]
+            ];
+            break;
+        case Search::SEARCH_NON_ARCHIVED_OFFERS:
+            $label = 'NonArchivedOffers';
+            $groups = [
+                [
+                    'operator' => 'OR',
+                    'fields' => getStateSearchFields('invoice_offer=1'),
+                ],
+                [
+                    'operator' => 'AND',
+                    'fields' => [
+                        [
+                            'name' => 'archived',
+                            'value' => '0',
+                            'comparison' => 'eq'
+                        ],
+                    ]
+                ]
+            ];
+            break;
+        case Search::SEARCH_ARCHIVED_OFFERS:
+            $label = 'ArchivedOffers';
+            $groups = [
+                [
+                    'operator' => 'OR',
+                    'fields' => getStateSearchFields('invoice_offer=1'),
+                ],
+                [
+                    'operator' => 'AND',
+                    'fields' => [
+                        [
+                            'name' => 'archived',
+                            'value' => '1',
                             'comparison' => 'eq'
                         ],
                     ]
@@ -1245,6 +1288,29 @@ function getQuickSearch(int $id): array
         }
     }
     return $result;
+}
+
+/**
+ * Get an array of invoice state search fields that match the given state query
+ *
+ * @param string $where SQL where clause contents
+ *
+ * @return array
+ */
+function getStateSearchFields(string $where): array
+{
+    $stateFields = [];
+    $rows = dbParamQuery(
+        "SELECT id FROM {prefix}invoice_state WHERE $where"
+    );
+    foreach ($rows as $row) {
+        $stateFields[] = [
+            'name' => 'state_id',
+            'value' => $row['id'],
+            'comparison' => 'eq',
+        ];
+    }
+    return $stateFields;
 }
 
 /**

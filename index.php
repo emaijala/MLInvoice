@@ -266,11 +266,13 @@ if ($strFunc == 'system' && $operation == 'export' && sesAdminAccess()) {
         if ($strFunc == 'start_page') {
             createStartPage();
         } elseif ($strFunc == 'invoices') {
-            createList($strFunc, $strList, '', '', '', false, false, 'invoice');
+            createList($strFunc, $strList, '', '', Search::SEARCH_NON_ARCHIVED_INVOICES, false, false, 'invoice');
         } elseif ($strFunc == 'archived_invoices') {
-            createList('archived_invoices', 'archived_invoices', 'archived_invoices', '', '', false, false, 'invoice');
+            createList('archived_invoices', 'archived_invoices', 'archived_invoices', '', Search::SEARCH_ARCHIVED_INVOICES, false, false, 'invoice');
+        } elseif ($strFunc == 'offers') {
+            createList($strFunc, $strList, '', '', Search::SEARCH_NON_ARCHIVED_OFFERS, false, false, 'invoice');
         } elseif ($strFunc == 'archived_offers') {
-            createList('archived_offers', 'archived_offers', 'archived_offers', '', '', false, false, 'invoice');
+            createList('archived_offers', 'archived_offers', 'archived_offers', '', Search::SEARCH_ARCHIVED_OFFERS, false, false, 'invoice');
         } else {
             if ($strList == 'settings') {
                 createSettingsList();

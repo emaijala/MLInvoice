@@ -51,16 +51,16 @@ function createStartPage()
             continue;
         }
         switch ($searchId) {
-        case -1:
+        case Search::SEARCH_REPEATING_INVOICES:
             $listName = 'resultlist_repeating_invoices';
             break;
-        case -2:
+        case Search::SEARCH_OPEN_INVOICES:
             $listName = 'resultlist_open_invoices';
             break;
-        case -3:
+        case Search::SEARCH_UNPAID_INVOICES:
             $listName = 'resultlist_unpaid_invoices';
             break;
-        case -4:
+        case Search::SEARCH_OPEN_OFFERS:
             $listName = 'resultlist_offers';
             break;
         default:

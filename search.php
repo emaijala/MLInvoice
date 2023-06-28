@@ -44,6 +44,62 @@ require_once 'form_config.php';
 class Search
 {
     /**
+     * Built-in search id for repeating invoices
+     *
+     * @var int
+     */
+    public const SEARCH_REPEATING_INVOICES = -1;
+
+    /**
+     * Built-in search id for open invoices
+     *
+     * @var int
+     */
+    public const SEARCH_OPEN_INVOICES = -2;
+
+    /**
+     * Built-in search id for unpaid invoices
+     *
+     * @var int
+     */
+    public const SEARCH_UNPAID_INVOICES = -3;
+
+    /**
+     * Built-in search id for open offers
+     *
+     * @var int
+     */
+    public const SEARCH_OPEN_OFFERS = -4;
+
+    /**
+     * Built-in search id for non-archived invoices
+     *
+     * @var int
+     */
+    public const SEARCH_NON_ARCHIVED_INVOICES = -5;
+
+    /**
+     * Built-in search id for archived invoices
+     *
+     * @var int
+     */
+    public const SEARCH_ARCHIVED_INVOICES = -6;
+
+    /**
+     * Built-in search id for non-archived offers
+     *
+     * @var int
+     */
+    public const SEARCH_NON_ARCHIVED_OFFERS = -7;
+
+    /**
+     * Built-in search id for archived offers
+     *
+     * @var int
+     */
+    public const SEARCH_ARCHIVED_OFFERS = -8;
+
+    /**
      * Display search form
      *
      * @return void
@@ -405,10 +461,7 @@ class Search
             'groups' => []
         ];
         for ($group = 1; $group < 100; $group++) {
-            $groupOperator = $request["s_op$group"] ?? null;
-            if (null === $groupOperator) {
-                break;
-            }
+            $groupOperator = $request["s_op$group"] ?? 'AND';
             $searchGroup = [
                 'operator' => $groupOperator,
                 'fields' => []
@@ -417,14 +470,15 @@ class Search
                 if (!($name = $request["s_type$group"][$i] ?? null)) {
                     continue;
                 }
-                if (!($comparison = $request["s_cmp$group"][$i] ?? null)) {
-                    continue;
-                }
+                $comparison = $request["s_cmp$group"][$i] ?? 'eq';
                 $searchGroup['fields'][] = [
                     'name' => $name,
                     'value' => $value,
                     'comparison' => $comparison,
                 ];
+            }
+            if (!$searchGroup['fields']) {
+                break;
             }
             $searchGroups['groups'][] = $searchGroup;
         }
@@ -522,15 +576,22 @@ class Search
     {
         if (null === $default) {
             $searches = getSetting('startPageSearches' . $_SESSION['sesUSERID'])
-                ?: getSetting('startPageSearches') ?: '-1,-2,-3,-4';
+                ?: getSetting('startPageSearches');
         } elseif (false === $default) {
-            $searches = getSetting(
-                'startPageSearches' . $_SESSION['sesUSERID']
-            );
+            $searches = getSetting('startPageSearches' . $_SESSION['sesUSERID']);
+            if (!$searches) {
+                return [];
+            }
         } else {
-            $searches = getSetting('startPageSearches') ?: '-1,-2,-3,-4';
+            $searches = getSetting('startPageSearches');
         }
-        return array_filter(explode(',', $searches));
+        return '' === $searches
+            ? [
+                static::SEARCH_REPEATING_INVOICES,
+                static::SEARCH_OPEN_INVOICES,
+                static::SEARCH_UNPAID_INVOICES,
+                static::SEARCH_OPEN_OFFERS,
+            ] : array_filter(explode(',', $searches));
     }
 
     /**

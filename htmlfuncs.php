@@ -303,55 +303,27 @@ function htmlMainTabs($func)
         [
             'title' => 'InvoicesAndOffers',
             'action' => 'invoices',
-            'levels_allowed' => [
-                ROLE_READONLY,
-                ROLE_USER,
-                ROLE_BACKUPMGR
-            ],
+            'levels_allowed' => $normalMenuRights,
             'submenu' => [
                 [
                     'title' => 'StartPage',
                     'action' => 'start_page',
-                    'levels_allowed' => [
-                        ROLE_READONLY,
-                        ROLE_USER,
-                        ROLE_BACKUPMGR
-                    ],
+                    'levels_allowed' => $normalMenuRights,
                 ],
                 [
-                    'title' => 'AllNonArchived',
+                    'title' => '-',
+                    'action' => '',
+                    'levels_allowed' => $normalMenuRights,
+                ],
+                [
+                    'title' => 'NonArchivedInvoices',
                     'action' => 'invoices',
-                    'levels_allowed' => [
-                        ROLE_READONLY,
-                        ROLE_USER,
-                        ROLE_BACKUPMGR,
-                    ],
+                    'levels_allowed' => $normalMenuRights,
                 ],
                 [
-                    'title' => 'ShowArchivedInvoicesNavi',
+                    'title' => 'ArchivedInvoices',
                     'action' => 'archived_invoices',
-                    'levels_allowed' => [
-                        ROLE_READONLY,
-                        ROLE_USER,
-                        ROLE_BACKUPMGR
-                    ],
-                ],
-                [
-                    'title' => 'ShowArchivedOffersNavi',
-                    'action' => 'archived_offers',
-                    'levels_allowed' => [
-                        ROLE_READONLY,
-                        ROLE_USER,
-                        ROLE_BACKUPMGR
-                    ],
-                ],
-                [
-                    'title' => 'ImportAccountStatement',
-                    'action' => 'import_statement',
-                    'levels_allowed' => [
-                        ROLE_USER,
-                        ROLE_BACKUPMGR,
-                    ],
+                    'levels_allowed' => $normalMenuRights,
                 ],
                 [
                     'title' => 'NewInvoice',
@@ -365,12 +337,40 @@ function htmlMainTabs($func)
                     ],
                 ],
                 [
+                    'title' => '-',
+                    'action' => '',
+                    'levels_allowed' => $normalMenuRights,
+                ],
+                [
+                    'title' => 'NonArchivedOffers',
+                    'action' => 'offers',
+                    'levels_allowed' => $normalMenuRights,
+                ],
+                [
+                    'title' => 'ArchivedOffers',
+                    'action' => 'archived_offers',
+                    'levels_allowed' => $normalMenuRights,
+                ],
+                [
                     'title' => 'NewOffer',
                     'action' => [
                         'func' => 'invoices',
                         'form' => 'invoice',
                         'offer' => '1',
                     ],
+                    'levels_allowed' => [
+                        ROLE_USER,
+                        ROLE_BACKUPMGR,
+                    ],
+                ],
+                [
+                    'title' => '-',
+                    'action' => '',
+                    'levels_allowed' => $normalMenuRights,
+                ],
+                [
+                    'title' => 'ImportAccountStatement',
+                    'action' => 'import_statement',
                     'levels_allowed' => [
                         ROLE_USER,
                         ROLE_BACKUPMGR,
@@ -402,47 +402,27 @@ function htmlMainTabs($func)
         [
             'name' => 'reports',
             'title' => 'ShowReportNavi',
-            'levels_allowed' => [
-                ROLE_READONLY,
-                ROLE_USER,
-                ROLE_BACKUPMGR
-            ],
+            'levels_allowed' => $normalMenuRights,
             'submenu' => [
                 [
                     'title' => 'InvoiceReport',
                     'action' => 'invoice_report',
-                    'levels_allowed' => [
-                        ROLE_READONLY,
-                        ROLE_USER,
-                        ROLE_BACKUPMGR
-                    ]
+                    'levels_allowed' => $normalMenuRights,
                 ],
                 [
                     'title' => 'ProductReport',
                     'action' => 'product_report',
-                    'levels_allowed' => [
-                        ROLE_READONLY,
-                        ROLE_USER,
-                        ROLE_BACKUPMGR
-                    ]
+                    'levels_allowed' => $normalMenuRights,
                 ],
                 [
                     'title' => 'ProductStockReport',
                     'action' => 'product_stock_report',
-                    'levels_allowed' => [
-                        ROLE_READONLY,
-                        ROLE_USER,
-                        ROLE_BACKUPMGR
-                    ]
+                    'levels_allowed' => $normalMenuRights,
                 ],
                 [
                     'title' => 'AccountingReport',
                     'action' => 'accounting_report',
-                    'levels_allowed' => [
-                        ROLE_READONLY,
-                        ROLE_USER,
-                        ROLE_BACKUPMGR
-                    ]
+                    'levels_allowed' => $normalMenuRights,
                 ]
             ],
         ],
@@ -703,9 +683,13 @@ function createNavBar($buttons, $currentFunc = '')
                     }
                     ?>
                     <li>
-                        <a class="dropdown-item"<?php echo $href?>>
-                            <?php echo Translator::translate($item['title'])?>
-                        </a>
+                        <?php if ('-' === $item['title']) { ?>
+                            <hr class="dropdown-divider">
+                        <?php } else { ?>
+                            <a class="dropdown-item"<?php echo $href?>>
+                                <?php echo Translator::translate($item['title'])?>
+                            </a>
+                        <?php } ?>
                     </li>
                     <?php
                 }

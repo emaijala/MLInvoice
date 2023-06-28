@@ -2371,6 +2371,8 @@ case 'print_template':
         ]
     ];
     break;
+default:
+    throw new \Exception("Invalid form: $strForm");
 }
 
 // Clean up the array

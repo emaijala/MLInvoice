@@ -65,7 +65,6 @@ function createList($strFunc, $strList, $strTableName = '', $strTitleOverride = 
             'SELECT * FROM {prefix}print_template WHERE deleted=0 and type=? and inactive=0 ORDER BY order_no',
             [$printType]
         );
-        $templates = [];
         foreach ($templateCandidates as $candidate) {
             $printer = getInvoicePrinter($candidate['filename']);
             if (null === $printer) {
