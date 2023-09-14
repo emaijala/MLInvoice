@@ -163,6 +163,9 @@
     <xsl:if test="ref_number!=''">
     <SellerReferenceIdentifier><xsl:value-of select="ref_number"/></SellerReferenceIdentifier>
     </xsl:if>
+    <xsl:if test="//recipient/customer_no!=''">
+    <SellersBuyerIdentifier><xsl:value-of select="//recipient/customer_no"/></SellersBuyerIdentifier>
+    </xsl:if>
     <xsl:if test="reference!=''">
     <OrderIdentifier><xsl:value-of select="reference"/></OrderIdentifier>
     </xsl:if>
@@ -210,6 +213,19 @@
     </xsl:choose>
   </PaymentStatusDetails>
   <VirtualBankBarcode><xsl:value-of select="barcode"/></VirtualBankBarcode>
+  <xsl:if test="foreword">
+    <InvoiceRow>
+      <xsl:call-template name="chunk-field">
+        <xsl:with-param name="tag" select="'RowFreeText'"/>
+        <xsl:with-param name="contents" select="foreword"/>
+        <!--
+          The real limit is 512, but at least some versions of libxslt have trouble with
+          long elements when outputting ISO-8859-15 with indent="yes". So, leave a bit of room.
+        -->
+        <xsl:with-param name="chunksize" select="448"/>
+      </xsl:call-template>
+    </InvoiceRow>
+  </xsl:if>
   <xsl:for-each select="rows/row">
   <InvoiceRow>
     <xsl:if test="product_code!=''">
@@ -255,6 +271,19 @@
     </xsl:choose>
   </InvoiceRow>
   </xsl:for-each>
+  <xsl:if test="afterword">
+    <InvoiceRow>
+      <xsl:call-template name="chunk-field">
+        <xsl:with-param name="tag" select="'RowFreeText'"/>
+        <xsl:with-param name="contents" select="afterword"/>
+        <!--
+          The real limit is 512, but at least some versions of libxslt have trouble with
+          long elements when outputting ISO-8859-15 with indent="yes". So, leave a bit of room.
+        -->
+        <xsl:with-param name="chunksize" select="448"/>
+      </xsl:call-template>
+    </InvoiceRow>
+  </xsl:if>
   <EpiDetails>
     <EpiIdentificationDetails>
       <EpiDate Format="CCYYMMDD"><xsl:value-of select="invoice_date"/></EpiDate>
