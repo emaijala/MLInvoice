@@ -620,11 +620,22 @@ class Search
      */
     protected function getSearchFromRequest(): array
     {
+        $result = [];
         if ($searchId = getQuery('search_id')) {
-            return $this->getSavedSearch(intval($searchId));
+            $result = $this->getSavedSearch(intval($searchId));
         }
         $type = getQuery('type');
         $searchGroups = $this->getSearchGroups($_GET);
+        if ((null === $type || $type === $result['type'] ?? null)
+          && $searchGroups['operator'] === $result['searchGroups']['operator'] ?? null
+        ) {
+          // Merge saved search with other url params and return it:
+          $result['searchGroups']['groups'] = array_merge(
+            $result['searchGroups']['groups'],
+            $searchGroups['groups']
+          );
+          return $result;
+        }
         return $type ? compact('type', 'searchGroups', 'searchId') : [];
     }
 

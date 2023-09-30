@@ -957,6 +957,25 @@ function createFormButtons($form, $formConfig, $new, $top, $deleted)
     </div>
     <?php
     if ($form === 'company' && $top && !$new) {
+        $urlTemplate = "?func=results&search_id=%%search_id%%&s_type1[]=company_id&s_field1[]=$id";
+        $invoiceLinks = [
+            [
+                'name' => 'NonArchivedInvoices',
+                'url' => str_replace('%%search_id%%', Search::SEARCH_NON_ARCHIVED_INVOICES, $urlTemplate)
+            ],
+            [
+                'name' => 'ArchivedInvoices',
+                'url' => str_replace('%%search_id%%', Search::SEARCH_ARCHIVED_INVOICES, $urlTemplate)
+            ],
+            [
+                'name' => 'NonArchivedOffers',
+                'url' => str_replace('%%search_id%%', Search::SEARCH_NON_ARCHIVED_OFFERS, $urlTemplate)
+            ],
+            [
+                'name' => 'ArchivedOffers',
+                'url' => str_replace('%%search_id%%', Search::SEARCH_ARCHIVED_OFFERS, $urlTemplate)
+            ],
+        ];
         ?>
         <div class="btn-set">
             <a role="button" id="cover-letter-button" class="btn btn-secondary" href="#">
@@ -972,16 +991,14 @@ function createFormButtons($form, $formConfig, $new, $top, $deleted)
                 <?php echo Translator::translate('InvoicesAndOffers')?>
             </a>
             <ul class="dropdown-menu" aria-labelledby="client_invoices_button">
-                <li>
-                    <a class="dropdown-item" href="?func=results&type=invoice&s_type1[]=company_id&s_field1[]=<?php echo $id?>&s_type1[]=archived&s_field1[]=0">
-                        <?php echo Translator::translate('AllNonArchived')?>
-                    </a>
-                </li>
-                <li>
-                    <a class="dropdown-item" href="?func=results&type=invoice&s_type1[]=company_id&s_field1[]=<?php echo $id?>&s_type1[]=archived&s_field1[]=1">
-                        <?php echo Translator::translate('InvoicesAndOffers')?>
-                    </a>
-                </li>
+                <?php foreach ($invoiceLinks as $link) {
+                    ?>
+                    <li>
+                        <a class="dropdown-item" href="<?php echo $link['url']?>">
+                            <?php echo Translator::translate($link['name'])?>
+                        </a>
+                    </li>
+                <?php } ?>
             </ul>
         </div>
         <?php
