@@ -687,7 +687,6 @@ function createIForm($mainFormConfig, $formConfig, $elem, $intKeyValue, $newReco
                 [
                     'HID_INT',
                     'CONST_HID_INT',
-                    'SECHID_INT',
                     'BUTTON',
                     'NEWLINE'
                 ]
@@ -724,7 +723,6 @@ function createIForm($mainFormConfig, $formConfig, $elem, $intKeyValue, $newReco
                     [
                         'HID_INT',
                         'CONST_HID_INT',
-                        'SECHID_INT',
                         'BUTTON',
                         'NEWLINE',
                         'ROWSUM'
@@ -785,7 +783,6 @@ function createIForm($mainFormConfig, $formConfig, $elem, $intKeyValue, $newReco
                     [
                         'HID_INT',
                         'CONST_HID_INT',
-                        'SECHID_INT',
                         'BUTTON',
                         'NEWLINE',
                         'ROWSUM'
@@ -806,10 +803,6 @@ function createIForm($mainFormConfig, $formConfig, $elem, $intKeyValue, $newReco
                     </button>
                 </div>
             </td>
-                <?php
-            } elseif ($elem['type'] == 'SECHID_INT') {
-                ?>
-            <input type="hidden" name="<?php echo 'iform_popup_' . $elem['name']?>" value="<?php echo htmlspecialchars($astrValues[$elem['name']])?>">
                 <?php
             } elseif ($elem['type'] == 'BUTTON') {
                 ?>

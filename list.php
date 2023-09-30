@@ -700,6 +700,7 @@ function createListQuery($strFunc, $strList, $startRow, $rowCount, $sort,
     $filter, array $query, int $searchId = null
 ) {
     $listConfig = getListConfig($strList);
+    $table = $listConfig['table'];
 
     $qb = getDb()->createQueryBuilder();
     $prefix = _DB_PREFIX_ . '_';
@@ -728,7 +729,7 @@ function createListQuery($strFunc, $strList, $startRow, $rowCount, $sort,
 
                 $qb->innerJoin("$prefix$table", "$prefix{$tagTable}_tag_link", 'tl');
                 $qb->innerJoin('tl', "$prefix{$tagTable}_tag", 'tag');
-                $expressions[] = $qb->expr()->in('tag.tag', explode(',', $value));
+                $expressions[] = $qb->expr()->in('tag.tag', explode(',', $field['value']));
             } else {
                 $param = $qb->createNamedParameter($field['value']);
                 if ($listConfig['alias'] && strpos($type, '.') === false) {
@@ -784,6 +785,7 @@ function createListQuery($strFunc, $strList, $startRow, $rowCount, $sort,
 
     $filteredQb = clone $qb;
     if ($filter) {
+        $leftAnchored = getSetting('dynamic_select_search_in_middle');
         $termPrefix = $leftAnchored ? '' : '%';
         foreach (explode(' ', $filter) as $term) {
             if ('' === trim($term)) {

@@ -237,11 +237,6 @@ function saveFormData($table, &$primaryKey, $formConfig, &$values, &$warnings,
             break;
         case 'INT':
         case 'HID_INT':
-        case 'SECHID_INT':
-            $arrValues[] = ($value !== '' && $value !== false && $value !== null)
-                ? str_replace(',', '.', $value)
-                : ($elem['allow_null'] ? null : 0);
-            break;
         case 'LIST':
         case 'SEARCHLIST':
             $arrValues[] = isset($values[$name])
@@ -458,7 +453,7 @@ function saveFormData($table, &$primaryKey, $formConfig, &$values, &$warnings,
  *
  * @param string $table        Table name
  * @param int    $primaryKey   Record ID
- * @param int    $formElements Form elements
+ * @param array  $formElements Form elements
  * @param array  $values       Record data
  *
  * @return mixed

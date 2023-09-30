@@ -28,8 +28,11 @@
  */
 require_once 'config.php';
 
-use Doctrine\DBAL\QueryBuilder;
-
+/**
+ * Database connection
+ *
+ * @var ?mysqli
+ */
 $dblink = null;
 
 /**
@@ -170,14 +173,6 @@ function createWhereClause($astrSearchFields, $strSearchTerms, &$arrQueryParams,
                 } elseif ($astrSearchFields[$j]['type'] == 'CURRENCY') {
                     $strWhereClause .= 'CAST(' . $astrSearchFields[$j]['name'] . ' AS CHAR) LIKE ? OR ';
                     $arrQueryParams[] = $termPrefix . $astrTerms[$i] . '%';
-                } elseif ($astrSearchFields[$j]['type'] == 'PRIMARY'
-                    && preg_match('/^([0-9]+)$/', $intID)
-                ) {
-                    $strWhereClause = 'WHERE ' . $astrSearchFields[$j]['name']
-                        . ' = ? ';
-                    $arrQueryParams = [$intID];
-                    unset($astrSearchFields);
-                    break 2;
                 }
             }
             $strWhereClause = substr($strWhereClause, 0, -3) . ') AND ';
@@ -371,8 +366,8 @@ function getTagsArray($type, $id)
     $tags = [];
     $rows = dbParamQuery(
         <<<EOT
-SELECT tag FROM {prefix}${type}_tag WHERE id IN (
-    SELECT tag_id FROM {prefix}${type}_tag_link WHERE ${type}_id=?
+SELECT tag FROM {prefix}{$type}_tag WHERE id IN (
+    SELECT tag_id FROM {prefix}{$type}_tag_link WHERE {$type}_id=?
 )
 EOT
         ,
@@ -399,7 +394,7 @@ function saveTags($type, $id, $tags)
 
     // Delete tag links
     dbParamQuery(
-        "DELETE FROM {prefix}${type}_tag_link WHERE ${type}_id=?",
+        "DELETE FROM {prefix}{$type}_tag_link WHERE {$type}_id=?",
         [$id],
         'exception'
     );
@@ -408,20 +403,20 @@ function saveTags($type, $id, $tags)
         foreach ($tags as $tag) {
             $tag = trim($tag);
             $rows = dbParamQuery(
-                "SELECT id FROM {prefix}${type}_tag WHERE tag=?",
+                "SELECT id FROM {prefix}{$type}_tag WHERE tag=?",
                 [$tag]
             );
             $tagId = $rows ? $rows[0]['id'] : null;
             if (null === $tagId) {
                 dbParamQuery(
-                    "INSERT INTO {prefix}${type}_tag (tag) VALUES (?)",
+                    "INSERT INTO {prefix}{$type}_tag (tag) VALUES (?)",
                     [$tag],
                     'exception'
                 );
                 $tagId = mysqli_insert_id($dblink);
             }
             dbParamQuery(
-                "INSERT INTO {prefix}${type}_tag_link (tag_id, ${type}_id)"
+                "INSERT INTO {prefix}{$type}_tag_link (tag_id, {$type}_id)"
                 . ' VALUES (?, ?)',
                 [$tagId, $id],
                 'exception'
@@ -431,8 +426,8 @@ function saveTags($type, $id, $tags)
     // Delete any orphaned tags
     dbParamQuery(
         <<<EOT
-DELETE FROM {prefix}${type}_tag WHERE id NOT IN
-    (SELECT tag_id FROM {prefix}${type}_tag_link)
+DELETE FROM {prefix}{$type}_tag WHERE id NOT IN
+    (SELECT tag_id FROM {prefix}{$type}_tag_link)
 EOT
         ,
         [],
@@ -1458,7 +1453,7 @@ function deleteRecord($table, $id)
  * @param string $query  SQL query
  * @param bool   $noFail Whether to return an error code instead of dying on error
  *
- * @return int
+ * @return mysqli_result
  */
 function dbQueryCheck($query, $noFail = false)
 {
@@ -1654,19 +1649,6 @@ function getDb(): \Doctrine\DBAL\Connection
         'driver' => 'pdo_mysql',
     ];
     return \Doctrine\DBAL\DriverManager::getConnection($connectionParams);
-}
-
-/**
- * Create a QueryBuilder from request parameters
- *
- * @param string $table   Table name
- * @param array  $request Request params
- *
- * @return QueryBuilder
- */
-function createQueryBuilderFromRequest(string $table, array $request): QueryBuilder
-{
-    return $qb;
 }
 
 /**
