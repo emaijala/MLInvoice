@@ -3,6 +3,7 @@ namespace Page\Acceptance;
 
 class Invoice
 {
+    public static $addLink = 'New Invoice';
     public static $companyField = 'base_id';
     public static $clientField = 'company_id';
 
@@ -16,16 +17,19 @@ class Invoice
         $this->acceptanceTester = $I;
     }
 
-    public function add($client): int
+    public function add($client, bool $archived = false): int
     {
         $I = $this->acceptanceTester;
         $I->click('Invoices and Offers');
-        $I->click('New Invoice');
+        $I->click(static::$addLink);
         $I->select2Select(static::$companyField, 1);
         if (is_int($client)) {
             $I->select2Select(static::$clientField, $client);
         } else {
             $I->select2SelectWithSearch(static::$clientField, $client);
+        }
+        if ($archived) {
+            $I->checkOption('#archived');
         }
         $I->click('Save');
         $I->waitForElementNotVisible('#inewmessage');

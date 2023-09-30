@@ -98,7 +98,7 @@
         </replaceregexp>
       </filterchain>
     </copy>
-    <append destFile="${basedir}/config.php" text="define('MLINVOICE_LOGIN_DELAY_MULTIPLIER', 0);" fixlastline="yes" />
+    <append destFile="${basedir}/config.php" text="define('MLINVOICE_LOGIN_DELAY_MULTIPLIER', 0);${line.separator}" fixlastline="yes" />
 
     <!-- create flag file -->
     <touch file="${basedir}/running-ci" />

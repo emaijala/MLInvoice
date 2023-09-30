@@ -4,6 +4,7 @@ use Page\Acceptance\Client;
 use Page\Acceptance\Company;
 use Page\Acceptance\Invoice;
 use Page\Acceptance\Login;
+use Page\Acceptance\Offer;
 use Page\Acceptance\Product;
 use Page\Acceptance\Search;
 
@@ -146,6 +147,70 @@ class BasicFunctionalityCest
         $I->click('.edit-multi-buttons button[data-iform-save-rows=iform_popup]');
         $I->waitForText("$this->product3 $this->productName", 2, '.item-row:nth-child(2)');
         $I->waitForText("$this->product3 $this->productName", 2, '.item-row:nth-child(3)');
+    }
+
+    public function invoiceAndOfferMenuLists(
+        AcceptanceTester $I,
+        Login $loginPage,
+        Client $client,
+        Invoice $invoice,
+        Offer $offer
+    ) {
+        $loginPage->login();
+        $clientName = 'List Client ' . time() . 's';
+        $client->add($clientName);
+
+        // Add unarchived invoices:
+        $unarchivedInvoiceIds = [];
+        for ($i = 1; $i <= 5; $i++) {
+            $unarchivedInvoiceIds[] = $invoice->add($clientName);
+        }
+
+        // Add archived invoices:
+        $archivedInvoiceIds = [];
+        for ($i = 1; $i <= 4; $i++) {
+            $archivedInvoiceIds[] = $invoice->add($clientName, true);
+        }
+
+        // Add unarchived offers:
+        $unarchivedOfferIds = [];
+        for ($i = 1; $i <= 3; $i++) {
+            $unarchivedOfferIds[] = $offer->add($clientName);
+        }
+
+        // Add archived offers:
+        $archivedOfferIds = [];
+        for ($i = 1; $i <= 2; $i++) {
+            $archivedOfferIds[] = $offer->add($clientName, true);
+        }
+
+        $I->click('Invoices and Offers');
+        $I->click('Invoices (Non-Archived)');
+        $I->fillField('#list_invoice_3_filter input', $clientName);
+        $I->waitForText('1 - 5 / 5 (filtered from');
+        $foundIds = $I->grabMultiple('.cb-select-row', 'value');
+        $I->assertEquals($unarchivedInvoiceIds, $foundIds);
+
+        $I->click('Invoices and Offers');
+        $I->click('Archived Invoices');
+        $I->fillField('#archived_invoices_3_filter input', $clientName);
+        $I->waitForText('1 - 4 / 4 (filtered from');
+        $foundIds = $I->grabMultiple('.cb-select-row', 'value');
+        $I->assertEquals($archivedInvoiceIds, $foundIds);
+
+        $I->click('Invoices and Offers');
+        $I->click('Offers (Non-Archived)');
+        $I->fillField('#list_offer_3_filter input', $clientName);
+        $I->waitForText('1 - 3 / 3 (filtered from');
+        $foundIds = $I->grabMultiple('.cb-select-row', 'value');
+        $I->assertEquals($unarchivedOfferIds, $foundIds);
+
+        $I->click('Invoices and Offers');
+        $I->click('Archived Offers');
+        $I->fillField('#archived_offers_3_filter input', $clientName);
+        $I->waitForText('1 - 2 / 2 (filtered from');
+        $foundIds = $I->grabMultiple('.cb-select-row', 'value');
+        $I->assertEquals($archivedOfferIds, $foundIds);
     }
 
     public function searchAndNavigateInvoices(
