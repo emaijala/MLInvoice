@@ -703,7 +703,7 @@ class Search
                     $value = "'$value'";
                     break;
                 case 'INTDATE':
-                    $value = dateConvDBDate2Date(dateConvYmd2DBDate($value));
+                    $value = dateConvDBDate2Date(dateConvYmd2DBDate($value ?: date('Y-m-d')));
                     break;
                 case 'SEARCHLIST':
                     $value = "'" . trim(getSearchListSelectedValue($fieldConfig['listquery'], $value, false)) . "'";

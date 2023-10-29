@@ -733,10 +733,24 @@ function createListQuery($strFunc, $strList, $startRow, $rowCount, $sort,
                 $qb->innerJoin('tl', "$prefix{$tagTable}_tag", 'tag');
                 $expressions[] = $qb->expr()->in('tag.tag', explode(',', $field['value']));
             } else {
-                $param = $qb->createNamedParameter($field['value']);
                 if ($listConfig['alias'] && strpos($type, '.') === false) {
                     $type = $listConfig['alias'] . ".$type";
                 }
+                // Conversion for date fields:
+                foreach ($listConfig['fields'] as $current) {
+                    if ($current['name'] == $type) {
+                        if ('INTDATE' === $current['type']) {
+                            // Handle empty date as today for lt or lte:
+                            if ('' === $field['value'] && in_array($field['comparison'], ['lt', 'lte'])) {
+                                $field['value'] = date('Y-m-d');
+                            }
+                            $field['value'] = dateConvYmd2DBDate($field['value']);
+                        }
+                        break;
+                    }
+                }
+                $param = $qb->createNamedParameter($field['value']);
+
                 switch ($field['comparison']) {
                 case 'eq':
                     $expressions[] = $qb->expr()->eq($type, $param);
