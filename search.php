@@ -311,7 +311,7 @@ class Search
             $searchId = intval(getPost('start_page') ?? 0);
             $this->setStartPageSearches(
                 array_diff(
-                    $this->getStartPageSearches(),
+                    $this->getStartPageSearches(false),
                     [$searchId]
                 )
             );
@@ -336,7 +336,6 @@ class Search
         ?>
 <form method="POST">
   <input type="hidden" name="func" value="edit_searches">
-  <input type="hidden" name="action" value="">
   <div class="row edit-searches">
     <div class="col-12">
       <div class="col-12 col-md-3 mb-3">
@@ -368,21 +367,21 @@ class Search
         </select>
       </div>
       <div class="mb-3">
-        <a role="button" class="btn btn-secondary form-submit" data-set-field="action=edit">
+        <button type="submit" name="action" value="edit" class="btn btn-secondary">
           <?php echo Translator::translate('Edit') ?>
-        </a>
-        <a role="button" class="btn btn-secondary form-submit" data-set-field="action=delete">
+        </button>
+        <button type="submit" name="action" value="delete" class="btn btn-secondary">
           <?php echo Translator::translate('Delete') ?>
-        </a>
-        <a role="button" class="btn btn-secondary form-submit" data-set-field="action=search">
+        </button>
+        <button type="submit" name="action" value="search" class="btn btn-secondary">
           <?php echo Translator::translate('Search') ?>
-        </a>
-        <a role="button" class="btn btn-secondary form-submit" data-set-field="action=add_start">
+        </button>
+        <button type="submit" name="action" value="add_start" class="btn btn-secondary">
           <?php echo Translator::translate('AddToStartPage') ?>
-        </a>
-        <a role="button" class="btn btn-secondary form-submit" data-set-field="action=add_default_start"<?php echo !sesAdminAccess() ? ' disabled' : ''?>>
+        </button>
+        <button type="submit" name="action" value="add_default_start" class="btn btn-secondary"<?php echo !sesAdminAccess() ? ' disabled' : ''?>>
           <?php echo Translator::translate('AddToDefaultStartPage') ?>
-        </a>
+        </button>
       </div>
     </div>
     <div class="col-12 col-xl-6">
@@ -403,15 +402,15 @@ class Search
         </select>
       </div>
       <div class="mb-3">
-        <a role="button" class="btn btn-secondary form-submit" data-set-field="action=remove_start">
+        <button type="submit" name="action" value="remove_start" class="btn btn-secondary">
           <?php echo Translator::translate('RemoveFromStartPage') ?>
-        </a>
-        <a role="button" class="btn btn-secondary form-submit" data-set-field="action=copy_to_default"<?php echo !sesAdminAccess() ? ' disabled' : ''?>>
+        </button>
+        <button type="submit" name="action" value="copy_to_default" class="btn btn-secondary"<?php echo !sesAdminAccess() ? ' disabled' : ''?>>
           <?php echo Translator::translate('CopyToDefaultStartPage') ?>
-        </a>
-        <a role="button" class="btn btn-secondary form-submit" data-set-field="action=reset_start">
+        </button>
+        <button type="submit" name="action" value="reset_start" class="btn btn-secondary">
           <?php echo Translator::translate('ResetStartPage') ?>
-        </a>
+        </button>
       </div>
       <div class="mb-1">
         <label for="default_start_page" class="form-label"><?php echo Translator::translate('DefaultStartPage')?></label>
@@ -430,15 +429,15 @@ class Search
         </select>
       </div>
       <div class="mb-3">
-        <a role="button" class="btn btn-secondary form-submit" data-set-field="action=remove_default_start"<?php echo !sesAdminAccess() ? ' disabled' : ''?>>
+        <button type="submit" name="action" value="remove_default_start" class="btn btn-secondary"<?php echo !sesAdminAccess() ? ' disabled' : ''?>>
           <?php echo Translator::translate('RemoveFromStartPage') ?>
-        </a>
-        <a role="button" class="btn btn-secondary form-submit" data-set-field="action=copy_to_own">
+        </button>
+        <button type="submit" name="action" value="copy_to_own" class="btn btn-secondary">
           <?php echo Translator::translate('CopyToOwnStartPage') ?>
-        </a>
-        <a role="button" class="btn btn-secondary form-submit" data-set-field="action=reset_default_start"<?php echo !sesAdminAccess() ? ' disabled' : ''?>>
+        </button>
+        <button type="submit" name="action" value="reset_default_start" class="btn btn-secondary"<?php echo !sesAdminAccess() ? ' disabled' : ''?>>
           <?php echo Translator::translate('ResetStartPage') ?>
-        </a>
+        </button>
       </div>
     </div>
   </div>
