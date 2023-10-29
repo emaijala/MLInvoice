@@ -626,7 +626,7 @@ class Search
         }
         $type = getQuery('type');
         $searchGroups = $this->getSearchGroups($_GET);
-        if ((null === $type || $type === $result['type'] ?? null)
+        if ((null === $type || $type === ($result['type'] ?? null))
             && $searchGroups['operator'] === $result['searchGroups']['operator'] ?? null
         ) {
             // Merge saved search with other url params and return it:
