@@ -103,6 +103,7 @@ CREATE TABLE mlinvoice_send_api_config (
   post_class tinyint default 0 NOT NULL,
   add_to_queue tinyint default 0 NOT NULL,
   finvoice_mail_backup tinyint default 0 NOT NULL,
+  directory varchar(255) NULL,
   PRIMARY KEY (id),
   FOREIGN KEY (base_id) REFERENCES mlinvoice_base(id)
 ) ENGINE=INNODB CHARACTER SET utf8 COLLATE utf8_swedish_ci;
@@ -443,7 +444,7 @@ CREATE TABLE mlinvoice_default_value (
 
 SET NAMES 'utf8';
 
-INSERT INTO mlinvoice_state (id, data) VALUES ('version', '64');
+INSERT INTO mlinvoice_state (id, data) VALUES ('version', '66');
 
 INSERT INTO mlinvoice_state (id, data) VALUES ('tableconversiondone', '1');
 

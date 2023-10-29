@@ -91,7 +91,7 @@ if ($strFunc == 'send_api') {
     $client = new ApiClient($apiId, $invoiceId, $templateId);
     $result = $client->send();
     if ($result['success']) {
-        $_SESSION['formMessage'] = Translator::Translate('SendSuccess');
+        $_SESSION['formMessage'] = Translator::Translate('ActionSuccess');
         if ($result['message']) {
             $_SESSION['formMessage'] .= ' (' . $result['message'] . ')';
         }
@@ -99,7 +99,7 @@ if ($strFunc == 'send_api') {
             $_SESSION['formErrorMessage'] = $result['warnings'];
         }
     } else {
-        $_SESSION['formErrorMessage'] = Translator::Translate('SendFailure');
+        $_SESSION['formErrorMessage'] = Translator::Translate('ActionFailure');
         if ($result['message']) {
             $_SESSION['formErrorMessage'] .= ' (' . $result['message'] . ')';
         }

@@ -364,6 +364,7 @@ td.reportsublabel {
   clear: both;
   margin-top: 10px;
 }
+
 .iform, .iform-popup, #custom-prices, .multi-edit-form, .setup-form {
   .date, .date_label {
     width: 110px;
@@ -372,37 +373,43 @@ td.reportsublabel {
     padding-left: 4px;
     padding-right: 4px;
   }
-  .tiny, .tiny_label {
-    width: 40px;
-  }
-  .xshort, .xshort_label {
-    width: 55px;
-  }
-  .mediumshort, .mediumshort_label {
-    width: 80px;
-  }
   .medium, .medium_label {
-    width: 180px;
-    // Ensure that select2 can't widen the field:
+    min-width: 80px;
     max-width: 180px;
   }
-  .long, .long_label {
-    width: 240px;
-  }
-  .currency, .currency_label {
-    width: 80px;
-    padding-right: 8px;
-    text-align: right;
-  }
-  .count, .count_label {
-    width: 60px;
-    padding-right: 4px;
-    text-align: right;
-  }
-  .measurement, .measurement_label {
-    width: 60px;
-    padding-right: 4px;
-    text-align: right;
+  @media only screen and (max-width: $iform-collapse-max-width) {
+    .tiny, .tiny_label {
+      width: 40px;
+    }
+    .xshort, .xshort_label {
+      width: 55px;
+    }
+    .mediumshort, .mediumshort_label {
+      width: 80px;
+    }
+    .medium, .medium_label {
+      width: 176px;
+      // Ensure that select2 can't widen the field (but leave space for padding):
+      max-width: 180px;
+    }
+    .long, .long_label {
+      width: 240px;
+    }
+    .currency, .currency_label {
+      width: 80px;
+      padding-right: 8px;
+      text-align: right;
+    }
+    .count, .count_label {
+      width: 60px;
+      padding-right: 4px;
+      text-align: right;
+    }
+    .measurement, .measurement_label {
+      width: 60px;
+      padding-right: 4px;
+      text-align: right;
+    }
   }
   .cb-select-row {
     width: 15px;
@@ -464,7 +471,7 @@ td.reportsublabel {
   }
 }
 
-.iform {
+.iform, .iform-popup {
   td.deleted {
     text-decoration: line-through;
   }
@@ -515,29 +522,6 @@ td.reportsublabel {
     }
   }
 
-  @media only screen and (min-width: $iform-collapse-min-width) and (max-width: $iform-narrow-width) {
-    .xshort, .xshort_label {
-      width: 45px;
-    }
-    .short, .short_label {
-      width: 50px;
-    }
-    .mediumshort, .mediumshort_label {
-      width: 70px;
-    }
-    .medium, .medium_label {
-      width: 80px;
-      // Ensure that select2 can't widen the field:
-      max-width: 80px;
-    }
-    .count, .count_label {
-      width: 50px;
-    }
-    .currency, .currency_label {
-      width: 65px;
-    }
-  }
-
   @media only screen and (max-width: $iform-collapse-max-width) {
     td, th {
       display: block;
@@ -547,12 +531,22 @@ td.reportsublabel {
       & > div:not(.hidden) {
         display: inline-block;
       }
+
+      #send_api_config & {
+        width: calc(100% - 16rem) !important;
+        margin-left: 16rem;
+      }
     }
 
     td[data-th]:before {
       float: left;
       margin-left: -10rem;
       content: attr(data-th);
+      white-space: pre;
+
+      #send_api_config & {
+        margin-left: -16rem;
+      }
     }
 
     .sort-col {
@@ -589,7 +583,10 @@ td.reportsublabel {
     border-bottom: 1px solid $gray-600;
     td {
       padding-bottom: 4px;
-      margin-bottom: 4px;
+
+      @media only screen and  (min-width: $iform-collapse-min-width) {
+        margin-bottom: 4px;
+      }
     }
   }
 }
@@ -621,30 +618,6 @@ td.reportsublabel {
       height: initial;
     }
   }
-
-  @media only screen and (min-width: $iform-collapse-min-width) and (max-width: $iform-popup-narrow-width) {
-    .xshort, .xshort_label {
-      width: 45px;
-    }
-    .short, .short_label {
-      width: 50px;
-    }
-    .mediumshort, .mediumshort_label {
-      width: 70px;
-    }
-    .medium, .medium_label {
-      width: 80px;
-      // Ensure that select2 can't widen the field:
-      max-width: 80px;
-    }
-    .count, .count_label {
-      width: 50px;
-    }
-    .currency, .currency_label {
-      width: 65px;
-    }
-  }
-
 }
 
 .multi-edit-form {
@@ -1082,6 +1055,9 @@ table.quick-search {
   text-align: left;
 }
 
-@import "table";
+.toast-body {
+  // Make sure really long words like filenames don't overflow:
+  width: 100%;
+}
 
-@inport "search";
+@import "table";

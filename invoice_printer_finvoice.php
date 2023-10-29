@@ -68,6 +68,7 @@ class InvoicePrinterFinvoice extends InvoicePrinterXSLT
             $headers['Content-Disposition'] = "attachment; filename=$filename";
         }
         return [
+            'filename' => $filename,
             'headers' => $headers,
             'data' => $this->xml
         ];

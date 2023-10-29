@@ -667,7 +667,7 @@ function createIForm($mainFormConfig, $formConfig, $elem, $intKeyValue, $newReco
         return;
     }
     ?>
-                <form method="post" name="iform" id="iform">
+                <form method="post" name="iform" id="iform"<?php echo 'base' === $strForm ? ' autocomplete="off"' : ''?>>
                     <table class="iform<?php echo 'invoice' === $strForm ? ' iform-sort-select' : ''?>" id="itable">
                         <thead>
                             <tr>
@@ -774,7 +774,8 @@ function createIForm($mainFormConfig, $formConfig, $elem, $intKeyValue, $newReco
             <div class="modal-body">
                 <form method="post" name="iform_popup" id="iform_popup" data-popup="1">
                     <table class="iform-popup">
-                            <tr>
+                        <thead>
+                        <tr>
         <?php
         foreach ($formConfig['fields'] as $elem) {
             if (true
@@ -790,8 +791,32 @@ function createIForm($mainFormConfig, $formConfig, $elem, $intKeyValue, $newReco
                 )
             ) {
                 ?>
-            <td class="label <?php echo strtolower($elem['style'])?>">
+            <th class="label <?php echo strtolower($elem['style'])?>">
                 <?php echo Translator::translate($elem['label'])?>
+            </th>
+                <?php
+            }
+        }?>
+        </tr>
+        </thead>
+        <tbody>
+        <tr>
+        <?php
+        foreach ($formConfig['fields'] as $elem) {
+            if (true
+                && !in_array(
+                    $elem['type'],
+                    [
+                        'HID_INT',
+                        'CONST_HID_INT',
+                        'BUTTON',
+                        'NEWLINE',
+                        'ROWSUM'
+                    ]
+                )
+            ) {
+                ?>
+            <td class="label <?php echo strtolower($elem['style'])?>" data-th="<?php echo Translator::translate($elem['label'])?> ">
                 <div class="field-container">
                   <?php echo htmlFormElement('iform_popup_' . $elem['name'], $elem['type'], '', $elem['style'], $elem['listquery'], 'MODIFY', 0, '', [], $elem['elem_attributes'])?>
                 </div>
@@ -813,6 +838,7 @@ function createIForm($mainFormConfig, $formConfig, $elem, $intKeyValue, $newReco
     }
     ?>
           </tr>
+          </tbody>
                         </table>
                     </form>
             </div>

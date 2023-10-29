@@ -315,6 +315,20 @@ abstract class InvoicePrinterBase
     protected $attachments = [];
 
     /**
+     * Whether to print virtual barcode
+     *
+     * @var bool
+     */
+    protected $printVirtualBarcode = false;
+
+    /**
+     * Output file name
+     *
+     * @var string
+     */
+    protected $outputFileName = '';
+
+    /**
      * Constructor
      */
     public function __construct()
@@ -335,7 +349,7 @@ abstract class InvoicePrinterBase
      * Initialize printing
      *
      * @param int    $invoiceId       Invoice ID
-     * @param array  $printParameters Print control parameters
+     * @param string $printParameters Print control parameters
      * @param string $outputFileName  File name template
      * @param int    $dateOverride    Date override for invoice date
      * @param int    $printTemplateId Print template ID
@@ -747,6 +761,7 @@ EOT;
         }
 
         return [
+            'filename' => $this->getPrintOutFileName(),
             'headers' => $this->getHttpHeaders(),
             'data' => $this->getPdfData()
         ];

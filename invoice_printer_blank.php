@@ -57,6 +57,7 @@ class InvoicePrinterBlank extends InvoicePrinterBase
         $this->printForeword();
 
         return [
+            'filename' => $this->getPrintOutFileName(),
             'headers' => $this->getHttpHeaders(),
             'data' => $this->pdf->Output('', 'S')
         ];

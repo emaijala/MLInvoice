@@ -1807,7 +1807,8 @@ case 'send_api_config':
             'type' => 'LIST',
             'style' => 'medium translated',
             'listquery' => [
-                'postita.fi' => 'Postita.fi'
+                'postita.fi' => 'Postita.fi',
+                'serverdirectory' => 'ServerDirectory',
             ],
             'position' => 0,
             'allow_null' => false
@@ -1831,6 +1832,14 @@ case 'send_api_config':
         [
             'name' => 'reference',
             'label' => 'ReferenceOrUnitID',
+            'type' => 'TEXT',
+            'style' => 'medium',
+            'position' => 0,
+            'allow_null' => true
+        ],
+        [
+            'name' => 'directory',
+            'label' => 'Directory',
             'type' => 'TEXT',
             'style' => 'medium',
             'position' => 0,

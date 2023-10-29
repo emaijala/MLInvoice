@@ -2663,6 +2663,16 @@ EOT
         );
     }
 
+    if ($version < 66) {
+        $updates = array_merge(
+            $updates,
+            [
+                'ALTER TABLE {prefix}send_api_config ADD COLUMN directory varchar(255) default NULL',
+                "REPLACE INTO {prefix}state (id, data) VALUES ('version', '66')"
+            ]
+        );
+    }
+
     // phpcs:enable Generic.Files.LineLength
     if (!empty($updates)) {
         dbQueryCheck('SET AUTOCOMMIT = 0');
