@@ -146,7 +146,6 @@ function createList($strFunc, $strList, $strTableName = '', $strTitleOverride = 
       },
       stateSave: true,
       stateLoadParams: function (settings, data) {
-        console.log(data);
         if (data.length === -1) {
             data.length = 10;
         }

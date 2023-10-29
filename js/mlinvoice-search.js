@@ -164,7 +164,6 @@ MLInvoice.addModule('Search', function mlinvoiceSearch() {
           if ('SEARCHLIST' === formConfig.fields[field.name].type) {
             $(fieldElem).select2('val', field.value);
           } else {
-            console.log('Set value ' + field.value);
             fieldElem.value = field.value;
           }
         });
