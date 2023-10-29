@@ -580,37 +580,45 @@ MLInvoice.addModule('Form', function mlinvoiceForm() {
     _addCompanyInfoTooltip('');
     $.getJSON('json.php?func=get_company', {id: $('#company_id').val() }, function setCompanyData(json) {
       if (json) {
-        if (!initialLoad) {
-          if (json.default_ref_number) {
-            $('#ref_number').val(json.default_ref_number);
-          }
-          if (json.delivery_terms_id) {
-            $('#delivery_terms_id').val(json.delivery_terms_id);
-          }
-          if (json.delivery_method_id) {
-            $('#delivery_method_id').val(json.delivery_method_id);
-          }
-          if (json.payment_days) {
-            $.getJSON(
-              'json.php?func=get_invoice_defaults',
-              {
-                id: $('#record_id').val(),
-                invoice_no: $('#invoice_no').val(),
-                invoice_date: $('#invoice_date').val(),
-                base_id: $('#base_id').val(),
-                company_id: $('#company_id').val(),
-                interval_type: $('#interval_type').val()
-              },
-              function getInvoiceDefaultsDone(data) {
-                $('#due_date').val(data.due_date);
-              }
-            );
-          }
-          $('#delivery_address').val(json.delivery_address ? json.delivery_address : '');
-        }
+        // First set values that always change for each company:
         if (json.info) {
           _addCompanyInfoTooltip(json.info);
         }
+        if (json.invoice_vatless) {
+          $('#invoice_vatless').val('1');
+        }
+
+        if (initialLoad) {
+          return;
+        }
+
+        // Set defaults when company is being changed:
+        if (json.default_ref_number) {
+          $('#ref_number').val(json.default_ref_number);
+        }
+        if (json.delivery_terms_id) {
+          $('#delivery_terms_id').val(json.delivery_terms_id);
+        }
+        if (json.delivery_method_id) {
+          $('#delivery_method_id').val(json.delivery_method_id);
+        }
+        if (json.payment_days) {
+          $.getJSON(
+            'json.php?func=get_invoice_defaults',
+            {
+              id: $('#record_id').val(),
+              invoice_no: $('#invoice_no').val(),
+              invoice_date: $('#invoice_date').val(),
+              base_id: $('#base_id').val(),
+              company_id: $('#company_id').val(),
+              interval_type: $('#interval_type').val()
+            },
+            function getInvoiceDefaultsDone(data) {
+              $('#due_date').val(data.due_date);
+            }
+          );
+        }
+        $('#delivery_address').val(json.delivery_address ? json.delivery_address : '');
         if (json.invoice_default_reference) {
           $('#reference').val(json.invoice_default_reference);
         }
@@ -619,9 +627,6 @@ MLInvoice.addModule('Form', function mlinvoiceForm() {
         }
         if (json.invoice_default_afterword) {
           MLInvoice.Form.setFieldVal('#afterword', json.invoice_default_afterword);
-        }
-        if (json.invoice_vatless) {
-          $('#invoice_vatless').val('1');
         }
       }
     });
