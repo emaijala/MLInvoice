@@ -210,9 +210,8 @@ class Search
         }
         $type = $searchData['type'];
 
-        $terms = htmlentities(
-            $this->getSearchDescription($type, $searchData['searchGroups'])
-        ) ?: Translator::translate('NoSearchTerms');
+        $terms = $this->getSearchDescription($type, $searchData['searchGroups'])
+            ?: Translator::translate('NoSearchTerms');
         $searchDesc = Translator::translate(
             'ResultsForSearch',
             ['%%description%%' => $terms]
@@ -284,7 +283,7 @@ class Search
             ];
             header('Location: index.php?' . http_build_query($params));
             exit();
-        } elseif ('delete' === $action && ($searchId = getPost('search') > 0)) {
+        } elseif ('delete' === $action && ($searchId = getPost('search')) > 0) {
             deleteQuickSearch($searchId);
         } elseif ('search' === $action) {
             $params = [
@@ -730,17 +729,23 @@ class Search
                 }
 
                 $joins = [
-                  'eq' => ' = ',
-                  'ne' => ' != ',
-                  'lt' => ' < ',
-                  'lte' => ' <= ',
-                  'gt' => ' > ',
-                  'gte' => ' >= '
+                    'eq' => '=',
+                    'ne' => '!=',
+                    'lt' => '<',
+                    'lte' => '<=',
+                    'gt' => '>',
+                    'gte' => '>='
                 ];
-                $expressions[] = Translator::translate($type) . ($joins[$field['comparison']] ?? ' = ') . $value;
+                $expressions[] = '<span class="search-type">'
+                    . Translator::translate($type)
+                    . '</span> <span class="search-comparison">'
+                    . ($joins[$field['comparison']] ?? '=')
+                    . '</span> <span class="search-value">'
+                    . htmlspecialchars($value)
+                    . '</span>';
             }
             $groups[] = implode(
-                ' ' . Translator::translate('Search' . $groupOperator) . ' ',
+                ' <span class="search-join">' . Translator::translate('Search' . $groupOperator) . '</span> ',
                 $expressions
             );
         }
@@ -753,7 +758,7 @@ class Search
             );
         }
         return implode(
-            ' ' . Translator::translate('Search' . $operator) . ' ',
+            ' <span class="search-join-groups">' . Translator::translate('Search' . $operator) . '</span> ',
             $groups
         );
     }

@@ -196,6 +196,14 @@ div.function_navi {
   font-weight: 600;
 }
 
+.search-comparison {
+  color: $primary;
+}
+
+.search-join, .search-join-groups {
+  color: $success;
+}
+
 .list_container {
   margin-top: 10px;
   max-width: 1400px;
@@ -1058,6 +1066,11 @@ table.quick-search {
 .toast-body {
   // Make sure really long words like filenames don't overflow:
   width: 100%;
+}
+
+// Fix conflict between Bootstrap dropdown menu and DataTables dropdown menu:
+.dt-buttons .dropdown-menu {
+  display: initial;
 }
 
 @import "table";
