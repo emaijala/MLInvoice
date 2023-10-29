@@ -81,6 +81,7 @@ MLInvoice.addModule('Form', function mlinvoiceForm() {
     setupMarkdownEditor();
     setupDefaultTextSelection();
     setupSelect2();
+    _setupFormListeners(document);
     _setupInvoiceAttachments();
     _updateSendApiButtons();
     _setupPrintButtons();
@@ -332,6 +333,33 @@ MLInvoice.addModule('Form', function mlinvoiceForm() {
     } else {
       $('#company_id_label').html('<a href="index.php?func=company&list=&form=company&id=' + company_id.val() + '">' + $('#company_id_label').text() + '</a>');
     }
+  }
+
+  function _setupFormListeners(container)
+  {
+    var api_method = container.querySelector('[data-api-method]');
+    if (!api_method) {
+      return;
+    }
+    var toggle_fields = function () {
+      let val = api_method.value;
+      api_method.closest('form').querySelectorAll('input, select').forEach((element) => {
+        if ('enabled' in element.dataset) {
+          element.disabled = val !== element.dataset.enabled;
+          if (element.disabled) {
+            if (element.tagName === 'SELECT') {
+              element.value = '0';
+            } else if (element.type === 'checkbox') {
+              element.checked = false;
+            } else {
+              element.value = '';
+            }
+          }
+        }
+      });
+    };
+    api_method.addEventListener('change', toggle_fields);
+    toggle_fields();
   }
 
   function _fillCompanyForm(data) {
@@ -1663,6 +1691,8 @@ MLInvoice.addModule('Form', function mlinvoiceForm() {
 
       // Setup select2 only after modal is shown to ensure it gets the correct parent:
       setupSelect2($popup);
+      // Setup form listeners:
+      _setupFormListeners($popup[0]);
 
       // Reset change indicators that could have been triggered during setup:
       $('#iform_popup .modification-indicator').addClass('hidden');
@@ -1718,6 +1748,8 @@ MLInvoice.addModule('Form', function mlinvoiceForm() {
 
     // Setup select2 only after modal is shown to ensure it gets the correct parent:
     setupSelect2($popup);
+    // Setup form listeners:
+    _setupFormListeners($popup[0]);
 
     $('#iform_popup .modification-indicator').addClass('hidden');
     $('#iform_popup input').data('modified', 0);

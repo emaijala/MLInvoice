@@ -1808,10 +1808,11 @@ case 'send_api_config':
             'style' => 'medium translated',
             'listquery' => [
                 'postita.fi' => 'Postita.fi',
-                'serverdirectory' => 'ServerDirectory',
+                'ServerDirectory' => 'ServerDirectory',
             ],
             'position' => 0,
-            'allow_null' => false
+            'allow_null' => false,
+            'elem_attributes' => 'data-api-method'
         ],
         [
             'name' => 'username',
@@ -1819,7 +1820,8 @@ case 'send_api_config':
             'type' => 'TEXT',
             'style' => 'medium',
             'position' => 0,
-            'allow_null' => true
+            'allow_null' => true,
+            'elem_attributes' => 'data-enabled="postita.fi"'
         ],
         [
             'name' => 'password',
@@ -1827,7 +1829,8 @@ case 'send_api_config':
             'type' => 'PASSWD_STORED',
             'style' => 'medium',
             'position' => 0,
-            'allow_null' => true
+            'allow_null' => true,
+            'elem_attributes' => 'data-enabled="postita.fi"'
         ],
         [
             'name' => 'reference',
@@ -1835,7 +1838,8 @@ case 'send_api_config':
             'type' => 'TEXT',
             'style' => 'medium',
             'position' => 0,
-            'allow_null' => true
+            'allow_null' => true,
+            'elem_attributes' => 'data-enabled="postita.fi"'
         ],
         [
             'name' => 'directory',
@@ -1843,7 +1847,7 @@ case 'send_api_config':
             'type' => 'TEXT',
             'style' => 'medium',
             'position' => 0,
-            'allow_null' => true
+            'elem_attributes' => 'data-enabled="ServerDirectory"'
         ],
         [
             'name' => 'post_class',
@@ -1858,21 +1862,24 @@ case 'send_api_config':
                 '4' => 'SecondClassColor'
             ],
             'position' => 0,
-            'allow_null' => false
+            'allow_null' => false,
+            'elem_attributes' => 'data-enabled="postita.fi"'
         ],
         [
             'name' => 'add_to_queue',
             'label' => 'SendToQueue',
             'type' => 'CHECK',
             'style' => 'short',
-            'position' => 0
+            'position' => 0,
+            'elem_attributes' => 'data-enabled="postita.fi"'
         ],
         [
             'name' => 'finvoice_mail_backup',
             'label' => 'FinvoiceMailBackup',
             'type' => 'CHECK',
             'style' => 'short',
-            'position' => 0
+            'position' => 0,
+            'elem_attributes' => 'data-enabled="postita.fi"'
         ]
     ];
     break;

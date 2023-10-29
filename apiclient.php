@@ -123,10 +123,10 @@ class ApiClient
             throw new Exception('API settings not found for the invoicing company');
         }
 
-        $apiName = strtolower(str_replace('.', '', $apiConfig['method']));
-        $className = ucfirst($apiName);
+        $className = ucfirst(str_replace('.', '', $apiConfig['method']));
+        $fileName = strtolower($className);
         $classFile = __DIR__ . DIRECTORY_SEPARATOR . 'send_api' . DIRECTORY_SEPARATOR
-            . $apiName . '.php';
+            . $fileName . '.php';
         include_once $classFile;
         $class = new $className();
 

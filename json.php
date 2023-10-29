@@ -1039,7 +1039,7 @@ function getSendApiServices($invoiceId, $baseId)
             ];
         }
         $services[] = [
-            'name' => $config['name'] ? $config['name'] : $config['method'],
+            'name' => $config['name'] ? $config['name'] : Translator::translate($config['method']),
             'items' => $items
         ];
     }
