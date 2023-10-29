@@ -160,7 +160,7 @@ if (substr($requestUri, -1) === '/' || strpos($requestUri, 'index.php') !== fals
 ?>
   <nav aria-label="<?php echo Translator::translate('Breadcrumbs')?>">
     <ol class="breadcrumb">
-        <?php foreach ($arrHistory as $entry) { ?>
+        <?php foreach ($arrHistory ?? [] as $entry) { ?>
             <?php $url = str_replace('&', '&amp;', $entry['url']) . '&amp;bc=1'; ?>
             <?php if ($entry['active']) { ?>
                 <li class="breadcrumb-item active" aria-current="page">
