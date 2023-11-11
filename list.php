@@ -478,7 +478,7 @@ function createList($strFunc, $strList, $strTableName = '', $strTitleOverride = 
  * @param int    $companyId Company ID
  * @param int    $searchId  Saved search ID
  *
- * @return void
+ * @return string
  */
 function createJSONList(
     string $strFunc,
@@ -492,19 +492,14 @@ function createJSONList(
     string $listId,
     int $companyId = null,
     int $searchId = null
-) {
+): string {
     $listConfig = getListConfig($strList);
     if (!$listConfig) {
-        return;
+        return '{"error": "Invalid list"}';
     }
 
     if (!sesAccessLevel($listConfig['accessLevels']) && !sesAdminAccess()) {
-        ?>
-<div class="form_container">
-        <?php echo Translator::translate('NoAccess') . "\n"?>
-  </div>
-        <?php
-        return;
+        return '{"error": "Access denied"}';
     }
 
     $queryBuilders = createListQuery(
@@ -678,7 +673,7 @@ function createJSONList(
         'recordsFiltered' => $filteredCount ?? $totalCount,
         'data' => $records
     ];
-    return json_encode($results);
+    return json_encode($results, JSON_INVALID_UTF8_IGNORE) ?: '{"error": "Encode failed: ' . json_last_error_msg() . '"}';
 }
 
 /**
