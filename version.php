@@ -25,4 +25,5 @@
  * @license  http://opensource.org/licenses/gpl-2.0.php GNU General Public License
  * @link     http://labs.fi/mlinvoice.eng.php
  */
-$softwareVersion = '2.1.2';
+// Version in Semver (https://semver.org/) compatible form (e.g. 1.2.3 or 1.2.3-beta.1)
+$softwareVersion = '2.2.0-beta.1';
