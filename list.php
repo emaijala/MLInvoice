@@ -709,9 +709,6 @@ function createListQuery($strFunc, $strList, $startRow, $rowCount, $sort,
         if (!($searchData = getQuickSearch($searchId))) {
             return;
         }
-        if ($searchData['func'] !== $strList) {
-            throw new \Exception("Saved search type {$searchData['func']} does not match $strList");
-        }
         if (strncmp($searchData['whereclause'], '{', 1) === 0) {
             $searchGroups = json_decode($searchData['whereclause'], true);
         } else {
