@@ -1847,6 +1847,7 @@ case 'send_api_config':
             'type' => 'TEXT',
             'style' => 'medium',
             'position' => 0,
+            'allow_null' => true,
             'elem_attributes' => 'data-enabled="ServerDirectory"'
         ],
         [
