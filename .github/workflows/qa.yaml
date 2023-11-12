@@ -12,15 +12,13 @@ jobs:
       VUFIND_LOCAL_DIR: $GITHUB_WORKSPACE/local
     strategy:
       matrix:
-        php-version: ['7.3', '7.4', '8.0', '8.1']
+        php-version: ['8.0', '8.1', '8.2']
         include:
-          - php-version: 7.3
-            phing_tasks: "qa"
-          - php-version: 7.4
-            phing_tasks: "qa"
           - php-version: 8.0
             phing_tasks: "qa"
           - php-version: 8.1
+            phing_tasks: "qa"
+          - php-version: 8.2
             phing_tasks: "qa"
 
     steps:
