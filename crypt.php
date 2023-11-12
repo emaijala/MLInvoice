@@ -27,7 +27,7 @@
  */
 require_once 'config.php';
 
-use phpseclib\Crypt\AES;
+use phpseclib3\Crypt\AES;
 
 /**
  * Encryption utility class
@@ -58,8 +58,12 @@ class Crypt
         if (strlen(_ENCRYPTION_KEY_) < 32) {
             throw new Exception('_ENCRYPTION_KEY_ in config.php too short');
         }
-        $this->cipher = new AES();
-        $this->cipher->setKey(_ENCRYPTION_KEY_);
+        $this->cipher = new AES('cbc');
+        // Allow for imprecise key length as phpseclib 2 did:
+        $this->cipher->setKey(str_pad(substr(_ENCRYPTION_KEY_, 0, 32), 32, "\0"));
+        $length = $this->cipher->getBlockLengthInBytes();
+        // Set IV like phpseclib v2 did:
+        $this->cipher->setIV(str_pad('', $length, "\0"));
     }
 
     /**

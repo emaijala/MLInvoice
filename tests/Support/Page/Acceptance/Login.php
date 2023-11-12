@@ -1,5 +1,5 @@
 <?php
-namespace Page\Acceptance;
+namespace Tests\Support\Page\Acceptance;
 
 class Login
 {
@@ -21,11 +21,11 @@ class Login
     }
 
     /**
-     * @var \AcceptanceTester;
+     * @var \Tests\Support\AcceptanceTester;
      */
     protected $acceptanceTester;
 
-    public function __construct(\AcceptanceTester $I)
+    public function __construct(\Tests\Support\AcceptanceTester $I)
     {
         $this->acceptanceTester = $I;
     }

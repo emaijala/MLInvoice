@@ -19,5 +19,5 @@ modules:
                 #    args: ["-headless"] # Run Firefox in headless mode
                     #prefs:
                         #intl.accept_languages: "de-AT" # Set HTTP-Header `Accept-Language: de-AT` for requests
-        - \Helper\Acceptance
+        - \Tests\Support\Helper\Acceptance
 step_decorators: ~

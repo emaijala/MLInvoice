@@ -1,5 +1,5 @@
 <?php
-namespace Page\Acceptance;
+namespace Tests\Support\Page\Acceptance;
 
 class Offer extends Invoice
 {

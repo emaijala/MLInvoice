@@ -1,12 +1,14 @@
 <?php
+namespace Tests\Aceptance;
 
-use Page\Acceptance\Client;
-use Page\Acceptance\Company;
-use Page\Acceptance\Invoice;
-use Page\Acceptance\Login;
-use Page\Acceptance\Offer;
-use Page\Acceptance\Product;
-use Page\Acceptance\Search;
+use Tests\Support\AcceptanceTester;
+use Tests\Support\Page\Acceptance\Client;
+use Tests\Support\Page\Acceptance\Company;
+use Tests\Support\Page\Acceptance\Invoice;
+use Tests\Support\Page\Acceptance\Login;
+use Tests\Support\Page\Acceptance\Offer;
+use Tests\Support\Page\Acceptance\Product;
+use Tests\Support\Page\Acceptance\Search;
 
 class BasicFunctionalityCest
 {

@@ -3,7 +3,7 @@
 $finder = PhpCsFixer\Finder::create()
     ->exclude('node_modules')
     ->exclude('tests/_output')
-    ->exclude('tests/_support')
+    ->exclude('tests/Support')
     ->notName('c3.php')
     ->in(__DIR__ . '/..');
 
@@ -15,6 +15,7 @@ $rules = [
         'operators' => ['=' => null, '=>' => null],
     ],
     'blank_line_after_namespace' => true,
+    'blank_lines_before_namespace' => false,
     //'braces' => true,
     'cast_spaces' => ['space' => 'none'],
     'class_attributes_separation' => ['elements' => ['method' => 'one', 'property' => 'one']],
@@ -25,7 +26,7 @@ $rules = [
     'ereg_to_preg' => true,
     'full_opening_tag' => true,
     'function_declaration' => true,
-    'function_typehint_space' => true,
+    'type_declaration_spaces' => true,
     'indentation_type' => true,
     'is_null' => true,
     'line_ending' => true,
@@ -38,7 +39,6 @@ $rules = [
     'native_function_casing' => true,
     'no_blank_lines_after_class_opening' => true,
     'no_blank_lines_after_phpdoc' => true,
-    'no_blank_lines_before_namespace' => true,
     'no_closing_tag' => true,
     'no_empty_comment' => true,
     'no_empty_phpdoc' => true,
@@ -50,11 +50,10 @@ $rules = [
     'no_singleline_whitespace_before_semicolons' => true,
     'no_spaces_after_function_name' => true,
     'no_spaces_around_offset' => true,
-    'no_spaces_inside_parenthesis' => true,
     'no_trailing_whitespace' => true,
     'no_trailing_whitespace_in_comment' => true,
     'no_unneeded_control_parentheses' => true,
-    'no_unneeded_curly_braces' => true,
+    'no_unneeded_braces' => true,
     'no_unused_imports' => true,
     'no_useless_return' => true,
     'no_whitespace_before_comma_in_array' => true,
@@ -73,6 +72,7 @@ $rules = [
     'single_import_per_statement' => true,
     'single_line_after_imports' => true,
     'short_scalar_cast' => true,
+    'spaces_inside_parentheses' => false,
     'standardize_not_equals' => true,
     'switch_case_semicolon_to_colon' => true,
     'switch_case_space' => true,
