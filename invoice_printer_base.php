@@ -2117,7 +2117,7 @@ EOT;
             70, 5,
             str_replace(
                 '{invoice_no}',
-                $invoiceData['invoice_no'],
+                $invoiceData['invoice_no'] ?? '',
                 $this->translate('FormInvoiceNumber')
             ),
             0, 1, 'L'
