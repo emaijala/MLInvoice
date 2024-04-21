@@ -921,7 +921,7 @@ function htmlFormElement($strName, $strType, $strValue, $strStyle, $strListQuery
 
         $strFormElement = "<input type=\"text\" class=\"form-control $strStyle\"$autocomplete " .
              "id=\"$strName\" name=\"$strName\" value=\"" .
-             htmlspecialchars($strValue) . "\"$astrAdditionalAttributes$readOnly>\n";
+             htmlspecialchars($strValue ?? '') . "\"$astrAdditionalAttributes$readOnly>\n";
         break;
 
     case 'PASSWD':
@@ -933,13 +933,13 @@ function htmlFormElement($strName, $strType, $strValue, $strStyle, $strListQuery
     case 'CHECK':
         $strValue = $strValue ? 'checked' : '';
         $strFormElement = "<input type=\"checkbox\" id=\"$strName\" name=\"$strName\" value=\"1\" " .
-             htmlspecialchars($strValue) . "$astrAdditionalAttributes$disabled>\n";
+             htmlspecialchars($strValue ?? '') . "$astrAdditionalAttributes$disabled>\n";
         break;
 
     case 'RADIO':
         $strChecked = $strValue ? 'checked' : '';
         $strFormElement = "<input type=\"radio\" id=\"$strName\" name=\"$strName\" value=\"" .
-             htmlspecialchars($strValue) . "\"$astrAdditionalAttributes$disabled>\n";
+             htmlspecialchars($strValue ?? '') . "\"$astrAdditionalAttributes$disabled>\n";
         break;
 
     case 'INT':
@@ -953,13 +953,13 @@ function htmlFormElement($strName, $strType, $strValue, $strStyle, $strListQuery
         }
         $strFormElement = "<input type=\"text\" class=\"form-control $strStyle\" " .
              "id=\"$strName\" name=\"$strName\" value=\"" .
-             htmlspecialchars($strValue) . "\"$astrAdditionalAttributes$readOnly>\n";
+             htmlspecialchars($strValue ?? '') . "\"$astrAdditionalAttributes$readOnly>\n";
         break;
 
     case 'INTDATE':
         $strFormElement = "<input type=\"date\" class=\"form-control $strStyle\" " .
              "id=\"$strName\" name=\"$strName\" value=\"" .
-             htmlspecialchars($strValue) . "\"$astrAdditionalAttributes$readOnly>\n";
+             htmlspecialchars($strValue ?? '') . "\"$astrAdditionalAttributes$readOnly>\n";
         break;
 
     case 'HID_INT':
@@ -978,9 +978,7 @@ function htmlFormElement($strName, $strType, $strValue, $strStyle, $strListQuery
     case 'RESULT':
         $strListQuery = str_replace('_ID_', $strValue, $strListQuery);
         $res = dbQueryCheck($strListQuery);
-        $strFormElement = htmlspecialchars(
-            dbFetchValue($res)
-        ) . "\n";
+        $strFormElement = htmlspecialchars(dbFetchValue($res) ?? '') . "\n";
         break;
 
     case 'LIST':
