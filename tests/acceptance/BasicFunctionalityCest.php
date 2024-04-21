@@ -142,6 +142,7 @@ class BasicFunctionalityCest
 
         // Multiedit
         $invoice->addRow($this->product1, $this->productDescription, 2);
+        $I->waitForText("$this->product1 $this->productName", 2, '.item-row:nth-child(3) td:nth-child(3)');
         $I->click('.cb-select-all');
         $I->click('#update-selected-rows');
         $I->select2SelectWithSearch('iform_popup_product_id', $this->product3);
@@ -236,6 +237,7 @@ class BasicFunctionalityCest
         $search->searchByClient($clientName);
 
         // Select first:
+        $I->waitForElementClickable('tr.odd td:nth-child(2)');
         $I->click('tr.odd td:nth-child(2)');
 
         // Check navigation buttons:

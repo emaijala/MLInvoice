@@ -13,10 +13,10 @@ modules:
             browser: firefox
             window_size: 1400x1200
             path: ''
-            #capabilities:
+            capabilities:
                 #acceptInsecureCerts: true # allow self-signed certificates
-                #moz:firefoxOptions:
-                #    args: ["-headless"] # Run Firefox in headless mode
+                moz:firefoxOptions:
+                    args: ["-headless"] # Run Firefox in headless mode
                     #prefs:
                         #intl.accept_languages: "de-AT" # Set HTTP-Header `Accept-Language: de-AT` for requests
         - \Tests\Support\Helper\Acceptance
