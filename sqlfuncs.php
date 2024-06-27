@@ -2674,6 +2674,16 @@ EOT
         );
     }
 
+    if ($version < 67) {
+        $updates = array_merge(
+            $updates,
+            [
+                "UPDATE {prefix}invoice_state SET invoice_open=0 WHERE name='StateOfferSent'",
+                "REPLACE INTO {prefix}state (id, data) VALUES ('version', '67')"
+            ]
+        );
+    }
+
     // phpcs:enable Generic.Files.LineLength
     if (!empty($updates)) {
         dbQueryCheck('SET AUTOCOMMIT = 0');

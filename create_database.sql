@@ -444,7 +444,7 @@ CREATE TABLE mlinvoice_default_value (
 
 SET NAMES 'utf8';
 
-INSERT INTO mlinvoice_state (id, data) VALUES ('version', '66');
+INSERT INTO mlinvoice_state (id, data) VALUES ('version', '67');
 
 INSERT INTO mlinvoice_state (id, data) VALUES ('tableconversiondone', '1');
 
@@ -457,7 +457,7 @@ INSERT INTO mlinvoice_invoice_state (id, name, order_no, invoice_open, invoice_u
 INSERT INTO mlinvoice_invoice_state (id, name, order_no, invoice_open, invoice_unpaid) VALUES (7, 'StateDebtCollection', 35, 0, 1);
 INSERT INTO mlinvoice_invoice_state (id, name, order_no, invoice_open, invoice_unpaid) VALUES (8, 'StatePaidInCash', 17, 0, 0);
 INSERT INTO mlinvoice_invoice_state (id, name, order_no, invoice_open, invoice_unpaid, invoice_offer) VALUES (9, 'StateOfferOpen', 40, 1, 0, 1);
-INSERT INTO mlinvoice_invoice_state (id, name, order_no, invoice_open, invoice_unpaid, invoice_offer, invoice_offer_sent) VALUES (10, 'StateOfferSent', 45, 1, 0, 1, 1);
+INSERT INTO mlinvoice_invoice_state (id, name, order_no, invoice_open, invoice_unpaid, invoice_offer, invoice_offer_sent) VALUES (10, 'StateOfferSent', 45, 0, 0, 1, 1);
 INSERT INTO mlinvoice_invoice_state (id, name, order_no, invoice_open, invoice_unpaid, invoice_offer, invoice_offer_sent) VALUES (11, 'StateOfferUnrealised', 50, 0, 0, 1, 1);
 INSERT INTO mlinvoice_invoice_state (id, name, order_no, invoice_open, invoice_unpaid, invoice_offer, invoice_offer_sent) VALUES (12, 'StateOfferRealised', 55, 0, 0, 1, 1);
 
