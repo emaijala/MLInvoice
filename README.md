@@ -59,6 +59,9 @@ Useful docker commands:
 `docker run -it mlinvoice_mlinvoice /bin/bash` - Open a terminal inside the container
 
 
+There's also an improved light-weight Dockerfile with nginx in docker-nginx.
+
+
 Running with Vagrant
 --------------------
 
@@ -74,6 +77,7 @@ Information for Developers
 - `grunt watch` can be used to compile scss and js files as they change.
 - The custom icon set is created with Fontello from Font Awesome set.
 - For acceptance tests, MLInvoice must be found at http://localhost/mlinvoice-test.
+- Run `vendor/bin/phing ci-setup ci-codeception ci-teardown` for normal tests.
 - For coverage reports of acceptance tests, pcov needs to be installed (`pecl install pcov`) and Apache configuration from httpd_mlinvoice_test.conf.sample enabled so that c3 can be accessed via e.g. http://localhost/mlinvoice-test/c3/report/html. Run `vendor/bin/phing ci-setup ci-codeception-coverage ci-teardown` and check results in tests/_output/acceptance.remote.coverage/.
 - To run a specific test after ci-setup, run e.g. `vendor/bin/codecept --steps run acceptance BasicFunctionalityCest:login`
 - Note that some tests require the browser window to be large enough to fit the controls on the screen due to some issues with the Firefox webdriver being unable to scroll to click an element outside of the viewport.
