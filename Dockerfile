@@ -1,5 +1,5 @@
-FROM php:7.1-apache
-MAINTAINER "ere@labs.fi"
+FROM php:8.3-apache
+LABEL org.opencontainers.image.authors="ere@labs.fi"
 
 ARG MYSQL_ROOT_PASSWORD
 ARG MYSQL_USER
