@@ -6,6 +6,7 @@ class Invoice
     public static $addLink = 'New Invoice';
     public static $companyField = 'base_id';
     public static $clientField = 'company_id';
+    public static $invoiceNameField = 'name';
 
     /**
      * @var \Tests\Support\AcceptanceTester;
@@ -17,7 +18,7 @@ class Invoice
         $this->acceptanceTester = $I;
     }
 
-    public function add($client, bool $archived = false): int
+    public function add($client, string $name = '', bool $archived = false): int
     {
         $I = $this->acceptanceTester;
         $I->click('Invoices and Offers');
@@ -28,6 +29,7 @@ class Invoice
         } else {
             $I->select2SelectWithSearch(static::$clientField, $client);
         }
+        $I->fillField(static::$invoiceNameField, $name);
         if ($archived) {
             $I->checkOption('#archived');
         }

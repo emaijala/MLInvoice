@@ -166,25 +166,25 @@ class BasicFunctionalityCest
         // Add unarchived invoices:
         $unarchivedInvoiceIds = [];
         for ($i = 1; $i <= 5; $i++) {
-            $unarchivedInvoiceIds[] = $invoice->add($clientName);
+            $unarchivedInvoiceIds[] = $invoice->add($clientName, "Invoice $i");
         }
 
         // Add archived invoices:
         $archivedInvoiceIds = [];
         for ($i = 1; $i <= 4; $i++) {
-            $archivedInvoiceIds[] = $invoice->add($clientName, true);
+            $archivedInvoiceIds[] = $invoice->add($clientName, "Invoice $i", true);
         }
 
         // Add unarchived offers:
         $unarchivedOfferIds = [];
         for ($i = 1; $i <= 3; $i++) {
-            $unarchivedOfferIds[] = $offer->add($clientName);
+            $unarchivedOfferIds[] = $offer->add($clientName, "Offer $i");
         }
 
         // Add archived offers:
         $archivedOfferIds = [];
         for ($i = 1; $i <= 2; $i++) {
-            $archivedOfferIds[] = $offer->add($clientName, true);
+            $archivedOfferIds[] = $offer->add($clientName, "Offer $i", true);
         }
 
         $I->click('Invoices and Offers');
@@ -197,9 +197,11 @@ class BasicFunctionalityCest
         $I->click('Invoices and Offers');
         $I->click('Archived Invoices');
         $I->fillField('#archived_invoices_3_filter input', $clientName);
-        $I->waitForText('1 - 4 / 4 (filtered from');
+        $I->waitForText('1 - 4 / 4');
         $foundIds = $I->grabMultiple('.cb-select-row', 'value');
         $I->assertEquals($archivedInvoiceIds, $foundIds);
+        $I->fillField('#archived_invoices_3_filter input', "$clientName Invoice_1");
+        $I->waitForText('1 - 1 / 1 (filtered from');
 
         $I->click('Invoices and Offers');
         $I->click('Offers (Non-Archived)');
