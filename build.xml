@@ -78,12 +78,24 @@
     </if>
 
     <!-- setup database -->
-    <exec command="mysqladmin -h ${dbhost} ${dbcredentials} -f drop ${dbname}" />
-    <exec command="mysqladmin -h ${dbhost} ${dbcredentials} create ${dbname}" checkreturn="true" passthru="true" />
-    <exec command="mysql -h ${dbhost} ${dbcredentials} -e &quot;DROP USER '${dbuser}'@'${dbhost}'&quot;" />
-    <exec command="mysql -h ${dbhost} ${dbcredentials} -e &quot;CREATE USER '${dbuser}'@'${dbhost}' IDENTIFIED BY '${dbpass}'&quot;" checkreturn="true" passthru="true" />
-    <exec command="mysql -h ${dbhost} ${dbcredentials} -e &quot;GRANT SELECT,INSERT,UPDATE,DELETE,ALTER,CREATE ON ${dbname}.* TO '${dbuser}'@'${dbhost}' WITH GRANT OPTION&quot;" checkreturn="true" passthru="true" />
-    <exec command="mysql -h ${dbhost} ${dbcredentials} -D ${dbname} &lt; ${basedir}/tests/fixtures/create_database_29.sql" checkreturn="true" passthru="true" />
+    <exec executable="mysqladmin">
+      <arg line="-h ${dbhost} ${dbcredentials} -f drop ${dbname}" />
+    </exec>
+    <exec executable="mysqladmin" checkreturn="true" passthru="true">
+      <arg line="-h ${dbhost} ${dbcredentials} create ${dbname}" />
+    </exec>
+    <exec executable="mysql">
+      <arg line="-h ${dbhost} ${dbcredentials} -e &quot;DROP USER '${dbuser}'@'${dbhost}'&quot;" />
+    </exec>
+    <exec executable="mysql" checkreturn="true" passthru="true">
+      <arg line="-h ${dbhost} ${dbcredentials} -e &quot;CREATE USER '${dbuser}'@'${dbhost}' IDENTIFIED BY '${dbpass}'&quot;" />
+    </exec>
+    <exec executable="mysql" checkreturn="true" passthru="true">
+      <arg line="-h ${dbhost} ${dbcredentials} -e &quot;GRANT SELECT,INSERT,UPDATE,DELETE,ALTER,CREATE ON ${dbname}.* TO '${dbuser}'@'${dbhost}' WITH GRANT OPTION&quot;" />
+    </exec>
+    <exec executable="mysql" checkreturn="true" passthru="true">
+      <arg line="-h ${dbhost} ${dbcredentials} -D ${dbname} &lt; ${basedir}/tests/fixtures/create_database_29.sql" />
+    </exec>
 
     <!-- update configuration -->
     <copy file="${basedir}/config.php.sample" tofile="${basedir}/config.php" overwrite="true">
@@ -125,8 +137,12 @@
     </if>
 
     <!-- drop database and user -->
-    <exec command="mysqladmin -h ${dbhost} ${dbcredentials} -f drop ${dbname}" checkreturn="true" passthru="true" />
-    <exec command="mysql -h ${dbhost} ${dbcredentials} -e &quot;DROP USER '${dbuser}'@'${dbhost}'&quot;" passthru="true" />
+    <exec executable="mysqladmin" checkreturn="true" passthru="true">
+      <arg line="-h ${dbhost} ${dbcredentials} -f drop ${dbname}" />
+    </exec>
+    <exec executable="mysql" passthru="true">
+      <arg line="-h ${dbhost} ${dbcredentials} -e &quot;DROP USER '${dbuser}'@'${dbhost}'&quot;" />
+    </exec>
 
     <!-- remove configuration -->
     <delete file="${basedir}/running-ci" />
@@ -135,47 +151,67 @@
 
   <!-- codeception -->
   <target name="ci-codeception">
-    <exec command="vendor/bin/codecept --steps run" escape="false" checkreturn="true" passthru="true" />
+    <exec executable="vendor/bin/codecept" escape="false" checkreturn="true" passthru="true">
+      <arg line="--steps run" />
+    </exec>
   </target>
   <target name="ci-codeception-coverage">
-    <exec command="vendor/bin/codecept --steps --coverage-html run" escape="false" checkreturn="true" passthru="true" />
+    <exec executable="vendor/bin/codecept" escape="false" checkreturn="true" passthru="true">
+      <arg line="--steps --coverage-html run" />
+    </exec>
   </target>
 
   <!-- phpunit -->
   <target name="phpunit">
-    <exec command="vendor/bin/phpunit tests" escape="false" checkreturn="true" passthru="true" />
+    <exec executable="vendor/bin/phpunit" escape="false" checkreturn="true" passthru="true">
+      <arg line="tests" />
+    </exec>
   </target>
 
   <!-- eslint -->
   <target name="eslint">
-    <exec command="npx eslint js/mlinvoice.js js/mlinvoice-form.js" escape="false" checkreturn="true" passthru="true" />
+    <exec executable="npx" escape="false" checkreturn="true" passthru="true">
+      <arg line="eslint js/mlinvoice.js js/mlinvoice-form.js" />
+    </exec>
   </target>
   <target name="eslint-fix">
-    <exec command="npx eslint js/mlinvoice.js js/mlinvoice-form.js --fix" escape="false" checkreturn="true" passthru="true" />
+    <exec executable="npx" escape="false" checkreturn="true" passthru="true">
+      <arg line="eslint js/mlinvoice.js js/mlinvoice-form.js --fix" />
+    </exec>
   </target>
 
   <!-- PHP CodeSniffer -->
   <target name="phpcs">
-    <exec command="vendor/bin/phpcs --standard=tests/phpcs-ruleset.xml *.php" passthru="true" escape="false" checkreturn="true" />
+    <exec executable="vendor/bin/phpcs" passthru="true" escape="false" checkreturn="true">
+      <arg line="--standard=tests/phpcs-ruleset.xml *.php" />
+    </exec>
   </target>
   <!-- PHP CodeSniffer without warnings-->
   <target name="phpcs-n">
-    <exec command="vendor/bin/phpcs --standard=tests/phpcs-ruleset.xml -n *.php" passthru="true" escape="false" checkreturn="true" />
+    <exec executable="vendor/bin/phpcs" passthru="true" escape="false" checkreturn="true">
+      <arg line="--standard=tests/phpcs-ruleset.xml -n *.php" />
+    </exec>
   </target>
 
   <!-- phpcbf -->
   <target name="phpcbf">
-    <exec command="vendor/bin/phpcbf --standard=tests/phpcs-ruleset.xml *.php" passthru="true" escape="false"/>
+    <exec executable="vendor/bin/phpcbf" passthru="true" escape="false">
+      <arg line="--standard=tests/phpcs-ruleset.xml *.php" />
+    </exec>
   </target>
 
   <!-- php-cs-fixer (first task applies fixes, second task simply checks if they are needed) -->
   <target name="php-cs-fixer">
     <mkdir dir=".php_cs_cache" />
-    <exec command="vendor/bin/php-cs-fixer fix --config=tests/php-cs-fixer.config.php -vvv ${php-cs-fixer-extra-params}" passthru="true" escape="false" />
+    <exec executable="vendor/bin/php-cs-fixer" passthru="true" escape="false">
+      <arg line="fix --config=tests/php-cs-fixer.config.php -vvv ${php-cs-fixer-extra-params}" />
+    </exec>
   </target>
 
   <target name="php-cs-fixer-dryrun">
     <mkdir dir=".php_cs_cache" />
-    <exec command="vendor/bin/php-cs-fixer fix --config=tests/php-cs-fixer.config.php --dry-run -vvv --diff ${php-cs-fixer-extra-params}" passthru="true" escape="false" checkreturn="true" />
+    <exec executable="vendor/bin/php-cs-fixer" passthru="true" escape="false" checkreturn="true">
+      <arg line="fix --config=tests/php-cs-fixer.config.php --dry-run -vvv --diff ${php-cs-fixer-extra-params}" />
+    </exec>
   </target>
 </project>
