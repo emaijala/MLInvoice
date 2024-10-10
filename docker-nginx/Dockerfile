@@ -1,7 +1,7 @@
 FROM alpine:latest
 
 RUN apk update
-RUN apk --no-cache add nginx  php83-mbstring php83-fpm php83-mysqli php82-mysqlnd php83-session curl unzip
+RUN apk --no-cache add nginx php83-mbstring php83-fpm php83-mysqli php83-session curl unzip
 
 WORKDIR /work
 
