@@ -5,9 +5,9 @@ RUN apk --no-cache add nginx  php83-mbstring php83-fpm php83-mysqli php82-mysqln
 
 WORKDIR /work
 
-RUN curl -O https://labs.fi/files/mlinvoice-2.1.2.zip
-RUN unzip mlinvoice-2.1.2.zip
-RUN rm mlinvoice-2.1.2.zip
+RUN curl -O https://labs.fi/files/mlinvoice-2.2.0.zip
+RUN unzip mlinvoice-2.2.0.zip
+RUN rm mlinvoice-2.2.0.zip
 
 RUN sed -ri \
  -e "s/^user = nobody/user = www/" \
@@ -15,7 +15,7 @@ RUN sed -ri \
 
 
 RUN addgroup -g 2024 www
-RUN adduser -S -D www -G www 
+RUN adduser -S -D www -G www
 
 RUN chown www:www /work/mlinvoice /work/mlinvoice/config.*
 

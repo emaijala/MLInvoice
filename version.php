@@ -4,7 +4,7 @@
  *
  * PHP version 7
  *
- * Copyright (C) Ere Maijala 2010-2023
+ * Copyright (C) Ere Maijala 2010-2024
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2,
@@ -26,4 +26,4 @@
  * @link     http://labs.fi/mlinvoice.eng.php
  */
 // Version in Semver (https://semver.org/) compatible form (e.g. 1.2.3 or 1.2.3-beta.1)
-$softwareVersion = '2.2.0-beta.1';
+$softwareVersion = '2.2.0';
