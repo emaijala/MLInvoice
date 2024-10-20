@@ -1255,7 +1255,7 @@ function createListNavigationLinks($listId, $currentId)
             . Translator::translate('Next')
             . '</a> ';
     } else {
-        echo '<a role="button" class="btn btn-light disabled nav__next--disabled" aria-disabled="true">'
+        echo '<a role="button" class="btn btn-outline-secondary disabled nav__next--disabled" aria-disabled="true">'
             . Translator::translate('Next')
             . '</a> ';
     }
