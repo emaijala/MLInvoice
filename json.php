@@ -117,7 +117,7 @@ case 'user':
         header('HTTP/1.1 403 Forbidden');
         break;
     }
-    saveJSONRecord(substr($strFunc, 4), '');
+    saveJSONRecord($strFunc, '');
     break;
 
 case 'get_companies':
@@ -698,6 +698,7 @@ EOT;
  */
 function convertToApi($row, $table)
 {
+    $form = $table;
     switch ($table) {
     case 'base':
         $row['logo_filedata'] = base64_encode($row['logo_filedata']);
@@ -718,10 +719,11 @@ function convertToApi($row, $table)
         break;
     case 'users':
         unset($row['password']);
+        $form = 'user';
         break;
     }
 
-    $formConfig = getFormConfig($table, '');
+    $formConfig = getFormConfig($form, '');
     foreach ($formConfig['fields'] as $field) {
         $name = $field['name'];
         if ('INTDATE' === $field['type'] && isset($row[$name])) {
@@ -771,7 +773,7 @@ function saveJSONRecord($table, $parentKeyName)
         header('HTTP/1.1 400 Bad Request');
         return;
     }
-    $id = $data['id'] ?? false;
+    $id = !empty($data['id']) ? (int)$data['id'] : null;
     $new = $id ? false : true;
     unset($data['id']);
     $formConfig = getFormConfig($table, 'json');

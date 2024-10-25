@@ -9,6 +9,7 @@ use Tests\Support\Page\Acceptance\Login;
 use Tests\Support\Page\Acceptance\Offer;
 use Tests\Support\Page\Acceptance\Product;
 use Tests\Support\Page\Acceptance\Search;
+use Tests\Support\Page\Acceptance\User;
 
 class BasicFunctionalityCest
 {
@@ -69,6 +70,15 @@ class BasicFunctionalityCest
         $I->dontSee('Database upgrade failed');
         $loginPage->login();
         $I->waitForJS("return $.active == 0;", 5);
+    }
+
+    public function createUser(AcceptanceTester $I, Login $loginPage, User $user)
+    {
+        $loginPage->login();
+        $id = 'tester' . date('His');
+        $user->add('Tester', $id, 'user@localhost', 'Suklaa!');
+        $loginPage->logout();
+        $loginPage->login($id, 'Suklaa!');
     }
 
     public function createCompany(AcceptanceTester $I, Login $loginPage, Company $company)

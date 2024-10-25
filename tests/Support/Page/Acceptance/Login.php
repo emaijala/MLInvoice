@@ -40,4 +40,12 @@ class Login
         $I->click(static::$loginButton);
         $I->waitForText($wait, 30);
     }
+
+    public function logout(): void
+    {
+        $I = $this->acceptanceTester;
+
+        $I->click('Logout');
+        $I->waitForText('The session has been closed.');
+    }
 }

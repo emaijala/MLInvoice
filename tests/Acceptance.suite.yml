@@ -20,4 +20,5 @@ modules:
                     #prefs:
                         #intl.accept_languages: "de-AT" # Set HTTP-Header `Accept-Language: de-AT` for requests
         - \Tests\Support\Helper\Acceptance
-step_decorators: ~
+step_decorators:
+  - \Codeception\Step\Retry

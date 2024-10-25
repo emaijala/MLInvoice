@@ -36,6 +36,7 @@ $inputFieldTypes = [
     'INT',
     'INTDATE',
     'LIST',
+    'PASSWD',
     'PASSWD_STORED',
     'SEARCHLIST',
     'TAGS',
@@ -46,6 +47,7 @@ $searchFieldTypes = array_diff(
     $inputFieldTypes,
     [
         'FILE',
+        'PASSWD',
         'PASSWD_STORED'
     ]
 );
