@@ -5,9 +5,9 @@ RUN apk --no-cache add nginx php83-mbstring php83-fpm php83-mysqli php83-session
 
 WORKDIR /work
 
-RUN curl -O https://labs.fi/files/mlinvoice-2.2.0.zip
-RUN unzip mlinvoice-2.2.0.zip
-RUN rm mlinvoice-2.2.0.zip
+RUN curl -O https://labs.fi/files/mlinvoice-2.2.1.zip
+RUN unzip mlinvoice-2.2.1.zip
+RUN rm mlinvoice-2.2.1.zip
 
 RUN sed -ri \
  -e "s/^user = nobody/user = www/" \
