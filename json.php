@@ -699,6 +699,7 @@ EOT;
 function convertToApi($row, $table)
 {
     $form = $table;
+    $parentId = null;
     switch ($table) {
     case 'base':
         $row['logo_filedata'] = base64_encode($row['logo_filedata']);
@@ -707,15 +708,18 @@ function convertToApi($row, $table)
     case 'invoice_attachment':
         unset($row['filedata']);
         $row['filesize_readable'] = fileSizeToHumanReadable($row['filesize']);
+        $parentId = $row['invoice_id'];
         break;
     case 'company':
         $row['tags'] = getTagsArray('company', $row['id']);
         break;
     case 'company_contact':
         $row['tags'] = getTagsArray('contact', $row['id']);
+        $parentId = $row['company_id'];
         break;
     case 'invoice_row':
         $row['type_id_text'] = Translator::translate($row['type_id_text']);
+        $parentId = $row['invoice_id'];
         break;
     case 'users':
         unset($row['password']);
@@ -723,7 +727,7 @@ function convertToApi($row, $table)
         break;
     }
 
-    $formConfig = getFormConfig($form, '');
+    $formConfig = getFormConfig($form, '', $row['id'] ?? null, $parentId);
     foreach ($formConfig['fields'] as $field) {
         $name = $field['name'];
         if ('INTDATE' === $field['type'] && isset($row[$name])) {
@@ -776,7 +780,7 @@ function saveJSONRecord($table, $parentKeyName)
     $id = !empty($data['id']) ? (int)$data['id'] : null;
     $new = $id ? false : true;
     unset($data['id']);
-    $formConfig = getFormConfig($table, 'json');
+    $formConfig = getFormConfig($table, 'json', $id, $parentKeyName ? $data[$parentKeyName] : null);
 
     $onPrint = false;
     if (isset($data['onPrint'])) {
@@ -859,9 +863,7 @@ function updateMultipleRows()
     }
 
     $strForm = $request['table'];
-    $strFunc = '';
-    $strList = '';
-    $formConfig = getFormConfig($strForm, 'json');
+    $formConfig = getFormConfig($strForm, 'json', null, $request['parentId']);
 
     $warnings = '';
     foreach ($request['ids'] as $id) {

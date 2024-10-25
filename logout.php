@@ -5,7 +5,7 @@
  * PHP version 8
  *
  * Copyright (C) Samu Reinikainen 2004-2008
- * Copyright (C) Ere Maijala 2010-2021
+ * Copyright (C) Ere Maijala 2010-2024
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2,
@@ -35,6 +35,7 @@ require_once 'config.php';
 require_once 'sessionfuncs.php';
 require_once 'htmlfuncs.php';
 require_once 'sqlfuncs.php';
+require_once 'navi.php';
 
 initDbConnection();
 sesVerifySession();

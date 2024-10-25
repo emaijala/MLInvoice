@@ -255,7 +255,7 @@ function getPaymentDays($companyId)
 }
 
 /**
- * Check if an invoice record in an offer
+ * Check if an invoice record is an offer
  *
  * @param int $invoiceId Invoice ID
  *
@@ -265,6 +265,23 @@ function isOffer($invoiceId)
 {
     $rows = dbParamQuery(
         'SELECT id FROM {prefix}invoice_state WHERE invoice_offer=1 AND id IN ('
+        . 'SELECT state_id FROM {prefix}invoice WHERE id=?)',
+        [$invoiceId]
+    );
+    return $rows ? true : false;
+}
+
+/**
+ * Check if an invoice record is a template for recurring invoices
+ *
+ * @param int $invoiceId Invoice ID
+ *
+ * @return bool
+ */
+function isTemplate($invoiceId)
+{
+    $rows = dbParamQuery(
+        'SELECT id FROM {prefix}invoice_state WHERE invoice_template=1 AND id IN ('
         . 'SELECT state_id FROM {prefix}invoice WHERE id=?)',
         [$invoiceId]
     );
@@ -317,6 +334,22 @@ function getInitialOfferState()
     $res = dbQueryCheck(
         'SELECT id FROM {prefix}invoice_state'
         . ' WHERE invoice_open=1 AND invoice_offer=1 AND invoice_offer_sent=0'
+        . ' ORDER BY order_no'
+    );
+    $result = dbFetchValue($res) ?: 1;
+    return $result;
+}
+
+/**
+ * Get the initial state for templates
+ *
+ * @return int
+ */
+function getInitialTemplateState()
+{
+    $res = dbQueryCheck(
+        'SELECT id FROM {prefix}invoice_state'
+        . ' WHERE invoice_template=1'
         . ' ORDER BY order_no'
     );
     $result = dbFetchValue($res) ?: 1;
@@ -1005,6 +1038,28 @@ function getAttachments()
 }
 
 /**
+ * Get linked invoices
+ *
+ * @param int $id Invoice id
+ *
+ * @return array
+ */
+function getLinkedInvoices(int $id): array
+{
+    $join = getInvoiceTotalJoinQuery();
+    $rows = dbParamQuery(
+        'SELECT i.*, s.name state, s.invoice_open, ' . $join['alias'] . '.row_total ' . ' FROM {prefix}invoice i '
+        . $join['type'] . ' JOIN ' . $join['expr'] . ' ' . $join['alias'] . ' ON ' . $join['condition']
+        . ' LEFT OUTER JOIN {prefix}invoice_state s ON i.state_id = s.id'
+        . ' WHERE i.template_invoice_id = ?'
+        . ' ORDER BY i.invoice_date DESC, i.id DESC'
+        . ' LIMIT 11',
+        [$id]
+    );
+    return $rows ? $rows : [];
+}
+
+/**
  * Get attachment count for invoice
  *
  * @param int $id Invoice ID
@@ -1180,7 +1235,7 @@ function getQuickSearch(int $id): array
             $groups = [
                 [
                     'operator' => 'OR',
-                    'fields' => getStateSearchFields('invoice_offer=0'),
+                    'fields' => getStateSearchFields('invoice_offer=0 AND invoice_template=0'),
                 ],
                 [
                     'operator' => 'AND',
@@ -1199,7 +1254,7 @@ function getQuickSearch(int $id): array
             $groups = [
                 [
                     'operator' => 'OR',
-                    'fields' => getStateSearchFields('invoice_offer=0'),
+                    'fields' => getStateSearchFields('invoice_offer=0 AND invoice_template=0'),
                 ],
                 [
                     'operator' => 'AND',
@@ -1245,6 +1300,25 @@ function getQuickSearch(int $id): array
                         [
                             'name' => 'archived',
                             'value' => '1',
+                            'comparison' => 'eq'
+                        ],
+                    ]
+                ]
+            ];
+            break;
+        case Search::SEARCH_RECURRING_INVOICE_TEMPLATES:
+            $label = 'RecurringInvoiceTemplates';
+            $groups = [
+                [
+                    'operator' => 'OR',
+                    'fields' => getStateSearchFields('invoice_template=1'),
+                ],
+                [
+                    'operator' => 'AND',
+                    'fields' => [
+                        [
+                            'name' => 'archived',
+                            'value' => '0',
                             'comparison' => 'eq'
                         ],
                     ]
@@ -2680,6 +2754,19 @@ EOT
             [
                 "UPDATE {prefix}invoice_state SET invoice_open=0 WHERE name='StateOfferSent'",
                 "REPLACE INTO {prefix}state (id, data) VALUES ('version', '67')"
+            ]
+        );
+    }
+
+    if ($version < 68) {
+        $updates = array_merge(
+            $updates,
+            [
+                'ALTER TABLE {prefix}invoice_state ADD COLUMN invoice_template tinyint NOT NULL default 0',
+                "INSERT INTO {prefix}invoice_state (name, order_no, invoice_template)"
+                . " VALUES ('StateInvoiceRecurringTemplate', 60, 1)",
+                'ALTER TABLE {prefix}invoice ADD COLUMN template_invoice_id int(11) default NULL',
+                "REPLACE INTO {prefix}state (id, data) VALUES ('version', '68')"
             ]
         );
     }

@@ -294,7 +294,7 @@ EOT;
  *
  * @return void
  */
-function htmlMainTabs($func)
+function createMainTabs($func)
 {
     $normalMenuRights = [
         ROLE_READONLY,
@@ -323,6 +323,11 @@ function htmlMainTabs($func)
                     'levels_allowed' => $normalMenuRights,
                 ],
                 [
+                    'title' => 'RecurringInvoiceTemplates',
+                    'action' => 'invoice_templates',
+                    'levels_allowed' => $normalMenuRights,
+                ],
+                [
                     'title' => 'ArchivedInvoices',
                     'action' => 'archived_invoices',
                     'levels_allowed' => $normalMenuRights,
@@ -332,6 +337,28 @@ function htmlMainTabs($func)
                     'action' => [
                         'func' => 'invoices',
                         'form' => 'invoice',
+                    ],
+                    'levels_allowed' => [
+                        ROLE_USER,
+                        ROLE_BACKUPMGR,
+                    ],
+                ],
+                [
+                    'title' => '-',
+                    'action' => '',
+                    'levels_allowed' => $normalMenuRights,
+                ],
+                [
+                    'title' => 'RecurringInvoiceTemplates',
+                    'action' => 'invoice_templates',
+                    'levels_allowed' => $normalMenuRights,
+                ],
+                [
+                    'title' => 'NewRecurringInvoiceTemplate',
+                    'action' => [
+                        'func' => 'invoice_templates',
+                        'form' => 'invoice',
+                        'template' => '1',
                     ],
                     'levels_allowed' => [
                         ROLE_USER,
@@ -1231,4 +1258,16 @@ EOT;
     }
 
     return $strFormElement;
+}
+
+/**
+ * Escape HTML
+ *
+ * @param string $s String to escape
+ *
+ * @return string
+ */
+function escapeHtml(string $s): string
+{
+    return htmlspecialchars($s, ENT_QUOTES | ENT_SUBSTITUTE);
 }

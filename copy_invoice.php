@@ -54,6 +54,7 @@ if (!sesWriteAccess()) {
 
 $intInvoiceId = getPostOrQuery('id', false);
 $boolRefund = getPostOrQuery('refund', false);
+$fromTemplate = getPostOrQuery('from_template', false);
 $strFunc = getPostOrQuery('func', '');
 $strList = getPostOrQuery('list', '');
 $isOffer = !getPostOrQuery('invoice', false) && isOffer($intInvoiceId);
@@ -89,7 +90,7 @@ if ($intInvoiceId) {
     unset($invoiceData['id']);
     unset($invoiceData['invoice_no']);
     $invoiceData['deleted'] = 0;
-    if (!$boolRefund) {
+    if (!$boolRefund && !$fromTemplate) {
         unset($invoiceData['ref_number']);
         if (!empty($invoiceData['company_id'])) {
             $rows = dbParamQuery(
@@ -115,14 +116,17 @@ if ($intInvoiceId) {
     $invoiceData['payment_date'] = null;
     if ($isOffer) {
         $invoiceData['state_id'] = getInitialOfferState();
-    } else {
+    } elseif ($fromTemplate || !isTemplate($intInvoiceId)) {
         $invoiceData['state_id'] = 1;
     }
     $invoiceData['archived'] = false;
     $invoiceData['refunded_invoice_id'] = $boolRefund ? $intInvoiceId : null;
-    if ($boolRefund) {
+    if ($boolRefund || $fromTemplate) {
         $invoiceData['interval_type'] = 0;
         $invoiceData['next_interval_date'] = null;
+    }
+    if ($fromTemplate) {
+        $invoiceData['template_invoice_id'] = $intInvoiceId;
     }
 
     switch ($invoiceData['interval_type']) {
@@ -150,6 +154,18 @@ if ($intInvoiceId) {
                 0, 0, 0, date('m') + $invoiceData['interval_type'] - 2,
                 date('d'), date('Y')
             )
+        );
+        break;
+    // 2 years
+    case 14:
+        $invoiceData['next_interval_date'] = date(
+            'Ymd', mktime(0, 0, 0, date('m'), date('d'), date('Y') + 2)
+        );
+        break;
+    // 3 years
+    case 15:
+        $invoiceData['next_interval_date'] = date(
+            'Ymd', mktime(0, 0, 0, date('m'), date('d'), date('Y') + 3)
         );
         break;
     }

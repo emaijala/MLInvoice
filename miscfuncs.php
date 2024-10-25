@@ -361,6 +361,13 @@ function getPageTitle($strFunc, $strList, $strForm, $operation)
         } else {
             return Translator::translate('NonArchivedInvoices');
         }
+    case 'invoice_templates':
+        if ($strForm) {
+            return Translator::translate('RecurringInvoiceTemplate');
+        } else {
+            return Translator::translate('RecurringInvoiceTemplates');
+        }
+        break;
     case 'archived_invoices':
         if ($strForm) {
             return Translator::translate('Invoice');
@@ -880,4 +887,28 @@ function getListFromFunc($func)
     }
 
     return $list;
+}
+
+/**
+ * Get invoice interval options
+ *
+ * N.B. Update copy_invoice accordingly too!
+ *
+ * @return array
+ */
+function getIntervalOptions(): array
+{
+    $intervalOptions = [
+        '0' => Translator::translate('InvoiceIntervalNone'),
+        '2' => Translator::translate('InvoiceIntervalMonth'),
+        '3' => Translator::translate('InvoiceIntervalYear')
+    ];
+    for ($i = 2; $i <= 6; $i++) {
+        $intervalOptions[(string)($i + 2)] = str_replace('%d', $i, Translator::translate('InvoiceIntervalMonths'));
+    }
+    // We don't currently have 7-11 months, but leave room for them in keys 9 - 13 just in case!
+    for ($i = 2; $i <= 3; $i++) {
+        $intervalOptions[(string)($i + 12)] = str_replace('%d', $i, Translator::translate('InvoiceIntervalYears'));
+    }
+    return $intervalOptions;
 }

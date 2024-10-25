@@ -100,6 +100,13 @@ class Search
     public const SEARCH_ARCHIVED_OFFERS = -8;
 
     /**
+     * Built-in search id for recurring invoice templates
+     *
+     * @var int
+     */
+    public const SEARCH_RECURRING_INVOICE_TEMPLATES = -9;
+
+    /**
      * Display search form
      *
      * @return void

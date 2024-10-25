@@ -83,6 +83,7 @@ MLInvoice.addModule('Form', function mlinvoiceForm() {
     setupSelect2();
     _setupFormListeners(document);
     _setupInvoiceAttachments();
+    _setupInvoiceTemplateLinks();
     _updateSendApiButtons();
     _setupPrintButtons();
   }
@@ -489,7 +490,7 @@ MLInvoice.addModule('Form', function mlinvoiceForm() {
 
     var callbacks = {
       _onChangeCompany: _onChangeCompany,
-      _onChangeCompanyOffer: _onChangeCompanyOffer,
+      _onChangeCompanyOfferOrTemplate: _onChangeCompanyOfferOrTemplate,
       _onChangeProduct: _onChangeProduct,
       _onChangeCompanyReload: _onChangeCompanyReload
     };
@@ -634,7 +635,7 @@ MLInvoice.addModule('Form', function mlinvoiceForm() {
     });
   }
 
-  function _onChangeCompanyOffer() {
+  function _onChangeCompanyOfferOrTemplate() {
     if (!$('#company_id').val()) {
       return;
     }
@@ -1000,6 +1001,15 @@ MLInvoice.addModule('Form', function mlinvoiceForm() {
         });
         $(this).val(null);
       }
+    });
+  }
+
+  function _setupInvoiceTemplateLinks() {
+    $('#linked_invoices_button').on('click', function linkedInvoicesClick() {
+      $(this).attr('aria-expanded', $(this).attr('aria-expanded') === 'true' ? 'false' : 'true');
+      $('#linked_invoices_button .dropdown-open').toggleClass('hidden');
+      $('#linked_invoices_button .dropdown-close').toggleClass('hidden');
+      $('#linked_invoices').toggleClass('hidden');
     });
   }
 
@@ -1559,6 +1569,7 @@ MLInvoice.addModule('Form', function mlinvoiceForm() {
       function mapChecked() { return this.value; }
     ).get();
     req.changes = obj;
+    req.parentId = $('#record_id').val();
     $.ajax({
       'url': 'json.php?func=update_multiple',
       'type': 'POST',

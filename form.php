@@ -46,7 +46,8 @@ require_once "memory.php";
  */
 function createForm($strFunc, $strList, $strForm)
 {
-    $formConfig = getFormConfig($strForm, $strFunc);
+    $intKeyValue = getPostOrQuery('id', false);
+    $formConfig = getFormConfig($strForm, $strFunc, $intKeyValue ?: null);
 
     if (!sesAccessLevel($formConfig['accessLevels']) && !sesAdminAccess()) {
         ?>
@@ -57,12 +58,7 @@ function createForm($strFunc, $strList, $strForm)
         return;
     }
 
-    $action = getPostOrQuery('action', false);
-    $intKeyValue = getPostOrQuery('id', false);
-    if (!$intKeyValue) {
-        $action = 'new';
-    }
-
+    $action = $intKeyValue ? getPostOrQuery('action', false) : 'new';
     if ($action && !sesWriteAccess()) {
         ?>
 <div class="form_container">
@@ -328,7 +324,7 @@ EOT;
             <?php
         } elseif ($elem['type'] == 'IFORM') {
             echo "      </form>\n";
-            $childFormConfig = getFormConfig($elem['name'], $strFunc);
+            $childFormConfig = getFormConfig($elem['name'], $strFunc, null, $intKeyValue);
             createIForm(
                 $formConfig, $childFormConfig, $elem,
                 $intKeyValue ?? 0, $intKeyValue ? false : true,
@@ -512,7 +508,7 @@ $(document).ready(function() {
     }
 
     $mainFormConfig['modificationWarning'] = '';
-    if ($strForm == 'invoice' && !empty($intKeyValue) && !isInvoiceOpen($intKeyValue)) {
+    if ($strForm == 'invoice' && !empty($intKeyValue) && !isInvoiceOpen($intKeyValue) && !isTemplate($intKeyValue)) {
         $mainFormConfig['modificationWarning'] = Translator::translate('NonOpenInvoiceModificationWarning');
     }
     ?>
@@ -935,6 +931,7 @@ function createFormButtons($form, $formConfig, $new, $top, $deleted)
         $newLink = 'index.php?' . $_SERVER['QUERY_STRING'];
         $newLink = preg_replace('/&id=\w*/', '', $newLink);
         $newLink = preg_replace('/&offer=\w*/', '', $newLink);
+        $newLink = preg_replace('/&template=\w*/', '', $newLink);
         $newLink = htmlspecialchars($newLink);
         if ('invoice' === $form) {
             $idSuffix = $top ? '' : '-bottom';
@@ -1076,7 +1073,7 @@ function createFormButtons($form, $formConfig, $new, $top, $deleted)
     }
 
     if ($form === 'invoice' && $top && !$new) {
-        $attachmentCount = GetInvoiceAttachmentCount($id);
+        $attachmentCount = getInvoiceAttachmentCount($id);
         ?>
         <div class="btn-set">
             <a id="attachments-button" class="btn btn-secondary" role="button" aria-expanded="false">
@@ -1087,6 +1084,47 @@ function createFormButtons($form, $formConfig, $new, $top, $deleted)
             </a>
         </div>
         <div class="btn-set send-buttons hidden"></div>
+        <?php
+    }
+    if ($form === 'invoice_template' && $top && !$new) {
+        $linkedInvoices = getLinkedInvoices($id);
+        $openInvoice = null;
+        foreach ($linkedInvoices as $linkedInvoice) {
+            if ($linkedInvoice['invoice_open']) {
+                $openInvoice = $linkedInvoice['id'];
+                break;
+            }
+        }
+        ?>
+        <div class="btn-set">
+            <a id="linked_invoices_button" class="btn btn-secondary" role="button" aria-expanded="false">
+                <?php echo Translator::translate('Created Invoices')?>
+                (<span class="linked-invoice-count"><?php echo count($linkedInvoices)?></span>)
+                <span class="dropdown-open"><i class="icon-down-dir"></i><span class="visually-hidden"><?php echo Translator::translate('Show')?></span></span>
+                <span class="dropdown-close hidden"><i class="icon-up-dir"></i><span class="visually-hidden"><?php echo Translator::translate('Hide')?></span></span>
+            </a>
+            <a role="button" id="created_invoices_button" class="btn btn-secondary dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false" href="#">
+                <?php echo Translator::translate('AddToInvoice')?>
+            </a>
+            <ul class="dropdown-menu" aria-labelledby="created_invoices_button">
+                <li>
+                    <?php if ($openInvoice) { ?>
+                        <a class="dropdown-item" href="add_rows.php?id=<?php echo $openInvoice?>&amp;from_template=<?php echo $id?>">
+                            <?php echo Translator::translate('AddToExistingOpenInvoice')?>
+                        </a>
+                    <?php } else { ?>
+                        <a class="dropdown-item disabled" href="#">
+                            <?php echo Translator::translate('AddToExistingOpenInvoice')?>
+                        </a>
+                    <?php } ?>
+                </li>
+                <li>
+                    <a class="dropdown-item" href="copy_invoice.php?id=<?php echo $id?>&amp;from_template=1">
+                        <?php echo Translator::translate('CreateNewInvoice')?>
+                    </a>
+                </li>
+            </ul>
+        </div>
         <?php
     }
 
@@ -1127,6 +1165,54 @@ function createFormButtons($form, $formConfig, $new, $top, $deleted)
                         </div>
                     </div>
                 </div>
+            </div>
+        </div>
+        <?php
+    }
+    if ($form === 'invoice_template' && $top && !$new) {
+        ?>
+        <div id="linked_invoices" class="card p-2 hidden" data-invoice-id="<?php echo $id?>">
+            <div class="linked-invoices-list">
+                <table class="table table-striped table-bordered table-hover list">
+                    <thead>
+                        <tr>
+                            <th><?php echo Translator::translate('HeaderInvoiceDate') ?></th>
+                            <th><?php echo Translator::translate('HeaderInvoiceDueDate') ?></th>
+                            <th><?php echo Translator::translate('HeaderInvoiceNr') ?></th>
+                            <th><?php echo Translator::translate('HeaderInvoiceName') ?></th>
+                            <th><?php echo Translator::translate('HeaderInvoiceReference') ?></th>
+                            <th><?php echo Translator::translate('HeaderInvoiceState') ?></th>
+                            <th><?php echo Translator::translate('HeaderInvoiceTotal') ?></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <?php $linkCount = 0; ?>
+                        <?php foreach ($linkedInvoices as $linkedInvoice) {?>
+                            <tr>
+                                <td>
+                                    <a href="?form=invoice&amp;id=<?php echo $linkedInvoice['id']?>">
+                                        <?php echo dateConvDBDate2Date($linkedInvoice['invoice_date'])?>
+                                    </a>
+                                </td>
+                                <td><?php echo dateConvDBDate2Date($linkedInvoice['due_date'])?></td>
+                                <td><?php echo escapeHtml($linkedInvoice['invoice_no'] ?? '')?></td>
+                                <td><?php echo escapeHtml($linkedInvoice['name'])?></td>
+                                <td><?php echo escapeHtml($linkedInvoice['reference'])?></td>
+                                <td><?php echo Translator::translate($linkedInvoice['state'])?></td>
+                                <td><?php echo miscRound2Decim($linkedInvoice['row_total'] ?? 0)?></td>
+                            </tr>
+                            <?php
+                            if (++$linkCount === 10) {
+                                ?>
+                                <td colspan="*">
+                                    ...
+                                </td>
+                                <?php
+                            }
+                        }
+                        ?>
+                    </tbody>
+                </table>
             </div>
         </div>
         <?php
