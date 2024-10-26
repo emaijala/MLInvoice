@@ -153,7 +153,7 @@ function saveFormData($table, &$primaryKey, $formConfig, &$values, &$warnings,
         $type = $elem['type'];
 
         if (!in_array($type, $formConfig['inputFieldTypes'])
-            || $elem['read_only'] ?? false
+            || ($elem['read_only'] ?? false)
         ) {
             continue;
         }

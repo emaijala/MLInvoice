@@ -72,13 +72,18 @@ class BasicFunctionalityCest
         $I->waitForJS("return $.active == 0;", 5);
     }
 
-    public function createUser(AcceptanceTester $I, Login $loginPage, User $user)
+    public function createAndDeleteUser(AcceptanceTester $I, Login $loginPage, User $user)
     {
         $loginPage->login();
-        $id = 'tester' . date('His');
-        $user->add('Tester', $id, 'user@localhost', 'Suklaa!');
+        $userId = 'tester' . date('His');
+        $id = $user->add("Tester $userId", $userId, 'user@localhost', 'Suklaa!');
         $loginPage->logout();
-        $loginPage->login($id, 'Suklaa!');
+        $loginPage->login($userId, 'Suklaa!');
+        // Try to delete current user
+        $user->delete($id, $userId, 'Cannot delete currently logged-in user');
+        $loginPage->logout();
+        $loginPage->login();
+        $user->delete($id, $userId);
     }
 
     public function createCompany(AcceptanceTester $I, Login $loginPage, Company $company)

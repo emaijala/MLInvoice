@@ -107,21 +107,29 @@ function createForm($strFunc, $strList, $strForm)
     }
 
     if ('delete' === $action && $intKeyValue && !$formConfig['readOnly']) {
-        deleteRecord($formConfig['table'], $intKeyValue);
-        unset($intKeyValue);
-        unset($astrValues);
-        if (getSetting('auto_close_after_delete')) {
-            $qs = preg_replace('/&form=\w*/', '', $_SERVER['QUERY_STRING']);
-            $qs = preg_replace('/&id=\w*/', '', $qs);
-            header("Location: index.php?$qs");
+        if ('user' === $strForm && (int)$intKeyValue === $_SESSION['sesUSERID']) {
+            ?>
+<div class="form_container alert alert-danger">
+    <?php echo Translator::translate('CannotDeleteCurrentUser') . "\n"?>
+</div>
+            <?php
+        } else {
+            deleteRecord($formConfig['table'], $intKeyValue);
+            unset($intKeyValue);
+            unset($astrValues);
+            if (getSetting('auto_close_after_delete')) {
+                $qs = preg_replace('/&form=\w*/', '', $_SERVER['QUERY_STRING']);
+                $qs = preg_replace('/&id=\w*/', '', $qs);
+                header("Location: index.php?$qs");
+                return;
+            }
+            ?>
+<div class="form_container alert alert-success">
+    <?php echo Translator::translate('RecordDeleted') . "\n"?>
+</div>
+            <?php
             return;
         }
-        ?>
-<div class="form_container alert alert-success">
-        <?php echo Translator::translate('RecordDeleted') . "\n"?>
-  </div>
-        <?php
-        return;
     }
 
     $recordDeleted = false;
@@ -148,6 +156,11 @@ EOT;
 
     if ('copy' === $action) {
         unset($astrValues['id']);
+        foreach ($formConfig['fields'] as $field) {
+            if ($field['unique'] ?? false) {
+                $astrValues[$field['name']] = null;
+            }
+        }
         $id = 0;
         $res = saveFormData(
             $formConfig['table'], $id, $formConfig, $astrValues, $warnings
@@ -904,18 +917,20 @@ function createFormButtons($form, $formConfig, $new, $top, $deleted)
     }
 
     if (!$new) {
-        if ($copyLinkOverride) {
-            ?>
-            <a role="button" class="btn btn-secondary" href="<?php echo $copyLinkOverride?>">
-                <?php echo Translator::translate('Copy')?>
-            </a>
-            <?php
-        } else {
-            ?>
-            <a role="button" class="btn btn-secondary form-submit" href="#" data-form="form" data-set-field="action=copy">
-                <?php echo Translator::translate('Copy')?>
-            </a>
-            <?php
+        if ($form !== 'user') {
+            if ($copyLinkOverride) {
+                ?>
+                <a role="button" class="btn btn-secondary" href="<?php echo $copyLinkOverride?>">
+                    <?php echo Translator::translate('Copy')?>
+                </a>
+                <?php
+            } else {
+                ?>
+                <a role="button" class="btn btn-secondary form-submit" href="#" data-form="form" data-set-field="action=copy">
+                    <?php echo Translator::translate('Copy')?>
+                </a>
+                <?php
+            }
         }
         $newLink = 'index.php?' . $_SERVER['QUERY_STRING'];
         $newLink = preg_replace('/&id=\w*/', '', $newLink);
