@@ -15,6 +15,7 @@
   <property name="dbrootuser" value="" /> <!-- not needed if using login credentials -->
   <property name="dbrootpass" value="" /> <!-- not needed if using login credentials -->
   <property name="overwrite-config" value="0" override="true" />
+  <property name="codeception_params" value="" />
 
   <!-- We only need the credentials if the password is non-blank -->
   <if>
@@ -152,7 +153,7 @@
   <!-- codeception -->
   <target name="ci-codeception">
     <exec executable="vendor/bin/codecept" escape="false" checkreturn="true" passthru="true">
-      <arg line="--steps run" />
+      <arg line="--steps run --fail-fast ${codeception_params}" />
     </exec>
   </target>
   <target name="ci-codeception-coverage">
