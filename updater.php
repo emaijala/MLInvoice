@@ -330,70 +330,73 @@ class Updater
         // Try to disable maximum execution time
         set_time_limit(0);
 
-        $backupDir = __DIR__ . DIRECTORY_SEPARATOR . 'backup';
-        if (!file_exists($backupDir)) {
-            if (!mkdir($backupDir)) {
-                $this->error("Could not create directory '$backupDir'");
-                return false;
+        $backupFile = null;
+        if (!getPostOrQuery('skip_backup', 0)) {
+            $backupDir = __DIR__ . DIRECTORY_SEPARATOR . 'backup';
+            if (!file_exists($backupDir)) {
+                if (!mkdir($backupDir)) {
+                    $this->error("Could not create directory '$backupDir'");
+                    return false;
+                }
             }
-        }
-        $backupFile = $backupDir . DIRECTORY_SEPARATOR . 'backup.zip';
-        if (file_exists($backupFile)) {
-            if (!unlink($backupFile)) {
-                $this->error("Could not remove old backup '$backupFile'");
-                return false;
+            $backupFile = $backupDir . DIRECTORY_SEPARATOR . 'backup.zip';
+            if (file_exists($backupFile)) {
+                if (!unlink($backupFile)) {
+                    $this->error("Could not remove old backup '$backupFile'");
+                    return false;
+                }
             }
-        }
 
-        $backup = new ZipArchive();
-        if ($backup->open($backupFile, ZipArchive::CREATE) !== true) {
-            $this->error("Could not create backup '$backupFile'");
-            return false;
-        }
-        $iter = new RecursiveIteratorIterator(
-            new RecursiveDirectoryIterator(__DIR__)
-        );
-        $i = 0;
-        foreach ($iter as $path => $fileInfo) {
-            $path = substr($path, strlen(__DIR__) + 1);
-            if ('.' === $path || '..' === $path
-                || 'backup' === $path || strncmp($path, 'backup/', 7) === 0
-            ) {
-                continue;
+            $backup = new ZipArchive();
+            if ($backup->open($backupFile, ZipArchive::CREATE) !== true) {
+                $this->error("Could not create backup '$backupFile'");
+                return false;
             }
-            if ($fileInfo->isDir()) {
-                if (!$backup->addEmptyDir($path)) {
-                    $backup->close();
-                    $this->error("Could not add '$path' to backup '$backupFile'");
-                    return false;
+            $iter = new RecursiveIteratorIterator(
+                new RecursiveDirectoryIterator(__DIR__)
+            );
+            $i = 0;
+            foreach ($iter as $path => $fileInfo) {
+                $path = substr($path, strlen(__DIR__) + 1);
+                if ('.' === $path || '..' === $path
+                    || 'backup' === $path || strncmp($path, 'backup/', 7) === 0
+                ) {
+                    continue;
                 }
-            } else {
-                if (!$backup->addFile($path)) {
-                    $backup->close();
-                    $this->error("Could not add '$path' to backup '$backupFile'");
-                    return false;
+                if ($fileInfo->isDir()) {
+                    if (!$backup->addEmptyDir($path)) {
+                        $backup->close();
+                        $this->error("Could not add '$path' to backup '$backupFile'");
+                        return false;
+                    }
+                } else {
+                    if (!$backup->addFile($path)) {
+                        $backup->close();
+                        $this->error("Could not add '$path' to backup '$backupFile'");
+                        return false;
+                    }
+                }
+                if (++$i >= 100) {
+                    if (!$backup->close()) {
+                        $this->error("Could not close '$backupFile' (intermediate)");
+                        return false;
+                    }
+                    if ($backup->open($backupFile) !== true) {
+                        $this->error("Could not reopen '$backupFile'");
+                        return false;
+                    }
+                    $i = 0;
                 }
             }
-            if (++$i >= 100) {
-                if (!$backup->close()) {
-                    $this->error("Could not close '$backupFile' (intermediate)");
-                    return false;
-                }
-                if ($backup->open($backupFile) !== true) {
-                    $this->error("Could not reopen '$backupFile'");
-                    return false;
-                }
-                $i = 0;
+            if (!$backup->close()) {
+                $this->error("Could not close '$backupFile' (final)");
+                return false;
             }
-        }
-        if (!$backup->close()) {
-            $this->error("Could not close '$backupFile' (final)");
-            return false;
         }
 
         [$res, $filesWritten] = $this->extractZip($_SESSION['update_file']);
         if (!$res) {
-            if ($filesWritten && !$this->extractZip($backupFile)) {
+            if ($filesWritten && (null === $backupFile || !$this->extractZip($backupFile))) {
                 $this->error(
                     "Could not extract the update."
                     . " Also failed to restore files from backup '$backupFile'."
