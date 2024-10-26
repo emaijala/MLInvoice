@@ -109,9 +109,9 @@ function createForm($strFunc, $strList, $strForm)
     if ('delete' === $action && $intKeyValue && !$formConfig['readOnly']) {
         if ('user' === $strForm && (int)$intKeyValue === $_SESSION['sesUSERID']) {
             ?>
-<div class="form_container alert alert-danger">
-    <?php echo Translator::translate('CannotDeleteCurrentUser') . "\n"?>
-</div>
+            <div class="form_container alert alert-danger">
+                <?php echo Translator::translate('CannotDeleteCurrentUser') . "\n"?>
+            </div>
             <?php
         } else {
             deleteRecord($formConfig['table'], $intKeyValue);
@@ -124,9 +124,9 @@ function createForm($strFunc, $strList, $strForm)
                 return;
             }
             ?>
-<div class="form_container alert alert-success">
-    <?php echo Translator::translate('RecordDeleted') . "\n"?>
-</div>
+            <div class="form_container alert alert-success">
+                <?php echo Translator::translate('RecordDeleted') . "\n"?>
+            </div>
             <?php
             return;
         }
