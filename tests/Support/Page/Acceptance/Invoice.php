@@ -77,4 +77,29 @@ class Invoice
         $I->assertEquals($newId, $currentId + 1);
         return $newId;
     }
+
+    public function addAttachment(string $filename, string $description): void
+    {
+        $I = $this->acceptanceTester;
+        $I->click('#attachments-button');
+        $I->attachFile('#new-attachment-file', $filename);
+        $I->waitForText('test.pdf');
+        $I->fillField('.attachment-name', $description);
+        $I->dontSee('.toast:not(.hide)');
+        $I->waitForElementNotVisible('#spinner');
+        $I->reloadPage();
+        $I->click('#attachments-button');
+        $I->seeInField('.attachment-name', $description);
+        $I->click('#attachments-button');
+    }
+
+    public function removeAttachment(): void
+    {
+        $I = $this->acceptanceTester;
+        $I->click('#attachments-button');
+        $I->waitForText('test.pdf', 2, '.attachment-list');
+        $I->click('a.remove-attachment');
+        $I->waitForText('No Entries', 2, '.attachment-list');
+        $I->click('#attachments-button');
+    }
 }

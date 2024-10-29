@@ -165,6 +165,10 @@ class BasicFunctionalityCest
         $I->click('.edit-multi-buttons button[data-iform-save-rows=iform_popup]');
         $I->waitForText("$this->product3 $this->productName", 2, '.item-row:nth-child(2)');
         $I->waitForText("$this->product3 $this->productName", 2, '.item-row:nth-child(3)');
+
+        // Attachment
+        $invoice->addAttachment('test.pdf', 'Test Attachemnt');
+        $invoice->removeAttachment('test.pdf');
     }
 
     public function invoiceAndOfferMenuLists(

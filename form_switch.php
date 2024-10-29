@@ -2264,7 +2264,7 @@ case 'invoice_attachment':
             'type' => 'INT',
             'style' => 'medium',
             'position' => 1,
-            'allow_null' => true,
+            'allow_null' => false,
             'default' => 0
         ]
     ];

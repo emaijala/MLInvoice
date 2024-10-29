@@ -163,7 +163,7 @@ function saveFormData($table, &$primaryKey, $formConfig, &$values, &$warnings,
             if (!$elem['allow_null']
                 && (!isset($values[$name]) || $values[$name] === '')
             ) {
-                if (!empty($elem['default'])) {
+                if (array_key_exists('default', $elem)) {
                     $values[$name] = getFormDefaultValue($elem, $parentKey);
                 } else {
                     if ($missingValues) {
