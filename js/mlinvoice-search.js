@@ -162,7 +162,7 @@ MLInvoice.addModule('Search', function mlinvoiceSearch() {
         group.fields.forEach(function handleField(field) {
           let fieldElem = addField(groupElem, field.name, field.comparison);
           if ('SEARCHLIST' === formConfig.fields[field.name].type) {
-            $(fieldElem).select2('val', field.value);
+            $(fieldElem).append(new Option(field.value_text, field.value));
           } else {
             fieldElem.value = field.value;
           }

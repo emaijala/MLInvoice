@@ -709,6 +709,11 @@ function createListQuery($strFunc, $strList, $startRow, $rowCount, $sort,
         } else {
             $searchGroups = $search->convertLegacySearch($strList, $searchData['whereclause']);
         }
+        $querySearchGroups = $search->getSearchGroups($query);
+        $searchGroups['groups'] = array_merge(
+            $searchGroups['groups'],
+            $querySearchGroups['groups']
+        );
     } else {
         $searchGroups = $search->getSearchGroups($query);
     }

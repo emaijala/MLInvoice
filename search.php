@@ -121,6 +121,19 @@ class Search
                     Translator::translate($field['label'])
                 );
             }
+            if ('SEARCHLIST' === $field['type']) {
+                // We need the name of current selection for search fields for display
+                foreach ($searchGroups['groups'] as &$group) {
+                    foreach ($group['fields'] as &$groupField) {
+                        if ($groupField['value'] && $field['name'] === $groupField['name']) {
+                            $groupField['value_text']
+                                = getSearchListSelectedValue($field['listquery'], $groupField['value'], false);
+                        }
+                    }
+                    unset($groupField);
+                }
+                unset($group);
+            }
         }
 
         ?>
@@ -790,6 +803,7 @@ class Search
                     }
                     $field['options'] = array_map('Translator::translate', $field['options']);
                 }
+
                 return $field;
             },
             $fields

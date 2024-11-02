@@ -1,6 +1,7 @@
 <?php
 namespace Tests\Aceptance;
 
+use Codeception\Attribute\Depends;
 use Tests\Support\AcceptanceTester;
 use Tests\Support\Page\Acceptance\Client;
 use Tests\Support\Page\Acceptance\Company;
@@ -48,6 +49,20 @@ class BasicFunctionalityCest
      */
     protected $productDescription = 'Super <strong> product';
 
+    /**
+     * Timestamp for creating client names
+     *
+     * @var int
+     */
+    protected $timestamp = null;
+
+    /**
+     * ID of created client with data on all lists
+     *
+     * @var int
+     */
+    protected $listClientId = null;
+
     public function _before(AcceptanceTester $I)
     {
         if ($this->product1) {
@@ -56,6 +71,7 @@ class BasicFunctionalityCest
         $this->product1 = 'A' . date('His') . 'A';
         $this->product2 = 'B' . date('His') . 'B';
         $this->product3 = 'C' . date('His') . 'C';
+        $this->timestamp = time();
     }
 
     public function badLogin(AcceptanceTester $I, Login $loginPage)
@@ -110,8 +126,8 @@ class BasicFunctionalityCest
     public function createInvoices(AcceptanceTester $I, Login $loginPage, Invoice $invoice, Client $client)
     {
         $loginPage->login();
-        $clientName = 'The Client ' . time() . 's';
-        $client->add($clientName);
+        $clientName = 'The Client ' . $this->timestamp . 's';
+        $this->clientId = $client->add($clientName);
         $id = $invoice->add($clientName);
 
         // Add row
@@ -167,7 +183,7 @@ class BasicFunctionalityCest
         $I->waitForText("$this->product3 $this->productName", 2, '.item-row:nth-child(3)');
 
         // Attachment
-        $invoice->addAttachment('test.pdf', 'Test Attachemnt');
+        $invoice->addAttachment('test.pdf', 'Test Attachment');
         $invoice->removeAttachment('test.pdf');
     }
 
@@ -179,8 +195,8 @@ class BasicFunctionalityCest
         Offer $offer
     ) {
         $loginPage->login();
-        $clientName = 'List Client ' . time() . 's';
-        $client->add($clientName);
+        $clientName = 'List Client ' . $this->timestamp . 's';
+        $this->listClientId = $client->add($clientName);
 
         // Add unarchived invoices:
         $unarchivedInvoiceIds = [];
@@ -225,14 +241,14 @@ class BasicFunctionalityCest
         $I->click('Invoices and Offers');
         $I->click('Offers (Non-Archived)');
         $I->fillField('#list_offer_3_filter input', $clientName);
-        $I->waitForText('1 - 3 / 3 (filtered from');
+        $I->waitForText('1 - 3 / 3');
         $foundIds = $I->grabMultiple('.cb-select-row', 'value');
         $I->assertEquals($unarchivedOfferIds, $foundIds);
 
         $I->click('Invoices and Offers');
         $I->click('Archived Offers');
         $I->fillField('#archived_offers_3_filter input', $clientName);
-        $I->waitForText('1 - 2 / 2 (filtered from');
+        $I->waitForText('1 - 2 / 2');
         $foundIds = $I->grabMultiple('.cb-select-row', 'value');
         $I->assertEquals($archivedOfferIds, $foundIds);
     }
@@ -245,7 +261,7 @@ class BasicFunctionalityCest
         Search $search
     ) {
         $loginPage->login();
-        $clientName = 'Big Client ' . time() . 's';
+        $clientName = 'Big Client ' . $this->timestamp . 's';
         $client->add($clientName);
 
         // Create a number of invoices:
@@ -277,5 +293,35 @@ class BasicFunctionalityCest
                 5
             );
         }
+    }
+
+    #[Depends('searchAndNavigateInvoices')]
+    public function clientListLinks(AcceptanceTester $I, Login $loginPage, Client $client)
+    {
+        $loginPage->login();
+
+        $I->amOnPage('index.php?form=company&id=' . $this->listClientId);
+        $I->click('Invoices and Offers', '.form_container');
+        $I->click('Invoices (Non-Archived)', '.form_container');
+        $I->waitForText('Results for search');
+        $I->waitForText('1 - 5 / 5');
+
+        $I->amOnPage('index.php?form=company&id=' . $this->listClientId);
+        $I->click('Invoices and Offers', '.form_container');
+        $I->click('Archived Invoices', '.form_container');
+        $I->waitForText('Results for search');
+        $I->waitForText('1 - 4 / 4');
+
+        $I->amOnPage('index.php?form=company&id=' . $this->listClientId);
+        $I->click('Invoices and Offers', '.form_container');
+        $I->click('Offers (Non-Archived)', '.form_container');
+        $I->waitForText('Results for search');
+        $I->waitForText('1 - 3 / 3');
+
+        $I->amOnPage('index.php?form=company&id=' . $this->listClientId);
+        $I->click('Invoices and Offers', '.form_container');
+        $I->click('Archived Offers', '.form_container');
+        $I->waitForText('Results for search');
+        $I->waitForText('1 - 2 / 2');
     }
 }
