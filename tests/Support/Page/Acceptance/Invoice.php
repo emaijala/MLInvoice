@@ -84,9 +84,9 @@ class Invoice
         $I->click('#attachments-button');
         $I->attachFile('#new-attachment-file', $filename);
         $I->waitForText('test.pdf');
-        $I->fillField('.attachment-name', $description);
-        $I->dontSee('.toast:not(.hide)');
-        $I->waitForElementNotVisible('#spinner');
+        $I->appendField('.attachment-name', $description);
+        $I->click('.attachment-send');
+        $I->waitForElement('.toast');
         $I->reloadPage();
         $I->click('#attachments-button');
         $I->seeInField('.attachment-name', $description);

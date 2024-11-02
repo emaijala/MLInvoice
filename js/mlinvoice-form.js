@@ -900,7 +900,10 @@ MLInvoice.addModule('Form', function mlinvoiceForm() {
               send: $(this).prop('checked') ? '1' : '0'
             },
             type: 'POST',
-            dataType: 'json'
+            dataType: 'json',
+            success: function () {
+              MLInvoice.infomsg(MLInvoice.translate('RecordSaved'), 2000);
+            }
           });
         });
         var $cbLabel = $('<label/>').addClass('attachment-send');
@@ -918,7 +921,10 @@ MLInvoice.addModule('Form', function mlinvoiceForm() {
               name: $(this).val()
             },
             type: 'POST',
-            dataType: 'json'
+            dataType: 'json',
+            success: function () {
+              MLInvoice.infomsg(MLInvoice.translate('RecordSaved'), 2000);
+            }
           });
         });
         $input.appendTo($attachment);
