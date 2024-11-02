@@ -1646,7 +1646,7 @@ function getDb(): \Doctrine\DBAL\Connection
         'user' => _DB_USERNAME_,
         'password' => _DB_PASSWORD_,
         'host' => _DB_SERVER_,
-        'driver' => 'pdo_mysql',
+        'driver' => 'mysqli',
         'charset'  => 'utf8mb4',
     ];
     return \Doctrine\DBAL\DriverManager::getConnection($connectionParams);

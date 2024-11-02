@@ -4,7 +4,7 @@
  *
  * PHP version 7
  *
- * Copyright (C) Ere Maijala 2017-2021
+ * Copyright (C) Ere Maijala 2017-2024
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2,
@@ -43,13 +43,6 @@ require_once 'version.php';
 class Updater
 {
     /**
-     * Update stage
-     *
-     * @var int
-     */
-    protected $stage;
-
-    /**
      * File that contains the list of obsolete files
      *
      * @var string
@@ -68,22 +61,33 @@ class Updater
             return false;
         }
 
-        $this->stage = (int)getPostOrQuery('stage', 0);
-        switch ($this->stage) {
-        case 0:
-            $this->preFlightCheck();
+        $stage = getPostOrQuery('stage', 'preflight');
+        $params = [];
+        foreach (['backup', 'ignore_version_check', 'force_git'] as $param) {
+            if (null !== ($val = getPostOrQuery($param))) {
+                $params[$param] = $val;
+            }
+        }
+        switch ($stage) {
+        case 'preflight':
+            unset($params['backup']);
+            $this->preFlightCheck($params);
             break;
-        case 1:
-            $this->startUpdate();
+        case 'start':
+            $this->startUpdate($params);
             break;
-        case 2:
-            $this->downloadUpdate();
+        case 'download':
+            $this->downloadUpdate($params);
             break;
-        case 3:
-            $this->applyUpdate();
+        case 'backup':
+            $this->createBackup($params);
             break;
-        case 4:
-            $this->upgradeDatabase();
+        case 'apply':
+            $this->applyUpdate($params);
+            break;
+        case 4: // For back-compatibility with the older updater
+        case 'database':
+            $this->upgradeDatabase($params);
             break;
         }
     }
@@ -117,9 +121,11 @@ class Updater
      * Check that write permissions exist so that the update can be done, zip
      * functions are available and there is an update available.
      *
+     * @param array $params Extra params
+     *
      * @return bool
      */
-    protected function preFlightCheck()
+    protected function preFlightCheck(array $params)
     {
         global $softwareVersion;
 
@@ -130,7 +136,7 @@ class Updater
             return false;
         }
 
-        if (file_exists(__DIR__ . '/.git')) {
+        if (file_exists(__DIR__ . '/.git') && !getPostOrQuery('force_git')) {
             $this->error('CannotUpdateGitVersion');
             return false;
         }
@@ -139,13 +145,13 @@ class Updater
             new RecursiveDirectoryIterator(__DIR__)
         );
         $unwritables = [];
-        foreach ($iter as $path => $fileInfo) {
-            $path = substr($path, strlen(__DIR__) + 1);
-            if ('..' === $path) {
+        foreach (array_keys(iterator_to_array($iter)) as $path) {
+            $subPath = substr($path, strlen(__DIR__) + 1);
+            if ('..' === $subPath || str_starts_with($subPath, '.git/')) {
                 continue;
             }
             if (!is_writable($path)) {
-                $unwritables[] = $path;
+                $unwritables[] = $subPath;
             }
         }
         if ($unwritables) {
@@ -164,29 +170,33 @@ class Updater
         $versionResult = $this->compareVersionNumber(
             $versionInfo['version'], $softwareVersion
         );
-        if ($versionResult <= 0) {
+        if ($versionResult <= 0 && !getPostOrQuery('ignore_version_check')) {
             $this->message('LatestVersion');
             return false;
         }
+
+        $this->message('ObsoleteFilesWillBeRemoved');
 
         $this->message(
             Translator::translate(
                 'UpdatedVersionAvailable',
                 [
                     '%%version%%' => $versionInfo['version'],
-                    '%%currentversion%%' => $softwareVersion
+                    '%%currentversion%%' => $softwareVersion,
+                    '%%date%%' => DateTime::createFromFormat('Y-m-d', $versionInfo['date'])
+                        ->format(Translator::translate('DateFormat'))
                 ]
-            )
+            ),
+            true
         );
 
-        if (!empty($versionInfo['channel'])
-            && $versionInfo['channel'] !== 'production'
-        ) {
+        if (!empty($versionInfo['channel']) && $versionInfo['channel'] !== 'production') {
             $this->message(
                 Translator::translate(
                     'UpdateFromChannel',
-                    ['%%channel%%' => _UPDATE_CHANNEL_]
-                )
+                    ['%%channel%%' => $versionInfo['channel']]
+                ),
+                true
             );
         }
 
@@ -210,23 +220,22 @@ class Updater
             }
         }
 
-        if ($versionResult === 1) {
-            $this->message('UpdateMajorVersion');
-        }
-
         if (!empty($versionInfo['url'])) {
             $this->message(
                 '<a href="' . htmlentities($versionInfo['url']) . '" target="_blank">'
                 . Translator::Translate('UpdateInformation')
-                . '</a>'
+                . '</a>',
+                true
             );
         }
 
-        $this->message('ObsoleteFilesWillBeRemoved');
+        if ($versionResult === 1) {
+            $this->message('UpdateMajorVersion');
+        }
 
-        $this->message('PrerequisitesOk');
+        $this->message('PrerequisitesOk', true);
 
-        $this->continuePrompt('StartUpdate');
+        $this->startUpdatePrompt($params);
 
         return true;
     }
@@ -234,15 +243,15 @@ class Updater
     /**
      * Start update
      *
+     * @param array $params Extra params
+     *
      * @return void
      */
-    protected function startUpdate()
+    protected function startUpdate(array $params)
     {
-        global $softwareVersion;
-
         $this->heading('InstallUpdateHeading');
 
-        $this->nextStage('DownloadingUpdate');
+        $this->nextStage('DownloadingUpdate', $params, 'download');
 
         return true;
     }
@@ -250,9 +259,11 @@ class Updater
     /**
      * Download update and prompt to continue if successful
      *
+     * @param array $params Extra params
+     *
      * @return bool
      */
-    protected function downloadUpdate()
+    protected function downloadUpdate(array $params)
     {
         global $softwareVersion;
 
@@ -265,7 +276,7 @@ class Updater
         $res = $this->compareVersionNumber(
             $versionInfo['version'], $softwareVersion
         );
-        if ($res <= 0) {
+        if ($res <= 0 && !getPostOrQuery('ignore_version_check')) {
             $this->message('LatestVersion');
             return false;
         }
@@ -310,15 +321,21 @@ class Updater
         $_SESSION['update_file'] = $filename;
 
         $this->message('UpdateDownloaded');
-        $this->nextStage('ExtractingUpdate');
+        if ($params['backup'] ?? false) {
+            $this->nextStage('CreatingBackup', $params, 'backup');
+        } else {
+            $this->nextStage('ExtractingUpdate', $params, 'apply');
+        }
     }
 
     /**
-     * Apply a downloaded update
+     * Create backup
+     *
+     * @param array $params Extra params
      *
      * @return bool
      */
-    protected function applyUpdate()
+    protected function createBackup(array $params)
     {
         $this->heading('InstallUpdateHeading');
 
@@ -331,31 +348,27 @@ class Updater
         set_time_limit(0);
 
         $backupFile = null;
-        if (!getPostOrQuery('skip_backup', 0)) {
-            $backupDir = __DIR__ . DIRECTORY_SEPARATOR . 'backup';
+        if ($params['backup'] ?? false) {
+            $backupDir = $this->getBackupDir();
             if (!file_exists($backupDir)) {
                 if (!mkdir($backupDir)) {
                     $this->error("Could not create directory '$backupDir'");
                     return false;
                 }
             }
-            $backupFile = $backupDir . DIRECTORY_SEPARATOR . 'backup.zip';
-            if (file_exists($backupFile)) {
-                if (!unlink($backupFile)) {
-                    $this->error("Could not remove old backup '$backupFile'");
-                    return false;
-                }
+            if (!copy(__DIR__ . DIRECTORY_SEPARATOR . 'htaccess-denyall', $backupDir . DIRECTORY_SEPARATOR . '.htaccess')) {
+                $this->error("Could not copy .htaccess file to '$backupDir'");
+                return false;
             }
-
+            $backupFile = $this->getBackupFile();
             $backup = new ZipArchive();
-            if ($backup->open($backupFile, ZipArchive::CREATE) !== true) {
+            if ($backup->open($backupFile, ZipArchive::CREATE | ZipArchive::OVERWRITE) !== true) {
                 $this->error("Could not create backup '$backupFile'");
                 return false;
             }
             $iter = new RecursiveIteratorIterator(
                 new RecursiveDirectoryIterator(__DIR__)
             );
-            $i = 0;
             foreach ($iter as $path => $fileInfo) {
                 $path = substr($path, strlen(__DIR__) + 1);
                 if ('.' === $path || '..' === $path
@@ -376,17 +389,6 @@ class Updater
                         return false;
                     }
                 }
-                if (++$i >= 100) {
-                    if (!$backup->close()) {
-                        $this->error("Could not close '$backupFile' (intermediate)");
-                        return false;
-                    }
-                    if ($backup->open($backupFile) !== true) {
-                        $this->error("Could not reopen '$backupFile'");
-                        return false;
-                    }
-                    $i = 0;
-                }
             }
             if (!$backup->close()) {
                 $this->error("Could not close '$backupFile' (final)");
@@ -394,9 +396,32 @@ class Updater
             }
         }
 
+        $this->nextStage('ExtractingUpdate', $params, 'apply');
+    }
+
+    /**
+     * Apply a downloaded update
+     *
+     * @param array $params Extra params
+     *
+     * @return bool
+     */
+    protected function applyUpdate(array $params)
+    {
+        $this->heading('InstallUpdateHeading');
+
+        if (empty($_SESSION['update_file'])) {
+            $this->error('Update file not defined');
+            return false;
+        }
+
+        // Try to disable maximum execution time
+        set_time_limit(0);
+
         [$res, $filesWritten] = $this->extractZip($_SESSION['update_file']);
         if (!$res) {
-            if ($filesWritten && (null === $backupFile || !$this->extractZip($backupFile))) {
+            $backupFile = $this->getBackupFile();
+            if ($filesWritten && (!($params['backup'] ?? false ) || !$this->extractZip($backupFile))) {
                 $this->error(
                     "Could not extract the update."
                     . " Also failed to restore files from backup '$backupFile'."
@@ -404,10 +429,7 @@ class Updater
                     . ' reinstallation.'
                 );
             } else {
-                $this->error(
-                    "Could not extract the update."
-                    . " Original files have been restored."
-                );
+                $this->error('Could not extract the update. Original files have been restored.');
             }
             return false;
         }
@@ -417,7 +439,6 @@ class Updater
         $this->message('RemovingObsoleteFiles');
         $errors = [];
         if (!file_exists(__DIR__ . '/' . $this->obsoleteFilesList)) {
-            $this->error();
             $errors[] = 'Obsolete files list missing';
         } else {
             $obsoleteFiles = explode(
@@ -441,18 +462,20 @@ class Updater
 
         if ($errors) {
             $this->error(implode('<br>', $errors));
-            $this->continuePrompt('ContinueToDatabaseUpgrade');
+            $this->continuePrompt('ContinueToDatabaseUpgrade', $params, 'database');
         } else {
-            $this->nextStage('UpgradingDatabase');
+            $this->nextStage('UpgradingDatabase', $params, 'database');
         }
     }
 
     /**
      * Upgrade the database
      *
+     * @param array $params Extra params
+     *
      * @return bool
      */
-    protected function upgradeDatabase()
+    protected function upgradeDatabase(array $params)
     {
         $this->heading('UpdateDatabaseHeading');
 
@@ -473,7 +496,7 @@ class Updater
             $this->error('DatabaseUpgradeFailed');
             $result = false;
         }
-        $this->continuePrompt('Continue');
+        $this->continuePrompt('Continue', $params, 'preflight');
 
         return $result;
     }
@@ -492,6 +515,7 @@ class Updater
             $this->error("Could not open file '$zipFile'");
             return [false, false];
         }
+        $filesWritten = false;
         for ($i = 0; $i < $zip->numFiles; $i++) {
             $filename = $zip->getNameIndex($i);
             // Strip any leading directory
@@ -589,20 +613,29 @@ class Updater
     /**
      * Display a message
      *
-     * @param string $msg Message
+     * @param string $msg    Message
+     * @param bool   $simple Whether to display a plain message without alert style
      *
      * @return void
      */
-    protected function message($msg)
+    protected function message($msg, bool $simple = false)
     {
         $msg = Translator::translate($msg);
-        echo <<<EOT
+        if ($simple) {
+            echo <<<EOT
+<div class="form_container">
+  <p>$msg</p>
+</div>
+EOT;
+        } else {
+            echo <<<EOT
 <div class="form_container">
   <div class="alert alert-success message">
     $msg
   </div>
 </div>
 EOT;
+        }
     }
 
     /**
@@ -628,14 +661,16 @@ EOT;
      * Prompt for next stage
      *
      * @param string $message Prompt message
+     * @param array  $params  Extra params
+     * @param string $stage   Next stage
      *
      * @return void
      */
-    protected function continuePrompt($message)
+    protected function continuePrompt($message, array $params, string $stage)
     {
-        $target = 'index.php';
-        if ($this->stage !== 4) {
-            $target .= '?func=system&operation=update&stage=' . ($this->stage + 1);
+        $target = "index.php?func=system&operation=update&stage=$stage";
+        if ($params) {
+            $target .= '&' . http_build_query($params);
         }
         $message = Translator::translate($message);
         echo <<<EOT
@@ -646,17 +681,60 @@ EOT;
     }
 
     /**
-     * Redirect to next stage
+     * Prompt for start updating
      *
-     * @param string $message Message
+     * @param array $params Extra params
      *
      * @return void
      */
-    protected function nextStage($message)
+    protected function startUpdatePrompt(array $params)
     {
-        $target = 'index.php';
-        if ($this->stage !== 4) {
-            $target .= '?func=system&operation=update&stage=' . ($this->stage + 1);
+        $backupDescription = Translator::translate('UpdateBackupDescription');
+        $createBackup = Translator::translate('UpdateCreateBackup');
+        $message = Translator::translate('StartUpdate');
+        $hiddenFields = '';
+        foreach ($params as $name => $value) {
+            $name = htmlspecialchars($name);
+            $value = htmlspecialchars($value);
+            $hiddenFields .= "    <input type=\"hidden\" name=\"$name\" value=\"$value\">\n";
+        }
+        getPostOrQuery('ignore_version_check')
+            ? '<input type="hidden" name="ignore_version_check" value="1">'
+            : '';
+        echo <<<EOT
+<div class="form_container">
+  <form action="index.php">
+    <input type="hidden" name="func" value="system">
+    <input type="hidden" name="operation" value="update">
+    <input type="hidden" name="stage" value="start">
+$hiddenFields
+    <p>$backupDescription</p>
+
+    <div class="form-check mb-3">
+      <input class="form-check-input" type="checkbox" name="backup" id="backup_field" value="1" checked>
+      <label class="form-check-label" for="backup_field">$createBackup</label>
+    </div>
+
+    <button type="submit" class="btn btn-primary">$message</button>
+  </form>
+</div>
+EOT;
+    }
+
+    /**
+     * Redirect to next stage
+     *
+     * @param string $message Message
+     * @param array  $params  Extra params
+     * @param string $stage   Next stage
+     *
+     * @return void
+     */
+    protected function nextStage($message, array $params, string $stage)
+    {
+        $target = "index.php?func=system&operation=update&stage=$stage";
+        if ($params) {
+            $target .= '&' . http_build_query($params);
         }
         $this->message($message);
         echo <<<EOT
@@ -705,5 +783,25 @@ EOT;
         }
 
         return $result;
+    }
+
+    /**
+     * Get backup directory
+     *
+     * @return string
+     */
+    protected function getBackupDir(): string
+    {
+        return __DIR__ . DIRECTORY_SEPARATOR . 'backup';
+    }
+
+    /**
+     * Get backup file
+     *
+     * @return string
+     */
+    protected function getBackupFile(): string
+    {
+        return $this->getBackupDir() . DIRECTORY_SEPARATOR . 'backup.zip';
     }
 }

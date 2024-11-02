@@ -364,7 +364,14 @@ var MLInvoice = (function CreateMLInvoice() {
           '{date}': formatDate(data.date)
         }
       );
-      var $span = $('<span/>').attr('title', title).text(translate('UpdateAvailable') + ' ');
+      var text = translate(
+        'UpdateAvailable',
+        {
+          '{version}': data.version,
+          '{date}': formatDate(data.date)
+        }
+      );
+      var $span = $('<span/>').attr('title', title).text(text + ' ');
       $('<br>').appendTo($span);
       $('<a>').attr('href', data.url).attr('target', '_blank').text(translate('UpdateInformation')).appendTo($span);
       $('<br>').appendTo($span);
