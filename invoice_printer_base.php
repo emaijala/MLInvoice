@@ -953,11 +953,11 @@ EOT;
         if ($recipientData['company_id']) {
             $data['ClientVATID'] = $recipientData['company_id'];
         }
-        $data["${locStr}Number"] = $invoiceData['invoice_no'];
+        $data["{$locStr}Number"] = $invoiceData['invoice_no'];
         $strInvoiceDate = ($this->dateOverride)
             ? $this->formatDate($this->dateOverride)
             : $this->formatDate($invoiceData['invoice_date']);
-        $data["${locStr}Date"] = $strInvoiceDate;
+        $data["{$locStr}Date"] = $strInvoiceDate;
         $strDueDate = $this->formatDate($invoiceData['due_date']);
         if ($this->printStyle == 'invoice') {
             $data['DueDate'] = $strDueDate;
@@ -1217,7 +1217,7 @@ EOT;
 
                 $pdf->Cell(
                     $this->left + $this->width - $pdf->getX(), 5,
-                    $this->translate("${locStr}Number") . ': '
+                    $this->translate("{$locStr}Number") . ': '
                     . $invoiceData['invoice_no'],
                     0, 0, 'R'
                 );

@@ -1378,7 +1378,7 @@ function select_preset()
         $childNum = 0;
         foreach ($childRecords as $childColumns) {
             ++$childNum;
-            $childColumns["${parentTable}_id"] = $parentId;
+            $childColumns["{$parentTable}_id"] = $parentId;
 
             if (!isset($fieldDefs[$childTable])) {
                 $fieldDefs[$childTable] = $this->getFieldDefs($childTable);
