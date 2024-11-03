@@ -145,7 +145,8 @@ class Updater
             new RecursiveDirectoryIterator(__DIR__)
         );
         $unwritables = [];
-        foreach (array_keys(iterator_to_array($iter)) as $path) {
+        // Note: Don't use iterator_to_array or such as it may use up too much memory.
+        foreach ($iter as $path => $fileInfo) {
             $subPath = substr($path, strlen(__DIR__) + 1);
             if ('..' === $subPath || str_starts_with($subPath, '.git/')) {
                 continue;
