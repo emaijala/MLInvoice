@@ -26,7 +26,7 @@
  * @link     http://labs.fi/mlinvoice.eng.php
  */
 
-use phpseclib\Crypt\Random;
+use phpseclib3\Crypt\Random;
 
 /**
  * Initial setup
