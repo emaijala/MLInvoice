@@ -2,7 +2,7 @@
 /**
  * Version info
  *
- * PHP version 7
+ * PHP version 8
  *
  * Copyright (C) Ere Maijala 2010-2024
  *

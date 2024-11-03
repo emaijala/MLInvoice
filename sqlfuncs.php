@@ -2,7 +2,7 @@
 /**
  * Database functions
  *
- * PHP version 7
+ * PHP version 8
  *
  * Copyright (C) Samu Reinikainen 2004-2008
  * Copyright (C) Ere Maijala 2010-2022

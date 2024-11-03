@@ -2,7 +2,7 @@
 /**
  * Profile page
  *
- * PHP version 7
+ * PHP version 8
  *
  * Copyright (C) Ere Maijala 2018-2021
  *

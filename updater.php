@@ -2,7 +2,7 @@
 /**
  * Self-updating mechanism
  *
- * PHP version 7
+ * PHP version 8
  *
  * Copyright (C) Ere Maijala 2017-2024
  *
