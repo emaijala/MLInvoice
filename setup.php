@@ -58,6 +58,7 @@ class Setup
         [$host, $database, $username, $password, $prefix, $lang, $defaultlang, $encryptionKey, $encryptionKeyGenerated]
             = $this->getConfigDefaults();
         $adminPassword = '';
+        $adminPassword2 = '';
         if (isset($_POST['host']) && isset($_POST['database'])
             && isset($_POST['username']) && isset($_POST['password'])
             && isset($_POST['prefix']) && isset($_POST['adminpass'])
