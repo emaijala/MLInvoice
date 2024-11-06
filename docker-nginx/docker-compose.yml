@@ -1,0 +1,19 @@
+services:
+  mlinvoice:
+    container_name: mlinvoice
+    build: .
+    ports:
+      - '8888:80'
+  db:
+    image: mysql:latest
+    restart: always
+    environment:
+      MYSQL_DATABASE: 'mlinvoice'
+      MYSQL_USER: 'mlinvoice'
+      MYSQL_PASSWORD: 'mlinvoice'
+      MYSQL_ROOT_PASSWORD: 'password'
+    volumes:
+      - my-db:/var/lib/mysql
+      - ./init-script.sql:/docker-entrypoint-initdb.d/init-script.sql
+volumes:
+  my-db:
