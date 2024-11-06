@@ -19,11 +19,11 @@ RUN adduser -S -D www -G www
 
 RUN chown www:www /work/mlinvoice /work/mlinvoice/config.*
 
+COPY config.php.sample /work/mlinvoice/config.php.sample
 COPY mlinvoice-nginx.conf /etc/nginx/nginx.conf
 COPY entrypoint /work/entrypoint
 
 EXPOSE 80
 
-HEALTHCHECK --interval=5m CMD curl -f http://localhost || exit 1
 
 ENTRYPOINT ["sh", "/work/entrypoint"]
