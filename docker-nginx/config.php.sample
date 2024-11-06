@@ -1,0 +1,19 @@
+<? 
+
+// ote config.php.sample:n alusta
+
+// Database server address
+// Tietokantapalvelimen osoite
+define('_DB_SERVER_', 'db');
+
+// Database server user id
+// Tunnus tietokantapalvelimelle
+define('_DB_USERNAME_', 'mlinvoice');
+
+// Database server password
+// Salasana tietokantapalvelimelle
+define('_DB_PASSWORD_', 'mlinvoice');
+
+// Database name
+// Tietokannan nimi
+define('_DB_NAME_', 'mlinvoice');
