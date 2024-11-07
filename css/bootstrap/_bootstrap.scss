@@ -3,12 +3,13 @@
 // Required
 @import "../../vendor/twbs/bootstrap/scss/functions";
 @import "../../vendor/twbs/bootstrap/scss/variables";
+@import "../../vendor/twbs/bootstrap/scss/maps";
 @import "../../vendor/twbs/bootstrap/scss/mixins";
-
-// Optional
 @import "../../vendor/twbs/bootstrap/scss/utilities";
 @import "../../vendor/twbs/bootstrap/scss/root";
 @import "../../vendor/twbs/bootstrap/scss/reboot";
+
+// Optional
 @import "../../vendor/twbs/bootstrap/scss/type";
 @import "../../vendor/twbs/bootstrap/scss/images";
 @import "../../vendor/twbs/bootstrap/scss/containers";
