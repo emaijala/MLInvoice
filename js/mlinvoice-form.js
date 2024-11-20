@@ -421,6 +421,7 @@ MLInvoice.addModule('Form', function mlinvoiceForm() {
       var formParam = $(this).data('sendFormParam');
       var select = $('<select class="select-default-text"/>').appendTo($(this));
       select.select2({
+        theme: "bootstrap-5",
         placeholder: '',
         ajax: {
           url: 'json.php',
@@ -499,6 +500,7 @@ MLInvoice.addModule('Form', function mlinvoiceForm() {
       var showEmpty = parseInt(field.data('showEmpty')) === 1;
       var onChange = field.data('onChange');
       var options = {
+        theme: "bootstrap-5",
         placeholder: '',
         allowClear: showEmpty,
         ajax: {

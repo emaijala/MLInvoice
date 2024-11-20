@@ -546,6 +546,12 @@ var MLInvoice = (function CreateMLInvoice() {
     _setupCustomPricesForm();
     _setupListMultiSelect();
     _setupFormButtons();
+
+    for (var i = 0; i < _modules.length; i++) {
+      if (this[_modules[i]].init) {
+        this[_modules[i]].init();
+      }
+    }
     _initDone = true;
   }
 

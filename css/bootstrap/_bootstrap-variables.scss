@@ -21,25 +21,14 @@ $cyan:    #0dcaf0 !default;
 $red:     #dc3545 !default;
 $yellow:  #ffc107 !default;
 
-$primary: $blue;
-$secondary: #486699;
-$success: #486699;
+$primary:       $blue;
+$secondary:     #486699;
+$success:       #486699;
 $info:          $cyan !default;
 $warning:       $yellow !default;
 $danger:        $red !default;
 $light:         $gray-100 !default;
 $dark:          $gray-900 !default;
-
-$theme-colors: (
-  "primary":    $primary,
-  "secondary":  $secondary,
-  "success":    $success,
-  "info":       $info,
-  "warning":    $warning,
-  "danger":     $danger,
-  "light":      $light,
-  "dark":       $dark
-);
 
 $grid-breakpoints: (
   xs: 0,
