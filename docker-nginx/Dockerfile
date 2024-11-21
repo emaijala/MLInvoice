@@ -1,13 +1,13 @@
 FROM alpine:latest
 
 RUN apk update
-RUN apk --no-cache add nginx php83-mbstring php83-fpm php83-mysqli php83-session curl unzip
+RUN apk --no-cache add nginx php83-ctype php83-mbstring php83-fpm php83-mysqli php83-session curl unzip
 
 WORKDIR /work
 
-RUN curl -O https://labs.fi/files/mlinvoice-2.3.0.zip
-RUN unzip mlinvoice-2.3.0.zip
-RUN rm mlinvoice-2.3.0.zip
+RUN curl -o mlinvoice.zip https://labs.fi/files/mlinvoice-2.3.0.zip
+RUN unzip mlinvoice.zip
+RUN rm mlinvoice.zip
 
 RUN sed -ri \
  -e "s/^user = nobody/user = www/" \
