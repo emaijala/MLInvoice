@@ -781,7 +781,7 @@ EOF;
     }
 
     $defaultValues = [
-        'base' => false,
+        'base' => null,
         'info' => '',
         'foreword' => '',
         'afterword' => ''

@@ -165,7 +165,8 @@ function saveFormData($table, &$primaryKey, $formConfig, &$values, &$warnings,
             ) {
                 if (array_key_exists('default', $elem)) {
                     $values[$name] = getFormDefaultValue($elem, $parentKey);
-                } else {
+                }
+                if (!isset($values[$name]) || $values[$name] === '') {
                     if ($missingValues) {
                         $missingValues .= ', ';
                     }
