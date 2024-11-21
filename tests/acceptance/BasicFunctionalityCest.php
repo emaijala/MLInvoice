@@ -127,7 +127,7 @@ class BasicFunctionalityCest
     {
         $loginPage->login();
         $clientName = 'The Client ' . $this->timestamp . 's';
-        $this->clientId = $client->add($clientName);
+        $client->add($clientName);
         $id = $invoice->add($clientName);
 
         // Add row
@@ -141,10 +141,21 @@ class BasicFunctionalityCest
         $I->see('Invoicer 12345', '#select2-base_id-container');
         $I->see($clientName, '#select2-company_id-container');
 
+        // Update
+        $date = date('Y-m-d', strtotime('+1 YEAR'));
+        $I->selectOption('#interval_type', 'Yearly');
+        $I->fillField('#next_interval_date', $date);
+        $I->click('Save');
+        $I->reloadPage();
+        $I->seeInField('#interval_type', 'Yearly');
+        $I->seeInField('#next_interval_date', $date);
+
         // Refund
         $I->click('Refund Invoice');
         $I->seeInCurrentUrl('&id=' . ($id + 2));
         $I->waitForText('-26.04', 2, '#itable');
+        $I->seeInField('#interval_type', 'None');
+        $I->seeInField('#next_interval_date', '');
     }
 
     #[Depends('createCompany', 'createClient', 'createProduct')]

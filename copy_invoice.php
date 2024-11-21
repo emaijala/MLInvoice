@@ -122,6 +122,7 @@ if ($intInvoiceId) {
     $invoiceData['refunded_invoice_id'] = $boolRefund ? $intInvoiceId : null;
     if ($boolRefund) {
         $invoiceData['interval_type'] = 0;
+        $invoiceData['next_interval_date'] = null;
     }
 
     switch ($invoiceData['interval_type']) {
