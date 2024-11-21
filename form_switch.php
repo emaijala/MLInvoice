@@ -41,6 +41,7 @@ $inputFieldTypes = [
     'SEARCHLIST',
     'TAGS',
     'TEXT',
+    'SELECT',
 ];
 
 $searchFieldTypes = array_diff(
