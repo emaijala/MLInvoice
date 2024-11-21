@@ -64,6 +64,8 @@ EOM
 %{_datadir}/%{name}
 
 %changelog
+* Thu 21 Nov 2024 Ere Maijala <ere@labs.fi> - 2.3.1
+- updated for version 2.3.1
 * Sun 03 Nov 2024 Ere Maijala <ere@labs.fi> - 2.3.0
 - updated for version 2.3.0
 * Sat 25 Oct 2024 Ere Maijala <ere@labs.fi> - 2.2.1
