@@ -864,7 +864,7 @@ function createListQuery($strFunc, $strList, $startRow, $rowCount, $sort,
         // Ignore invisible first columns
         $column = $sortField['column'] - 2;
         if (isset($shownFields[$column])) {
-            $fieldName = $shownFields[$column]['name'];
+            [$fieldName] = explode(' ', $shownFields[$column]['name']);
             $direction = $sortField['direction'] === 'desc' ? 'DESC' : 'ASC';
             if (substr($fieldName, 0, 1) == '.') {
                 $fieldName = substr($fieldName, 1);
