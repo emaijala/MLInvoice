@@ -60,7 +60,7 @@ function condUtf8Encode($str)
 /**
  * Round a value to given decimals
  *
- * @param float  $value             Value
+ * @param ?float $value             Value
  * @param int    $decimals          Number of decimals
  * @param string $decimalSeparator  Decimal separator
  * @param string $thousandSeparator Thousand separator
@@ -71,7 +71,7 @@ function miscRound2Decim($value, $decimals = 2, $decimalSeparator = null,
     $thousandSeparator = null
 ) {
     return number_format(
-        $value, $decimals,
+        $value ?? 0, $decimals,
         $decimalSeparator ?? Translator::translate('DecimalSeparator'),
         $thousandSeparator ?? Translator::translate('ThousandSeparator')
     );

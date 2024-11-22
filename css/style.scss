@@ -392,8 +392,17 @@ td.reportsublabel {
   }
   .medium, .medium_label {
     min-width: 80px;
-    max-width: 180px;
+    max-width: 240px;
   }
+  .currency, .currency_label {
+    min-width: 80px;
+    max-width: 100px;
+  }
+  .count, .count_label {
+    min-width: 60px;
+    max-width: 100px;
+  }
+
   @media only screen and (max-width: $iform-collapse-max-width) {
     .tiny, .tiny_label {
       width: 40px;
