@@ -5,7 +5,7 @@
  * PHP version 8
  *
  * Copyright (C) Samu Reinikainen 2004-2008
- * Copyright (C) Ere Maijala 2010-2022
+ * Copyright (C) Ere Maijala 2010-2024
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2,
@@ -508,7 +508,7 @@ $(document).ready(function() {
     }
 
     $mainFormConfig['modificationWarning'] = '';
-    if ($strForm == 'invoice' && !empty($intKeyValue) && !isInvoiceOpen($intKeyValue) && !isTemplate($intKeyValue)) {
+    if ($strForm == 'invoice' && !empty($intKeyValue) && !isInvoiceOpen($intKeyValue)) {
         $mainFormConfig['modificationWarning'] = Translator::translate('NonOpenInvoiceModificationWarning');
     }
     ?>
@@ -891,6 +891,7 @@ function createFormButtons($form, $formConfig, $new, $top, $deleted)
 {
     $id = getPostOrQuery('id', '');
     $listId = getPostOrQuery('listid', '');
+    $isTemplate = 'invoice_template' === $form;
 
     $copyLinkOverride = $formConfig['copyLink'];
     $readOnlyForm = $formConfig['readOnly'];
@@ -1086,7 +1087,7 @@ function createFormButtons($form, $formConfig, $new, $top, $deleted)
         <div class="btn-set send-buttons hidden"></div>
         <?php
     }
-    if ($form === 'invoice_template' && $top && !$new) {
+    if ($isTemplate && $top && !$new) {
         $linkedInvoices = getLinkedInvoices($id);
         $openInvoice = null;
         foreach ($linkedInvoices as $linkedInvoice) {
@@ -1119,7 +1120,7 @@ function createFormButtons($form, $formConfig, $new, $top, $deleted)
                     <?php } ?>
                 </li>
                 <li>
-                    <a class="dropdown-item" href="copy_invoice.php?id=<?php echo $id?>&amp;from_template=1">
+                    <a class="dropdown-item" href="copy_invoice.php?func=invoices&form=invoice&id=<?php echo $id?>&amp;from_template=1">
                         <?php echo Translator::translate('CreateNewInvoice')?>
                     </a>
                 </li>
@@ -1169,7 +1170,7 @@ function createFormButtons($form, $formConfig, $new, $top, $deleted)
         </div>
         <?php
     }
-    if ($form === 'invoice_template' && $top && !$new) {
+    if ($isTemplate && $top && !$new) {
         ?>
         <div id="linked_invoices" class="card p-2 hidden" data-invoice-id="<?php echo $id?>">
             <div class="linked-invoices-list">
@@ -1190,7 +1191,7 @@ function createFormButtons($form, $formConfig, $new, $top, $deleted)
                         <?php foreach ($linkedInvoices as $linkedInvoice) {?>
                             <tr>
                                 <td>
-                                    <a href="?form=invoice&amp;id=<?php echo $linkedInvoice['id']?>">
+                                    <a href="?func=invoices&form=invoice&amp;id=<?php echo $linkedInvoice['id']?>">
                                         <?php echo dateConvDBDate2Date($linkedInvoice['invoice_date'])?>
                                     </a>
                                 </td>

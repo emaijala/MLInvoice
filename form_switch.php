@@ -5,7 +5,7 @@
  * PHP version 8
  *
  * Copyright (C) Samu Reinikainen 2004-2008
- * Copyright (C) Ere Maijala 2010-2022
+ * Copyright (C) Ere Maijala 2010-2024
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2,
@@ -663,7 +663,7 @@ case 'invoice_template':
     $addressAutocomplete = true;
     $defaultState = 1;
     $isOffer = false;
-    $isTemplate = false;
+    $isTemplate = 'invoice_template' === $strForm;
 
     $arrRefundedInvoice = [
         'allow_null' => true
@@ -677,7 +677,7 @@ case 'invoice_template':
         $isOffer = isOffer($intInvoiceId);
         $isTemplate = isTemplate($intInvoiceId);
 
-        if ($isOffer || !$isTemplate) {
+        if ($isOffer) {
             $locCopyAsInvoice = Translator::translate('CopyAsInvoice');
             $extraButtons = <<<EOT
 <a role="button" class="btn btn-secondary" href="copy_invoice.php?func=$strFunc&amp;list=$strList&amp;id=$intInvoiceId&amp;invoice=1">$locCopyAsInvoice</a>
@@ -722,13 +722,11 @@ EOT;
             }
         }
     } else {
-        if (getPostOrQuery('offer', false) || getPostOrQuery('form', '') === 'offer') {
+        if ($isTemplate) {
+            $defaultState = getInitialTemplateState();
+        } elseif (getPostOrQuery('offer', false) || getPostOrQuery('form', '') === 'offer') {
             $defaultState = getInitialOfferState();
             $isOffer = true;
-        }
-        if (getPostOrQuery('template', false)) {
-            $defaultState = getInitialTemplateState();
-            $isTemplate = true;
         }
     }
 
@@ -843,6 +841,17 @@ EOF;
     }
     $stateQuery .= ' ORDER BY order_no';
 
+    $hideRecurrence = $isOffer;
+    $group1 = [];
+    if (!$isOffer && !$isTemplate && $intInvoiceId && ($templateId = getInvoiceTemplateId($intInvoiceId))) {
+        $group1[] = [
+            'name' => 'showRecurringInvoiceTemplate',
+            'label' => 'ShowRecurringInvoiceTemplate',
+            'url' => "index.php?func=invoice_templates&list=invoice_templates&form=invoice_template&id=$templateId",
+        ];
+        $hideRecurrence = true;
+    }
+
     $astrFormElements = [
         [
             'name' => 'uuid',
@@ -949,7 +958,7 @@ EOF;
             'options' => getIntervalOptions(),
             'default' => '0',
             'allow_null' => true,
-            'hidden' => $isOffer,
+            'hidden' => $hideRecurrence,
         ],
         [
             'name' => 'next_interval_date',
@@ -959,7 +968,7 @@ EOF;
             'position' => 2,
             'default' => '',
             'allow_null' => true,
-            'hidden' => $isOffer,
+            'hidden' => $hideRecurrence,
         ],
         [
             'name' => 'state_id',
@@ -1093,7 +1102,6 @@ EOF;
 
     $buttonGroups = [];
 
-    $group1 = [];
     if ($intInvoiceId && sesWriteAccess() && !$isOffer && !$isTemplate) {
         $group1[] = [
             'name' => 'refundinvoice',

@@ -5,7 +5,7 @@
  * PHP version 8
  *
  * Copyright (C) Samu Reinikainen 2004-2008
- * Copyright (C) Ere Maijala 2010-2022
+ * Copyright (C) Ere Maijala 2010-2024
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2,
@@ -150,6 +150,28 @@ case 'get_invoice_rows':
 
 case 'put_invoice_row':
     saveJSONRecord('invoice_row', 'invoice_id');
+    break;
+
+case 'get_invoice_template':
+    printJSONRecord('invoice');
+    break;
+case 'put_invoice_template':
+    saveJSONRecord('invoice', '');
+    break;
+case 'get_invoice_template_row':
+    printJSONRecord('invoice_row');
+    break;
+case 'get_invoice_template_rows':
+    printJSONRecords('invoice_row', 'invoice_id', 'order_no');
+    break;
+case 'put_invoice_template_row':
+    saveJSONRecord('invoice_row', 'invoice_id');
+    break;
+case 'delete_invoice_template_row':
+    deleteJSONRecord('invoice_row');
+    break;
+case 'delete_invoice_template_attachment':
+    deleteJSONRecord('invoice_attachment');
     break;
 
 case 'get_custom_prices':

@@ -112,7 +112,7 @@ function createFuncMenu($strFunc)
     default:
         $searchType = 'import_statement' === $strFunc ? '' : 'invoice';
         if ('invoice_templates' === $strFunc) {
-            $strNewButton = '<a role="button" class="btn btn-secondary" href="?func=invoice_templates&amp;form=invoice_template&amp;template=1">' .
+            $strNewButton = '<a role="button" class="btn btn-secondary" href="?func=invoice_templates&amp;form=invoice_template">' .
                  Translator::translate('NewRecurringInvoiceTemplate') . '</a>';
         } elseif ($strFunc != 'archived_invoices' && $strFunc != 'import_statement') {
             $strNewButton = '<a role="button" class="btn btn-secondary" href="?func=invoices&amp;form=invoice">' .

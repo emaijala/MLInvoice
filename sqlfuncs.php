@@ -278,7 +278,7 @@ function isOffer($invoiceId)
  *
  * @return bool
  */
-function isTemplate($invoiceId)
+function isTemplate(int $invoiceId): bool
 {
     $rows = dbParamQuery(
         'SELECT id FROM {prefix}invoice_state WHERE invoice_template=1 AND id IN ('
@@ -286,6 +286,22 @@ function isTemplate($invoiceId)
         [$invoiceId]
     );
     return $rows ? true : false;
+}
+
+/**
+ * Get invoice template ID for an invoice
+ *
+ * @param int $invoiceId Invoice ID
+ *
+ * @return ?int
+ */
+function getInvoiceTemplateId(int $invoiceId): ?int
+{
+    $rows = dbParamQuery(
+        'SELECT template_invoice_id FROM {prefix}invoice WHERE id=?',
+        [$invoiceId]
+    );
+    return $rows[0]['template_invoice_id'] ?? null;
 }
 
 /**

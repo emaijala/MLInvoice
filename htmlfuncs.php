@@ -357,8 +357,7 @@ function createMainTabs($func)
                     'title' => 'NewRecurringInvoiceTemplate',
                     'action' => [
                         'func' => 'invoice_templates',
-                        'form' => 'invoice',
-                        'template' => '1',
+                        'form' => 'invoice_template',
                     ],
                     'levels_allowed' => [
                         ROLE_USER,
