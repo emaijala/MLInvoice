@@ -5,7 +5,7 @@
  * PHP version 8
  *
  * Copyright (C) Samu Reinikainen 2004-2008
- * Copyright (C) Ere Maijala 2010-2022
+ * Copyright (C) Ere Maijala 2010-2024
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2,
@@ -42,6 +42,16 @@ require_once 'search.php';
  */
 function createStartPage()
 {
+    // Add notification for recurring invoice templates that need processing:
+    if (recurringInvoiceTemplatesNeedProcessing()) {
+        ?>
+        <div class="alert alert-warning" role="alert">
+            <a href="?func=invoice_template">
+                <?php echo Translator::translate('RecurringInvoicesDueForProcesing'); ?>
+            </a>
+        </div>
+        <?php
+    }
     $search = new Search();
     $searches = $search->getStartPageSearches();
     foreach ($searches as $searchId) {

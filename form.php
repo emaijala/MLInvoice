@@ -207,7 +207,9 @@ EOT;
     ) {
         ?>
     <div class="alert alert-warning message" role="alert">
-        <?php echo Translator::translate('CreateCopyForNextInvoice')?>
+        <?php echo Translator::translate(
+            ($intKeyValue && isTemplate($intKeyValue)) ? 'RecurringInvoiceDueForProcessing' : 'CreateCopyForNextInvoice'
+        )?>
     </div>
         <?php
     }
@@ -1110,7 +1112,7 @@ function createFormButtons($form, $formConfig, $new, $top, $deleted)
             <ul class="dropdown-menu" aria-labelledby="created_invoices_button">
                 <li>
                     <?php if ($openInvoice) { ?>
-                        <a class="dropdown-item" href="add_rows.php?id=<?php echo $openInvoice?>&amp;from_template=<?php echo $id?>">
+                        <a class="dropdown-item" href="add_rows.php?id=<?php echo $openInvoice?>&amp;template_id=<?php echo $id?>">
                             <?php echo Translator::translate('AddToExistingOpenInvoice')?>
                         </a>
                     <?php } else { ?>
@@ -1120,7 +1122,7 @@ function createFormButtons($form, $formConfig, $new, $top, $deleted)
                     <?php } ?>
                 </li>
                 <li>
-                    <a class="dropdown-item" href="copy_invoice.php?func=invoices&form=invoice&id=<?php echo $id?>&amp;from_template=1">
+                    <a class="dropdown-item" href="create_invoice_from_template.php?template_id=<?php echo $id?>">
                         <?php echo Translator::translate('CreateNewInvoice')?>
                     </a>
                 </li>

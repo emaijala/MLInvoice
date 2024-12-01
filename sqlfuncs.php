@@ -322,6 +322,23 @@ function getInvoiceTemplateId(int $invoiceId): ?int
 }
 
 /**
+ * Get the count of recurring invoice templates in need of processing
+ *
+ * @return int
+ */
+function recurringInvoiceTemplatesNeedProcessing(): int
+{
+    $rows = dbParamQuery(
+        'SELECT count(*) AS cnt FROM {prefix}invoice WHERE state_id IN '
+        . '(SELECT id FROM {prefix}invoice_state WHERE invoice_template=1)'
+        . ' AND next_interval_date <= ?',
+        [date('Ymd')]
+    );
+    return $rows[0]['cnt'];
+
+}
+
+/**
  * Check if an invoice record is open
  *
  * @param int $invoiceId Invoice ID
@@ -554,6 +571,30 @@ function getInvoice($id)
         [$id]
     );
     return $rows ? $rows[0] : [];
+}
+
+/**
+ * Update invoice
+ *
+ * @parm array $data Invoice data
+ *
+ * @return void
+ */
+function updateInvoice(array $data): void
+{
+    $id = $data['id'];
+    unset($data['id']);
+    $fields = [];
+    $params = [];
+    foreach ($data as $key => $value) {
+        $fields[] = "$key = ?";
+        $params[] = $value;
+    }
+    $params[] = $id;
+    dbParamQuery(
+        'UPDATE {prefix}invoice SET ' . implode(', ', $fields) . ' WHERE id=?',
+        $params
+    );
 }
 
 /**

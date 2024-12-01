@@ -1,10 +1,10 @@
 <?php
 /**
- * Copy invoice
+ * Create an invoice from recurring invoice template
  *
  * PHP version 8
  *
- * Copyright (C) Ere Maijala 2010-2024
+ * Copyright (C) Ere Maijala 2024
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2,
@@ -52,27 +52,25 @@ if (!sesWriteAccess()) {
     return;
 }
 
-$intInvoiceId = getPostOrQuery('id', false);
-$boolRefund = getPostOrQuery('refund', false);
-$fromTemplate = getPostOrQuery('from_template', false);
-$strFunc = getPostOrQuery('func', '');
-$strList = getPostOrQuery('list', '');
-$isOffer = !getPostOrQuery('invoice', false) && isOffer($intInvoiceId);
-$isTemplate = !getPostOrQuery('from_template', false) && isTemplate($intInvoiceId);
+$templateId = getPostOrQuery('template_id');
+if (!$templateId) {
+    echo htmlPageStart();
+    ?>
+<body>
+<div class="container-fluid">
+    <div class="form_container">
+        <?php echo Translator::translate('ErrInvalidValue')?>
+    </div>
+</div>
+</body>
+</html>
+    <?php
+    return;
+}
 
-if ($intInvoiceId) {
-    if ($boolRefund) {
-        $strQuery = 'UPDATE {prefix}invoice ' . 'SET state_id = 4 '
-             . 'WHERE {prefix}invoice.id = ?';
-        dbParamQuery($strQuery, [$intInvoiceId]);
-    }
-
-    $strQuery = 'SELECT * ' . 'FROM {prefix}invoice '
-        . 'WHERE {prefix}invoice.id = ?';
-    $rows = dbParamQuery($strQuery, [$intInvoiceId]);
-    if (!$rows) {
-        echo htmlPageStart();
-        ?>
+if (!($invoiceData = getInvoice($templateId))) {
+    echo htmlPageStart();
+    ?>
 <body>
     <div class="container-fluid">
         <div class="form_container">
@@ -81,56 +79,28 @@ if ($intInvoiceId) {
     </div>
 </body>
 </html>
-        <?php
-        return;
-    }
-    $invoiceData = $rows[0];
+    <?php
+    return;
+}
 
     $paymentDays = getPaymentDays($invoiceData['company_id']);
 
     unset($invoiceData['id']);
     unset($invoiceData['invoice_no']);
     $invoiceData['deleted'] = 0;
-    if (!$boolRefund && !$fromTemplate) {
-        unset($invoiceData['ref_number']);
-        if (!empty($invoiceData['company_id'])) {
-            $rows = dbParamQuery(
-                'SELECT default_ref_number FROM {prefix}company WHERE id=?',
-                [$invoiceData['company_id']]
-            );
-            $invoiceData['ref_number'] = isset($rows[0])
-                ? $rows[0]['default_ref_number'] : null;
-        }
-        if (!empty($invoiceData['base_id'])) {
-            $rows = dbParamQuery(
-                'SELECT invoice_default_info FROM {prefix}base WHERE id=?',
-                [$invoiceData['base_id']]
-            );
-            $invoiceData['info'] = isset($rows[0])
-                ? $rows[0]['invoice_default_info'] : null;
-        }
-    }
     $invoiceData['invoice_date'] = date('Ymd');
     $invoiceData['due_date'] = date(
         'Ymd', mktime(0, 0, 0, date('m'), date('d') + $paymentDays, date('Y'))
     );
     $invoiceData['payment_date'] = null;
-    if ($isOffer) {
-        $invoiceData['state_id'] = getInitialOfferState();
-    } elseif ($fromTemplate || !isTemplate($intInvoiceId)) {
-        $invoiceData['state_id'] = 1;
-    }
+    $invoiceData['state_id'] = 1;
     $invoiceData['archived'] = false;
-    $invoiceData['refunded_invoice_id'] = $boolRefund ? $intInvoiceId : null;
-    if ($boolRefund || $fromTemplate) {
-        $invoiceData['interval_type'] = 0;
-        $invoiceData['next_interval_date'] = null;
-    }
-    if ($fromTemplate) {
-        $invoiceData['template_invoice_id'] = $intInvoiceId;
-    }
+    $invoiceData['refunded_invoice_id'] = null;
+    $invoiceData['interval_type'] = 0;
+    $invoiceData['next_interval_date'] = null;
+    $invoiceData['template_invoice_id'] = $intInvoiceId;
 
-    advanceInvoiceIntervalData($invoiceData);
+
 
     dbQueryCheck('SET AUTOCOMMIT = 0');
     dbQueryCheck('BEGIN');
@@ -180,6 +150,11 @@ if ($intInvoiceId) {
                  str_repeat('?, ', count($row) - 1) . '?)';
             dbParamQuery($strQuery, $row, 'exception');
         }
+
+        // Update interval of the template:
+        $template = getInvoice($templateId);
+        advanceInvoiceIntervalData($template);
+        updateInvoice($template);
     } catch (Exception $e) {
         dbQueryCheck('ROLLBACK');
         dbQueryCheck('SET AUTOCOMMIT = 1');

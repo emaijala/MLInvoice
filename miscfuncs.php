@@ -912,3 +912,47 @@ function getIntervalOptions(): array
     }
     return $intervalOptions;
 }
+
+function advanceInvoiceIntervalData(array &$invoiceData): void
+{
+    switch ($invoiceData['interval_type']) {
+    // Month
+    case 2:
+        $invoiceData['next_interval_date'] = date(
+            'Ymd', mktime(0, 0, 0, date('m') + 1, date('d'), date('Y'))
+        );
+        break;
+    // Year
+    case 3:
+        $invoiceData['next_interval_date'] = date(
+            'Ymd', mktime(0, 0, 0, date('m'), date('d'), date('Y') + 1)
+        );
+        break;
+    // 2 to 6 months
+    case 4:
+    case 5:
+    case 6:
+    case 7:
+    case 8:
+        $invoiceData['next_interval_date'] = date(
+            'Ymd',
+            mktime(
+                0, 0, 0, date('m') + $invoiceData['interval_type'] - 2,
+                date('d'), date('Y')
+            )
+        );
+        break;
+    // 2 years
+    case 14:
+        $invoiceData['next_interval_date'] = date(
+            'Ymd', mktime(0, 0, 0, date('m'), date('d'), date('Y') + 2)
+        );
+        break;
+    // 3 years
+    case 15:
+        $invoiceData['next_interval_date'] = date(
+            'Ymd', mktime(0, 0, 0, date('m'), date('d'), date('Y') + 3)
+        );
+        break;
+    }
+}
