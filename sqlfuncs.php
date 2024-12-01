@@ -272,6 +272,23 @@ function isOffer($invoiceId)
 }
 
 /**
+ * Check if an invoice record is an actual invoice
+ *
+ * @param int $invoiceId Invoice ID
+ *
+ * @return bool
+ */
+function isInvoice($invoiceId)
+{
+    $rows = dbParamQuery(
+        'SELECT id FROM {prefix}invoice_state WHERE invoice_offer=0 AND invoice_template=0 AND id IN ('
+        . 'SELECT state_id FROM {prefix}invoice WHERE id=?)',
+        [$invoiceId]
+    );
+    return $rows ? true : false;
+}
+
+/**
  * Check if an invoice record is a template for recurring invoices
  *
  * @param int $invoiceId Invoice ID
@@ -332,6 +349,25 @@ function isRowOfOffer($invoiceRowId)
 {
     $rows = dbParamQuery(
         'SELECT id FROM {prefix}invoice_state WHERE invoice_offer=1 AND id IN ('
+        . 'SELECT state_id FROM {prefix}invoice i'
+        . ' INNER JOIN {prefix}invoice_row ir ON i.id = ir.invoice_id'
+        . ' WHERE ir.id=?)',
+        [$invoiceRowId]
+    );
+    return $rows ? true : false;
+}
+
+/**
+ * Check if an invoice row belongs to an actual invoice
+ *
+ * @param int $invoiceRowId Invoice row ID
+ *
+ * @return bool
+ */
+function isRowOfInvoice($invoiceRowId)
+{
+    $rows = dbParamQuery(
+        'SELECT id FROM {prefix}invoice_state WHERE invoice_offer=0 AND invoice_template=0 AND id IN ('
         . 'SELECT state_id FROM {prefix}invoice i'
         . ' INNER JOIN {prefix}invoice_row ir ON i.id = ir.invoice_id'
         . ' WHERE ir.id=?)',
@@ -1505,12 +1541,12 @@ function deleteRecord($table, $id)
     dbQueryCheck('BEGIN');
     try {
         // Special case for invoice_row - update product stock balance
-        if ($table == '{prefix}invoice_row' && !isRowOfOffer($id)) {
+        if ($table == '{prefix}invoice_row' && isRowOfInvoice($id)) {
             updateProductStockBalance($id, null, null);
         }
 
         // Special case for invoice - update all products in invoice rows
-        if ($table == '{prefix}invoice' && !isOffer($id)) {
+        if ($table == '{prefix}invoice' && isinvoice($id)) {
             $rows = dbParamQuery(
                 'SELECT id FROM {prefix}invoice_row WHERE invoice_id=?'
                     . ' AND deleted=0',

@@ -1,10 +1,10 @@
 <?php
 /**
- * Logo handling
+ * Copy invoice
  *
  * PHP version 8
  *
- * Copyright (C) Ere Maijala 2010-2021
+ * Copyright (C) Ere Maijala 2010-2024
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2,
@@ -58,6 +58,7 @@ $fromTemplate = getPostOrQuery('from_template', false);
 $strFunc = getPostOrQuery('func', '');
 $strList = getPostOrQuery('list', '');
 $isOffer = !getPostOrQuery('invoice', false) && isOffer($intInvoiceId);
+$isTemplate = !getPostOrQuery('from_template', false) && isTemplate($intInvoiceId);
 
 if ($intInvoiceId) {
     if ($boolRefund) {
@@ -210,7 +211,7 @@ if ($intInvoiceId) {
                 $row['row_date'] = $newRowDate;
             }
             // Update product stock balance
-            if (!$isOffer && $row['product_id'] !== null) {
+            if (!$isOffer && !$isTemplate && $row['product_id'] !== null) {
                 updateProductStockBalance(null, $row['product_id'], $row['pcs']);
             }
             $strQuery = 'INSERT INTO {prefix}invoice_row(' .
