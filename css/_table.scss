@@ -2,7 +2,7 @@
  * dataTables display
  */
 
-tr.overdue td.due-date {
+tr.overdue td.due-date, tr.due td.next-interval-date {
   &, &.sorting_1, &.sorting_2, &.sorting_3 {
 	background-color: #FFCCDD;
   }

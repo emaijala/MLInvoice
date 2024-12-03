@@ -46,7 +46,7 @@ function createStartPage()
     if (recurringInvoiceTemplatesNeedProcessing()) {
         ?>
         <div class="alert alert-warning" role="alert">
-            <a href="?func=invoice_template">
+            <a href="?func=invoice_templates">
                 <?php echo Translator::translate('RecurringInvoicesDueForProcesing'); ?>
             </a>
         </div>

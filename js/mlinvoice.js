@@ -337,6 +337,11 @@ var MLInvoice = (function CreateMLInvoice() {
     infomsg(msg, timeout, 'text-white bg-danger');
   }
 
+  function warningmsg(msg, timeout)
+  {
+    infomsg(msg, timeout, 'bg-warning');
+  }
+
   function clearMessages()
   {
     $('#toasts').html('');
@@ -803,6 +808,7 @@ var MLInvoice = (function CreateMLInvoice() {
     updateRowSelectedState: updateRowSelectedState,
     infomsg: infomsg,
     errormsg: errormsg,
+    warningmsg: warningmsg,
     editUnitPrice: editUnitPrice,
     setCurrencyDecimals: setCurrencyDecimals,
     getDateFormat: getDateFormat,

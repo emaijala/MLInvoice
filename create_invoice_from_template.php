@@ -83,85 +83,75 @@ if (!($invoiceData = getInvoice($templateId))) {
     return;
 }
 
-    $paymentDays = getPaymentDays($invoiceData['company_id']);
+$paymentDays = getPaymentDays($invoiceData['company_id']);
 
-    unset($invoiceData['id']);
-    unset($invoiceData['invoice_no']);
-    $invoiceData['deleted'] = 0;
-    $invoiceData['invoice_date'] = date('Ymd');
-    $invoiceData['due_date'] = date(
-        'Ymd', mktime(0, 0, 0, date('m'), date('d') + $paymentDays, date('Y'))
-    );
-    $invoiceData['payment_date'] = null;
-    $invoiceData['state_id'] = 1;
-    $invoiceData['archived'] = false;
-    $invoiceData['refunded_invoice_id'] = null;
-    $invoiceData['interval_type'] = 0;
-    $invoiceData['next_interval_date'] = null;
-    $invoiceData['template_invoice_id'] = $intInvoiceId;
+unset($invoiceData['id']);
+unset($invoiceData['invoice_no']);
+$invoiceData['deleted'] = 0;
+$invoiceData['invoice_date'] = date('Ymd');
+$invoiceData['due_date'] = date(
+    'Ymd', mktime(0, 0, 0, date('m'), date('d') + $paymentDays, date('Y'))
+);
+$invoiceData['payment_date'] = null;
+$invoiceData['state_id'] = 1;
+$invoiceData['archived'] = false;
+$invoiceData['refunded_invoice_id'] = null;
+$invoiceData['interval_type'] = 0;
+$invoiceData['next_interval_date'] = null;
+$invoiceData['template_invoice_id'] = $templateId;
 
+dbQueryCheck('SET AUTOCOMMIT = 0');
+dbQueryCheck('BEGIN');
 
+try {
+    $strQuery = 'INSERT INTO {prefix}invoice(' .
+            implode(', ', array_keys($invoiceData)) . ') ' . 'VALUES (' .
+            str_repeat('?, ', count($invoiceData) - 1) . '?)';
 
-    dbQueryCheck('SET AUTOCOMMIT = 0');
-    dbQueryCheck('BEGIN');
-
-    try {
-        if ($invoiceData['interval_type'] > 0) {
-            // Reset interval type of the original invoice
-            $strQuery = 'UPDATE {prefix}invoice ' . 'SET interval_type = 0 ' .
-                 'WHERE {prefix}invoice.id = ?';
-            dbParamQuery($strQuery, [$intInvoiceId], 'exception');
-        }
-
-        $strQuery = 'INSERT INTO {prefix}invoice(' .
-             implode(', ', array_keys($invoiceData)) . ') ' . 'VALUES (' .
-             str_repeat('?, ', count($invoiceData) - 1) . '?)';
-
-        dbParamQuery($strQuery, array_values($invoiceData), 'exception');
-        $intNewId = mysqli_insert_id($dblink);
-        if (!$intNewId) {
-            die('Could not get ID of the new invoice');
-        }
-        $newRowDate = date('Ymd');
-        $strQuery = 'SELECT * ' . 'FROM {prefix}invoice_row ' .
-             'WHERE deleted=0 AND invoice_id=?';
-        $rows = dbParamQuery($strQuery, [$intInvoiceId], 'exception');
-        foreach ($rows as $row) {
-            if ($boolRefund) {
-                $row['pcs'] = -$row['pcs'];
-                if ($row['partial_payment']) {
-                    $row['price'] = -$row['price'];
-                }
-            } elseif ($row['reminder_row']) {
-                continue;
-            }
-            unset($row['id']);
-            $row['invoice_id'] = $intNewId;
-
-            if (getSetting('invoice_update_row_dates_on_copy')) {
-                $row['row_date'] = $newRowDate;
-            }
-            // Update product stock balance
-            if (!$isOffer && !$isTemplate && $row['product_id'] !== null) {
-                updateProductStockBalance(null, $row['product_id'], $row['pcs']);
-            }
-            $strQuery = 'INSERT INTO {prefix}invoice_row(' .
-                 implode(', ', array_keys($row)) . ') ' . 'VALUES (' .
-                 str_repeat('?, ', count($row) - 1) . '?)';
-            dbParamQuery($strQuery, $row, 'exception');
-        }
-
-        // Update interval of the template:
-        $template = getInvoice($templateId);
-        advanceInvoiceIntervalData($template);
-        updateInvoice($template);
-    } catch (Exception $e) {
-        dbQueryCheck('ROLLBACK');
-        dbQueryCheck('SET AUTOCOMMIT = 1');
-        die($e->getMessage());
+    dbParamQuery($strQuery, array_values($invoiceData), 'exception');
+    $intNewId = mysqli_insert_id($dblink);
+    if (!$intNewId) {
+        die('Could not get ID of the new invoice');
     }
-    dbQueryCheck('COMMIT');
-    dbQueryCheck('SET AUTOCOMMIT = 1');
-}
+    $newRowDate = date('Ymd');
+    $strQuery = 'SELECT * ' . 'FROM {prefix}invoice_row WHERE deleted=0 AND invoice_id=?';
+    $rows = dbParamQuery($strQuery, [$templateId], 'exception');
+    foreach ($rows as $row) {
+        if ($boolRefund) {
+            $row['pcs'] = -$row['pcs'];
+            if ($row['partial_payment']) {
+                $row['price'] = -$row['price'];
+            }
+        } elseif ($row['reminder_row']) {
+            continue;
+        }
+        unset($row['id']);
+        $row['invoice_id'] = $intNewId;
 
+        if ($row['row_date']) {
+            $row['row_date'] = $newRowDate;
+        }
+        // Update product stock balance
+        if (!$isOffer && !$isTemplate && $row['product_id'] !== null) {
+            updateProductStockBalance(null, $row['product_id'], $row['pcs']);
+        }
+        $strQuery = 'INSERT INTO {prefix}invoice_row(' .
+                implode(', ', array_keys($row)) . ') ' . 'VALUES (' .
+                str_repeat('?, ', count($row) - 1) . '?)';
+        dbParamQuery($strQuery, $row, 'exception');
+    }
+
+    // Update interval of the template:
+    $template = getInvoice($templateId);
+    advanceInvoiceIntervalDate($template);
+    updateInvoice($template);
+} catch (Exception $e) {
+    dbQueryCheck('ROLLBACK');
+    dbQueryCheck('SET AUTOCOMMIT = 1');
+    die($e->getMessage());
+}
+dbQueryCheck('COMMIT');
+dbQueryCheck('SET AUTOCOMMIT = 1');
+
+$_SESSION['formWarningMessage'] = Translator::Translate('CheckCreatedInvoice');
 header("Location: index.php?func=$strFunc&list=$strList&form=invoice&id=$intNewId");

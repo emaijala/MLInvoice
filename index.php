@@ -270,7 +270,7 @@ if ($strFunc == 'system' && $operation == 'export' && sesAdminAccess()) {
         } elseif ($strFunc == 'archived_invoices') {
             createList('archived_invoices', 'archived_invoices', 'archived_invoices', '', Search::SEARCH_ARCHIVED_INVOICES, false, false, 'invoice');
         } elseif ($strFunc == 'invoice_templates') {
-            createList('invoice_templates', 'invoice_templates', 'invoice_templates', '', Search::SEARCH_RECURRING_INVOICE_TEMPLATES, false, false, 'invoice');
+            createList('invoice_templates', 'invoice_templates', 'invoice_templates', '', Search::SEARCH_RECURRING_INVOICE_TEMPLATES, false, true, 'invoice');
         } elseif ($strFunc == 'offers') {
             createList($strFunc, $strList, '', '', Search::SEARCH_NON_ARCHIVED_OFFERS, false, false, 'invoice');
         } elseif ($strFunc == 'archived_offers') {

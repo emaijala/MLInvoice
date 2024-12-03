@@ -130,7 +130,7 @@ if ($intInvoiceId) {
         $invoiceData['template_invoice_id'] = $intInvoiceId;
     }
 
-    advanceInvoiceIntervalData($invoiceData);
+    advanceInvoiceIntervalDate($invoiceData);
 
     dbQueryCheck('SET AUTOCOMMIT = 0');
     dbQueryCheck('BEGIN');

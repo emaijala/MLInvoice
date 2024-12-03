@@ -170,6 +170,8 @@ function createList($strFunc, $strList, $strTableName = '', $strTitleOverride = 
             $class = 'editable';
         } elseif ('i.due_date' === $field['name']) {
             $class = 'due-date';
+        } elseif ('i.next_interval_date' === $field['name']) {
+            $class = 'next-interval-date';
         }
         $visible = !isset($field['visible']) || $field['visible'] ? 'true' : 'false';
         ?>
@@ -626,7 +628,7 @@ function createJSONList(
             $resultValues[] = $value;
 
             // Special colouring for overdue invoices
-            if ($highlight && $name == 'due_date') {
+            if ($highlight && 'invoices' === $strList && $name == 'due_date') {
                 $rowDue = dbDate2UnixTime($row['due_date']);
                 if ($rowDue < mktime(0, 0, 0, date("m"), date("d") - 14, date("Y"))
                 ) {
@@ -638,6 +640,19 @@ function createJSONList(
                 } elseif ($rowDue < mktime(0, 0, 0, date("m"), date("d"), date("Y"))
                 ) {
                     $rowClass = 'overdue';
+                }
+            }
+
+            // Special colouring for due/overdue invoice templates
+            if ($highlight
+                && 'invoice_templates' === $strList
+                && $name == 'next_interval_date'
+                && $row['next_interval_date']
+            ) {
+                $nextDate = dbDate2UnixTime($row['next_interval_date']);
+                if ($nextDate <= mktime(0, 0, 0, date("m"), date("d"), date("Y"))
+                ) {
+                    $rowClass = 'due';
                 }
             }
         }

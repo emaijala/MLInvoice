@@ -264,7 +264,7 @@ case 'offer':
             'width' => 60,
             'type' => 'INTDATE',
             'header' => 'HeaderInvoiceNextIntervalDate',
-            'visible' => false,
+            'visible' => 'invoice_templates' === $strList,
         ],
         [
             'name' => 'i.ref_number',

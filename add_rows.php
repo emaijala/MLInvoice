@@ -95,4 +95,5 @@ try {
 dbQueryCheck('COMMIT');
 dbQueryCheck('SET AUTOCOMMIT = 1');
 
+$_SESSION['formWarningMessage'] = Translator::Translate('CheckUpdatedInvoice');
 header("Location: index.php?func=invoices&list=invoice&form=invoice&id=$invoiceId");

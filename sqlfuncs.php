@@ -576,7 +576,7 @@ function getInvoice($id)
 /**
  * Update invoice
  *
- * @parm array $data Invoice data
+ * @param array $data Invoice data
  *
  * @return void
  */
@@ -1141,12 +1141,12 @@ function getLinkedInvoices(int $id): array
 {
     $join = getInvoiceTotalJoinQuery();
     $rows = dbParamQuery(
-        'SELECT i.*, s.name state, s.invoice_open, ' . $join['alias'] . '.row_total ' . ' FROM {prefix}invoice i '
-        . $join['type'] . ' JOIN ' . $join['expr'] . ' ' . $join['alias'] . ' ON ' . $join['condition']
+        'SELECT i.*, s.name state, s.invoice_open FROM {prefix}invoice i '
+        // 'SELECT i.*, s.name state, s.invoice_open, ' . $join['alias'] . '.row_total ' . ' FROM {prefix}invoice i '
+        // . $join['type'] . ' JOIN ' . $join['expr'] . ' ' . $join['alias'] . ' ON ' . $join['condition']
         . ' LEFT OUTER JOIN {prefix}invoice_state s ON i.state_id = s.id'
         . ' WHERE i.template_invoice_id = ?'
-        . ' ORDER BY i.invoice_date DESC, i.id DESC'
-        . ' LIMIT 11',
+        . ' ORDER BY i.invoice_date DESC, i.id DESC',
         [$id]
     );
     return $rows ? $rows : [];

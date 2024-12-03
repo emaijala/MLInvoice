@@ -69,15 +69,21 @@ function createForm($strFunc, $strList, $strForm)
     }
 
     $strMessage = '';
-    if (isset($_SESSION['formMessage']) && $_SESSION['formMessage']) {
-        $strMessage = Translator::translate($_SESSION['formMessage']);
+    if ($msg = $_SESSION['formMessage'] ?? null) {
+        $strMessage = Translator::translate($msg);
         unset($_SESSION['formMessage']);
     }
 
     $strErrorMessage = '';
-    if (isset($_SESSION['formErrorMessage']) && $_SESSION['formErrorMessage']) {
-        $strErrorMessage = Translator::translate($_SESSION['formErrorMessage']);
+    if ($msg = $_SESSION['formErrorMessage'] ?? null) {
+        $strErrorMessage = Translator::translate($msg);
         unset($_SESSION['formErrorMessage']);
+    }
+
+    $strWarningMessage = '';
+    if ($msg = $_SESSION['formWarningMessage'] ?? null) {
+        $strWarningMessage = Translator::translate($msg);
+        unset($_SESSION['formWarningMessage']);
     }
 
     if ('new' === $action) {
@@ -202,7 +208,7 @@ EOT;
         $strForm, $formConfig, $intKeyValue ? false : true, true, $recordDeleted
     );
 
-    if ($strForm == 'invoice' && !empty($astrValues['next_interval_date'])
+    if ($strForm == 'invoice_template' && !empty($astrValues['next_interval_date'])
         && strDate2UnixTime($astrValues['next_interval_date']) <= time()
     ) {
         ?>
@@ -425,6 +431,11 @@ $(document).ready(function() {
     if ($strErrorMessage) {
         ?>
       MLInvoice.errormsg(<?php echo json_encode($strErrorMessage)?>);
+        <?php
+    }
+    if ($strWarningMessage) {
+        ?>
+      MLInvoice.warningmsg(<?php echo json_encode($strWarningMessage)?>, 5000);
         <?php
     }
     if ($strForm == 'product') {
@@ -1101,7 +1112,7 @@ function createFormButtons($form, $formConfig, $new, $top, $deleted)
         ?>
         <div class="btn-set">
             <a id="linked_invoices_button" class="btn btn-secondary" role="button" aria-expanded="false">
-                <?php echo Translator::translate('Created Invoices')?>
+                <?php echo Translator::translate('CreatedInvoices')?>
                 (<span class="linked-invoice-count"><?php echo count($linkedInvoices)?></span>)
                 <span class="dropdown-open"><i class="icon-down-dir"></i><span class="visually-hidden"><?php echo Translator::translate('Show')?></span></span>
                 <span class="dropdown-close hidden"><i class="icon-up-dir"></i><span class="visually-hidden"><?php echo Translator::translate('Hide')?></span></span>
@@ -1185,7 +1196,6 @@ function createFormButtons($form, $formConfig, $new, $top, $deleted)
                             <th><?php echo Translator::translate('HeaderInvoiceName') ?></th>
                             <th><?php echo Translator::translate('HeaderInvoiceReference') ?></th>
                             <th><?php echo Translator::translate('HeaderInvoiceState') ?></th>
-                            <th><?php echo Translator::translate('HeaderInvoiceTotal') ?></th>
                         </tr>
                     </thead>
                     <tbody>
@@ -1202,7 +1212,6 @@ function createFormButtons($form, $formConfig, $new, $top, $deleted)
                                 <td><?php echo escapeHtml($linkedInvoice['name'])?></td>
                                 <td><?php echo escapeHtml($linkedInvoice['reference'])?></td>
                                 <td><?php echo Translator::translate($linkedInvoice['state'])?></td>
-                                <td><?php echo miscRound2Decim($linkedInvoice['row_total'] ?? 0)?></td>
                             </tr>
                             <?php
                             if (++$linkCount === 10) {
@@ -1211,6 +1220,7 @@ function createFormButtons($form, $formConfig, $new, $top, $deleted)
                                     ...
                                 </td>
                                 <?php
+                                break;
                             }
                         }
                         ?>

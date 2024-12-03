@@ -913,7 +913,14 @@ function getIntervalOptions(): array
     return $intervalOptions;
 }
 
-function advanceInvoiceIntervalData(array &$invoiceData): void
+/**
+ * Advance the next interval date of a recurring invoice or template
+ *
+ * @param array $invoiceData Invoice data
+ *
+ * @return void
+ */
+function advanceInvoiceIntervalDate(array &$invoiceData): void
 {
     switch ($invoiceData['interval_type']) {
     // Month
