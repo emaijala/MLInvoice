@@ -208,7 +208,18 @@ EOT;
         $strForm, $formConfig, $intKeyValue ? false : true, true, $recordDeleted
     );
 
-    if ($strForm == 'invoice_template' && !empty($astrValues['next_interval_date'])
+    if ($intKeyValue && $strForm == 'invoice_template') {
+        $alertClass = empty($astrValues['next_interval_date']) || empty($astrValues['interval_type'])
+            ? '' : ' hidden';
+
+        ?>
+        <div class="alert alert-warning message js-recurrence-alert<?php echo $alertClass?>" role="alert">
+            <?php echo Translator::translate('RecurrenceOrNextInvoiceDateNotSet')?>
+        </div>
+        <?php
+    }
+
+    if (!empty($astrValues['next_interval_date'])
         && strDate2UnixTime($astrValues['next_interval_date']) <= time()
     ) {
         ?>

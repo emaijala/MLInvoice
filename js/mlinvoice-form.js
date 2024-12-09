@@ -1121,6 +1121,18 @@ MLInvoice.addModule('Form', function mlinvoiceForm() {
           $('.deleted-record-msg').remove();
           MLInvoice.highlightButton('.save_button', false);
           MLInvoice.infomsg(MLInvoice.translate('RecordSaved'), 2000);
+          if ('invoice_template' === _formConfig.type) {
+            const alertEl = document.querySelector('.js-recurrence-alert');
+            if (alertEl) {
+              const intervalTypeEl = document.getElementById('interval_type');
+              const nextDateEl = document.getElementById('next_interval_date');
+              if (intervalTypeEl && nextDateEl) {
+                alertEl.classList.toggle('hidden', intervalTypeEl.value !== '0' && nextDateEl.value !== '');
+              } else {
+                console.warn('Interval type or next invoice date field not found');
+              }
+            }
+          }
           if (redirectUrl) {
             if ('openwindow' === redirectStyle) {
               window.open(redirectUrl);
