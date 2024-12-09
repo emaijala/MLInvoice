@@ -707,6 +707,8 @@ class Search
                 $fieldConfig = $formConfig['fields'][$type] ?? [];
                 if ('tags' === $type) {
                     $type = 'Tags';
+                } elseif ('template_invoice_id' === $type) {
+                    $type = 'RecurringInvoiceTemplate';
                 } else {
                     $type = $fieldConfig['label'] ?? null;
                     if (!$type) {
@@ -715,7 +717,7 @@ class Search
                 }
 
                 $value = $field['value'];
-                switch ($fieldConfig['type']) {
+                switch ($fieldConfig['type'] ?? null) {
                 case 'TEXT':
                 case 'INT':
                 case 'AREA':

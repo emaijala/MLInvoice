@@ -1227,8 +1227,10 @@ function createFormButtons($form, $formConfig, $new, $top, $deleted)
                             <?php
                             if (++$linkCount === 10) {
                                 ?>
-                                <td colspan="*">
-                                    ...
+                                <td colspan="6">
+                                    <a href="?func=results&type=invoice&s_op=AND&s_op1=AND&s_type1[]=template_invoice_id&s_cmp1[]=eq&s_field1[]=<?php echo $id?>">
+                                        <?php echo Translator::translate('ShowAll')?>
+                                    </a>
                                 </td>
                                 <?php
                                 break;
