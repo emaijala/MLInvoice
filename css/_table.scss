@@ -20,7 +20,7 @@ tr.overdue14 td.due-date {
 
 @if $enable-dark-mode {
 	@include color-mode(dark, true) {
-		tr.overdue td.due-date {
+		tr.overdue td.due-date, tr.due td.next-interval-date {
 			&, &.sorting_1, &.sorting_2, &.sorting_3 {
 				background-color: #440000;
 			}
