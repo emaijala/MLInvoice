@@ -305,7 +305,7 @@ var MLInvoice = (function CreateMLInvoice() {
     if (typeof colorClasses !== 'undefined') {
       $toast.addClass(colorClasses);
     } else {
-      $toast.addClass('text-white bg-success');
+      $toast.addClass('text-success-emphasis bg-success-subtle');
     }
     var $flex = $('<div class="d-flex">')
       .appendTo($toast);
@@ -334,12 +334,12 @@ var MLInvoice = (function CreateMLInvoice() {
 
   function errormsg(msg, timeout)
   {
-    infomsg(msg, timeout, 'text-white bg-danger');
+    infomsg(msg, timeout, 'text-danger-emphasis bg-danger-subtle');
   }
 
   function warningmsg(msg, timeout)
   {
-    infomsg(msg, timeout, 'bg-warning');
+    infomsg(msg, timeout, 'text-warning-emphasis bg-warning-subtle');
   }
 
   function clearMessages()
