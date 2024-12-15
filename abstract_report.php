@@ -182,7 +182,7 @@ EOT;
         while ($row = mysqli_fetch_assoc($res)) {
             $stateId = $row['id'];
             if (getPostOrQuery("stateid_$stateId", false)) {
-                $states[] = Translator::translate($row['name']);
+                $states[] = Translator::translate($row['name'] ?? '-');
             }
         }
 
@@ -202,7 +202,7 @@ EOT;
     protected function addInvoiceStateSelection()
     {
         ?>
-        <div class="invoice-states">
+        <div class="selection-list invoice-states">
             <div class="medium_label"><?php echo Translator::translate('PrintReportStates')?></div>
         <?php
         $strQuery = 'SELECT id, name, invoice_offer FROM {prefix}invoice_state WHERE deleted=0'
@@ -211,7 +211,7 @@ EOT;
         $first = true;
         while ($row = mysqli_fetch_assoc($intRes)) {
             $intStateId = $row['id'];
-            $strStateName = Translator::translate($row['name']);
+            $strStateName = Translator::translate($row['name'] ?? '-');
             $strChecked = getPostOrQuery("stateid_$intStateId", $row['invoice_offer'] ? false : true) ? ' checked' : '';
             if (!$first) {
                 echo "      <div class=\"medium_label\"></div>\n";

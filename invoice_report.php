@@ -246,7 +246,7 @@ class InvoiceReport extends AbstractReport
         <?php
         $this->addInvoiceStateSelection();
         ?>
-        <div class="report-settings">
+        <div class="report-settings selection-list">
             <div class="medium_label"><?php echo Translator::translate('PrintFields')?></div>
         <?php
         $first = true;
@@ -822,7 +822,7 @@ class InvoiceReport extends AbstractReport
             // Print company name last, as it can span multiple lines
             if (in_array('company_name', $printFields)) {
                 $pdf->setX($nameX);
-                $pdf->MultiCell(40, 4, $row['name'], 0, 'L');
+                $pdf->MultiCell(40, 4, $row['name'] ?? '', 0, 'L');
             }
             return;
         }
@@ -831,7 +831,7 @@ class InvoiceReport extends AbstractReport
         <?php
         if (in_array('invoice_no', $printFields)) {
             ?>
-        <td class="input" data-sort="<?php echo htmlspecialchars($row['invoice_no'])?>">
+        <td class="input" data-sort="<?php echo htmlspecialchars($row['invoice_no'] ?? '')?>">
           <a href="index.php?func=invoices&list=invoice&form=invoice&id=<?php echo htmlspecialchars($row['id'])?>">
             <?php echo '' != $row['invoice_no'] ? htmlspecialchars($row['invoice_no']) : '-'?>
           </a>
@@ -862,7 +862,7 @@ class InvoiceReport extends AbstractReport
         if (in_array('company_name', $printFields)) {
             ?>
         <td class="input">
-            <?php echo htmlspecialchars($row['name'])?>
+            <?php echo htmlspecialchars($row['name'] ?? '')?>
         </td>
             <?php
         }

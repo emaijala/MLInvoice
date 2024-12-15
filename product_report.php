@@ -253,9 +253,9 @@ class ProductReport extends AbstractReport
                 || $prevRow['vat'] != $row['vat'])
             ) {
                 $this->printRow(
-                    $format, $prevRow['id'], $prevRow['product_code'],
-                    $prevRow['product_name'], $prevRow['description'], $productCount,
-                    $prevRow['unit'], $productSum, $prevRow['vat'], $productVAT,
+                    $format, $prevRow['id'], $prevRow['product_code'] ?? '',
+                    $prevRow['product_name'] ?? '', $prevRow['description'], $productCount,
+                    $prevRow['unit'] ?? '', $productSum, $prevRow['vat'], $productVAT,
                     $productSumVAT
                 );
                 $productCount = 0;
@@ -278,8 +278,8 @@ class ProductReport extends AbstractReport
         }
         if ($prevRow !== false) {
             $this->printRow(
-                $format, $prevRow['id'], $prevRow['product_code'],
-                $prevRow['product_name'], $prevRow['description'], $productCount,
+                $format, $prevRow['id'], $prevRow['product_code'] ?? '',
+                $prevRow['product_name'] ?? '', $prevRow['description'], $productCount,
                 $prevRow['unit'], $productSum, $prevRow['vat'], $productVAT,
                 $productSumVAT
             );
