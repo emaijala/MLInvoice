@@ -801,7 +801,12 @@ class Search
                     } else {
                         $field['options'] = $field['listquery'];
                     }
-                    $field['options'] = array_map('Translator::translate', $field['options']);
+                    $field['options'] = array_map(
+                        function ($s) {
+                            return Translator::translate($s ?? '');
+                        },
+                        $field['options']
+                    );
                 }
 
                 return $field;
