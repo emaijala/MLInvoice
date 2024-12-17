@@ -1,14 +1,13 @@
 // Override the clear icon because the default tries to use a `--var()` variable:
 $s2bs5-clear-icon: $btn-close-bg;
 $s2bs5-clear-bg: transparent escape-svg($btn-close-bg) center / 0.75rem auto no-repeat;
-$s2bs5-clear-bg-dark: transparent escape-svg(str-replace($btn-close-bg, #{$btn-close-color}, #{$gray-300}));
+$s2bs5-clear-bg-dark: transparent escape-svg(str-replace($btn-close-bg, #{$btn-close-color}, #{$gray-300})) center / 0.75rem auto no-repeat;
 
 // Dark versions of icons:
 [data-bs-theme=dark] {
     .select2-container--bootstrap-5 {
         .select2-selection--single, .select2-selection--multiple {
             --#{$prefix}form-select-bg-img: #{escape-svg($form-select-indicator-dark)};
-            background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='%23dcd9cf' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M2 5l6 6 6-6'/%3e%3c/svg%3e");
             .select2-selection__clear {
                 background: $s2bs5-clear-bg-dark;
 
@@ -16,6 +15,12 @@ $s2bs5-clear-bg-dark: transparent escape-svg(str-replace($btn-close-bg, #{$btn-c
                     background: $s2bs5-clear-bg-dark;
                 }
             }
+            .select2-selection__rendered .select2-selection__choice .select2-selection__choice__remove:hover {
+                background: $s2bs5-clear-bg-dark;
+            }
+        }
+        .select2-selection--single {
+            background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='%23dcd9cf' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M2 5l6 6 6-6'/%3e%3c/svg%3e");
         }
     }
 }

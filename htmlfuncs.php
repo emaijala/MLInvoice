@@ -843,6 +843,8 @@ function htmlListBox($strName, $astrValues, $strSelected, $strStyle = '',
     }
 
     foreach ($astrValues as $value => $desc) {
+        $value ??= '';
+        $desc ??= '-';
         $strSelect = $strSelected == $value ? ' selected' : '';
         if ($translate) {
             $desc = Translator::translate($desc);
