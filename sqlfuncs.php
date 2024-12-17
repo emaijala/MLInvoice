@@ -1418,6 +1418,30 @@ function getQuickSearch(int $id): array
                 ]
             ];
             break;
+        case Search::SEARCH_RECURRING_INVOICE_TEMPLATES_DUE:
+            $label = 'RecurringInvoiceTemplates';
+            $groups = [
+                [
+                    'operator' => 'OR',
+                    'fields' => getStateSearchFields('invoice_template=1'),
+                ],
+                [
+                    'operator' => 'AND',
+                    'fields' => [
+                        [
+                            'name' => 'next_interval_date',
+                            'value' => date('Y-m-d'),
+                            'comparison' => 'lte'
+                        ],
+                        [
+                            'name' => 'archived',
+                            'value' => '0',
+                            'comparison' => 'eq'
+                        ],
+                    ]
+                ]
+            ];
+            break;
         default:
             throw new \Exception('Invalid search id');
         }

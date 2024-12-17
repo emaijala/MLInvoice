@@ -323,11 +323,6 @@ function createMainTabs($func)
                     'levels_allowed' => $normalMenuRights,
                 ],
                 [
-                    'title' => 'RecurringInvoiceTemplates',
-                    'action' => 'invoice_templates',
-                    'levels_allowed' => $normalMenuRights,
-                ],
-                [
                     'title' => 'ArchivedInvoices',
                     'action' => 'archived_invoices',
                     'levels_allowed' => $normalMenuRights,
@@ -351,6 +346,11 @@ function createMainTabs($func)
                 [
                     'title' => 'RecurringInvoiceTemplates',
                     'action' => 'invoice_templates',
+                    'levels_allowed' => $normalMenuRights,
+                ],
+                [
+                    'title' => 'RecurringInvoiceTemplatesDueForProcessing',
+                    'action' => 'invoice_templates_due',
                     'levels_allowed' => $normalMenuRights,
                 ],
                 [

@@ -107,6 +107,13 @@ class Search
     public const SEARCH_RECURRING_INVOICE_TEMPLATES = -9;
 
     /**
+     * Built-in search id for recurring invoice templates due for processing
+     *
+     * @var int
+     */
+    public const SEARCH_RECURRING_INVOICE_TEMPLATES_DUE = -10;
+
+    /**
      * Display search form
      *
      * @return void

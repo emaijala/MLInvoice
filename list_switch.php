@@ -202,7 +202,8 @@ case 'offer':
             'width' => 80,
             'type' => 'INTDATE',
             'order' => 'DESC',
-            'header' => 'HeaderInvoiceDate'
+            'header' => 'HeaderInvoiceDate',
+            'visible' => 'invoice_templates' !== $strList,
         ],
         [
             'name' => 'i.payment_date',
@@ -217,7 +218,8 @@ case 'offer':
             'width' => 80,
             'type' => 'INTDATE',
             'order' => 'DESC',
-            'header' => 'HeaderInvoiceDueDate'
+            'header' => 'HeaderInvoiceDueDate',
+            'visible' => 'invoice_templates' !== $strList,
         ],
         [
             'name' => $strList === 'offer' ? 'i.id' : 'i.invoice_no',
@@ -249,7 +251,8 @@ case 'offer':
             'width' => 120,
             'type' => 'TEXT',
             'header' => 'HeaderInvoiceState',
-            'translate' => true
+            'translate' => true,
+            'visible' => 'invoice_templates' !== $strList,
         ],
         [
             'name' => 'i.interval_type',
@@ -257,7 +260,7 @@ case 'offer':
             'type' => 'TEXT',
             'header' => 'HeaderInvoiceIntervalType',
             'mappings' => getIntervalOptions(),
-            'visible' => false,
+            'visible' => 'invoice_templates' === $strList,
         ],
         [
             'name' => 'i.next_interval_date',

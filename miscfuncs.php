@@ -368,6 +368,13 @@ function getPageTitle($strFunc, $strList, $strForm, $operation)
             return Translator::translate('RecurringInvoiceTemplates');
         }
         break;
+    case 'invoice_templates_due':
+        if ($strForm) {
+            return Translator::translate('RecurringInvoiceTemplate');
+        } else {
+            return Translator::translate('RecurringInvoiceTemplatesDueForProcessing');
+        }
+        break;
     case 'archived_invoices':
         if ($strForm) {
             return Translator::translate('Invoice');
