@@ -72,6 +72,7 @@ if (!$invoiceId || !$templateId) {
 
 dbQueryCheck('BEGIN');
 try {
+    // Add rows to the invoice:
     $newRowDate = date('Ymd');
     $strQuery = 'SELECT * FROM {prefix}invoice_row WHERE deleted=0 AND invoice_id=?';
     $rows = dbParamQuery($strQuery, [$templateId], 'exception');
@@ -87,6 +88,11 @@ try {
                 str_repeat('?, ', count($row) - 1) . '?)';
         dbParamQuery($strQuery, $row, 'exception');
     }
+
+    // Update next interval date of the template:
+    $template = getInvoice($templateId);
+    advanceInvoiceIntervalDate($template);
+    updateInvoice($template);
 } catch (Exception $e) {
     dbQueryCheck('ROLLBACK');
     dbQueryCheck('SET AUTOCOMMIT = 1');
