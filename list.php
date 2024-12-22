@@ -798,7 +798,7 @@ function createListQuery($strFunc, $strList, $startRow, $rowCount, $sort,
 
     $filteredQb = clone $qb;
     if ($filter) {
-        $leftAnchored = getSetting('dynamic_select_search_in_middle');
+        $leftAnchored = !getSetting('dynamic_select_search_in_middle');
         $termPrefix = $leftAnchored ? '' : '%';
         foreach (explode(' ', $filter) as $term) {
             if ('' === trim($term)) {
