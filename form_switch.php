@@ -1278,7 +1278,8 @@ case 'invoice_row':
             'type' => 'INT',
             'style' => 'currency',
             'position' => 0,
-            'decimals' => getSetting('unit_price_decimals')
+            'decimals' => getSetting('unit_price_decimals'),
+            'allow_null' => $isTemplate,
         ],
         [
             'name' => 'discount',

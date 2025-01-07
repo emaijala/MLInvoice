@@ -25,6 +25,10 @@
  * @license  http://opensource.org/licenses/gpl-2.0.php GNU General Public License
  * @link     http://labs.fi/mlinvoice.eng.php
  */
+
+use MLInvoice\Factory;
+use MLInvoice\Invoice;
+
 require_once 'htmlfuncs.php';
 require_once 'sqlfuncs.php';
 require_once 'sessionfuncs.php';
@@ -68,7 +72,10 @@ if (!$templateId) {
     return;
 }
 
-if (!($invoiceData = getInvoice($templateId))) {
+$invoice = Factory::getInvoice();
+try {
+    $invoiceId = $invoice->createFromTemplate($templateId);
+} catch (\Exception $e) {
     echo htmlPageStart();
     ?>
 <body>
@@ -83,75 +90,5 @@ if (!($invoiceData = getInvoice($templateId))) {
     return;
 }
 
-$paymentDays = getPaymentDays($invoiceData['company_id']);
-
-unset($invoiceData['id']);
-unset($invoiceData['invoice_no']);
-$invoiceData['deleted'] = 0;
-$invoiceData['invoice_date'] = date('Ymd');
-$invoiceData['due_date'] = date(
-    'Ymd', mktime(0, 0, 0, date('m'), date('d') + $paymentDays, date('Y'))
-);
-$invoiceData['payment_date'] = null;
-$invoiceData['state_id'] = 1;
-$invoiceData['archived'] = false;
-$invoiceData['refunded_invoice_id'] = null;
-$invoiceData['interval_type'] = 0;
-$invoiceData['next_interval_date'] = null;
-$invoiceData['template_invoice_id'] = $templateId;
-
-dbQueryCheck('SET AUTOCOMMIT = 0');
-dbQueryCheck('BEGIN');
-
-try {
-    $strQuery = 'INSERT INTO {prefix}invoice(' .
-            implode(', ', array_keys($invoiceData)) . ') ' . 'VALUES (' .
-            str_repeat('?, ', count($invoiceData) - 1) . '?)';
-
-    dbParamQuery($strQuery, array_values($invoiceData), 'exception');
-    $intNewId = mysqli_insert_id($dblink);
-    if (!$intNewId) {
-        die('Could not get ID of the new invoice');
-    }
-    $newRowDate = date('Ymd');
-    $strQuery = 'SELECT * ' . 'FROM {prefix}invoice_row WHERE deleted=0 AND invoice_id=?';
-    $rows = dbParamQuery($strQuery, [$templateId], 'exception');
-    foreach ($rows as $row) {
-        if ($boolRefund) {
-            $row['pcs'] = -$row['pcs'];
-            if ($row['partial_payment']) {
-                $row['price'] = -$row['price'];
-            }
-        } elseif ($row['reminder_row']) {
-            continue;
-        }
-        unset($row['id']);
-        $row['invoice_id'] = $intNewId;
-
-        if ($row['row_date']) {
-            $row['row_date'] = $newRowDate;
-        }
-        // Update product stock balance
-        if (!$isOffer && !$isTemplate && $row['product_id'] !== null) {
-            updateProductStockBalance(null, $row['product_id'], $row['pcs']);
-        }
-        $strQuery = 'INSERT INTO {prefix}invoice_row(' .
-                implode(', ', array_keys($row)) . ') ' . 'VALUES (' .
-                str_repeat('?, ', count($row) - 1) . '?)';
-        dbParamQuery($strQuery, $row, 'exception');
-    }
-
-    // Update interval of the template:
-    $template = getInvoice($templateId);
-    advanceInvoiceIntervalDate($template);
-    updateInvoice($template);
-} catch (Exception $e) {
-    dbQueryCheck('ROLLBACK');
-    dbQueryCheck('SET AUTOCOMMIT = 1');
-    die($e->getMessage());
-}
-dbQueryCheck('COMMIT');
-dbQueryCheck('SET AUTOCOMMIT = 1');
-
 $_SESSION['formWarningMessage'] = Translator::Translate('CheckCreatedInvoice');
-header("Location: index.php?func=$strFunc&list=$strList&form=invoice&id=$intNewId");
+header("Location: index.php?func=$strFunc&list=$strList&form=invoice&id=$invoiceId");

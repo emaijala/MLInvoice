@@ -25,6 +25,9 @@
  * @license  http://opensource.org/licenses/gpl-2.0.php GNU General Public License
  * @link     http://labs.fi/mlinvoice.eng.php
  */
+
+use MLInvoice\Factory;
+
 require_once 'htmlfuncs.php';
 require_once 'sqlfuncs.php';
 require_once 'sessionfuncs.php';
@@ -70,36 +73,8 @@ if (!$invoiceId || !$templateId) {
     return;
 }
 
-dbQueryCheck('BEGIN');
-try {
-    // Add rows to the invoice:
-    $newRowDate = date('Ymd');
-    $strQuery = 'SELECT * FROM {prefix}invoice_row WHERE deleted=0 AND invoice_id=?';
-    $rows = dbParamQuery($strQuery, [$templateId], 'exception');
-    foreach ($rows as $row) {
-        unset($row['id']);
-        $row['invoice_id'] = $invoiceId;
-
-        if ($row['row_date']) {
-            $row['row_date'] = $newRowDate;
-        }
-        $strQuery = 'INSERT INTO {prefix}invoice_row(' .
-                implode(', ', array_keys($row)) . ') ' . 'VALUES (' .
-                str_repeat('?, ', count($row) - 1) . '?)';
-        dbParamQuery($strQuery, $row, 'exception');
-    }
-
-    // Update next interval date of the template:
-    $template = getInvoice($templateId);
-    advanceInvoiceIntervalDate($template);
-    updateInvoice($template);
-} catch (Exception $e) {
-    dbQueryCheck('ROLLBACK');
-    dbQueryCheck('SET AUTOCOMMIT = 1');
-    die($e->getMessage());
-}
-dbQueryCheck('COMMIT');
-dbQueryCheck('SET AUTOCOMMIT = 1');
+$invoice = Factory::getInvoice();
+$invoice->addRowsFromTemplate($invoiceId, $templateId);
 
 $_SESSION['formWarningMessage'] = Translator::Translate('CheckUpdatedInvoice');
 header("Location: index.php?func=invoices&list=invoice&form=invoice&id=$invoiceId");
