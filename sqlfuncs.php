@@ -1609,7 +1609,7 @@ function handleDbError($query, $params, $noFail)
     error_log($errorMsg);
     if ($noFail !== true) {
         if (!headers_sent()) {
-            header('HTTP/1.1 500 Internal Server Error');
+            http_response_code(500);
         }
         $msg = (!defined('_DB_VERBOSE_ERRORS_') || !_DB_VERBOSE_ERRORS_)
             ? Translator::translate('DBError')

@@ -128,7 +128,7 @@ class ImportFile
     public function launch()
     {
         if (($this->requireAdmin && !sesAdminAccess()) || !sesWriteAccess()) {
-            header('HTTP/1.1 403 Forbidden');
+            http_response_code(403);
             return;
         }
 
@@ -223,11 +223,11 @@ class ImportFile
         if (!$charset || !$table || !$format || !$fieldDelimiter || !$enclosureChar
             || !$rowDelimiter
         ) {
-            header('HTTP/1.1 400 Bad Request');
+            http_response_code(400);
             exit();
         }
         if (!$this->isTableNameValid($table)) {
-            header('HTTP/1.1 400 Bad Request');
+            http_response_code(400);
             die('Invalid table name');
         }
 
