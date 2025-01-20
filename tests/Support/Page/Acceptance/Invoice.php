@@ -85,6 +85,7 @@ class Invoice
         $I->attachFile('#new-attachment-file', $filename);
         $I->waitForText('test.pdf');
         $I->appendField('.attachment-name', $description);
+        $I->seeInField('.attachment-name', $description);
         $I->click('.attachment-send');
         $I->waitForElement('.toast');
         $I->reloadPage();
