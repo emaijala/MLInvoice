@@ -16,6 +16,11 @@
             "codeception/c3": false
         }
     },
+    "autoload": {
+        "psr-4": {
+            "": "src/"
+        }
+    },
     "autoload-dev": {
         "psr-4": {
             "Tests\\": "tests/"
