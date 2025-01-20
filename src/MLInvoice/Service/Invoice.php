@@ -1,6 +1,6 @@
 <?php
 /**
- * Invoice
+ * Invoice service
  *
  * PHP version 8
  *
@@ -26,10 +26,10 @@
  * @link     http://labs.fi/mlinvoice.eng.php
  */
 
-namespace MLInvoice;
+namespace MLInvoice\Service;
 
 /**
- * Invoice
+ * Invoice service
  *
  * @category MLInvoice
  * @package  MLInvoice\Base

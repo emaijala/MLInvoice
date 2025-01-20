@@ -963,7 +963,7 @@ function createJSONSelectList($strList, $startRow, $rowCount, $filter, $filterTy
 
     if ($sort) {
         if (!preg_match('/^[\w_,]+$/', $sort)) {
-            header('HTTP/1.1 400 Bad Request');
+            http_response_code(400);
             die('Invalid sort type');
         }
         $sortValid = 0;
@@ -977,7 +977,7 @@ function createJSONSelectList($strList, $startRow, $rowCount, $filter, $filterTy
             }
         }
         if ($sortValid != count($sortFields)) {
-            header('HTTP/1.1 400 Bad Request');
+            http_response_code(400);
             die('Invalid sort type');
         }
     } else {

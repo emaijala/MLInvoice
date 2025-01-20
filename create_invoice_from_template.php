@@ -72,7 +72,7 @@ if (!$templateId) {
     return;
 }
 
-$invoice = Factory::getInvoice();
+$invoice = Factory::getInvoiceService();
 try {
     $invoiceId = $invoice->createFromTemplate($templateId);
 } catch (\Exception $e) {

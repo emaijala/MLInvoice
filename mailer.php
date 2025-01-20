@@ -4,7 +4,7 @@
  *
  * PHP version 8
  *
- * Copyright (C) Ere Maijala 2018-2022
+ * Copyright (C) Ere Maijala 2018-2025
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2,
@@ -26,6 +26,7 @@
  * @link     http://labs.fi/mlinvoice.eng.php
  */
 
+use MLInvoice\Mailer\MailTransport;
 use Symfony\Component\Mailer\Transport;
 use Symfony\Component\Mime\Email;
 use Symfony\Component\Mime\Header\Headers;
@@ -110,7 +111,7 @@ class Mailer
         try {
             switch ($settings['send_method'] ?? 'mail') {
             case 'mail':
-                $transport = Transport::fromDsn('native://default');
+                $transport = new MailTransport();
                 break;
             case 'sendmail':
                 $dsn = 'sendmail://default';

@@ -73,7 +73,7 @@ if (!$invoiceId || !$templateId) {
     return;
 }
 
-$invoice = Factory::getInvoice();
+$invoice = Factory::getInvoiceService();
 $invoice->addRowsFromTemplate($invoiceId, $templateId);
 
 $_SESSION['formWarningMessage'] = Translator::Translate('CheckUpdatedInvoice');
