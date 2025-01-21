@@ -26,4 +26,4 @@
  * @link     http://labs.fi/mlinvoice.eng.php
  */
 // Version in Semver (https://semver.org/) compatible form (e.g. 1.2.3 or 1.2.3-beta.1)
-$softwareVersion = '2.3.1';
+$softwareVersion = '2.3.2';
