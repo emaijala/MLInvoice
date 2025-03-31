@@ -33,6 +33,8 @@ use Symfony\Component\Mailer\Exception\TransportException;
 use Symfony\Component\Mailer\Exception\TransportExceptionInterface;
 use Symfony\Component\Mailer\SentMessage;
 use Symfony\Component\Mailer\Transport\TransportInterface;
+use Symfony\Component\Mime\Header\HeaderInterface;
+use Symfony\Component\Mime\Message;
 use Symfony\Component\Mime\RawMessage;
 
 /**
@@ -61,19 +63,25 @@ class MailTransport implements TransportInterface
         $message = clone $message;
         $envelope = null !== $envelope ? clone $envelope : Envelope::create($message);
 
-        $message = new SentMessage($message, $envelope);
-        $this->doSend($message);
-        return $message;
+        $sentMessage = new SentMessage($message, $envelope);
+        // Take any Bcc header filtered from SentMessage:
+        $bcc = null;
+        if ($message instanceof Message) {
+            $bcc = $message->getHeaders()->get('Bcc');
+        }
+        $this->doSend($sentMessage, $bcc);
+        return $sentMessage;
     }
 
     /**
      * Do the actual send
      *
-     * @param SentMessage $message Message
+     * @param SentMessage      $message Message
+     * @oaram ?HeaderInterface $bcc     Any Bcc header
      *
      * @return void
      */
-    protected function doSend(SentMessage $message): void
+    protected function doSend(SentMessage $message, ?HeaderInterface $bcc): void
     {
         // Separate headers from body
         $messageStr = $message->toString();
@@ -90,7 +98,7 @@ class MailTransport implements TransportInterface
         $to = '';
         $subject = '';
         $finalHeaders = [];
-        foreach (explode("\r\n", $headers) as $header) {
+        foreach (array_filter(explode("\r\n", $headers)) as $header) {
             $parts = explode(': ', $header, 2);
             if ('To' === $parts[0]) {
                 $to = $parts[1] ?? '';
@@ -99,6 +107,9 @@ class MailTransport implements TransportInterface
             } else {
                 $finalHeaders[] = $header;
             }
+        }
+        if ($bcc) {
+            $finalHeaders[] = $bcc->toString();
         }
 
         if (!mail($to, $subject, $body, implode("\r\n", $finalHeaders))) {
