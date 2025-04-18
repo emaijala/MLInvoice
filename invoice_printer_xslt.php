@@ -4,7 +4,7 @@
  *
  * PHP version 8
  *
- * Copyright (C) Ere Maijala 2010-2021
+ * Copyright (C) Ere Maijala 2010-2025
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2,
@@ -253,9 +253,9 @@ EOT
                 }
             } else {
                 if ($key != 'logo_filedata') {
-                    $xml->addChild($key, str_replace('&', '&amp;', $value));
+                    $xml->addChild($key, str_replace('&', '&amp;', $value ?? ''));
                 } else {
-                    $xml->addChild($key, base64_encode($value));
+                    $xml->addChild($key, base64_encode($value ?? ''));
                 }
             }
         }
@@ -276,7 +276,7 @@ EOT
         }
         $rows = [];
         foreach ($this->invoiceRowData as $data) {
-            $data['type'] = $this->translate($data['type']);
+            $data['type'] = $this->translate($data['type'] ?? '');
             if ($markdown) {
                 foreach (['product_name', 'product_code', 'description'] as $key) {
                     if (!empty($data[$key])) {

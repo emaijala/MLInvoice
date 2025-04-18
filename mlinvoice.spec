@@ -1,5 +1,5 @@
 Name:		mlinvoice
-Version:	2.3.0
+Version:	2.3.2
 Release:	1%{?dist}
 Summary:	MLInvoice - Web application to create Finnish invoices
 Group:		Applications/Internet
@@ -58,12 +58,14 @@ EOM
 
 %files
 %defattr(-,root,root,-)
-%doc LICENSE README.md create_database.sql update_database_1.0_to_1.1.sql update_database_1.1_to_1.2.sql update_database_1.2_to_1.3.sql update_database_1.3_to_1.4.sql update_database_1.4_to_1.5.sql
+%doc LICENSE README.md create_database.sql
 %config(noreplace) %{_sysconfdir}/httpd/conf.d/%{name}.conf
 %attr(2755,root,apache) %dir %{_sysconfdir}/%{name}
 %{_datadir}/%{name}
 
 %changelog
+* Tue 21 Jan 2025 Ere Maijala <ere@labs.fi> - 2.3.2
+- updated for version 2.3.2
 * Thu 21 Nov 2024 Ere Maijala <ere@labs.fi> - 2.3.1
 - updated for version 2.3.1
 * Sun 03 Nov 2024 Ere Maijala <ere@labs.fi> - 2.3.0
