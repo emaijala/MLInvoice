@@ -28,8 +28,13 @@ MLInvoice.addModule('Form', function mlinvoiceForm() {
     $('#state_id').on('change', updateBaseDefaults);
 
     // Company info
-    if ($('#company_id').val() && $('#company_id').data('onChange')) {
-      _onChangeCompany();
+    if ($('#company_id').val()) {
+      const changeFunc = $('#company_id').data('onChange');
+      if ('_onChangeCompany' === changeFunc) {
+        _onChangeCompany();
+      } else if ('_onChangeCompanyOffer' === changeFunc) {
+        _onChangeCompanyOffer();
+      }
     }
     // Stock balance
     $('.update-stock-balance').on('click', _updateStockBalance);
@@ -588,7 +593,8 @@ MLInvoice.addModule('Form', function mlinvoiceForm() {
           $('#invoice_vatless').val('1');
         }
 
-        if (initialLoad) {
+        if (initialLoad && $('#record_id').val()) {
+          // Loading an existing invoice, don't change it!
           return;
         }
 
@@ -632,16 +638,23 @@ MLInvoice.addModule('Form', function mlinvoiceForm() {
     });
   }
 
-  function _onChangeCompanyOffer() {
+  function _onChangeCompanyOffer(eventData) {
     if (!$('#company_id').val()) {
       return;
     }
+    var initialLoad = typeof eventData === 'undefined';
     _addCompanyInfoTooltip('');
     $.getJSON('json.php?func=get_company', {id: $('#company_id').val() }, function setCompanyData(json) {
       if (json) {
         if (json.info) {
           _addCompanyInfoTooltip(json.info);
         }
+
+        if (initialLoad && $('#record_id').val()) {
+          // Loading an existing offer, don't change it!
+          return;
+        }
+
         if (json.offer_default_foreword) {
           MLInvoice.Form.setFieldVal('#foreword', json.offer_default_foreword);
         }
