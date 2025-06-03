@@ -270,50 +270,54 @@ MLInvoice.addModule('Form', function mlinvoiceForm() {
       if ('' === term || null === term) {
         return;
       }
+
+      const searchByName = function () {
+        $.ajax(
+          {
+            url: 'https://avoindata.prh.fi/opendata-ytj-api/v3/companies',
+            data: {
+              name: term
+            },
+            global: false
+          }
+        ).done(function ytjSearchDone2(data) {
+          if ('undefined' !== typeof data.companies[0]) {
+            _fillCompanyForm(data.companies[0]);
+          } else {
+            window.alert(MLInvoice.translate('NoYTJResultsFound'));
+          }
+        }).fail(function ytjSearchFail2(jqXHR2, textStatus2) {
+          window.alert('Request failed: ' + jqXHR2.status + ' - ' + textStatus2);
+        });
+      }
+
       // Try business ID first
-      var businessId = term.replace(/FI-?/i, '');
-      $.ajax(
-        {
-          url: 'https://avoindata.prh.fi/bis/v1',
-          data: {
-            maxResults: 1,
-            businessId: businessId
-          },
-          global: false
-        }
-      ).done(function ytjSearchDone(data) {
-        if ('undefined' === typeof data.results[0]) {
-          return;
-        }
-        _fillCompanyForm(data.results[0]);
-      }).fail(function ytjSearchFail(jqXHR, textStatus) {
-        if (404 === jqXHR.status) {
-          // Try company name second
-          $.ajax(
-            {
-              url: 'https://avoindata.prh.fi/bis/v1',
-              data: {
-                maxResults: 1,
-                name: term
-              },
-              global: false
-            }
-          ).done(function ytjSearchDone2(data) {
-            if ('undefined' === typeof data.results[0]) {
-              return;
-            }
-            _fillCompanyForm(data.results[0]);
-          }).fail(function ytjSearchFail2(jqXHR2, textStatus2) {
-            if (404 === jqXHR2.status) {
-              window.alert(MLInvoice.translate('NoYTJResultsFound'));
-            } else {
-              window.alert('Request failed: ' + jqXHR2.status + ' - ' + textStatus2);
-            }
-          });
-        } else {
-          window.alert('Request failed: ' + jqXHR.status + ' - ' + textStatus);
-        }
-      });
+      let businessId = term;
+      if (businessId.match(/^FI-?\d{8}$/)) {
+        businessId = businessId.replace(/^FI-?(\d{7})(\d)/, '$1-$2');
+      }
+      if (businessId.match(/^\d{7}-\d$/)) {
+        $.ajax(
+          {
+            url: 'https://avoindata.prh.fi/opendata-ytj-api/v3/companies',
+            data: {
+              businessId: businessId
+            },
+            global: false
+          }
+        ).done(function ytjSearchDone(data) {
+          if ('undefined' !== typeof data.companies[0]) {
+            _fillCompanyForm(data.companies[0]);
+          } else {
+            searchByName();
+          }
+        }).fail(function ytjSearchFail2(jqXHR2, textStatus2) {
+          window.alert('Request failed: ' + jqXHR2.status + ' - ' + textStatus2);
+        });
+      } else {
+        // Try name directly
+        searchByName();
+      }
     });
   }
 
@@ -368,21 +372,33 @@ MLInvoice.addModule('Form', function mlinvoiceForm() {
   }
 
   function _fillCompanyForm(data) {
-    $('#company_id').val(data.businessId).trigger('change');
-    $('#company_name').val(data.name);
+    $('#company_id').val(data.businessId.value).trigger('change');
+    $('#company_name').val(data.names[0].name);
+    if (typeof data.website.url !== 'undefined') {
+      $('#www').val(data.website.url);
+    }
+
+    const getCity = function(address) {
+      let city = '';
+      const langCode = MLInvoice.translate('YTJLanguageCode');
+      address.postOffices.forEach(office => {
+        if (office.languageCode === langCode) {
+          city = office.city;
+        }
+      });
+      return city;
+    };
+
     $.each(data.addresses, function handleAddress(idx, address) {
-      if (1 !== address.version) {
-        return;
-      }
       if (1 === address.type) {
         $('#street_address').val(address.street);
         $('#zip_code').val(address.postCode);
-        $('#city').val(address.city);
+        $('#city').val(getCity(address));
         $('#country').val(address.country);
       }
       if (2 === address.type) {
         var parts = [];
-        parts.push(data.name);
+        parts.push(data.names[0].name);
         if (address.careOf) {
           parts.push('c/o ' + address.careOf);
         }
@@ -390,32 +406,13 @@ MLInvoice.addModule('Form', function mlinvoiceForm() {
           parts.push(address.street);
         }
         if (address.postCode) {
-          var post = address.postCode + ' ' + address.city;
+          var post = address.postCode + ' ' + getCity(address);
           parts.push(post.trim());
         }
         if (address.country) {
           parts.push(address.country);
         }
         $('#billing_address').val(parts.join("\n"));
-      }
-    });
-    $.each(data.contactDetails, function handleContact(idx, contact) {
-      if (1 !== parseInt(contact.version, 10)) {
-        return;
-      }
-      switch (contact.type) {
-      case 'Matkapuhelin':
-        $('#gsm').val(contact.value);
-        break;
-      case 'Kotisivun www-osoite':
-        $('#www').val(contact.value);
-        break;
-      case 'Puhelin':
-        $('#phone').val(contact.value);
-        break;
-      case 'Faksi':
-        $('#fax').val(contact.value);
-        break;
       }
     });
   }

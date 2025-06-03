@@ -208,6 +208,7 @@ function htmlPageStart($strTitle = '', $arrExtraScripts = [], $loggedIn = true)
         'SearchGreaterThanOrEqual',
         'Selected',
         'Unselected',
+        'YTJLanguageCode',
     ];
 
     $res = dbQueryCheck(
