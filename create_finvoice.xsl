@@ -169,14 +169,14 @@
     <xsl:if test="reference!=''">
     <OrderIdentifier><xsl:value-of select="reference"/></OrderIdentifier>
     </xsl:if>
-    <InvoiceTotalVatExcludedAmount AmountCurrencyIdentifier="EUR"><xsl:value-of select="format-number(totalsum + 0.005, '0,00', 'euro')"/></InvoiceTotalVatExcludedAmount>
-    <InvoiceTotalVatAmount AmountCurrencyIdentifier="EUR"><xsl:value-of select="format-number(totalvat + 0.005, '0,00', 'euro')"/></InvoiceTotalVatAmount>
-    <InvoiceTotalVatIncludedAmount AmountCurrencyIdentifier="EUR"><xsl:value-of select="format-number(totalsumvat + 0.005, '0,00', 'euro')"/></InvoiceTotalVatIncludedAmount>
+    <InvoiceTotalVatExcludedAmount AmountCurrencyIdentifier="EUR"><xsl:value-of select="format-number(totalsum, '0,00', 'euro')"/></InvoiceTotalVatExcludedAmount>
+    <InvoiceTotalVatAmount AmountCurrencyIdentifier="EUR"><xsl:value-of select="format-number(totalvat, '0,00', 'euro')"/></InvoiceTotalVatAmount>
+    <InvoiceTotalVatIncludedAmount AmountCurrencyIdentifier="EUR"><xsl:value-of select="format-number(totalsumvat, '0,00', 'euro')"/></InvoiceTotalVatIncludedAmount>
     <xsl:for-each select="groupedvats/*">
     <VatSpecificationDetails>
-      <VatBaseAmount AmountCurrencyIdentifier="EUR"><xsl:value-of select="format-number(totalsum + 0.005, '0,00', 'euro')"/></VatBaseAmount>
-      <VatRatePercent><xsl:value-of select="format-number(vat + 0.005, '0,0#', 'euro')"/></VatRatePercent>
-      <VatRateAmount AmountCurrencyIdentifier="EUR"><xsl:value-of select="format-number(totalvat + 0.005, '0,00', 'euro')"/></VatRateAmount>
+      <VatBaseAmount AmountCurrencyIdentifier="EUR"><xsl:value-of select="format-number(totalsum, '0,00', 'euro')"/></VatBaseAmount>
+      <VatRatePercent><xsl:value-of select="format-number(vat, '0,0#', 'euro')"/></VatRatePercent>
+      <VatRateAmount AmountCurrencyIdentifier="EUR"><xsl:value-of select="format-number(totalvat, '0,00', 'euro')"/></VatRateAmount>
     </VatSpecificationDetails>
     </xsl:for-each>
     <xsl:if test="info!=''">
