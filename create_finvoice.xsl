@@ -318,7 +318,7 @@
       <EpiRemittanceInfoIdentifier IdentificationSchemeName="SPY"><xsl:value-of select="format-number(ref_number, '00000000000000000000')"/></EpiRemittanceInfoIdentifier>
     </xsl:otherwise>
   </xsl:choose>
-      <EpiInstructedAmount AmountCurrencyIdentifier="EUR"><xsl:value-of select="format-number(totalsumvat - paidsum + 0.005, '0,00', 'euro')"/></EpiInstructedAmount>
+      <EpiInstructedAmount AmountCurrencyIdentifier="EUR"><xsl:value-of select="format-number(totalsumvat - paidsum, '0,00', 'euro')"/></EpiInstructedAmount>
       <EpiCharge ChargeOption="SHA">SHA</EpiCharge>
       <EpiDateOptionDate Format="CCYYMMDD"><xsl:value-of select="due_date"/></EpiDateOptionDate>
     </EpiPaymentInstructionDetails>
