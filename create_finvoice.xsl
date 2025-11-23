@@ -169,14 +169,14 @@
     <xsl:if test="reference!=''">
     <OrderIdentifier><xsl:value-of select="reference"/></OrderIdentifier>
     </xsl:if>
-    <InvoiceTotalVatExcludedAmount AmountCurrencyIdentifier="EUR"><xsl:value-of select="format-number(totalsum + 0.005, '0,00', 'euro')"/></InvoiceTotalVatExcludedAmount>
-    <InvoiceTotalVatAmount AmountCurrencyIdentifier="EUR"><xsl:value-of select="format-number(totalvat + 0.005, '0,00', 'euro')"/></InvoiceTotalVatAmount>
-    <InvoiceTotalVatIncludedAmount AmountCurrencyIdentifier="EUR"><xsl:value-of select="format-number(totalsumvat + 0.005, '0,00', 'euro')"/></InvoiceTotalVatIncludedAmount>
+    <InvoiceTotalVatExcludedAmount AmountCurrencyIdentifier="EUR"><xsl:value-of select="format-number(round(totalsum * 100) div 100, '0,00', 'euro')"/></InvoiceTotalVatExcludedAmount>
+    <InvoiceTotalVatAmount AmountCurrencyIdentifier="EUR"><xsl:value-of select="format-number(round(totalvat * 100) div 100, '0,00', 'euro')"/></InvoiceTotalVatAmount>
+    <InvoiceTotalVatIncludedAmount AmountCurrencyIdentifier="EUR"><xsl:value-of select="format-number(round(totalsumvat * 100) div 100, '0,00', 'euro')"/></InvoiceTotalVatIncludedAmount>
     <xsl:for-each select="groupedvats/*">
     <VatSpecificationDetails>
-      <VatBaseAmount AmountCurrencyIdentifier="EUR"><xsl:value-of select="format-number(totalsum + 0.005, '0,00', 'euro')"/></VatBaseAmount>
-      <VatRatePercent><xsl:value-of select="format-number(vat + 0.005, '0,0#', 'euro')"/></VatRatePercent>
-      <VatRateAmount AmountCurrencyIdentifier="EUR"><xsl:value-of select="format-number(totalvat + 0.005, '0,00', 'euro')"/></VatRateAmount>
+      <VatBaseAmount AmountCurrencyIdentifier="EUR"><xsl:value-of select="format-number(round(totalsum * 100) div 100, '0,00', 'euro')"/></VatBaseAmount>
+      <VatRatePercent><xsl:value-of select="format-number(round(vat * 100) div 100, '0,0#', 'euro')"/></VatRatePercent>
+      <VatRateAmount AmountCurrencyIdentifier="EUR"><xsl:value-of select="format-number(round(totalvat * 100) div 100, '0,00', 'euro')"/></VatRateAmount>
     </VatSpecificationDetails>
     </xsl:for-each>
     <xsl:if test="info!=''">
@@ -318,7 +318,7 @@
       <EpiRemittanceInfoIdentifier IdentificationSchemeName="SPY"><xsl:value-of select="format-number(ref_number, '00000000000000000000')"/></EpiRemittanceInfoIdentifier>
     </xsl:otherwise>
   </xsl:choose>
-      <EpiInstructedAmount AmountCurrencyIdentifier="EUR"><xsl:value-of select="format-number(totalsumvat - paidsum + 0.005, '0,00', 'euro')"/></EpiInstructedAmount>
+      <EpiInstructedAmount AmountCurrencyIdentifier="EUR"><xsl:value-of select="format-number(totalsumvat - round(paidsum * 100) div 100, '0,00', 'euro')"/></EpiInstructedAmount>
       <EpiCharge ChargeOption="SHA">SHA</EpiCharge>
       <EpiDateOptionDate Format="CCYYMMDD"><xsl:value-of select="due_date"/></EpiDateOptionDate>
     </EpiPaymentInstructionDetails>
