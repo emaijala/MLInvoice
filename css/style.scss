@@ -1097,6 +1097,12 @@ table.quick-search {
   display: initial;
 }
 
+#created_invoices_list {
+  li a {
+    display: flex;
+    gap: 1em;
+  }
+}
 
 
 @import "table";

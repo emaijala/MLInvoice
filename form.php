@@ -1131,19 +1131,13 @@ function createFormButtons($form, $formConfig, $new, $top, $deleted)
             <a role="button" id="created_invoices_button" class="btn btn-secondary dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false" href="#">
                 <?php echo Translator::translate('AddToInvoice')?>
             </a>
-            <ul class="dropdown-menu" aria-labelledby="created_invoices_button">
-                <li>
-                    <?php if ($openInvoice) { ?>
-                        <a class="dropdown-item" href="add_rows.php?id=<?php echo $openInvoice?>&amp;template_id=<?php echo $id?>">
-                            <?php echo Translator::translate('AddToExistingOpenInvoice')?>
-                        </a>
-                    <?php } else { ?>
-                        <a class="dropdown-item disabled" href="#">
-                            <?php echo Translator::translate('AddToExistingOpenInvoice')?>
-                        </a>
-                    <?php } ?>
+            <ul id="created_invoices_list" class="dropdown-menu" aria-labelledby="created_invoices_button">
+                <li class="js-load-indicator">
+                    <a class="dropdown-item" href="#">
+                        <span aria-hidden="true"><span class="spinner-border spinner-border-sm" role="status"></span></span>
+                    </a>
                 </li>
-                <li>
+                <li class="js-create-new-invoice">
                     <a class="dropdown-item" href="create_invoice_from_template.php?template_id=<?php echo $id?>">
                         <?php echo Translator::translate('CreateNewInvoice')?>
                     </a>

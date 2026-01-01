@@ -55,8 +55,8 @@ if (!sesWriteAccess()) {
     return;
 }
 
-$invoiceId = getPostOrQuery('id');
-$templateId = getPostOrQuery('template_id');
+$invoiceId = (int)getPostOrQuery('id');
+$templateId = (int)getPostOrQuery('template_id');
 
 if (!$invoiceId || !$templateId) {
     echo htmlPageStart();

@@ -427,6 +427,7 @@ case 'get_list':
     }
     $search = getPostOrQuery('search');
     $searchId = getPostOrQuery('searchId');
+    $format = getPostOrQuery('format');
     $filter = empty($search['value']) ? '' : $search['value'];
     $query = json_decode(getPostOrQuery('query', '{}'), true);
     $companyId = 'product' === $strList ? getPostOrQuery('company', null) : null;
@@ -435,7 +436,8 @@ case 'get_list':
     echo createJSONList(
         $listFunc, $strList, $startRow, $rowCount, $sort, $filter, $query,
         intval(getPostOrQuery('draw', 1)), $tableId, $companyId,
-        $searchId ? intval($searchId) : null
+        $searchId ? intval($searchId) : null,
+        $format
     );
     Memory::set(
         $tableId,
@@ -946,7 +948,7 @@ function updateRowOrder()
  *
  * @return array
  */
-function getInvoiceListTotal(array $query, int $searchId = null): array
+function getInvoiceListTotal(array $query, ?int $searchId = null): array
 {
     $listConfig = getListConfig('invoice');
     $queries = createListQuery('invoice', 'invoice', 0, 0, [], '', $query, $searchId);
