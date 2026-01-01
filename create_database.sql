@@ -7,6 +7,7 @@ CREATE TABLE mlinvoice_invoice_state (
   invoice_unpaid tinyint NOT NULL default 0,
   invoice_offer tinyint NOT NULL default 0,
   invoice_offer_sent tinyint NOT NULL default 0,
+  invoice_template tinyint NOT NULL default 0,
   PRIMARY KEY (id)
 ) ENGINE=INNODB CHARACTER SET utf8 COLLATE utf8_swedish_ci;
 
@@ -301,6 +302,7 @@ CREATE TABLE mlinvoice_invoice (
   delivery_address text default NULL,
   uuid varchar(50) default NULL,
   type_id int(11) default NULL,
+  template_invoice_id int(11) default NULL,
   PRIMARY KEY (id),
   FOREIGN KEY (company_id) REFERENCES mlinvoice_company(id),
   FOREIGN KEY (state_id) REFERENCES mlinvoice_invoice_state(id),
@@ -444,7 +446,7 @@ CREATE TABLE mlinvoice_default_value (
 
 SET NAMES 'utf8';
 
-INSERT INTO mlinvoice_state (id, data) VALUES ('version', '67');
+INSERT INTO mlinvoice_state (id, data) VALUES ('version', '68');
 
 INSERT INTO mlinvoice_state (id, data) VALUES ('tableconversiondone', '1');
 
@@ -460,6 +462,7 @@ INSERT INTO mlinvoice_invoice_state (id, name, order_no, invoice_open, invoice_u
 INSERT INTO mlinvoice_invoice_state (id, name, order_no, invoice_open, invoice_unpaid, invoice_offer, invoice_offer_sent) VALUES (10, 'StateOfferSent', 45, 0, 0, 1, 1);
 INSERT INTO mlinvoice_invoice_state (id, name, order_no, invoice_open, invoice_unpaid, invoice_offer, invoice_offer_sent) VALUES (11, 'StateOfferUnrealised', 50, 0, 0, 1, 1);
 INSERT INTO mlinvoice_invoice_state (id, name, order_no, invoice_open, invoice_unpaid, invoice_offer, invoice_offer_sent) VALUES (12, 'StateOfferRealised', 55, 0, 0, 1, 1);
+INSERT INTO mlinvoice_invoice_state (id, name, order_no, invoice_open, invoice_unpaid, invoice_offer, invoice_offer_sent, invoice_template) VALUES (13, 'StateInvoiceRecurringTemplate', 60, 0, 0, 0, 0, 1);
 
 INSERT INTO mlinvoice_row_type (id, name, order_no) VALUES (1, 'TypeHour', 5);
 INSERT INTO mlinvoice_row_type (id, name, order_no) VALUES (2, 'TypeDay', 10);

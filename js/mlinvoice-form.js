@@ -33,7 +33,7 @@ MLInvoice.addModule('Form', function mlinvoiceForm() {
       if ('_onChangeCompany' === changeFunc) {
         _onChangeCompany();
       } else if ('_onChangeCompanyOffer' === changeFunc) {
-        _onChangeCompanyOffer();
+        _onChangeCompanyOfferOrTemplate();
       }
     }
     // Stock balance
@@ -88,8 +88,10 @@ MLInvoice.addModule('Form', function mlinvoiceForm() {
     setupSelect2();
     _setupFormListeners(document);
     _setupInvoiceAttachments();
+    _setupInvoiceTemplateLinks();
     _updateSendApiButtons();
     _setupPrintButtons();
+    _setupLinkedInvoiceDropdown();
   }
 
   function setupMarkdownEditor() {
@@ -491,7 +493,7 @@ MLInvoice.addModule('Form', function mlinvoiceForm() {
 
     var callbacks = {
       _onChangeCompany: _onChangeCompany,
-      _onChangeCompanyOffer: _onChangeCompanyOffer,
+      _onChangeCompanyOfferOrTemplate: _onChangeCompanyOfferOrTemplate,
       _onChangeProduct: _onChangeProduct,
       _onChangeCompanyReload: _onChangeCompanyReload
     };
@@ -637,7 +639,7 @@ MLInvoice.addModule('Form', function mlinvoiceForm() {
     });
   }
 
-  function _onChangeCompanyOffer(eventData) {
+  function _onChangeCompanyOfferOrTemplate(eventData) {
     if (!$('#company_id').val()) {
       return;
     }
@@ -810,6 +812,97 @@ MLInvoice.addModule('Form', function mlinvoiceForm() {
       var func = $button.data('func');
       var style = $button.data('print-style');
       MLInvoice.Form.printInvoice(id, func, style);
+    });
+  }
+
+  function _setupLinkedInvoiceDropdown() {
+    const dropdownButton = document.getElementById('created_invoices_button');
+    if (!dropdownButton) {
+      return;
+    }
+    dropdownButton.addEventListener('show.bs.dropdown', () => {
+      const createdInvoicesListEl = document.getElementById('created_invoices_list');
+      if (!createdInvoicesListEl) {
+        return;
+      }
+      const loadIndicator = createdInvoicesListEl.querySelector('.js-load-indicator');
+      if (loadIndicator) {
+        loadIndicator.classList.remove('hidden');
+      }
+      createdInvoicesListEl.querySelectorAll('li:not(.js-load-indicator):not(.js-create-new-invoice')
+        .forEach((el) => el.remove());
+      const recordId = $('#record_id').val();
+      const query = {
+        s_op: 'OR',
+        s_op1: 'AND',
+        s_type1: ['state_id'],
+        s_cmp1: ['eq'],
+        s_field1: ['1']
+      };
+      const baseId = $('#base_id').val();
+      if (baseId !== '') {
+        query.s_type1.push('base_id');
+        query.s_cmp1.push('eq');
+        query.s_field1.push(baseId);
+      }
+      const companyId = $('#company_id').val();
+      if (companyId !== '') {
+        query.s_type1.push('company_id');
+        query.s_cmp1.push('eq');
+        query.s_field1.push(companyId);
+      }
+      const params = new URLSearchParams();
+      params.set('format', 'object');
+      params.set('listfunc', 'invoices');
+      params.set('table', 'invoice');
+      params.set('start', '0');
+      params.set('length', '30');
+      params.set('query', JSON.stringify(query));
+      fetch(
+        'json.php?func=get_list',
+        {
+          method: 'POST',
+          headers: {
+            "Content-Type": "application/x-www-form-urlencoded",
+          },
+          body: params
+        })
+        .then((response) => response.json())
+        .then((json) => {
+          json.data.forEach((item) => {
+            const li = document.createElement('li');
+            const a = document.createElement('a');
+            a.classList.add('dropdown-item');
+            const addParams = new URLSearchParams();
+            addParams.set('id', item.id);
+            addParams.set('template_id', recordId);
+            a.href = `add_rows.php?${addParams}`;
+            const dateSpan = document.createElement('span');
+            dateSpan.textContent = json.labels.invoice_date + ': ' + MLInvoice.formatDate(item.invoice_date);
+            a.appendChild(dateSpan);
+            if (null !== item.invoice_no) {
+              const invNoSpan = document.createElement('span');
+              invNoSpan.textContent = json.labels.invoice_no + ': ' + item.invoice_no;
+              a.appendChild(invNoSpan);
+            }
+            if ('' !== item.name) {
+              const nameSpan = document.createElement('span');
+              nameSpan.textContent = json.labels.name + ': ' + item.name;
+              a.appendChild(nameSpan);
+            }
+            li.appendChild(a);
+            createdInvoicesListEl.appendChild(li);
+          });
+          if (loadIndicator) {
+            loadIndicator.classList.add('hidden');
+          }
+        })
+        .catch((e) => {
+          if (loadIndicator) {
+            loadIndicator.classList.add('hidden');
+          }
+          alert(e.message);
+        });
     });
   }
 
@@ -1013,6 +1106,15 @@ MLInvoice.addModule('Form', function mlinvoiceForm() {
     });
   }
 
+  function _setupInvoiceTemplateLinks() {
+    $('#linked_invoices_button').on('click', function linkedInvoicesClick() {
+      $(this).attr('aria-expanded', $(this).attr('aria-expanded') === 'true' ? 'false' : 'true');
+      $('#linked_invoices_button .dropdown-open').toggleClass('hidden');
+      $('#linked_invoices_button .dropdown-close').toggleClass('hidden');
+      $('#linked_invoices').toggleClass('hidden');
+    });
+  }
+
   function initAddressAutocomplete(prefix)
   {
     var input = document.getElementById(prefix + 'street_address');
@@ -1121,6 +1223,18 @@ MLInvoice.addModule('Form', function mlinvoiceForm() {
           $('.deleted-record-msg').remove();
           MLInvoice.highlightButton('.save_button', false);
           MLInvoice.infomsg(MLInvoice.translate('RecordSaved'), 2000);
+          if ('invoice_template' === _formConfig.type) {
+            const alertEl = document.querySelector('.js-recurrence-alert');
+            if (alertEl) {
+              const intervalTypeEl = document.getElementById('interval_type');
+              const nextDateEl = document.getElementById('next_interval_date');
+              if (intervalTypeEl && nextDateEl) {
+                alertEl.classList.toggle('hidden', intervalTypeEl.value !== '0' && nextDateEl.value !== '');
+              } else {
+                console.warn('Interval type or next invoice date field not found');
+              }
+            }
+          }
           if (redirectUrl) {
             if ('openwindow' === redirectStyle) {
               window.open(redirectUrl);
@@ -1569,6 +1683,7 @@ MLInvoice.addModule('Form', function mlinvoiceForm() {
       function mapChecked() { return this.value; }
     ).get();
     req.changes = obj;
+    req.parentId = $('#record_id').val();
     $.ajax({
       'url': 'json.php?func=update_multiple',
       'type': 'POST',

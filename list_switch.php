@@ -122,6 +122,7 @@ case 'company':
     break;
 
 case 'invoice':
+case 'invoice_templates':
 case 'archived_invoices':
 case 'archived_offers':
 case 'invoice':
@@ -162,16 +163,6 @@ case 'offer':
     $prefix = _DB_PREFIX_ . '_';
     $displayJoins[] = getInvoiceTotalJoinQuery();
 
-    $intervalOptions = [
-        '0' => Translator::translate('InvoiceIntervalNone'),
-        '2' => Translator::translate('InvoiceIntervalMonth'),
-        '3' => Translator::translate('InvoiceIntervalYear')
-    ];
-    for ($i = 4; $i <= 8; $i++) {
-        $intervalOptions[(string)$i]
-            = str_replace('%d', $i - 2, Translator::translate('InvoiceIntervalMonths'));
-    }
-
     $astrSearchFields = [
         [
             'name' => $strList === 'offer' ? 'i.id' : 'i.invoice_no',
@@ -211,7 +202,8 @@ case 'offer':
             'width' => 80,
             'type' => 'INTDATE',
             'order' => 'DESC',
-            'header' => 'HeaderInvoiceDate'
+            'header' => 'HeaderInvoiceDate',
+            'visible' => 'invoice_templates' !== $strList,
         ],
         [
             'name' => 'i.payment_date',
@@ -226,7 +218,8 @@ case 'offer':
             'width' => 80,
             'type' => 'INTDATE',
             'order' => 'DESC',
-            'header' => 'HeaderInvoiceDueDate'
+            'header' => 'HeaderInvoiceDueDate',
+            'visible' => 'invoice_templates' !== $strList,
         ],
         [
             'name' => $strList === 'offer' ? 'i.id' : 'i.invoice_no',
@@ -258,22 +251,23 @@ case 'offer':
             'width' => 120,
             'type' => 'TEXT',
             'header' => 'HeaderInvoiceState',
-            'translate' => true
+            'translate' => true,
+            'visible' => 'invoice_templates' !== $strList,
         ],
         [
             'name' => 'i.interval_type',
             'width' => 60,
             'type' => 'TEXT',
             'header' => 'HeaderInvoiceIntervalType',
-            'mappings' => $intervalOptions,
-            'visible' => false,
+            'mappings' => getIntervalOptions(),
+            'visible' => 'invoice_templates' === $strList,
         ],
         [
             'name' => 'i.next_interval_date',
             'width' => 60,
             'type' => 'INTDATE',
             'header' => 'HeaderInvoiceNextIntervalDate',
-            'visible' => false,
+            'visible' => 'invoice_templates' === $strList,
         ],
         [
             'name' => 'i.ref_number',
@@ -298,7 +292,7 @@ case 'offer':
     ];
     $strGroupBy = 'i.id, i.deleted, i.invoice_date, i.due_date, i.invoice_no,'
         . ' b.name, c.company_name, i.name, s.name, i.ref_number';
-    $strMainForm = 'invoice';
+    $strMainForm = $strList === 'invoice_templates' ? 'invoice_template' : 'invoice';
     break;
 
 /***********************************************************************

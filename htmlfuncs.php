@@ -295,7 +295,7 @@ EOT;
  *
  * @return void
  */
-function htmlMainTabs($func)
+function createMainTabs($func)
 {
     $normalMenuRights = [
         ROLE_READONLY,
@@ -333,6 +333,32 @@ function htmlMainTabs($func)
                     'action' => [
                         'func' => 'invoices',
                         'form' => 'invoice',
+                    ],
+                    'levels_allowed' => [
+                        ROLE_USER,
+                        ROLE_BACKUPMGR,
+                    ],
+                ],
+                [
+                    'title' => '-',
+                    'action' => '',
+                    'levels_allowed' => $normalMenuRights,
+                ],
+                [
+                    'title' => 'RecurringInvoiceTemplates',
+                    'action' => 'invoice_templates',
+                    'levels_allowed' => $normalMenuRights,
+                ],
+                [
+                    'title' => 'RecurringInvoiceTemplatesDueForProcessing',
+                    'action' => 'invoice_templates_due',
+                    'levels_allowed' => $normalMenuRights,
+                ],
+                [
+                    'title' => 'NewRecurringInvoiceTemplate',
+                    'action' => [
+                        'func' => 'invoice_templates',
+                        'form' => 'invoice_template',
                     ],
                     'levels_allowed' => [
                         ROLE_USER,
@@ -1234,4 +1260,16 @@ EOT;
     }
 
     return $strFormElement;
+}
+
+/**
+ * Escape HTML
+ *
+ * @param string $s String to escape
+ *
+ * @return string
+ */
+function escapeHtml(string $s): string
+{
+    return htmlspecialchars($s, ENT_QUOTES | ENT_SUBSTITUTE);
 }

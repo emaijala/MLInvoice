@@ -4,7 +4,7 @@
  *
  * PHP version 8
  *
- * Copyright (C) Ere Maijala 2022-2023
+ * Copyright (C) Ere Maijala 2022-2024
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2,
@@ -98,6 +98,20 @@ class Search
      * @var int
      */
     public const SEARCH_ARCHIVED_OFFERS = -8;
+
+    /**
+     * Built-in search id for recurring invoice templates
+     *
+     * @var int
+     */
+    public const SEARCH_RECURRING_INVOICE_TEMPLATES = -9;
+
+    /**
+     * Built-in search id for recurring invoice templates due for processing
+     *
+     * @var int
+     */
+    public const SEARCH_RECURRING_INVOICE_TEMPLATES_DUE = -10;
 
     /**
      * Display search form
@@ -700,6 +714,8 @@ class Search
                 $fieldConfig = $formConfig['fields'][$type] ?? [];
                 if ('tags' === $type) {
                     $type = 'Tags';
+                } elseif ('template_invoice_id' === $type) {
+                    $type = 'RecurringInvoiceTemplate';
                 } else {
                     $type = $fieldConfig['label'] ?? null;
                     if (!$type) {
@@ -708,7 +724,7 @@ class Search
                 }
 
                 $value = $field['value'];
-                switch ($fieldConfig['type']) {
+                switch ($fieldConfig['type'] ?? null) {
                 case 'TEXT':
                 case 'INT':
                 case 'AREA':

@@ -4,7 +4,7 @@
  *
  * PHP version 8
  *
- * Copyright (C) Ere Maijala 2010-2021
+ * Copyright (C) Ere Maijala 2010-2024
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2,
@@ -25,7 +25,7 @@
  * @license  http://opensource.org/licenses/gpl-2.0.php GNU General Public License
  * @link     http://labs.fi/mlinvoice.eng.php
  */
-require_once 'htmlfuncs.php';
+require_once 'navi.php';
 require_once 'miscfuncs.php';
 require_once 'mailer.php';
 
@@ -185,7 +185,7 @@ trait InvoicePrinterEmailTrait
 <body>
     <div class="pagewrapper mb-4">
         <?php
-            echo htmlMainTabs('start_page');
+            echo createMainTabs('start_page');
         ?>
 
         <div id="email_form_container" class="container-fluid form_container">

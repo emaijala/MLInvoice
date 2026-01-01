@@ -5,7 +5,7 @@
  * PHP version 8
  *
  * Copyright (C) Samu Reinikainen 2004-2008
- * Copyright (C) Ere Maijala 2010-2022
+ * Copyright (C) Ere Maijala 2010-2024
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2,
@@ -150,6 +150,28 @@ case 'get_invoice_rows':
 
 case 'put_invoice_row':
     saveJSONRecord('invoice_row', 'invoice_id');
+    break;
+
+case 'get_invoice_template':
+    printJSONRecord('invoice');
+    break;
+case 'put_invoice_template':
+    saveJSONRecord('invoice', '');
+    break;
+case 'get_invoice_template_row':
+    printJSONRecord('invoice_row');
+    break;
+case 'get_invoice_template_rows':
+    printJSONRecords('invoice_row', 'invoice_id', 'order_no');
+    break;
+case 'put_invoice_template_row':
+    saveJSONRecord('invoice_row', 'invoice_id');
+    break;
+case 'delete_invoice_template_row':
+    deleteJSONRecord('invoice_row');
+    break;
+case 'delete_invoice_template_attachment':
+    deleteJSONRecord('invoice_attachment');
     break;
 
 case 'get_custom_prices':
@@ -405,6 +427,7 @@ case 'get_list':
     }
     $search = getPostOrQuery('search');
     $searchId = getPostOrQuery('searchId');
+    $format = getPostOrQuery('format');
     $filter = empty($search['value']) ? '' : $search['value'];
     $query = json_decode(getPostOrQuery('query', '{}'), true);
     $companyId = 'product' === $strList ? getPostOrQuery('company', null) : null;
@@ -413,7 +436,8 @@ case 'get_list':
     echo createJSONList(
         $listFunc, $strList, $startRow, $rowCount, $sort, $filter, $query,
         intval(getPostOrQuery('draw', 1)), $tableId, $companyId,
-        $searchId ? intval($searchId) : null
+        $searchId ? intval($searchId) : null,
+        $format
     );
     Memory::set(
         $tableId,
@@ -699,6 +723,7 @@ EOT;
 function convertToApi($row, $table)
 {
     $form = $table;
+    $parentId = null;
     switch ($table) {
     case 'base':
         $row['logo_filedata'] = base64_encode($row['logo_filedata']);
@@ -707,15 +732,18 @@ function convertToApi($row, $table)
     case 'invoice_attachment':
         unset($row['filedata']);
         $row['filesize_readable'] = fileSizeToHumanReadable($row['filesize']);
+        $parentId = $row['invoice_id'];
         break;
     case 'company':
         $row['tags'] = getTagsArray('company', $row['id']);
         break;
     case 'company_contact':
         $row['tags'] = getTagsArray('contact', $row['id']);
+        $parentId = $row['company_id'];
         break;
     case 'invoice_row':
         $row['type_id_text'] = Translator::translate($row['type_id_text']);
+        $parentId = $row['invoice_id'];
         break;
     case 'users':
         unset($row['password']);
@@ -723,7 +751,7 @@ function convertToApi($row, $table)
         break;
     }
 
-    $formConfig = getFormConfig($form, '');
+    $formConfig = getFormConfig($form, '', $row['id'] ?? null, $parentId);
     foreach ($formConfig['fields'] as $field) {
         $name = $field['name'];
         if ('INTDATE' === $field['type'] && isset($row[$name])) {
@@ -776,7 +804,7 @@ function saveJSONRecord($table, $parentKeyName)
     $id = !empty($data['id']) ? (int)$data['id'] : null;
     $new = $id ? false : true;
     unset($data['id']);
-    $formConfig = getFormConfig($table, 'json');
+    $formConfig = getFormConfig($table, 'json', $id, $parentKeyName ? $data[$parentKeyName] : null);
 
     $onPrint = false;
     if (isset($data['onPrint'])) {
@@ -860,9 +888,7 @@ function updateMultipleRows()
     }
 
     $strForm = $request['table'];
-    $strFunc = '';
-    $strList = '';
-    $formConfig = getFormConfig($strForm, 'json');
+    $formConfig = getFormConfig($strForm, 'json', null, $request['parentId']);
 
     $warnings = '';
     foreach ($request['ids'] as $id) {
@@ -922,7 +948,7 @@ function updateRowOrder()
  *
  * @return array
  */
-function getInvoiceListTotal(array $query, int $searchId = null): array
+function getInvoiceListTotal(array $query, ?int $searchId = null): array
 {
     $listConfig = getListConfig('invoice');
     $queries = createListQuery('invoice', 'invoice', 0, 0, [], '', $query, $searchId);

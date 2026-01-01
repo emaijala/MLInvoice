@@ -5,7 +5,7 @@
  * PHP version 8
  *
  * Copyright (C) Samu Reinikainen 2004-2008
- * Copyright (C) Ere Maijala 2010-2022
+ * Copyright (C) Ere Maijala 2010-2024
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2,
@@ -655,6 +655,7 @@ case 'product':
 
 case 'invoice':
 case 'offer':
+case 'invoice_template':
     $levelsAllowed[] = ROLE_READONLY;
     $strTable = '{prefix}invoice';
     $strListTableAlias = 'i.'; // this is for the search function
@@ -662,6 +663,7 @@ case 'offer':
     $addressAutocomplete = true;
     $defaultState = 1;
     $isOffer = false;
+    $isTemplate = 'invoice_template' === $strForm;
 
     $arrRefundedInvoice = [
         'allow_null' => true
@@ -673,6 +675,7 @@ case 'offer':
     if ($intInvoiceId) {
         $intInvoiceId = is_array($intInvoiceId) ? $intInvoiceId[0] : $intInvoiceId;
         $isOffer = isOffer($intInvoiceId);
+        $isTemplate = isTemplate($intInvoiceId);
 
         if ($isOffer) {
             $locCopyAsInvoice = Translator::translate('CopyAsInvoice');
@@ -719,7 +722,9 @@ EOT;
             }
         }
     } else {
-        if (getPostOrQuery('offer', false) || getPostOrQuery('form', '') === 'offer') {
+        if ($isTemplate) {
+            $defaultState = getInitialTemplateState();
+        } elseif (getPostOrQuery('offer', false) || getPostOrQuery('form', '') === 'offer') {
             $defaultState = getInitialOfferState();
             $isOffer = true;
         }
@@ -737,7 +742,7 @@ EOT;
         $locNew = Translator::translate('New') . '...';
         $addCompanyCode = '<button type="button" class="btn btn-outline-secondary" data-quick-add-company>' . $locNew . '</button>';
 
-        if (!$isOffer) {
+        if (!$isOffer && !$isTemplate) {
             $companyOnChange = '_onChangeCompany';
 
             if (getSetting('invoice_warn_if_noncurrent_date')) {
@@ -748,11 +753,11 @@ EOT;
                 $formDataAttrs[] = 'check-invoice-number';
             }
         } else {
-            $companyOnChange = '_onChangeCompanyOffer';
+            $companyOnChange = '_onChangeCompanyOfferOrTemplate';
         }
     }
 
-    if (sesWriteAccess() && !$isOffer) {
+    if (sesWriteAccess() && !$isOffer && !$isTemplate) {
         $today = date('Y-m-d');
         $markPaidToday = "if ([1, 2, 5, 6, 7].indexOf(parseInt($('#state_id').val())) !== -1) {"
             . " $('#state_id').val(3); }"
@@ -810,7 +815,7 @@ EOF;
     $copyLinkOverride = $intInvoiceId ? "copy_invoice.php?func=$strFunc&amp;list=$strList&amp;id=$intInvoiceId" : '';
 
     $updateInvoiceNr = null;
-    if (sesWriteAccess() && !$isOffer) {
+    if (sesWriteAccess() && !$isOffer && !$isTemplate) {
         if (!getSetting('invoice_add_number')
             || !getSetting('invoice_add_reference_number')
         ) {
@@ -824,21 +829,28 @@ EOF;
         . " if (json.errors) { MLInvoice.errormsg(json.errors); } else { MLInvoice.infomsg('$locReminderFeesAdded'); } MLInvoice.Form.initRows(); });"
         . " return false;";
 
-    $intervalOptions = [
-        '0' => Translator::translate('InvoiceIntervalNone'),
-        '2' => Translator::translate('InvoiceIntervalMonth'),
-        '3' => Translator::translate('InvoiceIntervalYear')
-    ];
-    for ($i = 4; $i <= 8; $i++) {
-        $intervalOptions[(string)$i]
-            = str_replace('%d', $i - 2, Translator::translate('InvoiceIntervalMonths'));
-    }
-
     $stateQuery = 'SELECT id, name FROM {prefix}invoice_state WHERE deleted=0';
     if ('ext_search' !== $strFunc) {
-        $stateQuery .= $isOffer ? ' AND invoice_offer=1' : ' AND invoice_offer!=1';
+        if ($isOffer) {
+            $stateQuery .= ' AND invoice_offer=1';
+        } elseif ($isTemplate) {
+            $stateQuery .= ' AND invoice_template=1';
+        } else {
+            $stateQuery .= ' AND invoice_offer!=1 AND invoice_template!=1';
+        }
     }
     $stateQuery .= ' ORDER BY order_no';
+
+    $hideRecurrence = $isOffer;
+    $group1 = [];
+    if (!$isOffer && !$isTemplate && $intInvoiceId && ($templateId = getInvoiceTemplateId($intInvoiceId))) {
+        $group1[] = [
+            'name' => 'showRecurringInvoiceTemplate',
+            'label' => 'ShowRecurringInvoiceTemplate',
+            'url' => "index.php?func=invoice_templates&list=invoice_templates&form=invoice_template&id=$templateId",
+        ];
+        $hideRecurrence = true;
+    }
 
     $astrFormElements = [
         [
@@ -850,6 +862,15 @@ EOF;
             'allow_null' => false,
             'default' => \Ramsey\Uuid\Uuid::uuid4()->toString()
         ],
+        /*[
+            'name' => 'template_invoice_id',
+            'label' => 'template_invoice_id',
+            'type' => 'HID_INT',
+            'style' => '',
+            'position' => 1,
+            'allow_null' => true,
+            'default' => null,
+        ],*/
         [
             'name' => 'base_id',
             'label' => 'Biller',
@@ -915,7 +936,8 @@ EOF;
             'type' => 'INTDATE',
             'style' => 'date',
             'position' => 1,
-            'default' => 'DATE_NOW'
+            'default' => 'DATE_NOW',
+            'hidden' => $isTemplate,
         ],
         [
             'name' => 'due_date',
@@ -924,7 +946,8 @@ EOF;
             'style' => 'date',
             'position' => 2,
             'default' => 'DATE_NOW+' . getSetting('invoice_payment_days'),
-            'attached_elem' => $updateDates
+            'attached_elem' => $updateDates,
+            'hidden' => $isTemplate,
         ],
         [
             'name' => 'interval_type',
@@ -932,10 +955,10 @@ EOF;
             'type' => 'SELECT',
             'style' => 'long',
             'position' => 1,
-            'options' => $intervalOptions,
+            'options' => getIntervalOptions(),
             'default' => '0',
             'allow_null' => true,
-            'hidden' => $isOffer,
+            'hidden' => $hideRecurrence,
         ],
         [
             'name' => 'next_interval_date',
@@ -945,7 +968,7 @@ EOF;
             'position' => 2,
             'default' => '',
             'allow_null' => true,
-            'hidden' => $isOffer,
+            'hidden' => $hideRecurrence,
         ],
         [
             'name' => 'state_id',
@@ -954,7 +977,8 @@ EOF;
             'style' => 'long translated noemptyvalue',
             'listquery' => $stateQuery,
             'position' => 1,
-            'default' => $defaultState
+            'default' => $defaultState,
+            'hidden' => $isTemplate,
         ],
         [
             'name' => 'payment_date',
@@ -963,9 +987,10 @@ EOF;
             'style' => 'date',
             'position' => 2,
             'allow_null' => true,
-            'attached_elem' => $markPaidTodayButton,
-            'elem_attributes' => 'onchange="' . $markPaidTodayEvent . '" max="' . date('Y-m-d') . '"',
-            'hidden' => $isOffer,
+            'attached_elem' => !$isTemplate ? $markPaidTodayButton : null,
+            'elem_attributes' => 'max="' . date('Y-m-d') . '"'
+                . (!$isTemplate ? ' onchange="' . $markPaidTodayEvent . '"' : ''),
+            'hidden' => $isOffer || $isTemplate,
         ],
         [
             'name' => 'archived',
@@ -1077,8 +1102,7 @@ EOF;
 
     $buttonGroups = [];
 
-    $group1 = [];
-    if ($intInvoiceId && sesWriteAccess() && !$isOffer) {
+    if ($intInvoiceId && sesWriteAccess() && !$isOffer && !$isTemplate) {
         $group1[] = [
             'name' => 'refundinvoice',
             'label' => 'RefundInvoice',
@@ -1113,7 +1137,7 @@ EOF;
         }
     }
 
-    if (sesWriteAccess() && !$isOffer) {
+    if (sesWriteAccess() && !$isOffer && !$isTemplate) {
         $group1[] = [
             'name' => 'addreminderfees',
             'label' => 'AddReminderFees',
@@ -1139,42 +1163,44 @@ EOF;
     }
 
     $group2 = [];
-    $rows = dbParamQuery(
-        'SELECT * FROM {prefix}print_template WHERE deleted=0 and type=? and inactive=0 ORDER BY order_no',
-        [$isOffer ? 'offer' : 'invoice']
-    );
-    $templateCount = count($rows);
-    $templateFirstCol = 3;
-    $rowNum = 0;
-    foreach ($rows as $row) {
-        if (!sesWriteAccess()) {
-            // Check if this print template is safe for read-only use
-            $printer = getInvoicePrinter($row['filename']);
-            if (null === $printer || !$printer->getReadOnlySafe()) {
-                continue;
+    if (!$isTemplate) {
+        $rows = dbParamQuery(
+            'SELECT * FROM {prefix}print_template WHERE deleted=0 and type=? and inactive=0 ORDER BY order_no',
+            [$isOffer ? 'offer' : 'invoice']
+        );
+        $templateCount = count($rows);
+        $templateFirstCol = 3;
+        $rowNum = 0;
+        foreach ($rows as $row) {
+            if (!sesWriteAccess()) {
+                // Check if this print template is safe for read-only use
+                $printer = getInvoicePrinter($row['filename']);
+                if (null === $printer || !$printer->getReadOnlySafe()) {
+                    continue;
+                }
             }
-        }
-        $templateId = $row['id'];
-        $printStyle = $row['new_window'] ? 'openwindow' : 'redirect';
-        $printFunc = null;
-        $attrs = [];
-        $attrs['data-print-id'] = $templateId;
-        $attrs['data-func'] = $strFunc;
-        $attrs['data-print-style'] = $printStyle;
+            $templateId = $row['id'];
+            $printStyle = $row['new_window'] ? 'openwindow' : 'redirect';
+            $printFunc = null;
+            $attrs = [];
+            $attrs['data-print-id'] = $templateId;
+            $attrs['data-func'] = $strFunc;
+            $attrs['data-print-style'] = $printStyle;
 
-        $group2[] = [
-            'name' => "print$templateId",
-            'label' => $row['name'],
-            'url' => '#',
-            'attrs' => $attrs,
-        ];
-    }
-    if ($group2) {
-        $buttonGroups[] = [
-            'buttons' => $group2,
-            'overflow' => 5,
-            'overflow-label' => 'PrintOther',
-        ];
+            $group2[] = [
+                'name' => "print$templateId",
+                'label' => $row['name'],
+                'url' => '#',
+                'attrs' => $attrs,
+            ];
+        }
+        if ($group2) {
+            $buttonGroups[] = [
+                'buttons' => $group2,
+                'overflow' => 5,
+                'overflow-label' => 'PrintOther',
+            ];
+        }
     }
 
     break;
@@ -1182,6 +1208,8 @@ EOF;
 case 'invoice_row':
     $strTable = '{prefix}invoice_row';
     $strParentKey = 'invoice_id';
+
+    $isTemplate = $parentId ? isTemplate($parentId) : false;
 
     switch (getSetting('invoice_clear_row_values_after_add')) {
     case 0:
@@ -1225,7 +1253,8 @@ case 'invoice_row':
             'type' => 'INTDATE',
             'style' => 'date',
             'position' => 0,
-            'default' => 'DATE_NOW'
+            'default' => $isTemplate ? null : 'DATE_NOW',
+            'allow_null' => true
         ],
         [
             'name' => 'pcs',
@@ -1249,7 +1278,8 @@ case 'invoice_row':
             'type' => 'INT',
             'style' => 'currency',
             'position' => 0,
-            'decimals' => getSetting('unit_price_decimals')
+            'decimals' => getSetting('unit_price_decimals'),
+            'allow_null' => $isTemplate,
         ],
         [
             'name' => 'discount',
