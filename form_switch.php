@@ -1502,6 +1502,14 @@ EOF;
             'allow_null' => true
         ],
         [
+            'name' => 'payment_recipient_name',
+            'label' => 'InvoicePaymentRecipientName',
+            'type' => 'TEXT',
+            'style' => 'medium',
+            'position' => 1,
+            'allow_null' => true
+        ],
+        [
             'name' => 'banksep1',
             'label' => 'FirstBank',
             'type' => 'HEADING'

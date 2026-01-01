@@ -52,6 +52,7 @@ CREATE TABLE mlinvoice_base (
   company_id varchar(15) default NULL,
   org_unit_number varchar(35) default NULL,
   payment_intermediator varchar(100) default NULL,
+  payment_recipient_name varchar(100) NULL,
   bank_name varchar(50) NOT NULL,
   bank_account varchar(30) NOT NULL DEFAULT '',
   bank_iban varchar(50) NOT NULL,
@@ -446,7 +447,7 @@ CREATE TABLE mlinvoice_default_value (
 
 SET NAMES 'utf8';
 
-INSERT INTO mlinvoice_state (id, data) VALUES ('version', '68');
+INSERT INTO mlinvoice_state (id, data) VALUES ('version', '69');
 
 INSERT INTO mlinvoice_state (id, data) VALUES ('tableconversiondone', '1');
 

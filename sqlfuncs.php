@@ -2888,6 +2888,16 @@ EOT
         );
     }
 
+    if ($version < 69) {
+        $updates = array_merge(
+            $updates,
+            [
+                'ALTER TABLE {prefix}base ADD COLUMN payment_recipient_name varchar(100) NULL',
+                "REPLACE INTO {prefix}state (id, data) VALUES ('version', '69')"
+            ]
+        );
+    }
+
     // phpcs:enable Generic.Files.LineLength
     if (!empty($updates)) {
         dbQueryCheck('SET AUTOCOMMIT = 0');
