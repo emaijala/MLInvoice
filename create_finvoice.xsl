@@ -14,6 +14,7 @@
 
 <xsl:stylesheet version="1.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
   <xsl:param name="stylesheet"/>
+  <xsl:param name="printTransmissionDetails"/>
   <xsl:output method="xml" version="1.0" encoding="ISO-8859-15" indent="yes"/>
   <xsl:decimal-format name="euro" decimal-separator="," grouping-separator=""/>
   <xsl:template match="/invoicedata">
@@ -130,7 +131,7 @@
       <xsl:if test="phone!=''">
     <BuyerPhoneNumberIdentifier><xsl:value-of select="phone"/></BuyerPhoneNumberIdentifier>
       </xsl:if>
-      <xsl:if test="phone!=''">
+      <xsl:if test="email!=''">
     <BuyerEmailaddressIdentifier><xsl:value-of select="email"/></BuyerEmailaddressIdentifier>
       </xsl:if>
   </BuyerCommunicationDetails>
