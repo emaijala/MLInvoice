@@ -2061,7 +2061,7 @@ MLInvoice.addModule('Form', function mlinvoiceForm() {
     const stateId = $('#state_id').val();
     if (MLInvoice.isPaidStatus(stateId)) {
       const paymentDateEl = document.getElementById('payment_date');
-      if (paymentDateEl && paymentDateEl.value == '') {
+      if (paymentDateEl && paymentDateEl.value === '') {
         paymentDateEl.value = moment().format('YYYY-MM-DD');
       }
       const archivedEl = document.getElementById('archived');

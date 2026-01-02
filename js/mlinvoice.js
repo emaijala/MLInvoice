@@ -75,10 +75,6 @@ var MLInvoice = (function CreateMLInvoice() {
     return _offerStates.indexOf(status) !== -1;
   }
 
-  function setPaidStates(states) {
-    _paidStates = states;
-  }
-
   function isPaidStatus(status) {
     return _paidStates.indexOf(status) !== -1;
   }
