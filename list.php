@@ -517,6 +517,16 @@ function createJSONList(
         $searchId
     );
 
+    if ('object' === $format) {
+        // Override sort order for 'object' format. TODO: This is a bit of a hack. Add way to properly describe sort
+        // order when doing a non-datatables query.
+        $queryBuilders['filteredQuery']->resetOrderBy();
+        $queryBuilders['filteredQuery']->addOrderBy(
+            $listConfig['alias'] ? ($listConfig['alias'] . '.id') : 'id',
+            'DESC'
+        );
+    }
+
     $countQuery = $queryBuilders['countQuery'];
     $filteredQuery = $queryBuilders['filteredQuery'];
     $prefix = _DB_PREFIX_ . '_';
@@ -828,42 +838,33 @@ function createListQuery($strFunc, $strList, $startRow, $rowCount, $sort,
 
     $filteredQb = clone $qb;
     if ($filter) {
-        $leftAnchored = !getSetting('dynamic_select_search_in_middle');
-        $termPrefix = $leftAnchored ? '' : '%';
+        // Full term:
+        $fullGroup = call_user_func_array(
+            [$filteredQb->expr(), 'or'],
+            getFilterExpressions($filteredQb, $listConfig['searchFields'], $filter)
+        );
+
+        // Words:
+        $wordGroups = [];
         foreach (explode(' ', $filter) as $term) {
             if ('' === trim($term)) {
                 continue;
             }
-            $expressions = [];
-            foreach ($listConfig['searchFields'] as $searchField) {
-                switch ($searchField['type']) {
-                case 'TEXT':
-                    $expressions[] = $qb->expr()->like(
-                        $searchField['name'],
-                        $filteredQb->createNamedParameter("$termPrefix$term%")
-                    );
-                    break;
-                case 'PRIMARY':
-                case 'INT':
-                    if (ctype_digit($term)) {
-                        $expressions[] = $qb->expr()->eq(
-                            $searchField['name'],
-                            $term
-                        );
-                    }
-                    break;
-                case 'CURRENCY':
-                    $expressions[] = $qb->expr()->like(
-                        'CAST(' . $searchField['name'] . ' AS CHAR)',
-                        $filteredQb->createNamedParameter("$termPrefix$term%")
-                    );
-                    break;
-                default:
-                    continue 2;
-                }
-            }
-            $filteredQb->andWhere(call_user_func_array([$qb->expr(), 'or'], $expressions));
+            $wordGroups[] = call_user_func_array(
+                [$filteredQb->expr(), 'or'],
+                getFilterExpressions($filteredQb, $listConfig['searchFields'], $term)
+            );
         }
+
+        $filteredQb->andWhere(
+            $filteredQb->expr()->or(
+                $fullGroup,
+                call_user_func_array(
+                    [$filteredQb->expr(), 'and'],
+                    $wordGroups
+                )
+            )
+        );
     }
 
     $filteredCountQb = clone $filteredQb;
@@ -909,7 +910,7 @@ function createListQuery($strFunc, $strList, $startRow, $rowCount, $sort,
     }
     $filteredQb->addOrderBy(
         $listConfig['alias'] ? ($listConfig['alias'] . '.id') : 'id',
-        'DESC'
+        'ASC'
     );
 
     return [
@@ -918,6 +919,50 @@ function createListQuery($strFunc, $strList, $startRow, $rowCount, $sort,
         'filteredQuery' => $filteredQb,
         'filteredCountQuery' => $filteredCountQb,
     ];
+}
+
+/**
+ * Get filter expressions for a filter term.
+ *
+ * @param QueryBuilder $qb           Query builder
+ * @param array        $searchFields Search fields
+ * @param string       $term         Search term
+ *
+ * @return array
+ */
+function getFilterExpressions(QueryBuilder $qb, array $searchFields, string $term): array
+{
+    $leftAnchored = !getSetting('dynamic_select_search_in_middle');
+    $termPrefix = $leftAnchored ? '' : '%';
+
+    foreach ($searchFields as $searchField) {
+        switch ($searchField['type']) {
+        case 'TEXT':
+            $expressions[] = $qb->expr()->like(
+                $searchField['name'],
+                $qb->createNamedParameter("$termPrefix$term%")
+            );
+            break;
+        case 'PRIMARY':
+        case 'INT':
+            if (ctype_digit($term)) {
+                $expressions[] = $qb->expr()->eq(
+                    $searchField['name'],
+                    $term
+                );
+            }
+            break;
+        case 'CURRENCY':
+            $expressions[] = $qb->expr()->like(
+                'CAST(' . $searchField['name'] . ' AS CHAR)',
+                $qb->createNamedParameter("$termPrefix$term%")
+            );
+            break;
+        default:
+            continue 2;
+        }
+    }
+    return $expressions;
 }
 
 /**
