@@ -26,6 +26,7 @@ MLInvoice.addModule('Form', function mlinvoiceForm() {
 
     $('#base_id').on('change', updateBaseDefaults);
     $('#state_id').on('change', updateBaseDefaults);
+    $('#state_id').on('change', stateChangeUpdateFields);
 
     // Company info
     if ($('#company_id').val()) {
@@ -2053,6 +2054,21 @@ MLInvoice.addModule('Form', function mlinvoiceForm() {
         });
       }
     });
+  }
+
+  function stateChangeUpdateFields()
+  {
+    const stateId = $('#state_id').val();
+    if (MLInvoice.isPaidStatus(stateId)) {
+      const paymentDateEl = document.getElementById('payment_date');
+      if (paymentDateEl && paymentDateEl.value == '') {
+        paymentDateEl.value = moment().format('YYYY-MM-DD');
+      }
+      const archivedEl = document.getElementById('archived');
+      if (archivedEl && ('autoArchive' in archivedEl.dataset)) {
+        archivedEl.checked = true;
+      }
+    }
   }
 
   function _calculateInvoiceRowSummary(records)

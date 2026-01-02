@@ -6,6 +6,7 @@ var MLInvoice = (function CreateMLInvoice() {
   var _translations = {};
   var _dispatchNotePrintStyle = 'none';
   var _offerStates = [];
+  var _paidStates = ['3', '8'];
   var _keepAliveEnabled = true;
   var _currencyDecimals = 2;
   var _dateRangePickerDefaults = {};
@@ -72,6 +73,14 @@ var MLInvoice = (function CreateMLInvoice() {
 
   function isOfferStatus(status) {
     return _offerStates.indexOf(status) !== -1;
+  }
+
+  function setPaidStates(states) {
+    _paidStates = states;
+  }
+
+  function isPaidStatus(status) {
+    return _paidStates.indexOf(status) !== -1;
   }
 
   function formatCurrency(value, _decimals) {
@@ -801,6 +810,7 @@ var MLInvoice = (function CreateMLInvoice() {
     getDateRangePickerDefaults: getDateRangePickerDefaults,
     setOfferStates: setOfferStates,
     isOfferStatus: isOfferStatus,
+    isPaidStatus: isPaidStatus,
     translate: translate,
     formatCurrency: formatCurrency,
     parseDecimal: parseDecimal,

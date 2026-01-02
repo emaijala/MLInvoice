@@ -999,7 +999,8 @@ EOF;
             'style' => 'medium',
             'position' => 1,
             'default' => 0,
-            'allow_null' => true
+            'allow_null' => true,
+            'elem_attributes' =>  getSetting('invoice_auto_archive') ? 'data-auto-archive' : '',
         ],
         [
             'name' => 'type_id',
