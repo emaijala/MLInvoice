@@ -10,7 +10,7 @@
     "license": "GPL-2.0",
     "config": {
         "platform": {
-            "php": "8.0"
+            "php": "8.1"
         },
         "allow-plugins": {
             "codeception/c3": false
@@ -48,7 +48,7 @@
         "behat/mink": "1.12.0",
         "dmore/chrome-mink-driver": "2.9.3",
         "friendsofphp/php-cs-fixer": "^v3.64.0",
-        "phing/phing": "^3.0.0",
+        "phing/phing": "^3.1.1",
         "phpunit/phpunit": "9.6.21",
         "squizlabs/php_codesniffer": "^3.10.3",
         "codeception/c3": "^2.9.0",
