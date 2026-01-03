@@ -3,7 +3,7 @@
 <!--
  This file is licensed under the MIT license.
 
- Copyright 2011-2021 Ere Maijala
+ Copyright 2011-2025 Ere Maijala
 
  Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
 
@@ -14,6 +14,7 @@
 
 <xsl:stylesheet version="1.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
   <xsl:param name="stylesheet"/>
+  <xsl:param name="printTransmissionDetails"/>
   <xsl:output method="xml" version="1.0" encoding="ISO-8859-15" indent="yes"/>
   <xsl:decimal-format name="euro" decimal-separator="," grouping-separator=""/>
   <xsl:template match="/invoicedata">
@@ -130,7 +131,7 @@
       <xsl:if test="phone!=''">
     <BuyerPhoneNumberIdentifier><xsl:value-of select="phone"/></BuyerPhoneNumberIdentifier>
       </xsl:if>
-      <xsl:if test="phone!=''">
+      <xsl:if test="email!=''">
     <BuyerEmailaddressIdentifier><xsl:value-of select="email"/></BuyerEmailaddressIdentifier>
       </xsl:if>
   </BuyerCommunicationDetails>
@@ -169,14 +170,14 @@
     <xsl:if test="reference!=''">
     <OrderIdentifier><xsl:value-of select="reference"/></OrderIdentifier>
     </xsl:if>
-    <InvoiceTotalVatExcludedAmount AmountCurrencyIdentifier="EUR"><xsl:value-of select="format-number(totalsum, '0,00', 'euro')"/></InvoiceTotalVatExcludedAmount>
-    <InvoiceTotalVatAmount AmountCurrencyIdentifier="EUR"><xsl:value-of select="format-number(totalvat, '0,00', 'euro')"/></InvoiceTotalVatAmount>
-    <InvoiceTotalVatIncludedAmount AmountCurrencyIdentifier="EUR"><xsl:value-of select="format-number(totalsumvat, '0,00', 'euro')"/></InvoiceTotalVatIncludedAmount>
+    <InvoiceTotalVatExcludedAmount AmountCurrencyIdentifier="EUR"><xsl:value-of select="format-number(round(totalsum * 100) div 100, '0,00', 'euro')"/></InvoiceTotalVatExcludedAmount>
+    <InvoiceTotalVatAmount AmountCurrencyIdentifier="EUR"><xsl:value-of select="format-number(round(totalvat * 100) div 100, '0,00', 'euro')"/></InvoiceTotalVatAmount>
+    <InvoiceTotalVatIncludedAmount AmountCurrencyIdentifier="EUR"><xsl:value-of select="format-number(round(totalsumvat * 100) div 100, '0,00', 'euro')"/></InvoiceTotalVatIncludedAmount>
     <xsl:for-each select="groupedvats/*">
     <VatSpecificationDetails>
-      <VatBaseAmount AmountCurrencyIdentifier="EUR"><xsl:value-of select="format-number(totalsum, '0,00', 'euro')"/></VatBaseAmount>
-      <VatRatePercent><xsl:value-of select="format-number(vat, '0,0#', 'euro')"/></VatRatePercent>
-      <VatRateAmount AmountCurrencyIdentifier="EUR"><xsl:value-of select="format-number(totalvat, '0,00', 'euro')"/></VatRateAmount>
+      <VatBaseAmount AmountCurrencyIdentifier="EUR"><xsl:value-of select="format-number(round(totalsum * 100) div 100, '0,00', 'euro')"/></VatBaseAmount>
+      <VatRatePercent><xsl:value-of select="format-number(round(vat * 100) div 100, '0,0#', 'euro')"/></VatRatePercent>
+      <VatRateAmount AmountCurrencyIdentifier="EUR"><xsl:value-of select="format-number(round(totalvat * 100) div 100, '0,00', 'euro')"/></VatRateAmount>
     </VatSpecificationDetails>
     </xsl:for-each>
     <xsl:if test="info!=''">
@@ -318,7 +319,7 @@
       <EpiRemittanceInfoIdentifier IdentificationSchemeName="SPY"><xsl:value-of select="format-number(ref_number, '00000000000000000000')"/></EpiRemittanceInfoIdentifier>
     </xsl:otherwise>
   </xsl:choose>
-      <EpiInstructedAmount AmountCurrencyIdentifier="EUR"><xsl:value-of select="format-number(totalsumvat - paidsum, '0,00', 'euro')"/></EpiInstructedAmount>
+      <EpiInstructedAmount AmountCurrencyIdentifier="EUR"><xsl:value-of select="format-number(totalsumvat - round(paidsum * 100) div 100, '0,00', 'euro')"/></EpiInstructedAmount>
       <EpiCharge ChargeOption="SHA">SHA</EpiCharge>
       <EpiDateOptionDate Format="CCYYMMDD"><xsl:value-of select="due_date"/></EpiDateOptionDate>
     </EpiPaymentInstructionDetails>

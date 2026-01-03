@@ -5,7 +5,7 @@
  * PHP version 8
  *
  * Copyright (C) Samu Reinikainen 2004-2008
- * Copyright (C) Ere Maijala 2010-2021
+ * Copyright (C) Ere Maijala 2010-2024
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2,
@@ -40,10 +40,7 @@ require_once 'memory.php';
  */
 function createFuncMenu($strFunc)
 {
-    $strHiddenTerm = '';
     $strNewButton = '';
-    $strFormName = '';
-    $strExtSearchTerm = '';
     $searchType = '';
     switch ($strFunc) {
     case 'system':
@@ -99,9 +96,6 @@ function createFuncMenu($strFunc)
 
     case 'company':
         $searchType = 'company';
-        $strOpenForm = 'company';
-        $strFormName = 'company';
-        $strFormSwitch = 'company';
         $strNewButton = '<a role="button" class="btn btn-secondary" href="?func=company&amp;form=company">'
             . Translator::translate('NewClient') . '</a>';
         break;
@@ -117,8 +111,10 @@ function createFuncMenu($strFunc)
 
     default:
         $searchType = 'import_statement' === $strFunc ? '' : 'invoice';
-        $strFormName = 'invoice';
-        if ($strFunc != 'archived_invoices' && $strFunc != 'import_statement') {
+        if ('invoice_templates' === $strFunc) {
+            $strNewButton = '<a role="button" class="btn btn-secondary" href="?func=invoice_templates&amp;form=invoice_template">' .
+                 Translator::translate('NewRecurringInvoiceTemplate') . '</a>';
+        } elseif ($strFunc != 'archived_invoices' && $strFunc != 'import_statement') {
             $strNewButton = '<a role="button" class="btn btn-secondary" href="?func=invoices&amp;form=invoice">' .
                  Translator::translate('NewInvoice') . '</a>';
             $strNewButton .= '<a role="button" class="btn btn-secondary" href="?func=invoices&amp;form=invoice&amp;offer=1">' .

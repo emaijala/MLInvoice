@@ -51,7 +51,7 @@ use Doctrine\DBAL\Query\QueryBuilder;
  * @return void
  */
 function createList($strFunc, $strList, $strTableName = '', $strTitleOverride = '',
-    int $searchId = null, $invoiceTotal = false, $highlightOverdue = false,
+    ?int $searchId = null, $invoiceTotal = false, $highlightOverdue = false,
     $printType = ''
 ) {
     $listConfig = getListConfig($strList);
@@ -170,6 +170,8 @@ function createList($strFunc, $strList, $strTableName = '', $strTitleOverride = 
             $class = 'editable';
         } elseif ('i.due_date' === $field['name']) {
             $class = 'due-date';
+        } elseif ('i.next_interval_date' === $field['name']) {
+            $class = 'next-interval-date';
         }
         $visible = !isset($field['visible']) || $field['visible'] ? 'true' : 'false';
         ?>
@@ -466,17 +468,18 @@ function createList($strFunc, $strList, $strTableName = '', $strTitleOverride = 
 /**
  * Create a JSON list
  *
- * @param string $strFunc   Function
- * @param string $strList   List
- * @param int    $startRow  Start row
- * @param int    $rowCount  Number of rows
- * @param array  $sort      Sort settings
- * @param string $filter    Quick filter
- * @param array  $query     Search query
- * @param int    $requestId Request ID
- * @param string $listId    List ID
- * @param int    $companyId Company ID
- * @param int    $searchId  Saved search ID
+ * @param string  $strFunc   Function
+ * @param string  $strList   List
+ * @param int     $startRow  Start row
+ * @param int     $rowCount  Number of rows
+ * @param array   $sort      Sort settings
+ * @param string  $filter    Quick filter
+ * @param array   $query     Search query
+ * @param int     $requestId Request ID
+ * @param string  $listId    List ID
+ * @param int     $companyId Company ID
+ * @param int     $searchId  Saved search ID
+ * @param ?string $format    Record output format (object for key-value object, any other value for DataTables format)
  *
  * @return string
  */
@@ -490,8 +493,9 @@ function createJSONList(
     array $query,
     int $requestId,
     string $listId,
-    int $companyId = null,
-    int $searchId = null
+    ?int $companyId = null,
+    ?int $searchId = null,
+    ?string $format = null
 ): string {
     $listConfig = getListConfig($strList);
     if (!$listConfig) {
@@ -512,6 +516,16 @@ function createJSONList(
         $query,
         $searchId
     );
+
+    if ('object' === $format) {
+        // Override sort order for 'object' format. TODO: This is a bit of a hack. Add way to properly describe sort
+        // order when doing a non-datatables query.
+        $queryBuilders['filteredQuery']->resetOrderBy();
+        $queryBuilders['filteredQuery']->addOrderBy(
+            $listConfig['alias'] ? ($listConfig['alias'] . '.id') : 'id',
+            'DESC'
+        );
+    }
 
     $countQuery = $queryBuilders['countQuery'];
     $filteredQuery = $queryBuilders['filteredQuery'];
@@ -546,11 +560,16 @@ function createJSONList(
     if ($listConfig['deletedField']) {
         $fields[] = $listConfig['deletedField'];
     }
+    $fieldLabels = [];
     foreach ($listConfig['fields'] as $field) {
         if ('HIDDEN' === $field['type'] || !empty($field['virtual'])) {
             continue;
         }
         $fields[] = $field['sql'] ?? $field['name'];
+        if ('object' === $format) {
+            $name = getFieldNameOrAlias($field['name']);
+            $fieldLabels[$name] = 'id' === $field['name'] ? '' : Translator::translate($field['header']);
+        }
     }
     if ('product' === $strList && $customPrices) {
         // Include any custom prices
@@ -580,9 +599,13 @@ function createJSONList(
         $strLink = "?func=$strFunc&list=$strList&form={$listConfig['mainForm']}"
             . '&listid=' . urlencode($listId) . '&id=' . $row[$idField];
         $resultValues = [$row[$idField], $strLink];
+        $resultObject = [
+            $idField => $row[$idField],
+            '_link' => $strLink,
+        ];
         $rowClass = '';
         foreach ($listConfig['fields'] as $field) {
-            if ('HIDDEN' === $field['type']) {
+            if ('HIDDEN' === $field['type'] && 'object' !== $format) {
                 continue;
             }
 
@@ -624,9 +647,10 @@ function createJSONList(
             }
 
             $resultValues[] = $value;
+            $resultObject[$name] = $value;
 
             // Special colouring for overdue invoices
-            if ($highlight && $name == 'due_date') {
+            if ($highlight && 'invoices' === $strList && $name == 'due_date') {
                 $rowDue = dbDate2UnixTime($row['due_date']);
                 if ($rowDue < mktime(0, 0, 0, date("m"), date("d") - 14, date("Y"))
                 ) {
@@ -640,13 +664,26 @@ function createJSONList(
                     $rowClass = 'overdue';
                 }
             }
+
+            // Special colouring for due/overdue invoice templates
+            if ($highlight
+                && 'invoice_templates' === $strList
+                && $name == 'next_interval_date'
+                && $row['next_interval_date']
+            ) {
+                $nextDate = dbDate2UnixTime($row['next_interval_date']);
+                if ($nextDate <= mktime(0, 0, 0, date("m"), date("d"), date("Y"))
+                ) {
+                    $rowClass = 'due';
+                }
+            }
         }
         $class = trim("$rowClass$deleted");
         if ($class) {
             $resultValues['DT_RowClass'] = $class;
         }
 
-        $records[] = $resultValues;
+        $records[] = $format === 'object' ? $resultObject : $resultValues;
     }
 
     Memory::set(
@@ -673,6 +710,9 @@ function createJSONList(
         'recordsFiltered' => $filteredCount ?? $totalCount,
         'data' => $records
     ];
+    if ('object' === $format) {
+        $results['labels'] = $fieldLabels;
+    }
     return json_encode($results, JSON_INVALID_UTF8_IGNORE) ?: '{"error": "Encode failed: ' . json_last_error_msg() . '"}';
 }
 
@@ -691,7 +731,7 @@ function createJSONList(
  * @return QueryBuilder
  */
 function createListQuery($strFunc, $strList, $startRow, $rowCount, $sort,
-    $filter, array $query, int $searchId = null
+    $filter, array $query, ?int $searchId = null
 ) {
     $listConfig = getListConfig($strList);
     $table = $listConfig['table'];
@@ -798,42 +838,33 @@ function createListQuery($strFunc, $strList, $startRow, $rowCount, $sort,
 
     $filteredQb = clone $qb;
     if ($filter) {
-        $leftAnchored = !getSetting('dynamic_select_search_in_middle');
-        $termPrefix = $leftAnchored ? '' : '%';
+        // Full term:
+        $fullGroup = call_user_func_array(
+            [$filteredQb->expr(), 'or'],
+            getFilterExpressions($filteredQb, $listConfig['searchFields'], $filter)
+        );
+
+        // Words:
+        $wordGroups = [];
         foreach (explode(' ', $filter) as $term) {
             if ('' === trim($term)) {
                 continue;
             }
-            $expressions = [];
-            foreach ($listConfig['searchFields'] as $searchField) {
-                switch ($searchField['type']) {
-                case 'TEXT':
-                    $expressions[] = $qb->expr()->like(
-                        $searchField['name'],
-                        $filteredQb->createNamedParameter("$termPrefix$term%")
-                    );
-                    break;
-                case 'PRIMARY':
-                case 'INT':
-                    if (ctype_digit($term)) {
-                        $expressions[] = $qb->expr()->eq(
-                            $searchField['name'],
-                            $term
-                        );
-                    }
-                    break;
-                case 'CURRENCY':
-                    $expressions[] = $qb->expr()->like(
-                        'CAST(' . $searchField['name'] . ' AS CHAR)',
-                        $filteredQb->createNamedParameter("$termPrefix$term%")
-                    );
-                    break;
-                default:
-                    continue 2;
-                }
-            }
-            $filteredQb->andWhere(call_user_func_array([$qb->expr(), 'or'], $expressions));
+            $wordGroups[] = call_user_func_array(
+                [$filteredQb->expr(), 'or'],
+                getFilterExpressions($filteredQb, $listConfig['searchFields'], $term)
+            );
         }
+
+        $filteredQb->andWhere(
+            $filteredQb->expr()->or(
+                $fullGroup,
+                call_user_func_array(
+                    [$filteredQb->expr(), 'and'],
+                    $wordGroups
+                )
+            )
+        );
     }
 
     $filteredCountQb = clone $filteredQb;
@@ -888,6 +919,50 @@ function createListQuery($strFunc, $strList, $startRow, $rowCount, $sort,
         'filteredQuery' => $filteredQb,
         'filteredCountQuery' => $filteredCountQb,
     ];
+}
+
+/**
+ * Get filter expressions for a filter term.
+ *
+ * @param QueryBuilder $qb           Query builder
+ * @param array        $searchFields Search fields
+ * @param string       $term         Search term
+ *
+ * @return array
+ */
+function getFilterExpressions(QueryBuilder $qb, array $searchFields, string $term): array
+{
+    $leftAnchored = !getSetting('dynamic_select_search_in_middle');
+    $termPrefix = $leftAnchored ? '' : '%';
+
+    foreach ($searchFields as $searchField) {
+        switch ($searchField['type']) {
+        case 'TEXT':
+            $expressions[] = $qb->expr()->like(
+                $searchField['name'],
+                $qb->createNamedParameter("$termPrefix$term%")
+            );
+            break;
+        case 'PRIMARY':
+        case 'INT':
+            if (ctype_digit($term)) {
+                $expressions[] = $qb->expr()->eq(
+                    $searchField['name'],
+                    $term
+                );
+            }
+            break;
+        case 'CURRENCY':
+            $expressions[] = $qb->expr()->like(
+                'CAST(' . $searchField['name'] . ' AS CHAR)',
+                $qb->createNamedParameter("$termPrefix$term%")
+            );
+            break;
+        default:
+            continue 2;
+        }
+    }
+    return $expressions;
 }
 
 /**
@@ -948,7 +1023,7 @@ function createJSONSelectList($strList, $startRow, $rowCount, $filter, $filterTy
 
     if ($sort) {
         if (!preg_match('/^[\w_,]+$/', $sort)) {
-            header('HTTP/1.1 400 Bad Request');
+            http_response_code(400);
             die('Invalid sort type');
         }
         $sortValid = 0;
@@ -962,7 +1037,7 @@ function createJSONSelectList($strList, $startRow, $rowCount, $filter, $filterTy
             }
         }
         if ($sortValid != count($sortFields)) {
-            header('HTTP/1.1 400 Bad Request');
+            http_response_code(400);
             die('Invalid sort type');
         }
     } else {

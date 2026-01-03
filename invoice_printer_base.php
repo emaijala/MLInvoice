@@ -2073,7 +2073,7 @@ EOT;
         );
         $pdf->SetFont('Helvetica', '', 10);
         $pdf->SetXY($intStartX + 21, $intStartY + 17);
-        $pdf->multiCellMD(100, 4, $this->getSenderAddress(), 'L');
+        $pdf->multiCellMD(100, 4, $this->getSenderAddress(true), 'L');
 
         // payer
         $pdf->SetFont('Helvetica', '', 7);
@@ -2616,11 +2616,16 @@ EOT;
     /**
      * Get sender's address information
      *
+     * @param bool $paymentRecipient For payment recipient?
+     *
      * @return string
      */
-    protected function getSenderAddress()
+    protected function getSenderAddress(bool $paymentRecipient = false)
     {
-        $result = $this->senderData['name'] . "\n"
+        $name = ($paymentRecipient && $this->senderData['payment_recipient_name'])
+            ? $this->senderData['payment_recipient_name']
+            : $this->senderData['name'];
+        $result = "$name\n"
             . $this->senderData['street_address'] . "\n"
             . $this->senderData['zip_code'] . ' '
             . $this->senderData['city'];
@@ -2675,6 +2680,9 @@ EOT;
                     . $this->senderData['bank_swiftbic'];
             }
             $result .= "\n$bank";
+            if ($this->senderData['payment_recipient_name']) {
+                $result .= ' (' . $this->senderData['payment_recipient_name'] . ')';
+            }
         }
 
         return $result;

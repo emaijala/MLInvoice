@@ -1,10 +1,10 @@
 <?php
 /**
- * Logo handling
+ * Copy invoice
  *
  * PHP version 8
  *
- * Copyright (C) Ere Maijala 2010-2021
+ * Copyright (C) Ere Maijala 2010-2024
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2,
@@ -54,9 +54,11 @@ if (!sesWriteAccess()) {
 
 $intInvoiceId = getPostOrQuery('id', false);
 $boolRefund = getPostOrQuery('refund', false);
+$fromTemplate = getPostOrQuery('from_template', false);
 $strFunc = getPostOrQuery('func', '');
 $strList = getPostOrQuery('list', '');
 $isOffer = !getPostOrQuery('invoice', false) && isOffer($intInvoiceId);
+$isTemplate = !getPostOrQuery('from_template', false) && isTemplate($intInvoiceId);
 
 if ($intInvoiceId) {
     if ($boolRefund) {
@@ -89,7 +91,7 @@ if ($intInvoiceId) {
     unset($invoiceData['id']);
     unset($invoiceData['invoice_no']);
     $invoiceData['deleted'] = 0;
-    if (!$boolRefund) {
+    if (!$boolRefund && !$fromTemplate) {
         unset($invoiceData['ref_number']);
         if (!empty($invoiceData['company_id'])) {
             $rows = dbParamQuery(
@@ -115,44 +117,20 @@ if ($intInvoiceId) {
     $invoiceData['payment_date'] = null;
     if ($isOffer) {
         $invoiceData['state_id'] = getInitialOfferState();
-    } else {
+    } elseif ($fromTemplate || !isTemplate($intInvoiceId)) {
         $invoiceData['state_id'] = 1;
     }
     $invoiceData['archived'] = false;
     $invoiceData['refunded_invoice_id'] = $boolRefund ? $intInvoiceId : null;
-    if ($boolRefund) {
+    if ($boolRefund || $fromTemplate) {
         $invoiceData['interval_type'] = 0;
         $invoiceData['next_interval_date'] = null;
     }
-
-    switch ($invoiceData['interval_type']) {
-    // Month
-    case 2:
-        $invoiceData['next_interval_date'] = date(
-            'Ymd', mktime(0, 0, 0, date('m') + 1, date('d'), date('Y'))
-        );
-        break;
-    // Year
-    case 3:
-        $invoiceData['next_interval_date'] = date(
-            'Ymd', mktime(0, 0, 0, date('m'), date('d'), date('Y') + 1)
-        );
-        break;
-    // 2 to 6 months
-    case 4:
-    case 5:
-    case 6:
-    case 7:
-    case 8:
-        $invoiceData['next_interval_date'] = date(
-            'Ymd',
-            mktime(
-                0, 0, 0, date('m') + $invoiceData['interval_type'] - 2,
-                date('d'), date('Y')
-            )
-        );
-        break;
+    if ($fromTemplate) {
+        $invoiceData['template_invoice_id'] = $intInvoiceId;
     }
+
+    advanceInvoiceIntervalDate($invoiceData);
 
     dbQueryCheck('SET AUTOCOMMIT = 0');
     dbQueryCheck('BEGIN');
@@ -194,7 +172,7 @@ if ($intInvoiceId) {
                 $row['row_date'] = $newRowDate;
             }
             // Update product stock balance
-            if (!$isOffer && $row['product_id'] !== null) {
+            if (!$isOffer && !$isTemplate && $row['product_id'] !== null) {
                 updateProductStockBalance(null, $row['product_id'], $row['pcs']);
             }
             $strQuery = 'INSERT INTO {prefix}invoice_row(' .

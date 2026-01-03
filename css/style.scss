@@ -1,9 +1,11 @@
 @import "bootstrap/bootstrap";
 
-@import "../fonts/icons/css/animation.css";
-@import "../fonts/icons/css/mlinvoice-embedded.css";
-
 @import "variables";
+@import "select2_overrides";
+@import "../node_modules/select2/src/scss/core";
+@import "../node_modules/select2-bootstrap-5-theme/src/include-all";
+
+@import "daterangepicker_overrides";
 
 html {
   height: 100%;
@@ -22,7 +24,16 @@ content::after {
 }
 
 .navbar {
+  color: #111e06;
   background-color: #eef1f8;
+}
+@if $enable-dark-mode {
+	@include color-mode(dark, true) {
+    .navbar {
+      color: #eef1f8;
+      background-color: #111e06;
+    }
+  }
 }
 
 form {
@@ -100,7 +111,7 @@ div.function_navi {
       &.image {
         flex: 0 0 100%;
       }
-      flex: 0 1 70%;
+      flex: 0 1 64%;
       .select2-container, .editor-toolbar, .CodeMirror-wrap {
         width: 100%;
       }
@@ -375,7 +386,7 @@ td.reportsublabel {
 
 .iform, .iform-popup, #custom-prices, .multi-edit-form, .setup-form {
   .date, .date_label {
-    width: 110px;
+    width: 115px;
   }
   .date {
     padding-left: 4px;
@@ -972,6 +983,10 @@ a.info {
   margin-right: 20px;
 }
 
+.selection-list div.medium_label {
+  float: none;
+}
+
 .list-footer-summary {
   float: right;
 }
@@ -1081,5 +1096,13 @@ table.quick-search {
 .dt-buttons .dropdown-menu {
   display: initial;
 }
+
+#created_invoices_list {
+  li a {
+    display: flex;
+    gap: 1em;
+  }
+}
+
 
 @import "table";

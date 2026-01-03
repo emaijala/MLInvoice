@@ -338,7 +338,7 @@ function saveFormData($table, &$primaryKey, $formConfig, &$values, &$warnings,
                 );
                 $invoiceId = $rows[0]['invoice_id'] ?? null;
             }
-            if ($table == '{prefix}invoice_row' && !isOffer($invoiceId)) {
+            if ($table == '{prefix}invoice_row' && isInvoice($invoiceId)) {
                 updateProductStockBalance(
                     $primaryKey ?? null,
                     $values['product_id'] ?? null,
@@ -358,7 +358,7 @@ function saveFormData($table, &$primaryKey, $formConfig, &$values, &$warnings,
             } else {
                 // Special case for invoice - update product stock balance for all
                 // invoice rows if the invoice was previously deleted
-                if ($table == '{prefix}invoice' && !isOffer($primaryKey)) {
+                if ($table == '{prefix}invoice' && isInvoice($primaryKey)) {
                     $checkValues = dbParamQuery(
                         'SELECT deleted FROM {prefix}invoice WHERE id=?',
                         [$primaryKey]

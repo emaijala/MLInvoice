@@ -21,7 +21,12 @@ module.exports = function(grunt) {
       },
       build: {
         files: {
-          'js/mlinvoice.min.js': ['js/mlinvoice.js', 'js/mlinvoice-form.js', 'js/mlinvoice-search.js']
+          'js/mlinvoice.min.js': [
+            'js/mlinvoice.js',
+            'js/mlinvoice-form.js',
+            'js/mlinvoice-search.js',
+            'js/mlinvoice-theme.js',
+          ]
         }
       }
     },

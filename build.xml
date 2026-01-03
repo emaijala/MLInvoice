@@ -92,7 +92,7 @@
       <arg line="-h ${dbhost} ${dbcredentials} -e &quot;CREATE USER '${dbuser}'@'${dbhost}' IDENTIFIED BY '${dbpass}'&quot;" />
     </exec>
     <exec executable="mysql" checkreturn="true" passthru="true">
-      <arg line="-h ${dbhost} ${dbcredentials} -e &quot;GRANT SELECT,INSERT,UPDATE,DELETE,ALTER,CREATE,LOCK ON ${dbname}.* TO '${dbuser}'@'${dbhost}' WITH GRANT OPTION&quot;" />
+      <arg line="-h ${dbhost} ${dbcredentials} -e &quot;GRANT SELECT,INSERT,UPDATE,DELETE,ALTER,CREATE,LOCK TABLES ON ${dbname}.* TO '${dbuser}'@'${dbhost}' WITH GRANT OPTION&quot;" />
     </exec>
     <exec executable="mysql" checkreturn="true" passthru="true">
       <arg line="-h ${dbhost} ${dbcredentials} -D ${dbname} &lt; ${basedir}/tests/fixtures/create_database_29.sql" />

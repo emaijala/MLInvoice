@@ -5,7 +5,7 @@
  * PHP version 8
  *
  * Copyright (C) Samu Reinikainen 2004-2008
- * Copyright (C) Ere Maijala 2010-2022
+ * Copyright (C) Ere Maijala 2010-2024
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2,
@@ -114,7 +114,7 @@ case 'get_send_api_configs':
 case 'session_type':
 case 'user':
     if (!sesAdminAccess()) {
-        header('HTTP/1.1 403 Forbidden');
+        http_response_code(403);
         break;
     }
     saveJSONRecord($strFunc, '');
@@ -152,6 +152,28 @@ case 'put_invoice_row':
     saveJSONRecord('invoice_row', 'invoice_id');
     break;
 
+case 'get_invoice_template':
+    printJSONRecord('invoice');
+    break;
+case 'put_invoice_template':
+    saveJSONRecord('invoice', '');
+    break;
+case 'get_invoice_template_row':
+    printJSONRecord('invoice_row');
+    break;
+case 'get_invoice_template_rows':
+    printJSONRecords('invoice_row', 'invoice_id', 'order_no');
+    break;
+case 'put_invoice_template_row':
+    saveJSONRecord('invoice_row', 'invoice_id');
+    break;
+case 'delete_invoice_template_row':
+    deleteJSONRecord('invoice_row');
+    break;
+case 'delete_invoice_template_attachment':
+    deleteJSONRecord('invoice_attachment');
+    break;
+
 case 'get_custom_prices':
     $customPrice = getCustomPriceSettings(
         getPostOrQuery('companyId')
@@ -162,12 +184,12 @@ case 'get_custom_prices':
 
 case 'put_custom_prices':
     if (!sesWriteAccess()) {
-        header('HTTP/1.1 403 Forbidden');
+        http_response_code(403);
         return;
     }
     $data = json_decode(file_get_contents('php://input'), true);
     if (!$data) {
-        header('HTTP/1.1 400 Bad Request');
+        http_response_code(400);
         return;
     }
     setCustomPriceSettings(
@@ -182,12 +204,12 @@ case 'put_custom_prices':
 
 case 'delete_custom_prices':
     if (!sesWriteAccess()) {
-        header('HTTP/1.1 403 Forbidden');
+        http_response_code(403);
         return;
     }
     $data = json_decode(file_get_contents('php://input'), true);
     if (!$data) {
-        header('HTTP/1.1 400 Bad Request');
+        http_response_code(400);
         return;
     }
     deleteCustomPriceSettings($data['company_id']);
@@ -206,12 +228,12 @@ case 'get_custom_price':
 
 case 'put_custom_price':
     if (!sesWriteAccess()) {
-        header('HTTP/1.1 403 Forbidden');
+        http_response_code(403);
         return;
     }
     $data = json_decode(file_get_contents('php://input'), true);
     if (!$data) {
-        header('HTTP/1.1 400 Bad Request');
+        http_response_code(400);
         return;
     }
     $unitPrice = (float)$data['unit_price'];
@@ -231,12 +253,12 @@ case 'put_custom_price':
 
 case 'delete_custom_price':
     if (!sesWriteAccess()) {
-        header('HTTP/1.1 403 Forbidden');
+        http_response_code(403);
         return;
     }
     $data = json_decode(file_get_contents('php://input'), true);
     if (!$data) {
-        header('HTTP/1.1 400 Bad Request');
+        http_response_code(400);
         return;
     }
     deleteCustomPrice($data['company_id'], $data['product_id']);
@@ -290,11 +312,11 @@ case 'get_invoice_defaults':
 case 'get_table_columns':
     $table = getPostOrQuery('table', '');
     if (!$table) {
-        header('HTTP/1.1 400 Bad Request');
+        http_response_code(400);
         break;
     }
     if (!sesAdminAccess() && 'account_statement' !== $table) {
-        header('HTTP/1.1 403 Forbidden');
+        http_response_code(403);
         break;
     }
     // account_statement is a pseudo table for account statement "import"
@@ -326,7 +348,7 @@ case 'get_table_columns':
     }
 
     if (!tableNameValid($table)) {
-        header('HTTP/1.1 400 Bad Request');
+        http_response_code(400);
         die('Invalid table name');
     }
 
@@ -360,7 +382,7 @@ case 'get_import_preview':
         $import = new ImportStatement();
     } else {
         if (!sesAdminAccess()) {
-            header('HTTP/1.1 403 Forbidden');
+            http_response_code(403);
             break;
         }
         include 'import.php';
@@ -374,7 +396,7 @@ case 'get_list':
 
     $strList = getPostOrQuery('table', '');
     if (!$strList) {
-        header('HTTP/1.1 400 Bad Request');
+        http_response_code(400);
         die('Table must be defined');
     }
 
@@ -382,7 +404,7 @@ case 'get_list':
 
     $listConfig = getListConfig($strList);
     if (!$listConfig) {
-        header('HTTP/1.1 400 Bad Request');
+        http_response_code(400);
         die('Invalid table name');
     }
 
@@ -405,6 +427,7 @@ case 'get_list':
     }
     $search = getPostOrQuery('search');
     $searchId = getPostOrQuery('searchId');
+    $format = getPostOrQuery('format');
     $filter = empty($search['value']) ? '' : $search['value'];
     $query = json_decode(getPostOrQuery('query', '{}'), true);
     $companyId = 'product' === $strList ? getPostOrQuery('company', null) : null;
@@ -413,7 +436,8 @@ case 'get_list':
     echo createJSONList(
         $listFunc, $strList, $startRow, $rowCount, $sort, $filter, $query,
         intval(getPostOrQuery('draw', 1)), $tableId, $companyId,
-        $searchId ? intval($searchId) : null
+        $searchId ? intval($searchId) : null,
+        $format
     );
     Memory::set(
         $tableId,
@@ -437,12 +461,12 @@ case 'get_invoice_total_sum':
 case 'get_selectlist':
     $table = getPostOrQuery('table', '');
     if (!$table) {
-        header('HTTP/1.1 400 Bad Request (table)');
+        http_response_code(400);
         break;
     }
 
     if (!tableNameValid($table)) {
-        header('HTTP/1.1 400 Bad Request');
+        http_response_code(400);
         die('Invalid table name');
     }
 
@@ -474,7 +498,7 @@ case 'update_row_order':
 
 case 'update_stock_balance':
     if (!sesWriteAccess()) {
-        header('HTTP/1.1 403 Forbidden');
+        http_response_code(403);
         break;
     }
     $productId = getPostOrQuery('product_id', 0);
@@ -517,7 +541,7 @@ case 'get_send_api_services':
 
 case 'add_invoice_attachment':
     if (!sesWriteAccess()) {
-        header('HTTP/1.1 403 Forbidden');
+        http_response_code(403);
         break;
     }
     addInvoiceAttachment();
@@ -543,11 +567,11 @@ case 'save_search':
 
 case 'noop':
     // Session keep-alive
-    header('HTTP/1.1 204 No Content');
+    http_response_code(204);
     break;
 
 default:
-    header('HTTP/1.1 404 Not Found');
+    http_response_code(404);
 }
 
 if (defined('_PROFILING_') && is_callable('xhprof_disable')) {
@@ -589,7 +613,7 @@ function printJSONRecord($table, $id = false, $warnings = null)
         $query = "$select $from $where";
         $rows = dbParamQuery($query, [$id]);
         if (!$rows) {
-            header('HTTP/1.1 404 Not Found');
+            http_response_code(404);
             return;
         }
         $row = $rows[0];
@@ -699,6 +723,7 @@ EOT;
 function convertToApi($row, $table)
 {
     $form = $table;
+    $parentId = null;
     switch ($table) {
     case 'base':
         $row['logo_filedata'] = base64_encode($row['logo_filedata']);
@@ -707,15 +732,18 @@ function convertToApi($row, $table)
     case 'invoice_attachment':
         unset($row['filedata']);
         $row['filesize_readable'] = fileSizeToHumanReadable($row['filesize']);
+        $parentId = $row['invoice_id'];
         break;
     case 'company':
         $row['tags'] = getTagsArray('company', $row['id']);
         break;
     case 'company_contact':
         $row['tags'] = getTagsArray('contact', $row['id']);
+        $parentId = $row['company_id'];
         break;
     case 'invoice_row':
         $row['type_id_text'] = Translator::translate($row['type_id_text']);
+        $parentId = $row['invoice_id'];
         break;
     case 'users':
         unset($row['password']);
@@ -723,7 +751,7 @@ function convertToApi($row, $table)
         break;
     }
 
-    $formConfig = getFormConfig($form, '');
+    $formConfig = getFormConfig($form, '', $row['id'] ?? null, $parentId);
     foreach ($formConfig['fields'] as $field) {
         $name = $field['name'];
         if ('INTDATE' === $field['type'] && isset($row[$name])) {
@@ -758,7 +786,7 @@ function convertFromApi($row, $table)
 function saveJSONRecord($table, $parentKeyName)
 {
     if (!sesWriteAccess()) {
-        header('HTTP/1.1 403 Forbidden');
+        http_response_code(403);
         return;
     }
 
@@ -770,13 +798,13 @@ function saveJSONRecord($table, $parentKeyName)
         $data = $_POST;
     }
     if (!$data) {
-        header('HTTP/1.1 400 Bad Request');
+        http_response_code(400);
         return;
     }
     $id = !empty($data['id']) ? (int)$data['id'] : null;
     $new = $id ? false : true;
     unset($data['id']);
-    $formConfig = getFormConfig($table, 'json');
+    $formConfig = getFormConfig($table, 'json', $id, $parentKeyName ? $data[$parentKeyName] : null);
 
     $onPrint = false;
     if (isset($data['onPrint'])) {
@@ -797,13 +825,14 @@ function saveJSONRecord($table, $parentKeyName)
             $parentKeyName ? $data[$parentKeyName] : false, $onPrint, $partial
         );
     } catch (Exception $e) {
+        http_response_code(500);
         header('Content-Type: application/json');
         echo createResponse(['error' => $e->getMessage()]);
         return;
     }
     if ($res !== true) {
         if ($warnings) {
-            header('HTTP/1.1 409 Conflict');
+            http_response_code(409);
         }
         header('Content-Type: application/json');
         echo createResponse(['missing_fields' => $res, 'warnings' => $warnings]);
@@ -811,7 +840,7 @@ function saveJSONRecord($table, $parentKeyName)
     }
 
     if ($new) {
-        header('HTTP/1.1 201 Created');
+        http_response_code(201);
     }
     printJSONRecord($formConfig['table'], $id, $warnings);
 }
@@ -826,7 +855,7 @@ function saveJSONRecord($table, $parentKeyName)
 function deleteJSONRecord($table)
 {
     if (!sesWriteAccess()) {
-        header('HTTP/1.1 403 Forbidden');
+        http_response_code(403);
         return;
     }
 
@@ -848,20 +877,18 @@ function deleteJSONRecord($table)
 function updateMultipleRows()
 {
     if (!sesWriteAccess()) {
-        header('HTTP/1.1 403 Forbidden');
+        http_response_code(403);
         return;
     }
 
     $request = json_decode(file_get_contents('php://input'), true);
     if (!$request) {
-        header('HTTP/1.1 400 Bad Request');
+        http_response_code(400);
         return;
     }
 
     $strForm = $request['table'];
-    $strFunc = '';
-    $strList = '';
-    $formConfig = getFormConfig($strForm, 'json');
+    $formConfig = getFormConfig($strForm, 'json', null, $request['parentId']);
 
     $warnings = '';
     foreach ($request['ids'] as $id) {
@@ -875,7 +902,7 @@ function updateMultipleRows()
         );
         if ($res !== true) {
             if ($warnings) {
-                header('HTTP/1.1 409 Conflict');
+                http_response_code(409);
             }
             header('Content-Type: application/json');
             return createResponse(['missing_fields' => $res, 'warnings' => $warnings]);
@@ -893,13 +920,13 @@ function updateMultipleRows()
 function updateRowOrder()
 {
     if (!sesWriteAccess()) {
-        header('HTTP/1.1 403 Forbidden');
+        http_response_code(403);
         return;
     }
 
     $request = json_decode(file_get_contents('php://input'), true);
     if (!$request) {
-        header('HTTP/1.1 400 Bad Request');
+        http_response_code(400);
         return;
     }
 
@@ -921,7 +948,7 @@ function updateRowOrder()
  *
  * @return array
  */
-function getInvoiceListTotal(array $query, int $searchId = null): array
+function getInvoiceListTotal(array $query, ?int $searchId = null): array
 {
     $listConfig = getListConfig('invoice');
     $queries = createListQuery('invoice', 'invoice', 0, 0, [], '', $query, $searchId);

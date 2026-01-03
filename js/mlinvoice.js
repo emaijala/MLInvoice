@@ -6,6 +6,7 @@ var MLInvoice = (function CreateMLInvoice() {
   var _translations = {};
   var _dispatchNotePrintStyle = 'none';
   var _offerStates = [];
+  var _paidStates = ['3', '8'];
   var _keepAliveEnabled = true;
   var _currencyDecimals = 2;
   var _dateRangePickerDefaults = {};
@@ -72,6 +73,10 @@ var MLInvoice = (function CreateMLInvoice() {
 
   function isOfferStatus(status) {
     return _offerStates.indexOf(status) !== -1;
+  }
+
+  function isPaidStatus(status) {
+    return _paidStates.indexOf(status) !== -1;
   }
 
   function formatCurrency(value, _decimals) {
@@ -305,7 +310,7 @@ var MLInvoice = (function CreateMLInvoice() {
     if (typeof colorClasses !== 'undefined') {
       $toast.addClass(colorClasses);
     } else {
-      $toast.addClass('text-white bg-success');
+      $toast.addClass('text-success-emphasis bg-success-subtle');
     }
     var $flex = $('<div class="d-flex">')
       .appendTo($toast);
@@ -334,7 +339,12 @@ var MLInvoice = (function CreateMLInvoice() {
 
   function errormsg(msg, timeout)
   {
-    infomsg(msg, timeout, 'text-white bg-danger');
+    infomsg(msg, timeout, 'text-danger-emphasis bg-danger-subtle');
+  }
+
+  function warningmsg(msg, timeout)
+  {
+    infomsg(msg, timeout, 'text-warning-emphasis bg-warning-subtle');
   }
 
   function clearMessages()
@@ -546,6 +556,12 @@ var MLInvoice = (function CreateMLInvoice() {
     _setupCustomPricesForm();
     _setupListMultiSelect();
     _setupFormButtons();
+
+    for (var i = 0; i < _modules.length; i++) {
+      if (this[_modules[i]].init) {
+        this[_modules[i]].init();
+      }
+    }
     _initDone = true;
   }
 
@@ -790,6 +806,7 @@ var MLInvoice = (function CreateMLInvoice() {
     getDateRangePickerDefaults: getDateRangePickerDefaults,
     setOfferStates: setOfferStates,
     isOfferStatus: isOfferStatus,
+    isPaidStatus: isPaidStatus,
     translate: translate,
     formatCurrency: formatCurrency,
     parseDecimal: parseDecimal,
@@ -797,6 +814,7 @@ var MLInvoice = (function CreateMLInvoice() {
     updateRowSelectedState: updateRowSelectedState,
     infomsg: infomsg,
     errormsg: errormsg,
+    warningmsg: warningmsg,
     editUnitPrice: editUnitPrice,
     setCurrencyDecimals: setCurrencyDecimals,
     getDateFormat: getDateFormat,

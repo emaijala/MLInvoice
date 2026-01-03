@@ -26,10 +26,16 @@ MLInvoice.addModule('Form', function mlinvoiceForm() {
 
     $('#base_id').on('change', updateBaseDefaults);
     $('#state_id').on('change', updateBaseDefaults);
+    $('#state_id').on('change', stateChangeUpdateFields);
 
     // Company info
-    if ($('#company_id').val() && $('#company_id').data('onChange')) {
-      _onChangeCompany();
+    if ($('#company_id').val()) {
+      const changeFunc = $('#company_id').data('onChange');
+      if ('_onChangeCompany' === changeFunc) {
+        _onChangeCompany();
+      } else if ('_onChangeCompanyOffer' === changeFunc) {
+        _onChangeCompanyOfferOrTemplate();
+      }
     }
     // Stock balance
     $('.update-stock-balance').on('click', _updateStockBalance);
@@ -83,8 +89,10 @@ MLInvoice.addModule('Form', function mlinvoiceForm() {
     setupSelect2();
     _setupFormListeners(document);
     _setupInvoiceAttachments();
+    _setupInvoiceTemplateLinks();
     _updateSendApiButtons();
     _setupPrintButtons();
+    _setupLinkedInvoiceDropdown();
   }
 
   function setupMarkdownEditor() {
@@ -265,50 +273,54 @@ MLInvoice.addModule('Form', function mlinvoiceForm() {
       if ('' === term || null === term) {
         return;
       }
+
+      const searchByName = function () {
+        $.ajax(
+          {
+            url: 'https://avoindata.prh.fi/opendata-ytj-api/v3/companies',
+            data: {
+              name: term
+            },
+            global: false
+          }
+        ).done(function ytjSearchDone2(data) {
+          if ('undefined' !== typeof data.companies[0]) {
+            _fillCompanyForm(data.companies[0]);
+          } else {
+            window.alert(MLInvoice.translate('NoYTJResultsFound'));
+          }
+        }).fail(function ytjSearchFail2(jqXHR2, textStatus2) {
+          window.alert('Request failed: ' + jqXHR2.status + ' - ' + textStatus2);
+        });
+      }
+
       // Try business ID first
-      var businessId = term.replace(/FI-?/i, '');
-      $.ajax(
-        {
-          url: 'https://avoindata.prh.fi/bis/v1',
-          data: {
-            maxResults: 1,
-            businessId: businessId
-          },
-          global: false
-        }
-      ).done(function ytjSearchDone(data) {
-        if ('undefined' === typeof data.results[0]) {
-          return;
-        }
-        _fillCompanyForm(data.results[0]);
-      }).fail(function ytjSearchFail(jqXHR, textStatus) {
-        if (404 === jqXHR.status) {
-          // Try company name second
-          $.ajax(
-            {
-              url: 'https://avoindata.prh.fi/bis/v1',
-              data: {
-                maxResults: 1,
-                name: term
-              },
-              global: false
-            }
-          ).done(function ytjSearchDone2(data) {
-            if ('undefined' === typeof data.results[0]) {
-              return;
-            }
-            _fillCompanyForm(data.results[0]);
-          }).fail(function ytjSearchFail2(jqXHR2, textStatus2) {
-            if (404 === jqXHR2.status) {
-              window.alert(MLInvoice.translate('NoYTJResultsFound'));
-            } else {
-              window.alert('Request failed: ' + jqXHR2.status + ' - ' + textStatus2);
-            }
-          });
-        } else {
-          window.alert('Request failed: ' + jqXHR.status + ' - ' + textStatus);
-        }
-      });
+      let businessId = term;
+      if (businessId.match(/^FI-?\d{8}$/)) {
+        businessId = businessId.replace(/^FI-?(\d{7})(\d)/, '$1-$2');
+      }
+      if (businessId.match(/^\d{7}-\d$/)) {
+        $.ajax(
+          {
+            url: 'https://avoindata.prh.fi/opendata-ytj-api/v3/companies',
+            data: {
+              businessId: businessId
+            },
+            global: false
+          }
+        ).done(function ytjSearchDone(data) {
+          if ('undefined' !== typeof data.companies[0]) {
+            _fillCompanyForm(data.companies[0]);
+          } else {
+            searchByName();
+          }
+        }).fail(function ytjSearchFail2(jqXHR2, textStatus2) {
+          window.alert('Request failed: ' + jqXHR2.status + ' - ' + textStatus2);
+        });
+      } else {
+        // Try name directly
+        searchByName();
+      }
     });
   }
 
@@ -363,21 +375,33 @@ MLInvoice.addModule('Form', function mlinvoiceForm() {
   }
 
   function _fillCompanyForm(data) {
-    $('#company_id').val(data.businessId).trigger('change');
-    $('#company_name').val(data.name);
+    $('#company_id').val(data.businessId.value).trigger('change');
+    $('#company_name').val(data.names[0].name);
+    if (typeof data.website.url !== 'undefined') {
+      $('#www').val(data.website.url);
+    }
+
+    const getCity = function(address) {
+      let city = '';
+      const langCode = MLInvoice.translate('YTJLanguageCode');
+      address.postOffices.forEach(office => {
+        if (office.languageCode === langCode) {
+          city = office.city;
+        }
+      });
+      return city;
+    };
+
     $.each(data.addresses, function handleAddress(idx, address) {
-      if (1 !== address.version) {
-        return;
-      }
       if (1 === address.type) {
         $('#street_address').val(address.street);
         $('#zip_code').val(address.postCode);
-        $('#city').val(address.city);
+        $('#city').val(getCity(address));
         $('#country').val(address.country);
       }
       if (2 === address.type) {
         var parts = [];
-        parts.push(data.name);
+        parts.push(data.names[0].name);
         if (address.careOf) {
           parts.push('c/o ' + address.careOf);
         }
@@ -385,32 +409,13 @@ MLInvoice.addModule('Form', function mlinvoiceForm() {
           parts.push(address.street);
         }
         if (address.postCode) {
-          var post = address.postCode + ' ' + address.city;
+          var post = address.postCode + ' ' + getCity(address);
           parts.push(post.trim());
         }
         if (address.country) {
           parts.push(address.country);
         }
         $('#billing_address').val(parts.join("\n"));
-      }
-    });
-    $.each(data.contactDetails, function handleContact(idx, contact) {
-      if (1 !== parseInt(contact.version, 10)) {
-        return;
-      }
-      switch (contact.type) {
-      case 'Matkapuhelin':
-        $('#gsm').val(contact.value);
-        break;
-      case 'Kotisivun www-osoite':
-        $('#www').val(contact.value);
-        break;
-      case 'Puhelin':
-        $('#phone').val(contact.value);
-        break;
-      case 'Faksi':
-        $('#fax').val(contact.value);
-        break;
       }
     });
   }
@@ -421,6 +426,7 @@ MLInvoice.addModule('Form', function mlinvoiceForm() {
       var formParam = $(this).data('sendFormParam');
       var select = $('<select class="select-default-text"/>').appendTo($(this));
       select.select2({
+        theme: "bootstrap-5",
         placeholder: '',
         ajax: {
           url: 'json.php',
@@ -488,7 +494,7 @@ MLInvoice.addModule('Form', function mlinvoiceForm() {
 
     var callbacks = {
       _onChangeCompany: _onChangeCompany,
-      _onChangeCompanyOffer: _onChangeCompanyOffer,
+      _onChangeCompanyOfferOrTemplate: _onChangeCompanyOfferOrTemplate,
       _onChangeProduct: _onChangeProduct,
       _onChangeCompanyReload: _onChangeCompanyReload
     };
@@ -499,6 +505,7 @@ MLInvoice.addModule('Form', function mlinvoiceForm() {
       var showEmpty = parseInt(field.data('showEmpty')) === 1;
       var onChange = field.data('onChange');
       var options = {
+        theme: "bootstrap-5",
         placeholder: '',
         allowClear: showEmpty,
         ajax: {
@@ -588,7 +595,8 @@ MLInvoice.addModule('Form', function mlinvoiceForm() {
           $('#invoice_vatless').val('1');
         }
 
-        if (initialLoad) {
+        if (initialLoad && $('#record_id').val()) {
+          // Loading an existing invoice, don't change it!
           return;
         }
 
@@ -632,16 +640,23 @@ MLInvoice.addModule('Form', function mlinvoiceForm() {
     });
   }
 
-  function _onChangeCompanyOffer() {
+  function _onChangeCompanyOfferOrTemplate(eventData) {
     if (!$('#company_id').val()) {
       return;
     }
+    var initialLoad = typeof eventData === 'undefined';
     _addCompanyInfoTooltip('');
     $.getJSON('json.php?func=get_company', {id: $('#company_id').val() }, function setCompanyData(json) {
       if (json) {
         if (json.info) {
           _addCompanyInfoTooltip(json.info);
         }
+
+        if (initialLoad && $('#record_id').val()) {
+          // Loading an existing offer, don't change it!
+          return;
+        }
+
         if (json.offer_default_foreword) {
           MLInvoice.Form.setFieldVal('#foreword', json.offer_default_foreword);
         }
@@ -798,6 +813,97 @@ MLInvoice.addModule('Form', function mlinvoiceForm() {
       var func = $button.data('func');
       var style = $button.data('print-style');
       MLInvoice.Form.printInvoice(id, func, style);
+    });
+  }
+
+  function _setupLinkedInvoiceDropdown() {
+    const dropdownButton = document.getElementById('created_invoices_button');
+    if (!dropdownButton) {
+      return;
+    }
+    dropdownButton.addEventListener('show.bs.dropdown', () => {
+      const createdInvoicesListEl = document.getElementById('created_invoices_list');
+      if (!createdInvoicesListEl) {
+        return;
+      }
+      const loadIndicator = createdInvoicesListEl.querySelector('.js-load-indicator');
+      if (loadIndicator) {
+        loadIndicator.classList.remove('hidden');
+      }
+      createdInvoicesListEl.querySelectorAll('li:not(.js-load-indicator):not(.js-create-new-invoice')
+        .forEach((el) => el.remove());
+      const recordId = $('#record_id').val();
+      const query = {
+        s_op: 'OR',
+        s_op1: 'AND',
+        s_type1: ['state_id'],
+        s_cmp1: ['eq'],
+        s_field1: ['1']
+      };
+      const baseId = $('#base_id').val();
+      if (baseId !== '') {
+        query.s_type1.push('base_id');
+        query.s_cmp1.push('eq');
+        query.s_field1.push(baseId);
+      }
+      const companyId = $('#company_id').val();
+      if (companyId !== '') {
+        query.s_type1.push('company_id');
+        query.s_cmp1.push('eq');
+        query.s_field1.push(companyId);
+      }
+      const params = new URLSearchParams();
+      params.set('format', 'object');
+      params.set('listfunc', 'invoices');
+      params.set('table', 'invoice');
+      params.set('start', '0');
+      params.set('length', '30');
+      params.set('query', JSON.stringify(query));
+      fetch(
+        'json.php?func=get_list',
+        {
+          method: 'POST',
+          headers: {
+            "Content-Type": "application/x-www-form-urlencoded",
+          },
+          body: params
+        })
+        .then((response) => response.json())
+        .then((json) => {
+          json.data.forEach((item) => {
+            const li = document.createElement('li');
+            const a = document.createElement('a');
+            a.classList.add('dropdown-item');
+            const addParams = new URLSearchParams();
+            addParams.set('id', item.id);
+            addParams.set('template_id', recordId);
+            a.href = `add_rows.php?${addParams}`;
+            const dateSpan = document.createElement('span');
+            dateSpan.textContent = json.labels.invoice_date + ': ' + MLInvoice.formatDate(item.invoice_date);
+            a.appendChild(dateSpan);
+            if (null !== item.invoice_no) {
+              const invNoSpan = document.createElement('span');
+              invNoSpan.textContent = json.labels.invoice_no + ': ' + item.invoice_no;
+              a.appendChild(invNoSpan);
+            }
+            if ('' !== item.name) {
+              const nameSpan = document.createElement('span');
+              nameSpan.textContent = json.labels.name + ': ' + item.name;
+              a.appendChild(nameSpan);
+            }
+            li.appendChild(a);
+            createdInvoicesListEl.appendChild(li);
+          });
+          if (loadIndicator) {
+            loadIndicator.classList.add('hidden');
+          }
+        })
+        .catch((e) => {
+          if (loadIndicator) {
+            loadIndicator.classList.add('hidden');
+          }
+          alert(e.message);
+        });
     });
   }
 
@@ -1001,6 +1107,15 @@ MLInvoice.addModule('Form', function mlinvoiceForm() {
     });
   }
 
+  function _setupInvoiceTemplateLinks() {
+    $('#linked_invoices_button').on('click', function linkedInvoicesClick() {
+      $(this).attr('aria-expanded', $(this).attr('aria-expanded') === 'true' ? 'false' : 'true');
+      $('#linked_invoices_button .dropdown-open').toggleClass('hidden');
+      $('#linked_invoices_button .dropdown-close').toggleClass('hidden');
+      $('#linked_invoices').toggleClass('hidden');
+    });
+  }
+
   function initAddressAutocomplete(prefix)
   {
     var input = document.getElementById(prefix + 'street_address');
@@ -1109,6 +1224,18 @@ MLInvoice.addModule('Form', function mlinvoiceForm() {
           $('.deleted-record-msg').remove();
           MLInvoice.highlightButton('.save_button', false);
           MLInvoice.infomsg(MLInvoice.translate('RecordSaved'), 2000);
+          if ('invoice_template' === _formConfig.type) {
+            const alertEl = document.querySelector('.js-recurrence-alert');
+            if (alertEl) {
+              const intervalTypeEl = document.getElementById('interval_type');
+              const nextDateEl = document.getElementById('next_interval_date');
+              if (intervalTypeEl && nextDateEl) {
+                alertEl.classList.toggle('hidden', intervalTypeEl.value !== '0' && nextDateEl.value !== '');
+              } else {
+                console.warn('Interval type or next invoice date field not found');
+              }
+            }
+          }
           if (redirectUrl) {
             if ('openwindow' === redirectStyle) {
               window.open(redirectUrl);
@@ -1557,6 +1684,7 @@ MLInvoice.addModule('Form', function mlinvoiceForm() {
       function mapChecked() { return this.value; }
     ).get();
     req.changes = obj;
+    req.parentId = $('#record_id').val();
     $.ajax({
       'url': 'json.php?func=update_multiple',
       'type': 'POST',
@@ -1926,6 +2054,21 @@ MLInvoice.addModule('Form', function mlinvoiceForm() {
         });
       }
     });
+  }
+
+  function stateChangeUpdateFields()
+  {
+    const stateId = $('#state_id').val();
+    if (MLInvoice.isPaidStatus(stateId)) {
+      const paymentDateEl = document.getElementById('payment_date');
+      if (paymentDateEl && paymentDateEl.value === '') {
+        paymentDateEl.value = moment().format('YYYY-MM-DD');
+      }
+      const archivedEl = document.getElementById('archived');
+      if (archivedEl && ('autoArchive' in archivedEl.dataset)) {
+        archivedEl.checked = true;
+      }
+    }
   }
 
   function _calculateInvoiceRowSummary(records)

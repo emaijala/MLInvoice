@@ -93,7 +93,7 @@ $arrSettings = [
         'type' => 'CHECK',
         'style' => 'medium',
         'position' => 1,
-        'default' => 0,
+        'default' => 1,
         'allow_null' => true
     ],
     'password_recovery' => [

@@ -29,12 +29,14 @@
 /**
  * Get form configuration
  *
- * @param string $form Form name
- * @param string $func Current function
+ * @param string $form     Form name
+ * @param string $func     Current function
+ * @param ?int   $id       Record ID (if any)
+ * @param ?int   $parentId Parent record ID (if any)
  *
  * @return array
  */
-function getFormConfig($form, $func)
+function getFormConfig($form, $func, ?int $id = null, ?int $parentId = null)
 {
     $strForm = $form;
     $strFunc = $func;

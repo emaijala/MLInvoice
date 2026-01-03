@@ -5,7 +5,7 @@
  * PHP version 8
  *
  * Copyright (C) Samu Reinikainen 2004-2008
- * Copyright (C) Ere Maijala 2010-2022
+ * Copyright (C) Ere Maijala 2010-2024
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2,
@@ -46,7 +46,8 @@ require_once "memory.php";
  */
 function createForm($strFunc, $strList, $strForm)
 {
-    $formConfig = getFormConfig($strForm, $strFunc);
+    $intKeyValue = getPostOrQuery('id', false);
+    $formConfig = getFormConfig($strForm, $strFunc, $intKeyValue ?: null);
 
     if (!sesAccessLevel($formConfig['accessLevels']) && !sesAdminAccess()) {
         ?>
@@ -57,12 +58,7 @@ function createForm($strFunc, $strList, $strForm)
         return;
     }
 
-    $action = getPostOrQuery('action', false);
-    $intKeyValue = getPostOrQuery('id', false);
-    if (!$intKeyValue) {
-        $action = 'new';
-    }
-
+    $action = $intKeyValue ? getPostOrQuery('action', false) : 'new';
     if ($action && !sesWriteAccess()) {
         ?>
 <div class="form_container">
@@ -73,15 +69,21 @@ function createForm($strFunc, $strList, $strForm)
     }
 
     $strMessage = '';
-    if (isset($_SESSION['formMessage']) && $_SESSION['formMessage']) {
-        $strMessage = Translator::translate($_SESSION['formMessage']);
+    if ($msg = $_SESSION['formMessage'] ?? null) {
+        $strMessage = Translator::translate($msg);
         unset($_SESSION['formMessage']);
     }
 
     $strErrorMessage = '';
-    if (isset($_SESSION['formErrorMessage']) && $_SESSION['formErrorMessage']) {
-        $strErrorMessage = Translator::translate($_SESSION['formErrorMessage']);
+    if ($msg = $_SESSION['formErrorMessage'] ?? null) {
+        $strErrorMessage = Translator::translate($msg);
         unset($_SESSION['formErrorMessage']);
+    }
+
+    $strWarningMessage = '';
+    if ($msg = $_SESSION['formWarningMessage'] ?? null) {
+        $strWarningMessage = Translator::translate($msg);
+        unset($_SESSION['formWarningMessage']);
     }
 
     if ('new' === $action) {
@@ -206,12 +208,25 @@ EOT;
         $strForm, $formConfig, $intKeyValue ? false : true, true, $recordDeleted
     );
 
-    if ($strForm == 'invoice' && !empty($astrValues['next_interval_date'])
+    if ($intKeyValue && $strForm == 'invoice_template') {
+        $alertClass = empty($astrValues['next_interval_date']) || empty($astrValues['interval_type'])
+            ? '' : ' hidden';
+
+        ?>
+        <div class="alert alert-warning message js-recurrence-alert<?php echo $alertClass?>" role="alert">
+            <?php echo Translator::translate('RecurrenceOrNextInvoiceDateNotSet')?>
+        </div>
+        <?php
+    }
+
+    if (!empty($astrValues['next_interval_date'])
         && strDate2UnixTime($astrValues['next_interval_date']) <= time()
     ) {
         ?>
     <div class="alert alert-warning message" role="alert">
-        <?php echo Translator::translate('CreateCopyForNextInvoice')?>
+        <?php echo Translator::translate(
+            ($intKeyValue && isTemplate($intKeyValue)) ? 'RecurringInvoiceDueForProcessing' : 'CreateCopyForNextInvoice'
+        )?>
     </div>
         <?php
     }
@@ -328,7 +343,7 @@ EOT;
             <?php
         } elseif ($elem['type'] == 'IFORM') {
             echo "      </form>\n";
-            $childFormConfig = getFormConfig($elem['name'], $strFunc);
+            $childFormConfig = getFormConfig($elem['name'], $strFunc, null, $intKeyValue);
             createIForm(
                 $formConfig, $childFormConfig, $elem,
                 $intKeyValue ?? 0, $intKeyValue ? false : true,
@@ -427,6 +442,11 @@ $(document).ready(function() {
     if ($strErrorMessage) {
         ?>
       MLInvoice.errormsg(<?php echo json_encode($strErrorMessage)?>);
+        <?php
+    }
+    if ($strWarningMessage) {
+        ?>
+      MLInvoice.warningmsg(<?php echo json_encode($strWarningMessage)?>, 5000);
         <?php
     }
     if ($strForm == 'product') {
@@ -895,6 +915,7 @@ function createFormButtons($form, $formConfig, $new, $top, $deleted)
 {
     $id = getPostOrQuery('id', '');
     $listId = getPostOrQuery('listid', '');
+    $isTemplate = 'invoice_template' === $form;
 
     $copyLinkOverride = $formConfig['copyLink'];
     $readOnlyForm = $formConfig['readOnly'];
@@ -935,6 +956,7 @@ function createFormButtons($form, $formConfig, $new, $top, $deleted)
         $newLink = 'index.php?' . $_SERVER['QUERY_STRING'];
         $newLink = preg_replace('/&id=\w*/', '', $newLink);
         $newLink = preg_replace('/&offer=\w*/', '', $newLink);
+        $newLink = preg_replace('/&template=\w*/', '', $newLink);
         $newLink = htmlspecialchars($newLink);
         if ('invoice' === $form) {
             $idSuffix = $top ? '' : '-bottom';
@@ -1076,7 +1098,7 @@ function createFormButtons($form, $formConfig, $new, $top, $deleted)
     }
 
     if ($form === 'invoice' && $top && !$new) {
-        $attachmentCount = GetInvoiceAttachmentCount($id);
+        $attachmentCount = getInvoiceAttachmentCount($id);
         ?>
         <div class="btn-set">
             <a id="attachments-button" class="btn btn-secondary" role="button" aria-expanded="false">
@@ -1087,6 +1109,41 @@ function createFormButtons($form, $formConfig, $new, $top, $deleted)
             </a>
         </div>
         <div class="btn-set send-buttons hidden"></div>
+        <?php
+    }
+    if ($isTemplate && $top && !$new) {
+        $linkedInvoices = getLinkedInvoices($id);
+        $openInvoice = null;
+        foreach ($linkedInvoices as $linkedInvoice) {
+            if ($linkedInvoice['invoice_open']) {
+                $openInvoice = $linkedInvoice['id'];
+                break;
+            }
+        }
+        ?>
+        <div class="btn-set">
+            <a id="linked_invoices_button" class="btn btn-secondary" role="button" aria-expanded="false">
+                <?php echo Translator::translate('CreatedInvoices')?>
+                (<span class="linked-invoice-count"><?php echo count($linkedInvoices)?></span>)
+                <span class="dropdown-open"><i class="icon-down-dir"></i><span class="visually-hidden"><?php echo Translator::translate('Show')?></span></span>
+                <span class="dropdown-close hidden"><i class="icon-up-dir"></i><span class="visually-hidden"><?php echo Translator::translate('Hide')?></span></span>
+            </a>
+            <a role="button" id="created_invoices_button" class="btn btn-secondary dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false" href="#">
+                <?php echo Translator::translate('AddToInvoice')?>
+            </a>
+            <ul id="created_invoices_list" class="dropdown-menu" aria-labelledby="created_invoices_button">
+                <li class="js-load-indicator">
+                    <a class="dropdown-item" href="#">
+                        <span aria-hidden="true"><span class="spinner-border spinner-border-sm" role="status"></span></span>
+                    </a>
+                </li>
+                <li class="js-create-new-invoice">
+                    <a class="dropdown-item" href="create_invoice_from_template.php?template_id=<?php echo $id?>">
+                        <?php echo Translator::translate('CreateNewInvoice')?>
+                    </a>
+                </li>
+            </ul>
+        </div>
         <?php
     }
 
@@ -1127,6 +1184,55 @@ function createFormButtons($form, $formConfig, $new, $top, $deleted)
                         </div>
                     </div>
                 </div>
+            </div>
+        </div>
+        <?php
+    }
+    if ($isTemplate && $top && !$new) {
+        ?>
+        <div id="linked_invoices" class="card p-2 hidden" data-invoice-id="<?php echo $id?>">
+            <div class="linked-invoices-list">
+                <table class="table table-striped table-bordered table-hover list">
+                    <thead>
+                        <tr>
+                            <th><?php echo Translator::translate('HeaderInvoiceDate') ?></th>
+                            <th><?php echo Translator::translate('HeaderInvoiceDueDate') ?></th>
+                            <th><?php echo Translator::translate('HeaderInvoiceNr') ?></th>
+                            <th><?php echo Translator::translate('HeaderInvoiceName') ?></th>
+                            <th><?php echo Translator::translate('HeaderInvoiceReference') ?></th>
+                            <th><?php echo Translator::translate('HeaderInvoiceState') ?></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <?php $linkCount = 0; ?>
+                        <?php foreach ($linkedInvoices as $linkedInvoice) {?>
+                            <tr>
+                                <td>
+                                    <a href="?func=invoices&form=invoice&amp;id=<?php echo $linkedInvoice['id']?>">
+                                        <?php echo dateConvDBDate2Date($linkedInvoice['invoice_date'])?>
+                                    </a>
+                                </td>
+                                <td><?php echo dateConvDBDate2Date($linkedInvoice['due_date'])?></td>
+                                <td><?php echo escapeHtml($linkedInvoice['invoice_no'] ?? '')?></td>
+                                <td><?php echo escapeHtml($linkedInvoice['name'])?></td>
+                                <td><?php echo escapeHtml($linkedInvoice['reference'])?></td>
+                                <td><?php echo Translator::translate($linkedInvoice['state'])?></td>
+                            </tr>
+                            <?php
+                            if (++$linkCount === 10) {
+                                ?>
+                                <td colspan="6">
+                                    <a href="?func=results&type=invoice&s_op=AND&s_op1=AND&s_type1[]=template_invoice_id&s_cmp1[]=eq&s_field1[]=<?php echo $id?>">
+                                        <?php echo Translator::translate('ShowAll')?>
+                                    </a>
+                                </td>
+                                <?php
+                                break;
+                            }
+                        }
+                        ?>
+                    </tbody>
+                </table>
             </div>
         </div>
         <?php
@@ -1255,7 +1361,7 @@ function createListNavigationLinks($listId, $currentId)
             . Translator::translate('Next')
             . '</a> ';
     } else {
-        echo '<a role="button" class="btn btn-light disabled nav__next--disabled" aria-disabled="true">'
+        echo '<a role="button" class="btn btn-outline-secondary disabled nav__next--disabled" aria-disabled="true">'
             . Translator::translate('Next')
             . '</a> ';
     }

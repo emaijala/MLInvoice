@@ -158,7 +158,7 @@ function sesVerifySession($redirect = true)
             header('Location: login.php');
         }
     } else {
-        header('HTTP/1.1 403 Session expired or not logged in');
+        http_response_code(403);
     }
     exit();
 }

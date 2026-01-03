@@ -28,6 +28,8 @@
 
 namespace MLInvoice;
 
+use MLInvoice\Service\Invoice;
+
 /**
  * Class Factory
  *
@@ -40,11 +42,11 @@ namespace MLInvoice;
 class Factory
 {
     /**
-     * Create Invoice class
+     * Create Invoice service class
      *
      * @return Invoice
      */
-    public static function getInvoice(): Invoice
+    public static function getInvoiceService(): Invoice
     {
         return new Invoice();
     }

@@ -102,6 +102,7 @@ function htmlPageStart($strTitle = '', $arrExtraScripts = [], $loggedIn = true)
         $scripts[] = 'js/mlinvoice.js';
         $scripts[] = 'js/mlinvoice-form.js';
         $scripts[] = 'js/mlinvoice-search.js';
+        $scripts[] = 'js/mlinvoice-theme.js';
     } else {
         $scripts[] = 'js/mlinvoice.min.js';
     }
@@ -128,9 +129,10 @@ function htmlPageStart($strTitle = '', $arrExtraScripts = [], $loggedIn = true)
         'node_modules/datatables.net-bs5/css/dataTables.bootstrap5.min.css',
         'node_modules/datatables.net-buttons-bs5/css/buttons.bootstrap5.min.css',
 
-        'node_modules/select2/dist/css/select2.min.css',
         getSetting('printout_markdown') ? 'css/easymde.min.css' : '',
         'css/style.css',
+        'fonts/icons/css/animation.css',
+        'fonts/icons/css/mlinvoice-embedded.css',
     ];
 
     if (file_exists('css/custom.css')) {
@@ -208,6 +210,7 @@ function htmlPageStart($strTitle = '', $arrExtraScripts = [], $loggedIn = true)
         'SearchGreaterThanOrEqual',
         'Selected',
         'Unselected',
+        'YTJLanguageCode',
     ];
 
     $res = dbQueryCheck(
@@ -292,7 +295,7 @@ EOT;
  *
  * @return void
  */
-function htmlMainTabs($func)
+function createMainTabs($func)
 {
     $normalMenuRights = [
         ROLE_READONLY,
@@ -330,6 +333,32 @@ function htmlMainTabs($func)
                     'action' => [
                         'func' => 'invoices',
                         'form' => 'invoice',
+                    ],
+                    'levels_allowed' => [
+                        ROLE_USER,
+                        ROLE_BACKUPMGR,
+                    ],
+                ],
+                [
+                    'title' => '-',
+                    'action' => '',
+                    'levels_allowed' => $normalMenuRights,
+                ],
+                [
+                    'title' => 'RecurringInvoiceTemplates',
+                    'action' => 'invoice_templates',
+                    'levels_allowed' => $normalMenuRights,
+                ],
+                [
+                    'title' => 'RecurringInvoiceTemplatesDueForProcessing',
+                    'action' => 'invoice_templates_due',
+                    'levels_allowed' => $normalMenuRights,
+                ],
+                [
+                    'title' => 'NewRecurringInvoiceTemplate',
+                    'action' => [
+                        'func' => 'invoice_templates',
+                        'form' => 'invoice_template',
                     ],
                     'levels_allowed' => [
                         ROLE_USER,
@@ -638,7 +667,7 @@ function htmlMainTabs($func)
 function createNavBar($buttons, $currentFunc = '')
 {
     ?>
-            <nav class="navbar navbar-expand-md navbar-light border-bottom mb-2">
+            <nav class="navbar navbar-expand-md border-bottom mb-2">
               <div class="container-fluid">
                 <a class="navbar-brand" href="index.php" aria-label="<?php echo Translator::translate('StartPage')?>">MLInvoice</a>
                 <button class="navbar-toggler" type="button"
@@ -722,6 +751,40 @@ function createNavBar($buttons, $currentFunc = '')
         ?>
                   <hr class="d-md-none text-black-50">
                   <ul class="navbar-nav ms-md-auto">
+                    <li class="nav-item dropdown theme-switcher">
+                      <button class="btn btn-link nav-link py-2 px-0 px-lg-2 dropdown-toggle d-flex align-items-center"
+                            id="bd-theme"
+                            type="button"
+                            aria-expanded="false"
+                            data-bs-toggle="dropdown"
+                            data-bs-display="static"
+                            aria-label="<?php echo Translator::translate('ToggleThemeAuto') ?>">
+                        <span class="theme-icon-active">
+                            <i class="icon-adjust"></i>
+                        </span>
+                        <span id="bd-theme-text" class="d-md-none"><?php echo Translator::translate('Theme') ?></span>
+                      </button>
+                      <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="bd-theme-text">
+                        <li>
+                            <button type="button" class="dropdown-item d-flex align-items-center" data-bs-theme-value="light" aria-pressed="false">
+                                <i class="icon-sun"></i>
+                                <?php echo Translator::translate('ThemeLight') ?>
+                            </button>
+                        </li>
+                        <li>
+                            <button type="button" class="dropdown-item d-flex align-items-center" data-bs-theme-value="dark" aria-pressed="false">
+                                <i class="icon-moon"></i>
+                                <?php echo Translator::translate('ThemeDark') ?>
+                            </button>
+                        </li>
+                        <li>
+                            <button type="button" class="dropdown-item d-flex align-items-center active" data-bs-theme-value="auto" aria-pressed="true">
+                                <i class="icon-adjust"></i>
+                                <?php echo Translator::translate('ThemeAuto') ?>
+                            </button>
+                        </li>
+                        </ul>
+                    </li>
                     <li class="nav-item">
                       <a class="nav-link" href="index.php?func=profile">
                         <?php echo $user && $user['name'] ? $user['name'] : Translator::translate('Profile'); ?>
@@ -1197,4 +1260,16 @@ EOT;
     }
 
     return $strFormElement;
+}
+
+/**
+ * Escape HTML
+ *
+ * @param string $s String to escape
+ *
+ * @return string
+ */
+function escapeHtml(string $s): string
+{
+    return htmlspecialchars($s, ENT_QUOTES | ENT_SUBSTITUTE);
 }

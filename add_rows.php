@@ -1,11 +1,10 @@
 <?php
 /**
- * Logout page
+ * Add invoice rows from template
  *
  * PHP version 8
  *
- * Copyright (C) Samu Reinikainen 2004-2008
- * Copyright (C) Ere Maijala 2010-2024
+ * Copyright (C) Ere Maijala 2024
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2,
@@ -27,47 +26,55 @@
  * @link     http://labs.fi/mlinvoice.eng.php
  */
 
-// buffered, so we can redirect later if necessary
-ini_set('implicit_flush', 'Off');
-ob_start();
+use MLInvoice\Factory;
 
-require_once 'config.php';
-require_once 'sessionfuncs.php';
 require_once 'htmlfuncs.php';
 require_once 'sqlfuncs.php';
-require_once 'navi.php';
+require_once 'sessionfuncs.php';
 
 initDbConnection();
 sesVerifySession();
 
 require_once 'translator.php';
+require_once 'datefuncs.php';
+require_once 'miscfuncs.php';
+require_once 'settings.php';
 
-echo htmlPageStart('', [], false);
-
-?>
-
+if (!sesWriteAccess()) {
+    echo htmlPageStart();
+    ?>
 <body>
-    <div class="pagewrapper mb-4">
-<?php
-createNavBar([], '');
-?>
-        <div class="logout-form">
-
-            <h1><?php echo Translator::translate('ThankYou')?></h1>
-            <p>
-<?php echo Translator::translate('SessionClosed')?>
-</p>
-
-            <p>
-                <a href="login.php">
-                    <?php echo Translator::translate('BackToLogin')?>
-                </a>
-            </p>
-
+    <div class="container-fluid">
+        <div class="form_container">
+            <?php echo Translator::translate('NoAccess') . "\n"?>
         </div>
     </div>
 </body>
 </html>
+    <?php
+    return;
+}
 
-<?php
-sesEndSession();
+$invoiceId = (int)getPostOrQuery('id');
+$templateId = (int)getPostOrQuery('template_id');
+
+if (!$invoiceId || !$templateId) {
+    echo htmlPageStart();
+    ?>
+<body>
+<div class="container-fluid">
+    <div class="form_container">
+        <?php echo Translator::translate('ErrInvalidValue')?>
+    </div>
+</div>
+</body>
+</html>
+    <?php
+    return;
+}
+
+$invoice = Factory::getInvoiceService();
+$invoice->addRowsFromTemplate($invoiceId, $templateId);
+
+$_SESSION['formWarningMessage'] = Translator::Translate('CheckUpdatedInvoice');
+header("Location: index.php?func=invoices&list=invoice&form=invoice&id=$invoiceId");

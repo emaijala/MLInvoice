@@ -1,0 +1,79 @@
+@use "sass:color";
+
+.daterangepicker {
+    color: inherit;
+    background-color: inherit;
+    .ranges li {
+        &.active {
+            color: #fff;
+            background-color: var(--#{$prefix}primary);
+        }
+        &:hover {
+            color: #fff;
+            background-color: var(--#{$prefix}primary);
+        }
+    }
+}
+
+.daterangepicker
+
+.daterangepicker .ranges li.active {
+    color: #fff;
+    background-color: var(--#{$prefix}primary);
+}
+
+.daterangepicker .calendar-table {
+    border: 1px solid var(--#{$prefix}body-color);
+    border-radius: 4px;
+    background-color: inherit;
+}
+
+.daterangepicker td.week, .daterangepicker th.week {
+    font-size: 80%;
+    color: #ccc;
+}
+
+.daterangepicker td.in-range {
+    background-color: var(--#{$prefix}primary-bg-subtle);
+    color: var(--#{$prefix}primary-text-emphasis);
+}
+
+.daterangepicker td.available:hover, .daterangepicker th.available:hover {
+    background-color: var(--#{$prefix}primary);
+    color: #fff;
+}
+
+.daterangepicker td.active, .daterangepicker td.active:hover {
+    background-color: var(--#{$prefix}primary);
+    border-color: transparent;
+    color: #fff;
+}
+
+// Dark theme
+[data-bs-theme=dark] {
+    .daterangepicker td.week, .daterangepicker th.week {
+        color: #444;
+    }
+
+    .daterangepicker td.off, .daterangepicker td.off.in-range, .daterangepicker td.off.start-date, .daterangepicker td.off.end-date {
+        background-color: inherit;
+        color: #999;
+    }
+
+    .daterangepicker.show-ranges.single.rtl .drp-calendar.left {
+        border-right: 1px solid #333;
+    }
+
+    .daterangepicker.show-ranges.single.ltr .drp-calendar.left {
+        border-left: 1px solid #333;
+    }
+
+    .daterangepicker.show-ranges.rtl .drp-calendar.right {
+        border-right: 1px solid #333;
+    }
+
+    .daterangepicker.show-ranges.ltr .drp-calendar.left {
+        border-left: 1px solid #333;
+    }
+}
+

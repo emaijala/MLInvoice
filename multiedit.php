@@ -59,7 +59,7 @@ class MultiEdit
         $strForm = getPostOrQuery('form', '');
         $list = getPostOrQuery('list', '');
 
-        $formConfig = getFormConfig($strForm, 'multiedit');
+        $formConfig = getFormConfig($strForm, 'multiedit', reset($ids));
 
         $messages = [];
         $errors = [];

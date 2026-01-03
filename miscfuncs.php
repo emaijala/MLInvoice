@@ -361,6 +361,20 @@ function getPageTitle($strFunc, $strList, $strForm, $operation)
         } else {
             return Translator::translate('NonArchivedInvoices');
         }
+    case 'invoice_templates':
+        if ($strForm) {
+            return Translator::translate('RecurringInvoiceTemplate');
+        } else {
+            return Translator::translate('RecurringInvoiceTemplates');
+        }
+        break;
+    case 'invoice_templates_due':
+        if ($strForm) {
+            return Translator::translate('RecurringInvoiceTemplate');
+        } else {
+            return Translator::translate('RecurringInvoiceTemplatesDueForProcessing');
+        }
+        break;
     case 'archived_invoices':
         if ($strForm) {
             return Translator::translate('Invoice');
@@ -880,4 +894,79 @@ function getListFromFunc($func)
     }
 
     return $list;
+}
+
+/**
+ * Get invoice interval options
+ *
+ * N.B. Update copy_invoice accordingly too!
+ *
+ * @return array
+ */
+function getIntervalOptions(): array
+{
+    $intervalOptions = [
+        '0' => Translator::translate('InvoiceIntervalNone'),
+        '2' => Translator::translate('InvoiceIntervalMonth'),
+        '3' => Translator::translate('InvoiceIntervalYear')
+    ];
+    for ($i = 2; $i <= 6; $i++) {
+        $intervalOptions[(string)($i + 2)] = str_replace('%d', $i, Translator::translate('InvoiceIntervalMonths'));
+    }
+    // We don't currently have 7-11 months, but leave room for them in keys 9 - 13 just in case!
+    for ($i = 2; $i <= 3; $i++) {
+        $intervalOptions[(string)($i + 12)] = str_replace('%d', $i, Translator::translate('InvoiceIntervalYears'));
+    }
+    return $intervalOptions;
+}
+
+/**
+ * Advance the next interval date of a recurring invoice or template
+ *
+ * @param array $invoiceData Invoice data
+ *
+ * @return void
+ */
+function advanceInvoiceIntervalDate(array &$invoiceData): void
+{
+    switch ($invoiceData['interval_type']) {
+    // Month
+    case 2:
+        $invoiceData['next_interval_date'] = date(
+            'Ymd', mktime(0, 0, 0, date('m') + 1, date('d'), date('Y'))
+        );
+        break;
+    // Year
+    case 3:
+        $invoiceData['next_interval_date'] = date(
+            'Ymd', mktime(0, 0, 0, date('m'), date('d'), date('Y') + 1)
+        );
+        break;
+    // 2 to 6 months
+    case 4:
+    case 5:
+    case 6:
+    case 7:
+    case 8:
+        $invoiceData['next_interval_date'] = date(
+            'Ymd',
+            mktime(
+                0, 0, 0, date('m') + $invoiceData['interval_type'] - 2,
+                date('d'), date('Y')
+            )
+        );
+        break;
+    // 2 years
+    case 14:
+        $invoiceData['next_interval_date'] = date(
+            'Ymd', mktime(0, 0, 0, date('m'), date('d'), date('Y') + 2)
+        );
+        break;
+    // 3 years
+    case 15:
+        $invoiceData['next_interval_date'] = date(
+            'Ymd', mktime(0, 0, 0, date('m'), date('d'), date('Y') + 3)
+        );
+        break;
+    }
 }

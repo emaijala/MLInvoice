@@ -2,25 +2,40 @@
  * dataTables display
  */
 
-tr.overdue td.due-date {
-  background-color: #FFCCDD;
-  &.sorting_1, &.sorting_2, &.sorting_3 {
+tr.overdue td.due-date, tr.due td.next-interval-date {
+  &, &.sorting_1, &.sorting_2, &.sorting_3 {
 	background-color: #FFCCDD;
   }
 }
-
 tr.overdue7 td.due-date {
-  background-color: #FF99AA;
-  &.sorting_1, &.sorting_2, &.sorting_3 {
+  &, &.sorting_1, &.sorting_2, &.sorting_3 {
 	background-color: #FF99AA;
   }
 }
-
 tr.overdue14 td.due-date {
-  background-color: #FF5566;
-  &.sorting_1, &.sorting_2, &.sorting_3 {
+  &, &.sorting_1, &.sorting_2, &.sorting_3 {
 	background-color: #FF5566;
   }
+}
+
+@if $enable-dark-mode {
+	@include color-mode(dark, true) {
+		tr.overdue td.due-date, tr.due td.next-interval-date {
+			&, &.sorting_1, &.sorting_2, &.sorting_3 {
+				background-color: #440000;
+			}
+		}
+		tr.overdue7 td.due-date {
+			&, &.sorting_1, &.sorting_2, &.sorting_3 {
+				background-color: #660000;
+			}
+		}
+		tr.overdue14 td.due-date {
+			&, &.sorting_1, &.sorting_2, &.sorting_3 {
+				background-color: #880000;
+			}
+		}
+	}
 }
 
 tr.deleted {
@@ -43,31 +58,13 @@ td.editable:not(.editing)::before {
  */
 /* For the standard odd/even */
 tr.even {
-	td.sorting_1 {
-  	background: rgb(0, 0, 0) transparent;
-  	background: rgba(0, 0, 0, 0.1);
-	}
-	td.sorting_2 {
-		background: rgb(0, 0, 0) transparent;
-		background: rgba(0, 0, 0, 0.06);
-	}
-	td.sorting_3 {
-		background: rgb(0, 0, 0) transparent;
-		background: rgba(0, 0, 0, 0.03);
+	td.sorting_1, td.sorting_2, td.sorting_3 {
+  		background: var(--bs-tertiary-bg);
 	}
 }
 tr.odd {
-	td.sorting_1 {
-	  background: rgb(0, 0, 0) transparent;
-	  background: rgba(0, 0, 0, 0.08);
-	}
-	td.sorting_2 {
-		background: rgb(0, 0, 0) transparent;
-		background: rgba(0, 0, 0, 0.04);
-	}
-	td.sorting_3 {
-		background: rgb(0, 0, 0) transparent;
-		background: rgba(0, 0, 0, 0.02);
+	td.sorting_1, td.sorting_2, td.sorting_3 {
+		background: var(--bs-tertiary-bg);
 	}
 }
 
