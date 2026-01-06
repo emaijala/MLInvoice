@@ -4,7 +4,7 @@
  *
  * PHP version 8
  *
- * Copyright (C) Ere Maijala 2010-2021
+ * Copyright (C) Ere Maijala 2010-2021.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2,
@@ -90,7 +90,7 @@ function dateConvDBTimestamp2DateTime($dateTime, $format = '')
  *
  * @param string $strDate Date
  *
- * @return int|null
+ * @return ?int
  */
 function dateConvDate2DBDate($strDate)
 {
@@ -111,7 +111,7 @@ function dateConvDate2DBDate($strDate)
  *
  * @param string $strDate Date
  *
- * @return int|null
+ * @return ?int
  */
 function dateConvYmd2DBDate($strDate)
 {

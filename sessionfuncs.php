@@ -5,7 +5,7 @@
  * PHP version 8
  *
  * Copyright (C) Samu Reinikainen 2004-2008
- * Copyright (C) Ere Maijala 2010-2021
+ * Copyright (C) Ere Maijala 2010-2021.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2,
@@ -30,10 +30,10 @@ require_once 'config.php';
 require_once 'sqlfuncs.php';
 require_once 'miscfuncs.php';
 
-define('ROLE_READONLY', 0);
-define('ROLE_USER', 1);
-define('ROLE_BACKUPMGR', 90);
-define('ROLE_ADMIN', 99);
+define('MLINVOICE_USER_ROLE_READONLY', 0);
+define('MLINVOICE_USER_ROLE_USER', 1);
+define('MLINVOICE_USER_ROLE_BACKUPMGR', 90);
+define('MLINVOICE_USER_ROLE_ADMIN', 99);
 
 define('CSRF_OK', 0);
 define('CSRF_ERR_FAIL', 1);
@@ -207,9 +207,9 @@ function sesWriteAccess()
     return in_array(
         $_SESSION['sesACCESSLEVEL'],
         [
-            ROLE_USER,
-            ROLE_BACKUPMGR,
-            ROLE_ADMIN
+            MLINVOICE_USER_ROLE_USER,
+            MLINVOICE_USER_ROLE_BACKUPMGR,
+            MLINVOICE_USER_ROLE_ADMIN
         ]
     );
 }
@@ -225,7 +225,7 @@ function sesAdminAccess()
         ob_clean();
         die();
     }
-    return $_SESSION['sesACCESSLEVEL'] == ROLE_ADMIN;
+    return $_SESSION['sesACCESSLEVEL'] == MLINVOICE_USER_ROLE_ADMIN;
 }
 
 /**

@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="{{ 'HTMLLanguageCode'|trans }}">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>{% block title %}MLInvoice{% endblock %}</title>
+    <link href="{{ asset('css/vendor/daterangepicker.css') }}" media="all" rel="stylesheet" type="text/css">
+    <link href="{{ asset('css/vendor/easymde.min.css') }}" media="all" rel="stylesheet" type="text/css">
+    <link href="{{ asset('css/style.css') }}" media="all" rel="stylesheet" type="text/css">
+    <link href="{{ asset('css/animation.css', 'icons') }}" media="screen" rel="stylesheet" type="text/css">
+    <link href="{{ asset('css/mlinvoice-embedded.css', 'icons') }}" media="all" rel="stylesheet" type="text/css">
+    <link href="{{ asset('css/custom.css') }}" media="all" rel="stylesheet" type="text/css">
+    {% block stylesheets %}{% endblock %}
+    <script src="{{ asset('js/vendor/popper.min.js') }}"></script>
+    <script src="{{ asset('js/vendor/bootstrap.min.js') }}"></script>
+    <script src="{{ asset('js/vendor/jquery.min.js') }}"></script>
+    <script src="{{ asset('js/vendor/jquery.dataTables.min.js') }}"></script>
+    <script src="{{ asset('js/vendor/dataTables.bootstrap5.min.js') }}"></script>
+    <script src="{{ asset('js/vendor/dataTables.responsive.min.js') }}"></script>
+    <script src="{{ asset('js/vendor/responsive.bootstrap5.min.js') }}"></script>
+    <script src="{{ asset('js/vendor/dataTables.buttons.js') }}"></script>
+    <script src="{{ asset('js/vendor/buttons.html5.min.js') }}"></script>
+    <script src="{{ asset('js/vendor/buttons.bootstrap5.min.js') }}"></script>
+    <script src="{{ asset('js/vendor/buttons.colVis.min.js') }}"></script>
+    <script src="{{ asset('js/vendor/select2.js') }}"></script>
+    <script src="{{ asset('js/vendor/moment-with-locales.min.js') }}"></script>
+    {% if (get_setting('printout_markdown')) %}
+      <script src="{{ asset('js/vendor/easymde.min.js') }}"></script>
+    {% endif %}
+    {% set lang = 'HTMLLanguageCode'|trans|split('-')|first %}
+    {% set select2i18n = 'js/vendor/select2-i18n-' ~ lang ~ '.js' %}
+    {% if (asset_version(select2i18n)) %}
+      <script src="{{ asset(select2i18n) }}"></script>
+    {% endif %}
+    {% if (constant('MLINVOICE_JS_DEBUG')) %}
+      <script src="{{ asset('js/mlinvoice.min.js') }}"></script>
+    {% else %}
+      <script src="{{ asset('js/mlinvoice.js') }}"></script>
+      <script src="{{ asset('js/mlinvoice-form.js') }}"></script>
+      <script src="{{ asset('js/mlinvoice-search.js') }}"></script>
+      <script src="{{ asset('js/mlinvoice-theme.js') }}"></script>
+    {% endif %}
+    <script>
+      moment.locale('{{ lang }}');
+      MLInvoice.setConfig({{ get_js_config() }});
+    </script>
+    {% block headscripts %}{% endblock %}
+    <link rel="shortcut icon" href="{{ asset('images/favicon.ico') }}" type="image/x-icon">
+  </head>
+  <body>
+    {{ include('navbar.html.twig') }}
+    <div class="pagewrapper {% block wrapperclass %}{% endblock %} m-4">
+      {% block flashmessages %}
+        {{ include('flash-messages.html.twig') }}
+      {% endblock %}
+
+      {% block body %}{% endblock %}
+    </div>
+    {% block footerscripts %}{% endblock %}
+  </body>
+</html>

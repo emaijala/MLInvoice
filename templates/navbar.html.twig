@@ -1,0 +1,98 @@
+<nav class="navbar navbar-expand-md border-bottom mb-2">
+  <div class="container-fluid">
+    <a class="navbar-brand" href="index.php" aria-label="<?php echo Translator::translate('StartPage')?>">MLInvoice</a>
+    <button class="navbar-toggler" type="button"
+      data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent"
+      aria-controls="navbarSupportedContent" aria-expanded="false"
+      aria-label="<?php echo Translator::translate('ToggleMenu')?>"
+    >
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav mr-auto">
+        {% set idx = 0 %}
+        {% for button in navbar_elements(route.name, user) %}
+          {% if button.submenu %}
+            <li class="nav-item dropdown">
+              <a class="nav-link dropdown-toggle" href="#" id="navbar-dropdown-{{ (button.action ?: idx)|e }}" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                {{ button.title|trans }}
+              </a>
+              <ul class="dropdown-menu" aria-labelledby="navbar-dropdown-{{ (button.action ?: idx)|e }}">
+                {% for item in button.submenu %}
+                  <li>
+                    {% if item.title == '-' %}
+                      <hr class="dropdown-divider">
+                    {% else %}
+                      <a class="dropdown-item" href="{{ url_for(item.route, {}, item.params ?? {}) }}">
+                        {{ item.title|trans }}
+                      </a>
+                    {% endif %}
+                  </li>
+                {% endfor %}
+              </ul>
+            </li>
+          {% else %}
+            <li class="nav-item">
+              <a class="nav-link" href="{{ url_for(button.route, {}, button.params ?? {}) }}">
+                {{ button.title|trans }}
+              </a>
+            </li>
+          {% endif %}
+        {% endfor %}
+      </ul>
+      {% if (user) %}
+        <hr class="d-md-none text-black-50">
+        <ul class="navbar-nav ms-md-auto">
+          <li class="nav-item dropdown theme-switcher">
+            <button class="btn btn-link nav-link py-2 px-0 px-lg-2 dropdown-toggle d-flex align-items-center"
+                  id="bd-theme"
+                  type="button"
+                  aria-expanded="false"
+                  data-bs-toggle="dropdown"
+                  data-bs-display="static"
+                  aria-label="{{ 'ToggleThemeAuto'|trans }}">
+              <span class="theme-icon-active">
+                <i class="icon-adjust"></i>
+              </span>
+              <span id="bd-theme-text" class="d-md-none">{{ 'Theme'|trans }}</span>
+            </button>
+            <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="bd-theme-text">
+              <li>
+                  <button type="button" class="dropdown-item d-flex align-items-center" data-bs-theme-value="light" aria-pressed="false">
+                      <i class="icon-sun"></i>
+                      {{ 'ThemeLight'|trans }}
+                  </button>
+              </li>
+              <li>
+                  <button type="button" class="dropdown-item d-flex align-items-center" data-bs-theme-value="dark" aria-pressed="false">
+                      <i class="icon-moon"></i>
+                      {{ 'ThemeDark'|trans }}
+                  </button>
+              </li>
+              <li>
+                  <button type="button" class="dropdown-item d-flex align-items-center active" data-bs-theme-value="auto" aria-pressed="true">
+                      <i class="icon-adjust"></i>
+                      {{ 'ThemeAuto'|trans }}
+                  </button>
+              </li>
+              </ul>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="index.php?func=profile">
+              {% if user.name %}
+                {{ user.name|e }}
+              {% else %}
+                {{ 'Profile'|trans }}
+              {% endif %}
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="{{ url_for('logout') }}">
+              {{ 'Logout'|trans }}
+            </a>
+          </li>
+        </ul>
+      {% endif %}
+    </div>
+  </div>
+</nav>

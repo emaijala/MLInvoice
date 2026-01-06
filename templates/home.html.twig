@@ -1,0 +1,36 @@
+{% extends 'layout.html.twig' %}
+
+{% block wrapperclass %}login{% endblock %}
+
+{% block body %}
+  <div id="version">
+    v{{ constant('MLINVOICE_VERSION') }}
+  </div>
+  {% if (get_setting('check_updates')) %}
+    <script>
+      $(document).ready(function() {
+        MLInvoice.checkForUpdates('<?php echo $softwareVersion?>');
+      });
+    </script>
+  {% endif %}
+
+  {% if (recurring_invoices) %}
+    <div class="alert alert-warning" role="alert">
+      <a href="?func=invoice_templates_due">
+        {{ 'RecurringInvoicesDueForProcesing'|trans }}
+      </a>
+    </div>
+  {% endif %}
+  {% for search_data in get_start_page_searches() %}
+    {# TODO: Maybe just pass the search_data? #}
+    {% include 'list.html.twig' with {
+      'list_type': search_data.search.func,
+      'list_id': search_data.list_id,
+      'title_override': search_data.search.name,
+      'search_id': search_data.search.id,
+      'invoice_total': 'invoice' is same as search_data.search.func,
+      'highlight_overdue': 'invoice' is same as search_data.search.func,
+      'print_type': search_data.search.func,
+    } %}
+  {% endfor %}
+{% endblock %}

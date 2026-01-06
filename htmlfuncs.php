@@ -5,7 +5,7 @@
  * PHP version 8
  *
  * Copyright (C) Samu Reinikainen 2004-2008
- * Copyright (C) Ere Maijala 2010-2022
+ * Copyright (C) Ere Maijala 2010-2022.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2,
@@ -298,9 +298,9 @@ EOT;
 function createMainTabs($func)
 {
     $normalMenuRights = [
-        ROLE_READONLY,
-        ROLE_USER,
-        ROLE_BACKUPMGR
+        MLINVOICE_USER_ROLE_READONLY,
+        MLINVOICE_USER_ROLE_USER,
+        MLINVOICE_USER_ROLE_BACKUPMGR
     ];
     $astrMainButtons = [
         [
@@ -335,8 +335,8 @@ function createMainTabs($func)
                         'form' => 'invoice',
                     ],
                     'levels_allowed' => [
-                        ROLE_USER,
-                        ROLE_BACKUPMGR,
+                        MLINVOICE_USER_ROLE_USER,
+                        MLINVOICE_USER_ROLE_BACKUPMGR,
                     ],
                 ],
                 [
@@ -361,8 +361,8 @@ function createMainTabs($func)
                         'form' => 'invoice_template',
                     ],
                     'levels_allowed' => [
-                        ROLE_USER,
-                        ROLE_BACKUPMGR,
+                        MLINVOICE_USER_ROLE_USER,
+                        MLINVOICE_USER_ROLE_BACKUPMGR,
                     ],
                 ],
                 [
@@ -388,8 +388,8 @@ function createMainTabs($func)
                         'offer' => '1',
                     ],
                     'levels_allowed' => [
-                        ROLE_USER,
-                        ROLE_BACKUPMGR,
+                        MLINVOICE_USER_ROLE_USER,
+                        MLINVOICE_USER_ROLE_BACKUPMGR,
                     ],
                 ],
                 [
@@ -401,8 +401,8 @@ function createMainTabs($func)
                     'title' => 'ImportAccountStatement',
                     'action' => 'import_statement',
                     'levels_allowed' => [
-                        ROLE_USER,
-                        ROLE_BACKUPMGR,
+                        MLINVOICE_USER_ROLE_USER,
+                        MLINVOICE_USER_ROLE_BACKUPMGR,
                     ],
                 ],
                 [
@@ -412,9 +412,9 @@ function createMainTabs($func)
                         'type' => 'invoice',
                     ],
                     'levels_allowed' => [
-                        ROLE_READONLY,
-                        ROLE_USER,
-                        ROLE_BACKUPMGR,
+                        MLINVOICE_USER_ROLE_READONLY,
+                        MLINVOICE_USER_ROLE_USER,
+                        MLINVOICE_USER_ROLE_BACKUPMGR,
                     ],
                 ],
             ]
@@ -424,8 +424,8 @@ function createMainTabs($func)
             'title' => 'ShowClientNavi',
             'action' => 'company',
             'levels_allowed' => [
-                ROLE_USER,
-                ROLE_BACKUPMGR
+                MLINVOICE_USER_ROLE_USER,
+                MLINVOICE_USER_ROLE_BACKUPMGR
             ],
         ],
         [
@@ -461,15 +461,15 @@ function createMainTabs($func)
             'action' => 'settings',
             'action' => 'settings',
             'levels_allowed' => [
-                ROLE_USER,
-                ROLE_BACKUPMGR
+                MLINVOICE_USER_ROLE_USER,
+                MLINVOICE_USER_ROLE_BACKUPMGR
             ],
             'submenu' => [
                 [
                     'title' => 'GeneralSettings',
                     'action' => 'settings',
                     'levels_allowed' => [
-                        ROLE_ADMIN
+                        MLINVOICE_USER_ROLE_ADMIN
                     ]
                 ],
                 [
@@ -479,8 +479,8 @@ function createMainTabs($func)
                         'list' => 'base',
                     ],
                     'levels_allowed' => [
-                        ROLE_USER,
-                        ROLE_BACKUPMGR
+                        MLINVOICE_USER_ROLE_USER,
+                        MLINVOICE_USER_ROLE_BACKUPMGR
                     ]
                 ],
                 [
@@ -490,8 +490,8 @@ function createMainTabs($func)
                         'list' => 'product',
                     ],
                     'levels_allowed' => [
-                        ROLE_USER,
-                        ROLE_BACKUPMGR
+                        MLINVOICE_USER_ROLE_USER,
+                        MLINVOICE_USER_ROLE_BACKUPMGR
                     ]
                 ],
                 [
@@ -501,8 +501,8 @@ function createMainTabs($func)
                         'list' => 'default_value',
                     ],
                     'levels_allowed' => [
-                        ROLE_USER,
-                        ROLE_BACKUPMGR
+                        MLINVOICE_USER_ROLE_USER,
+                        MLINVOICE_USER_ROLE_BACKUPMGR
                     ]
                 ],
                 [
@@ -512,8 +512,8 @@ function createMainTabs($func)
                         'list' => 'attachment',
                     ],
                     'levels_allowed' => [
-                        ROLE_USER,
-                        ROLE_BACKUPMGR
+                        MLINVOICE_USER_ROLE_USER,
+                        MLINVOICE_USER_ROLE_BACKUPMGR
                     ]
                 ],
                 [
@@ -523,8 +523,8 @@ function createMainTabs($func)
                         'type' => 'invoice',
                     ],
                     'levels_allowed' => [
-                        ROLE_USER,
-                        ROLE_BACKUPMGR
+                        MLINVOICE_USER_ROLE_USER,
+                        MLINVOICE_USER_ROLE_BACKUPMGR
                     ]
                 ],
             ]
@@ -534,8 +534,8 @@ function createMainTabs($func)
             'title' => 'ShowSystemNavi',
             'action' => 'system',
             'levels_allowed' => [
-                ROLE_BACKUPMGR,
-                ROLE_ADMIN
+                MLINVOICE_USER_ROLE_BACKUPMGR,
+                MLINVOICE_USER_ROLE_ADMIN
             ],
             'submenu' => [
                 [
@@ -545,7 +545,7 @@ function createMainTabs($func)
                         'list' => 'user',
                     ],
                     'levels_allowed' => [
-                        ROLE_ADMIN
+                        MLINVOICE_USER_ROLE_ADMIN
                     ]
                 ],
                 [
@@ -555,7 +555,7 @@ function createMainTabs($func)
                         'list' => 'invoice_state',
                     ],
                     'levels_allowed' => [
-                        ROLE_ADMIN
+                        MLINVOICE_USER_ROLE_ADMIN
                     ]
                 ],
                 [
@@ -565,7 +565,7 @@ function createMainTabs($func)
                         'list' => 'invoice_type',
                     ],
                     'levels_allowed' => [
-                        ROLE_ADMIN
+                        MLINVOICE_USER_ROLE_ADMIN
                     ]
                 ],
                 [
@@ -575,7 +575,7 @@ function createMainTabs($func)
                         'list' => 'row_type',
                     ],
                     'levels_allowed' => [
-                        ROLE_ADMIN
+                        MLINVOICE_USER_ROLE_ADMIN
                     ]
                 ],
                 [
@@ -585,7 +585,7 @@ function createMainTabs($func)
                         'list' => 'delivery_terms',
                     ],
                     'levels_allowed' => [
-                        ROLE_ADMIN
+                        MLINVOICE_USER_ROLE_ADMIN
                     ]
                 ],
                 [
@@ -595,7 +595,7 @@ function createMainTabs($func)
                         'list' => 'delivery_method',
                     ],
                     'levels_allowed' => [
-                        ROLE_ADMIN
+                        MLINVOICE_USER_ROLE_ADMIN
                     ]
                 ],
                 [
@@ -605,7 +605,7 @@ function createMainTabs($func)
                         'list' => 'print_template'
                     ],
                     'levels_allowed' => [
-                        ROLE_ADMIN
+                        MLINVOICE_USER_ROLE_ADMIN
                     ]
                 ],
                 [
@@ -615,8 +615,8 @@ function createMainTabs($func)
                         'operation' => 'backup',
                     ],
                     'levels_allowed' => [
-                        ROLE_BACKUPMGR,
-                        ROLE_ADMIN
+                        MLINVOICE_USER_ROLE_BACKUPMGR,
+                        MLINVOICE_USER_ROLE_ADMIN
                     ]
                 ],
                 [
@@ -626,7 +626,7 @@ function createMainTabs($func)
                         'operation' => 'import',
                     ],
                     'levels_allowed' => [
-                        ROLE_ADMIN
+                        MLINVOICE_USER_ROLE_ADMIN
                     ]
                 ],
                 [
@@ -636,7 +636,7 @@ function createMainTabs($func)
                         'operation' => 'export',
                     ],
                     'levels_allowed' => [
-                        ROLE_ADMIN
+                        MLINVOICE_USER_ROLE_ADMIN
                     ]
                 ],
                 [
@@ -646,7 +646,7 @@ function createMainTabs($func)
                         'operation' => 'update',
                     ],
                     'levels_allowed' => [
-                        ROLE_ADMIN
+                        MLINVOICE_USER_ROLE_ADMIN
                     ]
                 ]
             ],

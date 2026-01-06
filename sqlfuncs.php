@@ -5,7 +5,7 @@
  * PHP version 8
  *
  * Copyright (C) Samu Reinikainen 2004-2008
- * Copyright (C) Ere Maijala 2010-2022
+ * Copyright (C) Ere Maijala 2010-2022.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2,
@@ -62,81 +62,7 @@ function initDbConnection()
     dbQueryCheck('SET AUTOCOMMIT=1');
 }
 
-/**
- * Parse a search string
- *
- * @param string $searchTerms Search terms
- * @param string $field       Field
- * @param string $operator    Operator
- * @param string $term        Extracted term
- * @param string $boolean     Any boolean operator
- *
- * @return bool Whether the extraction succeeded
- */
-function extractSearchTerm(&$searchTerms, &$field, &$operator, &$term, &$boolean)
-{
-    if (true
-        && !preg_match(
-            '/^([\w\.\_]+)\s*(=|!=|<=?|>=?|LIKE)\s*(.+)/',
-            $searchTerms,
-            $matches
-        )
-    ) {
-        if (!preg_match('/^([\w\.\_]+)\s+(NOT IN|IN)\s+(.+)/', $searchTerms, $matches)) {
-            return false;
-        }
-    }
-    $field = $matches[1];
-    $operator = $matches[2];
-    $rest = $matches[3];
-    $term = '';
-    $inQuotes = false;
-    $inParenthesis = 0;
-    $escaped = false;
-    while ($rest != '') {
-        $ch = substr($rest, 0, 1);
-        $rest = substr($rest, 1);
-        if ($escaped) {
-            $escaped = false;
-            $term .= $ch;
-            continue;
-        }
-        if ($ch == '\\') {
-            $escaped = true;
-            continue;
-        }
 
-        if ($ch == "'") {
-            $inQuotes = !$inQuotes;
-            continue;
-        }
-        if ($ch == '(') {
-            ++$inParenthesis;
-        } elseif ($ch == ')') {
-            if (--$inParenthesis < 0) {
-                die('Unbalanced parenthesis');
-            }
-        }
-        if ($ch == ' ' && !$inQuotes && $inParenthesis == 0) {
-            break;
-        }
-        $term .= $ch;
-    }
-    if ($inParenthesis > 0) {
-        die('Unbalanced parenthesis');
-    }
-    if (substr($rest, 0, 4) == 'AND ') {
-        $boolean = ' AND ';
-        $searchTerms = substr($rest, 4);
-    } elseif (substr($rest, 0, 3) == 'OR ') {
-        $boolean = ' OR ';
-        $searchTerms = substr($rest, 3);
-    } else {
-        $boolean = '';
-        $searchTerms = '';
-    }
-    return $term != '';
-}
 
 /**
  * Create a 'where' clause

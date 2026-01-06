@@ -5,7 +5,7 @@
  * PHP version 8
  *
  * Copyright (C) Samu Reinikainen 2004-2008
- * Copyright (C) Ere Maijala 2010-2024
+ * Copyright (C) Ere Maijala 2010-2024.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2,
@@ -55,8 +55,8 @@ $searchFieldTypes = array_diff(
 
 $strListTableAlias = '';
 $levelsAllowed = [
-    ROLE_USER,
-    ROLE_BACKUPMGR
+    MLINVOICE_USER_ROLE_USER,
+    MLINVOICE_USER_ROLE_BACKUPMGR
 ];
 $copyLinkOverride = '';
 $clearRowValuesAfterAdd = false;
@@ -656,7 +656,7 @@ case 'product':
 case 'invoice':
 case 'offer':
 case 'invoice_template':
-    $levelsAllowed[] = ROLE_READONLY;
+    $levelsAllowed[] = MLINVOICE_USER_ROLE_READONLY;
     $strTable = '{prefix}invoice';
     $strListTableAlias = 'i.'; // this is for the search function
     $strParentKey = 'invoice_id';
@@ -1929,7 +1929,7 @@ case 'send_api_config':
 
 case 'invoice_state':
     $levelsAllowed = [
-        ROLE_ADMIN
+        MLINVOICE_USER_ROLE_ADMIN
     ];
     $strTable = '{prefix}invoice_state';
 
@@ -1979,7 +1979,7 @@ case 'invoice_state':
 
 case 'invoice_type':
     $levelsAllowed = [
-        ROLE_ADMIN
+        MLINVOICE_USER_ROLE_ADMIN
     ];
     $strTable = '{prefix}invoice_type';
 
@@ -2012,7 +2012,7 @@ case 'invoice_type':
 
 case 'row_type':
     $levelsAllowed = [
-        ROLE_ADMIN
+        MLINVOICE_USER_ROLE_ADMIN
     ];
     $strTable = '{prefix}row_type';
 
@@ -2036,7 +2036,7 @@ case 'row_type':
 
 case 'session_type':
     $levelsAllowed = [
-        ROLE_ADMIN
+        MLINVOICE_USER_ROLE_ADMIN
     ];
     $strTable = '{prefix}session_type';
 
@@ -2072,7 +2072,7 @@ case 'session_type':
 
 case 'delivery_terms':
     $levelsAllowed = [
-        ROLE_ADMIN
+        MLINVOICE_USER_ROLE_ADMIN
     ];
     $strTable = '{prefix}delivery_terms';
 
@@ -2096,7 +2096,7 @@ case 'delivery_terms':
 
 case 'delivery_method':
     $levelsAllowed = [
-        ROLE_ADMIN
+        MLINVOICE_USER_ROLE_ADMIN
     ];
     $strTable = '{prefix}delivery_method';
 
@@ -2312,7 +2312,7 @@ case 'invoice_attachment':
 
 case 'user':
     $levelsAllowed = [
-        ROLE_ADMIN
+        MLINVOICE_USER_ROLE_ADMIN
     ];
     $strTable = '{prefix}users';
     $astrFormElements = [

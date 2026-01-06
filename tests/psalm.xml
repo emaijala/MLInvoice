@@ -1,0 +1,20 @@
+<?xml version="1.0"?>
+<psalm
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:noNamespaceSchemaLocation="https://getpsalm.org/schema/psalm.xsd"
+>
+  <projectFiles>
+    <directory name="src"/>
+  </projectFiles>
+
+  <plugins/>
+
+  <autoloadFiles>
+    <file>vendor/autoload.php</file>
+  </autoloadFiles>
+
+  <issueHandlers>
+  </issueHandlers>
+
+  <phpVersion>8.2</phpVersion>
+</psalm>

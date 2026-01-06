@@ -6,11 +6,11 @@ module.exports = function(grunt) {
         atBegin: true
       },
       scss: {
-        files: ['css/*.scss', 'css/bootstrap/*.scss'],
+        files: ['scss/*.scss', 'scss/bootstrap/*.scss'],
         tasks: ['sass']
       },
       js: {
-        files: ['js/mlinvoice.js', 'js/mlinvoice-form.js', 'js/mlinvoice-search.js'],
+        files: ['assets/js/mlinvoice.js', 'assets/js/mlinvoice-form.js', 'assets/js/mlinvoice-search.js'],
         tasks: ['uglify']
       }
     },
@@ -21,11 +21,11 @@ module.exports = function(grunt) {
       },
       build: {
         files: {
-          'js/mlinvoice.min.js': [
-            'js/mlinvoice.js',
-            'js/mlinvoice-form.js',
-            'js/mlinvoice-search.js',
-            'js/mlinvoice-theme.js',
+          'assets/js/mlinvoice.min.js': [
+            'assets/js/mlinvoice.js',
+            'assets/js/mlinvoice-form.js',
+            'assets/js/mlinvoice-search.js',
+            'assets/js/mlinvoice-theme.js',
           ]
         }
       }
@@ -36,7 +36,7 @@ module.exports = function(grunt) {
           style: 'compressed'
         },
         files: {
-          'css/style.css': 'css/style.scss'
+          'assets/css/style.css': 'scss/style.scss'
         }
       }
     }

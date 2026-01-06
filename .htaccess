@@ -1,15 +1,34 @@
-<FilesMatch "(\.xml|\.json|\.lock|\.sql|\.spec|\.sample|\.yaml|Dockerfile)$">
+<FilesMatch "(\.xml|\.json|\.lock|\.sql|\.spec|\.sample|\.yaml|Dockerfile|.htaccess)$">
   <IfModule !mod_authz_core.c>
     Order deny,allow
     Deny from all
   </IfModule>
-
   <IfModule mod_authz_core.c>
     Require all denied
   </IfModule>
 </FilesMatch>
 
+Options All -Indexes
+
 <IfModule mod_rewrite.c>
   RewriteEngine On
-  RewriteRule docs/open_doc$ invoice.php
+
+  # RewriteBase /
+
+  # Redirect invoice links
+  RewriteRule docs/open_doc$ invoice.php [L]
+
+  # Static assets
+  RewriteCond %{REQUEST_FILENAME} -f [OR]
+  RewriteCond %{REQUEST_FILENAME} -l
+  RewriteRule .* - [L]
+
+  # Redirect to the public folder
+  RewriteRule ^$ public/ [L]
+  RewriteRule (.*) public/$1 [L]
+
+  # Redirect to HTTPS
+  # RewriteEngine On
+  # RewriteCond %{HTTPS} off
+  # RewriteRule ^(.*)$ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
 </IfModule>

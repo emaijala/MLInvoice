@@ -1,0 +1,17 @@
+{% extends 'layout.html.twig' %}
+
+{% block wrapperclass %}login{% endblock %}
+
+{% block body %}
+  <div class="logout-form">
+    <h1>{{ 'ThankYou'|trans }}</h1>
+    <p>
+      {{ 'SessionClosed'|trans }}
+    </p>
+    <p>
+      <a href="{{ url_for('login') }} ">
+        {{ 'BackToLogin'|trans }}
+      </a>
+    </p>
+  </div>
+{% endblock %}

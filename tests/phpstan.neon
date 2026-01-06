@@ -1,0 +1,6 @@
+parameters:
+  phpVersion: 80200
+  autoload_files:
+    - vendor/autoload.php
+  scanMissingClasses: false
+  level: max

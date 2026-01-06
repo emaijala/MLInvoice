@@ -25,6 +25,9 @@
  * @license  http://opensource.org/licenses/gpl-2.0.php GNU General Public License
  * @link     http://labs.fi/mlinvoice.eng.php
  */
+
+use MLInvoice\Markdown\MLMarkdown;
+
 require_once 'markdown.php';
 
 /**

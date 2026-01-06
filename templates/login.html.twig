@@ -1,0 +1,40 @@
+{% extends 'layout.html.twig' %}
+
+{% block wrapperclass %}login{% endblock %}
+
+{% block body %}
+  {% if (upgradeMessage) %}
+    <div class="message alert {% if (upgradeFailed) %}alert-danger{% else %}alert-success{% endif %}">
+      {{ upgradeMessage }}
+    </div>
+    <br />
+  {% endif %}
+
+  <div class="form login-form">
+    <h1>{{ 'WelcomeMessage'|trans }}</h1>
+
+    <form method="post" name="login_form">
+      <input type="hidden" name="backlink" value="{{ backlink|e }}">
+      <input type="hidden" name="{{ csrf().keys.name }}" value="{{ csrf().name }}">
+      <input type="hidden" name="{{ csrf().keys.value }}" value="{{ csrf().value }}">
+      <p>
+        <label for="login" class="label">{{ 'UserID'|trans }}</label>
+        <input class="form-control medium" name="login" id="login" type="text" value="">
+      </p>
+      <p>
+        <label for="passwd" class="label">{{ 'Password'|trans }}</label>
+        <input class="form-control medium" name="passwd" id="passwd" type="password" value="">
+      </p>
+      <p>
+        <input id="login_button" class="btn btn-primary" type="submit" name="logon" value="{{ 'Login'|trans }}">
+      </p>
+      {% if (get_setting('password_recovery')) %}
+        <p>
+          <a href="{{ url_for('recover') }}">
+            {{ 'ForgotPassword'|trans }}
+          </a>
+        </p>
+      {% endif %}
+    </form>
+  </div>
+{% endblock %}

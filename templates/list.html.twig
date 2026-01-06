@@ -1,0 +1,272 @@
+{# Params: list_type, list_id, title_override, search_id, invoice_total, highlight_overdue, print_type #}
+{% set company_id = app.request.get('company') %}
+{% set list_data = list_config(list_type, list_id, searchParams, title_override, search_id, highlight_overdue, print_type, company_id) %}
+<script>
+$(document).ready(function() {
+  {% if invoice_total %}
+    $('#{{ listId }}').one('xhr.dt', function() {
+    $.ajax({
+        url: '{{ url_for('json') }}?func=get_invoice_total_sum',
+        data: {{ list_data.params|json_encode }},
+        type: 'POST'
+    }).done(function(data) {
+        $('#{{ listId }}_title').append(' ' + MLInvoice.translate('InvoicesTotal', {'%%sum%%': MLInvoice.formatCurrency(data['sum'], 2)}));
+    });
+    });
+  {% endif %}
+
+  {% if 'product' is same as list_type and company_id %}
+    $('#{{ list_id }}').on( 'click', 'td.editable', MLInvoice.editUnitPrice);
+  {% endif %}
+
+  {% set i = 1 %}
+  {% set has_row_selection = false %}
+
+  $('#{{ list_id }}')
+    {% if not app.request.get('bc') %}
+    .on('stateLoaded.dt', function () {
+      var table = $('#{{ list_id }}').DataTable();
+      if (table.search() != '' || table.page() != 0) {
+        table.search('').page(0).draw('page');
+      }
+    })
+    {% endif %}
+    .dataTable({
+      language: {
+        {{ 'TableTexts'|trans }}
+      },
+      stateSave: true,
+      stateLoadParams: function (settings, data) {
+        if (data.length === -1) {
+          data.length = 10;
+        }
+      },
+      stateDuration: 0,
+      pageLength: 10,
+      lengthMenu: [ [10, 25, 50, 100, 500, -1], [10, 25, 50, 100, 500, "{{ 'All'|trans }})"] ],
+      pagingType: "full_numbers",
+      columnDefs: [
+        {% for field in list_data.list_config.fields %}
+          {
+              targets: [ {{ loop.index + 1 }} ],
+              width: '{{ field.width }}',
+              sortable: {{ field.sortable }},
+              className: '{{ field.class }}',
+              visible: {{ field.visible }}
+          },
+        {% endfor %}
+        { targets: [ 0, 1 ], 'searchable': false, 'visible': false }
+      ],
+      order: [[ 3, 'asc' ]],
+      processing: true,
+      serverSide: true,
+      scrollX: false,
+      responsive: {
+          details: {
+          display: $.fn.dataTable.Responsive.display.childRowImmediate
+          }
+      },
+      autoWidth: true,
+      ajax: {
+        url: 'json.php?func=get_list',
+        data: {{ list_data.params|json_encode }},
+        type: 'POST',
+        dataSrc: function (json) {
+          {% for field in list_data.list_config.fields %}
+            {% if field.translate %}
+              json.data[i][{{ loop.index + 1 }}] = MLInvoice.translate(json.data[i][{{ loop.index + 1 }}]);
+            {% elseif ('CURRENCY' is same as field.type) %}
+              json.data[i][{{ loop.index + 1 }}] = MLInvoice.formatCurrency(json.data[i][{{ loop.index + 1 }}], {{ field.decimals ?? 2 }});
+            {% elseif ('INTDATE' is same as field.type) %}
+              json.data[i][{{ loop.index + 1 }}] = null !== json.data[i][{{ loop.index + 1 }}] ? MLInvoice.formatDate(json.data[i][{{ loop.index + 1 }}]) : '';
+            {% elseif ('CHECKBOX' is same as field.type) %}
+              {% set has_row_selection = true %}
+              json.data[i][{{ loop.index + 1 }}] = ' <input class="{{ field.class }}" name="id[]" type="checkbox" value="' + json.data[i][{{ loop.index + 1 }}] + '">';
+            {% else %}
+              var $div = $('<div/>');
+              const $span = $('<span/>');
+              {% if field.class %}
+                $span.addClass('{{ field.class }}');
+              {% endif %}
+              $span.text(json.data[i][{{ loop.index + 1 }}]).appendTo($div);
+              json.data[i][{{ loop.index + 1 }}] = $div.html();
+            {% endif %}
+          {% endfor %}
+          return json.data;
+        }
+      }
+    })
+    {% if has_row_selection %}
+    .on('draw.dt', function () {
+        var $container = $(this).closest('.list_container');
+        $container.find('input.cb-select-all').prop('checked', false);
+        $container.find('input.cb-select-row').off('click').on('click', function(event) {
+            MLInvoice.updateRowSelectedState($container);
+            event.stopPropagation();
+        });
+        MLInvoice.updateRowSelectedState($container);
+    })
+    {% endif %}
+    ;
+    var $table = $('#{{ list_id }}');
+    var buttons = new $.fn.dataTable.Buttons($table.DataTable(), {
+        buttons: [
+            {
+                text: '<i class="icon-columns"></i><span class="visually-hidden">{{ 'Columns'|trans }}</span>',
+                titleAttr: '{{ 'Columns'|trans }}',
+                extend: 'colvis',
+                columns: ':gt(2)'
+            }
+        ]
+    });
+    buttons.container().appendTo($('#{{ list_id }}_length'));
+
+    $(document).on('click', '#{{ list_id }} tbody tr', function(e) {
+    if ($(e.target).hasClass('cb-select-row') || $(e.target).find('.cb-select-row').length > 0) {
+        return;
+    }
+    var row = this;
+    if (row.classList.contains('child')) {
+        row = row.previousElementSibling;
+    }
+    var data = $('#{{ list_id }}').dataTable().fnGetData(row);
+    if (e.button === 1 || e.ctrlKey || e.metaKey) {
+        window.open(data[1], '_blank');
+    } else {
+        document.location.href = data[1];
+    }
+  });
+});
+</script>
+
+{% if 'product' is same as list_type %}
+  <div id="custom-prices" class="function_navi clearfix">
+    <div class="medium_label label">
+        {{ 'ClientSpecificPrices'|trans }}
+    </div>
+    <div class="field">
+      <select autocomplete="off" class="long js-searchlist" id="company_id" name="company_id" data-list-query="{{ 'table=company&sort=company_name,company_id'|escape }}" data-show-empty="1" data-on-change="_onChangeCompanyReload">
+        <option value="{{ company_id|escape }}" selected>{{ search_list_value_for('company', company_id)|escape }}</option>
+      </select>
+    </div>
+    {% if company_id %}
+      <div id="no-custom-prices"{% if list_data.custom_price_sttings %} class="hidden"{% endif %}>
+        <div class="label">
+          {{ 'NoClientSpecificPricesDefined'|trans }}
+          {% if write_access %}
+            <button id="add-custom-prices" class="btn btn-secondary">
+              {{ 'Define'|trans }}
+            </button>
+          {% endif %}
+        </div>
+      </div>
+      <div id="custom-prices-form" class="clearfix{% if list_data.custom_price_settings %} hidden{% endif %}?>">
+        <div class="label medium_label">
+          {{ 'DiscountPercent'|trans }}
+        </div>
+        <div class="field">
+          <input type="text" class="form-control currency" id="discount" name="discount"
+            value="{{ (list_data.custom_price_settings.discount ?? 0)|round_currency(2, true) }}"
+          >
+        </div>
+        <div class="label medium_label">
+          {{ 'Multiplier'|trans }}
+        </div>
+        <div class="field">
+          <input type="text" class="form-control currency" id="multiplier" name="multiplier"
+            value="{{ (list_data.custom_price_settings.multiplier ?? 1)|round_currency(5, true) }}"
+          >
+        </div>
+        <div class="label medium_label">
+          {{ 'ValidUntil'|trans }}
+        </div>
+        <div class="field">
+          <input type="date" class="form-control date" id="valid_until" name="valid_until"
+            {% if not list_data.custom_price_settings.valid %} class="text-danger"{% endif %}
+            value="{{ (list_data.custom_price_settings.valid_until ?? '')|date('Y-m-d') }}"
+          >
+          {% if not list_data.custom_price_settings.valid %}
+            <i class="icon-attention text-danger"></i>
+          {% endif %}
+        </div>
+        <div class="label medium_label">
+          {% if write_access %}
+            <a role="button" class="btn btn-secondary save-button" href="#">
+              {{ 'Save'|trans }}
+            </a>
+            <a role="button" class="btn btn-secondary" href="#" data-bs-toggle="dropdown" aria-expanded="false">
+              {{ 'Delete'|trans }}
+            </a>
+            <ul class="dropdown-menu">
+              <li>
+                <a class="dropdown-item delete-button" href="#">
+                  {{ 'ConfirmDelete'|trans }}
+                </a>
+              </li>
+            </ul>
+          {% endif %}
+        </div>
+      </div>
+    {% endif %}
+  </div>
+  <script>
+    $(document).ready(function () {
+        MLInvoice.Form.setupSelect2();
+    });
+  </script>
+{% endif %}
+
+<div class="list_container">
+  {% if has_row_selection %}
+    <form method="POST">
+      <input type="hidden" name="func" value="multiedit">
+      <input type="hidden" name="list" value="{{ list|escape }}">
+  {% endif %}
+  {% if title %}
+    <h2 id="{{ list_id }}_title" class="mb-2">
+      {{ title|trans }}
+    </h2>
+  {% endif %}
+  <table id="{{ list_id }}" class="table table-striped table-bordered table-hover list nowrap">
+    <thead>
+      <tr>
+        <th class="hidden">ID</th>
+        <th class="hidden">Link</th>
+        {% for field in list_data.list_config.fields %}
+          <th style="{{ field.width }}">
+            {{ field.header|trans }}
+          </th>
+        {% endfor %}
+      </tr>
+    </thead>
+    <tbody>
+    </tbody>
+  </table>
+  {% if has_row_selection %}
+    <div class="selection-buttons">
+      {{ 'ForSelected'|trans }}:
+      <input type="submit" value="{{ 'Edit'|trans }}" class="btn btn-secondary btn-sm selected-row-button update-selected-rows">
+      {% if list_data.print_templates %}
+        <a role="button" class="btn btn-secondary btn-sm dropdown-toggle selected-row-button" href="#"
+          id="{{ list_id }}-dropdown-selected-actions" data-bs-toggle="dropdown" aria-expanded="false">
+          {{ 'Print'|trans }}...
+        </a>
+        <ul class="dropdown-menu print-selected-rows" aria-labelledby="{{ list_id }}-dropdown-selected-actions">
+          {% for template in list_data.print_templates %}
+            <li>
+              <div class="dropdown-item">
+                <a role="button" class="btn print-selected-item"
+                  data-template-id="{{ template.id|escape }}"
+                  data-style="{{ template.new_window ? 'openwindow' : 'redirect' }}"
+                >
+                  {{ template.name|trans }}
+                </a>
+              </div>
+            </li>
+          {% endfor %}
+        </ul>
+      {% endif %}
+    </div>
+  </form>
+  {% endif %}
+</div>

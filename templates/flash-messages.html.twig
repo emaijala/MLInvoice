@@ -1,0 +1,10 @@
+{% for message in flash.get('error') %}
+  <div class="alert alert-danger" role="alert">
+    {{ message|trans }}
+  </div>
+{% endfor %}
+{% for message in flash.get('info') %}
+  <div class="alert alert-info" role="alert">
+    {{ message|trans }}
+  </div>
+{% endfor %}

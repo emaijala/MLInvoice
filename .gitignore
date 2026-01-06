@@ -17,10 +17,17 @@ Thumbs.db
 
 # Local files
 config.php
+config/application.local.config.php
 tcpdf/cache/*
 !tcpdf/cache/empty
-/vendor
+vendor
 .php_cs_cache
 db_data/*
+local/cache
+local/config/*.ini
+logs/*
+!logs/README.md
 node_modules
-css/custom.css
+assets/css/custom.css
+var/cache
+running-ci

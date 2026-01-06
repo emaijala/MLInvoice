@@ -10,7 +10,7 @@
     "license": "GPL-2.0",
     "config": {
         "platform": {
-            "php": "8.1"
+            "php": "8.2"
         },
         "allow-plugins": {
             "codeception/c3": false
@@ -18,7 +18,7 @@
     },
     "autoload": {
         "psr-4": {
-            "": "src/"
+            "MLInvoice\\": "src/MLInvoice"
         }
     },
     "autoload-dev": {
@@ -27,22 +27,35 @@
         }
     },
     "require": {
-        "php": ">=8.1",
+        "php": ">=8.2",
+        "ext-json": "*",
         "composer/semver": "3.4.3",
         "components/jquery": "^3.6.0",
         "doctrine/dbal": "^3.9.1",
+        "doctrine/orm": "^3.6",
         "guzzlehttp/guzzle": "^7.9.2",
+        "guzzlehttp/psr7": "2.8.0",
         "michelf/php-markdown": "^2.0.0",
+        "monolog/monolog": "^3.10.0",
+        "nikic/fast-route": "^1.3.0",
+        "odan/session": "^6.4",
+        "php-di/php-di": "^7.1.1",
         "phpseclib/phpseclib": "^3.0.42",
         "ramsey/uuid": "^4.7.6",
         "setasign/fpdi": "^2.6.1",
+        "slim/csrf": "^1.5",
+        "slim/slim": "^4.15.1",
+        "slim/twig-view": "^3.4",
         "symfony/amazon-mailer": "^5.4.40",
+        "symfony/asset": "^7.4",
+        "symfony/asset-mapper": "^7.4",
+        "symfony/cache": "^7.4",
         "symfony/google-mailer": "^5.4.40",
         "symfony/mailchimp-mailer": "^5.4.40",
         "symfony/mailer": "^5.4.44",
         "symfony/mailgun-mailer": "^5.4.42",
-        "tecnickcom/tcpdf": "^6.7.6",
-        "twbs/bootstrap": "5.3.3"
+        "symfony/twig-bridge": "^7.4",
+        "tecnickcom/tcpdf": "^6.7.6"
     },
     "require-dev": {
         "behat/mink": "1.12.0",
@@ -59,12 +72,19 @@
     },
     "scripts": {
         "post-install-cmd": [
+            "touch assets/css/custom.css",
             "cp htaccess-vendor vendor/.htaccess",
             "mkdir -p node_modules; cp htaccess-vendor node_modules/.htaccess",
             "[ $COMPOSER_DEV_MODE -eq 0 ] || cp vendor/codeception/c3/c3.php ."
         ],
         "post-update-cmd": [
             "@post-install-cmd"
+        ],
+        "install-npm-deps": [
+            "npm install && node tools/copyDependencies.mjs"
+        ],
+        "update-npm-deps": [
+            "npm update && node tools/copyDependencies.mjs"
         ],
         "qa": [
             "vendor/bin/phing qa"

@@ -4,7 +4,7 @@
  *
  * PHP version 8
  *
- * Copyright (C) Ere Maijala 2010-2021
+ * Copyright (C) Ere Maijala 2010-2021.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2,
@@ -117,8 +117,8 @@ $title = getPageTitle($strFunc, $strList, $strForm, sanitize(getPostOrQuery('ope
 if ($strFunc == 'system' && getPostOrQuery('operation', '') == 'dbdump'
     && sesAccessLevel(
         [
-            ROLE_BACKUPMGR,
-            ROLE_ADMIN
+            MLINVOICE_USER_ROLE_BACKUPMGR,
+            MLINVOICE_USER_ROLE_ADMIN
         ]
     )
 ) {
@@ -211,8 +211,8 @@ if ($strFunc == 'system' && $operation == 'export' && sesAdminAccess()) {
 } elseif ($strFunc == 'system' && $operation == 'backup'
     && sesAccessLevel(
         [
-            ROLE_BACKUPMGR,
-            ROLE_ADMIN
+            MLINVOICE_USER_ROLE_BACKUPMGR,
+            MLINVOICE_USER_ROLE_ADMIN
         ]
     )
 ) {
