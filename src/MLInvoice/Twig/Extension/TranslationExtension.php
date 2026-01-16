@@ -80,7 +80,7 @@ class TranslationExtension extends AbstractExtension
         string|\Stringable|null $string,
         array $placeholders = [],
         string|\Stringable|null $default = null
-    ): string {
-        return $this->translator->translate($string, $placeholders, $default);
+    ): ?string {
+        return null !== $string ? $this->translator->translate($string, $placeholders, $default) : null;
     }
 }

@@ -65,7 +65,7 @@ class ExportData
         $rowDelimiter = getPostOrQuery('row_delim', "\n");
         $columns = getPostOrQuery('column', '');
         $childRows = getPostOrQuery('child_rows', '');
-        $deletedRecords = getPostOrQuery('deleted', false);
+        $deletedRecords = getPostOrQuery('deleted');
 
         if ($table && $format && $columns) {
             if (!tableNameValid($table)) {
@@ -278,7 +278,7 @@ EOT;
   function add_column()
   {
     var table = document.getElementById("sel_table").value;
-    $.getJSON("json.php?func=get_table_columns&table=" + table, function(json) {
+    $.getJSON(MLInvoice.getPath() + "/json?func=get_table_columns&table=" + table, function(json) {
       var index = ++g_column_id;
       var columns = document.getElementById("columns");
       var select = document.createElement("select");

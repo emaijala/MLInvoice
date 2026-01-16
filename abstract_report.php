@@ -59,12 +59,12 @@ abstract class AbstractReport
         $strQuery = '';
         $arrParams = [];
 
-        $intBaseId = getPostOrQuery('base', false);
+        $intBaseId = getPostOrQuery('base');
         if ($intBaseId) {
             $strQuery .= ' AND i.base_id = ?';
             $arrParams[] = $intBaseId;
         }
-        $intCompanyId = getPostOrQuery('company', false);
+        $intCompanyId = getPostOrQuery('company');
         if ($intCompanyId) {
             $strQuery .= ' AND i.company_id = ?';
             $arrParams[] = $intCompanyId;
@@ -181,7 +181,7 @@ EOT;
         $states = [];
         while ($row = mysqli_fetch_assoc($res)) {
             $stateId = $row['id'];
-            if (getPostOrQuery("stateid_$stateId", false)) {
+            if (getPostOrQuery("stateid_$stateId")) {
                 $states[] = Translator::translate($row['name'] ?? '-');
             }
         }

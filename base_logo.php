@@ -35,7 +35,7 @@ initDbConnection();
 sesVerifySession();
 
 $func = getPostOrQuery('func', 'view');
-$baseId = getPostOrQuery('id', null);
+$baseId = getPostOrQuery('id');
 
 if (!sesAdminAccess() || !isset($baseId) || !is_numeric($baseId) || !isset($func)) {
     exit();

@@ -36,6 +36,8 @@ use MLInvoice\Database\Repository\InvoiceStateRepository;
 use MLInvoice\Database\Repository\PrintTemplateRepository;
 use MLInvoice\I18n\Translator;
 use Odan\Session\SessionInterface;
+use Psr\Http\Message\ServerRequestInterface;
+use Slim\Routing\RouteContext;
 use Twig\Extension\AbstractExtension;
 use Twig\TwigFunction;
 
@@ -100,9 +102,11 @@ class ConfigExtension extends AbstractExtension
     /**
      * Get JS configuration.
      *
+     * @param string $basePath Request base path
+     *
      * @return string
      */
-    protected function getJsConfig(): string
+    protected function getJsConfig(string $path): string
     {
         $requiredTranslations = [
             'DecimalSeparator',
@@ -223,6 +227,7 @@ class ConfigExtension extends AbstractExtension
                 'currencyDecimals',
                 'dateFormat',
                 'dateRangePickerOptions',
+                'path',
             )
         );
     }

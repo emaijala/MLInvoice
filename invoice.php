@@ -37,15 +37,15 @@ require_once 'sqlfuncs.php';
 initDbConnection();
 
 $authenticated = true;
-$intInvoiceId = getPostOrQuery('id', false);
-$printTemplate = getPostOrQuery('t', false);
+$intInvoiceId = getPostOrQuery('id');
+$printTemplate = getPostOrQuery('t');
 $dateOverride = false;
-$language = getPostOrQuery('l', false);
-$uuid = getPostOrQuery('i', false);
-$hash = getPostOrQuery('c', false);
-$ts = getPostOrQuery('s', false);
-if (false === $printTemplate || false === $language || false === $uuid
-    || false === $hash || false === $ts
+$language = getPostOrQuery('l');
+$uuid = getPostOrQuery('i');
+$hash = getPostOrQuery('c');
+$ts = getPostOrQuery('s');
+if (null === $printTemplate || null === $language || null === $uuid
+    || null === $hash || null === $ts
 ) {
     if ($intInvoiceId) {
         sesVerifySession();
@@ -62,8 +62,8 @@ require_once 'datefuncs.php';
 require_once 'miscfuncs.php';
 
 if ($authenticated) {
-    $printTemplate = getPostOrQuery('template', 1);
-    if ($date = getPostOrQuery('date', false)) {
+    $printTemplate = getPostOrQuery('template', '1');
+    if ($date = getPostOrQuery('date')) {
         $dateOverride = dateConvYmd2DBDate($date);
     }
 } else {

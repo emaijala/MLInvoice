@@ -116,7 +116,7 @@ function createList($strFunc, $strList, $strTableName = '', $strTitleOverride = 
         ?>
     $('#<?php echo $strTableName?>').one('xhr.dt', function() {
       $.ajax({
-        url: 'json.php?func=get_invoice_total_sum',
+        url: MLInvoice.getPath() + '/json?func=get_invoice_total_sum',
         data: <?php echo json_encode($params) ?>,
         type: 'POST'
       }).done(function(data) {
@@ -198,7 +198,7 @@ function createList($strFunc, $strList, $strTableName = '', $strTitleOverride = 
       },
       autoWidth: true,
       ajax: {
-        url: 'json.php?func=get_list',
+        url: MLInvoice.getPath() + '/json?func=get_list',
         data: <?php echo json_encode($params) ?>,
         type: 'POST',
         dataSrc: function (json) {

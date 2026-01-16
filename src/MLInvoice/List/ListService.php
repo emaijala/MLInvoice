@@ -32,16 +32,19 @@ namespace MLInvoice\List;
 
 use DI\Attribute\Inject;
 use Doctrine\DBAL\Query\QueryBuilder;
+use Doctrine\ORM\EntityManagerInterface;
 use MLInvoice\Config\ConfigManagerInterface;
 use MLInvoice\Config\SettingsManager;
 use MLInvoice\Database\Entity\Company;
 use MLInvoice\Database\Repository\InvoiceStateRepository;
+use MLInvoice\I18n\NumberFormatter;
 use MLInvoice\I18n\Translator;
 use MLInvoice\Markdown\MLMarkdown;
 use MLInvoice\Search\Search;
 use MLInvoice\Search\SearchService;
 use MLInvoice\Session\Memory;
 use MLInvoice\Utils\DateUtils;
+use Odan\Session\SessionInterface;
 
 /**
  * List Service.
@@ -72,6 +75,9 @@ class ListService
         protected SearchService $searchService,
         protected SettingsManager $settingsManager,
         protected DateUtils $dateUtils,
+        protected SessionInterface $session,
+        protected EntityManagerInterface $entityManager,
+        protected NumberFormatter $numberFormatter,
     ) {
         $this->prefix = $config['Database']['table_prefix'] ?? 'mlinvoice_';
     }
@@ -92,7 +98,7 @@ class ListService
      * @param int     $searchId  Saved search ID
      * @param ?string $format    Record output format (object for key-value object, any other value for DataTables format)
      *
-     * @return string
+     * @return array
      */
     function createJSONList(
         string $strFunc,
@@ -107,17 +113,18 @@ class ListService
         ?int $companyId = null,
         ?int $searchId = null,
         ?string $format = null
-    ): string {
+    ): array {
         $listConfig = $this->getListConfig($list);
         if (!$listConfig) {
             return '{"error": "Invalid list"}';
         }
 
-        if (!sesAccessLevel($listConfig['accessLevels']) && !sesAdminAccess()) {
+        $accessLevel = $this->session->get('accessLevel');
+        if ($accessLevel !== MLINVOICE_USER_ROLE_ADMIN && !in_array($accessLevel, $listConfig['accessLevels'])) {
             return '{"error": "Access denied"}';
         }
 
-        $queryBuilders = createListQuery(
+        $queryBuilders = $this->createListQuery(
             $strFunc,
             $list,
             $startRow,
@@ -200,9 +207,8 @@ class ListService
 
         $astrPrimaryKeys = [];
         $records = [];
-        $highlight = getPostOrQuery('highlight_overdue', false);
-        $idField = stripPrefix($listConfig['primaryKey']);
-        $deletedField = stripPrefix($listConfig['deletedField']);
+        $idField = $this->stripPrefix($listConfig['primaryKey']);
+        $deletedField = $this->stripPrefix($listConfig['deletedField']);
         foreach ($result->fetchAllAssociative() as $row) {
             $astrPrimaryKeys[] = $row[$idField];
             $deleted = ($deletedField && $row[$deletedField]) ? ' deleted' : '';
@@ -219,7 +225,7 @@ class ListService
                     continue;
                 }
 
-                $name = getFieldNameOrAlias($field['name']);
+                $name = $this->getFieldNameOrAlias($field['name']);
                 if ('product' === $list && 'custom_price' === $name) {
                     $value = $row['unit_price'];
                     if ($customPrices) {
@@ -245,10 +251,11 @@ class ListService
                         $value = $field['callback']($value);
                     }
                 } elseif ($field['type'] == 'CURRENCY') {
-                    $value = miscRound2Decim(
-                        $value,
+                    $value = $this->numberFormatter->roundCurrency(
+                        (float)($value ?? 0),
                         $field['decimals'] ?? 2,
-                        '.', ''
+                        decimalSeparator: '.',
+                        thousandSeparator: ''
                     );
                 } elseif ($field['type'] === 'INTDATE') {
                     if (0 === $value) {
@@ -260,7 +267,7 @@ class ListService
                 $resultObject[$name] = $value;
 
                 // Special colouring for overdue invoices
-                if ($highlight && 'invoices' === $list && $name == 'due_date') {
+                if ('invoices' === $list && $name == 'due_date') {
                     $rowDue = dbDate2UnixTime($row['due_date']);
                     if ($rowDue < mktime(0, 0, 0, (int)date("m"), (int)date("d") - 14, (int)date("Y"))
                     ) {
@@ -276,8 +283,7 @@ class ListService
                 }
 
                 // Special colouring for due/overdue invoice templates
-                if ($highlight
-                    && 'invoice_templates' === $list
+                if ('invoice_templates' === $list
                     && $name == 'next_interval_date'
                     && $row['next_interval_date']
                 ) {
@@ -323,7 +329,7 @@ class ListService
         if ('object' === $format) {
             $results['labels'] = $fieldLabels;
         }
-        return json_encode($results, JSON_INVALID_UTF8_IGNORE) ?: '{"error": "Encode failed: ' . json_last_error_msg() . '"}';
+        return $results;
     }
 
     /**
@@ -340,13 +346,13 @@ class ListService
      *
      * @return QueryBuilder
      */
-    function createListQuery($strFunc, $list, $startRow, $rowCount, $sort,
+    public function createListQuery($strFunc, $list, $startRow, $rowCount, $sort,
         $filter, array $query, ?int $searchId = null
     ) {
         $listConfig = $this->getListConfig($list);
         $table = $listConfig['table'];
 
-        $qb = getDb()->createQueryBuilder();
+        $qb = $this->entityManager->getConnection()->createQueryBuilder();
 
         if (!empty($searchId)) {
             if (!($searchData = $this->searchService->getQuickSearch($searchId))) {
@@ -442,7 +448,7 @@ class ListService
         $countQb = clone $qb;
 
         // Add count join to count query builder:
-        addJoins($countQb, $listConfig['alias'], $listConfig['countJoins']);
+        $this->addJoins($countQb, $listConfig['alias'], $listConfig['countJoins']);
 
         $filteredQb = clone $qb;
         if ($filter) {
@@ -477,11 +483,11 @@ class ListService
 
         $filteredCountQb = clone $filteredQb;
         // Add count join to filtered count query builder:
-        addJoins($filteredCountQb, $listConfig['alias'], $listConfig['countJoins']);
+        $this->addJoins($filteredCountQb, $listConfig['alias'], $listConfig['countJoins']);
 
         // Add display join to full and filtered query builder:
-        addJoins($qb, $listConfig['alias'], $listConfig['displayJoins']);
-        addJoins($filteredQb, $listConfig['alias'], $listConfig['displayJoins']);
+        $this->addJoins($qb, $listConfig['alias'], $listConfig['displayJoins']);
+        $this->addJoins($filteredQb, $listConfig['alias'], $listConfig['displayJoins']);
 
         // Add grouping:
         if ($listConfig['groupBy']) {
@@ -1784,6 +1790,32 @@ class ListService
     }
 
     /**
+     * Get total sums for invoice list
+     *
+     * @param array $query    Query
+     * @param int   $searchId Search ID
+     *
+     * @return array
+     */
+    public function getInvoiceListTotal(array $query, ?int $searchId = null): array
+    {
+        $listConfig = $this->getListConfig('invoice');
+        $queries = $this->createListQuery('invoice', 'invoice', 0, 0, [], '', $query, $searchId);
+        $query = $queries['fullQuery'];
+        $query
+            ->select('sum(it.row_total)')
+            ->from($this->prefix . $listConfig['table'], $listConfig['alias']);
+        // Reset grouping and order to get just a single line:
+        $query->add('groupBy', [], false);
+        $query->add('orderBy', [], false);
+        $sum = $query->executeQuery()->fetchOne();
+        return [
+            'sum' => null !== $sum ? $sum : 0,
+            'sum_rounded' => $this->numberFormatter->roundNumber((float)$sum, 2, '.', '')
+        ];
+    }
+
+    /**
      * Get join query to retrieve invoice total sum
      *
      * @return array
@@ -1859,7 +1891,7 @@ class ListService
     {
         $parts = explode(' ', $fieldSpec);
         $last = end($parts);
-        return stripPrefix($last);
+        return $this->stripPrefix($last);
     }
 
     /**
@@ -1883,7 +1915,7 @@ class ListService
      *
      * @return array
      */
-    function getIntervalOptions(): array
+    protected function getIntervalOptions(): array
     {
         $intervalOptions = [
             '0' => $this->translator->translate('InvoiceIntervalNone'),
@@ -1899,5 +1931,4 @@ class ListService
         }
         return $intervalOptions;
     }
-
 }

@@ -69,12 +69,12 @@ class AuthMiddleware implements MiddlewareInterface
      *
      * @param array          $config         Main configuration
      * @param UserRepository $userRepository User database repository
-     * @param SessionManagerInterface&SessionInterface $sessionManager Session manager
+     * @param SessionInterface $session Session
      */
     public function __construct(
         #[Inject('config')] protected array $config,
         protected UserRepository $userRepository,
-        #[Inject(SessionManagerInterface::class)] protected SessionManagerInterface&SessionInterface $sessionManager,
+        protected SessionInterface $session,
     ) {
     }
 
@@ -97,13 +97,13 @@ class AuthMiddleware implements MiddlewareInterface
 
         $routeName = $route->getName();
 
-        $userId = $this->sessionManager->get('user');
+        $userId = $this->session->get('user');
         $user = null !== $userId ? $this->userRepository->findOneById($userId) : null;
 
         if (null === $user && (!in_array($routeName, static::$publicRoutes))) {
             if (!in_array($routeName, ['login', 'logout'])) {
                 // Store redirect to session:
-                $this->sessionManager->set('redirect', (string)$request->getUri());
+                $this->session->set('redirect', (string)$request->getUri());
             }
             // Create a redirect for a named route
             $routeParser = $routeContext->getRouteParser();
@@ -113,7 +113,7 @@ class AuthMiddleware implements MiddlewareInterface
         }
 
         $writeAccess = $user
-            && in_array($user->getSessionType()->getAccessLevel(), [MLINVOICE_USER_ROLE_ADMIN, MLINVOICE_USER_ROLE_BACKUPMGR, MLINVOICE_USER_ROLE_USER]);
+            && in_array($user->getAccessLevel(), [MLINVOICE_USER_ROLE_ADMIN, MLINVOICE_USER_ROLE_BACKUPMGR, MLINVOICE_USER_ROLE_USER]);
 
         return $handler->handle($request->withAttribute('user', $user)->withAttribute('write_access', $writeAccess));
     }

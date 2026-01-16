@@ -46,7 +46,7 @@ require_once "memory.php";
  */
 function createForm($strFunc, $strList, $strForm)
 {
-    $intKeyValue = getPostOrQuery('id', false);
+    $intKeyValue = getPostOrQuery('id');
     $formConfig = getFormConfig($strForm, $strFunc, $intKeyValue ?: null);
 
     if (!sesAccessLevel($formConfig['accessLevels']) && !sesAdminAccess()) {
@@ -58,7 +58,7 @@ function createForm($strFunc, $strList, $strForm)
         return;
     }
 
-    $action = $intKeyValue ? getPostOrQuery('action', false) : 'new';
+    $action = $intKeyValue ? getPostOrQuery('action') : 'new';
     if ($action && !sesWriteAccess()) {
         ?>
 <div class="form_container">
@@ -90,7 +90,7 @@ function createForm($strFunc, $strList, $strForm)
         $formConfig['readOnly'] = false;
     }
 
-    $redirect = getPostOrQuery('redirect', null);
+    $redirect = getPostOrQuery('redirect');
     if (isset($redirect)) {
         // Redirect after save
         foreach ($formConfig['fields'] as $elem) {
@@ -1073,7 +1073,7 @@ function createFormButtons($form, $formConfig, $new, $top, $deleted)
                 </div>
                 <div id="cover-letter-form-inner">
                     <form action="coverletter.php" method="POST">
-                    <input type="hidden" name="company" value="<?php echo getPostOrQuery('id')?>">
+                    <input type="hidden" name="company" value="<?php echo getPostOrQuery('id', '')?>">
                     <div class="medium_label"><?php echo Translator::translate('Sender')?></div>
                     <div class="field">
                         <?php echo htmlFormElement(

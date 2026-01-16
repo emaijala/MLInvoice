@@ -30,6 +30,7 @@ declare(strict_types=1);
 
 namespace MLInvoice\Twig\Extension;
 
+use MLInvoice\I18n\NumberFormatter;
 use MLInvoice\I18n\Translator;
 use Twig\Extension\AbstractExtension;
 use Twig\TwigFilter;
@@ -44,14 +45,14 @@ use Twig\TwigFunction;
  * @license  http://opensource.org/licenses/gpl-2.0.php GNU General Public License
  * @link     http://labs.fi/mlinvoice.eng.php
  */
-class RoundingExtension extends AbstractExtension
+class NumberFormatterExtension extends AbstractExtension
 {
     /**
      * Constructor
      *
-     * @param Translator $translator Translator
+     * @param NumberFormatter $numberFormatter Number formatter
      */
-    public function __construct(protected Translator $translator)
+    public function __construct(protected NumberFormatter $numberFormatter)
     {
     }
 
@@ -63,36 +64,8 @@ class RoundingExtension extends AbstractExtension
     public function getFilters(): array
     {
         return [
-            new TwigFilter('round_currency', $this->roundCurrency(...)),
+            new TwigFilter('round_currency', $this->numberFormatter->roundCurrency(...)),
         ];
     }
 
-    /**
-     * Round currency.
-     *
-     * @param float  $value Value
-     * @param int  $decimals Decimals to display
-     * @param bool $hideZeroFraction Hide the fractional part if zero?
-     * @param ?string $decimalSeparator  Decimal separator
-     * @param ?string $thousandSeparator Thousand separator
-     *
-     * @return string
-     */
-    protected function roundCurrency(
-        float $value,
-        int $decimals = 2,
-        bool $hideZeroFraction = false,
-        $decimalSeparator = null,
-        $thousandSeparator = null,
-    ): string {
-        if ($hideZeroFraction && $value === floor($value)) {
-            $decimals = 0;
-        }
-        return number_format(
-            $value,
-            $decimals,
-            $decimalSeparator ?? $this->translator->translate('DecimalSeparator'),
-            $thousandSeparator ?? $this->translator->translate('ThousandSeparator')
-        );
-    }
 }

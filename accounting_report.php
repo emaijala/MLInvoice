@@ -54,8 +54,8 @@ class AccountingReport extends InvoiceReport
      */
     protected function addLimitSelection()
     {
-        $intBaseId = getPostOrQuery('base', false);
-        $intCompanyId = getPostOrQuery('company', false);
+        $intBaseId = getPostOrQuery('base');
+        $intCompanyId = getPostOrQuery('company');
         $dateRange = getPostOrQuery('date', '');
         $companyTags = getPostOrQuery('tags', '');
         ?>

@@ -57,6 +57,7 @@ use MLInvoice\Database\Repository\SessionRepository;
 use MLInvoice\Database\Repository\SettingRepository;
 use MLInvoice\Database\Repository\UserRepository;
 use MLInvoice\Database\Updater;
+use MLInvoice\I18n\NumberFormatter;
 use MLInvoice\I18n\Translator;
 use MLInvoice\InvoicePrinter\InvoicePrinterFactory;
 use MLInvoice\Logger\LoggerFactory;
@@ -69,7 +70,7 @@ use MLInvoice\Twig\Extension\ConfigExtension;
 use MLInvoice\Twig\Extension\CsrfExtension;
 use MLInvoice\Twig\Extension\ListExtension;
 use MLInvoice\Twig\Extension\NavBarExtension;
-use MLInvoice\Twig\Extension\RoundingExtension;
+use MLInvoice\Twig\Extension\NumberFormatterExtension;
 use MLInvoice\Twig\Extension\SearchExtension;
 use MLInvoice\Twig\Extension\TranslationExtension;
 use MLInvoice\Twig\TwigFactory;
@@ -98,6 +99,7 @@ return function (ContainerBuilder $containerBuilder) {
         InvoicePrinterFactory::class => DI\autowire(),
         LoggerInterface::class => DI\factory(LoggerFactory::class . '::create'),
         Mailer::class => DI\autowire(),
+        NumberFormatter::class => DI\autowire(),
         SessionHandlerMiddleware::class => DI\autowire(),
         SessionManagerInterface::class => function (ContainerInterface $container) {
             return $container->get(SessionInterface::class);
@@ -156,13 +158,16 @@ return function (ContainerBuilder $containerBuilder) {
             return new AssetExtension(new Packages($packages['assets'], packages: $packages));
         },
         ConfigExtension::class => DI\autowire(),
+        'CsrfGuardFactory' => function (ContainerInterface $c) {
+            return Closure::fromCallable(fn () => $c->get('csrf'));
+        },
         CsrfExtension::class => function (ContainerInterface $c) {
             // Callback for lazy Guard creation:
-            return new CsrfExtension(Closure::fromCallable(fn () => $c->get('csrf')));
+            return new CsrfExtension($c->get('CsrfGuardFactory'));
         },
         ListExtension::class => DI\autowire(),
         NavBarExtension::class => DI\autowire(),
-        RoundingExtension::class => DI\autowire(),
+        NumberFormatterExtension::class => DI\autowire(),
         SearchExtension::class => DI\autowire(),
         TranslationExtension::class => DI\autowire(),
 

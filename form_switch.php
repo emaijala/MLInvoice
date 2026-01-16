@@ -724,7 +724,7 @@ EOT;
     } else {
         if ($isTemplate) {
             $defaultState = getInitialTemplateState();
-        } elseif (getPostOrQuery('offer', false) || getPostOrQuery('form', '') === 'offer') {
+        } elseif (getPostOrQuery('offer') || getPostOrQuery('form') === 'offer') {
             $defaultState = getInitialOfferState();
             $isOffer = true;
         }
@@ -825,7 +825,7 @@ EOF;
     }
 
     $locReminderFeesAdded = Translator::translate('ReminderFeesAdded');
-    $addReminderFees = "$.getJSON('json.php?func=add_reminder_fees&amp;id=' + document.getElementById('record_id').value, function(json) {"
+    $addReminderFees = "$.getJSON(MLInvoice.getPath() + '/json?func=add_reminder_fees&amp;id=' + document.getElementById('record_id').value, function(json) {"
         . " if (json.errors) { MLInvoice.errormsg(json.errors); } else { MLInvoice.infomsg('$locReminderFeesAdded'); } MLInvoice.Form.initRows(); });"
         . " return false;";
 
@@ -1356,7 +1356,7 @@ case 'base':
     $strTable = '{prefix}base';
     $addressAutocomplete = true;
 
-    $baseId = $id ?? intval(getPostOrQuery('id', false));
+    $baseId = $id ?? intval(getPostOrQuery('id'));
     $locTitle = Translator::translate('BaseLogoTitle');
     if ($baseId) {
         $openPopJS = <<<EOF
@@ -1933,7 +1933,7 @@ case 'invoice_state':
     ];
     $strTable = '{prefix}invoice_state';
 
-    $intId = $id ?? getPostOrQuery('id', false);
+    $intId = $id ?? getPostOrQuery('id');
     $readOnly = ($intId && $intId <= 8);
     $astrFormElements = [
         [
@@ -1983,7 +1983,7 @@ case 'invoice_type':
     ];
     $strTable = '{prefix}invoice_type';
 
-    $intId = $id ?? getPostOrQuery('id', false);
+    $intId = $id ?? getPostOrQuery('id');
     $astrFormElements = [
         [
             'name' => 'identifier',
@@ -2040,7 +2040,7 @@ case 'session_type':
     ];
     $strTable = '{prefix}session_type';
 
-    $intId = getPostOrQuery('id', false);
+    $intId = getPostOrQuery('id');
     if ($intId && $intId <= 4) {
         $readOnlyForm = true;
     }
@@ -2172,7 +2172,7 @@ case 'default_value':
 case 'attachment':
     $strTable = '{prefix}attachment';
 
-    $intId = (int)($id ?? getPostOrQuery('id', 0));
+    $intId = (int)($id ?? getPostOrQuery('id', '0'));
     if ($intId) {
         $showAttachment = Translator::translate('ShowAttachment');
         $extraButtons = <<<EOT

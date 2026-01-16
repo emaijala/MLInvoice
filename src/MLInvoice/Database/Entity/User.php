@@ -273,6 +273,16 @@ class User
     }
 
     /**
+     * Get user's access level.
+     *
+     * @return int
+     */
+    public function getAccessLevel(): int
+    {
+        return $this->getSessionType()?->getAccessLevel() ?? MLINVOICE_USER_ROLE_READONLY;
+    }
+
+    /**
      * Get quick searches.
      *
      * @return Collection<int, QuickSearch>

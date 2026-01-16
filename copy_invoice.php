@@ -52,13 +52,13 @@ if (!sesWriteAccess()) {
     return;
 }
 
-$intInvoiceId = getPostOrQuery('id', false);
-$boolRefund = getPostOrQuery('refund', false);
-$fromTemplate = getPostOrQuery('from_template', false);
+$intInvoiceId = getPostOrQuery('id');
+$boolRefund = getPostOrQuery('refund');
+$fromTemplate = getPostOrQuery('from_template');
 $strFunc = getPostOrQuery('func', '');
 $strList = getPostOrQuery('list', '');
-$isOffer = !getPostOrQuery('invoice', false) && isOffer($intInvoiceId);
-$isTemplate = !getPostOrQuery('from_template', false) && isTemplate($intInvoiceId);
+$isOffer = !getPostOrQuery('invoice') && isOffer($intInvoiceId);
+$isTemplate = !getPostOrQuery('from_template') && isTemplate($intInvoiceId);
 
 if ($intInvoiceId) {
     if ($boolRefund) {

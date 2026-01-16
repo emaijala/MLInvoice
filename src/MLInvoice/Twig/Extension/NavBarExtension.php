@@ -53,11 +53,11 @@ class NavBarExtension extends AbstractExtension
      * Constructor
      *
      * @param array $config MLInvoice configuration
-     * @param SessionManagerInterface&SessionInterface $sessionManager Session manager
+     * @param SessionInterface $session Session
      */
     public function __construct(
         #[Inject('config')] protected array $config,
-        #[Inject(SessionManagerInterface::class)] protected SessionManagerInterface&SessionInterface $sessionManager,
+        protected SessionInterface $session,
     ) {
     }
 
@@ -99,7 +99,7 @@ class NavBarExtension extends AbstractExtension
     protected function getLoginElements(): array
     {
         $menu = [];
-        $currentLocale = $this->sessionManager->get('locale');
+        $currentLocale = $this->session->get('locale');
         foreach ($this->config['Locales'] ?? [] as $locale => $name) {
             if ($locale === $currentLocale) {
                 continue;
@@ -435,7 +435,7 @@ class NavBarExtension extends AbstractExtension
      */
     protected function filterByUser(array $menu, ?User $user): array
     {
-        if (!($level = $user?->getSessionType()?->getAccessLevel())) {
+        if (!($level = $user?->getAccessLevel())) {
             return [];
         }
         $result = [];

@@ -42,8 +42,8 @@ require_once 'pdf.php';
 require_once 'datefuncs.php';
 require_once 'miscfuncs.php';
 
-$baseId = getPostOrQuery('base', false);
-$companyId = getPostOrQuery('company', false);
+$baseId = getPostOrQuery('base');
+$companyId = getPostOrQuery('company');
 $foreword = getPostOrQuery('foreword', '');
 
 $strQuery = 'SELECT * FROM {prefix}company WHERE id=?';

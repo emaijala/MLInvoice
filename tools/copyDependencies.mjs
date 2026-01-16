@@ -7,6 +7,7 @@ const js = [
     'node_modules/bootstrap/dist/js/bootstrap.min.js',
     'node_modules/bootstrap/dist/js/bootstrap.min.js.map',
     'node_modules/@popperjs/core/dist/umd/popper.min.js',
+    'node_modules/@popperjs/core/dist/umd/popper.min.js.map',
     'node_modules/jquery/dist/jquery.min.js',
     'node_modules/datatables.net/js/jquery.dataTables.min.js',
     'node_modules/datatables.net-bs5/js/dataTables.bootstrap5.min.js',

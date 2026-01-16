@@ -224,7 +224,7 @@ MLInvoice.addModule('Form', function mlinvoiceForm() {
   function _saveStockBalance()
   {
     $.ajax({
-      url: 'json.php?func=update_stock_balance',
+      url: MLInvoice.getPath() + '/json?func=update_stock_balance',
       type: 'POST',
       data: {
         product_id: $('#record_id').val(),
@@ -248,7 +248,7 @@ MLInvoice.addModule('Form', function mlinvoiceForm() {
   {
     $('#stock_balance_change_log  > tbody > tr').slice(1).remove();
     $.ajax({
-      url: 'json.php?func=get_stock_balance_rows',
+      url: MLInvoice.getPath() + '/json?func=get_stock_balance_rows',
       type: 'POST',
       data: {
         product_id: $('#record_id').val(),
@@ -429,7 +429,7 @@ MLInvoice.addModule('Form', function mlinvoiceForm() {
         theme: "bootstrap-5",
         placeholder: '',
         ajax: {
-          url: 'json.php',
+          url: MLInvoice.getPath() + '/json',
           data: function defaultTextGetParams(term, page) { // page is the one-based page number tracked by Select2
             return {
               func: 'get_selectlist',
@@ -459,7 +459,7 @@ MLInvoice.addModule('Form', function mlinvoiceForm() {
         select.val(null).trigger('change');
         $.ajax(
           {
-            url: 'json.php',
+            url: MLInvoice.getPath() + '/json',
             data: {
               func: 'get_default_value',
               id: id
@@ -509,7 +509,7 @@ MLInvoice.addModule('Form', function mlinvoiceForm() {
         placeholder: '',
         allowClear: showEmpty,
         ajax: {
-          url: 'json.php?func=get_selectlist&' + query,
+          url: MLInvoice.getPath() + '/json?func=get_selectlist&' + query,
           quietMillis: 200,
           data: function getSelectListParams(term, page) {
             var params = {
@@ -585,7 +585,7 @@ MLInvoice.addModule('Form', function mlinvoiceForm() {
     var initialLoad = typeof eventData === 'undefined';
     $('#invoice_vatless').val('0');
     _addCompanyInfoTooltip('');
-    $.getJSON('json.php?func=get_company', {id: $('#company_id').val() }, function setCompanyData(json) {
+    $.getJSON(MLInvoice.getPath() + '/json?func=get_company', {id: $('#company_id').val() }, function setCompanyData(json) {
       if (json) {
         // First set values that always change for each company:
         if (json.info) {
@@ -612,7 +612,7 @@ MLInvoice.addModule('Form', function mlinvoiceForm() {
         }
         if (json.payment_days) {
           $.getJSON(
-            'json.php?func=get_invoice_defaults',
+            MLInvoice.getPath() + '/json?func=get_invoice_defaults',
             {
               id: $('#record_id').val(),
               invoice_no: $('#invoice_no').val(),
@@ -646,7 +646,7 @@ MLInvoice.addModule('Form', function mlinvoiceForm() {
     }
     var initialLoad = typeof eventData === 'undefined';
     _addCompanyInfoTooltip('');
-    $.getJSON('json.php?func=get_company', {id: $('#company_id').val() }, function setCompanyData(json) {
+    $.getJSON(MLInvoice.getPath() + '/json?func=get_company', {id: $('#company_id').val() }, function setCompanyData(json) {
       if (json) {
         if (json.info) {
           _addCompanyInfoTooltip(json.info);
@@ -672,7 +672,7 @@ MLInvoice.addModule('Form', function mlinvoiceForm() {
       return;
     }
     var form_id = this.form.id;
-    var url = 'json.php?func=get_product&id=' + encodeURIComponent(this.value);
+    var url = MLInvoice.getPath() + '/json?func=get_product&id=' + encodeURIComponent(this.value);
     var company_id = $('#company_id').val();
     if (company_id) {
       url += '&company_id=' + encodeURIComponent(company_id);
@@ -783,7 +783,7 @@ MLInvoice.addModule('Form', function mlinvoiceForm() {
     if (baseId === '') {
       return;
     }
-    $.getJSON('json.php?func=get_send_api_services', {invoice_id: String($('#record_id').val()), base_id: baseId}, function getSendApiButtonsDone(json) {
+    $.getJSON(MLInvoice.getPath() + '/json?func=get_send_api_services', {invoice_id: String($('#record_id').val()), base_id: baseId}, function getSendApiButtonsDone(json) {
       $.each(json.services, function addService(idx, service) {
 
         $('<a class="btn btn-secondary dropdown-toggle" href="#" role="button" id="dropdown-button-send-' + idx + '" data-bs-toggle="dropdown" aria-expanded="false">')
@@ -860,7 +860,7 @@ MLInvoice.addModule('Form', function mlinvoiceForm() {
       params.set('length', '30');
       params.set('query', JSON.stringify(query));
       fetch(
-        'json.php?func=get_list',
+        MLInvoice.getPath() + '/json?func=get_list',
         {
           method: 'POST',
           headers: {
@@ -978,7 +978,7 @@ MLInvoice.addModule('Form', function mlinvoiceForm() {
     var invoiceId = $('#attachments-form').data('invoiceId');
     var $list = $('<div/>');
     _maxAttachmentOrderNo = 0;
-    $.getJSON('json.php?func=get_invoice_attachments&parent_id=' + invoiceId, function getAttachmentsDone(json) {
+    $.getJSON(MLInvoice.getPath() + '/json?func=get_invoice_attachments&parent_id=' + invoiceId, function getAttachmentsDone(json) {
       var cnt = 0;
       $.each(json.records, function handleAttachment(idx, item) {
         cnt += 1;
@@ -991,7 +991,7 @@ MLInvoice.addModule('Form', function mlinvoiceForm() {
           .attr('title', MLInvoice.translate('RemoveAttachment'))
           .attr('aria-label', MLInvoice.translate('RemoveAttachment'))
           .on('click', function removeAttachment() {
-            $.getJSON('json.php?func=delete_invoice_attachment&id=' + item.id, function removeAttachmentDone() {
+            $.getJSON(MLInvoice.getPath() + '/json?func=delete_invoice_attachment&id=' + item.id, function removeAttachmentDone() {
               _updateAttachmentList();
             });
           });
@@ -1000,7 +1000,7 @@ MLInvoice.addModule('Form', function mlinvoiceForm() {
         var $send = $('<input>').attr('type', 'checkbox').data('id', item.id).prop('checked', item.send);
         $send.on('change', function onSendChange() {
           $.ajax({
-            url: 'json.php?func=put_invoice_attachment',
+            url: MLInvoice.getPath() + '/json?func=put_invoice_attachment',
             data: {
               id: $(this).data('id'),
               send: $(this).prop('checked') ? '1' : '0'
@@ -1021,7 +1021,7 @@ MLInvoice.addModule('Form', function mlinvoiceForm() {
           .attr('placeholder', MLInvoice.translate('Description'));
         $input.on('change', function onNameChange() {
           $.ajax({
-            url: 'json.php?func=put_invoice_attachment',
+            url: MLInvoice.getPath() + '/json?func=put_invoice_attachment',
             data: {
               id: $(this).data('id'),
               name: $(this).val()
@@ -1070,7 +1070,7 @@ MLInvoice.addModule('Form', function mlinvoiceForm() {
     });
     $('.add-attachment').on('click', function addAttachmentClick() {
       $.ajax({
-        url: 'json.php?func=add_invoice_attachment&id=' + $(this).data('id') + '&invoice_id=' + invoiceId,
+        url: MLInvoice.getPath() + '/json?func=add_invoice_attachment&id=' + $(this).data('id') + '&invoice_id=' + invoiceId,
         type: 'POST',
         dataType: 'json',
         success: function addAttachmentDone() {
@@ -1085,7 +1085,7 @@ MLInvoice.addModule('Form', function mlinvoiceForm() {
         formdata.append('invoice_id', invoiceId);
         formdata.append('order_no', _maxAttachmentOrderNo + 5);
         $.ajax({
-          url: 'json.php?func=put_invoice_attachment',
+          url: MLInvoice.getPath() + '/json?func=put_invoice_attachment',
           type: 'POST',
           dataType: 'json',
           data: formdata,
@@ -1202,7 +1202,7 @@ MLInvoice.addModule('Form', function mlinvoiceForm() {
       formdata.append('onPrint', onPrint);
     }
     $.ajax({
-      'url': 'json.php?func=put_' + _formConfig.type,
+      'url': MLInvoice.getPath() + '/json?func=put_' + _formConfig.type,
       'type': 'POST',
       'dataType': 'json',
       'data': formdata,
@@ -1278,7 +1278,7 @@ MLInvoice.addModule('Form', function mlinvoiceForm() {
     var subFormConfig = _subFormConfig;
     var listItems = _listItems;
     var that = this;
-    $.getJSON('json.php?func=' + func + '&parent_id=' + _formConfig.id, function handleRows(json) {
+    $.getJSON(MLInvoice.getPath() + '/json?func=' + func + '&parent_id=' + _formConfig.id, function handleRows(json) {
       var $table = $('#itable');
       $('#itable > tbody > tr[id!=form_row]').remove();
       $('#itable > tfoot').remove();
@@ -1553,7 +1553,7 @@ MLInvoice.addModule('Form', function mlinvoiceForm() {
     var subFormConfig = _subFormConfig;
     var that = this;
     $.ajax({
-      'url': 'json.php?func=put_' + _subFormConfig.type,
+      'url': MLInvoice.getPath() + '/json?func=put_' + _subFormConfig.type,
       'type': 'POST',
       'dataType': 'json',
       'data': JSON.stringify(obj),
@@ -1686,7 +1686,7 @@ MLInvoice.addModule('Form', function mlinvoiceForm() {
     req.changes = obj;
     req.parentId = $('#record_id').val();
     $.ajax({
-      'url': 'json.php?func=update_multiple',
+      'url': MLInvoice.getPath() + '/json?func=update_multiple',
       'type': 'POST',
       'dataType': 'json',
       'data': JSON.stringify(req),
@@ -1713,7 +1713,7 @@ MLInvoice.addModule('Form', function mlinvoiceForm() {
       orderno += 1;
     });
     $.ajax({
-      'url': 'json.php?func=update_row_order',
+      'url': MLInvoice.getPath() + '/json?func=update_row_order',
       'type': 'POST',
       'dataType': 'json',
       'data': JSON.stringify(req),
@@ -1731,7 +1731,7 @@ MLInvoice.addModule('Form', function mlinvoiceForm() {
       function mapIds() { return this.value; }
     ).get();
     $.ajax({
-      'url': 'json.php?func=delete_' + _subFormConfig.type,
+      'url': MLInvoice.getPath() + '/json?func=delete_' + _subFormConfig.type,
       'type': 'POST',
       'dataType': 'json',
       'data': req,
@@ -1746,7 +1746,7 @@ MLInvoice.addModule('Form', function mlinvoiceForm() {
     var form = $('#' + formId);
     var id = form.data('rowId');
     $.ajax({
-      'url': 'json.php?func=delete_' + _subFormConfig.type + '&id=' + id,
+      'url': MLInvoice.getPath() + '/json?func=delete_' + _subFormConfig.type + '&id=' + id,
       'type': 'GET',
       'dataType': 'json',
       'contentType': 'application/json; charset=utf-8',
@@ -1765,7 +1765,7 @@ MLInvoice.addModule('Form', function mlinvoiceForm() {
     $('#iform_popup .modification-indicator').addClass('hidden');
     $('#iform_popup input').data('modified', '');
     var subFormConfig = _subFormConfig;
-    $.getJSON('json.php?func=get_' + _subFormConfig.type + '&id=' + id, function initPopupEditor(json) {
+    $.getJSON(MLInvoice.getPath() + '/json?func=get_' + _subFormConfig.type + '&id=' + id, function initPopupEditor(json) {
       if (!json.id) {
         return;
       }
@@ -1922,7 +1922,7 @@ MLInvoice.addModule('Form', function mlinvoiceForm() {
     obj.city = document.getElementById('quick_city').value;
     obj.country = document.getElementById('quick_country').value;
     $.ajax({
-      url: 'json.php?func=put_company',
+      url: MLInvoice.getPath() + '/json?func=put_company',
       type: 'POST',
       dataType: 'json',
       data: JSON.stringify(obj),
@@ -1941,7 +1941,7 @@ MLInvoice.addModule('Form', function mlinvoiceForm() {
   function _initCompanyList(selected_id)
   {
     $.getJSON(
-      'json.php?func=get_company',
+      MLInvoice.getPath() + '/json?func=get_company',
       {id: selected_id},
       function getCompanyDone(record) {
         var text = record.company_name;
@@ -1967,7 +1967,7 @@ MLInvoice.addModule('Form', function mlinvoiceForm() {
   function _addReminderFees()
   {
     $.getJSON(
-      'json.php?func=add_reminder_fees&id=' + $('#record_id').val(),
+      MLInvoice.getPath() + '/json?func=add_reminder_fees&id=' + $('#record_id').val(),
       function onAddReminderFeesDone(json) {
         if (json.errors) {
           MLInvoice.errormsg(json.errors);
@@ -1992,7 +1992,7 @@ MLInvoice.addModule('Form', function mlinvoiceForm() {
     obj.order_no = 100000;
     obj.partial_payment = 1;
     $.ajax({
-      url: 'json.php?func=put_invoice_row',
+      url: MLInvoice.getPath() + '/json?func=put_invoice_row',
       type: 'POST',
       dataType: 'json',
       data: JSON.stringify(obj),
@@ -2017,7 +2017,7 @@ MLInvoice.addModule('Form', function mlinvoiceForm() {
     }
 
     $.ajax({
-      'url': 'json.php?func=get_base',
+      'url': MLInvoice.getPath() + '/json?func=get_base',
       'data': {
         'id': baseId
       },
@@ -2025,7 +2025,7 @@ MLInvoice.addModule('Form', function mlinvoiceForm() {
       'success': function getBaseDone(data) {
         var state = $('#state_id').val();
         $.ajax({
-          'url': 'json.php?func=get_invoice_state',
+          'url': MLInvoice.getPath() + '/json?func=get_invoice_state',
           'data': {
             'id': state
           },

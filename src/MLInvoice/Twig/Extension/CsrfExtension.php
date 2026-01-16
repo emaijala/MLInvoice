@@ -54,7 +54,7 @@ class CsrfExtension extends AbstractExtension
      *
      * @param Closure $csrfFactory CSRF guard factory callback
      */
-    public function __construct(protected Closure $csrfFactory)
+    public function __construct(#[Inject('CsrfGuardFactory')] protected Closure $csrfFactory)
     {
     }
 

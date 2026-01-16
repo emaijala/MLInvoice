@@ -60,13 +60,13 @@ class LoginAction extends AbstractAction
      * @param Translator      $translator      Translator
      * @param DatabaseUpdater $databaseUpdater Database updater
      * @param UserRepository  $userRepositoru  User database repository
-     * @param SessionManagerInterface&SessionInterface $sessionManager Session manager
+     * @param SessionInterface $session Session
      */
     public function __construct(
         Translator $translator,
         protected DatabaseUpdater $databaseUpdater,
         protected UserRepository $userRepository,
-        #[Inject(SessionManagerInterface::class)] protected SessionManagerInterface&SessionInterface $sessionManager,
+        protected SessionInterface $session,
     ) {
         parent::__construct($translator);
     }
@@ -102,18 +102,19 @@ class LoginAction extends AbstractAction
                         || md5($password) === $user->getPasswd()
                     ) {
                         // Login successful
-                        $this->sessionManager->set('user', $user->getId());
+                        $this->session->set('user', $user->getId());
+                        $this->session->set('accessLevel', $user->getAccessLevel());
                         $routeParser = RouteContext::fromRequest($request)->getRouteParser();
-                        $url = $this->sessionManager->get('redirect', $routeParser->urlFor('home'));
+                        $url = $this->session->get('redirect', $routeParser->urlFor('home'));
                         return $response
                             ->withHeader('Location', $url)
                             ->withStatus(302);
                     }
                 }
-                $this->sessionManager->getFlash()->add('error', 'InvalidCredentials');
+                $this->session->getFlash()->add('error', 'InvalidCredentials');
                 $loginFailed = true;
             } else {
-                $this->sessionManager->getFlash()->add('error', 'MissingFields');
+                $this->session->getFlash()->add('error', 'MissingFields');
             }
         }
 

@@ -4,7 +4,7 @@
  *
  * PHP version 8
  *
- * Copyright (C) Ere Maijala 2017-2024.
+ * Copyright (C) Ere Maijala 2017-2026.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2,
@@ -25,6 +25,11 @@
  * @license  http://opensource.org/licenses/gpl-2.0.php GNU General Public License
  * @link     http://labs.fi/mlinvoice.eng.php
  */
+
+namespace MLInvoice\Updater;
+
+use MLInvoice\I18n\Translator;
+
 require_once 'translator.php';
 require_once 'config.php';
 require_once 'miscfuncs.php';
@@ -50,6 +55,16 @@ class Updater
     protected $obsoleteFilesList = 'obsolete_files.txt';
 
     /**
+     * Constructor
+     *
+     * @param Translator $translator Translator
+     */
+    public function __construct(
+        protected Translator $translator,
+    ) {
+    }
+
+    /**
      * Start the updater
      *
      * @return void
@@ -57,7 +72,7 @@ class Updater
     public function launch()
     {
         if (!sesAdminAccess()) {
-            $this->error(Translator::translate('NoAccess'));
+            $this->error($this->translator->translate('NoAccess'));
             return false;
         }
 
@@ -157,7 +172,7 @@ class Updater
         }
         if ($unwritables) {
             $this->error(
-                Translator::Translate('UpdaterMissingWriteAccess') . ':<br><br>'
+                $this->translator->Translate('UpdaterMissingWriteAccess') . ':<br><br>'
                 . implode('<br>', $unwritables)
             );
             return false;
@@ -179,13 +194,13 @@ class Updater
         $this->message('ObsoleteFilesWillBeRemoved');
 
         $this->message(
-            Translator::translate(
+            $this->translator->translate(
                 'UpdatedVersionAvailable',
                 [
                     '%%version%%' => $versionInfo['version'],
                     '%%currentversion%%' => $softwareVersion,
                     '%%date%%' => DateTime::createFromFormat('Y-m-d', $versionInfo['date'])
-                        ->format(Translator::translate('DateFormat'))
+                        ->format($this->translator->translate('DateFormat'))
                 ]
             ),
             true
@@ -193,7 +208,7 @@ class Updater
 
         if (!empty($versionInfo['channel']) && $versionInfo['channel'] !== 'production') {
             $this->message(
-                Translator::translate(
+                $this->translator->translate(
                     'UpdateFromChannel',
                     ['%%channel%%' => $versionInfo['channel']]
                 ),
@@ -208,7 +223,7 @@ class Updater
             );
             if ($res < 0) {
                 $this->error(
-                    Translator::translate(
+                    $this->translator->translate(
                         'UpdatePHPHigherVersionRequired',
                         [
                             '%%currentVersion%%' => PHP_VERSION,
@@ -224,7 +239,7 @@ class Updater
         if (!empty($versionInfo['url'])) {
             $this->message(
                 '<a href="' . htmlentities($versionInfo['url']) . '" target="_blank">'
-                . Translator::Translate('UpdateInformation')
+                . $this->translator->Translate('UpdateInformation')
                 . '</a>',
                 true
             );
@@ -607,7 +622,7 @@ class Updater
      */
     protected function heading($str)
     {
-        $str = Translator::translate($str);
+        $str = $this->translator->translate($str);
         echo "<div class=\"form_container\"><h2>$str</h2></div>";
     }
 
@@ -621,7 +636,7 @@ class Updater
      */
     protected function message($msg, bool $simple = false)
     {
-        $msg = Translator::translate($msg);
+        $msg = $this->translator->translate($msg);
         if ($simple) {
             echo <<<EOT
 <div class="form_container">
@@ -648,7 +663,7 @@ EOT;
      */
     protected function error($msg)
     {
-        $msg = Translator::translate($msg);
+        $msg = $this->translator->translate($msg);
         echo <<<EOT
 <div class="form_container">
   <div class="alert alert-danger message">
@@ -673,7 +688,7 @@ EOT;
         if ($params) {
             $target .= '&' . http_build_query($params);
         }
-        $message = Translator::translate($message);
+        $message = $this->translator->translate($message);
         echo <<<EOT
 <div class="form_container">
   <a role="button" class="btn btn-primary" href="$target">$message</a>
@@ -690,9 +705,9 @@ EOT;
      */
     protected function startUpdatePrompt(array $params)
     {
-        $backupDescription = Translator::translate('UpdateBackupDescription');
-        $createBackup = Translator::translate('UpdateCreateBackup');
-        $message = Translator::translate('StartUpdate');
+        $backupDescription = $this->translator->translate('UpdateBackupDescription');
+        $createBackup = $this->translator->translate('UpdateCreateBackup');
+        $message = $this->translator->translate('StartUpdate');
         $hiddenFields = '';
         foreach ($params as $name => $value) {
             $name = htmlspecialchars($name);

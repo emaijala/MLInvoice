@@ -41,8 +41,8 @@ require_once 'translator.php';
 require_once 'datefuncs.php';
 require_once 'miscfuncs.php';
 
-$id = getPostOrQuery('id', false);
-$type = getPostOrQuery('type', false);
+$id = getPostOrQuery('id');
+$type = getPostOrQuery('type');
 
 $attachment = 'invoice' === $type ? getInvoiceAttachment($id) : getAttachment($id);
 if ($attachment) {

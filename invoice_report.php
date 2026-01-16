@@ -288,8 +288,8 @@ class InvoiceReport extends AbstractReport
      */
     protected function addLimitSelection()
     {
-        $intBaseId = getPostOrQuery('base', false);
-        $intCompanyId = getPostOrQuery('company', false);
+        $intBaseId = getPostOrQuery('base');
+        $intCompanyId = getPostOrQuery('company');
         $invoiceDateRange = getPostOrQuery('date', '');
         $invoiceRowDateRange = getPostOrQuery('row_date', '');
         $paymentDateRange = getPostOrQuery('payment_date', '');
@@ -388,7 +388,7 @@ class InvoiceReport extends AbstractReport
             $intStateId = $row['id'];
             $strStateName = $row['name'];
             $strTemp = "stateid_$intStateId";
-            $tmpSelected = getPostOrQuery($strTemp, false);
+            $tmpSelected = getPostOrQuery($strTemp);
             if ($tmpSelected) {
                 $strQuery2 .= 'i.state_id = ? OR ';
                 $arrParams[] = $intStateId;

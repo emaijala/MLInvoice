@@ -11,6 +11,7 @@ var MLInvoice = (function CreateMLInvoice() {
   var _currencyDecimals = 2;
   var _dateRangePickerDefaults = {};
   var _dateFormat = 'DD.MM.YYYY';
+  var _path = '';
 
   function addTranslation(key, value) {
     _translations[key] = value;
@@ -93,7 +94,7 @@ var MLInvoice = (function CreateMLInvoice() {
   }
 
   function _keepAlive() {
-    $.getJSON('json.php?func=noop').done(function noopDone() {
+    $.getJSON(MLInvoice.getPath() + '/json?func=noop').done(function noopDone() {
       window.setTimeout(_keepAlive, 60 * 1000);
     });
   }
@@ -154,7 +155,7 @@ var MLInvoice = (function CreateMLInvoice() {
         valid_until: form.find('#valid_until').val()
       };
       $.ajax({
-        url: 'json.php?func=put_custom_prices',
+        url: MLInvoice.getPath() + '/json?func=put_custom_prices',
         type: 'POST',
         dataType: 'json',
         data: JSON.stringify(values),
@@ -171,7 +172,7 @@ var MLInvoice = (function CreateMLInvoice() {
         company_id: $('#company_id').val(),
       };
       $.ajax({
-        url: 'json.php?func=delete_custom_prices',
+        url: MLInvoice.getPath() + '/json?func=delete_custom_prices',
         type: 'POST',
         dataType: 'json',
         data: JSON.stringify(values),
@@ -218,7 +219,7 @@ var MLInvoice = (function CreateMLInvoice() {
         unit_price: parseDecimal(value)
       };
       $.ajax({
-        url: 'json.php?func=' + ('' === value ? 'delete_custom_price' : 'put_custom_price'),
+        url: MLInvoice.getPath() + '/json?func=' + ('' === value ? 'delete_custom_price' : 'put_custom_price'),
         type: 'POST',
         dataType: 'json',
         data: JSON.stringify(values),
@@ -342,7 +343,7 @@ var MLInvoice = (function CreateMLInvoice() {
       _updateVersionMessage(JSON.parse(Cookies.get('updateversion')), currentVersion);
       return;
     }
-    $.getJSON('json.php?func=get_update_info', function getUpdateInfoDone(data) {
+    $.getJSON(MLInvoice.getPath() + '/json?func=get_update_info', function getUpdateInfoDone(data) {
       _updateVersionMessage(data);
       Cookies.set('currentversion', currentVersion);
     });
@@ -599,7 +600,7 @@ var MLInvoice = (function CreateMLInvoice() {
     });
     $('.update-dates').on('click', function updateDatesClick() {
       $.getJSON(
-        'json.php?func=get_invoice_defaults',
+        MLInvoice.getPath() + '/json?func=get_invoice_defaults',
         {
           id: $('#record_id').val(),
           invoice_no: $('#invoice_no').val(),
@@ -618,7 +619,7 @@ var MLInvoice = (function CreateMLInvoice() {
     });
     $('a.update-invoice-nr').on('click', function updateInvoiceNrClick() {
       $.getJSON(
-        'json.php?func=get_invoice_defaults',
+        MLInvoice.getPath() + '/json?func=get_invoice_defaults',
         {
           id: $('#record_id').val(),
           invoice_no: $('#invoice_no').val(),
@@ -644,7 +645,7 @@ var MLInvoice = (function CreateMLInvoice() {
       query = query.replace(/([?&]func=)results/, '$1save_search');
       query += '&name=' + encodeURIComponent($('#search_name').val());
       $.getJSON(
-        'json.php' + query,
+        MLInvoice.getPath() + '/json' + query,
         function saveSearchDone(json) {
           if (json.errors) {
             MLInvoice.errormsg(json.errors);
@@ -727,7 +728,7 @@ var MLInvoice = (function CreateMLInvoice() {
     if (!id) {
       return;
     }
-    $.get('json.php?func=get_base&id=' + id, function handleResult(data) {
+    $.get(MLInvoice.getPath() + '/json?func=get_base&id=' + id, function handleResult(data) {
       if (data.logo_filename && data.logo_filesize && data.logo_filetype && data.logo_filedata) {
         $logo.find('img')
           .attr('src', 'data:image/' + data.logo_filetype + ';base64,' + data.logo_filedata)
@@ -789,6 +790,12 @@ var MLInvoice = (function CreateMLInvoice() {
     _currencyDecimals = config.currencyDecimals;
     _dateFormat = config.dateFormat;
     _dateRangePickerDefaults = config.dateRangePickerOptions;
+    _path = config.path;
+  }
+
+  function getPath()
+  {
+    return _path;
   }
 
   return {
@@ -821,7 +828,8 @@ var MLInvoice = (function CreateMLInvoice() {
     initTableExportButtons,
     highlightButton,
     updateBaseLogo,
-    createDataTablesTotalFooter
+    createDataTablesTotalFooter,
+    getPath
   }
 })();
 

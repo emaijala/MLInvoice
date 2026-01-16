@@ -30,6 +30,8 @@ declare(strict_types=1);
 
 namespace MLInvoice\Twig\Extension;
 
+use Closure;
+use DI\Attribute\Inject;
 use MLInvoice\Database\Repository\CustomPriceRepository;
 use MLInvoice\Database\Repository\PrintTemplateRepository;
 use MLInvoice\InvoicePrinter\InvoicePrinterBlank;
@@ -53,12 +55,15 @@ class ListExtension extends AbstractExtension
 {
     /**
      * Constructor
+     *
+     * @param Closure $csrfFactory CSRF guard factory callback
      */
     public function __construct(
         protected ListService $listService,
         protected PrintTemplateRepository $printTemplateRepository,
         protected CustomPriceRepository $customPriceRepository,
         protected InvoicePrinterFactory $invoicePrinterFactory,
+        #[Inject('CsrfGuardFactory')] protected Closure $csrfFactory,
     ) {
     }
 
@@ -143,8 +148,12 @@ class ListExtension extends AbstractExtension
         }
         $params['query'] = $searchParams;
 
+        $csrf = ($this->csrfFactory)();
+        $params[$csrf->getTokenNameKey()] = $csrf->getTokenName();
+        $params[$csrf->getTokenValueKey()] = $csrf->getTokenValue();
+
         // Adjust fields for the template:
-        array_map(
+        $listConfig['fields'] = array_map(
             function ($field) use ($customPriceSettings) {
                 if (!empty($field['width'])) {
                     $field['width'] .= 'px';
@@ -160,6 +169,7 @@ class ListExtension extends AbstractExtension
                 } else {
                     $field['class'] = '';
                 }
+                return $field;
             },
             $listConfig['fields']
         );

@@ -4,7 +4,7 @@
  *
  * PHP version 8
  *
- * Copyright (C) Ere Maijala 2017-2021.
+ * Copyright (C) Ere Maijala 2017-2026.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2,
@@ -20,7 +20,7 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  *
  * @category MLInvoice
- * @package  MLInvoice\Base
+ * @package  MLInvoice\I18n
  * @author   Ere Maijala <ere@labs.fi>
  * @license  http://opensource.org/licenses/gpl-2.0.php GNU General Public License
  * @link     http://labs.fi/mlinvoice.eng.php
@@ -36,7 +36,7 @@ use Odan\Session\SessionManagerInterface;
  * Translator
  *
  * @category MLInvoice
- * @package  MLInvoice\Base
+ * @package  MLInvoice\I18n
  * @author   Ere Maijala <ere@labs.fi>
  * @license  http://opensource.org/licenses/gpl-2.0.php GNU General Public License
  * @link     http://labs.fi/mlinvoice.eng.php

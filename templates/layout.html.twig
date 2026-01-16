@@ -42,7 +42,7 @@
     {% endif %}
     <script>
       moment.locale('{{ lang }}');
-      MLInvoice.setConfig({{ get_js_config() }});
+      MLInvoice.setConfig({{ get_js_config(base_path()) }});
     </script>
     {% block headscripts %}{% endblock %}
     <link rel="shortcut icon" href="{{ asset('images/favicon.ico') }}" type="image/x-icon">
