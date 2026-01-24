@@ -662,7 +662,7 @@ case 'invoice_template':
     $strParentKey = 'invoice_id';
     $addressAutocomplete = true;
     $defaultState = 1;
-    $isOffer = false;
+    $isOffer = 'offer' === $strForm;
     $isTemplate = 'invoice_template' === $strForm;
 
     $arrRefundedInvoice = [
@@ -671,7 +671,9 @@ case 'invoice_template':
     $arrRefundingInvoice = [
         'allow_null' => true
     ];
-    $intInvoiceId = intval(getPostOrQuery('id', 0));
+    $id = getPostOrQuery('id', 0);
+    // Avoid casting array of multiedit to int:
+    $intInvoiceId = !is_array($id) ? (int)$id : 0;
     if ($intInvoiceId) {
         $intInvoiceId = is_array($intInvoiceId) ? $intInvoiceId[0] : $intInvoiceId;
         $isOffer = isOffer($intInvoiceId);
