@@ -5,7 +5,7 @@ RUN apk --no-cache add nginx php83-ctype php83-mbstring php83-fpm php83-mysqli p
 
 WORKDIR /work
 
-RUN curl -o mlinvoice.zip https://labs.fi/files/mlinvoice-2.4.0.zip
+RUN curl -o mlinvoice.zip https://labs.fi/files/mlinvoice-2.4.1.zip
 RUN unzip mlinvoice.zip
 RUN rm mlinvoice.zip
 
