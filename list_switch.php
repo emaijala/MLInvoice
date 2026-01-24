@@ -292,7 +292,11 @@ case 'offer':
     ];
     $strGroupBy = 'i.id, i.deleted, i.invoice_date, i.due_date, i.invoice_no,'
         . ' b.name, c.company_name, i.name, s.name, i.ref_number';
-    $strMainForm = $strList === 'invoice_templates' ? 'invoice_template' : 'invoice';
+    $strMainForm = match ($strList) {
+        'invoice_templates' => 'invoice_template',
+        'offer' => 'offer',
+        default => 'invoice'
+    };
     break;
 
 /***********************************************************************

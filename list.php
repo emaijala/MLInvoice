@@ -396,7 +396,7 @@ function createList($strFunc, $strList, $strTableName = '', $strTitleOverride = 
         <form method="POST">
             <input type="hidden" name="func" value="multiedit">
             <input type="hidden" name="list" value="<?php echo htmlentities($strList)?>">
-            <input type="hidden" name="form" value="<?php echo htmlentities($strList === 'open_invoice' ? 'invoice' : $strList)?>">
+            <input type="hidden" name="form" value="<?php echo htmlentities($listConfig['mainForm'] ?? $strList)?>">
         <?php
     }
     ?>

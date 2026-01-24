@@ -27,6 +27,7 @@
  */
 require_once 'navi.php';
 require_once 'miscfuncs.php';
+require_once 'htmlfuncs.php';
 require_once 'mailer.php';
 
 /**
