@@ -173,6 +173,10 @@ case 'offer':
             'type' => 'TEXT'
         ],
         [
+            'name' => 'i.reference',
+            'type' => 'TEXT'
+        ],
+        [
             'name' => 'i.name',
             'type' => 'TEXT'
         ],
