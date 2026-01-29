@@ -650,7 +650,7 @@ function createJSONList(
             $resultObject[$name] = $value;
 
             // Special colouring for overdue invoices
-            if ($highlight && 'invoices' === $strList && $name == 'due_date') {
+            if ($highlight && 'invoice' === $strList && $name == 'due_date') {
                 $rowDue = dbDate2UnixTime($row['due_date']);
                 if ($rowDue < mktime(0, 0, 0, date("m"), date("d") - 14, date("Y"))
                 ) {

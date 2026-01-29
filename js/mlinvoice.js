@@ -632,7 +632,7 @@ var MLInvoice = (function CreateMLInvoice() {
       );
       return false;
     });
-    $('a.update-invoice-nr').on('click', function updateInvoiceNrClick() {
+    $('.update-invoice-nr').on('click', function updateInvoiceNrClick() {
       $.getJSON(
         'json.php?func=get_invoice_defaults',
         {
