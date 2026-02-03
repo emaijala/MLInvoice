@@ -47,7 +47,7 @@ use MLInvoice\Database\Feature\DateTimeTrait;
  */
 #[ORM\Entity(repositoryClass: CustomPriceRepository::class)]
 #[ORM\Table(name: 'custom_price')]
-class CustomPrice
+class CustomPrice implements EntityInterface
 {
     use DateTimeTrait;
 

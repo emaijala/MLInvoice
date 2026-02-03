@@ -44,12 +44,12 @@ use MLInvoice\Database\Entity\CompanyContact;
  */
 #[ORM\Entity(repositoryClass: ContactTagLinkRepository::class)]
 #[ORM\Table(name: 'contact_tag_link')]
-class ContactTagLink
+class ContactTagLink implements EntityInterface
 {
     #[ORM\Id]
     #[ORM\Column(type: 'integer')]
     #[ORM\GeneratedValue]
-    /** @var int|null */
+    /** @var ?null */
     protected ?int $id = null;
 
     #[ORM\ManyToOne(targetEntity: ContactTag::class, inversedBy: 'links')]

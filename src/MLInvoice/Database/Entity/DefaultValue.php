@@ -42,12 +42,12 @@ use MLInvoice\Database\Repository\DefaultValueRepository;
  */
 #[ORM\Entity(repositoryClass: DefaultValueRepository::class)]
 #[ORM\Table(name: 'default_value')]
-class DefaultValue
+class DefaultValue implements EntityInterface, SoftDeleteInterface
 {
     #[ORM\Id]
     #[ORM\Column(type: 'integer')]
     #[ORM\GeneratedValue]
-    /** @var int|null */
+    /** @var ?null */
     protected ?int $id = null;
 
     #[ORM\Column(type: 'boolean')]
@@ -58,8 +58,12 @@ class DefaultValue
     /** @var ?string */
     protected ?string $name = null;
 
+    /**
+     * Sort order
+     *
+     * @var ?null
+     */
     #[ORM\Column(name: 'order_no', type: 'integer', nullable: true)]
-    /** @var int|null */
     protected ?int $orderNo = null;
 
     #[ORM\Column(type: 'string', length: 100, nullable: true)]
@@ -129,7 +133,7 @@ class DefaultValue
     }
 
     /**
-     *
+     * Get sort order.
      *
      * @return ?int
      */
@@ -139,15 +143,16 @@ class DefaultValue
     }
 
     /**
+     * Set sort order.
      *
-     *
-     * @param int|null $v
+     * @param ?null $v Value
      *
      * @return static
      */
     public function setOrderNo(?int $v): static
     {
-        $this->orderNo = $v; return $this;
+        $this->orderNo = $v;
+        return $this;
     }
 
     /**

@@ -4,7 +4,7 @@
  *
  * PHP version 8
  *
- * Copyright (C) Ere Maijala 2010-2026.
+ * Copyright (C) Ere Maijala 2026.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2,
@@ -97,7 +97,7 @@ class ListExtension extends AbstractExtension
     function createListConfig(string $listType, string $listId, array $searchParams,
         string $titleOverride = '', ?int $searchId = null, bool $highlightOverdue = false,
         string $printType = '', ?int $companyId = null
-    ) {
+    ): array {
         $listConfig = $this->listService->getListConfig($listType);
         if (!$listConfig) {
             return [];

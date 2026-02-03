@@ -28,8 +28,11 @@
 
 namespace MLInvoice\Database\Entity;
 
+use DateTime;
 use Doctrine\ORM\Mapping as ORM;
+use MLInvoice\Database\Feature\DateTimeTrait;
 use MLInvoice\Database\Repository\InvoiceRowRepository;
+use MLInvoice\Database\Repository\RowTypeRepository;
 
 /**
  * InvoiceRow Entity.
@@ -42,44 +45,146 @@ use MLInvoice\Database\Repository\InvoiceRowRepository;
  */
 #[ORM\Entity(repositoryClass: InvoiceRowRepository::class)]
 #[ORM\Table(name: 'invoice_row')]
-class InvoiceRow implements ExchangeArrayInterface
+class InvoiceRow implements EntityInterface, SoftDeleteInterface, ExchangeArrayInterface
 {
+    use DateTimeTrait;
     use ExchangeArrayTrait;
 
+    /**
+     * ID
+     *
+     * @var ?null
+     */
     #[ORM\Id]
     #[ORM\Column(type: 'integer')]
     #[ORM\GeneratedValue]
-    /** @var int|null */
     protected ?int $id = null;
 
+    /**
+     * Deleted flag
+     *
+     * @var bool
+     */
     #[ORM\Column(type: 'boolean')]
-    /** @var bool */
     protected bool $deleted = false;
 
+    /**
+     * Invoice
+     *
+     * @var ?Invoice
+     */
     #[ORM\ManyToOne(targetEntity: Invoice::class, inversedBy: 'rows')]
     #[ORM\JoinColumn(name: 'invoice_id', referencedColumnName: 'id', nullable: true, onDelete: 'CASCADE')]
-    /** @var Invoice|null */
     protected ?Invoice $invoice = null;
 
+    /**
+     * Product
+     *
+     * @var ?Product
+     */
     #[ORM\ManyToOne(targetEntity: Product::class, inversedBy: 'invoiceRows')]
     #[ORM\JoinColumn(name: 'product_id', referencedColumnName: 'id', nullable: true)]
-    /** @var Product|null */
     protected ?Product $product = null;
 
+    /**
+     * Description
+     *
+     * @var ?string
+     */
     #[ORM\Column(type: 'string', length: 255, nullable: true)]
-    /** @var ?string */
     protected ?string $description = null;
 
+    /**
+     * Row type
+     *
+     * @var ?RowType
+     */
+    #[ORM\ManyToOne(targetEntity: RowTypeRepository::class)]
+    #[ORM\JoinColumn(name: 'type_id', referencedColumnName: 'id', nullable: true)]
+    protected ?RowType $type = null;
+
+    /**
+     * Pieces
+     *
+     * @var ?string
+     */
     #[ORM\Column(type: 'decimal', precision: 9, scale: 2, nullable: true)]
-    /** @var ?string */
     protected ?string $pcs = null;
 
+    /**
+     * Price
+     *
+     * @var ?string
+     */
     #[ORM\Column(type: 'decimal', precision: 15, scale: 5, nullable: true)]
-    /** @var ?string */
     protected ?string $price = null;
 
     /**
+     * Date
      *
+     * @var ?int
+     */
+    #[ORM\Column(type: 'integer', nullable: true)]
+    protected ?int $date;
+
+    /**
+     * VAT percent
+     *
+     * @var string
+     */
+    #[ORM\Column(type: 'decimal', precision: 9, scale: 1)]
+    protected string $vat = '0';
+
+    /**
+     * VAT included flag
+     *
+     * @var bool
+     */
+    #[ORM\Column(name: 'vat_included', type: 'boolean')]
+    protected bool $vatIncluded = false;
+
+    /**
+     * Order number
+     *
+     * @var ?int
+     */
+    #[ORM\Column(name: 'order_no', type: 'integer', nullable: true)]
+    protected ?int $orderNo;
+
+    /**
+     * Reminder row flag
+     *
+     * @var bool
+     */
+    #[ORM\Column(name: 'reminder_row', type: 'boolean')]
+    protected bool $reminder = false;
+
+    /**
+     * Partial payment flag
+     *
+     * @var bool
+     */
+    #[ORM\Column(name: 'partial_payment', type: 'boolean')]
+    protected bool $partialPayment = false;
+
+    /**
+     * Discount
+     *
+     * @var ?string
+     */
+    #[ORM\Column(type: 'decimal', precision: 4, scale: 1, nullable: true)]
+    protected ?string $discount = null;
+
+    /**
+     * Discount amount
+     *
+     * @var ?string
+     */
+    #[ORM\Column(type: 'decimal', precision: 15, scale: 5, nullable: true)]
+    protected ?string $discountAmount = null;
+
+    /**
+     * Get ID.
      *
      * @return ?int
      */
@@ -89,7 +194,7 @@ class InvoiceRow implements ExchangeArrayInterface
     }
 
     /**
-     *
+     * Get deleted flag.
      *
      * @return bool
      */
@@ -99,21 +204,22 @@ class InvoiceRow implements ExchangeArrayInterface
     }
 
     /**
+     * Set deleted flag.
      *
-     *
-     * @param bool $v
+     * @param bool $v New value
      *
      * @return static
      */
     public function setDeleted(bool $v): static
     {
-        $this->deleted = $v; return $this;
+        $this->deleted = $v;
+        return $this;
     }
 
     /**
+     * Get invoice.
      *
-     *
-     * @return Invoice|null
+     * @return ?Invoice
      */
     public function getInvoice(): ?Invoice
     {
@@ -121,21 +227,22 @@ class InvoiceRow implements ExchangeArrayInterface
     }
 
     /**
+     * Set invoice.
      *
-     *
-     * @param Invoice|null $i
+     * @param ?Invoice $i
      *
      * @return static
      */
     public function setInvoice(?Invoice $i): static
     {
-        $this->invoice = $i; return $this;
+        $this->invoice = $i;
+        return $this;
     }
 
     /**
+     * Get product.
      *
-     *
-     * @return Product|null
+     * @return ?Product
      */
     public function getProduct(): ?Product
     {
@@ -143,19 +250,20 @@ class InvoiceRow implements ExchangeArrayInterface
     }
 
     /**
+     * Set product.
      *
-     *
-     * @param Product|null $p
+     * @param ?Product $p Product
      *
      * @return static
      */
     public function setProduct(?Product $p): static
     {
-        $this->product = $p; return $this;
+        $this->product = $p;
+        return $this;
     }
 
     /**
-     *
+     * Get description.
      *
      * @return ?string
      */
@@ -165,19 +273,43 @@ class InvoiceRow implements ExchangeArrayInterface
     }
 
     /**
+     * Set description.
      *
-     *
-     * @param ?string $d
+     * @param ?string $d Description
      *
      * @return static
      */
     public function setDescription(?string $d): static
     {
-        $this->description = $d; return $this;
+        $this->description = $d;
+        return $this;
     }
 
     /**
+     * Get row type.
      *
+     * @return ?RowType
+     */
+    public function getType(): ?RowType
+    {
+        return $this->type;
+    }
+
+    /**
+     * Set row type.
+     *
+     * @param ?RowType $t Type
+     *
+     * @return static
+     */
+    public function setType(?RowType $t): static
+    {
+        $this->type = $t;
+        return $this;
+    }
+
+    /**
+     * Get pieces.
      *
      * @return ?string
      */
@@ -187,19 +319,20 @@ class InvoiceRow implements ExchangeArrayInterface
     }
 
     /**
+     * Set pieces.
      *
-     *
-     * @param ?string $v
+     * @param ?string $v New value
      *
      * @return static
      */
     public function setPcs(?string $v): static
     {
-        $this->pcs = $v; return $this;
+        $this->pcs = $v;
+        return $this;
     }
 
     /**
-     *
+     * Get price.
      *
      * @return ?string
      */
@@ -209,14 +342,199 @@ class InvoiceRow implements ExchangeArrayInterface
     }
 
     /**
+     * Set price.
      *
-     *
-     * @param ?string $v
+     * @param ?string $v New value
      *
      * @return static
      */
     public function setPrice(?string $v): static
     {
-        $this->price = $v; return $this;
+        $this->price = $v;
+        return $this;
+    }
+
+    /**
+     * Get date.
+     *
+     * @return ?DateTime
+     */
+    public function getDate(): ?DateTime
+    {
+        return $this->getDateTimeFromDbFormat($this->date);
+    }
+
+    /**
+     * Set date.
+     *
+     * @param ?DateTime $d New value
+     *
+     * @return static
+     */
+    public function setDate(?DateTime $d): static
+    {
+        $this->date = $this->getDbFormatFromDateTime($d);
+        return $this;
+    }
+
+    /**
+     * Get VAT percent.
+     *
+     * @return string
+     */
+    public function getVat(): string
+    {
+        return $this->vat;
+    }
+
+    /**
+     * Set VAT percent.
+     *
+     * @param string $v VAT
+     *
+     * @return static
+     */
+    public function setVat(string $v): static
+    {
+        $this->vat = $v;
+        return $this;
+    }
+
+    /**
+     * Get VAT included flag.
+     *
+     * @return bool
+     */
+    public function getVatIncluded(): bool
+    {
+        return $this->vatIncluded;
+    }
+
+    /**
+     * Set VAT included flag.
+     *
+     * @param  $v New value
+     *
+     * @return static
+     */
+    public function setVatIncluded($v): static
+    {
+        $this->vatIncluded = $v;
+        return $this;
+    }
+
+    /**
+     * Get order number.
+     *
+     * @return ?int
+     */
+    public function getOrderNo(): ?int
+    {
+        return $this->orderNo;
+    }
+
+    /**
+     * Set order number.
+     *
+     * @param ?int $v New value
+     *
+     * @return static
+     */
+    public function setOrderNo(?int $v): static
+    {
+        $this->orderNo = $v;
+        return $this;
+    }
+
+    /**
+     * Get reminder row flag.
+     *
+     * @return bool
+     */
+    public function getReminder(): bool
+    {
+        return $this->reminder;
+    }
+
+    /**
+     * Set reminder row flag.
+     *
+     * @param bool $v New value
+     *
+     * @return static
+     */
+    public function setReminder(bool $v): static
+    {
+        $this->reminder = $v;
+        return $this;
+    }
+
+    /**
+     * Get partial payment flag.
+     *
+     * @return bool
+     */
+    public function getPartialPayment(): bool
+    {
+        return $this->partialPayment;
+    }
+
+    /**
+     * Set partial payment flag.
+     *
+     * @param bool $v New value
+     *
+     * @return static
+     */
+    public function setPartialPayment(bool $v): static
+    {
+        $this->partialPayment = $v;
+        return $this;
+    }
+
+    /**
+     * Get discount.
+     *
+     * @return ?string
+     */
+    public function getDiscount(): ?string
+    {
+        return $this->discount;
+    }
+
+    /**
+     * Set discount.
+     *
+     * @param ?string $v New value
+     *
+     * @return static
+     */
+    public function setDiscount(?string $v): static
+    {
+        $this->discount = $v;
+        return $this;
+    }
+
+    /**
+     * Get discount amount.
+     *
+     * @return ?string
+     */
+    public function getDiscountAmount(): ?string
+    {
+        return $this->discountAmount;
+    }
+
+    /**
+     * Set discount amount.
+     *
+     * @param ?string $v New value
+     *
+     * @return static
+     */
+    public function setDiscountAmount(?string $v): static
+    {
+        $this->discountAmount = $v;
+        return $this;
     }
 }

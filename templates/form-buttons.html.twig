@@ -1,0 +1,276 @@
+{% if !write_access %}
+  <div class="btn-set" role="group"></div>
+{% else %}
+  <div class="btn-set" role="group">
+    {% if !formConfig.readOnly %}
+      <a role="button" class="btn btn-outline-primary save_button" href="#">
+        {{ 'Save'|trans }}
+      </a>
+    {% endif %}
+
+    {% if id && top %}
+      {% if formConfig.type !== 'user' %}
+        {% if formConfig.copyLink %}
+          <a role="button" class="btn btn-secondary" href="{{ formConfig.copyLink|escape }}">
+            {{ 'Copy'|trans }}
+          </a>
+        {% else %}
+          <a role="button" class="btn btn-secondary form-submit" href="#" data-form="form" data-set-field="action=copy">
+            {{ 'Copy'|trans }}
+          </a>
+        {% endif %}
+
+        {% set newLink = url_for(formConfig.type, {id: 'new'})  %}
+        <a role="button" class="btn btn-secondary" href="{{ newLink|escape }}">
+            {{ 'New'|trans }}
+        </a>
+
+        {% if !formConfig.readOnly && !data.deleted %}
+          <a role="button" class="btn btn-secondary" href="#" data-bs-toggle="dropdown" aria-expanded="false">
+              {{ 'Delete'|trans }}
+          </a>
+          <ul class="dropdown-menu">
+            <li>
+              <a class="dropdown-item form-submit" href="#" data-form="form" data-set-field="action=delete">
+                {{ 'ConfirmDelete'|trans }}
+              </a>
+            </li>
+          </ul>
+          {{ formConfig.extraButtons }}
+        {% endif %}
+      {% endif %}
+
+      {% if !formConfig.readOnly && formConfig.type === 'company' %}
+        <a role="button" class="btn btn-secondary ytj_search_button" href="#">{{ 'SearchYTJ'|trans }}</a>
+      {% endif %}
+    </div>
+
+    {% if id && formConfig.type === 'company' %}
+      <div class="btn-set">
+        <a role="button" id="cover-letter-button" class="btn btn-secondary" href="#">
+            {{ 'PrintCoverLetter'|trans }}
+        </a>
+        <a role="button" class="btn btn-secondary" href="?func=invoices&amp;form=invoice&amp;company_id=<?php echo $id?>">
+            {{ 'AddInvoice'|trans }}
+        </a>
+        <a role="button" class="btn btn-secondary" href="?func=invoices&amp;form=invoice&amp;company_id=<?php echo $id?>&amp;offer=1">
+            {{ 'AddOffer'|trans }}
+        </a>
+        <a role="button" id="client_invoices_button" class="btn btn-secondary dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false" href="#">
+            {{ 'InvoicesAndOffers'|trans }}
+        </a>
+        <ul class="dropdown-menu" aria-labelledby="client_invoices_button">
+          {% for link in getCompanyInvoiceSearchLinks(id) %}
+            <li>
+              <a class="dropdown-item" href="{{ link.url|escape }}">
+                {{ link.name|trans }}
+              </a>
+            </li>
+          {% endfor %}
+        </ul>
+      </div>
+    {% endif %}
+
+    {% if listId && id %}
+      {% for link in getListNavigationsLinks(listId, id) }
+        {% if link.id %}
+          <a role="button" href="{{ url_for(route.name, { id: link.id }) }}" class="btn btn-outline-secondary nav__previous">
+            link.label|trans
+          </a>
+        {% else %}
+          <a role="button" class="btn btn-outline-secondary disabled nav__previous--disabled" aria-disabled="true">
+            link.label|trans
+          </a>
+        {% endif %}
+      {% endfor %}
+    {% endif %}
+
+    {% if top && id && 'company' === form %}
+      <div id="cover-letter-form" class="card hidden">
+        <div class="card-body">
+          <div class="card-title">
+            {{ 'PrintCoverLetter'|trans }}
+          </div>
+          <div id="cover-letter-form-inner">
+            <form action="{{ url_for('cover-letter') }}" method="POST">
+            <input type="hidden" name="company" value="{{ id|escape }}">
+            <div class="medium_label">{{ 'Sender'|trans }}</div>
+            <div class="field">
+              <select id="base" name="base" class="long">
+                {% for base in getBaseList() %}
+                  <option value="{{ base.id|escape }}">{{ base.name|escape }}</option>
+                {% endfor %}
+              </select>
+            </div>
+            <div class="medium_label">{{ 'Foreword'|trans }}</div>
+            <div class="field">
+              <textarea id="foreword" name="foreword" class="form-control large"></textarea>
+              <span class="select-default-text" data-type="foreword" data-target="foreword"></span>
+            </div>
+            <div class="btn-set" role="group">
+              <input type="submit" class="btn btn-primary" value="{{ 'Print'|trans }}">
+              <input type="button" class="btn btn-secondary close-btn" value="{{ 'Close'|trans }}">
+            </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    {% endif %}
+
+    {% if top && id && 'invoice' === form %}
+      <div class="btn-set">
+        <a id="attachments-button" class="btn btn-secondary" role="button" aria-expanded="false">
+          {{ 'Attachments'|trans }} (<span class="attachment-count">{{ getInvoiceAttachmentCount(id) }}</span>)
+          <span class="dropdown-open"><i class="icon-down-dir"></i><span class="visually-hidden">{{ 'Show'|trans }}</span></span>
+          <span class="dropdown-close hidden"><i class="icon-up-dir"></i><span class="visually-hidden">{{ 'Hide'|trans }}</span></span>
+        </a>
+      </div>
+      <div class="btn-set send-buttons hidden"></div>
+    {% endif %}
+
+    {% if top && id && route.name === 'recurring-invoice' %}
+      $linkedInvoices = getLinkedInvoices($id);
+      <div class="btn-set">
+        <a id="linked_invoices_button" class="btn btn-secondary" role="button" aria-expanded="false">
+          {{ 'CreatedInvoices'|trans }}
+          (<span class="linked-invoice-count">{{ getLinkedInvoiceCount(id) }}</span>)
+          <span class="dropdown-open"><i class="icon-down-dir"></i><span class="visually-hidden">{{ 'Show'|trans }}</span></span>
+          <span class="dropdown-close hidden"><i class="icon-up-dir"></i><span class="visually-hidden">{{ 'Hide'|trans }}</span></span>
+        </a>
+        <a role="button" id="created_invoices_button" class="btn btn-secondary dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false" href="#">
+          {{ 'AddToInvoice'|trans }}
+        </a>
+        <ul id="created_invoices_list" class="dropdown-menu" aria-labelledby="created_invoices_button">
+          <li class="js-load-indicator">
+            <a class="dropdown-item" href="#">
+              <span aria-hidden="true"><span class="spinner-border spinner-border-sm" role="status"></span></span>
+            </a>
+          </li>
+          <li class="js-create-new-invoice">
+            <a class="dropdown-item" href="{{ url_for('invoice', { id: 'new' }, { template: id }) }}">
+              {{ 'CreateNewInvoice'|trans }}
+            </a>
+          </li>
+        </ul>
+      </div>
+    {% endif %}
+
+    {% if top && id && 'invoice' === form %}
+      <div id="attachments-form" class="card p-2 hidden" data-invoice-id="<?php echo $id?>">
+        <h2 class="card-title">{{ 'Attachments'|trans }}</h2>
+        <div class="card-body attachments-form-inner">
+          <h3>
+            {{ 'AddedAttachments'|trans }}
+          </h3>
+          <div class="attachment-list"></div>
+          <h3>{{ 'AddAttachment'|trans }}</h3>
+          <div class="attachment-add">
+            <div class="attachments">
+              {% for attachment in attachments %}
+                <div class="attachment">
+                  <a role="button" class="btn btn-outline-primary btn-sm add-attachment" data-id="{{ attachment.id|escape }}"
+                    title="{{ 'AddAttachment'|trans }}" aria-label="{{ 'AddAttachment'|trans }}"
+                  >
+                    <i class="icon-plus"></i>
+                  </a>
+                  <div class="attachment-fileinfo">
+                    {{ attachment.name|escape }} ({{ attachment.filename|escape }}, {{ fileSizeToHumanReadable(attachment.filesize) }} )
+                  </div>
+                </div>
+              {% endfor %}
+            </div>
+            <div class="attachment-new">
+              <div class="unlimited_label">{{ 'NewAttachmentWithSize'|translate(['%%maxsize%%' => fileSizeToHumanReadable(getMaxUploadSize())]) }}</div>
+              <div class="field">
+                <input type="file" class="form-control long" id="new-attachment-file" name="new-attachment-file">
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    {% endif %}
+
+    {% if top && id && route.name === 'recurring-invoice' %}
+      <div id="linked_invoices" class="card p-2 hidden" data-invoice-id="{{ id|escape }}">
+        <div class="linked-invoices-list">
+          <table class="table table-striped table-bordered table-hover list">
+            <thead>
+              <tr>
+                <th>{{ 'HeaderInvoiceDate'|trans }}</th>
+                <th>{{ 'HeaderInvoiceDueDate'|trans }}</th>
+                <th>{{ 'HeaderInvoiceNr'|trans }}</th>
+                <th>{{ 'HeaderInvoiceName'|trans }}</th>
+                <th>{{ 'HeaderInvoiceReference'|trans }}</th>
+                <th>{{ 'HeaderInvoiceState'|trans }}</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for linkedInvoice in linkedInvoices %}
+                {% if loop.index <= 10 %}
+                  <tr>
+                    <td>
+                      <a href="{{ url_for('invoice', {id: linkedInvoice.id}) }}">
+                        {{ linkedInvoice.invoice_date|format_date }}
+                      </a>
+                    </td>
+                    <td>{{ linkedInvoice.due_date|format_date }}</td>
+                    <td>{{ linkedInvoice.invoice_no|escape }}</td>
+                    <td>{{ linkedInvoice.name|escape }}</td>
+                    <td>{{ linkedInvoice.reference|escape }}></td>
+                    <td>{{ linkedInvoice.state|trans }}</td>
+                  </tr>
+                {% endif %}
+                {% if loop.index === 10 %}
+                  {% if !loop.last %}
+                    <td colspan="6">
+                      <a href="{{ url_for('search-invoice', {}, {s_op: 'AND', s_op1: 'AND', s_type1[]: 'template_invoice_id', s_cmp1[]: 'eq', s_field1[]: id}) }}">
+                        {{ 'ShowAll'|trans }}
+                      </a>
+                    </td>
+                  {% endif %}
+                {% endif %}
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    {% endif %}
+
+    {% if top %}
+      {% for buttonGroup in formConfig.buttonGroups %}
+        {% set overflow = buttonGroup.overflow %}
+        <div class="btn-set" role="group">
+          {% for button in buttonGroup.buttons %}
+            {% if loop.index < overflow %}
+              <a role="button" id="{{ button.name }}-button" class="btn btn-secondary" href="{{ button.url|escape }}"{{ htmlAttributes(button.attrs)}}>
+                {{ button.label|trans }}
+              </a>
+            {% else %}
+              {% if loop.index === overflow %}
+                <a role="button" class="dropdown-toggle btn btn-secondary" href="#" id="dropdown-button-overflow" data-bs-toggle="dropdown" aria-expanded="false">
+                  {{ (buttonGroup.overflow-label ?? 'More')|trans }}
+                </a>
+                <ul class="dropdown-menu" aria-labelledby="dropdown-button-overflow">
+              {% endif %}
+              <a role="button" id="{{ button.name }}-button" class="btn btn-secondary" href="{{ button.url|escape }}"{{ htmlAttributes(button.attrs)}}>
+                {{ button.label|trans }}
+              </a>
+              {% if loop.last %}
+                </ul>
+              {% endif %}
+            {% endif %}
+          {% endfor %}
+        </div>
+      {% endfor %}
+    {% endif %}
+
+    {% if top && id && 'invoice' === form %}
+      <div id="dispatch_date_buttons" class="btn-set"></div>
+    {% endif %}
+
+    {% if top %}
+      <span id="spinner" class="hidden" aria-hidden="true"><span class="spinner-border spinner-border-sm" role="status"></span></span>
+    {% endif %}
+    <div class="clear-row"></div>
+  </div>
+{% endif %}

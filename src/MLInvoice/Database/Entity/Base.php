@@ -44,14 +44,14 @@ use MLInvoice\Database\Repository\BaseRepository;
  */
 #[ORM\Entity(repositoryClass: BaseRepository::class)]
 #[ORM\Table(name: 'base')]
-class Base implements ExchangeArrayInterface
+class Base implements EntityInterface, SoftDeleteInterface, ExchangeArrayInterface
 {
     use ExchangeArrayTrait;
 
     #[ORM\Id]
     #[ORM\Column(type: 'integer')]
     #[ORM\GeneratedValue]
-    /** @var int|null */
+    /** @var ?null */
     protected ?int $id = null;
 
     #[ORM\Column(type: 'boolean')]
@@ -171,7 +171,7 @@ class Base implements ExchangeArrayInterface
     protected ?string $logoFilename = null;
 
     #[ORM\Column(name: 'logo_filesize', type: 'integer', nullable: true)]
-    /** @var int|null */
+    /** @var ?null */
     protected ?int $logoFilesize = null;
 
     #[ORM\Column(name: 'logo_filetype', type: 'string', length: 255, nullable: true)]
@@ -287,14 +287,29 @@ class Base implements ExchangeArrayInterface
     {
         $this->name = $name; return $this;
     }
+
+    /**
+     * Get deleted flag.
+     *
+     * @return bool
+     */
     public function isDeleted(): bool
     {
         return $this->deleted;
     }
+
+    /**
+     * Set deleted flag.
+     *
+     * @param bool $d Deleted flag
+     *
+     * @return static
+     */
     public function setDeleted(bool $d): static
     {
         $this->deleted = $d; return $this;
     }
+
     public function isInactive(): bool
     {
         return $this->inactive;

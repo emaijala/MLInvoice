@@ -30,6 +30,7 @@
 declare(strict_types=1);
 
 use MLInvoice\Action\HomeAction;
+use MLInvoice\Action\InvoiceAction;
 use MLInvoice\Action\JsonAction;
 use MLInvoice\Action\LoginAction;
 use MLInvoice\Action\LogoutAction;
@@ -40,24 +41,28 @@ return function (App $app) {
         ->setName('home');
     $app->map(['GET', 'POST'], '/login', LoginAction::class)
         ->setName('login');
+    $app->map(['GET', 'POST'], '/login/recover', RecoverAction::class)
+        ->setName('recover');
     $app->get('/logout', LogoutAction::class)
         ->setName('logout');
 
     $app->map(['GET', 'POST'], '/json', JsonAction::class)
         ->setName('json');
 
+    $app->get('/search/invoices', SearchAction::class)
+        ->setName('search-invoices');
+    $app->get('/search/invoices/results', SearchAction::class)
+        ->setName('search-invoices-results');
     $app->get('/invoices', HomeAction::class)
         ->setName('invoices');
     $app->get('/invoices/archived', HomeAction::class)
         ->setName('invoices-archived');
-    $app->get('/invoices/new', HomeAction::class)
-        ->setName('invoices-new');
+    $app->get('/invoices/{id}', InvoiceAction::class)
+        ->setName('invoice');
     $app->get('/recurring-invoices', HomeAction::class)
         ->setName('recurring-invoices');
-    $app->get('/recurring-invoices/due', HomeAction::class)
-        ->setName('recurring-invoices-due');
-    $app->get('/recurring-invoices/new', HomeAction::class)
-        ->setName('recurring-invoices-new');
+    $app->get('/recurring-invoices/{id}', HomeAction::class)
+        ->setName('recurring-invoice');
     $app->get('/offers', HomeAction::class)
         ->setName('offers');
     $app->get('/offers/archived', HomeAction::class)

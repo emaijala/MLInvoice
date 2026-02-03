@@ -42,12 +42,12 @@ use MLInvoice\Database\Repository\RowTypeRepository;
  */
 #[ORM\Entity(repositoryClass: RowTypeRepository::class)]
 #[ORM\Table(name: 'row_type')]
-class RowType
+class RowType implements EntityInterface, SoftDeleteInterface
 {
     #[ORM\Id]
     #[ORM\Column(type: 'integer')]
     #[ORM\GeneratedValue]
-    /** @var int|null */
+    /** @var ?null */
     protected ?int $id = null;
 
     #[ORM\Column(type: 'boolean')]

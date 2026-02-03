@@ -29,6 +29,8 @@
 namespace MLInvoice\Database\Repository;
 
 use Doctrine\ORM\EntityRepository;
+use MLInvoice\Database\Entity\InvoiceRow;
+use MLInvoice\Database\Entity\Product;
 
 /**
  * Product Repository.
@@ -41,4 +43,36 @@ use Doctrine\ORM\EntityRepository;
  */
 class ProductRepository extends EntityRepository
 {
+    /**
+     * Update product stock balance for an invoice row
+     *
+     * @param ?InvoiceRow $invoiceRow Invoice row for returning balance to old product, if any
+     * @param Product     $product    Product ID
+     * @param ?string     $count      Count of items
+     *
+     * @return void
+     */
+    function updateStockBalance(?InvoiceRow $invoiceRow, Product $product, ?string $count)
+    {
+        // Add any old balance to old product:
+        if ($invoiceRow) {
+            if ($oldProduct = $invoiceRow->getProduct()) {
+                $dql = 'UPDATE ' . Product::class . ' p SET p.stock_balance = IFNULL(stock_balance, 0)+:count'
+                    . ' WHERE p.id=:id';
+                $query = $this->getEntityManager()->createQuery($dql)
+                    ->setParameter('count', $invoiceRow->getPcs())
+                    ->setParameter('id', $oldProduct->getId());
+                $query->execute();
+            }
+        }
+        // Deduct from new product:
+        if ($product) {
+            $dql = 'UPDATE ' . Product::class . ' p SET p.stock_balance = IFNULL(stock_balance, 0)-:count'
+                . ' WHERE p.id=:id';
+            $query = $this->getEntityManager()->createQuery($dql)
+                ->setParameter('count', $count)
+                ->setParameter('id', $product->getId());
+            $query->execute();
+        }
+    }
 }

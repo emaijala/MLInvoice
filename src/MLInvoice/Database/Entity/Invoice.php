@@ -28,9 +28,11 @@
 
 namespace MLInvoice\Database\Entity;
 
+use DateTime;
 use Doctrine\ORM\Mapping as ORM;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
+use MLInvoice\Database\Feature\DateTimeTrait;
 use MLInvoice\Database\Repository\InvoiceRepository;
 
 /**
@@ -44,8 +46,9 @@ use MLInvoice\Database\Repository\InvoiceRepository;
  */
 #[ORM\Entity(repositoryClass: InvoiceRepository::class)]
 #[ORM\Table(name: 'invoice')]
-class Invoice implements ExchangeArrayInterface
+class Invoice implements EntityInterface, SoftDeleteInterface, ExchangeArrayInterface
 {
+    use DateTimeTrait;
     use ExchangeArrayTrait;
 
     /**
@@ -77,7 +80,7 @@ class Invoice implements ExchangeArrayInterface
     /**
      * Company
      *
-     * @var Company|null
+     * @var ?Company
      */
     #[ORM\ManyToOne(targetEntity: Company::class, inversedBy: 'invoices')]
     #[ORM\JoinColumn(name: 'company_id', referencedColumnName: 'id', nullable: true)]
@@ -123,13 +126,13 @@ class Invoice implements ExchangeArrayInterface
     #[ORM\Column(name: 'ref_number', type: 'string', length: 100, nullable: true)]
     protected ?string $referenceNo = null;
 
-    #[ORM\ManyToOne(targetEntity: InvoiceState::class)]
-    #[ORM\JoinColumn(name: 'state_id', referencedColumnName: 'id', nullable: true)]
     /**
      * Invoice state
      *
-     * @var InvoiceState|null
+     * @var ?InvoiceState
      */
+    #[ORM\ManyToOne(targetEntity: InvoiceState::class)]
+    #[ORM\JoinColumn(name: 'state_id', referencedColumnName: 'id', nullable: true)]
     protected ?InvoiceState $state = null;
 
     /**
@@ -143,7 +146,7 @@ class Invoice implements ExchangeArrayInterface
     /**
      * Base
      *
-     * @var Base|null
+     * @var ?Base
      */
     #[ORM\ManyToOne(targetEntity: Base::class)]
     #[ORM\JoinColumn(name: 'base_id', referencedColumnName: 'id', nullable: true)]
@@ -155,7 +158,7 @@ class Invoice implements ExchangeArrayInterface
      * @var ?Invoice
      */
     #[ORM\ManyToOne(targetEntity: Invoice::class)]
-    #[ORM\JoinColumn(name: 'invoice_id', referencedColumnName: 'id', nullable: true)]
+    #[ORM\JoinColumn(name: 'refunded_invoice_id', referencedColumnName: 'id', nullable: true)]
     protected ?Invoice $refundedInvoice = null;
 
     /**
@@ -195,7 +198,7 @@ class Invoice implements ExchangeArrayInterface
      *
      * @var int
      */
-    #[ORM\Column(name: 'interval_type', type: 'int')]
+    #[ORM\Column(name: 'interval_type', type: 'integer')]
     protected int $intervalType = 0;
 
     /**
@@ -314,7 +317,7 @@ class Invoice implements ExchangeArrayInterface
      *
      * @return bool
      */
-    public function getDeleted(): bool
+    public function isDeleted(): bool
     {
         return $this->deleted;
     }
@@ -358,7 +361,7 @@ class Invoice implements ExchangeArrayInterface
     /**
      * Get company.
      *
-     * @return Company|null
+     * @return ?Company
      */
     public function getCompany(): ?Company
     {
@@ -368,7 +371,7 @@ class Invoice implements ExchangeArrayInterface
     /**
      * Set company.
      *
-     * @param Company|null $c New value
+     * @param ?Company $c New value
      *
      * @return static
      */
@@ -404,69 +407,69 @@ class Invoice implements ExchangeArrayInterface
     /**
      * Get invoice date.
      *
-     * @return ?int
+     * @return ?DateTime
      */
-    public function getInvoiceDate(): ?int
+    public function getInvoiceDate(): ?DateTime
     {
-        return $this->invoiceDate;
+        return $this->getDateTimeFromDbFormat($this->invoiceDate);
     }
 
     /**
      * Set invoice date.
      *
-     * @param int|null $d New value
+     * @param ?DateTime $d New value
      *
      * @return static
      */
-    public function setInvoiceDate(?int $d): static
+    public function setInvoiceDate(?DateTime $d): static
     {
-        $this->invoiceDate = $d;
+        $this->invoiceDate = $this->getDbFormatFromDateTime($d);
         return $this;
     }
 
     /**
      * Get due date.
      *
-     * @return ?int
+     * @return ?DateTime
      */
-    public function getDueDate(): ?int
+    public function getDueDate(): ?DateTime
     {
-        return $this->dueDate;
+        return $this->getDateTimeFromDbFormat($this->dueDate);
     }
 
     /**
      * Set due date.
      *
-     * @param int|null $d New value
+     * @param ?DateTime $d New value
      *
      * @return static
      */
-    public function setDueDate(?int $d): static
+    public function setDueDate(?DateTime $d): static
     {
-        $this->dueDate = $d;
+        $this->dueDate = $this->getDbFormatFromDateTime($d);
         return $this;
     }
 
     /**
      * Get payment date.
      *
-     * @return ?int
+     * @return ?DateTime
      */
-    public function getPaymentDate(): ?int
+    public function getPaymentDate(): ?DateTime
     {
-        return $this->paymentDate;
+        return $this->getDateTimeFromDbFormat($this->paymentDate);
     }
 
     /**
      * Set payment date.
      *
-     * @param int|null $d New value
+     * @param ?DateTime $d New value
      *
      * @return static
      */
-    public function setPaymentDate(?int $d): static
+    public function setPaymentDate(?DateTime $d): static
     {
-        $this->paymentDate = $d;
+        $this->paymentDate = $this->getDbFormatFromDateTime($d);
         return $this;
     }
 
@@ -496,7 +499,7 @@ class Invoice implements ExchangeArrayInterface
     /**
      * Get state.
      *
-     * @return InvoiceState|null
+     * @return ?InvoiceState
      */
     public function getState(): ?InvoiceState
     {
@@ -506,7 +509,7 @@ class Invoice implements ExchangeArrayInterface
     /**
      * Set state.
      *
-     * @param InvoiceState|null $s New value
+     * @param ?InvoiceState $s New value
      *
      * @return static
      */
@@ -542,7 +545,7 @@ class Invoice implements ExchangeArrayInterface
     /**
      * Get base.
      *
-     * @return Base|null
+     * @return ?Base
      */
     public function getBase(): ?Base
     {
@@ -552,7 +555,7 @@ class Invoice implements ExchangeArrayInterface
     /**
      * Set base.
      *
-     * @param Base|null $b New value
+     * @param ?Base $b New value
      *
      * @return static
      */
@@ -588,23 +591,23 @@ class Invoice implements ExchangeArrayInterface
     /**
      * Get print date.
      *
-     * @return ?int
+     * @return ?DateTime
      */
-    public function getPrintDate(): ?int
+    public function getPrintDate(): ?DateTime
     {
-        return $this->printDate;
+        return $this->getDateTimeFromDbFormat($this->printDate);
     }
 
     /**
      * Set print date.
      *
-     * @param int|null $d New value
+     * @param ?DateTime $d New value
      *
      * @return static
      */
-    public function setPrintDate(?int $d): static
+    public function setPrintDate(?DateTime $d): static
     {
-        $this->printDate = $d;
+        $this->printDate = $this->getDbFormatFromDateTime($d);
         return $this;
     }
 
@@ -678,25 +681,48 @@ class Invoice implements ExchangeArrayInterface
     }
 
     /**
+     * Get repeat interval type.
+     *
+     * @return int
+     */
+    public function getIntervalType(): int
+    {
+        return $this->intervalType;
+    }
+
+    /**
+     * Set repeat interval type.
+     *
+     * @param int $v New value
+     *
+     * @return static
+     */
+    public function setIntervalType(int $v): static
+    {
+        $this->intervalType = $v;
+        return $this;
+    }
+
+    /**
      * Get next interval date.
      *
-     * @return ?int
+     * @return ?DateTime
      */
-    public function getNextIntervalDate(): ?int
+    public function getNextIntervalDate(): ?DateTime
     {
-        return $this->nextIntervalDate;
+        return $this->getDateTimeFromDbFormat($this->nextIntervalDate);
     }
 
     /**
      * Set next interval date.
      *
-     * @param int|null $d New value
+     * @param ?DateTime $d New value
      *
      * @return static
      */
-    public function setNextIntervalDate(?int $d): static
+    public function setNextIntervalDate(?DateTime $d): static
     {
-        $this->nextIntervalDate = $d;
+        $this->nextIntervalDate = $this->getDbFormatFromDateTime($d);
         return $this;
     }
 
@@ -987,5 +1013,30 @@ class Invoice implements ExchangeArrayInterface
             $a->setInvoice(null);
         }
         return $this;
+    }
+
+    /**
+     * Advance the next interval date of a recurring invoice or template
+     *
+     * @return void
+     */
+    function advanceInvoiceIntervalDate(): void
+    {
+        $next = match ($this->getIntervalType()) {
+            // 1 month:
+            2 => '+1 month',
+            // 1 year:
+            3 => '+1 year',
+            // 2 - 6 months
+            4,5,6,7,8 => '+' . ($this->getIntervalType() - 2) . ' months',
+            // 2 years:
+            14 => '+2 years',
+            // 3 years:
+            15 => '+2 years',
+            default => null,
+        };
+        if (null !== $next) {
+            $this->setNextIntervalDate(new DateTime($next));
+        }
     }
 }

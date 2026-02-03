@@ -77,6 +77,8 @@ class LogoutAction extends AbstractAction
      */
     public function __invoke(ServerRequestInterface $request, ResponseInterface $response, array $args = [])
     {
+        parent::__invoke($request, $response, $args);
+
         $this->sessionManager->destroy();
         $this->sessionManager->save();
         return $this->getView($request)->render($response, 'logout.html.twig', ['user' => null]);

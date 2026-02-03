@@ -43,7 +43,7 @@ use MLInvoice\Database\Repository\SessionTypeRepository;
  */
 #[ORM\Entity(repositoryClass: SessionTypeRepository::class)]
 #[ORM\Table(name: 'session_type')]
-class SessionType
+class SessionType implements EntityInterface
 {
     use DateTimeTrait;
 

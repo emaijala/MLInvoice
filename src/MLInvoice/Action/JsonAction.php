@@ -66,13 +66,6 @@ use Slim\Views\Twig;
 class JsonAction extends AbstractAction
 {
     /**
-     * Current request
-     *
-     * @var ?ServerRequestInterface
-     */
-    protected ?ServerRequestInterface $request = null;
-
-    /**
      * Result as an array
      *
      * @var ?array
@@ -112,7 +105,8 @@ class JsonAction extends AbstractAction
      */
     public function __invoke(ServerRequestInterface $request, ResponseInterface $response, array $args = [])
     {
-        $this->request = $request;
+        parent::__invoke($request, $response, $args);
+
         $func = $this->getPostOrQuery('func');
 
         switch ($func) {
@@ -349,12 +343,12 @@ class JsonAction extends AbstractAction
             break;
 
         case 'get_invoice_defaults':
-            $baseId = $this->getPostOrQuery('base_id', 0);
-            $companyId = $this->getPostOrQuery('company_id', 0);
-            $invoiceId = $this->getPostOrQuery('id', 0);
+            $baseId = $this->getPostOrQuery('base_id', '0');
+            $companyId = $this->getPostOrQuery('company_id', '0');
+            $invoiceId = $this->getPostOrQuery('id', '0');
             $invoiceDate = $this->getPostOrQuery('invoice_date', date('Y-m-d'));
-            $intervalType = $this->getPostOrQuery('interval_type', 0);
-            $invoiceNumber = $this->getPostOrQuery('invoice_no', 0);
+            $intervalType = $this->getPostOrQuery('interval_type', '0');
+            $invoiceNumber = $this->getPostOrQuery('invoice_no', '0');
 
             $defaults = getInvoiceDefaults(
                 $invoiceId, $baseId, $companyId, $invoiceDate, $intervalType, $invoiceNumber
@@ -519,7 +513,7 @@ class JsonAction extends AbstractAction
 
             header('Content-Type: application/json');
             $listData = createJSONSelectList(
-                $table, $page * $pageLen, $pageLen, $filter, $filterType, $sort, $id
+                $table, $page * $pageLen, $pageLen, $filter, $filterType, $sort, $id, $this->request
             );
             $this->setResult($listData);
             break;
@@ -1121,20 +1115,5 @@ class JsonAction extends AbstractAction
     {
         $this->httpStatusCode = $statusCode;
         return $this;
-    }
-
-    /**
-     * Get POST or GET param value.
-     *
-     * @param string  $param   Param name
-     * @param string|array|null $default Default value
-     *
-     * @return string|array|null
-     */
-    protected function getPostOrQuery(string $param, string|array|null $default = null): string|array|null
-    {
-        return $this->request->getParsedBody()[$param]
-            ?? $this->request->getQueryParams()[$param]
-            ?? $default;
     }
 }

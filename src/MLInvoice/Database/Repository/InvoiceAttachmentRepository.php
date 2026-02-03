@@ -42,13 +42,26 @@ use Doctrine\ORM\EntityRepository;
 class InvoiceAttachmentRepository extends EntityRepository
 {
 	/**
-	 * Find attachments by invoice id.
+	 * Find attachments by invoice ID.
 	 *
-	 * @param int $invoiceId
+	 * @param int $invoiceId Invoice ID
+	 *
 	 * @return \MLInvoice\Database\Entity\InvoiceAttachment[]
 	 */
 	public function findByInvoiceId(int $invoiceId): array
 	{
 		return $this->findBy(['invoice' => $invoiceId]);
+	}
+
+	/**
+	 * Get the number of attachments by invoice ID.
+	 *
+	 * @param int $invoiceId Invoice ID
+	 *
+	 * @return int
+	 */
+	public function getCountByInvoiceId(int $invoiceId): int
+	{
+		return $this->countBy(['invoice' => $invoiceId]);
 	}
 }

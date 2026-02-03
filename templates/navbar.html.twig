@@ -23,7 +23,7 @@
                     {% if item.title == '-' %}
                       <hr class="dropdown-divider">
                     {% else %}
-                      <a class="dropdown-item" href="{{ url_for(item.route, {}, item.params ?? {}) }}">
+                      <a class="dropdown-item" href="{{ url_for(item.route, item.route_args ?? {}, item.params ?? {}) }}">
                         {{ item.title|trans }}
                       </a>
                     {% endif %}
@@ -33,7 +33,7 @@
             </li>
           {% else %}
             <li class="nav-item">
-              <a class="nav-link" href="{{ url_for(button.route, {}, button.params ?? {}) }}">
+              <a class="nav-link" href="{{ url_for(button.route, item.route_args ?? {}, button.params ?? {}) }}">
                 {{ button.title|trans }}
               </a>
             </li>

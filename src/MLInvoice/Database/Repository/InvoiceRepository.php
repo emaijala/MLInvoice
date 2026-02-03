@@ -44,6 +44,19 @@ use MLInvoice\Database\Entity\InvoiceState;
 class InvoiceRepository extends EntityRepository
 {
     /**
+     * Persist an entity.
+     *
+     * @param Invoice $entity Entity
+     *
+     * @return void
+     */
+    public function persistEntity(Invoice $entity): void
+    {
+        $this->getEntityManager()->persist($entity);
+        $this->getEntityManager()->flush();
+    }
+
+    /**
      * Find an invoice by its invoice number.
      *
      * @param string $no
@@ -52,6 +65,18 @@ class InvoiceRepository extends EntityRepository
     public function findByInvoiceNo(string $no)
     {
         return $this->findOneBy(['invoiceNo' => $no]);
+    }
+
+    /**
+     * Get any invoice refunding another.
+     *
+     * @param Invoice $invoice Invoice
+     *
+     * @return ?Invoice
+     */
+    public function getRefundingInvoice(Invoice $invoice): ?Invoice
+    {
+        return $this->findOneBy(['refundedInvoice' => $invoice]);
     }
 
     /**

@@ -37,8 +37,11 @@ use MLInvoice\Config\ConfigManager;
 use MLInvoice\Config\ConfigManagerInterface;
 use MLInvoice\Config\SettingsManager;
 use MLInvoice\Database\DatabaseUpdater;
+use MLInvoice\Database\Entity\Base;
 use MLInvoice\Database\Entity\CustomPrice;
 use MLInvoice\Database\Entity\CustomPriceMap;
+use MLInvoice\Database\Entity\DeliveryMethod;
+use MLInvoice\Database\Entity\DeliveryTerms;
 use MLInvoice\Database\Entity\Invoice;
 use MLInvoice\Database\Entity\InvoiceState;
 use MLInvoice\Database\Entity\PrintTemplate;
@@ -47,8 +50,11 @@ use MLInvoice\Database\Entity\Session;
 use MLInvoice\Database\Entity\Setting;
 use MLInvoice\Database\Entity\User;
 use MLInvoice\Database\EntityManagerFactory;
+use MLInvoice\Database\Repository\BaseRepository;
 use MLInvoice\Database\Repository\CustomPriceMapRepository;
 use MLInvoice\Database\Repository\CustomPriceRepository;
+use MLInvoice\Database\Repository\DeliveryMethodRepository;
+use MLInvoice\Database\Repository\DeliveryTermsRepository;
 use MLInvoice\Database\Repository\InvoiceRepository;
 use MLInvoice\Database\Repository\InvoiceStateRepository;
 use MLInvoice\Database\Repository\PrintTemplateRepository;
@@ -119,11 +125,20 @@ return function (ContainerBuilder $containerBuilder) {
         Twig::class => DI\factory(TwigFactory::class . '::create'),
 
         // Database repositories:
+        BaseRepository::class => function (ContainerInterface $c) {
+            return $c->get(EntityManagerInterface::class)->getRepository(Base::class);
+        },
         CustomPriceRepository::class => function (ContainerInterface $c) {
             return $c->get(EntityManagerInterface::class)->getRepository(CustomPrice::class);
         },
         CustomPriceMapRepository::class => function (ContainerInterface $c) {
             return $c->get(EntityManagerInterface::class)->getRepository(CustomPriceMap::class);
+        },
+        DeliveryMethodRepository::class => function (ContainerInterface $c) {
+            return $c->get(EntityManagerInterface::class)->getRepository(DeliveryMethod::class);
+        },
+        DeliveryTermsRepository::class => function (ContainerInterface $c) {
+            return $c->get(EntityManagerInterface::class)->getRepository(DeliveryTerms::class);
         },
         InvoiceRepository::class => function (ContainerInterface $c) {
             return $c->get(EntityManagerInterface::class)->getRepository(Invoice::class);
@@ -170,9 +185,6 @@ return function (ContainerBuilder $containerBuilder) {
         NumberFormatterExtension::class => DI\autowire(),
         SearchExtension::class => DI\autowire(),
         TranslationExtension::class => DI\autowire(),
-
-        // Actions:
-        LoginAction::class => DI\autowire(),
 
         // Aliases:
         ConfigManagerInterface::class => DI\get(ConfigManager::class),

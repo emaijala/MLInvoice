@@ -30,6 +30,7 @@ namespace MLInvoice\InvoicePrinter;
 
 use MLInvoice\Config\SettingsManager;
 use MLInvoice\Database\Entity\Invoice;
+use MLInvoice\Database\Repository\CompanyRepository;
 use MLInvoice\Database\Repository\InvoiceRepository;
 use MLInvoice\I18n\Translator;
 use MLInvoice\Security\Hmac;
@@ -339,6 +340,7 @@ abstract class AbstractInvoicePrinter
         protected Translator $translator,
         protected SettingsManager $settingsManager,
         protected InvoiceRepository $invoiceRepository,
+        protected CompanyRepository $companyRepository,
         protected Hmac $hmac,
     ) {
     }
@@ -962,7 +964,8 @@ abstract class AbstractInvoicePrinter
             );
             if ($paymentDays < 0) {
                 // This shouldn't happen, but try to be safe...
-                $paymentDays = getPaymentDays($invoiceData['company_id']);
+                $paymentDays = $this->companyRepository->getPaymentDays($invoiceData['company_id'])
+                    ?? $this->settingsManager->get('invoice_payment_days');
             }
             $data['TermsOfPayment'] = [
                 'value' => $this->getTermsOfPayment($paymentDays),

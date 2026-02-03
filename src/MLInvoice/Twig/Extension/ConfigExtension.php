@@ -196,7 +196,7 @@ class ConfigExtension extends AbstractExtension
         $dispatchNotePrintStyle = 'none';
         if (
             ($template = $this->printTemplateRepository->getById(2))
-            && !$template->getDeleted()
+            && !$template->isDeleted()
         ) {
             $dispatchNotePrintStyle = $template->getNewWindow() ? 'openwindow' : 'redirect';
         }

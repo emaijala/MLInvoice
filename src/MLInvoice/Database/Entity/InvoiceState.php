@@ -44,7 +44,7 @@ use MLInvoice\Database\Repository\InvoiceStateRepository;
  */
 #[ORM\Entity(repositoryClass: InvoiceStateRepository::class)]
 #[ORM\Table(name: 'invoice_state')]
-class InvoiceState
+class InvoiceState implements EntityInterface, SoftDeleteInterface
 {
     /**
      * ID
@@ -151,7 +151,7 @@ class InvoiceState
      *
      * @return bool
      */
-    public function getDeleted(): bool
+    public function isDeleted(): bool
     {
         return $this->deleted;
     }

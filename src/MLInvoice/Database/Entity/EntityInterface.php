@@ -1,6 +1,6 @@
 <?php
 /**
- * Company Repository.
+ * Shared Interface for Entities.
  *
  * PHP version 8
  *
@@ -26,12 +26,13 @@
  * @link     http://labs.fi/mlinvoice.eng.php
  */
 
-namespace MLInvoice\Database\Repository;
+namespace MLInvoice\Database\Entity;
 
-use Doctrine\ORM\EntityRepository;
+use Doctrine\ORM\Mapping as ORM;
+use MLInvoice\Database\Repository\AttachmentRepository;
 
 /**
- * Company Repository.
+ * Shared Interface for Entities.
  *
  * @category MLInvoice
  * @package  MLInvoice\Database
@@ -39,23 +40,12 @@ use Doctrine\ORM\EntityRepository;
  * @license  http://opensource.org/licenses/gpl-2.0.php GNU General Public License
  * @link     http://labs.fi/mlinvoice.eng.php
  */
-class CompanyRepository extends EntityRepository
+interface EntityInterface
 {
     /**
-     * Get payment days for a company.
+     * Get ID.
      *
-     * @param ?int $companyId Company ID
-     *
-     * @return ?int
+     * @return int|string|null
      */
-    public function getPaymentDays(?int $companyId): ?int
-    {
-        if ($companyId) {
-            $company = $this->find($companyId);
-            if ($days = $company?->getPaymentDays()) {
-                return $days;
-            }
-        }
-        return null;
-    }
+    public function getId(): int|string|null;
 }

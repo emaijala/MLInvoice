@@ -44,7 +44,7 @@ use MLInvoice\Database\Repository\UserRepository;
  */
 #[ORM\Entity(repositoryClass: UserRepository::class)]
 #[ORM\Table(name: 'users')]
-class User
+class User implements EntityInterface, SoftDeleteInterface
 {
     /**
      * ID

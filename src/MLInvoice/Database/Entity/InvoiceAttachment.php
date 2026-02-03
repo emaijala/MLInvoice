@@ -42,12 +42,12 @@ use MLInvoice\Database\Repository\InvoiceAttachmentRepository;
  */
 #[ORM\Entity(repositoryClass: InvoiceAttachmentRepository::class)]
 #[ORM\Table(name: 'invoice_attachment')]
-class InvoiceAttachment
+class InvoiceAttachment implements EntityInterface
 {
     #[ORM\Id]
     #[ORM\Column(type: 'integer')]
     #[ORM\GeneratedValue]
-    /** @var int|null */
+    /** @var ?null */
     protected ?int $id = null;
 
     #[ORM\ManyToOne(targetEntity: Invoice::class, inversedBy: 'attachments')]

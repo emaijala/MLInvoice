@@ -44,12 +44,12 @@ use MLInvoice\Database\Entity\Product;
  */
 #[ORM\Entity(repositoryClass: CustomPriceMapRepository::class)]
 #[ORM\Table(name: 'custom_price_map')]
-class CustomPriceMap
+class CustomPriceMap implements EntityInterface
 {
     #[ORM\Id]
     #[ORM\Column(type: 'integer')]
     #[ORM\GeneratedValue]
-    /** @var int|null */
+    /** @var ?null */
     protected ?int $id = null;
 
     #[ORM\ManyToOne(targetEntity: CustomPrice::class, inversedBy: 'maps')]

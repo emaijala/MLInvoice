@@ -82,6 +82,8 @@ class LoginAction extends AbstractAction
      */
     public function __invoke(ServerRequestInterface $request, ResponseInterface $response, array $args = [])
     {
+        parent::__invoke($request, $response, $args);
+
         if ($request->getAttribute('user')) {
             $routeParser = RouteContext::fromRequest($request)->getRouteParser();
             return $response

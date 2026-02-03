@@ -45,12 +45,12 @@ use MLInvoice\Database\Entity\Company;
 */
 #[ORM\Entity(repositoryClass: CompanyTypeRepository::class)]
 #[ORM\Table(name: 'company_type')]
-class CompanyType
+class CompanyType implements EntityInterface, SoftDeleteInterface
 {
     #[ORM\Id]
     #[ORM\Column(type: 'integer')]
     #[ORM\GeneratedValue]
-    /** @var int|null */
+    /** @var ?null */
     protected ?int $id = null;
 
     #[ORM\Column(type: 'boolean')]

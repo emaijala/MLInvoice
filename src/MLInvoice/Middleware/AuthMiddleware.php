@@ -115,6 +115,9 @@ class AuthMiddleware implements MiddlewareInterface
         $writeAccess = $user
             && in_array($user->getAccessLevel(), [MLINVOICE_USER_ROLE_ADMIN, MLINVOICE_USER_ROLE_BACKUPMGR, MLINVOICE_USER_ROLE_USER]);
 
-        return $handler->handle($request->withAttribute('user', $user)->withAttribute('write_access', $writeAccess));
+        return $handler->handle(
+            $request->withAttribute('user', $user)
+            ->withAttribute('write_access', $writeAccess)
+        );
     }
 }

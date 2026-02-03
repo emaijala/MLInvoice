@@ -42,12 +42,12 @@ use MLInvoice\Database\Repository\SendApiConfigRepository;
  */
 #[ORM\Entity(repositoryClass: SendApiConfigRepository::class)]
 #[ORM\Table(name: 'send_api_config')]
-class SendApiConfig
+class SendApiConfig implements EntityInterface
 {
     #[ORM\Id]
     #[ORM\Column(type: 'integer')]
     #[ORM\GeneratedValue]
-    /** @var int|null */
+    /** @var ?null */
     protected ?int $id = null;
 
     #[ORM\ManyToOne(targetEntity: Base::class, inversedBy: 'sendApiConfigs')]

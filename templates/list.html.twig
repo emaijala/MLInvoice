@@ -132,10 +132,12 @@ $(document).ready(function() {
         row = row.previousElementSibling;
     }
     var data = $('#{{ list_id }}').dataTable().fnGetData(row);
+    const route = $('#{{ list_id }}').data('itemRoute');
+    const url = route.replace('{id}', data[0]);
     if (e.button === 1 || e.ctrlKey || e.metaKey) {
-        window.open(data[1], '_blank');
+        window.open(url, '_blank');
     } else {
-        document.location.href = data[1];
+        document.location.href = url;
     }
   });
 });
@@ -152,7 +154,7 @@ $(document).ready(function() {
       </select>
     </div>
     {% if company_id %}
-      <div id="no-custom-prices"{% if list_data.custom_price_sttings %} class="hidden"{% endif %}>
+      <div id="no-custom-prices"{% if list_data.custom_price_settings %} class="hidden"{% endif %}>
         <div class="label">
           {{ 'NoClientSpecificPricesDefined'|trans }}
           {% if write_access %}
@@ -229,7 +231,7 @@ $(document).ready(function() {
       {{ list_data.list_title|trans }}
     </h2>
   {% endif %}
-  <table id="{{ list_id }}" class="table table-striped table-bordered table-hover list nowrap">
+  <table id="{{ list_id }}" class="table table-striped table-bordered table-hover list nowrap" data-item-route="{{ url_for(list_type, {id: '{id}'})|escape }}">
     <thead>
       <tr>
         <th class="hidden">ID</th>

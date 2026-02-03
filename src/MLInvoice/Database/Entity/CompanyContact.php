@@ -46,12 +46,12 @@ use Doctrine\Common\Collections\Collection;
  */
 #[ORM\Entity(repositoryClass: CompanyContactRepository::class)]
 #[ORM\Table(name: 'company_contact')]
-class CompanyContact
+class CompanyContact implements EntityInterface, SoftDeleteInterface
 {
     #[ORM\Id]
     #[ORM\Column(type: 'integer')]
     #[ORM\GeneratedValue]
-    /** @var int|null */
+    /** @var ?null */
     protected ?int $id = null;
 
     #[ORM\Column(type: 'boolean')]

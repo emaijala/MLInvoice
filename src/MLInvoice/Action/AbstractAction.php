@@ -50,6 +50,13 @@ use Slim\Views\Twig;
 abstract class AbstractAction
 {
     /**
+     * Current request
+     *
+     * @var ?ServerRequestInterface
+     */
+    protected ?ServerRequestInterface $request = null;
+
+    /**
      * Constructor
      *
      * @param Translator $translator Translator
@@ -67,7 +74,10 @@ abstract class AbstractAction
      *
      * @return mixed
      */
-    abstract public function __invoke(ServerRequestInterface $request, ResponseInterface $response, array $args = []);
+    public function __invoke(ServerRequestInterface $request, ResponseInterface $response, array $args = [])
+    {
+        $this->request = $request;
+    }
 
     /**
      * Get Twig view for a request.
@@ -103,5 +113,20 @@ abstract class AbstractAction
             },
             ARRAY_FILTER_USE_KEY
         );
+    }
+
+    /**
+     * Get POST or GET param value.
+     *
+     * @param string  $param   Param name
+     * @param string|array|null $default Default value
+     *
+     * @return string|array|null
+     */
+    protected function getPostOrQuery(string $param, string|array|null $default = null): string|array|null
+    {
+        return $this->request->getParsedBody()[$param]
+            ?? $this->request->getQueryParams()[$param]
+            ?? $default;
     }
 }

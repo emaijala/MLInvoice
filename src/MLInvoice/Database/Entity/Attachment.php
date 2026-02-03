@@ -42,12 +42,12 @@ use MLInvoice\Database\Repository\AttachmentRepository;
  */
 #[ORM\Entity(repositoryClass: AttachmentRepository::class)]
 #[ORM\Table(name: 'attachment')]
-class Attachment
+class Attachment implements EntityInterface
 {
     #[ORM\Id]
     #[ORM\Column(type: 'integer')]
     #[ORM\GeneratedValue]
-    /** @var int|null */
+    /** @var ?null */
     protected ?int $id = null;
 
     #[ORM\Column(type: 'string', length: 255)]

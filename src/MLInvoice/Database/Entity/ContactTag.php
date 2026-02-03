@@ -44,12 +44,12 @@ use Doctrine\Common\Collections\Collection;
  */
 #[ORM\Entity(repositoryClass: ContactTagRepository::class)]
 #[ORM\Table(name: 'contact_tag')]
-class ContactTag
+class ContactTag implements EntityInterface
 {
     #[ORM\Id]
     #[ORM\Column(type: 'integer')]
     #[ORM\GeneratedValue]
-    /** @var int|null */
+    /** @var ?null */
     protected ?int $id = null;
 
     #[ORM\Column(type: 'string', length: 100, nullable: true)]

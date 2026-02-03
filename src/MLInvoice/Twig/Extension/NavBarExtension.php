@@ -167,7 +167,8 @@ class NavBarExtension extends AbstractExtension
                     ],
                     [
                         'title' => 'NewInvoice',
-                        'route' => 'invoices-new',
+                        'route' => 'invoices',
+                        'route-args' => ['id' => 'new'],
                         'levels_allowed' => [
                             MLINVOICE_USER_ROLE_USER,
                             MLINVOICE_USER_ROLE_BACKUPMGR,

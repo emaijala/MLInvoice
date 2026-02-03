@@ -42,7 +42,7 @@ use MLInvoice\Database\Repository\QuickSearchRepository;
  */
 #[ORM\Entity(repositoryClass: QuickSearchRepository::class)]
 #[ORM\Table(name: 'quicksearch')]
-class QuickSearch
+class QuickSearch implements EntityInterface
 {
     /**
      * ID

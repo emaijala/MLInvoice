@@ -29,6 +29,7 @@
 namespace MLInvoice\Database\Repository;
 
 use Doctrine\ORM\EntityRepository;
+use MLInvoice\Database\Entity\DeliveryMethod;
 
 /**
  * DeliveryMethod Repository.
@@ -50,5 +51,15 @@ class DeliveryMethodRepository extends EntityRepository
     public function findByName(string $name)
     {
         return $this->findOneBy(['name' => $name]);
+    }
+
+    /**
+     * Return all non-deleted delivery methods.
+     *
+     * @return DeliveryMethod[]
+     */
+    public function findAllNonDeleted(): array
+    {
+        return $this->findBy(['deleted' => false], ['orderNo' => 'ASC']);
     }
 }

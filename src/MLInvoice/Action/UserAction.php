@@ -1,6 +1,6 @@
 <?php
 /**
- * Home Action.
+ * User Action.
  *
  * PHP version 8
  *
@@ -35,6 +35,7 @@ use MLInvoice\Database\DatabaseUpdater;
 use MLInvoice\Database\Repository\InvoiceRepository;
 use MLInvoice\Database\Repository\UserRepository;
 use MLInvoice\Database\Updater;
+use MLInvoice\Form\FormService;
 use MLInvoice\I18n\Translator;
 use Odan\Session\SessionInterface;
 use Odan\Session\SessionManagerInterface;
@@ -45,7 +46,7 @@ use Slim\Routing\RouteContext;
 use Slim\Views\Twig;
 
 /**
- * Home Action.
+ * User Action.
  *
  * @category MLInvoice
  * @package  MLInvoice\Action
@@ -53,20 +54,21 @@ use Slim\Views\Twig;
  * @license  http://opensource.org/licenses/gpl-2.0.php GNU General Public License
  * @link     http://labs.fi/mlinvoice.eng.php
  */
-class HomeAction extends AbstractAction
+class UserAction extends AbstractFormAction
 {
     /**
      * Constructor
      *
      * @param Translator      $translator      Translator
-     * @param SessionManagerInterface&SessionInterface $sessionManager Session manager
+     * @param SessionInterface $session Session
      */
     public function __construct(
         Translator $translator,
-        protected InvoiceRepository $invoiceRepository,
-        #[Inject(SessionManagerInterface::class)] protected SessionManagerInterface&SessionInterface $sessionManager,
+        FormService $formService,
+        SessionInterface $session,
+        protected UserRepository $userRepository,
     ) {
-        parent::__construct($translator);
+        parent::__construct($translator, 'user', $formService, $session);
     }
 
     /**
@@ -80,10 +82,25 @@ class HomeAction extends AbstractAction
      */
     public function __invoke(ServerRequestInterface $request, ResponseInterface $response, array $args = [])
     {
-        parent::__invoke($request, $response, $args);
+        if ($rsp = parent::__invoke($request, $response, $args)) {
+            return $rsp;
+        }
+
+        $user = null;
+        $userId = 'new' !== $args['id'] ? (int)$args['id'] : null;
+        if ('new' !== $args['id'] && !($user = $this->userRepository->find((int)$args['id']))) {
+            return $response->withStatus(404, $this->translator->translate('RecordNotFound'));
+        }
+
+        if ('delete' === $this->action && $user === $request->getAttribute('user')->getId()) {
+            return $response->withStatus(403, $this->translator->translate('CannotDeleteCurrentUser'));
+        }
+
         $data = [
-            'recurring_invoices' => $this->invoiceRepository->getCountOfRecurringInvoiceTemplatesNeedingProcessing(),
+            'data' => $user?->toArray() ?? [],
+            'formConfig' => $this->formConfig,
+            'id' => $userId,
         ];
-        return $this->getView($request)->render($response, 'home.html.twig', $data);
+        return $this->getView($request)->render($response, 'user.html.twig', $data);
     }
 }

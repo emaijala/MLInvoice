@@ -42,7 +42,7 @@ use MLInvoice\Database\Repository\StateRepository;
  */
 #[ORM\Entity(repositoryClass: StateRepository::class)]
 #[ORM\Table(name: 'state')]
-class State
+class State implements EntityInterface
 {
     #[ORM\Id]
     #[ORM\Column(type: 'string', length: 32)]

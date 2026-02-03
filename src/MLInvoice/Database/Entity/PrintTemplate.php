@@ -42,7 +42,7 @@ use MLInvoice\Database\Repository\PrintTemplateRepository;
  */
 #[ORM\Entity(repositoryClass: PrintTemplateRepository::class)]
 #[ORM\Table(name: 'print_template')]
-class PrintTemplate
+class PrintTemplate implements EntityInterface, SoftDeleteInterface
 {
     /**
      * ID
@@ -141,7 +141,7 @@ class PrintTemplate
      *
      * @return bool
      */
-    public function getDeleted(): bool
+    public function isDeleted(): bool
     {
         return $this->deleted;
     }

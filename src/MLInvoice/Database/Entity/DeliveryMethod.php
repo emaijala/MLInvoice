@@ -42,24 +42,44 @@ use MLInvoice\Database\Repository\DeliveryMethodRepository;
  */
 #[ORM\Entity(repositoryClass: DeliveryMethodRepository::class)]
 #[ORM\Table(name: 'delivery_method')]
-class DeliveryMethod
+class DeliveryMethod implements EntityInterface, SoftDeleteInterface
 {
+    /**
+     * ID
+     *
+     * @var ?null
+     */
     #[ORM\Id]
     #[ORM\Column(type: 'integer')]
     #[ORM\GeneratedValue]
-    /** @var int|null */
     protected ?int $id = null;
 
+    /**
+     * Deleted flag
+     *
+     * @var bool
+     */
     #[ORM\Column(type: 'boolean')]
-    /** @var bool */
     protected bool $deleted = false;
 
+    /**
+     * Name
+     *
+     * @var ?string
+     */
     #[ORM\Column(type: 'string', length: 255, nullable: true)]
-    /** @var ?string */
     protected ?string $name = null;
 
     /**
+     * Sort order
      *
+     * @var ?null
+     */
+    #[ORM\Column(name: 'order_no', type: 'integer', nullable: true)]
+    protected ?int $orderNo = null;
+
+    /**
+     * Get ID.
      *
      * @return ?int
      */
@@ -69,7 +89,7 @@ class DeliveryMethod
     }
 
     /**
-     *
+     * Get deleted flag.
      *
      * @return bool
      */
@@ -79,7 +99,7 @@ class DeliveryMethod
     }
 
     /**
-     *
+     * Set deleted flag.
      *
      * @param bool $v
      *
@@ -87,11 +107,12 @@ class DeliveryMethod
      */
     public function setDeleted(bool $v): static
     {
-        $this->deleted = $v; return $this;
+        $this->deleted = $v;
+        return $this;
     }
 
     /**
-     *
+     * Get name.
      *
      * @return ?string
      */
@@ -101,7 +122,7 @@ class DeliveryMethod
     }
 
     /**
-     *
+     * Set name.
      *
      * @param ?string $v
      *
@@ -110,5 +131,28 @@ class DeliveryMethod
     public function setName(?string $v): static
     {
         $this->name = $v; return $this;
+    }
+
+    /**
+     * Get sort order.
+     *
+     * @return ?int
+     */
+    public function getOrderNo(): ?int
+    {
+        return $this->orderNo;
+    }
+
+    /**
+     * Set sort order.
+     *
+     * @param ?null $v Value
+     *
+     * @return static
+     */
+    public function setOrderNo(?int $v): static
+    {
+        $this->orderNo = $v;
+        return $this;
     }
 }

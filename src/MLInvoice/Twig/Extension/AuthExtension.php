@@ -1,6 +1,6 @@
 <?php
 /**
- * Twig Rounding Extension.
+ * Twig Auth Extension.
  *
  * PHP version 8
  *
@@ -30,14 +30,23 @@ declare(strict_types=1);
 
 namespace MLInvoice\Twig\Extension;
 
-use MLInvoice\I18n\NumberFormatter;
-use MLInvoice\I18n\Translator;
+use Closure;
+use DI\Attribute\Inject;
+use MLInvoice\Database\Entity\User;
+use MLInvoice\Database\Repository\CustomPriceRepository;
+use MLInvoice\Database\Repository\PrintTemplateRepository;
+use MLInvoice\Form\FormService;
+use MLInvoice\InvoicePrinter\InvoicePrinterBlank;
+use MLInvoice\InvoicePrinter\InvoicePrinterFactory;
+use MLInvoice\InvoicePrinter\InvoicePrinterXslt;
+use MLInvoice\List\ListService;
+use Psr\Http\Message\RequestInterface;
+use Psr\Http\Message\ServerRequestInterface;
 use Twig\Extension\AbstractExtension;
-use Twig\TwigFilter;
 use Twig\TwigFunction;
 
 /**
- * Twig Rounding Extension.
+ * Twig Auth Extension.
  *
  * @category MLInvoice
  * @package  MLInvoice\Twig
@@ -45,27 +54,32 @@ use Twig\TwigFunction;
  * @license  http://opensource.org/licenses/gpl-2.0.php GNU General Public License
  * @link     http://labs.fi/mlinvoice.eng.php
  */
-class NumberFormatterExtension extends AbstractExtension
+class AuthExtension extends AbstractExtension
 {
     /**
-     * Constructor
-     *
-     * @param NumberFormatter $numberFormatter Number formatter
-     */
-    public function __construct(protected NumberFormatter $numberFormatter)
-    {
-    }
-
-    /**
-     * Get Twig filters.
+     * Get Twig functions.
      *
      * @return array
      */
-    public function getFilters(): array
+    public function getFunctions(): array
     {
         return [
-            new TwigFilter('round_currency', $this->numberFormatter->roundCurrency(...)),
+            new TwigFunction('is_authorized', $this->isAuthorized(...)),
         ];
     }
 
+    /**
+     * Is user authorized?
+     *
+     * @param User $user User
+     * @param array $accessLevels Access levels
+     *
+     * @return array
+     */
+    function isAuthorized(
+        User $user,
+        array $accessLevels,
+    ) {
+        return in_array($user->getAccessLevel(), $accessLevels);
+    }
 }

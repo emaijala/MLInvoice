@@ -1,6 +1,6 @@
 <?php
 /**
- * Home Action.
+ * Recover Action.
  *
  * PHP version 8
  *
@@ -32,7 +32,6 @@ namespace MLInvoice\Action;
 
 use DI\Attribute\Inject;
 use MLInvoice\Database\DatabaseUpdater;
-use MLInvoice\Database\Repository\InvoiceRepository;
 use MLInvoice\Database\Repository\UserRepository;
 use MLInvoice\Database\Updater;
 use MLInvoice\I18n\Translator;
@@ -45,7 +44,7 @@ use Slim\Routing\RouteContext;
 use Slim\Views\Twig;
 
 /**
- * Home Action.
+ * Recover Action.
  *
  * @category MLInvoice
  * @package  MLInvoice\Action
@@ -53,18 +52,21 @@ use Slim\Views\Twig;
  * @license  http://opensource.org/licenses/gpl-2.0.php GNU General Public License
  * @link     http://labs.fi/mlinvoice.eng.php
  */
-class HomeAction extends AbstractAction
+class RecoverAction extends AbstractAction
 {
     /**
      * Constructor
      *
      * @param Translator      $translator      Translator
-     * @param SessionManagerInterface&SessionInterface $sessionManager Session manager
+     * @param DatabaseUpdater $databaseUpdater Database updater
+     * @param UserRepository  $userRepositoru  User database repository
+     * @param SessionInterface $session Session
      */
     public function __construct(
         Translator $translator,
-        protected InvoiceRepository $invoiceRepository,
-        #[Inject(SessionManagerInterface::class)] protected SessionManagerInterface&SessionInterface $sessionManager,
+        protected DatabaseUpdater $databaseUpdater,
+        protected UserRepository $userRepository,
+        protected SessionInterface $session,
     ) {
         parent::__construct($translator);
     }
@@ -81,9 +83,7 @@ class HomeAction extends AbstractAction
     public function __invoke(ServerRequestInterface $request, ResponseInterface $response, array $args = [])
     {
         parent::__invoke($request, $response, $args);
-        $data = [
-            'recurring_invoices' => $this->invoiceRepository->getCountOfRecurringInvoiceTemplatesNeedingProcessing(),
-        ];
-        return $this->getView($request)->render($response, 'home.html.twig', $data);
+
+        throw new \Exception('TODO');
     }
 }

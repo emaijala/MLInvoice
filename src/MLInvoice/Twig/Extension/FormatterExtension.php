@@ -1,6 +1,6 @@
 <?php
 /**
- * DeliveryTerms Repository.
+ * Twig Formatting Extension.
  *
  * PHP version 8
  *
@@ -20,46 +20,67 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  *
  * @category MLInvoice
- * @package  MLInvoice\Database
+ * @package  MLInvoice\Twig
  * @author   Ere Maijala <ere@labs.fi>
  * @license  http://opensource.org/licenses/gpl-2.0.php GNU General Public License
  * @link     http://labs.fi/mlinvoice.eng.php
  */
 
-namespace MLInvoice\Database\Repository;
+declare(strict_types=1);
 
-use Doctrine\ORM\EntityRepository;
-use MLInvoice\Database\Entity\DeliveryTerms;
+namespace MLInvoice\Twig\Extension;
+
+use DateTime;
+use MLInvoice\I18n\NumberFormatter;
+use MLInvoice\I18n\Translator;
+use Twig\Extension\AbstractExtension;
+use Twig\TwigFilter;
+use Twig\TwigFunction;
 
 /**
- * DeliveryTerms Repository.
+ * Twig Formatting Extension.
  *
  * @category MLInvoice
- * @package  MLInvoice\Database
+ * @package  MLInvoice\Twig
  * @author   Ere Maijala <ere@labs.fi>
  * @license  http://opensource.org/licenses/gpl-2.0.php GNU General Public License
  * @link     http://labs.fi/mlinvoice.eng.php
  */
-class DeliveryTermsRepository extends EntityRepository
+class FormatterExtension extends AbstractExtension
 {
     /**
-     * Find terms by name.
+     * Constructor
      *
-     * @param string $name
-     * @return object|null
+     * @param NumberFormatter $numberFormatter Number formatter
      */
-    public function findByName(string $name)
-    {
-        return $this->findOneBy(['name' => $name]);
+    public function __construct(
+        protected NumberFormatter $numberFormatter,
+        protected Translator $translator,
+    ) {
     }
 
     /**
-     * Return all non-deleted delivery methods.
+     * Get Twig filters.
      *
-     * @return DeliveryTerms[]
+     * @return array
      */
-    public function findAllNonDeleted(): array
+    public function getFilters(): array
     {
-        return $this->findBy(['deleted' => false], ['orderNo' => 'ASC']);
+        return [
+            new TwigFilter('round_currency', $this->numberFormatter->roundCurrency(...)),
+            new TwigFilter('format_date', $this->formatDate(...)),
+        ];
+    }
+
+    /**
+     * Format DateTime.
+     *
+     * @param DateTime $dateTime DateTime
+     *
+     * @return string
+     */
+    protected function formatDate(DateTime $dateTime): string
+    {
+        return $dateTime->format($this->translator->translate('DateFormat'));
     }
 }

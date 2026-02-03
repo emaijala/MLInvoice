@@ -29,6 +29,7 @@
 namespace MLInvoice\Database\Repository;
 
 use Doctrine\ORM\EntityRepository;
+use MLInvoice\Database\Entity\InvoiceState;
 
 /**
  * InvoiceState Repository.
@@ -81,4 +82,55 @@ class InvoiceStateRepository extends EntityRepository
     {
         return $this->findBy(['offer' => true], ['orderNo' => 'ASC']);
     }
+
+    /**
+     * Return all non-deleted offer states.
+     *
+     * @return InvoiceState[]
+     */
+    public function findNonDeletedOfferStates(): array
+    {
+        return $this->findBy(['offer' => true, 'deleted' => false], ['orderNo' => 'ASC']);
+    }
+
+    /**
+     * Return all invoice template states.
+     *
+     * @return InvoiceState[]
+     */
+    public function findAllInvoiceTemplateStates(): array
+    {
+        return $this->findBy(['template' => true], ['orderNo' => 'ASC']);
+    }
+
+    /**
+     * Return non-deleted invoice template states.
+     *
+     * @return InvoiceState[]
+     */
+    public function findNonDeletedInvoiceTemplateStates(): array
+    {
+        return $this->findBy(['template' => true, 'deleted' => false], ['orderNo' => 'ASC']);
+    }
+
+    /**
+     * Return initial state for an invoice template.
+     *
+     * @return ?InvoiceState
+     */
+    public function findInitialInvoiceTemplateState(): ?InvoiceState
+    {
+        return $this->findOneBy(['deleted' => false, 'template' => true], ['orderNo' => 'ASC']);
+    }
+
+    /**
+     * Return initial state for an offer.
+     *
+     * @return ?InvoiceState
+     */
+    public function findInitialOfferState(): ?InvoiceState
+    {
+        return $this->findOneBy(['deleted' => false, 'offer' => true], ['orderNo' => 'ASC']);
+    }
+
 }

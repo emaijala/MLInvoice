@@ -45,6 +45,8 @@ use MLInvoice\Search\SearchService;
 use MLInvoice\Session\Memory;
 use MLInvoice\Utils\DateUtils;
 use Odan\Session\SessionInterface;
+use Psr\Http\Message\RequestInterface;
+use Psr\Http\Message\ServerRequestInterface;
 
 /**
  * List Service.
@@ -616,11 +618,12 @@ class ListService
      * @param string $filterType Filter type
      * @param string $sort       Sort settings
      * @param int    $id         Item ID
+     * @param ?ServerRequestInterface $request Request
      *
      * @return array
      */
     function createJSONSelectList($list, $startRow, $rowCount, $filter, $filterType,
-        $sort, $id = null
+        $sort, $id = null, ?ServerRequestInterface $request = null
     ) {
         global $dblink;
 
@@ -731,8 +734,8 @@ class ListService
 
         $customPrices = null;
         if ('product' === $list) {
-            $companyId = getPostOrQuery('company');
-            if (!empty($companyId)) {
+            $companyId = $request->getParsedBody()['company'] ?? $request->getQueryParams()['company'] ?? null;
+            if ($companyId) {
                 $customPrices = getCustomPriceSettings($companyId);
             }
             if ($customPrices && false) {
@@ -891,7 +894,7 @@ class ListService
     }
 
     /**
-     * Get list config
+     * Get list configuration.
      *
      * @param string $list List
      *
@@ -912,6 +915,7 @@ class ListService
         ];
         switch ($list) {
         case 'company':
+            $itemRoute = 'companies/{id}';
             $table = Company::class;
             $astrSearchFields = [
                 [
@@ -991,12 +995,14 @@ class ListService
             $strMainForm = 'company';
             break;
 
+        case 'invoice_template':
+            $itemRoute = 'invoice-templates/{id}';
+        case 'archived_invoice':
+            $itemRoute = 'invoices/{id}';
+        case 'archived_offer':
+            $itemRoute = 'offers/{id}';
         case 'invoice':
-        case 'invoice_templates':
-        case 'archived_invoices':
-        case 'archived_offers':
-        case 'invoice':
-        case 'offer':
+            $itemRoute = 'invoices/{id}';
             $levelsAllowed[] = MLINVOICE_USER_ROLE_READONLY;
 
             $listFilter = 'i.archived = 0';
@@ -1168,6 +1174,7 @@ class ListService
          SETTINGS
         ***********************************************************************/
         case 'base':
+            $itemRoute = 'bases/{id}';
             $table = 'base';
             $astrSearchFields = [
                 [
@@ -1221,6 +1228,7 @@ class ListService
             break;
 
         case 'invoice_state':
+            $itemRoute = 'invoice-states/{id}';
             $table = 'invoice_state';
             $astrSearchFields = [
                 [
@@ -1250,6 +1258,7 @@ class ListService
             break;
 
         case 'invoice_type':
+            $itemRoute = 'invoice-types/{id}';
             $table = 'invoice_type';
             $astrSearchFields = [
                 [
@@ -1289,6 +1298,7 @@ class ListService
             break;
 
         case 'product':
+            $itemRoute = 'products/{id}';
             $table = 'product';
             $astrSearchFields = [
                 [
@@ -1404,6 +1414,7 @@ class ListService
             break;
 
         case 'row_type':
+            $itemRoute = 'row-types/{id}';
             $table = 'row_type';
             $astrSearchFields = [
                 [
@@ -1459,6 +1470,7 @@ class ListService
             break;
 
         case 'delivery_method':
+            $itemRoute = 'delivery-methods/{id}';
             $table = 'delivery_method';
             $astrSearchFields = [
                 [
@@ -1486,6 +1498,7 @@ class ListService
             break;
 
         case 'print_template':
+            $itemRoute = 'print-templates/{id}';
             $table = 'print_template';
             $astrSearchFields = [
                 [
@@ -1550,6 +1563,7 @@ class ListService
             break;
 
         case 'default_value':
+            $itemRoute = 'default-values/{id}';
             $table = 'default_value';
             $astrSearchFields = [
                 [
@@ -1598,6 +1612,7 @@ class ListService
             break;
 
         case 'attachment':
+            $itemRoute = 'attachments/{id}';
             $table = 'attachment';
             $astrSearchFields = [
                 [
@@ -1695,6 +1710,7 @@ class ListService
          SYSTEM
         ***********************************************************************/
         case 'session_type':
+            $itemRoute = 'session-types/{id}';
             $levelsAllowed = [
                 99
             ];
@@ -1726,6 +1742,7 @@ class ListService
             break;
 
         case 'user':
+            $itemRoute = 'users/{id}';
             $levelsAllowed = [
                 MLINVOICE_USER_ROLE_ADMIN
             ];
@@ -1786,6 +1803,7 @@ class ListService
             'fields' => $listFields,
             'searchFields' => $astrSearchFields ?? null,
             'mainForm' => $strMainForm ?? '',
+            'itemRoute' => $itemRoute ?? null,
         ] : [];
     }
 

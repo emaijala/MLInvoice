@@ -42,12 +42,12 @@ use MLInvoice\Database\Repository\InvoiceTypeRepository;
  */
 #[ORM\Entity(repositoryClass: InvoiceTypeRepository::class)]
 #[ORM\Table(name: 'invoice_type')]
-class InvoiceType
+class InvoiceType implements EntityInterface, SoftDeleteInterface
 {
     #[ORM\Id]
     #[ORM\Column(type: 'integer')]
     #[ORM\GeneratedValue]
-    /** @var int|null */
+    /** @var ?null */
     protected ?int $id = null;
 
     #[ORM\Column(type: 'boolean')]

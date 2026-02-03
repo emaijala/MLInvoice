@@ -42,12 +42,12 @@ use MLInvoice\Database\Repository\StockBalanceLogRepository;
  */
 #[ORM\Entity(repositoryClass: StockBalanceLogRepository::class)]
 #[ORM\Table(name: 'stock_balance_log')]
-class StockBalanceLog
+class StockBalanceLog implements EntityInterface
 {
     #[ORM\Id]
     #[ORM\Column(type: 'integer')]
     #[ORM\GeneratedValue]
-    /** @var int|null */
+    /** @var ?null */
     protected ?int $id = null;
 
     #[ORM\Column(type: 'datetime')]

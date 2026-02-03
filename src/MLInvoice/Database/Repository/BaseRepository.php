@@ -29,6 +29,7 @@
 namespace MLInvoice\Database\Repository;
 
 use Doctrine\ORM\EntityRepository;
+use MLInvoice\Database\Entity\Base;
 
 /**
  * (Billing) Base repository.
@@ -41,4 +42,25 @@ use Doctrine\ORM\EntityRepository;
  */
 class BaseRepository extends EntityRepository
 {
+    /**
+     * Get a non-deleted Base entity by ID.
+     *
+     * @param int $id ID
+     *
+     * @return ?Base
+     */
+    public function getNonDeletedById(int $id): ?Base
+    {
+        return $this->findOneBy(['id' => $id, 'deleted' => false]);
+    }
+
+    /**
+     * Return all non-deleted active bases
+     *
+     * @return Base[]
+     */
+    public function findAllNonDeletedActive(): array
+    {
+        return $this->findBy(['deleted' => false, 'inactive' => false], ['name' => 'ASC', 'id' => 'ASC']);
+    }
 }
