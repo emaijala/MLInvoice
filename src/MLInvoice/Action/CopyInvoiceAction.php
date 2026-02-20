@@ -1,6 +1,6 @@
 <?php
 /**
- * Invoice Action.
+ * Copy Invoice Action.
  *
  * PHP version 8
  *
@@ -59,7 +59,7 @@ use Slim\Routing\RouteContext;
 use Slim\Views\Twig;
 
 /**
- * Invoice Action.
+ * Copy Invoice Action.
  *
  * @category MLInvoice
  * @package  MLInvoice\Action
@@ -67,37 +67,8 @@ use Slim\Views\Twig;
  * @license  http://opensource.org/licenses/gpl-2.0.php GNU General Public License
  * @link     http://labs.fi/mlinvoice.eng.php
  */
-class InvoiceAction extends AbstractFormAction
+class CopyInvoiceAction extends InvoiceAction
 {
-    /**
-     * Constructor
-     *
-     * @param Translator      $translator      Translator
-     * @param SessionInterface $session Session
-     */
-    public function __construct(
-        Translator $translator,
-        FormService $formService,
-        SessionInterface $session,
-        InvoiceRepository $invoiceRepository,
-        EntityManagerInterface $entityManager,
-        SettingsManager $settingsManager,
-        protected InvoiceStateRepository $invoiceStateRepository,
-        protected CustomPriceMapRepository $customPriceMapRepository,
-        protected ProductRepository $productRepository,
-        protected AttachmentRepository $attachmentRepository,
-    ) {
-        parent::__construct(
-            $translator,
-            'invoice',
-            $formService,
-            $session,
-            $invoiceRepository,
-            $entityManager,
-            $settingsManager
-        );
-    }
-
     /**
      * Invoke the action.
      *
@@ -113,34 +84,14 @@ class InvoiceAction extends AbstractFormAction
             return $result;
         }
 
-        $newLocation = null;
-        $openWindow = null;
-        if ($redirect = $request->getParsedBody()['redirect'] ?? $request->getQueryParams()['redirect'] ?? null) {
-            foreach ($this->formConfig['fields'] as $elem) {
-                if ($elem['name'] == $redirect) {
-                    if ($elem['style'] == 'redirect') {
-                        $newLocation = str_replace(
-                            '_ID_', (string)$this->id, $elem['listquery']
-                        );
-                    } elseif ($elem['style'] == 'openwindow') {
-                        $openWindow = str_replace(
-                            '_ID_', (string)$this->id, $elem['listquery']
-                        );
-                    }
-                }
-            }
-        }
-
-        // Update from template if requested:
-        if (!$this->id && ($templateId = $request->getQueryParams()['template'] ?? null)) {
-            if (!($invoiceTemplate = $this->repository->find($templateId))) {
+        if ($sourceId = $args['from'] ?? null) {
+            if (!($sourceInvoice = $this->repository->find($sourceId))) {
                 throw new \Exception('RecordNotFound');
             }
             try {
                 $this->entityManager->beginTransaction();
-                $this->updateFromInvoice($invoiceTemplate, true);
-                $invoiceTemplate->advanceInvoiceIntervalDate();
-                $this->repository->persistEntity($invoiceTemplate);
+                $this->updateFromInvoice($sourceInvoice, false);
+                $this->repository->persistEntity($this->entity);
                 $this->entityManager->commit();
             } catch (\Exception $e) {
                 $this->entityManager->rollback();
@@ -148,15 +99,10 @@ class InvoiceAction extends AbstractFormAction
             }
         }
 
-        $data = [
-            'data' => $this->entity->toArray() ?? $this->getFormDefaultValues(),
-            'formConfig' => $this->formConfig,
-            'id' => $this->id,
-            'newLocation' => $newLocation,
-            'openWindow' => $openWindow,
-            'attachments' => $this->attachmentRepository->findAll(),
-        ];
-        return $this->getView($request)->render($response, 'invoice.html.twig', $data);
+        $routeParser = RouteContext::fromRequest($request)->getRouteParser();
+        return $response
+            ->withHeader('Location', $routeParser->urlFor('invoice', ['id' => $this->entity->getId()]))
+            ->withStatus(302);
     }
 
     /**

@@ -1199,7 +1199,7 @@ EOF;
             $buttonGroups[] = [
                 'buttons' => $group2,
                 'overflow' => 5,
-                'overflow-label' => 'PrintOther',
+                'overflowLabel' => 'PrintOther',
             ];
         }
     }

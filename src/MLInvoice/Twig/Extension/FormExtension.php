@@ -35,6 +35,7 @@ use DI\Attribute\Inject;
 use MLInvoice\Database\Repository\BaseRepository;
 use MLInvoice\Database\Repository\CustomPriceRepository;
 use MLInvoice\Database\Repository\InvoiceAttachmentRepository;
+use MLInvoice\Database\Repository\InvoiceRepository;
 use MLInvoice\Database\Repository\PrintTemplateRepository;
 use MLInvoice\Form\FormService;
 use MLInvoice\I18n\Translator;
@@ -48,6 +49,7 @@ use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Slim\Interfaces\RouteParserInterface;
 use Slim\Interfaces\RouteResolverInterface;
+use Slim\Routing\RouteContext;
 use Twig\Extension\AbstractExtension;
 use Twig\TwigFunction;
 
@@ -74,10 +76,11 @@ class FormExtension extends AbstractExtension
         protected CustomPriceRepository $customPriceRepository,
         protected InvoicePrinterFactory $invoicePrinterFactory,
         #[Inject('CsrfGuardFactory')] protected Closure $csrfFactory,
-        protected RouteParserInterface $routeParser,
         protected Memory $memory,
         protected BaseRepository $baseRepository,
+        protected InvoiceRepository $invoiceRepository,
         protected InvoiceAttachmentRepository $invoiceAttachmentRepository,
+        protected ListExtension $listExtension,
     ) {
     }
 
@@ -92,10 +95,14 @@ class FormExtension extends AbstractExtension
             new TwigFunction('form_config', $this->createFormConfig(...)),
             new TwigFunction('getCompanyInvoiceSearchLinks', $this->getCompanyInvoiceSearchLinks(...)),
             new TwigFunction('getListNavigationLinks', $this->getListNavigationLinks(...)),
-            new TwigFunction('getBaseList', $this->baseRepository->findAllNonDeletedActive()),
-            new TwigFunction('getInvoiceAttachmentCount', $this->invoiceAttachmentRepository->countByInvoiceId(...)),
+            new TwigFunction('getBaseList', $this->getBaseList(...)),
+            new TwigFunction('getInvoiceAttachmentCount', $this->invoiceAttachmentRepository->getCountByInvoiceId(...)),
+            new TwigFunction('getLinkedInvoiceCount', $this->invoiceRepository->getCountByTemplateInvoiceId(...)),
             new TwigFunction('fileSizeToHumanReadable', $this->fileSizeToHumanReadable(...)),
             new TwigFunction('getMaxUploadSize', $this->getMaxUploadSize(...)),
+            new TwigFunction('htmlAttributes', $this->htmlAttributes(...)),
+            new TwigFunction('dataAttributes', $this->dataAttributes(...)),
+            new TwigFunction('htmlFormElement', $this->htmlFormElement(...)),
         ];
     }
 
@@ -122,10 +129,14 @@ class FormExtension extends AbstractExtension
     /**
      * Get invoice search links for a company
      *
+     * @param ServerRequestInterface $request Request
+     *
      * @return array
      */
-    protected function getCompanyInvoiceSearchLinks(int $companyId): array
+    protected function getCompanyInvoiceSearchLinks(ServerRequestInterface $request, int $companyId): array
     {
+        $routeContext = RouteContext::fromRequest($request);
+        $routeParser = $routeContext->getRouteParser();
         $urlParamsBase = [
             's_type1' => 'company_id',
             's_field1' => $companyId,
@@ -133,28 +144,28 @@ class FormExtension extends AbstractExtension
         $invoiceLinks = [
             [
                 'name' => 'NonArchivedInvoices',
-                'url' => $this->routeParser->relativeUrlFor(
+                'url' => $routeParser->relativeUrlFor(
                     'search-invoices-results',
                     queryParams: $urlParamsBase + ['search_id' => SearchService::SEARCH_NON_ARCHIVED_INVOICES]
                 ),
             ],
             [
                 'name' => 'ArchivedInvoices',
-                'url' => $this->routeParser->relativeUrlFor(
+                'url' => $routeParser->relativeUrlFor(
                     'search-invoices-results',
                     queryParams: $urlParamsBase + ['search_id' => SearchService::SEARCH_ARCHIVED_INVOICES]
                 ),
             ],
             [
                 'name' => 'NonArchivedOffers',
-                'url' => $this->routeParser->relativeUrlFor(
+                'url' => $routeParser->relativeUrlFor(
                     'search-invoices-results',
                     queryParams: $urlParamsBase + ['search_id' => SearchService::SEARCH_NON_ARCHIVED_OFFERS]
                 ),
             ],
             [
                 'name' => 'ArchivedOffers',
-                'url' => $this->routeParser->relativeUrlFor(
+                'url' => $routeParser->relativeUrlFor(
                     'search-invoices-results',
                     queryParams: $urlParamsBase + ['search_id' => SearchService::SEARCH_ARCHIVED_OFFERS]
                 ),
@@ -340,5 +351,370 @@ class FormExtension extends AbstractExtension
             $value *= 1024;
         }
         return $value;
+    }
+
+    /**
+     * Format an array of HTML attributes as a string.
+     *
+     * @param array $attrs Attributes
+     *
+     * @return string
+     */
+    protected function htmlAttributes(array $attrs): string
+    {
+        $result = '';
+        foreach ($attrs as $key => $value) {
+            $key = htmlspecialchars($key);
+            $value = htmlspecialchars($value);
+            $result .= " $key=\"$value\"";
+        }
+
+        return $result;
+    }
+
+    /**
+     * Format an array of data attributes as a string.
+     *
+     * @param array $attrs Attributes
+     *
+     * @return string
+     */
+    protected function dataAttributes(array $attrs): string
+    {
+        $result = '';
+        if (array_is_list($attrs)) {
+            foreach ($attrs as $key) {
+                $key = htmlspecialchars('data-' . $key);
+                $result .= " $key";
+            }
+        } else {
+            foreach ($attrs as $key => $value) {
+                $key = htmlspecialchars('data-' . $key);
+                $value = htmlspecialchars($value);
+                $result .= " $key=\"$value\"";
+            }
+        }
+
+        return $result;
+    }
+
+    protected function getBaseList(): array
+    {
+        $result = [];
+        foreach ($this->baseRepository->findAllNonDeletedActive() as $base) {
+            $result[] = $base->toArray();
+        }
+        return $result;
+    }
+
+    /**
+     * Create a form element
+     *
+     * @param string $strName                  Element name
+     * @param string $strType                  Element type
+     * @param string $strValue                 Element value
+     * @param string $strStyle                 Element style
+     * @param string $strListQuery             Query for list element
+     * @param string $strMode                  Edit mode
+     * @param string $strParentKey             Parent record ID
+     * @param string $strTitle                 Element title
+     * @param array  $astrDefaults             Unused TODO: remove
+     * @param array  $astrAdditionalAttributes Additional HTML attributes
+     * @param array  $options                  Options for a listbox or drop-down menu
+     *
+     * @return string
+     */
+    function htmlFormElement($strName, $strType, $strValue, $strStyle, $strListQuery = '',
+        $strMode = 'MODIFY', $strParentKey = null, $strTitle = '', $astrDefaults = [],
+        $astrAdditionalAttributes = '', $options = null
+    ) {
+
+        if ($astrAdditionalAttributes) {
+            $astrAdditionalAttributes = " $astrAdditionalAttributes";
+        }
+        $strFormElement = '';
+        $readOnly = $strMode == 'MODIFY' ? '' : ' readonly="readonly"';
+        $disabled = $strMode == 'MODIFY' ? '' : ' disabled="disabled"';
+
+        switch ($strType) {
+        case 'TEXT':
+            if (strstr($strStyle, 'hasDateRangePicker')) {
+                $autocomplete = ' autocomplete="off"';
+            } else {
+                $autocomplete = '';
+            }
+
+            $strFormElement = "<input type=\"text\" class=\"form-control $strStyle\"$autocomplete " .
+                "id=\"$strName\" name=\"$strName\" value=\"" .
+                htmlspecialchars($strValue ?? '') . "\"$astrAdditionalAttributes$readOnly>\n";
+            break;
+
+        case 'PASSWD':
+        case 'PASSWD_STORED':
+            $strFormElement = "<input type=\"password\" class=\"form-control $strStyle\" " .
+                "id=\"$strName\" name=\"$strName\" value=\"\"$astrAdditionalAttributes$readOnly>\n";
+            break;
+
+        case 'CHECK':
+            $strValue = $strValue ? 'checked' : '';
+            $strFormElement = "<input type=\"checkbox\" id=\"$strName\" name=\"$strName\" value=\"1\" " .
+                htmlspecialchars($strValue ?? '') . "$astrAdditionalAttributes$disabled>\n";
+            break;
+
+        case 'RADIO':
+            $strChecked = $strValue ? 'checked' : '';
+            $strFormElement = "<input type=\"radio\" id=\"$strName\" name=\"$strName\" value=\"" .
+                htmlspecialchars($strValue ?? '') . "\"$astrAdditionalAttributes$disabled>\n";
+            break;
+
+        case 'INT':
+            $hideZero = false;
+            if (strstr($strStyle, ' hidezerovalue')) {
+                $strStyle = str_replace(' hidezerovalue', '', $strStyle);
+                $hideZero = true;
+            }
+            if ($hideZero && $strValue == 0) {
+                $strValue = '';
+            }
+            $strFormElement = "<input type=\"text\" class=\"form-control $strStyle\" " .
+                "id=\"$strName\" name=\"$strName\" value=\"" .
+                htmlspecialchars($strValue ?? '') . "\"$astrAdditionalAttributes$readOnly>\n";
+            break;
+
+        case 'INTDATE':
+            $strFormElement = "<input type=\"date\" class=\"form-control $strStyle\" " .
+                "id=\"$strName\" name=\"$strName\" value=\"" .
+                htmlspecialchars($strValue ?? '') . "\"$astrAdditionalAttributes$readOnly>\n";
+            break;
+
+        case 'HID_INT':
+        case 'HID_UUID':
+            $strFormElement = '<input type="hidden" ' .
+                "id=\"$strName\" name=\"$strName\" value=\"" .
+                htmlspecialchars($strValue ?? '') . "\">\n";
+            break;
+
+        case 'AREA':
+            $strFormElement = '<textarea class="form-control ' . $strStyle . '" ' .
+                'id="' . $strName . '" name="' . $strName .
+                "\"$astrAdditionalAttributes$readOnly>" . $strValue . "</textarea>\n";
+            break;
+
+        case 'RESULT':
+            $strListQuery = str_replace('_ID_', $strValue, $strListQuery);
+            $res = dbQueryCheck($strListQuery);
+            $strFormElement = htmlspecialchars(dbFetchValue($res) ?? '') . "\n";
+            break;
+
+        case 'LIST':
+            $translate = false;
+            if (strstr($strStyle, ' translated')) {
+                $translate = true;
+                $strStyle = str_replace(' translated', '', $strStyle);
+            }
+
+            if ($strMode == 'MODIFY') {
+                if (is_array($strListQuery)) {
+                    $showEmpty = true;
+                    if (strstr($strStyle, ' noemptyvalue')) {
+                        $showEmpty = false;
+                        $strStyle = str_replace(' noemptyvalue', '', $strStyle);
+                    }
+                    $strFormElement = htmlListBox(
+                        $strName, $strListQuery, $strValue, $strStyle, false, $showEmpty,
+                        $astrAdditionalAttributes, $translate
+                    );
+
+                } else {
+                    $strFormElement = htmlSQLListBox(
+                        $strName, $strListQuery, $strValue,
+                        $strStyle, false, $astrAdditionalAttributes, $translate
+                    );
+                }
+            } else {
+                $strFormElement = "<input type=\"text\" class=\"form-control $strStyle\" "
+                    . "id=\"$strName\" name=\"$strName\" value=\""
+                    . htmlspecialchars($strListQuery[$strValue] ?? '')
+                    . "\"$astrAdditionalAttributes$readOnly>\n";
+            }
+            break;
+
+        case 'SEARCHLIST':
+            if ($strMode == 'MODIFY') {
+                $showEmpty = '1';
+                if (strstr($strStyle, ' noemptyvalue')) {
+                    $strStyle = str_replace(' noemptyvalue', '', $strStyle);
+                    $showEmpty = '0';
+                }
+                $strValue = htmlspecialchars($strValue ?? '');
+                $valueDesc = htmlspecialchars(
+                    $this->listExtension->getSearchListValueFor($strListQuery, $strValue)
+                );
+                $onChange = $astrAdditionalAttributes ? trim($astrAdditionalAttributes) : '';
+                $encodedQuery = htmlspecialchars($strListQuery);
+                $strFormElement = <<<EOT
+    <select autocomplete="off" class="$strStyle js-searchlist" id="$strName" name="$strName" data-list-query="$encodedQuery" data-show-empty="$showEmpty" data-on-change="$onChange">
+    <option value="$strValue" selected>$valueDesc</option>
+    </select>
+    EOT;
+            } else {
+                $strFormElement = "<input type=\"text\" class=\"form-control $strStyle\" " .
+                    "id=\"$strName\" name=\"$strName\" value=\"" .
+                    htmlspecialchars(
+                        $this->listExtension->getSearchListValueFor($strListQuery, $strValue)
+                    ) .
+                    "\"$astrAdditionalAttributes$readOnly>\n";
+            }
+            break;
+        case 'SELECT':
+            $translate = false;
+            if (strstr($strStyle, ' translated')) {
+                $translate = true;
+                $strStyle = str_replace(' translated', '', $strStyle);
+            }
+            if ($strMode == 'MODIFY') {
+                $strFormElement = htmlListBox(
+                    $strName, $options, $strValue, $strStyle,
+                    false, $astrAdditionalAttributes, $translate
+                );
+            } else {
+                $strFormElement = "<input type=\"text\" class=\"form-control $strStyle\" "
+                    . "id=\"$strName\" name=\"$strName\" value=\"" . htmlspecialchars($options[$strValue] ?? '')
+                    . "\"$astrAdditionalAttributes$readOnly>\n";
+            }
+            break;
+        case 'TAGS':
+            if ($strMode == 'MODIFY') {
+                $showEmpty = '1';
+                if (strstr($strStyle, 'noemptyvalue ')) {
+                    $strStyle = str_replace('noemptyvalue ', '', $strStyle);
+                    $showEmpty = '0';
+                }
+                $values = $strValue ? explode(',', $strValue) : [];
+                $onChange = $astrAdditionalAttributes ? trim($astrAdditionalAttributes) : '';
+                $encodedQuery = htmlspecialchars($strListQuery);
+                $strFormElement = <<<EOT
+    <select multiple autocomplete="off" class="$strStyle js-searchlist select2 tags" id="$strName" name="$strName" data-list-query="$encodedQuery" data-show-empty="$showEmpty" data-on-change="$onChange">
+
+    EOT;
+                foreach ($values as $value) {
+                    $value = htmlspecialchars($value);
+                    $strFormElement .= '<option value="' . $value . '" selected>' . $value . "</option>\n";
+                }
+
+                $strFormElement .= '</select>';
+            } else {
+                $strFormElement = "<input type=\"text\" class=\"form-control $strStyle\" " .
+                    "id=\"$strName\" name=\"$strName\" value=\"" .
+                    htmlspecialchars($strValue) .
+                    "\"$astrAdditionalAttributes$readOnly>\n";
+            }
+            break;
+
+        case 'BUTTON':
+            $strListQuery = str_replace('_ID_', $strValue, $strListQuery);
+            switch ($strStyle) {
+            case 'custom':
+                $strListQuery = str_replace("'", '', $strListQuery);
+                $strHref = $strListQuery;
+                $strOnClick = '';
+                break;
+
+            case 'redirect':
+                $strHref = '#';
+                $strOnClick = "onclick=\"MLInvoice.Form.saveRecord('$strListQuery', 'redirect'); return false;\"";
+                break;
+
+            case 'openwindow':
+                $strHref = '#';
+                $strOnClick = "onclick=\"MLInvoice.Form.saveRecord('$strListQuery', 'openwindow'); return false;\"";
+                break;
+
+            default:
+                switch ($strStyle) {
+                case 'tiny':
+                    $strHW = 'height=1,width=1,';
+                    break;
+                case 'small':
+                    $strHW = 'height=200,width=200,';
+                    break;
+                case 'medium':
+                    $strHW = 'height=400,width=400,';
+                    break;
+                case 'large':
+                    $strHW = 'height=600,width=600,';
+                    break;
+                case 'xlarge':
+                    $strHW = 'height=800,width=650,';
+                    break;
+                case 'full':
+                    $strHW = '';
+                    break;
+                default:
+                    $strHW = '';
+                    break;
+                }
+                $strHref = '#';
+                $strOnClick = 'onclick="window.open(' . $strListQuery . ",'" . $strHW .
+                    'menubar=no,scrollbars=no,' .
+                    "status=no,toolbar=no'); return false;\"";
+                break;
+            }
+            $strFormElement = "<a class=\"btn btn-secondary formbuttonlink\" href=\"$strHref\" $strOnClick$astrAdditionalAttributes>" .
+                htmlspecialchars($this->translator->translate($strTitle)) . "</a>\n";
+            break;
+
+        case 'JSBUTTON':
+            if (strstr($strListQuery, '_ID_') && !$strValue) {
+                $strFormElement = $this->translator->translate('SaveFirst');
+            } else {
+                if ($strValue) {
+                    $strListQuery = str_replace('_ID_', $strValue, $strListQuery);
+                }
+                $strOnClick = "onClick=\"$strListQuery\"";
+                $strFormElement = "<a class=\"btn btn-secondary formbuttonlink\" href=\"#\" $strOnClick$astrAdditionalAttributes>" .
+                    htmlspecialchars($this->translator->translate($strTitle)) . "</a>\n";
+            }
+            break;
+
+        case 'DROPDOWNMENU':
+            if (strstr($strListQuery, '_ID_') && !$strValue) {
+                $strFormElement = $this->translator->translate('SaveFirst');
+            } else {
+                $menuTitle = htmlspecialchars($this->translator->translate($strTitle));
+                $menuItems = '';
+                foreach ($options as $option) {
+                    $strListQuery = str_replace('_ID_', $strValue, $option['listquery']);
+                    $menuItems .= '<li onClick="' . $strListQuery . '"><div>' . $this->translator->translate($option['label']) . '</div></li>';
+                }
+                $strFormElement = <<<EOT
+    <ul class="dropdownmenu" $astrAdditionalAttributes>
+    <li>$menuTitle
+        <ul>
+        $menuItems
+        </ul>
+    </li>
+    </ul>
+    EOT;
+            }
+            break;
+
+        case 'IMAGE':
+            $strListQuery = str_replace('_ID_', $strValue, $strListQuery);
+            $strFormElement = "<img id=\"$strName\" class=\"$strStyle\" src=\"$strListQuery\" title=\"" .
+                htmlspecialchars($this->translator->translate($strTitle)) . "\">\n";
+            break;
+
+        case 'FILE':
+            $strFormElement = '<input type="file" class="form-control ' . $strStyle . '" ' .
+                'id="' . $strName . '" name="' . $strName .
+                "\"$astrAdditionalAttributes$readOnly>\n";
+            break;
+
+        default:
+            $strFormElement = "&nbsp;\n";
+        }
+
+        return $strFormElement;
     }
 }

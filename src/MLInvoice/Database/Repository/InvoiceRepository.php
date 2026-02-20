@@ -95,4 +95,16 @@ class InvoiceRepository extends EntityRepository
                 'ids' => $this->getEntityManager()->createQuery($subQuery)->getResult()
             ])->getSingleScalarResult();
     }
+
+	/**
+	 * Get the number of invoiced linked to a template.
+	 *
+	 * @param int $invoiceId Invoice ID
+	 *
+	 * @return int
+	 */
+	public function getCountByTemplateInvoiceId(int $invoiceId): int
+	{
+		return $this->countBy(['templateInvoice' => $invoiceId]);
+	}
 }

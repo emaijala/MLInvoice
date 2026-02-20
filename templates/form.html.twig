@@ -6,166 +6,122 @@
 
 
 <div id="popup_dlg" class="modal" aria-hidden="true">
-<div class="modal-dialog">
+  <div class="modal-dialog">
     <div class="modal-content">
-        <div class="modal-header">
-            <h2 class="modal-title">-</h2>
-            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="{{ 'Close'|trans }}"></button>
-        </div>
-        <div class="modal-body"></div>
-        <div class="modal-footer">
-            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{{ 'Close'|trans }}</button>
-        </div>
+      <div class="modal-header">
+        <h2 class="modal-title">-</h2>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="{{ 'Close'|trans }}"></button>
+      </div>
+      <div class="modal-body"></div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{{ 'Close'|trans }}</button>
+      </div>
     </div>
-</div>
+  </div>
 </div>
 {% if formConfig.popupHTML %}
-    {{ formConfig.popupHTML }}
+  {{ formConfig.popupHTML }}
 {% endif %}
 
 <div class="form_container">
+  {% include 'form-buttons.html.twig' with { 'top': true } %}
 
-  {{ include form-buttons.html.twig with { 'top': true } }}
+  {% if (id and formConfig.type == 'invoice_template') %}
+    {% if data.next_interval_date and data.interval_type %}
+      {% set alertClass = ' hidden' %}
+    {% else %}
+      {% set alertClass = '' %}
+    {% endif %}
 
-<?php
-createFormButtons(
-    $strForm, $formConfig, $intKeyValue ? false : true, true, $recordDeleted
-);
-
-if ($intKeyValue && $strForm == 'invoice_template') {
-    $alertClass = empty($astrValues['next_interval_date']) || empty($astrValues['interval_type'])
-        ? '' : ' hidden';
-
-    ?>
-    <div class="alert alert-warning message js-recurrence-alert<?php echo $alertClass?>" role="alert">
-        <?php echo Translator::translate('RecurrenceOrNextInvoiceDateNotSet')?>
+    <div class="alert alert-warning message js-recurrence-alert{{ alertClass }}" role="alert">
+        {{ 'RecurrenceOrNextInvoiceDateNotSet'|trans }}
     </div>
-    <?php
-}
+  {% endif %}
 
-if (!empty($astrValues['next_interval_date'])
-    && strDate2UnixTime($astrValues['next_interval_date']) <= time()
-) {
-    ?>
-<div class="alert alert-warning message" role="alert">
-    <?php echo Translator::translate(
-        ($intKeyValue && isTemplate($intKeyValue)) ? 'RecurringInvoiceDueForProcessing' : 'CreateCopyForNextInvoice'
-    )?>
-</div>
-    <?php
-}
-if (!sesWriteAccess() || $formConfig['readOnly']) {
-    $formDataAttrs[] = 'read-only';
-}
-$dataAttrs = empty($formConfig['dataAttrs']) ? '' : ' '
-    . implode(
-        ' ',
-        array_map(
-            function ($s) {
-                return "data-$s";
-            },
-            $formConfig['dataAttrs']
-        )
-    );
-?>
-<div class="form">
-    <form method="post" name="form" id="form"<?php echo $dataAttrs?>>
-        <input type="hidden" name="action" value="">
-        <input type="hidden" name="redirect" id="redirect" value="">
-        <input type="hidden" id="record_id" name="id" value="<?php echo (isset($intKeyValue) && $intKeyValue) ? $intKeyValue : '' ?>">
-<?php
-if ('invoice' === $strForm) {
-    ?>
-        <input type="hidden" id="invoice_vatless" value="0">
-    <?php
-}
-foreach ($formConfig['fields'] as $elem) {
-    if ($elem['type'] == 'HID_INT' || strstr($elem['type'], 'HID_')) {
-        echo htmlFormElement(
-            $elem['name'], $elem['type'], $astrValues[$elem['name']],
-            $elem['style'], $elem['listquery'], 'READONLY', $elem['parent_key'],
-            $elem['label']
-        );
-    }
-}
-$childFormConfig = false;
-$prevPosition = false;
-$formFieldMode = sesWriteAccess() && !$formConfig['readOnly'] ? 'MODIFY' : 'READONLY';
-foreach ($formConfig['fields'] as $elem) {
-    if ($elem['type'] === false) {
-        continue;
-    }
-    $style = $elem['style'] !== '' ? ' ' . $elem['style'] : '';
-    $fieldClass = '';
+  {% if data.next_interval_date and formatDate(data.next_interval_date, 'Y-m-d') <= formatDate(null, 'Y-m-d') %}
+    <div class="alert alert-warning message" role="alert">
+      {{ formConfig.type == 'invoice' ? 'CreateCopyForNextInvoice'|trans : 'RecurringInvoiceDueForProcessing'|trans }}
+    </div>
+  {% endif %}
 
-    if (!empty($elem['hidden'])) {
-        $style .= ' hidden';
-        $fieldClass = ' hidden';
-    }
+  <div class="form">
+    <form method="post" name="form" id="form"{{ dataAttributes(formConfig.dataAttrs) }}>
+      <input type="hidden" name="action" value="">
+      <input type="hidden" name="redirect" id="redirect" value="">
+      <input type="hidden" id="record_id" name="id" value="{{ data.id|escape }}">
+      {% if formConfig.type == 'invoice' or formConfig.type == 'offer' or formConfig.type == 'invoice_template' %}
+        <input type="hidden" id="invoice_vatless" name="invoice_vatless" value="0">
+      {% endif %}
+      {% for field in formConfig.hiddenFields %}
+        <input type="hidden" id="{{ field.name|escape }}" name="{{ field.name|escape }}" value="{{ data.(field.name)|escape }}">
+      {% endfor %}
 
-    $fieldMode = isset($elem['read_only']) && $elem['read_only'] ? 'READONLY' : $formFieldMode;
+      {% set childFormConfig = false %}
+      {% set prevPosition = false %}
+      {% set formMode = ((not writeAccess) or formConfig.readOnly) ? 'READONLY' : '' %}
+      {% for field in formConfig.fields %}
+        {% set style = field.style ? field.style : '' %}
+        {% set fieldClass = '' %}
+        {% if field.hidden %}
+          {% set style = style ~ ' hidden' %}
+          {% set fieldClass = ' hidden' %}
+        {% endif %}
+        {% set fieldMode = field.readOnly ? 'READONLY' : formReadOnly %}
+        {% if field.type == 'HEADING' %}
+          <div class="sublabel{{ style }} mt-4"{% if field.name %} id="{{ field.name|e }}"{% endif %}>
+            <h2>{{ field.label|trans }}</h2>
+          </div>
+        {% elseif field.type == 'LABEL' %}
+          <div class="sublabel{{ style }}"{% if field.name %} id="{{ field.name|e }}"{% endif %}>
+            {{ field.label|trans }}
+          </div>
+        {% endif %}
 
-    if ($elem['type'] == 'HEADING') {
-        ?>
-        <div class="sublabel<?php echo $style?> mt-4"<?php echo empty($elem['name']) ? '' : (' id="' . $elem['name'] . '"')?>>
-            <h2><?php echo Translator::translate($elem['label'])?></h2>
-        </div>
-        <?php
-        continue;
-    } elseif ($elem['type'] == 'LABEL') {
-        ?>
-        <div class="sublabel<?php echo $style?>"<?php echo empty($elem['name']) ? '' : (' id="' . $elem['name'] . '"')?>>
-            <?php echo Translator::translate($elem['label'])?>
-        </div>
-        <?php
-        continue;
-    }
+        {% if field.position == 0 or field.position <= prevPosition %}
+          <div class="clear-row"></div>
+          {% set prevPosition = 0 %}
+        {% endif %}
 
-    if ($elem['position'] == 0 || $elem['position'] <= $prevPosition) {
-        echo '        <div class="clear-row"></div>';
-        $prevPosition = 0;
-    }
-
-    $contentsClasses = htmlentities(strtolower($elem['type']))
-        . ' ' . $elem['style']
-        . (isset($elem['attached_elem']) ? ' attached' : '');
-
-    if (!$intKeyValue
-        && in_array($elem['type'], ['BUTTON', 'JSBUTTON', 'IMAGE', 'DROPDOWNMENU'])
-    ) {
-        echo '          <div class="label$style">&nbsp;</div>';
-    } elseif (in_array($elem['type'], ['BUTTON', 'JSBUTTON', 'DROPDOWNMENU'])) {
-        ?>
-        <div class="form-field button<?php echo $fieldClass?>">
-        <?php
-        echo htmlFormElement(
-            $elem['name'], $elem['type'],
-            $astrValues[$elem['name']] ?? '',
-            $elem['style'], $elem['listquery'],
-            $fieldMode, $elem['parent_key'], $elem['label'], [],
-            $elem['elem_attributes'] ?? '',
-            $elem['options'] ?? null
-        )
-        ?>
-        </div>
-        <?php
-    } elseif ($elem['type'] == 'HID_INT' || strstr($elem['type'], 'HID_')) {
-        // Already done above
-    } elseif ($elem['type'] == 'IMAGE') {
-        ?>
-        <div class="field image<?php echo $fieldClass?>">
-        <div class="field-contents <?php echo $contentsClasses?>">
-        <?php echo htmlFormElement(
-            $elem['name'], $elem['type'], $astrValues[$elem['name']],
-            $elem['style'], $elem['listquery'], $fieldMode, $elem['parent_key'],
-            $elem['label'], [],
-            $elem['elem_attributes'] ?? '',
-            $elem['options'] ?? null
-        ); ?>
-        </div>
-        </div>
-        <?php
-    } elseif ($elem['type'] == 'IFORM') {
+        {% set contentsClasses = field.type|lower|e ~ ' ' ~ field.style ~ (attached_elem in field ? ' attached' : '') %}
+        {% if not id and field.type in ['BUTTON', 'JSBUTTON', 'IMAGE', 'DROPDOWNMENU'] %}
+          <div class="label{{ style }}">&nbsp;</div>
+        {% elseif field.type in ['BUTTON', 'JSBUTTON', 'DROPDOWNMENU'] %}
+          <div class="form-field button{{ fieldClass }}">
+            {{ htmlFormElement(
+              field.name,
+              field.type,
+              data.(field.name) ?? '',
+              field.style,
+              field.listquery,
+              fieldMode,
+              field.parent_key,
+              field.label,
+              [],
+              field.elem_attributes,
+              field.options)
+            }}
+          </div>
+        {% elseif field.type == 'IMAGE' %}
+          <div class="field image<?php echo $fieldClass?>">
+            <div class="field-contents <?php echo $contentsClasses?>">
+              {{ htmlFormElement(
+                field.name,
+                field.type,
+                data.(field.name) ?? '',
+                field.style,
+                field.listquery,
+                fieldMode,
+                field.parent_key,
+                field.label,
+                [],
+                field.elem_attributes,
+                field.options)
+              }}
+            </div>
+          </div>
+        {% elseif field.type == 'IFORM' %}
+          TODO IFORM
+          </form>
         echo "      </form>\n";
         $childFormConfig = getFormConfig($elem['name'], $strFunc, null, $intKeyValue);
         createIForm(
@@ -175,60 +131,47 @@ foreach ($formConfig['fields'] as $elem) {
             $strFunc
         );
         break;
-    } else {
-        ?>
-    <div class="field<?php echo $fieldClass?>">
-        <?php
-        $value = $astrValues[$elem['name']];
-        if ($elem['style'] == 'measurement') {
-            $value = $value ? miscRound2Decim($value, 2) : '';
-        }
-        if ($elem['type'] == 'AREA') {
-            ?>
-        <label for="<?php echo htmlentities($elem['name'])?>" class="toplabel<?php echo $style?>"><?php echo Translator::translate($elem['label'])?></label>
-            <?php
-        } else {
-            ?>
-        <label id="<?php echo htmlentities($elem['name'])?>_label" for="<?php echo htmlentities($elem['name'])?>" class="label<?php echo $style?>"
-            <?php
-            if (isset($elem['title'])) {
-                echo ' title="' . Translator::translate($elem['title']) . '"';
-            }
-            echo '>';
-            echo Translator::translate($elem['label'])
-            ?>
-        </label>
-            <?php
-        }
-        ?>
-        <div class="field-contents <?php echo $contentsClasses?>">
-            <?php
-            echo htmlFormElement(
-                $elem['name'], $elem['type'], $value,
-                $elem['style'], $elem['listquery'], $fieldMode,
-                $elem['parent_key'] ?? '', '', [],
-                $elem['elem_attributes'] ?? '',
-                $elem['options'] ?? null
-            );
-            ?>
-            <?php
-            if (isset($elem['attached_elem']) && $elem['type'] !== 'AREA') {
-                echo $elem['attached_elem'] . "\n";
-            }
-            ?>
-        </div>
-        <?php
-        if (isset($elem['attached_elem']) && $elem['type'] === 'AREA') {
-            echo $elem['attached_elem'] . "\n";
-        }
-        ?>
-    </div>
-        <?php
-    }
-    $prevPosition = is_int($elem['position']) ? $elem['position'] : 0;
-    if ($prevPosition == 0) {
-        $prevPosition = 255;
-    }
+
+        {% else %}
+          <div class="field{{ fieldClass }}">
+            {% set value = data.(field.name) %}
+            {% if field.style == 'measurement' %}
+              {% set value = value ? roundNumber(value, 2) : '' %}
+            {% endif %}
+            {% if elem.tyle == 'AREA' %}
+              <label for="{{ field.name|e }}" class="toplabel{{ style }}">
+                {{ field.label|trans }}
+              </label>
+            {% else %}
+              <label id="{{ field.name|e }}_label" for="{{ field.name|e }}" class="label{{ style }}"{% if field.title %} title="{{ field.title|trans }}"{% endif %}>
+                {{ field.label|trans }}
+              </label>
+            {% endif %}
+            <div class="field-contents {{ contentsClasses }}">
+              {{ htmlFormElement(
+                field.name,
+                field.type,
+                value,
+                field.style,
+                field.listquery,
+                fieldMode,
+                field.parent_key,
+                '',
+                [],
+                field.elem_attributes ?? '',
+                field.options)
+              }}
+              {% if field.attached_elem and field.type != 'AREA' %}
+                {{ field.attached_elem }}
+              {% endif %}
+            </div>
+          </div>
+        {% endif %}
+        {% set prevPosition = field.position ?: 0 %}
+        {% if prevPosition == 0 %}
+          {% set prevPosition = 255 %}
+        {% endif %}
+      {% endfor %}
 }
 if (!$childFormConfig) {
     echo "      </form>\n";
@@ -238,14 +181,14 @@ if ($strForm == 'product') {
     ?>
     <div class="card p-2 mb-2 iform clearfix" id="stock_balance_log">
     <h2>
-        <?php echo Translator::translate('StockBalanceUpdates')?>
+        {{ 'StockBalanceUpdates'|trans }}
     </h2>
     <table id="stock_balance_change_log" class="table">
         <tr>
-            <th class="medium"><?php echo Translator::translate('HeaderChangeLogDateTime')?></th>
-            <th class="medium"><?php echo Translator::translate('HeaderChangeLogUser')?></th>
-            <th class="small"><?php echo Translator::translate('HeaderChangeLogAmount')?></th>
-            <th class="long"><?php echo Translator::translate('HeaderChangeLogDescription')?></th>
+            <th class="medium">{{ 'HeaderChangeLogDateTime'|trans }}</th>
+            <th class="medium">{{ 'HeaderChangeLogUser'|trans }}</th>
+            <th class="small">{{ 'HeaderChangeLogAmount'|trans }}</th>
+            <th class="long">{{ 'HeaderChangeLogDescription'|trans }}</th>
         </tr>
     </table>
     </div>
@@ -418,30 +361,30 @@ if ('invoice' === $strForm) {
         <div class="modal-dialog modal-dialog-scrollable">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h2 class="modal-title"><?php echo Translator::translate('NewClient')?></h2>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="<?php echo Translator::translate('Close')?>"></button>
+                    <h2 class="modal-title">{{ 'NewClient'|trans }}</h2>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="{{ 'Close'|trans }}"></button>
                 </div>
                 <div class="modal-body">
-                    <div class="medium_label"><?php echo Translator::translate('ClientName')?></div>
+                    <div class="medium_label">{{ 'ClientName'|trans }}</div>
                     <div class="field"><input type="text" id="quick_name" class='form-control medium'></div>
-                    <div class="medium_label"><?php echo Translator::translate('ClientVATID')?></div>
+                    <div class="medium_label">{{ 'ClientVATID'|trans }}</div>
                     <div class="field"><input type="text" id="quick_vat_id" class='form-control medium'></div>
-                    <div class="medium_label"><?php echo Translator::translate('Email')?></div>
+                    <div class="medium_label">{{ 'Email'|trans }}</div>
                     <div class="field"><input type="text" id="quick_email" class='form-control medium'></div>
-                    <div class="medium_label"><?php echo Translator::translate('Phone')?></div>
+                    <div class="medium_label">{{ 'Phone'|trans }}</div>
                     <div class="field"><input type="text" id="quick_phone" class='form-control medium'></div>
-                    <div class="medium_label"><?php echo Translator::translate('StreetAddr')?></div>
+                    <div class="medium_label">{{ 'StreetAddr'|trans }}</div>
                     <div class="field"><input type="text" id="quick_street_address" class='form-control medium'></div>
-                    <div class="medium_label"><?php echo Translator::translate('ZipCode')?></div>
+                    <div class="medium_label">{{ 'ZipCode'|trans }}</div>
                     <div class="field"><input type="text" id="quick_zip_code" class='form-control medium'></div>
-                    <div class="medium_label"><?php echo Translator::translate('City')?></div>
+                    <div class="medium_label">{{ 'City'|trans }}</div>
                     <div class="field"><input type="text" id="quick_city" class='form-control medium'></div>
-                    <div class="medium_label"><?php echo Translator::translate('Country')?></div>
+                    <div class="medium_label">{{ 'Country'|trans }}</div>
                     <div class="field"><input type="text" id="quick_country" class='form-control medium'></div>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal"><?php echo Translator::translate('Cancel')?></button>
-                    <button type="button" class="btn btn-primary" data-save-company><?php echo Translator::translate('Save')?></button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{{ 'Cancel'|trans }}</button>
+                    <button type="button" class="btn btn-primary" data-save-company>{{ 'Save'|trans }}</button>
                 </div>
             </div>
         </div>
@@ -451,18 +394,18 @@ if ('invoice' === $strForm) {
         <div class="modal-dialog modal-dialog-scrollable">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h2 class="modal-title"><?php echo Translator::translate('PartialPayment')?></h2>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="<?php echo Translator::translate('Close')?>"></button>
+                    <h2 class="modal-title">{{ 'PartialPayment'|trans }}</h2>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="{{ 'Close'|trans }}"></button>
                 </div>
                 <div class="modal-body">
-                    <div class="medium_label"><?php echo Translator::translate('PaymentAmount')?></div>
+                    <div class="medium_label">{{ 'PaymentAmount'|trans }}</div>
                     <div class="field"><input type="text" id="add_partial_payment_amount" class="form-control medium"></div>
-                    <div class="medium_label"><?php echo Translator::translate('PayDate')?></div>
+                    <div class="medium_label">{{ 'PayDate'|trans }}</div>
                     <div class="field"><input type="date" id="add_partial_payment_date" class="form-control date"></div>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal"><?php echo Translator::translate('Cancel')?></button>
-                    <button type="button" class="btn btn-primary" data-save-partial-payment><?php echo Translator::translate('Save')?></button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{{ 'Cancel'|trans }}</button>
+                    <button type="button" class="btn btn-primary" data-save-partial-payment>{{ 'Save'|trans }}</button>
                 </div>
             </div>
         </div>
@@ -474,18 +417,18 @@ if ('invoice' === $strForm) {
         <div class="modal-dialog modal-dialog-scrollable">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h2 class="modal-title"><?php echo Translator::translate('PartialPayment')?></h2>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="<?php echo Translator::translate('Close')?>"></button>
+                    <h2 class="modal-title">{{ 'PartialPayment'|trans }}</h2>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="{{ 'Close'|trans }}"></button>
                 </div>
                 <div class="modal-body">
-                    <div class="medium_label"><?php echo Translator::translate('StockBalanceChange')?></div> <div class="field">
+                    <div class="medium_label">{{ 'StockBalanceChange'|trans }}</div> <div class="field">
                     <input type="text" id="stock_balance_change" class='form-control short'></div>
-                    <div class="medium_label"><?php echo Translator::translate('StockBalanceChangeDescription')?></div>
+                    <div class="medium_label">{{ 'StockBalanceChangeDescription'|trans }}</div>
                     <div class="field"><textarea id="stock_balance_change_desc" class="form-control large"></textarea></div>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal"><?php echo Translator::translate('Cancel')?></button>
-                    <button type="button" class="btn btn-primary" data-save-stock-balance-change><?php echo Translator::translate('Save')?></button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{{ 'Cancel'|trans }}</button>
+                    <button type="button" class="btn btn-primary" data-save-stock-balance-change>{{ 'Save'|trans }}</button>
                 </div>
             </div>
         </div>

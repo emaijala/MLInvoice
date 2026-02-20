@@ -188,14 +188,17 @@ class ListExtension extends AbstractExtension
     /**
      * Get the value of a search list selection.
      *
-     * @param string  $listId List ID
-     * @param ?string $key  Selection
+     * @param string  $listQuery List query
+     * @param ?string $key       Selection
      *
      * @return string
      */
-    protected function getSearchListValueFor(string $listId, ?string $key): string
+    public function getSearchListValueFor(string $listQuery, ?string $key): string
     {
-        $result = $this->listService->createJSONSelectList($listId, 0, 1, '', '', '', $key);
+        parse_str($listQuery, $params);
+
+        $result = $this->listService
+            ->createJSONSelectList($params['table'] ?? '', 0, 1, '', '', $params['sort'] ?? '', $key);
         return $result['records'][0]['text'] ?? '';
     }
 }

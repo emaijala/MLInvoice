@@ -67,20 +67,36 @@ class FormatterExtension extends AbstractExtension
     public function getFilters(): array
     {
         return [
-            new TwigFilter('round_currency', $this->numberFormatter->roundCurrency(...)),
             new TwigFilter('format_date', $this->formatDate(...)),
+            new TwigFilter('round_currency', $this->numberFormatter->roundCurrency(...)),
+            new TwigFilter('round_number', $this->numberFormatter->roundNumber(...)),
+        ];
+    }
+
+    /**
+     * Get Twig functions.
+     *
+     * @return array
+     */
+    public function getFunctions(): array
+    {
+        return [
+            new TwigFunction('formatDate', $this->formatDate(...)),
+            new TwigFunction('roundNumber', $this->numberFormatter->roundNumber(...)),
         ];
     }
 
     /**
      * Format DateTime.
      *
-     * @param DateTime $dateTime DateTime
+     * @param ?DateTime $dateTime DateTime, or null for current time
+     * @param ?string   $format   DateTime Format (overrides default from translations)
      *
      * @return string
      */
-    protected function formatDate(DateTime $dateTime): string
+    protected function formatDate(?DateTime $dateTime, ?string $format = null): string
     {
-        return $dateTime->format($this->translator->translate('DateFormat'));
+        $datetime ??= new DateTime();
+        return $dateTime->format($format ?? $this->translator->translate('DateFormat'));
     }
 }

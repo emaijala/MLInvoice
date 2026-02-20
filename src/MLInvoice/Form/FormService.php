@@ -42,6 +42,8 @@ use MLInvoice\Database\Repository\DeliveryTermsRepository;
 use MLInvoice\Database\Repository\InvoiceRepository;
 use MLInvoice\Database\Repository\InvoiceStateRepository;
 use MLInvoice\Database\Repository\PrintTemplateRepository;
+use MLInvoice\Database\Repository\RowTypeRepository;
+use MLInvoice\Database\Repository\SessionTypeRepository;
 use MLInvoice\I18n\NumberFormatter;
 use MLInvoice\I18n\Translator;
 use MLInvoice\Markdown\MLMarkdown;
@@ -84,6 +86,8 @@ class FormService
         protected DeliveryTermsRepository $deliveryTermsRepository,
         protected DeliveryMethodRepository $deliveryMethodRepository,
         protected PrintTemplateRepository $printTemplateRepository,
+        protected RowTypeRepository $rowTypeRepository,
+        protected SessionTypeRepository $sessionTypeRepository,
     ) {
     }
 
@@ -140,12 +144,15 @@ class FormService
             MLINVOICE_USER_ROLE_USER,
             MLINVOICE_USER_ROLE_BACKUPMGR
         ];
-        $copyLinkOverride = '';
+        $copyLinkOverride = null;
         $clearRowValuesAfterAdd = false;
         $onAfterRowAdded = '';
         $readOnlyForm = false;
         $addressAutocomplete = false;
         $formDataAttrs = [];
+        if (!$writeAccess) {
+            $formDataAttrs[] = 'read-only';
+        }
         $extraButtons = '';
         if (!isset($strFunc)) {
             $strFunc = '';
@@ -656,7 +663,7 @@ class FormService
                     'label' => 'Unit',
                     'type' => 'LIST',
                     'style' => 'short translated',
-                    'listquery' => 'SELECT id, name FROM {prefix}row_type WHERE deleted=0 ORDER BY order_no;',
+                    'listquery' => $this->rowTypeRepository->findAllNonDeleted(),
                     'position' => 2,
                     'allow_null' => true
                 ],
@@ -847,8 +854,9 @@ class FormService
             }
 
             $copyLinkOverride = $id ? [
-                'route' => 'copy-invoice',
-                'routeArgs' => compact('id'),
+                'route' => 'invoice-copy',
+                'routeArgs' => ['from' => $id],
+                'queryParams' => [],
             ] : null;
 
             $updateInvoiceNr = null;
@@ -1222,7 +1230,7 @@ class FormService
                     $buttonGroups[] = [
                         'buttons' => $group2,
                         'overflow' => 5,
-                        'overflow-label' => 'PrintOther',
+                        'overflowLabel' => 'PrintOther',
                     ];
                 }
             }
@@ -1292,7 +1300,7 @@ class FormService
                     'label' => 'Unit',
                     'type' => 'LIST',
                     'style' => 'short translated',
-                    'listquery' => 'SELECT id, name FROM {prefix}row_type WHERE deleted=0 ORDER BY order_no',
+                    'list' => $this->rowTypeRepository->findAllNonDeleted(),
                     'position' => 0,
                     'allow_null' => true
                 ],
@@ -2374,7 +2382,7 @@ class FormService
                     'label' => 'Type',
                     'type' => 'LIST',
                     'style' => 'long translated',
-                    'listquery' => 'SELECT id, name FROM {prefix}session_type WHERE deleted=0 ORDER BY order_no',
+                    'list' => $this->sessionTypeRepository->findAllNonDeleted(),
                     'position' => 0
                 ]
             ];
@@ -2480,8 +2488,13 @@ class FormService
         }
 
         $fields = [];
+        $hiddenFields = [];
         foreach ($astrFormElements as $field) {
-            $fields[$field['name']] = $field;
+            if (str_starts_with($field['name'], 'HID_')) {
+                $hiddenFields[$field['name']] = $field;
+            } else {
+                $fields[$field['name']] = $field;
+            }
         }
         // Admin always allowed:
         if (!in_array(MLINVOICE_USER_ROLE_ADMIN, $levelsAllowed)) {
@@ -2498,6 +2511,7 @@ class FormService
             'copyLink' => $copyLinkOverride,
             'extraButtons' => $extraButtons,
             'fields' => $fields,
+            'hiddenFields' => $hiddenFields,
             'dataAttrs' => $formDataAttrs,
             'searchFields' => $astrSearchFields ?? null,
             'addressAutocomplete' => $addressAutocomplete,

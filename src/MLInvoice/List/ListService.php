@@ -33,10 +33,14 @@ namespace MLInvoice\List;
 use DI\Attribute\Inject;
 use Doctrine\DBAL\Query\QueryBuilder;
 use Doctrine\ORM\EntityManagerInterface;
+use InvalidArgumentException;
 use MLInvoice\Config\ConfigManagerInterface;
 use MLInvoice\Config\SettingsManager;
 use MLInvoice\Database\Entity\Company;
+use MLInvoice\Database\Entity\CustomPriceMap;
+use MLInvoice\Database\Repository\CustomPriceRepository;
 use MLInvoice\Database\Repository\InvoiceStateRepository;
+use MLInvoice\Exception\AccessDeniedException;
 use MLInvoice\I18n\NumberFormatter;
 use MLInvoice\I18n\Translator;
 use MLInvoice\Markdown\MLMarkdown;
@@ -74,6 +78,7 @@ class ListService
         protected Translator $translator,
         protected Memory $memory,
         protected InvoiceStateRepository $invoiceStateRepository,
+        protected CustomPriceRepository $customPriceRepository,
         protected SearchService $searchService,
         protected SettingsManager $settingsManager,
         protected DateUtils $dateUtils,
@@ -118,12 +123,12 @@ class ListService
     ): array {
         $listConfig = $this->getListConfig($list);
         if (!$listConfig) {
-            return '{"error": "Invalid list"}';
+            throw new InvalidArgumentException('Invalid list');
         }
 
         $accessLevel = $this->session->get('accessLevel');
-        if ($accessLevel !== MLINVOICE_USER_ROLE_ADMIN && !in_array($accessLevel, $listConfig['accessLevels'])) {
-            return '{"error": "Access denied"}';
+        if (!in_array($accessLevel, $listConfig['accessLevels'])) {
+            throw new AccessDeniedException();
         }
 
         $queryBuilders = $this->createListQuery(
@@ -627,14 +632,12 @@ class ListService
     ) {
         global $dblink;
 
-        $listConfig = $this->getListConfig($list);
-        if (empty($id) && !sesAccessLevel($listConfig['accessLevels']) && !sesAdminAccess()) {
-            ?>
-    <div class="form_container">
-            <?php echo $this->translator->translate('NoAccess') . "\n"?>
-    </div>
-            <?php
-            return;
+        if (!($listConfig = $this->getListConfig($list))) {
+            throw new InvalidArgumentException('Invalid list');
+        }
+        $accessLevel = $this->session->get('accessLevel');
+        if (empty($id) && !in_array($accessLevel, $listConfig['accessLevels'] ?? [])) {
+            throw new AccessDeniedException();
         }
 
         if ($sort) {
@@ -732,23 +735,23 @@ class ListService
             }
         }
 
-        $customPrices = null;
+        $customPrice = null;
         if ('product' === $list) {
             $companyId = $request->getParsedBody()['company'] ?? $request->getQueryParams()['company'] ?? null;
             if ($companyId) {
-                $customPrices = getCustomPriceSettings($companyId);
+                $customPrice = $this->customPriceRepository->findOneByCompanyId($companyId);
             }
-            if ($customPrices && false) {
+            if ($customPrice) {
                 // Include any custom prices
                 $strSelectClause .= <<<EOT
-    , (SELECT unit_price FROM {prefix}custom_price_map pm WHERE pm.custom_price_id = ?
-    AND pm.product_id = {prefix}{$listConfig['table']}.id) custom_unit_price
+    , (SELECT unit_price FROM {$this->prefix}custom_price_map pm WHERE pm.custom_price_id = ?
+    AND pm.product_id = {$this->prefix}{$listConfig['table']}.id) custom_unit_price
     EOT;
-                array_unshift($arrQueryParams, $customPrices['id']);
+                array_unshift($arrQueryParams, $customPrice->getId());
             }
         }
 
-        $fullQuery = "SELECT $strSelectClause FROM {prefix}{$listConfig['table']} $strWhereClause{$listConfig['groupBy']}";
+        $fullQuery = "SELECT $strSelectClause FROM {$this->prefix}{$listConfig['table']} $strWhereClause{$listConfig['groupBy']}";
         if ($sort) {
             $fullQuery .= " ORDER BY $sort";
         }
@@ -757,7 +760,7 @@ class ListService
             $fullQuery .= " LIMIT $startRow, " . ($rowCount + 1);
         }
 
-        $rows = dbParamQuery($fullQuery, $arrQueryParams);
+        $rows = $this->entityManager->getConnection()->executeQuery($fullQuery, $arrQueryParams);
 
         $records = [];
         $i = -1;
@@ -828,23 +831,23 @@ class ListService
                         }
                         continue 2;
                     case 'custom_price':
-                        if ($customPrices) {
+                        if ($customPrice) {
                             $unitPrice = $row['custom_unit_price'];
                             if (null === $unitPrice
                                 && !empty($row['unit_price'])
                                 && $row['unit_price'] != 0.0
                             ) {
                                 $unitPrice = $row['unit_price'];
-                                $unitPrice -= $unitPrice * $customPrices['discount']
+                                $unitPrice -= $unitPrice * $customPrice->getDiscount()
                                     / 100;
-                                $unitPrice *= $customPrices['multiplier'];
+                                $unitPrice *= $customPrice->getMultiplier();
                             }
                             if (null !== $unitPrice) {
                                 $unitPrice = miscRound2Decim(
                                     $unitPrice,
                                     $field['decimals'] ?? 2
                                 );
-                                if (!$customPrices['valid']) {
+                                if (!$customPrice->getValid()) {
                                     $unitPrice
                                         = "<span class=\"not-valid\">$unitPrice</span>";
                                 }
@@ -911,12 +914,13 @@ class ListService
         $deletedField = '';
         $levelsAllowed = [
             MLINVOICE_USER_ROLE_USER,
-            MLINVOICE_USER_ROLE_BACKUPMGR
+            MLINVOICE_USER_ROLE_BACKUPMGR,
+            MLINVOICE_USER_ROLE_ADMIN,
         ];
         switch ($list) {
         case 'company':
             $itemRoute = 'companies/{id}';
-            $table = Company::class;
+            $table = 'company';
             $astrSearchFields = [
                 [
                     'name' => 'companyName',
@@ -1712,7 +1716,7 @@ class ListService
         case 'session_type':
             $itemRoute = 'session-types/{id}';
             $levelsAllowed = [
-                99
+                MLINVOICE_USER_ROLE_ADMIN,
             ];
             $table = 'session_type';
             $astrSearchFields = [

@@ -91,6 +91,7 @@ abstract class AbstractAction
         $twig = Twig::fromRequest($request);
         $twigEnv = $twig->getEnvironment();
         $twigEnv->addGlobal('user', $request->getAttribute('user'));
+        $twigEnv->addGlobal('writeAccess', $request->getAttribute('write_access'));
         $twigEnv->addGlobal('route', RouteContext::fromRequest($request)->getRoute());
         $twigEnv->addGlobal('searchParams', $this->getSearchParamsFromRequest($request));
 

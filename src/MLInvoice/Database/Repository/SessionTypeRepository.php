@@ -77,4 +77,14 @@ class SessionTypeRepository extends EntityRepository
     {
         return $this->find($id);
     }
+
+    /**
+     * Return all non-deleted delivery methods.
+     *
+     * @return SessionType[]
+     */
+    public function findAllNonDeleted(): array
+    {
+        return $this->findBy(['deleted' => false], ['orderNo' => 'ASC']);
+    }
 }

@@ -36,7 +36,8 @@ use MLInvoice\Twig\Extension\ConfigExtension;
 use MLInvoice\Twig\Extension\CsrfExtension;
 use MLInvoice\Twig\Extension\ListExtension;
 use MLInvoice\Twig\Extension\NavBarExtension;
-use MLInvoice\Twig\Extension\NumberFormatterExtension;
+use MLInvoice\Twig\Extension\FormatterExtension;
+use MLInvoice\Twig\Extension\FormExtension;
 use MLInvoice\Twig\Extension\SearchExtension;
 use MLInvoice\Twig\Extension\TranslationExtension;
 use Monolog\Handler\StreamHandler;
@@ -109,9 +110,10 @@ class TwigFactory
         $twig->addExtension($c->get(AssetExtension::class));
         $twig->addExtension($c->get(ConfigExtension::class));
         $twig->addExtension($c->get(CsrfExtension::class));
+        $twig->addExtension($c->get(FormExtension::class));
+        $twig->addExtension($c->get(FormatterExtension::class));
         $twig->addExtension($c->get(ListExtension::class));
         $twig->addExtension($c->get(NavBarExtension::class));
-        $twig->addExtension($c->get(NumberFormatterExtension::class));
         $twig->addExtension($c->get(SearchExtension::class));
         $twig->addExtension($c->get(TranslationExtension::class));
 

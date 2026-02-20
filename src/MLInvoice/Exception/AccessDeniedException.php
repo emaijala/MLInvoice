@@ -1,6 +1,6 @@
 <?php
 /**
- * RowType Repository.
+ * "Access denied" exception.
  *
  * PHP version 8
  *
@@ -20,45 +20,27 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  *
  * @category MLInvoice
- * @package  MLInvoice\Database
+ * @package  MLInvoice\Exception
  * @author   Ere Maijala <ere@labs.fi>
  * @license  http://opensource.org/licenses/gpl-2.0.php GNU General Public License
  * @link     http://labs.fi/mlinvoice.eng.php
  */
 
-namespace MLInvoice\Database\Repository;
+declare(strict_types=1);
 
-use Doctrine\ORM\EntityRepository;
+namespace MLInvoice\Exception;
+
+use Exception;
 
 /**
- * RowType Repository.
+ * "Access denied" exception.
  *
  * @category MLInvoice
- * @package  MLInvoice\Database
+ * @package  MLInvoice\Exception
  * @author   Ere Maijala <ere@labs.fi>
  * @license  http://opensource.org/licenses/gpl-2.0.php GNU General Public License
  * @link     http://labs.fi/mlinvoice.eng.php
  */
-class RowTypeRepository extends EntityRepository
+class AccessDeniedException extends Exception
 {
-    /**
-     * Find a RowType by its name.
-     *
-     * @param string $name
-     * @return object|null
-     */
-    public function findByName(string $name)
-    {
-        return $this->findOneBy(['name' => $name]);
-    }
-
-    /**
-     * Return all non-deleted delivery methods.
-     *
-     * @return RowType[]
-     */
-    public function findAllNonDeleted(): array
-    {
-        return $this->findBy(['deleted' => false], ['orderNo' => 'ASC']);
-    }
 }

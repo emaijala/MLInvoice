@@ -37,29 +37,39 @@ use MLInvoice\Config\ConfigManager;
 use MLInvoice\Config\ConfigManagerInterface;
 use MLInvoice\Config\SettingsManager;
 use MLInvoice\Database\DatabaseUpdater;
+use MLInvoice\Database\Entity\Attachment;
 use MLInvoice\Database\Entity\Base;
 use MLInvoice\Database\Entity\CustomPrice;
 use MLInvoice\Database\Entity\CustomPriceMap;
 use MLInvoice\Database\Entity\DeliveryMethod;
 use MLInvoice\Database\Entity\DeliveryTerms;
 use MLInvoice\Database\Entity\Invoice;
+use MLInvoice\Database\Entity\InvoiceAttachment;
 use MLInvoice\Database\Entity\InvoiceState;
 use MLInvoice\Database\Entity\PrintTemplate;
+use MLInvoice\Database\Entity\Product;
 use MLInvoice\Database\Entity\QuickSearch;
+use MLInvoice\Database\Entity\RowType;
 use MLInvoice\Database\Entity\Session;
+use MLInvoice\Database\Entity\SessionType;
 use MLInvoice\Database\Entity\Setting;
 use MLInvoice\Database\Entity\User;
 use MLInvoice\Database\EntityManagerFactory;
+use MLInvoice\Database\Repository\AttachmentRepository;
 use MLInvoice\Database\Repository\BaseRepository;
 use MLInvoice\Database\Repository\CustomPriceMapRepository;
 use MLInvoice\Database\Repository\CustomPriceRepository;
 use MLInvoice\Database\Repository\DeliveryMethodRepository;
 use MLInvoice\Database\Repository\DeliveryTermsRepository;
+use MLInvoice\Database\Repository\InvoiceAttachmentRepository;
 use MLInvoice\Database\Repository\InvoiceRepository;
 use MLInvoice\Database\Repository\InvoiceStateRepository;
 use MLInvoice\Database\Repository\PrintTemplateRepository;
+use MLInvoice\Database\Repository\ProductRepository;
 use MLInvoice\Database\Repository\QuickSearchRepository;
+use MLInvoice\Database\Repository\RowTypeRepository;
 use MLInvoice\Database\Repository\SessionRepository;
+use MLInvoice\Database\Repository\SessionTypeRepository;
 use MLInvoice\Database\Repository\SettingRepository;
 use MLInvoice\Database\Repository\UserRepository;
 use MLInvoice\Database\Updater;
@@ -74,6 +84,8 @@ use MLInvoice\Middleware\SessionMiddleware;
 use MLInvoice\Security\Hmac;
 use MLInvoice\Twig\Extension\ConfigExtension;
 use MLInvoice\Twig\Extension\CsrfExtension;
+use MLInvoice\Twig\Extension\FormatterExtension;
+use MLInvoice\Twig\Extension\FormExtension;
 use MLInvoice\Twig\Extension\ListExtension;
 use MLInvoice\Twig\Extension\NavBarExtension;
 use MLInvoice\Twig\Extension\NumberFormatterExtension;
@@ -125,6 +137,9 @@ return function (ContainerBuilder $containerBuilder) {
         Twig::class => DI\factory(TwigFactory::class . '::create'),
 
         // Database repositories:
+        AttachmentRepository::class => function (ContainerInterface $c) {
+            return $c->get(EntityManagerInterface::class)->getRepository(Attachment::class);
+        },
         BaseRepository::class => function (ContainerInterface $c) {
             return $c->get(EntityManagerInterface::class)->getRepository(Base::class);
         },
@@ -143,17 +158,29 @@ return function (ContainerBuilder $containerBuilder) {
         InvoiceRepository::class => function (ContainerInterface $c) {
             return $c->get(EntityManagerInterface::class)->getRepository(Invoice::class);
         },
+        InvoiceAttachmentRepository::class => function (ContainerInterface $c) {
+            return $c->get(EntityManagerInterface::class)->getRepository(InvoiceAttachment::class);
+        },
         InvoiceStateRepository::class => function (ContainerInterface $c) {
             return $c->get(EntityManagerInterface::class)->getRepository(InvoiceState::class);
         },
         PrintTemplateRepository::class => function (ContainerInterface $c) {
             return $c->get(EntityManagerInterface::class)->getRepository(PrintTemplate::class);
         },
+        ProductRepository::class => function (ContainerInterface $c) {
+            return $c->get(EntityManagerInterface::class)->getRepository(Product::class);
+        },
         QuickSearchRepository::class => function (ContainerInterface $c) {
             return $c->get(EntityManagerInterface::class)->getRepository(QuickSearch::class);
         },
+        RowTypeRepository::class => function (ContainerInterface $c) {
+            return $c->get(EntityManagerInterface::class)->getRepository(RowType::class);
+        },
         SessionRepository::class => function (ContainerInterface $c) {
             return $c->get(EntityManagerInterface::class)->getRepository(Session::class);
+        },
+        SessionTypeRepository::class => function (ContainerInterface $c) {
+            return $c->get(EntityManagerInterface::class)->getRepository(SessionType::class);
         },
         SettingRepository::class => function (ContainerInterface $c) {
             return $c->get(EntityManagerInterface::class)->getRepository(Setting::class);
@@ -180,9 +207,10 @@ return function (ContainerBuilder $containerBuilder) {
             // Callback for lazy Guard creation:
             return new CsrfExtension($c->get('CsrfGuardFactory'));
         },
+        FormExtension::class => DI\autowire(),
+        FormatterExtension::class => DI\autowire(),
         ListExtension::class => DI\autowire(),
         NavBarExtension::class => DI\autowire(),
-        NumberFormatterExtension::class => DI\autowire(),
         SearchExtension::class => DI\autowire(),
         TranslationExtension::class => DI\autowire(),
 

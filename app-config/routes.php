@@ -29,6 +29,7 @@
 
 declare(strict_types=1);
 
+use MLInvoice\Action\CopyInvoiceAction;
 use MLInvoice\Action\HomeAction;
 use MLInvoice\Action\InvoiceAction;
 use MLInvoice\Action\JsonAction;
@@ -57,10 +58,18 @@ return function (App $app) {
         ->setName('invoices');
     $app->get('/invoices/archived', HomeAction::class)
         ->setName('invoices-archived');
+    $app->get('/invoices/new', HomeAction::class)
+        ->setName('invoices-new');
     $app->get('/invoices/{id}', InvoiceAction::class)
         ->setName('invoice');
+    $app->get('/invoices/copy/{from}', CopyInvoiceAction::class)
+        ->setName('invoice-copy');
     $app->get('/recurring-invoices', HomeAction::class)
         ->setName('recurring-invoices');
+    $app->get('/recurring-invoices/due', HomeAction::class)
+        ->setName('recurring-invoices-due');
+    $app->get('/recurring-invoices/new', HomeAction::class)
+        ->setName('recurring-invoices-new');
     $app->get('/recurring-invoices/{id}', HomeAction::class)
         ->setName('recurring-invoice');
     $app->get('/offers', HomeAction::class)

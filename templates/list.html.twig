@@ -157,7 +157,7 @@ $(document).ready(function() {
       <div id="no-custom-prices"{% if list_data.custom_price_settings %} class="hidden"{% endif %}>
         <div class="label">
           {{ 'NoClientSpecificPricesDefined'|trans }}
-          {% if write_access %}
+          {% if writeAcccess %}
             <button id="add-custom-prices" class="btn btn-secondary">
               {{ 'Define'|trans }}
             </button>
@@ -194,7 +194,7 @@ $(document).ready(function() {
           {% endif %}
         </div>
         <div class="label medium_label">
-          {% if write_access %}
+          {% if writeAccess %}
             <a role="button" class="btn btn-secondary save-button" href="#">
               {{ 'Save'|trans }}
             </a>

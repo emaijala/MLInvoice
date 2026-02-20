@@ -1261,7 +1261,7 @@ function createFormButtons($form, $formConfig, $new, $top, $deleted)
             if ($renderedOverflow ?? false) {
                 ?>
                     <a role="button" class="dropdown-toggle btn btn-secondary" href="#" id="dropdown-button-overflow" data-bs-toggle="dropdown" aria-expanded="false">
-                        <?php echo Translator::translate($buttonGroup['overflow-label'] ?? 'More')?>
+                        <?php echo Translator::translate($buttonGroup['overflowLabel'] ?? 'More')?>
                     </a>
                     <ul class="dropdown-menu" aria-labelledby="dropdown-button-overflow">
                         <?php
