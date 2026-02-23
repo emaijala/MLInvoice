@@ -25,8 +25,11 @@
  * @license  http://opensource.org/licenses/gpl-2.0.php GNU General Public License
  * @link     http://labs.fi/mlinvoice.eng.php
  */
-require_once 'config.php';
 
+namespace MLInvoice\Security;
+
+use DI\Attribute\Inject;
+use Exception;
 use phpseclib3\Crypt\AES;
 
 /**
@@ -49,18 +52,23 @@ class Crypt
 
     /**
      * Constructor
+     *
+     * @param array $config Configuration
      */
-    public function __construct()
+    public function __construct(
+        #[Inject('config')] protected array $config,
+    )
     {
-        if (!defined('_ENCRYPTION_KEY_')) {
-            throw new Exception('_ENCRYPTION_KEY_ must be defined in config.php');
+        $key = $config['Security']['encryption_key'] ?? null;
+        if (!$key) {
+            throw new Exception('Security/encryption_key must be configured in config.ini');
         }
-        if (strlen(_ENCRYPTION_KEY_) < 32) {
-            throw new Exception('_ENCRYPTION_KEY_ in config.php too short');
+        if (strlen($key) < 32) {
+            throw new Exception('Security/encryption_key in config.ini too short');
         }
         $this->cipher = new AES('cbc');
         // Allow for imprecise key length as phpseclib 2 did:
-        $this->cipher->setKey(str_pad(substr(_ENCRYPTION_KEY_, 0, 32), 32, "\0"));
+        $this->cipher->setKey(str_pad(substr($key, 0, 32), 32, "\0"));
         $length = $this->cipher->getBlockLengthInBytes();
         // Set IV like phpseclib v2 did:
         $this->cipher->setIV(str_pad('', $length, "\0"));

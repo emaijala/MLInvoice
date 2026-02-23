@@ -54,6 +54,9 @@ class DateUtilsFactory
     public static function create(ContainerInterface $c): DateUtils
     {
         $translator = $c->get(Translator::class);
-        return new DateUtils($translator->translate('DateFormat'));
+        return new DateUtils(
+            $translator->translate('DateFormat'),
+            $translator->translate('DateTiemFormat')
+        );
     }
 }

@@ -44,22 +44,42 @@ use MLInvoice\Database\Repository\RowTypeRepository;
 #[ORM\Table(name: 'row_type')]
 class RowType implements EntityInterface, SoftDeleteInterface
 {
+    /**
+     * ID
+     *
+     * @var ?null
+     */
     #[ORM\Id]
     #[ORM\Column(type: 'integer')]
     #[ORM\GeneratedValue]
-    /** @var ?null */
     protected ?int $id = null;
 
+    /**
+     * Deleted flag
+     *
+     * @var bool
+     */
     #[ORM\Column(type: 'boolean')]
-    /** @var bool */
     protected bool $deleted = false;
 
+    /**
+     * Name
+     *
+     * @var ?string
+     */
     #[ORM\Column(type: 'string', length: 255, nullable: true)]
-    /** @var ?string */
     protected ?string $name = null;
 
     /**
+     * Sort order
      *
+     * @var ?null
+     */
+    #[ORM\Column(name: 'order_no', type: 'integer', nullable: true)]
+    protected ?int $orderNo = null;
+
+    /**
+     * Get ID.
      *
      * @return ?int
      */
@@ -69,7 +89,7 @@ class RowType implements EntityInterface, SoftDeleteInterface
     }
 
     /**
-     *
+     * Get deleted flag.
      *
      * @return bool
      */
@@ -79,7 +99,7 @@ class RowType implements EntityInterface, SoftDeleteInterface
     }
 
     /**
-     *
+     * Set deleted flag.
      *
      * @param bool $v
      *
@@ -91,7 +111,7 @@ class RowType implements EntityInterface, SoftDeleteInterface
     }
 
     /**
-     *
+     * Get name.
      *
      * @return ?string
      */
@@ -101,7 +121,7 @@ class RowType implements EntityInterface, SoftDeleteInterface
     }
 
     /**
-     *
+     * Set name.
      *
      * @param ?string $v
      *
@@ -110,5 +130,28 @@ class RowType implements EntityInterface, SoftDeleteInterface
     public function setName(?string $v): static
     {
         $this->name = $v; return $this;
+    }
+
+    /**
+     * Get sort order.
+     *
+     * @return ?int
+     */
+    public function getOrderNo(): ?int
+    {
+        return $this->orderNo;
+    }
+
+    /**
+     * Set sort order.
+     *
+     * @param ?null $v Value
+     *
+     * @return static
+     */
+    public function setOrderNo(?int $v): static
+    {
+        $this->orderNo = $v;
+        return $this;
     }
 }

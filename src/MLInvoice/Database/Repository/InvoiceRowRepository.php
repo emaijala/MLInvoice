@@ -29,6 +29,8 @@
 namespace MLInvoice\Database\Repository;
 
 use Doctrine\ORM\EntityRepository;
+use MLInvoice\Database\Entity\Invoice;
+use MLInvoice\Database\Entity\InvoiceRow;
 
 /**
  * InvoiceRow Repository.
@@ -41,4 +43,19 @@ use Doctrine\ORM\EntityRepository;
  */
 class InvoiceRowRepository extends EntityRepository
 {
+   /**
+     * Get next available order number.
+     *
+     * @param int $invoiceId Invoice ID
+     *
+     * @return int
+     */
+    public function getNextAvailableOrderNo(int $invoiceId): int
+    {
+        $invoice = $this->getEntityManager()->getRepository(Invoice::class)->find($invoiceId);
+        $query = $this->getEntityManager()->createQuery(
+            'SELECT max(r.orderNo)+1 FROM ' . InvoiceRow::class . ' r WHERE r.deleted=0 AND r.invoice = :invoice'
+        )->setParameters(compact('invoice'));
+        return (int)$query->getSingleScalarResult();
+    }
 }

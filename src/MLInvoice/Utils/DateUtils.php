@@ -45,9 +45,12 @@ class DateUtils
      * Constructor
      *
      * @param string $dateFormat Date format
+     * @param string $dateTimeFormat DateTime format
      */
-    public function __construct(protected string $dateFormat)
-    {
+    public function __construct(
+        protected string $dateFormat,
+        protected string $dateTimeFormat,
+    ) {
     }
 
     /**
@@ -84,12 +87,31 @@ class DateUtils
         if (!$date) {
             return '';
         }
-        $day = intval(substr($date, 6));
-        $mon = intval(substr($date, 4, 2));
-        $year = intval(substr($date, 0, 4));
+        $day = intval(substr((string)$date, 6));
+        $mon = intval(substr((string)$date, 4, 2));
+        $year = intval(substr((string)$date, 0, 4));
         return date(
-            $format ?: Translator::translate('DateFormat'),
+            $format ?: $this->dateFormat,
             mktime(0, 0, 0, $mon, $day, $year)
+        );
+    }
+
+    /**
+     * Convert database datetime or timestamp to user-readable
+     *
+     * @param int $dateTime Timestamp
+     * @param string $format   Date format (optional)
+     *
+     * @return string
+     */
+    public function dbDateTimeToDateTimeString($dateTime, $format = '')
+    {
+        if (!$dateTime) {
+            return '';
+        }
+        return date(
+            $format ? $format : $this->dateTimeFormat,
+            strtotime((string)$dateTime)
         );
     }
 }

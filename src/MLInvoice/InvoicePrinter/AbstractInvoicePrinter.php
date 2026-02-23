@@ -34,6 +34,7 @@ use MLInvoice\Database\Repository\CompanyRepository;
 use MLInvoice\Database\Repository\InvoiceRepository;
 use MLInvoice\I18n\Translator;
 use MLInvoice\Security\Hmac;
+use Odan\Session\SessionInterface;
 
 /**
  * Invoice printer abstract base class
@@ -342,6 +343,7 @@ abstract class AbstractInvoicePrinter
         protected InvoiceRepository $invoiceRepository,
         protected CompanyRepository $companyRepository,
         protected Hmac $hmac,
+        protected SessionInterface $session,
     ) {
     }
 

@@ -33,15 +33,21 @@ namespace MLInvoice\Form;
 use DI\Attribute\Inject;
 use Doctrine\DBAL\Query\QueryBuilder;
 use Doctrine\ORM\EntityManagerInterface;
+use Exception;
+use InvalidArgumentException;
 use MLInvoice\Config\ConfigManagerInterface;
 use MLInvoice\Config\SettingsManager;
 use MLInvoice\Database\Entity\Company;
+use MLInvoice\Database\Entity\EntityInterface;
 use MLInvoice\Database\Repository\BaseRepository;
+use MLInvoice\Database\Repository\CompanyRepository;
 use MLInvoice\Database\Repository\DeliveryMethodRepository;
 use MLInvoice\Database\Repository\DeliveryTermsRepository;
 use MLInvoice\Database\Repository\InvoiceRepository;
+use MLInvoice\Database\Repository\InvoiceRowRepository;
 use MLInvoice\Database\Repository\InvoiceStateRepository;
 use MLInvoice\Database\Repository\PrintTemplateRepository;
+use MLInvoice\Database\Repository\ProductRepository;
 use MLInvoice\Database\Repository\RowTypeRepository;
 use MLInvoice\Database\Repository\SessionTypeRepository;
 use MLInvoice\I18n\NumberFormatter;
@@ -49,9 +55,11 @@ use MLInvoice\I18n\Translator;
 use MLInvoice\Markdown\MLMarkdown;
 use MLInvoice\Search\Search;
 use MLInvoice\Search\SearchService;
+use MLInvoice\Security\Crypt;
 use MLInvoice\Session\Memory;
 use MLInvoice\Utils\DateUtils;
 use Odan\Session\SessionInterface;
+use ProductReport;
 use Psr\Http\Message\ServerRequestInterface;
 
 /**
@@ -74,12 +82,20 @@ class FormService
 
     /**
      * Constructor
+     *
+     * @param array $config Configuration
+     * @param string $dbPrefix Database table prefix
      */
     public function __construct(
         #[Inject('config')] protected array $config,
+        #[Inject('dbPrefix')] protected string $prefix,
         protected Translator $translator,
         protected SettingsManager $settingsManager,
         protected SessionInterface $session,
+        protected Crypt $crypt,
+        protected DateUtils $dateUtils,
+        protected NumberFormatter $numberFormatter,
+        protected EntityManagerInterface $entityManager,
         protected InvoiceRepository $invoiceRepository,
         protected InvoiceStateRepository $invoiceStateRepository,
         protected BaseRepository $baseRepository,
@@ -88,6 +104,9 @@ class FormService
         protected PrintTemplateRepository $printTemplateRepository,
         protected RowTypeRepository $rowTypeRepository,
         protected SessionTypeRepository $sessionTypeRepository,
+        protected CompanyRepository $companyRepository,
+        protected InvoiceRowRepository $invoiceRowRepository,
+        protected ProductRepository $productRepository,
     ) {
     }
 
@@ -166,7 +185,7 @@ class FormService
         switch ($form) {
 
         case 'company':
-            $strTable = '{prefix}company';
+            $strTable = "{$this->prefix}company";
             $strParentKey = 'company_id';
             $addressAutocomplete = true;
             $astrSearchFields = [
@@ -215,9 +234,8 @@ class FormService
                     'type' => 'INT',
                     'style' => 'medium',
                     'position' => 1,
-                    'default' => null,
-                    'default_query' => $this->settingsManager->get('add_customer_number')
-                        ? 'SELECT max(customer_no)+1 FROM {prefix}company WHERE deleted=0'
+                    'default' => $this->settingsManager->get('add_customer_number')
+                        ? $this->companyRepository->getNextAvailableCustomerNumber()
                         : null,
                     'allow_null' => true
                 ],
@@ -443,7 +461,7 @@ class FormService
             break;
 
         case 'company_contact':
-            $strTable = '{prefix}company_contact';
+            $strTable = "{$this->prefix}company_contact";
             $strParentKey = 'company_id';
             $clearRowValuesAfterAdd = true;
             $astrFormElements = [
@@ -525,7 +543,7 @@ class FormService
             break;
 
         case 'product':
-            $strTable = '{prefix}product';
+            $strTable = "{$this->prefix}product";
             $astrSearchFields = [
                 [
                     'name' => 'product_name',
@@ -555,7 +573,7 @@ class FormService
                     'style' => 'short',
                     'position' => 1,
                     'allow_null' => true,
-                    'listquery' => 'SELECT max(order_no)+5 FROM {prefix}product WHERE deleted=0',
+                    'listquery' => "SELECT max(order_no)+5 FROM {$this->prefix}product WHERE deleted=0",
                     'default' => 'ADD+5'
                 ],
                 [
@@ -655,7 +673,7 @@ class FormService
                     'type' => 'INT',
                     'style' => 'medium',
                     'position' => 1,
-                    'decimals' => $this->settingsManager->get('unit_price_decimals'),
+                    'decimals' => (int)$this->settingsManager->get('unit_price_decimals'),
                     'allow_null' => true
                 ],
                 [
@@ -690,7 +708,7 @@ class FormService
                     'type' => 'INT',
                     'style' => 'medium',
                     'position' => 2,
-                    'decimals' => $this->settingsManager->get('unit_price_decimals'),
+                    'decimals' => (int)$this->settingsManager->get('unit_price_decimals'),
                     'allow_null' => true
                 ],
                 [
@@ -717,7 +735,7 @@ class FormService
                     'type' => 'INT',
                     'style' => 'medium',
                     'position' => 1,
-                    'decimals' => $this->settingsManager->get('unit_price_decimals'),
+                    'decimals' => (int)$this->settingsManager->get('unit_price_decimals'),
                     'allow_null' => true
                 ],
                 [
@@ -747,7 +765,7 @@ class FormService
         case 'offer':
         case 'invoice_template':
             $levelsAllowed[] = MLINVOICE_USER_ROLE_READONLY;
-            $strTable = '{prefix}invoice';
+            $strTable = "{$this->prefix}invoice";
             $strListTableAlias = 'i.'; // this is for the search function
             $strParentKey = 'invoice_id';
             $addressAutocomplete = true;
@@ -1001,7 +1019,7 @@ class FormService
                     'position' => 1,
                     'options' => $this->geInvoiceIntervalOptions(),
                     'default' => '0',
-                    'allow_null' => true,
+                    'allow_null' => false,
                     'hidden' => $hideRecurrence,
                 ],
                 [
@@ -1135,7 +1153,7 @@ class FormService
                     'allow_null' => true
                 ],
                 [
-                    'name' => 'invoice_row',
+                    'name' => $form . '_row',
                     'label' => 'InvRows',
                     'type' => 'IFORM',
                     'style' => 'xfull',
@@ -1238,10 +1256,12 @@ class FormService
             break;
 
         case 'invoice_row':
-            $strTable = '{prefix}invoice_row';
+        case 'offer_row':
+        case 'invoice_template_row':
+            $strTable = "{$this->prefix}invoice_row";
             $strParentKey = 'invoice_id';
 
-            $isTemplate = $parentId ? isTemplate($parentId) : false;
+            $isTemplate = 'invoice_template_row' === $form;
 
             switch ($this->settingsManager->get('invoice_clear_row_values_after_add')) {
             case 0:
@@ -1310,7 +1330,7 @@ class FormService
                     'type' => 'INT',
                     'style' => 'currency',
                     'position' => 0,
-                    'decimals' => $this->settingsManager->get('unit_price_decimals'),
+                    'decimals' => (int)$this->settingsManager->get('unit_price_decimals'),
                     'allow_null' => $isTemplate,
                 ],
                 [
@@ -1330,7 +1350,7 @@ class FormService
                     'position' => 0,
                     'default' => 0,
                     'allow_null' => true,
-                    'decimals' => $this->settingsManager->get('unit_price_decimals')
+                    'decimals' => (int)$this->settingsManager->get('unit_price_decimals')
                 ],
                 [
                     'name' => 'vat',
@@ -1338,7 +1358,7 @@ class FormService
                     'type' => 'INT',
                     'style' => 'currency',
                     'position' => 0,
-                    'default' => getSetting('invoice_default_vat_percent'),
+                    'default' => $this->settingsManager->get('invoice_default_vat_percent'),
                     'allow_null' => false
                 ],
                 [
@@ -1355,9 +1375,8 @@ class FormService
                     'label' => 'RowNr',
                     'type' => 'INT',
                     'style' => 'count',
-                    'listquery' => 'SELECT max(order_no)+1 FROM {prefix}invoice_row WHERE deleted=0 AND invoice_id=_PARENTID_',
                     'position' => 0,
-                    'default' => 'ADD+1',
+                    'default' => $parentId ? $this->invoiceRowRepository->getNextAvailableOrderNo($parentId) : 1,
                     'allow_null' => true
                 ],
                 [
@@ -1384,12 +1403,12 @@ class FormService
 
         /* SYSTEM FORMS */
         case 'base':
-            $strTable = '{prefix}base';
+            $strTable = "{$this->prefix}base";
             $addressAutocomplete = true;
 
             $baseId = $id ?? intval(getPostOrQuery('id'));
             $locTitle = $this->translator->translate('BaseLogoTitle');
-            if ($baseId) {
+            if ($baseId) { // TODO
                 $openPopJS = <<<EOF
                 MLInvoice.popupDialog('base_logo.php?func=edit&amp;id=$baseId', MLInvoice.updateBaseLogo, '$locTitle'); return false;
         EOF;
@@ -1401,7 +1420,7 @@ class FormService
                 'name' => 'logo',
                 'label' => '',
                 'type' => 'IMAGE',
-                'listquery' => getBaseLogoSize($baseId) ? "base_logo.php?func=view&amp;id=$baseId" : '',
+                'listquery' => getBaseLogoSize($baseId) ? "base_logo.php?func=view&amp;id=$baseId" : '', // TODO
                 'style' => 'image',
                 'position' => 0,
                 'allow_null' => true
@@ -1855,7 +1874,7 @@ class FormService
             break;
 
         case 'send_api_config':
-            $strTable = '{prefix}send_api_config';
+            $strTable = "{$this->prefix}send_api_config";
             $strParentKey = 'base_id';
             $clearRowValuesAfterAdd = true;
             $astrFormElements = [
@@ -1962,7 +1981,7 @@ class FormService
             $levelsAllowed = [
                 MLINVOICE_USER_ROLE_ADMIN
             ];
-            $strTable = '{prefix}invoice_state';
+            $strTable = "{$this->prefix}invoice_state";
 
             $intId = $id ?? getPostOrQuery('id');
             $readOnly = ($intId && $intId <= 8);
@@ -2012,7 +2031,7 @@ class FormService
             $levelsAllowed = [
                 MLINVOICE_USER_ROLE_ADMIN
             ];
-            $strTable = '{prefix}invoice_type';
+            $strTable = "{$this->prefix}invoice_type";
 
             $intId = $id ?? getPostOrQuery('id');
             $astrFormElements = [
@@ -2036,7 +2055,7 @@ class FormService
                     'type' => 'INT',
                     'style' => 'short',
                     'position' => 2,
-                    'listquery' => 'SELECT max(order_no)+5 FROM {prefix}invoice_type WHERE deleted=0',
+                    'listquery' => "SELECT max(order_no)+5 FROM {$this->prefix}invoice_type WHERE deleted=0",
                 ]
             ];
             break;
@@ -2045,7 +2064,7 @@ class FormService
             $levelsAllowed = [
                 MLINVOICE_USER_ROLE_ADMIN
             ];
-            $strTable = '{prefix}row_type';
+            $strTable = "{$this->prefix}row_type";
 
             $astrFormElements = [
                 [
@@ -2069,7 +2088,7 @@ class FormService
             $levelsAllowed = [
                 MLINVOICE_USER_ROLE_ADMIN
             ];
-            $strTable = '{prefix}session_type';
+            $strTable = "{$this->prefix}session_type";
 
             $intId = getPostOrQuery('id');
             if ($intId && $intId <= 4) {
@@ -2105,7 +2124,7 @@ class FormService
             $levelsAllowed = [
                 MLINVOICE_USER_ROLE_ADMIN
             ];
-            $strTable = '{prefix}delivery_terms';
+            $strTable = "{$this->prefix}delivery_terms";
 
             $astrFormElements = [
                 [
@@ -2129,7 +2148,7 @@ class FormService
             $levelsAllowed = [
                 MLINVOICE_USER_ROLE_ADMIN
             ];
-            $strTable = '{prefix}delivery_method';
+            $strTable = "{$this->prefix}delivery_method";
 
             $astrFormElements = [
                 [
@@ -2150,7 +2169,7 @@ class FormService
             break;
 
         case 'default_value':
-            $strTable = '{prefix}default_value';
+            $strTable = "{$this->prefix}default_value";
 
             $astrFormElements = [
                 [
@@ -2179,7 +2198,7 @@ class FormService
                     'type' => 'INT',
                     'style' => 'short',
                     'position' => 2,
-                    'listquery' => 'SELECT max(order_no)+5 FROM {prefix}default_value WHERE deleted=0',
+                    'listquery' => "SELECT max(order_no)+5 FROM {$this->prefix}default_value WHERE deleted=0",
                     'default' => 'ADD+5'
                 ],
                 [
@@ -2201,7 +2220,7 @@ class FormService
             break;
 
         case 'attachment':
-            $strTable = '{prefix}attachment';
+            $strTable = "{$this->prefix}attachment";
 
             $intId = (int)($id ?? getPostOrQuery('id', '0'));
             if ($intId) {
@@ -2227,7 +2246,7 @@ class FormService
                     'type' => 'INT',
                     'style' => 'short',
                     'position' => 2,
-                    'listquery' => 'SELECT max(order_no)+5 FROM {prefix}attachment',
+                    'listquery' => "SELECT max(order_no)+5 FROM {$this->prefix}attachment",
                     'default' => 'ADD+5'
                 ],
                 [
@@ -2267,7 +2286,7 @@ class FormService
             break;
 
         case 'invoice_attachment':
-            $strTable = '{prefix}invoice_attachment';
+            $strTable = "{$this->prefix}invoice_attachment";
             $strParentKey = 'invoice_id';
 
             $astrFormElements = [
@@ -2293,7 +2312,7 @@ class FormService
                     'type' => 'INT',
                     'style' => 'short',
                     'position' => 2,
-                    'listquery' => 'SELECT max(order_no)+5 FROM {prefix}attachment',
+                    'listquery' => "SELECT max(order_no)+5 FROM {$this->prefix}attachment",
                     'default' => 'ADD+5'
                 ],
                 [
@@ -2345,7 +2364,7 @@ class FormService
             $levelsAllowed = [
                 MLINVOICE_USER_ROLE_ADMIN
             ];
-            $strTable = '{prefix}users';
+            $strTable = "{$this->prefix}users";
             $astrFormElements = [
                 [
                     'name' => 'name',
@@ -2389,7 +2408,7 @@ class FormService
             break;
 
         case 'print_template':
-            $strTable = '{prefix}print_template';
+            $strTable = "{$this->prefix}print_template";
 
             $elem_attributes = '';
             $astrFormElements = [
@@ -2489,9 +2508,12 @@ class FormService
 
         $fields = [];
         $hiddenFields = [];
+        $childFormField = null;
         foreach ($astrFormElements as $field) {
             if (str_starts_with($field['name'], 'HID_')) {
                 $hiddenFields[$field['name']] = $field;
+            } elseif ($field['type'] === 'IFORM') {
+                $childFormField = $field;
             } else {
                 $fields[$field['name']] = $field;
             }
@@ -2500,7 +2522,12 @@ class FormService
         if (!in_array(MLINVOICE_USER_ROLE_ADMIN, $levelsAllowed)) {
             $levelsAllowed[] = MLINVOICE_USER_ROLE_ADMIN;
         }
-        return $this->cache[$cacheKey] = [
+
+        $childFormConfig = $childFormField
+            ? $this->getFormConfig($childFormField['name'], null, $request, $forSearch, $id)
+            : null;
+
+        $formConfig = [
             'type' => $form,
             'title' => $locTitle ?? '',
             'readOnly' => $readOnlyForm,
@@ -2514,14 +2541,99 @@ class FormService
             'hiddenFields' => $hiddenFields,
             'dataAttrs' => $formDataAttrs,
             'searchFields' => $astrSearchFields ?? null,
-            'addressAutocomplete' => $addressAutocomplete,
+            'addressAutocomplete' => $addressAutocomplete && $this->settingsManager->get('address_autocomplete'),
             'clearAfterRowAdded' => $clearRowValuesAfterAdd,
             'onAfterRowAdded' => $onAfterRowAdded,
             'popupHTML' => $popupHTML ?? '',
             'buttonGroups' => $buttonGroups ?? [],
             'inputFieldTypes' => $inputFieldTypes,
             'searchFieldTypes' => $searchFieldTypes,
+            'childFormField' => $childFormField,
+            'childFormConfig' => $childFormConfig,
         ];
+
+        // Create form JS configuration:
+        $mainFormConfig = [
+            'type' => $formConfig['type'],
+            'id' => $id,
+            'readOnly' => $formConfig['readOnly']
+        ];
+        foreach ($formConfig['fields'] as $field) {
+            $new = [
+                'type' => $field['type'],
+                'name' => $field['name'],
+                'label' => $field['label'],
+                'allow_null' => $field['allow_null']
+            ];
+            if (isset($field['default'])) {
+                $new['default'] = $field['default'];
+            }
+            $mainFormConfig['fields'][] = $new;
+        }
+
+        $subFormConfig = [];
+        $listItems = [];
+        if ($childFormConfig) {
+            $subFormConfig = [
+                'type' => $childFormConfig['type'],
+                'parentKey' => $childFormConfig['parentKey'],
+                'onAfterRowAdded' => $childFormConfig['onAfterRowAdded'],
+                'clearAfterRowAdded' => $childFormConfig['clearAfterRowAdded'],
+                'dispatchByDateButtons' => $this->settingsManager->get('invoice_show_dispatch_dates'),
+                'popupWidth' => 'send_api_config' === $childFormConfig['type'] ? 1200 : 1050,
+            ];
+
+            foreach ($childFormConfig['fields'] as $subElem) {
+                $new = [
+                    'type' => $subElem['type'],
+                    'name' => $subElem['name'],
+                    'style' => $subElem['style'],
+                    'label' => $subElem['label'],
+                    'allow_null' => $subElem['allow_null'],
+                ];
+                if (isset($subElem['default'])) {
+                    $new['default'] = $subElem['default'];
+                }
+                if (isset($subElem['decimals'])) {
+                    $new['decimals'] = $subElem['decimals'];
+                }
+                $subFormConfig['fields'][] = $new;
+
+                if ($subElem['type'] != 'LIST') {
+                    continue;
+                }
+                $list = $subElem['list'] ?? $subElem['listquery'];
+                if (is_array($list)) {
+                    $values = $list;
+                } else {
+                    throw new Exception('Invalid list/listquery for ' . $subElem['name']);
+                }
+                $translate = strstr($subElem['style'], ' translated');
+                $items = [
+                    '0' => '-'
+                ];
+                foreach ($values as $key => $value) {
+                    if ($value instanceof EntityInterface) {
+                        $key = $value->getId();
+                        $value = $value->getName();
+                    }
+                    if ($translate) {
+                        $value = $this->translator->translate($value);
+                    }
+                    $items[$key] = $value;
+                }
+                $listItems[$subElem['name']] = $items;
+            }
+        }
+
+        $mainFormConfig['modificationWarning'] = '';
+        if ('invoice' === $form && $invoice && !$invoice->getState()->getOpen()) {
+            $mainFormConfig['modificationWarning'] = $this->translator->translate('NonOpenInvoiceModificationWarning');
+        }
+
+        $formConfig['js'] = compact('mainFormConfig', 'subFormConfig', 'listItems');
+
+        return $this->cache[$cacheKey] = $formConfig;
     }
 
     /**
@@ -2548,5 +2660,498 @@ class FormService
                 = str_replace('%d', (string)$i, $this->translator->translate('InvoiceIntervalYears'));
         }
         return $intervalOptions;
+    }
+
+    /**
+     * Save form data.
+     *
+     * If primaryKey is not set, add a new record and set it, otherwise update existing
+     * record.
+     * Return true on success. Return false on conflict or a string of missing values if
+     * encountered. In these cases, the record is not saved.
+     *
+     * @param string $table         Table name
+     * @param int    $primaryKey    Primary key value
+     * @param array  $formConfig    Form configuration
+     * @param array  $values        Values
+     * @param array  $warnings      Any warnings encountered
+     * @param string $parentKeyName Parent key field name, if any
+     * @param ?int    $parentKey     Parent key value, if any
+     * @param bool   $onPrint       Whether the save is happening on print
+     * @param bool   $partial       Whether values contain only updated fields
+     *
+     * @return mixed
+     *
+     * @todo Convert to use ORM
+     */
+    public function saveFormData($table, &$primaryKey, $formConfig, &$values, &$warnings,
+        $parentKeyName = '', $parentKey = null, $onPrint = false, $partial = false
+    ) {
+        $missingValues = '';
+        $fields = [];
+        $insert = [];
+        $updateFields = [];
+        $arrValues = [];
+
+        if (!isset($primaryKey) || !$primaryKey) {
+            if ($partial) {
+                $warnings = 'Unable to do partial update without ID';
+                return false;
+            }
+            unset($values['id']);
+        }
+
+        if ($partial) {
+            $origValues = [];
+            $res = $this->fetchRecord($table, $primaryKey, $formConfig['fields'], $origValues);
+            if ('notfound' === $res) {
+                $warnings = "Row $primaryKey not found";
+                return false;
+            }
+            foreach ($origValues as $key => $value) {
+                if (!isset($values[$key])) {
+                    $values[$key] = $origValues[$key];
+                }
+            }
+            unset($values['id']);
+        }
+
+        foreach ($formConfig['fields'] as $elem) {
+            $type = $elem['type'];
+
+            if (!in_array($type, $formConfig['inputFieldTypes'])
+                || ($elem['read_only'] ?? false)
+            ) {
+                continue;
+            }
+
+            $name = $elem['name'];
+            if ($type !== 'FILE') {
+                if (!$elem['allow_null']
+                    && (!isset($values[$name]) || $values[$name] === '')
+                ) {
+                    if (array_key_exists('default', $elem)) {
+                        $values[$name] = $this->getFormDefaultValue($elem, $parentKey);
+                    }
+                    if (!isset($values[$name]) || $values[$name] === '') {
+                        if ($missingValues) {
+                            $missingValues .= ', ';
+                        }
+                        $missingValues .= $this->translator->translate($elem['label']);
+                        continue;
+                    }
+                }
+            } else {
+                if (!$elem['allow_null'] && !$primaryKey && !isset($_FILES[$name])) {
+                    if ($missingValues) {
+                        $missingValues .= ', ';
+                    }
+                    $missingValues .= $this->translator->translate($elem['label']);
+                    continue;
+                }
+            }
+
+            if ('FILE' !== $type) {
+                if (array_key_exists($name, $values)) {
+                    if (empty($primaryKey) && '' === $values[$name]) {
+                        $value = $this->getFormDefaultValue($elem, $parentKey);
+                    } else {
+                        $value = $values[$name];
+                    }
+                } else {
+                    if (isset($primaryKey) && $primaryKey != 0) {
+                        continue;
+                    }
+                    $value = $this->getFormDefaultValue($elem, $parentKey);
+                }
+            }
+
+            if (($type == 'PASSWD' || $type == 'PASSWD_STORED') && !$value) {
+                continue; // Don't save empty password
+            }
+
+            if ('TAGS' === $type) {
+                // Tags are processed separately
+                continue;
+            }
+
+            if (isset($elem['unique']) && $elem['unique']) {
+                $query = "SELECT * FROM $table WHERE deleted=0 AND $name=?";
+                $params = [
+                    $value
+                ];
+                if (isset($primaryKey) && $primaryKey) {
+                    $query .= ' AND id!=?';
+                    $params[] = $primaryKey;
+                }
+                $checkRows = $this->entityManager->getConnection()->executeQuery($query, $params)->fetchOne();
+                if ($checkRows) {
+                    $warnings = str_replace(
+                        '%s',
+                        $this->translator->translate($elem['label']),
+                        $this->translator->translate('DuplicateValue')
+                    );
+                    return false;
+                }
+            }
+
+            switch ($type) {
+            case 'PASSWD':
+                $arrValues[] = password_hash($values[$name], PASSWORD_DEFAULT);
+                break;
+            case 'PASSWD_STORED':
+                $arrValues[] = $this->crypt->encrypt($values[$name]);
+                break;
+            case 'INT':
+            case 'HID_INT':
+            case 'LIST':
+            case 'SEARCHLIST':
+                $converted = isset($values[$name])
+                    ? ($value !== '' && $value !== null ? str_replace(',', '.', (string)$value) : null)
+                    : null;
+                $arrValues[] = null !== $converted
+                    ? (($elem['decimals'] ?? 0) ? (float)$converted : (int)$converted)
+                    : null;
+                break;
+            case 'CHECK':
+                $arrValues[] = $value && 'false' !== $value ? 1 : 0;
+                break;
+            case 'INTDATE':
+                if ($value) {
+                    $converted = $this->dateUtils->ymdToDbDate($value);
+                    if (null === $converted) {
+                        $warnings = $this->translator->translate('ErrInvalidValue') . ': '
+                            . $this->translator->translate($elem['label']);
+                        return false;
+                    }
+                    $arrValues[] = $converted;
+                } else {
+                    $arrValues[] = null;
+                }
+                break;
+            case 'FILE':
+                if (!isset($_FILES[$name])) {
+                    continue 2;
+                }
+                if ($_FILES[$name]['error'] != UPLOAD_ERR_OK) {
+                    $warnings = $this->translator->translate('ErrFileUploadFailed')
+                        . ' (' . $_FILES[$name]['error'] . ')';
+                    return false;
+                }
+
+                $mimetype = getMimeType(
+                    $_FILES[$name]['tmp_name'], $_FILES[$name]['name']
+                );
+                if (!empty($elem['mimetypes'])
+                    && !in_array($mimetype, $elem['mimetypes'])
+                ) {
+                    $warnings = $this->translator->translate(
+                        'FileTypeInvalid', ['%%mimetype%%' => $mimetype]
+                    );
+                    return false;
+                }
+
+                $file = fopen($_FILES[$name]['tmp_name'], 'rb');
+                if ($file === false) {
+                    $warnings = 'Could not process file upload - temp file missing';
+                    return false;
+                }
+                $fsize = filesize($_FILES[$name]['tmp_name']);
+
+                // Additional fields for file information
+                $fields[] = 'filename';
+                $insert[] = '?';
+                $updateFields[] = 'filename=?';
+                $arrValues[] = $_FILES[$name]['name'];
+
+                $fields[] = 'filesize';
+                $insert[] = '?';
+                $updateFields[] = 'filesize=?';
+                $arrValues[] = $fsize;
+
+                $fields[] = 'mimetype';
+                $insert[] = '?';
+                $updateFields[] = 'mimetype=?';
+                $arrValues[] = $mimetype;
+
+                $arrValues[] = fread($file, $fsize);
+                fclose($file);
+                break;
+            case 'SELECT':
+                $arrValues[] = '' !== $value ? $value : null;
+                break;
+            default:
+                $arrValues[] = null !== $value ? $value : '';
+            }
+            $fields[] = $name;
+            $insert[] = '?';
+            $updateFields[] = "$name=?";
+        }
+
+        if ($missingValues) {
+            return $missingValues;
+        }
+
+        $conn = $this->entityManager->getConnection();
+        if ($fields) {
+            $strFields = implode(', ', $fields);
+            $strInsert = implode(', ', $insert);
+            $strUpdateFields = implode(', ', $updateFields);
+
+            $conn->beginTransaction();
+            try {
+                // Special case for invoice rows - update product stock balance
+                if ($table == "{$this->prefix}invoice_row") {
+                    $invoiceRow = $primaryKey ? $this->invoiceRowRepository->find($primaryKey) : null;
+                    $productId = $values['product_id'] ?? null;
+                    $product = $productId ? $this->invoiceRowRepository->find($primaryKey) : null;
+                    $this->productRepository->updateStockBalance(
+                        $invoiceRow,
+                        $product,
+                        $values['pcs']
+                    );
+                }
+
+                if (!isset($primaryKey) || !$primaryKey) {
+                    if ($parentKeyName) {
+                        $strFields .= ", $parentKeyName";
+                        $strInsert .= ', ?';
+                        $arrValues[] = $parentKey;
+                    }
+                    $strQuery = "INSERT INTO $table ($strFields) VALUES ($strInsert)";
+                    $conn->executeQuery($strQuery, $arrValues);
+                    $primaryKey = $conn->lastInsertId();
+                } else {
+                    // Special case for invoice - update product stock balance for all
+                    // invoice rows if the invoice was previously deleted
+                    if ($table == "{$this->prefix}invoice") {
+                        $deleted = $conn->executeQuery(
+                            "SELECT deleted FROM {$this->prefix}invoice WHERE id=?",
+                            [$primaryKey]
+                        )->fetchOne();
+                        if ($deleted) {
+                            $rows = $conn->executeQuery(
+                                "SELECT product_id, pcs FROM {$this->prefix}invoice_row WHERE invoice_id=? AND deleted=0",
+                                [$primaryKey]
+                            );
+                            foreach ($rows as $row) {
+                                updateProductStockBalance(
+                                    null, $row['product_id'], $row['pcs']
+                                );
+                            }
+                        }
+                    }
+
+                    if ("{$this->prefix}send_api_config" === $table
+                        || "{$this->prefix}attachment" === $table
+                        || "{$this->prefix}invoice_attachment" === $table
+                    ) {
+                        $strQuery = "UPDATE $table SET $strUpdateFields WHERE id=?";
+                    } else {
+                        $strQuery = "UPDATE $table SET $strUpdateFields, deleted=0 WHERE id=?";
+                    }
+                    $arrValues[] = $primaryKey;
+                    $conn->executeQuery($strQuery, $arrValues);
+                }
+                if ($table === "{$this->prefix}company") {
+                    saveTags(
+                        'company',
+                        $primaryKey,
+                        $values['tags'] ?? []
+                    );
+                } elseif ($table === "{$this->prefix}company_contact") {
+                    saveTags(
+                        'contact',
+                        $primaryKey,
+                        $values['tags'] ?? []
+                    );
+                }
+            } catch (Exception $e) {
+                $conn->rollBack();
+                throw $e;
+            }
+            $conn->commit();
+        }
+
+        // Special case for invoices - check for duplicate invoice numbers
+        if ($table == "{$this->prefix}invoice" && isset($values['invoice_no'])) {
+            $query = "SELECT ID FROM {$this->prefix}invoice where deleted=0 AND id!=? AND invoice_no=?";
+            $params = [
+                $primaryKey,
+                $values['invoice_no']
+            ];
+            if ($this->settingsManager->get('invoice_numbering_per_base')) {
+                $query .= ' AND base_id=?';
+                $params[] = $values['base_id'];
+            }
+            if ($this->settingsManager->get('invoice_numbering_per_year')) {
+                $query .= ' AND invoice_date >= ' . date('Y') . '0101';
+            }
+
+            $check = $conn->executeQuery($query, $params)->fetchOne();
+            if ($check) {
+                $warnings = $this->translator->translate('InvoiceNumberAlreadyInUse');
+            }
+        }
+
+        // Special case for invoices - check, according to settings, that the invoice has
+        // an invoice number and a reference number
+        if ($table == "{$this->prefix}invoice" && $onPrint && !isOffer($primaryKey)) {
+            verifyInvoiceDataForPrinting($primaryKey);
+        }
+
+        // Special case for invoices: store base_id to session as a default invoicer
+        if ("{$this->prefix}invoice" === $table && !empty($values['base_id'])) {
+            $this->session->set('default_base_id', $values['base_id']);
+        }
+
+        return true;
+    }
+
+    /**
+     *  Get default values for a form
+     *
+     * @param array $formConfig Form configuration
+     * @param ?int  $parentKey  Parent key value, if any
+     *
+     * @return array
+     */
+    public function getFormDefaultValues(array $formConfig, ?int $parentKey = null)
+    {
+        $values = [];
+
+        foreach ($formConfig['fields'] as $elem) {
+            $values[$elem['name']] = $this->getFormDefaultValue($elem, $parentKey);
+        }
+        return $values;
+    }
+
+    /**
+     * Get the default value for the given form element
+     *
+     * @param array $elem      Form element
+     * @param ?int  $parentKey Parent record id
+     *
+     * @return mixed Default value
+     */
+    public function getFormDefaultValue(array $elem, ?int $parentKey)
+    {
+        if (!isset($elem['default'])) {
+            return null;
+        }
+        if ($elem['default'] === 'DATE_NOW') {
+            return date('Y-m-d');
+        } elseif (str_contains((string)$elem['default'], 'DATE_NOW+')) {
+            $atmpValues = explode('+', $elem['default']);
+            return date(
+                'Y-m-d',
+                mktime(0, 0, 0, (int)date('m'), date('d') + $atmpValues[1], (int)date('Y'))
+            );
+        } elseif (str_starts_with((string)$elem['default'], 'ADD+')) {
+            $strQuery = str_replace('_PARENTID_', (string)($parentKey ?? ''), $elem['listquery']);
+            $res = dbQueryCheck($strQuery);
+            $intAdd = dbFetchValue($res);
+            if (isset($intAdd)) {
+                return $intAdd;
+            }
+            $intAdd = substr($elem['default'], 4);
+            if (ctype_digit($intAdd)) {
+                return $intAdd;
+            }
+        } elseif ($elem['default'] === 'POST') {
+            // POST has special treatment in iform
+            return '';
+        }
+        $result = $elem['default'];
+        if ($elem['type'] == 'INT') {
+            $decimals = $elem['decimals'] ?? 2;
+            $result = $this->numberFormatter->roundNumber((float)$result, $decimals);
+        }
+        return $result;
+    }
+
+    /**
+     * Fetch a record. Values in $values, may modify $formElements.
+     *
+     * Returns true on success, 'deleted' for deleted records and 'notfound' if record is
+     * not found.
+     *
+     * @param string $table        Table name
+     * @param int    $primaryKey   Record ID
+     * @param array  $formElements Form elements
+     * @param array  $values       Record data
+     *
+     * @return mixed
+     */
+    protected function fetchRecord($table, $primaryKey, $formElements, &$values)
+    {
+        $result = true;
+        $strQuery = "SELECT * FROM $table WHERE id=?";
+        $rows = $this->entityManager->getConnection->executeQuery($strQuery, [$primaryKey]);
+        if (!$rows) {
+            return 'notfound';
+        }
+        $row = $rows[0];
+
+        if (!empty($row['deleted'])) {
+            $result = 'deleted';
+        }
+
+        foreach ($formElements as $elem) {
+            $type = $elem['type'];
+            $name = $elem['name'];
+
+            if (!$type || $type == 'LABEL' || $type == 'DROPDOWNMENU' || $type == 'HEADING') {
+                continue;
+            }
+
+            switch ($type) {
+            case 'ROWSUM':
+                break;
+            case 'IFORM':
+            case 'RESULT':
+                $values[$name] = $primaryKey;
+                break;
+            case 'BUTTON':
+            case 'JSBUTTON':
+            case 'IMAGE':
+            case 'FILE':
+                if (strstr($elem['listquery'], '=_ID_')) {
+                    $values[$name] = $primaryKey;
+                } else {
+                    $tmpListQuery = $elem['listquery'];
+                    $strReplName = substr($tmpListQuery, strpos($tmpListQuery, '_'));
+                    $strReplName = strtolower(
+                        substr($strReplName, 1, strrpos($strReplName, '_') - 1)
+                    );
+                    $values[$name] = $values[$strReplName] ?? '';
+                    $elem['listquery'] = str_replace(
+                        strtoupper($strReplName), 'ID', $elem['listquery']
+                    );
+                }
+                break;
+            case 'INTDATE':
+                $values[$name] = dateConvDBDate2Ymd($row[$name]);
+                break;
+            case 'INT':
+                if (isset($elem['decimals'])) {
+                    $values[$name] = miscRound2Decim($row[$name], $elem['decimals']);
+                } else {
+                    $values[$name] = $row[$name];
+                }
+                break;
+            case 'TAGS':
+                $values[$name] = '';
+                if ("{$this->prefix}company" === $table) {
+                    $values[$name] = getTags('company', $primaryKey);
+                } elseif ("{$this->prefix}company_contact" === $table) {
+                    $values[$name] = getTags('contact', $primaryKey);
+                }
+                break;
+            default:
+                $values[$name] = $row[$name];
+            }
+        }
+        return $result;
     }
 }

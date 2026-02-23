@@ -46,10 +46,13 @@ class DatabaseUpdater
     /**
      * Constructor
      *
+     * @param array $config Configuration
+     * @param string $dbPrefix Database table prefix
      * @param EntityManagerInterface $entityManager Entity manager
      */
     public function __construct(
         #[Inject('config')] protected array $config,
+        #[Inject('dbPrefix')] protected string $prefix,
         protected EntityManagerInterface $entityManager,
         protected LoggerInterface $logger,
     ) {
@@ -64,7 +67,7 @@ class DatabaseUpdater
     public function verifyDatabase(): string
     {
         $conn = $this->entityManager->getConnection();
-        $prefix = $this->config['Database']['table_prefix'] ?? 'mlinvoice_';
+        $prefix = $this->prefix;
         // phpcs:disable Generic.Files.LineLength
         $res = $conn->executeQuery("SHOW TABLES LIKE '{$prefix}state'");
         if ($res->rowCount() === 0) {

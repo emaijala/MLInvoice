@@ -29,6 +29,7 @@
 namespace MLInvoice\Database\Repository;
 
 use Doctrine\ORM\EntityRepository;
+use MLInvoice\Database\Entity\InvoiceRow;
 
 /**
  * StockBalanceLog Repository.

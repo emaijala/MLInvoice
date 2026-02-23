@@ -39,6 +39,7 @@ use MLInvoice\Database\Entity\EntityInterface;
 use MLInvoice\Database\Entity\ExchangeArrayInterface;
 use MLInvoice\Database\Entity\SoftDeleteInterface;
 use MLInvoice\Form\FormService;
+use MLInvoice\I18n\NumberFormatter;
 use MLInvoice\I18n\Translator;
 use Odan\Session\SessionInterface;
 use Psr\Http\Message\RequestInterface;
@@ -198,70 +199,5 @@ abstract class AbstractFormAction extends AbstractAction
             && ($this->id || $writeAccess)
             && (!$this->action || $writeAccess)
             && ($this->entity->getId() || !$this->action);
-    }
-
-    /**
-     *  Get default values for a form
-     *
-     * @param ?int $parentKey Parent key value, if any
-     *
-     * @return array
-     */
-    function getFormDefaultValues(?int $parentKey = null)
-    {
-        $values = [];
-
-        foreach ($this->formConfig['fields'] as $elem) {
-            $values[$elem['name']] = $this->getFormDefaultValue($elem, $parentKey);
-        }
-        return $values;
-    }
-
-    /**
-     * Get the default value for the given form element
-     *
-     * @param array $elem      Form element
-     * @param ?int  $parentKey Parent record id
-     *
-     * @return mixed Default value
-     */
-    function getFormDefaultValue(array $elem, ?int $parentKey)
-    {
-        if (!isset($elem['default'])) {
-            if (!empty($elem['default_query'])) {
-                $intRes = dbQueryCheck($elem['default_query']);
-                return dbFetchValue($intRes);
-            }
-            return null;
-        }
-        if ($elem['default'] === 'DATE_NOW') {
-            return date('Y-m-d');
-        } elseif (strstr($elem['default'], 'DATE_NOW+')) {
-            $atmpValues = explode('+', $elem['default']);
-            return date(
-                'Y-m-d',
-                mktime(0, 0, 0, (int)date('m'), date('d') + $atmpValues[1], (int)date('Y'))
-            );
-        } elseif (strncmp($elem['default'], 'ADD+', 4) === 0) {
-            $strQuery = str_replace('_PARENTID_', (string)($parentKey ?? ''), $elem['listquery']);
-            $res = dbQueryCheck($strQuery);
-            $intAdd = dbFetchValue($res);
-            if (isset($intAdd)) {
-                return $intAdd;
-            }
-            $intAdd = substr($elem['default'], 4);
-            if (ctype_digit($intAdd)) {
-                return $intAdd;
-            }
-        } elseif ($elem['default'] === 'POST') {
-            // POST has special treatment in iform
-            return '';
-        }
-        $result = $elem['default'];
-        if ($elem['type'] == 'INT') {
-            $decimals = $elem['decimals'] ?? 2;
-            $result = miscRound2Decim($result, $decimals);
-        }
-        return $result;
     }
 }

@@ -39,12 +39,14 @@ use MLInvoice\Config\SettingsManager;
 use MLInvoice\Database\DatabaseUpdater;
 use MLInvoice\Database\Entity\Attachment;
 use MLInvoice\Database\Entity\Base;
+use MLInvoice\Database\Entity\Company;
 use MLInvoice\Database\Entity\CustomPrice;
 use MLInvoice\Database\Entity\CustomPriceMap;
 use MLInvoice\Database\Entity\DeliveryMethod;
 use MLInvoice\Database\Entity\DeliveryTerms;
 use MLInvoice\Database\Entity\Invoice;
 use MLInvoice\Database\Entity\InvoiceAttachment;
+use MLInvoice\Database\Entity\InvoiceRow;
 use MLInvoice\Database\Entity\InvoiceState;
 use MLInvoice\Database\Entity\PrintTemplate;
 use MLInvoice\Database\Entity\Product;
@@ -57,12 +59,14 @@ use MLInvoice\Database\Entity\User;
 use MLInvoice\Database\EntityManagerFactory;
 use MLInvoice\Database\Repository\AttachmentRepository;
 use MLInvoice\Database\Repository\BaseRepository;
+use MLInvoice\Database\Repository\CompanyRepository;
 use MLInvoice\Database\Repository\CustomPriceMapRepository;
 use MLInvoice\Database\Repository\CustomPriceRepository;
 use MLInvoice\Database\Repository\DeliveryMethodRepository;
 use MLInvoice\Database\Repository\DeliveryTermsRepository;
 use MLInvoice\Database\Repository\InvoiceAttachmentRepository;
 use MLInvoice\Database\Repository\InvoiceRepository;
+use MLInvoice\Database\Repository\InvoiceRowRepository;
 use MLInvoice\Database\Repository\InvoiceStateRepository;
 use MLInvoice\Database\Repository\PrintTemplateRepository;
 use MLInvoice\Database\Repository\ProductRepository;
@@ -109,6 +113,10 @@ return function (ContainerBuilder $containerBuilder) {
         'config' => function (ContainerInterface $c) {
             return $c->get(ConfigManagerInterface::class)->get('config');
         },
+        'dbPrefix' => function (ContainerInterface $c) {
+            $config = $c->get(ConfigManagerInterface::class)->get('config');
+            return $config['Database']['table_prefix'] ?? 'mlinvoice_';
+        },
 
         DatabaseSessionHandler::class => DI\autowire(),
         DateUtils::class => DI\factory(DateUtilsFactory::class . '::create'),
@@ -143,6 +151,9 @@ return function (ContainerBuilder $containerBuilder) {
         BaseRepository::class => function (ContainerInterface $c) {
             return $c->get(EntityManagerInterface::class)->getRepository(Base::class);
         },
+        CompanyRepository::class => function (ContainerInterface $c) {
+            return $c->get(EntityManagerInterface::class)->getRepository(Company::class);
+        },
         CustomPriceRepository::class => function (ContainerInterface $c) {
             return $c->get(EntityManagerInterface::class)->getRepository(CustomPrice::class);
         },
@@ -160,6 +171,9 @@ return function (ContainerBuilder $containerBuilder) {
         },
         InvoiceAttachmentRepository::class => function (ContainerInterface $c) {
             return $c->get(EntityManagerInterface::class)->getRepository(InvoiceAttachment::class);
+        },
+        InvoiceRowRepository::class => function (ContainerInterface $c) {
+            return $c->get(EntityManagerInterface::class)->getRepository(InvoiceRow::class);
         },
         InvoiceStateRepository::class => function (ContainerInterface $c) {
             return $c->get(EntityManagerInterface::class)->getRepository(InvoiceState::class);

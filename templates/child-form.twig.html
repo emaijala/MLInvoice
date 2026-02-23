@@ -1,0 +1,152 @@
+{# params: field = child form field, childFormConfig, defaults = child form default values #}
+<div class="mb-2 p-2 border list_container {{ field.style }} clearfix"
+  id="field.name"{{ field.elem_attributes ? ' ' ~ field.elem_attributes : '' }}
+>
+  <h2>{{ elem.label|trans }}</h2>
+  {% if not id %}
+    <div id="inewmessage" class="new_message">
+        {{ 'SaveRecordToAddRows'|trans }}
+    </div>
+  {% else %}
+    <form method="post" name="iform" id="iform"{{ formConfig.type == 'base' ? ' autocomplete="off"' : '' }}>
+      <table class="iform{{ formConfig.type == 'base' ? ' iform-sort-select' : ''}}" id="itable">
+        <thead>
+          <tr>
+            {% if formConfig.type == 'invoice' and writeAccess %}
+              <th class="label sort-col"> </th>
+              <th class="label select-row"><input type="checkbox" class="cb-select-all" title="{{ 'SelectAll'|trans }}" aria-label="{{ 'SelectAll'|trans }}"></th>
+            {% endif %}
+
+            {% for childField in childFormConfig.fields %}
+              {% if not (childField.type in ['HID_INT', 'CONST_HID_INT', 'BUTTON', 'NEWLINE']) %}
+                <th class="label {{ childField.style|lower }}">
+                  {{ childField.label|trans }}
+                </th>
+              {% endif %}
+            {% endfor %}
+            <th class="label"></th>
+          </tr>
+        </thead>
+        <tbody>
+          {% if writeAccess %}
+            <tr id="form_row">
+              {% if formConfig.type == 'invoice' %}
+                <td></td>
+                <td class="select-row"></td>
+              {% endif %}
+              {% for childField in childFormConfig.fields %}
+                {% if not (childField.type in ['HID_INT', 'CONST_HID_INT', 'BUTTON', 'NEWLINE', 'ROWSUM']) %}
+                  {% set value = defaults.(childField) ?? '' %}
+                  <td class="label {{ childField.style|lower }}">
+                    {{ htmlFormElement(
+                        'iform_' ~ childField.name,
+                        childField.type,
+                        value,
+                        childField.style,
+                        childField.list ?? childField.listquery,
+                        'MODIFY',
+                        0,
+                        '',
+                        [],
+                        childField.elem_attributes
+                      )
+                    }}
+                  </td>
+                {% elseif childField.type == 'ROWSUM' %}
+                  <td class="label {{ childField.style|lower }}">&nbsp;</td>
+                {% endif %}
+              {% endfor %}
+              <td class="button">
+                <a role="button" class="btn btn-outline-primary btn-sm row-add-button" href="#"
+                  data-iform-save-row="iform"
+                  title="{{ 'AddRow'|trans }}"
+                >
+                  <i class="icon-plus"></i>
+                </a>
+              </td>
+            </tr>
+          {% endif %}
+        </tbody>
+      </table>
+    </form>
+  </div>
+
+  <div id="popup_edit" class="modal" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-xl">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h2 class="modal-title">-</h2>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="{{ 'Close'|trans }}"></button>
+        </div>
+        <div class="modal-body">
+          <form method="post" name="iform_popup" id="iform_popup" data-popup="1">
+            <table class="iform-popup">
+              <thead>
+                <tr>
+                  {% for childField in childFormConfig.fields %}
+                    {% if not (childField.type in ['HID_INT', 'CONST_HID_INT', 'BUTTON', 'NEWLINE', 'ROWSUM']) %}
+                      <th class="label {{ childField.style|lower }}">
+                        {{ childField.label|trans }}
+                      </th>
+                    {% endif %}
+                  {% endfor %}
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  {% for childField in childFormConfig.fields %}
+                    {% if not (childField.type in ['HID_INT', 'CONST_HID_INT', 'BUTTON', 'NEWLINE', 'ROWSUM']) %}
+                      <td class="label {{ childField.style|lower }}" data-th="{{ childField.label|trans }}">
+                        <div class="field-container">
+                          {{ htmlFormElement(
+                              'iform_popup_' ~ childField.name,
+                              childField.type,
+                              '',
+                              childField.style,
+                              childField.list ?? childField.listquery,
+                              'MODIFY',
+                              0,
+                              '',
+                              [],
+                              childField.elem_attributes
+                            )
+                          }}
+                        </div>
+                        <div class="modification-indicator hidden">
+                          <span class="modification-text">{{ 'Modified'|trans }}</span>
+                          <button type="button" class="btn btn-small btn-outline-secondary clear" title="{{ 'Clear'|trans }}" aria-label="{{ 'Clear'|trans }}">
+                            <i class="icon-ccw" aria-hidden="true"></i>
+                          </button>
+                        </div>
+                      </td>
+                    {% elseif childField.type == 'BUTTON' %}
+                      <td class="label button">&nbsp;</td>
+                    {% endif %}
+                  {% endfor %}
+                </tr>
+              </tbody>
+            </table>
+          </form>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{{ 'Cancel'|trans }}</button>
+          <span class="edit-single-buttons">
+            <button type="button" class="btn btn-secondary" data-bs-toggle="dropdown" aria-expanded="false">{{ 'Delete'|trans }}</button>
+            <ul class="dropdown-menu">
+              <li>
+                <a class="dropdown-item" href="#" data-iform-delete-row="iform_popup">
+                  {{ 'ConfirmDelete'|trans }}
+                </a>
+              </li>
+            </ul>
+            <button type="button" class="btn btn-secondary" data-iform-copy-row="iform_popup">{{ 'SaveAsCopy'|trans }}</button>
+            <button type="button" class="btn btn-primary" data-iform-save-row="iform_popup">{{ 'Save'|trans }}</button>
+          </span>
+          <span class="edit-multi-buttons">
+            <button type="button" class="btn btn-primary" data-iform-save-rows="iform_popup">{{ 'Save'|trans }}</button>
+          </span>
+        </div>
+      </div>
+    </div>
+  {% endif %}
+</div>

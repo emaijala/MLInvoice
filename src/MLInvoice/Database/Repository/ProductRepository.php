@@ -47,12 +47,12 @@ class ProductRepository extends EntityRepository
      * Update product stock balance for an invoice row
      *
      * @param ?InvoiceRow $invoiceRow Invoice row for returning balance to old product, if any
-     * @param Product     $product    Product ID
+     * @param ?Product    $product    New product ID
      * @param ?string     $count      Count of items
      *
      * @return void
      */
-    function updateStockBalance(?InvoiceRow $invoiceRow, Product $product, ?string $count)
+    function updateStockBalance(?InvoiceRow $invoiceRow, ?Product $product, ?string $count)
     {
         // Add any old balance to old product:
         if ($invoiceRow) {

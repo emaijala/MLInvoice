@@ -48,6 +48,7 @@ use MLInvoice\Database\Repository\StockBalanceLogRepository;
 use MLInvoice\Database\Repository\UserRepository;
 use MLInvoice\Database\Updater;
 use MLInvoice\Form\FormService;
+use MLInvoice\I18n\NumberFormatter;
 use MLInvoice\I18n\Translator;
 use Odan\Session\SessionInterface;
 use Odan\Session\SessionManagerInterface;
@@ -82,6 +83,7 @@ class InvoiceAction extends AbstractFormAction
         InvoiceRepository $invoiceRepository,
         EntityManagerInterface $entityManager,
         SettingsManager $settingsManager,
+        NumberFormatter $numberFormatter,
         protected InvoiceStateRepository $invoiceStateRepository,
         protected CustomPriceMapRepository $customPriceMapRepository,
         protected ProductRepository $productRepository,
@@ -94,7 +96,8 @@ class InvoiceAction extends AbstractFormAction
             $session,
             $invoiceRepository,
             $entityManager,
-            $settingsManager
+            $settingsManager,
+            $numberFormatter,
         );
     }
 
@@ -149,7 +152,8 @@ class InvoiceAction extends AbstractFormAction
         }
 
         $data = [
-            'data' => $this->entity->toArray() ?? $this->getFormDefaultValues(),
+            'data' => $this->entity->toArray() ?? $this->formService->getFormDefaultValues($this->formConfig),
+            'childDefaults' => $this->formService->getFormDefaultValues($this->formConfig['childFormConfig']),
             'formConfig' => $this->formConfig,
             'id' => $this->id,
             'newLocation' => $newLocation,

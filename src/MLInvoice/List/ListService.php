@@ -64,17 +64,14 @@ use Psr\Http\Message\ServerRequestInterface;
 class ListService
 {
     /**
-     * Table name prefix.
-     *
-     * @var string
-     */
-    protected string $prefix;
-
-    /**
      * Constructor
+     *
+     * @param array $config Configuration
+     * @param string $dbPrefix Database table prefix
      */
     public function __construct(
         #[Inject('config')] protected array $config,
+        #[Inject('dbPrefix')] protected string $prefix,
         protected Translator $translator,
         protected Memory $memory,
         protected InvoiceStateRepository $invoiceStateRepository,
@@ -86,7 +83,6 @@ class ListService
         protected EntityManagerInterface $entityManager,
         protected NumberFormatter $numberFormatter,
     ) {
-        $this->prefix = $config['Database']['table_prefix'] ?? 'mlinvoice_';
     }
 
     /**
@@ -737,7 +733,7 @@ class ListService
 
         $customPrice = null;
         if ('product' === $list) {
-            $companyId = $request->getParsedBody()['company'] ?? $request->getQueryParams()['company'] ?? null;
+            $companyId = $request?->getParsedBody()['company'] ?? $request?->getQueryParams()['company'] ?? null;
             if ($companyId) {
                 $customPrice = $this->customPriceRepository->findOneByCompanyId($companyId);
             }

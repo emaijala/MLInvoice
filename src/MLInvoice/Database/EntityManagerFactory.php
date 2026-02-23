@@ -78,7 +78,7 @@ class EntityManagerFactory
         // Add LoadClassMetadataListener:
         $entityManager->getEventManager()->addEventListener(
             Events::loadClassMetadata,
-            new LoadClassMetadataListener($config['Database']['table_prefix'] ?? 'mlinvoice_')
+            new LoadClassMetadataListener($c->get('dbPrefix'))
         );
 
         return $entityManager;

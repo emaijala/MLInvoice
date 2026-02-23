@@ -31,10 +31,14 @@ declare(strict_types=1);
 namespace MLInvoice\Action;
 
 use DI\Attribute\Inject;
+use Doctrine\ORM\EntityManagerInterface;
 use GuzzleHttp\Psr7\Response;
+use MLInvoice\Config\SettingsManager;
 use MLInvoice\Database\DatabaseUpdater;
 use MLInvoice\Database\Repository\InvoiceRepository;
 use MLInvoice\Database\Repository\UserRepository;
+use MLInvoice\Form\FormService;
+use MLInvoice\I18n\NumberFormatter;
 use MLInvoice\I18n\Translator;
 use MLInvoice\Import\ImportFile;
 use MLInvoice\Import\ImportStatement;
@@ -44,6 +48,7 @@ use MLInvoice\List\ListService;
 use MLInvoice\Search\SearchService;
 use MLInvoice\Session\Memory;
 use MLInvoice\Updater\Updater;
+use MLInvoice\Utils\DateUtils;
 use Odan\Session\SessionInterface;
 use Odan\Session\SessionManagerInterface;
 use Psr\Container\ContainerInterface;
@@ -82,14 +87,24 @@ class JsonAction extends AbstractAction
     /**
      * Constructor
      *
+     * @param array $config Configuration
+     * @param string $dbPrefix Database table prefix
      * @param Translator      $translator      Translator
      * @param ContainerInterface $container Container
      * @param SessionInterface $session Session
      */
     public function __construct(
         Translator $translator,
+        #[Inject('config')] protected array $config,
+        #[Inject('dbPrefix')] protected string $prefix,
+        protected DateUtils $dateUtils,
+        protected NumberFormatter $numberFormatter,
         protected ContainerInterface $container,
         protected SessionInterface $session,
+        protected SettingsManager $settingsManager,
+        protected EntityManagerInterface $entityManager,
+        protected ListService $listService,
+        protected FormService $formService,
     ) {
         parent::__construct($translator);
     }
@@ -216,18 +231,40 @@ class JsonAction extends AbstractAction
             $this->saveJsonRecord('invoice', '');
             break;
         case 'get_invoice_template_row':
-            $this->printJsonRecord('invoice_row');
+            $this->printJsonRecord('invoice_template_row');
             break;
         case 'get_invoice_template_rows':
-            $this->printJsonRecords('invoice_row', 'invoice_id', 'order_no');
+            $this->printJsonRecords('invoice_template_row', 'invoice_id', 'order_no');
             break;
         case 'put_invoice_template_row':
-            $this->saveJsonRecord('invoice_row', 'invoice_id');
+            $this->saveJsonRecord('invoice_template_row', 'invoice_id');
             break;
         case 'delete_invoice_template_row':
-            $this->deleteJsonRecord('invoice_row');
+            $this->deleteJsonRecord('invoice_template_row');
             break;
         case 'delete_invoice_template_attachment':
+            $this->deleteJsonRecord('invoice_attachment');
+            break;
+
+        case 'get_offer':
+            $this->printJsonRecord('offer');
+            break;
+        case 'put_offer':
+            $this->saveJsonRecord('offer', '');
+            break;
+        case 'get_offer_row':
+            $this->printJsonRecord('offer_row');
+            break;
+        case 'get_offer_rows':
+            $this->printJsonRecords('offer_row', 'invoice_id', 'order_no');
+            break;
+        case 'put_offer_row':
+            $this->saveJsonRecord('offer_row', 'invoice_id');
+            break;
+        case 'delete_offer_row':
+            $this->deleteJsonRecord('offer_row');
+            break;
+        case 'delete_offer_attachment':
             $this->deleteJsonRecord('invoice_attachment');
             break;
 
@@ -398,7 +435,7 @@ class JsonAction extends AbstractAction
             }
 
             $columns = [];
-            $res = dbQueryCheck("select * from {prefix}$table where 1=2");
+            $res = dbQueryCheck("select * from {$this->prefix}$table where 1=2");
             $field_count = mysqli_num_fields($res);
             for ($i = 0; $i < $field_count; $i ++) {
                 $field_def = mysqli_fetch_field($res);
@@ -499,12 +536,8 @@ class JsonAction extends AbstractAction
                 return $response->withStatus(400);
             }
 
-            if (!tableNameValid($table)) {
-                return $response->withStatus(400, 'Invalid table name');
-            }
-
-            $pageLen = intval($this->getPostOrQuery('pagelen', 10));
-            $page = intval($this->getPostOrQuery('page', 1)) - 1;
+            $pageLen = intval($this->getPostOrQuery('pagelen', '10'));
+            $page = intval($this->getPostOrQuery('page', '1')) - 1;
             $q = $this->getPostOrQuery('q', []);
             $filter = $q['term'] ?? '';
             $sort = $this->getPostOrQuery('sort', '');
@@ -512,7 +545,7 @@ class JsonAction extends AbstractAction
             $filterType = $this->getPostOrQuery('type', '');
 
             header('Content-Type: application/json');
-            $listData = createJSONSelectList(
+            $listData = $this->listService->createJSONSelectList(
                 $table, $page * $pageLen, $pageLen, $filter, $filterType, $sort, $id, $this->request
             );
             $this->setResult($listData);
@@ -546,8 +579,8 @@ class JsonAction extends AbstractAction
             }
             $rows = dbParamQuery(
                 <<<EOT
-        SELECT l.time, u.name, l.stock_change, l.description FROM {prefix}stock_balance_log l
-        INNER JOIN {prefix}users u ON l.user_id=u.id WHERE product_id=? ORDER BY time DESC
+        SELECT l.time, u.name, l.stock_change, l.description FROM {$this->prefix}stock_balance_log l
+        INNER JOIN {$this->prefix}users u ON l.user_id=u.id WHERE product_id=? ORDER BY time DESC
         EOT
                 ,
                 [$productId]
@@ -556,9 +589,9 @@ class JsonAction extends AbstractAction
             foreach ($rows as $row) {
                 ?>
         <tr>
-            <td><?php echo dateConvDBTimestamp2DateTime($row['time'])?></td>
+            <td><?php echo $this->dateUtils->dbDateTimeToDateTimeString($row['time'])?></td>
             <td><?php echo $row['name']?></td>
-            <td><?php echo miscRound2Decim($row['stock_change'])?></td>
+            <td><?php echo $this->numberFormatter->roundNumber($row['stock_change'])?></td>
             <td><?php echo $row['description']?></td>
         </tr>
                 <?php
@@ -623,6 +656,8 @@ class JsonAction extends AbstractAction
      * @param array  $warnings Warnings to include in the output
      *
      * @return void
+     *
+     * @todo Convert to use ORM
      */
     protected function printJsonRecord($table, $id = false, $warnings = null): void
     {
@@ -630,26 +665,26 @@ class JsonAction extends AbstractAction
             $id = $this->getPostOrQuery('id', '');
         }
         if ($id) {
-            if (substr($table, 0, 8) === '{prefix}') {
-                $table = substr($table, 8);
+            if (str_starts_with($table, $this->prefix)) {
+                $table = substr($table, strlen($this->prefix));
             }
             $select = 'SELECT t.*';
-            $from = "FROM {prefix}$table t";
+            $from = "FROM {$this->prefix}$table t";
             $where = 'WHERE t.id=?';
 
             if ($table === 'invoice_row') {
                 // Include product name and code
                 $select .= ", CASE WHEN LENGTH(p.product_code) = 0 THEN IFNULL(p.product_name, '') ELSE CONCAT_WS(' ', p.product_code, IFNULL(p.product_name, '')) END as product_id_text";
-                $from .= ' LEFT OUTER JOIN {prefix}product p on (p.id = t.product_id)';
+                $from .= " LEFT OUTER JOIN {$this->prefix}product p on (p.id = t.product_id)";
             }
 
             $query = "$select $from $where";
-            $rows = dbParamQuery($query, [$id]);
+            $rows = $this->entityManager->getConnection()->executeQuery($query, [$id]);
             if (!$rows) {
                 $this->setResult([])->setHttpStatus(404);
                 return;
             }
-            $row = $rows[0];
+            $row = $rows->fetchAssociative();
             $row = $this->convertToApi($row, $table);
 
             // Include any custom price for a product
@@ -692,7 +727,7 @@ class JsonAction extends AbstractAction
     protected function printJsonRecords($table, $parentIdCol, $sort)
     {
         $select = 'SELECT t.*';
-        $from = "FROM {prefix}$table t";
+        $from = "FROM {$this->prefix}$table t";
 
         if ($table == 'invoice_row') {
             // Include product name, product code, product weight and row type name
@@ -701,9 +736,9 @@ class JsonAction extends AbstractAction
     ELSE CONCAT_WS(' ', p.product_code, IFNULL(p.product_name, ''))
     END as product_id_text, p.weight as product_weight
     EOT;
-            $from .= ' LEFT OUTER JOIN {prefix}product p on (p.id = t.product_id)';
+            $from .= " LEFT OUTER JOIN {$this->prefix}product p on (p.id = t.product_id)";
             $select .= ', rt.name as type_id_text';
-            $from .= ' LEFT OUTER JOIN {prefix}row_type rt on (rt.id = t.type_id)';
+            $from .= " LEFT OUTER JOIN {$this->prefix}row_type rt on (rt.id = t.type_id)";
         }
 
         $where = '';
@@ -713,7 +748,7 @@ class JsonAction extends AbstractAction
             $where .= " WHERE t.$parentIdCol=?";
             $params[] = $id;
         }
-        if (!getSetting('show_deleted_records') && 'send_api_config' !== $table
+        if (!$this->settingsManager->get('show_deleted_records') && 'send_api_config' !== $table
             && 'attachment' !== $table && 'invoice_attachment' !== $table
         ) {
             if ($where) {
@@ -725,9 +760,9 @@ class JsonAction extends AbstractAction
 
         $query = "$select $from $where";
         if ($sort) {
-            $query .= " order by $sort";
+            $query .= " ORDER BY $sort";
         }
-        $rows = dbParamQuery($query, $params);
+        $rows = $this->entityManager->getConnection()->executeQuery($query, $params)->fetchAllAssociative();
         $records = [];
         foreach ($rows as $row) {
             $records[] = $this->convertToApi($row, $table);
@@ -765,7 +800,9 @@ class JsonAction extends AbstractAction
             $parentId = $row['company_id'];
             break;
         case 'invoice_row':
-            $row['type_id_text'] = $this->translator->translate($row['type_id_text']);
+            if (isset($row['type_id_text'])) {
+                $row['type_id_text'] = $this->translator->translate($row['type_id_text']);
+            }
             $parentId = $row['invoice_id'];
             break;
         case 'users':
@@ -774,11 +811,11 @@ class JsonAction extends AbstractAction
             break;
         }
 
-        $formConfig = getFormConfig($form, '', $row['id'] ?? null, $parentId);
+        $formConfig = $this->formService->getFormConfig($form, $row['id'] ?? null, $this->request, false, $parentId);
         foreach ($formConfig['fields'] as $field) {
             $name = $field['name'];
             if ('INTDATE' === $field['type'] && isset($row[$name])) {
-                $row[$name] = dateConvDBDate2Ymd($row[$name]);
+                $row[$name] = $this->dateUtils->dbDateToDate($row[$name], 'Y-m-d');
             }
         }
 
@@ -813,7 +850,7 @@ class JsonAction extends AbstractAction
             return;
         }
 
-        $data = $this->request->getBody();
+        $data = $this->request->getParsedBody();
         if (!$data) {
             $this->setHttpStatus(400);
             return;
@@ -821,7 +858,8 @@ class JsonAction extends AbstractAction
         $id = !empty($data['id']) ? (int)$data['id'] : null;
         $new = $id ? false : true;
         unset($data['id']);
-        $formConfig = getFormConfig($table, 'json', $id, $parentKeyName ? $data[$parentKeyName] : null);
+        $formConfig = $this->formService
+            ->getFormConfig($table, $id, $this->request, false, $parentKeyName ? $data[$parentKeyName] : null);
 
         $onPrint = false;
         if (isset($data['onPrint'])) {
@@ -833,13 +871,13 @@ class JsonAction extends AbstractAction
         // partial update mechanism might hide issues with other record types.
         $partial = !$new && 'invoice_attachment' === $table;
 
-        $data = convertFromApi($data, $table);
+        $data = $this->convertFromApi($data, $table);
 
         $warnings = '';
         try {
-            $res = saveFormData(
+            $res = $this->formService->saveFormData(
                 $formConfig['table'], $id, $formConfig, $data, $warnings, $parentKeyName,
-                $parentKeyName ? $data[$parentKeyName] : false, $onPrint, $partial
+                $parentKeyName ? $data[$parentKeyName] : null, $onPrint, $partial
             );
         } catch (\Exception $e) {
             $this->setResult(['error' => $e->getMessage()])->setHttpStatus(500);
@@ -852,7 +890,7 @@ class JsonAction extends AbstractAction
         }
 
         if ($new) {
-            $this->response = $this->response->withStatus(201);
+            $this->setHttpStatus(201);
         }
         $this->printJsonRecord($formConfig['table'], $id, $warnings);
     }
@@ -874,7 +912,7 @@ class JsonAction extends AbstractAction
         $ids = $this->getPostOrQuery('id', '');
         if ($ids) {
             foreach ((array)$ids as $id) {
-                deleteRecord("{prefix}$table", $id);
+                deleteRecord("{$this->prefix}$table", $id);
             }
             $this->setResult(['status' => 'ok']);
         }
@@ -908,7 +946,7 @@ class JsonAction extends AbstractAction
             $data = $this->convertFromApi($request['changes'], $request['table']);
 
             $res = saveFormData(
-                '{prefix}' . $request['table'], $id, $formConfig, $data, $warnings,
+                $this->prefix . $request['table'], $id, $formConfig, $data, $warnings,
                 false, false, false, true
             );
             if ($res !== true) {
@@ -940,7 +978,7 @@ class JsonAction extends AbstractAction
 
         foreach ($request['order'] as $id => $orderNo) {
             dbParamQuery(
-                "UPDATE {prefix}{$request['table']} SET order_no=? WHERE id=?",
+                "UPDATE {$this->prefix}{$request['table']} SET order_no=? WHERE id=?",
                 [$orderNo, $id]
             );
         }
@@ -972,7 +1010,7 @@ class JsonAction extends AbstractAction
         }
 
         $rows = dbParamQuery(
-            'SELECT stock_balance FROM {prefix}product WHERE id=?',
+            "SELECT stock_balance FROM {$this->prefix}product WHERE id=?",
             [$productId]
         );
         if (!$rows) {
@@ -984,12 +1022,12 @@ class JsonAction extends AbstractAction
         $balance = $row['stock_balance'];
         $balance += $change;
         dbParamQuery(
-            'UPDATE {prefix}product SET stock_balance=? where id=?',
+            "UPDATE {$this->prefix}product SET stock_balance=? where id=?",
             [$balance, $productId]
         );
         dbParamQuery(
             <<<EOT
-    INSERT INTO {prefix}stock_balance_log
+    INSERT INTO {$this->prefix}stock_balance_log
     (user_id, product_id, stock_change, description) VALUES (?, ?, ?, ?)
     EOT
             ,
@@ -1014,7 +1052,7 @@ class JsonAction extends AbstractAction
     protected function getSendApiServices($invoiceId, $baseId)
     {
         $templateCandidates = dbParamQuery(
-            'SELECT * FROM {prefix}print_template WHERE deleted=0 and type=? and inactive=0 ORDER BY order_no',
+            "SELECT * FROM {$this->prefix}print_template WHERE deleted=0 and type=? and inactive=0 ORDER BY order_no",
             [isOffer($invoiceId) ? 'offer' : 'invoice']
         );
         $templates = [];

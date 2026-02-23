@@ -32,6 +32,9 @@ namespace MLInvoice\Twig\Extension;
 
 use Closure;
 use DI\Attribute\Inject;
+use Exception;
+use InvalidArgumentException;
+use MLInvoice\Database\Entity\EntityInterface;
 use MLInvoice\Database\Repository\BaseRepository;
 use MLInvoice\Database\Repository\CustomPriceRepository;
 use MLInvoice\Database\Repository\InvoiceAttachmentRepository;
@@ -92,7 +95,7 @@ class FormExtension extends AbstractExtension
     public function getFunctions(): array
     {
         return [
-            new TwigFunction('form_config', $this->createFormConfig(...)),
+            new TwigFunction('getFormConfig', $this->createFormConfig(...)),
             new TwigFunction('getCompanyInvoiceSearchLinks', $this->getCompanyInvoiceSearchLinks(...)),
             new TwigFunction('getListNavigationLinks', $this->getListNavigationLinks(...)),
             new TwigFunction('getBaseList', $this->getBaseList(...)),
@@ -356,16 +359,16 @@ class FormExtension extends AbstractExtension
     /**
      * Format an array of HTML attributes as a string.
      *
-     * @param array $attrs Attributes
+     * @param ?array $attrs Attributes
      *
      * @return string
      */
-    protected function htmlAttributes(array $attrs): string
+    protected function htmlAttributes(?array $attrs): string
     {
         $result = '';
-        foreach ($attrs as $key => $value) {
-            $key = htmlspecialchars($key);
-            $value = htmlspecialchars($value);
+        foreach ($attrs ?? [] as $key => $value) {
+            $key = htmlspecialchars((string)$key);
+            $value = htmlspecialchars((string)$value);
             $result .= " $key=\"$value\"";
         }
 
@@ -520,16 +523,13 @@ class FormExtension extends AbstractExtension
                         $showEmpty = false;
                         $strStyle = str_replace(' noemptyvalue', '', $strStyle);
                     }
-                    $strFormElement = htmlListBox(
+                    $strFormElement = $this->htmlListBox(
                         $strName, $strListQuery, $strValue, $strStyle, false, $showEmpty,
                         $astrAdditionalAttributes, $translate
                     );
 
                 } else {
-                    $strFormElement = htmlSQLListBox(
-                        $strName, $strListQuery, $strValue,
-                        $strStyle, false, $astrAdditionalAttributes, $translate
-                    );
+                    throw new InvalidArgumentException('listquery must be an array in field ' . $strName);
                 }
             } else {
                 $strFormElement = "<input type=\"text\" class=\"form-control $strStyle\" "
@@ -716,5 +716,62 @@ class FormExtension extends AbstractExtension
         }
 
         return $strFormElement;
+    }
+
+    /**
+     * Create Html listbox
+     *
+     * @param string      $strName         Listbox name
+     * @param array       $astrValues      Listbox values => descriptions
+     * @param string      $strSelected     Selected value
+     * @param string      $strStyle        Style
+     * @param bool        $submitOnChange  Whether to submit the form when value is
+     *                                     changed
+     * @param bool|string $showEmpty       Whether to show "empty" value (string for
+     *                                     translated value)
+     * @param string      $additionalAttrs Any additional attributes
+     * @param bool        $translate       Whether the options are translated
+     *
+     * @return string HTML
+     */
+    function htmlListBox($strName, $astrValues, $strSelected, $strStyle = '',
+        $submitOnChange = false, $showEmpty = true, $additionalAttrs = '',
+        $translate = false
+    ) {
+        $strOnChange = '';
+        if ($submitOnChange) {
+            $strOnChange = " onchange='this.form.submit();'";
+        }
+        if ($additionalAttrs) {
+            $additionalAttrs = " $additionalAttrs";
+        }
+        $strListBox = "<select class=\"$strStyle\" id=\"$strName\" name=\"$strName\"{$strOnChange}{$additionalAttrs}>\n";
+        if ($showEmpty) {
+            if (true === $showEmpty) {
+                $showEmpty = ' - ';
+            } else {
+                $showEmpty = $this->translator->translate($showEmpty);
+            }
+            $strListBox .= '<option value=""' . ($strSelected ? '' : ' selected') .
+                ">$showEmpty</option>\n";
+        }
+
+        foreach ($astrValues as $value => $desc) {
+            if ($desc instanceof EntityInterface) {
+                $value = (string)$desc->getId();
+                $desc = $desc->getName();
+            }
+            $value ??= '';
+            $desc ??= '-';
+            $strSelect = $strSelected == $value ? ' selected' : '';
+            if ($translate) {
+                $desc = $this->translator->translate($desc);
+            }
+            $strListBox .= '<option value="' . htmlspecialchars($value) . "\"$strSelect>" .
+                htmlspecialchars($desc) . "</option>\n";
+        }
+        $strListBox .= "</select>\n";
+
+        return $strListBox;
     }
 }

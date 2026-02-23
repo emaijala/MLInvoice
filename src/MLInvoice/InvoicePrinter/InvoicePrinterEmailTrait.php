@@ -350,8 +350,8 @@ $(document).ready(function() {
         if (is_callable([$this, 'emailSent'])) {
             $this->emailSent();
         }
-        $_SESSION['formMessage'] = 'EmailSent';
-        header(
+        $this->session->getFlash()->add('success', 'EmailSent');
+        TODO header(
             'Location: index.php?func='
             . sanitize(getPostOrQuery('func', ''))
             . "&list=invoice&form=invoice&id={$this->invoiceId}"

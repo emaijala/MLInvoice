@@ -56,7 +56,6 @@
         <input type="hidden" id="{{ field.name|escape }}" name="{{ field.name|escape }}" value="{{ data.(field.name)|escape }}">
       {% endfor %}
 
-      {% set childFormConfig = false %}
       {% set prevPosition = false %}
       {% set formMode = ((not writeAccess) or formConfig.readOnly) ? 'READONLY' : '' %}
       {% for field in formConfig.fields %}
@@ -83,7 +82,7 @@
         {% endif %}
 
         {% set contentsClasses = field.type|lower|e ~ ' ' ~ field.style ~ (attached_elem in field ? ' attached' : '') %}
-        {% if not id and field.type in ['BUTTON', 'JSBUTTON', 'IMAGE', 'DROPDOWNMENU'] %}
+        {% if (not id) and field.type in ['BUTTON', 'JSBUTTON', 'IMAGE', 'DROPDOWNMENU'] %}
           <div class="label{{ style }}">&nbsp;</div>
         {% elseif field.type in ['BUTTON', 'JSBUTTON', 'DROPDOWNMENU'] %}
           <div class="form-field button{{ fieldClass }}">
@@ -119,19 +118,6 @@
               }}
             </div>
           </div>
-        {% elseif field.type == 'IFORM' %}
-          TODO IFORM
-          </form>
-        echo "      </form>\n";
-        $childFormConfig = getFormConfig($elem['name'], $strFunc, null, $intKeyValue);
-        createIForm(
-            $formConfig, $childFormConfig, $elem,
-            $intKeyValue ?? 0, $intKeyValue ? false : true,
-            $strForm,
-            $strFunc
-        );
-        break;
-
         {% else %}
           <div class="field{{ fieldClass }}">
             {% set value = data.(field.name) %}
@@ -172,266 +158,149 @@
           {% set prevPosition = 255 %}
         {% endif %}
       {% endfor %}
-}
-if (!$childFormConfig) {
-    echo "      </form>\n";
-}
-if ($strForm == 'product') {
-    // Special case for product: show stock balance change log
-    ?>
-    <div class="card p-2 mb-2 iform clearfix" id="stock_balance_log">
-    <h2>
-        {{ 'StockBalanceUpdates'|trans }}
-    </h2>
-    <table id="stock_balance_change_log" class="table">
-        <tr>
+    </form>
+    {% if formConfig.childFormField %}
+      {% include 'child-form.twig.html' with { field: formConfig.childFormField, childFormConfig: formConfig.childFormConfig, defaults: childFormDefaults } %}
+    {% endif %}
+    {% if formConfig.type == 'product' %}
+      {# Special case for product: show stock balance change log #}
+      <div class="card p-2 mb-2 iform clearfix" id="stock_balance_log">
+        <h2>
+          {{ 'StockBalanceUpdates'|trans }}
+        </h2>
+        <table id="stock_balance_change_log" class="table">
+          <tr>
             <th class="medium">{{ 'HeaderChangeLogDateTime'|trans }}</th>
             <th class="medium">{{ 'HeaderChangeLogUser'|trans }}</th>
             <th class="small">{{ 'HeaderChangeLogAmount'|trans }}</th>
             <th class="long">{{ 'HeaderChangeLogDescription'|trans }}</th>
-        </tr>
-    </table>
-    </div>
-    <?php
-}
-?>
+          </tr>
+        </table>
+      </div>
+    {% endif %}
+  </div>
 </div>
 
 <script>
-
 $(document).ready(function() {
-<?php
-if ($strMessage) {
-    ?>
-MLInvoice.infomsg(<?php echo json_encode($strMessage)?>);
-    <?php
-}
-if ($strErrorMessage) {
-    ?>
-    MLInvoice.errormsg(<?php echo json_encode($strErrorMessage)?>);
-    <?php
-}
-if ($strWarningMessage) {
-    ?>
-    MLInvoice.warningmsg(<?php echo json_encode($strWarningMessage)?>, 5000);
-    <?php
-}
-if ($strForm == 'product') {
-    ?>
-MLInvoice.Form.updateStockBalanceLog();
-    <?php
-}
-if (sesWriteAccess()) {
-    ?>
-    <?php
-}
+  {% if formConfig.type == 'product' %}
+    MLInvoice.Form.updateStockBalanceLog();
+  {% endif %}
 
-$mainFormConfig = [
-    'type' => $formConfig['type'],
-    'id' => $intKeyValue,
-    'readOnly' => $formConfig['readOnly']
-];
-foreach ($formConfig['fields'] as $field) {
-    $new = [
-        'type' => $field['type'],
-        'name' => $field['name'],
-        'label' => $field['label'],
-        'allow_null' => $field['allow_null']
-    ];
-    if (isset($field['default'])) {
-        $new['default'] = $field['default'];
-    }
-    $mainFormConfig['fields'][] = $new;
-}
+  MLInvoice.Form.initForm(
+    {{ formConfig.js.mainFormConfig|json_encode }},
+    {{ formConfig.js.subFormConfig|json_encode }},
+    {{ formConfig.js.listItems|json_encode }},
+    {{ csrf()|json_encode }}
+  );
+  {% if formConfig.js.subFormConfig and id %}
+    MLInvoice.Form.initRows(
+      function initRowsDone() {
+        {% if newLocation %}
+          window.location='{{ newLocation }}';
+        {% endif %}
+      }
+    );
+  {% elseif newLocation %}
+    window.location='{{ newLocation }}';
+  {% endif %}
 
-$subFormConfig = [];
-$listItems = [];
-if ($childFormConfig) {
-    $subFormConfig = [
-        'type' => $childFormConfig['type'],
-        'parentKey' => $childFormConfig['parentKey'],
-        'onAfterRowAdded' => $childFormConfig['onAfterRowAdded'],
-        'clearAfterRowAdded' => $childFormConfig['clearAfterRowAdded'],
-        'dispatchByDateButtons' => getSetting('invoice_show_dispatch_dates'),
-        'popupWidth' => 'send_api_config' === $childFormConfig['type'] ? 1200 : 1050,
-    ];
-
-    foreach ($childFormConfig['fields'] as $subElem) {
-        $new = [
-            'type' => $subElem['type'],
-            'name' => $subElem['name'],
-            'style' => $subElem['style'],
-            'label' => $subElem['label'],
-            'allow_null' => $subElem['allow_null'],
-        ];
-        if (isset($subElem['default'])) {
-            $new['default'] = $subElem['default'];
-        }
-        if (isset($subElem['decimals'])) {
-            $new['decimals'] = $subElem['decimals'];
-        }
-        $subFormConfig['fields'][] = $new;
-
-        if ($subElem['type'] != 'LIST') {
-            continue;
-        }
-        if (is_array($subElem['listquery'])) {
-            $values = $subElem['listquery'];
-        } else {
-            $res = dbQueryCheck($subElem['listquery']);
-            $values = [];
-            while ($row = mysqli_fetch_row($res)) {
-                $values[$row[0]] = $row[1];
-            }
-        }
-        $translate = strstr($subElem['style'], ' translated');
-        $items = [
-            '0' => '-'
-        ];
-        foreach ($values as $key => $value) {
-            if ($translate) {
-                $value = Translator::translate($value);
-            }
-            $items[$key] = $value;
-        }
-        $listItems[$subElem['name']] = $items;
-    }
-}
-
-$mainFormConfig['modificationWarning'] = '';
-if ($strForm == 'invoice' && !empty($intKeyValue) && !isInvoiceOpen($intKeyValue)) {
-    $mainFormConfig['modificationWarning'] = Translator::translate('NonOpenInvoiceModificationWarning');
-}
-?>
-
-MLInvoice.Form.initForm(
-<?php echo json_encode($mainFormConfig)?>,
-<?php echo json_encode($subFormConfig)?>,
-<?php echo json_encode($listItems)?>
-);
-<?php
-
-if ($childFormConfig && $intKeyValue) {
-    ?>
-MLInvoice.Form.initRows(
-function initRowsDone() {
-    <?php
-    if (isset($newLocation)) {
-        echo "window.location='$newLocation';";
-    }
-    ?>
-}
-);
-
-    <?php
-} elseif (isset($newLocation)) {
-    echo "window.location='$newLocation';";
-}
-if (isset($openWindow)) {
-    echo "window.open('$openWindow');";
-}
-?>
+  {% if openWindow %}
+    window.open('{{ openWindow }}');
+  {% endif %}
 });
 </script>
 
-<?php
-createFormButtons($strForm, $formConfig, $intKeyValue ? false : true, false, $recordDeleted);
-echo "  </div>\n";
+{% include 'form-buttons.html.twig' with { 'top': false } %}
 
-if ($formConfig['addressAutocomplete'] && getSetting('address_autocomplete')) {
-    ?>
+{% if formConfig.addressAutocomplete %}
 <script>
-$(document).ready(function() {
-var s = document.createElement("script");
-s.type = "text/javascript";
-s.src  = "https://maps.googleapis.com/maps/api/js?sensor=false&libraries=places&callback=gmapsready";
-window.gmapsready = function() {
-    MLInvoice.Form.initAddressAutocomplete('');
-    MLInvoice.Form.initAddressAutocomplete('quick_');
-};
-$('head').append(s);
-});
+  $(document).ready(function() {
+    var s = document.createElement("script");
+    s.type = "text/javascript";
+    s.src  = "https://maps.googleapis.com/maps/api/js?sensor=false&libraries=places&callback=gmapsready";
+    window.gmapsready = function() {
+      MLInvoice.Form.initAddressAutocomplete('');
+      MLInvoice.Form.initAddressAutocomplete('quick_');
+    };
+    $('head').append(s);
+  });
 </script>
-    <?php
-}
+{% endif %}
 
-if ('invoice' === $strForm) {
-    ?>
-    <div id="quick_add_company" class="modal" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-scrollable">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h2 class="modal-title">{{ 'NewClient'|trans }}</h2>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="{{ 'Close'|trans }}"></button>
-                </div>
-                <div class="modal-body">
-                    <div class="medium_label">{{ 'ClientName'|trans }}</div>
-                    <div class="field"><input type="text" id="quick_name" class='form-control medium'></div>
-                    <div class="medium_label">{{ 'ClientVATID'|trans }}</div>
-                    <div class="field"><input type="text" id="quick_vat_id" class='form-control medium'></div>
-                    <div class="medium_label">{{ 'Email'|trans }}</div>
-                    <div class="field"><input type="text" id="quick_email" class='form-control medium'></div>
-                    <div class="medium_label">{{ 'Phone'|trans }}</div>
-                    <div class="field"><input type="text" id="quick_phone" class='form-control medium'></div>
-                    <div class="medium_label">{{ 'StreetAddr'|trans }}</div>
-                    <div class="field"><input type="text" id="quick_street_address" class='form-control medium'></div>
-                    <div class="medium_label">{{ 'ZipCode'|trans }}</div>
-                    <div class="field"><input type="text" id="quick_zip_code" class='form-control medium'></div>
-                    <div class="medium_label">{{ 'City'|trans }}</div>
-                    <div class="field"><input type="text" id="quick_city" class='form-control medium'></div>
-                    <div class="medium_label">{{ 'Country'|trans }}</div>
-                    <div class="field"><input type="text" id="quick_country" class='form-control medium'></div>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{{ 'Cancel'|trans }}</button>
-                    <button type="button" class="btn btn-primary" data-save-company>{{ 'Save'|trans }}</button>
-                </div>
-            </div>
+{% if 'invoice' == formConfig.type %}
+  <div id="quick_add_company" class="modal" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-scrollable">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h2 class="modal-title">{{ 'NewClient'|trans }}</h2>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="{{ 'Close'|trans }}"></button>
         </div>
+        <div class="modal-body">
+          <div class="medium_label">{{ 'ClientName'|trans }}</div>
+          <div class="field"><input type="text" id="quick_name" class='form-control medium'></div>
+          <div class="medium_label">{{ 'ClientVATID'|trans }}</div>
+          <div class="field"><input type="text" id="quick_vat_id" class='form-control medium'></div>
+          <div class="medium_label">{{ 'Email'|trans }}</div>
+          <div class="field"><input type="text" id="quick_email" class='form-control medium'></div>
+          <div class="medium_label">{{ 'Phone'|trans }}</div>
+          <div class="field"><input type="text" id="quick_phone" class='form-control medium'></div>
+          <div class="medium_label">{{ 'StreetAddr'|trans }}</div>
+          <div class="field"><input type="text" id="quick_street_address" class='form-control medium'></div>
+          <div class="medium_label">{{ 'ZipCode'|trans }}</div>
+          <div class="field"><input type="text" id="quick_zip_code" class='form-control medium'></div>
+          <div class="medium_label">{{ 'City'|trans }}</div>
+          <div class="field"><input type="text" id="quick_city" class='form-control medium'></div>
+          <div class="medium_label">{{ 'Country'|trans }}</div>
+          <div class="field"><input type="text" id="quick_country" class='form-control medium'></div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{{ 'Cancel'|trans }}</button>
+          <button type="button" class="btn btn-primary" data-save-company>{{ 'Save'|trans }}</button>
+        </div>
+      </div>
     </div>
+  </div>
 
-    <div id="add_partial_payment" class="modal" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-scrollable">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h2 class="modal-title">{{ 'PartialPayment'|trans }}</h2>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="{{ 'Close'|trans }}"></button>
-                </div>
-                <div class="modal-body">
-                    <div class="medium_label">{{ 'PaymentAmount'|trans }}</div>
-                    <div class="field"><input type="text" id="add_partial_payment_amount" class="form-control medium"></div>
-                    <div class="medium_label">{{ 'PayDate'|trans }}</div>
-                    <div class="field"><input type="date" id="add_partial_payment_date" class="form-control date"></div>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{{ 'Cancel'|trans }}</button>
-                    <button type="button" class="btn btn-primary" data-save-partial-payment>{{ 'Save'|trans }}</button>
-                </div>
-            </div>
+  <div id="add_partial_payment" class="modal" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-scrollable">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h2 class="modal-title">{{ 'PartialPayment'|trans }}</h2>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="{{ 'Close'|trans }}"></button>
         </div>
-    </div>
-    <?php
-} elseif ('product' === $strForm) {
-    ?>
-    <div id="update_stock_balance" class="modal" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-scrollable">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h2 class="modal-title">{{ 'PartialPayment'|trans }}</h2>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="{{ 'Close'|trans }}"></button>
-                </div>
-                <div class="modal-body">
-                    <div class="medium_label">{{ 'StockBalanceChange'|trans }}</div> <div class="field">
-                    <input type="text" id="stock_balance_change" class='form-control short'></div>
-                    <div class="medium_label">{{ 'StockBalanceChangeDescription'|trans }}</div>
-                    <div class="field"><textarea id="stock_balance_change_desc" class="form-control large"></textarea></div>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{{ 'Cancel'|trans }}</button>
-                    <button type="button" class="btn btn-primary" data-save-stock-balance-change>{{ 'Save'|trans }}</button>
-                </div>
-            </div>
+        <div class="modal-body">
+          <div class="medium_label">{{ 'PaymentAmount'|trans }}</div>
+          <div class="field"><input type="text" id="add_partial_payment_amount" class="form-control medium"></div>
+          <div class="medium_label">{{ 'PayDate'|trans }}</div>
+          <div class="field"><input type="date" id="add_partial_payment_date" class="form-control date"></div>
         </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{{ 'Cancel'|trans }}</button>
+          <button type="button" class="btn btn-primary" data-save-partial-payment>{{ 'Save'|trans }}</button>
+        </div>
+      </div>
     </div>
-    <?php
-}
+  </div>
+{% elseif 'product' == formConfig.type %}
+  <div id="update_stock_balance" class="modal" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-scrollable">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h2 class="modal-title">{{ 'PartialPayment'|trans }}</h2>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="{{ 'Close'|trans }}"></button>
+        </div>
+        <div class="modal-body">
+          <div class="medium_label">{{ 'StockBalanceChange'|trans }}</div> <div class="field">
+          <input type="text" id="stock_balance_change" class='form-control short'></div>
+          <div class="medium_label">{{ 'StockBalanceChangeDescription'|trans }}</div>
+          <div class="field"><textarea id="stock_balance_change_desc" class="form-control large"></textarea></div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{{ 'Cancel'|trans }}</button>
+          <button type="button" class="btn btn-primary" data-save-stock-balance-change>{{ 'Save'|trans }}</button>
+        </div>
+      </div>
+    </div>
+  </div>
+{% endif %}

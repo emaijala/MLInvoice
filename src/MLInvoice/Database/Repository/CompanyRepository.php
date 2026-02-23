@@ -29,6 +29,7 @@
 namespace MLInvoice\Database\Repository;
 
 use Doctrine\ORM\EntityRepository;
+use MLInvoice\Database\Entity\Company;
 
 /**
  * Company Repository.
@@ -57,5 +58,18 @@ class CompanyRepository extends EntityRepository
             }
         }
         return null;
+    }
+
+    /**
+     * Get next available customer number.
+     *
+     * @return int
+     */
+    public function getNextAvailableCustomerNumber(): int
+    {
+        $query = $this->getEntityManager()->createQuery(
+            'SELECT max(c.customerNo)+1 FROM ' . Company::class . ' c WHERE c.deleted=0'
+        );
+        return (int)$query->getSingleScalarResult();
     }
 }

@@ -6,12 +6,15 @@ MLInvoice.addModule('Form', function mlinvoiceForm() {
   var _selectedProduct = null;
   var _defaultDescription = null;
   var _maxAttachmentOrderNo = 0;
+  var _invoice_row_types = ['invoice_row', 'invoice_template_row', 'offer_row'];
+  var _csrf = {};
 
-  function initForm(formConfig, subFormConfig, listItems)
+  function initForm(formConfig, subFormConfig, listItems, csrf)
   {
     _formConfig = formConfig;
     _subFormConfig = subFormConfig;
     _listItems = listItems;
+    _csrf = csrf;
 
     _formConfig.modificationWarningShown = false;
 
@@ -223,14 +226,18 @@ MLInvoice.addModule('Form', function mlinvoiceForm() {
 
   function _saveStockBalance()
   {
+    let obj = {
+      product_id: $('#record_id').val(),
+      stock_balance_change: document.getElementById('stock_balance_change').value.replace(MLInvoice.translate('DecimalSeparator'), '.'),
+      stock_balance_change_desc: document.getElementById('stock_balance_change_desc').value,
+    };
+    obj[_csrf.keys.name] = _csrf.name;
+    obj[_csrf.keys.value] = _csrf.value;
+
     $.ajax({
       url: MLInvoice.getPath() + '/json?func=update_stock_balance',
       type: 'POST',
-      data: {
-        product_id: $('#record_id').val(),
-        stock_balance_change: document.getElementById('stock_balance_change').value.replace(MLInvoice.translate('DecimalSeparator'), '.'),
-        stock_balance_change_desc: document.getElementById('stock_balance_change_desc').value
-      },
+      data: obj,
       success: function updateStockBalanceDone(data) {
         if (data.missing_fields) {
           alert(MLInvoice.translate('ErrValueMissing') + ': ' + data.missing_fields);
@@ -247,12 +254,16 @@ MLInvoice.addModule('Form', function mlinvoiceForm() {
   function updateStockBalanceLog()
   {
     $('#stock_balance_change_log  > tbody > tr').slice(1).remove();
+    let obj = {
+      product_id: $('#record_id').val(),
+    };
+    obj[_csrf.keys.name] = _csrf.name;
+    obj[_csrf.keys.value] = _csrf.value;
+
     $.ajax({
       url: MLInvoice.getPath() + '/json?func=get_stock_balance_rows',
       type: 'POST',
-      data: {
-        product_id: $('#record_id').val(),
-      },
+      data: obj,
       success: function getStockBalanceRowsDone(data) {
         $('#stock_balance_change_log').append(data);
       }
@@ -859,6 +870,9 @@ MLInvoice.addModule('Form', function mlinvoiceForm() {
       params.set('start', '0');
       params.set('length', '30');
       params.set('query', JSON.stringify(query));
+      params.set(_csrf.keys.name, _csrf.name);
+      params.set(_csrf.keys.value, _csrf.value);
+
       fetch(
         MLInvoice.getPath() + '/json?func=get_list',
         {
@@ -998,13 +1012,17 @@ MLInvoice.addModule('Form', function mlinvoiceForm() {
         $remove.appendTo($attachment);
 
         var $send = $('<input>').attr('type', 'checkbox').data('id', item.id).prop('checked', item.send);
+        let obj = {
+          id: $(this).data('id'),
+          send: $(this).prop('checked') ? '1' : '0'
+        };
+        obj[_csrf.keys.name] = _csrf.name;
+        obj[_csrf.keys.value] = _csrf.value;
+
         $send.on('change', function onSendChange() {
           $.ajax({
             url: MLInvoice.getPath() + '/json?func=put_invoice_attachment',
-            data: {
-              id: $(this).data('id'),
-              send: $(this).prop('checked') ? '1' : '0'
-            },
+            data: obj,
             type: 'POST',
             dataType: 'json',
             success: function () {
@@ -1019,13 +1037,18 @@ MLInvoice.addModule('Form', function mlinvoiceForm() {
 
         var $input = $('<input/>').addClass('form-control attachment-name').attr('type', 'text').data('id', item.id).val(item.name)
           .attr('placeholder', MLInvoice.translate('Description'));
+
+        obj = {
+          id: $(this).data('id'),
+          name: $(this).val()
+        };
+        obj[_csrf.keys.name] = _csrf.name;
+        obj[_csrf.keys.value] = _csrf.value;
+
         $input.on('change', function onNameChange() {
           $.ajax({
             url: MLInvoice.getPath() + '/json?func=put_invoice_attachment',
-            data: {
-              id: $(this).data('id'),
-              name: $(this).val()
-            },
+            data: obj,
             type: 'POST',
             dataType: 'json',
             success: function () {
@@ -1069,10 +1092,15 @@ MLInvoice.addModule('Form', function mlinvoiceForm() {
       $('#attachments-form').toggleClass('hidden');
     });
     $('.add-attachment').on('click', function addAttachmentClick() {
+      let obj = {};
+      obj[_csrf.keys.name] = _csrf.name;
+      obj[_csrf.keys.value] = _csrf.value;
+
       $.ajax({
         url: MLInvoice.getPath() + '/json?func=add_invoice_attachment&id=' + $(this).data('id') + '&invoice_id=' + invoiceId,
         type: 'POST',
         dataType: 'json',
+        data: obj,
         success: function addAttachmentDone() {
           _updateAttachmentList();
         }
@@ -1084,6 +1112,9 @@ MLInvoice.addModule('Form', function mlinvoiceForm() {
         formdata.append('filedata', this.files[0]);
         formdata.append('invoice_id', invoiceId);
         formdata.append('order_no', _maxAttachmentOrderNo + 5);
+        formdata.append(_csrf.keys.name, _csrf.name);
+        formdata.append(_csrf.keys.value, _csrf.value);
+
         $.ajax({
           url: MLInvoice.getPath() + '/json?func=put_invoice_attachment',
           type: 'POST',
@@ -1201,6 +1232,9 @@ MLInvoice.addModule('Form', function mlinvoiceForm() {
     if (typeof onPrint !== 'undefined') {
       formdata.append('onPrint', onPrint);
     }
+    formdata.append(_csrf.keys.name, _csrf.name);
+    formdata.append(_csrf.keys.value, _csrf.value);
+
     $.ajax({
       'url': MLInvoice.getPath() + '/json?func=put_' + _formConfig.type,
       'type': 'POST',
@@ -1269,6 +1303,12 @@ MLInvoice.addModule('Form', function mlinvoiceForm() {
     case 'invoice_row':
       func = 'get_invoice_rows';
       break;
+    case 'invoice_template_row':
+      func = 'get_invoice_template_rows';
+      break;
+    case 'offer_row':
+      func = 'get_offer_rows';
+      break;
     case 'send_api_config':
       func = 'get_send_api_configs';
       break;
@@ -1319,7 +1359,7 @@ MLInvoice.addModule('Form', function mlinvoiceForm() {
             } else {
               fieldText = record[textFieldName];
             }
-            if ('invoice_row' === subFormConfig.type && 'product_id' === field.name) {
+            if (_invoice_row_types.includes(subFormConfig.type) && 'product_id' === field.name) {
               if (fieldData !== null) {
                 var link = $('<a/>').attr('href', '?func=settings&list=product&form=product&listid=list_product&id=' + record[field.name])
                   .text(fieldText);
@@ -1392,7 +1432,7 @@ MLInvoice.addModule('Form', function mlinvoiceForm() {
         $body.append(tr);
       });
 
-      if ('invoice_row' === subFormConfig.type) {
+      if (_invoice_row_types.includes(subFormConfig.type)) {
         var $footer = $('<tfoot>').appendTo($table);
         var summary = _calculateInvoiceRowSummary(json.records);
         var trSummary = $('<tr/>').addClass('summary');
@@ -1550,6 +1590,8 @@ MLInvoice.addModule('Form', function mlinvoiceForm() {
     if (rowId) {
       obj.id = rowId;
     }
+    obj[_csrf.keys.name] = _csrf.name;
+    obj[_csrf.keys.value] = _csrf.value;
     var subFormConfig = _subFormConfig;
     var that = this;
     $.ajax({
@@ -1685,6 +1727,9 @@ MLInvoice.addModule('Form', function mlinvoiceForm() {
     ).get();
     req.changes = obj;
     req.parentId = $('#record_id').val();
+    req[_csrf.keys.name] = _csrf.name;
+    req[_csrf.keys.value] = _csrf.value;
+
     $.ajax({
       'url': MLInvoice.getPath() + '/json?func=update_multiple',
       'type': 'POST',
@@ -1712,6 +1757,9 @@ MLInvoice.addModule('Form', function mlinvoiceForm() {
       req.order[this.value] = orderno;
       orderno += 1;
     });
+    req[_csrf.keys.name] = _csrf.name;
+    req[_csrf.keys.value] = _csrf.value;
+
     $.ajax({
       'url': MLInvoice.getPath() + '/json?func=update_row_order',
       'type': 'POST',
@@ -1730,6 +1778,9 @@ MLInvoice.addModule('Form', function mlinvoiceForm() {
     req.id = $('.cb-select-row:checked').map(
       function mapIds() { return this.value; }
     ).get();
+    req[_csrf.keys.name] = _csrf.name;
+    req[_csrf.keys.value] = _csrf.value;
+
     $.ajax({
       'url': MLInvoice.getPath() + '/json?func=delete_' + _subFormConfig.type,
       'type': 'POST',
@@ -1921,6 +1972,9 @@ MLInvoice.addModule('Form', function mlinvoiceForm() {
     obj.zip_code = document.getElementById('quick_zip_code').value;
     obj.city = document.getElementById('quick_city').value;
     obj.country = document.getElementById('quick_country').value;
+    obj[_csrf.keys.name] = _csrf.name;
+    obj[_csrf.keys.value] = _csrf.value;
+
     $.ajax({
       url: MLInvoice.getPath() + '/json?func=put_company',
       type: 'POST',
@@ -1991,6 +2045,9 @@ MLInvoice.addModule('Form', function mlinvoiceForm() {
     obj.vat_included = 0;
     obj.order_no = 100000;
     obj.partial_payment = 1;
+    obj[_csrf.keys.name] = _csrf.name;
+    obj[_csrf.keys.value] = _csrf.value;
+
     $.ajax({
       url: MLInvoice.getPath() + '/json?func=put_invoice_row',
       type: 'POST',
