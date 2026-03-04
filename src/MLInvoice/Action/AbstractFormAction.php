@@ -183,8 +183,8 @@ abstract class AbstractFormAction extends AbstractAction
      */
     protected function getIdFromArgs(array $args): ?int
     {
-        $id = $args['id'];
-        return 'new' === $id ? null : (int)$id;
+        $id = $args['id'] ?? null;
+        return $id ? (int)$id : null;
     }
 
     /**

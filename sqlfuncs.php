@@ -111,13 +111,13 @@ function createWhereClause($astrSearchFields, $strSearchTerms, &$arrQueryParams,
 /**
  * Update product stock balance for an invoice row
  *
- * @param int $invoiceRowId Invoice row ID
- * @param int $productId    Product ID
- * @param int $count        Count of items
+ * @param int  $invoiceRowId Invoice row ID
+ * @param ?int $productId    Product ID
+ * @param int  $count        Count of items
  *
  * @return void
  */
-function updateProductStockBalance($invoiceRowId, $productId, $count)
+function updateProductStockBalance(int $invoiceRowId, ?int $productId, int $count)
 {
     // Get old product stock balance
     $oldProductId = false;
@@ -145,7 +145,7 @@ function updateProductStockBalance($invoiceRowId, $productId, $count)
             'exception'
         );
     }
-    if (!empty($productId)) {
+    if ($productId && $count) {
         // Deduct from new product
         dbParamQuery(
             'UPDATE {prefix}product SET stock_balance=IFNULL(stock_balance, 0)-?'
@@ -159,26 +159,6 @@ function updateProductStockBalance($invoiceRowId, $productId, $count)
     }
 }
 
-/**
- * Get payment days for a company
- *
- * @param int $companyId Company ID
- *
- * @return int
- */
-function getPaymentDays($companyId)
-{
-    if (!empty($companyId)) {
-        $rows = dbParamQuery(
-            'SELECT payment_days FROM {prefix}company WHERE id = ?',
-            [$companyId]
-        );
-        if (!empty($rows[0]['payment_days'])) {
-            return $rows[0]['payment_days'];
-        }
-    }
-    return getSetting('invoice_payment_days');
-}
 
 /**
  * Check if an invoice record is an offer
@@ -379,32 +359,6 @@ function getOfferStateIds()
 function getTags($type, $id)
 {
     return implode(',', getTagsArray($type, $id));
-}
-
-/**
- * Get tags for a record
- *
- * @param string $type Record type (company, contact)
- * @param int    $id   Record ID
- *
- * @return array
- */
-function getTagsArray($type, $id)
-{
-    $tags = [];
-    $rows = dbParamQuery(
-        <<<EOT
-SELECT tag FROM {prefix}{$type}_tag WHERE id IN (
-    SELECT tag_id FROM {prefix}{$type}_tag_link WHERE {$type}_id=?
-)
-EOT
-        ,
-        [$id]
-    );
-    foreach ($rows as $tagRow) {
-        $tags[] = $tagRow['tag'];
-    }
-    return $tags;
 }
 
 /**
@@ -612,31 +566,6 @@ function getBase($id)
         [$id]
     );
     return $rows ? $rows[0] : [];
-}
-
-/**
- * Get logo size for a base
- *
- * @param int $id Base ID
- *
- * @return int
- */
-function getBaseLogoSize($id)
-{
-    $rows = dbParamQuery(
-        'SELECT logo_filename, logo_filesize, logo_filetype, logo_filedata FROM {prefix}base WHERE id=?',
-        [$id]
-    );
-    if ($rows) {
-        $row = $rows[0];
-        if (isset($row['logo_filename']) && isset($row['logo_filesize'])
-            && isset($row['logo_filetype']) && isset($row['logo_filedata'])
-        ) {
-            return $row['logo_filesize'];
-        }
-    }
-
-    return 0;
 }
 
 /**
@@ -979,36 +908,6 @@ function updateUserPassword($id, $password)
         'UPDATE {prefix}users SET passwd=? WHERE id=?',
         [password_hash($password, PASSWORD_DEFAULT), $id]
     );
-}
-
-/**
- * Get the maximum invoice number with the given arguments
- *
- * @param int  $invoiceId Invoice ID
- * @param int  $baseId    Base ID
- * @param bool $perYear   Whether to use year-based invoice numbering
- *
- * @return int
- */
-function getMaxInvoiceNumber($invoiceId, $baseId, $perYear)
-{
-    if ($baseId !== null) {
-        $sql = 'SELECT max(cast(invoice_no as unsigned integer)) as maxnum'
-            . ' FROM {prefix}invoice WHERE deleted=0 AND id!=? AND base_id=?';
-        $params = [
-            $invoiceId,
-            $baseId
-        ];
-    } else {
-        $sql = 'SELECT max(cast(invoice_no as unsigned integer)) as maxnum'
-            . ' FROM {prefix}invoice WHERE deleted=0 AND id!=?';
-        $params = [$invoiceId];
-    }
-    if ($perYear) {
-        $sql .= ' AND invoice_date >= ' . date('Y') . '0101';
-    }
-    $rows = dbParamQuery($sql, $params);
-    return $rows[0]['maxnum'];
 }
 
 /**
@@ -1532,7 +1431,8 @@ function deleteRecord($table, $id)
     dbQueryCheck('BEGIN');
     try {
         // Special case for invoice_row - update product stock balance
-        if ($table == '{prefix}invoice_row' && isRowOfInvoice($id)) {
+        if ($table == '{prefix}invoice_row') {
+            $
             updateProductStockBalance($id, null, null);
         }
 

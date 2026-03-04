@@ -76,9 +76,6 @@ trait ExchangeArrayTrait
             },
             get_object_vars($this)
         );
-        if ($convertToSnakeCase) {
-
-        }
         return $convertToSnakeCase ? $this->convertToSnakeCase($result) : $result;
     }
 

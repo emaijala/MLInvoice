@@ -77,7 +77,7 @@ class Translator
      *
      * @return string
      */
-    public function translate(string $str, array $placeholders = [], ?string $default = null)
+    public function translate(string $str, array $placeholders = [], ?string $default = null): string
     {
         $domain = 'default';
         $p = strpos($str, '::');

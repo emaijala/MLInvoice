@@ -1281,7 +1281,7 @@ MLInvoice.addModule('Form', function mlinvoiceForm() {
             $form.find('#record_id').val(data.id);
             if (!redirectUrl || 'openwindow' === redirectStyle) {
               var newloc = new String(window.location).split('#', 1)[0];
-              window.location = newloc + '&id=' + data.id;
+              window.location = newloc.replace('/new', '/' + data.id);
             }
           }
         }

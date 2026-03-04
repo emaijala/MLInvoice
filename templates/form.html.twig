@@ -65,7 +65,7 @@
           {% set style = style ~ ' hidden' %}
           {% set fieldClass = ' hidden' %}
         {% endif %}
-        {% set fieldMode = field.readOnly ? 'READONLY' : formReadOnly %}
+        {% set fieldMode = field.readOnly ? 'READONLY' : (formReadOnly ? 'READONLY' : 'MODIFY') %}
         {% if field.type == 'HEADING' %}
           <div class="sublabel{{ style }} mt-4"{% if field.name %} id="{{ field.name|e }}"{% endif %}>
             <h2>{{ field.label|trans }}</h2>
@@ -83,7 +83,7 @@
 
         {% set contentsClasses = field.type|lower|e ~ ' ' ~ field.style ~ (attached_elem in field ? ' attached' : '') %}
         {% if (not id) and field.type in ['BUTTON', 'JSBUTTON', 'IMAGE', 'DROPDOWNMENU'] %}
-          <div class="label{{ style }}">&nbsp;</div>
+          <div class="label {{ style }}">&nbsp;</div>
         {% elseif field.type in ['BUTTON', 'JSBUTTON', 'DROPDOWNMENU'] %}
           <div class="form-field button{{ fieldClass }}">
             {{ htmlFormElement(
@@ -129,7 +129,7 @@
                 {{ field.label|trans }}
               </label>
             {% else %}
-              <label id="{{ field.name|e }}_label" for="{{ field.name|e }}" class="label{{ style }}"{% if field.title %} title="{{ field.title|trans }}"{% endif %}>
+              <label id="{{ field.name|e }}_label" for="{{ field.name|e }}" class="label {{ style }}"{% if field.title %} title="{{ field.title|trans }}"{% endif %}>
                 {{ field.label|trans }}
               </label>
             {% endif %}
@@ -139,7 +139,7 @@
                 field.type,
                 value,
                 field.style,
-                field.listquery,
+                field.list ?? field.listquery,
                 fieldMode,
                 field.parent_key,
                 '',

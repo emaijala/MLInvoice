@@ -152,7 +152,7 @@ class InvoiceAction extends AbstractFormAction
         }
 
         $data = [
-            'data' => $this->entity->toArray() ?? $this->formService->getFormDefaultValues($this->formConfig),
+            'data' => $this->entity->toArray(true) ?? $this->formService->getFormDefaultValues($this->formConfig),
             'childDefaults' => $this->formService->getFormDefaultValues($this->formConfig['childFormConfig']),
             'formConfig' => $this->formConfig,
             'id' => $this->id,

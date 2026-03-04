@@ -52,7 +52,6 @@ trait DateTimeTrait
      */
     protected function getDateTimeFromDbFormat(int $date): ?DateTime
     {
-        // Compare strings to avoid trouble with time zones:
         return null !== $date ? DateTime::createFromFormat(MLINVOICE_DATABASE_DATETIME_FORMAT, (string)$date) : null;
     }
 

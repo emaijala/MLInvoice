@@ -115,7 +115,7 @@ class FormService
      *
      * @param string $form Form
      * @param ?int   $id   Record ID
-     * @param ServerRequestInterface $request,
+     * @param ?ServerRequestInterface $request Request,
      * @param bool $forSearch Getting fields for search?
      * @param ?int   $parentId Parent record ID
      *
@@ -123,8 +123,8 @@ class FormService
      */
     public function getFormConfig(
         string $form,
-        ?int $id,
-        ServerRequestInterface $request,
+        ?int $id = null,
+        ?ServerRequestInterface $request = null,
         bool $forSearch = false,
         ?int $parentId = null,
     ): array {
@@ -133,7 +133,7 @@ class FormService
             return $cached;
         }
 
-        $writeAccess = $request->getAttribute('write_access');
+        $writeAccess = $request?->getAttribute('write_access') ?? false;
         $inputFieldTypes = [
             'AREA',
             'CHECK',
@@ -772,6 +772,7 @@ class FormService
             $defaultState = 1;
             $isOffer = 'offer' === $form;
             $isTemplate = 'invoice_template' === $form;
+            $invoice = null;
 
             if ($id) {
                 $invoice = $this->invoiceRepository->find($id);
@@ -1420,7 +1421,7 @@ class FormService
                 'name' => 'logo',
                 'label' => '',
                 'type' => 'IMAGE',
-                'listquery' => getBaseLogoSize($baseId) ? "base_logo.php?func=view&amp;id=$baseId" : '', // TODO
+                'listquery' => $this->getBaseLogoSize($baseId) ? "base_logo.php?func=view&amp;id=$baseId" : '', // TODO
                 'style' => 'image',
                 'position' => 0,
                 'allow_null' => true
@@ -1432,7 +1433,7 @@ class FormService
                 'position' => 0,
                 'allow_null' => true
             ];
-            if (getBaseLogoSize($baseId)) {
+            if ($this->getBaseLogoSize($baseId)) {
                 $noImageElement['style'] = 'hidden';
             } else {
                 $imageElement['style'] .= ' hidden';
@@ -2510,7 +2511,7 @@ class FormService
         $hiddenFields = [];
         $childFormField = null;
         foreach ($astrFormElements as $field) {
-            if (str_starts_with($field['name'], 'HID_')) {
+            if (str_starts_with($field['type'], 'HID_')) {
                 $hiddenFields[$field['name']] = $field;
             } elseif ($field['type'] === 'IFORM') {
                 $childFormField = $field;
@@ -2904,7 +2905,7 @@ class FormService
                 if ($table == "{$this->prefix}invoice_row") {
                     $invoiceRow = $primaryKey ? $this->invoiceRowRepository->find($primaryKey) : null;
                     $productId = $values['product_id'] ?? null;
-                    $product = $productId ? $this->invoiceRowRepository->find($primaryKey) : null;
+                    $product = $productId ? $this->productRepository->find((int)$productId) : null;
                     $this->productRepository->updateStockBalance(
                         $invoiceRow,
                         $product,
@@ -2933,7 +2934,7 @@ class FormService
                             $rows = $conn->executeQuery(
                                 "SELECT product_id, pcs FROM {$this->prefix}invoice_row WHERE invoice_id=? AND deleted=0",
                                 [$primaryKey]
-                            );
+                            )->fetchAllAssociative();
                             foreach ($rows as $row) {
                                 updateProductStockBalance(
                                     null, $row['product_id'], $row['pcs']
@@ -3087,11 +3088,10 @@ class FormService
     {
         $result = true;
         $strQuery = "SELECT * FROM $table WHERE id=?";
-        $rows = $this->entityManager->getConnection->executeQuery($strQuery, [$primaryKey]);
-        if (!$rows) {
+        $row = $this->entityManager->getConnection->executeQuery($strQuery, [$primaryKey])->fetchAssociative();
+        if (!$row) {
             return 'notfound';
         }
-        $row = $rows[0];
 
         if (!empty($row['deleted'])) {
             $result = 'deleted';
@@ -3153,5 +3153,28 @@ class FormService
             }
         }
         return $result;
+    }
+
+    /**
+     * Get logo size for a base
+     *
+     * @param int $id Base ID
+     *
+     * @return int
+     */
+    protected function getBaseLogoSize($id)
+    {
+        $row = $this->entityManager->getConnection()->executeQuery(
+            "SELECT logo_filename, logo_filesize, logo_filetype, logo_filedata FROM {$this->prefix}base WHERE id=?",
+            [$id]
+        )->fetchAssociative();
+        if ($row) {
+            if (isset($row['logo_filename']) && isset($row['logo_filesize'])
+                && isset($row['logo_filetype']) && isset($row['logo_filedata'])
+            ) {
+                return $row['logo_filesize'];
+            }
+        }
+        return 0;
     }
 }

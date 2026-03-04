@@ -59,12 +59,13 @@ class InvoiceRepository extends EntityRepository
     /**
      * Find an invoice by its invoice number.
      *
-     * @param string $no
-     * @return object|null
+     * @param string $no Invoice number
+     *
+     * @return ?Invoice
      */
-    public function findByInvoiceNo(string $no)
+    public function findByInvoiceNo(string $no): ?Invoice
     {
-        return $this->findOneBy(['invoiceNo' => $no]);
+        return $this->findOneBy(['invoiceNo' => $no, 'deleted' => 0]);
     }
 
     /**

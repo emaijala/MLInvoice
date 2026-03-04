@@ -50,35 +50,38 @@ return function (App $app) {
     $app->map(['GET', 'POST'], '/json', JsonAction::class)
         ->setName('json');
 
-    $app->get('/search/invoices', SearchAction::class)
-        ->setName('search-invoices');
-    $app->get('/search/invoices/results', SearchAction::class)
-        ->setName('search-invoices-results');
-    $app->get('/invoices', HomeAction::class)
-        ->setName('invoices');
+    $app->get('/invoices/new', InvoiceAction::class)
+        ->setName('invoices-new');
     $app->get('/invoices/archived', HomeAction::class)
         ->setName('invoices-archived');
-    $app->get('/invoices/new', HomeAction::class)
-        ->setName('invoices-new');
     $app->get('/invoices/{id}', InvoiceAction::class)
         ->setName('invoice');
     $app->get('/invoices/copy/{from}', CopyInvoiceAction::class)
         ->setName('invoice-copy');
-    $app->get('/recurring-invoices', HomeAction::class)
-        ->setName('recurring-invoices');
+    $app->get('/invoices', HomeAction::class)
+        ->setName('invoices');
+    $app->get('/search/invoices/results', SearchAction::class)
+        ->setName('search-invoices-results');
+    $app->get('/search/invoices', SearchAction::class)
+        ->setName('search-invoices');
+
     $app->get('/recurring-invoices/due', HomeAction::class)
         ->setName('recurring-invoices-due');
     $app->get('/recurring-invoices/new', HomeAction::class)
         ->setName('recurring-invoices-new');
     $app->get('/recurring-invoices/{id}', HomeAction::class)
         ->setName('recurring-invoice');
-    $app->get('/offers', HomeAction::class)
-        ->setName('offers');
+    $app->get('/recurring-invoices', HomeAction::class)
+        ->setName('recurring-invoices');
+
     $app->get('/offers/archived', HomeAction::class)
         ->setName('offers-archived');
     $app->get('/offers/new', HomeAction::class)
         ->setName('offers-new');
-    $app->get('/import-statement', HomeAction::class)
+    $app->get('/offers', HomeAction::class)
+        ->setName('offers');
+
+        $app->get('/import-statement', HomeAction::class)
         ->setName('import-statement');
     $app->get('/search/invoice', HomeAction::class)
         ->setName('search-invoice');

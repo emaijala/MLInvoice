@@ -48,31 +48,23 @@ class ProductRepository extends EntityRepository
      *
      * @param ?InvoiceRow $invoiceRow Invoice row for returning balance to old product, if any
      * @param ?Product    $product    New product ID
-     * @param ?string     $count      Count of items
+     * @param ?string     $count      Count of items (string for decimal support)
      *
      * @return void
      */
-    function updateStockBalance(?InvoiceRow $invoiceRow, ?Product $product, ?string $count)
+    function updateStockBalance(?InvoiceRow $invoiceRow, ?Product $product, ?string $count): void
     {
         // Add any old balance to old product:
         if ($invoiceRow) {
             if ($oldProduct = $invoiceRow->getProduct()) {
-                $dql = 'UPDATE ' . Product::class . ' p SET p.stock_balance = IFNULL(stock_balance, 0)+:count'
-                    . ' WHERE p.id=:id';
-                $query = $this->getEntityManager()->createQuery($dql)
-                    ->setParameter('count', $invoiceRow->getPcs())
-                    ->setParameter('id', $oldProduct->getId());
-                $query->execute();
+                $oldProduct->setStockBalance((($oldProduct->getStockBalance() ?? 0) + $invoiceRow->getPcs()));
+                $this->getEntityManager()->persist($oldProduct);
             }
         }
         // Deduct from new product:
         if ($product) {
-            $dql = 'UPDATE ' . Product::class . ' p SET p.stock_balance = IFNULL(stock_balance, 0)-:count'
-                . ' WHERE p.id=:id';
-            $query = $this->getEntityManager()->createQuery($dql)
-                ->setParameter('count', $count)
-                ->setParameter('id', $product->getId());
-            $query->execute();
+            $product->setStockBalance((($product->getStockBalance() ?? 0) - $count));
+            $this->getEntityManager()->persist($product);
         }
     }
 }

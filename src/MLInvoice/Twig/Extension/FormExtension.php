@@ -31,6 +31,7 @@ declare(strict_types=1);
 namespace MLInvoice\Twig\Extension;
 
 use Closure;
+use DateTime;
 use DI\Attribute\Inject;
 use Exception;
 use InvalidArgumentException;
@@ -485,9 +486,12 @@ class FormExtension extends AbstractExtension
             break;
 
         case 'INTDATE':
+            $strValue = $strValue
+                ? DateTime::createFromFormat(MLINVOICE_DATABASE_DATETIME_FORMAT, (string)$strValue)->format('Y-m-d')
+                : '';
             $strFormElement = "<input type=\"date\" class=\"form-control $strStyle\" " .
                 "id=\"$strName\" name=\"$strName\" value=\"" .
-                htmlspecialchars($strValue ?? '') . "\"$astrAdditionalAttributes$readOnly>\n";
+                htmlspecialchars((string)($strValue ?? '')) . "\"$astrAdditionalAttributes$readOnly>\n";
             break;
 
         case 'HID_INT':
@@ -573,7 +577,7 @@ class FormExtension extends AbstractExtension
                 $strStyle = str_replace(' translated', '', $strStyle);
             }
             if ($strMode == 'MODIFY') {
-                $strFormElement = htmlListBox(
+                $strFormElement = $this->htmlListBox(
                     $strName, $options, $strValue, $strStyle,
                     false, $astrAdditionalAttributes, $translate
                 );
@@ -767,7 +771,7 @@ class FormExtension extends AbstractExtension
             if ($translate) {
                 $desc = $this->translator->translate($desc);
             }
-            $strListBox .= '<option value="' . htmlspecialchars($value) . "\"$strSelect>" .
+            $strListBox .= '<option value="' . htmlspecialchars((string)$value) . "\"$strSelect>" .
                 htmlspecialchars($desc) . "</option>\n";
         }
         $strListBox .= "</select>\n";

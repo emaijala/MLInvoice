@@ -30,12 +30,20 @@ declare(strict_types=1);
 
 namespace MLInvoice\Action;
 
+use DateTime;
 use DI\Attribute\Inject;
 use Doctrine\ORM\EntityManagerInterface;
+use Exception;
 use GuzzleHttp\Psr7\Response;
 use MLInvoice\Config\SettingsManager;
 use MLInvoice\Database\DatabaseUpdater;
+use MLInvoice\Database\Entity\Invoice;
+use MLInvoice\Database\Entity\InvoiceRow;
+use MLInvoice\Database\Repository\BaseRepository;
 use MLInvoice\Database\Repository\InvoiceRepository;
+use MLInvoice\Database\Repository\InvoiceRowRepository;
+use MLInvoice\Database\Repository\InvoiceStateRepository;
+use MLInvoice\Database\Repository\ProductRepository;
 use MLInvoice\Database\Repository\UserRepository;
 use MLInvoice\Form\FormService;
 use MLInvoice\I18n\NumberFormatter;
@@ -105,6 +113,11 @@ class JsonAction extends AbstractAction
         protected EntityManagerInterface $entityManager,
         protected ListService $listService,
         protected FormService $formService,
+        protected InvoiceRepository $invoiceRepository,
+        protected InvoiceRowRepository $invoiceRowRepository,
+        protected InvoiceStateRepository $invoiceStateRepository,
+        protected ProductRepository $productRepository,
+        protected BaseRepository $baseRepository,
     ) {
         parent::__construct($translator);
     }
@@ -368,9 +381,8 @@ class JsonAction extends AbstractAction
             break;
 
         case 'add_reminder_fees':
-            include 'add_reminder_fees.php';
-            $invoiceId = $this->getPostOrQuery('id', 0);
-            $errors = addReminderFees($invoiceId);
+            $invoiceId = $this->getPostOrQuery('id', '0');
+            $errors = $this->addReminderFees((int)$invoiceId);
             if ($errors) {
                 $ret = ['status' => 'error', 'errors' => $errors];
             } else {
@@ -380,14 +392,14 @@ class JsonAction extends AbstractAction
             break;
 
         case 'get_invoice_defaults':
-            $baseId = $this->getPostOrQuery('base_id', '0');
-            $companyId = $this->getPostOrQuery('company_id', '0');
-            $invoiceId = $this->getPostOrQuery('id', '0');
+            $baseId = (int)$this->getPostOrQuery('base_id', '0');
+            $companyId = (int)$this->getPostOrQuery('company_id', '0');
+            $invoiceId = (int)$this->getPostOrQuery('id', '0');
             $invoiceDate = $this->getPostOrQuery('invoice_date', date('Y-m-d'));
-            $intervalType = $this->getPostOrQuery('interval_type', '0');
+            $intervalType = (int)$this->getPostOrQuery('interval_type', '0');
             $invoiceNumber = $this->getPostOrQuery('invoice_no', '0');
 
-            $defaults = getInvoiceDefaults(
+            $defaults = $this->getInvoiceDefaults(
                 $invoiceId, $baseId, $companyId, $invoiceDate, $intervalType, $invoiceNumber
             );
 
@@ -680,7 +692,7 @@ class JsonAction extends AbstractAction
 
             $query = "$select $from $where";
             $rows = $this->entityManager->getConnection()->executeQuery($query, [$id]);
-            if (!$rows) {
+            if (!$rows->rowCount()) {
                 $this->setResult([])->setHttpStatus(404);
                 return;
             }
@@ -784,7 +796,7 @@ class JsonAction extends AbstractAction
         $parentId = null;
         switch ($table) {
         case 'base':
-            $row['logo_filedata'] = base64_encode($row['logo_filedata']);
+            $row['logo_filedata'] = $row['logo_filedata'] ? base64_encode($row['logo_filedata']) : null;
             break;
         case 'attachment':
         case 'invoice_attachment':
@@ -793,10 +805,10 @@ class JsonAction extends AbstractAction
             $parentId = $row['invoice_id'];
             break;
         case 'company':
-            $row['tags'] = getTagsArray('company', $row['id']);
+            $row['tags'] = $this->getTagsArray('company', $row['id']);
             break;
         case 'company_contact':
-            $row['tags'] = getTagsArray('contact', $row['id']);
+            $row['tags'] = $this->getTagsArray('contact', $row['id']);
             $parentId = $row['company_id'];
             break;
         case 'invoice_row':
@@ -898,11 +910,11 @@ class JsonAction extends AbstractAction
     /**
      * Delete a record
      *
-     * @param string $table Table name
+     * @param string $form Form name
      *
      * @return void
      */
-    protected function deleteJsonRecord($table)
+    protected function deleteJsonRecord($form)
     {
         if ($this->session->get('accessLevel') == MLINVOICE_USER_ROLE_READONLY) {
             $this->setHttpStatus(403);
@@ -912,7 +924,7 @@ class JsonAction extends AbstractAction
         $ids = $this->getPostOrQuery('id', '');
         if ($ids) {
             foreach ((array)$ids as $id) {
-                deleteRecord("{$this->prefix}$table", $id);
+                $this->deleteRecord($form, (int)$id);
             }
             $this->setResult(['status' => 'ok']);
         }
@@ -1042,6 +1054,51 @@ class JsonAction extends AbstractAction
     }
 
     /**
+     * Delete a record by ID
+     *
+     * @param string $form Form name
+     * @param int    $id   Record ID
+     *
+     * @return void
+     */
+    protected function deleteRecord(string $form, int $id): void
+    {
+        $conn = $this->entityManager->getConnection();
+        $conn->beginTransaction();
+        try {
+            // Special case for invoice_row - update product stock balance
+            if ($form === 'invoice_row') {
+                $invoiceRow = $this->invoiceRowRepository->find((int)$id);
+                $this->productRepository->updateStockBalance($invoiceRow, null, 0);
+            }
+
+            // Special case for invoice - update all products in invoice rows
+            if ($form === 'invoice') {
+                $invoice = $this->invoiceRepository->find($id);
+                $rows = $invoice->getRows();
+                foreach ($rows as $row) {
+                    updateProductStockBalance($row, null, 0);
+                }
+            }
+            $formConfig = $this->formService->getFormConfig($form);
+            $table = $formConfig['table'];
+            if ("[$this->prefix}send_api_config" === $table
+                || "[$this->prefix}attachment" === $table
+                || "[$this->prefix}invoice_attachment" === $table
+            ) {
+                $query = "DELETE FROM $table WHERE id=?";
+            } else {
+                $query = "UPDATE $table SET deleted=1 WHERE id=?";
+            }
+            $conn->executeQuery($query, [$id]);
+        } catch (Exception $e) {
+            $conn->rollBack();
+            throw $e;
+        }
+        $conn->commit();
+    }
+
+    /**
      * Get send API services for the given invoice and base
      *
      * @param int $invoiceId Invoice ID
@@ -1153,5 +1210,418 @@ class JsonAction extends AbstractAction
     {
         $this->httpStatusCode = $statusCode;
         return $this;
+    }
+
+    /**
+     * Add reminder fees
+     *
+     * @param int $intInvoiceId Invoice ID
+     *
+     * @return ?string Any error messages
+     */
+    protected function addReminderFees(int $invoiceId): ?string
+    {
+        if (!($invoice = $this->invoiceRepository->find($invoiceId))) {
+            return $this->translator->translate('RecordNotFound');
+        }
+        $state = $invoice->getState();
+        $stateId = $state?->getId();
+        if (in_array($stateId, [3, 4])) {
+            return $this->translator->translate('WrongStateForReminderFee');
+        }
+
+        if (!($dueDate = $invoice->getDueDate())) {
+            return $this->translator->translate('InvoiceNotOverdue');
+        }
+        $daysOverdue = $dueDate->diff(new DateTime(), true)->d;
+        if ($daysOverdue <= 0) {
+            return $this->translator->translate('InvoiceNotOverdue');
+        }
+
+        // Update invoice state
+        if ($stateId == 1 || $stateId == 2) {
+            $invoice->setState($this->invoiceStateRepository->find(5));
+        } elseif ($stateId == 5) {
+            $invoice->setState($this->invoiceStateRepository->find(6));
+        }
+        $this->invoiceRepository->persistEntity($invoice);
+
+        // Remove any old notification fee and/or penalty interest:
+        $today = (new DateTime())->format('y-m-d');
+        foreach ($invoice->getRows() as $row) {
+            if (
+                $row->getReminder() == 1
+                || ($row->getReminder() == 2 && $row->getDate()?->format('Y-m-d') == $today)
+            ) {
+                $row->setDeleted(true);
+                $this->invoiceRowRepository->persistEntity($row);
+            }
+        }
+
+        // Add reminder fee
+        if ($this->settingsManager->get('invoice_notification_fee')) {
+            $notificationFee = $this->settingsManager->get('invoice_notification_fee');
+            if ((float)$notificationFee !== 0.0) {
+                $row = new InvoiceRow();
+                $row->setDescription($this->translator->translate('ReminderFeeDesc'))
+                    ->setDate(new DateTime())
+                    ->setPcs('1')
+                    ->setPrice($notificationFee)
+                    ->setVat('0')
+                    ->setVatIncluded(0)
+                    ->setDiscount('0')
+                    ->setDiscountAmount('0')
+                    ->setOrderNo(-2)
+                    ->setReminder(2);
+                $invoice->addRow($row);
+                $this->invoiceRowRepository->persistEntity($row);
+            }
+        }
+        // Add penalty interest
+        $penaltyInterest = getSetting('invoice_penalty_interest');
+        if ($penaltyInterest) {
+            $totSumVAT = 0;
+            foreach ($invoice->getRows() as $row) {
+                if ($row->getReminder()) {
+                    continue;
+                }
+                $rowSum = $row->calculateRowSum($row);
+                $totSumVAT += $rowSum['sumVat'];
+            }
+            $penaltyInterestAmount = $totSumVAT * $penaltyInterest / 100 * $daysOverdue / 360;
+
+            if ($penaltyInterestAmount) {
+                $row = new InvoiceRow();
+                $row->setDescription($this->translator->translate('PenaltyInterestDesc'))
+                    ->setDate(new DateTime())
+                    ->setPcs('1')
+                    ->setPrice((string)$penaltyInterestAmount)
+                    ->setVat('0')
+                    ->setVatIncluded(0)
+                    ->setDiscount('0')
+                    ->setDiscountAmount('0')
+                    ->setOrderNo(-1)
+                    ->setReminder(1);
+                $invoice->addRow($row);
+                $this->invoiceRowRepository->persistEntity($row);
+            }
+        }
+        return null;
+    }
+
+    /**
+     * Get default values for an invoice
+     *
+     * @param int    $invoiceId     Invoice ID
+     * @param ?int    $baseId        Base ID
+     * @param ?int    $companyId     Company ID
+     * @param string $invoiceDate   Invoice date (Y-m-d)
+     * @param int    $intervalType  Invoice interval
+     * @param string $invoiceNumber Invoice number
+     *
+     * @return array
+     */
+    protected function getInvoiceDefaults(
+        int $invoiceId,
+        ?int $baseId,
+        ?int $companyId,
+        string $invoiceDate,
+        int $intervalType,
+        string $invoiceNumber
+    ): array {
+        $perYear = (bool)$this->settingsManager->get('invoice_numbering_per_year');
+
+        // If the invoice already has an invoice number, verify that it's not in use in another invoice
+        if ($invoiceNumber) {
+            $dql = 'SELECT i FROM ' . Invoice::class . ' i WHERE i.deleted = 0 AND i.id != :id AND i.invoiceNo = :no';
+            $params = [
+                'id' => $invoiceId,
+                'no' => $invoiceNumber
+            ];
+            if ($this->settingsManager->get('invoice_numbering_per_base') && $baseId) {
+                if ($base = $this->baseRepository->find($baseId)) {
+                    $dql .= ' AND i.base = :base';
+                    $params['base'] = $base;
+                }
+            }
+            if ($perYear) {
+                $dql .= ' AND i.invoiceDate >= ' . $this->dateUtils->ymdToDbDate($invoiceDate);
+            }
+            $query = $this->entityManager->createQuery($dql)
+                ->setParameters($params)
+                ->setMaxResults(1);
+            $rows = $query->getResult();
+            if ($rows) {
+                $invoiceNumber = 0;
+            }
+        }
+
+        if (!$invoiceNumber) {
+            $numberingBaseId = $this->settingsManager->get('invoice_numbering_per_base') && $baseId
+                ? (int)$baseId
+                : null;
+            $maxNr = $this->getMaxInvoiceNumber($invoiceId, $numberingBaseId, $perYear);
+            if ($maxNr === null && $perYear) {
+                $maxNr = $this->getMaxInvoiceNumber($invoiceId, (int)$numberingBaseId, false);
+            }
+            $invoiceNumber = $maxNr + 1;
+        }
+        if ($invoiceNumber < 100) {
+            $invoiceNumber = 100; // min ref number length is 3 + check digit, make sure invoice number matches that
+        }
+
+        $refNr = $invoiceNumber . $this->getRefNumberCheckDigit((string)$invoiceNumber);
+        if ($this->settingsManager->get('invoice_create_rf_references')) {
+            // RF Reference
+            $refNr = createRFReference($refNr);
+        }
+
+        $strDate = date('Y-m-d');
+        $strDueDate = date(
+            'Y-m-d',
+            mktime(0, 0, 0, (int)date('m'), date('d') + $this->getPaymentDays($companyId), (int)date('Y'))
+        );
+        switch ($intervalType) {
+        case 2:
+            $nextIntervalDate = date(
+                'Y-m-d',
+                mktime(0, 0, 0, date('m') + 1, (int)date('d'), (int)date('Y'))
+            );
+            break;
+        case 3:
+            $nextIntervalDate = date(
+                'Y-m-d',
+                mktime(0, 0, 0, (int)date('m'), (int)date('d'), date('Y') + 1)
+            );
+            break;
+        case 4:
+        case 5:
+        case 6:
+        case 7:
+        case 8:
+            $nextIntervalDate = date(
+                'Y-m-d',
+                mktime(0, 0, 0, date('m') + $intervalType - 2, (int)date('d'), (int)date('Y'))
+            );
+            break;
+        default:
+            $nextIntervalDate = '';
+        }
+        return [
+            'invoice_no' => $invoiceNumber,
+            'ref_no' => $refNr,
+            'date' => $strDate,
+            'due_date' => $strDueDate,
+            'next_interval_date' => $nextIntervalDate
+        ];
+    }
+
+    /**
+     * Get the maximum invoice number with the given arguments
+     *
+     * @param int   $invoiceId Invoice ID
+     * @param ?int  $baseId    Base ID
+     * @param bool  $perYear   Whether to use year-based invoice numbering
+     *
+     * @return int
+     */
+    protected function getMaxInvoiceNumber(int $invoiceId, ?int $baseId, bool $perYear): int
+    {
+        $sql = 'SELECT max(cast(invoice_no as unsigned integer)) as maxnum'
+            . " FROM {$this->prefix}invoice WHERE deleted = 0 AND id != :invoiceId";
+        $params = [
+            'invoiceId' => $invoiceId,
+        ];
+        if ($baseId !== null) {
+            $sql .= ' AND base_id = :baseId';
+            $params['baseId'] = $baseId;
+        }
+        if ($perYear) {
+            $sql .= ' AND invoice_date >= ' . date('Y') . '0101';
+        }
+        return (int)$this->entityManager->getConnection()->executeQuery($sql, $params)->fetchOne();
+    }
+
+    /**
+     * Calculate check digit for a reference number.
+     *
+     * @param string $refNo Reference number
+     *
+     * @return int
+     */
+    function getRefNumberCheckDigit(string $refNo): int
+    {
+        $astrWeight = [
+            '1',
+            '3',
+            '7',
+            '1',
+            '3',
+            '7',
+            '1',
+            '3',
+            '7',
+            '1',
+            '3',
+            '7',
+            '1',
+            '3',
+            '7',
+            '1',
+            '3',
+            '7',
+            '1',
+            '3',
+            '7',
+            '1',
+            '3',
+            '7',
+            '1',
+            '3',
+            '7',
+            '1',
+            '3',
+            '7',
+            '1',
+            '3',
+            '7',
+            '1',
+            '3',
+            '7',
+            '1',
+            '3',
+            '7',
+            '1',
+            '3',
+            '7',
+            '1',
+            '3',
+            '7',
+            '1',
+            '3',
+            '7',
+            '1',
+            '3',
+            '7',
+            '1',
+            '3',
+            '7',
+            '1',
+            '3',
+            '7',
+            '1',
+            '3',
+            '7',
+            '1',
+            '3',
+            '7',
+            '1',
+            '3',
+            '7',
+            '1',
+            '3',
+            '7',
+            '1',
+            '3',
+            '7',
+            '1',
+            '3',
+            '7',
+            '1',
+            '3',
+            '7',
+            '1',
+            '3',
+            '7',
+            '1',
+            '3',
+            '7',
+            '1',
+            '3',
+            '7',
+            '1',
+            '3',
+            '7',
+            '1',
+            '3',
+            '7',
+            '1',
+            '3',
+            '7',
+            '1',
+            '3',
+            '7',
+            '1',
+            '3',
+            '7',
+            '1',
+            '3',
+            '7',
+            '1',
+            '3',
+            '7',
+            '1',
+            '3',
+            '7',
+            '1',
+            '3',
+            '7'
+        ];
+        $charsReversed = array_reverse(
+            explode('.', substr(chunk_split($refNo, 1, '.'), 0, -1))
+        );
+
+        $sum = 0;
+        foreach ($charsReversed as $value) {
+            $sum += $value * array_pop($astrWeight);
+        }
+        return (int)(ceil($sum / 10) * 10 - $sum);
+    }
+
+    /**
+     * Get payment days for a company
+     *
+     * @param int $companyId Company ID
+     *
+     * @return int
+     */
+    protected function getPaymentDays(?int $companyId): int
+    {
+        if ($companyId) {
+            $days = $this->entityManager->getConnection()->executeQuery(
+                "SELECT payment_days FROM {$this->prefix}company WHERE id = ?",
+                [$companyId]
+            )->fetchOne();
+            if ($days) {
+                return (int)$days;
+            }
+        }
+        return (int)$this->settingsManager->get('invoice_payment_days');
+    }
+
+    /**
+     * Get tags for a record
+     *
+     * @param string $type Record type (company, contact)
+     * @param int    $id   Record ID
+     *
+     * @return array
+     */
+    protected function getTagsArray(string $type, int $id): array
+    {
+        $tags = [];
+        $rows = $this->entityManager->getConnection()->executeQuery(
+            <<<EOT
+    SELECT tag FROM {$this->prefix}{$type}_tag WHERE id IN (
+        SELECT tag_id FROM {$this->prefix}{$type}_tag_link WHERE {$type}_id=?
+    )
+    EOT
+            ,
+            [$id]
+        )->fetchAllAssociative();
+        foreach ($rows as $tagRow) {
+            $tags[] = $tagRow['tag'];
+        }
+        return $tags;
     }
 }

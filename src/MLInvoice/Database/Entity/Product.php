@@ -70,7 +70,7 @@ class Product implements EntityInterface, SoftDeleteInterface
      *
      * @var string
      */
-    #[ORM\Column(type: 'string', length: 100)]
+    #[ORM\Column(name: 'product_name', type: 'string', length: 100)]
     protected string $productName = '';
 
     /**
@@ -86,7 +86,7 @@ class Product implements EntityInterface, SoftDeleteInterface
      *
      * @var ?string
      */
-    #[ORM\Column(type: 'string', length: 100, nullable: true)]
+    #[ORM\Column(name: 'product_code', type: 'string', length: 100, nullable: true)]
     protected ?string $productCode = null;
 
     /**
@@ -94,7 +94,7 @@ class Product implements EntityInterface, SoftDeleteInterface
      *
      * @var ?string
      */
-    #[ORM\Column(type: 'string', length: 100, nullable: true)]
+    #[ORM\Column(name: 'product_group', type: 'string', length: 100, nullable: true)]
     protected ?string $productGroup = null;
 
     /**
@@ -110,7 +110,7 @@ class Product implements EntityInterface, SoftDeleteInterface
      *
      * @var ?string
      */
-    #[ORM\Column(type: 'string', length: 20, nullable: true)]
+    #[ORM\Column(name: 'barcode1_type', type: 'string', length: 20, nullable: true)]
     protected ?string $barcode1Type = null;
 
     /**
@@ -126,7 +126,7 @@ class Product implements EntityInterface, SoftDeleteInterface
      *
      * @var ?string
      */
-    #[ORM\Column(type: 'string', length: 20, nullable: true)]
+    #[ORM\Column(name: 'barcode2_type', type: 'string', length: 20, nullable: true)]
     protected ?string $barcode2Type = null;
 
     /**
@@ -142,7 +142,7 @@ class Product implements EntityInterface, SoftDeleteInterface
      *
      * @var ?string
      */
-    #[ORM\Column(type: 'decimal', precision: 15, scale: 5, nullable: true)]
+    #[ORM\Column(name: 'unit_price', type: 'decimal', precision: 15, scale: 5, nullable: true)]
     protected ?string $unitPrice = null;
 
     /**
@@ -150,7 +150,7 @@ class Product implements EntityInterface, SoftDeleteInterface
      *
      * @var ?string
      */
-    #[ORM\Column(type: 'decimal', precision: 15, scale: 5, nullable: true)]
+    #[ORM\Column(name: 'purchase_price', type: 'decimal', precision: 15, scale: 5, nullable: true)]
     protected ?string $purchasePrice = null;
 
     /**
@@ -158,7 +158,7 @@ class Product implements EntityInterface, SoftDeleteInterface
      *
      * @var ?RowType
      */
-    #[ORM\ManyToOne(targetEntity: RowTypeRepository::class)]
+    #[ORM\ManyToOne(targetEntity: RowType::class)]
     #[ORM\JoinColumn(name: 'type_id', referencedColumnName: 'id', nullable: true)]
     protected ?RowType $type = null;
 
@@ -167,7 +167,7 @@ class Product implements EntityInterface, SoftDeleteInterface
      *
      * @var string
      */
-    #[ORM\Column(type: 'decimal', precision: 9, scale: 1)]
+    #[ORM\Column(name: 'vat_percent', type: 'decimal', precision: 9, scale: 1)]
     protected string $vatPercent = '0';
 
     /**
@@ -191,7 +191,7 @@ class Product implements EntityInterface, SoftDeleteInterface
      *
      * @var ?string
      */
-    #[ORM\Column(type: 'decimal', precision: 15, scale: 5, nullable: true)]
+    #[ORM\Column(name: 'discount_amount', type: 'decimal', precision: 15, scale: 5, nullable: true)]
     protected ?string $discountAmount = null;
 
     /**
@@ -199,7 +199,7 @@ class Product implements EntityInterface, SoftDeleteInterface
      *
      * @var int
      */
-    #[ORM\Column(type: 'decimal', precision: 1, scale: 0)]
+    #[ORM\Column(name: 'price_decimals', type: 'decimal', precision: 1, scale: 0)]
     protected int $priceDecimals = 2;
 
     /**
@@ -215,7 +215,7 @@ class Product implements EntityInterface, SoftDeleteInterface
      *
      * @var ?string
      */
-    #[ORM\Column(type: 'decimal', precision: 11, scale: 2, nullable: true)]
+    #[ORM\Column(name: 'stock_balance', type: 'decimal', precision: 11, scale: 2, nullable: true)]
     protected ?string $stockBalance = null;
 
     /**
@@ -231,7 +231,7 @@ class Product implements EntityInterface, SoftDeleteInterface
      *
      * @var ?string
      */
-    #[ORM\Column(type: 'string', length: 100, nullable: true)]
+    #[ORM\Column(name: 'vendors_code', type: 'string', length: 100, nullable: true)]
     protected ?string $vendorsCode = null;
 
     /**

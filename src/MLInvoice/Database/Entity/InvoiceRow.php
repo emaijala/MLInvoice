@@ -99,7 +99,7 @@ class InvoiceRow implements EntityInterface, SoftDeleteInterface, ExchangeArrayI
      *
      * @var ?RowType
      */
-    #[ORM\ManyToOne(targetEntity: RowTypeRepository::class)]
+    #[ORM\ManyToOne(targetEntity: RowType::class)]
     #[ORM\JoinColumn(name: 'type_id', referencedColumnName: 'id', nullable: true)]
     protected ?RowType $type = null;
 
@@ -124,7 +124,7 @@ class InvoiceRow implements EntityInterface, SoftDeleteInterface, ExchangeArrayI
      *
      * @var ?int
      */
-    #[ORM\Column(type: 'integer', nullable: true)]
+    #[ORM\Column(name: 'row_date', type: 'integer', nullable: true)]
     protected ?int $date;
 
     /**
@@ -152,12 +152,12 @@ class InvoiceRow implements EntityInterface, SoftDeleteInterface, ExchangeArrayI
     protected ?int $orderNo;
 
     /**
-     * Reminder row flag
+     * Reminder row state
      *
      * @var bool
      */
-    #[ORM\Column(name: 'reminder_row', type: 'boolean')]
-    protected bool $reminder = false;
+    #[ORM\Column(name: 'reminder_row', type: 'integer')]
+    protected int $reminder = 0;
 
     /**
      * Partial payment flag
@@ -180,7 +180,7 @@ class InvoiceRow implements EntityInterface, SoftDeleteInterface, ExchangeArrayI
      *
      * @var ?string
      */
-    #[ORM\Column(type: 'decimal', precision: 15, scale: 5, nullable: true)]
+    #[ORM\Column(name: 'discount_amount', type: 'decimal', precision: 15, scale: 5, nullable: true)]
     protected ?string $discountAmount = null;
 
     /**
@@ -447,23 +447,23 @@ class InvoiceRow implements EntityInterface, SoftDeleteInterface, ExchangeArrayI
     }
 
     /**
-     * Get reminder row flag.
+     * Get reminder row state.
      *
-     * @return bool
+     * @return int
      */
-    public function getReminder(): bool
+    public function getReminder(): int
     {
         return $this->reminder;
     }
 
     /**
-     * Set reminder row flag.
+     * Set reminder row state.
      *
-     * @param bool $v New value
+     * @param int $v New value
      *
      * @return static
      */
-    public function setReminder(bool $v): static
+    public function setReminder(int $v): static
     {
         $this->reminder = $v;
         return $this;
@@ -536,5 +536,47 @@ class InvoiceRow implements EntityInterface, SoftDeleteInterface, ExchangeArrayI
     {
         $this->discountAmount = $v;
         return $this;
+    }
+
+    /**
+     * Calculate row sum.
+     *
+     * @param array $row Row
+     *
+     * @return array Associative array with the following keys:
+     * sum - sum excluding VAT
+     * vat - VAT amount
+     * sumVat - sum including VAT
+     */
+    function calculateRowSum(): array
+    {
+        $price = $this->getPrice();
+        $count = $this->getPcs();
+        $vat = $this->getVat();
+        $vatIncluded = $this->getVatIncluded();
+        $discount = $this->getDiscount();
+        $discountAmount = $this->getDiscountAmount();
+
+        if ($discount) {
+            $price *= (1 - $discount / 100);
+        }
+        if ($discountAmount) {
+            $price -= $discountAmount;
+        }
+
+        if ($vatIncluded) {
+            $rowSumVAT = $count * $price;
+            $rowSum = ($rowSumVAT / (1 + $vat / 100));
+            $rowVAT = $rowSumVAT - $rowSum;
+        } else {
+            $rowSum = $count * $price;
+            $rowVAT = ($rowSum * ($vat / 100));
+            $rowSumVAT = $rowSum + $rowVAT;
+        }
+        return [
+            'sum' => $rowSum,
+            'vat' => $rowVAT,
+            'sumVat' => $rowSumVAT,
+        ];
     }
 }

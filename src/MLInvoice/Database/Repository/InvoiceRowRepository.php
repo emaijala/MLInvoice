@@ -43,7 +43,20 @@ use MLInvoice\Database\Entity\InvoiceRow;
  */
 class InvoiceRowRepository extends EntityRepository
 {
-   /**
+    /**
+     * Persist an entity.
+     *
+     * @param InvoiceRow $entity Entity
+     *
+     * @return void
+     */
+    public function persistEntity(InvoiceRow $entity): void
+    {
+        $this->getEntityManager()->persist($entity);
+        $this->getEntityManager()->flush();
+    }
+
+    /**
      * Get next available order number.
      *
      * @param int $invoiceId Invoice ID

@@ -626,8 +626,6 @@ class ListService
     function createJSONSelectList($list, $startRow, $rowCount, $filter, $filterType,
         $sort, $id = null, ?ServerRequestInterface $request = null
     ) {
-        global $dblink;
-
         if (!($listConfig = $this->getListConfig($list))) {
             throw new InvalidArgumentException('Invalid list');
         }
@@ -638,8 +636,7 @@ class ListService
 
         if ($sort) {
             if (!preg_match('/^[\w_,]+$/', $sort)) {
-                http_response_code(400);
-                die('Invalid sort type');
+                throw new InvalidArgumentException('Invalid sort type');
             }
             $sortValid = 0;
             $sortFields = explode(',', $sort);
@@ -756,7 +753,7 @@ class ListService
             $fullQuery .= " LIMIT $startRow, " . ($rowCount + 1);
         }
 
-        $rows = $this->entityManager->getConnection()->executeQuery($fullQuery, $arrQueryParams);
+        $rows = $this->entityManager->getConnection()->executeQuery($fullQuery, $arrQueryParams)->fetchAllAssociative();
 
         $records = [];
         $i = -1;
@@ -788,8 +785,8 @@ class ListService
                         $value = $field['callback']($value);
                     }
                 } elseif ($field['type'] == 'CURRENCY') {
-                    $value = miscRound2Decim(
-                        $value, $field['decimals'] ?? 2
+                    $value = $this->numberFormatter->roundNumber(
+                        (float)$value, (int)($field['decimals'] ?? 2)
                     );
                 } elseif ($field['type'] == 'INTDATE') {
                     $value = $this->dateUtils->dbDateToDate($value);
