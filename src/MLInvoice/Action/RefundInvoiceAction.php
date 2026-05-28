@@ -1,6 +1,6 @@
 <?php
 /**
- * Copy Invoice Action.
+ * Refund Invoice Action.
  *
  * PHP version 8
  *
@@ -59,7 +59,7 @@ use Slim\Routing\RouteContext;
 use Slim\Views\Twig;
 
 /**
- * Copy Invoice Action.
+ * Refund Invoice Action.
  *
  * @category MLInvoice
  * @package  MLInvoice\Action
@@ -67,7 +67,7 @@ use Slim\Views\Twig;
  * @license  http://opensource.org/licenses/gpl-2.0.php GNU General Public License
  * @link     http://labs.fi/mlinvoice.eng.php
  */
-class CopyInvoiceAction extends InvoiceAction
+class RefundInvoiceAction extends InvoiceAction
 {
     /**
      * Invoke the action.
@@ -90,7 +90,7 @@ class CopyInvoiceAction extends InvoiceAction
             }
             try {
                 $this->entityManager->beginTransaction();
-                $this->updateFromInvoice($sourceInvoice, false, false);
+                $this->updateFromInvoice($sourceInvoice, false, true);
                 $this->repository->persistEntity($this->entity);
                 $this->entityManager->commit();
             } catch (\Exception $e) {

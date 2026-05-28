@@ -345,10 +345,13 @@ class Company implements EntityInterface, SoftDeleteInterface, ExchangeArrayInte
     /**
      * Tags
      *
-     * @var Collection<int, CompanyTagLink>
+     * @var Collection<int, CompanyTag>
      */
-    #[ORM\OneToMany(mappedBy: 'company', targetEntity: CompanyTagLink::class, cascade: ['persist','remove'])]
-    protected Collection $tagLinks;
+    #[ORM\JoinTable(name: 'company_tag_link')]
+    #[ORM\JoinColumn(name: 'company_id', referencedColumnName: 'id')]
+    #[ORM\InverseJoinColumn(name: 'tag_id', referencedColumnName: 'id')]
+    #[ORM\ManyToMany(targetEntity: 'CompanyTag')]
+    protected Collection $tags;
 
     /**
      * Custom prices
@@ -365,7 +368,7 @@ class Company implements EntityInterface, SoftDeleteInterface, ExchangeArrayInte
     {
         $this->invoices = new ArrayCollection();
         $this->contacts = new ArrayCollection();
-        $this->tagLinks = new ArrayCollection();
+        $this->tags = new ArrayCollection();
         $this->customPrices = new ArrayCollection();
     }
 
@@ -392,7 +395,8 @@ class Company implements EntityInterface, SoftDeleteInterface, ExchangeArrayInte
     /**
      * Set deleted flag.
      *
-     * @param bool $v
+     * @param bool $v New value
+     *
      * @return static
      */
     public function setDeleted(bool $v): static
@@ -1147,7 +1151,7 @@ class Company implements EntityInterface, SoftDeleteInterface, ExchangeArrayInte
     }
 
     /**
-     * Get invoices
+     * Get invoices.
      *
      * @return Collection<int, Invoice>
      */
@@ -1157,7 +1161,7 @@ class Company implements EntityInterface, SoftDeleteInterface, ExchangeArrayInte
     }
 
     /**
-     *
+     * Get contacts.
      *
      * @return Collection<int, CompanyContact>
      */
@@ -1167,65 +1171,76 @@ class Company implements EntityInterface, SoftDeleteInterface, ExchangeArrayInte
     }
 
     /**
+     * Add a contact.
      *
-     *
-     * @param CompanyContact $c
-     *
-     * @return static
-     */
-    public function addContact(CompanyContact $c): self { if (! $this->contacts->contains($c))
-    {
-        $this->contacts->add($c); $c->setCompany($this); } return $this;
-    }
-
-    /**
-     *
-     *
-     * @param CompanyContact $c
+     * @param CompanyContact $c Contact
      *
      * @return static
      */
-    public function removeContact(CompanyContact $c): self { if ($this->contacts->removeElement($c))
+    public function addContact(CompanyContact $c): static
     {
-        $c->setCompany(null); } return $this;
+        if (!$this->contacts->contains($c)) {
+            $this->contacts->add($c);
+            $c->setCompany($this);
+        }
+        return $this;
     }
 
     /**
+     * Remove a contact.
      *
-     *
-     * @return Collection<int, CompanyTagLink>
-     */
-    public function getTagLinks(): Collection
-    {
-        return $this->tagLinks;
-    }
-
-    /**
-     *
-     *
-     * @param CompanyTagLink $l
+     * @param CompanyContact $c Contact
      *
      * @return static
      */
-    public function addTagLink(CompanyTagLink $l): self { if (! $this->tagLinks->contains($l))
+    public function removeContact(CompanyContact $c): static
     {
-        $this->tagLinks->add($l); $l->setCompany($this); } return $this;
+        if ($this->contacts->removeElement($c)) {
+            $c->setCompany(null);
+        }
+        return $this;
     }
 
     /**
+     * Get tags.
      *
+     * @return Collection<int, CompanyTag>
+     */
+    public function getTags(): Collection
+    {
+        return $this->tags;
+    }
+
+    /**
+     * Add a tag.
      *
-     * @param CompanyTagLink $l
+     * @param CompanyTag $t Tag
      *
      * @return static
      */
-    public function removeTagLink(CompanyTagLink $l): self { if ($this->tagLinks->removeElement($l))
+    public function addTag(CompanyTag $t): static
     {
-        $l->setCompany(null); } return $this;
+        if (!$this->tags->contains($t)) {
+            $this->tags->add($t);
+        }
+        return $this;
     }
 
     /**
+     * Remove a tag.
      *
+     * @param CompanyTag $t Tag
+     *
+     * @return static
+     */
+    public function removeTag(CompanyTag $t): static
+    {
+        $this->tags->removeElement($t);
+        return $this;
+    }
+
+    /**
+     * Get custom prices.
      *
      * @return Collection<int, CustomPrice>
      */
@@ -1235,26 +1250,33 @@ class Company implements EntityInterface, SoftDeleteInterface, ExchangeArrayInte
     }
 
     /**
+     * Add a custom price.
      *
-     *
-     * @param CustomPrice $p
+     * @param CustomPrice $p Custom price
      *
      * @return static
      */
-    public function addCustomPrice(CustomPrice $p): self { if (! $this->customPrices->contains($p))
+    public function addCustomPrice(CustomPrice $p): static
     {
-        $this->customPrices->add($p); $p->setCompany($this); } return $this;
+        if (!$this->customPrices->contains($p)) {
+            $this->customPrices->add($p);
+            $p->setCompany($this);
+        }
+        return $this;
     }
 
     /**
+     * Remove a custom price.
      *
-     *
-     * @param CustomPrice $p
+     * @param CustomPrice $p Custom price
      *
      * @return static
      */
-    public function removeCustomPrice(CustomPrice $p): self { if ($this->customPrices->removeElement($p))
+    public function removeCustomPrice(CustomPrice $p): static
     {
-        $p->setCompany(null); } return $this;
+        if ($this->customPrices->removeElement($p)) {
+            $p->setCompany(null);
+        }
+        return $this;
     }
 }

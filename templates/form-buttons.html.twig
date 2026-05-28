@@ -242,7 +242,7 @@
       <div class="btn-set" role="group">
         {% for button in buttonGroup.buttons %}
           {% if loop.index < overflow %}
-            <a role="button" id="{{ button.name }}-button" class="btn btn-secondary" href="{{ button.url|escape }}"{{ htmlAttributes(button.attrs)}}>
+            <a role="button" id="{{ button.name }}-button" class="btn btn-secondary" href="{{ (button.url ?? url_for(button.route, button.routeArgs))|escape }}"{{ htmlAttributes(button.attrs)}}>
               {{ button.label|trans }}
             </a>
           {% else %}
@@ -252,7 +252,7 @@
               </a>
               <ul class="dropdown-menu" aria-labelledby="dropdown-button-overflow">
             {% endif %}
-            <a role="button" id="{{ button.name }}-button" class="btn btn-secondary" href="{{ button.url|escape }}"{{ htmlAttributes(button.attrs)}}>
+            <a role="button" id="{{ button.name }}-button" class="btn btn-secondary" href="{{ (button.url ?? url_for(button.route, button.routeArgs)) }}"{{ htmlAttributes(button.attrs)}}>
               {{ button.label|trans }}
             </a>
             {% if loop.last %}

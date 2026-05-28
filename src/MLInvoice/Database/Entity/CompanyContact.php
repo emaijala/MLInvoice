@@ -63,16 +63,31 @@ class CompanyContact implements EntityInterface, SoftDeleteInterface
     /** @var Company|null */
     protected ?Company $company = null;
 
-    #[ORM\OneToMany(mappedBy: 'contact', targetEntity: ContactTagLink::class, cascade: ['persist','remove'])]
-    /** @var Collection<int, ContactTagLink> */
-    protected Collection $tagLinks;
+    /**
+     * Tags
+     *
+     * @var Collection<int, CompanyContactTag>
+     */
+    #[ORM\JoinTable(name: 'contact_tag_link')]
+    #[ORM\JoinColumn(name: 'contact_id', referencedColumnName: 'id')]
+    #[ORM\InverseJoinColumn(name: 'tag_id', referencedColumnName: 'id')]
+    #[ORM\ManyToMany(targetEntity: 'CompanyContactTag')]
+    protected Collection $tags;
 
     #[ORM\Column(type: 'string', length: 100, nullable: true)]
     /** @var ?string */
     protected ?string $contactPerson = null;
 
     /**
-     *
+     * Constructor.
+     */
+    public function __construct()
+    {
+        $this->tags = new ArrayCollection();
+    }
+
+    /**
+     * Get id.
      *
      * @return ?int
      */
@@ -82,7 +97,7 @@ class CompanyContact implements EntityInterface, SoftDeleteInterface
     }
 
     /**
-     *
+     * Get deleted flag.
      *
      * @return bool
      */
@@ -92,9 +107,9 @@ class CompanyContact implements EntityInterface, SoftDeleteInterface
     }
 
     /**
+     * Set deleted flag.
      *
-     *
-     * @param bool $v
+     * @param bool $v New value
      *
      * @return static
      */
@@ -157,11 +172,6 @@ class CompanyContact implements EntityInterface, SoftDeleteInterface
     public function removeTagLink(ContactTagLink $l): self { if ($this->tagLinks->removeElement($l))
     {
         $l->setContact(null); } return $this;
-    }
-
-    public function __construct()
-    {
-        $this->tagLinks = new ArrayCollection();
     }
 
     /**

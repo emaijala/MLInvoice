@@ -52,7 +52,9 @@ interface ExchangeArrayInterface
     /**
      * Get an array representation of the entity.
      *
+     * @param bool $convertToSnakeCase Convert the keys to snake_case ?
+     *
      * @return array
      */
-    public function toArray(): array;
+    public function toArray(bool $convertToSnakeCase = false): array;
 }

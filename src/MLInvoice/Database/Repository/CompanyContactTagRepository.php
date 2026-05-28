@@ -1,6 +1,6 @@
 <?php
 /**
- * ContactTag Repository.
+ * CompanyContactTag Repository.
  *
  * PHP version 8
  *
@@ -29,9 +29,10 @@
 namespace MLInvoice\Database\Repository;
 
 use Doctrine\ORM\EntityRepository;
+use MLInvoice\Database\Entity\CompanyContactTag;
 
 /**
- * ContactTag Repository.
+ * CompanyContactTag Repository.
  *
  * @category MLInvoice
  * @package  MLInvoice\Database
@@ -39,15 +40,16 @@ use Doctrine\ORM\EntityRepository;
  * @license  http://opensource.org/licenses/gpl-2.0.php GNU General Public License
  * @link     http://labs.fi/mlinvoice.eng.php
  */
-class ContactTagRepository extends EntityRepository
+class CompanyContactTagRepository extends EntityRepository
 {
     /**
      * Find a contact tag by string value.
      *
-     * @param string $tag
-     * @return object|null
+     * @param string $tag Tag
+     *
+     * @return ?CompanyContactTag
      */
-    public function findByTag(string $tag)
+    public function findByTag(string $tag): ?CompanyContactTag
     {
         return $this->findOneBy(['tag' => $tag]);
     }

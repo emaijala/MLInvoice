@@ -1,6 +1,6 @@
 <?php
 /**
- * ContactTagLink Repository.
+ * CompanyContactTagLink Repository.
  *
  * PHP version 8
  *
@@ -31,7 +31,7 @@ namespace MLInvoice\Database\Repository;
 use Doctrine\ORM\EntityRepository;
 
 /**
- * ContactTagLink Repository.
+ * CompanyContactTagLink Repository.
  *
  * @category MLInvoice
  * @package  MLInvoice\Database
@@ -39,7 +39,7 @@ use Doctrine\ORM\EntityRepository;
  * @license  http://opensource.org/licenses/gpl-2.0.php GNU General Public License
  * @link     http://labs.fi/mlinvoice.eng.php
  */
-class ContactTagLinkRepository extends EntityRepository
+class CompanyContactTagLinkRepository extends EntityRepository
 {
 	/**
 	 * Find tag links by contact id.

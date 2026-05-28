@@ -1215,7 +1215,7 @@ class JsonAction extends AbstractAction
     /**
      * Add reminder fees
      *
-     * @param int $intInvoiceId Invoice ID
+     * @param int $invoiceId Invoice ID
      *
      * @return ?string Any error messages
      */
@@ -1246,8 +1246,8 @@ class JsonAction extends AbstractAction
         }
         $this->invoiceRepository->persistEntity($invoice);
 
-        // Remove any old notification fee and/or penalty interest:
-        $today = (new DateTime())->format('y-m-d');
+        // Remove any old reminder fee and/or penalty interest:
+        $today = (new DateTime())->format('Y-m-d');
         foreach ($invoice->getRows() as $row) {
             if (
                 $row->getReminder() == 1
@@ -1278,7 +1278,7 @@ class JsonAction extends AbstractAction
             }
         }
         // Add penalty interest
-        $penaltyInterest = getSetting('invoice_penalty_interest');
+        $penaltyInterest = $this->settingsManager->get('invoice_penalty_interest');
         if ($penaltyInterest) {
             $totSumVAT = 0;
             foreach ($invoice->getRows() as $row) {
@@ -1290,7 +1290,7 @@ class JsonAction extends AbstractAction
             }
             $penaltyInterestAmount = $totSumVAT * $penaltyInterest / 100 * $daysOverdue / 360;
 
-            if ($penaltyInterestAmount) {
+            if ($penaltyInterestAmount >= 0.0) {
                 $row = new InvoiceRow();
                 $row->setDescription($this->translator->translate('PenaltyInterestDesc'))
                     ->setDate(new DateTime())

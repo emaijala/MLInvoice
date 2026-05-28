@@ -40,6 +40,9 @@ use MLInvoice\Database\DatabaseUpdater;
 use MLInvoice\Database\Entity\Attachment;
 use MLInvoice\Database\Entity\Base;
 use MLInvoice\Database\Entity\Company;
+use MLInvoice\Database\Entity\CompanyContact;
+use MLInvoice\Database\Entity\CompanyContactTag;
+use MLInvoice\Database\Entity\CompanyTag;
 use MLInvoice\Database\Entity\CustomPrice;
 use MLInvoice\Database\Entity\CustomPriceMap;
 use MLInvoice\Database\Entity\DeliveryMethod;
@@ -59,7 +62,10 @@ use MLInvoice\Database\Entity\User;
 use MLInvoice\Database\EntityManagerFactory;
 use MLInvoice\Database\Repository\AttachmentRepository;
 use MLInvoice\Database\Repository\BaseRepository;
+use MLInvoice\Database\Repository\CompanyContactRepository;
+use MLInvoice\Database\Repository\CompanyContactTagRepository;
 use MLInvoice\Database\Repository\CompanyRepository;
+use MLInvoice\Database\Repository\CompanyTagRepository;
 use MLInvoice\Database\Repository\CustomPriceMapRepository;
 use MLInvoice\Database\Repository\CustomPriceRepository;
 use MLInvoice\Database\Repository\DeliveryMethodRepository;
@@ -151,8 +157,17 @@ return function (ContainerBuilder $containerBuilder) {
         BaseRepository::class => function (ContainerInterface $c) {
             return $c->get(EntityManagerInterface::class)->getRepository(Base::class);
         },
+        CompanyContactRepository::class => function (ContainerInterface $c) {
+            return $c->get(EntityManagerInterface::class)->getRepository(CompanyContact::class);
+        },
+        CompanyContactTagRepository::class => function (ContainerInterface $c) {
+            return $c->get(EntityManagerInterface::class)->getRepository(CompanyContactTag::class);
+        },
         CompanyRepository::class => function (ContainerInterface $c) {
             return $c->get(EntityManagerInterface::class)->getRepository(Company::class);
+        },
+        CompanyTagRepository::class => function (ContainerInterface $c) {
+            return $c->get(EntityManagerInterface::class)->getRepository(CompanyTag::class);
         },
         CustomPriceRepository::class => function (ContainerInterface $c) {
             return $c->get(EntityManagerInterface::class)->getRepository(CustomPrice::class);

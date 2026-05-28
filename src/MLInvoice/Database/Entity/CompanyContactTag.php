@@ -1,6 +1,6 @@
 <?php
 /**
- * ContactTagLink Entity.
+ * ContactTag Entity.
  *
  * PHP version 8
  *
@@ -29,12 +29,12 @@
 namespace MLInvoice\Database\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
-use MLInvoice\Database\Repository\ContactTagLinkRepository;
-use MLInvoice\Database\Entity\ContactTag;
-use MLInvoice\Database\Entity\CompanyContact;
+use MLInvoice\Database\Repository\CompanyContactTagRepository;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 
 /**
- * ContactTagLink Entity.
+ * ContactTag Entity.
  *
  * @category MLInvoice
  * @package  MLInvoice\Database
@@ -42,9 +42,9 @@ use MLInvoice\Database\Entity\CompanyContact;
  * @license  http://opensource.org/licenses/gpl-2.0.php GNU General Public License
  * @link     http://labs.fi/mlinvoice.eng.php
  */
-#[ORM\Entity(repositoryClass: ContactTagLinkRepository::class)]
-#[ORM\Table(name: 'contact_tag_link')]
-class ContactTagLink implements EntityInterface
+#[ORM\Entity(repositoryClass: CompanyContactTagRepository::class)]
+#[ORM\Table(name: 'contact_tag')]
+class CompanyContactTag implements EntityInterface
 {
     #[ORM\Id]
     #[ORM\Column(type: 'integer')]
@@ -52,15 +52,13 @@ class ContactTagLink implements EntityInterface
     /** @var ?null */
     protected ?int $id = null;
 
-    #[ORM\ManyToOne(targetEntity: ContactTag::class, inversedBy: 'links')]
-    #[ORM\JoinColumn(name: 'tag_id', referencedColumnName: 'id')]
-    /** @var ContactTag|null */
-    protected ?ContactTag $tag = null;
+    #[ORM\Column(type: 'string', length: 100, nullable: true)]
+    /** @var ?string */
+    protected ?string $tag = null;
 
-    #[ORM\ManyToOne(targetEntity: CompanyContact::class, inversedBy: 'tagLinks')]
-    #[ORM\JoinColumn(name: 'contact_id', referencedColumnName: 'id')]
-    /** @var CompanyContact|null */
-    protected ?CompanyContact $contact = null;
+    #[ORM\OneToMany(mappedBy: 'tag', targetEntity: CompanyContactTagLink::class, cascade: ['persist','remove'])]
+    /** @var Collection<int, ContactTagLink> */
+    protected Collection $links;
 
     /**
      *
@@ -75,9 +73,9 @@ class ContactTagLink implements EntityInterface
     /**
      *
      *
-     * @return ContactTag|null
+     * @return ?string
      */
-    public function getTag(): ?ContactTag
+    public function getTag(): ?string
     {
         return $this->tag;
     }
@@ -85,34 +83,51 @@ class ContactTagLink implements EntityInterface
     /**
      *
      *
-     * @param ContactTag|null $t
+     * @param ?string $v
      *
      * @return static
      */
-    public function setTag(?ContactTag $t): static
+    public function setTag(?string $v): static
     {
-        $this->tag = $t; return $this;
+        $this->tag = $v; return $this;
     }
 
     /**
      *
      *
-     * @return CompanyContact|null
+     * @return Collection<int, ContactTagLink>
      */
-    public function getContact(): ?CompanyContact
+    public function getLinks(): Collection
     {
-        return $this->contact;
+        return $this->links;
     }
 
     /**
      *
      *
-     * @param CompanyContact|null $c
+     * @param ContactTagLink $l
      *
      * @return static
      */
-    public function setContact(?CompanyContact $c): static
+    public function addLink(CompanyContactTagLink $l): self { if (! $this->links->contains($l))
     {
-        $this->contact = $c; return $this;
+        $this->links->add($l); $l->setTag($this); } return $this;
+    }
+
+    /**
+     *
+     *
+     * @param CompanyContactTagLink $l
+     *
+     * @return static
+     */
+    public function removeLink(CompanyContactTagLink $l): self { if ($this->links->removeElement($l))
+    {
+        $l->setTag(null); } return $this;
+    }
+
+    public function __construct()
+    {
+        $this->links = new ArrayCollection();
     }
 }

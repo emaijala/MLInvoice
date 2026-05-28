@@ -141,7 +141,7 @@ class InvoiceAction extends AbstractFormAction
             }
             try {
                 $this->entityManager->beginTransaction();
-                $this->updateFromInvoice($invoiceTemplate, true);
+                $this->updateFromInvoice($invoiceTemplate, true, false);
                 $invoiceTemplate->advanceInvoiceIntervalDate();
                 $this->repository->persistEntity($invoiceTemplate);
                 $this->entityManager->commit();
@@ -168,11 +168,15 @@ class InvoiceAction extends AbstractFormAction
      *
      * @param Invoice $templateInvoice Source invoice
      * @param bool    $isTemplate      Is source invoice a template?
+     * @param bool    $refund          Refund the source invoice?
      *
      * @return void
      */
-    protected function updateFromInvoice(Invoice $templateInvoice, bool $isTemplate): void
+    protected function updateFromInvoice(Invoice $templateInvoice, bool $isTemplate, bool $refund): void
     {
+        if ($isTemplate && $refund) {
+            throw new \Exception('Cannot refund a template');
+        }
         assert($this->entity instanceof Invoice);
         $invoiceData = $templateInvoice->toArray();
         unset($invoiceData['id']);
@@ -181,7 +185,7 @@ class InvoiceAction extends AbstractFormAction
         $invoiceData['archived'] = false;
         $invoiceData['paymentDate'] = null;
         $invoiceData['archived'] = false;
-        $invoiceData['refundedInvoiceId'] = null;
+        $invoiceData['refundedInvoiceId'] = $refund ? $templateInvoice->getId() : null;
         $invoiceData['intervalType'] = 0;
         $invoiceData['nextIntervalDate'] = null;
 
@@ -198,11 +202,24 @@ class InvoiceAction extends AbstractFormAction
         $company = $this->entity->getCompany();
 
         foreach ($templateInvoice->getRows() as $templateRow) {
+            if ($templateRow->getReminder()) {
+                continue;
+            }
             $rowData = $templateRow->toArray();
             unset($rowData['id']);
             unset($rowData['invoiceId']);
             $row = new InvoiceRow();
             $row->exchangeArray($rowData);
+            if ($refund) {
+                $row->setPcs((string)-$row->getPcs());
+                if ($row->getPartialPayment())
+                if ($row['partial_payment']) {
+                    $row['price'] = -$row['price'];
+                }
+            } elseif ($row['reminder_row']) {
+                continue;
+            }
+
             $product = $row->getProduct();
             // Take price from product, if any:
             if (null === $row->getPrice() && $product) {
@@ -226,11 +243,10 @@ class InvoiceAction extends AbstractFormAction
             }
             $this->entity->addRow($row);
 
-        }
-
-        // Update product stock balance
-        if (null !== $product) {
-            $this->productRepository->updateStockBalance(null, $row['product_id'], $row['pcs']);
+            // Update product stock balance
+            if (null !== $product) {
+                $this->productRepository->updateStockBalance(null, $product, $row->getPcs());
+            }
         }
     }
 }

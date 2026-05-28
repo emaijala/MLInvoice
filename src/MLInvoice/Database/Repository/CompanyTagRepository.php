@@ -29,6 +29,7 @@
 namespace MLInvoice\Database\Repository;
 
 use Doctrine\ORM\EntityRepository;
+use MLInvoice\Database\Entity\CompanyTag;
 
 /**
  * CompanyTag Repository.
@@ -44,10 +45,11 @@ class CompanyTagRepository extends EntityRepository
     /**
      * Find a tag by its string value.
      *
-     * @param string $tag
-     * @return object|null
+     * @param string $tag Tag
+     *
+     * @return ?CompanyTag
      */
-    public function findByTag(string $tag)
+    public function findByTag(string $tag): ?CompanyTag
     {
         return $this->findOneBy(['tag' => $tag]);
     }

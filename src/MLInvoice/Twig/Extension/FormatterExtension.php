@@ -82,6 +82,7 @@ class FormatterExtension extends AbstractExtension
     {
         return [
             new TwigFunction('formatDate', $this->formatDate(...)),
+            new TwigFunction('formatDbDate', $this->formatDbDate(...)),
             new TwigFunction('roundNumber', $this->numberFormatter->roundNumber(...)),
         ];
     }
@@ -96,7 +97,21 @@ class FormatterExtension extends AbstractExtension
      */
     protected function formatDate(?DateTime $dateTime, ?string $format = null): string
     {
-        $datetime ??= new DateTime();
+        $dateTime ??= new DateTime();
+        return $dateTime->format($format ?? $this->translator->translate('DateFormat'));
+    }
+
+    /**
+     * Format database date.
+     *
+     * @param ?int    $date   Date, or null for current time
+     * @param ?string $format DateTime Format (overrides default from translations)
+     *
+     * @return string
+     */
+    protected function formatDbDate(?int $date, ?string $format = null): string
+    {
+        $dateTime = DateTime::createFromFormat(MLINVOICE_DATABASE_DATETIME_FORMAT, (string)$date);
         return $dateTime->format($format ?? $this->translator->translate('DateFormat'));
     }
 }

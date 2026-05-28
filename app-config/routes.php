@@ -35,6 +35,7 @@ use MLInvoice\Action\InvoiceAction;
 use MLInvoice\Action\JsonAction;
 use MLInvoice\Action\LoginAction;
 use MLInvoice\Action\LogoutAction;
+use MLInvoice\Action\RefundInvoiceAction;
 use Slim\App;
 
 return function (App $app) {
@@ -58,6 +59,8 @@ return function (App $app) {
         ->setName('invoice');
     $app->get('/invoices/copy/{from}', CopyInvoiceAction::class)
         ->setName('invoice-copy');
+    $app->get('/invoices/refund/{from}', RefundInvoiceAction::class)
+        ->setName('invoice-refund');
     $app->get('/invoices', HomeAction::class)
         ->setName('invoices');
     $app->get('/search/invoices/results', SearchAction::class)

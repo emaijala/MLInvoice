@@ -38,7 +38,7 @@
     </div>
   {% endif %}
 
-  {% if data.next_interval_date and formatDate(data.next_interval_date, 'Y-m-d') <= formatDate(null, 'Y-m-d') %}
+  {% if data.next_interval_date and formatDbDate(data.next_interval_date, 'Y-m-d') <= formatDate(null, 'Y-m-d') %}
     <div class="alert alert-warning message" role="alert">
       {{ formConfig.type == 'invoice' ? 'CreateCopyForNextInvoice'|trans : 'RecurringInvoiceDueForProcessing'|trans }}
     </div>

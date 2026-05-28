@@ -40,7 +40,10 @@ use MLInvoice\Config\SettingsManager;
 use MLInvoice\Database\Entity\Company;
 use MLInvoice\Database\Entity\EntityInterface;
 use MLInvoice\Database\Repository\BaseRepository;
+use MLInvoice\Database\Repository\CompanyContactRepository;
+use MLInvoice\Database\Repository\CompanyContactTagRepository;
 use MLInvoice\Database\Repository\CompanyRepository;
+use MLInvoice\Database\Repository\CompanyTagRepository;
 use MLInvoice\Database\Repository\DeliveryMethodRepository;
 use MLInvoice\Database\Repository\DeliveryTermsRepository;
 use MLInvoice\Database\Repository\InvoiceRepository;
@@ -105,6 +108,9 @@ class FormService
         protected RowTypeRepository $rowTypeRepository,
         protected SessionTypeRepository $sessionTypeRepository,
         protected CompanyRepository $companyRepository,
+        protected CompanyTagRepository $companyTagRepository,
+        protected CompanyContactRepository $companyContactRepository,
+        protected CompanyContactTagRepository $companyContactTagRepository,
         protected InvoiceRowRepository $invoiceRowRepository,
         protected ProductRepository $productRepository,
     ) {
@@ -1170,8 +1176,8 @@ class FormService
                 $group1[] = [
                     'name' => 'refundinvoice',
                     'label' => 'RefundInvoice',
-                    'route' => 'refund',
-                    'routeArgs' => compact('id'),
+                    'route' => 'invoice-refund',
+                    'routeArgs' => ['from' => $id],
                 ];
             }
             if ($refundingInvoice = $invoice ? $this->invoiceRepository->getRefundingInvoice($invoice) : null) {
@@ -1221,9 +1227,6 @@ class FormService
             $group2 = [];
             if (!$isTemplate) {
                 $printTemplates = $this->printTemplateRepository->findActiveByType($isOffer ? 'offer' : 'invoice');
-                $templateCount = count($printTemplates);
-                $templateFirstCol = 3;
-                $rowNum = 0;
                 foreach ($printTemplates as $printTemplate) {
                     if (!$writeAccess) {
                         // Check if this print template is safe for read-only use
@@ -2955,17 +2958,29 @@ class FormService
                     $conn->executeQuery($strQuery, $arrValues);
                 }
                 if ($table === "{$this->prefix}company") {
-                    saveTags(
-                        'company',
-                        $primaryKey,
-                        $values['tags'] ?? []
-                    );
+                    $newTags = $values['tags'] ?? [];
+                    $company = $this->companyRepository->find($primaryKey);
+                    foreach ($company->getTags() as $tag) {
+                        if (!in_array($tag->getTag(), $newTags)) {
+                            $company->removeTag($tag);
+                        }
+                    }
+                    foreach ($newTags as $newTag) {
+                        $company->addTag($this->companyTagRepository->findOrCreateByTag($newTag));
+                    }
+                    $this->entityManager->persist($company);
                 } elseif ($table === "{$this->prefix}company_contact") {
-                    saveTags(
-                        'contact',
-                        $primaryKey,
-                        $values['tags'] ?? []
-                    );
+                    $newTags = $values['tags'] ?? [];
+                    $companyContact = $this->companyContactRepository->find($primaryKey);
+                    foreach ($companyContact->getTags() as $tag) {
+                        if (!in_array($tag->getTag(), $newTags)) {
+                            $companyContact->removeTag($tag);
+                        }
+                    }
+                    foreach ($newTags as $newTag) {
+                        $companyContact->addTag($this->companyContactTagRepository->findOrCreateByTag($newTag));
+                    }
+                    $this->entityManager->persist($companyContact);
                 }
             } catch (Exception $e) {
                 $conn->rollBack();
@@ -3143,9 +3158,9 @@ class FormService
             case 'TAGS':
                 $values[$name] = '';
                 if ("{$this->prefix}company" === $table) {
-                    $values[$name] = getTags('company', $primaryKey);
+                    $values[$name] = $this->getTags('company', $primaryKey);
                 } elseif ("{$this->prefix}company_contact" === $table) {
-                    $values[$name] = getTags('contact', $primaryKey);
+                    $values[$name] = $this->getTags('contact', $primaryKey);
                 }
                 break;
             default:
