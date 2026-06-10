@@ -69,7 +69,7 @@ final class UpdaterTest extends TestCase
      *
      * @return array
      */
-    public function compareVersionNumberDataProvider()
+    public static function compareVersionNumberDataProvider()
     {
         return [
             ['1.0.0', '1.0.0', 0],

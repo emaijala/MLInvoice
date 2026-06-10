@@ -165,7 +165,7 @@
   <!-- phpunit -->
   <target name="phpunit">
     <exec executable="vendor/bin/phpunit" escape="false" checkreturn="true" passthru="true">
-      <arg line="tests" />
+      <arg line="--display-deprecations --display-phpunit-deprecations tests" />
     </exec>
   </target>
 
