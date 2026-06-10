@@ -310,8 +310,8 @@
     </xsl:otherwise>
   </xsl:choose>
   <xsl:choose>
-    <xsl:when test="substring(formatted_ref_number, 1, 2) = 'RF'">
-      <EpiRemittanceInfoIdentifier IdentificationSchemeName="ISO"><xsl:value-of select="formatted_ref_number"/></EpiRemittanceInfoIdentifier>
+    <xsl:when test="substring(ref_number, 1, 2) = 'RF'">
+      <EpiRemittanceInfoIdentifier IdentificationSchemeName="ISO"><xsl:value-of select="ref_number"/></EpiRemittanceInfoIdentifier>
     </xsl:when>
     <xsl:when test="format-number(ref_number, '00000000000000000000') = 'NaN'">
     </xsl:when>
