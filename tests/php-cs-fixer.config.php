@@ -78,7 +78,7 @@ $rules = [
     'switch_case_space' => true,
     'ternary_operator_spaces' => true,
     'ternary_to_null_coalescing' => true,
-    'visibility_required' => true,
+    'modifier_keywords' => ['elements' => ['const', 'method', 'property']],
 ];
 
 $cacheDir = __DIR__ . '/../.php_cs_cache';
