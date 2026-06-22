@@ -31,7 +31,7 @@
         "composer/semver": "3.4.4",
         "components/jquery": "3.7.1",
         "doctrine/dbal": "3.10.5",
-        "guzzlehttp/guzzle": "7.11.1",
+        "guzzlehttp/guzzle": "7.12.1",
         "michelf/php-markdown": "2.0.0",
         "phpseclib/phpseclib": "3.0.53",
         "ramsey/uuid": "4.9.2",
