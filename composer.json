@@ -50,7 +50,7 @@
         "friendsofphp/php-cs-fixer": "3.95.5",
         "phing/phing": "3.1.2",
         "phpunit/phpunit": "10.5.63",
-        "squizlabs/php_codesniffer": "3.13.5",
+        "squizlabs/php_codesniffer": "3.13.6",
         "codeception/c3": "2.9.0",
         "codeception/codeception": "5.2.2",
         "codeception/module-phpbrowser": "3.0.2",
