@@ -466,7 +466,6 @@ class FormExtension extends AbstractExtension
             break;
 
         case 'RADIO':
-            $strChecked = $strValue ? 'checked' : '';
             $strFormElement = "<input type=\"radio\" id=\"$strName\" name=\"$strName\" value=\"" .
                 htmlspecialchars($strValue ?? '') . "\"$astrAdditionalAttributes$disabled>\n";
             break;
