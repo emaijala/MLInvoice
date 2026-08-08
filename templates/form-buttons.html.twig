@@ -238,7 +238,7 @@
 
   {% if top %}
     {% for buttonGroup in formConfig.buttonGroups %}
-      {% set overflow = buttonGroup.overflow %}
+      {% set overflow = buttonGroup.overflow ?? 99 %}
       <div class="btn-set" role="group">
         {% for button in buttonGroup.buttons %}
           {% if loop.index < overflow %}
@@ -252,9 +252,11 @@
               </a>
               <ul class="dropdown-menu" aria-labelledby="dropdown-button-overflow">
             {% endif %}
-            <a role="button" id="{{ button.name }}-button" class="btn btn-secondary" href="{{ (button.url ?? url_for(button.route, button.routeArgs)) }}"{{ htmlAttributes(button.attrs)}}>
-              {{ button.label|trans }}
-            </a>
+            <li>
+              <a role="button" id="{{ button.name }}-button" class="dropdown-item" href="{{ (button.url ?? url_for(button.route, button.routeArgs)) }}"{{ htmlAttributes(button.attrs)}}>
+                {{ button.label|trans }}
+              </a>
+            </li>
             {% if loop.last %}
               </ul>
             {% endif %}
