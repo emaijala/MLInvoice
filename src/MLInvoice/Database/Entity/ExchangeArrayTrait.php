@@ -76,6 +76,13 @@ trait ExchangeArrayTrait
             },
             get_object_vars($this)
         );
+        foreach ($result as $key => $value) {
+            if (is_array($value) && null !== ($id = $value['id'])) {
+                $result[$key . '_id'] = (string)$id;
+            } elseif ($value instanceof EntityInterface) {
+                $result[$key . '_id'] = $value->getId();
+            }
+        }
         return $convertToSnakeCase ? $this->convertToSnakeCase($result) : $result;
     }
 

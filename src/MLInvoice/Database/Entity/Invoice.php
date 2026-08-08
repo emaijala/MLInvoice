@@ -124,7 +124,7 @@ class Invoice implements EntityInterface, SoftDeleteInterface, ExchangeArrayInte
      * @var ?string
      */
     #[ORM\Column(name: 'ref_number', type: 'string', length: 100, nullable: true)]
-    protected ?string $referenceNo = null;
+    protected ?string $refNumber = null;
 
     /**
      * Invoice state
@@ -480,7 +480,7 @@ class Invoice implements EntityInterface, SoftDeleteInterface, ExchangeArrayInte
      */
     public function getReferenceNo(): ?string
     {
-        return $this->referenceNo;
+        return $this->refNumber;
     }
 
     /**
@@ -492,7 +492,7 @@ class Invoice implements EntityInterface, SoftDeleteInterface, ExchangeArrayInte
      */
     public function setReferenceNo(?string $v): static
     {
-        $this->referenceNo = $v;
+        $this->refNumber = $v;
         return $this;
     }
 
