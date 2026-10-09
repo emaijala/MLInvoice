@@ -652,6 +652,39 @@ function calculateRowSum($row)
 }
 
 /**
+ * Round VAT groups and calculate invoice totals from them
+ *
+ * @param array $groups VAT groups with unrounded totalsum and totalvat
+ *
+ * @return array Array with groupedvats, totalsum, totalvat and totalsumvat
+ */
+function calculateInvoiceTotals(array $groups): array
+{
+    $toCents = function ($value) {
+        return (int)round(round($value, 2, PHP_ROUND_HALF_UP) * 100);
+    };
+    $sumCents = $vatCents = $sumVatCents = 0;
+    foreach ($groups as &$group) {
+        $net = $toCents($group['totalsum']);
+        $vat = $toCents($group['totalvat']);
+        $group['totalsum'] = $net / 100;
+        $group['totalvat'] = $vat / 100;
+        $group['totalsumvat'] = ($net + $vat) / 100;
+        $sumCents += $net;
+        $vatCents += $vat;
+        $sumVatCents += $net + $vat;
+    }
+    unset($group);
+
+    return [
+        'groupedvats' => $groups,
+        'totalsum' => $sumCents / 100,
+        'totalvat' => $vatCents / 100,
+        'totalsumvat' => $sumVatCents / 100
+    ];
+}
+
+/**
  * Create a VAT ID
  *
  * @param string $id ID

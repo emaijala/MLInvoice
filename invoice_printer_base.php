@@ -532,6 +532,12 @@ EOT;
             }
         }
         ksort($this->groupedVATs);
+        $totals = calculateInvoiceTotals($this->groupedVATs);
+        $this->groupedVATs = $totals['groupedvats'];
+        $this->totalSum = $totals['totalsum'];
+        $this->totalVAT = $totals['totalvat'];
+        $this->totalSumVAT = $totals['totalsumvat'];
+        $this->partialPayments = round($this->partialPayments, 2, PHP_ROUND_HALF_UP);
 
         $this->separateStatement = ($this->printStyle == 'invoice') &&
              getSetting('invoice_separate_statement') == 1;
